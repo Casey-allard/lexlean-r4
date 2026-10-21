@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Ten source slices are implemented in LexLean and registered with the inherited
+Eleven source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -39,26 +39,34 @@ PrismPM-template conformance model:
 - Complete Flock/Relation reads, with 119 controls for transported forests,
   five relation edges, cumulative synchronous sweeps, causal selection,
   actual-count consensus, virtual changes and trace projections.
+- Composed Engine, with 100 controls for exact seeded initialization, carried
+  causal windows, full batch admission, all read modes, actual paired
+  counterfactual reads and writer scores, and guarded geometric transitions.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
 the fresh proof receipt. This is formal development evidence; the integrated
-R4 engine, learning, memory and browser application remain under implementation.
+training workflow, artifact custody, memory and browser application remain
+under implementation.
 See the [verification record](docs/VERIFICATION.md),
 [geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
 [binder contract](docs/BINDER.md), [admission contract](docs/ADMISSION.md)
 and [configuration contract](docs/CONFIGURATION.md). The default verification
-roots include all ten slices, containing 2,514 theorem controls across
-twenty-four modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
+roots include all eleven slices, containing 2,614 theorem controls across
+twenty-six modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
 [word operations](docs/WORDS.md) and [Flock/Relation](docs/FLOCK.md) each passed their refreshed isolated-snapshot
-integration test after review. The learning component consumes explicit losses
-and read/writer outcomes; counterfactual execution and corpus training remain
-separate integration work.
+integration test after review. The [Engine](docs/ENGINE.md) supplies the actual
+read/writer outcomes and complete candidate losses to the learning component;
+its integration test and five planted-defect checks pass. This establishes
+formal composition, without establishing runtime custody or corpus training.
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass
 as supplied. A published development SDK candidate has been identified; it is
-not a production-accepted release. See the [source and dependency review](docs/UPSTREAM.md).
+not a production-accepted release. A newer official unpublished SDK construction
+supports further development verification. See the [source and dependency review](docs/UPSTREAM.md)
+and [production export contract](docs/specs/production-export-contract.md) for
+the distinct compiler, browser runtime and bounded serving dependencies.
 
 The planned site address is
 <https://casey-allard.github.io/lexlean-r4/>. **It is not deployed.** Publication

@@ -309,3 +309,39 @@ dependency ownership checks passed; `template-check` then stopped because
 `prismpm.lock` is absent. This remains a failed production acceptance boundary.
 No GPU model execution, parity, training, generated browser acceptance or
 Pages deployment is established by the formal development replay.
+
+## Eleven-component composition replay, 2026-10-21
+
+The next isolated snapshot matched all 119 tracked file blobs of commit
+`82437555f9fd78a8a701e85ad29e6ff2e398811e`, with zero mismatches. It adds the
+reviewed Engine, its mandatory test and default proof root, and the compiler's
+regenerated lock. Pending Hash/Object sources and claims were excluded.
+
+Within the same immutable development candidate, formatting, lock checking,
+model generation, Clippy with all targets/features and warnings denied, and
+the workspace tests with all features passed. The refreshed Engine integration
+test passed independently, then the workspace suite passed **33 Rust tests
+and two inherited Node tests**, with zero failed, ignored or filtered tests.
+All eleven formal component tests ran, covering **2,614 theorem controls**.
+The five final-fixture Engine plants and restored-source checks are recorded
+in [ENGINE.md](ENGINE.md); the fixture transformation expanded six constant
+definitions into the same 100 theorems, without changing their semantics.
+
+Combined default verification also passed: **26 modules**, 4,043 audited
+declarations, empty observed axiom lists, `none` policies with empty allowed
+lists, and 26 successful independent kernel replays. A separate receipt audit
+checked the exact identities, build-manifest hash/length and every current
+non-lexicon input against the frozen snapshot.
+
+- Attestation: `ad3c5e68142cea8bb8ba382af93f94700f27d2f7d87d881441fcedc571bf48a5`
+- Build: `773b615ae4ea52a6d81ffaa80b4fc3be1ccbec1f4adccdd5d06d2d82bd5545fd`
+- Source: `e8178e798ee0d4a448ba66d706122ad9341981ec64030cb748b83395e8529dd1`
+- Semantic: `2ad4242d5905cf47d7071e51ce6eba7ef2201d9f8358d54a14d8782d2a532ae4`
+- Configuration SHA-256: `c0c90ffc3cb5f6314726545d7cf4f031a0beb47b5ba8132f9906cecae7543e4d`
+- Lock SHA-256: `08f29b30caa785bf60b812aadcf8976e5bb981ead74639128abc55c60fce5b3e`
+
+The actual full `just vv` attempt passed model consistency for eleven IDs and
+dependency-ownership auditing, then failed because `prismpm.lock` is absent.
+Production acceptance remains failed. Formal Engine composition establishes
+neither generated runtime custody, authorized GPU parity/training, an exported
+serving artifact, durable browser behavior nor a Pages deployment.
