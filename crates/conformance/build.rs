@@ -71,6 +71,11 @@ fn main() {
     // Inspect the audit and common verifier too; neither has a conditional mode.
     parse_active_source(&root.join("build.rs"));
     parse_active_source(&root.join("tests/support/mod.rs"));
+    require_test(
+        &root,
+        "tests/tokenizer_json.rs",
+        "complete_tokenizer_json_r4_20",
+    );
     require_test(&root, "tests/lexlean.rs", "configuration_boundaries_r4_01");
     require_test(&root, "tests/geometry.rs", "finite_geometry_r4_02");
     require_test(&root, "tests/objective.rs", "scalar_objective_r4_03");

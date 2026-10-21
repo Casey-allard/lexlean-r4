@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-TOKENIZER-JSON"
+level = "some-true"
+authority = "SERDE-JSON-TOKENIZER"
+statement = "Raw syntax and extraction semantics are imported from the named parser profile and pinned UOR tokenizer. Formal local conformance, complete cryptographic identity and generated product execution remain separate obligations."
+
+[[claim]]
 id = "AUTH-JSON-NUMBER"
 level = "some-true"
 authority = "SERDE-JSON-NUMBER"

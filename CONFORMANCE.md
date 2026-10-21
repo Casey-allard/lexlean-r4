@@ -90,6 +90,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
 
+## r4-tokenizer-json
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-20` | `build` | Pure LexLean completely admits bounded raw tokenizer JSON under the pinned default parser profile, preserving exact numeric observations, string and container errors, duplicate-key replacement, complete postorder representation and revalidation, and staged tokenizer extraction. Formal controls do not establish raw-byte BLAKE3 identity, production execution or deployment. |
+
 ## r4-tokenizer-kernel
 
 | ID | Level | Statement |
@@ -120,6 +126,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `SERDE-JSON-TOKENIZER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure | `R4-20` |
 | `SERDE-JSON-NUMBER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation | `R4-18` |
 | `UOR-MECHANISM-EVIDENCE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities | `R4-17` |
 | `UOR-TOKENIZER-KERNEL` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls | `R4-16` |
@@ -143,6 +150,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-TOKENIZER-JSON` | `some-true` | Raw syntax and extraction semantics are imported from the named parser profile and pinned UOR tokenizer. Formal local conformance, complete cryptographic identity and generated product execution remain separate obligations. |
 | `AUTH-JSON-NUMBER` | `some-true` | Pinned serde_json default parser behavior supplies imported compatibility facts; exact integer formal admission neither executes model floating-point operations nor resolves bounded production lowering. |
 | `AUTH-MECHANISM-EVIDENCE` | `some-true` | Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization. |
 | `AUTH-TOKENIZER-KERNEL` | `some-true` | Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization. |

@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "SERDE-JSON-TOKENIZER"
+name = "Complete standalone JSON admission and UOR tokenizer extraction"
+citation = "https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure"
+checksum = "sha256:4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3"
+statement = "The pinned parser and tokenizer sources define complete syntax admission before semantic extraction, decoded-key replacement and ordered errors. Local bounded postorder representation and validation are explicit port obligations; source authority supplies no local runtime acceptance."
+realized_by = ["R4-20"]
+
+[[authority]]
 id = "SERDE-JSON-NUMBER"
 name = "Standalone serde_json 1.0.150 number admission"
 citation = "https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation"
