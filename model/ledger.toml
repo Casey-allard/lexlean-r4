@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-DISCRETE-ENGINE"
+level = "some-true"
+authority = "UOR-DISCRETE-ENGINE"
+statement = "Engine composition and initialization semantics are imported from pinned host and CUDA sources. Formal controls establish neither research qualification nor permission to bypass the source training hold."
+
+[[claim]]
 id = "AUTH-DISCRETE-FLOCK"
 level = "some-true"
 authority = "UOR-DISCRETE-FLOCK"

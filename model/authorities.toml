@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-DISCRETE-ENGINE"
+name = "UOR-R4 integrated discrete engine"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels"
+checksum = "sha256:47acbd7398ac95e87d9e6b58594012e14d91016941adb90fa72563e41afdd6ae"
+statement = "Pinned source defines engine composition, private carried-batch custody, conditional counterfactual computation and guarded model updates. Explicit semantic consistency checks refine public-record admission without claiming generated runtime custody or permission to train."
+realized_by = ["R4-12"]
+
+[[authority]]
 id = "UOR-DISCRETE-FLOCK"
 name = "UOR-R4 Flock and Relation integer read"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — snap, frame_block, gate_value and flock_vector"

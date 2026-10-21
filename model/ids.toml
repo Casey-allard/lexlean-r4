@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-12"
+level = "build"
+suite = "r4-engine"
+statement = "Pure LexLean composes exact seeded state construction, occurrence encoding, canonical causal windows, full binding and epoch admission, all read modes, paired virtual reader and writer candidates, complete loss production and atomic guarded geometric transitions. Formal controls do not establish generated runtime custody, GPU parity, training permission or language capability."
+
+[[id]]
 id = "R4-10"
 level = "build"
 suite = "r4-flock"

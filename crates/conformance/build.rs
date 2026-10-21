@@ -89,4 +89,9 @@ fn main() {
     );
     require_test(&root, "tests/words.rs", "fixed_word_algebra_r4_09");
     require_test(&root, "tests/flock.rs", "complete_flock_relation_r4_10");
+    require_test(
+        &root,
+        "tests/engine.rs",
+        "complete_engine_composition_r4_12",
+    );
 }
