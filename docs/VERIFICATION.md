@@ -265,3 +265,47 @@ lock failure on both amd64 and arm64 runners in
 [run 39553208326](https://github.com/Casey-allard/lexlean-r4/actions/runs/39553208326).
 Both jobs failed while reading `prismpm.lock`, before SDK execution. This is a
 dependency-binding failure, not a model proof result.
+## Ten-component isolated replay
+
+The isolated staged tree matched all 113 tracked file blobs of commit
+`f1c9df4e97a9df28bebf771f98f81e2e16b6f208`, with zero mismatches. It includes
+the reviewed Flock/Relation component and the exact byte-count reduction repair.
+The snapshot had its own Cargo target directory and was extracted without
+host metadata into a fresh container directory; no future Hash or Engine
+claims or sources were included.
+
+Inside the same immutable development SDK candidate, these checks passed:
+
+```text
+cargo fmt --all --check
+cargo run --offline --locked -q -p xtask -- check-model --write
+lexlean lock --check
+cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
+cargo test --offline --locked --workspace --all-features
+cargo run --offline --locked -q -p xtask -- check-model
+lexlean --diagnostic-format json verify
+```
+
+The workspace suite passed 32 Rust tests and two inherited Node tests, with
+zero failed, ignored or filtered tests. The ten formal component tests
+reverified 2,514 controls. The combined default verification separately
+verified all 24 modules, with no diagnostic. Its receipt contains 3,786 audited
+declarations: every observed-axiom list is empty, every policy is `none` with
+an empty allowed list, and every result is `ok`. All 24 independent kernel
+checker processes exited zero.
+
+Combined default receipt:
+
+- Attestation: `68fcfb6a11a1fc82d2bdb2ce44ed01abd81ad5b49e14bb6c3abc3e9ef8777b31`
+- Build: `803b37432f1033b22f8662681a0d0dfbee9203f68658777970bb558664d69681`
+- Source: `95f63d13631dddaff08df2708f99d9f748c181bee531f01a9bb2b39cc04dd4cf`
+- Semantic: `7a1a2f041ad32ccd2332d01e0595bffa2bdc403ee2a2af70be1c2921a4ff8db1`
+- Configuration SHA-256: `0a725c21a70f374fe8a3658bd27456ddfb9d13771dc1332947675b5cbf6e053c`
+- Lock SHA-256: `15b78263af6877e3416652c44dd38beaf9d72c7f5b5ea5de6bfe62f76888cb59`
+
+The full `just vv` was also attempted in this snapshot. Model consistency and
+dependency ownership checks passed; `template-check` then stopped because
+`prismpm.lock` is absent. This remains a failed production acceptance boundary.
+No GPU model execution, parity, training, generated browser acceptance or
+Pages deployment is established by the formal development replay.
+
