@@ -132,7 +132,7 @@ freezes all control statements, requires every theorem's empty axiom audit,
 checks fresh source/configuration/lock and build-manifest identities, and
 replays the generated Lean modules independently.
 
-The final development receipt is:
+The original development receipt, before the byte-count reduction repair, is:
 
 - Attestation: `4a775a3c01c940ddbe0dae3933d015b9349042e007eaa1446ba2c271a233ba42`
 - Build: `11bd7ec078b45362782de087d363ab5d222f5f1e31676b129b6e164cefcdf2c1`
@@ -140,6 +140,26 @@ The final development receipt is:
 - Semantic: `9a50da36f7528cc86a5f450e4811151bd9495eed9a60e3f9bec0b4548f5b7cc4`
 - Words source SHA-256: `894f42762f6e02755e6b020edd4c5a39fb08fef871e8ff5145e798c8cf41810e`
 - Controls SHA-256: `27d615ee3f8887ecfcaf88ae14a6fbd768a20cd87460a0546ded000147fa0ba6`
+
+The subsequent Hash admission probe exposed a second source reduction issue:
+counting a 129-byte list as `1 + byteCount(tail)` exceeded the default proof
+depth before the oversized BLAKE input could be rejected. The sole source
+change replaces that expression with `Nat.succ(byteCount(tail))`. Both compute
+the exact length of every finite list; the empty case and all other 127
+declarations are unchanged. Independent review approved that equivalence.
+The unchanged 129-byte rejection theorem then verified in the isolated probe;
+this establishes no complete digest result.
+
+All 995 unchanged Words controls were subsequently reverified by the targeted
+Cargo integration test: one passed, zero failed, ignored or filtered. The new
+Words source SHA-256 is
+`995863b7cfcc0d481fb92452f5d75e35178a1a63c17af479ce89e6f0b3f99945`.
+The refreshed development receipt is:
+
+- Attestation: `96d27ee92f97d579c2f4bcdc835dc5e952c5c13568314099879fe369f4544087`
+- Build: `bbc02ca7ce992ae11e07bb5f31d25fe25676640128c8cbfabfcedd6c1c11519b`
+- Source: `3f3f4a794a9c969b5e3d3d89b48393797484744c5ba3118b2be93f317254c6a6`
+- Semantic: `94e1a693e976b30d3dfa373f6dec8dcd5e3e554fadcc963ad54e791f08c8cba9`
 
 Verification used the pinned development SDK candidate
 `ghcr.io/uor-foundation/prismpm-sdk-candidate@sha256:60226bc791d4c0e5613402a6be7e63f4963d3faf7f327befcf56fc0e41d0ce21`,
