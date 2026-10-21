@@ -102,7 +102,8 @@ retains a complete runtime OCI archive. Its exact identities are:
 | OCI manifest SHA-256 | `716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6` |
 | OCI config SHA-256 | `3d45853bec499af76db83e2ceefdd96edaf8d79742cfe7ba77faea8ee4ce8a3a` |
 | Installed LexLean binary SHA-256 | `107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5` |
-| Reported compiler semantics | `95deb33a8d416d7bf60f02a36e251a71c3ee6f046b7e475d7bae2fc5ddc3767d` |
+| `--version` compatibility-language 1.0 semantics | `95deb33a8d416d7bf60f02a36e251a71c3ee6f046b7e475d7bae2fc5ddc3767d` |
+| Regenerated language 1.1 project-lock semantics | `4658bc8564c14b99f771a758276c578e8acd5ef5f24a3c43e69e4e6eb7df370e` |
 
 The downloaded ZIP digest matched GitHub's artifact metadata. Its construction
 record, ten exact smoke-evidence files, 5,332,154,880 archive bytes, TAR member
@@ -112,6 +113,14 @@ received independent security review; its initial incomplete TAR checks were
 repaired and the stronger validation rerun successfully. The immutable image
 was imported into the isolated task VM. Its installed compiler digest matches
 the recorded SDK inventory; its Lean toolchain is still 4.32.1.
+
+The two semantic identities serve different language selections. At the exact
+vendored revision, `src/cli.rs::version_text` reports the compatibility default
+language 1.0, while `src/lock.rs` calls `compiler_semantics_id_for` with the
+project's declared language. `src/lib.rs` hashes a language-specific embedded
+source inventory. The language 1.1 value above was observed in the regenerated
+isolated project lock and is not the default version-banner identity. Neither
+semantic identity replaces the separately verified executable digest.
 
 This construction vendors LexLean `0865df4`, rather than the separately reviewed
 standalone `6bcc8d5`; the reviewed PrismPM `590ec8a` source separately vendors
@@ -144,11 +153,15 @@ profile. Its separate browser application profile models storage and operation
 recovery, but §12.9 describes a declaration-only public boundary, while
 `crates/prismpm/src/browser_build.rs` describes a private compiler.
 
-There is a further inconsistency: `holo/browser_application.rs::require_runtime`
-rejects a browser application only when a View label equals `Runtime unavailable`.
-Removing that label cannot establish accepted storage, custody, or recovery.
-The actual public SDK build and runtime acceptance must demonstrate the required
-behavior. A stateless text demo does not satisfy durable conversation memory.
+At the initially reviewed PrismPM revision `590ec8a`,
+`holo/browser_application.rs::require_runtime` conditionally rejected a browser
+application when a View label equaled `Runtime unavailable`; removing that
+label could not establish accepted storage, custody or recovery. The newer
+construction revision `dfdc4df` closes that inconsistency: it unconditionally
+rejects every Browser application with `PP2011`, explicitly naming the missing
+runtime behavior. Neither revision establishes the required public runtime.
+See the [exact production contract](specs/production-export-contract.md).
+A stateless text demo does not satisfy durable conversation memory.
 
 ### Integer output is not D11 acceptance
 
