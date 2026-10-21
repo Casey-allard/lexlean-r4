@@ -48,3 +48,23 @@ complete admitted domain. Passing the finite fixture alone cannot discharge
 them. Checked loss bounds and lawful proof composition must be established
 under the unchanged SDK axiom policy. Artifact custody, production lowering,
 session serving and deployment remain separate obligations.
+
+## General proof interface diagnostic
+
+An unchanged universally quantified length-preservation lemma was tested using
+the actual `Admission.identitiesTokens`, `Admission.lengthTokens` and
+`Route.lengthNat` definitions. List induction with the supported terminal
+congruence tactic left its recursive case unresolved (`LLV7002`). Named
+unfolding through `LinearArithmetic` closed elaboration but the official audit
+rejected its observed `Quot.sound` and `propext` axioms (`LLV7005`). The
+source-valid false companion separately failed the empty-list equality 0 = 1.
+Neither positive probe is accepted under the unchanged none-axiom policy.
+
+The [source-bound capability review](specs/constructive-proof-capability.md)
+identifies the missing supported constructive step: checked definitional
+unfolding followed by equality congruence using the local induction hypothesis.
+It records the precise official schema and backend limits, without changing
+the application algorithms or declaring the theorem false. Probe source,
+diagnostics and generated build records are retained under
+`/Users/casey.allard/lexlean-r4-evidence/2026-10-21/prediction/route-general-probes/`.
+This enabling lemma does not replace the complete prediction obligations above.
