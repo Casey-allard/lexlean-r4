@@ -19,3 +19,11 @@ citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb
 checksum = "sha256:ffa7d22a9471071a18aa33ff67376ee7f1fafefa4e774ddcd50210b7d54c2ad9"
 statement = "The pinned discrete-engine source defines the configuration bounds reproduced by the LexLean predicate. This citation establishes source provenance, not scientific capability or port parity."
 realized_by = ["R4-01"]
+
+[[authority]]
+id = "UOR-FINITE-GEOMETRY"
+name = "UOR-R4 exact Cl(0,6) finite geometry construction"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs"
+checksum = "sha256:5353d7dda155244147f77dbcf7ae06b3ac67a98007b6f40a7815894870b13427"
+statement = "The source defines the ordered signed-axis action group, anchor-first sixteen-root orbit, generator-order FIFO transport and ternary branch ports. Its semantics are imported; this port does not establish empirical geometric language capability."
+realized_by = ["R4-02"]

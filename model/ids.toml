@@ -24,3 +24,9 @@ id = "R4-01"
 level = "build"
 suite = "r4-types"
 statement = "The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed."
+
+[[id]]
+id = "R4-02"
+level = "build"
+suite = "r4-geometry"
+statement = "The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification."

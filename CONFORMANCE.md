@@ -18,6 +18,12 @@ The three honesty levels (R2):
 `cargo xtask audit-limits` fails if any code path returns an error the
 model does not sanction.
 
+## r4-geometry
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-02` | `build` | The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification. |
+
 ## r4-types
 
 | ID | Level | Statement |
@@ -31,9 +37,11 @@ Never re-derived, vendored, or gated on.
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
 | `UOR-DISCRETE-SPEC` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate | `R4-01` |
+| `UOR-FINITE-GEOMETRY` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs | `R4-02` |
 
 ## Claims that are not conformance IDs
 
 | ID | Level | Claim |
 | --- | --- | --- |
 | `AUTH-DISCRETE-SPEC` | `some-true` | The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port. |
+| `AUTH-FINITE-GEOMETRY` | `some-true` | The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here. |

@@ -18,3 +18,9 @@ id = "AUTH-DISCRETE-SPEC"
 level = "some-true"
 authority = "UOR-DISCRETE-SPEC"
 statement = "The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port."
+
+[[claim]]
+id = "AUTH-FINITE-GEOMETRY"
+level = "some-true"
+authority = "UOR-FINITE-GEOMETRY"
+statement = "The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here."

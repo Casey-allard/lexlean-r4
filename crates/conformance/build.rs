@@ -72,4 +72,5 @@ fn main() {
     parse_active_source(&root.join("build.rs"));
     parse_active_source(&root.join("tests/support/mod.rs"));
     require_test(&root, "tests/lexlean.rs", "configuration_boundaries_r4_01");
+    require_test(&root, "tests/geometry.rs", "finite_geometry_r4_02");
 }
