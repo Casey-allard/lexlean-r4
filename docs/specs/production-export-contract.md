@@ -41,16 +41,19 @@ Application signed-natural representations remain subject to the bounds on
 their natural magnitudes and intermediate expressions.
 [Actual codegen contract](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lean4-prod/rust/prod-codegen/src/lib.rs#L1-L104).
 
-The application currently authors canonical language-1.1 semantic modules.
-The inspected SDK admits `UInt8`, the other fixed integers, and `Bytes` in
-language 1.1; byte codecs do not themselves require a language migration.
-Production-root annotations and the `executable` declaration flag are
-explicitly gated to language 1.2. Using those declarations requires the
-official language-1.2 authoring/migration contract, followed by fresh semantic
-and proof checks. Changing only `lexlean.toml` is not a migration. Any migration
-must preserve all declaration semantics, independent controls and axiom
-policy; ordinary notation conversion is compiler authoring work, not a new
-model. [Type-version gates](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lexlean/src/ir/semantic.rs#L2629-L2662),
+The application has completed its independently reviewed official language-1.2
+development migration: glossary/schema changes and 23 local binding renames
+preserve declaration semantics, controls and the none-axiom policy. The
+seventeen-component checkpoint at `eeb3990` passed 8,270 controls, 10,419
+none-axiom declaration audits and 98 kernel replays. The prior sixteen-component
+workspace suite and the later JSON target tests have distinct receipts; see
+[the migration record](../LANGUAGE-MIGRATION.md) and [JSON integration](../JSON.md).
+This migration does not establish named production roots, effect admission or
+export acceptance. The inspected SDK already admits `UInt8`, other fixed
+integers and `Bytes` in language 1.1; byte codecs alone were not the migration
+requirement. Production-root annotations and the `executable` declaration flag
+are gated to language 1.2 and still require explicit application authoring and
+complete production-closure checks. [Type-version gates](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lexlean/src/ir/semantic.rs#L2629-L2662),
 [production declaration gates](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lexlean/src/ir/semantic.rs#L4934-L4949).
 
 ## Concrete generic exporter blocker
@@ -188,7 +191,7 @@ existing charter bar, not a new implementation restriction.
 | Gate | Required evidence | Present review |
 | --- | --- | --- |
 | Semantic source | Independent controls, exact source and axiom policy | Existing slice evidence, separately recorded |
-| Production authoring | Official migration, explicit roots/effects, full closure | Not performed |
+| Production authoring | Official migration, explicit roots/effects, full closure | Development migration passed; production roots/effects and closure acceptance remain unperformed |
 | Generic export | Injective names, supported IR shapes, exact coverage | Naming blocker identified; no export executed |
 | Bounded realization | Input/intermediate bounds and representation correspondence | Required contract, not established |
 | Generated artifact | Official SDK identity, Rust/Wasm compile and ABI receipts | No R4 artifact built in this review |
