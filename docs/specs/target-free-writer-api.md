@@ -65,6 +65,14 @@ the existing root location and distance failures instead of inventing success.
 No top-eight padding is included in the receipt: rankedTokens is the complete
 logical inventory, not a claim that a production implementation allocates it.
 
+The shared `ScoresOutcome` error type also contains supervised-only
+`invalidTarget` and `sentinelFailure` constructors, although the score traversal
+does not produce them. A total wrapper may classify those constructors as
+`arithmeticFailure`, a defensive invariant failure, and must never turn them
+into success. The general refinement must establish their unreachability from
+the actual traversal. This mapping is not an error-equivalence claim for
+arbitrary externally fabricated `ScoresOutcome` values.
+
 ## General refinement obligations
 
 The required relationship ranges over every admitted spec, safe carrier,

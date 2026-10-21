@@ -1,0 +1,205 @@
+{
+  "sourceControlSha256": "cd5cfdf48ce3f31f26348f3de57ed3afd379fc8e832571463b1426d5a791dc16",
+  "method": "Literal projection of independently frozen Admission controls, no source or candidate evaluation. Equal target-free calls are deduplicated only after exact expected-output equality.",
+  "count": 31,
+  "sha256": "6fe8c8ccc4cc05fddc67191fd9a9bb66d34517c8dfb741f27a460f23cc0f0190",
+  "origins": [
+    {
+      "name": "predictionCrowdedIdentitiesRetained",
+      "origins": [
+        "crowdedIdentitiesRetained"
+      ]
+    },
+    {
+      "name": "predictionAbsentRivalsZeroHinges",
+      "origins": [
+        "absentRivalsZeroHinges"
+      ]
+    },
+    {
+      "name": "predictionUnadmittedTargetStillCompared",
+      "origins": [
+        "unadmittedTargetStillCompared",
+        "rankObjectiveSelected",
+        "nearestWithoutTelemetryKeepsRankOne",
+        "rankWithoutTelemetryComputesRank"
+      ]
+    },
+    {
+      "name": "predictionGlobalRankingAcrossCells",
+      "origins": [
+        "globalRankingAcrossCells"
+      ]
+    },
+    {
+      "name": "predictionTokenTieUsesIdentityNotCellOrder",
+      "origins": [
+        "tokenTieUsesIdentityNotCellOrder"
+      ]
+    },
+    {
+      "name": "predictionAddressTieIgnoresHamming",
+      "origins": [
+        "addressTieIgnoresHamming"
+      ]
+    },
+    {
+      "name": "predictionVirtualEndpointChangesCell",
+      "origins": [
+        "virtualEndpointChangesCell"
+      ]
+    },
+    {
+      "name": "predictionCandidateZeroIsCurrent",
+      "origins": [
+        "candidateZeroIsCurrent"
+      ]
+    },
+    {
+      "name": "predictionVirtualTargetUnadmitted",
+      "origins": [
+        "virtualTargetUnadmitted"
+      ]
+    },
+    {
+      "name": "predictionInteriorMovePreservesCell",
+      "origins": [
+        "interiorMovePreservesCell"
+      ]
+    },
+    {
+      "name": "predictionMaximumCellsRetainSeventeenTokens",
+      "origins": [
+        "maximumCellsRetainSeventeenTokens"
+      ]
+    },
+    {
+      "name": "predictionInvalidEndpointGeometry",
+      "origins": [
+        "invalidEndpointGeometry"
+      ]
+    },
+    {
+      "name": "predictionInvalidInteriorGeometry",
+      "origins": [
+        "invalidInteriorGeometry"
+      ]
+    },
+    {
+      "name": "predictionInvalidCoordinateGeometry",
+      "origins": [
+        "invalidCoordinateGeometry"
+      ]
+    },
+    {
+      "name": "predictionZeroCells",
+      "origins": [
+        "zeroCells"
+      ]
+    },
+    {
+      "name": "predictionAboveMaximumCells",
+      "origins": [
+        "aboveMaximumCells"
+      ]
+    },
+    {
+      "name": "predictionAboveVocabularyCells",
+      "origins": [
+        "aboveVocabularyCells"
+      ]
+    },
+    {
+      "name": "predictionInvalidMoveToken",
+      "origins": [
+        "invalidMoveToken"
+      ]
+    },
+    {
+      "name": "predictionInvalidMoveBlock",
+      "origins": [
+        "invalidMoveBlock"
+      ]
+    },
+    {
+      "name": "predictionInvalidMoveOrdinal",
+      "origins": [
+        "invalidMoveOrdinal"
+      ]
+    },
+    {
+      "name": "predictionInvalidCodebookShape",
+      "origins": [
+        "invalidCodebookShape"
+      ]
+    },
+    {
+      "name": "predictionInvalidCarrierShape",
+      "origins": [
+        "invalidCarrierShape"
+      ]
+    },
+    {
+      "name": "predictionInvalidVocabularyShape",
+      "origins": [
+        "invalidVocabularyShape"
+      ]
+    },
+    {
+      "name": "predictionUnsafeSignedDifferenceDomain",
+      "origins": [
+        "unsafeSignedDifferenceDomain"
+      ]
+    },
+    {
+      "name": "predictionUnsafeUnsignedMarginDomain",
+      "origins": [
+        "unsafeUnsignedMarginDomain"
+      ]
+    },
+    {
+      "name": "predictionMaximumWidthUsesWidthMargin",
+      "origins": [
+        "maximumWidthUsesWidthMargin"
+      ]
+    },
+    {
+      "name": "predictionSpecBeforeOtherAdmission",
+      "origins": [
+        "predictionZeroCells",
+        "predictionInvalidCarrierShape",
+        "predictionInvalidCodebookShape",
+        "predictionInvalidMoveToken"
+      ]
+    },
+    {
+      "name": "predictionCarrierBeforeBookAndMove",
+      "origins": [
+        "predictionInvalidCarrierShape",
+        "predictionInvalidCodebookShape",
+        "predictionInvalidMoveToken"
+      ]
+    },
+    {
+      "name": "predictionBookBeforeMove",
+      "origins": [
+        "predictionInvalidCodebookShape",
+        "predictionInvalidMoveToken"
+      ]
+    },
+    {
+      "name": "predictionMoveBeforeSafety",
+      "origins": [
+        "predictionInvalidMoveToken",
+        "predictionUnsafeSignedDifferenceDomain"
+      ]
+    },
+    {
+      "name": "predictionSafetyBeforeGeometry",
+      "origins": [
+        "predictionUnsafeSignedDifferenceDomain",
+        "predictionInvalidEndpointGeometry"
+      ]
+    }
+  ]
+}
