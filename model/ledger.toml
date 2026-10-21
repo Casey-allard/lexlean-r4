@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-JSON-NUMBER"
+level = "some-true"
+authority = "SERDE-JSON-NUMBER"
+statement = "Pinned serde_json default parser behavior supplies imported compatibility facts; exact integer formal admission neither executes model floating-point operations nor resolves bounded production lowering."
+
+[[claim]]
 id = "AUTH-MECHANISM-EVIDENCE"
 level = "some-true"
 authority = "UOR-MECHANISM-EVIDENCE"

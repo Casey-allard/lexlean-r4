@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "SERDE-JSON-NUMBER"
+name = "Standalone serde_json 1.0.150 number admission"
+citation = "https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation"
+checksum = "sha256:4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3"
+statement = "Source integer, fraction, long-number and exponent branches define tokenizer-specific numeric observations and finite admission. Different unified parser features require a separately bound contract."
+realized_by = ["R4-18"]
+
+[[authority]]
 id = "UOR-MECHANISM-EVIDENCE"
 name = "Complete UOR mechanism board and evidence distinctions"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities"

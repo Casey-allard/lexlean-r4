@@ -7,7 +7,7 @@ fn complete_engine_composition_r4_12() -> Result<(), Box<dyn std::error::Error>>
     support::verify_controls(
         "tests/lexlean/EngineControls.lex.tex",
         "EngineControls",
-        "f7d77d5fc81768a7f9376e67cfc871ed82a39d00ff9e7b2b5cb2013df963ce9c",
+        "a126b6168978a3397695090052ce1bf823c0b653e7ac3e73a1a0cb69b86dce2a",
         &[
             "EngineControls",
             "R4.Admission",

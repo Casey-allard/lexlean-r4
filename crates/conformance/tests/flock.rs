@@ -7,7 +7,7 @@ fn complete_flock_relation_r4_10() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/FlockControls.lex.tex",
         "FlockControls",
-        "b5d21afc86c3a6feccda2c79d006caad7d257713536a5749d66497558a66992c",
+        "afca841584e0221ab4b3340ae014d9e159761460e81b9c2136c220f673ac3b9a",
         &[
             "FlockControls",
             "R4.Binder",

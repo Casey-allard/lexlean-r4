@@ -7,7 +7,7 @@ fn scalar_objective_r4_03() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/ObjectiveControls.lex.tex",
         "ObjectiveControls",
-        "9934a492d9d751ed0fde07f193b5a2582e70219b8a3f2eb72b595f955b2d77fc",
+        "b733435912e985f84b2ced18c06d802300768b3564408a58ddd7dff46c930830",
         &["ObjectiveControls", "R4.Objective"],
     )
 }

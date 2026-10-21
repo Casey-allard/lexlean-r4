@@ -7,7 +7,7 @@ fn finite_geometry_r4_02() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/GeometryControls.lex.tex",
         "GeometryControls",
-        "5574f2c697d141d78e2d099bace7b8a0d5fd3b1c9be6449607de547295837a9e",
+        "e8a802e25819404c09c40e6d37274a400de3e2e1281831a5e5e525721e403359",
         &["GeometryControls", "R4.Geometry"],
     )
 }

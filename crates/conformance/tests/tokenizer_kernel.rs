@@ -8,32 +8,32 @@ fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {
         (
             "tests/lexlean/TokenizerKernelControls.lex.tex",
             "TokenizerKernelControls",
-            "dfa8e53738a4d2c12a57b6800185e0136e009a5de53ba4342f8a0ce13af052c9",
+            "055d3e2dc8e19f630e4d9b9f6583dbae236e4be9796281a0e3fb5176f4da1a67",
         ),
         (
             "tests/lexlean/TokenizerKernelBoundaryControls.lex.tex",
             "TokenizerKernelBoundaryControls",
-            "b70eb35d74ca6f6eeacc590d21f8803d1b8edae07fad30849be1e81e7d511da4",
+            "6505f13cf095fcc2c76e04e4380dda2e3bb9bd548fb26579b85cba0cdf98bc33",
         ),
         (
             "tests/lexlean/TokenizerKernelSurfaceControls.lex.tex",
             "TokenizerKernelSurfaceControls",
-            "c46d8dac6721578f6281de87b13431a600eb2be9fc322dc35ad00502df130bd3",
+            "d35601ce6fb324ebe3ba5277cc496b0f338b9be1e16cba61adc8bd5740159181",
         ),
         (
             "tests/lexlean/TokenizerKernelProgressControls.lex.tex",
             "TokenizerKernelProgressControls",
-            "8286c01b3c7092b8940f2163a2a07e29dd3ecafa0326a4912c634cb56ccb89a9",
+            "0881fe66fec1b81e3f206fb3d98cc92e003c9f67447343b4ed06bf3eff5e7581",
         ),
         (
             "tests/lexlean/TokenizerKernelLengthControls.lex.tex",
             "TokenizerKernelLengthControls",
-            "dc74c7be04391e9264356ec3e053c9440580ffceab4ec92f097d158d6254fde5",
+            "eab7082f59c84862c7387e23e73010a8dbe812f28483242e48aeb54031185551",
         ),
         (
             "tests/lexlean/TokenizerKernelUnicodeControls.lex.tex",
             "TokenizerKernelUnicodeControls",
-            "4e84bd416d6daa435fe46c959000f217c92efa7e24b3edf1f84c6ad06388a91a",
+            "a53867dd2739599c3befd778d0fe0b80d10e956cbccec408e8787c3565992b8e",
         ),
     ] {
         support::verify_controls(

@@ -12,7 +12,7 @@ use sha2::{Digest, Sha256};
 const ORIGINAL: &str = "tests/fixtures/hash/HashControls.lex.tex";
 const ORIGINAL_SHA: &str = "0603c79620ff19e4a30239a7b180b214af5941d925f60161479a0049b8acd60e";
 const INVENTORY: &str = "tests/fixtures/hash/inventory.json";
-const INVENTORY_SHA: &str = "15eb88f7ac49aa3910ab52ed6b322f6907a8edca21b1c97fc9bd248b6da44dfd";
+const INVENTORY_SHA: &str = "66f2661bb885aa61c36365329cf267fe21ff7c245ec3a0d98e9751257e3899d7";
 
 fn frozen_source(root: &Path, path: &str, digest: &str) -> Result<String, Box<dyn Error>> {
     let source = std::fs::read_to_string(root.join(path))?;

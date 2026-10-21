@@ -66,6 +66,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-11` | `build` | Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability. |
 
+## r4-json-number
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-18` | `build` | Pure LexLean preserves standalone serde_json 1.0.150 default-profile tokenizer number admission and unsigned-ID classification, including exact binary64 finite acceptance expressed with integers. This does not establish complete JSON parsing, tokenizer identity or accepted generated execution. |
+
 ## r4-learning
 
 | ID | Level | Statement |
@@ -114,6 +120,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `SERDE-JSON-NUMBER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation | `R4-18` |
 | `UOR-MECHANISM-EVIDENCE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities | `R4-17` |
 | `UOR-TOKENIZER-KERNEL` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls | `R4-16` |
 | `UNICODE17-TOKENIZER-TEXT` | https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities | `R4-14` |
@@ -136,6 +143,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-JSON-NUMBER` | `some-true` | Pinned serde_json default parser behavior supplies imported compatibility facts; exact integer formal admission neither executes model floating-point operations nor resolves bounded production lowering. |
 | `AUTH-MECHANISM-EVIDENCE` | `some-true` | Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization. |
 | `AUTH-TOKENIZER-KERNEL` | `some-true` | Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization. |
 | `AUTH-UNICODE17-TEXT` | `some-true` | Complete Unicode 17 classification facts and pinned Rust compressed literal inventories are imported and independently compared as data. Local text algorithms require their separate formal controls. |

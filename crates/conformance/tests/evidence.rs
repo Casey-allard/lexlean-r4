@@ -21,13 +21,13 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/EvidenceCatalogControls.lex.tex",
         "EvidenceCatalogControls",
-        "171feb942c88b96189667afad97eefb4613b13d252124f55d52c6845cfb36324",
+        "5ac609e85576334d6502c35f807ad1fd11e04f253925ada0f89ea5ccf46f870f",
         &["EvidenceCatalogControls", "R4.Evidence"],
     )?;
     support::verify_controls(
         "tests/lexlean/EvidenceCoverageControls.lex.tex",
         "EvidenceCoverageControls",
-        "475fb9138594c96b5d485f19025d7219359e8ad0e59169f0fab4cae522acb28e",
+        "1e2c3bb701b27fb15b729ac9b688d5d32d1f728178f46325d4cd6a9bc00bcc12",
         &[
             "EvidenceCoverageControls",
             "R4.Evidence",
@@ -37,7 +37,7 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/EvidenceCoverageBoundaryControls.lex.tex",
         "EvidenceCoverageBoundaryControls",
-        "f602de7fc17acfe413ac55251ada3251cbdbed1f2e046ec758e946b6a7040ecb",
+        "60547b76953030c72e7cc85bab53c381c688a448efaa812365afac60af80c38a",
         &[
             "EvidenceCoverageBoundaryControls",
             "R4.Evidence",
@@ -47,7 +47,7 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/EvidenceDescriptionIdentityControls.lex.tex",
         "EvidenceDescriptionIdentityControls",
-        "2e8f4f92d9148a063fbff3f84247e63eb37164a2e0ccecfdaec000fc73fd0b44",
+        "d3c652ba9e127441ea2f9887c3a766c8efc58f944dd336a575ec08742b08f3f8",
         &[
             "EvidenceDescriptionIdentityControls",
             "R4.Evidence",
@@ -59,7 +59,7 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/EvidenceDescriptionRunControls.lex.tex",
         "EvidenceDescriptionRunControls",
-        "355418af17e04fe34087182db878378f88c1414b2083b8efc971ca9ee7b791fb",
+        "3b3de7cf1a8784805a527f686bb3fc8030ac51d84d23fc61e48464bcdf65e497",
         &[
             "EvidenceDescriptionRunControls",
             "R4.Evidence",
@@ -71,7 +71,7 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/EvidenceDescriptionGraphControls.lex.tex",
         "EvidenceDescriptionGraphControls",
-        "6fd332a1910efc32632da64ff6d671278d50bea19c71e3eb8f36045d7727812d",
+        "1042a6d9ca1ca0f03faa42602fa88b35f8879c093f52b8890817c69d3023f9f8",
         &[
             "EvidenceDescriptionGraphControls",
             "R4.Evidence",
@@ -83,7 +83,7 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/EvidenceDescriptionBoundaryControls.lex.tex",
         "EvidenceDescriptionBoundaryControls",
-        "c39d353c5a1812ab1805415fe0dbb6c80595fe3dd113b395784469411d3cb3c7",
+        "a614abcb5b7dd68eace29a7ae1c0e70f525b9107a76b661e872387fd30096f02",
         &[
             "EvidenceDescriptionBoundaryControls",
             "R4.Evidence",

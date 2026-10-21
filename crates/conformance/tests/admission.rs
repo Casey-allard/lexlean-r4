@@ -7,7 +7,7 @@ fn admitted_identity_writer_r4_05() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/AdmissionControls.lex.tex",
         "AdmissionControls",
-        "cd5cfdf48ce3f31f26348f3de57ed3afd379fc8e832571463b1426d5a791dc16",
+        "e7fa4b65a1bcdaafaa6ec5b42a477d1230c2a4bbea9422eb41baaf63ef6b995c",
         &[
             "AdmissionControls",
             "R4.Admission",

@@ -1,0 +1,556 @@
+{
+  "spec": "lexlean-r4/language-migration/1",
+  "baseRevision": "333986e",
+  "fromLanguage": "1.1",
+  "toLanguage": "1.2",
+  "allowedChanges": [
+    "glossary @1.1.0 to @1.2.0",
+    "semantic module spec 1 to 2"
+  ],
+  "modules": [
+    {
+      "path": "src/R4/Admission.lex.tex",
+      "before": "7814b25d8b0a960f998c861a95e0779799ce73cc1984161114cf9fa01e10d63a",
+      "after": "8fefd320be82e063d697c13a0fb279bc0899fb4964decc5c2e79b8e01155fb02",
+      "declarations": 55,
+      "declarationsSha256": "defcaaef18d20ade26dc15d27b7976d88893aa61f3492fa7fd309c90565d3907"
+    },
+    {
+      "path": "src/R4/Binder.lex.tex",
+      "before": "144c229cc2a676a2e17af56c363eef6157d5c2ae6060babbe55d963f1cacf482",
+      "after": "2b66660f539c88fe2ce23229300c31bf7bbfba5ab83e9b23bd450bb237f6a449",
+      "declarations": 46,
+      "declarationsSha256": "d225f8a2406273d736a8d00f4706048609e4859d5c151c09ecfdec0ae0257b04"
+    },
+    {
+      "path": "src/R4/Carrier.lex.tex",
+      "before": "f7a338017369ff60e95879518680d9373b114f587310f7e114c5d74e6545ed62",
+      "after": "878562451dda7110f426024be90ccba9bd2a5d58b98d14c5e9f69d207f3ed4ca",
+      "declarations": 22,
+      "declarationsSha256": "bd8146373959e56defd1daf5ff67e1b4f164763273c7b81ff4d20a1b9266a601"
+    },
+    {
+      "path": "src/R4/Configuration.lex.tex",
+      "before": "a3f01b7b49ce1a9d426a2abed5041d7afb5becf4e37a01fee0dcd72634a531d8",
+      "after": "7c367ee55b39eb8028b277153fc4f8e573f7bc0dbfcae9a8b7f8f3196475dc88",
+      "declarations": 15,
+      "declarationsSha256": "9f17e1fd92d09773cb27c8e6ce39a8309c09877756818a777744c7bb85966dee"
+    },
+    {
+      "path": "src/R4/Engine.lex.tex",
+      "before": "9eaa56c03d587c2041cb162f90a4be023b7a210fb1b351c1a58ed49a26a79b6b",
+      "after": "a05e6d1ec3d86163154001955fb90479b664a079683142a8d7017c51d5f5a2cc",
+      "declarations": 157,
+      "declarationsSha256": "f2b002c69e80804f5c7e58a2dfaa4e8f560183384b5b440f167a2cc1557027ce"
+    },
+    {
+      "path": "src/R4/Evidence.lex.tex",
+      "before": "d25bfb1c0a68953bb03262248e5daab1ff3fb88e1a9cfc9fc7db0b3d9a9f23c8",
+      "after": "9324b697409a9159ceafcfabb43f2272ffda3dcb78cc2ee8902dcffc98f9ec8a",
+      "declarations": 34,
+      "declarationsSha256": "c778b7fc4ab50cc6f8e0a596dcf6387afa7597ba1f4b47fbac232f65d2e6313d"
+    },
+    {
+      "path": "src/R4/EvidenceCoverage.lex.tex",
+      "before": "9f5876e60d381b96244952b67f87086f45be201a325faa01314014d6238d16c8",
+      "after": "cbebfbf8eb45ec3cdc78cbe42c2a5f912a07ca3310e22059c4e8f61b11cd0ad0",
+      "declarations": 73,
+      "declarationsSha256": "7ce1d770994bf99de7747647e60c5cff1e6d7ad9822c962de838a6a9ea470dfd"
+    },
+    {
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "before": "7c1140e81f5410afc174084e455a24ab895b5e5008804923a2abea936d554781",
+      "after": "42676966faa59d6802939678514b6ca517c628259877fc34c3037942ffd12fae",
+      "declarations": 103,
+      "declarationsSha256": "6b251bcaf556021a27e3ecaa6c2b464346e09b230fe7b84ba5b13b62574c8379"
+    },
+    {
+      "path": "src/R4/Flock.lex.tex",
+      "before": "b0dc66d88c0e004f1a70eff679f5ce2c4cc518cf76530beec70d74a245a057fa",
+      "after": "ab1160fe047bf26b7a736efafabb6c21756855021d9bbe668b39c67edcb96318",
+      "declarations": 58,
+      "declarationsSha256": "1f569e3482e0c46c5978842fe6f222df08e9e3a64ec6866b4e0c87e52832577a"
+    },
+    {
+      "path": "src/R4/Gates.lex.tex",
+      "before": "ad0214e668ee56ea194006903fb31b4f19930367e9af93fd7d67dce3f3896c36",
+      "after": "92dfd0242c216b415420961eb55dab9be96d13676e503d616b4a76e622359f52",
+      "declarations": 7,
+      "declarationsSha256": "4fa7796cdf9bc219e9d97c42fb25191ddae8bded708d57242b2dbf0e0234101a"
+    },
+    {
+      "path": "src/R4/Geometry.lex.tex",
+      "before": "25d3b493659732c3a687838c20c75f9acc458c62abd81993d8d512d74f2ee526",
+      "after": "83cf3c93d6429b93b89f83413da3a5882fa44843e5470f2ba8a74060c60d689f",
+      "declarations": 774,
+      "declarationsSha256": "543bec116b6a5df2efa4c488f18ff63e8f9ae1e89907fe257bcf66ff74d4c19a"
+    },
+    {
+      "path": "src/R4/Hash.lex.tex",
+      "before": "d2783f37e0ae537c13802f4454411cf131304ac5bcb41f43bf47fd0903416c02",
+      "after": "fba658728f06c2fcfd14719317e7b4ec253f494fd0c2baab25e7583d80d2681d",
+      "declarations": 181,
+      "declarationsSha256": "ae4a20b6abc03f4509ef71845da52713b2235ed6225672f7519fd2ba9359df78"
+    },
+    {
+      "path": "src/R4/Learning.lex.tex",
+      "before": "31d5e8aaae27a188b33fe52c4de0128a2e423000235b4003e666237256035289",
+      "after": "3667322e441d1b689dee0eba8bfb7b512a456ae9781ee7063160dc7f98c25d32",
+      "declarations": 77,
+      "declarationsSha256": "0886c07a571d02749a870a47ad4cdf3a2bd1e75dbbafaef9255669fdbcfe790d"
+    },
+    {
+      "path": "src/R4/Objective.lex.tex",
+      "before": "43af667dc55f173ef1629192156315ca90b7ff0f599f901250e21c42c5ea12ce",
+      "after": "379e2a52851628a5cc762c6cd911a18d97a3d30df8b9eecdb86542b82fe441ec",
+      "declarations": 12,
+      "declarationsSha256": "720dc36828ef7f1008aa42df091197a6db451089d9546cd9d561584283a5864e"
+    },
+    {
+      "path": "src/R4/ReadArithmetic.lex.tex",
+      "before": "c92c001cb8982c11ce9558040149a9249e6ad14c698c2c8d4f61946fb2437b0d",
+      "after": "3ada609b6bd4294d798762732d4cdc5c21873cb5281f3046f5d912b9c67a6822",
+      "declarations": 18,
+      "declarationsSha256": "6c63e01371ab9199d15bf8c20322589a26a178c84688a206b6f82f777e484e93"
+    },
+    {
+      "path": "src/R4/Relation.lex.tex",
+      "before": "1c9e4b02b07241463f5f49674e8811bacb3d569beeba1288da40bb1a85940784",
+      "after": "a941046bcea53c737a7153e77d5970fbc674667c71f910d1f2aa26e39db8c545",
+      "declarations": 24,
+      "declarationsSha256": "96747774c74470bd1acb63e1298a008d0ad7e0dcf6b03903607a7885da7f303e"
+    },
+    {
+      "path": "src/R4/Route.lex.tex",
+      "before": "5baa4dd5cd5ba7cb8cd265565add6c35341e3b41fd47745471790eab890ec44e",
+      "after": "a5d799a17e9c33a4252df1ae2f222b5610e9c4fd042d13b1a156f227815fd554",
+      "declarations": 33,
+      "declarationsSha256": "7b50e6be096783b354dfb6bb20403cd2eef91f26b110b45ecc7cea8a0767dd15"
+    },
+    {
+      "path": "src/R4/TokenizerKernel.lex.tex",
+      "before": "ffc51a6e011534602cebaf723cdb0e60fa9a8693533ae39f92edbd77414e7eee",
+      "after": "687c9041e9a5844bd8a98cbb91450e3316941c256f5574b7863319c2ed25196e",
+      "declarations": 115,
+      "declarationsSha256": "73d59f80a099ecea41738f023739abe379c36b5c8e4475a6ae8233d624a56aca"
+    },
+    {
+      "path": "src/R4/TokenizerText.lex.tex",
+      "before": "b5fe09eee475944ea9be0b325bcbed46e9bfd6822e00b31d7d6a113c36bbe8bf",
+      "after": "87905511d8e7840c439db5c62aba4c59087679a0f1afc1b72d35a3cff9b7fea0",
+      "declarations": 47,
+      "declarationsSha256": "23a863d8dcacea278a43f3f2623e341438c2485b05923ac18f19366c63f4ec97"
+    },
+    {
+      "path": "src/R4/TokenizerTextUnicode.lex.tex",
+      "before": "75c3b0ee8611c3270244d1c7e8cc8a22f9d9dda617313adbe0e8acd9beb74851",
+      "after": "6e6e5f686e88302aa34717e2a874c3c4d7665c31b9d503fdb7b9bd788eeb1952",
+      "declarations": 3,
+      "declarationsSha256": "a7deedd4f1ceecaafa253cda17ac0578d68b1cb46b6aff6a6841991de6aebe5b"
+    },
+    {
+      "path": "src/R4/Types.lex.tex",
+      "before": "9cae07f70f3f8c3d74fc9673a533f0ae5279138a5559c3af447b16088e4b613b",
+      "after": "c140409edf9a9fd2490a35f1692dfedb7577a6181165b9dc141773e609b5b456",
+      "declarations": 3,
+      "declarationsSha256": "2a15a30e2a8d1a1bd06448ffa00a0a6a691778d2b9e7c089bf70fd4c40452196"
+    },
+    {
+      "path": "src/R4/Words.lex.tex",
+      "before": "995863b7cfcc0d481fb92452f5d75e35178a1a63c17af479ce89e6f0b3f99945",
+      "after": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "declarations": 128,
+      "declarationsSha256": "8a7c75d76c946e1881fd86953197658ec9c996621fb94d44a7020046b45c37d5"
+    },
+    {
+      "path": "tests/lexlean/AdmissionControls.lex.tex",
+      "before": "cd5cfdf48ce3f31f26348f3de57ed3afd379fc8e832571463b1426d5a791dc16",
+      "after": "e7fa4b65a1bcdaafaa6ec5b42a477d1230c2a4bbea9422eb41baaf63ef6b995c",
+      "declarations": 72,
+      "declarationsSha256": "c2ae79c1ceb20081b068375af28db2a32d6ae072696ae216b2a959a29d312e06"
+    },
+    {
+      "path": "tests/lexlean/BinderControls.lex.tex",
+      "before": "07d929babf6072b9f8016174179c498e9a0b1d63cc6f29f7de1c645e8743ef6d",
+      "after": "2787a4a06335c0a3222b0585d478afc807c7abd327122dde7ffe993860d207af",
+      "declarations": 165,
+      "declarationsSha256": "c2c6b8764efd56524c188c05a409b1bb49c8ebf0e2400d2a7cdf394f1d3607a3"
+    },
+    {
+      "path": "tests/lexlean/ConfigurationControls.lex.tex",
+      "before": "73c945a6bff74ebbaa3dd5ce54c81b20549e749bede25ac1c509b3713963a5fb",
+      "after": "7a77d8f112af2aadda0da5e3b41c6e6db34970bf1a8e7a3268a418a00d8743d5",
+      "declarations": 75,
+      "declarationsSha256": "cbdc4840cf8e6f1982f9eec46bb9bec7e767a10110a2e580def7fc8d9d387cd9"
+    },
+    {
+      "path": "tests/lexlean/EngineControls.lex.tex",
+      "before": "f7d77d5fc81768a7f9376e67cfc871ed82a39d00ff9e7b2b5cb2013df963ce9c",
+      "after": "a126b6168978a3397695090052ce1bf823c0b653e7ac3e73a1a0cb69b86dce2a",
+      "declarations": 100,
+      "declarationsSha256": "1ae32cee23328d944ae4bfa7002327bfbc66dbf41991503859c98f5522709e7d"
+    },
+    {
+      "path": "tests/lexlean/EvidenceCatalogControls.lex.tex",
+      "before": "171feb942c88b96189667afad97eefb4613b13d252124f55d52c6845cfb36324",
+      "after": "5ac609e85576334d6502c35f807ad1fd11e04f253925ada0f89ea5ccf46f870f",
+      "declarations": 358,
+      "declarationsSha256": "d7f8a165afb11f8c133f88f33d5ef01f692b2358867d7a27fb5dd42b75234598"
+    },
+    {
+      "path": "tests/lexlean/EvidenceCoverageBoundaryControls.lex.tex",
+      "before": "f602de7fc17acfe413ac55251ada3251cbdbed1f2e046ec758e946b6a7040ecb",
+      "after": "60547b76953030c72e7cc85bab53c381c688a448efaa812365afac60af80c38a",
+      "declarations": 6,
+      "declarationsSha256": "16eca58406b3cb7ec9fa63f7ce8d5dba3914f80f36740e759a7f731a14840d1b"
+    },
+    {
+      "path": "tests/lexlean/EvidenceCoverageControls.lex.tex",
+      "before": "475fb9138594c96b5d485f19025d7219359e8ad0e59169f0fab4cae522acb28e",
+      "after": "1e2c3bb701b27fb15b729ac9b688d5d32d1f728178f46325d4cd6a9bc00bcc12",
+      "declarations": 57,
+      "declarationsSha256": "9ac5fe8ac21325558d8d6f0e28f9313a369ac4da940c66f0d63500180426d443"
+    },
+    {
+      "path": "tests/lexlean/EvidenceDescriptionBoundaryControls.lex.tex",
+      "before": "c39d353c5a1812ab1805415fe0dbb6c80595fe3dd113b395784469411d3cb3c7",
+      "after": "a614abcb5b7dd68eace29a7ae1c0e70f525b9107a76b661e872387fd30096f02",
+      "declarations": 2,
+      "declarationsSha256": "5bb056ecbccd84568c453bb11d6e8a24389e1ea53081d9de05b0d8d0a2c07b9d"
+    },
+    {
+      "path": "tests/lexlean/EvidenceDescriptionGraphControls.lex.tex",
+      "before": "6fd332a1910efc32632da64ff6d671278d50bea19c71e3eb8f36045d7727812d",
+      "after": "1042a6d9ca1ca0f03faa42602fa88b35f8879c093f52b8890817c69d3023f9f8",
+      "declarations": 48,
+      "declarationsSha256": "b422c0d637b0b51d43c51890b268b24ed560ac2d95c1764924bbc72c0437b1ea"
+    },
+    {
+      "path": "tests/lexlean/EvidenceDescriptionIdentityControls.lex.tex",
+      "before": "2e8f4f92d9148a063fbff3f84247e63eb37164a2e0ccecfdaec000fc73fd0b44",
+      "after": "d3c652ba9e127441ea2f9887c3a766c8efc58f944dd336a575ec08742b08f3f8",
+      "declarations": 65,
+      "declarationsSha256": "9bce5173f9630106a6f384a688ce6024b8ee47f1a1041bacfce39fb1fac9ba72"
+    },
+    {
+      "path": "tests/lexlean/EvidenceDescriptionRunControls.lex.tex",
+      "before": "355418af17e04fe34087182db878378f88c1414b2083b8efc971ca9ee7b791fb",
+      "after": "3b3de7cf1a8784805a527f686bb3fc8030ac51d84d23fc61e48464bcdf65e497",
+      "declarations": 91,
+      "declarationsSha256": "e1e0ce86841518d5c5317262d5269f15fc940b7567750648d6fe3ee1c99fc73c"
+    },
+    {
+      "path": "tests/lexlean/FlockControls.lex.tex",
+      "before": "b5d21afc86c3a6feccda2c79d006caad7d257713536a5749d66497558a66992c",
+      "after": "afca841584e0221ab4b3340ae014d9e159761460e81b9c2136c220f673ac3b9a",
+      "declarations": 119,
+      "declarationsSha256": "837791e4a629eb375113695f30afb82dcfa746e21ac5477c15ac5b789eefd183"
+    },
+    {
+      "path": "tests/lexlean/GeometryControls.lex.tex",
+      "before": "5574f2c697d141d78e2d099bace7b8a0d5fd3b1c9be6449607de547295837a9e",
+      "after": "e8a802e25819404c09c40e6d37274a400de3e2e1281831a5e5e525721e403359",
+      "declarations": 774,
+      "declarationsSha256": "326904f5f61fb329385174998b7ebc5fbad4be36811d65fb6493dbba82759a32"
+    },
+    {
+      "path": "tests/lexlean/HashCase01.lex.tex",
+      "before": "5cc2fb5d85034da32bf3e410e17796eaccf7103326ec43cf876d6885714102fd",
+      "after": "d42de61078ffa7b08124cba00a35691ce260c631c61eee6e4b7dc78ab1e2b2c5",
+      "declarations": 1,
+      "declarationsSha256": "ccc3f24752ad15d40a85f1b7755eae53744c9fda2e19b9300c8d88b41835e273"
+    },
+    {
+      "path": "tests/lexlean/HashCase02.lex.tex",
+      "before": "a633eb3465c4c1cc7653686abf0554dc86eb24b7a6e676f35cb5007e73b582c5",
+      "after": "6016c60a7880717d2d99d0ff7e235b40b83901674a0a4b7dca0e9810b180bd35",
+      "declarations": 1,
+      "declarationsSha256": "f72efd99bd9163e33faaa741c76ff5d474cc9c0115704df030b15d7ee3c047a6"
+    },
+    {
+      "path": "tests/lexlean/HashCase03.lex.tex",
+      "before": "9e57f0469131d45f2274eb50ddb35f50d884cfd9f676657c103f5d59e35153ea",
+      "after": "1a7beb5ed79bb17cb4adaa3f07b3dc03fb68a4df951086a3b866e6a9d55e718a",
+      "declarations": 1,
+      "declarationsSha256": "8bac60c1ef6d9bdf356f70330daacdf75993907b149b9b463307e1840b226403"
+    },
+    {
+      "path": "tests/lexlean/HashCase04.lex.tex",
+      "before": "7facf36f2dc536f7c58d7ecf49a9643ed48d4cfa64235dd7e6ea1ad39458bfd1",
+      "after": "e5c47628b1b8fb11977a734a207abd065a011563f0492a63294080e40dd098c9",
+      "declarations": 1,
+      "declarationsSha256": "71070c29b78dacb4820dc0fa9e341d0dd4b4fb2f88a68dc970bbb05ad7edc9cb"
+    },
+    {
+      "path": "tests/lexlean/HashCase05.lex.tex",
+      "before": "294df80a14b31be848caaebcc514cd917020d0ce9cdb1d6ae67642b7e112a70f",
+      "after": "57bb1c0bcd17c1c714b2ba3697f4a66b61e98702e0b586590f15230f852911a8",
+      "declarations": 1,
+      "declarationsSha256": "a90c5073bf0a2f78f282f0d8f090bdac12b500c7d96f26f7377371a4ad57ae06"
+    },
+    {
+      "path": "tests/lexlean/HashCase06.lex.tex",
+      "before": "4a81fb7faedc6dba3d5ddbc23e061549d160dcc06aa7fdf4d14fff507dc6fcc1",
+      "after": "36ecc923096d79e9f04bb8201a0886fe102822bb6779405b7a2fe7b284f3e746",
+      "declarations": 1,
+      "declarationsSha256": "e229ee0c404a3fe4235977701d29c9f2246a47300b5abb6b16ed200adeff88a2"
+    },
+    {
+      "path": "tests/lexlean/HashCase07.lex.tex",
+      "before": "5f2bde9a206734408efca45c7f2234c5e635b6af7972f17a28e856d8b777daef",
+      "after": "94cb0759a57f082f80ba6466fe6b51b9da5b1ce17ce59cf0efad9abef5299eb3",
+      "declarations": 1,
+      "declarationsSha256": "338928f31caa1071c6b6f1e5b3222e7159eb8951594af0e57d02df952e661a82"
+    },
+    {
+      "path": "tests/lexlean/HashCase08.lex.tex",
+      "before": "38cae7b247904f03b36b334bbb0bbf02ac85d7522a266dc71d2ad21a52dd01ce",
+      "after": "2aea5be599336549f6fb142a5b0985bfa9a6a615621cdd2302f728786d297890",
+      "declarations": 1,
+      "declarationsSha256": "71eff0d6387322ee513f5cae1f8d7c41f3f4f4c1ac0e830955c6709e85cbb59e"
+    },
+    {
+      "path": "tests/lexlean/HashCase09.lex.tex",
+      "before": "2a1f466fb646e80e09a0408893d4c38a038702b74ac8b6e8b3521a223f1ab439",
+      "after": "d6063b0a2a95833f8bbfe0c8d2c13dcb9476ddca7d89bf80d7def79cf4f364e1",
+      "declarations": 1,
+      "declarationsSha256": "3db9678481766f0c7c667c25e17bd1fea0bc3a5c8b6317992ca12855d88cc4fa"
+    },
+    {
+      "path": "tests/lexlean/HashCase10.lex.tex",
+      "before": "e9917f30944b5d7dfb90244b4f420e518349f7c7fb87ccafedfe144e05e38ad7",
+      "after": "c0994f8ca6227f194289407231a489bec3e28a9afc564e29be0418bf4c568a1a",
+      "declarations": 1,
+      "declarationsSha256": "636d346f4fa8b2f3c3ee08d65b4c5e12b28b462f559743d2f7b094962c1a56d3"
+    },
+    {
+      "path": "tests/lexlean/HashCase11.lex.tex",
+      "before": "b38ab789c8c937a5edba751a1e89ff01160d08ce4614bafb1a33299612b19746",
+      "after": "af941af540bb1115d57c17d5f5d554726b2bd56ddfab708934dd1ebb65c15da6",
+      "declarations": 1,
+      "declarationsSha256": "3340fbcc26de8797f9ccdda761ab1ef42d6fdb41f65cefff8d6926f80ffa081f"
+    },
+    {
+      "path": "tests/lexlean/HashCase12.lex.tex",
+      "before": "c10b2e84f4d9b02fb8973f9ab224feb4b977b41c151c9a882838c3dceceb1ab1",
+      "after": "84d602e7c6f872925f6c2627f0920cea53c00e03fcd3ee68dac81d2aa22e1b24",
+      "declarations": 1,
+      "declarationsSha256": "00a9409a0da41dc07ed86af6f488e1cc3b0361bad4115a9698e2370da0d6731a"
+    },
+    {
+      "path": "tests/lexlean/HashCase13.lex.tex",
+      "before": "4e8428ab012a69ab16b0f4d203ca218e9fe4867a11202154fc753fff07c0e625",
+      "after": "cd4dfe2f0c95e7b505729b3b04231d2c1f0e4264d49dbd6d10f7e8753317e49a",
+      "declarations": 1,
+      "declarationsSha256": "0c132a70cb3b5fb58b371b808cc10299bb0a03a2f4d8f1267961a315eea953ba"
+    },
+    {
+      "path": "tests/lexlean/HashCase14.lex.tex",
+      "before": "f6523ff0ed48eccfad48947cf14852032b0f16bbfc9a70191710d159730ace2f",
+      "after": "2fedcdf1b1264b3f7d2fbe44f32c75bb2e42ef23eb1192901bd8ff52533dda81",
+      "declarations": 1,
+      "declarationsSha256": "cd4354b2dc624e209a793763d9d4d4e2284c3d17fa3316e658dd9f18a7c83480"
+    },
+    {
+      "path": "tests/lexlean/HashCase15.lex.tex",
+      "before": "88eba7b3b4fad686992c9b8b471196d73c85d3a43812dfd5e76bdd0bba84d974",
+      "after": "459ce8d4eb841ca8651ab1eb325884b2058f040ffc610f6c9591f2d97be2733a",
+      "declarations": 1,
+      "declarationsSha256": "77a05cde9b94745ce3b324e5b6765a08551e512ac130a939918cd0c82885ddd3"
+    },
+    {
+      "path": "tests/lexlean/HashCase16.lex.tex",
+      "before": "fc3074831ad6c83e98da2fe7b5164f265265f5bd768c77de7aef52a24ed779ee",
+      "after": "e1c2a1653062e7229ece494d7eb07ff301b7a8dcffa9f676dac5ef4e0d951c26",
+      "declarations": 1,
+      "declarationsSha256": "24124f9f24953e2e6be7ec87804c32df70cc56121ec64a994ac8eacae14cba7c"
+    },
+    {
+      "path": "tests/lexlean/HashCase17.lex.tex",
+      "before": "293f7b30140f8d5b3329f843eaca2ef65519dc30cb1b638ac4951933285de3e3",
+      "after": "26a6ad8926358209f33a94a9ab4589cc6ea2f07ba49abfc14b72ed7936a9e691",
+      "declarations": 1,
+      "declarationsSha256": "e2e4f6eadd3e999cc65468ba7246c38339ca4c967669d068b2ab3adced70d6c1"
+    },
+    {
+      "path": "tests/lexlean/HashCase18.lex.tex",
+      "before": "281c8291868d32bbdbca609b01c75a89de469ffe52119cc5942aa099c64311e0",
+      "after": "cd5823aa971eae01c85ebcb68c568314df2deb694cd8f1c2356ac6e15c21e4ed",
+      "declarations": 1,
+      "declarationsSha256": "ba7bf91c7c5d4dec8d3287795e5c8bfed70338c9e014ae8031c312a088f967b1"
+    },
+    {
+      "path": "tests/lexlean/HashCase19.lex.tex",
+      "before": "8c6d9762d7a057ee4f0195e38511b241dbeba9dff4816c7a44f2d9d0431a89ab",
+      "after": "7a31b8a976ffbc3e90977b69723d71945feb312b0ddd235652f74c4062e3c246",
+      "declarations": 1,
+      "declarationsSha256": "cdb5b4069a0870aaaa1732b8eb2a310999a9348cff6c79575b7881edc8604bbe"
+    },
+    {
+      "path": "tests/lexlean/HashCase20.lex.tex",
+      "before": "9a89be3cbcea86c5c4d9665fd43fb707b7aac2a256d2991fa00e0965b3b288e8",
+      "after": "50b4cb40cb918ff5e6bdb5385fbe79c5c6d7ba8092700a0d529c0121e92c07c8",
+      "declarations": 1,
+      "declarationsSha256": "c309b7fb5897c67ad8fb7abed55ac2c64253e9602eab6a37db23b27cacbfaa23"
+    },
+    {
+      "path": "tests/lexlean/HashCase21.lex.tex",
+      "before": "3ab6188b5ed37b997db994cf2b4ddd8db32c4b770f8c2ad3b9555be5f92181cc",
+      "after": "5c1b787b56f17a22d9526aa8ca7baaee1d52e113274c65ad81152d25b8857a58",
+      "declarations": 1,
+      "declarationsSha256": "8bdd81ff7e88766c015eff9679692d399d42432b860fd68e30969cf127518e5d"
+    },
+    {
+      "path": "tests/lexlean/HashCase22.lex.tex",
+      "before": "2ef509d39111a072e564333a922548d363ce5ba8e49dc733f2e256b70611bace",
+      "after": "cca653db19acd3e7b3dcfd1a13bf9b5c2809d126ddaf69bbf9b65c67a5c8617b",
+      "declarations": 1,
+      "declarationsSha256": "c2dbab026518bd7fbc648c688097764d902aec00a60848c17569fad527d6b32a"
+    },
+    {
+      "path": "tests/lexlean/HashCase23.lex.tex",
+      "before": "5fcbf11b150ec11b53ec85169731bee0dde8139b33e9bc15a0a1e19a50e1ebd3",
+      "after": "b1aa6dc291f3251682cbb35b8c8bdb11e3b9459a9c7c47aed004562f46430fab",
+      "declarations": 1,
+      "declarationsSha256": "e73eb226e3bfef2e536fa136123947d80fa0e23a37d78fa58f3b822148d5d3da"
+    },
+    {
+      "path": "tests/lexlean/HashCase24.lex.tex",
+      "before": "d99d1bf85f9de98e9a73f95bae039b3474e487361de34ed26bba0852120c9fc6",
+      "after": "9c0a3d3773248e2f38656301ea70b834ddae321d129bcac5e4858bcc042e3279",
+      "declarations": 1,
+      "declarationsSha256": "76dcd46f5168460712710cc0914f92b96569e0ebcf47fbc80eb5d6442ab90914"
+    },
+    {
+      "path": "tests/lexlean/HashCase25.lex.tex",
+      "before": "f3d158097ad8941f12ae53f32d6798014cb8176f958827a29f834e8f7ed94c48",
+      "after": "dfa67319c0bb25720f8d794a170f663a74c78e5610b243bb00bbc5bfb5e9da92",
+      "declarations": 1,
+      "declarationsSha256": "44aefe2c831dca4adc49ce92fc313b908bc6891a3cc474b9b3aee597a3b30b0a"
+    },
+    {
+      "path": "tests/lexlean/HashCase26.lex.tex",
+      "before": "90aceb76e4089771036ffc1a1fc59f7d69b598e23b1183a6fb59894d685931a1",
+      "after": "4cba8e8bcf9c0ee825c098d3fb8dc2e37a878a4aacc453d5e6a41d2e6b48b85c",
+      "declarations": 1,
+      "declarationsSha256": "39bfd31aca0ce9a0974bb1277de5c64f294a565cfcea88734134a38706016eb2"
+    },
+    {
+      "path": "tests/lexlean/HashCase27.lex.tex",
+      "before": "4ca0f39b47d62c77e458c17e0b040dc0faae32ea8c10fdd5c56be2036691eaf5",
+      "after": "b0a7dc644b43c53a17f985791046a42c0dec4e15de9efb3c2d019f77462c7bc9",
+      "declarations": 1,
+      "declarationsSha256": "a13c047c1301dfa43e814b4b2176425b4573244cafa8ad8e69f2a9f4474cf636"
+    },
+    {
+      "path": "tests/lexlean/HashCase28.lex.tex",
+      "before": "34e5248b2e5b7781cdd0f08d2d13a99aff57ccbc883d656b42066a63367b9742",
+      "after": "277b8a54225c2825ad9776f5fe5d24bbad6576f55897099079362b9b58ba9ee4",
+      "declarations": 1,
+      "declarationsSha256": "fab4536e2814358b80c82b43e0f036149707f760ed61c111dc6fed67bf4bbd14"
+    },
+    {
+      "path": "tests/lexlean/HashCase29.lex.tex",
+      "before": "96a0510c5d4b6b6ab9ea3c684955bd870efe1807c630fced199979d88e610260",
+      "after": "968126920ac67c74935347a539a0b7f105c534b04037ce00d14c8ff74e0f248f",
+      "declarations": 1,
+      "declarationsSha256": "3c4536261e6e637da38fa28a6e2af588daeabba7bae605aea5a35c5aa952d874"
+    },
+    {
+      "path": "tests/lexlean/HashCase30.lex.tex",
+      "before": "aa8cd4064076865f985f48289948b4dacb70fe72695cc5203ec059b5a4fb25af",
+      "after": "39296feeef86c8bd268274e0ba593277654ff3d313b560609e6db930204daef3",
+      "declarations": 1,
+      "declarationsSha256": "c1411020624903707dbf474eb73ed512066a4d57f6cf7073158ca3d89cea1cdc"
+    },
+    {
+      "path": "tests/lexlean/LearningControls.lex.tex",
+      "before": "105d80d6ec691e8b611d852c3f1a3be0f01b6ee3fcb770acb0c583b8e86f8786",
+      "after": "443572a7cb4cd0c60956546914d958113d810af7863f6cf0ff4002b06dfb1e3a",
+      "declarations": 154,
+      "declarationsSha256": "51be246de582431f637dd488e816a9176a1c5c8cd0f752c234e4283bb1ee1f03"
+    },
+    {
+      "path": "tests/lexlean/ObjectiveControls.lex.tex",
+      "before": "9934a492d9d751ed0fde07f193b5a2582e70219b8a3f2eb72b595f955b2d77fc",
+      "after": "b733435912e985f84b2ced18c06d802300768b3564408a58ddd7dff46c930830",
+      "declarations": 91,
+      "declarationsSha256": "9d3806814681e8e1dcd7523c9dbff98cc52ab75c947a5d77c9982063479e300b"
+    },
+    {
+      "path": "tests/lexlean/RouteControls.lex.tex",
+      "before": "cb6125350b75d06db18b28d881fb23f34387ae636c0026bb69d0aecf341cc0ef",
+      "after": "8faa65782e41dce741ecb15f4f409f57b0bc9c3e7e159abc036930fbac4f9dff",
+      "declarations": 58,
+      "declarationsSha256": "92a84676cf24f1d852c1a6ec438ae3a9511429de10c90ae1bb53bc5bcf1e45a0"
+    },
+    {
+      "path": "tests/lexlean/TokenizerKernelBoundaryControls.lex.tex",
+      "before": "b70eb35d74ca6f6eeacc590d21f8803d1b8edae07fad30849be1e81e7d511da4",
+      "after": "6505f13cf095fcc2c76e04e4380dda2e3bb9bd548fb26579b85cba0cdf98bc33",
+      "declarations": 35,
+      "declarationsSha256": "d1c4e30a8b449b3916d2b19fe6563a01e491ef92e02375ee006e76391111349b"
+    },
+    {
+      "path": "tests/lexlean/TokenizerKernelControls.lex.tex",
+      "before": "dfa8e53738a4d2c12a57b6800185e0136e009a5de53ba4342f8a0ce13af052c9",
+      "after": "055d3e2dc8e19f630e4d9b9f6583dbae236e4be9796281a0e3fb5176f4da1a67",
+      "declarations": 58,
+      "declarationsSha256": "2be0b5ebc755fe107fb2b0a8c1df2eb1fc3da398c3fae8fde6436253581df06e"
+    },
+    {
+      "path": "tests/lexlean/TokenizerKernelLengthControls.lex.tex",
+      "before": "dc74c7be04391e9264356ec3e053c9440580ffceab4ec92f097d158d6254fde5",
+      "after": "eab7082f59c84862c7387e23e73010a8dbe812f28483242e48aeb54031185551",
+      "declarations": 13,
+      "declarationsSha256": "85ecde6c3b09e47ea141614534032f2e701eb6ea5e86f22d7dfae85282242f4e"
+    },
+    {
+      "path": "tests/lexlean/TokenizerKernelProgressControls.lex.tex",
+      "before": "8286c01b3c7092b8940f2163a2a07e29dd3ecafa0326a4912c634cb56ccb89a9",
+      "after": "0881fe66fec1b81e3f206fb3d98cc92e003c9f67447343b4ed06bf3eff5e7581",
+      "declarations": 1,
+      "declarationsSha256": "1ccdf0c949a9d118860225e0145bc494480eb9960fa4c1e90dbd4aef1f87052a"
+    },
+    {
+      "path": "tests/lexlean/TokenizerKernelSurfaceControls.lex.tex",
+      "before": "c46d8dac6721578f6281de87b13431a600eb2be9fc322dc35ad00502df130bd3",
+      "after": "d35601ce6fb324ebe3ba5277cc496b0f338b9be1e16cba61adc8bd5740159181",
+      "declarations": 15,
+      "declarationsSha256": "5197eb2e8e45059668b6836e3763e26b91f5b559fa42d9a38e9c39c2411022c2"
+    },
+    {
+      "path": "tests/lexlean/TokenizerKernelUnicodeControls.lex.tex",
+      "before": "4e84bd416d6daa435fe46c959000f217c92efa7e24b3edf1f84c6ad06388a91a",
+      "after": "a53867dd2739599c3befd778d0fe0b80d10e956cbccec408e8787c3565992b8e",
+      "declarations": 5,
+      "declarationsSha256": "ce959c3a352df1cd0cde14fec10a5fd173a6d5a883c1a16bbb44226da87f30e0"
+    },
+    {
+      "path": "tests/lexlean/TokenizerTextControls.lex.tex",
+      "before": "ec3b221ab55f1cb5b36460d0eac2208d4e26de76b1b390ce8dbb44a4064a4044",
+      "after": "d9eeab51a7f4df6d39f4594e80dadda3f5126e2b1324ab9a265faff0d5c733ba",
+      "declarations": 3865,
+      "declarationsSha256": "ad7993705ba86344b47df94478e70e71ce66865062a76804b068f3b90ac3c521"
+    },
+    {
+      "path": "tests/lexlean/TypesControls.lex.tex",
+      "before": "38671c44f31d5475abb570c6dc8c4b82f57fc7937277d9d35d0a63442a31be1a",
+      "after": "638e03f84d45e927dd71aae6e6560137662601a1a6dfad58cb8b441409e53607",
+      "declarations": 11,
+      "declarationsSha256": "6c3a3684c3998f216088843c7c1244eeebeb2fd9ab87ca527999e493574fead0"
+    },
+    {
+      "path": "tests/lexlean/WordsControls.lex.tex",
+      "before": "27d615ee3f8887ecfcaf88ae14a6fbd768a20cd87460a0546ded000147fa0ba6",
+      "after": "1aed483df67028b30fca7fb28ecae0610807652ac4d224ef0af85986f1df7434",
+      "declarations": 995,
+      "declarationsSha256": "42077563dfd04c99723a758ad9ed2280540826fba4266a55eeb94cf00afc6ae4"
+    }
+  ],
+  "hashInventory": {
+    "before": "15eb88f7ac49aa3910ab52ed6b322f6907a8edca21b1c97fc9bd248b6da44dfd",
+    "after": "66f2661bb885aa61c36365329cf267fe21ff7c245ec3a0d98e9751257e3899d7",
+    "originalSourceUnchanged": "0603c79620ff19e4a30239a7b180b214af5941d925f60161479a0049b8acd60e"
+  }
+}

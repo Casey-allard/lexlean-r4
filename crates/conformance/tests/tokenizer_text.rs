@@ -26,7 +26,7 @@ fn exact_tokenizer_text_r4_14() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/TokenizerTextControls.lex.tex",
         "TokenizerTextControls",
-        "ec3b221ab55f1cb5b36460d0eac2208d4e26de76b1b390ce8dbb44a4064a4044",
+        "d9eeab51a7f4df6d39f4594e80dadda3f5126e2b1324ab9a265faff0d5c733ba",
         &[
             "R4.TokenizerText",
             "R4.TokenizerTextUnicode",

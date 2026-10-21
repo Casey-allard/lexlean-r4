@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-18"
+level = "build"
+suite = "r4-json-number"
+statement = "Pure LexLean preserves standalone serde_json 1.0.150 default-profile tokenizer number admission and unsigned-ID classification, including exact binary64 finite acceptance expressed with integers. This does not establish complete JSON parsing, tokenizer identity or accepted generated execution."
+
+[[id]]
 id = "R4-17"
 level = "build"
 suite = "r4-evidence"

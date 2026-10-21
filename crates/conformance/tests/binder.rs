@@ -7,7 +7,7 @@ fn canonical_binder_r4_04() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/BinderControls.lex.tex",
         "BinderControls",
-        "07d929babf6072b9f8016174179c498e9a0b1d63cc6f29f7de1c645e8743ef6d",
+        "2787a4a06335c0a3222b0585d478afc807c7abd327122dde7ffe993860d207af",
         &["BinderControls", "R4.Binder"],
     )
 }

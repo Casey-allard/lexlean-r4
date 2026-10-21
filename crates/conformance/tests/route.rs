@@ -7,7 +7,7 @@ fn bounded_route_operator_r4_07() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/RouteControls.lex.tex",
         "RouteControls",
-        "cb6125350b75d06db18b28d881fb23f34387ae636c0026bb69d0aecf341cc0ef",
+        "8faa65782e41dce741ecb15f4f409f57b0bc9c3e7e159abc036930fbac4f9dff",
         &[
             "R4.Binder",
             "R4.Carrier",

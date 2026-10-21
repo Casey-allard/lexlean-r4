@@ -7,7 +7,7 @@ fn finite_learning_transition_r4_08() -> Result<(), Box<dyn std::error::Error>> 
     support::verify_controls(
         "tests/lexlean/LearningControls.lex.tex",
         "LearningControls",
-        "105d80d6ec691e8b611d852c3f1a3be0f01b6ee3fcb770acb0c583b8e86f8786",
+        "443572a7cb4cd0c60956546914d958113d810af7863f6cf0ff4002b06dfb1e3a",
         &[
             "LearningControls",
             "R4.Admission",

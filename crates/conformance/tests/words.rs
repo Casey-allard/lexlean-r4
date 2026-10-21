@@ -7,7 +7,7 @@ fn fixed_word_algebra_r4_09() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/WordsControls.lex.tex",
         "WordsControls",
-        "27d615ee3f8887ecfcaf88ae14a6fbd768a20cd87460a0546ded000147fa0ba6",
+        "1aed483df67028b30fca7fb28ecae0610807652ac4d224ef0af85986f1df7434",
         &["R4.Words", "WordsControls"],
     )
 }
