@@ -136,6 +136,18 @@ This establishes scalar formal evidence. Writer eligibility, policy-dependent
 rank computation, caller status conversion, learning, GPU parity and performance
 remain independent obligations. No model or training execution was run.
 
+## Clean committed-source replay
+
+Commit `44088c2` was exported with `git archive` into a new directory inside the
+network-disconnected development container. This excluded uncommitted binder
+work and all previously generated project proof/build artifacts. On that exact
+snapshot, formatting, warning-denying Clippy, all workspace tests, all-feature
+and all-target compilation, and generated-model equality passed. The run
+contained 25 Rust tests and two Node checks, with none ignored or filtered.
+Its three formal integration tests reverified the 876 theorem controls from
+fresh project outputs. Dependency caches and the installed SDK remained shared;
+this is a clean source/build replay, not a new SDK build or supply-chain audit.
+
 ## Complete acceptance remains blocked
 
 `just vv` was invoked inside the candidate with networking disconnected. It

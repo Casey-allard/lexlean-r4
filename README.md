@@ -16,12 +16,21 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-The first source slice implements the discrete engine's configuration predicate
-in LexLean, with eleven exact boundary theorems, independent kernel replay,
-and a registered PrismPM-template conformance scenario. Both a wrong bound and
-a vacuous replacement theorem were planted and rejected. This establishes
-bounded formal development evidence; the R4 engine, learning, memory and
-application are not implemented yet. See the [verification record](docs/VERIFICATION.md).
+Three source slices are implemented in LexLean and registered with the inherited
+PrismPM-template conformance model:
+
+- Configuration bounds, with eleven exact boundary theorems.
+- Canonical finite geometry, with 774 theorem controls for the 64 actions,
+  sixteen-root orbit, composition, inverse and ordered transport construction.
+- Scalar objectives, with 91 controls for hinges, policies and checked weighted
+  arithmetic, including overflow in an unselected branch.
+
+Each slice has independent kernel replay and planted-defect evidence. The
+conformance verifier binds reviewed control bytes and current model inputs to
+the fresh proof receipt. This is formal development evidence; the integrated
+R4 engine, learning, memory and browser application remain under implementation.
+See the [verification record](docs/VERIFICATION.md),
+[geometry contract](docs/GEOMETRY.md) and [objective contract](docs/OBJECTIVE.md).
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass
