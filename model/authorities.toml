@@ -29,6 +29,22 @@ statement = "Pinned source defines per-block transported node payloads, causal r
 realized_by = ["R4-10"]
 
 [[authority]]
+id = "UOR-OBJECT-HASH"
+name = "UOR exact BLAKE2b-96 node hashing"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs; RFC 7693"
+checksum = "sha256:f82cc1b4d4ef9ed2f0f0b933a9c8009611fe774de3666299a5f977fc0ed94b5f"
+statement = "Pinned source defines configured twelve-byte BLAKE2b node hashing; output-length configuration, actual counters and exact byte order are imported semantics."
+realized_by = ["R4-11"]
+
+[[authority]]
+id = "NIST-SHA256-VECTORS"
+name = "SHA-256 specification and independent NIST byte vectors"
+citation = "https://www.rfc-editor.org/rfc/rfc6234.html; https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/shs/shabytetestvectors.zip"
+checksum = "sha256:929ef80b7b3418aca026643f6f248815913b60e01741a44bba9e118067f4c9b8"
+statement = "RFC 6234 defines SHA-256; the checksum identifies the independent NIST byte-vector archive used for literal digest expectations, not the RFC HTML or an injectivity guarantee."
+realized_by = ["R4-11"]
+
+[[authority]]
 id = "UOR-DISCRETE-SPEC"
 name = "UOR-R4 discrete engine configuration"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate"

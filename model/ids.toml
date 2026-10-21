@@ -32,6 +32,12 @@ suite = "r4-flock"
 statement = "Pure LexLean models complete Flock and Relation reads over admitted occurrence roots and ordered forests, preserving exact frame transport, snapped consensus, causal ranking, five-edge synchronous cumulative relation sweeps, virtual changes and typed trace projections. Formal controls do not establish batch provenance, GPU parity, training permission or runtime performance."
 
 [[id]]
+id = "R4-11"
+level = "build"
+suite = "r4-hash"
+statement = "Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability."
+
+[[id]]
 id = "R4-01"
 level = "build"
 suite = "r4-types"

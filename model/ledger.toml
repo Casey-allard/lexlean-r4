@@ -26,6 +26,18 @@ authority = "UOR-DISCRETE-FLOCK"
 statement = "Flock and Relation contracts are imported from pinned integer CUDA source, including cumulative synchronous scores and occurrence-aware causality. Formal controls establish no execution parity or learned capability."
 
 [[claim]]
+id = "AUTH-OBJECT-HASH"
+level = "some-true"
+authority = "UOR-OBJECT-HASH"
+statement = "The exact BLAKE2b node identity convention is imported from pinned source; local controls do not prove collision freedom or durable storage."
+
+[[claim]]
+id = "AUTH-SHA256-VECTORS"
+level = "some-true"
+authority = "NIST-SHA256-VECTORS"
+statement = "SHA-256 semantics and literal digest expectations are imported from the named specification and independently pinned NIST vector archive."
+
+[[claim]]
 id = "AUTH-DISCRETE-SPEC"
 level = "some-true"
 authority = "UOR-DISCRETE-SPEC"

@@ -1,0 +1,218 @@
+{
+  "original_source_sha256": "0603c79620ff19e4a30239a7b180b214af5941d925f60161479a0049b8acd60e",
+  "exact_declaration_multiset_equal": true,
+  "original_count": 30,
+  "partition_count": 30,
+  "groups": [
+    {
+      "module": "HashCase01",
+      "path": "tests/lexlean/HashCase01.lex.tex",
+      "name": "nistAbcRoundZero",
+      "declaration_sha256": "bcb1f4a3a89fcff943f0391e987522827847b03794a3351ef594a6da3a855ad0",
+      "source_sha256": "5cc2fb5d85034da32bf3e410e17796eaccf7103326ec43cf876d6885714102fd"
+    },
+    {
+      "module": "HashCase02",
+      "path": "tests/lexlean/HashCase02.lex.tex",
+      "name": "sha256Empty",
+      "declaration_sha256": "d3d7ab7772ced83889dc77dd59efdd2229aa1c4c418091746f19f5f408a2acb1",
+      "source_sha256": "a633eb3465c4c1cc7653686abf0554dc86eb24b7a6e676f35cb5007e73b582c5"
+    },
+    {
+      "module": "HashCase03",
+      "path": "tests/lexlean/HashCase03.lex.tex",
+      "name": "sha256Abc",
+      "declaration_sha256": "2c96fd6731e775cd244a9c2e7efd49d17a01acc15ff015e7bf459fd4d780cc64",
+      "source_sha256": "9e57f0469131d45f2274eb50ddb35f50d884cfd9f676657c103f5d59e35153ea"
+    },
+    {
+      "module": "HashCase04",
+      "path": "tests/lexlean/HashCase04.lex.tex",
+      "name": "sha256NistBits440",
+      "declaration_sha256": "7fa338040bfef87d5652449fd1c0d9a17f80d9748c70db001ea8c16343dc6795",
+      "source_sha256": "7facf36f2dc536f7c58d7ecf49a9643ed48d4cfa64235dd7e6ea1ad39458bfd1"
+    },
+    {
+      "module": "HashCase05",
+      "path": "tests/lexlean/HashCase05.lex.tex",
+      "name": "sha256NistBits448",
+      "declaration_sha256": "3c8bd4a84ce8b003f687c68a168d268dcfd155614abf3147fdb90d62494103a0",
+      "source_sha256": "294df80a14b31be848caaebcc514cd917020d0ce9cdb1d6ae67642b7e112a70f"
+    },
+    {
+      "module": "HashCase06",
+      "path": "tests/lexlean/HashCase06.lex.tex",
+      "name": "sha256NistBits504",
+      "declaration_sha256": "1a3cb3d3ba7f82551d51bf4d902a6ba12f794f75a5bba94084eb2bc94c78e9df",
+      "source_sha256": "4a81fb7faedc6dba3d5ddbc23e061549d160dcc06aa7fdf4d14fff507dc6fcc1"
+    },
+    {
+      "module": "HashCase07",
+      "path": "tests/lexlean/HashCase07.lex.tex",
+      "name": "sha256NistBits512",
+      "declaration_sha256": "b157d49bc3d1addf043c61112c0aab1482268a7b81f146f4157ec227cb207484",
+      "source_sha256": "5f2bde9a206734408efca45c7f2234c5e635b6af7972f17a28e856d8b777daef"
+    },
+    {
+      "module": "HashCase08",
+      "path": "tests/lexlean/HashCase08.lex.tex",
+      "name": "sha256NistBits1304",
+      "declaration_sha256": "46a8f5bdb1d33ce0730a48ba0cb42a94edcf50dcba01b6d12f19df5ab340a52d",
+      "source_sha256": "38cae7b247904f03b36b334bbb0bbf02ac85d7522a266dc71d2ad21a52dd01ce"
+    },
+    {
+      "module": "HashCase09",
+      "path": "tests/lexlean/HashCase09.lex.tex",
+      "name": "sha256ProtocolObject",
+      "declaration_sha256": "62ef0f1566f11ba653dc84fc1dd0079ebe8948980977bed534937122aa8b2040",
+      "source_sha256": "2a1f466fb646e80e09a0408893d4c38a038702b74ac8b6e8b3521a223f1ab439"
+    },
+    {
+      "module": "HashCase10",
+      "path": "tests/lexlean/HashCase10.lex.tex",
+      "name": "sha256ProtocolManifest",
+      "declaration_sha256": "0190463a51aafae43c92c4f861a5f00d866c4e102d537495e784f6df5d720c2d",
+      "source_sha256": "e9917f30944b5d7dfb90244b4f420e518349f7c7fb87ccafedfe144e05e38ad7"
+    },
+    {
+      "module": "HashCase11",
+      "path": "tests/lexlean/HashCase11.lex.tex",
+      "name": "zeroLeaf",
+      "declaration_sha256": "8ade5848a4e0c879d2cbd7e41f7b3be219c144c9e5e1b8ff981cf9e3b1757c04",
+      "source_sha256": "b38ab789c8c937a5edba751a1e89ff01160d08ce4614bafb1a33299612b19746"
+    },
+    {
+      "module": "HashCase12",
+      "path": "tests/lexlean/HashCase12.lex.tex",
+      "name": "protocolLeaf0",
+      "declaration_sha256": "eb8189b8111bfbceba7eed0ba54dfe3ae178383a6ff442401240ced47c05f513",
+      "source_sha256": "c10b2e84f4d9b02fb8973f9ab224feb4b977b41c151c9a882838c3dceceb1ab1"
+    },
+    {
+      "module": "HashCase13",
+      "path": "tests/lexlean/HashCase13.lex.tex",
+      "name": "protocolLeaf1",
+      "declaration_sha256": "4199a8d6ca74c1416b26f1b94ef68e250eccb37444a4647d8db7d50681e15fc7",
+      "source_sha256": "4e8428ab012a69ab16b0f4d203ca218e9fe4867a11202154fc753fff07c0e625"
+    },
+    {
+      "module": "HashCase14",
+      "path": "tests/lexlean/HashCase14.lex.tex",
+      "name": "protocolLeaf2",
+      "declaration_sha256": "fe75639eef4b551143470cac70b8510bafb8f45dd11692835dfecb92221b38d4",
+      "source_sha256": "f6523ff0ed48eccfad48947cf14852032b0f16bbfc9a70191710d159730ace2f"
+    },
+    {
+      "module": "HashCase15",
+      "path": "tests/lexlean/HashCase15.lex.tex",
+      "name": "protocolParent",
+      "declaration_sha256": "3190bbaa414ef08b02617840726f80a444ad64918e267a262980f6115338c734",
+      "source_sha256": "88eba7b3b4fad686992c9b8b471196d73c85d3a43812dfd5e76bdd0bba84d974"
+    },
+    {
+      "module": "HashCase16",
+      "path": "tests/lexlean/HashCase16.lex.tex",
+      "name": "blake96Length0",
+      "declaration_sha256": "8efa31b3bbf25622844462efaf854ee3f9c1d4ea212416dcbfddce368dfb5b45",
+      "source_sha256": "fc3074831ad6c83e98da2fe7b5164f265265f5bd768c77de7aef52a24ed779ee"
+    },
+    {
+      "module": "HashCase17",
+      "path": "tests/lexlean/HashCase17.lex.tex",
+      "name": "blake96Length1",
+      "declaration_sha256": "89079fbcf93d47fdae8db23768af1d16cbca09b477517cc63d9c8d2522c401e4",
+      "source_sha256": "293f7b30140f8d5b3329f843eaca2ef65519dc30cb1b638ac4951933285de3e3"
+    },
+    {
+      "module": "HashCase18",
+      "path": "tests/lexlean/HashCase18.lex.tex",
+      "name": "blake96Length2",
+      "declaration_sha256": "864b0baa9f7504d5a1e5cb5916dc90b2a44895661440175d86890db879f632c3",
+      "source_sha256": "281c8291868d32bbdbca609b01c75a89de469ffe52119cc5942aa099c64311e0"
+    },
+    {
+      "module": "HashCase19",
+      "path": "tests/lexlean/HashCase19.lex.tex",
+      "name": "blake96Length3",
+      "declaration_sha256": "f31f00ef81dd45b7bf9f1bdd9e744f0081d9a766f89b636540674e92567590ec",
+      "source_sha256": "8c6d9762d7a057ee4f0195e38511b241dbeba9dff4816c7a44f2d9d0431a89ab"
+    },
+    {
+      "module": "HashCase20",
+      "path": "tests/lexlean/HashCase20.lex.tex",
+      "name": "shaLengthMaximum",
+      "declaration_sha256": "bdbc6d499772f5c645f81bb29cc753db1a8b88732ac92738fc283083ba0ab416",
+      "source_sha256": "9a89be3cbcea86c5c4d9665fd43fb707b7aac2a256d2991fa00e0965b3b288e8"
+    },
+    {
+      "module": "HashCase21",
+      "path": "tests/lexlean/HashCase21.lex.tex",
+      "name": "shaLengthOverflow",
+      "declaration_sha256": "d3167412a543c2ca4bb4c7aedb4571496437ff8515fee32a1051b835f27fbee6",
+      "source_sha256": "3ab6188b5ed37b997db994cf2b4ddd8db32c4b770f8c2ad3b9555be5f92181cc"
+    },
+    {
+      "module": "HashCase22",
+      "path": "tests/lexlean/HashCase22.lex.tex",
+      "name": "shaByteInvalid",
+      "declaration_sha256": "8d375491cd68897b590e2b8c973a2a5329b028f62c82e2bdddd27b34af02550e",
+      "source_sha256": "2ef509d39111a072e564333a922548d363ce5ba8e49dc733f2e256b70611bace"
+    },
+    {
+      "module": "HashCase23",
+      "path": "tests/lexlean/HashCase23.lex.tex",
+      "name": "shaBudgetBeforeByte",
+      "declaration_sha256": "4422498d3c7ab51a928ddaecafea2f4e817545bb83835934e248a18a22d69244",
+      "source_sha256": "5fcbf11b150ec11b53ec85169731bee0dde8139b33e9bc15a0a1e19a50e1ebd3"
+    },
+    {
+      "module": "HashCase24",
+      "path": "tests/lexlean/HashCase24.lex.tex",
+      "name": "shaBudgetExact",
+      "declaration_sha256": "d94d739c2045468eeb9c84fd97b7a5f721ef64661b805c7bd729a5544748a862",
+      "source_sha256": "d99d1bf85f9de98e9a73f95bae039b3474e487361de34ed26bba0852120c9fc6"
+    },
+    {
+      "module": "HashCase25",
+      "path": "tests/lexlean/HashCase25.lex.tex",
+      "name": "nodeRejectedScale38Size32",
+      "declaration_sha256": "8a9f25f6bb43e95dedabb5ff0cf72a11f13f7690c6db56de407bc346155084d2",
+      "source_sha256": "f3d158097ad8941f12ae53f32d6798014cb8176f958827a29f834e8f7ed94c48"
+    },
+    {
+      "module": "HashCase26",
+      "path": "tests/lexlean/HashCase26.lex.tex",
+      "name": "nodeRejectedScale0Size31",
+      "declaration_sha256": "1f557cc4062540af27db766f0266c371244b80fe9f1af4089dc9034564b36829",
+      "source_sha256": "90aceb76e4089771036ffc1a1fc59f7d69b598e23b1183a6fb59894d685931a1"
+    },
+    {
+      "module": "HashCase27",
+      "path": "tests/lexlean/HashCase27.lex.tex",
+      "name": "nodeRejectedScale0Size33",
+      "declaration_sha256": "74285959e575fa7b1e69b78dbdb07641c92a9100c05477aee39dc3ede8f3b635",
+      "source_sha256": "4ca0f39b47d62c77e458c17e0b040dc0faae32ea8c10fdd5c56be2036691eaf5"
+    },
+    {
+      "module": "HashCase28",
+      "path": "tests/lexlean/HashCase28.lex.tex",
+      "name": "nodeRejectedScale1Size35",
+      "declaration_sha256": "8ba9222c477325e9d9e61e402ecd6b94cb0e74d2d5a8f8b5619da32d9a590e81",
+      "source_sha256": "34e5248b2e5b7781cdd0f08d2d13a99aff57ccbc883d656b42066a63367b9742"
+    },
+    {
+      "module": "HashCase29",
+      "path": "tests/lexlean/HashCase29.lex.tex",
+      "name": "nodeRejectedScale37Size37",
+      "declaration_sha256": "1afe51ab673099619eb0b5013ce2ab5bb18175e1b9277f59371fac91d3658d1d",
+      "source_sha256": "96a0510c5d4b6b6ab9ea3c684955bd870efe1807c630fced199979d88e610260"
+    },
+    {
+      "module": "HashCase30",
+      "path": "tests/lexlean/HashCase30.lex.tex",
+      "name": "blakeTooLong",
+      "declaration_sha256": "20e73226e4b8cc0e04735111059a4903ef0e6a4484d0e6afbd1f9d2a32fae32d",
+      "source_sha256": "aa8cd4064076865f985f48289948b4dacb70fe72695cc5203ec059b5a4fb25af"
+    }
+  ]
+}

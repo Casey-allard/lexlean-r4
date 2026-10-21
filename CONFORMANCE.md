@@ -54,6 +54,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-02` | `build` | The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification. |
 
+## r4-hash
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-11` | `build` | Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability. |
+
 ## r4-learning
 
 | ID | Level | Statement |
@@ -92,6 +98,8 @@ Never re-derived, vendored, or gated on.
 | --- | --- | --- |
 | `UOR-DISCRETE-ENGINE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels | `R4-12` |
 | `UOR-DISCRETE-FLOCK` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — snap, frame_block, gate_value and flock_vector | `R4-10` |
+| `UOR-OBJECT-HASH` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs; RFC 7693 | `R4-11` |
+| `NIST-SHA256-VECTORS` | https://www.rfc-editor.org/rfc/rfc6234.html; https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/shs/shabytetestvectors.zip | `R4-11` |
 | `UOR-DISCRETE-SPEC` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate | `R4-01` |
 | `UOR-FINITE-GEOMETRY` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs | `R4-02` |
 | `UOR-DISCRETE-OBJECTIVE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer | `R4-03` |
@@ -108,6 +116,8 @@ Never re-derived, vendored, or gated on.
 | --- | --- | --- |
 | `AUTH-DISCRETE-ENGINE` | `some-true` | Engine composition and initialization semantics are imported from pinned host and CUDA sources. Formal controls establish neither research qualification nor permission to bypass the source training hold. |
 | `AUTH-DISCRETE-FLOCK` | `some-true` | Flock and Relation contracts are imported from pinned integer CUDA source, including cumulative synchronous scores and occurrence-aware causality. Formal controls establish no execution parity or learned capability. |
+| `AUTH-OBJECT-HASH` | `some-true` | The exact BLAKE2b node identity convention is imported from pinned source; local controls do not prove collision freedom or durable storage. |
+| `AUTH-SHA256-VECTORS` | `some-true` | SHA-256 semantics and literal digest expectations are imported from the named specification and independently pinned NIST vector archive. |
 | `AUTH-DISCRETE-SPEC` | `some-true` | The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port. |
 | `AUTH-FINITE-GEOMETRY` | `some-true` | The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here. |
 | `AUTH-DISCRETE-OBJECTIVE` | `some-true` | The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations. |

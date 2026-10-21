@@ -1,0 +1,10 @@
+\begin{lexlean}{HashCase22}
+\useglossary{lexlean.std.bool@1.1.0}
+\useglossary{lexlean.std.nat@1.1.0}
+\importmodule{R4.Hash}
+\importmodule{R4.Words}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"shaByteInvalid","parameters":[],"proof":{"kind":"reflexivity"},"statement":{"kind":"eq","left":{"arguments":[{"head":{"kind":"nat","value":"0"},"kind":"cons","tail":{"head":{"kind":"nat","value":"256"},"kind":"cons","tail":{"element":{"kind":"nat"},"kind":"nil"}}}],"function":{"module":"R4.Hash","name":"sha256"},"kind":"call"},"right":{"arguments":[{"arguments":[{"kind":"nat","value":"1"},{"kind":"nat","value":"256"}],"constructor":{"module":"R4.Hash","name":"HashError.invalidByte"},"kind":"constructor","type_arguments":[]}],"constructor":{"name":"Result.error"},"kind":"constructor","type_arguments":[{"arguments":[],"kind":"named","member":{"module":"R4.Hash","name":"Digest256"}},{"arguments":[],"kind":"named","member":{"module":"R4.Hash","name":"HashError"}}]}}}],"spec":"lexlean/semantic-module/1"}}
+\end{semanticmodule}
+\end{lexlean}
