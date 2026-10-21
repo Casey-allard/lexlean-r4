@@ -100,11 +100,7 @@ fn main() {
         "tests/tokenizer_kernel.rs",
         "exact_tokenizer_kernel_r4_16",
     );
-    require_test(
-        &root,
-        "tests/evidence.rs",
-        "exact_evidence_r4_17",
-    );
+    require_test(&root, "tests/evidence.rs", "exact_evidence_r4_17");
     require_test(&root, "tests/json_number.rs", "exact_json_number_r4_18");
     require_test(
         &root,
