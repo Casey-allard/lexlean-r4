@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-TOKENIZER-KERNEL"
+name = "UOR byte-BPE semantic configuration and execution"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls"
+checksum = "sha256:52949ae97d4043547d8a3897d04298e0bed64fc5538c835c077feaa0537cff35"
+statement = "Pinned source defines vocabulary and merge admission, added-token matching, source-compatible preprocessing, BPE and decoding. Raw JSON parser profiles and actual BLAKE3 identity are separate required components."
+realized_by = ["R4-16"]
+
+[[authority]]
 id = "UNICODE17-TOKENIZER-TEXT"
 name = "Unicode 17 properties and Rust 1.97.1 compressed literals"
 citation = "https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities"

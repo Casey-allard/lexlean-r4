@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-16"
+level = "build"
+suite = "r4-tokenizer-kernel"
+statement = "Pure LexLean admits complete typed byte-BPE configurations, performs source-compatible added-token matching, Digits and ByteLevel segmentation, ranked nonoverlapping merges and fallback, and exact raw, lossy and strict decoding. Formal semantic controls do not establish raw JSON acceptance, tokenizer identity or generated runtime acceptance."
+
+[[id]]
 id = "R4-14"
 level = "build"
 suite = "r4-tokenizer-text"

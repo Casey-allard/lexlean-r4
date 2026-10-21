@@ -435,3 +435,28 @@ dependency ownership, then failed at `template-check` line 17 because
 `prismpm.lock` is absent. An initial invocation used the login shell's default
 Cargo home and was interrupted without a result; the recorded attempt used
 the retained offline cache. Neither attempt establishes production acceptance.
+
+## Fourteenth component: typed tokenizer kernel
+
+R4-16 adds the reviewed 115-declaration typed tokenizer kernel and 127 frozen
+controls in six fixtures. The mandatory Rust integration target passed in
+124.48 seconds with no ignored or filtered tests. Every fixture was checked by
+the unchanged shared receipt validator, including exact input identities,
+none-policy axiom audits and independent kernel replay. Full receipt identities,
+Unicode regression evidence and four semantic plants appear in
+[TOKENIZER-KERNEL.md](TOKENIZER-KERNEL.md).
+
+The isolated integration snapshot passed fourteen-ID model generation,
+formatting, lock checking and all-target/all-feature Clippy with warnings denied.
+Default source checking passed all 67 modules without diagnostics:
+source identity `325887ba206611bbf61c0122766490d0d303b4fc411320186f5556e6981f4e81`,
+semantic identity `c8bebc52f37d2fe6e57a297691eda6ab42ab952f93dbe6f1d2a5f459022c4a8b`.
+Configuration SHA-256 is `61608e2debc1e76b89258bd2c74d8188f26d7d2454a8d6f40894f7b161a6ae2e`;
+lock SHA-256 is `1b35d04ceb567c6fbe03885ff1814be73a60e0863b47056843bea13663365c6e`.
+
+The combined graph contains 6,636 theorem controls. Its combined formal replay
+has not yet run; the last full combined result remains the twelve-component
+replay recorded above. Full `just vv` again passed model consistency and
+ownership and failed at template-check line 17 on missing `prismpm.lock`.
+This establishes neither raw JSON/tokenizer identity nor accepted generated
+execution, research qualification, persistent application behavior or Pages.

@@ -97,6 +97,11 @@ fn main() {
     );
     require_test(
         &root,
+        "tests/tokenizer_kernel.rs",
+        "exact_tokenizer_kernel_r4_16",
+    );
+    require_test(
+        &root,
         "tests/engine.rs",
         "complete_engine_composition_r4_12",
     );

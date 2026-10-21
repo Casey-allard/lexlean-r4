@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-TOKENIZER-KERNEL"
+level = "some-true"
+authority = "UOR-TOKENIZER-KERNEL"
+statement = "Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization."
+
+[[claim]]
 id = "AUTH-UNICODE17-TEXT"
 level = "some-true"
 authority = "UNICODE17-TOKENIZER-TEXT"

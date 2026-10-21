@@ -78,6 +78,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
 
+## r4-tokenizer-kernel
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-16` | `build` | Pure LexLean admits complete typed byte-BPE configurations, performs source-compatible added-token matching, Digits and ByteLevel segmentation, ranked nonoverlapping merges and fallback, and exact raw, lossy and strict decoding. Formal semantic controls do not establish raw JSON acceptance, tokenizer identity or generated runtime acceptance. |
+
 ## r4-tokenizer-text
 
 | ID | Level | Statement |
@@ -102,6 +108,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-TOKENIZER-KERNEL` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls | `R4-16` |
 | `UNICODE17-TOKENIZER-TEXT` | https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities | `R4-14` |
 | `UOR-TOKENIZER-TEXT` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md pins Rust 1.97.1 UTF-8 and Unicode 17 source dependencies | `R4-14` |
 | `UOR-DISCRETE-ENGINE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels | `R4-12` |
@@ -122,6 +129,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-TOKENIZER-KERNEL` | `some-true` | Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization. |
 | `AUTH-UNICODE17-TEXT` | `some-true` | Complete Unicode 17 classification facts and pinned Rust compressed literal inventories are imported and independently compared as data. Local text algorithms require their separate formal controls. |
 | `AUTH-TOKENIZER-TEXT` | `some-true` | Tokenizer text and alphabet semantics are imported from pinned UOR and Rust sources. Formal text controls establish neither complete tokenization nor trusted raw-byte tokenizer identity. |
 | `AUTH-DISCRETE-ENGINE` | `some-true` | Engine composition and initialization semantics are imported from pinned host and CUDA sources. Formal controls establish neither research qualification nor permission to bypass the source training hold. |
