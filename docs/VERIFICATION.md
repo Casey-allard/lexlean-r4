@@ -6,7 +6,8 @@ research qualification, a trained artifact, or a Pages deployment.
 
 ## Environment
 
-Formal verification used the public development SDK by immutable index:
+The initial through eleven-component verification used the public development
+SDK by immutable index:
 
 ```text
 ghcr.io/uor-foundation/prismpm-sdk-candidate@sha256:60226bc791d4c0e5613402a6be7e63f4963d3faf7f327befcf56fc0e41d0ce21
@@ -345,3 +346,55 @@ dependency-ownership auditing, then failed because `prismpm.lock` is absent.
 Production acceptance remains failed. Formal Engine composition establishes
 neither generated runtime custody, authorized GPU parity/training, an exported
 serving artifact, durable browser behavior nor a Pages deployment.
+
+## Twelve-component replay under the newer construction
+
+Hash commit `a8599460127a8805f482a7f890fb3625f662f401` adds the complete hash
+component and its thirty original theorem controls. This snapshot uses the
+official construction artifact described in [UPSTREAM.md](UPSTREAM.md), OCI
+manifest `716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6`,
+with executable SHA-256
+`107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5`.
+Its genuine language-1.1 lock records compiler semantics
+`4658bc8564c14b99f771a758276c578e8acd5ef5f24a3c43e69e4e6eb7df370e`;
+the version banner's compatibility-language-1.0 identity is a separate value.
+The fixed SDK limits, no-axiom policy and shared receipt validator are unchanged.
+
+Formatting, twelve-ID model generation, lock checking and all-target/all-feature
+Clippy passed. The actual mandatory hash target passed all thirty cases in
+1010.80 seconds. A separate workspace regression run passed the previous
+33 Rust tests and two inherited Node tests under the same compiler; that
+regression command explicitly excluded the already completed hash target.
+It therefore reported one filtered test and is not represented as an unfiltered
+single workspace run. Together, the two runs exercised all twelve component
+tests; neither is the production acceptance boundary.
+
+```text
+cargo test --offline --locked -p repo-conformance --test hash
+cargo test --offline --locked --workspace --all-features -- --skip complete_content_hashes_r4_11
+lexlean --diagnostic-format json verify
+```
+
+The separate, unfiltered default LexLean verification passed **57 modules**
+and **2,644 controls**. Its receipt contains **4,254** unique declaration audits,
+all with empty observed axioms, policy `none` with an empty allowed list, and
+result `ok`. All **57** independent kernel replays passed. The parent separately
+audited result/receipt/manifest identities, manifest bytes and length, every
+control's presence and every one of the **59 non-lexicon input files** against
+a frozen checkout of `cc2d32fbcbb5b2460ec5c1130ad924efb02ebd73`. That later
+revision adds documentation without changing the verified program inputs.
+This is a proof-input comparison, not a claim that the original staging
+directory contained every later documentation file.
+
+- Attestation: `f61211a420ef6b88811b417b88bf64f5bbd93a94f553df0d6fa903553eb54d12`
+- Build: `0a9c994de308ec2b231bd02ac33b54369f3a8682b15d6f2186ef71e2e9be9a75`
+- Source: `c753c4b71c3e9e3308bb5ee8c7565d4da3f66f0a724103d627a1442410c07177`
+- Semantic: `7ec14ecd5c2dd520428d0651d1e5c355c865455fdd464e31b48fb78e47a81915`
+- Configuration SHA-256: `e6dcbfc21b3eb3a336aa48165b6b135b56cb28ca34fe1f4a1b82d6d0f92a6e36`
+- Lock SHA-256: `9ed30743817f93569d958b9ea95d43a25e98aa0a1d5819fc8df51e089b1a7ac6`
+
+The actual `just vv` attempt passed twelve-ID model consistency and dependency
+ownership, then failed at `template-check` line 17 because `prismpm.lock` is
+absent. The construction artifact remains explicitly unaccepted for production.
+No generated execution, GPU research, trained capability, persistent browser
+behavior or Pages deployment follows from these formal results.

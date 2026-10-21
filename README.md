@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Eleven source slices are implemented in LexLean and registered with the inherited
+Twelve source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -42,6 +42,9 @@ PrismPM-template conformance model:
 - Composed Engine, with 100 controls for exact seeded initialization, carried
   causal windows, full batch admission, all read modes, actual paired
   counterfactual reads and writer scores, and guarded geometric transitions.
+- Complete SHA-256 and configured BLAKE2b-96 node identities, with thirty
+  independent controls covering full digests, padding, multiblock chaining,
+  logical counters, byte order and typed admission.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
@@ -52,13 +55,16 @@ See the [verification record](docs/VERIFICATION.md),
 [geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
 [binder contract](docs/BINDER.md), [admission contract](docs/ADMISSION.md)
 and [configuration contract](docs/CONFIGURATION.md). The default verification
-roots include all eleven slices, containing 2,614 theorem controls across
-twenty-six modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
+roots include all twelve slices, containing 2,644 theorem controls across
+57 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
 [word operations](docs/WORDS.md) and [Flock/Relation](docs/FLOCK.md) each passed their refreshed isolated-snapshot
 integration test after review. The [Engine](docs/ENGINE.md) supplies the actual
 read/writer outcomes and complete candidate losses to the learning component;
 its integration test and five planted-defect checks pass. This establishes
 formal composition, without establishing runtime custody or corpus training.
+The [hash component](docs/HASH.md) preserves every original theorem while
+compiling expensive digest controls in separate modules. The newer SDK passed
+the complete default graph, including all 57 independent kernel replays.
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass
