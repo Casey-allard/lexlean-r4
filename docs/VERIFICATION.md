@@ -32,11 +32,23 @@ The first red source check reported `LLT4001`: the boundary tests referred to
 LexLean checked and built two modules and independently verified all eleven
 boundary theorems without axioms.
 
-The Rust integration test checks the exact theorem statements against independent
-literal boundary cases. It requests machine-readable verification, requires the
+The Rust integration test freezes the reviewed independent literal theorem file
+by SHA-256 before verification. It requests machine-readable verification, requires the
 selected modules, binds the fresh four identity fields to the returned receipt,
 requires each theorem's empty-axiom audit, and requires successful independent
 kernel replay for both modules. It does not implement configuration logic.
+
+The shared verifier additionally checks the receipt's copied build manifest
+against its hash and length, then binds every non-lexicon input to current
+workspace bytes. Canonical paths must stay inside the project. The selected
+control file must occur exactly once with its reviewed digest, and the audit
+must contain every unique control theorem. The build audit inspects the shared
+helper as well as itself and each required entrypoint. The Types control digest
+is `38671c44f31d5475abb570c6dc8c4b82f57fc7937277d9d35d0a63442a31be1a`.
+After this refactoring, replacing `minimumSpec` with `0 = 0` again failed the
+actual integration test (exit 101, `reviewed control statements changed`). The
+original fixture was restored with its digest unchanged. Independent Rust and
+security review found no blocking issue in this source-binding change.
 
 The following representative defects were planted and restored:
 

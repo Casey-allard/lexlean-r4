@@ -27,28 +27,20 @@ fn parse_active_source(path: &Path) -> syn::File {
     parsed
 }
 
-fn main() {
-    println!("cargo:rerun-if-changed=Cargo.toml");
-    let root = std::path::PathBuf::from(
-        std::env::var_os("CARGO_MANIFEST_DIR").expect("Cargo supplies the manifest directory"),
-    );
-    // Inspect the audit's own attributes too; it has no conditional mode.
-    parse_active_source(&root.join("build.rs"));
-    let tests = parse_active_source(&root.join("tests/lexlean.rs"));
+fn require_test(root: &Path, path: &str, name: &str) {
+    let tests = parse_active_source(&root.join(path));
     let required: Vec<_> = tests
         .items
         .iter()
         .filter_map(|item| match item {
-            syn::Item::Fn(function) if function.sig.ident == "configuration_boundaries_r4_01" => {
-                Some(function)
-            }
+            syn::Item::Fn(function) if function.sig.ident == name => Some(function),
             _ => None,
         })
         .collect();
     assert_eq!(
         required.len(),
         1,
-        "one top-level R4 acceptance test is required"
+        "one top-level {name} acceptance test is required in {path}"
     );
     let function = required[0];
     assert!(function.sig.inputs.is_empty() && function.sig.generics.params.is_empty());
@@ -69,4 +61,15 @@ fn main() {
         }),
         "the required R4 entrypoint must not have attributes that alter execution"
     );
+}
+
+fn main() {
+    println!("cargo:rerun-if-changed=Cargo.toml");
+    let root = std::path::PathBuf::from(
+        std::env::var_os("CARGO_MANIFEST_DIR").expect("Cargo supplies the manifest directory"),
+    );
+    // Inspect the audit and common verifier too; neither has a conditional mode.
+    parse_active_source(&root.join("build.rs"));
+    parse_active_source(&root.join("tests/support/mod.rs"));
+    require_test(&root, "tests/lexlean.rs", "configuration_boundaries_r4_01");
 }
