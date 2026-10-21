@@ -200,6 +200,17 @@ Its three formal integration tests reverified the 876 theorem controls from
 fresh project outputs. Dependency caches and the installed SDK remained shared;
 this is a clean source/build replay, not a new SDK build or supply-chain audit.
 
+The six-slice replay used committed source `6c38f00`, again exported through
+`git archive` into a fresh container directory. Formatting, warning-denying
+Clippy, all workspace tests, all-feature/all-target compilation, generated-model
+equality and the canonical language-lock check passed. This run contained
+28 Rust tests and two Node checks, with no ignored or filtered tests. The six
+formal integration tests independently reverified all 1,188 controls. The first
+attempt at its predecessor `e9ec52e` stopped at one rustfmt line-wrap mismatch
+in the admission test registration; the formatting-only correction was reviewed
+before this replay. Full `just vv` on `6c38f00` still failed at the missing
+production `prismpm.lock` after successful six-ID model equality.
+
 ## Complete acceptance remains blocked
 
 `just vv` was invoked inside the candidate with networking disconnected. It
