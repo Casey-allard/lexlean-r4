@@ -1,7 +1,10 @@
 # Pure unkeyed BLAKE3-256 for tokenizer identity
 
-Status: complete algorithm design for independent review; no new source,
-scenario, registered capability or verified tokenizer identity is introduced.
+Status: reviewed complete algorithm design with isolated implementation
+evidence. R4-15 has 255/272 frozen controls formally verified and audited,
+including 18/35 required published vectors; complete BLAKE3 acceptance and
+verified tokenizer identity remain pending. This document is not a production
+or model-execution claim.
 The scope is the ordinary unkeyed BLAKE3 hash with exactly 32 output bytes,
 including arbitrary finite admitted input, incremental updates, all chunk/tree
 boundaries, and final ROOT compression. Keyed hashing, key derivation and a
@@ -393,8 +396,9 @@ fixture lookup runtime, or host hash fallback can close an unresolved proof.
 
 1. Register scope/authorities and freeze all original vectors plus typed
    admission/state controls; demonstrate RED before implementation.
-2. Define fixed representations, compression and output-node semantics with
-   existing Words operations; verify complete short published digests.
+2. Define the reviewed fixed-word representation, compression and output-node
+   semantics; verify complete short published digests. The dated decision below
+   selects the Nat representation for the current isolated implementation.
 3. Implement complete pending block/chunk transitions, exact stack reduction
    and ROOT finalization; establish streaming/whole-input equivalence controls.
 4. Verify every original vector, including irregular and large trees, through
@@ -412,3 +416,139 @@ or browser execution. Tokenizer identity remains incomplete until its exact
 byte construction and actual hash calls are accepted together. The design
 preserves those obligations and performs no reference hash, model evaluation,
 compiler job, source implementation, or registration change.
+
+## 9. Reviewed representation decision — 2026-10-21
+
+Independent architecture review and parent approval select pure LexLean Nat
+arithmetic for the next isolated implementation. This supersedes the conditional
+native-UInt preference in section 2. Official native fixed-integer wrappers
+failed the unchanged none-axiom policy; those failures remain recorded in
+`docs/BLAKE3.md`. They are not repaired by allowing additional axioms.
+
+The official LexLean revision is
+`0865df4e540ca643b090a29e9df6d319d6906da6`, retained by the inspected PrismPM
+construction. Its [semantic backend](https://github.com/UOR-Foundation/LexLean/blob/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/backend/semantic.rs)
+already supplies `portable_runtime_1_2`: it exposes runtime definitions across
+Lean modules while preserving `noinline`. Language 1.1 intentionally retains
+the earlier unexposed arithmetic helpers. No compiler patch, generated-Lean
+edit, host hash, or alternate axiom policy is needed for this exposure path.
+
+Seven unchanged numeric quotient, remainder, subtraction, multiplication and
+wrapping statements passed imported reflexivity under official language 1.2,
+semantic-module/2, and builtin glossaries 1.2.0. The attestation is
+`2e5bcc56a7f9399595e9c7fa8e6abb02056ef95fcf321a119f57bfee342d42af`.
+Exact application of real source-local numeric certificates also passed under
+1.1 (`35a53ff5d37be6c0360662c2fc1783d8e5023268d29785cd986d38da3e5b626b`)
+and 1.2 (`06007401f72145d50cf535b11353b29b63e081b06947c3999b80a053b698b112`).
+Each receipt has 21 empty-axiom declaration audits and eight independent kernel
+replays; all ten non-lexicon manifest inputs were independently byte-checked.
+The isolated 1.2 lock records compiler semantics
+`09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86`.
+These arithmetic checks establish neither full BLAKE3 nor a performance result.
+
+The selected representation has these complete obligations:
+
+- Word values are Nat with explicit public admission below 2^32. Addition is
+  exact Nat addition followed by remainder modulo 2^32. Internal operations
+  preserve this range; malformed public inputs return typed errors.
+- XOR consumes exactly 32 binary positions, using quotient and remainder by
+  two. There is no data-dependent early truncation or supplied answer table.
+  Rotations use exact powers of two, quotient, remainder and scalar
+  multiplication, with checked amounts and full wraparound. All 32 positions,
+  carry boundaries and byte-endian directions receive independent controls.
+- The counter is a Nat admitted below 2^64, split into low/high 32-bit words.
+  Byte input remains explicitly admitted in 0..255. Stream length, chunk index,
+  block length and flags retain the complete source bounds and meanings.
+- The compression schedule, all seven rounds, sixteen-word feedforward,
+  pending full blocks/chunks, ordered tree reduction and final ROOT output
+  remain exactly sections 2–4. Every one of the 35 frozen official messages
+  and digest literals remains required, including the 102400-byte message.
+- Primitive controls and independently justified round/compression controls
+  are frozen before their corresponding definitions. Complete digest proofs
+  or connected certificates must invoke the actual algorithm; an imported
+  certificate may prove an unchanged statement but may not replace its input,
+  output, or implementation with an oracle.
+
+The initial implementation stays in a separate language-1.2 project. A later
+application migration must change the project language, every transitive
+semantic-module discriminator, and the matching builtin glossary versions;
+mixed spec-1 imports are rejected by the official language-directed schema
+check. The migration requires an exact declaration/body/statement comparison,
+a fresh lock and compiler identity, updated immutable fixture identities, and
+complete replays of all previously accepted controls. A version edit alone
+does not establish whole-project semantic compatibility. The accepted
+application migration remains subject to that separate parent integration
+review; isolated BLAKE3 receipts do not discharge it.
+
+Scalar multiplication and division in the formal hash model are not dense
+matrix operations. They also do not establish D11 serving compliance: generated
+operations, allocation behavior, fixed-container lowering and the production
+artifact remain separate acceptance obligations.
+
+## 10. Reviewed compact literal-input representation (2026-10-21)
+
+The isolated language-1.2 implementation retains ordinary `List Nat` public
+hash/update operations and adds a generic literal-input tree for finite
+conformance fixtures. `B3LiteralInput` has empty, packed, and concatenation
+constructors. A packed leaf contains an explicit byte count `0..64` and a
+nonnegative natural less than `256^count`; the first byte is the least
+significant base-256 digit. Count zero admits only payload zero. Explicit
+length preserves leading and trailing zero bytes. Concatenation preserves
+left-to-right order. Pure LexLean performs admission and decoding, then feeds
+every decoded leaf into the same actual streaming update.
+
+This is a value-preserving input representation, not a repeat generator or a
+hash oracle. All 35 original messages and digest expectations are unchanged.
+An independent static tree-expansion audit compares every byte with the
+frozen `inputs-digests.json`, including all 102400 bytes of the largest case.
+The largest theorem source is below the existing per-file limit. Natural
+payloads may exceed u64: this is an explicit formal fixture representation,
+not a production byte ABI or evidence that the current exporter supports
+512-bit naturals. Production wrappers/lowering remain separately required.
+
+A separate syntax-only adaptation expresses long ordinary-list input literals
+as balanced source-owned append calls over at most 64-byte literal leaves.
+The original 48 streaming theorem declarations are retained, and complete
+AST comparison after expanding only those literal append calls confirms
+identical statements, expected outputs, and update partition boundaries.
+This avoids the official JSON parser's recursion limit without changing that
+limit or reducing an input. Direct imports needed by explicitly qualified
+record types are added to the fixture headers.
+
+The streaming state retains only the logical pending buffer (length at most
+64); projection to compression words supplies zeros beyond that length.
+There are therefore no caller-controlled unused padding bytes. State admission
+checks word/byte ranges, total length and budget, chunk counter, compressed
+block count, the exact total-length equation, pending-buffer nonemptiness for
+nonempty messages, the initial CV before a chunk's first compression, and the
+stack cardinality prescribed by the completed-chunk counter. Such structural
+admission does not authenticate a claimed prefix history. A trusted tokenizer
+root must derive state through actual init/update, or use a separately
+specified authenticated checkpoint protocol. Raw internal compression and
+construction helpers are not independently trusted application entry points.
+
+## 11. Formal evidence checkpoint — 2026-10-21
+
+The isolated implementation now has 255/272 frozen controls formally verified
+and receipt-audited: all 237 primitive/compression/streaming/literal/domain
+controls and the first 18 published complete digest cases. The latest three
+are cases16–18 with 1023,1024,1025 bytes. Their unchanged complete statements
+have attestations `d8e57c00ef77a586bfb165d81c58f0a71708a486e6eeefbc609bb81f52aedbaa`,
+`605c4231d22476de2d9c2ea1d6d93f10d4e7aa1aa458ab805d3b3b51e8264c3d`, and
+`f33c89213f6e1204417c7a2dfd7af10073bf5bf44bc86637614352dbc3f2411d`.
+Each receipt has 92 empty-axiom declarations and five successful independent
+kernel replays, with actual input/output/compiled-module hashes checked.
+
+The complete receipt inventory and retained local manifest pointers are in
+[implementation evidence](../BLAKE3.md). The append-only cases16–18 manifest
+has SHA-256 `6bf1eed35a3885f518dd10b98547bf3ac1f5c03b3a54bd5ffaff8e48dbcd1c8f`.
+Original evidence and source/control bytes are retained. No control, input,
+digest, compiler limit or axiom policy changed to obtain these results.
+
+Acceptance still requires all 17 remaining published cases, all nine staged
+semantic mutants, exact restoration and positive verification, the complete
+fresh Rust integration gate, and final independent acceptance review. The
+separate tokenizer identity fixture/composition gap in section6 remains open.
+Formal Nat arithmetic and up-to512-bit packed fixture values do not establish
+production lowering, D11 instruction/allocation compliance, serving performance,
+GPU parity, or browser execution.
