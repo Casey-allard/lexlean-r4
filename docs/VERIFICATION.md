@@ -211,6 +211,18 @@ in the admission test registration; the formatting-only correction was reviewed
 before this replay. Full `just vv` on `6c38f00` still failed at the missing
 production `prismpm.lock` after successful six-ID model equality.
 
+The next isolated snapshot contains the eight slices committed at `cb454d6`.
+All 96 tracked files were compared by Git blob identity with that revision;
+there were no mismatches. Formatting, warning-denying Clippy, all workspace
+tests, all-feature/all-target compilation, model equality and the language-lock
+check passed. The run contained 30 Rust tests and two Node checks, with none
+ignored or filtered; its eight formal tests reverified 2,241 controls. Route
+and Words also passed their targeted tests after registration in both the
+mandatory build audit and the default verification roots. This snapshot used
+separate project output directories and the same cached development SDK and
+dependencies. Full `just vv` again failed at the missing production lock after
+successful eight-ID model equality.
+
 ## Complete acceptance remains blocked
 
 `just vv` was invoked inside the candidate with networking disconnected. It

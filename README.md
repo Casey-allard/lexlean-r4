@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Six source slices are implemented in LexLean and registered with the inherited
+Eight source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -30,6 +30,10 @@ PrismPM-template conformance model:
   cell selection, exact ranking, virtual moves, eligibility and typed failures.
 - Read configuration, with 75 controls for validation order, initialization,
   mode metadata and checked gate inventories.
+- Route traversal, with 58 controls for root-port selection, bounded framed
+  descent, ordered transport and occurrence-aware virtual changes.
+- Exact fixed-width word operations, with 995 controls for arithmetic,
+  bitwise operations, checked rotations/shifts and endian codecs.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
@@ -39,7 +43,9 @@ See the [verification record](docs/VERIFICATION.md),
 [geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
 [binder contract](docs/BINDER.md), [admission contract](docs/ADMISSION.md)
 and [configuration contract](docs/CONFIGURATION.md). The default verification
-roots cover all six slices: 1,188 theorem controls across thirteen modules.
+roots include all eight slices, containing 2,241 theorem controls across
+seventeen modules. [Route](docs/ROUTE.md) and [word operations](docs/WORDS.md)
+each passed their refreshed isolated-snapshot integration test after review.
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass
