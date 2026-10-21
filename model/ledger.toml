@@ -60,3 +60,9 @@ id = "AUTH-DISCRETE-ROUTE"
 level = "some-true"
 authority = "UOR-DISCRETE-ROUTE"
 statement = "Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability."
+
+[[claim]]
+id = "AUTH-DISCRETE-LEARNING"
+level = "some-true"
+authority = "UOR-DISCRETE-LEARNING"
+statement = "Finite selection, update and batch eligibility contracts are imported from pinned CUDA and host binding source. Their formal model establishes neither GPU parity, private proposal authenticity nor an owner training release."

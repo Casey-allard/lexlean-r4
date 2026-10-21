@@ -66,3 +66,9 @@ id = "R4-07"
 level = "build"
 suite = "r4-route"
 statement = "The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution."
+
+[[id]]
+id = "R4-08"
+level = "build"
+suite = "r4-learning"
+statement = "The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train."

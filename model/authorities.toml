@@ -75,3 +75,11 @@ citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb
 checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
 statement = "The pinned Route kernel defines frontier-ordinal and ternary root ports, L1/Hamming/port order, per-stage frames, left-composed path transport, early leaf return and virtual changes. Full row/frame admission is a stronger explicit port interface than visited-only kernel checks."
 realized_by = ["R4-07"]
+
+[[authority]]
+id = "UOR-DISCRETE-LEARNING"
+name = "UOR-R4 finite proposal selection and guarded application"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — discrete_counterfactual, discrete_choose and discrete_apply; companion device.rs Binding, parameter and apply"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned kernels define baseline-fixed candidate losses, active candidate inventories, deterministic selection and guarded geometric updates; device.rs supplies instance/source/geometry and dual-epoch admission. Explicit model loss inputs do not authenticate a device proposal or release training."
+realized_by = ["R4-08"]
