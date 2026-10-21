@@ -30,6 +30,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-04` | `build` | The pure LexLean binder model constructs the pinned canonical ordered ternary forest and independently validates general forests with the source's ordered error classes, preserving node order, atom identity, frontier coverage and four-word node serialization. Formal metadata controls do not establish carrier execution, window framing, or learning. |
 
+## r4-codebook-words
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-21` | `build` | Pure LexLean implements complete checked 32/64/128-bit integer arithmetic, exact canonical signed32 and unsigned little-endian codecs, and total ordering for codebook precursors. Formal controls do not establish primes, permutations, floating construction, complete codebooks or generated production acceptance. |
+
 ## r4-configuration
 
 | ID | Level | Statement |
@@ -132,6 +138,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-CODEBOOK-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities | `R4-21` |
 | `UOR-SNAPSHOT-STORAGE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden | `R4-22` |
 | `SERDE-SNAPSHOT-VALUE` | serde_json 1.0.150 src/value/de.rs with serde/serde_derive 1.0.228 and exact companion source pins in docs/specs/snapshot-json-codec-api.md; default BTreeMap and numeric profile | `R4-22` |
 | `SERDE-JSON-TOKENIZER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure | `R4-20` |
@@ -158,6 +165,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-CODEBOOK-WORDS` | `some-true` | Source integer operations and exact signed-word bytes are imported authority facts. Local arithmetic formal conformance remains distinct from prime capacity, reference floating semantics, complete codebook construction and generated serving. |
 | `AUTH-SNAPSHOT-STORAGE` | `some-true` | Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance. |
 | `AUTH-SERDE-SNAPSHOT-VALUE` | `some-true` | The bounded compatibility surface follows the pinned Serde source profile. Effective production feature binding and generated runtime acceptance remain separate; the stricter raw duplicate policy is locally specified and must be modeled explicitly. |
 | `AUTH-TOKENIZER-JSON` | `some-true` | Raw syntax and extraction semantics are imported from the named parser profile and pinned UOR tokenizer. Formal local conformance, complete cryptographic identity and generated product execution remain separate obligations. |

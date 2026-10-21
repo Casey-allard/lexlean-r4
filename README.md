@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Eighteen source slices are implemented in LexLean and registered with the inherited
+Nineteen source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -62,6 +62,9 @@ PrismPM-template conformance model:
 - Complete Snapshot storage decoding and exact typed/original-Value encodings,
   with 476 controls for schema, numeric domains, error ordering, strict duplicate
   handling, complete traversal and output budgets.
+- Exact codebook integer operations, with 2,404 controls for checked and wrapping
+  arithmetic, bit operations, signed ordering and endian codecs at widths
+  32, 64 and 128. Complete codebook construction remains required work.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
@@ -72,8 +75,8 @@ See the [verification record](docs/VERIFICATION.md),
 [geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
 [binder contract](docs/BINDER.md), [admission contract](docs/ADMISSION.md)
 and [configuration contract](docs/CONFIGURATION.md). The default verification
-roots include all eighteen slices, containing 8,746 theorem controls across
-108 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
+roots include all nineteen slices, containing 11,150 theorem controls across
+116 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
 [word operations](docs/WORDS.md) and [Flock/Relation](docs/FLOCK.md) each passed their refreshed isolated-snapshot
 integration test after review. The [Engine](docs/ENGINE.md) supplies the actual
 read/writer outcomes and complete candidate losses to the learning component;
@@ -86,8 +89,8 @@ kernel replays. The later [text component](docs/TOKENIZER.md) passed its
 mandatory integration test and three independent kernel replays. The
 [tokenizer kernel](docs/TOKENIZER-KERNEL.md) passed all six fixture checks
 through its mandatory Rust integration test. The current language-1.2 graph
-passed formal verification and independent receipt audit: 8,746 controls,
-11,038 none-axiom declaration rows and 108 kernel replays. The preceding
+passed formal verification and independent receipt audit: 11,150 controls,
+13,472 none-axiom declaration rows and 116 kernel replays. The preceding
 sixteen-component workspace suite passed 54 Rust tests, all sixteen component
 gates and two nested bootstrap checks, with no ignored or filtered tests.
 The [JSON integration](docs/JSON.md) adds two passing target tests, correct
@@ -97,6 +100,11 @@ eighteen-component model generation, and formatting, lint and feature checks.
 Its combined proof run required a six-GiB container inside the existing eight-GiB
 VM; four- and five-GiB attempts exhausted compiler front-end memory. No new
 whole-workspace test run is claimed.
+The [codebook integer integration](docs/CODEBOOK-WORDS.md) adds two passing
+mandatory target tests, the complete nineteen-component graph and static checks.
+Its integration ran at seven GiB and two CPUs in the existing eight-GiB VM; the
+earlier isolated component proofs used four GiB. No new whole-workspace test
+run or production acceptance is claimed.
 See the
 [migration record](docs/LANGUAGE-MIGRATION.md) and
 [exact number component](docs/JSON-NUMBER.md) for identities and limitations.

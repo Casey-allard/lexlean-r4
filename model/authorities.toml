@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-CODEBOOK-WORDS"
+name = "Exact codebook integer and byte boundaries"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities"
+checksum = "sha256:2f1ab07fe6094be6c3887c3b700868f89f8a63fcf311652c16ed4227be8b4e54"
+statement = "Pinned source specifies wrapping word operations, signed-i32 little-endian serialization and checked scalar-domain obligations for codebook precursors. Generic 128-bit arithmetic and explicit Nat admission errors are separately named port boundaries; source provenance does not establish local construction or production lowering."
+realized_by = ["R4-21"]
+
+[[authority]]
 id = "UOR-SNAPSHOT-STORAGE"
 name = "UOR-R4 Snapshot fields and distinct serialization domains"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden"

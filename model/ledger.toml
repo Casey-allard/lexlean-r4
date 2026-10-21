@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-CODEBOOK-WORDS"
+level = "some-true"
+authority = "UOR-CODEBOOK-WORDS"
+statement = "Source integer operations and exact signed-word bytes are imported authority facts. Local arithmetic formal conformance remains distinct from prime capacity, reference floating semantics, complete codebook construction and generated serving."
+
+[[claim]]
 id = "AUTH-SNAPSHOT-STORAGE"
 level = "some-true"
 authority = "UOR-SNAPSHOT-STORAGE"

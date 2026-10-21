@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-21"
+level = "build"
+suite = "r4-codebook-words"
+statement = "Pure LexLean implements complete checked 32/64/128-bit integer arithmetic, exact canonical signed32 and unsigned little-endian codecs, and total ordering for codebook precursors. Formal controls do not establish primes, permutations, floating construction, complete codebooks or generated production acceptance."
+
+[[id]]
 id = "R4-22"
 level = "build"
 suite = "r4-snapshot-json"

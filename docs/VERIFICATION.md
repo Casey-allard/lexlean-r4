@@ -506,3 +506,24 @@ evidence and the corrected offline-Cargo invocation are retained separately. No
 proof limits, source controls or axiom policies changed. This is development
 evidence; actual `just model` and `just vv` still fail on absent `prismpm.lock`,
 and no whole-workspace run, production acceptance or deployment is claimed.
+
+## Nineteenth component: codebook integer operations
+
+The [codebook integer record](CODEBOOK-WORDS.md) binds the 30-declaration source,
+2,404 unchanged controls, seven source-valid mutation rejections and full
+restoration. Its mandatory target passed two tests without ignored or filtered
+tests, with seven individually audited fixture bundles. The complete graph passed
+11,150 theorem controls, 13,472 exact none-axiom declaration audits and 116 kernel
+replays. Model generation/checking, formatting, Clippy and all-feature/all-target
+checking passed.
+
+Attestation: `0e0d39f5e52029aaaba9ecb694e232eb0dd357b02ae058fe551cd8d530e5a3c9`.
+Configuration: `572bbd3606d49b9d44788ff483ed9249695428727cbb872b898ed388608e46d4`.
+Lock: `f6585e5d7d68b8486bb06cdf3b62ae5a5c12210b5d5283174bbf5da55e3deb73`.
+Retention report: `28b5e99e36b531909c315b66614ad99a239fa37cafb8b0807f92388dd1e537ac`.
+
+Integration used seven GiB and two CPUs in the existing eight-GiB VM; the earlier
+isolated proofs used four GiB. No child proof limit or axiom-policy relaxation
+was introduced. This is development evidence, not a new whole-workspace run or
+production acceptance. Actual `just model` and `just vv` still fail on the absent
+`prismpm.lock`. Complete codebook construction and deployment remain required.
