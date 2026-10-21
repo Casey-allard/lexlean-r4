@@ -32,6 +32,12 @@ authority = "UOR-DISCRETE-OBJECTIVE"
 statement = "The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations."
 
 [[claim]]
+id = "AUTH-DISCRETE-BINDER"
+level = "some-true"
+authority = "UOR-DISCRETE-BINDER"
+statement = "Canonical construction and general forest validation are imported from the pinned ordered ternary binder metadata contract; no model or scientific capability is established."
+
+[[claim]]
 id = "AUTH-DISCRETE-WRITER"
 level = "some-true"
 authority = "UOR-DISCRETE-WRITER"

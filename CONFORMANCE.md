@@ -24,6 +24,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-05` | `build` | The pure LexLean writer derives current and virtual product cells, admits occupied cells in distance/ID order, retains every admitted token identity, ranks tokens globally, integrates both checked objectives and optional telemetry, and preserves explicit baseline/candidate eligibility. Formal controls establish source semantics only, not read integration, GPU execution, or serving qualification. |
 
+## r4-binder
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-04` | `build` | The pure LexLean binder model constructs the pinned canonical ordered ternary forest and independently validates general forests with the source's ordered error classes, preserving node order, atom identity, frontier coverage and four-word node serialization. Formal metadata controls do not establish carrier execution, window framing, or learning. |
+
 ## r4-configuration
 
 | ID | Level | Statement |
@@ -57,6 +63,7 @@ Never re-derived, vendored, or gated on.
 | `UOR-DISCRETE-SPEC` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate | `R4-01` |
 | `UOR-FINITE-GEOMETRY` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs | `R4-02` |
 | `UOR-DISCRETE-OBJECTIVE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer | `R4-03` |
+| `UOR-DISCRETE-BINDER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/metadata.rs — BinderPlan::new, validate and node_words | `R4-04` |
 | `UOR-DISCRETE-WRITER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — table_block, writer, discrete_counterfactual and discrete_evaluate | `R4-05` |
 | `UOR-DISCRETE-CONFIGURATION` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec, ReadSpec, ReadInitialization and gate_count | `R4-06` |
 
@@ -67,5 +74,6 @@ Never re-derived, vendored, or gated on.
 | `AUTH-DISCRETE-SPEC` | `some-true` | The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port. |
 | `AUTH-FINITE-GEOMETRY` | `some-true` | The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here. |
 | `AUTH-DISCRETE-OBJECTIVE` | `some-true` | The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations. |
+| `AUTH-DISCRETE-BINDER` | `some-true` | Canonical construction and general forest validation are imported from the pinned ordered ternary binder metadata contract; no model or scientific capability is established. |
 | `AUTH-DISCRETE-WRITER` | `some-true` | Writer semantics are imported from the pinned CUDA source; formal source checks do not establish GPU parity, model capability, or production acceptance. |
 | `AUTH-DISCRETE-CONFIGURATION` | `some-true` | Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result. |

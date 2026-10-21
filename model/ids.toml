@@ -38,6 +38,12 @@ suite = "r4-objective"
 statement = "The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification."
 
 [[id]]
+id = "R4-04"
+level = "build"
+suite = "r4-binder"
+statement = "The pure LexLean binder model constructs the pinned canonical ordered ternary forest and independently validates general forests with the source's ordered error classes, preserving node order, atom identity, frontier coverage and four-word node serialization. Formal metadata controls do not establish carrier execution, window framing, or learning."
+
+[[id]]
 id = "R4-05"
 level = "build"
 suite = "r4-admission"
