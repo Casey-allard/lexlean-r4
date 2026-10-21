@@ -15,9 +15,12 @@
 # state: a capability that is not built does not get a row, and every row in this
 # file is built.
 #
-# The register is empty. This repository has no claims yet; adding one starts
-# with a row here, in the order `AGENTS.md` sets out.
+# Adding a capability starts with a row here, in the order AGENTS.md sets out.
 
 spec = "template/1"
 
-id = []
+[[id]]
+id = "R4-01"
+level = "build"
+suite = "r4-types"
+statement = "The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed."

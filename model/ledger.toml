@@ -10,9 +10,11 @@
 # The meta-gate proves the suite never asserts an `open` claim as established,
 # and `CM-03` proves every `some-true` row cites an authority that exists.
 #
-# The ledger is empty. A claim added here needs its level chosen first, because
-# the level decides what evidence it owes.
 
 spec = "template/1"
 
-claim = []
+[[claim]]
+id = "AUTH-DISCRETE-SPEC"
+level = "some-true"
+authority = "UOR-DISCRETE-SPEC"
+statement = "The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port."
