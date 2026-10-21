@@ -7,6 +7,90 @@ use std::process::Command;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+// The immutable control source selects the language, not the returned receipt.
+// LexLean 0865df4e emits attestation/2 for language 1.2; its ordinary
+// declaration audits and independent kernel replays retain their meaning.
+fn validate_receipt_language(
+    controls: &Value,
+    manifest: &Value,
+    receipt: &Value,
+) -> Result<(), &'static str> {
+    let (language, schema) = match controls["spec"].as_str() {
+        Some("lexlean/semantic-module/1") => ("1.1", "lexlean/attestation/1"),
+        Some("lexlean/semantic-module/2") => ("1.2", "lexlean/attestation/2"),
+        _ => return Err("unsupported control source schema"),
+    };
+    if manifest["language"] != language {
+        return Err("control source and build language differ");
+    }
+    if receipt["spec"] != schema {
+        return Err("control source and attestation schema differ");
+    }
+    // Production evidence has additional obligations. This formal-control gate
+    // must not silently accept it without validating those artifacts.
+    if receipt.get("compiler_input").is_some() || receipt.get("preservation").is_some() {
+        return Err("production evidence requires a production acceptance gate");
+    }
+    Ok(())
+}
+
+#[test]
+fn receipt_language_binding() {
+    for (source, language, receipt) in [
+        ("lexlean/semantic-module/1", "1.1", "lexlean/attestation/1"),
+        ("lexlean/semantic-module/2", "1.2", "lexlean/attestation/2"),
+    ] {
+        let controls = json!({"spec": source});
+        let manifest = json!({"language": language});
+        let attestation = json!({"spec": receipt});
+        assert!(validate_receipt_language(&controls, &manifest, &attestation).is_ok());
+        for wrong in [Value::Null, json!("1.0"), json!("1.3"), json!(0)] {
+            assert!(validate_receipt_language(
+                &controls,
+                &json!({"language": wrong}),
+                &attestation
+            )
+            .is_err());
+        }
+        let other_language = if language == "1.1" { "1.2" } else { "1.1" };
+        assert!(validate_receipt_language(
+            &controls,
+            &json!({"language": other_language}),
+            &attestation
+        )
+        .is_err());
+        for wrong in [Value::Null, json!("lexlean/attestation/3"), json!(0)] {
+            assert!(
+                validate_receipt_language(&controls, &manifest, &json!({"spec": wrong})).is_err()
+            );
+        }
+        let other_receipt = if language == "1.1" {
+            "lexlean/attestation/2"
+        } else {
+            "lexlean/attestation/1"
+        };
+        assert!(
+            validate_receipt_language(&controls, &manifest, &json!({"spec": other_receipt}))
+                .is_err()
+        );
+        for field in ["compiler_input", "preservation"] {
+            let mut production = attestation.clone();
+            production[field] = json!({"byte_length": 1, "sha256": "0".repeat(64)});
+            assert!(validate_receipt_language(&controls, &manifest, &production).is_err());
+            production[field] = Value::Null;
+            assert!(validate_receipt_language(&controls, &manifest, &production).is_err());
+        }
+    }
+    for unknown in [Value::Null, json!("lexlean/semantic-module/3"), json!(0)] {
+        assert!(validate_receipt_language(
+            &json!({"spec": unknown}),
+            &json!({"language": "1.2"}),
+            &json!({"spec": "lexlean/attestation/2"})
+        )
+        .is_err());
+    }
+}
+
 /// Verify an immutable control fixture and its complete selected source graph.
 /// The digest binds the independently authored statements, not implementation bytes.
 pub fn verify_controls(
@@ -69,7 +153,6 @@ pub fn verify_controls(
     let receipt: Value = serde_json::from_slice(&std::fs::read(
         root.join(&directory).join("attestation.json"),
     )?)?;
-    assert_eq!(receipt["spec"], "lexlean/attestation/1");
     assert_eq!(receipt["status"], "verified");
     for field in ["attestation_id", "build_id", "source_id", "semantic_id"] {
         assert!(result[field].is_string(), "missing identity {field}");
@@ -120,6 +203,7 @@ pub fn verify_controls(
     );
     let manifest: Value = serde_json::from_slice(&manifest_bytes)?;
     assert_eq!(manifest["spec"], "lexlean/build-manifest/1");
+    validate_receipt_language(&controls, &manifest, &receipt)?;
     for field in ["build_id", "source_id", "semantic_id"] {
         assert_eq!(manifest[field], result[field]);
     }
