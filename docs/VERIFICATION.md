@@ -223,6 +223,16 @@ separate project output directories and the same cached development SDK and
 dependencies. Full `just vv` again failed at the missing production lock after
 successful eight-ID model equality.
 
+Default verification without an explicit root also passed for that eight-slice
+snapshot, selecting seventeen modules with no diagnostics:
+
+| Identity | Value |
+| --- | --- |
+| Source | `8d4961dfe7cb325c56035502ae8e10463bd36da3b14fc08bbdef259af10935b8` |
+| Semantics | `21fba03cebbee5b71efa7e9c9db5e48f46653a2ab90c5cdc8cbb5a1d24c7dec8` |
+| Build | `25d8c115646fc606dc2bf752989e6468d5e3ab04e3799e2a6311b53090b56774` |
+| Attestation | `56030a9e4a5c5b8ce5f139ae87e29046aba63c94afe2fc3fc01f76ed29014c31` |
+
 ## Complete acceptance remains blocked
 
 `just vv` was invoked inside the candidate with networking disconnected. It
