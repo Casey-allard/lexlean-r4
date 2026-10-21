@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-DISCRETE-FLOCK"
+level = "some-true"
+authority = "UOR-DISCRETE-FLOCK"
+statement = "Flock and Relation contracts are imported from pinned integer CUDA source, including cumulative synchronous scores and occurrence-aware causality. Formal controls establish no execution parity or learned capability."
+
+[[claim]]
 id = "AUTH-DISCRETE-SPEC"
 level = "some-true"
 authority = "UOR-DISCRETE-SPEC"

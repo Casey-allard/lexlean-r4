@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-10"
+level = "build"
+suite = "r4-flock"
+statement = "Pure LexLean models complete Flock and Relation reads over admitted occurrence roots and ordered forests, preserving exact frame transport, snapped consensus, causal ranking, five-edge synchronous cumulative relation sweeps, virtual changes and typed trace projections. Formal controls do not establish batch provenance, GPU parity, training permission or runtime performance."
+
+[[id]]
 id = "R4-01"
 level = "build"
 suite = "r4-types"

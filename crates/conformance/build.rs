@@ -88,4 +88,5 @@ fn main() {
         "finite_learning_transition_r4_08",
     );
     require_test(&root, "tests/words.rs", "fixed_word_algebra_r4_09");
+    require_test(&root, "tests/flock.rs", "complete_flock_relation_r4_10");
 }
