@@ -59,3 +59,11 @@ citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb
 checksum = "sha256:ffa7d22a9471071a18aa33ff67376ee7f1fafefa4e774ddcd50210b7d54c2ad9"
 statement = "The pinned Rust schema defines read-mode validation, kernel words, independent initialization policy and checked UInt32 gate counts. Local natural-number admission explicitly preserves the source word domain."
 realized_by = ["R4-06"]
+
+[[authority]]
+id = "UOR-DISCRETE-ROUTE"
+name = "UOR-R4 framed Route traversal"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned Route kernel defines frontier-ordinal and ternary root ports, L1/Hamming/port order, per-stage frames, left-composed path transport, early leaf return and virtual changes. Full row/frame admission is a stronger explicit port interface than visited-only kernel checks."
+realized_by = ["R4-07"]

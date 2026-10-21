@@ -54,3 +54,9 @@ id = "R4-06"
 level = "build"
 suite = "r4-configuration"
 statement = "The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification."
+
+[[id]]
+id = "R4-07"
+level = "build"
+suite = "r4-route"
+statement = "The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution."

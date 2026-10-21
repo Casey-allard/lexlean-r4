@@ -48,6 +48,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-03` | `build` | The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification. |
 
+## r4-route
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
+
 ## r4-types
 
 | ID | Level | Statement |
@@ -66,6 +72,7 @@ Never re-derived, vendored, or gated on.
 | `UOR-DISCRETE-BINDER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/metadata.rs — BinderPlan::new, validate and node_words | `R4-04` |
 | `UOR-DISCRETE-WRITER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — table_block, writer, discrete_counterfactual and discrete_evaluate | `R4-05` |
 | `UOR-DISCRETE-CONFIGURATION` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec, ReadSpec, ReadInitialization and gate_count | `R4-06` |
+| `UOR-DISCRETE-ROUTE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action | `R4-07` |
 
 ## Claims that are not conformance IDs
 
@@ -77,3 +84,4 @@ Never re-derived, vendored, or gated on.
 | `AUTH-DISCRETE-BINDER` | `some-true` | Canonical construction and general forest validation are imported from the pinned ordered ternary binder metadata contract; no model or scientific capability is established. |
 | `AUTH-DISCRETE-WRITER` | `some-true` | Writer semantics are imported from the pinned CUDA source; formal source checks do not establish GPU parity, model capability, or production acceptance. |
 | `AUTH-DISCRETE-CONFIGURATION` | `some-true` | Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result. |
+| `AUTH-DISCRETE-ROUTE` | `some-true` | Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability. |

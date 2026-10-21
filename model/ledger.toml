@@ -48,3 +48,9 @@ id = "AUTH-DISCRETE-CONFIGURATION"
 level = "some-true"
 authority = "UOR-DISCRETE-CONFIGURATION"
 statement = "Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result."
+
+[[claim]]
+id = "AUTH-DISCRETE-ROUTE"
+level = "some-true"
+authority = "UOR-DISCRETE-ROUTE"
+statement = "Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability."
