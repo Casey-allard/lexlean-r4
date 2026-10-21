@@ -74,4 +74,5 @@ fn main() {
     require_test(&root, "tests/lexlean.rs", "configuration_boundaries_r4_01");
     require_test(&root, "tests/geometry.rs", "finite_geometry_r4_02");
     require_test(&root, "tests/objective.rs", "scalar_objective_r4_03");
+    require_test(&root, "tests/configuration.rs", "typed_configuration_r4_06");
 }

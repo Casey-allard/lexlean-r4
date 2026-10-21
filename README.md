@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Three source slices are implemented in LexLean and registered with the inherited
+Four source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -24,13 +24,16 @@ PrismPM-template conformance model:
   sixteen-root orbit, composition, inverse and ordered transport construction.
 - Scalar objectives, with 91 controls for hinges, policies and checked weighted
   arithmetic, including overflow in an unselected branch.
+- Read configuration, with 75 controls for validation order, initialization,
+  mode metadata and checked gate inventories.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
 the fresh proof receipt. This is formal development evidence; the integrated
 R4 engine, learning, memory and browser application remain under implementation.
 See the [verification record](docs/VERIFICATION.md),
-[geometry contract](docs/GEOMETRY.md) and [objective contract](docs/OBJECTIVE.md).
+[geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
+and [configuration contract](docs/CONFIGURATION.md).
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass

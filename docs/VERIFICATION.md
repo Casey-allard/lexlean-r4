@@ -136,6 +136,16 @@ This establishes scalar formal evidence. Writer eligibility, policy-dependent
 rank computation, caller status conversion, learning, GPU parity and performance
 remain independent obligations. No model or training execution was run.
 
+## Read configuration: R4-06
+
+[CONFIGURATION.md](CONFIGURATION.md) records the full source contract and
+75 controls, including validation ordering, exact mode metadata, independent
+initialization and checked gate counts at UInt32 boundaries. Its Relation
+factor mutation was rejected and restored. Independent specification and
+code/Rust/security reviews approved the recorded source and fixture digests.
+After the parent registered the mandatory test in the build audit, the restored
+integration command passed again with one test and no ignored or filtered tests.
+
 ## Clean committed-source replay
 
 Commit `44088c2` was exported with `git archive` into a new directory inside the
@@ -165,3 +175,9 @@ the current template renderer. [The design](specs/2026-10-21-lexlean-r4-design.m
 also requires a generic GPU execution target and accepted generated browser
 persistence. Those dependencies remain unfulfilled; no substitute runtime or
 placeholder Pages application has been published.
+
+The draft PR's inherited bootstrap workflow independently reproduced the absent
+lock failure on both amd64 and arm64 runners in
+[run 39553208326](https://github.com/Casey-allard/lexlean-r4/actions/runs/39553208326).
+Both jobs failed while reading `prismpm.lock`, before SDK execution. This is a
+dependency-binding failure, not a model proof result.

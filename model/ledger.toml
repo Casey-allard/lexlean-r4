@@ -30,3 +30,9 @@ id = "AUTH-DISCRETE-OBJECTIVE"
 level = "some-true"
 authority = "UOR-DISCRETE-OBJECTIVE"
 statement = "The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations."
+
+[[claim]]
+id = "AUTH-DISCRETE-CONFIGURATION"
+level = "some-true"
+authority = "UOR-DISCRETE-CONFIGURATION"
+statement = "Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result."

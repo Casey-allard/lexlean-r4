@@ -18,6 +18,12 @@ The three honesty levels (R2):
 `cargo xtask audit-limits` fails if any code path returns an error the
 model does not sanction.
 
+## r4-configuration
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-06` | `build` | The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification. |
+
 ## r4-geometry
 
 | ID | Level | Statement |
@@ -45,6 +51,7 @@ Never re-derived, vendored, or gated on.
 | `UOR-DISCRETE-SPEC` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate | `R4-01` |
 | `UOR-FINITE-GEOMETRY` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs | `R4-02` |
 | `UOR-DISCRETE-OBJECTIVE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer | `R4-03` |
+| `UOR-DISCRETE-CONFIGURATION` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec, ReadSpec, ReadInitialization and gate_count | `R4-06` |
 
 ## Claims that are not conformance IDs
 
@@ -53,3 +60,4 @@ Never re-derived, vendored, or gated on.
 | `AUTH-DISCRETE-SPEC` | `some-true` | The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port. |
 | `AUTH-FINITE-GEOMETRY` | `some-true` | The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here. |
 | `AUTH-DISCRETE-OBJECTIVE` | `some-true` | The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations. |
+| `AUTH-DISCRETE-CONFIGURATION` | `some-true` | Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result. |
