@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-22"
+level = "build"
+suite = "r4-snapshot-json"
+statement = "Pure LexLean models complete bounded Snapshot JSON storage admission, exact typed and original-Value compact encodings, all source-compatible Serde representations, and a separately named strict duplicate policy driven by complete actual parser transitions. Formal codec controls establish no runtime artifact admission, compiled provenance, hash-domain acceptance, serving or deployment."
+
+[[id]]
 id = "R4-20"
 level = "build"
 suite = "r4-tokenizer-json"

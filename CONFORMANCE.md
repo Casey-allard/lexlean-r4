@@ -90,6 +90,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
 
+## r4-snapshot-json
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-22` | `build` | Pure LexLean models complete bounded Snapshot JSON storage admission, exact typed and original-Value compact encodings, all source-compatible Serde representations, and a separately named strict duplicate policy driven by complete actual parser transitions. Formal codec controls establish no runtime artifact admission, compiled provenance, hash-domain acceptance, serving or deployment. |
+
 ## r4-tokenizer-json
 
 | ID | Level | Statement |
@@ -126,6 +132,8 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-SNAPSHOT-STORAGE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden | `R4-22` |
+| `SERDE-SNAPSHOT-VALUE` | serde_json 1.0.150 src/value/de.rs with serde/serde_derive 1.0.228 and exact companion source pins in docs/specs/snapshot-json-codec-api.md; default BTreeMap and numeric profile | `R4-22` |
 | `SERDE-JSON-TOKENIZER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure | `R4-20` |
 | `SERDE-JSON-NUMBER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation | `R4-18` |
 | `UOR-MECHANISM-EVIDENCE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities | `R4-17` |
@@ -150,6 +158,8 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-SNAPSHOT-STORAGE` | `some-true` | Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance. |
+| `AUTH-SERDE-SNAPSHOT-VALUE` | `some-true` | The bounded compatibility surface follows the pinned Serde source profile. Effective production feature binding and generated runtime acceptance remain separate; the stricter raw duplicate policy is locally specified and must be modeled explicitly. |
 | `AUTH-TOKENIZER-JSON` | `some-true` | Raw syntax and extraction semantics are imported from the named parser profile and pinned UOR tokenizer. Formal local conformance, complete cryptographic identity and generated product execution remain separate obligations. |
 | `AUTH-JSON-NUMBER` | `some-true` | Pinned serde_json default parser behavior supplies imported compatibility facts; exact integer formal admission neither executes model floating-point operations nor resolves bounded production lowering. |
 | `AUTH-MECHANISM-EVIDENCE` | `some-true` | Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization. |

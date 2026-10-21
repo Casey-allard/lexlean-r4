@@ -13,6 +13,22 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-SNAPSHOT-STORAGE"
+name = "UOR-R4 Snapshot fields and distinct serialization domains"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden"
+checksum = "sha256:c03dcb7bc0e0e966951285a52cf76bf672ee74bf136c42403b40d1a4b5da1170"
+statement = "Pinned Snapshot storage defines fifteen fields, exact default omission and distinct compact encodings of original Value and typed Snapshot. Runtime validation and compiled identities remain separate from storage decoding."
+realized_by = ["R4-22"]
+
+[[authority]]
+id = "SERDE-SNAPSHOT-VALUE"
+name = "Pinned Serde Value deserialization and serialization profile"
+citation = "serde_json 1.0.150 src/value/de.rs with serde/serde_derive 1.0.228 and exact companion source pins in docs/specs/snapshot-json-codec-api.md; default BTreeMap and numeric profile"
+checksum = "sha256:ceda1bf415aafde89caa83bf275811b70d393717d4e1038e0c61822d2da02993"
+statement = "Pinned Value and derived visitors define sorted surviving-map traversal, accepted positional and enum representations, exact integer admission and complete typed decoding. Strict raw duplicate rejection is an explicitly local profile, not original Value behavior."
+realized_by = ["R4-22"]
+
+[[authority]]
 id = "SERDE-JSON-TOKENIZER"
 name = "Complete standalone JSON admission and UOR tokenizer extraction"
 citation = "https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure"

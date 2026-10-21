@@ -485,3 +485,24 @@ is pending. The last full combined replay remains twelve components. Full
 at template-check line 17 because `prismpm.lock` is missing. Structural report
 admission, upstream status, source proof, operational authority and actual
 production deployment remain separate claims.
+
+## Eighteenth component: Snapshot storage codec
+
+The [Snapshot record](SNAPSHOT-JSON.md) binds the 143-declaration implementation,
+476 unchanged controls, all eleven source-valid semantic negative results, exact
+restoration, mandatory Rust integration and complete default-graph verification.
+The target passed two tests with no ignored or filtered tests. The combined graph
+passed 8,746 controls, 11,038 exact none-axiom declaration audits and 108 kernel
+replays. Model generation/checking, formatting, Clippy and all-feature/all-target
+checking also passed.
+
+Attestation: `e532e1cfd597ae6d18ab4e33b601bf12c031217ad63ae80617ca680c36ee4afd`.
+Configuration: `cd87a5aa342663566f53e4089f8252e0c66de98725a01961c35df3218f5fbcdb`.
+Lock: `f35f51860d64c0cd703b35a6ecb912ed4c116399d5d920433a663907fd1da04e`.
+
+The combined graph required six GiB of container memory in the existing eight-GiB
+VM. Four- and five-GiB attempts exited 137 in the compiler front end; their kernel
+evidence and the corrected offline-Cargo invocation are retained separately. No
+proof limits, source controls or axiom policies changed. This is development
+evidence; actual `just model` and `just vv` still fail on absent `prismpm.lock`,
+and no whole-workspace run, production acceptance or deployment is claimed.

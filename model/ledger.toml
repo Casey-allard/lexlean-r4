@@ -14,6 +14,18 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-SNAPSHOT-STORAGE"
+level = "some-true"
+authority = "UOR-SNAPSHOT-STORAGE"
+statement = "Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance."
+
+[[claim]]
+id = "AUTH-SERDE-SNAPSHOT-VALUE"
+level = "some-true"
+authority = "SERDE-SNAPSHOT-VALUE"
+statement = "The bounded compatibility surface follows the pinned Serde source profile. Effective production feature binding and generated runtime acceptance remain separate; the stricter raw duplicate policy is locally specified and must be modeled explicitly."
+
+[[claim]]
 id = "AUTH-TOKENIZER-JSON"
 level = "some-true"
 authority = "SERDE-JSON-TOKENIZER"
