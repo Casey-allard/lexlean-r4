@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-17"
+level = "build"
+suite = "r4-evidence"
+statement = "Pure LexLean preserves the complete pinned mechanism catalog and typed lineage, admits complete finite port-obligation graphs and structurally classifies bound evidence descriptions with explicit failure and observation cases. Structural admission cannot authenticate receipts, promote source status, authorize research or establish deployment."
+
+[[id]]
 id = "R4-16"
 level = "build"
 suite = "r4-tokenizer-kernel"

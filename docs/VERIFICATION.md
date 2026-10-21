@@ -460,3 +460,28 @@ replay recorded above. Full `just vv` again passed model consistency and
 ownership and failed at template-check line 17 on missing `prismpm.lock`.
 This establishes neither raw JSON/tokenizer identity nor accepted generated
 execution, research qualification, persistent application behavior or Pages.
+
+## Fifteenth component: complete mechanism and evidence descriptions
+
+R4-17 adds the full imported catalog, coverage admission and report-description
+model. All 627 frozen controls passed the mandatory aggregate Rust target in
+66.57 seconds. The seven invocations checked exact current inputs, empty axiom
+audits and independent kernel replay. Fifteen source-valid semantic plants
+were rejected across the catalog, coverage and description modules; byte-exact
+restoration passed. Complete identities and boundaries are in
+[EVIDENCE.md](EVIDENCE.md).
+
+The isolated integration snapshot passed fifteen-ID model generation, formatting,
+lock checking and all-target/all-feature Clippy with warnings denied. Default
+source checking passed all 77 modules with no diagnostics:
+source `846bb525d3d534bcd43c65f59195700bc5ff8fe69a442fb7cbef17c5c903b3b6`,
+semantic `ba59d5036bc389a95681f0c4b3716d9e6e3863f515d53b803a86742cd329196b`.
+Configuration SHA-256 is `2d09b3cfbaffd840e89cd4d93c5e02fcc98427f69f36f00a6114c7905591a497`;
+lock SHA-256 is `39d2c63edb4979e9aa6357ad63034302e9dcbce3e855bde9e90aac2d8a24e551`.
+
+The combined graph contains 7,263 theorem controls; its combined formal replay
+is pending. The last full combined replay remains twelve components. Full
+`just vv` passed model consistency and dependency ownership and again stopped
+at template-check line 17 because `prismpm.lock` is missing. Structural report
+admission, upstream status, source proof, operational authority and actual
+production deployment remain separate claims.

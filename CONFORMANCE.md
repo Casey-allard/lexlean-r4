@@ -42,6 +42,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-12` | `build` | Pure LexLean composes exact seeded state construction, occurrence encoding, canonical causal windows, full binding and epoch admission, all read modes, paired virtual reader and writer candidates, complete loss production and atomic guarded geometric transitions. Formal controls do not establish generated runtime custody, GPU parity, training permission or language capability. |
 
+## r4-evidence
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-17` | `build` | Pure LexLean preserves the complete pinned mechanism catalog and typed lineage, admits complete finite port-obligation graphs and structurally classifies bound evidence descriptions with explicit failure and observation cases. Structural admission cannot authenticate receipts, promote source status, authorize research or establish deployment. |
+
 ## r4-flock
 
 | ID | Level | Statement |
@@ -108,6 +114,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-MECHANISM-EVIDENCE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities | `R4-17` |
 | `UOR-TOKENIZER-KERNEL` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls | `R4-16` |
 | `UNICODE17-TOKENIZER-TEXT` | https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities | `R4-14` |
 | `UOR-TOKENIZER-TEXT` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md pins Rust 1.97.1 UTF-8 and Unicode 17 source dependencies | `R4-14` |
@@ -129,6 +136,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-MECHANISM-EVIDENCE` | `some-true` | Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization. |
 | `AUTH-TOKENIZER-KERNEL` | `some-true` | Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization. |
 | `AUTH-UNICODE17-TEXT` | `some-true` | Complete Unicode 17 classification facts and pinned Rust compressed literal inventories are imported and independently compared as data. Local text algorithms require their separate formal controls. |
 | `AUTH-TOKENIZER-TEXT` | `some-true` | Tokenizer text and alphabet semantics are imported from pinned UOR and Rust sources. Formal text controls establish neither complete tokenization nor trusted raw-byte tokenizer identity. |

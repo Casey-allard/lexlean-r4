@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-MECHANISM-EVIDENCE"
+level = "some-true"
+authority = "UOR-MECHANISM-EVIDENCE"
+statement = "Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization."
+
+[[claim]]
 id = "AUTH-TOKENIZER-KERNEL"
 level = "some-true"
 authority = "UOR-TOKENIZER-KERNEL"

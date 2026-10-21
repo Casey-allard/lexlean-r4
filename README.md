@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Fourteen source slices are implemented in LexLean and registered with the inherited
+Fifteen source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -51,6 +51,9 @@ PrismPM-template conformance model:
 - Typed tokenizer admission and the full rank-BPE kernel, with 127 controls
   for added tokens, pretokenization, rank ties, all-occurrence merging, Unicode
   overlap, complete byte-alphabet use, decoding and token-length policies.
+- Complete imported mechanism catalog and evidence descriptions, with 627
+  controls for all 27 mechanisms, shared capability obligations, finite graph
+  admission, exact identity roles, report classifications and admitted queries.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
@@ -61,8 +64,8 @@ See the [verification record](docs/VERIFICATION.md),
 [geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
 [binder contract](docs/BINDER.md), [admission contract](docs/ADMISSION.md)
 and [configuration contract](docs/CONFIGURATION.md). The default verification
-roots include all fourteen slices, containing 6,636 theorem controls across
-67 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
+roots include all fifteen slices, containing 7,263 theorem controls across
+77 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
 [word operations](docs/WORDS.md) and [Flock/Relation](docs/FLOCK.md) each passed their refreshed isolated-snapshot
 integration test after review. The [Engine](docs/ENGINE.md) supplies the actual
 read/writer outcomes and complete candidate losses to the learning component;
@@ -74,10 +77,12 @@ the complete twelve-component default graph, including all 57 independent
 kernel replays. The later [text component](docs/TOKENIZER.md) passed its
 mandatory integration test and three independent kernel replays. The
 [tokenizer kernel](docs/TOKENIZER-KERNEL.md) passed all six fixture checks
-through its mandatory Rust integration test. The expanded 67-module graph
-passed source checking; combined fourteen-component proof verification
+through its mandatory Rust integration test. The expanded 77-module graph
+passed source checking; combined fifteen-component proof verification
 remains pending. Raw JSON admission and tokenizer identity remain separate
-required components.
+required components. The [evidence component](docs/EVIDENCE.md) passed its
+mandatory integration gate across all seven fixtures. Structural report
+admission preserves descriptions and does not authenticate or authorize them.
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass

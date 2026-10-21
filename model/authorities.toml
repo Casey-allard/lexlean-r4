@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-MECHANISM-EVIDENCE"
+name = "Complete UOR mechanism board and evidence distinctions"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities"
+checksum = "sha256:357cdfc926a220239193b19c6d2fd86beea4e6c0d843926066e6c185e1fdc5d2"
+statement = "The complete 27-entry catalog, 21 lineage edges, metadata and imported statuses are attributed to the pinned source. Charter evidence distinctions constrain descriptions; no imported label or caller-supplied receipt is local execution evidence or authority."
+realized_by = ["R4-17"]
+
+[[authority]]
 id = "UOR-TOKENIZER-KERNEL"
 name = "UOR byte-BPE semantic configuration and execution"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls"

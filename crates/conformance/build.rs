@@ -102,6 +102,11 @@ fn main() {
     );
     require_test(
         &root,
+        "tests/evidence.rs",
+        "exact_evidence_r4_17",
+    );
+    require_test(
+        &root,
         "tests/engine.rs",
         "complete_engine_composition_r4_12",
     );
