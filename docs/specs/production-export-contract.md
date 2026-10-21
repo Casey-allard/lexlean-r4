@@ -42,11 +42,16 @@ their natural magnitudes and intermediate expressions.
 [Actual codegen contract](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lean4-prod/rust/prod-codegen/src/lib.rs#L1-L104).
 
 The application currently authors canonical language-1.1 semantic modules.
-Production annotations and newer byte representations require the official
-language-1.2 authoring/migration contract, followed by fresh semantic and proof
-checks. Changing only `lexlean.toml` is not a migration. Any migration must
-preserve all declaration semantics, independent controls and axiom policy;
-ordinary notation conversion is compiler authoring work, not a new model.
+The inspected SDK admits `UInt8`, the other fixed integers, and `Bytes` in
+language 1.1; byte codecs do not themselves require a language migration.
+Production-root annotations and the `executable` declaration flag are
+explicitly gated to language 1.2. Using those declarations requires the
+official language-1.2 authoring/migration contract, followed by fresh semantic
+and proof checks. Changing only `lexlean.toml` is not a migration. Any migration
+must preserve all declaration semantics, independent controls and axiom
+policy; ordinary notation conversion is compiler authoring work, not a new
+model. [Type-version gates](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lexlean/src/ir/semantic.rs#L2629-L2662),
+[production declaration gates](https://github.com/UOR-Foundation/PrismPM/blob/dfdc4df770d038ee5fb700d374aca883d1c9ec7a/vendor/lexlean/src/ir/semantic.rs#L4934-L4949).
 
 ## Concrete generic exporter blocker
 
