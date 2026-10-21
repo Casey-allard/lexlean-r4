@@ -32,6 +32,12 @@ authority = "UOR-DISCRETE-OBJECTIVE"
 statement = "The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations."
 
 [[claim]]
+id = "AUTH-DISCRETE-WRITER"
+level = "some-true"
+authority = "UOR-DISCRETE-WRITER"
+statement = "Writer semantics are imported from the pinned CUDA source; formal source checks do not establish GPU parity, model capability, or production acceptance."
+
+[[claim]]
 id = "AUTH-DISCRETE-CONFIGURATION"
 level = "some-true"
 authority = "UOR-DISCRETE-CONFIGURATION"

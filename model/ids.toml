@@ -38,6 +38,12 @@ suite = "r4-objective"
 statement = "The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification."
 
 [[id]]
+id = "R4-05"
+level = "build"
+suite = "r4-admission"
+statement = "The pure LexLean writer derives current and virtual product cells, admits occupied cells in distance/ID order, retains every admitted token identity, ranks tokens globally, integrates both checked objectives and optional telemetry, and preserves explicit baseline/candidate eligibility. Formal controls establish source semantics only, not read integration, GPU execution, or serving qualification."
+
+[[id]]
 id = "R4-06"
 level = "build"
 suite = "r4-configuration"
