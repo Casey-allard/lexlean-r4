@@ -190,6 +190,15 @@ these recorded identities never replace the live acceptance tests.
 
 ## Clean committed-source replay
 
+[LEARNING.md](LEARNING.md) records the subsequently integrated R4-08 component:
+154 controls, the shared Gates dependency, three rejected defects, and explicit
+producer/authentication limits. Independent specification and code/Rust/security
+reviews passed. An isolated nine-slice snapshot, with the mandatory test and
+default root registered, passed formatting, model generation, canonical lock
+checking and the targeted learning test: one passed, none failed or ignored.
+This targeted result does not replace the whole-workspace replay below, whose
+eight-slice revision remains explicitly identified.
+
 Commit `44088c2` was exported with `git archive` into a new directory inside the
 network-disconnected development container. This excluded uncommitted binder
 work and all previously generated project proof/build artifacts. On that exact
