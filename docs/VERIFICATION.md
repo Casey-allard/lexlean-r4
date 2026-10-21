@@ -146,6 +146,48 @@ code/Rust/security reviews approved the recorded source and fixture digests.
 After the parent registered the mandatory test in the build audit, the restored
 integration command passed again with one test and no ignored or filtered tests.
 
+## Binder and writer: R4-04 and R4-05
+
+[BINDER.md](BINDER.md) records 165 controls for canonical construction, ordered
+general-forest validation and node serialization. The maximum context of 243
+atoms constructs 364 nodes and a six-stage plan. A duplicate/previously consumed
+child guard defect was rejected and restored. The controls do not constitute
+a universal theorem over every context or a window-framing implementation.
+
+[ADMISSION.md](ADMISSION.md) records 72 controls for the complete writer over
+explicit admitted queries and codebooks. Ranking retains token identities,
+including duplicate vectors, and virtual moves affect distances and cell
+membership consistently. Review corrected exact-sentinel classification:
+selected UInt64 maximum is a sentinel failure, while greater sums are arithmetic
+failures. The composed eligibility control rejected the old classification.
+Cell tie reversal and suppressed virtual moves were also rejected and restored.
+Both slices passed independent specification and code/Rust/security review and
+their required Cargo tests with no ignored or filtered tests.
+
+## Default verification graph
+
+The default entrypoints now include all six control roots in lexical order,
+as required by the SDK configuration schema. The only changed language-lock
+field is the project configuration digest:
+`971e052051a2d642c3fd8eec5a6a5b8c9a1ff831603faa864fa00a8b98af9c6d`.
+The entrypoint array uses the SDK's canonical single-line TOML encoding. A
+multiline encoding passed source verification but correctly failed the stricter
+current-byte receipt binding because the SDK manifests canonical configuration
+bytes. Canonicalizing the file preserves the full input check and lock digest.
+Running `lexlean --diagnostic-format json verify` without an explicit root
+successfully verified thirteen modules and all 1,188 controls with no diagnostics.
+
+| Identity | Value |
+| --- | --- |
+| Source | `b6f1e900cd3a2ad9e5aabc73db09c8ce80a451b629430533e62eac3ce042c942` |
+| Semantics | `f387963b4cb23badb1a6fa9534ffc6a5141b383438123960cea63142a1210ea8` |
+| Build | `c2917d9573d5f64c8e63fb4656e2df0703d372793a9f512db404aaa9c8fa9ba9` |
+| Attestation | `552ece5e40a6fcc92f592829516471416c7ee15b6ab41ce06655cd6c2bbb0631` |
+
+Earlier per-slice receipts above and in their contract documents are historical
+observations before this entrypoint update. Fresh verification remains required;
+these recorded identities never replace the live acceptance tests.
+
 ## Clean committed-source replay
 
 Commit `44088c2` was exported with `git archive` into a new directory inside the
