@@ -75,6 +75,10 @@ fn main() {
     require_test(&root, "tests/geometry.rs", "finite_geometry_r4_02");
     require_test(&root, "tests/objective.rs", "scalar_objective_r4_03");
     require_test(&root, "tests/binder.rs", "canonical_binder_r4_04");
-    require_test(&root, "tests/admission.rs", "admitted_identity_writer_r4_05");
+    require_test(
+        &root,
+        "tests/admission.rs",
+        "admitted_identity_writer_r4_05",
+    );
     require_test(&root, "tests/configuration.rs", "typed_configuration_r4_06");
 }
