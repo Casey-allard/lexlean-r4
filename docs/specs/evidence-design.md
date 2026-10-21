@@ -1,6 +1,6 @@
 # Mechanism and evidence model
 
-Status: proposed for independent architecture review, 2026-10-21. This is the
+Status: approved by independent architecture review, 2026-10-21. This is the
 Evidence component of the approved full-scope design. It introduces no local
 mechanism promotion, research result, acceptance receipt or permission to run.
 Registration, independently frozen controls and RED precede definitions.

@@ -16,7 +16,7 @@ sources; handwritten implementations of application behavior are excluded.
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
-Twelve source slices are implemented in LexLean and registered with the inherited
+Thirteen source slices are implemented in LexLean and registered with the inherited
 PrismPM-template conformance model:
 
 - Configuration bounds, with eleven exact boundary theorems.
@@ -45,6 +45,9 @@ PrismPM-template conformance model:
 - Complete SHA-256 and configured BLAKE2b-96 node identities, with thirty
   independent controls covering full digests, padding, multiblock chaining,
   logical counters, byte order and typed admission.
+- Complete Unicode and UTF-8 text primitives, with 3,865 controls for the
+  pinned Unicode predicates, scalar and byte admission, strict and lossy
+  decoding, encoding, and the reversible tokenizer byte alphabet.
 
 Each slice has independent kernel replay and planted-defect evidence. The
 conformance verifier binds reviewed control bytes and current model inputs to
@@ -55,8 +58,8 @@ See the [verification record](docs/VERIFICATION.md),
 [geometry contract](docs/GEOMETRY.md), [objective contract](docs/OBJECTIVE.md)
 [binder contract](docs/BINDER.md), [admission contract](docs/ADMISSION.md)
 and [configuration contract](docs/CONFIGURATION.md). The default verification
-roots include all twelve slices, containing 2,644 theorem controls across
-57 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
+roots include all thirteen slices, containing 6,509 theorem controls across
+60 modules. [Route](docs/ROUTE.md), [learning transitions](docs/LEARNING.md),
 [word operations](docs/WORDS.md) and [Flock/Relation](docs/FLOCK.md) each passed their refreshed isolated-snapshot
 integration test after review. The [Engine](docs/ENGINE.md) supplies the actual
 read/writer outcomes and complete candidate losses to the learning component;
@@ -64,7 +67,12 @@ its integration test and five planted-defect checks pass. This establishes
 formal composition, without establishing runtime custody or corpus training.
 The [hash component](docs/HASH.md) preserves every original theorem while
 compiling expensive digest controls in separate modules. The newer SDK passed
-the complete default graph, including all 57 independent kernel replays.
+the complete twelve-component default graph, including all 57 independent
+kernel replays. The later [text component](docs/TOKENIZER.md) passed its
+mandatory integration test and three independent kernel replays. The expanded
+60-module graph passed source checking; combined thirteen-component proof
+verification remains pending. Text primitives do not establish complete BPE,
+JSON admission or tokenizer identity.
 
 The current upstream template has no `prismpm.lock` or `template.lock` and is
 not bound to a released SDK. Its full `just vv` boundary therefore cannot pass

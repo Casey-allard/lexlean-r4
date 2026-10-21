@@ -398,3 +398,40 @@ ownership, then failed at `template-check` line 17 because `prismpm.lock` is
 absent. The construction artifact remains explicitly unaccepted for production.
 No generated execution, GPU research, trained capability, persistent browser
 behavior or Pages deployment follows from these formal results.
+
+## Thirteenth component: Unicode and UTF-8
+
+Commit `9cfb1ce` adds R4-14 Text after independent specification, complete
+Unicode-inventory, implementation, Rust and input-boundary reviews. The
+unchanged 3,865 controls cover all imported Unicode boundaries, the reversible
+byte alphabet, scalar/byte admission and strict/lossy UTF-8 behavior. Four
+semantic plants failed their intended proof controls and restored sources
+passed, as recorded in [TOKENIZER.md](TOKENIZER.md).
+
+The actual newer-SDK mandatory target
+`cargo test --offline --locked -p repo-conformance --test tokenizer_text`
+passed in 65.20 seconds, with one test and zero failures, ignored or filtered
+tests. The shared verifier checked 3,915 declaration audits with empty observed
+axioms and three successful independent kernel replays. Its attestation is
+`150e1654ec1351ef0b483d7085d058ef5d75f650c0c0376258e1574ca7d7ac22`.
+The project configuration SHA-256 is
+`582dd99a4afa394ef4adccb717610982db1686ab9f7dfa6c8c0e2515a198e59c`;
+the genuine language-1.1 lock SHA-256 is
+`b6e36d0c495ddfd9732f70c643e3ec7e00d2ed97372269d546a3ceb648bd0c64`.
+
+Formatting, thirteen-ID model consistency, lock checking and all-target/
+all-feature Clippy passed in the isolated integration snapshot. Default source
+checking also passed all 60 modules without a diagnostic. Its source identity
+is `ef2de251daef347fa2a736ec968f390001563e00f394c12400d76ab069c4467f`
+and semantic identity is
+`96c3e2d40a8c57cbd23f47407bda9a74c39891a6d077dad879f4f2df9a5e22de`.
+The combined graph now has 6,509 controls, but its combined proof verification
+has not yet run. The previous twelve-component replay and this targeted Text
+replay are separate results. No complete tokenizer, trusted tokenizer identity,
+production acceptance or browser deployment is established.
+
+The actual thirteen-component `just vv` attempt passed model consistency and
+dependency ownership, then failed at `template-check` line 17 because
+`prismpm.lock` is absent. An initial invocation used the login shell's default
+Cargo home and was interrupted without a result; the recorded attempt used
+the retained offline cache. Neither attempt establishes production acceptance.

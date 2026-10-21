@@ -1,8 +1,9 @@
 # Exact tokenizer implementation plan
 
 Status: implementation plan and complete Unicode inventory approved by independent
-architecture review, 2026-10-21. Text implementation is in progress. No tokenizer
-implementation or verified tokenizer identity is claimed. This plan implements
+architecture review, 2026-10-21. The Text component is implemented and its
+mandatory integration test passes; complete tokenization and verified tokenizer
+identity remain pending. This plan implements
 the approved [tokenizer contract](specs/tokenizer-design.md) and full-scope
 design; it does not replace the tokenizer with an ASCII or presegmented demo.
 Parent registered R4-14 before its scenario and frozen controls. The Text source
