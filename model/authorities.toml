@@ -27,3 +27,11 @@ citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb
 checksum = "sha256:5353d7dda155244147f77dbcf7ae06b3ac67a98007b6f40a7815894870b13427"
 statement = "The source defines the ordered signed-axis action group, anchor-first sixteen-root orbit, generator-order FIFO transport and ternary branch ports. Its semantics are imported; this port does not establish empirical geometric language capability."
 realized_by = ["R4-02"]
+
+[[authority]]
+id = "UOR-DISCRETE-OBJECTIVE"
+name = "UOR-R4 checked discrete objective arithmetic"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned CUDA source defines scalar hinge, rank and checked weighted objective arithmetic; natural hinge reasoning assumes the validated geometric domain where UInt32 addition cannot overflow."
+realized_by = ["R4-03"]

@@ -30,3 +30,9 @@ id = "R4-02"
 level = "build"
 suite = "r4-geometry"
 statement = "The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification."
+
+[[id]]
+id = "R4-03"
+level = "build"
+suite = "r4-objective"
+statement = "The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification."

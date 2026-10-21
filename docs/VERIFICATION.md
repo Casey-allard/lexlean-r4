@@ -1,7 +1,7 @@
 # Verification record
 
-This record concerns the first configuration-contract slice, **R4-01**, on
-2026-10-21. It is not full-template acceptance, an executable R4 engine,
+This record concerns the configuration and subsequent formal development
+slices on 2026-10-21. It is not full-template acceptance, an executable R4 engine,
 research qualification, a trained artifact, or a Pages deployment.
 
 ## Environment
@@ -87,6 +87,54 @@ the bootstrap test also runs two Node checks), and
 `cargo check --offline --locked --workspace --all-features --all-targets`.
 `just model-write` regenerated `CONFORMANCE.md`. The broader `just model`
 also stops at the missing SDK lock; its bootstrap checks were not waived.
+
+## Finite geometry: R4-02
+
+The [geometry verification record](GEOMETRY-VERIFICATION.md) records the 774
+theorem controls, exact source and receipt identities, passing Cargo integration
+test and three rejected composition defects. Independent specification and
+code reviews approved the final source. The connected certificates cover every
+discovery and transport step; the finite controls additionally cover closure,
+inverse lookup and orbit preservation. These are static operator metadata.
+
+## Scalar objective: R4-03
+
+The registered scenario and controls preceded the implementation; the first
+source check rejected the absent module with `LLR3005`. The completed source
+has 91 independent theorem controls. Its receipt audits all 103 declarations
+(12 source declarations and 91 controls) with empty observed axiom sets and
+successful independent replay of both modules. The targeted Cargo integration
+test passed with no ignored or filtered tests.
+
+The objective preserves absent-rival hinge behavior, truncated rank violations,
+policy selection, all three sentinel-aware product checks and both sum checks
+before selection. Source-defined natural arithmetic avoids opaque SDK helper
+reduction. The chunked scaling recursion computes the complete result for every
+fuel value; zero fuel executes the complete residual. Controls cover all eight
+residue classes, small and zero fuel, and every valid geometric width. See
+[OBJECTIVE.md](OBJECTIVE.md) for the exact source-domain and integration limits.
+
+| Planted defect | Command | Required rejection observed |
+| --- | --- | --- |
+| Remove the address sum overflow check, leaving the rank policy selected | `lexlean --diagnostic-format json verify tests/lexlean/ObjectiveControls.lex.tex` | Exit 1, `LLV7002` at `unselectedAddressSum` |
+| Accept an address product exactly equal to the UInt64 sentinel by replacing `>=` with `>` | Same command | Exit 1, `LLV7002` at `productSentinelCollision` |
+
+Both mutations were restored byte-for-byte. Independent specification and code
+reviews approved source digest
+`43af667dc55f173ef1629192156315ca90b7ff0f599f901250e21c42c5ea12ce`
+and control digest
+`9934a492d9d751ed0fde07f193b5a2582e70219b8a3f2eb72b595f955b2d77fc`.
+
+| Identity | Value |
+| --- | --- |
+| Source | `58d64647419459772d06707063431108f16c0e00c2d8b7b4287f6e85263d6510` |
+| Semantics | `27fcba8a8c815314317f38ed2f0a0764401a626f0100ffb24e5defb0e0ca8759` |
+| Build | `9dce1d2819dbd3b46ee5300877839d76016b3d031fa92159bfd0f6ef17a56a39` |
+| Attestation | `92cabf5852d44a8964c3e316475fb14b177fc5e178f1857e2bc31291c9bfc0dd` |
+
+This establishes scalar formal evidence. Writer eligibility, policy-dependent
+rank computation, caller status conversion, learning, GPU parity and performance
+remain independent obligations. No model or training execution was run.
 
 ## Complete acceptance remains blocked
 

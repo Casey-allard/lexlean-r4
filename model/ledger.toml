@@ -24,3 +24,9 @@ id = "AUTH-FINITE-GEOMETRY"
 level = "some-true"
 authority = "UOR-FINITE-GEOMETRY"
 statement = "The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here."
+
+[[claim]]
+id = "AUTH-DISCRETE-OBJECTIVE"
+level = "some-true"
+authority = "UOR-DISCRETE-OBJECTIVE"
+statement = "The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations."

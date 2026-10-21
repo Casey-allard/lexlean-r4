@@ -24,6 +24,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-02` | `build` | The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification. |
 
+## r4-objective
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-03` | `build` | The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification. |
+
 ## r4-types
 
 | ID | Level | Statement |
@@ -38,6 +44,7 @@ Never re-derived, vendored, or gated on.
 | --- | --- | --- |
 | `UOR-DISCRETE-SPEC` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate | `R4-01` |
 | `UOR-FINITE-GEOMETRY` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs | `R4-02` |
+| `UOR-DISCRETE-OBJECTIVE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer | `R4-03` |
 
 ## Claims that are not conformance IDs
 
@@ -45,3 +52,4 @@ Never re-derived, vendored, or gated on.
 | --- | --- | --- |
 | `AUTH-DISCRETE-SPEC` | `some-true` | The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port. |
 | `AUTH-FINITE-GEOMETRY` | `some-true` | The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here. |
+| `AUTH-DISCRETE-OBJECTIVE` | `some-true` | The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations. |
