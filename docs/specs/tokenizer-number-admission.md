@@ -180,3 +180,60 @@ finite = 2^1024 - 2^971 and its unit = 2^971 derives T above. The proposed
 integer product predicate is our inference from these arithmetic contracts and
 the pinned serde_json branch structure; independent source/arithmetical review
 and LexLean controls are still required. No Java runtime is a dependency.
+
+## Arithmetic API refinement
+
+The separately controlled source module is `R4.JsonNumberArithmetic`.
+`JsonDecimalExponent` contains `negative : Bool` and `magnitude : Nat`.
+Negative zero is admitted and denotes exponent zero. The positive magnitude
+bound is 2147483647; the negative bound is 2147483648. These represent the
+complete result range of source i32 saturation.
+
+`JsonNumberArithmeticError` has `outsideInteger`, `outsideSignificand`,
+`outsideExponent` and `numberOutOfRange`. `JsonIntegerResult` is `value(Nat)`
+or `error(JsonNumberArithmeticError)`. `JsonFiniteResult` is `finite` or
+`error(JsonNumberArithmeticError)`.
+
+The functions are:
+
+- `jsonRoundInteger53(n)` returns the exact rounded integer as `value`, admitting
+  inputs strictly below 2^1024 and returning `outsideInteger` otherwise. The
+  rounded output can equal 2^1024. A bounded 1024-step bit-length fold covers
+  every admitted input, and cannot return an unfinished value as success.
+- `jsonPowerTen53(e)` returns `value(P(e))` for e from 0 through 308; a larger
+  exponent returns `outsideExponent` before exponentiation.
+- `jsonProductFinite(n)` returns the Boolean predicate n < T for any natural n.
+  This is an arithmetic classification, not evidence of trusted execution.
+- `jsonFiniteParts(significand, exponent)` returns `finite` or the typed error.
+  It checks the u64 significand domain first, then the signed exponent domain,
+  before applying zero/negative/table/product finite-admission cases. Zero does
+  not bypass malformed exponent-domain admission. For admitted positive
+  exponents above 308 and a nonzero significand, return `numberOutOfRange`.
+
+The explicit integer bound covers every required significand and rounded power
+of ten; it is not a substitute for scanner or JSON input bounds. This arithmetic
+module has no native Float/UInt bit primitives, host callbacks or approximate
+thresholds. The scanner module and raw JSON composition remain required.
+
+## Frozen arithmetic review packet
+
+Before definitions, 390 independent arithmetic controls were frozen in
+`tests/lexlean/JsonNumberArithmeticControls.lex.tex`, SHA-256
+`92d6ef7689f4370840aac9ffc38e02bf540782e68067155076482b80a87da6df`.
+The complete source-derived decimal literal inventory and exact integer facts
+are in `tests/fixtures/tokenizer/number-arithmetic.json`, SHA-256
+`71ddc658b5793e10a553bf36263e8f4e07826c5fd34a15bd6f6013389d257d27`.
+An independent reviewer recomputed all 309 rounded powers using binary quotient
+and unit accumulation with exact remainder/parity, and checked neighboring
+finite/infinite significands at all twenty overflow exponents 289 through 308.
+Both tie parities, exponent carry, the exact overflow midpoint and ordered
+input-domain failures are covered. No host floating-point operation or candidate
+implementation supplied these expectations.
+
+The fixture uses official language 1.2 and semantic-module/2 in an isolated
+project. This does not migrate the accepted language-1.1 project or establish
+proof success. After an initial missing-lock setup fault, the locked source
+check failed with `LLR3005` because `R4.JsonNumberArithmetic` did not exist.
+That missing-definition RED preceded the 18-declaration implementation. Its
+intrinsic specification and code/security reviews passed; formal verification
+and the complete scanner/JSON integration remain separate acceptance stages.
