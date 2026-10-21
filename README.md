@@ -1,36 +1,49 @@
-# UOR project template
+# LexLean R4
 
-Shared repository policy for projects consuming PrismPM as an SDK. No
-application or organizational model is included.
+A pure [LexLean](https://github.com/UOR-Foundation/LexLean) implementation of
+[UOR-R4](https://github.com/UOR-Foundation/uor-r4), fully modeled with
+[PrismPM](https://github.com/UOR-Foundation/PrismPM).
 
-## Create a repository
+The intended product is a geometric language model with exact addressed memory,
+integer serving, and a generated browser application deployed to GitHub Pages.
+The application, model mechanics, typed failures, proofs, state transitions,
+View, and deployment contract belong in authoritative `.lex.tex` sources.
+Generated Lean, Rust, WebAssembly, and browser files are projections of those
+sources; handwritten implementations of application behavior are excluded.
 
-1. Create a GitHub repository from this template and clone it.
-2. Set `workspace.package.repository` and `homepage` in `Cargo.toml`.
-3. Replace this README with the project's name, purpose, and current status.
-4. Keep the claim and authority registers empty until capabilities are defined.
-   Follow [AGENTS.md](AGENTS.md) when adding them.
+## Current state
 
-## SDK status
+**Repository established; implementation and deployment are not complete.**
+This repository was generated through GitHub's template operation from
+[`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).
+Its inherited claim registers remain empty: the scaffold establishes no model
+capability, proof, performance, source equivalence, or runtime acceptance.
 
-This template is not yet bound to a public SDK release. `prismpm.lock` and
-`template.lock` are absent; the devcontainer and complete `just vv` gate require
-those immutable bindings. Creating and naming a repository does
-not require selecting its model, standards, views, or deployment targets.
+The current upstream template has no `prismpm.lock` or `template.lock` and is
+not bound to a released SDK. Its full `just vv` boundary therefore cannot pass
+as supplied. A published development SDK candidate has been identified; it is
+not a production-accepted release. See the [source and dependency review](docs/UPSTREAM.md).
 
-Once bound, open the repository in its digest-pinned devcontainer and run
-`just vv`. The host needs only Git, Docker with Buildx, and a devcontainer
-client. Do not substitute a vendored PrismPM checkout or host toolchain.
+The planned site address is
+<https://casey-allard.github.io/lexlean-r4/>. **It is not deployed.** Publication
+requires a verified generated application closure; this README is not a demo.
 
-## Repository boundary
+## Design and delivery
 
-- `model/`, `features/suites/`, and generated `CONFORMANCE.md` describe project
-  claims. They begin empty; repository tooling is not a product implementation.
-- [TEMPLATE-CONTRACT.md](TEMPLATE-CONTRACT.md) defines inherited policy and the
-  immutable SDK/template update process.
-- [VERIFICATION.md](VERIFICATION.md) defines the full acceptance boundary;
-  [TEMPLATE-VERIFICATION.md](TEMPLATE-VERIFICATION.md) maps the scaffold's gates.
-- Reusable workflows are infrastructure. Do not enable publication or
-  deployment before the project model and its acceptance criteria exist.
+- [Proposed design](docs/specs/2026-10-21-lexlean-r4-design.md)
+- [Implementation sequence and acceptance gates](docs/plans/2026-10-21-lexlean-r4.md)
+- [Pinned source review and toolchain gaps](docs/UPSTREAM.md)
+- [Inherited repository rules](AGENTS.md)
+- [Template contract](TEMPLATE-CONTRACT.md)
+
+UOR-R4 is pre-alpha. Port correctness, formal proof, finite construction checks,
+GPU qualification, trained language capability, and product performance are
+separate claims. A browser demonstration cannot establish a training result.
+
+Use atomic conventional commits. Each capability starts with its model,
+registered claim, behavioral scenario, and failing test, followed by its
+implementation and a planted-defect check. `just model-write` generates
+conformance evidence. `just vv` in the exact locked SDK is the full acceptance
+boundary; it must not be replaced with a reduced release gate.
 
 Licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE).
