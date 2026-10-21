@@ -61,9 +61,24 @@ receipt. The GitHub package-list API returned HTTP 403
 because the current CLI credential lacks `read:packages`; that does not prove
 the candidate image is unavailable to anonymous OCI pulls.
 
-Docker, Podman, `prismpm`, and `lexlean` were not present on the current host's
-PATH. This is a local tooling observation, not an upstream capability finding.
-No host build of PrismPM has been substituted for the locked SDK.
+The actual candidate publication is
+[run 35065092990](https://github.com/UOR-Foundation/PrismPM/actions/runs/35065092990),
+at source `d0174e1d64339f73091fe4c59d5d6bf532a37d1f`.
+Its retained `sdk-candidate-reference` artifact names the exact image above.
+Anonymous OCI retrieval confirmed the index and both child manifests; the
+arm64 image was pulled and inspected. Its LexLean dependency is
+`01088ef00d9d0d0227775e0346a852c2d19cb67b`, with compiler semantics
+`49561889f77c9c3571da51e8e53233da9df5ab8f46d16165159425ba2e82dc44`.
+It accepts language 1.1 canonical semantic modules, rather than current main's
+language 1.2 authoring syntax. Its `prismpm template` CLI has `check` and `update`,
+but lacks the renderer needed by the current template's binding procedure.
+
+Local Docker and Colima were installed and an isolated `lexlean-r4` VM was
+created without changing the default Docker context. Formal source verification
+runs inside that immutable development image. No host compiler or handwritten
+SDK substitute is used. This is development evidence only: the candidate's
+own recorded scope is `source-golden-review-only`, and neither a production
+`prismpm.lock` nor `template.lock` has been fabricated from it.
 
 ### CUDA research is a separate missing execution target
 
