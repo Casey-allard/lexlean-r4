@@ -80,6 +80,53 @@ SDK substitute is used. This is development evidence only: the candidate's
 own recorded scope is `source-golden-review-only`, and neither a production
 `prismpm.lock` nor `template.lock` has been fabricated from it.
 
+### Newer unpublished construction diagnostic
+
+The complete digest controls exposed a normalizer-depth limit in the published
+development candidate. Independent source review found a concrete upstream
+change: newer semantic backends emit fixed finite Lean budgets of 100,000
+recursion depth and 1,000,000,000 heartbeats. The candidate uses the older
+defaults. This is a compiler-identity difference; no project-local option,
+generated Lean edit, axiom permission or golden digest was changed.
+
+The official [native construction run 39492842177](https://github.com/UOR-Foundation/PrismPM/actions/runs/39492842177)
+retains a complete runtime OCI archive. Its exact identities are:
+
+| Input | Identity |
+| --- | --- |
+| PrismPM/workflow source | `dfdc4df770d038ee5fb700d374aca883d1c9ec7a` |
+| Vendored LexLean source | `0865df4e540ca643b090a29e9df6d319d6906da6` |
+| GitHub arm64 artifact | `12302860930` |
+| Downloaded ZIP SHA-256 | `5b703f6196a646cc7bb8701c778dfd224485dfae3f8328eabd11ec6177a8ea61` |
+| OCI archive SHA-256 | `d408f9895baf484db72d5b90b617cb60651770cc327eab93df490393d987d8ad` |
+| OCI manifest SHA-256 | `716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6` |
+| OCI config SHA-256 | `3d45853bec499af76db83e2ceefdd96edaf8d79742cfe7ba77faea8ee4ce8a3a` |
+| Installed LexLean binary SHA-256 | `107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5` |
+| Reported compiler semantics | `95deb33a8d416d7bf60f02a36e251a71c3ee6f046b7e475d7bae2fc5ddc3767d` |
+
+The downloaded ZIP digest matched GitHub's artifact metadata. Its construction
+record, ten exact smoke-evidence files, 5,332,154,880 archive bytes, TAR member
+inventory, all OCI blobs, reachable descriptor graph, manifest/config and
+architecture/source labels were validated before import. The validation code
+received independent security review; its initial incomplete TAR checks were
+repaired and the stronger validation rerun successfully. The immutable image
+was imported into the isolated task VM. Its installed compiler digest matches
+the recorded SDK inventory; its Lean toolchain is still 4.32.1.
+
+This construction vendors LexLean `0865df4`, rather than the separately reviewed
+standalone `6bcc8d5`; the reviewed PrismPM `590ec8a` source separately vendors
+`9c1456d34b896ab77db01c5e8ebbfed584edee26`. These identities must not be conflated.
+The construction's own scope is `construction-only-not-acceptance`. It expressly
+does not establish full VV, installed dual-native qualification, signing,
+release or product readiness. Its isolated diagnostic gets a fresh genuine
+compiler lock; it does not create production SDK or template bindings.
+
+Neither this newer semantic AST nor language 1.2 provides a general ordered
+rewrite-and-finish proof constructor. The structured prose proof IR is a
+different authoring surface. Therefore the diagnostic tests the actual fixed
+compiler budgets against unchanged complete algorithms and golden controls;
+it does not presume that a language-version change supplies missing proofs.
+
 ### CUDA research is a separate missing execution target
 
 LexLean `SPEC.md` §17.13 registers `rust-core` and `rust-std` production targets.
