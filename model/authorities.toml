@@ -61,6 +61,14 @@ statement = "The pinned Rust schema defines read-mode validation, kernel words, 
 realized_by = ["R4-06"]
 
 [[authority]]
+id = "UOR-OBJECT-HASH-WORDS"
+name = "UOR object-store cryptographic word requirements"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs — BLAKE2b96 compression"
+checksum = "sha256:f82cc1b4d4ef9ed2f0f0b933a9c8009611fe774de3666299a5f977fc0ed94b5f"
+statement = "Pinned BLAKE2b96 node construction requires modulo-2^64 addition, XOR, right rotations 32/24/16/63 and little-endian words. SHA-256 word support is a generic dependency, not an implemented hash claim."
+realized_by = ["R4-09"]
+
+[[authority]]
 id = "UOR-DISCRETE-ROUTE"
 name = "UOR-R4 framed Route traversal"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action"

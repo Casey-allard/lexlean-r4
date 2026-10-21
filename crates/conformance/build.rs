@@ -82,4 +82,5 @@ fn main() {
     );
     require_test(&root, "tests/configuration.rs", "typed_configuration_r4_06");
     require_test(&root, "tests/route.rs", "bounded_route_operator_r4_07");
+    require_test(&root, "tests/words.rs", "fixed_word_algebra_r4_09");
 }

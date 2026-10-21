@@ -60,6 +60,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-01` | `build` | The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed. |
 
+## r4-words
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-09` | `build` | Pure LexLean fixed-shape 32/64-bit word algebra preserves wrapping addition, Boolean operations, bounded rotation/shifts and exact endian codecs, rejecting malformed bytes, lengths and amounts. Formal word controls do not establish hashing or runtime acceptance. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.
@@ -72,6 +78,7 @@ Never re-derived, vendored, or gated on.
 | `UOR-DISCRETE-BINDER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/metadata.rs — BinderPlan::new, validate and node_words | `R4-04` |
 | `UOR-DISCRETE-WRITER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — table_block, writer, discrete_counterfactual and discrete_evaluate | `R4-05` |
 | `UOR-DISCRETE-CONFIGURATION` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec, ReadSpec, ReadInitialization and gate_count | `R4-06` |
+| `UOR-OBJECT-HASH-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs — BLAKE2b96 compression | `R4-09` |
 | `UOR-DISCRETE-ROUTE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action | `R4-07` |
 
 ## Claims that are not conformance IDs
@@ -84,4 +91,5 @@ Never re-derived, vendored, or gated on.
 | `AUTH-DISCRETE-BINDER` | `some-true` | Canonical construction and general forest validation are imported from the pinned ordered ternary binder metadata contract; no model or scientific capability is established. |
 | `AUTH-DISCRETE-WRITER` | `some-true` | Writer semantics are imported from the pinned CUDA source; formal source checks do not establish GPU parity, model capability, or production acceptance. |
 | `AUTH-DISCRETE-CONFIGURATION` | `some-true` | Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result. |
+| `AUTH-OBJECT-HASH-WORDS` | `some-true` | Cryptographic word requirements are imported from the pinned object-store hash implementation. Fixed-word formal controls do not establish a complete hash, protocol or accepted runtime. |
 | `AUTH-DISCRETE-ROUTE` | `some-true` | Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability. |

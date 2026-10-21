@@ -50,6 +50,12 @@ authority = "UOR-DISCRETE-CONFIGURATION"
 statement = "Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result."
 
 [[claim]]
+id = "AUTH-OBJECT-HASH-WORDS"
+level = "some-true"
+authority = "UOR-OBJECT-HASH-WORDS"
+statement = "Cryptographic word requirements are imported from the pinned object-store hash implementation. Fixed-word formal controls do not establish a complete hash, protocol or accepted runtime."
+
+[[claim]]
 id = "AUTH-DISCRETE-ROUTE"
 level = "some-true"
 authority = "UOR-DISCRETE-ROUTE"

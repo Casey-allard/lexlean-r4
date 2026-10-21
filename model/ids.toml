@@ -56,6 +56,12 @@ suite = "r4-configuration"
 statement = "The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification."
 
 [[id]]
+id = "R4-09"
+level = "build"
+suite = "r4-words"
+statement = "Pure LexLean fixed-shape 32/64-bit word algebra preserves wrapping addition, Boolean operations, bounded rotation/shifts and exact endian codecs, rejecting malformed bytes, lengths and amounts. Formal word controls do not establish hashing or runtime acceptance."
+
+[[id]]
 id = "R4-07"
 level = "build"
 suite = "r4-route"
