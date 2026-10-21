@@ -92,6 +92,11 @@ fn main() {
     require_test(&root, "tests/hash.rs", "complete_content_hashes_r4_11");
     require_test(
         &root,
+        "tests/tokenizer_text.rs",
+        "exact_tokenizer_text_r4_14",
+    );
+    require_test(
+        &root,
         "tests/engine.rs",
         "complete_engine_composition_r4_12",
     );

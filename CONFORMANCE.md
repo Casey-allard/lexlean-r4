@@ -78,6 +78,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
 
+## r4-tokenizer-text
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-14` | `build` | Pure LexLean admits Unicode scalar and byte domains, implements exact UTF-8 encoding, strict and Rust-compatible lossy decoding, the complete pinned Unicode predicates and the reversible tokenizer byte alphabet. Formal text controls do not establish BPE, JSON admission, tokenizer identity or runtime acceptance. |
+
 ## r4-types
 
 | ID | Level | Statement |
@@ -96,6 +102,8 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UNICODE17-TOKENIZER-TEXT` | https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities | `R4-14` |
+| `UOR-TOKENIZER-TEXT` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md pins Rust 1.97.1 UTF-8 and Unicode 17 source dependencies | `R4-14` |
 | `UOR-DISCRETE-ENGINE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels | `R4-12` |
 | `UOR-DISCRETE-FLOCK` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — snap, frame_block, gate_value and flock_vector | `R4-10` |
 | `UOR-OBJECT-HASH` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs; RFC 7693 | `R4-11` |
@@ -114,6 +122,8 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UNICODE17-TEXT` | `some-true` | Complete Unicode 17 classification facts and pinned Rust compressed literal inventories are imported and independently compared as data. Local text algorithms require their separate formal controls. |
+| `AUTH-TOKENIZER-TEXT` | `some-true` | Tokenizer text and alphabet semantics are imported from pinned UOR and Rust sources. Formal text controls establish neither complete tokenization nor trusted raw-byte tokenizer identity. |
 | `AUTH-DISCRETE-ENGINE` | `some-true` | Engine composition and initialization semantics are imported from pinned host and CUDA sources. Formal controls establish neither research qualification nor permission to bypass the source training hold. |
 | `AUTH-DISCRETE-FLOCK` | `some-true` | Flock and Relation contracts are imported from pinned integer CUDA source, including cumulative synchronous scores and occurrence-aware causality. Formal controls establish no execution parity or learned capability. |
 | `AUTH-OBJECT-HASH` | `some-true` | The exact BLAKE2b node identity convention is imported from pinned source; local controls do not prove collision freedom or durable storage. |

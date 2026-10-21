@@ -1,11 +1,12 @@
 # Exact tokenizer implementation plan
 
-Status: proposed for independent architecture review, 2026-10-21. No tokenizer
+Status: implementation plan and complete Unicode inventory approved by independent
+architecture review, 2026-10-21. Text implementation is in progress. No tokenizer
 implementation or verified tokenizer identity is claimed. This plan implements
 the approved [tokenizer contract](specs/tokenizer-design.md) and full-scope
 design; it does not replace the tokenizer with an ASCII or presegmented demo.
-Only this document is authored at this stage. Parent registration and plan
-review precede scenarios, RED controls and definitions.
+Parent registered R4-14 before its scenario and frozen controls. The Text source
+followed an observed missing-module RED; full tokenizer claims remain pending.
 
 ## Authority and discovered dependencies
 
@@ -115,13 +116,17 @@ UTF-8 projection. A raw-byte boundary checks every incoming natural before
 conversion; it never truncates. No opaque host String operation supplies
 Unicode, JSON, sorting, searching or BPE behavior.
 
-Import the complete compressed Unicode arrays as literals in the authoritative
-source, then implement safe structural lookup. Do not evaluate Rust predicates
-to generate a replacement truth table. A checked projection of declared source
-literals is data ingestion; its source inventories, lengths and hashes must be
-reviewed. If expanded intervals are chosen instead, require a model-owned
-conversion and equivalence to the compressed literal inventory. Test every
-transition boundary and adjacent scalar, not just familiar Unicode examples.
+The approved representation is a complete balanced interval decision tree in
+`TokenizerTextUnicode.lex.tex`, with scalar-domain checks in TokenizerText.
+Every interval comes from the reviewed complete maximal-range inventory, never
+from boundary answers. Independent static decompression established equality
+between the full Rust compressed tables plus ASCII and the independent UCD
+ranges. This is reviewed imported-data provenance, not a model-proved conversion
+or universal lookup theorem. The original compressed literal inventory remains
+in `tests/fixtures/tokenizer/unicode-inventory.json`. Independent review must
+flatten every emitted tree interval, compare the complete inventory, and check
+ordering, disjointness and branch coverage. No host Rust predicate is used to
+generate answers. Every transition boundary and adjacent scalar is controlled.
 
 Represent vocabularies and merges as finite ordered lists with exact key
 equality. Admission retains distinct `modelVocabularySize` and final slot count.
@@ -398,3 +403,98 @@ controls to hide proof-cost failures. Parent performs the required complete
 These are architecture/registration decisions for the parent review, not a
 request to reduce the approved full tokenizer scope. All four components,
 raw-byte identity and their real production integration remain required.
+
+## R4-14 Text implementation and evidence
+
+The initial complete Text source defines scalar admission, Alphabetic/Numeric/
+White_Space wrappers, byte alphabet and inverse, UTF-8 scalar/text encoding,
+strict decoding and Rust-compatible lossy decoding. Public boundary names are
+`tokenizerAlphabetic`, `tokenizerNumeric`, `tokenizerWhitespace`,
+`tokenizerAlphabetEncode`, `tokenizerAlphabetDecode`, `tokenizerEncodeScalar`,
+`tokenizerEncodeUtf8`, `tokenizerDecodeUtf8`, and `tokenizerDecodeUtf8Lossy`.
+Internal codec helpers are called only after their scalar/byte/state domain
+checks; they are not independent arbitrary-input admission surfaces.
+
+Failures are `invalidScalar(value)`, `invalidByte(value)`, and
+`invalidUtf8(sequenceStartOffset)`. Both byte decoders first validate the complete
+byte domain, so an out-of-domain byte is rejected before UTF-8 interpretation.
+Strict decoding rejects incomplete, overlong, surrogate, out-of-range, invalid
+lead and interrupted continuation sequences. Lossy decoding emits one U+FFFD
+per Rust invalid chunk: a bad continuation is processed again as the next lead,
+and a truncated otherwise valid prefix produces one replacement. It never
+discards an interrupted ASCII byte. Raw byte preservation and lossy display
+remain separate later tokenizer surfaces.
+
+UTF-8 encoding decomposes a valid scalar into four fixed bit groups using
+bounded comparisons and addition. Decoding uses a structural byte fold and
+finite complete payload-position maps; no host Unicode/string operations,
+floating-point arithmetic, integer division or unary large-number subtraction
+enter the source. These source facts do not establish generated D11 allocation
+or instruction properties, and finite fixtures do not constitute a universal
+encoding/classification theorem.
+
+The original theorem-only fixture contains **3865** unique parameterless
+reflexivity controls, all with empty axiom declarations: 3259 independently
+frozen Unicode boundary facts, 512 alphabet forward/inverse cases, and 94
+UTF-8/domain cases. SHA256 is
+`ec3b221ab55f1cb5b36460d0eac2208d4e26de76b1b390ce8dbb44a4064a4044`.
+The exact reviewed inventory and boundary JSON bytes are preserved under
+`tests/fixtures/tokenizer/`. The fixture contains no definitions or expected-
+value computation. The Rust verifier invokes and checks SDK attestations only.
+
+After isolated Lake/lock setup, the original fixture produced expected
+`LLR3005` missing `R4.TokenizerText`; the earlier missing local lock/Lake files
+were setup failures, not behavioral RED evidence. Source check then passed.
+Full development-SDK verification of the unchanged fixture passed all three
+modules with attestation
+`d44b7369fab19ae1f587e38d782e79d2481c03035d73d94f5ea0ecb8cc946300`,
+source ID `eb6bc718a27a9c6eac25e88d63faed3d25bff1aa870a695c5432b0ae85656e92`,
+and semantic ID
+`36689a749a154a85dd6c8b02789fd6dc6730c0d6a434c7964b3f0244b0065d60`.
+This is an isolated development receipt, not current production-SDK/Rust-gate
+or full-project acceptance. Parent integration must refresh those checks under
+the locked SDK and current project configuration.
+
+Four isolated planted-source defects were rejected by the complete unchanged
+fixture with `LLV7002`, exit1:
+
+| Defect | Observed rejecting controls |
+| --- | --- |
+| Remove the surrogate exclusion from scalar admission | 18 failures across scalar encoding, classification and alphabet admission |
+| Mark U+0085 as not whitespace | `unicode_white_space_133` |
+| Change alphabet image of byte0 from U+0100 to U+0101 | `alphabetEncode_0` |
+| Drop an interrupted continuation byte instead of processing it as a new lead | Six lossy cases, including `[195,40]`, `[237,160,128]`, and `[65,226,130,66]` |
+
+Mutations affected only the isolated development copy. Shared source and frozen
+controls remained unchanged. Logs are `/tmp/r4-text-mutant-surrogate.json`,
+`/tmp/r4-text-mutant-whitespace.json`, `/tmp/r4-text-mutant-alphabet.json`, and
+`/tmp/r4-text-mutant-lossy-drop.json`; these are local diagnostic evidence,
+not durable release receipts. The full original development source was restored;
+final full replay passed all 3865 controls and reproduced attestation
+`d44b7369fab19ae1f587e38d782e79d2481c03035d73d94f5ea0ecb8cc946300`.
+Its 3915 declaration audit rows all have empty observed axioms and each of the
+three modules has successful independent leanchecker replay. Rust formatting
+checks pass; actual dedicated Rust-gate
+execution remains part of parent SDK integration.
+
+### Integrated Text acceptance
+
+Independent full source, Rust and input-boundary review passed after the
+Unicode inventory/tree and fixture reviews. In the isolated thirteen-component
+project, the actual newer-SDK test
+`cargo test --offline --locked -p repo-conformance --test tokenizer_text`
+passed in 65.20 seconds: one mandatory test, zero failures, ignored or filtered
+tests. The common gate audited all 3,915 declaration rows and all three kernel
+replays against the unchanged 3,865 controls and current project inputs.
+Its attestation is
+`150e1654ec1351ef0b483d7085d058ef5d75f650c0c0376258e1574ca7d7ac22`.
+The project configuration SHA-256 is
+`582dd99a4afa394ef4adccb717610982db1686ab9f7dfa6c8c0e2515a198e59c`;
+the regenerated language lock SHA-256 is
+`b6e36d0c495ddfd9732f70c643e3ec7e00d2ed97372269d546a3ceb648bd0c64`.
+
+Formatting, thirteen-ID model consistency, lock checking and all-target/
+all-feature Clippy passed. The mandatory-test audit now requires this exact
+test and the default source selection includes TextControls once. This is a
+targeted development integration result; it does not replace full `just vv`,
+establish BPE/JSON/identity composition or accept a production SDK/runtime.

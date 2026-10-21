@@ -13,6 +13,22 @@
 spec = "template/1"
 
 [[authority]]
+id = "UNICODE17-TOKENIZER-TEXT"
+name = "Unicode 17 properties and Rust 1.97.1 compressed literals"
+citation = "https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities"
+checksum = "sha256:e5d09aaa3d8edd50b0fedd1ea887f779fc319787a9c5f9e74b108f4c6a251b7d"
+statement = "The checksum identifies the complete reviewed unicode-inventory.json, not one UCD file. Independent static decomposition of the pinned Rust literals equals the complete UCD Alphabetic, Numeric and White_Space intervals. Imported table facts are distinct from local lookup and UTF-8 conformance."
+realized_by = ["R4-14"]
+
+[[authority]]
+id = "UOR-TOKENIZER-TEXT"
+name = "UOR tokenizer text and byte alphabet contract"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md pins Rust 1.97.1 UTF-8 and Unicode 17 source dependencies"
+checksum = "sha256:52949ae97d4043547d8a3897d04298e0bed64fc5538c835c077feaa0537cff35"
+statement = "Pinned source defines the byte alphabet and Rust text operations used by tokenization. Full Unicode literals and UTF-8 source dependencies are independently inventoried; imported classification data is not a locally proved Unicode standard."
+realized_by = ["R4-14"]
+
+[[authority]]
 id = "UOR-DISCRETE-ENGINE"
 name = "UOR-R4 integrated discrete engine"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels"

@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-14"
+level = "build"
+suite = "r4-tokenizer-text"
+statement = "Pure LexLean admits Unicode scalar and byte domains, implements exact UTF-8 encoding, strict and Rust-compatible lossy decoding, the complete pinned Unicode predicates and the reversible tokenizer byte alphabet. Formal text controls do not establish BPE, JSON admission, tokenizer identity or runtime acceptance."
+
+[[id]]
 id = "R4-12"
 level = "build"
 suite = "r4-engine"
