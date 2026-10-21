@@ -158,7 +158,15 @@ reject on divisibility, append only primes, stop after count. The implementation
 must construct the sequence rather than accept a caller list or look up a
 fixture of the first8192 answers.
 
-Proposed practical finite realization: a complete source-owned sieve of the
+The preferred pending realization now preserves the actual trial-division
+transitions in bounded windows and chunked storage; see the
+[prime-rank certificate contract](prime-rank-certificate-contract.md).
+It also preserves the final candidate increment before the source loop's
+stopping guard. Its capacity, semantic correctness and public-root connection
+remain unproved. The sieve alternative below retains its separate equivalence
+obligations and has not been implemented or accepted.
+
+Earlier proposed finite realization: a complete source-owned sieve of the
 inclusive interval2..100000, followed by the requested prefix. Every traversal
 is structurally finite. Before adopting100000 as a runtime bound, require an
 actual none-axiom certificate that this complete sieve has at least8192 entries,
