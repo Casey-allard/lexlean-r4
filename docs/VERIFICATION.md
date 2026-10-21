@@ -265,6 +265,7 @@ lock failure on both amd64 and arm64 runners in
 [run 39553208326](https://github.com/Casey-allard/lexlean-r4/actions/runs/39553208326).
 Both jobs failed while reading `prismpm.lock`, before SDK execution. This is a
 dependency-binding failure, not a model proof result.
+
 ## Ten-component isolated replay
 
 The isolated staged tree matched all 113 tracked file blobs of commit
@@ -308,4 +309,3 @@ dependency ownership checks passed; `template-check` then stopped because
 `prismpm.lock` is absent. This remains a failed production acceptance boundary.
 No GPU model execution, parity, training, generated browser acceptance or
 Pages deployment is established by the formal development replay.
-
