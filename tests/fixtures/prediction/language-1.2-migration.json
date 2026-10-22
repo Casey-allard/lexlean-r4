@@ -1,0 +1,27 @@
+{
+  "schema": "lexlean-r4/prediction-language-migration/1",
+  "replacements": [
+    [
+      "@1.1.0",
+      "@1.2.0"
+    ],
+    [
+      "lexlean/semantic-module/1",
+      "lexlean/semantic-module/2"
+    ]
+  ],
+  "files": [
+    {
+      "path": "src/R4/Prediction.lex.tex",
+      "originalSha256": "87a07a652f31f668a67fb068135451c5a020dbbc3a69174f8f59b4a4cec9270d",
+      "migratedSha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0",
+      "semanticDeclarationsUnchanged": true
+    },
+    {
+      "path": "tests/lexlean/PredictionControls.lex.tex",
+      "originalSha256": "6fe8c8ccc4cc05fddc67191fd9a9bb66d34517c8dfb741f27a460f23cc0f0190",
+      "migratedSha256": "677087de1a6b844dd353e87909d96d9feb95d8cb2d07108f527d26698d3a5cde",
+      "semanticDeclarationsUnchanged": true
+    }
+  ]
+}

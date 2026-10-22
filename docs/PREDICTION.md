@@ -1,18 +1,24 @@
 # Target-free prediction refinement
 
-Status: 31 independent controls frozen and their missing-module rejection
-observed before candidate source authoring. Their isolated formal replay passed;
-semantic mutation checks, mandatory integration and general refinement proofs
-remain pending. This is not serving acceptance.
+Status: the target-free candidate source and 31 independent controls are retained
+as a verified development checkpoint. The missing-module rejection was observed
+before source authoring. A fresh isolated replay on 2026-10-22 passed with complete
+generated-artifact custody. All seven source-valid semantic mutations were rejected
+and exact restoration passed. Mandatory integration and general refinement proofs
+remain pending. Prediction is not counted among the
+nineteen integrated components, and this is not serving acceptance.
 
 The [API contract](specs/target-free-writer-api.md) specifies complete input
 admission, occupied-cell selection, global token ranking and the required
-general connection with the supervised writer. The control fixture SHA-256 is
+general connection with the supervised writer. The original control fixture SHA-256 is
 `6fe8c8ccc4cc05fddc67191fd9a9bb66d34517c8dfb741f27a460f23cc0f0190`.
 [`controls.json`](../tests/fixtures/prediction/controls.json) records literal
 provenance from the existing independently frozen Admission controls. Equal
 target-free calls were deduplicated only after exact expected-output equality;
-five additional mixed-invalid cases distinguish admission error order.
+five additional mixed-invalid cases distinguish admission error order. The current
+fixture uses language 1.2; the exact version-only replacements and both file
+identities are recorded in
+[`language-1.2-migration.json`](../tests/fixtures/prediction/language-1.2-migration.json).
 
 After successful lock creation, the unchanged official SDK rejected the frozen
 root with `LLR3005`: `PredictionControls` imports the absent `R4.Prediction`.
@@ -36,6 +42,41 @@ inputs, receipt/manifest identities and compiler/language binding. An initial
 unsupported CLI option was a usage error; it is retained separately and is not
 a semantic negative. Durable evidence is retained under
 `/Users/casey.allard/lexlean-r4-evidence/2026-10-21/prediction/finite-31/`.
+
+The fresh 2026-10-22 baseline reproduced that attestation, all 31 controls,
+904 none-axiom declaration audits and seven kernel replays. Its independent
+artifact audit also verified the exact 35 generated outputs, seven compiled
+module files, three embedded lexicons and Lean/Lake/leanchecker identities.
+Configuration and sources were unchanged; the fresh lock reproduced SHA-256
+`d63587c369a30a5343561911bf26851fe0b4a254475047ef8714204e86d3eaf4`.
+The complete baseline, mutation diagnostics, restored bundle, exact inputs,
+plan, runner, auditor and reviews are retained in
+`/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/finite-31-successor/`.
+[`finite-checkpoint.json`](../tests/fixtures/prediction/finite-checkpoint.json)
+records the identities and custody-manifest hash; it summarizes the retained
+artifacts and does not replace an actual verification invocation.
+This closes the historical packet's missing generated-output custody, not the
+remaining general-proof or integration obligations.
+
+Each mutation passed official source checking before the unchanged control root
+rejected it with a named theorem's `LLV7002` reflexivity failure. Resource and
+setup failures were excluded from semantic classification.
+
+| Planted defect | Representative rejecting control |
+| --- | --- |
+| Bypass specification admission | `predictionZeroCells` |
+| Cap admitted cells at one | `predictionMaximumCellsRetainSeventeenTokens` |
+| Rank only the first admitted cell | `predictionGlobalRankingAcrossCells` |
+| Reverse identity ties | `predictionCrowdedIdentitiesRetained` |
+| Collapse duplicate-vector identities | `predictionCrowdedIdentitiesRetained` |
+| Ignore invalid interior roots | `predictionInvalidInteriorGeometry` |
+| Ignore virtual moves | `predictionVirtualEndpointChangesCell` |
+
+The source was restored byte-for-byte after every mutation. A fresh complete
+31-control verification after the batch reproduced all four baseline identities
+and passed the same generated-output, compiled-module and kernel-replay audit.
+The isolated run used the existing network-none SDK container at four GiB and
+two CPUs, with unchanged compiler limits and axiom policy.
 
 The candidate wrapper reuses the actual score traversal, occupied-cell
 selection and global ranking. It accepts no target or loss-policy argument.
