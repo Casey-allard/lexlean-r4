@@ -2,9 +2,12 @@
 
 Status: independently reviewed API refinement of the approved full-scope design
 and [artifact/serving design](artifact-serving-design.md). Architecture and
-mathematical/error-domain reviews passed on 2026-10-21. Frozen controls,
-missing-definition RED, implementation and general refinement proofs remain
-required. No serving or model execution is claimed.
+mathematical/error-domain reviews passed on 2026-10-21. The target-free source,
+31 frozen controls, missing-module RED and seven semantic plants now have a
+verified development checkpoint. General identity-projection length and exact
+nonempty-list finalizer receipt proofs also passed; see the
+[verification record](../PREDICTION.md). Full admitted-domain refinement and
+mandatory integration remain required. No serving or model execution is claimed.
 
 ## Authority and separation
 

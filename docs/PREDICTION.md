@@ -134,3 +134,33 @@ attempt, is under
 This closes the proof-interface dependency for this length lemma. Complete
 Prediction refinement, ranking and eligibility properties, checked loss bounds,
 writer projection, mandatory integration and production acceptance remain open.
+
+## Exact ranked-list receipt boundary
+
+The next general theorem connects the actual `Prediction.predictionRanked`
+finalizer to its receipt for every supplied nonempty token-score list and every
+supplied cell-score list. It proves the exact successful receipt: prediction is
+the first token's identity, admitted cells are the complete cell identity
+projection, and ranked tokens are the complete token identity projection. Its
+second conjunct proves that the ranked-token projection has length one plus the
+tail's length, using the accepted lifted length lemma.
+
+The [proof](../tests/lexlean/PredictionRankedBoundaryControls.lex.tex) retains the
+[frozen statement](../tests/fixtures/prediction/ranked-boundary-obligations.json)
+without ordering or validity preconditions. Official verification passed the new
+theorem and both prerequisite length lemmas. Independent artifact review checked
+955 none-axiom declaration rows, ten module kernel replays, 50 generated outputs
+and ten compiled module files. The source-valid false companion claiming an empty
+ranked-token receipt was rejected. A source-valid plant replacing the finalizer's
+ranked-token projection with a singleton also caused the unchanged positive
+theorem to fail. Each rejection was a named `LLV7002` receipt-equality failure;
+resource and setup failures were excluded. Restoring the original runtime source
+and rerunning the complete positive root reproduced all four baseline identities.
+
+[`ranked-boundary-checkpoint.json`](../tests/fixtures/prediction/ranked-boundary-checkpoint.json)
+binds these results, the prerequisite checkpoint and the complete evidence census
+under `/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/ranked-boundary/`.
+The theorem concerns the supplied list, which may be arbitrary. It does not
+establish that the caller supplies a sorted, complete or nonempty ranking, that
+the selected token is a global minimum, or that scoring and the supervised writer
+succeed over the full admitted domain. Those obligations remain required.

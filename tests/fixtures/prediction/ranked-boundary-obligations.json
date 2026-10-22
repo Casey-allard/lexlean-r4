@@ -1,0 +1,404 @@
+{
+  "spec": "r4-prediction-ranked-boundary-obligations/1",
+  "status": "FROZEN_BEFORE_PROOF",
+  "positiveContract": {
+    "kind": "theorem",
+    "name": "predictionRankedReceiptExact",
+    "parameters": [
+      {
+        "name": "first",
+        "type": {
+          "kind": "named",
+          "member": {
+            "module": "R4.Admission",
+            "name": "TokenScore"
+          },
+          "arguments": []
+        }
+      },
+      {
+        "name": "tail",
+        "type": {
+          "kind": "list",
+          "element": {
+            "kind": "named",
+            "member": {
+              "module": "R4.Admission",
+              "name": "TokenScore"
+            },
+            "arguments": []
+          }
+        }
+      },
+      {
+        "name": "cells",
+        "type": {
+          "kind": "list",
+          "element": {
+            "kind": "named",
+            "member": {
+              "module": "R4.Admission",
+              "name": "CellScore"
+            },
+            "arguments": []
+          }
+        }
+      }
+    ],
+    "axioms": [],
+    "statement": {
+      "kind": "prop_and",
+      "left": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Prediction",
+            "name": "predictionRanked"
+          },
+          "arguments": [
+            {
+              "kind": "cons",
+              "head": {
+                "kind": "var",
+                "name": "first"
+              },
+              "tail": {
+                "kind": "var",
+                "name": "tail"
+              }
+            },
+            {
+              "kind": "var",
+              "name": "cells"
+            }
+          ]
+        },
+        "right": {
+          "kind": "constructor",
+          "constructor": {
+            "module": "R4.Prediction",
+            "name": "PredictionResult.value"
+          },
+          "arguments": [
+            {
+              "kind": "record",
+              "type": {
+                "module": "R4.Prediction",
+                "name": "PredictionReceipt"
+              },
+              "fields": [
+                {
+                  "field": "prediction",
+                  "value": {
+                    "kind": "project",
+                    "value": {
+                      "kind": "var",
+                      "name": "first"
+                    },
+                    "field": "identity"
+                  }
+                },
+                {
+                  "field": "admittedCells",
+                  "value": {
+                    "kind": "call",
+                    "function": {
+                      "module": "R4.Admission",
+                      "name": "identitiesCells"
+                    },
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "cells"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "field": "rankedTokens",
+                  "value": {
+                    "kind": "cons",
+                    "head": {
+                      "kind": "project",
+                      "value": {
+                        "kind": "var",
+                        "name": "first"
+                      },
+                      "field": "identity"
+                    },
+                    "tail": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Admission",
+                        "name": "identitiesTokens"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "tail"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "right": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Route",
+            "name": "lengthNat"
+          },
+          "arguments": [
+            {
+              "kind": "call",
+              "function": {
+                "module": "R4.Admission",
+                "name": "identitiesTokens"
+              },
+              "arguments": [
+                {
+                  "kind": "cons",
+                  "head": {
+                    "kind": "var",
+                    "name": "first"
+                  },
+                  "tail": {
+                    "kind": "var",
+                    "name": "tail"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "right": {
+          "kind": "add",
+          "left": {
+            "kind": "nat",
+            "value": "1"
+          },
+          "right": {
+            "kind": "call",
+            "function": {
+              "module": "R4.Admission",
+              "name": "lengthTokens"
+            },
+            "arguments": [
+              {
+                "kind": "var",
+                "name": "tail"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "falseContract": {
+    "kind": "theorem",
+    "name": "predictionRankedEmptyReceiptFalse",
+    "parameters": [
+      {
+        "name": "first",
+        "type": {
+          "kind": "named",
+          "member": {
+            "module": "R4.Admission",
+            "name": "TokenScore"
+          },
+          "arguments": []
+        }
+      },
+      {
+        "name": "tail",
+        "type": {
+          "kind": "list",
+          "element": {
+            "kind": "named",
+            "member": {
+              "module": "R4.Admission",
+              "name": "TokenScore"
+            },
+            "arguments": []
+          }
+        }
+      },
+      {
+        "name": "cells",
+        "type": {
+          "kind": "list",
+          "element": {
+            "kind": "named",
+            "member": {
+              "module": "R4.Admission",
+              "name": "CellScore"
+            },
+            "arguments": []
+          }
+        }
+      }
+    ],
+    "axioms": [],
+    "statement": {
+      "kind": "prop_and",
+      "left": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Prediction",
+            "name": "predictionRanked"
+          },
+          "arguments": [
+            {
+              "kind": "cons",
+              "head": {
+                "kind": "var",
+                "name": "first"
+              },
+              "tail": {
+                "kind": "var",
+                "name": "tail"
+              }
+            },
+            {
+              "kind": "var",
+              "name": "cells"
+            }
+          ]
+        },
+        "right": {
+          "kind": "constructor",
+          "constructor": {
+            "module": "R4.Prediction",
+            "name": "PredictionResult.value"
+          },
+          "arguments": [
+            {
+              "kind": "record",
+              "type": {
+                "module": "R4.Prediction",
+                "name": "PredictionReceipt"
+              },
+              "fields": [
+                {
+                  "field": "prediction",
+                  "value": {
+                    "kind": "project",
+                    "value": {
+                      "kind": "var",
+                      "name": "first"
+                    },
+                    "field": "identity"
+                  }
+                },
+                {
+                  "field": "admittedCells",
+                  "value": {
+                    "kind": "call",
+                    "function": {
+                      "module": "R4.Admission",
+                      "name": "identitiesCells"
+                    },
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "cells"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "field": "rankedTokens",
+                  "value": {
+                    "kind": "nil",
+                    "element": {
+                      "kind": "nat"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "right": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Route",
+            "name": "lengthNat"
+          },
+          "arguments": [
+            {
+              "kind": "call",
+              "function": {
+                "module": "R4.Admission",
+                "name": "identitiesTokens"
+              },
+              "arguments": [
+                {
+                  "kind": "cons",
+                  "head": {
+                    "kind": "var",
+                    "name": "first"
+                  },
+                  "tail": {
+                    "kind": "var",
+                    "name": "tail"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "right": {
+          "kind": "add",
+          "left": {
+            "kind": "nat",
+            "value": "1"
+          },
+          "right": {
+            "kind": "call",
+            "function": {
+              "module": "R4.Admission",
+              "name": "lengthTokens"
+            },
+            "arguments": [
+              {
+                "kind": "var",
+                "name": "tail"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "dependency": {
+    "path": "/tmp/lexlean-r4-prediction-congr-lift-20261022/tests/lexlean/PredictionRouteLengthControls.lex.tex",
+    "sha256": "4834b33995b01967dddd31eb25ef2430dfadb5f4588a590dda1c089a910a3b0c",
+    "status": "AWAITING_PARENT_FINAL_ACCEPTANCE",
+    "required": "positive actual artifact audit; unchanged false companion named semantic rejection; restored actual artifact audit with equal four IDs"
+  },
+  "prediction": {
+    "path": "/tmp/lexlean-r4-prediction-current-20261021/src/R4/Prediction.lex.tex",
+    "sha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0"
+  },
+  "plant": {
+    "declaration": "predictionRanked",
+    "scope": "cons branch receipt rankedTokens field only",
+    "replacement": "singleton firstToken.identity with Nil Nat tail",
+    "required": "unchanged positive theorem must be source-valid and rejected in first conjunct; no resource/setup error counts"
+  },
+  "limits": "No source algorithm edits, runtime helper, axiom policy relaxation, or SDK execution; this is preparation only",
+  "scope": "Already ranked nonempty list finalizer boundary and identity length; no sorting/completeness/global minimum/writer success claim"
+}

@@ -1,0 +1,12 @@
+\begin{lexlean}{PredictionRankedBoundaryNegativeControls}
+\useglossary{lexlean.std.bool@1.2.0}
+\useglossary{lexlean.std.nat@1.2.0}
+\importmodule{PredictionRouteLengthControls}
+\importmodule{R4.Admission}
+\importmodule{R4.Prediction}
+\importmodule{R4.Route}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"predictionRankedEmptyReceiptFalse","parameters":[{"name":"first","type":{"arguments":[],"kind":"named","member":{"module":"R4.Admission","name":"TokenScore"}}},{"name":"tail","type":{"element":{"arguments":[],"kind":"named","member":{"module":"R4.Admission","name":"TokenScore"}},"kind":"list"}},{"name":"cells","type":{"element":{"arguments":[],"kind":"named","member":{"module":"R4.Admission","name":"CellScore"}},"kind":"list"}}],"proof":{"branches":[{"kind":"reflexivity"},{"arguments":[{"kind":"var","name":"tail"}],"kind":"apply","theorem":{"module":"PredictionRouteLengthControls","name":"routeLengthOfTokenIdentitiesLifted"},"type_arguments":[]}],"kind":"constructor"},"statement":{"kind":"prop_and","left":{"kind":"eq","left":{"arguments":[{"head":{"kind":"var","name":"first"},"kind":"cons","tail":{"kind":"var","name":"tail"}},{"kind":"var","name":"cells"}],"function":{"module":"R4.Prediction","name":"predictionRanked"},"kind":"call"},"right":{"arguments":[{"fields":[{"field":"prediction","value":{"field":"identity","kind":"project","value":{"kind":"var","name":"first"}}},{"field":"admittedCells","value":{"arguments":[{"kind":"var","name":"cells"}],"function":{"module":"R4.Admission","name":"identitiesCells"},"kind":"call"}},{"field":"rankedTokens","value":{"element":{"kind":"nat"},"kind":"nil"}}],"kind":"record","type":{"module":"R4.Prediction","name":"PredictionReceipt"}}],"constructor":{"module":"R4.Prediction","name":"PredictionResult.value"},"kind":"constructor"}},"right":{"kind":"eq","left":{"arguments":[{"arguments":[{"head":{"kind":"var","name":"first"},"kind":"cons","tail":{"kind":"var","name":"tail"}}],"function":{"module":"R4.Admission","name":"identitiesTokens"},"kind":"call"}],"function":{"module":"R4.Route","name":"lengthNat"},"kind":"call"},"right":{"kind":"add","left":{"kind":"nat","value":"1"},"right":{"arguments":[{"kind":"var","name":"tail"}],"function":{"module":"R4.Admission","name":"lengthTokens"},"kind":"call"}}}}}],"spec":"lexlean/semantic-module/2"}}
+\end{semanticmodule}
+\end{lexlean}
