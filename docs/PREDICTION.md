@@ -90,7 +90,7 @@ them. Checked loss bounds and lawful proof composition must be established
 under the unchanged SDK axiom policy. Artifact custody, production lowering,
 session serving and deployment remain separate obligations.
 
-## General proof interface diagnostic
+## General identity-projection length proof
 
 An unchanged universally quantified length-preservation lemma was tested using
 the actual `Admission.identitiesTokens`, `Admission.lengthTokens` and
@@ -99,13 +99,38 @@ congruence tactic left its recursive case unresolved (`LLV7002`). Named
 unfolding through `LinearArithmetic` closed elaboration but the official audit
 rejected its observed `Quot.sound` and `propext` axioms (`LLV7005`). The
 source-valid false companion separately failed the empty-list equality 0 = 1.
-Neither positive probe is accepted under the unchanged none-axiom policy.
+Neither historical positive probe is accepted under the unchanged none-axiom policy.
 
 The [source-bound capability review](specs/constructive-proof-capability.md)
-identifies the missing supported constructive step: checked definitional
-unfolding followed by equality congruence using the local induction hypothesis.
-It records the precise official schema and backend limits, without changing
-the application algorithms or declaring the theorem false. Probe source,
+records those failed proof forms and the precise official schema and backend
+limits. Probe source,
 diagnostics and generated build records are retained under
 `/Users/casey.allard/lexlean-r4-evidence/2026-10-21/prediction/route-general-probes/`.
-This enabling lemma does not replace the complete prediction obligations above.
+
+On 2026-10-22, a constructive composition within the existing schema proved the
+unchanged original theorem. An auxiliary theorem states the same equality with
+one added to both lengths. Its list induction uses reflexivity for nil and
+congruence for cons. The original theorem uses reflexivity for nil and applies
+that proved auxiliary theorem to the tail in its cons branch. Both theorems
+quantify over arbitrary token lists; no runtime definition, SDK code or axiom
+policy changed.
+
+The [proof source](../tests/lexlean/PredictionRouteLengthControls.lex.tex) and
+[frozen obligations](../tests/fixtures/prediction/projection-length-obligations.json)
+are retained with the unchanged false companion. Official verification and an
+independent actual-artifact audit passed both lemmas, 947 none-axiom declaration
+rows, eight module kernel replays, 40 generated outputs and eight compiled module
+files. The source-valid false companion was rejected with the two historical
+`LLV7002` diagnostics, including the nil obligation `0 = 1`. A first continuation
+incorrectly expected a single diagnostic; that instrument failure is preserved.
+The corrected classifier requires both exact diagnostics. Fresh positive
+verification after the negative reproduced all four baseline identities.
+
+[`projection-length-checkpoint.json`](../tests/fixtures/prediction/projection-length-checkpoint.json)
+binds the proof, false companion, obligations, execution, independent audit and
+complete custody manifest. Durable evidence, including the failed classifier
+attempt, is under
+`/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/projection-length/`.
+This closes the proof-interface dependency for this length lemma. Complete
+Prediction refinement, ranking and eligibility properties, checked loss bounds,
+writer projection, mandatory integration and production acceptance remain open.

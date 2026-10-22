@@ -1,12 +1,33 @@
 # Route induction: official 0865 constructive-proof capability review
 
-2026-10-21; source-only review. No compiler execution, source algorithm change, generated-Lean edit, or axiom-policy change.
+2026-10-21 source-only review, with a verified 2026-10-22 resolution below.
+The historical review performed no compiler execution. The later proof uses the
+unchanged official SDK and application definitions.
 
 ## Conclusion
 
-The retained positive theorem is mathematically constructive, but no supported, justified none-axiom expression of its remaining induction step was found in the official 0865 closed proof schema. The current evidence establishes a proof-interface dependency, not a false theorem or a need to change Route/Admission algorithms. Do not repeat speculative `simp`/`omega` wrappers or count successful elaboration as verification.
+The 2026-10-22 verification resolves the bounded length lemma within the existing
+closed proof schema. Let `f(xs) = Route.lengthNat (Admission.identitiesTokens xs)`
+and `g(xs) = Admission.lengthTokens xs`. First prove the auxiliary universal
+equality `1 + f(xs) = 1 + g(xs)` by list induction, with `Reflexivity` for nil and
+`Congruence` for cons. Then prove the unchanged original `f(xs) = g(xs)` by list
+induction, with `Reflexivity` for nil and `Apply` of the auxiliary theorem to the
+tail for cons. Both proofs passed the none-axiom audit and fresh kernel replay.
+No runtime algorithm, SDK implementation or axiom policy changed; generated Lean
+was not edited by hand.
 
-A minimal generic upstream capability is definitional conversion/unfolding followed by checked equality congruence using a local induction hypothesis, with kernel checking and the existing none-axiom audit. It must be supplied by an officially identified SDK; it is not an application-local compiler patch or raw-Lean escape hatch.
+The [checkpoint](../../tests/fixtures/prediction/projection-length-checkpoint.json)
+binds the exact source, frozen original and auxiliary statements, unchanged false
+companion, actual artifact audit and durable evidence. Both positive passes
+verified 947 declaration rows and eight module replays, and reproduced all four
+identities around the source-valid false-companion rejection. Full Prediction
+refinement remains incomplete.
+
+The sections below retain the earlier source review and its rejected direct proof
+forms. Its conclusion that no supported expression had yet been found is
+superseded for this lemma. The proposed generic upstream capability remains a
+possible extension, not a prerequisite for the accepted construction or an
+established requirement for every remaining proof.
 
 ## Exact authority and observed evidence
 
@@ -45,9 +66,9 @@ The complete `SemanticProof` enum is at IR lines 609–655; backend rendering is
 
 This is a source-bound limitation finding for the needed path, not a proof that no arbitrarily elaborate encoding can ever be written in the language.
 
-## Exact upstream requirement and acceptance gate
+## Historical upstream proposal and acceptance gate
 
-Request a generic closed, typed proof capability supporting both:
+The source-only review proposed a generic closed, typed proof capability supporting both:
 
 1. Definitional conversion/unfolding of a sorted list of existing named definitions with a nested proof continuation; the new target must be definitionally equal to the old target.
 2. Local equality use via equality elimination or congruence, with checked local hypothesis and an existing typed pure function/lambda. For this case, its inferred conclusion is `f a = f b`, with `f(n)=1+n`, checked against the converted target. No arbitrary source text, asserted equality, generated proof file, or caller-provided success flag is admitted.

@@ -1,0 +1,201 @@
+{
+  "status": "FROZEN_BEFORE_CANDIDATE_PROOF",
+  "scope": "Projection length only; not full Prediction refinement",
+  "originalSource": "/tmp/lexlean-r4-prediction-route-proof-20261021",
+  "originalContract": {
+    "axioms": [],
+    "kind": "theorem",
+    "name": "routeLengthOfTokenIdentities",
+    "parameters": [
+      {
+        "name": "items",
+        "type": {
+          "element": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "module": "R4.Admission",
+              "name": "TokenScore"
+            }
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "statement": {
+      "kind": "eq",
+      "left": {
+        "arguments": [
+          {
+            "arguments": [
+              {
+                "kind": "var",
+                "name": "items"
+              }
+            ],
+            "function": {
+              "module": "R4.Admission",
+              "name": "identitiesTokens"
+            },
+            "kind": "call"
+          }
+        ],
+        "function": {
+          "module": "R4.Route",
+          "name": "lengthNat"
+        },
+        "kind": "call"
+      },
+      "right": {
+        "arguments": [
+          {
+            "kind": "var",
+            "name": "items"
+          }
+        ],
+        "function": {
+          "module": "R4.Admission",
+          "name": "lengthTokens"
+        },
+        "kind": "call"
+      }
+    }
+  },
+  "helperContract": {
+    "axioms": [],
+    "kind": "theorem",
+    "name": "routeLengthOfTokenIdentitiesLifted",
+    "parameters": [
+      {
+        "name": "items",
+        "type": {
+          "element": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "module": "R4.Admission",
+              "name": "TokenScore"
+            }
+          },
+          "kind": "list"
+        }
+      }
+    ],
+    "statement": {
+      "kind": "eq",
+      "left": {
+        "kind": "add",
+        "left": {
+          "kind": "nat",
+          "value": "1"
+        },
+        "right": {
+          "arguments": [
+            {
+              "arguments": [
+                {
+                  "kind": "var",
+                  "name": "items"
+                }
+              ],
+              "function": {
+                "module": "R4.Admission",
+                "name": "identitiesTokens"
+              },
+              "kind": "call"
+            }
+          ],
+          "function": {
+            "module": "R4.Route",
+            "name": "lengthNat"
+          },
+          "kind": "call"
+        }
+      },
+      "right": {
+        "kind": "add",
+        "left": {
+          "kind": "nat",
+          "value": "1"
+        },
+        "right": {
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "items"
+            }
+          ],
+          "function": {
+            "module": "R4.Admission",
+            "name": "lengthTokens"
+          },
+          "kind": "call"
+        }
+      }
+    }
+  },
+  "falseCompanionSha256": "beb4b0cfd1da01d974493c899df0e6c25d389ee7e976fa4aaf7689ed3862c8eb",
+  "originalPositiveSha256": "b7f141d6c878640315196d76aca4968f7fbc1ac7e7d8a9fff8d64a4d32445a5e",
+  "unchangedInputs": [
+    {
+      "path": "lakefile.toml",
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "lake-manifest.json",
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "lean-toolchain",
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "path": "lexlean.toml",
+      "sha256": "907536923a24879ca7ce6776e83bbccce18c982e380bf13881719b70737f12a2"
+    },
+    {
+      "path": "src/R4/Admission.lex.tex",
+      "sha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867"
+    },
+    {
+      "path": "src/R4/Binder.lex.tex",
+      "sha256": "2b66660f539c88fe2ce23229300c31bf7bbfba5ab83e9b23bd450bb237f6a449"
+    },
+    {
+      "path": "src/R4/Carrier.lex.tex",
+      "sha256": "ce696f2b297bebae8f0b7c6bb36e063ed80442a3c0ca952e5c428d983c19b0a6"
+    },
+    {
+      "path": "src/R4/Geometry.lex.tex",
+      "sha256": "2b934cd1ff5eccf6c8d5b4af1c34901fa964d31958e8a435cdc05bb6e52c7167"
+    },
+    {
+      "path": "src/R4/Objective.lex.tex",
+      "sha256": "379e2a52851628a5cc762c6cd911a18d97a3d30df8b9eecdb86542b82fe441ec"
+    },
+    {
+      "path": "src/R4/Route.lex.tex",
+      "sha256": "a5d799a17e9c33a4252df1ae2f222b5610e9c4fd042d13b1a156f227815fd554"
+    },
+    {
+      "path": "src/R4/Types.lex.tex",
+      "sha256": "c140409edf9a9fd2490a35f1692dfedb7577a6181165b9dc141773e609b5b456"
+    },
+    {
+      "path": "tests/lexlean/PredictionRouteLengthNegativeControls.lex.tex",
+      "sha256": "beb4b0cfd1da01d974493c899df0e6c25d389ee7e976fa4aaf7689ed3862c8eb"
+    }
+  ],
+  "existingRed": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/prediction/route-general-probes/r4-route-proof-evidence-20261021/PredictionRouteLengthControls-verify.stdout",
+    "diagnostic": "LLV7002 unsolved cons goal"
+  },
+  "requirements": [
+    "unchanged original theorem contract and false-companion bytes",
+    "empty axiom sets",
+    "official source check and complete positive receipt",
+    "source-valid false companion fails LLV7002 nil 0=1",
+    "positive reverify after negative",
+    "no SDK execution by preparer"
+  ]
+}
