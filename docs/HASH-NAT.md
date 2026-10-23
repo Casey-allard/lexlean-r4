@@ -33,3 +33,8 @@ restored replays, connected original Hash/Object controls and complete
 integration. Axiom policy and compiler limits remain unchanged. Formal Nat
 arithmetic, including possible 65-bit addition intermediates, does not establish
 the checked-u64 production lowering or fixed-memory serving requirements.
+
+
+## Isolated HashWire verified finite baseline
+
+[HashWire](HASH-WIRE.md) preserves an isolated fixture project whose exact 78-root/636-control positive baseline has passed independent artifact review and durable sealing. Status is BASELINE_VERIFIED_MUTATION_INCOMPLETE: two per-mutant semantic negatives are partial observations; the third mutant hit a whole-module LLS8002 child timeout, and full restoration was still running at the recorded checkpoint. All seven mutants/ten witnesses, complete restoration and final independent review remain required. The candidate Hash facade differs from the canonical module and is not adopted by this packaging. Original Hash regression, separate Nat controls/eleven mutants/restoration, Object consumers and modeled integration remain required; checked-u64 production lowering is a separate gate.

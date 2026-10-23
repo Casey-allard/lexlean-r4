@@ -1,0 +1,103 @@
+{
+  "spec": "r4-hash-wire-mutants/1",
+  "status": "FROZEN_UNREVIEWED_NOT_EXECUTED",
+  "sourceSha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+  "controlsInventorySha256": "861d8e3435c84a1fa12e0bed1e0cc1fce2b97b47564c3fa0462a19e0608b530d",
+  "count": 7,
+  "mutants": [
+    {
+      "name": "sha-first-word-width-three",
+      "definition": "hashWireShaStateLow32Bytes",
+      "module": "HashWireShaStateControls",
+      "witnesses": [
+        "wireShaField0Bit0"
+      ],
+      "description": "Emit three bytes for the first SHA state field instead of four.",
+      "path": "sha-first-word-width-three/HashWire.lex.tex",
+      "mutantSha256": "af8f770e6cd9e193ee67d44dd19cfdc7054118d627f7f6f26e0e7b5b7e042720",
+      "fixturePath": "tests/lexlean/HashWireShaStateControls.lex.tex",
+      "fixtureSha256": "9454c10a45d32a3717573a7aee8371e89c458f3fa2a66e282b72f28aef177513"
+    },
+    {
+      "name": "sha-first-field-substitution",
+      "definition": "hashWireShaStateLow32Bytes",
+      "module": "HashWireShaStateControls",
+      "witnesses": [
+        "wireShaField0Bit0"
+      ],
+      "description": "Serialize s1 twice and omit s0.",
+      "path": "sha-first-field-substitution/HashWire.lex.tex",
+      "mutantSha256": "8fbc31f93113364970566a51b554bc0e5b3e758a5960397c4b077c0c3303371e",
+      "fixturePath": "tests/lexlean/HashWireShaStateControls.lex.tex",
+      "fixtureSha256": "9454c10a45d32a3717573a7aee8371e89c458f3fa2a66e282b72f28aef177513"
+    },
+    {
+      "name": "sha-budget-bypassed",
+      "definition": "hashWireSha256Bounded",
+      "module": "HashWireAdmissionControls",
+      "witnesses": [
+        "wireShaBudgetBelowInvalid",
+        "wireShaBudgetBelowLastInvalid"
+      ],
+      "description": "Skip the budget guard while retaining the SHA length guard and actual core call.",
+      "path": "sha-budget-bypassed/HashWire.lex.tex",
+      "mutantSha256": "b449dce6446c8e021e99c240e5f1dde25e15b06c815e3570c1fec02b76cc2284",
+      "fixturePath": "tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "fixtureSha256": "3b45c05d65963e419901877da9357a8402ace4ecb23f84c4c7b67566b8f3ac5c"
+    },
+    {
+      "name": "blake-block-boundary-short",
+      "definition": "hashWireBlake2b96SingleBlock",
+      "module": "HashWireAdmissionControls",
+      "witnesses": [
+        "wireBlakeInvalid128First",
+        "wireBlakeInvalid128Last"
+      ],
+      "description": "Reject length128 before its invalid-byte diagnostics.",
+      "path": "blake-block-boundary-short/HashWire.lex.tex",
+      "mutantSha256": "4280cca991f76185f4d28b2868ea90f2d2c5c256b420f3712bee848ed9ed7495",
+      "fixturePath": "tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "fixtureSha256": "3b45c05d65963e419901877da9357a8402ace4ecb23f84c4c7b67566b8f3ac5c"
+    },
+    {
+      "name": "node-scale-thirty-eight-admitted",
+      "definition": "hashWireNodeId",
+      "module": "HashWireDirect25Controls",
+      "witnesses": [
+        "wireDirect25"
+      ],
+      "description": "Admit scale38 then reach length validation instead of invalidScale.",
+      "path": "node-scale-thirty-eight-admitted/HashWire.lex.tex",
+      "mutantSha256": "87049f904ca8d933f656f017bf6c22ec156f8da9009956a8cefb90d04b62f299",
+      "fixturePath": "tests/lexlean/HashWireDirect25Controls.lex.tex",
+      "fixtureSha256": "389fb36dcc91c80e906bd17ccd3f0edd50bc0718faeb845961ef3cdb8179c4d4"
+    },
+    {
+      "name": "node-parent-width-thirty-five",
+      "definition": "hashWireNodeId",
+      "module": "HashWireDirect28Controls",
+      "witnesses": [
+        "wireDirect28"
+      ],
+      "description": "Admit a short parent payload in the length predicate; retain error-constructor constants.",
+      "path": "node-parent-width-thirty-five/HashWire.lex.tex",
+      "mutantSha256": "fbbb1b05c94a188bbfc935dd0ce0c7e8c6b1327667a2934238370d094ef74023",
+      "fixturePath": "tests/lexlean/HashWireDirect28Controls.lex.tex",
+      "fixtureSha256": "391ea4b70f0f944ad3d045d3b8f40aef908f9c9a023a48129b85d23da4bb9534"
+    },
+    {
+      "name": "node-scale-prefix-omitted",
+      "definition": "hashWireNodeId",
+      "module": "HashWireAdmissionControls",
+      "witnesses": [
+        "wireNodePriorityLeafFirst",
+        "wireNodePriorityParentFirst"
+      ],
+      "description": "Hash the payload without its scale prefix, shifting invalid-byte indexes.",
+      "path": "node-scale-prefix-omitted/HashWire.lex.tex",
+      "mutantSha256": "450cccc8a830daff28b60662813acbaf20fec477b2b2f9f26f2a8a9908c8b8c7",
+      "fixturePath": "tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "fixtureSha256": "3b45c05d65963e419901877da9357a8402ace4ecb23f84c4c7b67566b8f3ac5c"
+    }
+  ]
+}

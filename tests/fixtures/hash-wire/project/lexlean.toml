@@ -1,0 +1,27 @@
+spec = "lexlean/project/1"
+name = "lexlean-r4"
+language = "1.2"
+module_prefix = "LexLeanR4"
+source_roots = ["src", "tests/lexlean"]
+entrypoints = ["tests/lexlean/HashWireAdmissionControls.lex.tex", "tests/lexlean/HashWireByteBridgeControls.lex.tex", "tests/lexlean/HashWireCross02Controls.lex.tex", "tests/lexlean/HashWireCross03Controls.lex.tex", "tests/lexlean/HashWireCross04Controls.lex.tex", "tests/lexlean/HashWireCross05Controls.lex.tex", "tests/lexlean/HashWireCross06Controls.lex.tex", "tests/lexlean/HashWireCross07Controls.lex.tex", "tests/lexlean/HashWireCross08Controls.lex.tex", "tests/lexlean/HashWireCross09Controls.lex.tex", "tests/lexlean/HashWireCross10Controls.lex.tex", "tests/lexlean/HashWireCross11Controls.lex.tex", "tests/lexlean/HashWireCross12Controls.lex.tex", "tests/lexlean/HashWireCross13Controls.lex.tex", "tests/lexlean/HashWireCross14Controls.lex.tex", "tests/lexlean/HashWireCross15Controls.lex.tex", "tests/lexlean/HashWireCross16Controls.lex.tex", "tests/lexlean/HashWireCross17Controls.lex.tex", "tests/lexlean/HashWireCross18Controls.lex.tex", "tests/lexlean/HashWireCross19Controls.lex.tex", "tests/lexlean/HashWireCross22Controls.lex.tex", "tests/lexlean/HashWireCross23Controls.lex.tex", "tests/lexlean/HashWireCross24Controls.lex.tex", "tests/lexlean/HashWireCross25Controls.lex.tex", "tests/lexlean/HashWireCross26Controls.lex.tex", "tests/lexlean/HashWireCross27Controls.lex.tex", "tests/lexlean/HashWireCross28Controls.lex.tex", "tests/lexlean/HashWireCross29Controls.lex.tex", "tests/lexlean/HashWireCross30Controls.lex.tex", "tests/lexlean/HashWireDirect02Controls.lex.tex", "tests/lexlean/HashWireDirect03Controls.lex.tex", "tests/lexlean/HashWireDirect04Controls.lex.tex", "tests/lexlean/HashWireDirect05Controls.lex.tex", "tests/lexlean/HashWireDirect06Controls.lex.tex", "tests/lexlean/HashWireDirect07Controls.lex.tex", "tests/lexlean/HashWireDirect08Controls.lex.tex", "tests/lexlean/HashWireDirect09Controls.lex.tex", "tests/lexlean/HashWireDirect10Controls.lex.tex", "tests/lexlean/HashWireDirect11Controls.lex.tex", "tests/lexlean/HashWireDirect12Controls.lex.tex", "tests/lexlean/HashWireDirect13Controls.lex.tex", "tests/lexlean/HashWireDirect14Controls.lex.tex", "tests/lexlean/HashWireDirect15Controls.lex.tex", "tests/lexlean/HashWireDirect16Controls.lex.tex", "tests/lexlean/HashWireDirect17Controls.lex.tex", "tests/lexlean/HashWireDirect18Controls.lex.tex", "tests/lexlean/HashWireDirect19Controls.lex.tex", "tests/lexlean/HashWireDirect22Controls.lex.tex", "tests/lexlean/HashWireDirect23Controls.lex.tex", "tests/lexlean/HashWireDirect24Controls.lex.tex", "tests/lexlean/HashWireDirect25Controls.lex.tex", "tests/lexlean/HashWireDirect26Controls.lex.tex", "tests/lexlean/HashWireDirect27Controls.lex.tex", "tests/lexlean/HashWireDirect28Controls.lex.tex", "tests/lexlean/HashWireDirect29Controls.lex.tex", "tests/lexlean/HashWireDirect30Controls.lex.tex", "tests/lexlean/HashWireShaStateControls.lex.tex", "tests/lexlean/HashWireShape02Controls.lex.tex", "tests/lexlean/HashWireShape03Controls.lex.tex", "tests/lexlean/HashWireShape04Controls.lex.tex", "tests/lexlean/HashWireShape05Controls.lex.tex", "tests/lexlean/HashWireShape06Controls.lex.tex", "tests/lexlean/HashWireShape07Controls.lex.tex", "tests/lexlean/HashWireShape08Controls.lex.tex", "tests/lexlean/HashWireShape09Controls.lex.tex", "tests/lexlean/HashWireShape10Controls.lex.tex", "tests/lexlean/HashWireShape11Controls.lex.tex", "tests/lexlean/HashWireShape12Controls.lex.tex", "tests/lexlean/HashWireShape13Controls.lex.tex", "tests/lexlean/HashWireShape14Controls.lex.tex", "tests/lexlean/HashWireShape15Controls.lex.tex", "tests/lexlean/HashWireShape16Controls.lex.tex", "tests/lexlean/HashWireShape17Controls.lex.tex", "tests/lexlean/HashWireShape18Controls.lex.tex", "tests/lexlean/HashWireShape19Controls.lex.tex", "tests/lexlean/HashWireShape24Controls.lex.tex", "tests/lexlean/HashWireShapeBlake128Controls.lex.tex", "tests/lexlean/HashWireShapeNodeScale37Controls.lex.tex"]
+build_root = ".lexlean"
+lockfile = "lexlean.lock"
+lean_workspace = "."
+lean_toolchain = "leanprover/lean4:v4.32.1"
+
+[[lexicon_source]]
+package = "lexlean.std.nat"
+kind = "builtin"
+
+[limits]
+max_file_bytes = 4194304
+max_total_source_bytes = 67108864
+max_primitive_atoms = 2000000
+max_token_lattice_edges = 4000000
+max_parse_states = 4000000
+max_ir_nodes = 2000000
+max_scope_depth = 1024
+max_import_depth = 128
+max_diagnostics = 256
+max_child_output_bytes = 16777216
+child_timeout_ms = 300000
