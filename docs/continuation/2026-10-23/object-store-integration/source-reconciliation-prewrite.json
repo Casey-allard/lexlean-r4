@@ -1,0 +1,659 @@
+{
+  "schema": "lexlean-r4-object-draft-reconciliation-prewrite/v1",
+  "status": "SOURCE_DIFF_VALIDATED_BEFORE_CANONICAL_EDITS",
+  "baseHead": "6e313585f018f04fc07dbb27edaedecaecc62cb9",
+  "authority": {
+    "path": "tests/fixtures/object257-symbolic-continuation/evidence/draft-integration-next-step.json",
+    "bytes": 20358,
+    "sha256": "6428358b4580679c9cb2dbc76f3d557a499b481c1acbe4976e72efdffabc7046"
+  },
+  "snapshotManifest": {
+    "path": "docs/continuation/2026-10-23/pending-manifest.json",
+    "bytes": 5064,
+    "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+  },
+  "changes": [
+    {
+      "name": "ObjectTypes",
+      "source": "src/R4/ObjectTypes.lex.tex",
+      "before": {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83582,
+        "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+      },
+      "target": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      "expectedAfter": {
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      "declarations": 109,
+      "changedDeclarations": [
+        {
+          "name": "ObjIdValid",
+          "kind": "alpha_rename_only",
+          "before": "3d48868b46fc39eaaf6f9bfd5c7810fca484b4eec2b3b0c3c9b5f9ec6a0d3036",
+          "after": "203f2a5f238d56444e923ff80b2441590da2be27610beeefdbfd304cea02ad5e",
+          "exactChanges": [
+            {
+              "path": "/body/left/left/arguments/0/value/name",
+              "before": "id",
+              "after": "ObjIdValidInputId"
+            },
+            {
+              "path": "/body/right/arguments/0/value/name",
+              "before": "id",
+              "after": "ObjIdValidInputId"
+            },
+            {
+              "path": "/parameters/0/name",
+              "before": "id",
+              "after": "ObjIdValidInputId"
+            }
+          ]
+        }
+      ],
+      "unchangedDeclarations": 108,
+      "formatChanges": {
+        "semanticSpec": [
+          "lexlean/semantic-module/1",
+          "lexlean/semantic-module/2"
+        ],
+        "glossaries": [
+          "lexlean.std.bool@1.1.0 -> lexlean.std.bool@1.2.0",
+          "lexlean.std.nat@1.1.0 -> lexlean.std.nat@1.2.0"
+        ],
+        "addedImport": null
+      }
+    },
+    {
+      "name": "ObjectCodec",
+      "source": "src/R4/ObjectCodec.lex.tex",
+      "before": {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111631,
+        "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+      },
+      "target": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      "expectedAfter": {
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      "declarations": 100,
+      "changedDeclarations": [
+        {
+          "name": "ObjHashBytes",
+          "kind": "HashWire_dispatch_and_direct_Nat_byte_result",
+          "before": "55f88c15b7a535089987682085c1da36a7a6a7877b2e2e4f96731dd78b7afd64",
+          "after": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588",
+          "exactChanges": [
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/arguments",
+              "before": [
+                {
+                  "kind": "var",
+                  "name": "digest"
+                }
+              ],
+              "after": {
+                "absent": true
+              }
+            },
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/function",
+              "before": {
+                "module": "R4.Hash",
+                "name": "encodeDigest256"
+              },
+              "after": {
+                "absent": true
+              }
+            },
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/kind",
+              "before": "call",
+              "after": "var"
+            },
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/name",
+              "before": {
+                "absent": true
+              },
+              "after": "digest"
+            },
+            {
+              "path": "/body/scrutinee/function/module",
+              "before": "R4.Hash",
+              "after": "R4.HashWire"
+            },
+            {
+              "path": "/body/scrutinee/function/name",
+              "before": "sha256",
+              "after": "hashWireSha256"
+            }
+          ]
+        },
+        {
+          "name": "ObjNodeHash",
+          "kind": "HashWire_dispatch_and_direct_Nat_byte_result",
+          "before": "b328e4be0de63f09c5fd822f2b2936e41d0a118f8630ceade7f3d487b0eacacc",
+          "after": "ea97fc81c5f7d9c546dec31c382cf9887607cf35225d3c3b777bdb0e926dd02d",
+          "exactChanges": [
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/arguments",
+              "before": [
+                {
+                  "kind": "var",
+                  "name": "identity"
+                }
+              ],
+              "after": {
+                "absent": true
+              }
+            },
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/function",
+              "before": {
+                "module": "R4.Hash",
+                "name": "encodeNodeId"
+              },
+              "after": {
+                "absent": true
+              }
+            },
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/kind",
+              "before": "call",
+              "after": "var"
+            },
+            {
+              "path": "/body/branches/1/body/arguments/0/fields/0/value/name",
+              "before": {
+                "absent": true
+              },
+              "after": "identity"
+            },
+            {
+              "path": "/body/scrutinee/function/module",
+              "before": "R4.Hash",
+              "after": "R4.HashWire"
+            },
+            {
+              "path": "/body/scrutinee/function/name",
+              "before": "nodeId",
+              "after": "hashWireNodeId"
+            }
+          ]
+        }
+      ],
+      "unchangedDeclarations": 98,
+      "formatChanges": {
+        "semanticSpec": [
+          "lexlean/semantic-module/1",
+          "lexlean/semantic-module/2"
+        ],
+        "glossaries": [
+          "lexlean.std.bool@1.1.0 -> lexlean.std.bool@1.2.0",
+          "lexlean.std.nat@1.1.0 -> lexlean.std.nat@1.2.0"
+        ],
+        "addedImport": "R4.HashWire"
+      }
+    },
+    {
+      "name": "ObjectStore",
+      "source": "src/R4/ObjectStore.lex.tex",
+      "before": {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66585,
+        "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+      },
+      "target": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      "expectedAfter": {
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      "declarations": 24,
+      "changedDeclarations": [
+        {
+          "name": "ObjLookupRecord",
+          "kind": "alpha_rename_only",
+          "before": "f436f2258bd59c3d09d30fea7314a06ba8aafb20ca4710c38f197b25b1faa478",
+          "after": "b75aa53426198998493d7b6b0f48b7663203cc2b75df80dbd6a7ffdc0fc4701e",
+          "exactChanges": [
+            {
+              "path": "/body/branches/1/body/condition/arguments/1/value/name",
+              "before": "id",
+              "after": "ObjLookupRecordInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/arguments/1/name",
+              "before": "id",
+              "after": "ObjLookupRecordInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjLookupRecordInputId"
+            }
+          ]
+        }
+      ],
+      "unchangedDeclarations": 23,
+      "formatChanges": {
+        "semanticSpec": [
+          "lexlean/semantic-module/1",
+          "lexlean/semantic-module/2"
+        ],
+        "glossaries": [
+          "lexlean.std.bool@1.1.0 -> lexlean.std.bool@1.2.0",
+          "lexlean.std.nat@1.1.0 -> lexlean.std.nat@1.2.0"
+        ],
+        "addedImport": null
+      }
+    },
+    {
+      "name": "ObjectRead",
+      "source": "src/R4/ObjectRead.lex.tex",
+      "before": {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 86326,
+        "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+      },
+      "target": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "expectedAfter": {
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "declarations": 32,
+      "changedDeclarations": [
+        {
+          "name": "ObjIdMember",
+          "kind": "alpha_rename_only",
+          "before": "05f579d99aee9778f55e4583e82ee4c5fcdd0104f32dd87d4cc814d3ecf659b1",
+          "after": "0d40b31b61364653a06370543a1923fdb79f7824e8beea16c16dfdb433c2aee1",
+          "exactChanges": [
+            {
+              "path": "/body/branches/1/body/left/arguments/1/value/name",
+              "before": "id",
+              "after": "ObjIdMemberInputId"
+            },
+            {
+              "path": "/body/branches/1/body/right/arguments/1/name",
+              "before": "id",
+              "after": "ObjIdMemberInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjIdMemberInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjInsertIdSorted",
+          "kind": "alpha_rename_only",
+          "before": "a4187f07802b3a79a71011e3d3cdd72cbb9f05c48d770a13307d531bf1cec78c",
+          "after": "541a4e16592b8b8541c562981a9759b4ab87cf7cec05f63e51cc03b303634022",
+          "exactChanges": [
+            {
+              "path": "/body/branches/0/body/head/name",
+              "before": "id",
+              "after": "ObjInsertIdSortedInputId"
+            },
+            {
+              "path": "/body/branches/1/body/condition/arguments/1/value/name",
+              "before": "id",
+              "after": "ObjInsertIdSortedInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/condition/arguments/0/value/name",
+              "before": "id",
+              "after": "ObjInsertIdSortedInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/else_value/tail/arguments/1/name",
+              "before": "id",
+              "after": "ObjInsertIdSortedInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/then_value/head/name",
+              "before": "id",
+              "after": "ObjInsertIdSortedInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjInsertIdSortedInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjRawLookup",
+          "kind": "alpha_rename_only",
+          "before": "4ce99c23b0469c72ab802786f12fb465a600e5deb95b342da698fdd99ab90fef",
+          "after": "bc18220d88af716bef3c495fffa910bc053ef1f55ede180b9581e2fc22de28d7",
+          "exactChanges": [
+            {
+              "path": "/body/branches/1/body/condition/arguments/1/value/name",
+              "before": "id",
+              "after": "ObjRawLookupInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/arguments/1/name",
+              "before": "id",
+              "after": "ObjRawLookupInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjRawLookupInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjAuthenticatedFetch",
+          "kind": "alpha_rename_only",
+          "before": "4b80a938761ee3ca3aa20e3c5d18706562058db9dad958b9bdd614a46873ebd3",
+          "after": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239",
+          "exactChanges": [
+            {
+              "path": "/body/branches/0/body/arguments/0/arguments/0/value/name",
+              "before": "id",
+              "after": "ObjAuthenticatedFetchInputId"
+            },
+            {
+              "path": "/body/branches/1/body/branches/1/body/condition/right/arguments/1/value/name",
+              "before": "id",
+              "after": "ObjAuthenticatedFetchInputId"
+            },
+            {
+              "path": "/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjAuthenticatedFetchInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjAuthenticatedFetchInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjVisitNode",
+          "kind": "alpha_rename_only",
+          "before": "d696e905c214b78d634dd52f6c3419af6fddb51be7e1e6f72a336a0d24c31eeb",
+          "after": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00",
+          "exactChanges": [
+            {
+              "path": "/body/branches/0/body/branches/1/body/branches/1/body/else_value/branches/1/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjVisitNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/branches/1/body/branches/1/body/else_value/branches/1/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjVisitNodeInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjVisitNodeInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjSeenScaleLookup",
+          "kind": "alpha_rename_only",
+          "before": "f54efeb68db4adcb8578120a0d256c05ae0b0dc9d5b9cbefea20ba1483ed77f1",
+          "after": "3be71a3ec2b0f5143e506ee2139f25deb7542e0941cacdd6f265894781af6e8b",
+          "exactChanges": [
+            {
+              "path": "/body/branches/1/body/condition/arguments/1/value/name",
+              "before": "id",
+              "after": "ObjSeenScaleLookupInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/arguments/1/name",
+              "before": "id",
+              "after": "ObjSeenScaleLookupInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjSeenScaleLookupInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjMissingAdvance",
+          "kind": "alpha_rename_only",
+          "before": "1714f3e49a114caef75db4e60358ce6f1728e30080f4f4e375c0c3c73f8ac4ad",
+          "after": "039b8ffe56b0a463ca780cf582571a726ee39531cb3726653c8c46c4080a431f",
+          "exactChanges": [
+            {
+              "path": "/body/fields/0/value/head/fields/0/value/name",
+              "before": "id",
+              "after": "ObjMissingAdvanceInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjMissingAdvanceInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjMissingAbsent",
+          "kind": "alpha_rename_only",
+          "before": "19af55b415ebdc70bab681af91c0dfbdfdcc3ccf1c0350a375aaf4a07e54d84a",
+          "after": "f69caec050cd600bf271e7aa41b3bca3eb664014d89aa91e08fb3e21aafc3efb",
+          "exactChanges": [
+            {
+              "path": "/body/fields/1/value/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingAbsentInputId"
+            },
+            {
+              "path": "/body/fields/2/value/arguments/1/head/name",
+              "before": "id",
+              "after": "ObjMissingAbsentInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjMissingAbsentInputId"
+            }
+          ]
+        },
+        {
+          "name": "ObjMissingNode",
+          "kind": "alpha_rename_only",
+          "before": "f2110c1250c9ebf5871e993b1492e4eeac89d5576322ea45984240ea7214e17b",
+          "after": "e11edf16159c7befc2e7988bf6eebe3c15f1a5a237bd27998a2fff842e1e56fa",
+          "exactChanges": [
+            {
+              "path": "/body/branches/0/body/else_value/branches/0/body/branches/0/body/arguments/0/arguments/0/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/0/body/else_value/branches/0/body/branches/0/body/arguments/0/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/0/body/else_value/branches/0/body/branches/1/body/branches/1/body/arguments/0/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/0/body/else_value/branches/0/body/branches/1/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/0/body/else_value/branches/0/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/0/body/else_value/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/branches/0/body/branches/0/body/arguments/0/arguments/0/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/branches/0/body/branches/0/body/arguments/0/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/branches/0/body/branches/1/body/branches/1/body/scrutinee/arguments/2/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/branches/0/body/branches/1/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/branches/0/body/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/body/branches/1/body/else_value/scrutinee/arguments/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            },
+            {
+              "path": "/parameters/1/name",
+              "before": "id",
+              "after": "ObjMissingNodeInputId"
+            }
+          ]
+        }
+      ],
+      "unchangedDeclarations": 23,
+      "formatChanges": {
+        "semanticSpec": [
+          "lexlean/semantic-module/1",
+          "lexlean/semantic-module/2"
+        ],
+        "glossaries": [
+          "lexlean.std.bool@1.1.0 -> lexlean.std.bool@1.2.0",
+          "lexlean.std.nat@1.1.0 -> lexlean.std.nat@1.2.0"
+        ],
+        "addedImport": null
+      }
+    },
+    {
+      "name": "Object",
+      "source": "src/R4/Object.lex.tex",
+      "before": {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+      },
+      "target": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      "expectedAfter": {
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      "declarations": 8,
+      "changedDeclarations": [],
+      "unchangedDeclarations": 8,
+      "formatChanges": {
+        "semanticSpec": [
+          "lexlean/semantic-module/1",
+          "lexlean/semantic-module/2"
+        ],
+        "glossaries": [
+          "lexlean.std.bool@1.1.0 -> lexlean.std.bool@1.2.0",
+          "lexlean.std.nat@1.1.0 -> lexlean.std.nat@1.2.0"
+        ],
+        "addedImport": null
+      }
+    }
+  ],
+  "remainingTwelve": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ],
+  "storage": {
+    "availableBytes": "31361212416",
+    "peakAdditionalBytes": 1048576,
+    "reserveBytes": 10737418240
+  },
+  "boundary": "Exact in-memory typed-structure comparison before edits. Existing finite proof runtime is a compatibility target, not canonical Hash/production acceptance."
+}

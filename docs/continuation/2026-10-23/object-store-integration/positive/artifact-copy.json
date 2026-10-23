@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-store20-positive-owned-20261023/.lexlean/verified/7ff21e35e542b6817ce0d67ba61d3e6739b1b2d896977a3a8adce92c7d3cc75e",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/positive/artifact"
+  ],
+  "started": "2026-10-23T20:54:48.442Z",
+  "ended": "2026-10-23T20:54:48.637Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

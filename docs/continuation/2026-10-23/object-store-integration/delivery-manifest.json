@@ -1,0 +1,447 @@
+{
+  "schema": "lexlean-r4-object-store-integration-delivery/v1",
+  "baseCommit": "6e313585f018f04fc07dbb27edaedecaecc62cb9",
+  "scope": "Six canonical source files integrated with actual20 Store controls under finite dependency closure. Remaining383 Object controls,20Blake3,semantic defects and full component/production qualification open.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 23710,
+      "sha256": "a91be2df8a5ea01ed2e0ce36e901fe454ea4727293249ebfbce0e7927b7b70e9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/RESULTS.md",
+      "bytes": 5307,
+      "sha256": "f3a07d1551c7fbf100e7516ba4b2f2a33cb88031780a6e7a2385ce7821db8709"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/control-migration-code-review.json",
+      "bytes": 5558,
+      "sha256": "b15cb954971622ac6394d8255a274256d721c6526d5e216462b7534dcee3405b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/control-migration.json",
+      "bytes": 5081,
+      "sha256": "c89d2176c848242840dd23fa9e878699c58411ea5dea83f6e3952cc32cbf53e9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/current-portable-bindings.json",
+      "bytes": 8457,
+      "sha256": "82fc345ddf2fa80b3db4855a73f39a28d6f15c74a61979b5abd5e6fff6da6263"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/input-manifest.json",
+      "bytes": 7582,
+      "sha256": "4cab39919aa21af8fc542c3f2cd23de299be97da556ab461122a91262d91ed94"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/invocation-source-review.json",
+      "bytes": 3743,
+      "sha256": "23054534b4219c6abb5014f1bc7010977a68ba663b5e458383e2aadb0946454f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/lexlean.toml",
+      "bytes": 683,
+      "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative-native-review.json",
+      "bytes": 10047,
+      "sha256": "554ba20c9fff829f33c3241eda981d7c7f58551506c77808509a42fb640ce014"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative-source-custody.json",
+      "bytes": 20369,
+      "sha256": "1e79abf096b6332325196ad155ab66ae497bc836f346ef58be8b99db866acd11"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/allocated-before.json",
+      "bytes": 459,
+      "sha256": "aecc0a60e4f05b4aa7833f863fd5bf499e4456cb48f012f4c82f11df863bc19f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/check.json",
+      "bytes": 880,
+      "sha256": "981c4c660f4cdde105c03599e79e11eec4d7d77ffb832714e007473d0bbf8e28"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/directories.json",
+      "bytes": 400,
+      "sha256": "a7ef5cd9bc7857ac334a912420b0137dc2bd0e47c5565d4dd0fd0db66e518e3d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "e020eba0205e5ae0d72cafdbeff07e9cd5d26034c885c6f1cf076c68eb114892"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "fffea5c52adcf29b2982b51b11050460ab69449a4542bf7d7f4900b4cc5b8de1"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/expected-inputs.json",
+      "bytes": 4195,
+      "sha256": "9480be9ad2dba4e171beb81467eb77327e661087098ff539381420f00a94de48"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "4486e7e788cd5e5509a30199949ea23a76d40b9b2e7c813b63d577f8080a8c4b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "9fed8cae22cf2ef1be8adb7ccef843f198e17c78557988ec4d5f3f034952907b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "773fac40005c3d977279c45f804a504b416db846e0f8861277e9b89e6f89eda0"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "0eda6e47edc2534d3230f1dac47be9876518a227668f450c43439435b6637192"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "c42d03d4d7800559dd1df2df3c8c3ab66b95020bb73ce9ff79896fa8a5a5a58a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "f04ffc434e45e249bb2c6f360d1aa0b2bd5e4007c76dccd17a826e36f9bf6618"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/lock-after.json",
+      "bytes": 459,
+      "sha256": "10797e55dfa119f270dd7fe4686c169e7e8d873aa858d62546b2d99f04c13e53"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/lock-bytes.json",
+      "bytes": 2040,
+      "sha256": "43d8e1691848a603026b63cf0a5f12b2ee0754bcba49f092d69eb1b60a4a09cd"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/lock.json",
+      "bytes": 524,
+      "sha256": "3e48cc90b155e80cfcaf5e47398d2c36a06b80bac23e384bedd8a31a2935a04f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "7d52766b4a254677c8cfd7147a0202808cbadb590b61a8fe5bf63e0faae15642"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "1eb3969a9f88fc83ee1265e13c5e92ab0b4cc564944e41d4e4fdbb4ed97b982a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/new-stage.json",
+      "bytes": 315,
+      "sha256": "1fd2aa6367ee6b0bf42365b1a08a86e333ec0677eb8161218b4b33a8a094a70a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/result.json",
+      "bytes": 894,
+      "sha256": "172dedeed8c0c4d0df8c0e1f4041f7e7079814ee4a66005119f78e7b4f2aaad1"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/source-after.json",
+      "bytes": 3479,
+      "sha256": "e3455b1c8431c28353ce76b1a4d42821c357c2b14d329d40f8cb2b22fa938493"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/source-before.json",
+      "bytes": 3479,
+      "sha256": "a63fc11ddc10204d6e4313b004414160a6eb4a9df087de51a0639c1915282211"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/swap-before.json",
+      "bytes": 265,
+      "sha256": "5e04a9f4a6f87be84aa52fdc091b73ff06dac98001220a4a2dac39a085dd54b6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "085420d2d9e5fbc58b2e0106e8c0ec73f0c41fdfeabadd76b733e167af071554"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive-custody.json",
+      "bytes": 21270,
+      "sha256": "ea9d971eb893be76e08f97f538cad3d99c39483e573be8672537a765b86e59bb"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive-native-review.json",
+      "bytes": 33620,
+      "sha256": "0fd9bc23e46e264ca9d6ea4be7940247d8dfe747216b26a516c6d9acb13bc1bd"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "d65d9312b2f4e4493fc6c6e9b9bc4d14cd00f56371cfdcfb43ea9b6915a848a3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-copy.json",
+      "bytes": 496,
+      "sha256": "186da045849d78b8061c47f92e172890404a82faaf04494007efa942b8bc4f4f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/attestation.json",
+      "bytes": 171365,
+      "sha256": "1a70f366541279f2b2ed63696eaaeafa4be9696e31e7d35cf8292a3dc0a2c5f2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/audit/LexLeanAudit.A432ad85e96b7c68797619a2d9ba87a6d.LexLeanR4.ObjectStoreControls.lean",
+      "bytes": 1510,
+      "sha256": "323211af51f6cae5091dc413b809d6f6a60b3a7704bd752b4b131bf553749340"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/audit/LexLeanAudit.A432ad85e96b7c68797619a2d9ba87a6d.LexLeanR4.ObjectStoreControls.process.json",
+      "bytes": 2364,
+      "sha256": "e41760b2e337e9ad59af74eace692670a950ebe203b0b8dcf929e5bb876ba9b3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/audit/output.txt",
+      "bytes": 57505,
+      "sha256": "8559aa3fccf5a42557d3ebcd9e9f803bf95183944c9190521b88d79ea4dbd793"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/build-manifest.json",
+      "bytes": 13059,
+      "sha256": "7c85c1bca11af4d3d826825a7a280d60e94ee45cece025a58ace9e1be6a83863"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/maps/LexLeanR4/ObjectStoreControls.map.json",
+      "bytes": 7684,
+      "sha256": "4f32e5bb1fda764677397a74cace850b210a5376620c14b9409430e663ffd8a8"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/modules/LexLeanR4/ObjectStoreControls.lean",
+      "bytes": 26016,
+      "sha256": "57f8ace5aa1978c6422d45150e5e5f5380362232b959fa5575e355ce9ed74f78"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/process/lean/LexLeanR4.ObjectStoreControls.json",
+      "bytes": 513,
+      "sha256": "843d0825f55b9b1ed240a74a95ea6be1c5bd428870fbf401e3844ab435253b27"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/artifact-text/process/leanchecker/LexLeanR4.ObjectStoreControls.json",
+      "bytes": 435,
+      "sha256": "f626396d6911eb7fb513e80d591e4a781434c319727293771175d59cb5b53b6c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/check.json",
+      "bytes": 881,
+      "sha256": "0c6f0672466cff92a018131b341e19075c95599c5d9c5e1fca3d17b23814c5a3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/directories.json",
+      "bytes": 400,
+      "sha256": "4b7d7a6a19adde1be83a15467dcee4904696786868cc7f8e312b0af4d903b2d0"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "a22fec80f6d08b6aee932d9b79b218cce08601be84c0c65ea9184d1cc54b2a5d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "d3104470f5c2f8e656ff14b89488e09047b2000e6afb39fbbefd2b249ac7393e"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/expected-inputs.json",
+      "bytes": 4160,
+      "sha256": "58cfdcd5c987d08ae823bf9fb0bdbb6d3285486b521f7d0fb72bacb802729a3b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "205f7ba687f8671c04f844c228d2b4c4ea86771b01c794ff92a89f1e257ca580"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "2d62b37c3cceeff39da5de2a384721fb5bb2d827afd08f01f82e4a2993298b81"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "cf50898eeff4e5f829fb71960566b845f60292423b978c551bbb9209b5e6adcc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "d5aaf24ff389ecff7c05edb48661868142d2628ea5b1f7796a911d6923cd1ef9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "3db997f66587c76d7c4b90acff996891d7c78fd94c188d89296e00195e88c6e2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "bd55ae28bf3e163bb1522f516cff8e3cc029dd15006e1b38d0840a631ea336bc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/lock-after.json",
+      "bytes": 459,
+      "sha256": "643dff5f401e483b8d59e71b7fc72e2c5387e1e2d3d314fd6dae6551a1cbd6d4"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/lock-bytes.json",
+      "bytes": 2040,
+      "sha256": "b1b3fb63069d0802c6077e2acc0fb705c5bf6bca785fd1e39972c121ccf45c57"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/lock.json",
+      "bytes": 524,
+      "sha256": "400c03d76150b5b18ccde22e271d2068f23739fecd08d37c262568b880e4e938"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "8e5096dab30833a2ebf82d27642c71c6985f0bd4d3725522a7c01d95cadcf08d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "2988ddd17eab59c17881ff2f05855b9e61e13aebc68a94d7342923b8bb679cd3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/new-stage.json",
+      "bytes": 315,
+      "sha256": "c247527b4b8e3c3e5cf4e32fbc69d8653e77ba87ccb3742a8a43ef58d8c7008d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/result.json",
+      "bytes": 984,
+      "sha256": "256ab16cada7b3d7768bed6bbf153d3264ca6e13e0071e8c0d3e0d754ffa72fb"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/source-after.json",
+      "bytes": 3479,
+      "sha256": "0fe3b659aa0a5d236eb71c494473416da162e323478ac3e8caf02e983e6e401e"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/source-before.json",
+      "bytes": 3479,
+      "sha256": "7994cdac7f65cbaf553eb8fffc26a9775a48172e1b65e9f2898d8e97d6b86986"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/swap-before.json",
+      "bytes": 264,
+      "sha256": "b27ef81490e2a8765d117d454708ac3c8918f5e7e5d5bbd3be81a51d6920789f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "f9c49575c4248ed34aaa87418b34d22ff40f237cd48ebd9a51ca87c3a4e55bb8"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/positive/verify.json",
+      "bytes": 1188,
+      "sha256": "b6acf62de43726c53bbd6f51d067ea83dc099883cf8218fb43fade847aa8e98c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json",
+      "bytes": 17355,
+      "sha256": "b9be3b7cadcb4badfc8eee4bcdbff4ca01d098512ae564d87ed814d009ee9cb7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/results.json",
+      "bytes": 19864,
+      "sha256": "96d14cd924a96d46cb200902347420bca5a768c50a61e019b85d01659b9d5e1e"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/runtime-source-code-review.json",
+      "bytes": 9258,
+      "sha256": "7dc91b96fb9a769f3230995cb55e5b3dd93f7dc06e4eac1a06d8e9d9d0cb1f98"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/source-bindings.json",
+      "bytes": 9519,
+      "sha256": "4c75064cef00f3343ddc74f05a6fbfcb963d9217cfc19a39c3b4c2203b514d3f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/source-reconciliation-prewrite.json",
+      "bytes": 23438,
+      "sha256": "6a22eeaca4fd0fd53492cdbb45fb32b22f56a32d1b474b394af3968f61d83212"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/source-reconciliation.json",
+      "bytes": 9112,
+      "sha256": "f07d5abbe87d9fa918ce351dd63011073c856125a4f59e9940e843901b5d7299"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/store20-header-migration-proposal.json",
+      "bytes": 17423,
+      "sha256": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/store20-header-migration-spec-review.json",
+      "bytes": 7159,
+      "sha256": "9ae13e33ba9c2570b5579a66e2a20d18d8b1b67aa0b17a9f813203f4e9637e06"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 22706,
+      "sha256": "f9785710ee64881a0bc5bcedcf69b62a20388c327793e3b525da19401277ff8d"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    }
+  ]
+}

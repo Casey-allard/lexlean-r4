@@ -18,7 +18,7 @@ independent reviewers; no external lab or another session owns this work.
 | --- | --- | --- |
 | Integrated development graph | Nineteen registered components; last recorded combined graph has 11,150 controls, 116 modules, 13,472 empty-axiom declaration audits and 116 kernel replays. Not a fresh whole-workspace test claim. | [Verification](VERIFICATION.md), [codebook](CODEBOOK-WORDS.md), model records and `CONFORMANCE.md` |
 | HashWire | Positive baseline for 78 roots; restoration accepted 16/78; mutation qualification 2/7. Incomplete. | [HashWire](HASH-WIRE.md), [checkpoint](../tests/fixtures/hash-wire/finite-checkpoint.json). Direct10 starts the remaining 62. |
-| Object implementation | Five modules and 403 controls authored, not integrated or accepted as a component. | [Draft source snapshot](continuation/2026-10-23/pending-manifest.json); do not confuse it with active model/source. |
+| Object implementation | Five canonical modules reconciled to the reviewed development runtime;20 of403 Object controls independently verified through the existing Store root. Component integration and qualification remain incomplete. | [Store integration results](continuation/2026-10-23/object-store-integration/RESULTS.md), [original draft snapshot](continuation/2026-10-23/pending-manifest.json). The other383 Object controls,20 separate Blake3 controls and required semantic negatives remain open. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -37,14 +37,27 @@ capability follows from these finite proofs.
 ## Next executable product sequence
 
 The immediate next work is the 17-file draft integration package requested by
-Casey. The atomized first-state bridge below is now verified. Complete the actual
+Casey. The atomized first-state bridge and existing20-control Store root are now verified. Complete the actual
 Object control roots and their dependencies, then reconcile the model, scenarios
 and documentation; retain the remaining whole257 obligation within that work.
 The [source-only inventory](../tests/fixtures/object257-symbolic-continuation/evidence/draft-integration-next-step.json)
 identifies 403 Object controls (Codec311, Store20, Read33, Construction39) and
-20 separate Blake3 primitive controls. Begin with source review of the draft
-runtime compatibility changes, then the existing 20-control Store root under
-unchanged limits. The inventory is planning context; that batch is NOT_RUN.
+20 separate Blake3 primitive controls. The runtime compatibility changes and
+three-literal Store control metadata migration passed independent source review.
+The original control produced the intended language-version admission rejection;
+the migrated root then verified all20 controls with unchanged statement/proof ASTs.
+This compatibility negative is not a semantic defect test. The [actual results](continuation/2026-10-23/object-store-integration/RESULTS.md)
+record823 empty-axiom declarations and11 kernel replays. Next review and migrate
+the remaining control roots, starting with Read33; retain the whole257 obligation
+and required Hash qualification. Do not repeat the known whole257 reflexivity
+timeout/OOM configuration. The earlier source-only inventory remains historical.
+The [remaining-controls proposal](continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json)
+pins the minimal metadata migrations and proposes Read33 followed by Codec311;
+both are NOT_RUN. Construction39 still contains the known whole257 reflexivity
+obligations and must not be replayed unchanged as an equivalent limit experiment.
+The separate Blake3 primitive suite imports a missing canonical
+`R4.Blake3Primitives` module; its implementation is required before that suite
+can establish source admission. Header migration alone cannot resolve it.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
@@ -124,6 +137,10 @@ failures and required Hash/Object qualification, run all 403 Object controls and
 required negatives, reconcile the PrismPM model and scenarios, and merge reviewed
 commits to main. The archived snapshot preserves provenance; it is not completion
 or permission to promote unverified drafts into the active graph.
+Six source files from that package are now reconciled and delivered: the five
+Object modules and Store controls. This does not close their component-level
+obligations. The other eleven drafts remain unchanged; model registration,
+feature scenarios, documentation and full403-control qualification are pending.
 
 ## Portable source and evidence map
 
