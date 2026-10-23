@@ -796,5 +796,12 @@
     "bytes": 5346,
     "scope": "SYNTHETIC_HOST_MODEL_ONLY",
     "fullRestorationAccepted": false
+  },
+  "temporalCustodyRepair": {
+    "path": "tests/fixtures/hash-wire/temporal-custody-repair.json",
+    "bytes": 4346,
+    "sha256": "9834fd6e77496c5c4706ebaad03a2b532b965a76ed5ceb4f54665fad2f68421c",
+    "scope": "HOST_RECEIPT_READER_ONLY",
+    "fullRestorationAccepted": false
   }
 }

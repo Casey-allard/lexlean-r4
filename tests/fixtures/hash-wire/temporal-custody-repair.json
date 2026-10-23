@@ -1,0 +1,96 @@
+{
+  "schema": "lexlean-r4/temporal-final-custody-repair/1",
+  "date": "2026-10-23",
+  "status": "REVIEWED_HOST_RECEIPT_READER_ONLY",
+  "scope": "Read-only receipt validation using synthetic raw evidence. No executor, native proof, pure LexLean application behavior or PrismPM acceptance.",
+  "packet": {
+    "manifest": {
+      "path": "/tmp/r4-hash-wire-fresh-temporal-binding-custody-successor-20261023/manifest.json",
+      "bytes": 31014,
+      "sha256": "2bf561d4aa8a2aea9733e1f78d186189e572a0a8b6a3183d2ea5d8630e2fd6d8"
+    },
+    "adapter": {
+      "path": "/tmp/r4-hash-wire-fresh-temporal-binding-custody-successor-20261023/adapter.mjs",
+      "bytes": 7649,
+      "sha256": "d08786d7b2a01af0071b7c648800b3e206a69e0469ade242e5da863ef1b902be"
+    },
+    "tests": {
+      "path": "/tmp/r4-hash-wire-fresh-temporal-binding-custody-successor-20261023/interleaving-tests.mjs",
+      "bytes": 5343,
+      "sha256": "bb958b3cf2938841fc416c2013a91ceb4c86f4fc6be6fdaf6521e6acc3f738be"
+    },
+    "checkpoint": {
+      "path": "/tmp/r4-hash-wire-fresh-temporal-binding-custody-successor-20261023/checkpoint.json",
+      "bytes": 9254,
+      "sha256": "74e93c88e74dab9d530135f2158751468f7e3e7292ffe4c20865cfbacd0ba29f"
+    },
+    "sourceArchive": {
+      "path": "tests/fixtures/hash-wire/temporal-custody-sources.json",
+      "bytes": 33658,
+      "sha256": "273a2bb7b50981ead17413ab628741151a61d57c42175371ce90fe4daf5809cf"
+    }
+  },
+  "repair": "After all composed-reader awaits, synchronously rehash the frozen binding dependencies and every captured raw reference immediately before private token issuance, with no intervening await. Preserve final-custody error cause and prior independent errors.",
+  "predecessor": {
+    "manifest": {
+      "path": "/tmp/r4-hash-wire-fresh-temporal-binding-implementation-20261023/manifest.json",
+      "bytes": 178478,
+      "sha256": "b355ae8dfa1e78d144e65f38cfaae57647e036f53b2aa82d19ba64fabd75922f"
+    },
+    "codeReview": {
+      "path": "/tmp/r4-wire-fresh-temporal-implementation-code-review-20261023/review.json",
+      "bytes": 4584,
+      "sha256": "a4dbca45809c99a3afd5d2dbc0ef178b3b8997c7a19d97cd3731d598d392792a"
+    },
+    "status": "CODE_REJECTED_PRESERVED_UNCHANGED"
+  },
+  "reviews": {
+    "spec": {
+      "path": "/tmp/r4-wire-temporal-custody-successor-spec-review-20261023/review.json",
+      "bytes": 5163,
+      "sha256": "2e7450a1f06ecbc3cc5211430efcaa41cb37c589ddfe2236f66369bb75388b70"
+    },
+    "code": {
+      "path": "/tmp/r4-wire-temporal-custody-successor-code-review-20261023/review.json",
+      "bytes": 4580,
+      "sha256": "7e256c3a5ed0803a5aea0bef8b0e61b364766ed08cc1bf978db08086e270e177"
+    }
+  },
+  "verification": {
+    "exactUninstrumentedOldFailures": 2,
+    "exactUninstrumentedNewRejections": 2,
+    "phaseObservedTrialsPerVersion": 78,
+    "oldPreIssuanceAcceptances": 24,
+    "newPreIssuanceAcceptances": 0,
+    "additionalCodeRawClosureTrials": 78,
+    "additionalCodeStaleAcceptances": 0,
+    "priorUnfilteredGroups": 15,
+    "parentCensus": {
+      "path": "/tmp/r4-temporal-custody-parent-census-20261023.json",
+      "bytes": 354,
+      "sha256": "5d0c1b20a18712708727b1fa115f8063bc80759fc2d0d50872e980184afd04d7"
+    },
+    "prior118And16SourceDefects": "Historical referenced evidence; not rerun in narrow successor review"
+  },
+  "custody": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/temporal-final-custody-repair/custody.json",
+    "bytes": 83827,
+    "sha256": "7f761f83ffdabd5a3ad6b0581e4a12ef2f31ee054bb606cbbc0ef0f0657bc235"
+  },
+  "limitations": [
+    "Exact uninstrumented trace:null/default beforeIssuance:false fields establish no issuance timing; separate synchronous test-only instrumentation establishes timing.",
+    "No guarantee of perpetual filesystem immutability or cross-process atomic snapshots.",
+    "All source census, command admission, resource, artifact and native proof gates remain mandatory external checks.",
+    "Original full temporal packet is preserved by reference, not included in this repair seal."
+  ],
+  "actual": {
+    "restoredRoots": 16,
+    "requiredRestorationRoots": 78,
+    "observedMutants": 2,
+    "requiredMutants": 7,
+    "fullRestorationAccepted": false,
+    "fullMutationAccepted": false,
+    "actualFull78Binding": null,
+    "actualFreshEpochBinding": null
+  }
+}
