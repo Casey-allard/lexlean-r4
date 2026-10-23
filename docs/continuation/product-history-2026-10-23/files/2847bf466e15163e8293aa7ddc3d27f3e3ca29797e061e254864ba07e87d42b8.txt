@@ -1,0 +1,286 @@
+{
+  "at": "2026-10-23T16:22:53.200Z",
+  "status": "PASS_EXACT_STAGED_FINITE_SOURCE_DELIVERY",
+  "repository": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+  "reviewedHead": "7743ed0bfa08ea8a64dd78cb5e3b7ec242ec338e",
+  "proposal": {
+    "path": "/tmp/r4-object257-connected-next-product-step-20261023.json",
+    "bytes": 18876,
+    "sha256": "8b6acc3fa949965f391d08170ea367815f5cf828046e26e3b920e626f2e202e9"
+  },
+  "stagedInventory": [
+    {
+      "path": "tests/fixtures/object257-leaf-transport/README.md",
+      "bytes": 2754,
+      "sha256": "b11c1f72d51bbe86ae12a118df93adc9eed2ab8e4783463ddb2d705ca4b29ca6"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/candidate-code-review.json",
+      "bytes": 4364,
+      "sha256": "3cfc4eacc7762ddb2f6961357757421f8a7789b63e76f69ec0c10b3bf73f0a41"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/emitted/Object257LeafApply.lean",
+      "bytes": 1047,
+      "sha256": "4cc43e8d3ead726403f4736406033b0e20f0a8daa45aa93542c2f2a7a12f0bda"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/emitted/Object257LeafCertificate.lean",
+      "bytes": 957,
+      "sha256": "5bf1011d4a6eda325f0fbc22b78965c14942db95f8b5775327064fe474a937ac"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/emitted/Object257ParentContext.lean",
+      "bytes": 1387,
+      "sha256": "04749b5e530b0052cdf907c27b84f4ef9538aa0d4e49f584f1a014c4b50d71a6"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/emitted/Object257ParentTransport.lean",
+      "bytes": 2235,
+      "sha256": "ffaabe8abe4875634d15babb9c091d7167ee8f46abfdebdde519e41e1ac886ab"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/leaf-apply-verify.json",
+      "bytes": 1179,
+      "sha256": "8d6688811ebae81ce3c739d7ca2e6a91507891f94278e8ad7a08d8fbeae25438"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/leaf-false-verify.json",
+      "bytes": 1692,
+      "sha256": "729a20fb398df94ba03c9466e95b8d3e5a735824bb9eea773633f3520591bace"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/leaf-pair-review.json",
+      "bytes": 5413,
+      "sha256": "604432c489cd45537c48eff06e9962cae301a573c6e1ead16a51dfb0766cc640"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/leaf-positive-verify.json",
+      "bytes": 1166,
+      "sha256": "afb92165734d3049ae1ae1e1639a3577654539d264e55cbd0a258c7215bb7c9b"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/spec-review.json",
+      "bytes": 8486,
+      "sha256": "eebefa00b425443c869cd8e2bf5d42fc72c6dd5442de8abb9cf0fda9aedfd17e"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/transport-false-verify.json",
+      "bytes": 1637,
+      "sha256": "893bebd11e688e9d82aaeade4a387c127af4feab083c686961c40f29cd20299d"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/transport-positive-verify.json",
+      "bytes": 1226,
+      "sha256": "c980cb55673d9cdc7605cb58fd0daba55696225872fa1d8c1abdf665345e4db9"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/transport-review.json",
+      "bytes": 10625,
+      "sha256": "866ce69867f083e3f808b39506a3e615d3f538668acbcbc4590a000a84b538a6"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/manifest.json",
+      "bytes": 14329,
+      "sha256": "712798d82fa687bfb9b93ba3e7eacfe20cf7b6a6a10e2bd2c83adc09b3efdfc3"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/leaf-apply/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "4906623f2b959801f9c8240e30850daed1f36a9a8e8e65dd796c8cdd25dbf367"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/leaf-apply/lexlean.toml",
+      "bytes": 682,
+      "sha256": "bc01be97c744cf7f78a94030dccb0b10ad6e9378fa36af96b78c4d0ead547255"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/leaf-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "9b4c5e839402d396f3533e0f5c846d466110348f230d3a448ced0f033bc7554c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/leaf-false/lexlean.toml",
+      "bytes": 684,
+      "sha256": "c331baeca284a7c50ce002cc816b39b28bed0165de044437a388e724824c3ce6"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/leaf-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "23291b02e75d957b2c77102373f08e12c825b1fd76f7381efceda8c0d1e2100d"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/leaf-positive/lexlean.toml",
+      "bytes": 688,
+      "sha256": "ef17e4c4fe62a6760946aa41df24e91a0712a8bd65d4e23b25af47fc0b3a05c4"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/transport-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5d0edc972dd39c541f4a5041d5207cdcffba5de15335638749b7b30838d33adb"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/transport-false/lexlean.toml",
+      "bytes": 697,
+      "sha256": "2ccf6d415258eb19aec06f2e5be9b4997d1abef3cdeddd888da6bccffcb72fe1"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/transport-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "e9cd6e8643bfad6602f37e0928b380ad7c2ee79da2d4e98cc729c34fa8d6e809"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/transport-positive/lexlean.toml",
+      "bytes": 688,
+      "sha256": "4b93dea03086b5f49740add8b152410fecf2a4936fd37b0f5b642d1cbe3b1820"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "e9cd6e8643bfad6602f37e0928b380ad7c2ee79da2d4e98cc729c34fa8d6e809"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lexlean.toml",
+      "bytes": 688,
+      "sha256": "4b93dea03086b5f49740add8b152410fecf2a4936fd37b0f5b642d1cbe3b1820"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257LeafApply.lex.tex",
+      "bytes": 3962,
+      "sha256": "b05c4220a0559ad54b50aaedf59fc6c62a1429a5c313039f0884601e42bea8ce"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257LeafCertificate.lex.tex",
+      "bytes": 3826,
+      "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257LeafFalseId.lex.tex",
+      "bytes": 3822,
+      "sha256": "cf316063170e693d641360b1455454108341ee775e8bc49a1557a0671a3b63ab"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257ParentContext.lex.tex",
+      "bytes": 3228,
+      "sha256": "6cc4f7d63b065bbc57022decc95b41531b7bd754b9191ec352612b229eac1157"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257ParentTransport.lex.tex",
+      "bytes": 7626,
+      "sha256": "25b636352c19144704071889c7fcef148bcab5ff49571e2a66bc500064583432"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257ParentTransportFalseBase.lex.tex",
+      "bytes": 7599,
+      "sha256": "b9aede4c249298284785643299adbe3c13aed5a444994d9b9730553205c00a6e"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/results.json",
+      "bytes": 2660,
+      "sha256": "a03d898b27778b98669eb2f77e42f61bed5afc2dcd222be6becfc647fcb54241"
+    }
+  ],
+  "files": 47,
+  "totalBytes": 1906953,
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/manifest.json",
+    "bytes": 14329,
+    "sha256": "712798d82fa687bfb9b93ba3e7eacfe20cf7b6a6a10e2bd2c83adc09b3efdfc3"
+  },
+  "checks": {
+    "stagedBytesEqualWorkingBytes": true,
+    "allStagedFilesNewRegularUTF8Text": true,
+    "noOutsideStagedPaths": true,
+    "manifestExact46NonselfEntries": true,
+    "exactOriginCopies": 44,
+    "proposalExactCopies": 39,
+    "preexistingDirty17UnchangedAndUnstaged": true,
+    "dirtyReference": {
+      "path": "/tmp/r4-ordered-delivery-existing-dirty-20261023.json",
+      "bytes": 2302,
+      "sha256": "ac9fbc473b920010ee65bd095c0470f9d687b70b1fc264b4756a7de326f94b28"
+    },
+    "cachedDiffCheck": true,
+    "fiveOutcomesAndElapsedTimesMatchRawReceipts": true,
+    "fiveChecksRecordedSuccess": true,
+    "allPhaseConfigsAndGenuineLockBindingsMatch": true,
+    "defaultProjectIsTransportPositive": true,
+    "reviewEvidenceExact": true,
+    "noCompiledOrCompilerImplementationVendoring": true
+  },
+  "findings": [],
+  "scope": "Accept this 47-file self-contained finite development fixture as exact reviewed source/evidence delivery. No canonical Object/conformance state changes.",
+  "limitations": [
+    "Repository relocation is byte-verified and was not rerun. Actual native acceptance remains attached to original reviewed stages and their attestation identities.",
+    "This review does not accept the original whole-257 digest, all Object controls, Hash qualification, canonical product integration, production PrismPM/template binding or generated Pages.",
+    "The retained runtime source closure differs from current canonical working Object modules, so a proof-only canonical commit would bind different dependencies. The self-contained fixture preserves exact tested source without replacing those modules.",
+    "Full bundles remain in the cited local evidence directory; repository includes exact sources, genuine development locks, recorded verification receipts, emitted proof text and independent reviews.",
+    "No SDK/compiler/VM or other-lab operations and no repository mutations by reviewer."
+  ],
+  "storageFreeBytes": "35103952896"
+}

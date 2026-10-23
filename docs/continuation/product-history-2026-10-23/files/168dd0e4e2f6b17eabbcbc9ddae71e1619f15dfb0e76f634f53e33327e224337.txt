@@ -1,0 +1,22 @@
+{
+  "status": "PASS_READ_ONLY_STRUCTURE_AND_PINS_ONLY",
+  "checks": [
+    "all 15 shared input bytes unchanged",
+    "prior manifest, leaf and SPEC review exact",
+    "proposal and official source/prior native review exact",
+    "semantic-module/2, exact declaration census",
+    "accepted actual leaf statement and Reflexivity unchanged",
+    "H actual staging operation and exact error-preserving output type",
+    "P zero original equation; successor exact H equation",
+    "exact Induction/Cases/Congruence/Apply proof shape and empty axioms",
+    "consumer directly exposes production staging expression",
+    "negative differs at only zero Apply target",
+    "all explicit external members directly imported",
+    "phase configs change entrypoint only; 300000 ms retained"
+  ],
+  "nativeCheck": "NOT_RUN",
+  "nativeNegative": "NOT_RUN",
+  "nativePositive": "NOT_RUN",
+  "axiomReplay": "NOT_RUN",
+  "note": "No compiler invocation. Structural comparison does not establish schema admission or congruence closure."
+}

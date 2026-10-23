@@ -1,0 +1,8 @@
+{
+  "status": "SETUP_FAILURE_NOT_PROOF_RESULT",
+  "phase": "source-only copy before config/lock/check/verify",
+  "reason": "cp -a ownership preservation returned nonzero for four test files",
+  "compilerInvoked": false,
+  "partialStagePreserved": "/tmp/r4-object257-staging-positive-owned-20261023",
+  "next": "Independent narrow setup review; new owned stage with content copy and full source hash verification, no changes to proof/config/limits"
+}

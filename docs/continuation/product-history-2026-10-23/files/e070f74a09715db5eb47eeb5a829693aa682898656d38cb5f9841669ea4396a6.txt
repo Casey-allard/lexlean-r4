@@ -1,0 +1,14 @@
+{
+  "args": [
+    "stats",
+    "--no-stream",
+    "--format",
+    "{{json .}}",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+  ],
+  "started": "2026-10-23T15:04:05.460Z",
+  "ended": "2026-10-23T15:04:06.778Z",
+  "status": 0,
+  "stdout": "{\"BlockIO\":\"316MB / 20.9MB\",\"CPUPerc\":\"108.35%\",\"Container\":\"cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf\",\"ID\":\"cbd8cf8ac724\",\"MemPerc\":\"16.08%\",\"MemUsage\":\"658.4MiB / 4GiB\",\"Name\":\"lexlean-r4-current-sdk\",\"NetIO\":\"0B / 0B\",\"PIDs\":\"16\"}\n",
+  "stderr": ""
+}

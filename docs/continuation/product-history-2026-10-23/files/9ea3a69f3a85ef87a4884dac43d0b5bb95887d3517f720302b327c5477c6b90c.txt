@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-23T16:11:17.721Z",
+  "previousAvailableKiB": 36495384,
+  "currentAvailableKiB": 33848956,
+  "declineKiB": 2646428,
+  "swapAllocatedMiB": 11264,
+  "newKnownTempDirs": [
+    [
+      "deepseek-q3081",
+      523080
+    ],
+    [
+      "deepseek-rc3081",
+      523080
+    ],
+    [
+      "deepseek-v3081",
+      523096
+    ]
+  ],
+  "interpretation": "Partial attribution only. APFS sharing and concurrent churn prevent exact physical reconciliation. No other lab files or processes changed. Current native phase already running; reserve remains above20GiB launch floor.",
+  "nativeJob": 5016
+}

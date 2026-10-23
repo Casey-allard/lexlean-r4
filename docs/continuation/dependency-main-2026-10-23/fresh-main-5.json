@@ -1,0 +1,14 @@
+{
+  "main": "31ec155d064cdf70c1db1aa01d18ac744b6d74c6",
+  "args": [
+    "run",
+    "--locked",
+    "-p",
+    "xtask",
+    "--",
+    "audit-dependency-updates"
+  ],
+  "status": 0,
+  "stdout": "audit-dependency-updates: SDK ownership and ordinary maintenance are preserved\n",
+  "stderr": "    Finished `dev` profile [unoptimized] target(s) in 0.19s\n     Running `/Users/casey.allard/lexlean-r4-build-cache/host/debug/xtask audit-dependency-updates`\n"
+}

@@ -1,0 +1,7 @@
+{
+  "at": "2026-10-23T14:52:41.226Z",
+  "hostAvailableBytes": "40727818240",
+  "estimatedAdditionalBytes": 10737418240,
+  "reserveBytes": 10737418240,
+  "scope": "Single real Object257 theorem experiment; not component acceptance"
+}

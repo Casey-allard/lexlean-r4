@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cat",
+    "/proc/sys/kernel/random/boot_id"
+  ],
+  "started": "2026-10-23T14:50:22.693Z",
+  "ended": "2026-10-23T14:50:22.858Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "44f408ba-d166-4157-93b8-d311639e4a0f\n",
+  "stderr": ""
+}

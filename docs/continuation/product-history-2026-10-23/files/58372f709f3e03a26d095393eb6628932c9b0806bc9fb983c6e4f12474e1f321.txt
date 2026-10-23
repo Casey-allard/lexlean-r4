@@ -1,0 +1,156 @@
+{
+  "status": "AUTHORED_NOT_NATIVE_CHECKED_REVIEW_REQUIRED",
+  "specReview": {
+    "path": "/tmp/r4-object257-connected-certificate-spec-review-20261023.json",
+    "sha256": "eebefa00b425443c869cd8e2bf5d42fc72c6dd5442de8abb9cf0fda9aedfd17e"
+  },
+  "baselineManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/manifest.json",
+    "sha256": "6570cd6f3196715ea0ac5bfc75495fa4bd65a76940f64a3dded12c753e928d9e"
+  },
+  "sharedInputs": [
+    {
+      "path": "lake-manifest.json",
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+      "bytes": 146,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lake-manifest.json"
+    },
+    {
+      "path": "lakefile.toml",
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+      "bytes": 58,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lakefile.toml"
+    },
+    {
+      "path": "lean-toolchain",
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+      "bytes": 25,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lean-toolchain"
+    },
+    {
+      "path": "lexlean.toml",
+      "sha256": "b004fa5049e5d8da103173c11aad1e72386e018c899bbcf594bee163235c894a",
+      "bytes": 690,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lexlean.toml"
+    },
+    {
+      "path": "src/R4/Hash.lex.tex",
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+      "bytes": 782463,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Hash.lex.tex"
+    },
+    {
+      "path": "src/R4/HashNat.lex.tex",
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+      "bytes": 64465,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashNat.lex.tex"
+    },
+    {
+      "path": "src/R4/HashNatCore.lex.tex",
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+      "bytes": 339156,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashNatCore.lex.tex"
+    },
+    {
+      "path": "src/R4/HashWire.lex.tex",
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+      "bytes": 11612,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashWire.lex.tex"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "bytes": 14317,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Object.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "bytes": 111511,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "bytes": 87135,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+      "bytes": 66645,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "bytes": 83627,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectTypes.lex.tex"
+    },
+    {
+      "path": "src/R4/Words.lex.tex",
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "bytes": 240864,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Words.lex.tex"
+    },
+    {
+      "path": "tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6",
+      "bytes": 20194,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex"
+    }
+  ],
+  "originalLeaf": {
+    "path": "/tmp/ObjectTrace257Node10Controls.lex.tex",
+    "sha256": "58668052bf744033511f6f50e99179f70eb7b599521157eb23900b80ddcdd0fd",
+    "statementJsonSha256": "d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b"
+  },
+  "phases": [
+    {
+      "phase": "leaf-false",
+      "root": "tests/lexlean/Object257LeafFalseId.lex.tex",
+      "config": "configs/leaf-false/lexlean.toml",
+      "status": "NOT_RUN",
+      "expected": "SOURCE_VALID_EQUALITY_REJECTION_NOT_RESOURCE"
+    },
+    {
+      "phase": "leaf-positive",
+      "root": "tests/lexlean/Object257LeafCertificate.lex.tex",
+      "config": "configs/leaf-positive/lexlean.toml",
+      "status": "NOT_RUN",
+      "expected": "EMPTY_AXIOMS_AND_REPLAY"
+    },
+    {
+      "phase": "leaf-apply",
+      "root": "tests/lexlean/Object257LeafApply.lex.tex",
+      "config": "configs/leaf-apply/lexlean.toml",
+      "status": "NOT_RUN",
+      "expected": "EXACT_PRIOR_THEOREM_REUSE"
+    },
+    {
+      "phase": "transport-false",
+      "root": "tests/lexlean/Object257ParentTransportFalseBase.lex.tex",
+      "config": "configs/transport-false/lexlean.toml",
+      "status": "NOT_RUN",
+      "expected": "SOURCE_VALID_APPLY_TYPE_MISMATCH_NOT_RESOURCE"
+    },
+    {
+      "phase": "transport-positive",
+      "root": "tests/lexlean/Object257ParentTransport.lex.tex",
+      "config": "configs/transport-positive/lexlean.toml",
+      "status": "NOT_RUN",
+      "expected": "EMPTY_AXIOMS_AND_REPLAY_CONTEXT_LIFT_AND_CONSUMER"
+    }
+  ],
+  "limits": "All base config fields unchanged except entrypoint.300000ms/4GiB; no config/lock copied from900secondOOM attempt. Parent requires fresh resourceepoch and exact compiler checks.",
+  "stageInstructions": "Parent only: fresh source-only owned stages. Reuse10shared production sources+3Lake/toolchain files by exact byte copy; omit original ObjectNatDigest257Controls from new probe stage; install all6candidate modules and selected exact config. Generate actual lock in each stage. No hostprovided synthetic lock. Original fifteen files remain reference-pinned; no source files copied by author.",
+  "claims": {
+    "original257Proved": false,
+    "leafAccepted": false,
+    "transportAccepted": false,
+    "HashAccepted": false,
+    "ObjectAccepted": false,
+    "SDKInvoked": false
+  },
+  "limitsOfTransport": "C is an actual ObjMakeParent context. Generic child IDs are theorem parameters, not accepted precomputed parent hashes. A successful probe establishes this homogeneous Result ObjRecord transport only; heterogeneous carry/inventory/wholeSHA/full257 composition remains open."
+}

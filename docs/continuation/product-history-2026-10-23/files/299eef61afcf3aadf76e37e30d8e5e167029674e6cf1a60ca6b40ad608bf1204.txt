@@ -1,0 +1,89 @@
+{
+  "at": "2026-10-23T16:02:34.273Z",
+  "hostAvailableBytes": "37348356096",
+  "reserveBytes": 10737418240,
+  "estimatedAdditionalBytes": 10737418240,
+  "stage": "/tmp/r4-object257-leaf-positive-owned-20261023",
+  "inputs": [
+    {
+      "path": "lake-manifest.json",
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "lakefile.toml",
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "lean-toolchain",
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "path": "src/R4/Hash.lex.tex",
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+    },
+    {
+      "path": "src/R4/HashNat.lex.tex",
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+    },
+    {
+      "path": "src/R4/HashNatCore.lex.tex",
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+    },
+    {
+      "path": "src/R4/HashWire.lex.tex",
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/Words.lex.tex",
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+    },
+    {
+      "path": "tests/lexlean/Object257LeafApply.lex.tex",
+      "sha256": "b05c4220a0559ad54b50aaedf59fc6c62a1429a5c313039f0884601e42bea8ce"
+    },
+    {
+      "path": "tests/lexlean/Object257LeafCertificate.lex.tex",
+      "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a"
+    },
+    {
+      "path": "tests/lexlean/Object257LeafFalseId.lex.tex",
+      "sha256": "cf316063170e693d641360b1455454108341ee775e8bc49a1557a0671a3b63ab"
+    },
+    {
+      "path": "tests/lexlean/Object257ParentContext.lex.tex",
+      "sha256": "6cc4f7d63b065bbc57022decc95b41531b7bd754b9191ec352612b229eac1157"
+    },
+    {
+      "path": "tests/lexlean/Object257ParentTransport.lex.tex",
+      "sha256": "25b636352c19144704071889c7fcef148bcab5ff49571e2a66bc500064583432"
+    },
+    {
+      "path": "tests/lexlean/Object257ParentTransportFalseBase.lex.tex",
+      "sha256": "b9aede4c249298284785643299adbe3c13aed5a444994d9b9730553205c00a6e"
+    },
+    {
+      "path": "lexlean.toml",
+      "sha256": "ef17e4c4fe62a6760946aa41df24e91a0712a8bd65d4e23b25af47fc0b3a05c4"
+    }
+  ]
+}

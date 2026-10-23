@@ -194,3 +194,11 @@ The [dependency-maintenance evidence](continuation/dependency-refresh-2026-10-23
 contains the exact initial failures, restored host results, source pins and
 internal reviews. Absolute paths inside historical receipts identify the original
 execution; the adjacent files and manifest preserve their bytes on GitHub.
+
+PR #4 merged at `31ec155d064cdf70c1db1aa01d18ac744b6d74c6`; the dependency
+branch was deleted. All six scoped host checks above passed again on that fetched
+main revision. [Historical product work](continuation/product-history-2026-10-23/README.md)
+preserves the additional 324 small text contents found in the bounded local
+inventory, with source/alias mappings and exact hashes. Active product drafts
+and all 24 inspected candidate/evidence LexLean source occurrences already matched
+committed bytes. This archive preserves provenance; it adds no accepted capability.

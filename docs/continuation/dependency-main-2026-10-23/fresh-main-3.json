@@ -1,0 +1,13 @@
+{
+  "main": "31ec155d064cdf70c1db1aa01d18ac744b6d74c6",
+  "args": [
+    "check",
+    "--workspace",
+    "--all-targets",
+    "--all-features",
+    "--locked"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "    Checking repo-conformance v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/crates/conformance)\n    Checking xtask v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/xtask)\n    Finished `dev` profile [unoptimized] target(s) in 7.60s\n"
+}

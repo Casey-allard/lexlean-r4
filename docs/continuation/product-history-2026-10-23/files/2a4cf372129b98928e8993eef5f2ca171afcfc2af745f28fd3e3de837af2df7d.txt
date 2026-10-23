@@ -1,0 +1,15 @@
+# Object257 staging transport source candidate
+
+This is the minimal SPEC-reviewed next product proof experiment. It is not compiler acceptance. All native source checks, negative and positive proofs, emitted-source inspection, observed axiom checks and kernel replay are NOT_RUN.
+
+`Object257StagingContext.lex.tex` defines the exact error-preserving `ObjStageRecord` continuation and the two-type Prop family. `Object257StagingTransport.lex.tex` uses the accepted actual leaf equality as its zero case, splits the predecessor in the successor case, and applies the lifted theorem at one in the production-facing consumer. The negative changes only that zero-case Apply target to the unrelated `0 = 0` theorem. Both Congruence branches remain an empirical question for the installed compiler.
+
+The shared fifteen-input historical closure is pinned by reference in proposal.json. Parent staging should include the ten exact runtime modules, three Lake/toolchain files, accepted byte-identical leaf certificate, these three candidate modules and one selected phase config. The historical original257 control and old parent-context controls are not phase roots. No runtime definition is edited or replaced. Obtain a genuine fresh lock in the owned stage; this packet supplies no fabricated lock. Both phase configs retain the original 300000 ms policy.
+
+Run the false-base phase first under parent-controlled resource/epoch gates. Source admission must succeed and verification must reject the intended base Apply mismatch. Timeout, OOM, missing imports or schema errors do not count as RED. Then select the positive phase; verify lifted and consumer, inspect actual emitted H/P and nested induction/cases/congr1/Apply1, require empty observed axioms and kernel replay. Independently audit the resulting artifacts. No original objFoldDigest257 proof or R4-13 acceptance follows solely from this local transport.
+
+Read-only structural check:
+
+    node /tmp/r4-object257-staging-transport-candidate-20261023/audit.mjs
+
+The author script is provenance, not a compiler/test runner, and uses exclusive writes. Do not rerun it in this frozen directory. It changed no repository, frozen predecessor, VM, SDK, production source or other lab files. The native compiler is intentionally not invoked here. The source-only report is under 1 MiB; initial free host space was 34,286,840 KiB and pre-audit free space was 34,115,816 KiB, above the 10 GiB reserve.

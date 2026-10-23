@@ -1,0 +1,154 @@
+{
+  "at": "2026-10-23T17:10:56.733Z",
+  "status": "PASS_EXACT_STAGED_TERMINAL_FOLD_DELIVERY",
+  "repository": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+  "reviewedHead": "3d943e3c83cd2426a63df3b57a2ec9cdbfa754bf",
+  "stagedInventory": [
+    {
+      "path": "tests/fixtures/object257-leaf-transport/README.md",
+      "bytes": 5589,
+      "sha256": "6d39faf598875f6bfb022031287daec89b9c987b70314e9e651caac56733f659"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/Object257TerminalFoldTransition.lean",
+      "bytes": 2908,
+      "sha256": "f02521aa53fbc67e8fbf2079e67bfa7a0fd9d99040a29d5cd9974ea104d19fc5"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-false-allocated-before.json",
+      "bytes": 222,
+      "sha256": "e7aaf095537bfc525563068ed3e02fe0f809bc1bfebe22e4da760e31f61467bb"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-false-verify.json",
+      "bytes": 1316,
+      "sha256": "d5ba14ee7ce0ae0ab786332d9048eadad1c90166bb2369f51e7f339ae86f6a69"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-fold-allocation-path-correction.json",
+      "bytes": 693,
+      "sha256": "6d9bfe560f5b97249fddf22aab9436bba8b093e946cda50a186d6f10258db5eb"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-fold-candidate-manifest.json",
+      "bytes": 10053,
+      "sha256": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-fold-code-review.json",
+      "bytes": 5339,
+      "sha256": "05544bcd078d540095c25ab373068a1cfc0945cbec20532ac6b0f6aabea3fd10"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json",
+      "bytes": 9670,
+      "sha256": "edbacab285290edbad51f57a09c9dd530ba2d7c23547c89cfabd418fa8dcd9ab"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-fold-spec-review.json",
+      "bytes": 9404,
+      "sha256": "a12ba72d80f5f4f7a6e2b072b5dfbf59d6cc741d9a8b37d6fada5ccbad110aa2"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-positive-allocated-before.json",
+      "bytes": 222,
+      "sha256": "bd0263f21b8e5ece89b23fb5c78f57766637c5aeba48d5e7fdaedfa5486e6710"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-positive-verify.json",
+      "bytes": 1242,
+      "sha256": "562c10809050102f8aa9af9a4746742d765da6e0513777704719ecddd784a70c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/manifest.json",
+      "bytes": 24930,
+      "sha256": "6674608b1113dbe1511d8fb8dec46016163a08c0eac6fa972a47af05a4c67312"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/terminal-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "3da8bb1f60468b4048eb290162018f853b3b5857d025a5aa5acc663959aeab17"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/terminal-false/lexlean.toml",
+      "bytes": 704,
+      "sha256": "98fdcafeabcd7c26527e2e9ba0d9719c925da08d60022d938d5152e1ab0555e3"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/terminal-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "698df801b73449348e5156410c2d2aacd9e5279eb404935d14c591c663718c57"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/terminal-positive/lexlean.toml",
+      "bytes": 695,
+      "sha256": "8a5045bcd6056f705c340d2dec5183d89c0478a541697d1e3f8bfdb7ba0c247f"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "bytes": 10722,
+      "sha256": "037ffbafb67a359f4b28d1bb61494bed3d3b18382cc75da9509db98ba0f0e320"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex",
+      "bytes": 10703,
+      "sha256": "5dd5aee68580258bcb7e5d5f5fa555621e26f474d9fb53adb60b9229a58d8420"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/results.json",
+      "bytes": 5311,
+      "sha256": "17eb2933736a65665563ef8ef95474caf6ce8d3ec6e4c08c2762db2634377a5b"
+    }
+  ],
+  "newFiles": 18,
+  "modifiedFiles": 3,
+  "stagedFiles": 21,
+  "totalStagedBytes": 117309,
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/manifest.json",
+    "bytes": 24930,
+    "sha256": "6674608b1113dbe1511d8fb8dec46016163a08c0eac6fa972a47af05a4c67312"
+  },
+  "checks": {
+    "allIndexBytesMatchWorkingBytes": true,
+    "onlyExpectedFixturePathsStaged": true,
+    "allRegularUTF8Text": true,
+    "manifestExact80NonselfEntries": true,
+    "exactOriginCopies": 78,
+    "priorManifestEntryOrderPreserved": true,
+    "prior60CopiedFilesUnchanged": true,
+    "originalSevenOutcomesUnchanged": true,
+    "allNineOutcomesMatchActualReceipts": true,
+    "terminal18InputsPerPhaseMatchActualNativeReferences": true,
+    "configsAndGenuineLocksBound": true,
+    "defaultParentPhaseUnchanged": true,
+    "nativeReviewAndReportedCountsExact": true,
+    "failedAuxiliaryPreflightAndCorrectedPostrunAllocationPreservedAndDistinguished": true,
+    "preexisting17DirtyFilesUnchangedAndUnstaged": true,
+    "dirtyReference": {
+      "path": "/tmp/r4-ordered-delivery-existing-dirty-20261023.json",
+      "bytes": 2302,
+      "sha256": "ac9fbc473b920010ee65bd095c0470f9d687b70b1fc264b4756a7de326f94b28"
+    },
+    "cachedDiffCheck": true
+  },
+  "findings": [],
+  "scope": "Approve exact staged finite source/evidence fixture extension for test(object): verify certified leaf in terminal fold transition.",
+  "limitations": [
+    "Actual verification and recorded kernel replays were independently audited in the preserved native review. Repository relocation has not been rerun.",
+    "Neither the auxiliary failed allocation observations nor their postrun correction are silently promoted to complete preflight allocation evidence. Independent capacity gates passed.",
+    "No original257 proof, earlier fold transitions or concrete incoming state, canonical product integration, complete Object/Hash qualification, PrismPM or Pages acceptance follows.",
+    "No SDK/compiler/VM/native operations, repository/index modifications or other-lab mutations by reviewer."
+  ],
+  "storageFreeBytes": "32606167040"
+}

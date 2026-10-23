@@ -1,0 +1,12 @@
+{
+  "status": "PASS_STRUCTURAL_SOURCE_ONLY",
+  "modules": 6,
+  "theorems": 9,
+  "leafFalseDifference": "one expected byte",
+  "transportFalseDifference": "one Apply target",
+  "sharedInputs": 15,
+  "configurationDifference": "entrypoint only",
+  "nativeSourceCheck": "NOT_RUN",
+  "nativeRED": "NOT_RUN",
+  "nativeGREEN": "NOT_RUN"
+}

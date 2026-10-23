@@ -1,0 +1,20 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cp",
+    "-R",
+    "--no-preserve=ownership",
+    "/tmp/r4-object257-staging-positive-owned-20261023-attempt2/src",
+    "/tmp/r4-object257-staging-positive-owned-20261023-attempt2/lake-manifest.json",
+    "/tmp/r4-object257-staging-positive-owned-20261023-attempt2/lakefile.toml",
+    "/tmp/r4-object257-staging-positive-owned-20261023-attempt2/lean-toolchain",
+    "/tmp/r4-object257-terminal-false-owned-20261023/"
+  ],
+  "started": "2026-10-23T17:05:46.671Z",
+  "ended": "2026-10-23T17:05:46.881Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

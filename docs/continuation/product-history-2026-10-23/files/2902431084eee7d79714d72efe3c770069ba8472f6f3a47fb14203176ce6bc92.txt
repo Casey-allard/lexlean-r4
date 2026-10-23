@@ -1,0 +1,14 @@
+{
+  "args": [
+    "inspect",
+    "--format",
+    "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"startedAt\":{{json .State.StartedAt}},\"restartCount\":{{.RestartCount}},\"memory\":{{.HostConfig.Memory}},\"cpus\":{{.HostConfig.NanoCpus}}}",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+  ],
+  "started": "2026-10-23T15:02:05.055Z",
+  "ended": "2026-10-23T15:02:05.085Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"id\":\"cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf\",\"image\":\"sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6\",\"startedAt\":\"2026-10-23T14:50:22.294463771Z\",\"restartCount\":0,\"memory\":4294967296,\"cpus\":2000000000}\n",
+  "stderr": ""
+}

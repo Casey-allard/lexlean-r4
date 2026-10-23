@@ -1,0 +1,100 @@
+{
+  "status": "SOURCE_BACKED_PROPOSAL_NO_NATIVE_ATTEMPT_NO_FULL_DECOMPOSITION_ACCEPTANCE",
+  "classification": {
+    "actualExit": 137,
+    "stdoutEmpty": true,
+    "elapsedMs": 543177,
+    "oomBefore": 0,
+    "oomAfter": 4,
+    "oomKillBefore": 0,
+    "oomKillAfter": 2,
+    "interpretation": "Instrument OOM during original full ObjFold reflexivity, not semantic negative; no larger-memory equivalent retry. Timeout-only hypothesis rejected as sufficient remedy."
+  },
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/verify.json",
+      "sha256": "e85f48b0a4a2ffbce98523f5c88f223365ef4e8475d5cd2f44cc02c787aaf37f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/memory-after.json",
+      "sha256": "9252da7ac557d86091a66ce5b10cc6129b1db394752e1e621893ecc0a6bbe7e1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/emitted-ObjectNatDigest257Controls.lean",
+      "sha256": "5bfe8572900f9d61c4cd4315ddcb8e340f3cd208b2f16e1de39ca23cf1bcba7b"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Node10Controls.lex.tex",
+      "sha256": "58668052bf744033511f6f50e99179f70eb7b599521157eb23900b80ddcdd0fd"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Carry8Controls.lex.tex",
+      "sha256": "ef1253e0ce3fc98d04f35dcb40500d76882f00249f7a1bb6a97369c81388eda7"
+    },
+    {
+      "path": "/tmp/ObjectTrace257AtomsControls.lex.tex",
+      "sha256": "47956750a73a3f60b5e796e01d46d9b18f64360650c67860851d057ae3640c32"
+    },
+    {
+      "path": "/tmp/ObjectFoldEquationsControls.lex.tex",
+      "sha256": "f8dca2459c51abbf564cdf0c039999ef3d303941d96d324e478bbc9b78d34d6b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/hash-object/lexlean-r4-object-proof-policy-observed-20261021/Result.log",
+      "sha256": "1476ab3a254b736db0ec244a8c8e5309cd3b7018b5d40eebaa5da4369c9e7ca8"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/language/runtime-1.2/laws.toml",
+      "sha256": "58f06a069ab9647460f000bd7a4eca1ce72a0360eea94dbb6976615e53e8649e"
+    }
+  ],
+  "observedProof": {
+    "name": "objFoldDigest257",
+    "originalSourceSha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6",
+    "proof": "reflexivity -> emitted rfl",
+    "axioms": [],
+    "maxRecDepth": 100000,
+    "maxHeartbeats": 1000000000,
+    "wholeReduction": "ObjFold -> admission -> atomize9 -> full9-leaf/4-parent ordered ternary fold and inventory -> whole SHA -> digest projection. Exact hotspot inside reduction is not sampled."
+  },
+  "smallestCandidate": {
+    "ownedDirectory": "/tmp/r4-object257-leaf-certificate-candidate-20261023 (not created)",
+    "sourceModule": "Object257FinalLeafCertificate",
+    "declaration": "objTrace257Record10",
+    "statement": "Preserve exactly the existing objTrace257Record10 AST: R4.ObjectStore.ObjMakeLeaf [0] = Result.ok {id.bytes=[128,154,164,144,109,181,157,164,74,198,157,124],scale=0,payload=32zeroBytes}.",
+    "change": "Copy this one retained statement/parameters/axioms into one new owned semantic/2 module, change only its old Simplify proof to Reflexivity. Import unchanged actual ObjectStore/ObjectCodec/HashWire closure. No production definitions or original objFoldDigest257 statement edits.",
+    "connection": "This is the actual final partial-leaf transition of the257-byte fold, including padding, configured BLAKE2b96, record wrapper and typed Result. It is a proved local equation if accepted, never a supplied hash or replacement implementation.",
+    "testsFirst": [
+      {
+        "status": "NOT_RUN",
+        "case": "False companion",
+        "action": "Change only first expected ID byte128 to129, keep all actual computation. Sourcecheck must pass; verify must report intended equality failure. Resource failure is not accepted RED."
+      },
+      {
+        "status": "NOT_RUN",
+        "case": "Exact positive",
+        "action": "Restore original expected record and use direct Reflexivity. Require zero axioms, actual receipts and replay. Native proof cost unknown."
+      },
+      {
+        "status": "NOT_RUN",
+        "case": "Direct theorem reuse",
+        "action": "A separately named consumer with identical statement and argument-free Apply to accepted certificate checks supported exact theorem reuse. This does not establish contextual rewriting or whole257 acceptance."
+      }
+    ]
+  },
+  "finiteDecompositionRoute": {
+    "required": "13 actual node/record equations; ordered inventory/carry transition equations;9 atom steps; actual ObjFoldFinish wholeSHA equation; original preflight/publicfold equations; original digest observation with exact statement. No omitted transition or caller-supplied identity.",
+    "avoid": "Do not rerun old trace257 author: it emits Simplify throughout and rereads working sources. Earlier trace96 combination had measured propext refusal.",
+    "transportBlocker": "Available inspected semantic forms do not expose arbitrary Rewrite/Transitivity/Have. Apply is exact prior-theorem application only. Simplify lowers to simp only and has actual propext refusal under the same none policy in independent small Result probe. Cases/Induction split locals but do not by themselves consume arbitrary finite equality certificates. Congruence lowers congr1; the3registered laws are only list_fold_fusion/pair/append. Thus a full empty-axiom connected257 certificate pipeline is not yet justified by inspected APIs.",
+    "honestStop": "Do not author13+ certificates or declare the original theorem decomposed merely because the first local certificate passes. Need a supported, independently demonstrated axiom-free equality-transport route on an actual small Object result equation before full composition. Official5967 BoolCases adds no such new rewrite constructor; no compiler adoption recommended solely for this OOM."
+  },
+  "scope": "No files besides this small proposal were written. No17workingfile edits, frozen/stage edits, native process, compiler/config/VM changes, copied artifacts or newframework."
+}

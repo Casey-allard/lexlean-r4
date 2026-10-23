@@ -1,0 +1,13 @@
+{
+  "args": [
+    "top",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "-eo",
+    "pid,etime,pcpu,rss,comm,args"
+  ],
+  "started": "2026-10-23T15:12:37.592Z",
+  "ended": "2026-10-23T15:12:37.763Z",
+  "status": 0,
+  "stdout": "PID                 ELAPSED             %CPU                RSS                 COMMAND             COMMAND\n1603                22:15               0.0                 96                  sh                  /bin/sh -c sleep infinity\n1615                22:15               0.0                 96                  sleep               sleep infinity\n2465                08:48               4.2                 151872              lexlean             lexlean --diagnostic-format json verify tests/lexlean/ObjectNatDigest257Controls.lex.tex\n2623                08:35               0.0                 14736               lake                /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env lean -R /tmp/r4-object257-timeout900-owned-20261023/.lexlean/verified/.staging-ufyNCa/lean-src -o /tmp/r4-object257-timeout900-owned-20261023/.lexlean/verified/.staging-ufyNCa/oleans/LexLeanR4/ObjectNatDigest257Controls.olean /tmp/r4-object257-timeout900-owned-20261023/.lexlean/verified/.staging-ufyNCa/lean-src/LexLeanR4/ObjectNatDigest257Controls.lean\n2628                08:35               73.9                3997032             lean                lean -R /tmp/r4-object257-timeout900-owned-20261023/.lexlean/verified/.staging-ufyNCa/lean-src -o /tmp/r4-object257-timeout900-owned-20261023/.lexlean/verified/.staging-ufyNCa/oleans/LexLeanR4/ObjectNatDigest257Controls.olean /tmp/r4-object257-timeout900-owned-20261023/.lexlean/verified/.staging-ufyNCa/lean-src/LexLeanR4/ObjectNatDigest257Controls.lean\n",
+  "stderr": ""
+}

@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object257-diagnostic-upload-20261023"
+  ],
+  "started": "2026-10-23T14:50:59.748Z",
+  "ended": "2026-10-23T14:51:01.245Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

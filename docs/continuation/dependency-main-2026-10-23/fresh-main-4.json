@@ -1,0 +1,14 @@
+{
+  "main": "31ec155d064cdf70c1db1aa01d18ac744b6d74c6",
+  "args": [
+    "run",
+    "--locked",
+    "-p",
+    "xtask",
+    "--",
+    "check-model"
+  ],
+  "status": 0,
+  "stdout": "check-model: CONFORMANCE.md equals the model, 19 ids (CM-01)\n",
+  "stderr": "    Finished `dev` profile [unoptimized] target(s) in 0.12s\n     Running `/Users/casey.allard/lexlean-r4-build-cache/host/debug/xtask check-model`\n"
+}

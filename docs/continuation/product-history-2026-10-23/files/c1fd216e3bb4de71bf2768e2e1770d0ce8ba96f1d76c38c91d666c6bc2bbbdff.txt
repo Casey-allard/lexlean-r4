@@ -1,0 +1,182 @@
+{
+  "status": "PROPOSAL_ONLY_FOR_INDEPENDENT_SPEC_REVIEW_NATIVE_NOT_RUN",
+  "observed": {
+    "reviewStatus": "PASS_ACTUAL_STAGING_TRANSPORT_AND_INTENDED_BASE_NEGATIVE",
+    "attestation": "41eca104bf87957b7aaf6f2d6b9d071c0fe2be9a530e116765ccea7725c1361c",
+    "wallMs": 114399,
+    "claim": "Actual accepted leaf and actual staging-context equality, with intended unrelated-base rejection, recorded kernel replay and empty observed axioms. This proposal read the independent native report and actual emitted source; it is not a new replay.",
+    "emission": "Object257StagingTransport.lean uses induction count; zero exact accepted leaf; successor cases prior; congr 1 in both branches; consumer exact lifted at 1."
+  },
+  "target": {
+    "name": "obj257TerminalLeafFoldTransition",
+    "parameters": "frontier : List ObjRoot; inventory : List ObjRecord; limits : ObjLimits, all arbitrary.",
+    "inputTerm": "x = actual ObjMakeLeaf [0]",
+    "expectedTerm": "y = Result.ok expectedLeaf from byte-identical accepted objTrace257Record10; use that exact AST, no independently computed or trusted new digest.",
+    "outputType": "Result R4.ObjectStore.ObjCarryState R4.ObjectTypes.ObjError",
+    "context": "C frontier inventory limits item := match item with | error e => error e | ok leaf => match ObjStageRecord inventory leaf limits with | error e => error e | ok staged => match ObjCarryTriples 38 ({id := leaf.id, scale := 0} :: frontier) staged limits with | error e => error e | ok carried => ObjFoldAtoms [] carried.frontier carried.inventory limits",
+    "family": "P frontier inventory limits count : Prop := match count with | zero => x = y | succ prior => C frontier inventory limits x = C frontier inventory limits y",
+    "lifted": "For frontier, inventory, limits, count prove P; use the previously accepted exact proof-constructor shape: Induction count; zero Apply accepted objTrace257Record10; successor Cases prior; both branches Congruence.",
+    "consumerLeft": "ObjFoldAtoms [[0]] frontier inventory limits",
+    "consumerRight": "match ObjStageRecord inventory expectedLeaf limits with | error e => error e | ok staged => match ObjCarryTriples 38 ({id := expectedLeaf.id, scale := 0} :: frontier) staged limits with | error e => error e | ok carried => ObjFoldAtoms [] carried.frontier carried.inventory limits",
+    "consumerProof": "Apply the new lifted theorem with frontier, inventory, limits, 1. Exact production cons reduction should identify consumerLeft with C x; the Result.ok branch identifies consumerRight with C y. These definitional conversions are native-test obligations, not established by this proposal.",
+    "size": "One proof-local C definition, one P definition, one lifted theorem, one consumer plus the existing-form unrelated-base negative. Three new source modules and two configs only if separately approved. Reuse unchanged runtime and accepted leaf closure; no staging engine or generic transport library.",
+    "importantBoundary": "Preserve the final ObjFoldAtoms [] call in C and consumer rather than additionally simplifying it. This keeps the candidate exactly the production cons body specialized to head [0], tail []. Do not silently weaken to an equation between helper expressions that omits the actual ObjFoldAtoms consumer."
+  },
+  "connectionToOriginal": {
+    "originalTheorem": "objFoldDigest257",
+    "originalInputASTObservation": "Read-only literal/ObjAppendBytes inspection confirms the exact original input is bytes 0 through 255 followed by 0. This is source inspection, not an official atomization proof.",
+    "originalInputLength": 257,
+    "originalDigestUnchanged": [
+      84,
+      172,
+      251,
+      254,
+      220,
+      77,
+      141,
+      164,
+      15,
+      118,
+      242,
+      117,
+      225,
+      169,
+      143,
+      16,
+      175,
+      142,
+      241,
+      251,
+      159,
+      179,
+      158,
+      90,
+      103,
+      160,
+      10,
+      171,
+      203,
+      230,
+      89,
+      124
+    ],
+    "actualProductionLines": {
+      "objectStore": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/R4/ObjectStore.lean",
+      "atomize": 37,
+      "foldAtomsCons": 55,
+      "foldFinish": 67,
+      "foldAdmitted": 69
+    },
+    "mechanism": "Production ObjAtomize makes eight complete 32-byte atoms followed by the one-byte [0] atom. This follows from the inspected definition and exact input syntax; a formal bridge/evaluation of this concrete atomization remains outstanding. The proposed equation matches the final recursive ObjFoldAtoms [[0]] call at any incoming frontier/inventory, including the values that prior steps would produce.",
+    "progress": "A verified equation removes the final actual ObjMakeLeaf [0] hash evaluation from that exact production transition through the already kernel-checked leaf equation. It retains real staging, duplicate/capacity/integrity errors, carry depth 38, parent creation and carry results. Incoming frontier and inventory are not fabricated.",
+    "stagingCompositionBoundary": "The proved staging consumer returns only staged inventory. ObjFoldAtoms also uses leaf.id to construct the carry frontier. Therefore it is insufficient to replace the leaf-dependent stage result and separately assume a fixed ID; C must bind the same leaf in both locations. The new proof logically reuses the accepted leaf theorem; the accepted staging theorem supplies a measured precedent for the Prop-family proof shape and confirms the exact staging subexpression, but is not falsely listed as a proof dependency.",
+    "remaining": "The prior eight atom transitions, intermediate actual records/carries, full atomization bridge, exact final carried state, ObjFoldFinish whole-object digest, original theorem and full Object conformance remain open. This bounded proposal authorizes none of that work automatically."
+  },
+  "tests": [
+    {
+      "name": "Exact source and production connection",
+      "status": "NOT_RUN",
+      "expected": "Official check accepts unchanged runtime plus C/P/lifted/consumer under genuine fresh phase lock and exact 300000 ms configuration. Independent source comparison identifies C as the exact original ObjFoldAtoms cons AST with head replaced by item and tail fixed to [] with all three error branches preserved."
+    },
+    {
+      "name": "Meaningful zero-base RED",
+      "status": "NOT_RUN",
+      "expected": "Change only the lifted zero Apply reference to an earlier zero-arity unrelated 0=0 theorem. Sourcecheck must pass; verify must reject the intended type mismatch. Resource timeout/OOM, imports or parser failures are not accepted negatives. Preserve all exact results."
+    },
+    {
+      "name": "Real terminal-fold GREEN",
+      "status": "NOT_RUN",
+      "expected": "Lifted theorem AND consumer with actual ObjFoldAtoms [[0]] left-hand side verify. Inspect exact emitted C/P and consumer, actual call to ObjCarryTriples38 and ObjFoldAtoms []; require no-policy empty observed axioms, actual kernel replay and independent artifact audit. Merely proving Cx=Cy without consumer is incomplete."
+    }
+  ],
+  "discriminatingUnknowns": [
+    "Congruence succeeded for the stage-only context; it has not been measured under nested stage/carry/recursive-tail matches. It may unfold too much or leave a goal.",
+    "The consumer requires reduction of the actual ObjFoldAtoms cons equation. Source syntax support does not establish bounded-cost definitional conversion.",
+    "No latency or memory improvement is established by one transport equation; use actual observed outcome and preserve the original timeout/OOM records."
+  ],
+  "failurePolicy": "Preserve exact failed source/goal/process evidence; classify source admission, proof mismatch and resource failure distinctly. No larger-memory equivalent retry, relaxed axioms, Simplify/propext, raw tactic injection or trusted replacement hashes. Revise only the concrete failed proof after review.",
+  "preservation": {
+    "runtimeDefinitions": "UNCHANGED",
+    "originalTheoremAndDigest": "UNCHANGED",
+    "axioms": "EMPTY_REQUIRED",
+    "newSDKCommands": 0,
+    "VMChanges": false,
+    "repositoryChanges": false,
+    "frozenChanges": false,
+    "otherLabChanges": false
+  },
+  "pins": [
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/manifest.json",
+      "bytes": 8381,
+      "sha256": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingContext.lex.tex",
+      "bytes": 9472,
+      "sha256": "8cee8c1ff4d0be2bcb87fd8655db70db213aa5d305c47a810276a4703d84fe1f"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingTransport.lex.tex",
+      "bytes": 6206,
+      "sha256": "c8ee59f938191e8a917ffc6598a5e99e3a99b051b471395775d336691a44a005"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/tests/lexlean/Object257LeafCertificate.lex.tex",
+      "bytes": 3826,
+      "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/native-review.json",
+      "bytes": 9021,
+      "sha256": "c53525a009859e41c87d17ff772598dadbdb2d5c308f4b47fbf7aa077c247496"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/verify.json",
+      "bytes": 1279,
+      "sha256": "18e095450821d18c0888562a6bd9f4d24e1a65ac3115aadbf0d0ba7332ac79c5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/verify.json",
+      "bytes": 1236,
+      "sha256": "096aee98ce9abf00cb17e86bba250b3c0ad4b209c5e0ec2c9f6998198ff99234"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/attestation.json",
+      "bytes": 160965,
+      "sha256": "990bd530a1f30317fc8a0f8e878dced54d23d0d63d444924999c4b10c8cf7c48"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingTransport.lean",
+      "bytes": 1933,
+      "sha256": "347d02dc611d4ef3ef6cfaf82fb92c172b01f588be947ed5fdf6e14e8b98a3ee"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingContext.lean",
+      "bytes": 2276,
+      "sha256": "1d4c9519adae49646dc4d5b8a550b20827d5afbe004b24467137e0768a4ac118"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/R4/ObjectStore.lean",
+      "bytes": 18243,
+      "sha256": "c5e218cdbbe9addcaa9af60436ef5ed42b25cf1bdc99cde85abc869000bdfb92"
+    }
+  ],
+  "storage": {
+    "freshAvailableKiB": 37125284,
+    "reserveBytes": 10737418240,
+    "maxNewProposalBytes": 15360,
+    "artifactsCopied": false
+  },
+  "next": "Independent SPEC review of this concrete source proposal, then separately authorized frozen candidate and CODE review before any parent-controlled native execution."
+}

@@ -1,0 +1,98 @@
+{
+  "at": "2026-10-23T15:02:39.960Z",
+  "status": "AGREE_SINGLE_BOUNDED_TIMEOUT_EXPERIMENT_CONDITIONAL_ON_FRESH_PREFLIGHT",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/proposal.json",
+    "bytes": 797,
+    "sha256": "75523f32404c150a1ee0e033705e1e442af1c2ee1d242423ce15c9f3ef9fd7e8"
+  },
+  "originalConfig": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lexlean.toml",
+    "bytes": 690,
+    "sha256": "b004fa5049e5d8da103173c11aad1e72386e018c899bbcf594bee163235c894a"
+  },
+  "candidateConfig": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/lexlean.toml",
+    "bytes": 690,
+    "sha256": "0927991ee643dda588e8d98ff32ff7fa5a6f59f862cc132528e3f936ee8617b8"
+  },
+  "exactOnlyDelta": {
+    "child_timeout_ms": {
+      "before": 300000,
+      "after": 900000
+    },
+    "byteReplacementVerified": true
+  },
+  "sourceReview": {
+    "retainedInputs": 15,
+    "allOriginalPinsVerified": true,
+    "plannedUnchangedFiles": 14,
+    "onlyConfigChanges": true,
+    "theorem": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    "declaration": "objFoldDigest257",
+    "parameters": [],
+    "axioms": [],
+    "proofKind": "reflexivity",
+    "statementCallsActualObjFold": true,
+    "expectedDigestAndWholeStatementUnchanged": true,
+    "newStageNotReviewedOrExecuted": true
+  },
+  "failureEvidence": {
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/failure-review.json",
+      "bytes": 6952,
+      "sha256": "4a84407f4cd5a27130de0b2d39f0cbe2c186f332065cfd84edb390c89f04c5f8"
+    },
+    "actualRun": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-verify.json",
+      "bytes": 991,
+      "sha256": "1c2197aba01fd04447994a1ed30f6faf77f465f0ac091b13c20e9ed244d8ee5f"
+    },
+    "custody": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-timeout-custody.json",
+      "bytes": 6283,
+      "sha256": "8952319450791e3f66ef6d3f0ffc2aafa518921b714c68ee105939b9c854c4cd"
+    },
+    "custodyMembersRehashed": 39,
+    "classification": "Lean child resource timeout, not theorem falsity",
+    "configuredMs": 300000,
+    "observedMs": 300016,
+    "noRecordedContainerOom": true,
+    "sourceCheckSucceeded": true
+  },
+  "discrimination": {
+    "rationale": "The original single argument-free reflexivity proof calls actual ObjFold and was stopped by its elapsed child-time limit. Holding semantic source, proof, expected digest, compiler, CPU and memory fixed while increasing only that limit tests whether the existing computation completes within the larger allowance.",
+    "notEstablished": [
+      "The precise computation hotspot or exclusive cause of slow evaluation.",
+      "That 900000ms will suffice.",
+      "That swap or host contention was absent.",
+      "That a successful isolated proof would accept Hash or the full Object implementation."
+    ],
+    "sourceMechanismNote": "Whole ObjFold evaluation is established from the literal theorem call. The author-reported nine-leaf/four-parent operation count was not measured by this review; it is not used as acceptance evidence."
+  },
+  "conditions": [
+    "One fresh owned stage; preserve original failed stage, raw diagnostics and custody.",
+    "Refresh idle, exact source/config, compiler/tool/container/epoch and host/guest storage observations; retain conservative20GiB planning floor and10GiB reserve after peak estimate.",
+    "Keep4GiB container memory and2CPU limits and all other compiler/project limits unchanged.",
+    "Generate a genuine new development lock using the installed official compiler; retain its bytes and exact identity, then run source check before the one targeted verify.",
+    "No compiler overlap. Keep original theorem, proof, axiom list and expected digest unchanged.",
+    "Capture actual compiler exit and diagnostics plus post source/lock/epoch/memory/storage/idle; independently audit any claimed proof artifacts.",
+    "Do not automatically repeat after timeout or OOM; classify the new result before deciding on further work."
+  ],
+  "authorization": "Parent identifies existing user authorization to adjust limits to move implementation forward. This is a bounded resource experiment, not a lowered acceptance criterion or new owner release.",
+  "acceptance": {
+    "experimentAgreement": true,
+    "executedByReviewer": false,
+    "theoremAccepted": false,
+    "hashDependencyAccepted": false,
+    "objectAccepted": false,
+    "productionLock": false,
+    "PrismPMAccepted": false,
+    "PagesAccepted": false
+  },
+  "scope": "Read-only source/config/failure-custody review plus this small report. No SDK/VM/process/repository/other-lab changes; no new harness."
+}

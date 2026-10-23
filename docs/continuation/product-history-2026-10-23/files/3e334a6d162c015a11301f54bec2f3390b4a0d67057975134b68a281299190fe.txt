@@ -1,0 +1,12 @@
+{
+  "args": [
+    "start",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+  ],
+  "started": "2026-10-23T14:50:22.094Z",
+  "ended": "2026-10-23T14:50:22.512Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf\n",
+  "stderr": ""
+}

@@ -1,0 +1,353 @@
+{
+  "at": "2026-10-23T17:36:23.547Z",
+  "status": "BOUNDED_INVENTORY_COMPLETED_NOT_ALL_LOCAL_WORK_IS_ON_MAIN",
+  "basis": {
+    "repository": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+    "originMain": "5389a4248fd2c768ef3bf8c47c67527adad971b9",
+    "remoteFreshness": "Compared local origin/main ref only; did not fetch or assert later remote changes.",
+    "comparison": "Exact Git blob identity of local bytes against all files in origin/main tree; SHA256 recorded for identified local source/plan. No path-only match accepted."
+  },
+  "scope": [
+    "17 model-port dirty files",
+    "Top-level /tmp/r4-object257* files and three matching candidate directories",
+    "Project-owned2026-10-23/product-resumption excluding artifact/.lake/target trees"
+  ],
+  "pendingDrafts": {
+    "count": 17,
+    "allByteIdenticalOnMain": true,
+    "rows": [
+      {
+        "path": "model/authorities.toml",
+        "bytes": 17623,
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/model/authorities.toml"
+      },
+      {
+        "path": "model/ids.toml",
+        "bytes": 9974,
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/model/ids.toml"
+      },
+      {
+        "path": "model/ledger.toml",
+        "bytes": 8230,
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/model/ledger.toml"
+      },
+      {
+        "path": "docs/OBJECT.md",
+        "bytes": 22747,
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/docs/OBJECT.md"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "bytes": 827,
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "bytes": 993,
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/features/suites/r4-object.feature"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "bytes": 835,
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/src/R4/Object.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111631,
+        "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/src/R4/ObjectCodec.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 86326,
+        "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/src/R4/ObjectRead.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66585,
+        "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/src/R4/ObjectStore.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83582,
+        "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/src/R4/ObjectTypes.lex.tex"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "bytes": 9762,
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "bytes": 544911,
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectCodecControls.lex.tex"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "bytes": 345063,
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex"
+      },
+      {
+        "path": "tests/lexlean/ObjectReadControls.lex.tex",
+        "bytes": 330157,
+        "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectReadControls.lex.tex"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993",
+        "mainSnapshot": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex"
+      }
+    ]
+  },
+  "currentNextStep": {
+    "proposal": {
+      "path": "/tmp/r4-object257-after-terminal-next-step-20261023.json",
+      "bytes": 12612,
+      "sha256": "e4ac2bb21801563c28d1d61ff6446bea1f538862c42a73b9bbfb5b0e66334e22",
+      "matches": [
+        "docs/continuation/2026-10-23/next-first-atom-proposal.json"
+      ]
+    },
+    "specReview": {
+      "path": "/tmp/r4-object257-first-atom-state-spec-review-20261023.json",
+      "bytes": 9813,
+      "sha256": "e274a762da79fbc562532f3016c317267468b9f7096e674f9318cce0ff5206ce",
+      "matches": [
+        "docs/continuation/2026-10-23/first-atom-spec-review.json"
+      ]
+    },
+    "status": "Both exact bytes already represented on main. No first-atom implementation candidate directory was present among enumerated /tmp/r4-object257* paths."
+  },
+  "productSourceCoverage": {
+    "observedLexTexFiles": 24,
+    "missingExactProductLexTex": [],
+    "conclusion": "Every .lex.tex source in the bounded candidate/evidence scan matched bytes already on main; all17 live dirty drafts additionally matched their explicit pending snapshot. This is bounded coverage, not proof about every local project file."
+  },
+  "unpublishedSourceAndPlans": [
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/README.md",
+      "bytes": 2651,
+      "sha256": "d97a44bd8f66629dedbd7731e93daa52fd3ac7d8d0e6ba4268ad2f0dbbf908ed",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/audit.mjs",
+      "bytes": 8239,
+      "sha256": "3d42d80359028786cbf63eac4f380099b14278e8d0316f5edf941bc052923364",
+      "category": "historical_authoring_or_audit_source"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/author.mjs",
+      "bytes": 6742,
+      "sha256": "1201c077e9fac041f0b36ec4c92ee5acdcf3315fd212004e7c1872a71306f727",
+      "category": "historical_authoring_or_audit_source"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/candidate.json",
+      "bytes": 8172,
+      "sha256": "3b3c8814f1e1f0bc2fc92adc3fe63979efdea6e8c1ea58fdcd90be044d472e72",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-next-step-20261023.json",
+      "bytes": 12108,
+      "sha256": "c1fd216e3bb4de71bf2768e2e1770d0ce8ba96f1d76c38c91d666c6bc2bbbdff",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/README.md",
+      "bytes": 2747,
+      "sha256": "8ef382ba439f946825bdc20b57a315162763e5a8b8426de9afbf7bb025afa73d",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/author.mjs",
+      "bytes": 9558,
+      "sha256": "68e4d11a24ec7b508b1f77be9a0e264b4f37201e01e8b9670b81b75cfc1e99ac",
+      "category": "historical_authoring_or_audit_source"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/proposal.json",
+      "bytes": 8228,
+      "sha256": "58372f709f3e03a26d095393eb6628932c9b0806bc9fb983c6e4f12474e1f321",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/source-audit.mjs",
+      "bytes": 4031,
+      "sha256": "047553cd2e5d69a8a7dae8a06aaff321a685e3b6b5b1dc476db6cc7801a61261",
+      "category": "historical_authoring_or_audit_source"
+    },
+    {
+      "path": "/tmp/r4-object257-oom-connected-certificate-proposal-20261023.json",
+      "bytes": 6584,
+      "sha256": "d4ebbcd8cff55bcf2db423466806626d87ba40be14eb74f2137d2095d48ecbfc",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/README.md",
+      "bytes": 2444,
+      "sha256": "2a4cf372129b98928e8993eef5f2ca171afcfc2af745f28fd3e3de837af2df7d",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/audit.mjs",
+      "bytes": 6308,
+      "sha256": "b76fe04903628b0018debc7ee825d30c43c46a004e7ef2b8d95a61e286a93060",
+      "category": "historical_authoring_or_audit_source"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/author.mjs",
+      "bytes": 7942,
+      "sha256": "eda1595da8ed2197aa7b2e7a42b2619b3e5009875c1c41617a9e66fe56c47ae1",
+      "category": "historical_authoring_or_audit_source"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/proposal.json",
+      "bytes": 7350,
+      "sha256": "c3f044b85d912139803f9bf2311fbfa5a6d2923182744d714a1c7b3539aeb49c",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/proposal-review.json",
+      "bytes": 5182,
+      "sha256": "f9c33742fb00c361b5779674a9193de84103491b38acf9eb91fe47f1b51f16b1",
+      "category": "historical_plan_or_packet_instructions"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/proposal.json",
+      "bytes": 797,
+      "sha256": "75523f32404c150a1ee0e033705e1e442af1c2ee1d242423ce15c9f3ef9fd7e8",
+      "category": "historical_plan_or_packet_instructions"
+    }
+  ],
+  "optionalHistoricalCustody": [
+    {
+      "path": "/tmp/r4-object257-connected-next-product-step-20261023.json",
+      "bytes": 18876,
+      "sha256": "8b6acc3fa949965f391d08170ea367815f5cf828046e26e3b920e626f2e202e9",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/author-result.json",
+      "bytes": 100,
+      "sha256": "a5b1926f8357b4fea11368ba95ea1c59b20ea9c64d0f4469d9f66aa57fb148bd",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/structural-audit.json",
+      "bytes": 1274,
+      "sha256": "585e2a15e2fd7c585ebb46a9b067a0ef22fe812e18a0744cfd80ca6d990760ff",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/expected-emission.txt",
+      "bytes": 547,
+      "sha256": "898b6709661c8fe7f5971ddc224c0551f8aea70a9ba9298e64005d0bbebb7ca6",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/manifest.json",
+      "bytes": 4468,
+      "sha256": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/source-audit-result.json",
+      "bytes": 333,
+      "sha256": "531efc23ecc99a3523ebde815830437104cec81a0783bd208cccedd5a26698df",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-delivery-review-20261023.json",
+      "bytes": 12525,
+      "sha256": "2847bf466e15163e8293aa7ddc3d27f3e3ca29797e061e254864ba07e87d42b8",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/expected-emission.txt",
+      "bytes": 619,
+      "sha256": "e6f01b95fe253ea872b688cad0fb0c4a50e4a735478ee519b772a9643e2162e7",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/manifest.json",
+      "bytes": 8381,
+      "sha256": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/structural-audit.json",
+      "bytes": 1021,
+      "sha256": "168dd0e4e2f6b17eabbcbc9ddae71e1619f15dfb0e76f634f53e33327e224337",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-delivery-review-20261023.json",
+      "bytes": 6050,
+      "sha256": "4c037e9c0f1f0bbc88e9d72fb369b85955f42d99380848ead9f827eb17a99e20",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/tmp/r4-object257-terminal-fold-delivery-review-20261023.json",
+      "bytes": 6927,
+      "sha256": "0fcc10ff8a6433d040bc70b6936ba4b9be010233b669aadfb7e11f9a7ca01cc8",
+      "category": "historical_custody_or_evidence"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/lexlean.toml",
+      "bytes": 690,
+      "sha256": "0927991ee643dda588e8d98ff32ff7fa5a6f59f862cc132528e3f936ee8617b8",
+      "category": "historical_custody_or_evidence"
+    }
+  ],
+  "counts": {
+    "enumeratedNonArtifactFiles": 432,
+    "representedFileOccurrences": 81,
+    "uniqueMissingNonArtifactBytes": 473464,
+    "uniqueMissingNonArtifactFiles": 324,
+    "selectedMissingFiles": 29,
+    "selectedMissingBytes": 160894,
+    "missingAuthorAuditScripts": 6,
+    "missingAuthorAuditScriptBytes": 42820
+  },
+  "recommendation": {
+    "smallArchive": "Preserve the six missing author/audit .mjs sources and candidate README/proposal/candidate metadata plus superseded product-step proposals under a historical continuation provenance folder, with an exact manifest and relative source mappings. These are provenance/continuation materials; native-tested .lex.tex outputs and current next plan are already on main.",
+    "priority": "Small author/audit scripts are unique executable host source, though they generate already-published LexLean outputs or audit exact frozen candidates. They are not an unseen product implementation. Earlier proposals describe already-completed local proof steps and should be labeled historical/superseded.",
+    "doNotRerun": "Author scripts use exclusive writes and historical absolute input paths; do not advertise byte-preserved archival copies as immediately runnable portable executors. Any replay needs explicit mapped dependencies and fresh native gates.",
+    "doNotBulkUpload": "Do not blindly copy artifact/olean/build outputs or historical harness packets. Harness sources already stored as JSON byte strings need decoding/reconstruction comparison before any duplication."
+  },
+  "bulkEvidence": {
+    "excludedArtifactTrees": 5,
+    "description": "Actual raw attestations/build manifests, generated modules/maps/lexicons/process receipts and .olean binaries reside in skipped artifact trees. Selected reports/emitted source are on main, but whole bundles are not asserted published. Compiler/VM/build caches were not scanned; no binaries were hashed/copied.",
+    "otherMissingNonArtifact": "Remaining unmatched nonartifact JSON includes process/storage/source observations and historical audit records. Count is not a product-source count; no blanket archival recommendation."
+  },
+  "limitations": [
+    "Not a universal inventory of /tmp, prior evidence dates, compiler workspaces, Git branches or other labs. No other-lab/userdata scan.",
+    "No SDK/compiler/test/build/replay, repository edit, deletion or evidence mutation. Only this small report written.",
+    "An initial read-only status parser removed leading whitespace from its first line and attempted nonexistent odel/authorities.toml; corrected using NUL-delimited porcelain. No writes or dropped files resulted.",
+    "Current executable next plan and source snapshots are available on main, but some historical authoring/audit source and prose remain local. Full proof/product acceptance remains unchanged."
+  ],
+  "storageFreeBytes": "31692136448"
+}
