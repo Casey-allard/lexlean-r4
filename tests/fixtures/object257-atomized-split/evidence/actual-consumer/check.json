@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-atomized-split-actual-consumer-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T19:55:52.467Z",
+  "ended": "2026-10-23T19:55:53.572Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257AtomizedConsumer\",\"Object257AtomizedContext\",\"Object257AtomizedLift\",\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomState\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"4f615311c2f1510b2e99bf3a93324e4540e5ebaf3388824d3299e0804a351cb2\",\"source_id\":\"34c8b5eb984d8156bae474e9c90891ba6a621631006f7debb87e5986e7779d0b\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

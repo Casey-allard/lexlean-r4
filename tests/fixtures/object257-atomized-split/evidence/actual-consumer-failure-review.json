@@ -1,0 +1,227 @@
+{
+  "schema": "lexlean-r4-atomized-split-consumer-resource-failure-review/v1",
+  "at": "2026-10-23T20:06:41.990Z",
+  "status": "CONFIRMED_CONSUMER_VERIFICATION_FAILURE_WITH_CGROUP_OOM_KILL_NO_BRIDGE_ACCEPTANCE",
+  "findings": [],
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-split/manifest.json",
+    "bytes": 15714,
+    "sha256": "45ea22f9694628f95b65dca58106b37f7e767a48480660a38e5e9c905cf940ed"
+  },
+  "sourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/code-review.json",
+    "bytes": 23927,
+    "sha256": "ffe8972e8f632c91fdb8f7777db15fbee557fe883d0ad51398672fec691c8372"
+  },
+  "acceptedLocalNegative": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/lift-false-review.json",
+    "bytes": 9644,
+    "sha256": "ae596e087a594f4165367a62c102b9f135f9917e9a638aad7020cb067b9e1f5b"
+  },
+  "acceptedHelperOnly": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/lift-positive-review.json",
+    "bytes": 43688,
+    "sha256": "b71438bb4fb0140ce432c527ebf9b725d0ef2c75e0d55d128b79d12cd768c49e"
+  },
+  "classification": {
+    "sourcecheckExit": 0,
+    "sourcecheckModules": 15,
+    "actualVerifyExit": 1,
+    "signal": null,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLV7002",
+      "help": [],
+      "labels": [],
+      "message": "Lean rejected `LexLeanR4.Object257AtomizedConsumer`: ",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "wholeCommandWallMs": 241045,
+    "interpretation": "Actual consumer verification failed with generic LLV7002 and no detailed Lean explanation. During the unchanged container epoch, cgroup counters changed from zero to oom1/oom_kill1/max324059. Resource failure is observed; this is not a clean semantic counterexample or the intended unrelated-base negative.",
+    "precision": "Cgroup counters establish an OOM event and kill within this container during the bounded observation interval. They do not alone identify the exact killed process, declaration, tactic or subterm. The compiler diagnostic names the consumer module, but supplies no child signal/exit detail. Do not infer exact process kill identity from cgroup counters alone.",
+    "launcher": "Launcher exit1/postcapture failure and actual compiler exit1 are distinct records. memory-after command itself returned0 but its zero-event predicate failed.",
+    "artifacts": [],
+    "bridgeAccepted": false
+  },
+  "sourceAndLock": {
+    "all22FrozenInputsRehashed": true,
+    "beforeAfterAll22Match": true,
+    "expectedInputs": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/expected-inputs.json",
+      "bytes": 5645,
+      "sha256": "c742e6c17187723141b62e5a3dcf19a82b60ec7c04c7180752b0473ec06f118f"
+    },
+    "genuineLockSha256": "e021a181fb6435f06f1f8dd74cf8ecf5b9456a7ba27a5541c3669eb4686a5b08",
+    "lockAfterStable": true,
+    "toolsSha256": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "epochUnchanged": true
+  },
+  "postconditions": {
+    "memoryBefore": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memoryAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 324059,
+      "oom": 1,
+      "oom_kill": 1,
+      "oom_group_kill": 0
+    },
+    "memoryZeroGate": "FAIL",
+    "postcaptureErrors": [
+      {
+        "name": "memory-after",
+        "error": "Error: nonzero memory events"
+      }
+    ],
+    "otherObservedGates": "Source/lock/epoch/tools/idle and sampled storage reserves pass.",
+    "idleBeforeAfter": true,
+    "storage": {
+      "before": {
+        "hostAvailableBytes": "30235529216",
+        "guestAvailableKiB": "53208352"
+      },
+      "after": {
+        "hostAvailableBytes": "32075096064",
+        "guestAvailableKiB": "53204340"
+      }
+    },
+    "sampledOnly": true
+  },
+  "reviewedReceipts": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/check.json",
+      "bytes": 1038,
+      "sha256": "4b1ff7b8c12a747da8c2163da4525b410e9bbdf74186b8e1e747b1ae4dd37b19"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/verify.json",
+      "bytes": 943,
+      "sha256": "9eb7e9e385eebf7e173d2e7567faf7f3db13bc860e15f09c2d5fd76fe8d93215"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/result.json",
+      "bytes": 822,
+      "sha256": "8a45799e291d506012ebf055ca3a9204f17ce0fdfaf50bcea2eb8434382d54e9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/expected-inputs.json",
+      "bytes": 5645,
+      "sha256": "c742e6c17187723141b62e5a3dcf19a82b60ec7c04c7180752b0473ec06f118f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/source-before.json",
+      "bytes": 6069,
+      "sha256": "4057465096b099834188668be00262c2ba78864b25a672aa0f3cb77046663097"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/source-after.json",
+      "bytes": 6069,
+      "sha256": "c12bee73f9297e7a68362a8f11308c8543a451aa759bf0ca71cf11d9227b0eb9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock.json",
+      "bytes": 541,
+      "sha256": "03fa96529924256d2e6fcaa9d87c1fdc4faca1bc575c3beb303db07e8ad7ebbb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock-bytes.json",
+      "bytes": 2057,
+      "sha256": "8c3497afc44a9411b1d9147c17e13eb185a84a05d13ba6490de705de6e453bd8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock-after.json",
+      "bytes": 493,
+      "sha256": "f081d51fe4f9ae24cc0ec0af82446f9fbe8934d9025d46b76762ab431ee6b443"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/epoch-before.json",
+      "bytes": 470,
+      "sha256": "5a3ad81d6d6d918e8d9710b351ed9d5e9dbbd2a936f593465254b563797454d8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/epoch-after.json",
+      "bytes": 470,
+      "sha256": "89a20aa52227ae3dd76839a9cb959c5bf4943516046d16969c28ec06c330d6de"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/memory-before.json",
+      "bytes": 354,
+      "sha256": "f4b14313c6a0726330272dd76958b0bb46727380ed859ac512b3eea751ca666a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/memory-after.json",
+      "bytes": 359,
+      "sha256": "c0cf85ffb4534aea4ae4e1b747a3dddb5f1d7c44d0646a4359f77ca042da630d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/idle-before.json",
+      "bytes": 460,
+      "sha256": "7b66f114c9685977932c09329b370f38a3ff0cf5564e0e205d1a99bd6d5e75fc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/idle-after.json",
+      "bytes": 460,
+      "sha256": "cbc9d0432da7764ecc855801539b413caa2827bfe74c85c5b9f206a710622c8c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/host-before.json",
+      "bytes": 152,
+      "sha256": "e3e2191bee81eea342298e306dd9171a3a00c0702d40a6bbfc3c096fbed31ea2"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/host-after.json",
+      "bytes": 142,
+      "sha256": "b2409751ba1b1f52ae35d1882b09b4ebbba083ca7e86161969835c4b14b21b55"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/guest-before.json",
+      "bytes": 406,
+      "sha256": "e8f908eb5f05a16b870d7ba558539c712ab069ce413c9a71943cec8828dd3909"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/guest-after.json",
+      "bytes": 406,
+      "sha256": "da644a24b529d2c0dcdf2a5629004b949dacf375a19f2d3f33e110493eb9852d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/tools-before.json",
+      "bytes": 1005,
+      "sha256": "4b3e987c15a3e0ef4665338b7b0ad2169a0d1a0d5e24d30d6492a718c434bd21"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/postcapture-errors.json",
+      "bytes": 84,
+      "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+    }
+  ],
+  "limits": [
+    "Previously accepted split negative and positive helper remain separate local outcomes; neither accepts mandatory consumer or atomized-core bridge.",
+    "Current recorded epoch has nonzero memory.events and cannot satisfy a subsequent zero-event gate. No waiver, automatic reset or equivalent retry is authorized by this review.",
+    "Preserve failed stage/emission/evidence; diagnosis or new experiment needs its own reviewed change and fresh applicable gates.",
+    "No full257, complete Hash/Object, production PrismPM, Pages or efficiency acceptance.",
+    "Read-only evidence audit; no SDK/compiler/VM/repository/other-lab changes."
+  ]
+}

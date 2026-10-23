@@ -1,0 +1,22 @@
+{
+  "schema": "lexlean-r4-atomized-split-invocation-review/v1",
+  "at": "2026-10-23T19:37:57.437Z",
+  "status": "PASS_ONE_OFF_INVOCATION_SOURCE_ONLY",
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/run-phase.mjs",
+    "sha256": "377aedb82fa026852f974a73c99904d8cb8988f499b52190d44b1aa84aa37671",
+    "bytes": 7199
+  },
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/run-phase.mjs",
+    "sha256": "2de2116ac172ff747b5d76feca8bed9edac64edb0f3fcf476e1e95667ff3e3c3"
+  },
+  "sourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/code-review.json",
+    "sha256": "ffe8972e8f632c91fdb8f7777db15fbee557fe883d0ad51398672fec691c8372"
+  },
+  "comparison": "Exact byte comparison after only comment, fixture/stage/config path, three-phase allowlist and frozen manifest pin substitutions. No other changes.",
+  "inputScope": "18shared+3new+1config=22 frozen phase inputs, exact size/hash checks before copying and guest before/after source hashes. Existing dependency/tool/epoch/idle/zero-memory/storage/genuine-lock/postcapture checks unchanged.",
+  "ordering": "Script dispatches a single selected phase and does not enforce prior-phase acceptance itself. Parent must inspect actual intended negative before positive lift, then actual helper success before mandatory consumer. No auto-loop or runner-exit-based acceptance.",
+  "limits": "Native NOT_RUN; no SDK/compiler/VM invocation performed. Source report preserved unchanged; this supplement binds later supplied runner."
+}

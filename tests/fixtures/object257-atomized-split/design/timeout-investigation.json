@@ -1,0 +1,238 @@
+{
+  "schema": "lexlean-r4-atomized-core-timeout-investigation/v1",
+  "status": "PHASE1_SOURCE_INVESTIGATION_CONCRETE_RESOURCE_FAILURE_DECLARATION_CAUSE_UNRESOLVED",
+  "observed": {
+    "sourcecheck": {
+      "exit": 0,
+      "result": {
+        "artifacts": [],
+        "command": "check",
+        "diagnostics": [],
+        "exit_code": 0,
+        "modules": [
+          "Object257AtomizedContext",
+          "Object257AtomizedCoreFalseBase",
+          "Object257FirstAtomGoal",
+          "Object257FirstAtomLeaf",
+          "Object257FirstAtomState",
+          "Object257TerminalContext",
+          "R4.Hash",
+          "R4.HashNat",
+          "R4.HashNatCore",
+          "R4.HashWire",
+          "R4.ObjectCodec",
+          "R4.ObjectStore",
+          "R4.ObjectTypes",
+          "R4.Words"
+        ],
+        "semantic_id": "b0cfa56afdc12b93377db804d5c69b7e1d6ab994ef0112f7b5f5f31d68e6e0f0",
+        "source_id": "db2f9ec022517b14f46f89df6c4adfef972fe18c12416d55c180d9933168b16b",
+        "spec": "lexlean/command-result/1",
+        "success": true
+      }
+    },
+    "verify": {
+      "exit": 4,
+      "diagnostic": {
+        "causes": [],
+        "code": "LLS8002",
+        "help": [],
+        "labels": [],
+        "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.Object257AtomizedCoreFalseBase: configured 300000, observed 300006 ms",
+        "notes": [],
+        "primary": {
+          "byte_end": 0,
+          "byte_start": 0,
+          "column_end": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "line_start": 1,
+          "path": "lexlean.toml"
+        },
+        "severity": "error",
+        "spec": "lexlean/diagnostic/1"
+      },
+      "wholeCommandWallMs": 492114
+    },
+    "postconditions": "Independent failure-review confirms all21input hashes/source/lock stable; sameepoch/tools; before/after memory.events zero; idle postconditions; sampledreserves pass; postcaptureerrors[].",
+    "positive": "NOT_RUN",
+    "classification": "Lean child timeout in final module; no returned LLV7002 unrelated-base diagnostic. Not an intended semantic negative, not mathematical falsity, not OOM, and not accepted bridge."
+  },
+  "phase1": {
+    "exactSource": "Captured build emissions are hash-bound by emitted-capture.json; they are not successful verified artifacts.",
+    "moduleLayout": [
+      {
+        "line": 13,
+        "declaration": "obj257AtomizedUnrelatedZero",
+        "proof": "rfl"
+      },
+      {
+        "line": 16,
+        "declaration": "obj257AtomizedLifted",
+        "proof": "Nat induction; zero exact unrelated0=0; successor cases prior; congr1bothbranches"
+      },
+      {
+        "line": 27,
+        "declaration": "obj257OriginalAtomizedCoreBridge",
+        "proof": "exact obj257AtomizedLifted(1)",
+        "scope": "Actual original ObjAtomize257 left and ObjAtomize225suffix right; same production fold/state/limits."
+      }
+    ],
+    "context": "Captured Context has exposed K and exposed/reducible Prop family. K success calls actual FoldAtoms Q with Q=ObjAtomize suffix[]0; error unchanged. P zero remains exact previously accepted F=okS.",
+    "sourceComparisons": {
+      "zeroBaseStatementExactlyEqualsAcceptedTwoAtomBase": true,
+      "errorBranchExactlyEqualsPriorContext": true,
+      "inductionCasesCongruenceProofEqualModuloTheoremNames": true,
+      "newExpensiveTerms": "The new variation is real atomizer257/225 and full remainingfold terms in K/consumer, replacing prior singleliteralB remainder. No new false base semantics, runtime definition or digest added."
+    },
+    "evidenceResolution": "Current receipt names the module, not the current declaration/tactic. No retained per-declaration timing or child partial stdout/stderr supplied in this packet. It cannot distinguish time spent rejecting the base, elaborating congruence branches, or elaborating the later actual consumer.",
+    "possibleErrorRecovery": "Lean may continue processing later declarations after a theorem error, so a later expensive consumer can mask an earlier expected mismatch behind the whole-child timeout. This is a hypothesis, not established by the captured output."
+  },
+  "hypotheses": [
+    {
+      "name": "Actual consumer conversion unfolds atomization/nested matches and substantial suffix folding",
+      "reason": "Consumer includes both large actualatomizer expressions and production whole-suffixfold; prior twoatomconsumer succeeded. Same firstbase makes whollynewbasecost less likely.",
+      "status": "SOURCE_SUPPORTED_HYPOTHESIS_NOT_LOCALIZED"
+    },
+    {
+      "name": "Congruence on reducible P exposes large K success computation during lifted theorem",
+      "reason": "Current K contains full actual suffixfold; successor congr1 can require normalization of its application rather than remain opaque.",
+      "status": "SOURCE_SUPPORTED_HYPOTHESIS_NOT_LOCALIZED"
+    },
+    {
+      "name": "Expected base mismatch itself or error formatting consumes time",
+      "reason": "Wrong zero base is definitionally compared to real firststate equality. It was rejected in earlier twoatommodule with identical zero goal, but current wholemodule evidence does not prove where elapsedtime went.",
+      "status": "POSSIBLE_NOT_ESTABLISHED"
+    }
+  ],
+  "recommendedNext": {
+    "kind": "Minimal source decomposition with diagnostic meaning; no runtime or newproofstrategy",
+    "objective": "Separate first-base/lift rejection and success from actual consumer conversion while retaining the exact mandatory production consumer.",
+    "files": [
+      {
+        "name": "Object257AtomizedLiftFalseBase",
+        "content": "Copy only original unrelated theorem and negative lifted theorem ASTs from frozen candidate. Import unchanged context and acceptedfirststate. No consumer in this explicitly diagnostic negative root."
+      },
+      {
+        "name": "Object257AtomizedLift",
+        "content": "Copy only original unrelated theorem and POSITIVE lifted theorem ASTs. Samecontext and acceptedbase; no weakened statement or axiom."
+      },
+      {
+        "name": "Object257AtomizedConsumer",
+        "content": "Copy original positive actualproductionconsumer statement exactly. Change only Apply theorem qualification to imported Object257AtomizedLift.obj257AtomizedLifted; require its real kernelchecked dependency."
+      }
+    ],
+    "shared": "Reuse unchanged atomizedcontext/runtime/firststate source; no new hashes/states/certificates. Original wholemodule source and timeout retained.",
+    "nativeSequence": [
+      {
+        "phase": "isolated-negative-lift",
+        "expected": "Sourcecheckpasses, verify returns exact unrelated-base LLV7002. If timeoutagain, expensive operation remains inside lift/goal or its diagnostics; stopwithout running equivalentfullconsumer.",
+        "claim": "Only base-consumption negative; not entire bridge."
+      },
+      {
+        "phase": "isolated-positive-lift",
+        "condition": "After intended isolatednegative and independent source review.",
+        "expected": "Verify the unchanged actual K equality with true base. If fails/timeout, preserve exactfailure and do not runconsumer.",
+        "claim": "Helper only, explicitly incomplete bridge."
+      },
+      {
+        "phase": "actual-consumer",
+        "condition": "Only after positive lifted dependency succeeds.",
+        "expected": "Verify exact unchanged original production consumer via imported lifted theorem. If thischild timesout, newlyseparated evidence localizes the bound to consumer elaboration/conversion instead of entire combinedmodule.",
+        "claim": "Bridgeacceptance requires thisphase plus actualartifact/kernel/axiomreview; helpers alone insufficient."
+      }
+    ],
+    "whyNotEquivalentRetry": "Separates real theorem dependencies into compiler modules with discriminating outcomes and unchanged perchildlimit. Does not simply replay the timed-out combinedroot or raise budget. Wholeconsumer is still mandatory and unchanged, not omitted to manufacture success.",
+    "limits": "300000ms/4GiB/2CPU and allsource/tool/epoch/storagegates unchanged. No source authoring/nativephase authorized by this report alone; independent proposal/source review required."
+  },
+  "optionalFollowupOnlyIfNeeded": {
+    "name": "Finite atomization prefix equality",
+    "statement": "ObjAtomize I []0 = A :: ObjAtomize R []0, exactI/A/R from original257 and acceptedfirststate.",
+    "proof": "Reflexivity with emptyaxioms, no hash or fold call in statement.",
+    "negative": "Change only expected firstatom firstbyte0→1; genuine source-valid mismatch, no runtimechanges.",
+    "purpose": "If splitconsumer evidence points to conversion, this separate production lemma isolates cheap atomization from hash/fold normalization. It cannot be assumed to rewrite consumer automatically; no supportedRewrite/Transitivity shortcut is invented.",
+    "status": "NOT_RUN_NOT_CURRENTLY_RECOMMENDED_FOR_AUTOMATIC_EXECUTION"
+  },
+  "acceptanceBoundary": {
+    "currentAtomizedBridge": false,
+    "intendedNegative": false,
+    "positive": false,
+    "previousTwoAtomBridge": "Remains independentlyaccepted at original exact source/artifacts.",
+    "original257Digest": false,
+    "fullObjectPrismPMPages": false
+  },
+  "preservation": "Only thissmallreport written; originalfrozenfixtures/17drafts/evidence unchanged; noSDK/native/VM/compiler/repo/otherlab modifications. No increasedlimit or equivalentrun.",
+  "sourceInspectionLimit": "One exploratory read-only lookup named a nonexistent ObjFoldChecked declaration and exited TypeError after printing actual ObjFoldAdmitted; no source/native effects and no result inferred from that missing name.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/check.json",
+      "bytes": 1015,
+      "sha256": "da81676e04c01858ae7e52ddce289ffd7a58a5be5084843fbcb96cb280fa28f6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/verify.json",
+      "bytes": 1017,
+      "sha256": "d79dbd235b9c5bcf5650471ed63b39fa1b583ccaaf7f0f322f77e56f9552d22a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/failure-review.json",
+      "bytes": 9397,
+      "sha256": "9da3d06e5f1c24b22da5e3d613deaa3cf36d75dc8af78a0dc4393da1650c6dff"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/emitted-capture.json",
+      "bytes": 1627,
+      "sha256": "58576935baf30daae667b8f940b435e27f73771846dc59b3095d0d4da3ee5c8f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/emitted-Object257AtomizedCoreFalseBase.lean",
+      "bytes": 7372,
+      "sha256": "540b851049bdda15d12807603f069c757008a47fe0aac83e7aa2fe29e71f0608"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/emitted-Object257AtomizedContext.lean",
+      "bytes": 6539,
+      "sha256": "f15014f44327002ed1396625a3c29b309b503eea6cbf577756b3541ba169157c"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-core/manifest.json",
+      "bytes": 8393,
+      "sha256": "185f83b861a3bdf58759070e41bd2f144242385cfc59bedd04e80633be0483e9"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedContext.lex.tex",
+      "bytes": 31413,
+      "sha256": "cc7ca480ff76a8795d05ea39fbe74c94f52e9168f5f988f9fe509b510e31dc05"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedCoreFalseBase.lex.tex",
+      "bytes": 37410,
+      "sha256": "6008ee86c61aec0076a79041a0fa608ede30e97c6149ed6896a63fa59c332d7e"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedCore.lex.tex",
+      "bytes": 37429,
+      "sha256": "0c6f4612b823b25950fe8cf42daf1fe395151a1219c466ed14819e8338fb4e52"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+      "bytes": 19206,
+      "sha256": "727ba3a5a6d996f189f388a7a8220b8c6d9ec7e5075c4a66c8d30c7a3a609cf6"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContinuationFalseBase.lex.tex",
+      "bytes": 12975,
+      "sha256": "19894f0b480dcb319aa62b835f738a9036cab19be6edd1cd845fd70676446685"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/native-review.json",
+      "bytes": 51094,
+      "sha256": "4711b58ff309516cf76a34cd18d05f9e9dcd968ac404f5b0618d942f14cfe958"
+    }
+  ]
+}

@@ -1,0 +1,572 @@
+{
+  "schema": "lexlean-r4-atomized-split-delivery/v1",
+  "baseCommit": "a1afcb55decad80154c307136facff28dc3b54e9",
+  "scope": "Accepted local negative and helper, failed actualconsumer; no atomized bridge. Owner17draftcompletionnext.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 19957,
+      "sha256": "38dabf75f6a932d2176eb5def59cf8917f1cb4a94738795cc6171e77c4316df4"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 21359,
+      "sha256": "55d218c44534997e86400d9c7f167859628844933f7356e3c113e7c684206255"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/README.md",
+      "bytes": 2495,
+      "sha256": "73d69065aae6d5d06fb80fcddd4564e2cd1eabaa20f518a2be34bcb57c742c20"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/RESULTS.md",
+      "bytes": 2682,
+      "sha256": "b540ba3f59255292835a66a6060e9e108eee173beafc46c0cd23cae9bb19234b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/candidate.json",
+      "bytes": 17797,
+      "sha256": "5485e247c0dc859f66ab5ecb0400982d5375263278247ee1bab30d409e4203a8"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/design/timeout-investigation-spec-review.json",
+      "bytes": 9089,
+      "sha256": "0302ce841e14a09b6b56bacbc32be271dbd193ced8c552badc83b6ae404175e0"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/design/timeout-investigation.json",
+      "bytes": 13024,
+      "sha256": "738306e627b6ba71d37c4c343ec626c0c162d3b82aa6407489d92ef8a1f5d846"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer-failure-review.json",
+      "bytes": 10477,
+      "sha256": "71fa5ac72c53805416ef7907f7c512f501fda787393cbc3d952b77179c2b396d"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/allocated-before.json",
+      "bytes": 459,
+      "sha256": "3ebe1de3fc4b82764b1e9fd6f125d1bec27bf2eda1b1251fce6244de03a796d3"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/check.json",
+      "bytes": 1038,
+      "sha256": "4b1ff7b8c12a747da8c2163da4525b410e9bbdf74186b8e1e747b1ae4dd37b19"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/directories.json",
+      "bytes": 434,
+      "sha256": "ff77e14e4eb9cce1055f0087b193413a98c2841b0ab69b1b065682aefbd9be3b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/epoch-after.json",
+      "bytes": 470,
+      "sha256": "89a20aa52227ae3dd76839a9cb959c5bf4943516046d16969c28ec06c330d6de"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/epoch-before.json",
+      "bytes": 470,
+      "sha256": "5a3ad81d6d6d918e8d9710b351ed9d5e9dbbd2a936f593465254b563797454d8"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/expected-inputs.json",
+      "bytes": 5645,
+      "sha256": "c742e6c17187723141b62e5a3dcf19a82b60ec7c04c7180752b0473ec06f118f"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/guest-after.json",
+      "bytes": 406,
+      "sha256": "da644a24b529d2c0dcdf2a5629004b949dacf375a19f2d3f33e110493eb9852d"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/guest-before.json",
+      "bytes": 406,
+      "sha256": "e8f908eb5f05a16b870d7ba558539c712ab069ce413c9a71943cec8828dd3909"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/host-after.json",
+      "bytes": 142,
+      "sha256": "b2409751ba1b1f52ae35d1882b09b4ebbba083ca7e86161969835c4b14b21b55"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/host-before.json",
+      "bytes": 152,
+      "sha256": "e3e2191bee81eea342298e306dd9171a3a00c0702d40a6bbfc3c096fbed31ea2"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/idle-after.json",
+      "bytes": 460,
+      "sha256": "cbc9d0432da7764ecc855801539b413caa2827bfe74c85c5b9f206a710622c8c"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/idle-before.json",
+      "bytes": 460,
+      "sha256": "7b66f114c9685977932c09329b370f38a3ff0cf5564e0e205d1a99bd6d5e75fc"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/lock-after.json",
+      "bytes": 493,
+      "sha256": "f081d51fe4f9ae24cc0ec0af82446f9fbe8934d9025d46b76762ab431ee6b443"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/lock-bytes.json",
+      "bytes": 2057,
+      "sha256": "8c3497afc44a9411b1d9147c17e13eb185a84a05d13ba6490de705de6e453bd8"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/lock.json",
+      "bytes": 541,
+      "sha256": "03fa96529924256d2e6fcaa9d87c1fdc4faca1bc575c3beb303db07e8ad7ebbb"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/memory-after.json",
+      "bytes": 359,
+      "sha256": "c0cf85ffb4534aea4ae4e1b747a3dddb5f1d7c44d0646a4359f77ca042da630d"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/memory-before.json",
+      "bytes": 354,
+      "sha256": "f4b14313c6a0726330272dd76958b0bb46727380ed859ac512b3eea751ca666a"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/new-stage.json",
+      "bytes": 332,
+      "sha256": "ef59d7abf7648b852c9f229062c3e99271e30d55bd912646e8bf718a02ad6157"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/postcapture-errors.json",
+      "bytes": 84,
+      "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/result.json",
+      "bytes": 822,
+      "sha256": "8a45799e291d506012ebf055ca3a9204f17ce0fdfaf50bcea2eb8434382d54e9"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/source-after.json",
+      "bytes": 6069,
+      "sha256": "c12bee73f9297e7a68362a8f11308c8543a451aa759bf0ca71cf11d9227b0eb9"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/source-before.json",
+      "bytes": 6069,
+      "sha256": "4057465096b099834188668be00262c2ba78864b25a672aa0f3cb77046663097"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/swap-before.json",
+      "bytes": 264,
+      "sha256": "6c040216f899dd2a4c2b401dd0110081c11144da30d17626f4188e25326accb6"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/tools-before.json",
+      "bytes": 1005,
+      "sha256": "4b3e987c15a3e0ef4665338b7b0ad2169a0d1a0d5e24d30d6492a718c434bd21"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/actual-consumer/verify.json",
+      "bytes": 943,
+      "sha256": "9eb7e9e385eebf7e173d2e7567faf7f3db13bc860e15f09c2d5fd76fe8d93215"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/code-review.json",
+      "bytes": 23927,
+      "sha256": "ffe8972e8f632c91fdb8f7777db15fbee557fe883d0ad51398672fec691c8372"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/consumer-emission-capture.json",
+      "bytes": 896,
+      "sha256": "1cba6c390394494702771b8a74936e421b8e654740953b282f095cefe4dc4083"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/consumer-supplemental-custody.json",
+      "bytes": 8846,
+      "sha256": "497eb7e1df908e27953646b2a118699703192fce5dcc5b20720b7ca9cdc084f3"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/emitted-Object257AtomizedConsumer.lean",
+      "bytes": 7074,
+      "sha256": "343648c4c3f99d95a683d3694108b979b4d872aa5e00f6ccd31b7030cf345519"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/invocation-code-review.json",
+      "bytes": 1663,
+      "sha256": "aeae657cc130d6e941f6557edee6256a3b0732e67ff8beb917928c60a6040120"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false-review.json",
+      "bytes": 9644,
+      "sha256": "ae596e087a594f4165367a62c102b9f135f9917e9a638aad7020cb067b9e1f5b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false-supplemental-custody.json",
+      "bytes": 16623,
+      "sha256": "5693da71435b7072071684d8098891e22988b630009d2593754122188388dac6"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/allocated-before.json",
+      "bytes": 459,
+      "sha256": "c014f549ebf24e2cc2aab7e267ac89ae76e72938dc6a00e1b41d51ab5ae1c6e0"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/check.json",
+      "bytes": 1012,
+      "sha256": "bfbc17a00073df87a4780789efb5003aebe92dce9b0fc3207b0c1184c39f4f19"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/directories.json",
+      "bytes": 424,
+      "sha256": "b536b2ff5fe8f0ae74626f59d98542f86fd0a13bbc4f2fdf53bc088cff3ad37a"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "ac20634012415a0574978bce5b39c1df076f3b16c4d1454b40aac9502d7a6499"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/epoch-before.json",
+      "bytes": 470,
+      "sha256": "207e152241eb6d24940ef377819b4e5def8beceded3a6b189e538a9c9ae95ca9"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/expected-inputs.json",
+      "bytes": 5640,
+      "sha256": "588cc705369f629d30abde5d5487da87cb44f686538e1eac1b6fa3f12a03b041"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "d2ccbce3659b004d7f22484add09210079222a78f48c596600add51bb15be4ba"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/guest-before.json",
+      "bytes": 406,
+      "sha256": "5240d7dfbad5933afa7646fe089c5717e869ee3e500fae4e3e9a1934e7637433"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/host-after.json",
+      "bytes": 142,
+      "sha256": "2c85098b5ef249179037b06f167003424b0d0518c8a8c3d4cc3f37d1b04fd6cb"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/host-before.json",
+      "bytes": 152,
+      "sha256": "2d326b7da5f21a72e5005f03658d3a1f81549812dfffa283d112a3d6b9c25f8b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "2e3ceef58e26b2e12459879076a199e4b7575a628459487a57c5b4d9c566da4b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/idle-before.json",
+      "bytes": 460,
+      "sha256": "74361d45777810458c0e7be88683e10e6a65de068eca1a84fade51c52938a17f"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/lock-after.json",
+      "bytes": 483,
+      "sha256": "1bdbccbdc707d99d96c9d2948104c14c7e81b9426e23fc6fbec9f4c5bc1afbf8"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/lock-bytes.json",
+      "bytes": 2052,
+      "sha256": "9e509079b855f327ee9833199b0a24277014913e558f56818840e0a1a9fe4c5a"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/lock.json",
+      "bytes": 536,
+      "sha256": "5b1b66ca4a080f5457ea3dcb62e0887eeb3253d1e1abc0124d2f62ff0bd49f15"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "31867716cb3231c430cb3c00c1312a3b0b2995716caef0dbf83a4f0a1c7921a9"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/memory-before.json",
+      "bytes": 354,
+      "sha256": "53fa39fb761c3c8e927be3fdcbcf9cfb421a842ee049c042edb12a6bf97f4174"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/new-stage.json",
+      "bytes": 327,
+      "sha256": "e3f21d9cdd3eab94995d0e443fcc3f3f9ba100a29ffdada5195fb39917db09a4"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/result.json",
+      "bytes": 1165,
+      "sha256": "de78365755039a9d188214c96a535116371d73192dac8ead9808a3e86c36bc81"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/source-after.json",
+      "bytes": 5849,
+      "sha256": "20b12fd406cd9af61fface4f74b41ea97db8804bcd68e88227e8432d32cbefe9"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/source-before.json",
+      "bytes": 5849,
+      "sha256": "ff51f00e4b881c3b5f01114ec0ba7556c839ca53012e7dc402d5f78d5a066fc2"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/swap-before.json",
+      "bytes": 264,
+      "sha256": "ba0a648c8ccfe1c1458932640b6f820dee5331c8007bc6497d2c8d4d0bf0e868"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/tools-before.json",
+      "bytes": 1005,
+      "sha256": "702d72d588fd2df466d9a6f486c4255a1893bf183642b0fce826568be0a16f78"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-false/verify.json",
+      "bytes": 1260,
+      "sha256": "716b56dd242faf0f8946839caaf464627f1129a0d743c38a3e93e4907918125e"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive-review.json",
+      "bytes": 43688,
+      "sha256": "b71438bb4fb0140ce432c527ebf9b725d0ef2c75e0d55d128b79d12cd768c49e"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive-supplemental-custody.json",
+      "bytes": 21190,
+      "sha256": "a1cd9475700fcdf249e3303f3c1f9280219b3fd97484fd6a21c3e8cb6ecc325b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "e4d2a780bded09064fb9588f1bd1e526937fdeed58d1fa1d30124bdfce5ea64e"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-copy.json",
+      "bytes": 506,
+      "sha256": "becdc17ff59d10b56670b1bf8b9332ea62951dcaa97e5e3da3abae635001acc6"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/attestation.json",
+      "bytes": 166686,
+      "sha256": "717b7a723d468fd8d8fe86c36c32d7fcfc256bd6fa41e3837efc61500597f27b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/audit/LexLeanAudit.A55e75e59c9e37ad57de0d711b114df0e.LexLeanR4.Object257AtomizedLift.lean",
+      "bytes": 187,
+      "sha256": "d8a10c5dad3d761d77b9798766b4fd71e310aa9d78eda06e568aeffe9c52b36b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/audit/LexLeanAudit.A55e75e59c9e37ad57de0d711b114df0e.LexLeanR4.Object257AtomizedLift.process.json",
+      "bytes": 701,
+      "sha256": "1945883923b2c99e712acd837fb4666a6ddc7f824f944b8bcdbcd68874cc64e8"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/audit/output.txt",
+      "bytes": 53732,
+      "sha256": "3f577fd45c57153fa960d58fe996cc09e20f6d90fd6276cbd83f16d5cbfbe8f2"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/build-manifest.json",
+      "bytes": 16957,
+      "sha256": "2a3e9909a9eca6d78cb4ac3cbee816a593f76553733a6ce0796ac84873d00200"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/maps/LexLeanR4/Object257AtomizedLift.map.json",
+      "bytes": 1735,
+      "sha256": "8398dc8162f2dd8169c80710663dc2e848284be2d4e80face4f5bc1aba4349c3"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/modules/LexLeanR4/Object257AtomizedContext.lean",
+      "bytes": 6539,
+      "sha256": "f15014f44327002ed1396625a3c29b309b503eea6cbf577756b3541ba169157c"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/artifact-text/modules/LexLeanR4/Object257AtomizedLift.lean",
+      "bytes": 819,
+      "sha256": "a23d4887b062226ac3007ef35bde885e4f11eb9aa765d9681a92f426a6e01fb0"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/check.json",
+      "bytes": 1006,
+      "sha256": "79fbb019d8c1ffda4900ea7d9edb950b6b1172be2d07dcf95edfad402bf5cbc1"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/directories.json",
+      "bytes": 430,
+      "sha256": "3d26c9a4e6169597fa0dbfc5b08c4216a1c85d161f4f810f96871bab8f15e166"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "ffebb4218fccca6aec7b53b9cdd9d7161787db2538319177d05deb72d773b5ca"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "8df163a34fdd896f8d76d50c0665d35989eede8af25053cf0fcf23b7c3748ff5"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/expected-inputs.json",
+      "bytes": 5643,
+      "sha256": "22213c5dfb025b0cda88f03c86d22c1840ea904e1358938e30eb6f055f2e42e6"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "e7fd699aaaf9991c862053b29b98381e460590e316c7bd49b087212fb6284c18"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "52539979a90e05457aa72c9caa4c232ac8b64c6d0e8c85ff3bb6c34e2f602669"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/host-after.json",
+      "bytes": 142,
+      "sha256": "f24440614a249831be5d999cb91be1fd2b3da81fec43e13869ebe48c0ab3030d"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/host-before.json",
+      "bytes": 152,
+      "sha256": "5706b015bf304d7a4bf045c584e2d7cc80ae01c3d5109e54eb820fdd8ad98aa2"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "57b87c63711d184ca083befb62c2899bc2357b7606b4c36ba3d4992bbb44dbe5"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "7afe34b8a351a9a3aea771b41ff548a13f84f131fed67e7830e0e47e2bdc9c8b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/lock-after.json",
+      "bytes": 489,
+      "sha256": "31838cc3fb93b10d361c5672e8ca9aa6de288b6b06afbec4db2e30b26338c5b6"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/lock-bytes.json",
+      "bytes": 2055,
+      "sha256": "2a8007e2248a3c829985c475719c6e6fe0fb72ed0cbe0d638e92a5fb5d479b8a"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/lock.json",
+      "bytes": 539,
+      "sha256": "b28711f023e6e7434f6e9064d8c9da7d092ab59ae89ffc596339f6d811403904"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "e3f939d0cb257e6fbc95ecd967967fb5f5c45ad7d090a007a09ac194d11e3299"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "7834030ec0a2f1ec0bcc888c74f26c87666a2b6aa9bfb87df5b054c03667b054"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/new-stage.json",
+      "bytes": 330,
+      "sha256": "1148b4eb255b9b0bd864fd002622e528a2b040ca20a90c581b07e69d9e948d06"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/result.json",
+      "bytes": 1129,
+      "sha256": "b8d8571972f74e016213cff7c82952b872c2a913d35ee51e4ca3e67aeed36225"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/source-after.json",
+      "bytes": 5981,
+      "sha256": "7fa8f1fe97a57747d7e037b6d04ace628e089071936b468effdcf80d015a64d4"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/source-before.json",
+      "bytes": 5981,
+      "sha256": "57c62a4c02a8cdcbdf56df855a4e8ee1456cadd59405976fc1a3288090549258"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "13aa123594758c034494c688542190b45187808f308c6fdac0b1618073b93a78"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "b09932df71caa20aaf7ca1fb891339dc1e1444619ed0a107298c716486a8030f"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/evidence/lift-positive/verify.json",
+      "bytes": 1315,
+      "sha256": "bd7acdd07156e55b44a7831bd23bfebccdeb90c629e5abcee8d9dd2aaf431b28"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/manifest.json",
+      "bytes": 15714,
+      "sha256": "45ea22f9694628f95b65dca58106b37f7e767a48480660a38e5e9c905cf940ed"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/phases/actual-consumer/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "e021a181fb6435f06f1f8dd74cf8ecf5b9456a7ba27a5541c3669eb4686a5b08"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/phases/actual-consumer/lexlean.toml",
+      "bytes": 689,
+      "sha256": "7a72312c0532cf2141a9b0f5b63db2c100d2a945db0d1dc525c51293b60ff93e"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/phases/lift-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "49f173f736740318105266e1e16dde023ae304ff9c529c3c8671e861845a9762"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/phases/lift-false/lexlean.toml",
+      "bytes": 694,
+      "sha256": "f952fc4a3c9b58bd271f229c656d600074326bca6ba682b24b800893be29b32b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/phases/lift-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "d24df7934e586730e3dea59234ffa668a3271973173ddfe076d015ad9bfa664c"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/phases/lift-positive/lexlean.toml",
+      "bytes": 685,
+      "sha256": "09ab67052bff422d6edad39900902cfc483312419d26c7fe062cd127e9fc35ca"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedConsumer.lex.tex",
+      "bytes": 36529,
+      "sha256": "43896b643ce11da2e7311f708c95a4cdc259d9b2d5a80df9fe36898b2bbed0be"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedLift.lex.tex",
+      "bytes": 1368,
+      "sha256": "721a810b2e1ce5238a5cb616b37d04c7c6f95253bc3b510d38538a821d93a373"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedLiftFalseBase.lex.tex",
+      "bytes": 1349,
+      "sha256": "68583c8d45739c80bec0854c04576d76194e4c66b1321cc1517ae8858358dbea"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/results.json",
+      "bytes": 2366,
+      "sha256": "a42948cc4edec6e2e62f3451a238a4be6c453e92caeae48b1703bb965eb96630"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/structural-audit.json",
+      "bytes": 5550,
+      "sha256": "91c36d2573cd37dc5322542988d1a28934b090dae13edc6a98d5b4dc33194270"
+    }
+  ]
+}
