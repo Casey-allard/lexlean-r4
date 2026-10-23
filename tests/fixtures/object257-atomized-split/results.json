@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-atomized-split-results/v1",
+  "scope": "Actual split negative and positive helper accepted locally; actual atomized consumer failed with cgroup OOM kill, bridge unaccepted",
+  "sourceManifest": "45ea22f9694628f95b65dca58106b37f7e767a48480660a38e5e9c905cf940ed",
+  "phases": [
+    {
+      "name": "lift-false",
+      "check": 0,
+      "modules": 14,
+      "verify": 1,
+      "diagnostic": "LLV7002 unrelated zero base mismatch",
+      "wallMs": 218486,
+      "status": "INTENDED_LOCAL_NEGATIVE_ACCEPTED",
+      "review": "evidence/lift-false-review.json"
+    },
+    {
+      "name": "lift-positive",
+      "check": 0,
+      "modules": 14,
+      "verify": 0,
+      "wallMs": 121414,
+      "status": "LOCAL_HELPER_ACCEPTED",
+      "attestation": "2f5b78532c7b1a9cfbf9ce08353d17dff886c5cd53532366b88e2271f9aee2a7",
+      "emptyAxiomDeclarations": 773,
+      "kernelReplays": 14,
+      "successfulProcesses": 43,
+      "artifactFiles": 145,
+      "review": "evidence/lift-positive-review.json"
+    },
+    {
+      "name": "actual-consumer",
+      "check": 0,
+      "modules": 15,
+      "verify": 1,
+      "wallMs": 241045,
+      "status": "FAILED_WITH_CGROUP_OOM_KILL_BRIDGE_UNACCEPTED",
+      "diagnostic": "LLV7002 with empty detailed Lean message",
+      "memoryBefore": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "memoryAfter": {
+        "max": 324059,
+        "oom": 1,
+        "oom_kill": 1
+      },
+      "postconditionErrors": [
+        "memory-after: nonzero memory events"
+      ],
+      "review": "evidence/actual-consumer-failure-review.json",
+      "artifacts": []
+    }
+  ],
+  "limitations": [
+    "Cgroup counters identify a resource event during the interval, not the exact killed PID or expensive subterm.",
+    "No clean semantic counterexample and no accepted actual consumer.",
+    "All22 inputs and development locks unchanged in each phase; same tools/epoch; storage and idle checks pass.",
+    "Current epoch has nonzero memory events and cannot silently satisfy another zero-event gate.",
+    "No whole257, fullObject, Hash qualification, production binding or Pages acceptance.",
+    "Module splitting changes artifact identities and aggregate work; no efficiency claim.",
+    "Complete compiler bundles retained locally and hash-inventoried in reviews; selected portable text only."
+  ]
+}

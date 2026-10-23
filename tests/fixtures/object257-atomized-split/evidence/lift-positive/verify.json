@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-atomized-split-lift-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/Object257AtomizedLift.lex.tex"
+  ],
+  "started": "2026-10-23T19:52:36.888Z",
+  "ended": "2026-10-23T19:54:38.302Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/2f5b78532c7b1a9cfbf9ce08353d17dff886c5cd53532366b88e2271f9aee2a7\"],\"attestation_id\":\"2f5b78532c7b1a9cfbf9ce08353d17dff886c5cd53532366b88e2271f9aee2a7\",\"build_id\":\"02fb34e90066b449dd054e7d4f4017f00173ad3e8548a843308e47d97d22acdd\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257AtomizedContext\",\"Object257AtomizedLift\",\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomState\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"55e75e59c9e37ad57de0d711b114df0e107800d122ecc1081b586128f6d18043\",\"source_id\":\"115912efdd339bdc5ca4fd20166df1e2c4320300a6c92c2ff783f32b4562c85c\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-atomized-split-lift-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T19:38:51.275Z",
+  "ended": "2026-10-23T19:38:56.773Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257AtomizedContext\",\"Object257AtomizedLiftFalseBase\",\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomState\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"1c1d14f7d272919385b859e236d778aec6ee82a84673b3ac120ceb458665c9b6\",\"source_id\":\"ba558fa18453d705ed46551618a45cdde7823b510475c5eab5f8d13b58d5b5a0\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

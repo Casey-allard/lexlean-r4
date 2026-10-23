@@ -25,6 +25,7 @@ independent reviewers; no external lab or another session owns this work.
 | First concrete Object257 atom state | Actual first32-byte leaf and `ObjFoldAtoms [[0,1,...,31]] [] [] originalLimits` singleton state verified. Wrong expected inventory ID rejected at the consumer. | [Actual results](../tests/fixtures/object257-first-atom/RESULTS.md): leaf 66,570 ms; state 48,659 ms, 769 empty-axiom declarations and 12 kernel replays. Local prefix only. |
 | Nonempty two-atom continuation | Actual `Fold [A,B] [] [] L = Fold [B] firstState.frontier firstState.inventory L` verified, with A bytes0–31 and B bytes32–63. Unrelated-base proof rejected. | [Results](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md): positive 93,920 ms, 774 empty-axiom declarations and 14 kernel replays. Actual consumer conversion passed; no second-state, whole257 or efficiency claim. |
 | Original257 atomized fold-core probe | Sourcecheck admitted 14 modules; negative phase timed out in its final Lean module at the unchanged 300-second child limit. Positive not run. | [Timeout record](../tests/fixtures/object257-atomized-core/RESULTS.md). This is not the intended proof negative or an accepted core bridge. |
+| Split atomized continuation | Intended negative and positive helper independently verified; mandatory actual consumer failed with a recorded cgroup OOM kill. Bridge remains unaccepted. | [Split results](../tests/fixtures/object257-atomized-split/RESULTS.md): helper773 empty axioms/14 replays; consumer resource failure, no semantic counterexample. |
 | Production binding and deployment | Missing production SDK/template binding. `just vv`, generated application and Pages remain incomplete. | [Upstream dependencies](UPSTREAM.md), CI observation below. |
 
 The local Object proof experiments can proceed before full Hash acceptance.
@@ -55,8 +56,12 @@ capability follows from these finite proofs.
    diagnostic was not returned. The positive remains **NOT_RUN**, and the larger
    consumer/atomization-prefix conversion remains unproved. The exact expensive
    declaration or conversion is not localized by this result. Inspect the retained
-   build emission and independently review one bounded diagnostic/decomposition
-   before more native work; do not repeat equivalent runs or increase limits.
+   build emission. The reviewed [three-root split](../tests/fixtures/object257-atomized-split/RESULTS.md)
+   returned the intended negative and verified the positive helper, but the mandatory
+   actual consumer failed with generic LLV7002 and a recorded container OOM kill.
+   The bridge remains unaccepted. The current epoch has nonzero memory events.
+   Independently review a bounded decomposition of the consumer conversion before
+   further native work; do not repeat equivalent runs or increase limits.
    The suffix uses the original bounded ObjAppendBytes tree minus its first32-byte
    leaf, with all225 bytes checked. That source representation refinement was
    independently reviewed and does not assert an atomization result.
@@ -89,6 +94,15 @@ real compiler, obtain an internal non-author review of source and actual
 artifacts, then push atomic conventional commits and merge reviewed checkpoints
 through PRs. Update this page when the next action, blocker or result changes.
 Do not restart the abandoned general verification-harness integration project.
+
+Casey explicitly requested that the 17 preserved unfinished drafts be finished
+after the current atomized-fold proof work. Treat them as the next integration
+work package: five Object modules, five control suites, three feature scenarios,
+three model records, and Object documentation. Resolve the actual verification
+failures and required Hash/Object qualification, run all 403 Object controls and
+required negatives, reconcile the PrismPM model and scenarios, and merge reviewed
+commits to main. The archived snapshot preserves provenance; it is not completion
+or permission to promote unverified drafts into the active graph.
 
 ## Portable source and evidence map
 

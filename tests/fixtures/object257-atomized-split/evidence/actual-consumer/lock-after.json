@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-atomized-split-actual-consumer-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T19:59:54.807Z",
+  "ended": "2026-10-23T19:59:54.852Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "e021a181fb6435f06f1f8dd74cf8ecf5b9456a7ba27a5541c3669eb4686a5b08  /tmp/r4-object257-atomized-split-actual-consumer-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

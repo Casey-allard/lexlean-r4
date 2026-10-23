@@ -1,0 +1,12 @@
+\begin{lexlean}{Object257AtomizedLiftFalseBase}
+\useglossary{lexlean.std.bool@1.2.0}
+\useglossary{lexlean.std.nat@1.2.0}
+\importmodule{R4.ObjectTypes}
+\importmodule{R4.ObjectStore}
+\importmodule{Object257FirstAtomState}
+\importmodule{Object257AtomizedContext}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"obj257AtomizedUnrelatedZero","parameters":[],"proof":{"kind":"reflexivity"},"statement":{"kind":"eq","left":{"kind":"nat","value":"0"},"right":{"kind":"nat","value":"0"}}},{"axioms":[],"kind":"theorem","name":"obj257AtomizedLifted","parameters":[{"name":"count","type":{"kind":"nat"}}],"proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"arguments":[],"kind":"apply","theorem":{"name":"obj257AtomizedUnrelatedZero"},"type_arguments":[]}},{"binders":["prior","ih"],"constructor":"succ","proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"kind":"congruence"}},{"binders":["earlier"],"constructor":"succ","proof":{"kind":"congruence"}}],"kind":"cases","scrutinee":"prior"}}],"generalizing":[],"kind":"induction","scrutinee":"count"},"statement":{"arguments":[{"kind":"var","name":"count"}],"function":{"module":"Object257AtomizedContext","name":"Obj257AtomizedGoal"},"kind":"call"}}],"spec":"lexlean/semantic-module/2"}}
+\end{semanticmodule}
+\end{lexlean}

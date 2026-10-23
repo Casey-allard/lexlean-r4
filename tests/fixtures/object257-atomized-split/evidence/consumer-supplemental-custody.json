@@ -1,0 +1,173 @@
+{
+  "scope": "Failed actual consumer raw evidence, no artifact or proof acceptance",
+  "files": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/allocated-before.json",
+      "path": "evidence/actual-consumer/allocated-before.json",
+      "bytes": 459,
+      "sha256": "3ebe1de3fc4b82764b1e9fd6f125d1bec27bf2eda1b1251fce6244de03a796d3"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/check.json",
+      "path": "evidence/actual-consumer/check.json",
+      "bytes": 1038,
+      "sha256": "4b1ff7b8c12a747da8c2163da4525b410e9bbdf74186b8e1e747b1ae4dd37b19"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/directories.json",
+      "path": "evidence/actual-consumer/directories.json",
+      "bytes": 434,
+      "sha256": "ff77e14e4eb9cce1055f0087b193413a98c2841b0ab69b1b065682aefbd9be3b"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/epoch-after.json",
+      "path": "evidence/actual-consumer/epoch-after.json",
+      "bytes": 470,
+      "sha256": "89a20aa52227ae3dd76839a9cb959c5bf4943516046d16969c28ec06c330d6de"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/epoch-before.json",
+      "path": "evidence/actual-consumer/epoch-before.json",
+      "bytes": 470,
+      "sha256": "5a3ad81d6d6d918e8d9710b351ed9d5e9dbbd2a936f593465254b563797454d8"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/expected-inputs.json",
+      "path": "evidence/actual-consumer/expected-inputs.json",
+      "bytes": 5645,
+      "sha256": "c742e6c17187723141b62e5a3dcf19a82b60ec7c04c7180752b0473ec06f118f"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/guest-after.json",
+      "path": "evidence/actual-consumer/guest-after.json",
+      "bytes": 406,
+      "sha256": "da644a24b529d2c0dcdf2a5629004b949dacf375a19f2d3f33e110493eb9852d"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/guest-before.json",
+      "path": "evidence/actual-consumer/guest-before.json",
+      "bytes": 406,
+      "sha256": "e8f908eb5f05a16b870d7ba558539c712ab069ce413c9a71943cec8828dd3909"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/host-after.json",
+      "path": "evidence/actual-consumer/host-after.json",
+      "bytes": 142,
+      "sha256": "b2409751ba1b1f52ae35d1882b09b4ebbba083ca7e86161969835c4b14b21b55"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/host-before.json",
+      "path": "evidence/actual-consumer/host-before.json",
+      "bytes": 152,
+      "sha256": "e3e2191bee81eea342298e306dd9171a3a00c0702d40a6bbfc3c096fbed31ea2"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/idle-after.json",
+      "path": "evidence/actual-consumer/idle-after.json",
+      "bytes": 460,
+      "sha256": "cbc9d0432da7764ecc855801539b413caa2827bfe74c85c5b9f206a710622c8c"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/idle-before.json",
+      "path": "evidence/actual-consumer/idle-before.json",
+      "bytes": 460,
+      "sha256": "7b66f114c9685977932c09329b370f38a3ff0cf5564e0e205d1a99bd6d5e75fc"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock-after.json",
+      "path": "evidence/actual-consumer/lock-after.json",
+      "bytes": 493,
+      "sha256": "f081d51fe4f9ae24cc0ec0af82446f9fbe8934d9025d46b76762ab431ee6b443"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock-bytes.json",
+      "path": "evidence/actual-consumer/lock-bytes.json",
+      "bytes": 2057,
+      "sha256": "8c3497afc44a9411b1d9147c17e13eb185a84a05d13ba6490de705de6e453bd8"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock.json",
+      "path": "evidence/actual-consumer/lock.json",
+      "bytes": 541,
+      "sha256": "03fa96529924256d2e6fcaa9d87c1fdc4faca1bc575c3beb303db07e8ad7ebbb"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/memory-after.json",
+      "path": "evidence/actual-consumer/memory-after.json",
+      "bytes": 359,
+      "sha256": "c0cf85ffb4534aea4ae4e1b747a3dddb5f1d7c44d0646a4359f77ca042da630d"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/memory-before.json",
+      "path": "evidence/actual-consumer/memory-before.json",
+      "bytes": 354,
+      "sha256": "f4b14313c6a0726330272dd76958b0bb46727380ed859ac512b3eea751ca666a"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/new-stage.json",
+      "path": "evidence/actual-consumer/new-stage.json",
+      "bytes": 332,
+      "sha256": "ef59d7abf7648b852c9f229062c3e99271e30d55bd912646e8bf718a02ad6157"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/postcapture-errors.json",
+      "path": "evidence/actual-consumer/postcapture-errors.json",
+      "bytes": 84,
+      "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/result.json",
+      "path": "evidence/actual-consumer/result.json",
+      "bytes": 822,
+      "sha256": "8a45799e291d506012ebf055ca3a9204f17ce0fdfaf50bcea2eb8434382d54e9"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/source-after.json",
+      "path": "evidence/actual-consumer/source-after.json",
+      "bytes": 6069,
+      "sha256": "c12bee73f9297e7a68362a8f11308c8543a451aa759bf0ca71cf11d9227b0eb9"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/source-before.json",
+      "path": "evidence/actual-consumer/source-before.json",
+      "bytes": 6069,
+      "sha256": "4057465096b099834188668be00262c2ba78864b25a672aa0f3cb77046663097"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/swap-before.json",
+      "path": "evidence/actual-consumer/swap-before.json",
+      "bytes": 264,
+      "sha256": "6c040216f899dd2a4c2b401dd0110081c11144da30d17626f4188e25326accb6"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/tools-before.json",
+      "path": "evidence/actual-consumer/tools-before.json",
+      "bytes": 1005,
+      "sha256": "4b3e987c15a3e0ef4665338b7b0ad2169a0d1a0d5e24d30d6492a718c434bd21"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/verify.json",
+      "path": "evidence/actual-consumer/verify.json",
+      "bytes": 943,
+      "sha256": "9eb7e9e385eebf7e173d2e7567faf7f3db13bc860e15f09c2d5fd76fe8d93215"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/emitted-Object257AtomizedConsumer.lean",
+      "path": "evidence/emitted-Object257AtomizedConsumer.lean",
+      "bytes": 7074,
+      "sha256": "343648c4c3f99d95a683d3694108b979b4d872aa5e00f6ccd31b7030cf345519"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/consumer-emission-capture.json",
+      "path": "evidence/consumer-emission-capture.json",
+      "bytes": 896,
+      "sha256": "1cba6c390394494702771b8a74936e421b8e654740953b282f095cefe4dc4083"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock-bytes.json#stdout",
+      "path": "phases/actual-consumer/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "e021a181fb6435f06f1f8dd74cf8ecf5b9456a7ba27a5541c3669eb4686a5b08"
+    }
+  ]
+}

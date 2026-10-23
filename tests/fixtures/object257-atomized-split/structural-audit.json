@@ -1,0 +1,144 @@
+{
+  "schema": "lexlean-r4-object257-atomized-split-structural-audit/v1",
+  "status": "PASS_SOURCE_COMPARISONS_ONLY_NATIVE_NOT_RUN",
+  "checks": {
+    "negativeDeclarationsExact": true,
+    "positiveDeclarationsExact": true,
+    "consumerEntireDeclarationExactAfterRemovingOnlyNewApplyModule": true,
+    "consumerModuleImportsPositiveLift": true,
+    "allThreeConfigDifferencesEntrypointOnly": true,
+    "sharedInputsVerified": 18,
+    "preexistingDirtyFilesPreserved": 17,
+    "originalFrozenManifestAndDependenciesVerified": true
+  },
+  "modules": [
+    {
+      "path": "tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedLiftFalseBase.lex.tex",
+      "canonicalJson": true,
+      "emptyAxioms": true,
+      "declarationNames": [
+        "obj257AtomizedUnrelatedZero",
+        "obj257AtomizedLifted"
+      ],
+      "semanticJsonSha256": "0f5be83f37c60ac1a7b3836ffcece6ad13166fdf61d5c92a3caaa28140cf0b10"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedLift.lex.tex",
+      "canonicalJson": true,
+      "emptyAxioms": true,
+      "declarationNames": [
+        "obj257AtomizedUnrelatedZero",
+        "obj257AtomizedLifted"
+      ],
+      "semanticJsonSha256": "5feb59ef7373520d80ecbd944564ff8a9615e5ace350b5111e1873aabca8e05b"
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedConsumer.lex.tex",
+      "canonicalJson": true,
+      "emptyAxioms": true,
+      "declarationNames": [
+        "obj257OriginalAtomizedCoreBridge"
+      ],
+      "semanticJsonSha256": "286996a4d3684f25480a6b492c10f34941e3cbf99dbcba7e3cd975db42d6d9a5"
+    }
+  ],
+  "sourceComparisons": {
+    "negative": {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedCoreFalseBase.lex.tex",
+      "bytes": 37410,
+      "sha256": "6008ee86c61aec0076a79041a0fa608ede30e97c6149ed6896a63fa59c332d7e"
+    },
+    "positive": {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedCore.lex.tex",
+      "bytes": 37429,
+      "sha256": "0c6f4612b823b25950fe8cf42daf1fe395151a1219c466ed14819e8338fb4e52"
+    },
+    "context": {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedContext.lex.tex",
+      "bytes": 31413,
+      "sha256": "cc7ca480ff76a8795d05ea39fbe74c94f52e9168f5f988f9fe509b510e31dc05"
+    },
+    "originalManifest": {
+      "path": "tests/fixtures/object257-atomized-core/manifest.json",
+      "bytes": 8393,
+      "sha256": "185f83b861a3bdf58759070e41bd2f144242385cfc59bedd04e80633be0483e9"
+    }
+  },
+  "nativeResults": "NOT_RUN",
+  "method": "Read and parse actual source JSON; assert canonical sorted serialization; deep-compare copied declarations and consumer after removing only imported Apply module; byte-check normalized configs and all pinned dependencies. No compiler/source-admission/proof result inferred.",
+  "allocation": {
+    "plannedPeakAdditionalBytes": 524288,
+    "hardCapBytes": 1048576,
+    "sharedPayloadCopied": false
+  },
+  "preservedDirty": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ]
+}

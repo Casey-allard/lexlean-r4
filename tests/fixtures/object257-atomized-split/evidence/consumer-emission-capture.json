@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-23T20:06:31.366Z",
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cat",
+    "/tmp/r4-object257-atomized-split-actual-consumer-owned-20261023/.lexlean/build/6a751eb193b74a94af6780d2e3befbfc1cc4a653f05b09462e5191fdef4d53a0/modules/LexLeanR4/Object257AtomizedConsumer.lean"
+  ],
+  "status": 0,
+  "stderr": "",
+  "source": "/tmp/r4-object257-atomized-split-actual-consumer-owned-20261023/.lexlean/build/6a751eb193b74a94af6780d2e3befbfc1cc4a653f05b09462e5191fdef4d53a0/modules/LexLeanR4/Object257AtomizedConsumer.lean",
+  "destination": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/emitted-Object257AtomizedConsumer.lean",
+  "bytes": 7074,
+  "sha256": "343648c4c3f99d95a683d3694108b979b4d872aa5e00f6ccd31b7030cf345519",
+  "scope": "Failed build emission only; not a verified artifact"
+}

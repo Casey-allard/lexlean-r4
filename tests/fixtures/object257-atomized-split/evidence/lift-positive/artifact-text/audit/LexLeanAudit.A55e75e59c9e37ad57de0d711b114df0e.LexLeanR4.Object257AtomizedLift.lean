@@ -1,0 +1,4 @@
+module
+import LexLeanR4.Object257AtomizedLift
+#print axioms LexLeanR4.Object257AtomizedLift.obj257AtomizedLifted
+#print axioms LexLeanR4.Object257AtomizedLift.obj257AtomizedUnrelatedZero

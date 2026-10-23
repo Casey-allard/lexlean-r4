@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-atomized-split-lift-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T19:42:36.186Z",
+  "ended": "2026-10-23T19:42:36.739Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "49f173f736740318105266e1e16dde023ae304ff9c529c3c8671e861845a9762  /tmp/r4-object257-atomized-split-lift-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}
