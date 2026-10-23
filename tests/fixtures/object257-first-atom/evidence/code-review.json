@@ -1,0 +1,222 @@
+{
+  "schema": "lexlean-r4-first-atom-code-review/v1",
+  "at": "2026-10-23T18:03:52.757Z",
+  "status": "PASS_SOURCE_READINESS_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "internal orchestration_implementation_code_review",
+  "head": "ebe9271055aa1cb2fd122029dd6353ee3ce711b9",
+  "candidateManifest": {
+    "path": "tests/fixtures/object257-first-atom/manifest.json",
+    "bytes": 7030,
+    "sha256": "dc08a9ec63fed7587a2cd6b82fd37ed9527560e887c1698f9da51285197ec2ae"
+  },
+  "pinsVerified": [
+    {
+      "path": "tests/fixtures/object257-first-atom/README.md",
+      "bytes": 4136,
+      "sha256": "2f4ef5c8b676564a9f6ab6a7950ecd3449900231d9f531de14811c3da2998070"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/candidate.json",
+      "bytes": 11074,
+      "sha256": "40079a7181c9b856b8f025306cef0a9c5578bb59a9d97f9a3a43183f84a3d5b7"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/phases/leaf-positive/lexlean.toml",
+      "bytes": 686,
+      "sha256": "077b25f6da239a35dc4cc3acfbc25f3e5c71b0dbec4d852bd2341e2a69e3b2a5"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/phases/state-false/lexlean.toml",
+      "bytes": 694,
+      "sha256": "28727f9455ba03a58c5602fd4edf782b0b3cdcfb38c30518e9147dfa335e475a"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/phases/state-positive/lexlean.toml",
+      "bytes": 687,
+      "sha256": "9566775001b9bee46677e2e6ee301e1ce4dcfb995925efd62bfdab7e8bedede4"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomGoal.lex.tex",
+      "bytes": 12546,
+      "sha256": "a681588324b3c4f629775768ddad58a6bceaef3e2199239bc090bebaa0243911"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+      "bytes": 5627,
+      "sha256": "490eec8b45719c4fabae9bf36e3fe7f9674d71968ca45c07b8cf2e782d048444"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomStateFalseId.lex.tex",
+      "bytes": 8737,
+      "sha256": "38b38ee64915685393f4301c2989a05bbf27246be42f4b92d407a4365ce92f45"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/structural-audit.json",
+      "bytes": 2411,
+      "sha256": "32e75dec7fbe30cc61b65d71e79a60e263e574030fbff7c6282aa7388fcf5c39"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-first-atom-proposal.json",
+      "bytes": 12612,
+      "sha256": "e4ac2bb21801563c28d1d61ff6446bea1f538862c42a73b9bbfb5b0e66334e22"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/first-atom-spec-review.json",
+      "bytes": 9813,
+      "sha256": "e274a762da79fbc562532f3016c317267468b9f7096e674f9318cce0ff5206ce"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/reference/ObjectTrace257Node0Controls.lex.tex",
+      "bytes": 13183,
+      "sha256": "c4b4391ab5df8a4edc2740d073bd6f2c4bf32b75cfc9e1ee40b41f0f8d4a5ad6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/reference/ObjectTrace257Carry0Controls.lex.tex",
+      "bytes": 10107,
+      "sha256": "dbcb11d23e678be756e0f5415de37d03f1e3d67e68465270997ab40bd0c8e495"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/original257/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/phases/terminal-positive/lexlean.toml",
+      "bytes": 695,
+      "sha256": "8a5045bcd6056f705c340d2dec5183d89c0478a541697d1e3f8bfdb7ba0c247f"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "bytes": 10722,
+      "sha256": "037ffbafb67a359f4b28d1bb61494bed3d3b18382cc75da9509db98ba0f0e320"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json",
+      "bytes": 9670,
+      "sha256": "edbacab285290edbad51f57a09c9dd530ba2d7c23547c89cfabd418fa8dcd9ab"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    }
+  ],
+  "findings": [],
+  "checks": {
+    "leaf": "Exact deep equality of original objTrace257Record0 declaration after replacing only its old proof with {kind:reflexivity}; original parameters and empty axioms retained. No Hash0/Wrapper0 proof imports.",
+    "data": "First atom literal is original bytes0..31. Positive consumer uses actual R4.ObjectStore.ObjFoldAtoms with singleton atom list, empty ObjRoot frontier, empty ObjRecord inventory and original ObjLimits. Limits independently match the sole original ObjFoldDigest257 ObjLimits AST and accepted proposal.",
+    "state": "Positive consumer RHS is deep-equal to original retained objTrace257Carry0 RHS: singleton record0 inventory and singleton scale0 frontier. Record0 ID [63,164,31,162,68,35,68,195,38,116,35,81] unchanged.",
+    "goal": "Prop-valued Nat family: zero is exact leaf statement; successor calls unchanged Obj257TerminalContext on both sides with identical empty state/original limits and actual/expected leaf arguments. Named types and imports are correctly qualified.",
+    "proof": "Lifted Nat induction/cases/congruence proof deep-equals previously native-accepted terminal lifted proof after changing only zero Apply theorem to Object257FirstAtomLeaf.objTrace257Record0. Consumer is exactly Apply obj257FirstAtomLifted(1), without extra premises or axioms.",
+    "negative": "Exactly one semantic JSON leaf difference between positive/negative modules: /declarations/1/statement/right/arguments/0/fields/0/value/head/fields/0/value/fields/0/value/head/value changes string63 to64. True leaf, family, lifted proof, consumer LHS and expected frontier are unchanged.",
+    "config": "All three phase configs equal accepted terminal-positive config after normalizing only entrypoints; child_timeout_ms remains300000 and language1.2/Lean4.32.1 unchanged.",
+    "preservation": "All17 original dirty paths independently rehashed against /tmp/r4-ordered-delivery-existing-dirty-20261023.json and matched.",
+    "imports": "Four new modules import only the explicit production definitions, unchanged context and true first-leaf/family dependencies. All32 manifest payload/dependency entries rehashed. No production closure copied or altered by this review."
+  },
+  "launchReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/run-phase.mjs",
+    "bytes": 7165,
+    "sha256": "afc369cd23073d4afa9698243fab43f4f01ebd3c8838c79405372ec9ec23bda3",
+    "status": "READY_FOR_PARENT_CONTROLLED_SINGLE_PHASE_INVOCATIONS",
+    "resolvedFinding": "Earlier mapping could recapture new source/config bytes after preflight without checking the frozen manifest. Parent fixed mapping: frozen manifest SHA and payloads checked, pinned map from manifest.files plus hash-bound candidate.dependencies, every input size/hash checked while constructing expected-inputs, actual guest copies checked against those identities.",
+    "observations": [
+      "Direct official lexlean lock/check/verify invocation only; no substitute proof engine. Fresh exclusive phase output directory and guest stage retain failures rather than overwriting old evidence.",
+      "Existing exact container epoch,4GiB/2CPU/network-none/no mounts, compiler/Lean/Lake/checker hashes, idle, zero memory events and storage are checked before compilation; postcapture independently attempts source/lock/epoch/memory/idle/guest/host checks.",
+      "Host preflight requires20GiB with10GiB estimated additional allowance and10GiB reserve; guest requires11GiBpre/10GiBpost. These are observations/planning checks, not a continuous peak-storage measurement.",
+      "Per-phase CLI check uses configured entrypoint. Genuine lock generated in each new stage. Actual verify process status and parsed result recorded separately. Artifact copy only after exit0 plus success true and constrained verified artifact path.",
+      "Script exit0 is orchestration completion only: verify negative/nonzero is intentionally retained. Parent must inspect real result and stop on unexpected failure before invoking next phase. Script is not an automatic proof acceptance gate.",
+      "No concrete launch blocker remains in reviewed final script. No script execution or native command performed by reviewer."
+    ]
+  },
+  "acceptance": {
+    "sourceReadiness": true,
+    "newLeaf": false,
+    "newConcreteFirstState": false,
+    "original257": false,
+    "fullComposition": false,
+    "Object": false,
+    "PrismPM": false,
+    "Pages": false
+  },
+  "next": "Parent may begin separately gated sequential leaf-positive, intended state-negative and state-positive experiments; retain failures and audit actual emitted statements, observed axioms, kernel replay and complete artifacts independently before any native acceptance.",
+  "limits": [
+    "Actual new native commands all NOT_RUN at review. Definitional conversion and resource cost remain falsifiable.",
+    "Parser/import/leaf-certificate failure, timeout or OOM is not the intended state-negative proof result.",
+    "Source review does not certify original257 digest, later eight atoms, continuation bridge, whole finish, Hash/Object integration or generated Pages.",
+    "Only this small JSON review written; no source/repo/index/SDK/VM/other-lab changes."
+  ],
+  "storage": {
+    "availableBytes": "30054985728",
+    "reviewBudgetBytes": 20480
+  }
+}

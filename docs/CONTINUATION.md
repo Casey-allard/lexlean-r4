@@ -22,6 +22,7 @@ independent reviewers; no external lab or another session owns this work.
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
+| First concrete Object257 atom state | Actual first32-byte leaf and `ObjFoldAtoms [[0,1,...,31]] [] [] originalLimits` singleton state verified. Wrong expected inventory ID rejected at the consumer. | [Actual results](../tests/fixtures/object257-first-atom/RESULTS.md): leaf 66,570 ms; state 48,659 ms, 769 empty-axiom declarations and 12 kernel replays. Local prefix only; continuation bridge remains open. |
 | Production binding and deployment | Missing production SDK/template binding. `just vv`, generated application and Pages remain incomplete. | [Upstream dependencies](UPSTREAM.md), CI observation below. |
 
 The local Object proof experiments can proceed before full Hash acceptance.
@@ -31,24 +32,22 @@ capability follows from these finite proofs.
 
 ## Next executable product sequence
 
-1. **Certify the first concrete state of the original 257-byte fold.** Review
-   the [bounded proposal](continuation/2026-10-23/next-first-atom-proposal.json)
-   and its [internal SPEC approval](continuation/2026-10-23/first-atom-spec-review.json)
-   before authoring. Source review passed; the intended theorem is actual
-   `ObjFoldAtoms [[0,1,...,31]] [] [] originalLimits = ok firstState`. Compute
-   the original Record0 identity through a genuine leaf certificate, reuse the
-   accepted terminal context, and require the actual consumer to reduce staging,
-   carry and the empty-tail fold to the concrete singleton state. The proposed
-   negative changes only the expected inventory ID byte 63 to 64. These new
-   native tests are **NOT_RUN**. Retained literals are expected outputs, not
-   trusted inputs or accepted certificates.
-2. **Connect finite states to the original theorem.** Preserve the original
+1. **Connect the certified first state to the remaining original fold.** The
+   [first-atom fixture](../tests/fixtures/object257-first-atom/RESULTS.md) passed
+   actual leaf and concrete-state verification plus independent native review.
+   The inventory-ID 63-to-64 negative was rejected at Apply1 with the frontier
+   unchanged. Prepare and independently review one bounded continuation bridge
+   from this prefix state to the actual remaining production fold, preserving
+   every success/error case. The bridge is not yet proved. Frozen candidate
+   NOT_RUN text records preparation time; the fixture's RESULTS.md/results.json
+   records the subsequent actual results.
+2. **Complete the connection to the original theorem.** Preserve the original
    input, digest, runtime definitions and empty-axiom policy. Demonstrate a
    supported proof bridge before expanding all thirteen node certificates.
    Direct proof `Cases` on built-in `Result` is unsupported in the inspected
    compiler; do not assume that bridge exists. The accepted Nat-family,
    Induction/Cases/Congruence/Apply pattern establishes the recorded local
-   transitions only. Atomization, earlier transitions, success/error continuation
+   transitions only. Atomization, remaining transitions, success/error continuation
    composition and whole-object SHA still need proofs.
 3. **Finish Hash qualification and Object integration.** Restore the remaining
    HashWire roots and independently inspect actual artifacts and baseline
@@ -218,7 +217,7 @@ These archives preserve old source versions, rejected candidates, negative
 controls, plans and observations. Twenty upstream compiler excerpts are labeled
 historical authority references. They do not install dependencies, revive the
 abandoned harness work or establish new acceptance. Current product development
-continues with the first concrete fold state described above.
+continues with the bounded continuation bridge described above.
 
 This reconciles the enumerated project source/plan locations, not every local
 file. Raw compiler bundles, build/VM caches, compiler checkouts and unrelated

@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-first-atom-leaf-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/Object257FirstAtomLeaf.lex.tex"
+  ],
+  "started": "2026-10-23T18:04:20.045Z",
+  "ended": "2026-10-23T18:05:26.615Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/f99cb5bd10766d0de7af04ba66cc25a1ab710a2fa1767cd5703f94f550d12bdd\"],\"attestation_id\":\"f99cb5bd10766d0de7af04ba66cc25a1ab710a2fa1767cd5703f94f550d12bdd\",\"build_id\":\"4bce15a9f3105d750aae4d7a852184ad7506ae09e809106ab212ccc444872008\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257FirstAtomLeaf\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"c7add16a6c3beaf892cb71aa393bae584200936f8059b3fd650324bbf130203f\",\"source_id\":\"b9841273abfaac8792d082d9212c14e6c4905d9e9c94aa8db0bda10fce3a87bd\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

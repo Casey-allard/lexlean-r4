@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-first-atom-state-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T18:07:57.092Z",
+  "ended": "2026-10-23T18:07:57.945Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomStateFalseId\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"226d0000cfaf98805f4d42160820683fc26460d4e9cbb5835af04212efefe9de\",\"source_id\":\"4429143219c3c45ea446721ad848c48179bb690b1bcdbe3b73a1ca2afc0407fb\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

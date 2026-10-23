@@ -1,0 +1,33 @@
+{
+  "phase": "state-positive",
+  "stage": "/tmp/r4-object257-first-atom-state-positive-owned-20261023",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/57a540c76f1edcfbd4f8f58582f23e54e47ddbf7f4e55733ab09281ff324516e"
+    ],
+    "attestation_id": "57a540c76f1edcfbd4f8f58582f23e54e47ddbf7f4e55733ab09281ff324516e",
+    "build_id": "d6bac9828c4087ca89a7b864d9ba83f3f8a92a2516a12a9e2a4ef17c444828a7",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "Object257FirstAtomGoal",
+      "Object257FirstAtomLeaf",
+      "Object257FirstAtomState",
+      "Object257TerminalContext",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "semantic_id": "5dd81d651dfedac6b25effee99b6b191d166dfa979d63ceaf123ee098ec7aaf8",
+    "source_id": "86f39ad32aaa87187e0462d62eab67842f6183f2ab1591ba9005912cc641759a",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}
