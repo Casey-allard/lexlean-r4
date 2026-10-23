@@ -19,6 +19,7 @@ independent reviewers; no external lab or another session owns this work.
 | Integrated development graph | Nineteen registered components; last recorded combined graph has 11,150 controls, 116 modules, 13,472 empty-axiom declaration audits and 116 kernel replays. Not a fresh whole-workspace test claim. | [Verification](VERIFICATION.md), [codebook](CODEBOOK-WORDS.md), model records and `CONFORMANCE.md` |
 | HashWire | Positive baseline for 78 roots; restoration accepted 16/78; mutation qualification 2/7. Incomplete. | [HashWire](HASH-WIRE.md), [checkpoint](../tests/fixtures/hash-wire/finite-checkpoint.json). Direct10 starts the remaining 62. |
 | Object implementation | Five canonical modules reconciled to the reviewed development runtime;20 of403 Object controls independently verified through the existing Store root. Component integration and qualification remain incomplete. | [Store integration results](continuation/2026-10-23/object-store-integration/RESULTS.md), [original draft snapshot](continuation/2026-10-23/pending-manifest.json). The other383 Object controls,20 separate Blake3 controls and required semantic negatives remain open. |
+| Object Read33 integration | Three metadata edits preserve all33 declaration ASTs. Official source admission passed11 modules, but target Lean verification timed out at300009ms under the unchanged300000ms limit. No Read control accepted by this run. | [Read timeout results](continuation/2026-10-23/object-read-integration/RESULTS.md). Zero recorded memory events, no verified artifact; original compatibility rejection and failed emitted source preserved. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -47,17 +48,38 @@ three-literal Store control metadata migration passed independent source review.
 The original control produced the intended language-version admission rejection;
 the migrated root then verified all20 controls with unchanged statement/proof ASTs.
 This compatibility negative is not a semantic defect test. The [actual results](continuation/2026-10-23/object-store-integration/RESULTS.md)
-record823 empty-axiom declarations and11 kernel replays. Next review and migrate
-the remaining control roots, starting with Read33; retain the whole257 obligation
-and required Hash qualification. Do not repeat the known whole257 reflexivity
+record823 empty-axiom declarations and11 kernel replays. Read33 source migration
+is now reviewed, but its aggregate verification timed out as recorded below;
+retain the whole257 obligation and required Hash qualification. Do not repeat the known whole257 reflexivity
 timeout/OOM configuration. The earlier source-only inventory remains historical.
 The [remaining-controls proposal](continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json)
-pins the minimal metadata migrations and proposes Read33 followed by Codec311;
-both are NOT_RUN. Construction39 still contains the known whole257 reflexivity
+pins the minimal metadata migrations and proposed Read33 followed by Codec311.
+Codec311 remains NOT_RUN; Read33 now has the preserved timeout below.
+Construction39 still contains the known whole257 reflexivity
 obligations and must not be replayed unchanged as an equivalent limit experiment.
 The separate Blake3 primitive suite imports a missing canonical
 `R4.Blake3Primitives` module; its implementation is required before that suite
 can establish source admission. Header migration alone cannot resolve it.
+
+Read33 has now been attempted: its exact three metadata edits passed independent
+source review and actual source admission, but the complete root timed out in
+Lean. The earlier NOT_RUN proposal is historical, not the current Read result.
+The [Read failure review](continuation/2026-10-23/object-read-integration/positive-failure-review.json)
+confirms no verified artifact, zero recorded memory events, unchanged identities
+and successful postchecks. Do not rerun the same aggregate or raise its limits.
+Seven original draft files now have intentional integration changes; ten remain
+unchanged, and all seventeen original snapshots remain preserved. This counts
+source integration, not seven completed component obligations. Only Store20 is
+accepted in this sequence. The next concrete step is diagnosis of the Read timeout;
+all33 Read declarations and their eventual integration remain mandatory.
+The [source investigation](continuation/2026-10-23/object-read-integration/timeout-investigation.json)
+and [independent specification review](continuation/2026-10-23/object-read-integration/timeout-investigation-spec-review.json)
+select only the first diagnostic: isolate exact ordinal26, `objProtocolWholeBytes`,
+with the same complete declaration AST, module, path, imports, runtime and limits.
+Keep the canonical full33 source unchanged. Candidate extraction and invocation
+still require independent review. A singleton result cannot establish Read33
+coverage or aggregate acceptance; no automatic33-variant expansion is authorized.
+All proposed diagnostic native tests remain NOT_RUN.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)

@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read33-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T21:19:52.716Z",
+  "ended": "2026-10-23T21:19:54.157Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadControls\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"1de2f6bdabd69c6df106ffcf325961dc0d5242f22bd5fa4f0e1cc95661162170\",\"source_id\":\"4e7e5be3dea588b16bcfaddf37928ad1ede2fb3586e8505c6ce64d6a4feda314\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

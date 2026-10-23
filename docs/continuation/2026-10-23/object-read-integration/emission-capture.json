@@ -1,0 +1,15 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cat",
+    "/tmp/r4-object-read33-positive-owned-20261023/.lexlean/build/794951d6b5c3713d592e4c0e0793117a904cb5d1c49407e0e3cc55626e0cbd05/modules/LexLeanR4/ObjectReadControls.lean"
+  ],
+  "started": "2026-10-23T21:26:06.041Z",
+  "ended": "2026-10-23T21:26:06.771Z",
+  "status": 0,
+  "stderr": "",
+  "bytes": 68871,
+  "sha256": "ba9f597d99863f6374c7024c1b6050f7d57bdca53c931b0037dd0ef0205d2167",
+  "artifactAcceptance": false
+}

@@ -1,0 +1,66 @@
+{
+  "schema": "lexlean-r4-read33-invocation-source-review/v1",
+  "at": "2026-10-23T21:17:24.755Z",
+  "status": "PASS_FROZEN_READ33_INVOCATION_SOURCE_ONLY",
+  "findings": [],
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/invocation-manifest.json",
+    "bytes": 1613,
+    "sha256": "ada63136172a45be8659da5af803f3785beb614ecbb87461d16ac9beb540eee3"
+  },
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/run-read33.mjs",
+    "bytes": 7501,
+    "sha256": "c3e1a1e968671f2f803121cdcb384baf6b49cf3a0feebaf60792347490a1af78"
+  },
+  "configuration": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/lexlean.toml",
+    "bytes": 682,
+    "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+  },
+  "plan": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/read33-plan.json",
+    "bytes": 19549,
+    "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/read33-spec-review.json",
+    "bytes": 7821,
+    "sha256": "452c42cf12d1bb6c978902dc89a303bda1b99ccd0128cf4a06e1e5163ce45f70"
+  },
+  "priorInvocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/../object-draft-integration/run-store20.mjs",
+    "bytes": 7164,
+    "sha256": "3800e2359d35f23e3583f6859555ce0eb6887ba1be142200d1bd8b20d5faec93"
+  },
+  "checks": {
+    "all6ManifestPayloadsRehashed": true,
+    "planAndSpecCopiesByteExact": true,
+    "configByteExactEmbeddedPlanOnlyEntrypointChanged": true,
+    "negative15InputsRehashed": true,
+    "positive15InputsProspectiveControlReconstructed": true,
+    "uniqueConfinedDestinationPaths": true,
+    "canonicalRead33StillOriginal": true,
+    "sixMergedSourcesAndTenOtherDraftsUnchanged": true,
+    "unchangedCommandResourceEpochIdleMemoryCapacitySourceHelpers": true,
+    "unchangedCaptureAndProofBranchExceptRoot": true,
+    "unchangedFinallyExceptIndependentToolsAfter": true,
+    "toolsBeforeAfterExactFourHashGuard": true,
+    "nodeSyntaxOnlyPass": true
+  },
+  "reviewedChanges": [
+    "Fixture proposal changes to exact hashed Read33 plan and its named negative/positive15-input arrays; config path resolves to the adjacent exact-plan config.",
+    "Fresh read33 stage prefix and output directories; negative selects preserved original snapshot and never invokes verify.",
+    "Positive targets existing ObjectReadControls only after successful genuine lock and sourcecheck; parent still must enforce accepted negative and actual written source review.",
+    "Tools identity factored into shared four-row exact hash guard, called before stage creation and independently in finally after success or failure.",
+    "Host20GiB launch/10GiB peak estimate+10GiB reserve, guest11GiBpre/10GiBpost, unchanged300000ms/4GiB2CPU epoch and independent postcaptures retained."
+  ],
+  "boundaries": [
+    "This accepts only frozen invocation/config source readiness. Negative result still must show attributable actual version mismatch and clean postconditions. Launcher0 is not negative acceptance.",
+    "Canonical Read33 must remain original until actual negative independently accepted. Later3metadata edits require written-source review before positive.",
+    "No overlapping SDK work or automatic retry/limit increase. Fresh actual source/tool/resource checks remain required at each parent-controlled phase.",
+    "Positive proof acceptance requires all33 actual declarations, axiom audits/kernel replays, full artifact identities and independent review; sourcecheck alone is insufficient.",
+    "No general runner certification or acceptance of remaining350Object/20Blake3,semanticdefects,full257/Hash/PrismPM/Pages."
+  ],
+  "scope": "Read-only comparison and node --check syntax parsing only; no module execution, SDK/native/VM/repository/index changes. Only this review JSON written."
+}
