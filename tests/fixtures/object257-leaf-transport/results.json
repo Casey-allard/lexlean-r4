@@ -72,6 +72,24 @@
       "diagnostic": null,
       "attestationId": "41eca104bf87957b7aaf6f2d6b9d071c0fe2be9a530e116765ccea7725c1361c",
       "elapsedMs": 114399
+    },
+    {
+      "phase": "terminal-false",
+      "root": "tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 50841
+    },
+    {
+      "phase": "terminal-positive",
+      "root": "tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "6d1a21acea9f870e5dfe05ae1332c4929a5790f53c02d152f7fcc2b25c94f651",
+      "elapsedMs": 23010
     }
   ],
   "reviewed": {
@@ -88,6 +106,11 @@
       "emptyAxiomDeclarations": 769
     },
     "inventoryStaging": {
+      "replays": 11,
+      "emptyAxiomDeclarations": 769,
+      "artifactFiles": 115
+    },
+    "terminalFoldTransition": {
       "replays": 11,
       "emptyAxiomDeclarations": 769,
       "artifactFiles": 115
@@ -111,5 +134,17 @@
     "correction": "Reviewed fresh attempt2 uses cp -R --no-preserve=ownership followed by all18input hash comparisons",
     "preserved": "evidence/staging-setup-failure.json",
     "review": "evidence/staging-setup-failure-review.json"
+  },
+  "terminalCandidateManifest": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c",
+  "terminalEvidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition",
+  "terminalAllocationObservation": {
+    "preflightAuxiliaryExit": 1,
+    "reason": "Actual datadisk measured; guessed extra diffdisk path absent. Correct disk path measured afterward only.",
+    "capacityGates": "Independent host and guest capacity reserves passed.",
+    "preserved": [
+      "evidence/terminal-false-allocated-before.json",
+      "evidence/terminal-positive-allocated-before.json",
+      "evidence/terminal-fold-allocation-path-correction.json"
+    ]
   }
 }

@@ -31,3 +31,13 @@ The staging-positive phase carries the same accepted leaf equality through actua
 The real compiler accepted this proof. Independent review audited 769 declarations with empty observed axioms and 11 recorded kernel replays. The staging-false phase changes only the base Apply target and was rejected for the intended type mismatch. The first positive setup attempt failed while copying file ownership, before compiler invocation; the preserved receipt and review distinguish that setup failure from proof results. A fresh copy with identical18source/configuration hashes succeeded.
 
 Select phases/staging-positive or phases/staging-false for these two additional controls; their roots and exact outcomes are in results.json. The default project remains parent transport. The inventory-staging theorem is local: it does not establish the full carry/fold sequence or the original whole-257 digest. The repository relocation remains byte-verified rather than rerun.
+
+## Actual terminal fold transition
+
+The terminal-positive phase proves an equation with actual `ObjFoldAtoms [[0]] frontier inventory limits` on the left. On the right, the certified leaf passes through `ObjStageRecord`, then actual `ObjCarryTriples 38` with root scale 0, then `ObjFoldAtoms []` using the carried frontier and inventory. The same bound leaf is staged and supplies the carry ID; errors propagate unchanged. Incoming frontier, inventory and limits remain arbitrary.
+
+The real compiler accepted the consumer and lifted proof in 23,010 ms. Internal independent review checked 769 declarations with empty observed axioms and 11 recorded kernel replays. The terminal-false phase changes the base Apply to unrelated `0 = 0` and fails with the intended type mismatch. Select phases/terminal-positive or phases/terminal-false; the default project remains parent transport.
+
+The auxiliary allocation probes captured the data disk but returned exit 1 for an absent guessed system-disk path. The failed probes and corrected postrun observation are preserved; the latter is not a retroactive preflight measurement. Independent host and guest capacity checks passed.
+
+This establishes one real terminal transition, not the earlier transitions, concrete incoming state, atomization, whole-object SHA or original 257-byte digest theorem. The runtime definitions and expected digest are unchanged. Repository relocation is byte-verified, not rerun.

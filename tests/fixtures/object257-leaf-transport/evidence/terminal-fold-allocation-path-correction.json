@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-23T17:07:41.763Z",
+  "args": [
+    "-sk",
+    "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+    "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+  ],
+  "status": 0,
+  "stdout": "25588912\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469400\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+  "stderr": "",
+  "availableBytes": "32623304704",
+  "limitation": "Original allocated-before captured actual datadisk but guessed absent diffdisk path caused auxiliary du exit1. Correct system disk path discovered after proof. This is a postrun allocation observation, not retroactive preflight measurement."
+}

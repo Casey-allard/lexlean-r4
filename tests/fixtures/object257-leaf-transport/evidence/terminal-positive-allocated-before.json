@@ -1,0 +1,5 @@
+{
+  "status": 1,
+  "stdout": "25583084\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n",
+  "stderr": "du: /Users/casey.allard/.colima/_lima/colima-lexlean-r4/diffdisk: No such file or directory\n"
+}

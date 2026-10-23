@@ -1,0 +1,166 @@
+{
+  "at": "2026-10-23T17:09:01.291Z",
+  "status": "PASS_ACTUAL_TERMINAL_FOLD_TRANSITION_AND_INTENDED_NEGATIVE_WITH_AUXILIARY_ALLOCATION_CAVEAT",
+  "candidateManifest": {
+    "path": "/tmp/r4-object257-fold-transition-candidate-20261023/manifest.json",
+    "bytes": 10053,
+    "sha256": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c"
+  },
+  "candidateCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/code-review.json",
+    "bytes": 5339,
+    "sha256": "05544bcd078d540095c25ab373068a1cfc0945cbec20532ac6b0f6aabea3fd10"
+  },
+  "phases": [
+    {
+      "phase": "terminal-false",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/verify.json",
+        "bytes": 1316,
+        "sha256": "d5ba14ee7ce0ae0ab786332d9048eadad1c90166bb2369f51e7f339ae86f6a69"
+      },
+      "wallMs": 50841,
+      "sources": 18,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/source-before.json",
+        "bytes": 4357,
+        "sha256": "6340c54425a120968cdea2c6d52a559d35b1a6c33eea8f6e3febaf22cc30fd9a"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/source-after.json",
+        "bytes": 4357,
+        "sha256": "01986df2ab9b82255ee4c5ffab20476750f6bc8c955d3b5a4f4e81d0eee892ba"
+      },
+      "lockSha256": "3da8bb1f60468b4048eb290162018f853b3b5857d025a5aa5acc663959aeab17",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/idle-after.json",
+        "bytes": 451,
+        "sha256": "a49ef32e5a2caccb4fcf7633b07e15b0af2727e8458067d951963eff506aa45d"
+      },
+      "status": "PASS_INTENDED_UNRELATED_BASE_REJECTION"
+    },
+    {
+      "phase": "terminal-positive",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/verify.json",
+        "bytes": 1242,
+        "sha256": "562c10809050102f8aa9af9a4746742d765da6e0513777704719ecddd784a70c"
+      },
+      "wallMs": 23010,
+      "sources": 18,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/source-before.json",
+        "bytes": 4465,
+        "sha256": "5f57700e83168c56a007f93d91090bcd5b21f836293b900f2583e7c1b060eb56"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/source-after.json",
+        "bytes": 4465,
+        "sha256": "a0ec38008ea5fb12b5b164e567d0a96be2f14155532995a9c1141eaef6916d39"
+      },
+      "lockSha256": "698df801b73449348e5156410c2d2aacd9e5279eb404935d14c591c663718c57",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/idle-after.json",
+        "bytes": 451,
+        "sha256": "a529d9a0f224ec20faa6d0038cb265694e5e8b33cedc058e55a47cbbd95b485a"
+      },
+      "status": "PASS_ACTUAL_ARTIFACT_AUDIT",
+      "attestation": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/attestation.json",
+        "bytes": 161063,
+        "sha256": "5831adacdd682425e4d5c8208ad71f6349bddc4292a97a46c6e34aa9f3ab1117"
+      },
+      "buildManifest": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/build-manifest.json",
+        "bytes": 13470,
+        "sha256": "ab9fe9bb70be97ecf44a522768d9d31e48a86f5203418854a00607b55fee9962"
+      },
+      "identities": {
+        "attestation_id": "6d1a21acea9f870e5dfe05ae1332c4929a5790f53c02d152f7fcc2b25c94f651",
+        "source_id": "97b06d50cb783f51e1146f2c804d7c68ed18ba3b28ab15e060f4a1908b84733e",
+        "semantic_id": "71e3b8e400a484f713ffd50fd65f6b952ebfa8a5ef16f3be1ab77540b03cb233",
+        "build_id": "5a25e406bb17973c244bad3fb75aea7206e5dd21f500855ae861226e6a040f10"
+      },
+      "modules": 11,
+      "declarations": 769,
+      "recordedKernelReplays": 11,
+      "processRecords": 34,
+      "outputs": 55,
+      "oleans": 11,
+      "artifactFiles": 115,
+      "artifactCensusSha256": "3166bc05b9dc11d389f4dd376e3912b798d32100ab2e458927b12168a0f67a67",
+      "emittedProof": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257TerminalFoldTransition.lean",
+        "bytes": 2908,
+        "sha256": "f02521aa53fbc67e8fbf2079e67bfa7a0fd9d99040a29d5cd9974ea104d19fc5"
+      }
+    }
+  ],
+  "proofAudit": {
+    "emittedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352"
+    },
+    "emittedLeaf": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257LeafCertificate.lean",
+      "bytes": 957,
+      "sha256": "5bf1011d4a6eda325f0fbc22b78965c14942db95f8b5775327064fe474a937ac"
+    },
+    "leafAndProductionStoreEmissionByteIdenticalToPriorVerifiedArtifacts": true,
+    "context": "Actual emitted context preserves three typed errors, stages the same leaf whose id enters scale0 frontier, calls actual ObjCarryTriples38 with staged inventory and limits, and actual ObjFoldAtoms[] with carried fields.",
+    "consumer": "Actual emitted left side is production ObjFoldAtoms[[0]] frontier inventory limits; RHS retains certified-leaf staging, real depth38 carry and terminal production fold. This is stronger than a helper-only transport equation.",
+    "proof": "Actual emitted reducible Prop goal, induction count, zero exact accepted leaf, successor cases prior with congr1 in both branches; production consumer exact lifted theorem at1.",
+    "allPoliciesNoneObservedAxiomsEmpty": true,
+    "allRecordedKernelReplaysAndProcessesExitZero": true,
+    "exactArtifactCensus": true,
+    "toolHashesMatchEstablishedSDK": true
+  },
+  "negative": "Sourcecheck passed; verify exited1 withLLV7002 on obj257TerminalUnrelatedZero:0=0 where Obj257TerminalGoal frontier inventory limits0 was required. Exact source AST differs only in the base Apply reference; no resource/setup error counted as RED.",
+  "storageObservation": {
+    "failedAuxiliaryPreflight": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/allocated-before.json",
+        "bytes": 222,
+        "sha256": "e7aaf095537bfc525563068ed3e02fe0f809bc1bfebe22e4da760e31f61467bb"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/allocated-before.json",
+        "bytes": 222,
+        "sha256": "bd0263f21b8e5ece89b23fb5c78f57766637c5aeba48d5e7fdaedfa5486e6710"
+      }
+    ],
+    "correctedPostrunObservation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/allocation-path-correction.json",
+      "bytes": 693,
+      "sha256": "6d9bfe560f5b97249fddf22aab9436bba8b093e946cda50a186d6f10258db5eb"
+    },
+    "classification": "Both allocated-before du commands returned1 because an auxiliary guessed diffdisk path was absent; actual datadisk allocation was recorded. Correct disk path was measured after run. This is an auxiliary allocation-observation failure, not proof failure or a complete successful preflight allocation measurement.",
+    "capacityGates": "Independent host-before capacity minus10GiB projected additional use retained10GiB reserve; guest pre>=11GiB and host/guest post>=10GiB all passed. No retroactive replacement of failed preflight allocation evidence."
+  },
+  "acceptance": {
+    "actualTerminalFoldTransition": true,
+    "intendedUnrelatedBaseRejected": true,
+    "original257Accepted": false,
+    "precedingTransitionsOrConcreteIncomingStateAccepted": false,
+    "fullObjectAccepted": false,
+    "hashDependencyAccepted": false,
+    "PrismPMAccepted": false,
+    "PagesAccepted": false
+  },
+  "limits": [
+    "Reviewer audited actual official verification artifacts and recorded kernel replay without invoking SDK/compiler or a fresh replay.",
+    "All18source/config inputs per phase, genuine locks, unchanged epoch, zero memory events, idle and storage reserve receipts passed independent audit.",
+    "Positive bundle includes11modules,769declarations with empty observed axioms,34successful process records including11kernel replays,55outputs,11oleans and exact115file census.",
+    "Terminal proof is parameterized by arbitrary incoming frontier/inventory/limits. Earlier eight transitions, atomization bridge, concrete incoming state, final whole-object SHA and original257 equality remain open.",
+    "Recorded23010ms positive wall time is this observation only; no controlled performance improvement claim.",
+    "No source/repository/VM/guest/process/other-lab mutation by reviewer."
+  ],
+  "storageFreeBytes": "31945175040"
+}

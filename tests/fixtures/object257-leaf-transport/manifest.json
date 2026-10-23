@@ -267,14 +267,14 @@
     },
     {
       "path": "results.json",
-      "bytes": 3930,
-      "sha256": "7a628f9c2b2396a1f2f19833a354fe0b6c083919f673ed05cd14a185d891644a",
+      "bytes": 5311,
+      "sha256": "17eb2933736a65665563ef8ef95474caf6ce8d3ec6e4c08c2762db2634377a5b",
       "origin": "updated scoped inventory-staging proof documentation"
     },
     {
       "path": "README.md",
-      "bytes": 4139,
-      "sha256": "8dfec323992901c71a0b87e6068136dc31e09ab86bf3278438c65489ec610eb1",
+      "bytes": 5589,
+      "sha256": "6d39faf598875f6bfb022031287daec89b9c987b70314e9e651caac56733f659",
       "origin": "updated scoped inventory-staging proof documentation"
     },
     {
@@ -372,6 +372,114 @@
       "bytes": 9021,
       "sha256": "c53525a009859e41c87d17ff772598dadbdb2d5c308f4b47fbf7aa077c247496",
       "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/native-review.json"
+    },
+    {
+      "path": "evidence/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257TerminalContext.lean"
+    },
+    {
+      "path": "evidence/Object257TerminalFoldTransition.lean",
+      "bytes": 2908,
+      "sha256": "f02521aa53fbc67e8fbf2079e67bfa7a0fd9d99040a29d5cd9974ea104d19fc5",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257TerminalFoldTransition.lean"
+    },
+    {
+      "path": "evidence/terminal-false-allocated-before.json",
+      "bytes": 222,
+      "sha256": "e7aaf095537bfc525563068ed3e02fe0f809bc1bfebe22e4da760e31f61467bb",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/allocated-before.json"
+    },
+    {
+      "path": "evidence/terminal-false-verify.json",
+      "bytes": 1316,
+      "sha256": "d5ba14ee7ce0ae0ab786332d9048eadad1c90166bb2369f51e7f339ae86f6a69",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/verify.json"
+    },
+    {
+      "path": "evidence/terminal-fold-allocation-path-correction.json",
+      "bytes": 693,
+      "sha256": "6d9bfe560f5b97249fddf22aab9436bba8b093e946cda50a186d6f10258db5eb",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/allocation-path-correction.json"
+    },
+    {
+      "path": "evidence/terminal-fold-candidate-manifest.json",
+      "bytes": 10053,
+      "sha256": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c",
+      "origin": "/tmp/r4-object257-fold-transition-candidate-20261023/manifest.json"
+    },
+    {
+      "path": "evidence/terminal-fold-code-review.json",
+      "bytes": 5339,
+      "sha256": "05544bcd078d540095c25ab373068a1cfc0945cbec20532ac6b0f6aabea3fd10",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/code-review.json"
+    },
+    {
+      "path": "evidence/terminal-fold-native-review.json",
+      "bytes": 9670,
+      "sha256": "edbacab285290edbad51f57a09c9dd530ba2d7c23547c89cfabd418fa8dcd9ab",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/native-review.json"
+    },
+    {
+      "path": "evidence/terminal-fold-spec-review.json",
+      "bytes": 9404,
+      "sha256": "a12ba72d80f5f4f7a6e2b072b5dfbf59d6cc741d9a8b37d6fada5ccbad110aa2",
+      "origin": "/tmp/r4-object257-fold-transition-spec-review-20261023.json"
+    },
+    {
+      "path": "evidence/terminal-positive-allocated-before.json",
+      "bytes": 222,
+      "sha256": "bd0263f21b8e5ece89b23fb5c78f57766637c5aeba48d5e7fdaedfa5486e6710",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/allocated-before.json"
+    },
+    {
+      "path": "evidence/terminal-positive-verify.json",
+      "bytes": 1242,
+      "sha256": "562c10809050102f8aa9af9a4746742d765da6e0513777704719ecddd784a70c",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/verify.json"
+    },
+    {
+      "path": "phases/terminal-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "3da8bb1f60468b4048eb290162018f853b3b5857d025a5aa5acc663959aeab17",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-false/lock-bytes.json#stdout"
+    },
+    {
+      "path": "phases/terminal-false/lexlean.toml",
+      "bytes": 704,
+      "sha256": "98fdcafeabcd7c26527e2e9ba0d9719c925da08d60022d938d5152e1ab0555e3",
+      "origin": "/tmp/r4-object257-fold-transition-candidate-20261023/configs/terminal-false/lexlean.toml"
+    },
+    {
+      "path": "phases/terminal-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "698df801b73449348e5156410c2d2aacd9e5279eb404935d14c591c663718c57",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/lock-bytes.json#stdout"
+    },
+    {
+      "path": "phases/terminal-positive/lexlean.toml",
+      "bytes": 695,
+      "sha256": "8a5045bcd6056f705c340d2dec5183d89c0478a541697d1e3f8bfdb7ba0c247f",
+      "origin": "/tmp/r4-object257-fold-transition-candidate-20261023/configs/terminal-positive/lexlean.toml"
+    },
+    {
+      "path": "project/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c",
+      "origin": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalContext.lex.tex"
+    },
+    {
+      "path": "project/tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "bytes": 10722,
+      "sha256": "037ffbafb67a359f4b28d1bb61494bed3d3b18382cc75da9509db98ba0f0e320",
+      "origin": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalFoldTransition.lex.tex"
+    },
+    {
+      "path": "project/tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex",
+      "bytes": 10703,
+      "sha256": "5dd5aee68580258bcb7e5d5f5fa555621e26f474d9fb53adb60b9229a58d8420",
+      "origin": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex"
     }
   ]
 }
