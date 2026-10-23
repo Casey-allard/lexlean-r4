@@ -1,0 +1,38 @@
+{
+  "phase": "accounting-false",
+  "stage": "/tmp/r4-object-read-parent49-accounting-accounting-false-owned-20261023",
+  "verifyStatus": 1,
+  "result": {
+    "artifacts": [],
+    "command": "verify",
+    "diagnostics": [
+      {
+        "causes": [],
+        "code": "LLV7002",
+        "help": [],
+        "labels": [],
+        "message": "Lean rejected `LexLeanR4.ObjectReadParent49AccountingState` (error): Tactic `rfl` failed: The left-hand side\n  match\n    R4.ObjectRead.ObjMarkVisit { output := [], visits := 0, wireBytes := 0, seen := [] }\n      { objectBytes := 16777216, records := 1000000, recordBytes := 67108864, returnedBytes := 16777216,\n        visits := 1000000 } with\n  | Except.error failure => Except.error failure\n  | Except.ok counted =>\n    R4.ObjectRead.ObjAccountRecord counted\n      { id := { bytes := [128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }, scale := 1,\n        payload :=\n          [204, 224, 130, 100, 35, 209, 207, 137, 18, 167, 134, 61, 229, 238, 245, 54, 216, 221, 107, 40, 188, 50, 60,\n            161, 125, 221, 203, 109, 110, 224, 251, 215, 105, 78, 221, 7] }\nis not definitionally equal to the right-hand side\n  Except.ok\n    { output := [], visits := 1, wireBytes := 50,\n      seen := [{ bytes := [128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }] }\n⊢ (match\n      R4.ObjectRead.ObjMarkVisit { output := [], visits := 0, wireBytes := 0, seen := [] }\n        { objectBytes := 16777216, records := 1000000, recordBytes := 67108864, returnedBytes := 16777216,\n          visits := 1000000 } with\n    | Except.error failure => Except.error failure\n    | Except.ok counted =>\n      R4.ObjectRead.ObjAccountRecord counted\n        { id := { bytes := [128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }, scale := 1,\n          payload :=\n            [204, 224, 130, 100, 35, 209, 207, 137, 18, 167, 134, 61, 229, 238, 245, 54, 216, 221, 107, 40, 188, 50, 60,\n              161, 125, 221, 203, 109, 110, 224, 251, 215, 105, 78, 221, 7] }) =\n    Except.ok\n      { output := [], visits := 1, wireBytes := 50,\n        seen := [{ bytes := [128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }] }",
+        "notes": [
+          {
+            "message": "generated location: $STAGING/lean-src/LexLeanR4/ObjectReadParent49AccountingState.lean:12:2"
+          }
+        ],
+        "primary": {
+          "byte_end": 6657,
+          "byte_start": 253,
+          "column_end": 6436,
+          "column_start": 32,
+          "line_end": 8,
+          "line_start": 8,
+          "path": "tests/lexlean/ObjectReadParent49AccountingState.lex.tex"
+        },
+        "severity": "error",
+        "spec": "lexlean/diagnostic/1"
+      }
+    ],
+    "exit_code": 1,
+    "modules": [],
+    "spec": "lexlean/command-result/1",
+    "success": false
+  }
+}

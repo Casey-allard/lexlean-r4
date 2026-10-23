@@ -1,0 +1,5 @@
+{
+  "status": "PRESERVATION_VALIDATOR_PATH_ERROR_BEFORE_ANY_WRITES",
+  "error": "ENOENT: fixture prefix was prepended twice to repository-relative destination paths during custody verification",
+  "effect": "No results/review/readme writes occurred; existing bytes unchanged. Corrected resolution explicitly distinguishes tests/ repository-relative paths from fixture-relative paths. Not a native failure or acceptance result."
+}

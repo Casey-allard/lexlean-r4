@@ -1,0 +1,100 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-source-audit/v1",
+  "status": "SOURCE_ONLY_PASS_NATIVE_NOT_RUN",
+  "sourcePins": {
+    "runtimeRead": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "runtimeCodec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    "originalRead33": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "acceptedTransition": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "bytes": 21599,
+      "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+    },
+    "acceptedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "bytes": 97645,
+      "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+    },
+    "acceptedReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/positive-native-review.json",
+      "bytes": 10701,
+      "sha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c"
+    },
+    "acceptedAttestation": "8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943"
+  },
+  "onlyNegativeDelta": {
+    "path": "/declarations/0/statement/right/arguments/0/fields/2/value/value",
+    "from": "49",
+    "to": "50"
+  },
+  "accountingStatement": {
+    "insertionOrderSha256": "41d4de765172d39bb3b08b04c1ab53855bb1e09875803855d436850fd183c49c",
+    "canonicalSha256": "1c929bbb7980807e3723005ba77b4901c3db33bb1b2b3556b4ac16d02b54382b"
+  },
+  "consumerStatement": {
+    "insertionOrderSha256": "bd592b416eb42c511362b084d291f9e581144d09bb90ec5d07f416c85db42c46",
+    "canonicalSha256": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789"
+  },
+  "state": {
+    "insertionOrderSha256": "e33749267459b2b5590d7c5747e55e01ab420a011b60e47009ab0a3081d06d43",
+    "canonicalSha256": "8d2b1342cf324189f6fb76a5cfdaa15667d41b4d9f323b99e67c968f3ebb3c37"
+  },
+  "continuation": {
+    "insertionOrderSha256": "13c904783cb95233e0b3ffe3ef344404f4be1c9f4a4101f745f4ed45f0893ea3",
+    "canonicalSha256": "be5beda90590b2418c856767aac68ff4dff646dc960e5a38bed4b7006160aa5d",
+    "accountingSuccessPath": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body",
+    "substitutions": [
+      "decoded -> accepted original parent record",
+      "marked -> proposed concrete S49"
+    ],
+    "childCalls": [
+      {
+        "path": "/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body",
+        "canonicalSha256": "eefc5f5797708543444db92d74b489a9f3c4dfe890d9be4c8bc9a7e9d3362329"
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "canonicalSha256": "064a1a104d2c6a1d9b864e9a75185ac39e86ab01467e281d5cddf372332772a1"
+      },
+      {
+        "path": "/branches/1/body/scrutinee",
+        "canonicalSha256": "14ce41b1e262b194dc2e7417372c31420ddabc93d86324bd44c6e4ba8c00010a"
+      }
+    ]
+  },
+  "checks": {
+    "wholeNegativeDifferenceExactlyOneNatLiteral": true,
+    "consumerSameInBothPhases": true,
+    "fullOriginalConsumerLeftUnchanged": true,
+    "allThreeChildrenAndErrorsOffsetsLimitsPreserved": true,
+    "emptyAxioms": true,
+    "configOnlyEntrypointChanged": true,
+    "canonicalSemanticJSON": true,
+    "both23InputsVerified": true,
+    "certificateImportedIntoMandatoryConsumer": true,
+    "consumerAppliesAcceptedVisitNotAccountingTheorem": true
+  },
+  "storage": {
+    "availableBytesBeforeWrite": "30772494336",
+    "maximumAdditionalBytes": 1048576,
+    "reserveBytes": 10737418240
+  },
+  "native": {
+    "sourcecheck": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positive": "NOT_RUN"
+  },
+  "boundary": "Native conversion cost unknown; source structure is not proof acceptance. No runtime/limit/tool/productionlock changes."
+}

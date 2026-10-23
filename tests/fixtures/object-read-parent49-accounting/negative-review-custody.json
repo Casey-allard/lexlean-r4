@@ -1,0 +1,24 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-negative-review-custody/v1",
+  "status": "ACCEPTED_INTENDED_NEGATIVE_ONLY",
+  "copy": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/negative-native-review.json",
+      "bytes": 18744,
+      "sha256": "071f1011fdfac3ea141b40a100135967729f495781da1a322b1a58a4d491e998"
+    },
+    "destination": {
+      "path": "evidence/negative-native-review.json",
+      "bytes": 18744,
+      "sha256": "071f1011fdfac3ea141b40a100135967729f495781da1a322b1a58a4d491e998"
+    }
+  },
+  "historicalRawCustody": {
+    "path": "negative-raw-custody.json",
+    "sha256": "195de4aceece8fafd94e1bab817afe1a73449c2b8c7e727a0e6007a12cdaf74f",
+    "preservedUnchanged": true
+  },
+  "scope": "Independent review accepts the intended false accounting-state rejection only. Sourcecheck19 passed; verify1 rejected expected wireBytes50 instead of49 in 10533ms. No verified positive artifact or full consumer acceptance follows from this negative.",
+  "positiveStatus": "RUNNING_NOT_ACCEPTED; no positive outputs read or copied",
+  "readmePolicy": "Mutable README excluded from immutable custody"
+}

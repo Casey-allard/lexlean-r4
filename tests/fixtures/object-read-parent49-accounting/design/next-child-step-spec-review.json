@@ -1,0 +1,110 @@
+{
+  "schema": "lexlean-r4-parent49-concrete-child-entry-spec-review/v1",
+  "status": "PASS_BOUNDED_DESIGN_WITH_EXPLICIT_NATIVE_ACCEPTANCE_REQUIREMENTS",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T22:54:33.319Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/next-child-step-proposal.json",
+    "bytes": 13452,
+    "sha256": "216bfc4ce59744958bdd50d8721015786aed5bb53a1fcd58cadfc48ac171cc76"
+  },
+  "scope": "Source-only review of one concrete parent-accounting certificate and mandatory actual production visitor-to-child-continuation equation. No candidate source or native result produced.",
+  "sourcePins": {
+    "runtimeRead": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "runtimeCodec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    "originalRead33": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "acceptedTransition": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "bytes": 21599,
+      "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+    },
+    "acceptedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "bytes": 97645,
+      "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+    },
+    "acceptedReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/positive-native-review.json",
+      "bytes": 10701,
+      "sha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c"
+    },
+    "acceptedAttestation": "8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943"
+  },
+  "verified": {
+    "allSixSourceAuthorityFilesRehashed": true,
+    "productionDefinitions": "Exact ObjMarkVisit/ObjAccountRecord/ObjInsertIdSorted canonical AST hashes matched; actual ObjWireLength entire AST matched proposal.",
+    "acceptedPrerequisite": "Accepted visitor theorem source and positive review hashes match. Prior independently reviewed actual visitor remains the prerequisite; this proposal does not supersede its statement.",
+    "exactReconstruction": {
+      "acceptedStatementCanonical": "a38851abd3458a345bcdc9376184c8641004f23e31b5247d77dd601a89f8a491",
+      "actualLeftCanonical": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1",
+      "parentRecordCanonical": "a753a830f5e673b85f8829a837049261a02ee064ad1fd430433e423b236728c7",
+      "initialStateCanonical": "80b775c4d62376ca1b175e541aafb236517da6bd67b1374ac070ef3f223cb4b8",
+      "proposedStateCanonical": "8d2b1342cf324189f6fb76a5cfdaa15667d41b4d9f323b99e67c968f3ebb3c37",
+      "retainedChildContinuationCanonical": "be5beda90590b2418c856767aac68ff4dff646dc960e5a38bed4b7006160aa5d",
+      "consumerStatementCanonical": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789",
+      "accountingCertificateStatementCanonical": "1c929bbb7980807e3723005ba77b4901c3db33bb1b2b3556b4ac16d02b54382b"
+    },
+    "accountingOrder": "Production ObjMarkVisit checks whether original visits budget1000000 is less than succ(initial visits0); successful result retains output[],wireBytes0,seen[] and sets visits1. Only then ObjAccountRecord adds ObjWireLength(parent scale1)=49, checks sum<=18446744073709551615, retains output and visits, and calls ObjInsertIdSorted on empty seen with the exact parent ID. Nil branch yields the singleton original parent ID. Thus proposed S49 is source-supported, but remains a native proof obligation.",
+    "limitsAndErrors": "Original limits unchanged. MarkVisit emits limitExceeded(visits) on failure; AccountRecord emits limitExceeded(visitedBytes) on u64 overflow. AccountRecord itself has no limits parameter and does not independently establish the separate recordBytes/records/objectBytes gates; no such stronger claim is inferred.",
+    "prefix": "Actual accepted parent context retains span(succ0), checkedoffset0+width, range nonintersection, MarkVisit and AccountRecord. Static source supports span1=96, checkedoffset96 within u64, range[0,96] intersection, and successful original visit budget. A future Apply must perform genuine definitional conversion of this prefix.",
+    "continuation": "Exact AccountRecord success subtree extracted, replacing only decoded with original parent record and marked with S. Starts at production ObjSpan0. All three actual recursive ObjVisitNode calls retained with original backend/limits/range/length/collecttrue; first state is S atbase0, second stateafterFirst atsecondBase, third stateafterSecond atthirdBase, childpayload offsets0/12/24. Checked offset and child error matches remain.",
+    "childrenCanonicalPins": [
+      {
+        "path": "/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body",
+        "sha256": "eefc5f5797708543444db92d74b489a9f3c4dfe890d9be4c8bc9a7e9d3362329"
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "sha256": "064a1a104d2c6a1d9b864e9a75185ac39e86ab01467e281d5cddf372332772a1"
+      },
+      {
+        "path": "/branches/1/body/scrutinee",
+        "sha256": "14ce41b1e262b194dc2e7417372c31420ddabc93d86324bd44c6e4ba8c00010a"
+      }
+    ],
+    "supportedProof": "Reflexivity for concrete accounting and Apply accepted objParent49VisitTransition with no arguments are existing accepted DSL constructors. No rewrite, equality transitivity, new Nat family or assumed opaque child is needed in the design.",
+    "negative": "Change only expected accounting certificate wireBytes49 to50. Consumer statement and proof remain identical/correctS49 in both phases; full consumer root imports accounting certificate and accepted transition. Source admission plus actual LLV7002 accounting Reflexivity mismatch required; source failure, timeout or OOM does not count."
+  },
+  "implementationConstraints": [
+    {
+      "id": "C1",
+      "requirement": "Import and verify the accounting module in the mandatory actual consumer closure in both phases. False certificate rejection must be observed at that intended49/50 equation; certify all declarations with empty axioms."
+    },
+    {
+      "id": "C2",
+      "requirement": "Direct Apply uses the accepted visitor theorem and kernel definitional reduction; it does not rewrite using objParent49AccountingState. The accounting theorem is an independently checked dependency/control, not proof of cached reduction or theorem reuse in the consumer proof term. Do not describe it as an applied rewrite certificate."
+    },
+    {
+      "id": "C3",
+      "requirement": "Both positive accounting certificate and full actual consumer must verify and pass independent artifact/source/emptyaxiom/kernel audit. Certificate-only success, imported closure source admission, or an unattempted consumer is insufficient."
+    },
+    {
+      "id": "C4",
+      "requirement": "Retain exact original consumer LHS and pinned continuation/state/record/limits. Qualify imported production and theorem references, use canonical semantic-module/2 and language1.2, preserve negative as sole49→50 expected-state mutation. Separate canonical versus insertion-order source identities when materializing."
+    },
+    {
+      "id": "C5",
+      "requirement": "Do not predict or assume final Apply avoids reducing child calls, hashing or prior fetch. Its actual cost and success remain unknown under unchanged300000ms child/4GiB2CPU limits. Preserve and investigate failure; no implicit limit or runtime changes."
+    },
+    {
+      "id": "C6",
+      "requirement": "Independent exact source/invocation CODE review and fresh operational gates precede native work. Proposal/SPEC permits bounded candidate preparation within user scope, not native execution or product acceptance."
+    }
+  ],
+  "findings": [],
+  "acceptanceBoundary": "A positive would establish concrete parent accounting and entry into the retained three-child production continuation, not three child results, final walk/output/stats, root planning/wrapping, rangefinish/manifestversion, whole digest, original wholeRead/all33, fullObject/Hash/PrismPM or Pages.",
+  "tests": "All proposed candidate/source-admission/native negative/native positive tests NOT_RUN. This review ran only read-only source hashing, AST reconstruction/comparison and inspection.",
+  "actions": "Only this small report written outside repository; no candidate/index/stage/repository, SDK/compiler/VM/native/API or other-lab changes."
+}

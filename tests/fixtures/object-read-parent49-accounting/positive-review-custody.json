@@ -1,0 +1,68 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-positive-review-custody/v1",
+  "status": "PASS_ACTUAL_PARENT_ACCOUNTING_AND_CONCRETE_CHILD_ENTRY_ONLY",
+  "copy": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    },
+    "destination": {
+      "path": "evidence/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    }
+  },
+  "currentResults": [
+    {
+      "path": "results.json",
+      "bytes": 6198,
+      "sha256": "b859618375b17ee82c45100cb1801da4844a57ec60708b5ffc0592aec23f52b5"
+    },
+    {
+      "path": "RESULTS.md",
+      "bytes": 2612,
+      "sha256": "1ebc7db34b89f814284951275d849a15ebf065ebc5c0f5cc44969f1dfbc481e1"
+    }
+  ],
+  "preservedHistory": [
+    {
+      "path": "source-preservation-custody.json",
+      "bytes": 8016,
+      "sha256": "73454464e1abd51ae0736bffcdd3a228dc80571624b9dcc7552844ae80c51522"
+    },
+    {
+      "path": "negative-raw-custody.json",
+      "bytes": 15873,
+      "sha256": "195de4aceece8fafd94e1bab817afe1a73449c2b8c7e727a0e6007a12cdaf74f"
+    },
+    {
+      "path": "negative-review-custody.json",
+      "bytes": 1200,
+      "sha256": "e3e6de48a8287d4375424e6edc195bd5c138015b178b9df66d97b7d7868292fd"
+    },
+    {
+      "path": "positive-raw-custody.json",
+      "bytes": 16335,
+      "sha256": "f31f67c48ea45e62b8f0326527f2bdf5af8135333314fc6aa58fdcc40a0cd690"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 25263,
+      "sha256": "8649d528de70c7cdbe649a82eb7593df851d0bf27370ee78aa67e585ea4c89b1"
+    },
+    {
+      "path": "candidate/manifest.json",
+      "bytes": 2240,
+      "sha256": "e74c95007f77f27efd6de96431213ca75623ff2596de63c0f1273e622573cd9f"
+    }
+  ],
+  "validation": {
+    "repositorySourceHashesChecked": 63,
+    "portableCustodyCopiesChecked": 68,
+    "tenOtherDraftsUnchanged": true,
+    "sixMergedSourcesUnchanged": true,
+    "canonicalFull33Unchanged": true
+  },
+  "boundary": "Local accounting and original consumer only. Mutable README excluded; no child/finalwalk/Read33/full component acceptance."
+}
