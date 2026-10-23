@@ -1,0 +1,83 @@
+{
+  "scope": "Finite diagnostic LexLean source checkpoint; not production Object integration or PrismPM conformance.",
+  "candidateManifest": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4",
+  "compilerSha256": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+  "compilerSemantics": "09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86",
+  "lean": "4.32.1",
+  "limits": {
+    "containerMemoryGiB": 4,
+    "containerCPUs": 2,
+    "childTimeoutMs": 300000
+  },
+  "outcomes": [
+    {
+      "phase": "leaf-false",
+      "root": "tests/lexlean/Object257LeafFalseId.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 41431
+    },
+    {
+      "phase": "leaf-positive",
+      "root": "tests/lexlean/Object257LeafCertificate.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "b16573fcb4c5cb5f0aff1d595938f0c87dca5109280000c633c3013ab23cc2c0",
+      "elapsedMs": 45416
+    },
+    {
+      "phase": "leaf-apply",
+      "root": "tests/lexlean/Object257LeafApply.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "f292614463dd0047f30c79691e0c70253f2ed6ca1f77424e60da6491f68ec8eb",
+      "elapsedMs": 40738
+    },
+    {
+      "phase": "transport-false",
+      "root": "tests/lexlean/Object257ParentTransportFalseBase.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 37103
+    },
+    {
+      "phase": "transport-positive",
+      "root": "tests/lexlean/Object257ParentTransport.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "432355f3610faf6ade14526d14578bad764593b479469eff0eb1bb6d0bdaa2bf",
+      "elapsedMs": 137684
+    }
+  ],
+  "reviewed": {
+    "leaf": {
+      "replays": 9,
+      "emptyAxiomDeclarations": 764
+    },
+    "directApply": {
+      "replays": 10,
+      "emptyAxiomDeclarations": 765
+    },
+    "parentTransport": {
+      "replays": 11,
+      "emptyAxiomDeclarations": 769
+    }
+  },
+  "open": [
+    "original objFoldDigest257",
+    "full403 Object controls",
+    "Hash restoration and mutation qualification",
+    "canonical product integration",
+    "production PrismPM/template binding",
+    "generated Pages"
+  ],
+  "relocation": "Source/config/lock bytes reproduced from actual verified stages. New repository fixture path itself has not been rerun.",
+  "evidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport"
+}
