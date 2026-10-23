@@ -1,0 +1,149 @@
+{
+  "schema": "lexlean-r4-parent49-visit-results/v1",
+  "status": "PASS_ACTUAL_LOCAL_PARENT_VISIT_TRANSITION_ONLY",
+  "source": {
+    "manifest": {
+      "path": "candidate/manifest.json",
+      "bytes": 2477,
+      "sha256": "90157625a83ea1d610ba30ac0cbab94da693e75cab2f1f798cc02e4c238142bc"
+    },
+    "sourceCode": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 9675,
+      "sha256": "42fbd9de2e65a80766c1d8da31db01722cd4e80be73f7e1858ac01f5af118912"
+    },
+    "spec": {
+      "path": "design/next-read-step-spec-review.json",
+      "bytes": 9203,
+      "sha256": "b4713c4b98a60f6bdcc7cd0f8c3482b3d604ea84ef73f96b0f3fa694e6fafbe3"
+    },
+    "portableInputs": {
+      "path": "source-bindings.json",
+      "bytes": 24656,
+      "sha256": "656059e84e0930725dd2b319571bcabfa435b2b2fb7632d832dc7d78ffa67f9c"
+    }
+  },
+  "outcomes": [
+    {
+      "phase": "visit-false",
+      "classification": "PASS_INTENDED_LOCAL_WRONG_BASE_REJECTION",
+      "checkExit": 0,
+      "verifyExit": 1,
+      "wholeVerifyMilliseconds": 37832,
+      "review": {
+        "path": "evidence/negative-native-review.json",
+        "bytes": 15914,
+        "sha256": "ad2c24393035d4bb8831fcc274d9deea10cd657cf338ed1756bb923e1f7f418a"
+      },
+      "lock": {
+        "path": "evidence/visit-false/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "ec30397d59e46046dcf7d9e5872725ab93685e1484441858f8cc82448bd911a3"
+      },
+      "control": "Same unrelated0=0 theorem in both variants; only zero-base Apply target differs. Full consumer root verified, intended imported wrong-base mismatch observed."
+    },
+    {
+      "phase": "visit-positive",
+      "classification": "PASS_ACTUAL_LOCAL_PARENT_VISIT_TRANSITION_ONLY",
+      "attestationId": "8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943",
+      "buildId": "d30d5a638e5b6ec2e5c233bc3cada44a2aeda48ca0eb1766b2b4ecf400a7a844",
+      "sourceId": "dcc31121d26347ad732bfcf6f34f46d4da8b1d2a8baa97671ab1e88a97609a5b",
+      "semanticId": "bd99053827990f37dbf2ed98ec2484fd642dcfb54fb2d492f93642e354615431",
+      "verifyExit": 0,
+      "sourcecheckModules": 17,
+      "wholeVerifyMilliseconds": 120377,
+      "lockSha256": "ec30397d59e46046dcf7d9e5872725ab93685e1484441858f8cc82448bd911a3",
+      "postcaptureErrors": [],
+      "review": {
+        "path": "evidence/positive-native-review.json",
+        "bytes": 10701,
+        "sha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c"
+      },
+      "lock": {
+        "path": "evidence/visit-positive/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "ec30397d59e46046dcf7d9e5872725ab93685e1484441858f8cc82448bd911a3"
+      }
+    }
+  ],
+  "proof": {
+    "name": "LexLeanR4.ObjectReadParent49VisitTransition.objParent49VisitTransition",
+    "actualConsumer": true,
+    "originalFourEntryBackendAndParentIdLiteralSequenceChecked": true,
+    "scale": 1,
+    "initialStateAndRangeAndLimitsPreserved": true,
+    "fullResultContinuation": true,
+    "allThreeChildVisitCallsPreserved": true,
+    "errorsAccountAndOffsetsPreserved": true,
+    "actualConsumerApplyAt1AcceptedByRecordedLeanAndKernel": true,
+    "baseActualAcceptedFetch": true,
+    "inductionCasesCongruence": true,
+    "NatSucc0Versus1Conversion": "Actual emitted consumer compiled and kernel replayed; no longer merely static assumption for this exact equation.",
+    "boundary": "RHS is Result-valued continuation retaining child calls, not a certified final successful walked state."
+  },
+  "artifactAudit": {
+    "declarations": 814,
+    "allNoneAndEmptyObservedAxioms": true,
+    "successfulProcesses": 52,
+    "kernelReplays": 17,
+    "buildOutputs": 85,
+    "fullArtifactFiles": 175,
+    "fullArtifactCensusSha256": "c51aa0b37f44a80f82eb5d132c72d46ab514cf2d5ac1cb2a68d64b1d2d1d850c",
+    "allOutputOleanAndProcessHashes": true,
+    "exactExpectedFileSet": true,
+    "fullAuditNamesMatch": true,
+    "sourceConfigLockLakeAndToolIdentitiesMatch": true
+  },
+  "artifactIdentityDistinction": {
+    "reviewerSortedCensusDigest": "c51aa0b37f44a80f82eb5d132c72d46ab514cf2d5ac1cb2a68d64b1d2d1d850c",
+    "portableCensusFile": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 33544,
+      "sha256": "9e4a8164239acef105883418e1dd62bd759e81285b0f6aa1f4ae794e298aa952"
+    },
+    "explanation": "These hash different serialized objects. Reviewer digest identifies its sorted path/bytes/hash census encoding; portable SHA identifies the complete JSON file including schema/status/root/boundary and file rows. They are not interchangeable artifact IDs and need not equal. The same175 actual files are individually pinned in the portable census."
+  },
+  "postconditions": {
+    "all21FrozenInputsAndCopyArguments": true,
+    "sourceBeforeAfterExact": true,
+    "genuineLockUnchanged": true,
+    "toolsBeforeAfterExact": true,
+    "reviewedEpochUnchanged": true,
+    "zeroMemoryEventsBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "allRawCommandStatusesZero": true,
+    "rawCommands": 43,
+    "postcapturesAfterVerify": true
+  },
+  "resources": {
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "hostAvailableBytes": {
+      "before": 31124709376,
+      "after": 30541393920
+    },
+    "guestAvailableKiB": {
+      "before": 53110040,
+      "after": 53098556
+    },
+    "reviewFreeBytes": 30106451968
+  },
+  "acceptedScope": "One actual production parent ObjVisitNode scale1 transition over the original four-entry backend/root ID, base0, initial state, logicalLength96, range0..96, original limits and collecttrue. RHS is full Result-valued continuation with all three child calls; no final successful walked state established.",
+  "remaining": {
+    "originalRead33ControlsAccepted": 0,
+    "open": [
+      "Three child authentication/visit results and concrete final walk state",
+      "Accounting/statistics evaluation, root wrapping and planning",
+      "Range finishing including manifest-version computation",
+      "Whole-object hash/digest comparison and original wholeRead",
+      "All33 Read controls, remaining Object/primitive controls, full component acceptance",
+      "Canonical Hash qualification, PrismPM integration and generated Pages"
+    ]
+  },
+  "historicalLabels": "Frozen preparation NOT_RUN and raw-custody pending-review records remain unchanged. These results and RESULTS.md are the later accepted outcome record.",
+  "limitations": [
+    "No measured avoided recomputation or speedup established.120377ms is whole verify command time.",
+    "Observed source/lock/tool/epoch/idle/zeroevents/storage samples and recorded kernel replays were audited; no continuous high-water resource claim.",
+    "Complete compiled artifact/fullattestation remain locally preserved and hash-pinned; portable fixture contains selected textual evidence and complete file census, no binaries."
+  ],
+  "portableHashChecks": 114
+}

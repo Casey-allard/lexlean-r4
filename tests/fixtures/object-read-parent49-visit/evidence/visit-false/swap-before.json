@@ -1,0 +1,11 @@
+{
+  "args": [
+    "vm.swapusage"
+  ],
+  "started": "2026-10-23T22:38:42.566Z",
+  "ended": "2026-10-23T22:38:42.574Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "vm.swapusage: total = 11264.00M  used = 10227.75M  free = 1036.25M  (encrypted)\n",
+  "stderr": ""
+}

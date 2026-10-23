@@ -1,0 +1,47 @@
+{
+  "schema": "lexlean-r4-parent49-visit-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/manifest.json",
+    "bytes": 2477,
+    "sha256": "90157625a83ea1d610ba30ac0cbab94da693e75cab2f1f798cc02e4c238142bc"
+  },
+  "files": [
+    {
+      "path": "invoke-parent49-visit.mjs",
+      "bytes": 7722,
+      "sha256": "3a1ef80c53faee0504a9930ae2c6d9989d14a5eb2dc4446fd78ce08b137934c2"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2475,
+      "sha256": "d95c4ee3e6be55c8eec75fc3fd64ae79523475e8a54cd9f1f1723fb5d551b3b4"
+    },
+    {
+      "path": "source-comparison.json",
+      "bytes": 1076,
+      "sha256": "29eddaf09675c845f9ff8429afccf3c58c40242d8de46f0fcaf9a6cc7a5754c0"
+    }
+  ],
+  "phaseSelectors": [
+    "visit-false",
+    "visit-positive"
+  ],
+  "commands": [
+    "node invoke-parent49-visit.mjs visit-false",
+    "Only after independent intended-negative acceptance and fresh resource admission: node invoke-parent49-visit.mjs visit-positive"
+  ],
+  "actualConsumerRoot": "tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+  "inputCounts": [
+    21,
+    21
+  ],
+  "stagePattern": "/tmp/r4-object-read-parent49-visit-${phase}-owned-20261023",
+  "syntaxCheck": {
+    "command": "node --check invoke-parent49-visit.mjs",
+    "exit": 0,
+    "moduleExecuted": false
+  },
+  "preserved": "All predecessor operational guard and postcapture bytes unchanged. Exact epoch/container/tools/source/lock/idle/zeroevents;20 GiB host launch planning with10 GiB additional/10 GiB reserve;11/10 GiB guest;300000ms4GiB2CPU; independent finally captures and positive artifact copy. Exclusive fresh stage/output; one selected phase only.",
+  "boundary": "No native authority from source preparation. Both phases verify actual full consumer. Negative must reach intended wrong-base mismatch; admission failure/timeout/OOM is not RED. Positive needs real artifact/full empty-axiom/kernel audit."
+}

@@ -1,0 +1,211 @@
+{
+  "schema": "lexlean-r4-parent49-visit-source-preservation-custody/v1",
+  "status": "IMMUTABLE_SOURCE_AND_PROVENANCE_COPIES_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/negative/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+        "bytes": 1324,
+        "sha256": "bd3943c4d5e6a15de1898e446f005c87c26abbf6854c696616d3e75e9718fe45"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/negative/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+        "bytes": 1324,
+        "sha256": "bd3943c4d5e6a15de1898e446f005c87c26abbf6854c696616d3e75e9718fe45"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+        "bytes": 97645,
+        "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+        "bytes": 97645,
+        "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/positive/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+        "bytes": 1372,
+        "sha256": "bb8d061a61a67354dbbc8c88d4ef8b45c1aeb5c78b52d539c0edcb2d720cefd1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/positive/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+        "bytes": 1372,
+        "sha256": "bb8d061a61a67354dbbc8c88d4ef8b45c1aeb5c78b52d539c0edcb2d720cefd1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+        "bytes": 21599,
+        "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+        "bytes": 21599,
+        "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/lexlean.toml",
+        "bytes": 697,
+        "sha256": "c8022552c3b086894cb1973cc754c5eeb114ef7388f92d1db82d57534c63f3a1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/lexlean.toml",
+        "bytes": 697,
+        "sha256": "c8022552c3b086894cb1973cc754c5eeb114ef7388f92d1db82d57534c63f3a1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/candidate.json",
+        "bytes": 17178,
+        "sha256": "3f67a57414796d2f1a1853e974870487ae8986864456eaeb2e942749337d4623"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/candidate.json",
+        "bytes": 17178,
+        "sha256": "3f67a57414796d2f1a1853e974870487ae8986864456eaeb2e942749337d4623"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/structural-audit.json",
+        "bytes": 4351,
+        "sha256": "23eee28b065c006405447c74eb192b6803c94c72d8a55c1f070f6fac65edd3d3"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/structural-audit.json",
+        "bytes": 4351,
+        "sha256": "23eee28b065c006405447c74eb192b6803c94c72d8a55c1f070f6fac65edd3d3"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/README.md",
+        "bytes": 697,
+        "sha256": "657d1d468ac127ce431b4c09d5d4ea8950a0f2226e272ee17e6e522cdadb9e7f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/README.md",
+        "bytes": 697,
+        "sha256": "657d1d468ac127ce431b4c09d5d4ea8950a0f2226e272ee17e6e522cdadb9e7f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/manifest.json",
+        "bytes": 2477,
+        "sha256": "90157625a83ea1d610ba30ac0cbab94da693e75cab2f1f798cc02e4c238142bc"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/candidate/manifest.json",
+        "bytes": 2477,
+        "sha256": "90157625a83ea1d610ba30ac0cbab94da693e75cab2f1f798cc02e4c238142bc"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/invoke-parent49-visit.mjs",
+        "bytes": 7722,
+        "sha256": "3a1ef80c53faee0504a9930ae2c6d9989d14a5eb2dc4446fd78ce08b137934c2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/evidence/invoke-parent49-visit.mjs",
+        "bytes": 7722,
+        "sha256": "3a1ef80c53faee0504a9930ae2c6d9989d14a5eb2dc4446fd78ce08b137934c2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/invocation-diff.json",
+        "bytes": 2475,
+        "sha256": "d95c4ee3e6be55c8eec75fc3fd64ae79523475e8a54cd9f1f1723fb5d551b3b4"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/evidence/invocation-diff.json",
+        "bytes": 2475,
+        "sha256": "d95c4ee3e6be55c8eec75fc3fd64ae79523475e8a54cd9f1f1723fb5d551b3b4"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/source-comparison.json",
+        "bytes": 1076,
+        "sha256": "29eddaf09675c845f9ff8429afccf3c58c40242d8de46f0fcaf9a6cc7a5754c0"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/evidence/source-comparison.json",
+        "bytes": 1076,
+        "sha256": "29eddaf09675c845f9ff8429afccf3c58c40242d8de46f0fcaf9a6cc7a5754c0"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/invocation-manifest.json",
+        "bytes": 2065,
+        "sha256": "a5218a2aca925b42282df9766fe57770e4d58b9d64f1054330996bd712965187"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/evidence/invocation-manifest.json",
+        "bytes": 2065,
+        "sha256": "a5218a2aca925b42282df9766fe57770e4d58b9d64f1054330996bd712965187"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/candidate-invocation-code-review.json",
+        "bytes": 9675,
+        "sha256": "42fbd9de2e65a80766c1d8da31db01722cd4e80be73f7e1858ac01f5af118912"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/evidence/candidate-invocation-code-review.json",
+        "bytes": 9675,
+        "sha256": "42fbd9de2e65a80766c1d8da31db01722cd4e80be73f7e1858ac01f5af118912"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-proposal.json",
+        "bytes": 12628,
+        "sha256": "b705c5a27614e275a1b050cc977ab77b4fd36ab20f5d267216f1a7a2070ad854"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/design/next-read-step-proposal.json",
+        "bytes": 12628,
+        "sha256": "b705c5a27614e275a1b050cc977ab77b4fd36ab20f5d267216f1a7a2070ad854"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-spec-review.json",
+        "bytes": 9203,
+        "sha256": "b4713c4b98a60f6bdcc7cd0f8c3482b3d604ea84ef73f96b0f3fa694e6fafbe3"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-visit/design/next-read-step-spec-review.json",
+        "bytes": 9203,
+        "sha256": "b4713c4b98a60f6bdcc7cd0f8c3482b3d604ea84ef73f96b0f3fa694e6fafbe3"
+      }
+    }
+  ],
+  "companionBindings": {
+    "path": "tests/fixtures/object-read-parent49-visit/source-bindings.json",
+    "bytes": 24656,
+    "sha256": "656059e84e0930725dd2b319571bcabfa435b2b2fb7632d832dc7d78ffa67f9c"
+  },
+  "currentReadmeExcluded": true,
+  "scope": "Only immutable original candidate files and source/design/invocation reviews copied. candidate/README.md is a frozen historical source payload; current README.md is deliberately excluded. No file from visit-false or any live native output read/copied. No SDK/index/other repository changes.",
+  "storage": {
+    "availableBytesBeforeWrite": "31764373504",
+    "plannedAdditionalAllocationUpperBytes": 344064,
+    "maximumAggregateFixtureAllocationBytes": 1048576,
+    "reserveBytes": 10737418240
+  }
+}

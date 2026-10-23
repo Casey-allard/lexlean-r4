@@ -1,0 +1,21 @@
+{
+  "schema": "lexlean-r4-selected-attestation-summary/v1",
+  "status": "DERIVED_SUMMARY_INDEPENDENT_REVIEW_PENDING",
+  "original": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/visit-positive/artifact/attestation.json",
+    "bytes": 179718,
+    "sha256": "399fc226790d036511d3c94f58fd525e680bd1fb000f7cb150ff5fd139e3d986"
+  },
+  "scalarFields": {
+    "attestation_id": "8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943",
+    "build_id": "d30d5a638e5b6ec2e5c233bc3cada44a2aeda48ca0eb1766b2b4ecf400a7a844",
+    "semantic_id": "bd99053827990f37dbf2ed98ec2484fd642dcfb54fb2d492f93642e354615431",
+    "source_id": "dcc31121d26347ad732bfcf6f34f46d4da8b1d2a8baa97671ab1e88a97609a5b",
+    "spec": "lexlean/attestation/2",
+    "status": "verified"
+  },
+  "declarationCount": 814,
+  "processCount": 52,
+  "oleanCount": 17,
+  "boundary": "Derived fields only, not a replacement for full attestation or independent proof audit. Original full bytes remain local and pinned."
+}

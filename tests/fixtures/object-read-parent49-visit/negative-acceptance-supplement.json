@@ -1,0 +1,37 @@
+{
+  "schema": "lexlean-r4-parent49-visit-negative-acceptance-supplement/v1",
+  "status": "ACCEPTED_LOCAL_INTENDED_WRONG_BASE_REJECTION_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/negative-native-review.json",
+        "bytes": 15914,
+        "sha256": "ad2c24393035d4bb8831fcc274d9deea10cd657cf338ed1756bb923e1f7f418a"
+      },
+      "destination": {
+        "path": "evidence/negative-native-review.json",
+        "bytes": 15914,
+        "sha256": "ad2c24393035d4bb8831fcc274d9deea10cd657cf338ed1756bb923e1f7f418a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/storage-followup-negative.json",
+        "bytes": 951,
+        "sha256": "3d07c7514937a764987ff10541ae73ded82f99866c6ce1d739e0afa92d5eab6b"
+      },
+      "destination": {
+        "path": "evidence/storage-followup-negative.json",
+        "bytes": 951,
+        "sha256": "3d07c7514937a764987ff10541ae73ded82f99866c6ce1d739e0afa92d5eab6b"
+      }
+    }
+  ],
+  "actualReviewStatus": "PASS_INTENDED_LOCAL_VISIT_WRONG_BASE_REJECTION",
+  "historicalPendingCustody": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/negative-raw-custody.json",
+    "bytes": 14413,
+    "sha256": "14f83300e6e921656460ce65a394f7575e67f581f3c54a13a3335c1a5e1f0fae"
+  },
+  "boundary": "Independent negative accepted after actualsource admission. Positive running and no positive output read/copied; no positive consumer or Read33 acceptance. Historical pending records unchanged. Current README intentionally excluded from immutable custody."
+}

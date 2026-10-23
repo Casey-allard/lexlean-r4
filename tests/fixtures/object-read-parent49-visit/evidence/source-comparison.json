@@ -1,0 +1,24 @@
+{
+  "schema": "lexlean-r4-parent49-visit-final-source-comparison/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "rawInitialState": {
+    "insertionOrderSha256": "a9123b2453a4e2fc29bc6611ae0df41bcfe5f240ce3d4127089c5d875b97cbb1",
+    "canonicalSha256": "a9123b2453a4e2fc29bc6611ae0df41bcfe5f240ce3d4127089c5d875b97cbb1",
+    "sourceTypeReference": {
+      "name": "ObjWalkState"
+    }
+  },
+  "qualifiedInitialState": {
+    "insertionOrder": "949703cedbe8a0abf0a8487bc28378f1baf59ba9a76235c7a88e6647828cec91",
+    "canonical": "80b775c4d62376ca1b175e541aafb236517da6bd67b1374ac070ef3f223cb4b8",
+    "qualification": "Only ObjWalkState local type -> R4.ObjectRead.ObjWalkState in imported candidate"
+  },
+  "checks": {
+    "sourceManifestAllEightPayloadsExact": true,
+    "both21InputsRehashed": true,
+    "allFourSourceModulesCanonical": true,
+    "sameModuleReferencesUnqualified": true,
+    "consumerContextImportedAndQualified": true
+  },
+  "boundary": "Source reconstruction checks only. Actual native source admission, intended negative and positive consumer NOT_RUN."
+}

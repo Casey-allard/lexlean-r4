@@ -1,0 +1,102 @@
+{
+  "schema": "lexlean-r4-parent49-visit-source-audit/v1",
+  "status": "SOURCE_ONLY_PASS_NATIVE_NOT_RUN",
+  "production": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+    "bytes": 87135,
+    "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+  },
+  "originalControl": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "originalOrdinal": 26,
+  "zeroBasedIndex": 25,
+  "comparisons": {
+    "productionBranchExtractionAndOnlySingleFetchHole": true,
+    "allThreeChildCallASTsRetained": true,
+    "childCalls": [
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body",
+        "astSha256": "0f408d7703f82ec47ad4604c2f8871ee2cad545c9e56eec8bce3c41e112618d4",
+        "canonicalAstSha256": "c7b13bced05129d61dfc8578cf383470c29c73ab42acb1fd769c02772ab17002"
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "astSha256": "9ffbf526a065108ddf97e535df5657b18a72ecd5cfd3d943ccbd3889bd773796",
+        "canonicalAstSha256": "c66c325a4a3a721a2f8bfed9c7215aafb0a241a20663b96f641d4d110ac90c5c"
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "astSha256": "263e1a9c190202cd07d4830e72725f166b2497c67d6d039f879c644acfa492eb",
+        "canonicalAstSha256": "276248e4bb23cbfb1a19eefa9c71be1ff9cb442837a950278bb5821ebe5d6280"
+      }
+    ],
+    "wholeNegativeDiffOnlyBaseApplyTarget": true,
+    "originalRuntimeAndConfigLimitsUnchanged": true,
+    "configOnlyEntrypointChanged": true,
+    "sameUnrelatedZeroBothVariants": true,
+    "emptyAxiomsAllNewTheorems": true,
+    "allCanonicalSemanticJSON": true,
+    "both21InputSetsPinnedByReference": true,
+    "localContextReferencesNameOnly": true,
+    "separateConsumerContextReferenceQualified": true
+  },
+  "pins": {
+    "qualifiedState": {
+      "insertionOrder": "949703cedbe8a0abf0a8487bc28378f1baf59ba9a76235c7a88e6647828cec91",
+      "canonical": "80b775c4d62376ca1b175e541aafb236517da6bd67b1374ac070ef3f223cb4b8"
+    },
+    "expandedProductionBranch": {
+      "insertionOrder": "5ab613fae281a56519630ac26c128953a6d432bf9b1ff6a5cea47a7869f74498",
+      "canonical": "a06004a85b453cee240ff5321be7a335ab1be8f18642cb393acf31b52c244a0b"
+    },
+    "singleHoleContext": {
+      "insertionOrder": "271e1cf9a6cecdfbad64d6e862d6b1851db9122e66f952cd1b737eab89baeac7",
+      "canonical": "bbefe7c80eead8a8a2d9f71444f71e4822bcab24d9f315bb84e6e23cd3b80298"
+    },
+    "actualConsumerLeft": {
+      "insertionOrder": "4d278acb6ca9ef00c302a985f177a36f41ead257bd6257b76ab91b0b7b5a238b",
+      "canonical": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1"
+    },
+    "proposalSchematicStatement": {
+      "insertionOrder": "d761da1bc660f06087fc9b808933e837ff76ce5436d13feda44a842e71358e70",
+      "canonical": "c3a09bf1bb53cc20b6fcd9595d05b65173d339b7d4b1812fa560b7af17da7c7a"
+    },
+    "writtenQualifiedConsumerStatement": {
+      "insertionOrder": "84fc37ece991d7179f18518482be7ca7a1ca12ea3a0ef586fdec232c32967328",
+      "canonical": "a38851abd3458a345bcdc9376184c8641004f23e31b5247d77dd601a89f8a491"
+    }
+  },
+  "definitionalBoundary": {
+    "productionFetchScale": {
+      "arguments": [
+        {
+          "kind": "nat",
+          "value": "0"
+        }
+      ],
+      "constructor": {
+        "name": "Nat.succ"
+      },
+      "kind": "constructor"
+    },
+    "acceptedFetchScale": {
+      "kind": "nat",
+      "value": "1"
+    },
+    "literalEqual": false,
+    "obligation": "Nat.succ0 versus Nat1 and complete actual consumer conversion require real native verification; no rewrite introduced."
+  },
+  "native": {
+    "sourcecheck": "NOT_RUN",
+    "intendedNegative": "NOT_RUN",
+    "positiveConsumer": "NOT_RUN"
+  },
+  "storage": {
+    "availableBytesBeforeWrite": "30545145856",
+    "maximumAdditionalBytes": 1048576,
+    "reserveBytes": 10737418240
+  }
+}

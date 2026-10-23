@@ -1,0 +1,180 @@
+{
+  "schema": "lexlean-r4-parent49-visit-source-invocation-code-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_READINESS_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T22:38:30.488Z",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/manifest.json",
+    "bytes": 2477,
+    "sha256": "90157625a83ea1d610ba30ac0cbab94da693e75cab2f1f798cc02e4c238142bc"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/invocation-manifest.json",
+    "bytes": 2065,
+    "sha256": "a5218a2aca925b42282df9766fe57770e4d58b9d64f1054330996bd712965187"
+  },
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/invoke-parent49-visit.mjs",
+    "bytes": 7722,
+    "sha256": "3a1ef80c53faee0504a9930ae2c6d9989d14a5eb2dc4446fd78ce08b137934c2"
+  },
+  "authority": {
+    "proposal": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-proposal.json",
+      "bytes": 12628,
+      "sha256": "b705c5a27614e275a1b050cc977ab77b4fd36ab20f5d267216f1a7a2070ad854"
+    },
+    "spec": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-spec-review.json",
+      "bytes": 9203,
+      "sha256": "b4713c4b98a60f6bdcc7cd0f8c3482b3d604ea84ef73f96b0f3fa694e6fafbe3"
+    },
+    "acceptedFetch": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+        "bytes": 20373,
+        "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+      },
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/evidence/positive-native-review.json",
+        "bytes": 11672,
+        "sha256": "fe12af5974cc28f416d7eb2ef0dc8e45fa7a98aca3b60f248527f8879f3995b2"
+      },
+      "attestationId": "54784e8ba9be195787acb83ec4272b6f30004a92dc4928768e3d8b548ae76262"
+    },
+    "runtime": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "originalControl": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "checks": {
+    "payloadFiles": 8,
+    "manifestDependencies": 3,
+    "invocationPayloads": 3,
+    "phaseInputsRehashed": 42,
+    "canonicalSemanticModules": 4,
+    "allNewTheoremAxiomsEmpty": true,
+    "allExplicitModuleReferencesImported": true,
+    "noSelfQualifiedLocalRefs": true,
+    "exactEightLiteralInvocationChanges": true,
+    "sourceSyntaxOnlyExit": 0,
+    "fullConsumerBothPhases": true,
+    "otherTenDraftsPreserved": true,
+    "sixMergedSourcesPreserved": true,
+    "canonicalRead33Preserved": true,
+    "originalSnapshotsPreserved": 17
+  },
+  "sourceReconstruction": {
+    "method": "Independently parsed original ordinal26 objProtocolWholeBytes and production ObjVisitNode/ObjRangeAdmitted; derived backend/root ID/length96/range0..96/limits/qualified initialstate, instantiated entire successor with only named outer substitutions, qualified production local references, and replaced exactly one parent ObjAuthenticatedFetch call with item; deep compared complete resulting AST to written context.",
+    "oneFetchHole": "/branches/1/body/branches/1/body/else_value/branches/1/body/scrutinee",
+    "unchangedRecursiveChildren": [
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body",
+        "canonicalSha256": "c7b13bced05129d61dfc8578cf383470c29c73ab42acb1fd769c02772ab17002"
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "canonicalSha256": "c66c325a4a3a721a2f8bfed9c7215aafb0a241a20663b96f641d4d110ac90c5c"
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "canonicalSha256": "276248e4bb23cbfb1a19eefa9c71be1ff9cb442837a950278bb5821ebe5d6280"
+      }
+    ],
+    "canonicalPins": {
+      "context": "bbefe7c80eead8a8a2d9f71444f71e4822bcab24d9f315bb84e6e23cd3b80298",
+      "completeExpandedBranch": "a06004a85b453cee240ff5321be7a335ab1be8f18642cb393acf31b52c244a0b",
+      "initialState": "80b775c4d62376ca1b175e541aafb236517da6bd67b1374ac070ef3f223cb4b8",
+      "qualifiedActualConsumer": "a38851abd3458a345bcdc9376184c8641004f23e31b5247d77dd601a89f8a491"
+    },
+    "preserved": "All nested production guards, checked offsets, errors, accounting and three recursive child calls remain. RHS is a Result-valued continuation, not asserted final walked state."
+  },
+  "proofReview": {
+    "base": "Exact accepted full authenticated-fetch equality and theorem, not merely decode.",
+    "family": "Nat Prop P0 is accepted fetch statement. Psucc applies same local context to each side. Context refs within defining module are bare; external consumer ref is correctly module-qualified.",
+    "lift": "Induction count; zero Apply accepted fetch; successor Cases prior with Congruence in both branches. Actual consumer Apply lifted theorem at1.",
+    "negative": "Same unrelated0=0 reflexivity theorem in both variants. Only zero-base theorem target changes (name plus external module key). All remaining AST bytes structurally equal.",
+    "conversion": "Preserved production Nat.succ(0) versus accepted fetch Nat1. Literal equality intentionally false; definitional conversion and actual larger consumer verification remain NOT_RUN."
+  },
+  "constraints": {
+    "C1": "Exact one-hole complete production branch and original inputs/limits retained.",
+    "C2": "Reconstructed canonical branch/context/state/consumer pins match separately labeled candidate pins; insertion-order proposal hashes are not treated as canonical.",
+    "C3": "Nat.succ0 expression preserved; future native proof must establish conversion.",
+    "C4": "Separate consumer context reference qualified; local context references bare.",
+    "C5": "Accepted fetch source/native-review/attestation bindings and both21input sets rehashed; resource authority remains parent fresh gate.",
+    "C6": "Intended negative must admit and fail exact wrong-base proof, then full consumer verify0 requires complete real artifact/axiom/kernel audit."
+  },
+  "invocationReview": "Exact8 literal changes from reviewed fetch successor: descriptive comment, two phase selectors/error text, fresh stage prefix, source manifest pin, negative selector,21input census, full VisitTransition root. All other resource/tool/epoch/source/lock/independent postcapture and artifact-copy bytes unchanged. Script not executed; syntax check only. Launcher0 is not proof acceptance; unexpected negative verify0 must be rejected by parent.",
+  "modules": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+      "name": "ObjectReadParent49VisitTransport",
+      "imports": [
+        "ObjectReadParent49VisitContext",
+        "ObjectReadParent49AuthenticatedFetch"
+      ],
+      "external": [
+        "ObjectReadParent49VisitContext"
+      ]
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "name": "ObjectReadParent49VisitContext",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.ObjectRead",
+        "R4.ObjectCodec"
+      ],
+      "external": [
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ]
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+      "name": "ObjectReadParent49VisitTransport",
+      "imports": [
+        "ObjectReadParent49VisitContext",
+        "ObjectReadParent49AuthenticatedFetch"
+      ],
+      "external": [
+        "ObjectReadParent49AuthenticatedFetch",
+        "ObjectReadParent49VisitContext"
+      ]
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "name": "ObjectReadParent49VisitTransition",
+      "imports": [
+        "ObjectReadParent49VisitTransport",
+        "ObjectReadParent49VisitContext",
+        "R4.ObjectRead",
+        "R4.ObjectTypes"
+      ],
+      "external": [
+        "ObjectReadParent49VisitTransport",
+        "R4.ObjectTypes",
+        "R4.ObjectRead",
+        "ObjectReadParent49VisitContext"
+      ]
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "Source readiness only. No official source admission, new native negative or positive proof executed.",
+    "Mandatory full production consumer may fail conversion or exhaust resources; helper shape does not establish it. No performance or avoided-recomputation claim.",
+    "No original Read33, child traversal results, whole read/Object/Hash/PrismPM/Pages acceptance.",
+    "No SDK, VM, compiler or repo/index/source changes; only this bounded review record written."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 34454056960,
+    "maxReportBytes": 25600
+  }
+}

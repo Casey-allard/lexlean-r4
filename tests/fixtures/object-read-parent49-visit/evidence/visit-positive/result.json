@@ -1,0 +1,38 @@
+{
+  "phase": "visit-positive",
+  "stage": "/tmp/r4-object-read-parent49-visit-visit-positive-owned-20261023",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943"
+    ],
+    "attestation_id": "8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943",
+    "build_id": "d30d5a638e5b6ec2e5c233bc3cada44a2aeda48ca0eb1766b2b4ecf400a7a844",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "ObjectReadParent49",
+      "ObjectReadParent49AuthenticatedFetch",
+      "ObjectReadParent49FetchContext",
+      "ObjectReadParent49FetchTransport",
+      "ObjectReadParent49VisitContext",
+      "ObjectReadParent49VisitTransition",
+      "ObjectReadParent49VisitTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "semantic_id": "bd99053827990f37dbf2ed98ec2484fd642dcfb54fb2d492f93642e354615431",
+    "source_id": "dcc31121d26347ad732bfcf6f34f46d4da8b1d2a8baa97671ab1e88a97609a5b",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}
