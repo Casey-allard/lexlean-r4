@@ -1,0 +1,79 @@
+{
+  "schema": "lexlean-r4-read33-isolated26-code-review/v1",
+  "status": "PASS_SOURCE_AND_ONE_OFF_INVOCATION_READINESS_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T21:35:44.347Z",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/manifest.json",
+    "bytes": 1760,
+    "sha256": "709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1"
+  },
+  "source": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 26361,
+    "sha256": "2c8f951451021f08e42c1c22c3e115c2222153042071cdde8430ac830af905b8"
+  },
+  "selection": {
+    "ordinal": 26,
+    "name": "objProtocolWholeBytes",
+    "declarationJsonBytes": 25994,
+    "declarationJsonSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+    "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "proof": {
+      "kind": "reflexivity"
+    },
+    "axioms": [],
+    "parameters": []
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/invocation-manifest.json",
+    "bytes": 1586,
+    "sha256": "cb63a91ac13033557f4cc40c721e342b4206eb48362f777f6ab2a022a4721e4a"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/invoke-isolated26.mjs",
+    "bytes": 7558,
+    "sha256": "5bc71d978d4a4eeac4d6a6d8a49994b2c9098787dde8c229294bb83768755584"
+  },
+  "authority": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/timeout-investigation-spec-review.json",
+    "bytes": 4741,
+    "sha256": "5265f06bdd7cd7b803a6f4e450b22db6551c2fae31f40c85c5c2e2e79690cfe7"
+  },
+  "checks": {
+    "exactOriginalOrdinal26CompleteAST": true,
+    "original33DeclarationsPreserved": true,
+    "identicalWrapperModuleImportsGlossariesAndSuffix": true,
+    "identicalNonDeclarationSemanticFields": true,
+    "canonicalJSON": true,
+    "fullASTNoLocalControlReferences": true,
+    "all15InputPinsAndUniqueDestinations": true,
+    "candidatePayloads": 3,
+    "candidateDependencies": 4,
+    "invocationLiteralTransformations": 7,
+    "nodeSyntaxCheck": "PASS_NO_MODULE_EXECUTION",
+    "sixMergedSourcesPreserved": true,
+    "tenOtherDraftsPreserved": true,
+    "seventeenOriginalSnapshotsPreserved": true
+  },
+  "findings": [],
+  "assessment": [
+    "The only source change in the owned diagnostic candidate is replacement of the declarations array with original ordinal26 objProtocolWholeBytes. Entire selected declaration, original theorem FQN, parameters, statement, proof and axiom policy remain exact. The full33 canonical source remains unchanged.",
+    "The one-off invocation is exactly the seven literal transformations from the previously reviewed Read33 recipe: fixed single diagnostic, fresh output/stage, hash-bound candidate manifest/input map, and removal of negative-only branch. No generalized executor or runtime substitute was introduced.",
+    "Manifest binds all3 candidate payloads before input selection. All15 source/config bytes are checked before stage creation and again in guest before official lock/check/verify. Exact source and lock custody, tools before/after, reviewed epoch, idle, zero memory events and storage postchecks remain independently attempted in finally.",
+    "Existing epoch2026-10-23T20:22:35.225704499Z,4GiB/2CPU/networknone/mounts[],300000ms child limit and20GiB host launch planning with10GiB reserve remain unchanged. Fresh output and guest mkdir prevent accidental reuse.",
+    "Actual failed native verify can leave launcher exit0 with retained failure JSON; this remains intentional capture behavior. Parent must inspect actual status/success/artifacts and every postcapture error. No artifact or proof acceptance may be inferred from launcher status."
+  ],
+  "boundaries": [
+    "This review covers one positive diagnostic only. No execution occurred in this review; actual compiler source admission and verification remain NOT_RUN.",
+    "A successful singleton accepts at most its exact audited theorem artifact, not aggregateRead33 or the other32 controls. It does not prove aggregate-only root cause.",
+    "All33 original obligations and explicit component/model integration remain mandatory. Any next expansion, grouping or connected proof repair requires a separately reviewed evidence-based step.",
+    "Preserve prior aggregate failure and all source/evidence. No limit increase, equivalent aggregate retry, assumed hash, axiom change or native gate waiver.",
+    "Full Hash/HashWire qualification, wholeObject and production PrismPM/Pages acceptance remain open."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 29076713472,
+    "reportBudgetBytes": 20000
+  },
+  "actions": "Read-only source/hash/diff review and node --check syntax-only; only this report written. No module execution, SDK/compiler/VM/repository/index/other-lab changes."
+}

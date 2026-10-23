@@ -1,0 +1,242 @@
+{
+  "schema": "lexlean-r4-exact-delivery/v1",
+  "base": "c97ad7f79a9bd08cd0160bf67d5c8f71ac4a2be2",
+  "scope": "Isolated original Read ordinal26 timeout evidence and bounded reviewed next source step; no proof acceptance.",
+  "payloads": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 27153,
+      "sha256": "32ed5285a8e82290e3e007ce8a8ce21d44b3a4d0c40d14cb697b5fb48a356eec"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/RESULTS.md",
+      "bytes": 2908,
+      "sha256": "962c0ba90469d6870438eb419bcc530380a5abf134e65f140cfcce8948c60fe2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/authority/timeout-investigation-spec-review.json",
+      "bytes": 4741,
+      "sha256": "5265f06bdd7cd7b803a6f4e450b22db6551c2fae31f40c85c5c2e2e79690cfe7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/authority/timeout-investigation.json",
+      "bytes": 28657,
+      "sha256": "33afb3270728fa8fd5ae93c2e26caeb5ed85411b688ae2791a8efb92bc3bd6b6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/candidate-code-review.json",
+      "bytes": 5071,
+      "sha256": "74dfce45e3eaaa5ecda431746e3aa31a2a90717e96e27782684a9b310f632a97"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/candidate.json",
+      "bytes": 7777,
+      "sha256": "c22af800ce98e9e7775386b364dc6c0d98b7babfc7cd588f3c9ac79b5e18dc6f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/checkpoint-custody.json",
+      "bytes": 21094,
+      "sha256": "d6c9ede66266f29e276cdbec32486786993af632ce0ee7a75b65250bc08e554d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/allocated-before.json",
+      "bytes": 459,
+      "sha256": "09c6d202c2ab0a60544489b39ec9242a9ffae10dbee5eaa526d3ea37fe5d677a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/check.json",
+      "bytes": 879,
+      "sha256": "fb275ae700f1ff5e5d4c655bb16ab181b411e8b6ef229cb4b4f56b1a178200ec"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/directories.json",
+      "bytes": 398,
+      "sha256": "34fae4f9af8dc7c51ca090c2937a3b116f9abc30e5f0999342fd2adde283258e"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/epoch-after.json",
+      "bytes": 470,
+      "sha256": "52aaffa217ed135fde740046dc5548e04199c3d7f19afbb92b89bab9b65be0ae"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/epoch-before.json",
+      "bytes": 470,
+      "sha256": "947637c3ea4b5eae81d989138fc906f069e396d280b97a6fb83397be21f8dece"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/expected-inputs.json",
+      "bytes": 5246,
+      "sha256": "a8840ac5ad92d0d12eee4865a17a29c07caae71c3ad93cd56eb57a521b4222ad"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/guest-after.json",
+      "bytes": 406,
+      "sha256": "20f2dddae3cebe02e49e604ca00b3872bb2037ebdead6166cfd56b3c8b4f75fa"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/guest-before.json",
+      "bytes": 406,
+      "sha256": "d7025ada189651ea43e5ac6f0edc7748520b75faeedadc07b2307c607182cfd0"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/host-after.json",
+      "bytes": 142,
+      "sha256": "488cc3e88e75fd274279a6514705378d35f7aabe37b795fba87da898540997d4"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/host-before.json",
+      "bytes": 152,
+      "sha256": "1a701d169e48de192df5a180cb32f57205331a051d902add85d88b35c972530c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/idle-after.json",
+      "bytes": 460,
+      "sha256": "95f8c4bb99302290ed3f36cf388c2e8f4917340ce37ee18a6dd3fb93ae35fb61"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/idle-before.json",
+      "bytes": 460,
+      "sha256": "880644f5761dfacc7d470d856e9a2030ca79c53bf0fb27ce23fba768903ba758"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/lock-after.json",
+      "bytes": 457,
+      "sha256": "fd9a07c3e90c50f9f89d32d1bc38898489240de2ccbfad2c39456576ed57e5bd"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/lock-bytes.json",
+      "bytes": 2039,
+      "sha256": "b3a05f061b1d673d3322b2f329a0a5e99e68eac59304459e13a478f25367479f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/lock.json",
+      "bytes": 523,
+      "sha256": "4470b1ef33b0623987b2d1b1b90bc9df5168d3f3b364ee22741d1f4e271b20c4"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/memory-after.json",
+      "bytes": 354,
+      "sha256": "09280e660e0efd8730f1e80f3969973bd01e4a5f824c0d2c6d21b9c87ace90f9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/memory-before.json",
+      "bytes": 354,
+      "sha256": "816a34c508281aa3c6e9c5a3406f1e6154a2754412e1744c195342fc0616ccae"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/new-stage.json",
+      "bytes": 314,
+      "sha256": "1a6c250d216eebb9cacf65c161ba361cce3446acff57d1c325d42dee5d09dd14"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/result.json",
+      "bytes": 858,
+      "sha256": "d52a8a93c2f06069f35361c7d3481faa0e4d530c526e3ac265d56568bae9c22c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/source-after.json",
+      "bytes": 3447,
+      "sha256": "bfbfa2251394aa4573582c4ff3294ca3b84f99f4951b49e07f7ca64cc10bdc4b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/source-before.json",
+      "bytes": 3447,
+      "sha256": "d7d9f1b6480549b27d1ea97072abbd2ac9763b8bcf035573886a2a5a2351e2cd"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/swap-before.json",
+      "bytes": 264,
+      "sha256": "440bc0f31cd7f709f18e9317c4bdaf29d59e61522abd5d61d7a3b15ff6f32ab6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/tools-after.json",
+      "bytes": 1005,
+      "sha256": "1d7aadd10a4a7cee99fc3b4cd6f78506932c46233354b76426fb1a53bac9ef7c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/tools-before.json",
+      "bytes": 1005,
+      "sha256": "369a7737458a02500ee52eb199b5740c582769ad62334b530ea8ee0778635e71"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/verify.json",
+      "bytes": 977,
+      "sha256": "6d7971b16a3e8618471595b7b2a872b2f8a35090d787ef1061ea306f866a1ae2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/failure-review-custody.json",
+      "bytes": 951,
+      "sha256": "7aabc28eb66cc5b9f7b6fcf98ed3c2fe449dbbc7e6b93dac2536934fa0bbda6d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/failure-review.json",
+      "bytes": 15973,
+      "sha256": "dee3c17296094f55d488bc343c593c647f58381348782f38dad99d3a115ec1f1"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/invocation-diff.json",
+      "bytes": 3088,
+      "sha256": "fd2cd274734a42d90956888440c1f90bc462e1ad5f3ffaf97acea4e839d89aec"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/invocation-manifest.json",
+      "bytes": 1586,
+      "sha256": "cb63a91ac13033557f4cc40c721e342b4206eb48362f777f6ab2a022a4721e4a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/manifest.json",
+      "bytes": 1760,
+      "sha256": "709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/next-step-spec-review.json",
+      "bytes": 13466,
+      "sha256": "e5e2649e35c202d2e10ab8b9c3cdf5090451b51b9b33b0d37b9ef5e9cf2ea452"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/production-call-analysis.json",
+      "bytes": 23925,
+      "sha256": "589df28f4905c4644e285cc741cf14cc90b984c7cefcdfb5af52b5b9d76752b3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/results.json",
+      "bytes": 4161,
+      "sha256": "cb05c7c3144af4df068cee1acb8984898a1a3084ecc5c3a0e6dc0c6ccdd74cbc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/source-bindings.json",
+      "bytes": 5103,
+      "sha256": "238f97983a5e8e4b22590c3d074845f42d18b6df82f66a388b7b02349744f516"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/structural-audit.json",
+      "bytes": 9464,
+      "sha256": "bb829be372540415ae2e4a077eaf16cc48cd9f28abc8d5610e9bd865c6e24ea0"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-isolated26/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 26361,
+      "sha256": "2c8f951451021f08e42c1c22c3e115c2222153042071cdde8430ac830af905b8"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 24911,
+      "sha256": "c1554de6e5bd3f21c35fc9e17560b700b9f3d2f3106db5a38eb674f8f9509234"
+    }
+  ]
+}

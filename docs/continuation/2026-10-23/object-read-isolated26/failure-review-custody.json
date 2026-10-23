@@ -1,0 +1,19 @@
+{
+  "schema": "lexlean-r4-read-isolated26-failure-review-custody/v1",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/failure-review.json",
+    "bytes": 15973,
+    "sha256": "dee3c17296094f55d488bc343c593c647f58381348782f38dad99d3a115ec1f1"
+  },
+  "destination": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/failure-review.json",
+    "bytes": 15973,
+    "sha256": "dee3c17296094f55d488bc343c593c647f58381348782f38dad99d3a115ec1f1"
+  },
+  "priorCheckpointCustody": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/checkpoint-custody.json",
+    "bytes": 21094,
+    "sha256": "d6c9ede66266f29e276cdbec32486786993af632ce0ee7a75b65250bc08e554d"
+  },
+  "note": "Outcome review arrived after initial selected-evidence preservation. Prior custody pending description is historical; current results bind this actual review. No proof acceptance."
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-isolated26-invocation-literal-diff/v1",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/run-read33.mjs",
+    "sha256": "c3e1a1e968671f2f803121cdcb384baf6b49cf3a0feebaf60792347490a1af78"
+  },
+  "transformations": [
+    {
+      "before": "One-off official-compiler invocation for the reviewed ObjectRead33 draft language migration.",
+      "after": "One-off official-compiler invocation for only the exact Read33 ordinal26 diagnostic; no aggregate acceptance."
+    },
+    {
+      "before": "const proposalPath=path.join(import.meta.dirname,'read33-plan.json');",
+      "after": "const manifestPath=path.join(import.meta.dirname,'manifest.json');"
+    },
+    {
+      "before": "const phase=process.argv[2];\nif(!['negative','positive'].includes(phase)) throw Error('phase');\nconst out=path.join(import.meta.dirname,phase);",
+      "after": "if(process.argv.length!==2) throw Error('this invocation has only one diagnostic phase');\nconst phase='isolated26';\nconst out=path.join(import.meta.dirname,'diagnostic');"
+    },
+    {
+      "before": "const stage=`/tmp/r4-object-read33-${phase}-owned-20261023`;",
+      "after": "const stage='/tmp/r4-object-read-isolated26-owned-20261023';"
+    },
+    {
+      "before": " const proposalBytes=fs.readFileSync(proposalPath);\n if(hash(proposalBytes)!=='c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6')throw Error('proposal drift');\n const proposal=JSON.parse(proposalBytes);\n const phasePlan=proposal.phases.find(x=>x.name===(phase==='negative'?'read33-admission-negative':'read33-positive'));\n inputs=phasePlan.inputs.map(x=>x.destination==='lexlean.toml'?{...x,path:path.join(import.meta.dirname,'lexlean.toml')}:x);",
+      "after": " const manifestBytes=fs.readFileSync(manifestPath);\n if(hash(manifestBytes)!=='709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1')throw Error('manifest drift');\n const manifest=JSON.parse(manifestBytes);\n for(const x of manifest.files){const b=fs.readFileSync(path.join(import.meta.dirname,x.path));if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('candidate drift '+x.path);}\n const candidate=JSON.parse(fs.readFileSync(path.join(import.meta.dirname,'candidate.json')));\n inputs=candidate.inputs.map(x=>{if(!['repository','candidate'].includes(x.base))throw Error('input base');return {...x,path:path.resolve(x.base==='repository'?repo:import.meta.dirname,x.path)};});"
+    },
+    {
+      "before": "  if(phase==='negative')save('result',{phase,stage,classification:'source-admission-only',lockStatus:lockResult.status,checkStatus:checked.status,result:checkParsed,verify:'NOT_RUN'});\n  else{",
+      "after": "  {"
+    },
+    {
+      "before": "  if(phase!=='negative')throw Error('lock result');",
+      "after": "  throw Error('lock result');"
+    }
+  ],
+  "unchanged": "CLI lock/check/verify, sameCID/epoch/tools pre+post,20GiBhostlaunch/10GiBpeakestimate+reserve,guest11pre10post,300000msconfig/4GiB2CPU,independent finally postcaptures; no nativecalled."
+}

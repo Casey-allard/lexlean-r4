@@ -1,0 +1,329 @@
+{
+  "schema": "lexlean-r4-read-parent49-next-step-spec-review/v1",
+  "at": "2026-10-23T21:45:33.418Z",
+  "status": "PASS_BOUNDED_DECODE_CANDIDATE_PREPARATION_WITH_EXPLICIT_CONSUMER_CONTRACT",
+  "reviewer": "orchestration_design_review",
+  "scope": "Source-only review authorizes preparation of one exact parent49 decode equality and its source-valid false-ID control. Actual source/config/invocation requires separate exact review; native admission is not granted here. Connected authenticated-fetch is mandatory before claiming this intermediate step integrated.",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/production-call-analysis.json",
+    "bytes": 23925,
+    "sha256": "589df28f4905c4644e285cc741cf14cc90b984c7cefcdfb5af52b5b9d76752b3"
+  },
+  "actualResult": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/result.json",
+    "bytes": 858,
+    "sha256": "d52a8a93c2f06069f35361c7d3481faa0e4d530c526e3ac265d56568bae9c22c"
+  },
+  "currentObservedFailure": {
+    "verifyStatus": 4,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadControls: configured 300000, observed 300010 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "artifacts": [],
+    "acceptedOriginalControl": false,
+    "classification": "Singleton target-module timeout under unchanged300000ms; this does not identify a particular production operation as the bottleneck. Proposal was authored while run pending; its conditional wording remains historical."
+  },
+  "sourceAudit": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "selectedDeclarationSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+    "argumentAstHashes": [
+      "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+      "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+      "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82"
+    ],
+    "runtimePins": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      }
+    ],
+    "pinnedPatternFilesAndActualResultsRehashed": true,
+    "productionDefinitionHashesRechecked": 20,
+    "sourceProjection": "Traversed exact backend/manifest/limits literal ASTs, allowing only syntactic ObjAppendBytes concatenation. No host hash or production execution.",
+    "parentEntryIndexZeroBased": 1,
+    "parentEntryAstSha256": "3ce20bcaae59d3e330c1a98ee03ac6cc6c9f31354cf3e83db431e0c932ae5f9c",
+    "wire": [
+      1,
+      128,
+      174,
+      112,
+      205,
+      237,
+      99,
+      32,
+      90,
+      110,
+      198,
+      109,
+      200,
+      204,
+      224,
+      130,
+      100,
+      35,
+      209,
+      207,
+      137,
+      18,
+      167,
+      134,
+      61,
+      229,
+      238,
+      245,
+      54,
+      216,
+      221,
+      107,
+      40,
+      188,
+      50,
+      60,
+      161,
+      125,
+      221,
+      203,
+      109,
+      110,
+      224,
+      251,
+      215,
+      105,
+      78,
+      221,
+      7
+    ],
+    "wireBytes": 49,
+    "parentId": {
+      "bytes": [
+        128,
+        174,
+        112,
+        205,
+        237,
+        99,
+        32,
+        90,
+        110,
+        198,
+        109,
+        200
+      ]
+    },
+    "manifestRootIndexZeroBased": 0,
+    "parentIdEqualsRootId": true,
+    "rootScale": 1,
+    "payloadBytes": 36,
+    "payloadOrder": "Three12bytechildIDs retained exactly from wire[13..49]; no sorting or deduplication."
+  },
+  "firstSourceContract": {
+    "equation": "R4.ObjectCodec.ObjDecodeRecord(parentWire49) = Result.ok(expectedRecord)",
+    "resultType": "Result R4.ObjectTypes.ObjRecord R4.ObjectTypes.ObjError",
+    "expectedRecord": {
+      "id": {
+        "bytes": [
+          128,
+          174,
+          112,
+          205,
+          237,
+          99,
+          32,
+          90,
+          110,
+          198,
+          109,
+          200
+        ]
+      },
+      "scale": 1,
+      "payload": [
+        204,
+        224,
+        130,
+        100,
+        35,
+        209,
+        207,
+        137,
+        18,
+        167,
+        134,
+        61,
+        229,
+        238,
+        245,
+        54,
+        216,
+        221,
+        107,
+        40,
+        188,
+        50,
+        60,
+        161,
+        125,
+        221,
+        203,
+        109,
+        110,
+        224,
+        251,
+        215,
+        105,
+        78,
+        221,
+        7
+      ]
+    },
+    "representation": "ObjRecord structure fields id:ObjNodeId, scale:Nat, payload:List Nat. ObjNodeId is structure with bytes:List Nat. Use explicit Result.ok type_arguments [ObjRecord,ObjError], standard Nat/List/record/equality AST and Reflexivity proof with axioms[]. Qualify all production definitions/imports exactly. No Bool projection or id-only equality.",
+    "provenance": "Expected record is syntactically derived from retained wire and root, but equality is unproved. ObjDecodeRecordScale checks scale/length/byte validity, invokes actual ObjNodeHash and compares recomputed identity against stored12bytes. Thus expected identity is a theorem obligation, not a trusted hash.",
+    "proof": "Existing supported Reflexivity only for first equation. No source or theorem authored by reviewer.",
+    "negative": {
+      "change": "Only expectedRecord.id.bytes[0]:128→129. Same input49wire, payload, scale, expected type, runtime, limits and proof; both ID values are byte-valid.",
+      "expectedFalseRecord": {
+        "id": {
+          "bytes": [
+            129,
+            174,
+            112,
+            205,
+            237,
+            99,
+            32,
+            90,
+            110,
+            198,
+            109,
+            200
+          ]
+        },
+        "scale": 1,
+        "payload": [
+          204,
+          224,
+          130,
+          100,
+          35,
+          209,
+          207,
+          137,
+          18,
+          167,
+          134,
+          61,
+          229,
+          238,
+          245,
+          54,
+          216,
+          221,
+          107,
+          40,
+          188,
+          50,
+          60,
+          161,
+          125,
+          221,
+          203,
+          109,
+          110,
+          224,
+          251,
+          215,
+          105,
+          78,
+          221,
+          7
+        ]
+      },
+      "requiredOutcome": "Official source admission followed by intended semantic proof rejection. Timeout, wrong imports, malformed AST, OOM or general setup failure is not semantic RED. Preserve whatever actually occurs; no fabricated intended result."
+    }
+  },
+  "mandatoryConnectedConsumer": {
+    "equation": "R4.ObjectRead.ObjAuthenticatedFetch(originalBackend, originalManifest.roots[0].id, 1) = Result.ok(expectedRecord)",
+    "backend": "Use all four original entries in original order from selectedDeclaration.statement.left.scrutinee.arguments[0], hash548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4. Parent is second; do not replace lookup with a one-record backend or stub.",
+    "context": "C(r) := match r with Result.error failure => Result.error failure | Result.ok decoded => if decoded.scale == 1 AND ObjBytesEqual(decoded.id.bytes,parentId.bytes) then Result.ok decoded else Result.error ObjError.integrityFailure. Exact Result ObjRecord ObjError throughout.",
+    "productionConnection": "Actual fetch first matches ObjRawLookup(originalBackend,parentId). Preserve Option.none -> ObjError.missing(parentId.bytes), Option.some wire -> C(ObjDecodeRecord wire). Reduction of exact literal lookup to parentWire49 must be established by actual accepted consumer conversion or a separately reviewed actual equation, never assumed. C(Result.ok expectedRecord) reduces through both scale/id checks to expected result.",
+    "supportedTransport": "The retained verified Nat-indexed Prop/Induction/Cases/Congruence/Apply pattern can express P(0)=decode equality and P(succ n)=C(actualDecode)=C(expectedSuccess). Zero Apply uses exact accepted decode theorem; successor cases use the same reviewed congruence pattern. Actual consumer Apply at1 then depends on definitional equality with full fetch. Freeze exact proposed AST and imports before independent CODE review.",
+    "noUnsupportedConstructs": "Result/Option matches above are expression ASTs already present in production. Do not invent proof-level Result Cases, Rewrite, raw Lean injection or Simplify/propext. The selected precedent uses Nat proof cases and congruence.",
+    "mandatoryAcceptance": "An actual native artifact for the full connected fetch equation, exact source/runtime/lock binding, empty observed axioms and kernel replay. Source use of Apply alone is not evidence that transport completes cheaply or avoids recomputation.",
+    "reuseControl": "At source review, verify actual consumer proof references the accepted decode theorem via the supported transport. If a negative is needed to discriminate theorem reuse, use the existing supported unrelated0=0 base-Apply pattern in one bounded reviewed control; do not accept direct rfl recomputation as proof of certificate reuse.",
+    "conditionalScope": "First implement/freeze only exact decode positive/false-ID pair. After their actual outcomes and independent review, prepare the connected fetch source under this contract. Do not generate other record certificates or broader read framework automatically."
+  },
+  "minimumCorrectionsBeforeSourceFreeze": [
+    {
+      "id": "C1",
+      "requirement": "Make informal parentId/type references exact: ObjNodeId, full expectedObjRecord, backend second entry, root0, and the specific128→129 negative above."
+    },
+    {
+      "id": "C2",
+      "requirement": "Freeze exact declarations/imports/module/path/config and complete positive/negative AST comparison. Positive declaration cannot assume the identity; actual ObjDecodeRecord must appear on left."
+    },
+    {
+      "id": "C3",
+      "requirement": "Treat connected fetch as a distinct mandatory actual consumer retaining full original backend and lookup/missing/error/scale/id branches. The source proposal is adequate for the first pair; it is not preapproval of an arbitrary later transport AST."
+    },
+    {
+      "id": "C4",
+      "requirement": "Preserve original Read33 and failed singleton/aggregate statements, expected96bytes/digest and runtime. Do not replace original whole-read acceptance with helper/fetch acceptance."
+    }
+  ],
+  "resources": {
+    "childTimeoutMilliseconds": 300000,
+    "containerMemoryBytes": 4294967296,
+    "containerCpuCount": 2,
+    "axiomPolicy": "none",
+    "storage": "Existing20GiB conservative hostlaunch planning,11GiB host+guest immediatepre,10GiB postreserve; fresh identities/currentepoch/idle/memory and independent postcaptures remain required.",
+    "execution": "Parent-owned sequential official compiler only after exact source/invocation review and fresh admission. No duplicate compiler/cache or unchanged timeout retry."
+  },
+  "remaining": "Even accepted connected parent fetch leaves threechild authentication, traversal/range finish, version hash, whole96byte digest and original ObjWholeRead Result-projection statement open, plus all33 control coverage/integration. No fullRead,Object,Hash,PrismPM orPages acceptance.",
+  "findings": [],
+  "limitations": [
+    "All new decode/control/transport native tests NOT_RUN. No timing, bottleneck or feasibility inference from source shape.",
+    "Existing transport precedents prove only their own statements. Current concrete conversion can still recompute work or timeout.",
+    "Actual singleton result.json confirms timeout/noartifact only; full current resource/postcondition audit is separate.",
+    "Reviewer initially used a literal projector that rejected existing ObjAppendBytes calls; corrected to syntactic concatenation of retained literals. No source change or production evaluation.",
+    "Only this report written; no source/config/runner/stage/SDK/VM/native/repository changes."
+  ],
+  "storage": {
+    "availableBytes": 27711397888
+  }
+}

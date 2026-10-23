@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-isolated26-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T21:36:06.585Z",
+  "ended": "2026-10-23T21:36:10.314Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadControls\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"8cd9790d151d73a8bd61f68b4f6b6de567c1e7fca45c523ffded2f4cb080440e\",\"source_id\":\"3ce12478a8d85c76bb8c80845395a316a15cf8f4fd72d816a1a808d7c68569e4\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

@@ -1,0 +1,96 @@
+{
+  "schema": "lexlean-r4-read-isolated26-results/v1",
+  "status": "REVIEWED_RESOURCE_FAILURE_NO_PROOF_ACCEPTANCE",
+  "selection": {
+    "ordinal": 26,
+    "name": "objProtocolWholeBytes",
+    "declarationJsonBytes": 25994,
+    "declarationJsonSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+    "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "proof": {
+      "kind": "reflexivity"
+    },
+    "axioms": [],
+    "parameters": []
+  },
+  "source": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 26361,
+    "sha256": "2c8f951451021f08e42c1c22c3e115c2222153042071cdde8430ac830af905b8"
+  },
+  "canonicalFull33": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "observed": {
+    "checkStatus": 0,
+    "checkModules": 11,
+    "sourceId": "3ce12478a8d85c76bb8c80845395a316a15cf8f4fd72d816a1a808d7c68569e4",
+    "semanticId": "8cd9790d151d73a8bd61f68b4f6b6de567c1e7fca45c523ffded2f4cb080440e",
+    "verifyStatus": 4,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadControls: configured 300000, observed 300010 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "configuredChildMilliseconds": 300000,
+    "observedChildMilliseconds": 300010,
+    "wholeVerifyWallMilliseconds": 341805,
+    "artifacts": [],
+    "memoryEvents": "zero before and after per retained receipts",
+    "postcaptureErrors": []
+  },
+  "actualOutcomeReview": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/failure-review.json",
+    "bytes": 15973,
+    "sha256": "dee3c17296094f55d488bc343c593c647f58381348782f38dad99d3a115ec1f1",
+    "status": "CONFIRMED_EXACT_SINGLETON_CHILD_TIMEOUT_NO_PROOF_ACCEPTANCE"
+  },
+  "sourceReadinessReview": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/candidate-code-review.json",
+    "bytes": 5071,
+    "sha256": "74dfce45e3eaaa5ecda431746e3aa31a2a90717e96e27782684a9b310f632a97"
+  },
+  "lock": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/diagnostic/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+  },
+  "custody": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/checkpoint-custody.json",
+    "bytes": 21094,
+    "sha256": "d6c9ede66266f29e276cdbec32486786993af632ce0ee7a75b65250bc08e554d"
+  },
+  "bindings": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/source-bindings.json",
+    "bytes": 5103,
+    "sha256": "238f97983a5e8e4b22590c3d074845f42d18b6df82f66a388b7b02349744f516"
+  },
+  "interpretation": [
+    "The exact original ordinal26 independently timed out, so aggregation alone is insufficient to explain this obligation under this environment. No specific production subexpression cost is established.",
+    "This is a resource-bound proof attempt, not an intended semantic negative or a counterexample. No theorem or Read33 acceptance.",
+    "Readiness reviews and frozen source preparation NOT_RUN statuses remain historical; actual current result is in this record and RESULTS.md.",
+    "All other32Read obligations remain unverified here; all33stillmandatory. Only previously acceptedStore20 remains accepted under its own context."
+  ],
+  "remaining": "350otherObjectcontrols,20separateBlake3primitives, semanticdefects/restoration, full257/Hashbinding, model/conformance/PrismPM/Pages remainopen. No new candidate or retry authorized by checkpoint.",
+  "reviewCustody": {
+    "path": "docs/continuation/2026-10-23/object-read-isolated26/failure-review-custody.json",
+    "bytes": 951,
+    "sha256": "7aabc28eb66cc5b9f7b6fcf98ed3c2fe449dbbc7e6b93dac2536934fa0bbda6d"
+  }
+}

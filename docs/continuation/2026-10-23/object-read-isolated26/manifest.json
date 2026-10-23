@@ -1,0 +1,44 @@
+{
+  "schema": "lexlean-r4-read33-isolated26-manifest/v1",
+  "status": "FROZEN_SINGLE_DIAGNOSTIC_SOURCE_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "candidate.json",
+      "bytes": 7777,
+      "sha256": "c22af800ce98e9e7775386b364dc6c0d98b7babfc7cd588f3c9ac79b5e18dc6f"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 9464,
+      "sha256": "bb829be372540415ae2e4a077eaf16cc48cd9f28abc8d5610e9bd865c6e24ea0"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 26361,
+      "sha256": "2c8f951451021f08e42c1c22c3e115c2222153042071cdde8430ac830af905b8"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/timeout-investigation-spec-review.json",
+      "bytes": 4741,
+      "sha256": "5265f06bdd7cd7b803a6f4e450b22db6551c2fae31f40c85c5c2e2e79690cfe7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/timeout-investigation.json",
+      "bytes": 28657,
+      "sha256": "33afb3270728fa8fd5ae93c2e26caeb5ed85411b688ae2791a8efb92bc3bd6b6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/read33-plan.json",
+      "bytes": 19549,
+      "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/control-migration.json",
+      "bytes": 6648,
+      "sha256": "b5a335e7c89804ea95d62bdb556308e8c74a58d19a73061bedd399afc7a64611"
+    }
+  ],
+  "limit": "Preparation of only ordinal26; no execution authorization or32additional variants."
+}

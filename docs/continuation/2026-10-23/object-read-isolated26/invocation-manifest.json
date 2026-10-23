@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-isolated26-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "manifest.json",
+    "sha256": "709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1"
+  },
+  "files": [
+    {
+      "path": "invoke-isolated26.mjs",
+      "bytes": 7558,
+      "sha256": "5bc71d978d4a4eeac4d6a6d8a49994b2c9098787dde8c229294bb83768755584"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 3088,
+      "sha256": "fd2cd274734a42d90956888440c1f90bc462e1ad5f3ffaf97acea4e839d89aec"
+    }
+  ],
+  "checks": {
+    "syntaxCommand": "node --check invoke-isolated26.mjs",
+    "syntaxExit": 0,
+    "scriptExecuted": false,
+    "all15InputsRehashed": true,
+    "canonicalFull33Unchanged": true,
+    "fourFrozenCandidatePayloadsUnchanged": true
+  },
+  "invocation": "node invoke-isolated26.mjs",
+  "outputDirectory": "diagnostic",
+  "stage": "/tmp/r4-object-read-isolated26-owned-20261023",
+  "limits": "Same reviewedRead33config3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7,300000mschild/4GiB2CPU; existing epoch not restarted.",
+  "boundaries": "Only single ordinal26 diagnostic; no32additionalvariants or Read33coverage. Parent must independently review candidate+invocation and freshly admit resource/idle/epoch/tools before native. Verify exit/postconditions/artifacts require independent audit; script exit alone is not proof acceptance.",
+  "storage": {
+    "observedHostAvailableKiB": 27655456,
+    "reserveBytes": 10737418240,
+    "maximumSupplementAllocationBytes": 51200
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "lexlean-r4-read33-isolated26-structural-audit/v1",
+  "status": "READ_ONLY_AST_ASSERTIONS_PASS_NATIVE_NOT_RUN",
+  "checks": {
+    "selectedExactlyOriginalOrdinal26": true,
+    "completeSelectedDeclarationExact": true,
+    "proofStatementAxiomsParametersExact": true,
+    "allOtherSemanticFieldsExact": true,
+    "prefixAndSuffixWrapperExact": true,
+    "jsonCanonicalStringifyExact": true,
+    "fullSemanticReferenceTraversalLocalDependencies": [],
+    "fullCanonical33Unchanged": true,
+    "sixMergedSourcesUnchanged": true,
+    "tenOtherDraftsUnchanged": true,
+    "sharedThirteenInputPinsVerified": true,
+    "configExactReviewedRead33": true
+  },
+  "omittedDeclarationCensus": [
+    {
+      "ordinal": 1,
+      "name": "objEmptyClosureNoRecords",
+      "sha256": "1ef595ea0f1368e58aae5db2860fc3b7eb7811f68609f56278763c1c381ec26f",
+      "selected": false
+    },
+    {
+      "ordinal": 2,
+      "name": "objReversedRangeRefused",
+      "sha256": "a7bff9d99e33cee9c1aea48ca3c24f7609a2461d9468c8fd3dc7482e4144bfb4",
+      "selected": false
+    },
+    {
+      "ordinal": 3,
+      "name": "objBeyondRangeRefused",
+      "sha256": "658447e446811fb93f6f699457eed473d5974c201e986b5ecd2a283a20c6a3b2",
+      "selected": false
+    },
+    {
+      "ordinal": 4,
+      "name": "objReturnBudgetBeforeFetch",
+      "sha256": "d158a56fd2774eb3616c0cb8e5221a77504f28b1fe2888c443e2140cf6c0988d",
+      "selected": false
+    },
+    {
+      "ordinal": 5,
+      "name": "objVisitBudgetBeforeMissingFetch",
+      "sha256": "3938c804a1a3473bf3d0e9a50c520331b3aa8e0e53324e04c89c17a08bfa2290",
+      "selected": false
+    },
+    {
+      "ordinal": 6,
+      "name": "objMissingLeafTyped",
+      "sha256": "cb6e722520df31c76b880570e2e249d89125f039d686b627e982ba57e1706d0c",
+      "selected": false
+    },
+    {
+      "ordinal": 7,
+      "name": "objDuplicateBackendKeysRefused",
+      "sha256": "bcb0894f49adc1aa5681642fda1d4d5bb9f05dafd88972530a121759e6ad96b5",
+      "selected": false
+    },
+    {
+      "ordinal": 8,
+      "name": "objEmptyRangeWithoutFetch",
+      "sha256": "ce76862da56d3bb702ba6e3fa5fa850ad38566164ec6e2ccfb5d4b0508cff06e",
+      "selected": false
+    },
+    {
+      "ordinal": 9,
+      "name": "objOneByteWholeLiteral",
+      "sha256": "78d305647ed6afcf7b505de38f3b22775c1a2302942abbc8329e608292476b26",
+      "selected": false
+    },
+    {
+      "ordinal": 10,
+      "name": "objFullLeafRangeLiteral",
+      "sha256": "284049df4f528c3c653bcb30259c626a8e0b0cd022285da58c2718dfc73bddc5",
+      "selected": false
+    },
+    {
+      "ordinal": 11,
+      "name": "objMiddleRangeLiteral",
+      "sha256": "507f2c19d18e0fa6c1bd26d802fb3553b685211765fa18db8b1a5483f4c163c2",
+      "selected": false
+    },
+    {
+      "ordinal": 12,
+      "name": "objMiddleRangeStats",
+      "sha256": "e551207750e78c88dabbfccd017360939fcbd4c01d5dbd23a06e45a8a4e6bb91",
+      "selected": false
+    },
+    {
+      "ordinal": 13,
+      "name": "objMiddleRangeRemainder",
+      "sha256": "403405001e1808bd37bb2e6ea2fbc2911448d581505b5e94ef705c43940419e4",
+      "selected": false
+    },
+    {
+      "ordinal": 14,
+      "name": "objWholeWrongDigestRefused",
+      "sha256": "f448de9a57e39330f347c969a6fc3ba9a0d959ed409d34a326a389fbf210a84d",
+      "selected": false
+    },
+    {
+      "ordinal": 15,
+      "name": "objFullRangeDoesNotRehashWholeDigest",
+      "sha256": "338a2a7687c8454a3affe21ca18726e5ab370542c81f344b1ba6d31d0cbb4cb1",
+      "selected": false
+    },
+    {
+      "ordinal": 16,
+      "name": "objNonzeroTailEvenForEarlyRange",
+      "sha256": "bf43e139077add6e8dc516e0c5ac9b32649abda0cb4edf40ad7e6ef69a928bef",
+      "selected": false
+    },
+    {
+      "ordinal": 17,
+      "name": "objClosureNonzeroTailRefused",
+      "sha256": "63a1cb2a53b8c645b878866d827a7d33614a5ac88e767e78b283b7735422c5a3",
+      "selected": false
+    },
+    {
+      "ordinal": 18,
+      "name": "objCorruptExternalRecordRefused",
+      "sha256": "ff61620bd2ca717cb0cfdd18f996d1212cd765e34198cd1835ac4e148f08ac64",
+      "selected": false
+    },
+    {
+      "ordinal": 19,
+      "name": "objRepeatedRootsOccurrenceStats",
+      "sha256": "7da62c8fe9187e75f3af2ab4d243495588be054b56318578e10763285292fe14",
+      "selected": false
+    },
+    {
+      "ordinal": 20,
+      "name": "objRepeatedRootsBytesRetained",
+      "sha256": "27639b7305e22411bff715a21cdb1a13210d43869e43ead26a4f9c5676f77234",
+      "selected": false
+    },
+    {
+      "ordinal": 21,
+      "name": "objRepeatedRootsVisitBudget",
+      "sha256": "93a50183697e4817e34b3d187dd1e8b52c1e82cdbccb1704f949056554e7e6af",
+      "selected": false
+    },
+    {
+      "ordinal": 22,
+      "name": "objPresentParentMissingDescendants",
+      "sha256": "84120a6454d06b953f7796b339680e717acdbc065fb9446fcb325126c58a3803",
+      "selected": false
+    },
+    {
+      "ordinal": 23,
+      "name": "objAbsentParentStopsDiscovery",
+      "sha256": "2bbf698ac0c1ab27e4fb06a98f8cd0713d89e46ebf1827d8da5fded5c4b35a81",
+      "selected": false
+    },
+    {
+      "ordinal": 24,
+      "name": "objMissingScaleReuseRefused",
+      "sha256": "818f7f7b52ecd87c6dfc3cc0f9f5fcd9c2c286b903f128f547c0d9e889558501",
+      "selected": false
+    },
+    {
+      "ordinal": 25,
+      "name": "objManifestVersionProtocolLiteral",
+      "sha256": "ec11b13523080b668f1591dd4809f50ba81eea1f81e7ac059ab270a43b81c282",
+      "selected": false
+    },
+    {
+      "ordinal": 26,
+      "name": "objProtocolWholeBytes",
+      "sha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+      "selected": true
+    },
+    {
+      "ordinal": 27,
+      "name": "objProtocolFullOccurrenceStats",
+      "sha256": "0c28600a361b61da86fe2b75344b1fe985c716c8b873db29ac84325ef89c024a",
+      "selected": false
+    },
+    {
+      "ordinal": 28,
+      "name": "objProtocolCrossLeafRange",
+      "sha256": "9f806ec2c639b33296f360b15e7f73e9971e5583d929c01390f6f3d11d3fe2f0",
+      "selected": false
+    },
+    {
+      "ordinal": 29,
+      "name": "objProtocolCrossLeafStats",
+      "sha256": "f2e7efd083b3280ac8b4b6d54a8a44d3e7dc664fcf052d53d4f2d82143ce41ce",
+      "selected": false
+    },
+    {
+      "ordinal": 30,
+      "name": "objProtocolClosureComplete",
+      "sha256": "75a212a305ec1842203d4da6c57dcafcce78850c9c32c28b114df680ebc6267f",
+      "selected": false
+    },
+    {
+      "ordinal": 31,
+      "name": "objWrongExpectedChildScale",
+      "sha256": "a6d9e120cf00bb8b23c68318d03445df1cb04a68c838949c7ca1c2185297d965",
+      "selected": false
+    },
+    {
+      "ordinal": 32,
+      "name": "objMissingBeforeVisitedBytesOverflow",
+      "sha256": "4d972c23d779ec763ddd3408d00d306e70871d403a69c754fade0b3e9168d663",
+      "selected": false
+    },
+    {
+      "ordinal": 33,
+      "name": "objMalformedBeforeVisitedBytesOverflow",
+      "sha256": "f0851c2bada5854bb39ef14423b9547958789651bdd78b609a13ba4b7da6beac",
+      "selected": false
+    }
+  ],
+  "protectedPaths": [
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    },
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ]
+}
