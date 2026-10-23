@@ -1,0 +1,42 @@
+{
+  "schema": "lexlean-r4-first-child-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+    "bytes": 2236,
+    "sha256": "309d910f2b922c52927f3c3efedf827a358e8161bf209ba1f5c91ee316524f3f"
+  },
+  "files": [
+    {
+      "path": "invoke-first-child.mjs",
+      "bytes": 7734,
+      "sha256": "c8a9cef979ba0dfe739f9c0c6169449110b4b41c951a319fce8d68348ec47815"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2510,
+      "sha256": "1795cc6b02569e3eda6e746d8a5ab5d1e4070fe53cb0dff9d76c7de99ab35f70"
+    }
+  ],
+  "commands": [
+    "node invoke-first-child.mjs child-false",
+    "Only after intended negative independent acceptance and fresh parent admission: node invoke-first-child.mjs child-positive"
+  ],
+  "phaseSelectors": [
+    "child-false",
+    "child-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+  "inputCounts": [
+    25,
+    25
+  ],
+  "stagePattern": "/tmp/r4-object-read-first-child-${phase}-owned-20261023",
+  "preserved": "Exact existing epoch/container/tools/source/lock/idle/zeroevents;20GiBhostlaunch with10GiBpeakestimate+10GiBreserve;11GiBpreguest/10GiBpost;300000ms/4GiB2CPU; independent finally capture and actualartifactcopy; exclusive fresh selectedphase only.",
+  "checks": {
+    "canonicalSemanticJSON": true,
+    "all50InputPinsRehashed": true,
+    "preserved17SourcePins": true
+  },
+  "boundary": "Both new proof modules required. No actualsourcecheck or proof results. No automatic second phase or limits changes."
+}

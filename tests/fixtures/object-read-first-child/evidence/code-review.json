@@ -1,0 +1,84 @@
+{
+  "schema": "lexlean-r4-first-child-source-invocation-code-review/v1",
+  "status": "PASS_SOURCE_READINESS_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:19:04.825Z",
+  "scope": "Independent read-only CODE review of frozen actual first-child state candidate and one-off invocation. Reviewer authored prior accounting source/native reviews; this new candidate and invocation were authored by another internal agent.",
+  "identities": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+      "bytes": 2236,
+      "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-manifest.json",
+      "bytes": 1683,
+      "sha256": "165bf2620d81331da7695cee9e6521f9da4b744485d7311faa0d77eab5dd0414"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invoke-first-child.mjs",
+      "bytes": 7734,
+      "sha256": "227891d0e933e4f06aaee33bb722d147fe9fa20e2a25e5cfa12f0b3f6a3bac28"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/authoring-correction.json",
+      "bytes": 6693,
+      "sha256": "d040f9c48a4266cbf72e30c791068d8e04c40ea95eab929e268e3bfbef308ff9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/next-child-visit-proposal.json",
+      "bytes": 12231,
+      "sha256": "1b810e3772f2ad6cb222cc1b257496f2049c9a5066b3428af00533c449f3e176"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/next-child-visit-spec-review.json",
+      "bytes": 7946,
+      "sha256": "e93d197a8b6673d080922be25bebf7f19bc182810595d802d5a17266546b2703"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/evidence/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    }
+  ],
+  "checks": {
+    "sourcePayloadsRehashed": 7,
+    "manifestDependenciesRehashed": 3,
+    "phaseInputReferencesRehashed": 50,
+    "inputsEachPhase": 25,
+    "uniqueDestinationsEachPhase": 25,
+    "preservedCanonicalAndDraftPinsRehashed": 17,
+    "originalSnapshotPinsRehashed": 17,
+    "canonicalJSON": "All three actual semantic modules parsed and byte-compared with recursively sorted canonical JSON; eq is supported, schema and glossary remain the existing 1.2 forms.",
+    "actualChild": "Exact accepted first ObjVisitNode subtree retained, including scale0, derived child identity, offset0, S49, full four-entry backend, length96, original range/limits and collect=true. Actual lookup/decode/hash/identity/scale/state work is not replaced by asserted metadata.",
+    "expectedState": "Exact proposal state reconstructed and checked: original 32 bytes, visits2, wireBytes94 and sorted seen[parent,child]. Backend entry index2 and incoming S49 AST hashes match SPEC. All six production declaration pins independently rehashed.",
+    "negative": "Entire positive/negative ASTs become identical after replacing only expected wireBytes95 with94; source wrappers and proof stay identical. Reflexivity and empty axioms; intended negative requires native admission and LLV7002, not timeout/OOM/setup failure.",
+    "mandatoryConsumer": "Original parent LHS identical to accepted predecessor. Independently extracted prior first-child success continuation and substituted only afterFirst=S94 and childWidth=32. Result equals candidate RHS exactly; canonical full statement4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3. Both remaining child calls, checked offsets, error branches and production ordering are retained.",
+    "proof": "Consumer Apply targets accepted ObjectReadParent49ConcreteChildEntry.objParent49ConcreteChildEntry with empty arguments/type_arguments and axioms[]. Newly imported child certificate is a checked dependency/control, not an applied rewrite, memoization or cache.",
+    "imports": "Every explicit external module reference in new sources is imported and each import is available in both phase mappings. No self-qualified references.",
+    "config": "Only entrypoint changes from accepted accounting configuration. Compiler/proof limits unchanged.",
+    "history": "All 11 original invalid-equality-tag packet files rehashed against preserved descriptors; original seven payloads match old manifest. Both child files differ from originals by exactly one kind equal→eq replacement each; common consumer/config/README byte-identical. Dependent pins regenerated; no native execution/semantic negative attributed to source-only correction.",
+    "invocation": "Exact predecessor bytes transformed by precisely eight single-occurrence declared replacements reproduce frozen runner byte-for-byte: comment, two selectors, error text, fresh stage prefix, manifest pin, negative phase mapping, census23→25 and root. All operational gates and independent postcaptures otherwise unchanged.",
+    "guardInspection": "One explicit phase per call; exclusive output/stage, manifest and every selected input byte/hash validation before copying; 20GiB host planning/10GiB estimate+reserve, guest11GiBpre/10post, exact existing epoch4GiB2CPU/networknone/mounts[], idle/zeroevents/tools before; genuine lock/check/full consumer verify; artifact only on actual verify0/success. Independent source/lock/tools/epoch/memory/idle/guest/host postcapture checks retained. Launcher0 never implies proof acceptance.",
+    "operationalBoundary": "Frozen script is trusted reviewed one-off code, not a generic untrusted-input sandbox. Independent parent phase/result/artifact review remains mandatory; script does not itself accept a semantic negative or complete the product."
+  },
+  "findings": [],
+  "nativeStatus": {
+    "sourcecheck": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positive": "NOT_RUN"
+  },
+  "requiredSequence": [
+    "Fresh parent storage/epoch/tools/idle/memory gates.",
+    "Run selected negative once and independently establish intended 94/95 proof rejection after admission.",
+    "Then run positive once subject to fresh gates; require actual child and mandatory full consumer artifacts, empty axioms, kernel replay, source/lock and postconditions.",
+    "Classify any admission/timeout/OOM/setup failure before another candidate; no equivalent-limit retry or helper-only promotion."
+  ],
+  "limitations": "No native/compiler/SDK invocation by reviewer. Static correctness does not prove admission, definitional conversion, runtime cost, positive result or any complete walk. Second/third child results, complete output/stats, whole-read root/range/hash path, original Read33, remaining controls, full Object/Hash/PrismPM/Pages remain open.",
+  "storage": {
+    "availableBytes": "30637199360",
+    "reviewBudgetBytes": 25000,
+    "noCopiesOrBuilds": true
+  },
+  "actions": "Only this bounded external review JSON written; no repository/index/frozen/source/VM/other-lab changes."
+}

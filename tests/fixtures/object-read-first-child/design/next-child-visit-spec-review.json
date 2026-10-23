@@ -1,0 +1,94 @@
+{
+  "schema": "lexlean-r4-first-child-visit-spec-review/v1",
+  "status": "PASS_BOUNDED_DESIGN_WITH_MANDATORY_ACTUAL_CONSUMER",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T23:10:13.597Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/next-child-visit-proposal.json",
+    "bytes": 12231,
+    "sha256": "1b810e3772f2ad6cb222cc1b257496f2049c9a5066b3428af00533c449f3e176"
+  },
+  "scope": "Source-only independent specification review for one original first-child result and mandatory unchanged original-parent consumer. No new candidate/source admission/native tests performed.",
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 80485,
+      "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/lexlean.toml",
+      "bytes": 700,
+      "sha256": "efcb861ec9191a0ada5a5e37eeb86a195e9ab2ed70f2272a359fdfa611708020"
+    }
+  ],
+  "checks": {
+    "allSixAuthorityAndBothOldLeafFilesRehashed": true,
+    "acceptedPrerequisite": "Actual prior accounting/child-entry source, review and retained attestation3a2c8015 agree; consumer declaration present with successful empty-axiom observation.",
+    "canonicalReconstruction": {
+      "acceptedChildEntryStatement": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789",
+      "exactChildCall": "14ce41b1e262b194dc2e7417372c31420ddabc93d86324bd44c6e4ba8c00010a",
+      "backendEntry": "cfb62a49b557b601bd450c976dcaad6a47621c3dfaff3bd396775aadc1cf9451",
+      "incomingS49": "8d2b1342cf324189f6fb76a5cfdaa15667d41b4d9f323b99e67c968f3ebb3c37",
+      "expectedS94": "064c1afff120c9b3f6f17698c57669ff83015c43e69a2727a429dd4009cc8f57",
+      "remainingContinuation": "024b2ad13159a723210b8465b99113b76c7993b04fe936b589715b47a9e78d77",
+      "mandatoryConsumerStatement": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3"
+    },
+    "actualChild": "Selected exact first ObjVisitNode call from accepted RHS; scale0, ObjChildIdentity(original parent payload,0), base0, S49, original four-entry backend, logicalLength96, range0..96, originallimits, collecttrue. No simplified/replaced call accepted.",
+    "wireAndIdentity": "Actual backend entry at index2 matches pinned AST; wire is exactly45 Nat bytes:scale0,12 listed ID bytes,32 listed payload bytes. Parent payload first12 bytes equal this ID. Original backend ID remains input requiring actual decode/hash authentication, not a trusted replacement result.",
+    "sourceSupportedExpectedState": "Production zero branch spans32 and checks offset0+32 and range intersection. MarkVisit increments1→2 under original visits1000000. Actual lookup/decode/authentication and scale0/id tests remain. AccountRecord adds45 to49=94 with u64 guard and sorted insertion. Existing parent starts128, new child starts204, giving seen[parent,child]. ReadLeaf withlogicalLength96/stop32/range0..96/collecttrue takes all32 originalpayload bytes into previously empty output; padding/error definition unchanged.",
+    "allSixProductionDeclarationPinsMatched": true,
+    "remainingChildren": "Independently extracted first-child success subtree, substituted only afterFirst=S94 and childWidth=32, and reproduced continuation/statement hashes. Exactly two actual child calls remain: offset12 atsecondBase withS94, then offset24 atthirdBase withboundafterSecond. All checked offsets, Result/error branches, backend/range/limits/collect args retained.",
+    "oldLeafComparison": "Both old accepted leaf statement/input/file hashes checked; objTrace257Record0 input and objTrace257Record10 input each differ from this actual32-byte payload AST. No exact existing leaf certificate reuse is established. The comparison is bounded to those two sources, not an assertion no reusable theorem exists anywhere.",
+    "proofConstructors": "Existing supported Reflexivity for full actual child state and Apply prior objParent49ConcreteChildEntry with emptyargs/typeargs are sufficient syntactic mechanisms. Their success/cost on this larger conversion is not established by source inspection."
+  },
+  "implementationConstraints": [
+    {
+      "id": "C1",
+      "requirement": "Keep the entire exact first-child call in the child equation. Sourcecheck plus native child proof must perform actual original backend lookup/decode/hash/id/scale and state operations; no trusted digest/decoded record shortcut or runtime changes."
+    },
+    {
+      "id": "C2",
+      "requirement": "Both variants import the same complete closure and mandatory full original-parent consumer. Only expected child-state wireBytes94→95 differs. Require intended LLV7002 Reflexivity mismatch after source admission; timeout/OOM/admission failure is not an accepted semantic negative."
+    },
+    {
+      "id": "C3",
+      "requirement": "Positive must verify both new child-state theorem and original-parent consumer, with complete independent source/artifact/emptyaxiom/kernel audit. Child certificate alone is incomplete; unchanged original LHS and exactly two retained child calls are mandatory."
+    },
+    {
+      "id": "C4",
+      "requirement": "Consumer directly Applies prior child-entry theorem. Imported child-state certificate is checked dependency/control, not a rewrite, cache or proof-term theorem reuse. Actual kernel definitional conversion may recompute first-child work; no success/opacity/avoided-hash/timing guarantee."
+    },
+    {
+      "id": "C5",
+      "requirement": "Keep canonical semantic-module/2/language1.2, external qualification and emptyaxioms. Exact candidate CODE/invocation review and fresh epoch/tools/idle/memory/storage gates precede native work; proposal grants no launch authority."
+    },
+    {
+      "id": "C6",
+      "requirement": "Retain300000ms child/4GiB2CPU,20GiBhostlaunch/10GiBreserve/11GiBguestpre10GiBpost and1MiB new-source budget. Preserve/classify actual failure before another candidate; no equivalent limit increase, partial-subset or helper-only acceptance."
+    }
+  ],
+  "findings": [],
+  "testStatus": "All proposed new source/native negative/native positive tests NOT_RUN. Read-only hash and AST reconstruction checks completed; these are not native proof acceptance.",
+  "acceptanceBoundary": "A future positive would establish only first actual leaf resultS94 and full original parent continuing through two remaining children. Second/third results, finalwalk/output/stats/rootwrapping/rangefinish/manifestversion/wholehash, originalRead33/allremainingcontrols and fullObject257/Hash/PrismPM/Pages remain open.",
+  "actions": "Only this small external report written. No candidate/repository/index/stage/native/compiler/SDK/VM/API/other-lab changes."
+}

@@ -1,0 +1,350 @@
+{
+  "schema": "lexlean-r4-next-first-child-visit-proposal/v1",
+  "status": "SOURCE_ONLY_NOT_RUN_REQUIRES_INDEPENDENT_SPEC",
+  "objective": "Prove the first actual leaf visit in the original96-byte read from accepted S49, then connect its concrete result to the unchanged original parent visitor while preserving both later child calls.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 80485,
+      "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/lexlean.toml",
+      "bytes": 700,
+      "sha256": "efcb861ec9191a0ada5a5e37eeb86a195e9ab2ed70f2272a359fdfa611708020"
+    }
+  ],
+  "prerequisite": {
+    "review": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad",
+    "attestation": "3a2c801521374b47a284080480b223ef1d89427ebad69b85c1a52e674c17d203",
+    "theorem": "objParent49ConcreteChildEntry",
+    "statementSha256": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789"
+  },
+  "actualChild": {
+    "sourcePointer": "/declarations/0/statement/right/branches/1/body/scrutinee",
+    "exactCallSha256": "14ce41b1e262b194dc2e7417372c31420ddabc93d86324bd44c6e4ba8c00010a",
+    "expression": "ObjVisitNode(0,ObjChildIdentity(parentRecord.payload,0),0,S49,originalFourEntryBackend,96,range[0,96],originalLimits,true)",
+    "preserveExactCallAST": true,
+    "backendEntryIndex": 2,
+    "backendEntrySha256": "cfb62a49b557b601bd450c976dcaad6a47621c3dfaff3bd396775aadc1cf9451",
+    "wire45": [
+      "0",
+      "204",
+      "224",
+      "130",
+      "100",
+      "35",
+      "209",
+      "207",
+      "137",
+      "18",
+      "167",
+      "134",
+      "61",
+      "3",
+      "10",
+      "17",
+      "24",
+      "31",
+      "38",
+      "45",
+      "52",
+      "59",
+      "66",
+      "73",
+      "80",
+      "87",
+      "94",
+      "101",
+      "108",
+      "115",
+      "122",
+      "129",
+      "136",
+      "143",
+      "150",
+      "157",
+      "164",
+      "171",
+      "178",
+      "185",
+      "192",
+      "199",
+      "206",
+      "213",
+      "220"
+    ],
+    "id": [
+      "204",
+      "224",
+      "130",
+      "100",
+      "35",
+      "209",
+      "207",
+      "137",
+      "18",
+      "167",
+      "134",
+      "61"
+    ],
+    "payload32": [
+      "3",
+      "10",
+      "17",
+      "24",
+      "31",
+      "38",
+      "45",
+      "52",
+      "59",
+      "66",
+      "73",
+      "80",
+      "87",
+      "94",
+      "101",
+      "108",
+      "115",
+      "122",
+      "129",
+      "136",
+      "143",
+      "150",
+      "157",
+      "164",
+      "171",
+      "178",
+      "185",
+      "192",
+      "199",
+      "206",
+      "213",
+      "220"
+    ],
+    "incomingS49Sha256": "8d2b1342cf324189f6fb76a5cfdaa15667d41b4d9f323b99e67c968f3ebb3c37",
+    "expectedS94": {
+      "output": [
+        "3",
+        "10",
+        "17",
+        "24",
+        "31",
+        "38",
+        "45",
+        "52",
+        "59",
+        "66",
+        "73",
+        "80",
+        "87",
+        "94",
+        "101",
+        "108",
+        "115",
+        "122",
+        "129",
+        "136",
+        "143",
+        "150",
+        "157",
+        "164",
+        "171",
+        "178",
+        "185",
+        "192",
+        "199",
+        "206",
+        "213",
+        "220"
+      ],
+      "visits": "2",
+      "wireBytes": "94",
+      "seen": [
+        [
+          "128",
+          "174",
+          "112",
+          "205",
+          "237",
+          "99",
+          "32",
+          "90",
+          "110",
+          "198",
+          "109",
+          "200"
+        ],
+        [
+          "204",
+          "224",
+          "130",
+          "100",
+          "35",
+          "209",
+          "207",
+          "137",
+          "18",
+          "167",
+          "134",
+          "61"
+        ]
+      ]
+    },
+    "expectedStateSha256": "064c1afff120c9b3f6f17698c57669ff83015c43e69a2727a429dd4009cc8f57",
+    "expectedValueBoundary": "Source-derived proposed value only, not a certified state. Original backend ID is copied, never trusted instead of actual hash verification."
+  },
+  "productionReasoning": [
+    "Nat.zero branch performs ObjSpan0, checked stop0+32 and overlap with range0..96.",
+    "ObjMarkVisit increments1 to2 under original limits; ObjAuthenticatedFetch performs actual original backend lookup,45-byte decoding, hash/id and scale0 checks.",
+    "AccountRecord adds45 to49=94 and sorts childID after parentID (128<204); ReadLeaf collects exact32 payload bytes. Logical length96 exceeds stop32, retaining original padding/error logic."
+  ],
+  "candidate": {
+    "logicalModules": 2,
+    "sourceFiles": 3,
+    "child": "Exact child call = Result.ok S94; Reflexivity, axioms[]. Negative changes only expected wireBytes94 to95, preserving full call/proof.",
+    "consumer": "Same mandatory full original parent consumer in both variants, imports selected child-state control and prior accepted accounting consumer. Original left AST unchanged; right is exact continuation described below.",
+    "proof": {
+      "kind": "Apply",
+      "reference": {
+        "module": "ObjectReadParent49ConcreteChildEntry",
+        "name": "objParent49ConcreteChildEntry"
+      },
+      "arguments": [],
+      "type_arguments": []
+    },
+    "meaning": "Direct Apply plus genuine kernel definitional conversion, following accepted accounting integration. Child certificate is checked dependency/control, NOT applied rewrite or caching. Both child-state and full consumer must pass; helper-only is incomplete.",
+    "noNewMechanism": "Existing supported Reflexivity and Apply only. No Simplify/propext/raw tactics/new hash implementation/limit changes. Shared closure referenced, no runtime copies."
+  },
+  "consumerExtraction": {
+    "originalLeftSha256": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1",
+    "selectPointer": "/declarations/0/statement/right/branches/1/body/branches/1/body",
+    "substitutions": {
+      "afterFirst": "exact expected S94",
+      "childWidth": "Nat literal32"
+    },
+    "continuationSha256": "024b2ad13159a723210b8465b99113b76c7993b04fe936b589715b47a9e78d77",
+    "consumerStatementSha256": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3",
+    "remainingChildCalls": 2,
+    "preservation": "Select current ObjSpan0 success then first-child success subtree; substitute only bound afterFirst and childWidth. Width32 and child success must close by actual conversion. Preserve second/third checked offsets, all Result/error branches, original backend/limits/range and both actual remaining child calls."
+  },
+  "existingLeafComparison": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+        "bytes": 5627,
+        "sha256": "490eec8b45719c4fabae9bf36e3fe7f9674d71968ca45c07b8cf2e782d048444"
+      },
+      "theorem": "objTrace257Record0",
+      "statementSha256": "8735cc4a5e0c0ef1ccaf0e305445cdbccf947f5294ecce8a34dcab27b9b02977",
+      "inputSha256": "802f65b6f4738398e2e9134fcdc90ae6690bd403605f183e69820f129bfd945e",
+      "childPayloadSha256": "a833d7a87379f758ee402318c8bbddf7eb6e4a968fb88479a8b0ea25e6ab3a0b",
+      "exactInputASTEqual": false
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257LeafCertificate.lex.tex",
+        "bytes": 3826,
+        "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a"
+      },
+      "theorem": "objTrace257Record10",
+      "statementSha256": "d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b",
+      "inputSha256": "ed443adfac288735db320978c2b428e75614c6f3416169fdcafcfae178bd17c6",
+      "childPayloadSha256": "a833d7a87379f758ee402318c8bbddf7eb6e4a968fb88479a8b0ea25e6ab3a0b",
+      "exactInputASTEqual": false
+    }
+  ],
+  "reuseConclusion": "Neither inspected accepted original257 leaf input AST equals this protocol96 child payload; no exact certified leaf/record reuse is claimed. Actual child decode/hash must prove itself.",
+  "productionDeclarationPins": [
+    {
+      "name": "ObjInsertIdSorted",
+      "canonicalDeclarationSha256": "541a4e16592b8b8541c562981a9759b4ab87cf7cec05f63e51cc03b303634022"
+    },
+    {
+      "name": "ObjAuthenticatedFetch",
+      "canonicalDeclarationSha256": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239"
+    },
+    {
+      "name": "ObjMarkVisit",
+      "canonicalDeclarationSha256": "7e66b0214a6a4913fab167d09047836540e6366ed8589e123e34826c4b15e1fa"
+    },
+    {
+      "name": "ObjAccountRecord",
+      "canonicalDeclarationSha256": "510cdc20ad979dd6ca45603a7c2a9ce138574ee4af613cb6e22349e635045897"
+    },
+    {
+      "name": "ObjReadLeaf",
+      "canonicalDeclarationSha256": "76618519a90c2ec9c0212e67d57869ac9776aff34d1c79f92d6d56ec59b0fea3"
+    },
+    {
+      "name": "ObjVisitNode",
+      "canonicalDeclarationSha256": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00"
+    }
+  ],
+  "phases": [
+    {
+      "name": "child-false",
+      "status": "NOT_RUN",
+      "root": "full consumer importing false child-state",
+      "expected": "Sourcecheck pass then intended LLV7002 Reflexivity mismatch94/95; timeout/OOM/admission failure is not the semantic negative."
+    },
+    {
+      "name": "child-positive",
+      "status": "NOT_RUN",
+      "root": "same full consumer importing correct child-state",
+      "expected": "Both the actual child result and full original connected consumer verify; independent artifact/empty-axiom/kernel audit required."
+    }
+  ],
+  "resources": {
+    "timeoutMs": 300000,
+    "memoryBytes": 4294967296,
+    "cpus": 2,
+    "hostLaunchGiB": 20,
+    "hostPostReserveGiB": 10,
+    "guestPreGiB": 11,
+    "guestPostGiB": 10,
+    "newSourceBudgetBytes": 1048576,
+    "noNativeInProposal": true
+  },
+  "unknowns": [
+    "Child authenticated decode and fullconsumer definitional conversion cost is unmeasured. No per-theorem costs inferred from aggregate timings.",
+    "Imported child certificate does not cache/rewrite the reduction and may be recomputed by consumer conversion. No success or speedup predicted.",
+    "If timeout/OOM occurs, preserve/classify exact phase and investigate before further candidate; no equivalent limit increase or easy-subset acceptance."
+  ],
+  "remaining": [
+    "Second/third child results and accounting",
+    "Final walked state, whole96 output/stats/root wrapping/range finish/version/whole digest",
+    "Original Read33 and remaining controls",
+    "FullObject257/Hash/PrismPM/Pages"
+  ],
+  "preparationFailures": [
+    {
+      "kind": "read-only wrapper query error",
+      "detail": "Initial query expected semanticdata environment; actual line-command parser corrected, no writes."
+    },
+    {
+      "kind": "proposal generation syntax error",
+      "detail": "First generator had unmatched closing parenthesis; parse failed before execution/writes. This corrected generator produced the frozen proposal."
+    }
+  ]
+}

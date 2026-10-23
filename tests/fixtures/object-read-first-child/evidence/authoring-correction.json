@@ -1,0 +1,150 @@
+{
+  "schema": "lexlean-r4-first-child-authoring-correction/v1",
+  "status": "STATIC_SCHEMA_SELF_AUDIT_REPAIR_NATIVE_NOT_RUN",
+  "failure": "Initial new child theorem equality kind equal is unsupported; known accepted semantic-module/2 uses eq.",
+  "scope": "Only two child theorem statement kind values corrected, then dependent metadata/manifest/invocation pins regenerated. Full first generated packet retained byte-exactly; no native failure or semantic RED claimed.",
+  "preserved": [
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/README.md",
+        "bytes": 529,
+        "sha256": "d07a1920207153d73aebd504e70da58ee74d928067b4ee79d407acd70507ee47"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/README.md",
+        "bytes": 529,
+        "sha256": "d07a1920207153d73aebd504e70da58ee74d928067b4ee79d407acd70507ee47"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/candidate.json",
+        "bytes": 19973,
+        "sha256": "f641cd8fbf3468e0565276110c8c9597d4624096a577e73cfca06a707baa2dd0"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/candidate.json",
+        "bytes": 19973,
+        "sha256": "f641cd8fbf3468e0565276110c8c9597d4624096a577e73cfca06a707baa2dd0"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "bytes": 62699,
+        "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "bytes": 62699,
+        "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-diff.json",
+        "bytes": 2510,
+        "sha256": "1795cc6b02569e3eda6e746d8a5ab5d1e4070fe53cb0dff9d76c7de99ab35f70"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/invocation-diff.json",
+        "bytes": 2510,
+        "sha256": "1795cc6b02569e3eda6e746d8a5ab5d1e4070fe53cb0dff9d76c7de99ab35f70"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-manifest.json",
+        "bytes": 1683,
+        "sha256": "5cb30719a2c890ea3ee562994f3fcff9a23420894c9f4c97c17b0a49f1e0adc3"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/invocation-manifest.json",
+        "bytes": 1683,
+        "sha256": "5cb30719a2c890ea3ee562994f3fcff9a23420894c9f4c97c17b0a49f1e0adc3"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invoke-first-child.mjs",
+        "bytes": 7734,
+        "sha256": "c8a9cef979ba0dfe739f9c0c6169449110b4b41c951a319fce8d68348ec47815"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/invoke-first-child.mjs",
+        "bytes": 7734,
+        "sha256": "c8a9cef979ba0dfe739f9c0c6169449110b4b41c951a319fce8d68348ec47815"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/lexlean.toml",
+        "bytes": 696,
+        "sha256": "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/lexlean.toml",
+        "bytes": 696,
+        "sha256": "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+        "bytes": 2236,
+        "sha256": "309d910f2b922c52927f3c3efedf827a358e8161bf209ba1f5c91ee316524f3f"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/manifest.json",
+        "bytes": 2236,
+        "sha256": "309d910f2b922c52927f3c3efedf827a358e8161bf209ba1f5c91ee316524f3f"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/negative/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+        "bytes": 25503,
+        "sha256": "807402c946568236075f0f701c283adb6eb9cbaf7a9a4b6b13eec9e7568bc6a0"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/negative/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+        "bytes": 25503,
+        "sha256": "807402c946568236075f0f701c283adb6eb9cbaf7a9a4b6b13eec9e7568bc6a0"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+        "bytes": 25503,
+        "sha256": "83497bbb70c86e3359b443edf77b7d1466c7c42307fcdb9f499617fd5855815e"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+        "bytes": 25503,
+        "sha256": "83497bbb70c86e3359b443edf77b7d1466c7c42307fcdb9f499617fd5855815e"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/structural-audit.json",
+        "bytes": 5232,
+        "sha256": "b3c8b51bf5e5d6d18c34fcf06d872a459c271b34563e31ab127163942b45816f"
+      },
+      "preserved": {
+        "path": "authoring-history/invalid-equality-tag/structural-audit.json",
+        "bytes": 5232,
+        "sha256": "b3c8b51bf5e5d6d18c34fcf06d872a459c271b34563e31ab127163942b45816f"
+      }
+    }
+  ],
+  "finalManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+    "bytes": 2236,
+    "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+  },
+  "finalInvocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-manifest.json",
+    "bytes": 1683,
+    "sha256": "165bf2620d81331da7695cee9e6521f9da4b744485d7311faa0d77eab5dd0414"
+  }
+}

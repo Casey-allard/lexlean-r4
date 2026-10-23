@@ -1,0 +1,78 @@
+{
+  "schema": "lexlean-r4-first-child-delivery-security-review/v1",
+  "status": "PASS_EXACT_95_FILE_STAGED_DELIVERY",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T23:29:39.723Z",
+  "authorshipDisclosure": "Reviewer authored earlier first-child design SPEC, not candidate implementation/invocation/native audit/delivery packaging. This gate is independent of those activities, not all prior specifications; separate CODE delivery review required.",
+  "delivery": {
+    "base": "4117154a01bfc51e7754d2f5af04a09d29680a6d",
+    "branch": "codex/object-first-child-proof",
+    "manifest": {
+      "path": "tests/fixtures/object-read-first-child/delivery-manifest.json",
+      "sha256": "5591bf62610b4b4475a486deed795e28ce87256919683f8c8e6ea5cbd56493de"
+    },
+    "stagedFiles": 95,
+    "payloadFiles": 94,
+    "payloadBytes": 694279,
+    "exactStagedCensusIndexWorkingManifestParity": true,
+    "allModes": "100644",
+    "allUtf8NoNul": true,
+    "diffCheck": "PASS",
+    "localMarkdownTargetsChecked": 77,
+    "scope": "One fixture plus two plan documents; no canonical runtime/control/CI changes."
+  },
+  "security": {
+    "credentialScan": "No matches for private-key headers, common GitHub token patterns or AWS access-key IDs in staged bytes; bounded scan, not universal secret detection.",
+    "binaries": "None committed; actual compiled artifact/full attestation remain local and hash-pinned.",
+    "invocations": "Both .mjs files are historical, environment-specific one-off actual compiler invocation provenance, not installed host SDK/PrismPM/application substitutes. Inspected actual current script: exact manifest25input/tool/epoch gates, owned fixedcontainer/path, host20GiB/guest11GiBpre10GiBpost, memory/idle, actual lock/check/verify and independent postcapture. Historical script differs only in hash literals under normalized comparison. No operationalCI linkage or credential/network provisioning introduced; neither imported/executed by reviewer.",
+    "configuration": "Pinned development Lean4.32.1/language1.2/builtinlexicon and unchanged300000ms child limit; target remains full original-parent consumer. No production lock or full just vv gate fabricated/bypassed.",
+    "locks": "Both development lock copies exactly match actual lock-bytes stdout and unchanged posthash e27234683b8ac0aea5511caeaeb423b147d4c5639373eaae4fca1ace9edc3e68.",
+    "portableCustody": "189 current custody/result pin occurrences verified with no unresolved references; both25-input repository-relative mappings resolve exactly. Raw absolute paths documented as provenance, not launch authority."
+  },
+  "history": {
+    "invalidTagPacket": "All11 preserved invalid-equality-tag files match correction-record hashes. Both old child modules differ from corrected modules only at declaration statement kind equal→eq; current semantic negative is separately expectedwire94→95.",
+    "scope": "Static authoring correction occurred before native per preserved records, not claimed as semantic negative. Current README/results expressly distinguish historical NOT_RUN/static preparation from later completed native outcomes. No rejected source/evidence removed."
+  },
+  "independentRetainedNativeAudit": {
+    "positiveReviewSha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53",
+    "negativeReviewSha256": "10ca25d9efd8b5fa11b12bb13d8dc0504d77ec0f45a662a8c67e6b1b54213a95",
+    "attestationId": "0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f",
+    "completeFiles": 215,
+    "allFileHashesExactDiskCensus": true,
+    "recomputedCensusArraySha256": "66515f2b4a3e75486d1a1a8c5196814e360e31a72137571d6cc1ec82bbd60820",
+    "buildOutputHashes": 105,
+    "oleanHashes": 21,
+    "successfulProcessCopies": 64,
+    "allProcessStdoutStderrHashes": true,
+    "kernelReplays": 21,
+    "emptyObservedNonePolicyDeclarations": 818,
+    "exactAuditOutputNameSet": true,
+    "negative": "Sourcecheck0;verify1 intended LLV7002 full child-state Reflexivity mismatch94/95;20606ms.",
+    "positive": "Sourcecheck0;verify0;180381ms;rawverify attestation/build/source/semantic IDs match retained full attestation.",
+    "bothPhases": "25source inputs before/after matched including destination paths, tools/epoch beforeafter equal, zero memory events and idle records, genuine unchanged lock, postcaptureerrors[], independent postcaptures afterverify, recorded host20GiBpre10GiBpost and guest11GiBpre10GiBpost samples pass.",
+    "notRerun": "Actual retained artifact/process receipts read and hashed only. No SDK/native execution repeated; embedded lexicon bytes not independently extracted/rehashed."
+  },
+  "sourceAndClaimIntegrity": {
+    "soleNegativeASTDelta": "declarations/0/statement/right/arguments/0/fields/2/value/value94→95; full child call and proof unchanged.",
+    "mandatoryConsumer": "Emptyaxioms; direct Apply prior ObjectReadParent49ConcreteChildEntry.objParent49ConcreteChildEntry, no arguments. RHS retains exactly2 actual production child calls. Certificate is imported checked dependency/control, not rewrite/cache.",
+    "docs": "Current results and both plan updates correctly claim firstchildS94 plus original-parent continuation only; second/third results, finalwalk/statistics/wrapping/rangefinish/version/wholehash and originalRead33/fullObject257/Hash/PrismPM/Pages remain open. No efficiency or continuous-resource claim.",
+    "census": "Array digest independently recomputed; portable envelope file hash is explicitly separate identity."
+  },
+  "preservation": {
+    "tenOtherDraftHashes": true,
+    "sixMergedSourceHashes": true,
+    "seventeenOriginalSnapshotBytesAndBaseHashes": true,
+    "canonicalFullRead33Untouched": true
+  },
+  "findings": [],
+  "storage": {
+    "startAvailableKiB": 29799188,
+    "priorAccountingReviewKiB": 35448424,
+    "note": "Cross-checkpoint decline reported to parent; not attributed to this review. Parent supplied existing separate storage investigation/nearby29992236KiBsample. No claim of new>2GiB current-interval drop; no build/VM work initiated."
+  },
+  "limitations": [
+    "Binds this exact95-file stage; any additive history/manifest change requires final delta review.",
+    "Source/security checks do not grant new native execution authority or production acceptance."
+  ],
+  "actions": "Only this external review record written. No repository/index/frozen source/evidence edits, SDK/native/compiler/VM/API calls or other-lab access."
+}

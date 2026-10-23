@@ -1,0 +1,363 @@
+{
+  "schema": "lexlean-r4-first-child-negative-native-review/v1",
+  "status": "PASS_INTENDED_LOCAL_NEGATIVE",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:21:01.216Z",
+  "scope": "Read-only independent audit of actual child-false native receipts. No SDK rerun. Reviewer previously reviewed this source/invocation, independently of its author.",
+  "identities": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+      "bytes": 2236,
+      "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-manifest.json",
+      "bytes": 1683,
+      "sha256": "165bf2620d81331da7695cee9e6521f9da4b744485d7311faa0d77eab5dd0414"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invoke-first-child.mjs",
+      "bytes": 7734,
+      "sha256": "227891d0e933e4f06aaee33bb722d147fe9fa20e2a25e5cfa12f0b3f6a3bac28"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/code-review.json",
+      "bytes": 7345,
+      "sha256": "a6684449a050de8c23fb20ba40424ebdca61704aa95441846a97b644eb63e8d8"
+    }
+  ],
+  "actualOutcome": {
+    "phase": "child-false",
+    "stage": "/tmp/r4-object-read-first-child-child-false-owned-20261023",
+    "lockExit": 0,
+    "checkExit": 0,
+    "checkModuleCount": 21,
+    "sourceId": "4ebff2af137be26449a8197eb2e6ed84d138d7925f67de12f547929d6ecb025f",
+    "semanticId": "96525c650a504579282473bbb59c4fbf843c373134112027df5163f7ef356dcb",
+    "verifyExit": 1,
+    "verifySuccess": false,
+    "verifyDurationMs": 20606,
+    "diagnosticCode": "LLV7002",
+    "diagnosticTarget": "LexLeanR4.ObjectReadFirstChildState",
+    "diagnostic": "Tactic rfl failed; actual original ObjVisitNode call from S49 is not definitionally equal to Result.ok state with visits2/wireBytes95. Full original backend, child identity, range/limits and expected payload/seen are present in diagnostic.",
+    "artifacts": [],
+    "classification": "Intended semantic negative after successful source admission; not timeout, OOM, setup failure or positive proof acceptance."
+  },
+  "custody": {
+    "allFrozenPayloadsAndDependenciesRehashed": true,
+    "actualInputs": 25,
+    "uniqueDestinations": 25,
+    "exactCandidateNegativeMapping": true,
+    "allCopiesBindActualInputPathsAndGuestDestinations": true,
+    "allHostInputBytesMatchFrozenPins": true,
+    "sourceBeforeAndAfterMatchAll25PathsAndHashes": true,
+    "lockSha256": "e27234683b8ac0aea5511caeaeb423b147d4c5639373eaae4fca1ace9edc3e68",
+    "lockRecordedAfterSuccessfulOfficialLock": true,
+    "lockConfigWorkspaceCompilerSemanticsAndToolchainMatch": true,
+    "lockAfterSameHash": true,
+    "commandReceipts": 46,
+    "allExpectedCommandsExitZeroExceptVerifyOne": true,
+    "allSignalsNullAndNoProcessErrors": true,
+    "lockCheckVerifySequenceConfirmed": true,
+    "mandatoryVerifyRoot": "tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+    "resultEqualsActualParsedVerify": true,
+    "rawReceiptFiles": 51,
+    "rawCensusSha256": "8611a4970a8302039552594083e8d9dcfc25f641fb8bdf99e46e0aa811f4ffc2"
+  },
+  "sourceNegative": {
+    "soleDifference": "/declarations/0/statement/right/arguments/0/fields/2/value/value: positive94→negative95",
+    "positiveAndNegativeASTsOtherwiseIdentical": true,
+    "sourceUnchangedSinceIndependentCODE": true,
+    "invalidEqualTagAuthoringHistoryDistinct": "Preserved earlier source-only preparation correction; successful actual check now establishes admission for this corrected negative closure."
+  },
+  "postconditions": {
+    "epochBeforeAfter": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "limits": "Same existing container,4GiB/2CPU/networknone/mounts[],300000ms child limit.",
+    "toolsBeforeAfter": "All four exact known LexLean/Lean/Lake/checker hashes match before and after.",
+    "memoryBeforeAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "idleBeforeAfter": "No lexlean/lean/lake/leanchecker process in captured process lists.",
+    "postcapturesOccurredAfterVerify": true,
+    "postcaptureErrors": [],
+    "hostAvailableBeforeBytes": "30357028864",
+    "hostAvailableAfterBytes": "31184044032",
+    "hostPlanningBytes": "21474836480",
+    "peakAdditionalEstimateBytes": "10737418240",
+    "hostReserveBytes": "10737418240",
+    "guestAvailableBeforeKiB": "53082220",
+    "guestAvailableAfterKiB": "53077572",
+    "guestPre11GiBPost10GiB": true,
+    "artifactAndFailureRecordAbsent": true
+  },
+  "findings": [],
+  "acceptanceBoundary": "Only intended rejection of wrong first-child state is accepted. No positive S94 certificate or mandatory full-parent consumer accepted by this negative; positive NOT_RUN at review. Fresh resource gates and separately audited actual positive result remain required. Completed walk, whole read, originalRead33, fullObject/Hash/PrismPM/Pages remain open. Launcher0 is recording completion only.",
+  "storage": {
+    "reviewAvailableBytes": "31133872128",
+    "additionalBudgetBytes": 20000,
+    "noBuildsOrCopies": true
+  },
+  "rawInventory": [
+    {
+      "path": "allocated-before.json",
+      "bytes": 459,
+      "sha256": "666e74e6a35d1a721becee4505ed5ad849abc31150bc08205b99d57ad1c31f17"
+    },
+    {
+      "path": "check.json",
+      "bytes": 1261,
+      "sha256": "7f0c33fe4f93b6ee1825454caf35b12a26270e5077f610d06e1be6df585770c7"
+    },
+    {
+      "path": "copy-0.json",
+      "bytes": 454,
+      "sha256": "f3f74fc19b66371ce2072ae307064d0b316b38de4bcc8312708a513d3b3cfedb"
+    },
+    {
+      "path": "copy-1.json",
+      "bytes": 452,
+      "sha256": "384925cad42a3f4bd70a9dc434f66b6beb8ccf0a0e90e7dba215583fdac004df"
+    },
+    {
+      "path": "copy-10.json",
+      "bytes": 440,
+      "sha256": "65a33f468a5aae9755d350119b7f5ad25bfea3c21b679d795decd93ee6a553bc"
+    },
+    {
+      "path": "copy-11.json",
+      "bytes": 450,
+      "sha256": "c1a2a3e19700aff9102be38dc65b4b4339e0bb4455ba67e1f0bea93053170a8e"
+    },
+    {
+      "path": "copy-12.json",
+      "bytes": 442,
+      "sha256": "5cb1e6fcb9a3225a8656425ce3d8c8d27ddeaf80446d2d78ad7e4f6d7ba3b320"
+    },
+    {
+      "path": "copy-13.json",
+      "bytes": 491,
+      "sha256": "a875deedeb4b45c29c9ab54732a51fb9fc52283e5830b7d2dd71264959fb4a78"
+    },
+    {
+      "path": "copy-14.json",
+      "bytes": 529,
+      "sha256": "ab4bd7f412835aeec60c9db31ffaabf31fe3ef67936d16fa7948b708bbf07b1c"
+    },
+    {
+      "path": "copy-15.json",
+      "bytes": 535,
+      "sha256": "cd0c8cbe69ccb7881c37cf7c44a26c496f92efc02cd6acbc509fc6f40dbf1f7a"
+    },
+    {
+      "path": "copy-16.json",
+      "bytes": 541,
+      "sha256": "9596e75025cd036b3a85d9553250568a2693922f19e392f6e919fbaa65f80f4c"
+    },
+    {
+      "path": "copy-17.json",
+      "bytes": 529,
+      "sha256": "687fb292fb034ac8ec379c96436f8739b9805cfe9eeaee6350521db492caee1f"
+    },
+    {
+      "path": "copy-18.json",
+      "bytes": 535,
+      "sha256": "ed0fd6a8254880bd15d8d3add1d8b6a832696e50d859df9e0d5d313112e2e7a6"
+    },
+    {
+      "path": "copy-19.json",
+      "bytes": 535,
+      "sha256": "75af910f054abefa11805005e0e72edddef6cdb9523782c9005e1330ab7da2c1"
+    },
+    {
+      "path": "copy-2.json",
+      "bytes": 458,
+      "sha256": "37fbcced4aab157acc16b83da44fb8c492bdea6b1f70ad80dc46028389048b7f"
+    },
+    {
+      "path": "copy-20.json",
+      "bytes": 542,
+      "sha256": "bd0e8414d429ccb31bc6bc3f459edf67f717eeb0a186a52b5f59362b99976cf3"
+    },
+    {
+      "path": "copy-21.json",
+      "bytes": 546,
+      "sha256": "37f018f3714b8ef98409ce0d0a47752bad563b79bfc02f4ee800c3c3ae7b0aac"
+    },
+    {
+      "path": "copy-22.json",
+      "bytes": 511,
+      "sha256": "67ab709c86c5e80be73b309e233aa7a29a1adf7806812e4e0ed10274e3ac854f"
+    },
+    {
+      "path": "copy-23.json",
+      "bytes": 523,
+      "sha256": "6057b05a576bcd247afa7ea5c6690155eb6eef6e2378814f29a6284027e90934"
+    },
+    {
+      "path": "copy-24.json",
+      "bytes": 432,
+      "sha256": "79a9dee39d1de7f2c067684eefc7c32629e053e76445495d1b8ec03d0d2bfe0f"
+    },
+    {
+      "path": "copy-3.json",
+      "bytes": 466,
+      "sha256": "5cc9668ed8c5239495ff64b9364da2df1b62d9f5fa4fde70530dd846ea916d9d"
+    },
+    {
+      "path": "copy-4.json",
+      "bytes": 460,
+      "sha256": "4a863c08b3bdc2cf4e509c6b445cf847119e387d459baa22657bf653c3c1f29d"
+    },
+    {
+      "path": "copy-5.json",
+      "bytes": 418,
+      "sha256": "9ce34fff8a8ba1d28a67363ff28ad3db806d9959552c90a1ba849539c0bcd497"
+    },
+    {
+      "path": "copy-6.json",
+      "bytes": 418,
+      "sha256": "7a51020ff96e65af9561868f8d8e971aa0eb8b6c487662e15d59dd1d0868ce71"
+    },
+    {
+      "path": "copy-7.json",
+      "bytes": 418,
+      "sha256": "c475cc8c28702ccbb1a43887fc37deef99a9c6a2d8338700352d5aa01c38bf9a"
+    },
+    {
+      "path": "copy-8.json",
+      "bytes": 416,
+      "sha256": "11a108bf753856972affcc32bed9762d75ecb67fe6ddb6f452eeabb541928ef4"
+    },
+    {
+      "path": "copy-9.json",
+      "bytes": 408,
+      "sha256": "7ce9b5f8943648d047894c8502e1200522776ef2c47ec805af8ddcfdd70c6b89"
+    },
+    {
+      "path": "directories.json",
+      "bytes": 424,
+      "sha256": "f1f2dd8404f893a6102026e8107d7ecc920cb79ef26f0808d6207ef9a3653079"
+    },
+    {
+      "path": "epoch-after.json",
+      "bytes": 470,
+      "sha256": "e5d46aaf0ec7668bec2d73762d8981c82824232b1919d2529b305feda652d807"
+    },
+    {
+      "path": "epoch-before.json",
+      "bytes": 470,
+      "sha256": "fc216e13b24e6a097980b264c24ac017f1548600b44def8436f643a9a913d378"
+    },
+    {
+      "path": "expected-inputs.json",
+      "bytes": 9169,
+      "sha256": "b3627d0caad7c79fea3227fc2fa3ba7237cf0af000b77e721e0efff5cd922356"
+    },
+    {
+      "path": "guest-after.json",
+      "bytes": 406,
+      "sha256": "c1bca085785b4eca231326425d694e51c2f0be75e5c3468a43808b075a85ecd0"
+    },
+    {
+      "path": "guest-before.json",
+      "bytes": 406,
+      "sha256": "a7db7682b2051a8ccfcb9be00cdf7ba59d3b2fd7e8553dd30095cdf19cbbac81"
+    },
+    {
+      "path": "host-after.json",
+      "bytes": 142,
+      "sha256": "cf93a84f4b5d29ed601ca08a16813a524461f89125eb372ae37184e08f594f23"
+    },
+    {
+      "path": "host-before.json",
+      "bytes": 152,
+      "sha256": "e114e7e7ba05869c4027c8cd64aafbfa074e89be58026634657d65f6f513aa73"
+    },
+    {
+      "path": "idle-after.json",
+      "bytes": 460,
+      "sha256": "1b53cb37b6d406d55041fcaab7229f6b17e00ef0b57d26018ff4c28276435b9e"
+    },
+    {
+      "path": "idle-before.json",
+      "bytes": 460,
+      "sha256": "6f9d13ac6c214205778d0a2e0d511539af447cdd4386ec5c24066fdef3b4d5bb"
+    },
+    {
+      "path": "lock-after.json",
+      "bytes": 483,
+      "sha256": "e306589084a6d12ae53fe3ed7e11e813be04ee56af990f3de2e2d11cd01bb0de"
+    },
+    {
+      "path": "lock-bytes.json",
+      "bytes": 2052,
+      "sha256": "358d4a4513baa9ab818400fa99a65bf33c0bf6dbc9fe2b604dfbd4f5984bb164"
+    },
+    {
+      "path": "lock.json",
+      "bytes": 536,
+      "sha256": "fcd99af2cb55449e2712adfa59390e147701133dfe369876c1e8eb1b777fc1a8"
+    },
+    {
+      "path": "memory-after.json",
+      "bytes": 354,
+      "sha256": "61afe137d6ada66ba0b409665e416df2373ae13b0e67a8d01796b265176a95cd"
+    },
+    {
+      "path": "memory-before.json",
+      "bytes": 354,
+      "sha256": "846f0f90c2c09eee8de210ab38e7a3b915deb58d18de5f0c760c9526e68d3a0e"
+    },
+    {
+      "path": "new-stage.json",
+      "bytes": 327,
+      "sha256": "367ade1f01788cfb9af1f401fe23bdb272e9443322189854cac1939fac1da934"
+    },
+    {
+      "path": "postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "result.json",
+      "bytes": 6384,
+      "sha256": "c32fad4e92d2e56e7310991bb1dace379f227b13091b99a3fb7c81a3f8e8a7c2"
+    },
+    {
+      "path": "source-after.json",
+      "bytes": 6855,
+      "sha256": "5b210f1378b93b5408543d250c9d789d2daf0315184225997e295d6e71a3b52c"
+    },
+    {
+      "path": "source-before.json",
+      "bytes": 6855,
+      "sha256": "8972f3d11ae5967d273f04bdada2b3745844c537de52ab0f5bf91751bc743047"
+    },
+    {
+      "path": "swap-before.json",
+      "bytes": 265,
+      "sha256": "56d460ce69ca5ba96a6bc5f8398d215f678fcb0f374febf97b2e3f09f024a8c6"
+    },
+    {
+      "path": "tools-after.json",
+      "bytes": 1005,
+      "sha256": "3261015a386612e58b58c409edc29375c5d42e06a0fa4c1a65d1dd96f51ab198"
+    },
+    {
+      "path": "tools-before.json",
+      "bytes": 1005,
+      "sha256": "7142af11a54f315ecb5f3be49e87af49ff3a5008f58afc1d4cfa1193f8f2c28c"
+    },
+    {
+      "path": "verify.json",
+      "bytes": 6560,
+      "sha256": "a5a87d91c199f1662eb67b024b8d5c0bef7e9bc003cc5a1a7667fc0b17ed2798"
+    }
+  ],
+  "actions": "Wrote only this external review. No native/compiler/SDK/VM/repository/index/frozen/other-lab changes."
+}
