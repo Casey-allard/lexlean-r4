@@ -1,0 +1,320 @@
+{
+  "schema": "lexlean-r4-isolated26-native-failure-review/v1",
+  "status": "CONFIRMED_EXACT_SINGLETON_CHILD_TIMEOUT_NO_PROOF_ACCEPTANCE",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T21:43:49.139Z",
+  "source": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 26361,
+    "sha256": "2c8f951451021f08e42c1c22c3e115c2222153042071cdde8430ac830af905b8",
+    "originalOrdinal": 26,
+    "name": "objProtocolWholeBytes",
+    "declarationJsonSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195"
+  },
+  "actual": {
+    "lockStatus": 0,
+    "sourcecheckStatus": 0,
+    "sourcecheckModules": 11,
+    "sourceId": "3ce12478a8d85c76bb8c80845395a316a15cf8f4fd72d816a1a808d7c68569e4",
+    "semanticId": "8cd9790d151d73a8bd61f68b4f6b6de567c1e7fca45c523ffded2f4cb080440e",
+    "verifyStatus": 4,
+    "verifySuccess": false,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadControls: configured 300000, observed 300010 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "wholeVerifyMilliseconds": 341805,
+    "artifacts": [],
+    "postcaptureErrors": [],
+    "lockSha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+  },
+  "checks": {
+    "all15InputsMatchFrozenCandidateAndActualCopyArgs": true,
+    "guestBeforeAfterExactSourceCensus": true,
+    "full33CanonicalUnchanged": true,
+    "genuineLockAndAfterHash": true,
+    "toolsBeforeAfterExact": true,
+    "epochBeforeAfterExact": true,
+    "allSixMemoryEventsZeroBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "allNonVerifyRecordedCommandsExitZero": true,
+    "commandReceiptCount": 36,
+    "postRecordsAfterVerify": true
+  },
+  "storage": {
+    "hostBeforeBytes": "29047656448",
+    "hostAfterBytes": "29091336192",
+    "guestBeforeKiB": "53149024",
+    "guestAfterKiB": "53145212",
+    "host20GiBPlanningGate": true,
+    "guest11GiBPre10GiBPost": true,
+    "hostPost10GiBReserve": true,
+    "availableBytesBeforeReport": 28551221248
+  },
+  "interpretation": [
+    "The exact unchanged ordinal26 obligation also times out when isolated. This demonstrates that aggregation of the other32 Read controls is not necessary for this configuration to exceed the child limit. It does not establish which obligation caused the earlier aggregate timeout.",
+    "The actual diagnostic is a target-module Lean child timeout, not semantic rejection or source admission failure. No OOM or kill is recorded in the before/after cgroup counters.",
+    "The singleton narrows the configuration to one original theorem, but neither the receipt nor source size localizes an exact expensive subterm, tactic phase or root cause. No partial theorem, helper or fullRead acceptance follows.",
+    "Launcher exit0 is orchestration/postcapture completion only. Actual compiler exit4 governs classification. Preserve failed stage, source, lock and all raw evidence; no equivalent retry or automatic limit increase is approved.",
+    "Other32 original controls, completeRead33 integration and full Object/Hash/PrismPM/Pages obligations remain mandatory."
+  ],
+  "findings": [],
+  "limitations": [
+    "No SDK invocation or artifact replay by reviewer; this audit checks authentic retained command records and source identities. No verified artifact exists to replay.",
+    "Storage and memory are sampled observations, not continuous high-water measurements.",
+    "Any next source repair or decomposition requires exact connected consumer preservation and separate review; this failure does not approve a particular repair."
+  ],
+  "evidencePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/manifest.json",
+      "bytes": 1760,
+      "sha256": "709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/candidate.json",
+      "bytes": 7777,
+      "sha256": "c22af800ce98e9e7775386b364dc6c0d98b7babfc7cd588f3c9ac79b5e18dc6f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/structural-audit.json",
+      "bytes": 9464,
+      "sha256": "bb829be372540415ae2e4a077eaf16cc48cd9f28abc8d5610e9bd865c6e24ea0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 26361,
+      "sha256": "2c8f951451021f08e42c1c22c3e115c2222153042071cdde8430ac830af905b8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/invoke-isolated26.mjs",
+      "bytes": 7558,
+      "sha256": "5bc71d978d4a4eeac4d6a6d8a49994b2c9098787dde8c229294bb83768755584"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/candidate-code-review.json",
+      "bytes": 5071,
+      "sha256": "74dfce45e3eaaa5ecda431746e3aa31a2a90717e96e27782684a9b310f632a97"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/allocated-before.json",
+      "bytes": 459,
+      "sha256": "09c6d202c2ab0a60544489b39ec9242a9ffae10dbee5eaa526d3ea37fe5d677a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/check.json",
+      "bytes": 879,
+      "sha256": "fb275ae700f1ff5e5d4c655bb16ab181b411e8b6ef229cb4b4f56b1a178200ec"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-0.json",
+      "bytes": 441,
+      "sha256": "3c17dde9f3223e4f068c96f94369a2c0d89a604a3b5756b7f346e10ab2e15634"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-1.json",
+      "bytes": 439,
+      "sha256": "02a1db0ba5692f1f9b0216662ca394f73cb13d0c23022087a8c4b2afd10bab06"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-10.json",
+      "bytes": 427,
+      "sha256": "678f0ae1ab571d1853813b2e5b429f1b03fac057edd2039685f915257ff7aa51"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-11.json",
+      "bytes": 437,
+      "sha256": "dae27aa728313df3acf276e61437dd276212bee73871be08d26365f48db74215"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-12.json",
+      "bytes": 429,
+      "sha256": "63d97116d150237165c6716b1a3d3a4b59d12ddde6e5f2f8af5e296959ca7287"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-13.json",
+      "bytes": 474,
+      "sha256": "1889e380e642edbbca86e4b873b52c477941ec3d8d4fb84fcd33c9a6d5717d1d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-14.json",
+      "bytes": 430,
+      "sha256": "ebc4909ecb055623937babd658c3f77803739dbd6eb37def7b8d91acf4f9efef"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-2.json",
+      "bytes": 445,
+      "sha256": "caa4807c4d3fc426e8ea64e35071f71eff4eedf8bc6ca2a865248e2b72e91ca1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-3.json",
+      "bytes": 453,
+      "sha256": "c664ae4ef04d9bc16bb262e6b14b1085a1895de800939970d1e0fa6adcbc7e4a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-4.json",
+      "bytes": 447,
+      "sha256": "8164a516ea1713149c65a4230cc6fb12bcc1f5a627d08fbf9968cdc6676dfe53"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-5.json",
+      "bytes": 405,
+      "sha256": "962bd533044fa68424ecb9d805800f0cbde06484d2b188baf39f4877541915ae"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-6.json",
+      "bytes": 405,
+      "sha256": "d85335cca656753e902d295d234ea57ba0ecde10753d7d3fa5d4a95d9ef1603b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-7.json",
+      "bytes": 405,
+      "sha256": "02cbea91008ffd2cbb803bab61ef40bf9ae65bab149bf74ee26f189afd5c5fa8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-8.json",
+      "bytes": 403,
+      "sha256": "6aa4494eefa0db8b112dfacbfb11f4ea5dc52fa99a04d118b653b59b7c574051"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/copy-9.json",
+      "bytes": 395,
+      "sha256": "1d38f7ac3afdb0733baaa382b06d624b339c384e53463f97510234c957af2dec"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/directories.json",
+      "bytes": 398,
+      "sha256": "34fae4f9af8dc7c51ca090c2937a3b116f9abc30e5f0999342fd2adde283258e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/epoch-after.json",
+      "bytes": 470,
+      "sha256": "52aaffa217ed135fde740046dc5548e04199c3d7f19afbb92b89bab9b65be0ae"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/epoch-before.json",
+      "bytes": 470,
+      "sha256": "947637c3ea4b5eae81d989138fc906f069e396d280b97a6fb83397be21f8dece"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/expected-inputs.json",
+      "bytes": 5246,
+      "sha256": "a8840ac5ad92d0d12eee4865a17a29c07caae71c3ad93cd56eb57a521b4222ad"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/guest-after.json",
+      "bytes": 406,
+      "sha256": "20f2dddae3cebe02e49e604ca00b3872bb2037ebdead6166cfd56b3c8b4f75fa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/guest-before.json",
+      "bytes": 406,
+      "sha256": "d7025ada189651ea43e5ac6f0edc7748520b75faeedadc07b2307c607182cfd0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/host-after.json",
+      "bytes": 142,
+      "sha256": "488cc3e88e75fd274279a6514705378d35f7aabe37b795fba87da898540997d4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/host-before.json",
+      "bytes": 152,
+      "sha256": "1a701d169e48de192df5a180cb32f57205331a051d902add85d88b35c972530c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/idle-after.json",
+      "bytes": 460,
+      "sha256": "95f8c4bb99302290ed3f36cf388c2e8f4917340ce37ee18a6dd3fb93ae35fb61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/idle-before.json",
+      "bytes": 460,
+      "sha256": "880644f5761dfacc7d470d856e9a2030ca79c53bf0fb27ce23fba768903ba758"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/lock-after.json",
+      "bytes": 457,
+      "sha256": "fd9a07c3e90c50f9f89d32d1bc38898489240de2ccbfad2c39456576ed57e5bd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/lock-bytes.json",
+      "bytes": 2039,
+      "sha256": "b3a05f061b1d673d3322b2f329a0a5e99e68eac59304459e13a478f25367479f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/lock.json",
+      "bytes": 523,
+      "sha256": "4470b1ef33b0623987b2d1b1b90bc9df5168d3f3b364ee22741d1f4e271b20c4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/memory-after.json",
+      "bytes": 354,
+      "sha256": "09280e660e0efd8730f1e80f3969973bd01e4a5f824c0d2c6d21b9c87ace90f9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/memory-before.json",
+      "bytes": 354,
+      "sha256": "816a34c508281aa3c6e9c5a3406f1e6154a2754412e1744c195342fc0616ccae"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/new-stage.json",
+      "bytes": 314,
+      "sha256": "1a6c250d216eebb9cacf65c161ba361cce3446acff57d1c325d42dee5d09dd14"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/result.json",
+      "bytes": 858,
+      "sha256": "d52a8a93c2f06069f35361c7d3481faa0e4d530c526e3ac265d56568bae9c22c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/source-after.json",
+      "bytes": 3447,
+      "sha256": "bfbfa2251394aa4573582c4ff3294ca3b84f99f4951b49e07f7ca64cc10bdc4b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/source-before.json",
+      "bytes": 3447,
+      "sha256": "d7d9f1b6480549b27d1ea97072abbd2ac9763b8bcf035573886a2a5a2351e2cd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/swap-before.json",
+      "bytes": 264,
+      "sha256": "440bc0f31cd7f709f18e9317c4bdaf29d59e61522abd5d61d7a3b15ff6f32ab6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/tools-after.json",
+      "bytes": 1005,
+      "sha256": "1d7aadd10a4a7cee99fc3b4cd6f78506932c46233354b76426fb1a53bac9ef7c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/tools-before.json",
+      "bytes": 1005,
+      "sha256": "369a7737458a02500ee52eb199b5740c582769ad62334b530ea8ee0778635e71"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/diagnostic/verify.json",
+      "bytes": 977,
+      "sha256": "6d7971b16a3e8618471595b7b2a872b2f8a35090d787ef1061ea306f866a1ae2"
+    }
+  ],
+  "actions": "Read-only filesystem/hash/JSON checks; only this review written outside repository. No native/VM/repository/index/other-lab changes."
+}

@@ -1,0 +1,823 @@
+{
+  "schema": "lexlean-r4-read33-ordinal26-production-call-analysis/v1",
+  "status": "CONDITIONAL_READ_ONLY_SOURCE_ANALYSIS_NO_SINGLETON_OUTCOME_ASSUMED",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "selectedDeclarationSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+  "singletonManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/manifest.json",
+    "bytes": 1760,
+    "sha256": "709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1"
+  },
+  "runtimePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    }
+  ],
+  "exactInputs": {
+    "occurrence": "declarations[25].statement.left.scrutinee = R4.Object.ObjWholeRead; arguments0backend/1manifest/2limits",
+    "argumentAstHashes": [
+      "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+      "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+      "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82"
+    ],
+    "backend": [
+      {
+        "id": {
+          "bytes": [
+            125,
+            221,
+            203,
+            109,
+            110,
+            224,
+            251,
+            215,
+            105,
+            78,
+            221,
+            7
+          ]
+        },
+        "wire": [
+          0,
+          125,
+          221,
+          203,
+          109,
+          110,
+          224,
+          251,
+          215,
+          105,
+          78,
+          221,
+          7,
+          195,
+          202,
+          209,
+          216,
+          223,
+          230,
+          237,
+          244,
+          251,
+          2,
+          9,
+          16,
+          23,
+          30,
+          37,
+          44,
+          51,
+          58,
+          65,
+          72,
+          79,
+          86,
+          93,
+          100,
+          107,
+          114,
+          121,
+          128,
+          135,
+          142,
+          149,
+          156
+        ]
+      },
+      {
+        "id": {
+          "bytes": [
+            128,
+            174,
+            112,
+            205,
+            237,
+            99,
+            32,
+            90,
+            110,
+            198,
+            109,
+            200
+          ]
+        },
+        "wire": [
+          1,
+          128,
+          174,
+          112,
+          205,
+          237,
+          99,
+          32,
+          90,
+          110,
+          198,
+          109,
+          200,
+          204,
+          224,
+          130,
+          100,
+          35,
+          209,
+          207,
+          137,
+          18,
+          167,
+          134,
+          61,
+          229,
+          238,
+          245,
+          54,
+          216,
+          221,
+          107,
+          40,
+          188,
+          50,
+          60,
+          161,
+          125,
+          221,
+          203,
+          109,
+          110,
+          224,
+          251,
+          215,
+          105,
+          78,
+          221,
+          7
+        ]
+      },
+      {
+        "id": {
+          "bytes": [
+            204,
+            224,
+            130,
+            100,
+            35,
+            209,
+            207,
+            137,
+            18,
+            167,
+            134,
+            61
+          ]
+        },
+        "wire": [
+          0,
+          204,
+          224,
+          130,
+          100,
+          35,
+          209,
+          207,
+          137,
+          18,
+          167,
+          134,
+          61,
+          3,
+          10,
+          17,
+          24,
+          31,
+          38,
+          45,
+          52,
+          59,
+          66,
+          73,
+          80,
+          87,
+          94,
+          101,
+          108,
+          115,
+          122,
+          129,
+          136,
+          143,
+          150,
+          157,
+          164,
+          171,
+          178,
+          185,
+          192,
+          199,
+          206,
+          213,
+          220
+        ]
+      },
+      {
+        "id": {
+          "bytes": [
+            229,
+            238,
+            245,
+            54,
+            216,
+            221,
+            107,
+            40,
+            188,
+            50,
+            60,
+            161
+          ]
+        },
+        "wire": [
+          0,
+          229,
+          238,
+          245,
+          54,
+          216,
+          221,
+          107,
+          40,
+          188,
+          50,
+          60,
+          161,
+          227,
+          234,
+          241,
+          248,
+          255,
+          6,
+          13,
+          20,
+          27,
+          34,
+          41,
+          48,
+          55,
+          62,
+          69,
+          76,
+          83,
+          90,
+          97,
+          104,
+          111,
+          118,
+          125,
+          132,
+          139,
+          146,
+          153,
+          160,
+          167,
+          174,
+          181,
+          188
+        ]
+      }
+    ],
+    "manifest": {
+      "length": 96,
+      "roots": [
+        {
+          "id": {
+            "bytes": [
+              128,
+              174,
+              112,
+              205,
+              237,
+              99,
+              32,
+              90,
+              110,
+              198,
+              109,
+              200
+            ]
+          },
+          "scale": 1
+        }
+      ],
+      "digest": {
+        "bytes": [
+          201,
+          241,
+          165,
+          247,
+          157,
+          123,
+          234,
+          1,
+          165,
+          79,
+          78,
+          219,
+          65,
+          103,
+          55,
+          34,
+          246,
+          39,
+          238,
+          46,
+          130,
+          221,
+          163,
+          36,
+          148,
+          107,
+          99,
+          207,
+          75,
+          155,
+          22,
+          175
+        ]
+      }
+    },
+    "limits": {
+      "objectBytes": 16777216,
+      "records": 1000000,
+      "recordBytes": 67108864,
+      "returnedBytes": 16777216,
+      "visits": 1000000
+    },
+    "expectedBytes": [
+      3,
+      10,
+      17,
+      24,
+      31,
+      38,
+      45,
+      52,
+      59,
+      66,
+      73,
+      80,
+      87,
+      94,
+      101,
+      108,
+      115,
+      122,
+      129,
+      136,
+      143,
+      150,
+      157,
+      164,
+      171,
+      178,
+      185,
+      192,
+      199,
+      206,
+      213,
+      220,
+      227,
+      234,
+      241,
+      248,
+      255,
+      6,
+      13,
+      20,
+      27,
+      34,
+      41,
+      48,
+      55,
+      62,
+      69,
+      76,
+      83,
+      90,
+      97,
+      104,
+      111,
+      118,
+      125,
+      132,
+      139,
+      146,
+      153,
+      160,
+      167,
+      174,
+      181,
+      188,
+      195,
+      202,
+      209,
+      216,
+      223,
+      230,
+      237,
+      244,
+      251,
+      2,
+      9,
+      16,
+      23,
+      30,
+      37,
+      44,
+      51,
+      58,
+      65,
+      72,
+      79,
+      86,
+      93,
+      100,
+      107,
+      114,
+      121,
+      128,
+      135,
+      142,
+      149,
+      156
+    ],
+    "method": "Only syntactic projection of Nat/record/list/ObjAppendBytes literals. No host hash calculation or production evaluation; original expected identities/digest are not authenticated by this report."
+  },
+  "boundedShape": {
+    "backendRecords": 4,
+    "wireLengths": [
+      45,
+      49,
+      45,
+      45
+    ],
+    "manifestBytes": 96,
+    "rootCount": 1,
+    "rootScale": 1,
+    "parentChildIds": [
+      [
+        204,
+        224,
+        130,
+        100,
+        35,
+        209,
+        207,
+        137,
+        18,
+        167,
+        134,
+        61
+      ],
+      [
+        229,
+        238,
+        245,
+        54,
+        216,
+        221,
+        107,
+        40,
+        188,
+        50,
+        60,
+        161
+      ],
+      [
+        125,
+        221,
+        203,
+        109,
+        110,
+        224,
+        251,
+        215,
+        105,
+        78,
+        221,
+        7
+      ]
+    ],
+    "childPayloadLengths": [
+      32,
+      32,
+      32
+    ],
+    "syntacticChildPayloadConcatEqualsExpected96": true,
+    "boundary": "These are source-shape facts, not computed visit/statistics or verified record identities."
+  },
+  "productionCallNodes": [
+    {
+      "name": "R4.Object.ObjWholeRead",
+      "astSha256": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+      "calls": [
+        "R4.ObjectRead.ObjRawKeysValid",
+        "R4.ObjectRead.ObjWholeAdmitted",
+        "R4.ObjectCodec.ObjAdmitManifest"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjRawKeysValid",
+      "astSha256": "745ba6e8b1a770f87fee76aea054f82aee33b3168207d6f4ead40ae6f093dd32",
+      "calls": [
+        "R4.ObjectTypes.ObjIdValid",
+        "R4.ObjectTypes.ObjBytesLess",
+        "R4.ObjectRead.ObjRawKeysValid"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjAuthenticatedFetch",
+      "astSha256": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239",
+      "calls": [
+        "R4.ObjectTypes.ObjBytesEqual",
+        "R4.ObjectCodec.ObjDecodeRecord",
+        "R4.ObjectRead.ObjRawLookup"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjPlanRoots",
+      "astSha256": "56861ad4daca36e38be55b1a3c0343e127cab8b94aabaa4379f3f7bb1ee436a7",
+      "calls": [
+        "R4.ObjectRead.ObjPlanRoots",
+        "R4.ObjectRead.ObjPlanLevels",
+        "R4.ObjectTypes.ObjSubtract64",
+        "R4.ObjectRead.ObjCheckedOffset",
+        "R4.ObjectCodec.ObjSpan"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjMarkVisit",
+      "astSha256": "7e66b0214a6a4913fab167d09047836540e6366ed8589e123e34826c4b15e1fa",
+      "calls": []
+    },
+    {
+      "name": "R4.ObjectRead.ObjAccountRecord",
+      "astSha256": "510cdc20ad979dd6ca45603a7c2a9ce138574ee4af613cb6e22349e635045897",
+      "calls": [
+        "R4.ObjectCodec.ObjWireLength",
+        "R4.ObjectRead.ObjInsertIdSorted"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjReadLeaf",
+      "astSha256": "76618519a90c2ec9c0212e67d57869ac9776aff34d1c79f92d6d56ec59b0fea3",
+      "calls": [
+        "R4.ObjectRead.ObjZeroTail",
+        "R4.ObjectTypes.ObjDropBytes",
+        "R4.ObjectTypes.ObjSubtract64",
+        "R4.ObjectTypes.ObjAppendBytes",
+        "R4.ObjectTypes.ObjTakeBytes"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjChildIdentity",
+      "astSha256": "e4b7fce7b953acdd2dcace525bf3b5df6f58ad54b67dc4e58b8e9b5ba30a103b",
+      "calls": [
+        "R4.ObjectTypes.ObjTakeBytes",
+        "R4.ObjectTypes.ObjDropBytes"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjVisitNode",
+      "astSha256": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00",
+      "calls": [
+        "R4.ObjectRead.ObjReadLeaf",
+        "R4.ObjectRead.ObjAccountRecord",
+        "R4.ObjectRead.ObjAuthenticatedFetch",
+        "R4.ObjectRead.ObjMarkVisit",
+        "R4.ObjectRead.ObjCheckedOffset",
+        "R4.ObjectCodec.ObjSpan",
+        "R4.ObjectRead.ObjVisitNode",
+        "R4.ObjectRead.ObjChildIdentity"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjVisitRoots",
+      "astSha256": "438b17c9e3cdfc402466435d38b9f2111d9e3b4728cf68644378ea670e7e799b",
+      "calls": [
+        "R4.ObjectRead.ObjVisitRoots",
+        "R4.ObjectRead.ObjCheckedOffset",
+        "R4.ObjectCodec.ObjSpan",
+        "R4.ObjectRead.ObjVisitNode"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjRangeFinish",
+      "astSha256": "454f8c720f6bf0be27947e65cad2b5759eef590be99eff38325c8dbabbe9caf3",
+      "calls": [
+        "R4.ObjectTypes.ObjByteLength",
+        "R4.ObjectTypes.ObjSubtract64",
+        "R4.ObjectRead.ObjReadRemainder",
+        "R4.ObjectRead.ObjWalkStatistics",
+        "R4.ObjectCodec.ObjManifestVersion"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjRangeAdmitted",
+      "astSha256": "2ec51dfd32cb123b90157a00c1568641c6346d8976ce1e4688af55780c8aba5c",
+      "calls": [
+        "R4.ObjectTypes.ObjSubtract64",
+        "R4.ObjectRead.ObjRangeFinish",
+        "R4.ObjectRead.ObjVisitRoots",
+        "R4.ObjectRead.ObjPlanRoots"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead.ObjWholeAdmitted",
+      "astSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+      "calls": [
+        "R4.ObjectTypes.ObjBytesEqual",
+        "R4.ObjectCodec.ObjHashBytes",
+        "R4.ObjectRead.ObjRangeAdmitted"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjAdmitManifest",
+      "astSha256": "a5fe4aa720435e6a8122f8abfd0b4cc2a1edaa1ea622ffa398bd3b1ce8e0b64b",
+      "calls": [
+        "R4.ObjectTypes.ObjLimitsValid",
+        "R4.ObjectTypes.ObjCountRoots",
+        "R4.ObjectTypes.ObjDigestValid",
+        "R4.ObjectCodec.ObjRootIdsValid",
+        "R4.ObjectTypes.ObjBytesEqual",
+        "R4.ObjectCodec.ObjRootScales",
+        "R4.ObjectCodec.ObjFrontierScales"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjEncodeManifest",
+      "astSha256": "5b6d2691a20642071560e87d5d8ebe2cc0ab8df13bd83f363a6a4dd23d90d6c1",
+      "calls": [
+        "R4.ObjectCodec.ObjEncodeManifestUnchecked",
+        "R4.ObjectCodec.ObjAdmitManifest"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjHashBytes",
+      "astSha256": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588",
+      "calls": [
+        "R4.HashWire.hashWireSha256"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjManifestVersion",
+      "astSha256": "4f9322b292065302469d97159297188129eae0543ab4ee1a3bff0b86c29f9734",
+      "calls": [
+        "R4.ObjectCodec.ObjHashBytes",
+        "R4.ObjectCodec.ObjEncodeManifest"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjNodeHash",
+      "astSha256": "ea97fc81c5f7d9c546dec31c382cf9887607cf35225d3c3b777bdb0e926dd02d",
+      "calls": [
+        "R4.HashWire.hashWireNodeId"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjDecodeRecordScale",
+      "astSha256": "ae4a9f848585317eb3c45c640328da16ed6ce30abf57e4e31cd39769ddd85771",
+      "calls": [
+        "R4.ObjectTypes.ObjByteLength",
+        "R4.ObjectCodec.ObjWireLength",
+        "R4.ObjectTypes.ObjBytesValid",
+        "R4.ObjectTypes.ObjBytesEqual",
+        "R4.ObjectTypes.ObjTakeBytes",
+        "R4.ObjectTypes.ObjDropBytes",
+        "R4.ObjectCodec.ObjNodeHash"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec.ObjDecodeRecord",
+      "astSha256": "224b7c4dbe25c4472bf6ff4635e374913e8127ec2545320214cebc69eae69937",
+      "calls": [
+        "R4.ObjectCodec.ObjDecodeRecordScale"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "stage": "1 admission",
+      "description": "ObjWholeRead first calls ObjAdmitManifest(manifest,limits), preserving errors; successful admission is followed by ObjRawKeysValid(view,none). Admission checks limits, length, root/digest/id widths and frontier scales. No native certificate of this exact admission is established here."
+    },
+    {
+      "stage": "2 range planning",
+      "description": "ObjWholeAdmitted calls ObjRangeAdmitted(view,manifest,{start=0,stop=manifest.length},limits): actual range0..96, returned-byte budget and visit planning. It initializes output=[],visits=0,wireBytes=0,seen=[] then invokes ObjVisitRoots. Planning is separate from authenticated fetch."
+    },
+    {
+      "stage": "3 parent authenticated fetch",
+      "description": "ObjVisitNode fetches root scale1 through ObjAuthenticatedFetch/ObjRawLookup. ObjDecodeRecord checks the exact49byteparentwire through ObjDecodeRecordScale: scale<=37, exact wire length, valid bytes, then ObjNodeHash(scale,payload) and wireid comparison. HashWire computes actual node identity. AuthenticatedFetch also checks requested id/scale. A literal id cannot replace those checks."
+    },
+    {
+      "stage": "4 three-child walk",
+      "description": "Parent36bytepayload contains three12bytechildidentities in the pinned order. ObjChildIdentity/ObjVisitNode authenticate corresponding scale0 records, account visits/wirebytes/seen and consume32byteleafpayloads through ObjReadLeaf, retaining range/tail checks. Exact requested96bytes syntactically match childpayload concatenation; actual production traversal remains a proof obligation."
+    },
+    {
+      "stage": "5 range finishing and manifest version",
+      "description": "ObjRangeFinish checks outputlength, packages remainder/stats, and calls ObjManifestVersion. This encodes admittedmanifest then invokes ObjHashBytes. This manifest-version hash is a separate mandatory SHA computation from record-node hashes and final whole-data digest; it must not be dropped just because theorem projects bytes."
+    },
+    {
+      "stage": "6 whole digest and original consumer",
+      "description": "Only after range success, ObjWholeAdmitted invokes ObjHashBytes on actualread.bytes and compares digest.bytes to manifest.digest.bytes. Mismatch returns integrityFailure; hashfailure is retained. Success constructs ObjWholeVerified(bytes,version,stats). Original theorem matches fullResult and projects bytes only on success. The final original consumer remains mandatory."
+    }
+  ],
+  "knownUnknown": {
+    "known": [
+      "Source contains four records: one scale1 parent49bytes and three scale0 leaves45bytes. Parent references the source-pinned threechildids; expected output96bytes.",
+      "The original aggregate has a recorded300s timeout. The current single diagnostic was reported healthy/running at assignment; this report does not inspect or assume its outcome.",
+      "Call nodes and data flow are source-derived. Repeated Reflexivity reduction is possible, but source shape does not locate cost."
+    ],
+    "unknown": [
+      "Perstage or pertheorem CPU/memory/time.",
+      "Whether node authentication, manifestversion,wholeSHA, traversal or a combination dominates.",
+      "Whether an isolated intermediate equation or connected transport will fit unchanged300s/4GiB.",
+      "Whether consumer definitional conversion forces work again despite a proved helper."
+    ]
+  },
+  "availablePatterns": {
+    "pins": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex",
+        "bytes": 29787,
+        "sha256": "2cedfadd3850194f8447f178117ad6af51e9b093f956682652081a6be8ffa5d5"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLift.lex.tex",
+        "bytes": 1483,
+        "sha256": "6569deeb633478d591ca2ea3305d669e61328db8374f27444c1544998ff7abc1"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicGenericConsumer.lex.tex",
+        "bytes": 32937,
+        "sha256": "7b8c2cc2d1527781f78e64d38fa38fe9e4484405a332a8833b4679124ce66c2a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+        "bytes": 38431,
+        "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLiftFalseBase.lex.tex",
+        "bytes": 1464,
+        "sha256": "5bf9b3bdf617da87369c841fbec7a2c4fda54cb9fee9e3ade116ee268d9bdadc"
+      }
+    ],
+    "actualResults": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/results.json",
+      "bytes": 14031,
+      "sha256": "5c90df586fa050c4c874fb7d5167a3209eae3759979791b3c055e38a60f4cdd5"
+    },
+    "supported": "Existing actual verified LexLean examples use explicit error-preserving Result context, reducible Nat-indexed proposition, zero Apply of actual equation, successor Cases/Congruence and final Apply. Symbolic generalization was needed previously to avoid expensive concrete consumer conversion.",
+    "boundary": "These are verified proof-structure precedents, not certificates for this protocol96 backend/manifest. Selected Read33 imports no such intermediate lemma; its actual proof remains Reflexivity. No expected hash can become an assumed intermediate."
+  },
+  "conditionalRecommendation": {
+    "ifSingletonSucceeds": "Independently audit its exact artifact and choose separately reviewed coverage strategy. Do not decompose automatically; one success is not all33 or aggregate acceptance.",
+    "ifSingletonResourceFails": "Preserve actual classification first. A minimal new source candidate could isolate exactly one production record decode, then prove its actual immediate consumer, without generating a certificate framework or additional32 controls.",
+    "firstEquation": "R4.ObjectCodec.ObjDecodeRecord exactParent49ByteWire = Result.ok exactObjRecord(parentId,scale1,36ByteChildIdPayload). All input/result syntax comes from the original source; equality itself is NOT established and must be proved by actual production computation.",
+    "firstNegative": "Source-valid one-byte change to expected decoded record id only, same wire and actual runtime; independent review then intended semantic rejection required. NOT_RUN.",
+    "connection": "If actual positive decode succeeds, transport that equation through the literal root ObjAuthenticatedFetch lookup/scale/id context retaining error/success branches. Decode helper alone does not close even fetch, let alone original whole-read. Further actual range result, version, whole digest and original Result-projection consumer remain mandatory; each change must be source-reviewed and audited.",
+    "alternativeCuts": [
+      "Exact ObjAdmitManifest and ObjRawKeysValid equations may separate admission but have no measuredcost here.",
+      "Actual ObjHashBytes(expected96bytes)=Result.ok originaldigest could isolate wholehash, but cannot replace establishing that authenticated walk returned those bytes.",
+      "Whole range-result certificate includes version/stats/remainder and is not the minimal starting cut without further evidence."
+    ],
+    "constraints": "Original runtime/digest/statement and emptyaxioms unchanged. No Simplify/propext shortcut, rawtacticinjection, trustedhosthash, limitincrease or original257 construction diversion. Parent must review any actual nextcandidate; no new candidate authored here."
+  },
+  "preservation": "Only this report written. Canonical full33 and frozen singleton source/manifest/invocation unchanged. No SDK,VM,process or stagecalls.",
+  "queryCorrections": [
+    "Initial pattern directory omitted project/ and returnedENOENT; corrected with rg --files. Local query error only.",
+    "Initial pretty-printed report exceeded25KiB and was refused by an assertion before any write; compacted scope/duplication for this bounded report. No source or native result implicated."
+  ],
+  "allNewProofTests": "NOT_RUN"
+}

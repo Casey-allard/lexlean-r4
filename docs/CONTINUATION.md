@@ -76,10 +76,18 @@ The [source investigation](continuation/2026-10-23/object-read-integration/timeo
 and [independent specification review](continuation/2026-10-23/object-read-integration/timeout-investigation-spec-review.json)
 select only the first diagnostic: isolate exact ordinal26, `objProtocolWholeBytes`,
 with the same complete declaration AST, module, path, imports, runtime and limits.
-Keep the canonical full33 source unchanged. Candidate extraction and invocation
-still require independent review. A singleton result cannot establish Read33
-coverage or aggregate acceptance; no automatic33-variant expansion is authorized.
-All proposed diagnostic native tests remain NOT_RUN.
+The independently reviewed extraction and invocation have now run. Source admission
+passed11 modules, but the exact singleton also timed out: target Lean300010ms
+against the unchanged300000ms limit, whole command341805ms. No artifact was
+produced; all15 inputs, lock, tools, epoch, zero memory events and post-reserves
+passed independent audit. See the [isolated result](continuation/2026-10-23/object-read-isolated26/RESULTS.md).
+The other32 declarations are therefore not necessary for this configuration to
+exceed its limit; this does not locate the earlier aggregate stopping point or
+identify an expensive subterm. All33 controls remain unaccepted. Keep the canonical
+full33 source intact and do not raise limits or automatically expand33 variants.
+The next source investigation follows the actual authenticated-record, range-walk,
+manifest-version and whole-data hashing chain; any certificate must reconnect to
+the original production consumer. Proposed new proof tests remain NOT_RUN.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
@@ -321,3 +329,12 @@ file. Raw compiler bundles, build/VM caches, compiler checkouts and unrelated
 plugin changes remain excluded and preserved locally; acceptance cannot rely on
 missing raw artifacts. The inventories state their traversal and comparison
 boundaries. No original local work was deleted during preservation.
+
+The [reviewed next Read step](continuation/2026-10-23/object-read-isolated26/next-step-spec-review.json)
+permits one exact parent49 `ObjDecodeRecord` certificate and a false expected-ID
+control (byte0,128 to129). Preserve the original wire, scale, payload, runtime,
+empty axioms and limits. Source CODE review precedes native execution. An accepted
+decode must subsequently connect to the actual `ObjAuthenticatedFetch` with the
+original four-entry backend, parent ID and scale1; helper success cannot replace
+that consumer or the remaining range/version/whole-digest obligations. These
+new proof tests are NOT_RUN.
