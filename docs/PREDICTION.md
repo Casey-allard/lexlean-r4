@@ -164,3 +164,42 @@ The theorem concerns the supplied list, which may be arbitrary. It does not
 establish that the caller supplies a sorted, complete or nonempty ranking, that
 the selected token is a global minimum, or that scoring and the supervised writer
 succeed over the full admitted domain. Those obligations remain required.
+
+## Supervised receipt factorization
+
+The general factorization theorem expresses the actual `Admission.finishReceipt`
+result through the actual `Prediction.predictionRanked` result for arbitrary
+values of all twelve parameters. It preserves the empty-ranking error, exact
+selected-loss sentinel and arithmetic guards, every receipt field, and all six
+telemetry fields. Only prediction, admitted-cell identities and ranked-token
+identities are projected from the target-free prediction receipt.
+
+The [proof](../tests/lexlean/PredictionReceiptFactorizationControls.lex.tex) uses
+list cases and reflexivity without changing either runtime definition or adding
+preconditions. Its [frozen obligations](../tests/fixtures/prediction/receipt-factorization-obligations.json)
+retain the exact statement and false companion. Baseline and restored verification
+each passed 874 none-axiom declaration audits, seven module compilations and
+kernel replays, 35 generated outputs and seven compiled module files. Independent
+review checked complete raw artifacts and process receipts.
+
+The source-valid false companion replaces only the expected prediction with the
+supervised target identity. A separate source-valid plant makes that same leak
+in the actual successful writer receipt. Both were rejected by the unchanged
+positive/false statements at their exact named theorem spans. The complete
+restored positive pass recovered all four baseline artifact identities.
+
+Two earlier instrument failures remain preserved. First, a diagnostic classifier
+expected an unfolded field that Lean did not print; its reviewed replacement
+requires the complete role-specific diagnostic. Second, a prepared output
+inventory used path-only order rather than the official SDK producer
+kind-then-path order. The corrected inventory preserves every output and its
+exact byte/hash checks. A new full sequence passed after those corrections;
+neither incomplete predecessor was relabeled as accepted.
+
+[`receipt-factorization-checkpoint.json`](../tests/fixtures/prediction/receipt-factorization-checkpoint.json)
+binds the accepted sequence, failed predecessors, source contracts and independent
+audit under `/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/receipt-factorization/`.
+This establishes exact finalizer composition, not that scoring or ranking succeeds,
+that the supplied ranking is complete or minimal, or that the selected loss is
+safe. Full admitted-domain writer refinement and mandatory integration remain
+required.
