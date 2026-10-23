@@ -1,0 +1,104 @@
+{
+  "schema": "lexlean-r4/hash-wire-orchestration-host-preparation/1",
+  "date": "2026-10-23",
+  "status": "REVIEWED_SYNTHETIC_HOST_MODEL_ONLY",
+  "scope": "Development verification instrument preparation. This is an in-memory control-flow model, not an SDK executor, pure LexLean application behavior, PrismPM acceptance or actual proof result.",
+  "packet": {
+    "manifest": {
+      "path": "/tmp/r4-hash-wire-projected-orchestration-host-20261023/manifest.json",
+      "sha256": "da13b1616c985bb0bde0885cd931453b2b3090e65060ae55010ec418a6ab93d8",
+      "bytes": 82701
+    },
+    "model": {
+      "path": "/tmp/r4-hash-wire-projected-orchestration-host-20261023/model.mjs",
+      "sha256": "9c95c9704d8219c13ad03521a19d029dd610422d1e65d554b845cfbad1ea5875",
+      "bytes": 14455
+    },
+    "tests": {
+      "path": "/tmp/r4-hash-wire-projected-orchestration-host-20261023/orchestration-tests.mjs",
+      "sha256": "b1e58b169bccfa808d7c254f4db781b62d50bae8ab9ab8f1b92ff7a022010839",
+      "bytes": 11418
+    },
+    "checkpoint": {
+      "path": "/tmp/r4-hash-wire-projected-orchestration-host-20261023/checkpoint.json",
+      "sha256": "c53df3e55814a108e67be9afa545ab40bdaeb18a637b66600d0c33a6d9c55e9f",
+      "bytes": 7876
+    },
+    "sourceArchive": {
+      "path": "tests/fixtures/hash-wire/orchestration-host-sources.json",
+      "sha256": "559c650f91f5fa819dd67d08111b18a9687205f0bf8f3cd303cdeae5ae72ad28",
+      "bytes": 47459
+    }
+  },
+  "behavior": [
+    "Await every modeled effect and independently attempt runtime, fixture and outer full-restoration cleanup.",
+    "Guard both sourcecheck and verify before dispatch and preserve independent post-custody on failure.",
+    "Keep projected two-control identities separate from original 35-control identities; enforce frozen seven-mutant/ten-witness accounting.",
+    "Preserve primary and nested falsey errors; successful modeled restoration cannot erase a failure."
+  ],
+  "verification": {
+    "classification": "SYNTHETIC_HOST_MODEL_TESTS_WITH_EXISTING_ACTUAL_AUDITOR_FUNCTION_REGRESSIONS",
+    "orchestrationGroupsPassed": 21,
+    "lifecycleCasesPassed": 5,
+    "actualPredecessorLifecycleFailures": 4,
+    "plantedHostModelDefectsRejected": 8,
+    "priorCasesPassed": 118,
+    "existingTemporalAuditorCasesPassed": 16,
+    "additionalCodeReviewProbeGroupsPassed": 9,
+    "authorGreen": {
+      "path": "/tmp/r4-hash-wire-projected-orchestration-host-20261023/final-green.json",
+      "sha256": "908bebfe19c5cf23b6d8ddf7e33033b131b4a9cb2782b65fb87d9317de698686",
+      "bytes": 2695
+    },
+    "authorPlantedDefects": {
+      "path": "/tmp/r4-hash-wire-projected-orchestration-host-20261023/final-planted-red.json",
+      "sha256": "64d7a20341e37f51d0a78b715f87b9e2201105899a16af0a0d3d3601ec7bb5a1",
+      "bytes": 3247
+    },
+    "parentGreen": {
+      "path": "/tmp/r4-orchestration-parent-verification-20261023/green-summary.json",
+      "sha256": "84ed285b4ec0f35b7f129cdc4426f0d4763b70441c9a4e880e57f471a2acb14a",
+      "bytes": 256
+    },
+    "specReview": {
+      "path": "/tmp/r4-wire-projected-orchestration-host-spec-review-20261023/review.json",
+      "sha256": "d618ce77d77d44541c568e78215f1fdc02dfd22f018e32e0942911f06643c4c4",
+      "bytes": 5529
+    },
+    "codeReview": {
+      "path": "/tmp/r4-wire-projected-orchestration-implementation-code-review-20261023/review.json",
+      "sha256": "6a0b6e3157d625757e5c24fdf674dc428956081971b40e74aeebf520119437d2",
+      "bytes": 5093
+    },
+    "testLineage": "Four lifecycle failures were reproduced against the actual predecessor before model implementation. Initial orchestration tests passed on first implementation; eight later planted source defects demonstrate sensitivity and are not represented as initial RED results."
+  },
+  "durableEvidence": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/orchestration-host-preparation",
+    "custodySha256": "0161a1eb07688188cf2d3bfc6fa82981d01c769a384f12fc370589e0bf972b5f",
+    "payloadFiles": 1091,
+    "payloadBytes": 2563049
+  },
+  "limitations": [
+    "All modeled commands, timestamps, resources, source transitions and generated identities are synthetic.",
+    "The local actual-audit-shaped classifier token only exercises the unchanged negative classifier; it cannot leave as accepted artifact evidence or enable execution.",
+    "The source archive preserves exact UTF-8 bytes and historical absolute imports; it is evidence, not a standalone installed package.",
+    "Concrete command recorder, exclusive stage and copy observations, actual raw custody/artifact integration, fresh epoch binding and historical raw-audit integration remain required.",
+    "Actual complete78 restoration summary, raw closure, auditor and independent review remain unbound. execute() rejects the authoritative null prerequisite before dispatch."
+  ],
+  "acceptance": {
+    "hostModelReviewed": true,
+    "actualRestorationBinding": null,
+    "executorImplemented": false,
+    "newSdkExecution": false,
+    "newRestoredRoots": 0,
+    "actualRestorationRoots": 16,
+    "requiredRestorationRoots": 78,
+    "actualMutationResults": 2,
+    "requiredMutationResults": 7,
+    "fullRestorationAccepted": false,
+    "fullMutationSequenceAccepted": false,
+    "componentAccepted": false,
+    "integrationAccepted": false,
+    "productionAccepted": false
+  }
+}

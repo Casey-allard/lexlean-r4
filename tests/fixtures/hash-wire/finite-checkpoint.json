@@ -789,5 +789,12 @@
     "sha256": "2cb333c04f3fbe8cd8021f6e7cb713c0f6a13e3195fcb3e5ca49ec2247a1e375",
     "hostRepairAccepted": true,
     "fullRestorationAccepted": false
+  },
+  "orchestrationHostPreparation": {
+    "path": "tests/fixtures/hash-wire/orchestration-host-preparation.json",
+    "sha256": "fc5669b2046a3897280373daf83c690ebaa45da18b0c6b519e9dfc395b060e24",
+    "bytes": 5346,
+    "scope": "SYNTHETIC_HOST_MODEL_ONLY",
+    "fullRestorationAccepted": false
   }
 }
