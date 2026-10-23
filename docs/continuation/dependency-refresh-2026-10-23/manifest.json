@@ -1,0 +1,105 @@
+{
+  "scope": "Development dependency repair, source reviews and actual scoped host results. No SDK or production acceptance.",
+  "files": [
+    {
+      "path": "actions-main-verification.json",
+      "bytes": 478,
+      "sha256": "ef8225c0057a0950d2044c36a97640af95eb7f1e02d5ef82f1cebb0d1555b67f"
+    },
+    {
+      "path": "actions-review.json",
+      "bytes": 9673,
+      "sha256": "cc46f95ff359ec2048173da39c45c258f920d69ba317706fae1d30214bf69bf2"
+    },
+    {
+      "path": "cargo-0.json",
+      "bytes": 394,
+      "sha256": "aad3dbd61c518514ae52a2f7d11b46fa42623393d4f81fd5f9d2499359cf7ec4"
+    },
+    {
+      "path": "cargo-actual-0.json",
+      "bytes": 2698,
+      "sha256": "36a6060a5903ec7d1eda43af05ed87879e2d0a61970e2ff478ea9602a2c54c28"
+    },
+    {
+      "path": "cargo-actual-1.json",
+      "bytes": 2282,
+      "sha256": "743ee6fa22f93f4b59b49284b52366744bd60b5bbf3564ddc580aea8be052eec"
+    },
+    {
+      "path": "cargo-actual-2.json",
+      "bytes": 26554,
+      "sha256": "043d2bf8719d1e0f3ed0bfe00ac495250654497e2c14cf0fdb7d32e185199242"
+    },
+    {
+      "path": "dependency-original-review.json",
+      "bytes": 13561,
+      "sha256": "868e8ef2221375ab98ed598f784160bf21dcc13a2895db4c51cf73b7790c857a"
+    },
+    {
+      "path": "host-build-budget.json",
+      "bytes": 372,
+      "sha256": "a1d9c984f8b80c13076a31e348dac65fa8bec3f8446383ab9576d04edf83469e"
+    },
+    {
+      "path": "repair-code-review.json",
+      "bytes": 8813,
+      "sha256": "0c44bedbb4f875d9c90e64fda2adc0ff641805ab7739042746cd0fa07c56d022"
+    },
+    {
+      "path": "repair-security-review.json",
+      "bytes": 6107,
+      "sha256": "1644eeceb8afc83157e784454b854247d17d2949540b8a967a85523cf9db1953"
+    },
+    {
+      "path": "sha256-leading-zero-plant-red.json",
+      "bytes": 1553,
+      "sha256": "013316ce3ea19b94c4b5aa36da5cfdbd0a061bde97e9619782f787c44d95e69a"
+    },
+    {
+      "path": "sha256-leading-zero-restored-green.json",
+      "bytes": 941,
+      "sha256": "df549dbcab982345c9b54e2e920058d533891389b723dfb94f7f1dac8489304d"
+    },
+    {
+      "path": "sha256-regression-red.json",
+      "bytes": 2137,
+      "sha256": "d29ca9d545927e734a0baf12d025a7245694a27683c91c54b997c0965f2bae1d"
+    },
+    {
+      "path": "sha256-repair-green-0.json",
+      "bytes": 1117,
+      "sha256": "c40f59dfbb743c790fdf56650f0b7d1366ef9dafa9df955bf0e6b2ade1a3e35c"
+    },
+    {
+      "path": "sha256-repair-green-1.json",
+      "bytes": 1521,
+      "sha256": "c218c7f0d5bd3a8f81133aebb0f778f7cb605918ed878b9e892f6703ff50f01e"
+    },
+    {
+      "path": "sha256-repair-green-2.json",
+      "bytes": 2290,
+      "sha256": "d666357798276f009cea0cc75ebf3ea40f3c83295ee0cfb62de58f8de5fa0180"
+    },
+    {
+      "path": "sha256-repair-green-3.json",
+      "bytes": 827,
+      "sha256": "f27eaabf08a675b7e44e1ef8f9839643c91343fbfae58093fed274f267bca1bd"
+    },
+    {
+      "path": "sha256-repair-green-4.json",
+      "bytes": 941,
+      "sha256": "a6cb3d93ca5951163117c83e826fa2fcfc89f1d0b2d20a7dff9e873426933f69"
+    },
+    {
+      "path": "sha256-repair-green-5.json",
+      "bytes": 890,
+      "sha256": "1d565946e8a7ddecf1b57dde6bd8790d3ba8c07160e7f17a0524af3b9cb85fe3"
+    },
+    {
+      "path": "sha256-repair-implementation.json",
+      "bytes": 7138,
+      "sha256": "b2202e487e7a3436f93bfb5d3fe9f72e6b3612102c6cafc3dcdc2443430950fb"
+    }
+  ]
+}

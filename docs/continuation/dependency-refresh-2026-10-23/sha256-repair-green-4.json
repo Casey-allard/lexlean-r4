@@ -1,0 +1,26 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "run",
+    "--locked",
+    "-p",
+    "xtask",
+    "--",
+    "check-model"
+  ],
+  "started": "2026-10-23T17:31:54.471Z",
+  "ended": "2026-10-23T17:31:55.066Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "check-model: CONFORMANCE.md equals the model, 19 ids (CM-01)\n",
+  "stderr": "   Compiling xtask v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/xtask)\n    Finished `dev` profile [unoptimized] target(s) in 0.47s\n     Running `/Users/casey.allard/lexlean-r4-build-cache/host/debug/xtask check-model`\n",
+  "availableBeforeBytes": "32721784832",
+  "availableAfterBytes": "32717537280",
+  "env": {
+    "CARGO_TARGET_DIR": "/Users/casey.allard/lexlean-r4-build-cache/host",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "2"
+  }
+}

@@ -2,8 +2,6 @@
 
 mod support;
 
-use sha2::{Digest, Sha256};
-
 #[test]
 fn exact_tokenizer_text_r4_14() -> Result<(), Box<dyn std::error::Error>> {
     let root = repo_model::repo_root();
@@ -18,7 +16,7 @@ fn exact_tokenizer_text_r4_14() -> Result<(), Box<dyn std::error::Error>> {
         ),
     ] {
         assert_eq!(
-            format!("{:x}", Sha256::digest(std::fs::read(root.join(path))?)),
+            support::sha256_hex(&std::fs::read(root.join(path))?),
             expected,
             "reviewed imported Unicode evidence changed: {path}"
         );

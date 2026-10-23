@@ -1,0 +1,14 @@
+{
+  "args": [
+    "test",
+    "--workspace",
+    "--lib",
+    "--locked"
+  ],
+  "started": "2026-10-23T17:26:03.581Z",
+  "ended": "2026-10-23T17:26:07.174Z",
+  "status": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "error: unknown command 'test'\nCoding agents: install the Cargo skills with `npx skills add getcargohq/cargo-skills`\nRun \"cargo-ai --help\" for the full command list.\n"
+}

@@ -3,18 +3,13 @@
 
 mod support;
 
-use sha2::{Digest, Sha256};
-
 #[test]
 fn exact_json_number_r4_18() -> Result<(), Box<dyn std::error::Error>> {
     let root = repo_model::repo_root();
     assert_eq!(
-        format!(
-            "{:x}",
-            Sha256::digest(std::fs::read(
-                root.join("tests/fixtures/tokenizer/number-arithmetic.json")
-            )?)
-        ),
+        support::sha256_hex(&std::fs::read(
+            root.join("tests/fixtures/tokenizer/number-arithmetic.json"),
+        )?),
         "71ddc658b5793e10a553bf36263e8f4e07826c5fd34a15bd6f6013389d257d27",
         "reviewed exact integer arithmetic facts changed"
     );

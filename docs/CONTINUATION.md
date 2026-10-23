@@ -150,7 +150,47 @@ a log-confirmed observation for that job. See the [dated record](continuation/20
 
 The user's requested merge preserves development progress on `main` while this
 production gate remains red. It does not waive `just vv` for a release. No CI gate
-is disabled, no universal template file changed and no production lock fabricated.
+is disabled and no production lock is fabricated. The implementation checkpoint
+(PR #3) did not change universal files; the subsequent Actions dependency update
+is described below.
 Resolve the real immutable SDK/template dependency before claiming product
 acceptance or deployment. The inherited template and production pipeline remain
 the acceptance boundary.
+
+## Merged development checkpoints and dependency maintenance
+
+PR #3 merged the implementation, finite proof fixtures and portable continuation
+packet into `main` at `9456614d9fe13ef56a736f69e7cda71a5fae6db9`. The merged
+tree matched the reviewed head, all 80 finite-fixture and 31 continuation payloads
+were rehashed from fetched `origin/main`, and the original 17 unfinished working
+files remained unchanged. This was tree/custody verification, not a fresh `just vv`.
+The old implementation branch was deleted after merge.
+
+[PR #1](https://github.com/Casey-allard/lexlean-r4/pull/1) merged at
+`5389a4248fd2c768ef3bf8c47c67527adad971b9` after internal infrastructure/security
+review of all five immutable Action pins and 31 substitutions across two workflows.
+Inputs, permissions, conditions and shared PrismPM calls were unchanged. These
+universal workflow updates still require genuine template-policy reconciliation
+before production acceptance; the merge is a development checkpoint. The existing
+`.template-update.patch` upload lacks `include-hidden-files: true` and remains a
+separate inherited template-update defect, not a new defect from the pin update.
+
+Dependabot replaced closed PR #2 with [PR #4](https://github.com/Casey-allard/lexlean-r4/pull/4).
+Its original head `c5b5c0e4e5fe3f1546f849994c351b27bba121e8` passed library and
+xtask tests but failed all-target compilation: sha2 0.11 digest outputs no longer
+implement `LowerHex`. The compatibility repair renders each SHA-256 byte as two lowercase hexadecimal
+digits in shared test support and preserves all expected digest constants. The
+dedicated empty/abc/leading-zero regression, four library tests, 14 xtask tests
+(including two nested JavaScript tests), all-target/all-feature compilation,
+model equality and dependency-update audit passed with Rust 1.97.1. These scoped
+host checks do not execute LexLean proofs or establish production acceptance.
+The original compilation failure is preserved. Internal non-author Rust/code and
+security reviews passed for repair commit `14aaa92219a57a0781e50570a305890193303e3d`.
+A planted leading-zero-loss defect failed the dedicated regression and the exact
+restored formatter passed. Merge remains a development checkpoint under the same
+production binding boundary.
+
+The [dependency-maintenance evidence](continuation/dependency-refresh-2026-10-23/manifest.json)
+contains the exact initial failures, restored host results, source pins and
+internal reviews. Absolute paths inside historical receipts identify the original
+execution; the adjacent files and manifest preserve their bytes on GitHub.

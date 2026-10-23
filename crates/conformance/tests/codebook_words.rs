@@ -4,14 +4,13 @@
 mod support;
 
 use serde_json::Value;
-use sha2::{Digest, Sha256};
 
 #[test]
 fn exact_codebook_words_r4_21() -> Result<(), Box<dyn std::error::Error>> {
     let root = repo_model::repo_root();
     let inventory_bytes = std::fs::read(root.join("tests/fixtures/codebook/word-controls.json"))?;
     assert_eq!(
-        format!("{:x}", Sha256::digest(&inventory_bytes)),
+        support::sha256_hex(&inventory_bytes),
         "d591ea7a83579738c1aef20b0758b6d74482026850d3feb7b6862b929256a886",
         "reviewed codebook integer fixture inventory changed"
     );

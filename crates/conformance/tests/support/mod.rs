@@ -5,7 +5,8 @@ use std::error::Error;
 use std::process::Command;
 
 use serde_json::{json, Value};
-use sha2::{Digest, Sha256};
+mod sha256;
+pub use sha256::sha256_hex;
 
 // The immutable control source selects the language, not the returned receipt.
 // LexLean 0865df4e emits attestation/2 for language 1.2; its ordinary
@@ -102,7 +103,7 @@ pub fn verify_controls(
     let root = repo_model::repo_root();
     let source = std::fs::read_to_string(root.join(control_path))?;
     assert_eq!(
-        format!("{:x}", Sha256::digest(source.as_bytes())),
+        sha256_hex(source.as_bytes()),
         expected_digest,
         "reviewed control statements changed: {control_path}"
     );
@@ -195,7 +196,7 @@ pub fn verify_controls(
     let manifest_bytes = std::fs::read(root.join(directory).join("build-manifest.json"))?;
     assert_eq!(
         receipt["build_manifest"]["sha256"],
-        format!("{:x}", Sha256::digest(&manifest_bytes))
+        sha256_hex(&manifest_bytes)
     );
     assert_eq!(
         receipt["build_manifest"]["byte_length"],
@@ -220,11 +221,7 @@ pub fn verify_controls(
             "build input escapes project"
         );
         let bytes = std::fs::read(path)?;
-        assert_eq!(
-            input["sha256"],
-            format!("{:x}", Sha256::digest(&bytes)),
-            "stale verified input"
-        );
+        assert_eq!(input["sha256"], sha256_hex(&bytes), "stale verified input");
         assert_eq!(input["byte_length"], json!(bytes.len()));
     }
     assert_eq!(

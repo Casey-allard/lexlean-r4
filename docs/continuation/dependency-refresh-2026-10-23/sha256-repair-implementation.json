@@ -1,0 +1,201 @@
+{
+  "schema": "lexlean-r4-sha256-compatibility-repair/v1",
+  "at": "2026-10-23T17:33:00.924Z",
+  "baseHead": "c5b5c0e4e5fe3f1546f849994c351b27bba121e8",
+  "author": "orchestration_implementation_code_review (implementation role; independent review still required)",
+  "rootCause": "sha2 0.11 digest outputs hybrid_array::Array without LowerHex; direct {:x} formatting fails E0277.",
+  "change": "Shared test-only sha256_hex helper formats each byte as two lowercase hexadecimal digits. All ten former whole-digest formatting sites now call it. Dedicated digest target imports this exact helper and checks empty, abc, and 286 leading-zero digest vectors.",
+  "sourcePins": [
+    {
+      "path": "crates/conformance/tests/codebook_words.rs",
+      "bytes": 1788,
+      "sha256": "db4a4918a4ca627415025a8c49f8009ee533e221c0d10d253965e1146abe924a"
+    },
+    {
+      "path": "crates/conformance/tests/digest.rs",
+      "bytes": 655,
+      "sha256": "64233fbe0fe1b4ead3bec5a630b49cfcb1f81320071514447370ebd327adcfc1"
+    },
+    {
+      "path": "crates/conformance/tests/evidence.rs",
+      "bytes": 3282,
+      "sha256": "8815322688d8f3492563e758a4725a9a0bef0cfdd1bd37610d2f653fe2b90d26"
+    },
+    {
+      "path": "crates/conformance/tests/hash.rs",
+      "bytes": 5207,
+      "sha256": "fde34b3c43a1cd1101e692385037306bfd9e57e5f1f6a438e51c8639a520c21d"
+    },
+    {
+      "path": "crates/conformance/tests/json_number.rs",
+      "bytes": 1916,
+      "sha256": "b510db50963e74b771cac2135a9114195cb80fac705c9469d106ce6696a03579"
+    },
+    {
+      "path": "crates/conformance/tests/snapshot_json.rs",
+      "bytes": 1651,
+      "sha256": "e9c488af07f73c804f434450031d5c813ee747e70530de5281d868105046d37a"
+    },
+    {
+      "path": "crates/conformance/tests/support/mod.rs",
+      "bytes": 9267,
+      "sha256": "277c43149096509aa05ee6b6c3f3224399b059af11cf0d992c0845c21ea0d6a4"
+    },
+    {
+      "path": "crates/conformance/tests/support/sha256.rs",
+      "bytes": 307,
+      "sha256": "7cb8738682575eab537bbcebef423039ee615843210710e837f517dc429e0050"
+    },
+    {
+      "path": "crates/conformance/tests/tokenizer_json.rs",
+      "bytes": 1921,
+      "sha256": "39d6e0ce863602a868808c3425cc6385967eaf2df5d2bf7206a52664f7efa9f9"
+    },
+    {
+      "path": "crates/conformance/tests/tokenizer_text.rs",
+      "bytes": 1110,
+      "sha256": "364cf696aac4137c8fc75c39223ff97981b9e029ddd002f6d12cab9150a0867a"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-leading-zero-plant-red.json",
+      "sha256": "013316ce3ea19b94c4b5aa36da5cfdbd0a061bde97e9619782f787c44d95e69a",
+      "status": 101,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-leading-zero-restored-green.json",
+      "sha256": "df549dbcab982345c9b54e2e920058d533891389b723dfb94f7f1dac8489304d",
+      "status": 0,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-regression-red.json",
+      "sha256": "d29ca9d545927e734a0baf12d025a7245694a27683c91c54b997c0965f2bae1d",
+      "status": 101,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-0.json",
+      "sha256": "c40f59dfbb743c790fdf56650f0b7d1366ef9dafa9df955bf0e6b2ade1a3e35c",
+      "status": 0,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-1.json",
+      "sha256": "c218c7f0d5bd3a8f81133aebb0f778f7cb605918ed878b9e892f6703ff50f01e",
+      "status": 0,
+      "args": [
+        "test",
+        "--workspace",
+        "--lib",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-2.json",
+      "sha256": "d666357798276f009cea0cc75ebf3ea40f3c83295ee0cfb62de58f8de5fa0180",
+      "status": 0,
+      "args": [
+        "test",
+        "-p",
+        "xtask",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-3.json",
+      "sha256": "f27eaabf08a675b7e44e1ef8f9839643c91343fbfae58093fed274f267bca1bd",
+      "status": 0,
+      "args": [
+        "check",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-4.json",
+      "sha256": "a6cb3d93ca5951163117c83e826fa2fcfc89f1d0b2d20a7dff9e873426933f69",
+      "status": 0,
+      "args": [
+        "run",
+        "--locked",
+        "-p",
+        "xtask",
+        "--",
+        "check-model"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-5.json",
+      "sha256": "1d565946e8a7ddecf1b57dde6bd8790d3ba8c07160e7f17a0524af3b9cb85fe3",
+      "status": 0,
+      "args": [
+        "run",
+        "--locked",
+        "-p",
+        "xtask",
+        "--",
+        "audit-dependency-updates"
+      ]
+    }
+  ],
+  "checks": {
+    "failingRegression": "sha256-regression-red.json: E0277 reproduces on extracted legacy formatter before fix",
+    "plant": "sha256-leading-zero-plant-red.json: removes leading zero digits and fails on 286 expected 00328... versus 328...",
+    "restoration": "sha256-leading-zero-restored-green.json: exact final helper restored and regression passes",
+    "host": "All six sha256-repair-green-N commands exited zero: dedicated regression, four library tests, fourteen xtask tests and two nested tests, all-target/all-feature compile, model equality, dependency policy audit",
+    "expectedDigestLiteralsUnchanged": true,
+    "cargoLockUnchanged": true,
+    "formatCheck": 0,
+    "diffCheck": true
+  },
+  "storage": {
+    "latestAvailableBytes": "32166477824",
+    "peakAdditionalBudgetBytes": 2147483648,
+    "reserveBytes": 10737418240,
+    "cache": "/Users/casey.allard/lexlean-r4-build-cache/host",
+    "incremental": false,
+    "debug": false,
+    "jobs": 2,
+    "continuousHighWaterMeasured": false
+  },
+  "limits": [
+    "No commit or push performed; no staged changes by this author.",
+    "No LexLean SDK, compiler VM or full conformance execution; host verification is not release acceptance.",
+    "No runtime, model, fixed expected digest, Cargo dependency/lock or acceptance predicate changes.",
+    "Parent concurrent docs/CONTINUATION.md change is excluded from implementation pins.",
+    "Original cargo-0 instrumentation and cargo-actual-2 compiler failures remain preserved."
+  ]
+}

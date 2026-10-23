@@ -3,14 +3,13 @@
 mod support;
 
 use serde_json::Value;
-use sha2::{Digest, Sha256};
 
 #[test]
 fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     let root = repo_model::repo_root();
     let bytes = std::fs::read(root.join("tests/fixtures/snapshot/controls.json"))?;
     assert_eq!(
-        format!("{:x}", Sha256::digest(&bytes)),
+        support::sha256_hex(&bytes),
         "3585063b5301c09545a945c6c39e6fcdab516bb32967bf7c0d684558838b6492",
         "reviewed Snapshot fixture inventory changed"
     );

@@ -4,14 +4,13 @@
 mod support;
 
 use serde_json::Value;
-use sha2::{Digest, Sha256};
 
 #[test]
 fn complete_tokenizer_json_r4_20() -> Result<(), Box<dyn std::error::Error>> {
     let root = repo_model::repo_root();
     let inventory_bytes = std::fs::read(root.join("tests/fixtures/tokenizer/json-controls.json"))?;
     assert_eq!(
-        format!("{:x}", Sha256::digest(&inventory_bytes)),
+        support::sha256_hex(&inventory_bytes),
         "2fdee4bcee209f5442cab4c6e510b42bea14063c68df6ed82b34e4161e716f12",
         "reviewed raw JSON fixture inventory changed"
     );

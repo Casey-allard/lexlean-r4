@@ -3,18 +3,13 @@
 
 mod support;
 
-use sha2::{Digest, Sha256};
-
 #[test]
 fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     let root = repo_model::repo_root();
     assert_eq!(
-        format!(
-            "{:x}",
-            Sha256::digest(std::fs::read(
-                root.join("tests/fixtures/evidence/upstream-board.json")
-            )?)
-        ),
+        support::sha256_hex(&std::fs::read(
+            root.join("tests/fixtures/evidence/upstream-board.json"),
+        )?),
         "357cdfc926a220239193b19c6d2fd86beea4e6c0d843926066e6c185e1fdc5d2",
         "reviewed complete upstream mechanism evidence changed"
     );

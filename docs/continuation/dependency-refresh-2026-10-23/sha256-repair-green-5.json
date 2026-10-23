@@ -1,0 +1,26 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "run",
+    "--locked",
+    "-p",
+    "xtask",
+    "--",
+    "audit-dependency-updates"
+  ],
+  "started": "2026-10-23T17:31:55.066Z",
+  "ended": "2026-10-23T17:31:55.163Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "audit-dependency-updates: SDK ownership and ordinary maintenance are preserved\n",
+  "stderr": "    Finished `dev` profile [unoptimized] target(s) in 0.02s\n     Running `/Users/casey.allard/lexlean-r4-build-cache/host/debug/xtask audit-dependency-updates`\n",
+  "availableBeforeBytes": "32717533184",
+  "availableAfterBytes": "32717533184",
+  "env": {
+    "CARGO_TARGET_DIR": "/Users/casey.allard/lexlean-r4-build-cache/host",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "2"
+  }
+}
