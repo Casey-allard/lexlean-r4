@@ -54,6 +54,24 @@
       "diagnostic": null,
       "attestationId": "432355f3610faf6ade14526d14578bad764593b479469eff0eb1bb6d0bdaa2bf",
       "elapsedMs": 137684
+    },
+    {
+      "phase": "staging-false",
+      "root": "tests/lexlean/Object257StagingTransportFalseBase.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 144724
+    },
+    {
+      "phase": "staging-positive",
+      "root": "tests/lexlean/Object257StagingTransport.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "41eca104bf87957b7aaf6f2d6b9d071c0fe2be9a530e116765ccea7725c1361c",
+      "elapsedMs": 114399
     }
   ],
   "reviewed": {
@@ -68,6 +86,11 @@
     "parentTransport": {
       "replays": 11,
       "emptyAxiomDeclarations": 769
+    },
+    "inventoryStaging": {
+      "replays": 11,
+      "emptyAxiomDeclarations": 769,
+      "artifactFiles": 115
     }
   },
   "open": [
@@ -79,5 +102,14 @@
     "generated Pages"
   ],
   "relocation": "Source/config/lock bytes reproduced from actual verified stages. New repository fixture path itself has not been rerun.",
-  "evidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport"
+  "evidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport",
+  "stagingCandidateManifest": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7",
+  "stagingEvidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport",
+  "stagingSetupFailure": {
+    "compilerInvoked": false,
+    "status": "cp -a failed ownership preservation before config/lock/check/verify",
+    "correction": "Reviewed fresh attempt2 uses cp -R --no-preserve=ownership followed by all18input hash comparisons",
+    "preserved": "evidence/staging-setup-failure.json",
+    "review": "evidence/staging-setup-failure-review.json"
+  }
 }

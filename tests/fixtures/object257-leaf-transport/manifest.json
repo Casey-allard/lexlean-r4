@@ -267,15 +267,111 @@
     },
     {
       "path": "results.json",
-      "bytes": 2660,
-      "sha256": "a03d898b27778b98669eb2f77e42f61bed5afc2dcd222be6becfc647fcb54241",
-      "origin": "new scoped result summary"
+      "bytes": 3930,
+      "sha256": "7a628f9c2b2396a1f2f19833a354fe0b6c083919f673ed05cd14a185d891644a",
+      "origin": "updated scoped inventory-staging proof documentation"
     },
     {
       "path": "README.md",
-      "bytes": 2754,
-      "sha256": "b11c1f72d51bbe86ae12a118df93adc9eed2ab8e4783463ddb2d705ca4b29ca6",
-      "origin": "new fixture documentation"
+      "bytes": 4139,
+      "sha256": "8dfec323992901c71a0b87e6068136dc31e09ab86bf3278438c65489ec610eb1",
+      "origin": "updated scoped inventory-staging proof documentation"
+    },
+    {
+      "path": "project/tests/lexlean/Object257StagingContext.lex.tex",
+      "bytes": 9472,
+      "sha256": "8cee8c1ff4d0be2bcb87fd8655db70db213aa5d305c47a810276a4703d84fe1f",
+      "origin": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingContext.lex.tex"
+    },
+    {
+      "path": "project/tests/lexlean/Object257StagingTransport.lex.tex",
+      "bytes": 6206,
+      "sha256": "c8ee59f938191e8a917ffc6598a5e99e3a99b051b471395775d336691a44a005",
+      "origin": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingTransport.lex.tex"
+    },
+    {
+      "path": "project/tests/lexlean/Object257StagingTransportFalseBase.lex.tex",
+      "bytes": 6186,
+      "sha256": "e3fb8403dc43489523585f09c4f1c1aaabe1c3e7acee4975121bce0ebbaf5d5d",
+      "origin": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingTransportFalseBase.lex.tex"
+    },
+    {
+      "path": "phases/staging-false/lexlean.toml",
+      "bytes": 698,
+      "sha256": "6267523043b547a309b4d38d5a64f5b582dcc438f3a907c08cd60917da195332",
+      "origin": "/tmp/r4-object257-staging-transport-candidate-20261023/configs/staging-false/lexlean.toml"
+    },
+    {
+      "path": "phases/staging-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "ba6a475001cd59e01225fed7a86b7e18d13f270973df7ecbbaf8a471014ab425",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/lock-bytes.json#stdout"
+    },
+    {
+      "path": "evidence/staging-false-verify.json",
+      "bytes": 1279,
+      "sha256": "18e095450821d18c0888562a6bd9f4d24e1a65ac3115aadbf0d0ba7332ac79c5",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/verify.json"
+    },
+    {
+      "path": "phases/staging-positive/lexlean.toml",
+      "bytes": 689,
+      "sha256": "f08415918158449c25ca6fef0eaeb144e557e589d3c3dbeac9468a01921ab1ac",
+      "origin": "/tmp/r4-object257-staging-transport-candidate-20261023/configs/staging-positive/lexlean.toml"
+    },
+    {
+      "path": "phases/staging-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "22aed0a04f2c77415beb30a238d746f3dcc6d68ef6ba2044472ad2dad905a241",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/lock-bytes.json#stdout"
+    },
+    {
+      "path": "evidence/staging-positive-verify.json",
+      "bytes": 1236,
+      "sha256": "096aee98ce9abf00cb17e86bba250b3c0ad4b209c5e0ec2c9f6998198ff99234",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/verify.json"
+    },
+    {
+      "path": "evidence/staging-code-review.json",
+      "bytes": 5887,
+      "sha256": "56a5229dabc53668ef80971468367819e91cb2216b5b2e02a7cda65e000d890e",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/code-review.json"
+    },
+    {
+      "path": "evidence/staging-spec-review.json",
+      "bytes": 7806,
+      "sha256": "ef65d1ad92130172899041f981133926f66284b7becccb95a65d3a73eb6c9cf6",
+      "origin": "/tmp/r4-object257-staging-transport-spec-review-20261023.json"
+    },
+    {
+      "path": "evidence/staging-setup-failure-review.json",
+      "bytes": 6641,
+      "sha256": "948d611cacccbefbb7dd9e4dcc8df0fc3fb3970066f5e6f1c0aba4d9317507e2",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/setup-failure-review.json"
+    },
+    {
+      "path": "evidence/staging-setup-failure.json",
+      "bytes": 1311,
+      "sha256": "a9feb115483f4cfa5a465a0efa9a0cf71fc7141eeed1e8241e8f53a53b302fac",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive/source-copy.json"
+    },
+    {
+      "path": "evidence/emitted/Object257StagingContext.lean",
+      "bytes": 2276,
+      "sha256": "1d4c9519adae49646dc4d5b8a550b20827d5afbe004b24467137e0768a4ac118",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingContext.lean"
+    },
+    {
+      "path": "evidence/emitted/Object257StagingTransport.lean",
+      "bytes": 1933,
+      "sha256": "347d02dc611d4ef3ef6cfaf82fb92c172b01f588be947ed5fdf6e14e8b98a3ee",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingTransport.lean"
+    },
+    {
+      "path": "evidence/staging-native-review.json",
+      "bytes": 9021,
+      "sha256": "c53525a009859e41c87d17ff772598dadbdb2d5c308f4b47fbf7aa077c247496",
+      "origin": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/native-review.json"
     }
   ]
 }

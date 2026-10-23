@@ -1,0 +1,116 @@
+{
+  "status": "PASS_MINIMAL_STAGING_TRANSPORT_PROPOSAL_SOURCE_SPEC_ONLY",
+  "proposal": {
+    "path": "/tmp/r4-object257-connected-next-product-step-20261023.json",
+    "bytes": 18876,
+    "sha256": "8b6acc3fa949965f391d08170ea367815f5cf828046e26e3b920e626f2e202e9",
+    "verifiedProposalPins": 15
+  },
+  "additionalPins": [
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-review.json",
+      "bytes": 10625,
+      "sha256": "866ce69867f083e3f808b39506a3e615d3f538668acbcbc4590a000a84b538a6"
+    }
+  ],
+  "findings": [],
+  "priorEvidence": {
+    "reviewStatus": "PASS_ACTUAL_LEAF_REUSE_AND_PARENT_TRANSPORT_WITH_INTENDED_NEGATIVE",
+    "acceptedLocalParentAttestation": "432355f3610faf6ade14526d14578bad764593b479469eff0eb1bb6d0bdaa2bf",
+    "interpretation": "Independent retained review establishes actual leaf reuse and local homogeneous parent transport. This SPEC read the report and pinned outputs; it did not rerun the compiler or independently redo that full artifact audit."
+  },
+  "sourceAssessment": [
+    {
+      "topic": "Prop-valued match",
+      "evidence": "ir/semantic.rs:8105-8130 infers each Eq as Prop after checking its own operand types, then compares match branch result types. Different T and U equality operands across separate branches are compatible because both branches are Prop.",
+      "limit": "This is a family of homogeneous equalities at different types, not a heterogeneous Eq/HEq axiom. Sourcecheck of the actual emitted module is still required."
+    },
+    {
+      "topic": "Theorem statement",
+      "evidence": "ir/semantic.rs:9676-9681 requires the inferred statement type Prop, not a syntactically top-level Eq. A call to the prior P definition is therefore source-supported as a theorem statement."
+    },
+    {
+      "topic": "Induction and Cases",
+      "evidence": "ir/semantic.rs:8713-8744 gives Nat induction successor binders [Nat,Prop] and Nat cases successor binder [Nat]. Existing proof checker recursively extends branch locals. backend/semantic.rs:1244-1279 emits cases/induction with named branches; neither adds Simplify."
+    },
+    {
+      "topic": "Congruence and Apply",
+      "evidence": "backend/semantic.rs:1292 emits congr1;1371-1386 emits exact priorTheorem(arguments). The intended base and consumer therefore reuse prior theorems, while Cases refines prior before Congruence.",
+      "limit": "The source cannot establish whether congr1 discharges both specialized successor goals from ih without expensive reduction. This is the explicit next native probe."
+    },
+    {
+      "topic": "Production connection",
+      "evidence": "Pinned actual emitted ObjectStore.lean:29 implements ObjStageRecord lookup, duplicate/integrity and capacity logic;55 is ObjFoldAtoms cons: ObjMakeLeaf head then ObjStageRecord inventory leaf limits before ObjCarryTriples.",
+      "assessment": "H is exactly that error-preserving first staging continuation applied to a leaf result. Parameterized inventory/limits retain actual production behavior; H does not fabricate an inventory or replace a hash."
+    }
+  ],
+  "approvedNarrowShape": {
+    "input": "T=Result ObjRecord ObjError",
+    "output": "U=Result (List ObjRecord) ObjError",
+    "context": "H inventory limits r = match r with error e => error e | ok leaf => actual ObjStageRecord inventory leaf limits",
+    "family": "P inventory limits0 = (x=y); P inventory limits(succ prior) = (H inventory limits x = H inventory limits y)",
+    "terms": "x is unchanged actual ObjMakeLeaf[0]; y is the byte-identical expected record of accepted objTrace257Record10.",
+    "proof": "Induction count; zero Apply accepted leaf; successor Cases prior; both case branches Congruence. Consumer Apply lifted theorem at1.",
+    "specializedGoals": {
+      "successorZero": "ih:P0 reduces to x=y; goal P1 reduces to Hx=Hy. Congruence must lift that equality through actual H.",
+      "successorSuccessor": "ih:P(succ earlier) reduces to Hx=Hy; goal P(succ(succ earlier)) reduces to the same Hx=Hy. Congruence must close using that context; do not assert this behavior before execution."
+    },
+    "size": "One context definition H, one Prop definition P, one lifted theorem and one consumer, plus the existing unrelated-base negative control. No13-node expansion, new generic framework or production definition edits."
+  },
+  "minimalEvidenceRequired": [
+    {
+      "name": "Source admission",
+      "status": "NOT_RUN",
+      "require": "Actual installed compiler accepts all source under genuine generated lock/exact configuration. P branches infer Prop and nested proof binders are valid."
+    },
+    {
+      "name": "Meaningful base dependency RED",
+      "status": "NOT_RUN",
+      "require": "Only zero-branch Apply target changes to a registered unrelated zero-arity0=0 theorem. Sourcecheck passes; verify rejects intended mismatch. Timeout/OOM/setup errors are failures, never accepted RED."
+    },
+    {
+      "name": "Positive staging transport",
+      "status": "NOT_RUN",
+      "require": "Lifted and consumer verify; inspect actual emitted H/P, nested induction/cases/congr1 and exact Apply1; require none policy and empty observed axioms for every declaration, recorded kernel replay and independent exact artifact/custody audit."
+    },
+    {
+      "name": "Nonvacuity and lineage",
+      "status": "NOT_RUN",
+      "require": "Both x and exact y remain; H preserves errors and calls production ObjStageRecord with arbitrary inventory/limits. Compare positive/negative ASTs so only intended base theorem differs. Retain prior wrong-leaf RED and leaf certificate source identity."
+    }
+  ],
+  "unknowns": [
+    "A Prop-valued definition may expose an actual installed-compiler restriction not evident in inspected source; preserve its exact source diagnostic if so.",
+    "Congruence could leave an unsolved goal or elaborate with expensive reduction. Preserve exact emitted goal/process result and revise only that concrete proof branch after review.",
+    "Success would prove one staging-context equation; it does not establish complete inventory/carry sequencing, all nodes, whole SHA, or original257 digest equality."
+  ],
+  "preservation": [
+    "Original257 proposition, input/digest and empty axiom requirement remain unchanged.",
+    "Accepted leaf AST, actual ObjectStore definitions and installed compiler remain unchanged.",
+    "No supplied intermediate hash, axioms/propext allowance, larger-memory retry or13-certificate authorization."
+  ],
+  "excluded": "The proposal also contains Git fixture delivery planning. This review is scoped only to the next staging-transport proof proposal; it does not review or authorize those copy lists, staging or delivery claims.",
+  "scope": {
+    "newTestsRun": 0,
+    "SDKInvoked": false,
+    "nativeCommandsRun": 0,
+    "sourceModified": false,
+    "VMModified": false,
+    "compilerModified": false,
+    "repositoryModified": false,
+    "frozenInputsModified": false,
+    "otherLabsTouched": false,
+    "onlyNewFile": "/tmp/r4-object257-staging-transport-spec-review-20261023.json"
+  },
+  "next": "Author the minimal frozen staging proof/negative candidate under parent dispatch; perform normal independent candidate review and resource-gated native validation. Source inspection is not native admission."
+}
