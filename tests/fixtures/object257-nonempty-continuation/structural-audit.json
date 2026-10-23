@@ -1,0 +1,36 @@
+{
+  "status": "PASS_STRUCTURAL_COMPARISON_NATIVE_NOT_RUN",
+  "native": {
+    "sourceAdmission": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positiveActualConsumer": "NOT_RUN"
+  },
+  "checks": [
+    "Every dependency identity matches.",
+    "F=okS exactly accepted first-state statement; original L matches original257.",
+    "A/B equal original first64 literal bytes; this is source comparison, not atomization proof.",
+    "K Result term-match propagates error unchanged and on success calls real Fold[B] carried.frontier carried.inventory L.",
+    "Prop family zero is exact accepted F=okS; successor K(F)=K(okS).",
+    "Same unrelated0=0 appears in both phases; only zero-base Apply target differs after module identity normalization.",
+    "Positive Induction/Cases/Congruence proof is accepted pattern with base theorem reference changed; actual consumer Apply1 preserved.",
+    "Consumer is actual Fold[A,B][][]L=Fold[B]S.frontierS.inventoryL, not helper-only equality.",
+    "All theorem axioms empty; no new hash or expected second-state certificate.",
+    "Configurations differ only in entrypoint;300000ms unchanged.",
+    "All17original drafts unchanged."
+  ],
+  "baseStatementSha256": "50acce9ae953f70d308f43a63c8f84f8c20ed19053d779b65e93627b512834c5",
+  "negativeChange": {
+    "path": "declarations[1].proof.branches[0].proof.theorem",
+    "positive": {
+      "module": "Object257FirstAtomState",
+      "name": "obj257FirstAtomState"
+    },
+    "negative": {
+      "name": "obj257ContinuationUnrelatedZero"
+    }
+  },
+  "sharedInputs": 17,
+  "newModules": 3,
+  "preservedOriginalDrafts": 17,
+  "uncertainty": "Actual nested-match definitional conversion and resource use require official compiler; structural checks do not prove them."
+}

@@ -1,0 +1,40 @@
+{
+  "status": "PASS_STATIC_SERIALIZATION_AND_PRESERVATION_NATIVE_NOT_RUN",
+  "actualPredecessorFailure": {
+    "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-check.json",
+    "bytes": 937,
+    "sha256": "b214e371da1cac16663d1f17741f9794ea90f7ec586f58489122861c29217ae4"
+  },
+  "checks": [
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContinuationFalseBase.lex.tex",
+      "predecessorCanonical": true,
+      "successorCanonical": true,
+      "semanticDeepEquality": true,
+      "nonsemanticEnvelopeUnchanged": true,
+      "byteIdentical": true
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+      "predecessorCanonical": false,
+      "successorCanonical": true,
+      "semanticDeepEquality": true,
+      "nonsemanticEnvelopeUnchanged": true,
+      "byteIdentical": false
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContinuation.lex.tex",
+      "predecessorCanonical": true,
+      "successorCanonical": true,
+      "semanticDeepEquality": true,
+      "nonsemanticEnvelopeUnchanged": true,
+      "byteIdentical": true
+    }
+  ],
+  "predecessorFrozenPayloadsUnchanged": 8,
+  "originalDraftsUnchanged": 17,
+  "phaseConfigsByteIdentical": true,
+  "sharedInputsUnchanged": 17,
+  "semanticNegative": "Original same-unrelated-theorem and sole zero-base Apply target difference unchanged by exact parsed AST equality for all3modules.",
+  "limits": "This is a structural serializer regression, not execution of the official Rust parser. Compiler admission and intended semantic negative/positive require fresh native phases."
+}

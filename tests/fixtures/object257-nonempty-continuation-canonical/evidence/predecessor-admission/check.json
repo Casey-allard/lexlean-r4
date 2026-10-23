@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-nonempty-continuation-continuation-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T18:28:12.390Z",
+  "ended": "2026-10-23T18:28:13.876Z",
+  "status": 1,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[{\"causes\":[],\"code\":\"LLT4001\",\"help\":[],\"labels\":[],\"message\":\"phase link: semantic-module JSON is not canonical\",\"notes\":[],\"primary\":{\"byte_end\":19169,\"byte_start\":228,\"column_end\":18956,\"column_start\":15,\"line_end\":8,\"line_start\":8,\"path\":\"tests/lexlean/Object257NonemptyContext.lex.tex\"},\"severity\":\"error\",\"spec\":\"lexlean/diagnostic/1\"}],\"exit_code\":1,\"modules\":[],\"spec\":\"lexlean/command-result/1\",\"success\":false}\n",
+  "stderr": ""
+}

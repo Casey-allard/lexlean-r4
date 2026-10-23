@@ -22,7 +22,8 @@ independent reviewers; no external lab or another session owns this work.
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
-| First concrete Object257 atom state | Actual first32-byte leaf and `ObjFoldAtoms [[0,1,...,31]] [] [] originalLimits` singleton state verified. Wrong expected inventory ID rejected at the consumer. | [Actual results](../tests/fixtures/object257-first-atom/RESULTS.md): leaf 66,570 ms; state 48,659 ms, 769 empty-axiom declarations and 12 kernel replays. Local prefix only; continuation bridge remains open. |
+| First concrete Object257 atom state | Actual first32-byte leaf and `ObjFoldAtoms [[0,1,...,31]] [] [] originalLimits` singleton state verified. Wrong expected inventory ID rejected at the consumer. | [Actual results](../tests/fixtures/object257-first-atom/RESULTS.md): leaf 66,570 ms; state 48,659 ms, 769 empty-axiom declarations and 12 kernel replays. Local prefix only. |
+| Nonempty two-atom continuation | Actual `Fold [A,B] [] [] L = Fold [B] firstState.frontier firstState.inventory L` verified, with A bytes0–31 and B bytes32–63. Unrelated-base proof rejected. | [Results](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md): positive 93,920 ms, 774 empty-axiom declarations and 14 kernel replays. Actual consumer conversion passed; no second-state, whole257 or efficiency claim. |
 | Production binding and deployment | Missing production SDK/template binding. `just vv`, generated application and Pages remain incomplete. | [Upstream dependencies](UPSTREAM.md), CI observation below. |
 
 The local Object proof experiments can proceed before full Hash acceptance.
@@ -32,23 +33,22 @@ capability follows from these finite proofs.
 
 ## Next executable product sequence
 
-1. **Connect the certified first state to the remaining original fold.** The
-   [first-atom fixture](../tests/fixtures/object257-first-atom/RESULTS.md) passed
-   actual leaf and concrete-state verification plus independent native review.
-   The inventory-ID 63-to-64 negative was rejected at Apply1 with the frontier
-   unchanged. Prepare and independently review one bounded continuation bridge
-   from this prefix state to the actual remaining production fold, preserving
-   every success/error case. The bridge is not yet proved. Frozen candidate
-   NOT_RUN text records preparation time; the fixture's RESULTS.md/results.json
-   records the subsequent actual results.
-   The [bounded next-step proposal](continuation/2026-10-23/first-state-continuation-proposal.json)
-   and [independent source SPEC review](continuation/2026-10-23/first-state-continuation-spec-review.json)
-   now describe the precise next probe: actual two-atom `Fold [A, B] [] [] L`
-   equals `Fold [B] firstState.frontier firstState.inventory L`. All new native
-   phases are **NOT_RUN**. The concrete consumer must establish the required
-   nested-match conversion; a helper equality alone is insufficient. Possible
-   hash recomputation is not ruled out. Include the same unrelated `0 = 0`
-   theorem in both controls and change only the negative zero-base Apply target.
+1. **Connect the certified first state to the original atomized fold core.**
+   The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
+   now passes actual official verification and independent artifact review.
+   Its concrete consumer establishes the nested-match conversion, beyond the K
+   helper. The unrelated `0 = 0` zero-base negative is rejected as intended.
+   An earlier source-admission failure came from three noncanonical JSON objects;
+   the isolated key-order repair preserved all parsed semantics and both controls.
+   Both the rejected source and actual failures remain in the repository.
+   The next bounded task is to design/review the connection to the actual
+   `ObjAtomize original257 [] 0` fold core and remaining225-byte suffix from the
+   certified first state, without introducing trusted intermediate hashes.
+   That larger consumer and its atomization-prefix conversion are **NOT_RUN**.
+   Require the actual consumer, unchanged limits and intended wrong-base control;
+   helper-only success is insufficient. Possible hash recomputation remains open.
+   Frozen source-preparation NOT_RUN text remains historical; current fixture
+   RESULTS.md/results.json records the later outcomes.
 2. **Complete the connection to the original theorem.** Preserve the original
    input, digest, runtime definitions and empty-axiom policy. Demonstrate a
    supported proof bridge before expanding all thirteen node certificates.
