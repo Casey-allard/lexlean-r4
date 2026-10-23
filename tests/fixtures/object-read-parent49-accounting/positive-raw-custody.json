@@ -1,0 +1,383 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-positive-raw-custody/v1",
+  "status": "CLOSED_VERIFY_SUCCESS_INDEPENDENT_REVIEW_PENDING",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/allocated-before.json",
+        "bytes": 459,
+        "sha256": "3e0385ab61dfb19b1adae950d74b63f0f9b6d1e7dc05a0670ad96dd978a08716"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/allocated-before.json",
+        "bytes": 459,
+        "sha256": "3e0385ab61dfb19b1adae950d74b63f0f9b6d1e7dc05a0670ad96dd978a08716"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact-copy.json",
+        "bytes": 542,
+        "sha256": "dd90d4954c0e7ff945e0aea866adfce71b7ae88e803a55cb97e5c2bc0d1cdfb5"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/artifact-copy.json",
+        "bytes": 542,
+        "sha256": "dd90d4954c0e7ff945e0aea866adfce71b7ae88e803a55cb97e5c2bc0d1cdfb5"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/check.json",
+        "bytes": 1210,
+        "sha256": "25f78002db8ce2619dd94afeb39ea386712ea8a42448efa7a3a537c53ac4db9c"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/check.json",
+        "bytes": 1210,
+        "sha256": "25f78002db8ce2619dd94afeb39ea386712ea8a42448efa7a3a537c53ac4db9c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/epoch-after.json",
+        "bytes": 470,
+        "sha256": "47496652e5b041e9f75bcd033fdd522b2f1a34a8e6afedf60eb4c8a8936300ff"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/epoch-after.json",
+        "bytes": 470,
+        "sha256": "47496652e5b041e9f75bcd033fdd522b2f1a34a8e6afedf60eb4c8a8936300ff"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/epoch-before.json",
+        "bytes": 470,
+        "sha256": "4f7defcfbd9567410637ed66bcf19c79e390837dbe73fb84e68a6b138f80aeb2"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/epoch-before.json",
+        "bytes": 470,
+        "sha256": "4f7defcfbd9567410637ed66bcf19c79e390837dbe73fb84e68a6b138f80aeb2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/expected-inputs.json",
+        "bytes": 8407,
+        "sha256": "baf25b29c6ccd907214744f1399f971005f0055b4ffff74869c9892bb8a183ee"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/expected-inputs.json",
+        "bytes": 8407,
+        "sha256": "baf25b29c6ccd907214744f1399f971005f0055b4ffff74869c9892bb8a183ee"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/guest-after.json",
+        "bytes": 406,
+        "sha256": "acdbe2a314aaabdcb6cc17604e0df1d56e0aac9e15c086fcb7abbba8c1fd5863"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/guest-after.json",
+        "bytes": 406,
+        "sha256": "acdbe2a314aaabdcb6cc17604e0df1d56e0aac9e15c086fcb7abbba8c1fd5863"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/guest-before.json",
+        "bytes": 406,
+        "sha256": "9c6e126797a740092e52bc6ebadf91a60fd849fb10396f48591cdc6b9f0a2eaf"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/guest-before.json",
+        "bytes": 406,
+        "sha256": "9c6e126797a740092e52bc6ebadf91a60fd849fb10396f48591cdc6b9f0a2eaf"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/host-after.json",
+        "bytes": 142,
+        "sha256": "5ec7665d04a707f0293b1d60f1c57c89a5ecfd3c88e3b61026ee09aa7ead9d2c"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/host-after.json",
+        "bytes": 142,
+        "sha256": "5ec7665d04a707f0293b1d60f1c57c89a5ecfd3c88e3b61026ee09aa7ead9d2c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/host-before.json",
+        "bytes": 152,
+        "sha256": "655e38f9aaa21f4e68ed72e7dd951ad541babfb69388d7c66be6a916201e7f07"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/host-before.json",
+        "bytes": 152,
+        "sha256": "655e38f9aaa21f4e68ed72e7dd951ad541babfb69388d7c66be6a916201e7f07"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/idle-after.json",
+        "bytes": 460,
+        "sha256": "6eb26878ecf6cd2f204743c345bf83cd2816666e6df49d4b38644fdfdaf7c69e"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/idle-after.json",
+        "bytes": 460,
+        "sha256": "6eb26878ecf6cd2f204743c345bf83cd2816666e6df49d4b38644fdfdaf7c69e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/idle-before.json",
+        "bytes": 460,
+        "sha256": "0e085321ef44116221eba6b803356cf7e9236c8898c20d7c44fea5cc73ffe6c1"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/idle-before.json",
+        "bytes": 460,
+        "sha256": "0e085321ef44116221eba6b803356cf7e9236c8898c20d7c44fea5cc73ffe6c1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/lock-after.json",
+        "bytes": 515,
+        "sha256": "b44b835bed8dc09a14d4bc0b00ecd352f831e72b2e6da66147e64f87a4971b69"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/lock-after.json",
+        "bytes": 515,
+        "sha256": "b44b835bed8dc09a14d4bc0b00ecd352f831e72b2e6da66147e64f87a4971b69"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/lock-bytes.json",
+        "bytes": 2068,
+        "sha256": "113bcac0830d0a31115c38b980acf6cfb67ef24c9392421f48392421d2763c25"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/lock-bytes.json",
+        "bytes": 2068,
+        "sha256": "113bcac0830d0a31115c38b980acf6cfb67ef24c9392421f48392421d2763c25"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/lock.json",
+        "bytes": 552,
+        "sha256": "811ada24a518182f82952e945db1961fda7bac802c18f7cdfafb809cd8ce5f6b"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/lock.json",
+        "bytes": 552,
+        "sha256": "811ada24a518182f82952e945db1961fda7bac802c18f7cdfafb809cd8ce5f6b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/memory-after.json",
+        "bytes": 354,
+        "sha256": "ad5a1fabd57da9fcfb292600383939a2e30f795b0fb69f238c3022e41189bad3"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/memory-after.json",
+        "bytes": 354,
+        "sha256": "ad5a1fabd57da9fcfb292600383939a2e30f795b0fb69f238c3022e41189bad3"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/memory-before.json",
+        "bytes": 354,
+        "sha256": "6d47cc467ff48afbe11ca0951d414469b6646ea3cf7364f00c456cf205674c44"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/memory-before.json",
+        "bytes": 354,
+        "sha256": "6d47cc467ff48afbe11ca0951d414469b6646ea3cf7364f00c456cf205674c44"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/result.json",
+        "bytes": 1364,
+        "sha256": "4ffbcf18bba9955bdccc89be2a202fdefa026c17e0ed9b08672344e9c95a6d84"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/result.json",
+        "bytes": 1364,
+        "sha256": "4ffbcf18bba9955bdccc89be2a202fdefa026c17e0ed9b08672344e9c95a6d84"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/source-after.json",
+        "bytes": 7001,
+        "sha256": "a8c24b1d73820bb3261843d677027cf368613da453bc0e5b98c5c3d4d998546f"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/source-after.json",
+        "bytes": 7001,
+        "sha256": "a8c24b1d73820bb3261843d677027cf368613da453bc0e5b98c5c3d4d998546f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/source-before.json",
+        "bytes": 7001,
+        "sha256": "f7dde633dc8203e6126b7012e4131b5d86495e1ab9d756a8248330a067b02239"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/source-before.json",
+        "bytes": 7001,
+        "sha256": "f7dde633dc8203e6126b7012e4131b5d86495e1ab9d756a8248330a067b02239"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/swap-before.json",
+        "bytes": 265,
+        "sha256": "e719d7f42acc30f49d409627559095a89e6fb7a7f5d407031843cba83633e0c4"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/swap-before.json",
+        "bytes": 265,
+        "sha256": "e719d7f42acc30f49d409627559095a89e6fb7a7f5d407031843cba83633e0c4"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/tools-after.json",
+        "bytes": 1005,
+        "sha256": "7c44e48101a0e3410ad8233512a77b295f28a255f68c00787fafffe210ae023a"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/tools-after.json",
+        "bytes": 1005,
+        "sha256": "7c44e48101a0e3410ad8233512a77b295f28a255f68c00787fafffe210ae023a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/tools-before.json",
+        "bytes": 1005,
+        "sha256": "795c4a8f36e7688fabac87ec56fc630ff3b182a41d332c3a0ead9a10de31187a"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/tools-before.json",
+        "bytes": 1005,
+        "sha256": "795c4a8f36e7688fabac87ec56fc630ff3b182a41d332c3a0ead9a10de31187a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/verify.json",
+        "bytes": 1534,
+        "sha256": "98fa64acb44cc0c24cdbee4fd6d3e2f1fe53238cfe4f2ec0b119bf4f519e16de"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/verify.json",
+        "bytes": 1534,
+        "sha256": "98fa64acb44cc0c24cdbee4fd6d3e2f1fe53238cfe4f2ec0b119bf4f519e16de"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact/build-manifest.json",
+        "bytes": 23446,
+        "sha256": "330fc2357d457f7697c114a6ab931d43156d93bdf93cc70d44c2690abd993e19"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/artifact/build-manifest.json",
+        "bytes": 23446,
+        "sha256": "330fc2357d457f7697c114a6ab931d43156d93bdf93cc70d44c2690abd993e19"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact/audit/output.txt",
+        "bytes": 56970,
+        "sha256": "6a3de744f3a4d57a2d8babe0a2b6df34a72f7b32f94d57fdc4c8acfd9ea2af9d"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/artifact/audit/output.txt",
+        "bytes": 56970,
+        "sha256": "6a3de744f3a4d57a2d8babe0a2b6df34a72f7b32f94d57fdc4c8acfd9ea2af9d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact/modules/LexLeanR4/ObjectReadParent49AccountingState.lean",
+        "bytes": 1843,
+        "sha256": "e84f41888a67075fceeab662ed64584d9805a6961488963b60ff3343ba251e3d"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/artifact/modules/LexLeanR4/ObjectReadParent49AccountingState.lean",
+        "bytes": 1843,
+        "sha256": "e84f41888a67075fceeab662ed64584d9805a6961488963b60ff3343ba251e3d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact/modules/LexLeanR4/ObjectReadParent49ConcreteChildEntry.lean",
+        "bytes": 15933,
+        "sha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd"
+      },
+      "destination": {
+        "path": "evidence/accounting-positive/artifact/modules/LexLeanR4/ObjectReadParent49ConcreteChildEntry.lean",
+        "bytes": 15933,
+        "sha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd"
+      }
+    }
+  ],
+  "derivedLock": {
+    "path": "evidence/accounting-positive/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "a03ee9c45f9f468e4e19b35519408d33ce8cbe3dfd1c9cdd72d6dc847f43503e",
+    "derivation": "Exact lock-bytes stdout"
+  },
+  "artifactCensus": {
+    "path": "evidence/positive-artifact-census.json",
+    "bytes": 37536,
+    "sha256": "5df2825ed158ed05708c37fc59552f8bafa8ea6a43570acf20bbd68ca0bd28d1"
+  },
+  "attestationSummary": {
+    "path": "evidence/accounting-positive/artifact/attestation-summary.json",
+    "bytes": 1105,
+    "sha256": "8b195e78e8c8a7d34310d0c08ca2842e9e36a46547597a6f15cd8e29ba3ac847"
+  },
+  "observed": {
+    "checkStatus": 0,
+    "verifyStatus": 0,
+    "attestationId": "3a2c801521374b47a284080480b223ef1d89427ebad69b85c1a52e674c17d203",
+    "wholeVerifyMilliseconds": 136745,
+    "postcaptureErrors": []
+  },
+  "scope": "Closed positive receipts and selected actual emitted text only. Independent artifact audit pending; no positive acceptance or Read33 completion claim. Mutable README excluded.",
+  "storage": {
+    "previousAllocatedBytes": 393216,
+    "maximumAggregateBytes": 1048576,
+    "reservedForReviewResultsDeliveryBytes": 98304
+  }
+}

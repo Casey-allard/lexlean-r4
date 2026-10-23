@@ -23,6 +23,7 @@ independent reviewers; no external lab or another session owns this work.
 | Parent-record decode certificate | Actual original49-byte parent record decodes to the complete expected record; false expected ID128→129 is rejected. Independent positive artifact audit:804 empty-axiom declarations and11 kernel replays. This is a local certificate, not a Read control or authenticated-fetch result. | [Decode results](../tests/fixtures/object-read-parent49/RESULTS.md), [connected-fetch design](../tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json). |
 | Connected parent authenticated fetch | Actual `ObjAuthenticatedFetch` with the original four-entry backend, parent ID and scale1 equals the full expected record. Wrong-base proof rejected; positive artifact independently audited with809 empty-axiom declarations and14 kernel replays. Local fetch equation only; zero original Read33 controls discharged. | [Fetch results](../tests/fixtures/object-read-parent49-fetch/RESULTS.md). Original source-admission failure and exact two-field repair are preserved separately. |
 | Parent visitor transition | Actual original `ObjVisitNode` equals its complete continuation with the certified parent record substituted. Wrong-base proof rejected; positive independently audited:814 empty-axiom declarations and17 kernel replays. All three child calls remain; no final walked state or Read33 acceptance. | [Visitor results](../tests/fixtures/object-read-parent49-visit/RESULTS.md). |
+| Concrete parent accounting and child entry | Actual parent state is empty output, one visit, 49 wire bytes and the original parent ID in seen. The full original visitor equals its three-child continuation with this state; false expected wire 50 is rejected. Independent audit: 816 empty-axiom declarations, 19 kernel replays. | [Accounting results](../tests/fixtures/object-read-parent49-accounting/RESULTS.md). Child results and final walked state remain open. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -91,8 +92,9 @@ full33 source intact and do not raise limits or automatically expand33 variants.
 The source investigation follows the actual authenticated-record, range-walk,
 manifest-version and whole-data hashing chain. The parent49 decode certificate
 now passes as recorded above. The authenticated-fetch and original parent visitor
-transition also pass; completed child traversal, manifest-version and whole-data
-hashing remain open.
+transition also pass. Concrete parent accounting and entry into the original
+three-child continuation now pass as well; child traversal results, manifest-version
+and whole-data hashing remain open.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
@@ -356,7 +358,17 @@ error propagation, accounting and checked offsets. The equation substitutes the
 certified fetch result into that continuation; it does not assert the completed
 walked state or child results. All21 inputs, genuine development lock, tools,
 resource epoch and postchecks passed, with zero memory events.
-Next review a bounded step through the remaining child reads and state accounting,
-then reconnect manifest-version and whole96-byte hashing. No such next candidate
-or native result exists yet. Keep the ten remaining drafts in the completion
+The [concrete parent accounting and child-entry step](../tests/fixtures/object-read-parent49-accounting/RESULTS.md)
+now passes too: the false expected wire count 49→50 is rejected in 10,533 ms, and
+the correct state plus mandatory full consumer verifies in 136,745 ms. Independent
+review checked 195 artifact files, 95 outputs, 816 empty-axiom declarations, 58
+successful process records and 19 kernel replays. All 23 inputs and operational
+postchecks passed with zero memory events. The concrete incoming state has empty
+output, one visit, 49 wire bytes and the original parent ID in seen.
+The consumer directly applies the accepted visitor theorem through definitional
+conversion; it does not rewrite with the accounting certificate or establish
+cached computation. All three actual child calls remain in its continuation.
+Next review a bounded proof of the child visits and resulting state, then
+reconnect manifest-version and whole96-byte hashing. No such next candidate or
+native result exists yet. Keep the ten remaining drafts in the completion
 sequence and use fresh resource gates before further native work.

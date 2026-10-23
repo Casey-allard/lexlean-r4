@@ -1,0 +1,59 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+      "bytes": 6731,
+      "sha256": "cd8722874f019992fcf45362e875f7568587067cd99eb1c730a3b40463164836"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+      "bytes": 6731,
+      "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 80485,
+      "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 700,
+      "sha256": "efcb861ec9191a0ada5a5e37eeb86a195e9ab2ed70f2272a359fdfa611708020"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 18946,
+      "sha256": "9fc55a8d2384adc9cbf657cb5595e4c40fa83cada96f9d7e2c73f78574d386a1"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 4512,
+      "sha256": "4ba5dd536a09d511112f667fd82f53f388dc1eef924cf92373c9426663e7bbcf"
+    },
+    {
+      "path": "README.md",
+      "bytes": 606,
+      "sha256": "dffa44dc47b37a840f02c649e2ac8903f98799acfee9388d0e11c4c0c1627212"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/next-child-step-proposal.json",
+      "bytes": 13452,
+      "sha256": "216bfc4ce59744958bdd50d8721015786aed5bb53a1fcd58cadfc48ac171cc76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/next-child-step-spec-review.json",
+      "bytes": 9233,
+      "sha256": "1c8d23008083d34eb50b22c6ea42b0cb041040745c8a75fc97ca8a008d3fb897"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/evidence/positive-native-review.json",
+      "bytes": 10701,
+      "sha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c"
+    }
+  ],
+  "boundary": "Independent source/invocation CODE and fresh parent admission required before native."
+}

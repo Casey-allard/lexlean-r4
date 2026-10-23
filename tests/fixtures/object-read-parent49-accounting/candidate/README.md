@@ -1,0 +1,3 @@
+# Parent49 accounting and concrete child-entry candidate
+
+Preparation status: native NOT_RUN. Positive accounting checks MarkVisit followed by AccountRecord gives output[], visits1, wireBytes49, seen[parentID]. Negative changes only expected49 to50. Both phases verify the same mandatory full visitor consumer retaining all three child calls. Its direct Apply uses the accepted visitor theorem and definitional conversion; the accounting certificate is separately checked, not used as a rewrite/cache. Shared sources referenced by repository path; no runtime copies. No final child/walk/Read33 acceptance.

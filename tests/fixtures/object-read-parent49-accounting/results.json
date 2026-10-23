@@ -1,0 +1,131 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-results/v1",
+  "status": "PASS_ACTUAL_PARENT_ACCOUNTING_AND_CONCRETE_CHILD_ENTRY_ONLY",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 2240,
+    "sha256": "e74c95007f77f27efd6de96431213ca75623ff2596de63c0f1273e622573cd9f"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 25263,
+    "sha256": "8649d528de70c7cdbe649a82eb7593df851d0bf27370ee78aa67e585ea4c89b1"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 6984,
+      "sha256": "633582146d7a30af15d72d8f4c19ec20d9a4c195e50980375ab63849df3f5377"
+    },
+    "negative": {
+      "path": "evidence/negative-native-review.json",
+      "bytes": 18744,
+      "sha256": "071f1011fdfac3ea141b40a100135967729f495781da1a322b1a58a4d491e998"
+    },
+    "positive": {
+      "path": "evidence/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    }
+  },
+  "phases": {
+    "negative": {
+      "status": "ACCEPTED_INTENDED_FALSE_ACCOUNTING_REJECTION",
+      "sourcecheckModules": 19,
+      "verifyExit": 1,
+      "wholeVerifyMilliseconds": 10533,
+      "soleMutation": "Expected wireBytes49 to50; same actual consumer root, imported accounting Reflexivity fails.",
+      "lock": {
+        "path": "evidence/accounting-false/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "a03ee9c45f9f468e4e19b35519408d33ce8cbe3dfd1c9cdd72d6dc847f43503e"
+      }
+    },
+    "positive": {
+      "status": "PASS_ACTUAL_PARENT_ACCOUNTING_AND_CONCRETE_CHILD_ENTRY_ONLY",
+      "attestationId": "3a2c801521374b47a284080480b223ef1d89427ebad69b85c1a52e674c17d203",
+      "buildId": "c475e9499297193c075e2aef8c1cc32edc3078a001252a5863f765cff81f6336",
+      "sourceId": "14a503a99669ee0806e3063508961ba030eada807a718382cb5e287c78a0085d",
+      "semanticId": "6534aeb1521750bc2a4fe60f3b13a3cb0a347c0d56307c7c1563b0d8e62c1a1f",
+      "verifyExit": 0,
+      "sourcecheckModules": 19,
+      "wholeVerifyMilliseconds": 136745,
+      "lockSha256": "a03ee9c45f9f468e4e19b35519408d33ce8cbe3dfd1c9cdd72d6dc847f43503e",
+      "postcaptureErrors": [],
+      "lock": {
+        "path": "evidence/accounting-positive/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "a03ee9c45f9f468e4e19b35519408d33ce8cbe3dfd1c9cdd72d6dc847f43503e"
+      },
+      "artifactAudit": {
+        "declarations": 816,
+        "allNoneAndEmptyObservedAxioms": true,
+        "successfulProcesses": 58,
+        "kernelReplays": 19,
+        "buildOutputs": 95,
+        "fullArtifactFiles": 195,
+        "fullArtifactCensusSha256": "c81d4aa5bb54283f8c1855d5e627d4b6623b1aa7b354cc29d7d5f8bc3a922b63",
+        "allOutputOleanProcessHashes": true,
+        "exactExpectedFileSet": true,
+        "allAuditNamesMatch": true,
+        "sourceConfigLockLakeToolsMatch": true
+      }
+    }
+  },
+  "proof": {
+    "accounting": "Actual empty-axiom Reflexivity verifies complete MarkVisit then AccountRecord Result equation to S49: output[],visits1,wireBytes49,seen singleton original parentID.",
+    "consumer": "Actual original full ObjVisitNode consumer directly Applies accepted objParent49VisitTransition. Result-valued RHS begins the preserved three-child continuation with S49; no final walked-state result asserted.",
+    "allLiteralListNumeralsComparedToReviewedAST": true,
+    "allThreeActualChildCallsPreserved": true,
+    "productionOffsetsErrorsLimitsAndBackendPreserved": true,
+    "actualFullConsumerAndAccountingBothKernelReplayed": true,
+    "definitionalConversion": "Actual full consumer compilation and kernel replay establish the exact reduction, not helper-only success.",
+    "notAnAccountingRewrite": "Accounting theorem is imported checked dependency/control; consumer proof applies prior visit theorem, not accounting certificate. No cache or avoided computation claim."
+  },
+  "postconditions": {
+    "all23FrozenInputsAndCopies": true,
+    "sourceBeforeAfterExact": true,
+    "genuineLockUnchanged": true,
+    "toolsBeforeAfterExact": true,
+    "epochUnchanged": true,
+    "sixMemoryEventsZeroBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "allRawCommandStatusesZero": true,
+    "rawCommands": 45,
+    "postcapturesAfterVerify": true
+  },
+  "resources": {
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "hostAvailableBytes": {
+      "before": 37420683264,
+      "after": 35950252032
+    },
+    "guestAvailableKiB": {
+      "before": 53094116,
+      "after": 53082220
+    },
+    "reviewFreeBytes": 35936440320
+  },
+  "censusIdentities": {
+    "reviewerSortedCensusDigest": "c81d4aa5bb54283f8c1855d5e627d4b6623b1aa7b354cc29d7d5f8bc3a922b63",
+    "portableCensusFile": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 37536,
+      "sha256": "5df2825ed158ed05708c37fc59552f8bafa8ea6a43570acf20bbd68ca0bd28d1"
+    },
+    "distinction": "Different serialization identities; reviewer census digest is not the portable JSON envelope hash."
+  },
+  "history": "Frozen candidate README, source-bindings and custody records retain preparation-time NOT_RUN or pending-review status. Current results do not change historical bytes.",
+  "open": [
+    "Three child results/final walked state",
+    "Whole96 output/stats/root wrapping/rangefinish/manifest version/whole digest",
+    "Original Read33 and remaining Object controls",
+    "Full Object257 digest, canonical Hash acceptance, PrismPM integration and generated Pages"
+  ],
+  "limitations": [
+    "Accepts concrete parent accounting and original visitor-to-child-entry equation only. Three child results/finalwalk/output/stats/root wrapping/rangefinish/version/whole digest and originalRead33 remain open, as do fullObject/Hash/PrismPM/Pages.",
+    "Recorded kernel/process results inspected, not rerun. Embedded lexicon bytes are not bundled or independently rehashed.",
+    "Sorted complete artifact census digest retained; all actualfiles rehashed. Whole command duration is not performance evidence.",
+    "Samples do not establish continuous high-water resource bounds. No native/SDK/compiler/repo/source mutations by reviewer."
+  ]
+}

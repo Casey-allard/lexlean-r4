@@ -1,0 +1,46 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/manifest.json",
+    "bytes": 2240,
+    "sha256": "e74c95007f77f27efd6de96431213ca75623ff2596de63c0f1273e622573cd9f"
+  },
+  "files": [
+    {
+      "path": "invoke-parent49-accounting.mjs",
+      "bytes": 7760,
+      "sha256": "b2d51e9816256b71a49d9700c9c3411bb0af18cb0c98d21c4ebda8856bceebbf"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2507,
+      "sha256": "81d62547c6ec415299619a676a4553a3adb98ba8b78462b9dd25749638596e15"
+    }
+  ],
+  "commands": [
+    "node invoke-parent49-accounting.mjs accounting-false",
+    "Only after independent intended-negative acceptance and fresh parent resource admission: node invoke-parent49-accounting.mjs accounting-positive"
+  ],
+  "phaseSelectors": [
+    "accounting-false",
+    "accounting-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+  "inputCounts": [
+    23,
+    23
+  ],
+  "stagePattern": "/tmp/r4-object-read-parent49-accounting-${phase}-owned-20261023",
+  "checks": {
+    "syntaxOnlyCommand": "node --check invoke-parent49-accounting.mjs",
+    "exit": 0,
+    "moduleExecuted": false,
+    "allSourcePayloadsRehashed": true,
+    "canonicalSemanticJSON": true,
+    "both23InputSetsRehashed": true,
+    "tenDraftsSixSourcesAndCanonicalRead33Unchanged": true
+  },
+  "preserved": "Exact existing epoch/container/tools/source/lock/idle/zeroevents;20 GiB host launch with10 GiB peakestimate and10 GiB reserve;11GiBpre/10GiBpostguest;300000ms child/4GiB2CPU; independent finally capture and positiveartifact copy. Fresh exclusive stage/output; one selected phase only.",
+  "boundary": "No actual check or proof result. Negative requires actualsource admission then intended imported49/50 Reflexivity failure; timeout/OOM/setup is not RED. Both accounting certificate and fullconsumer must genuinely pass positive audit; directApply is not accountingrewrite/caching."
+}

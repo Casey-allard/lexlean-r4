@@ -1,0 +1,180 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-source-preservation-custody/v1",
+  "status": "IMMUTABLE_SOURCE_PROVENANCE_ONLY_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/negative/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+        "bytes": 6731,
+        "sha256": "cd8722874f019992fcf45362e875f7568587067cd99eb1c730a3b40463164836"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/negative/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+        "bytes": 6731,
+        "sha256": "cd8722874f019992fcf45362e875f7568587067cd99eb1c730a3b40463164836"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+        "bytes": 6731,
+        "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+        "bytes": 6731,
+        "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 80485,
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 80485,
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/lexlean.toml",
+        "bytes": 700,
+        "sha256": "efcb861ec9191a0ada5a5e37eeb86a195e9ab2ed70f2272a359fdfa611708020"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/lexlean.toml",
+        "bytes": 700,
+        "sha256": "efcb861ec9191a0ada5a5e37eeb86a195e9ab2ed70f2272a359fdfa611708020"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/candidate.json",
+        "bytes": 18946,
+        "sha256": "9fc55a8d2384adc9cbf657cb5595e4c40fa83cada96f9d7e2c73f78574d386a1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/candidate.json",
+        "bytes": 18946,
+        "sha256": "9fc55a8d2384adc9cbf657cb5595e4c40fa83cada96f9d7e2c73f78574d386a1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/structural-audit.json",
+        "bytes": 4512,
+        "sha256": "4ba5dd536a09d511112f667fd82f53f388dc1eef924cf92373c9426663e7bbcf"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/structural-audit.json",
+        "bytes": 4512,
+        "sha256": "4ba5dd536a09d511112f667fd82f53f388dc1eef924cf92373c9426663e7bbcf"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/README.md",
+        "bytes": 606,
+        "sha256": "dffa44dc47b37a840f02c649e2ac8903f98799acfee9388d0e11c4c0c1627212"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/README.md",
+        "bytes": 606,
+        "sha256": "dffa44dc47b37a840f02c649e2ac8903f98799acfee9388d0e11c4c0c1627212"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/manifest.json",
+        "bytes": 2240,
+        "sha256": "e74c95007f77f27efd6de96431213ca75623ff2596de63c0f1273e622573cd9f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/manifest.json",
+        "bytes": 2240,
+        "sha256": "e74c95007f77f27efd6de96431213ca75623ff2596de63c0f1273e622573cd9f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/invoke-parent49-accounting.mjs",
+        "bytes": 7760,
+        "sha256": "b2d51e9816256b71a49d9700c9c3411bb0af18cb0c98d21c4ebda8856bceebbf"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/evidence/invoke-parent49-accounting.mjs",
+        "bytes": 7760,
+        "sha256": "b2d51e9816256b71a49d9700c9c3411bb0af18cb0c98d21c4ebda8856bceebbf"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/invocation-diff.json",
+        "bytes": 2507,
+        "sha256": "81d62547c6ec415299619a676a4553a3adb98ba8b78462b9dd25749638596e15"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/evidence/invocation-diff.json",
+        "bytes": 2507,
+        "sha256": "81d62547c6ec415299619a676a4553a3adb98ba8b78462b9dd25749638596e15"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/invocation-manifest.json",
+        "bytes": 2146,
+        "sha256": "7ec1461c7ebb9e959f910cf77f8cb9bf897c9f853dc6deb5546377ce87449d9d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/evidence/invocation-manifest.json",
+        "bytes": 2146,
+        "sha256": "7ec1461c7ebb9e959f910cf77f8cb9bf897c9f853dc6deb5546377ce87449d9d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/next-child-step-proposal.json",
+        "bytes": 13452,
+        "sha256": "216bfc4ce59744958bdd50d8721015786aed5bb53a1fcd58cadfc48ac171cc76"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/design/next-child-step-proposal.json",
+        "bytes": 13452,
+        "sha256": "216bfc4ce59744958bdd50d8721015786aed5bb53a1fcd58cadfc48ac171cc76"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/next-child-step-spec-review.json",
+        "bytes": 9233,
+        "sha256": "1c8d23008083d34eb50b22c6ea42b0cb041040745c8a75fc97ca8a008d3fb897"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-parent49-accounting/design/next-child-step-spec-review.json",
+        "bytes": 9233,
+        "sha256": "1c8d23008083d34eb50b22c6ea42b0cb041040745c8a75fc97ca8a008d3fb897"
+      }
+    }
+  ],
+  "bindings": {
+    "path": "tests/fixtures/object-read-parent49-accounting/source-bindings.json",
+    "bytes": 25263,
+    "sha256": "8649d528de70c7cdbe649a82eb7593df851d0bf27370ee78aa67e585ea4c89b1"
+  },
+  "currentReadmeExcluded": true,
+  "checks": {
+    "both23InputSetsRehashed": true,
+    "allFrozenSourceAndInvocationPayloadsExact": true,
+    "tenDraftsSixSourcesAndCanonicalRead33Unchanged": true
+  },
+  "storage": {
+    "availableBytesBeforeWrite": "35456647168",
+    "plannedAdditionalAllocationUpperBytes": 294912,
+    "maximumAggregateFixtureBytes": 1048576,
+    "reserveBytes": 10737418240
+  },
+  "scope": "Only new portable source fixture written. No native output or pending review file copied, no SDK/index/docs/commit/frozen-evidence changes."
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "lexlean-r4-parent49-accounting-delivery-security-review/v1",
+  "status": "PASS_EXACT_86_FILE_STAGED_DELIVERY",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T23:06:55.877Z",
+  "authorshipDisclosure": "Reviewer authored earlier bounded child-entry SPEC, not candidate implementation/invocation/native audit or delivery packaging. This review is independent of those activities, not of every prior design specification; separate CODE delivery gate required.",
+  "delivery": {
+    "base": "488bd70e4d996b553b32fe309f629588a0629420",
+    "branch": "codex/object-parent-accounting-proof",
+    "manifest": {
+      "path": "tests/fixtures/object-read-parent49-accounting/delivery-manifest.json",
+      "sha256": "b2e38d5a02b112ac7f5cdbb91f595dde883f3306c0005a30ce10be68ff768537"
+    },
+    "stagedFiles": 86,
+    "payloadFiles": 85,
+    "payloadBytes": 545861,
+    "exactIndexWorkingManifestCensus": true,
+    "allFileModes": "100644",
+    "allUtf8NoNul": true,
+    "diffCheck": "PASS",
+    "localMarkdownTargetsChecked": 74,
+    "scope": "One new evidence/source fixture plus two plan documents; no canonical runtime/controls or production gates changed."
+  },
+  "security": {
+    "credentialScan": "No matches for private-key headers, common GitHub token formats or AWS access-key IDs across staged text; bounded scan is not universal secret detection.",
+    "binaries": "None staged; compiled artifact/full attestation remain local and pinned.",
+    "executor": "Inspected preserved invoke-parent49-accounting.mjs. It is environment-specific actual compiler invocation provenance with fixed owned container/path and exact source/tool/epoch/storage/idle/memory checks, actual lock/check/verify, copies and independent postcaptures. No SDK/PrismPM reimplementation, trusted proof generator, network provisioning or credential access introduced. Archived script is not operationally wired or portable launch authority and was not executed/imported in review.",
+    "configuration": "Language1.2, pinned Lean4.32.1, builtin lexicon, unchanged300000ms child limits; entrypoint is actual full consumer. No limit relaxation or proof bypass.",
+    "developmentLocks": "Both1597-byte lexlean.lock copies exactly equal raw compiler lock-bytes stdout and their post-run hash. Lock SHA a03ee9c45f9f468e4e19b35519408d33ce8cbe3dfd1c9cdd72d6dc847f43503e. No production prismpm.lock/template.lock fabrication or full just vv bypass.",
+    "portableCustody": "159 current custody/result pins rehashed with no unresolved references; both23-input repository-relative maps resolve and match source hashes. Historical preparation/pending labels remain historical.",
+    "preservationError": "Included results-preservation-path-failure.json explicitly classifies duplicated fixture-prefix ENOENT as a host path-validator error before its writes, records corrected resolution and excludes native acceptance. Actual current159 pin resolutions pass under repository-vs-fixture-aware resolution. This review does not independently reconstruct the prior authoring process trace."
+  },
+  "independentNativeClaimAudit": {
+    "positiveNativeReviewSha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad",
+    "attestationId": "3a2c801521374b47a284080480b223ef1d89427ebad69b85c1a52e674c17d203",
+    "completeArtifactFiles": 195,
+    "exactCensusAndAllFileHashes": true,
+    "buildOutputs": 95,
+    "oleanHashes": 19,
+    "successfulProcessCopies": 58,
+    "processStdoutStderrHashes": true,
+    "kernelReplays": 19,
+    "nonePolicyEmptyObservedAxiomDeclarations": 816,
+    "exactAuditNameSet": true,
+    "rawNegative": "Sourcecheck0; verify1 intended LLV7002 accounting Reflexivity mismatch expectedwire50;10533ms. Fullconsumer root includes imported false accounting certificate.",
+    "rawPositive": "Sourcecheck0;verify0;136745ms;all four rawverify IDs match full attestation.",
+    "capturedConditions": "Both23-input source before/after hashes+destinations, tools/epoch equality, zero memory events, idle records, genuine lock unchanged, postcapture errors[], postchecks after verify. Recorded20GiB host launch/11GiB guestpre/10GiBpost samples pass.",
+    "notRerun": "All checks read retained native bytes/process records; no native execution repeated. Embedded lexicon bytes were not independently rehashed."
+  },
+  "sourceAndClaims": {
+    "negativeMutation": "Parsed positive/negative accounting theorem AST differs only at statement/right/arguments/0/fields/2/value/value:49→50.",
+    "accounting": "Actual Reflexivity with emptyaxioms; proposed state outputnil,visits1,wireBytes49,seencons matches documented localS49.",
+    "actualConsumer": "Emptyaxioms; direct Apply ObjectReadParent49VisitTransition.objParent49VisitTransition with no args/typeargs. RHS retains exactly3 production ObjVisitNode calls. Accounting theorem is checked imported dependency/control, not an applied rewrite/cache.",
+    "docs": "README/RESULTS/results and both plan updates correctly identify localS49+fullconsumer acceptance, preserve child/finalstate/wholeRead/Read33/productionbinding boundaries and avoid speedup/continuous-resource claims.",
+    "census": "Reviewer census digest and portable census-wrapper file hash explicitly identified as different serialization identities."
+  },
+  "preservation": {
+    "tenOtherDraftHashes": true,
+    "sixMergedSourceHashes": true,
+    "seventeenOriginalSnapshotsAgainstBase": true,
+    "originalFullRead33Unchanged": true
+  },
+  "findings": [],
+  "limits": [
+    "No child results, completed walk/output/stats/root wrapping/rangefinish/manifestversion/wholehash, originalRead33/fullObject/Hash/PrismPM/Pages acceptance inferred.",
+    "Prior raw/native error or evidence not erased; new report only.",
+    "This verdict binds original86-file stage; additional history/manifest delta needs separate exact review."
+  ],
+  "storage": {
+    "startAvailableKiB": 35448424,
+    "activity": "Read-only source/evidence/index checks plus this small external report; no build/VM/cleanup or fixture generation."
+  },
+  "actions": "No repository/index/source/frozen evidence edits, SDK/native/compiler/VM/API calls or other-lab access."
+}
