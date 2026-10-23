@@ -1,0 +1,28 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "test",
+    "-p",
+    "repo-conformance",
+    "--test",
+    "digest",
+    "--locked"
+  ],
+  "started": "2026-10-23T17:31:21.580Z",
+  "ended": "2026-10-23T17:31:22.626Z",
+  "status": 101,
+  "signal": null,
+  "stdout": "",
+  "stderr": "   Compiling repo-conformance v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/crates/conformance)\nerror[E0277]: the trait bound `Array<u8, UInt<UInt<UInt<UInt<..., ...>, ...>, ...>, ...>>: LowerHex` is not satisfied\n --> crates/conformance/tests/support/sha256.rs:7:21\n  |\n7 |     format!(\"{:x}\", Sha256::digest(bytes))\n  |              ----   ^^^^^^^^^^^^^^^^^^^^^ the trait `LowerHex` is not implemented for `Array<u8, UInt<UInt<UInt<UInt<UInt<..., ...>, ...>, ...>, ...>, ...>>`\n  |              |\n  |              required by this formatting parameter\n  |\n  = help: the following other types implement trait `LowerHex`:\n            &T\n            &mut T\n            Saturating<T>\n            Wrapping<T>\n            compiler_builtins::math::libm_math::support::big::i256\n            compiler_builtins::math::libm_math::support::big::u256\n            compiler_builtins::math::libm_math::support::hex_float::hex_fmt::Hex<T>\n            i128\n          and 12 others\n  = note: the full name for the type has been written to '/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/digest-dd547a7079cc9bbb.long-type-12511623537101228767.txt'\n  = note: consider using `--verbose` to print the full type name to the console\n\nFor more information about this error, try `rustc --explain E0277`.\nerror: could not compile `repo-conformance` (test \"digest\") due to 1 previous error\n",
+  "availableBeforeBytes": "32726269952",
+  "sourcePins": [
+    {
+      "path": "crates/conformance/tests/digest.rs",
+      "sha256": "64233fbe0fe1b4ead3bec5a630b49cfcb1f81320071514447370ebd327adcfc1"
+    },
+    {
+      "path": "crates/conformance/tests/support/sha256.rs",
+      "sha256": "2f3ec39193f6d484f457471c9cd7343428857ea60bc61e265c5a02c5b83e5089"
+    }
+  ]
+}

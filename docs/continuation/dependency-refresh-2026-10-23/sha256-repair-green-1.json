@@ -1,0 +1,24 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "test",
+    "--workspace",
+    "--lib",
+    "--locked"
+  ],
+  "started": "2026-10-23T17:31:53.113Z",
+  "ended": "2026-10-23T17:31:53.407Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "\nrunning 1 test\ntest meta::tests::the_assertive_vocabulary_is_recognised ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest tests::every_some_true_claim_cites_an_authority_cm_03 ... ok\ntest tests::model_is_consistent_cm_01 ... ok\ntest tests::the_id_register_is_well_formed_cm_02 ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+  "stderr": "   Compiling repo-conformance v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/crates/conformance)\n    Finished `test` profile [unoptimized] target(s) in 0.20s\n     Running unittests src/lib.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/repo_conformance-8ad95ac81bda2d6c)\n     Running unittests src/lib.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/repo_model-973825b67b816706)\n",
+  "availableBeforeBytes": "32722198528",
+  "availableAfterBytes": "32722112512",
+  "env": {
+    "CARGO_TARGET_DIR": "/Users/casey.allard/lexlean-r4-build-cache/host",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "2"
+  }
+}

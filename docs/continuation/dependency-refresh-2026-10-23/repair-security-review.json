@@ -1,0 +1,104 @@
+{
+  "at": "2026-10-23T17:33:16.230Z",
+  "status": "PASS_NARROW_SOURCE_SECURITY_REVIEW",
+  "repository": "/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh",
+  "head": "c5b5c0e4e5fe3f1546f849994c351b27bba121e8",
+  "compatibilityBase": "c5b5c0e4e5fe3f1546f849994c351b27bba121e8",
+  "dependencyBase": "9456614d9fe13ef56a736f69e7cda71a5fae6db9",
+  "scope": "Working-tree SHA256 test compatibility repair plus dependency manifest/lock diff9456614..c5b5c0e. Documentation excluded. Independent source review; no build or compiler/native invocation.",
+  "sourcePins": [
+    {
+      "path": "crates/conformance/tests/codebook_words.rs",
+      "bytes": 1788,
+      "sha256": "db4a4918a4ca627415025a8c49f8009ee533e221c0d10d253965e1146abe924a"
+    },
+    {
+      "path": "crates/conformance/tests/evidence.rs",
+      "bytes": 3282,
+      "sha256": "8815322688d8f3492563e758a4725a9a0bef0cfdd1bd37610d2f653fe2b90d26"
+    },
+    {
+      "path": "crates/conformance/tests/hash.rs",
+      "bytes": 5207,
+      "sha256": "fde34b3c43a1cd1101e692385037306bfd9e57e5f1f6a438e51c8639a520c21d"
+    },
+    {
+      "path": "crates/conformance/tests/json_number.rs",
+      "bytes": 1916,
+      "sha256": "b510db50963e74b771cac2135a9114195cb80fac705c9469d106ce6696a03579"
+    },
+    {
+      "path": "crates/conformance/tests/snapshot_json.rs",
+      "bytes": 1651,
+      "sha256": "e9c488af07f73c804f434450031d5c813ee747e70530de5281d868105046d37a"
+    },
+    {
+      "path": "crates/conformance/tests/support/mod.rs",
+      "bytes": 9267,
+      "sha256": "277c43149096509aa05ee6b6c3f3224399b059af11cf0d992c0845c21ea0d6a4"
+    },
+    {
+      "path": "crates/conformance/tests/tokenizer_json.rs",
+      "bytes": 1921,
+      "sha256": "39d6e0ce863602a868808c3425cc6385967eaf2df5d2bf7206a52664f7efa9f9"
+    },
+    {
+      "path": "crates/conformance/tests/tokenizer_text.rs",
+      "bytes": 1110,
+      "sha256": "364cf696aac4137c8fc75c39223ff97981b9e029ddd002f6d12cab9150a0867a"
+    },
+    {
+      "path": "crates/conformance/tests/support/sha256.rs",
+      "bytes": 307,
+      "sha256": "7cb8738682575eab537bbcebef423039ee615843210710e837f517dc429e0050"
+    },
+    {
+      "path": "crates/conformance/tests/digest.rs",
+      "bytes": 655,
+      "sha256": "64233fbe0fe1b4ead3bec5a630b49cfcb1f81320071514447370ebd327adcfc1"
+    },
+    {
+      "path": "Cargo.lock",
+      "bytes": 7135,
+      "sha256": "d7ca779d46f43b6b0ac6b88a7dcef39b083f4d259810310535f1b244ae2324d5"
+    },
+    {
+      "path": "crates/conformance/Cargo.toml",
+      "bytes": 508,
+      "sha256": "68c5c9b4ebd1696e7ee3ebb58d81b489d65d27b9101dc32d2c95200748d7973d"
+    },
+    {
+      "path": "crates/model/Cargo.toml",
+      "bytes": 762,
+      "sha256": "2692e85be32d044e1a9a4b7e23cfbbc777794b15f690fd145f62ff883c4034cc"
+    },
+    {
+      "path": "xtask/Cargo.toml",
+      "bytes": 395,
+      "sha256": "86730e7371c7aa87c8fad63c651cb6ccebad297e2ab3f2732ba5ab06bf6dbfbb"
+    }
+  ],
+  "findings": [],
+  "checks": {
+    "hashSemantics": "Helper retains sha2::Sha256::digest over exact input bytes, traverses all32 bytes in order, formats each u8 with lowercase minimum width2 and zero padding, concatenates into64characters. Since u8 cannot exceedff, width2 is exact. No truncation, normalization, newline, byte-order change, hash replacement or digest-prefix change.",
+    "callsiteCount": {
+      "oldDigestCalls": 10,
+      "newHelperCalls": 10
+    },
+    "constants": "Compared all64hex literals in eight modified existing files to base: identical ordered lists. Read full source diff: same source/fixture paths and same bytes feed hashes; expected assertions and errors remain unchanged.",
+    "evidenceChecks": "Control-source digests, build-manifest digest/length, canonical path containment, selected input digest/length and control inclusion remain enforced. Existing command/receipt identity, empty axiom policy, module kernel replay and language checks are not removed or bypassed.",
+    "regression": "New host-only digest test imports the exact shared helper. Cases cover empty input, abc, and286 with leading00 output. Independent Node crypto byte calculations confirmed the three expected strings; this is cross-checking test data, not executing the Rust test.",
+    "dependencyDiff": "Four files only in9456614..c5b5c0e:Cargo.lock, conformance manifest, model manifest, xtask manifest. Conformance exact dev pins sha2=0.11.1,serde_json=1.0.154 and build syn=3.0.9; model TOML0.8→1.1 and xtask sha2 0.10.9→0.11.1. Lock updates registry versions/checksums and expected supporting packages. No path/Git dependency or new registry endpoint introduced.",
+    "networkCredentials": "Repair adds no network, environment, credential, process, file-writing, unsafe code or dynamic loading operations. Dependency resolution may fetch revised crates from the same existing crates.io registry; no new application network/credential behavior is introduced by the reviewed local diff.",
+    "scopeBoundary": "Shared helper is conformance-test evidence formatting, not a handwritten UOR application hash implementation or SDK substitute. Production LexLean definitions and acceptance locks/gates are unchanged.",
+    "whitespace": "git diff --check completed with exit0 during review."
+  },
+  "limitations": [
+    "No Rust tests/builds run by reviewer; author owns sole build and must supply actual verification results before delivery.",
+    "This is a scoped local source/dependency-diff security review, not a comprehensive audit of downloaded transitive package contents or current vulnerability advisories. No claim that dependency upgrades are vulnerability-free.",
+    "TOML parser and other dependency behavior changes require author test coverage; unchanged local validation source does not prove every upstream parser behavior identical.",
+    "No production SDK acceptance or just vv success inferred. Missing production locks remain separate gates.",
+    "Pins bind these exact reviewed source bytes; later source changes require reassessment. Parent documentation changes are intentionally excluded."
+  ],
+  "storageFreeBytes": "32165163008"
+}

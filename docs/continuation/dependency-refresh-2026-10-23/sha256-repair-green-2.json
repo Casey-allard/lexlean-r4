@@ -1,0 +1,24 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "test",
+    "-p",
+    "xtask",
+    "--locked"
+  ],
+  "started": "2026-10-23T17:31:53.408Z",
+  "ended": "2026-10-23T17:31:53.572Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "\nrunning 14 tests\ntest bootstrap::tests::mutable_sdk_plant_is_rejected ... ok\ntest bootstrap::tests::host_docker_plugin_plant_is_rejected ... ok\ntest bootstrap::tests::floating_action_plant_is_rejected ... ok\ntest bootstrap::tests::incomplete_release_lifecycle_plant_is_rejected ... ok\ntest bootstrap::tests::narrowed_policy_boundary_plant_is_rejected ... ok\ntest bootstrap::tests::sha256_identity_retains_canonical_lowercase_bytes ... ok\ntest bootstrap::tests::missing_or_credential_nested_buildx_state_is_rejected ... ok\ntest bootstrap::tests::universal_policy_drift_plant_is_rejected ... ok\ntest bootstrap::tests::native_platform_inventory_rejects_swaps_missing_platforms_and_legacy_drift ... ok\ntest bootstrap::tests::shallow_checkout_plant_is_rejected ... ok\ntest bootstrap::tests::accepted_promotion_bypass_plant_is_rejected ... ok\ntest bootstrap::tests::project_overwrite_plant_is_rejected ... ok\ntest bootstrap::tests::dependency_updates_preserve_sdk_ownership_and_ordinary_maintenance ... ok\n✔ absent standards lock receives exact SDK bytes and matching bytes remain unchanged (4.414375ms)\n✔ different project standards bytes are rejected without replacement (3.377875ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 66.8265\ntest bootstrap::tests::initial_standards_binding_refuses_project_drift ... ok\n\ntest result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s\n\n",
+  "stderr": "    Finished `test` profile [unoptimized] target(s) in 0.02s\n     Running unittests src/main.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/xtask-e8f59345978b1e37)\n",
+  "availableBeforeBytes": "32722108416",
+  "availableAfterBytes": "32722100224",
+  "env": {
+    "CARGO_TARGET_DIR": "/Users/casey.allard/lexlean-r4-build-cache/host",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_BUILD_JOBS": "2"
+  }
+}

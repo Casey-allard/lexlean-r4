@@ -1,0 +1,19 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "test",
+    "-p",
+    "repo-conformance",
+    "--test",
+    "digest",
+    "--locked"
+  ],
+  "started": "2026-10-23T17:32:26.180Z",
+  "ended": "2026-10-23T17:32:27.051Z",
+  "status": 101,
+  "signal": null,
+  "stdout": "\nrunning 1 test\ntest sha256_identity_is_lowercase_and_zero_padded ... FAILED\n\nfailures:\n\n---- sha256_identity_is_lowercase_and_zero_padded stdout ----\n\nthread 'sha256_identity_is_lowercase_and_zero_padded' (63419079) panicked at crates/conformance/tests/digest.rs:22:9:\nassertion `left == right` failed\n  left: \"328ce57bbc14b33bd6695bc8eb32cdf2fb5f3a7d89ec14a42825e15d39df60\"\n right: \"00328ce57bbc14b33bd6695bc8eb32cdf2fb5f3a7d89ec14a42825e15d39df60\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    sha256_identity_is_lowercase_and_zero_padded\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+  "stderr": "   Compiling repo-conformance v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/crates/conformance)\n    Finished `test` profile [unoptimized] target(s) in 0.78s\n     Running tests/digest.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/digest-dd547a7079cc9bbb)\nerror: test failed, to rerun pass `-p repo-conformance --test digest`\n",
+  "helperSha256": "aa35febaa24faa322fff3c93b6ab1440cef32c2934c76f67de7d3c4d7665cc8f",
+  "availableBeforeBytes": "32716574720"
+}

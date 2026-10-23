@@ -1,0 +1,143 @@
+{
+  "status": "PASS_PIN_COMPATIBILITY_AND_SECURITY_FOR_REQUESTED_DEVELOPMENT_MERGE_NOT_TEMPLATE_OR_RUNTIME_ACCEPTANCE",
+  "at": "2026-10-23T17:26:47.597Z",
+  "pr": "https://github.com/Casey-allard/lexlean-r4/pull/1",
+  "head": "0c77c9e616dd3f1b03f91523a7a4252fa9e417be",
+  "prBase": "9f437a6e1e9a941236ab5b4d607706890f52a8a4",
+  "currentMain": "9456614d9fe13ef56a736f69e7cda71a5fae6db9",
+  "mergeableObserved": true,
+  "workflowRows": [
+    {
+      "path": ".github/workflows/prismpm.yml",
+      "baseSha256": "a7a633c468375a9e3c34ad482dba10c568f84ada54c5ed7fe1a185c186f041fe",
+      "headSha256": "0b964bd1542c0dd47cc6f8af70e7433fc752dae5183aecccbe375a448f936dbd",
+      "currentMainMatchesBase": true,
+      "onlyUsesPinsChanged": true,
+      "headURL": "https://github.com/casey-allard/lexlean-r4/blob/0c77c9e616dd3f1b03f91523a7a4252fa9e417be/.github/workflows/prismpm.yml"
+    },
+    {
+      "path": ".github/workflows/template-update.yml",
+      "baseSha256": "36a04dd9ce1ef6f513d7ebb06d48b06b8aedc00554472f4c5864d3c799a87449",
+      "headSha256": "ac7dd695228b4d053413b456082beb289f1f7f311cbd75ebdbadfeb112f7dd9f",
+      "currentMainMatchesBase": true,
+      "onlyUsesPinsChanged": true,
+      "headURL": "https://github.com/casey-allard/lexlean-r4/blob/0c77c9e616dd3f1b03f91523a7a4252fa9e417be/.github/workflows/template-update.yml"
+    }
+  ],
+  "actions": [
+    {
+      "repo": "actions/checkout",
+      "tag": "v7.0.1",
+      "commit": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "tagResolvesToPin": true,
+      "release": "https://github.com/actions/checkout/releases/tag/v7.0.1",
+      "prerelease": false,
+      "metadata": "https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/action.yml",
+      "metadataSha256": "d59219cb79590abdb877deaa14e3b65a00c05318bf5a6f3b989b9162b5d08c35",
+      "runtime": "node24"
+    },
+    {
+      "repo": "actions/upload-artifact",
+      "tag": "v7.0.2",
+      "commit": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+      "tagResolvesToPin": true,
+      "release": "https://github.com/actions/upload-artifact/releases/tag/v7.0.2",
+      "prerelease": false,
+      "metadata": "https://github.com/actions/upload-artifact/blob/cf430e030ddbb5b0abf93d22962f4752f3646cd9/action.yml",
+      "metadataSha256": "c5979822866a72362e609844b6ebe77d4b7e759af68cc1c2c425dcf51481fab4",
+      "runtime": "node24"
+    },
+    {
+      "repo": "actions/download-artifact",
+      "tag": "v8.0.2",
+      "commit": "9000827ccba6bdab643e8b6fd33ac0654aef8333",
+      "tagResolvesToPin": true,
+      "release": "https://github.com/actions/download-artifact/releases/tag/v8.0.2",
+      "prerelease": false,
+      "metadata": "https://github.com/actions/download-artifact/blob/9000827ccba6bdab643e8b6fd33ac0654aef8333/action.yml",
+      "metadataSha256": "e98559b7a31ba31be4709f20d22102dc2737fa630f69a339eb89981151e505fe",
+      "runtime": "node24"
+    },
+    {
+      "repo": "docker/login-action",
+      "tag": "v4.6.0",
+      "commit": "dbcb813823bdd20940b903addbd779551569679f",
+      "tagResolvesToPin": true,
+      "release": "https://github.com/docker/login-action/releases/tag/v4.6.0",
+      "prerelease": false,
+      "metadata": "https://github.com/docker/login-action/blob/dbcb813823bdd20940b903addbd779551569679f/action.yml",
+      "metadataSha256": "e65e6bdc57fc10adcee036a393229aae6b9a9f451b69528f4ff50d4b0e93f156",
+      "runtime": "node24"
+    },
+    {
+      "repo": "peter-evans/create-pull-request",
+      "tag": "v8.1.1",
+      "commit": "5f6978faf089d4d20b00c7766989d076bb2fc7f1",
+      "tagResolvesToPin": true,
+      "release": "https://github.com/peter-evans/create-pull-request/releases/tag/v8.1.1",
+      "prerelease": false,
+      "metadata": "https://github.com/peter-evans/create-pull-request/blob/5f6978faf089d4d20b00c7766989d076bb2fc7f1/action.yml",
+      "metadataSha256": "497b8150b90e3771de7a8e6de08a370695b3a08b316b608609f9ea2ea28a1070",
+      "runtime": "node24"
+    }
+  ],
+  "findings": [],
+  "nonBlockingInheritedIssues": [
+    {
+      "severity": "P2",
+      "path": ".github/workflows/template-update.yml",
+      "line": 128,
+      "issue": "The hidden .template-update.patch is uploaded without include-hidden-files:true. Old4.6.2 and new7.0.2 both default false, so source indicates this upload can produce the existing if-no-files-found:error failure. Not introduced by this pin-only PR; not runtime-reproduced here.",
+      "needed": "Correct through an independently reviewed template-policy update and validate real patch upload/download before relying on automated template updates.",
+      "oldMetadata": "https://github.com/actions/upload-artifact/blob/ea165f8d65b6e75b540449e92b4886f43607fa02/action.yml",
+      "oldMetadataSha256": "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177"
+    }
+  ],
+  "compatibility": [
+    "All five pinned40hexSHAs resolve to the named official release tags; releases are non-prerelease. Both currentmain workflow bytes match PRbase, so the reviewed pin-only delta remains applicable after implementation PR3 merge.",
+    "31uses substitutions across two workflows only. Inputs, shell commands, triggers, permissions, conditions, environments, timeout and shared PrismPM Action pin remain byte-identical after normalizinguses SHAs. No untrusted interpolation or token-scope expansion is introduced.",
+    "All updated Actions useNode24. Official checkout docs require runner>=2.327.1; these workflows select GitHub-hosted ubuntu24.04/ubuntu24.04-arm rather than a pinned old selfhosted runner. Exact selected runtime was not exercised by this review.",
+    "checkout7 retains every used input: fetch-depth0,persist-credentials:false,repository/ref/path. Credentials remain explicitly unpersisted. Its safer fork-checkout defaults for pull_request_target/workflow_run add protection; no unsafe opt-in is introduced.",
+    "upload7 keeps archive:true bydefault, so configured artifact names/directories retain zipped transfer. Product .prism uploads already explicitly include hidden files. download8 retains name/path/same-run behavior and decompresses bydefault; digest-mismatch now defaults to error, improving fail-closed integrity. No crossrun/token input was added.",
+    "login4 retains registry/username/password and default postlogout. Workflows explicitly useghcr.io,github.actor,short-lived github.token; no new DockerHubOIDC or registry-auth input is enabled.",
+    "createPR8.1.1 retains existing branch/commit/title/body inputs and github.token default. Its existing protected template-update environment and contents/pullrequests permissions are unchanged. Release reports dependency fixes and eventual-consistency retries; no new caller privilege required."
+  ],
+  "templateContract": {
+    "status": "UNRESOLVED_PRODUCTION_BINDING_NOT_WAIVED",
+    "constraint": "Repository AGENTS.md says universal policy is template-bound and template changes arrive from an exact reviewed policy revision. This Dependabot PR changes two universal workflow files and is not a generated template-policy update. No template.lock/productionSDK binding currently exists to validate against.",
+    "interpretation": "The user explicitly requested remaining reviewed branches merged as development progress. Pin-only compatibility/security approval does not declare conformance with a future locked template revision, nor waive production policy. Carry this divergence into official template acquisition/reconciliation; require actual prismpm template check and full justvv under the genuine production lock before release.",
+    "noFabricatedLocks": true,
+    "noGatesDisabled": true
+  },
+  "checksObserved": [
+    {
+      "name": "acceptance / ubuntu-24.04-arm",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Casey-allard/lexlean-r4/actions/runs/39547444783/job/119048714457"
+    },
+    {
+      "name": "acceptance / ubuntu-24.04",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Casey-allard/lexlean-r4/actions/runs/39547444783/job/119048714238"
+    }
+  ],
+  "validationStillRequired": [
+    "Parent must recheck exact PRhead immediately before merge; any rebase or changed SHA invalidates this report.",
+    "Observe fresh default-branch CI after merge. Existing missingprismpm.lock bootstrap failure is not evidence the updated workflows ran or passed.",
+    "Once a genuine immutable SDK/template binding exists, run actual templatecheck/fulljustvv and protected workflow artifact/login/release path validation, including the inherited hiddenpatch issue. No deployment or publish action is performed as part of this review.",
+    "Preserve workflow differences explicitly when reconciling universal template bytes; do not forge a new template lock or bypass its check."
+  ],
+  "officialDocs": [
+    "https://github.com/actions/checkout/blob/3d3c42e5aac5ba805825da76410c181273ba90b1/README.md",
+    "https://github.com/actions/upload-artifact/blob/cf430e030ddbb5b0abf93d22962f4752f3646cd9/README.md",
+    "https://github.com/actions/download-artifact/blob/9000827ccba6bdab643e8b6fd33ac0654aef8333/README.md"
+  ],
+  "limitations": [
+    "Read-only GitHubplugin+gh officialmetadata/release/API review; no workflow execution/build/SDK/VM or registrylogin performed.",
+    "Action metadata, tag identity and relevant releasecompatibility checked; bundled JavaScript/transitive npm dependency trees not exhaustively audited.",
+    "Observed current exacthead checks are failures. They are not relabeled PASS. Productionbootstrap remains separately blocked.",
+    "Repository/index and otherlabs untouched; only this report was written."
+  ]
+}

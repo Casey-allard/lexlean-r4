@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-23T17:25:51.256Z",
+  "availableBytes": "30348451840",
+  "estimatedAdditionalBytes": 2147483648,
+  "reserveBytes": 10737418240,
+  "scope": "One owned dependency worktree and reusable task-owned Cargo cache; incremental and debug info disabled. No SDK/compiler VM job or other-lab changes.",
+  "cache": "/Users/casey.allard/lexlean-r4-build-cache/host"
+}

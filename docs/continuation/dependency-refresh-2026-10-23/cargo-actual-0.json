@@ -1,0 +1,15 @@
+{
+  "exe": "/Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+  "args": [
+    "test",
+    "--workspace",
+    "--lib",
+    "--locked"
+  ],
+  "started": "2026-10-23T17:26:53.569Z",
+  "ended": "2026-10-23T17:27:09.463Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "\nrunning 1 test\ntest meta::tests::the_assertive_vocabulary_is_recognised ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest tests::every_some_true_claim_cites_an_authority_cm_03 ... ok\ntest tests::the_id_register_is_well_formed_cm_02 ... ok\ntest tests::model_is_consistent_cm_01 ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+  "stderr": "    Updating crates.io index\n Downloading crates ...\n  Downloaded cpufeatures v0.3.1\n  Downloaded toml v1.1.8+spec-1.1.0\n  Downloaded block-buffer v0.12.1\n  Downloaded serde_spanned v1.1.2\n  Downloaded const-oid v0.10.2\n  Downloaded hybrid-array v0.4.15\n  Downloaded crypto-common v0.2.2\n  Downloaded sha2 v0.11.1\n  Downloaded toml_writer v1.1.3+spec-1.1.0\n  Downloaded digest v0.11.3\n  Downloaded toml_datetime v1.1.2+spec-1.1.0\n  Downloaded toml_parser v1.1.5+spec-1.1.0\n   Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling serde_core v1.0.229\n   Compiling unicode-ident v1.0.24\n   Compiling typenum v1.20.1\n   Compiling libc v0.2.189\n   Compiling serde v1.0.229\n   Compiling winnow v1.0.4\n   Compiling toml_writer v1.1.3+spec-1.1.0\n   Compiling zmij v1.0.23\n   Compiling serde_json v1.0.154\n   Compiling const-oid v0.10.2\n   Compiling cfg-if v1.0.4\n   Compiling itoa v1.0.18\n   Compiling memchr v2.8.3\n   Compiling toml_parser v1.1.5+spec-1.1.0\n   Compiling syn v3.0.9\n   Compiling cpufeatures v0.3.1\n   Compiling hybrid-array v0.4.15\n   Compiling crypto-common v0.2.2\n   Compiling block-buffer v0.12.1\n   Compiling digest v0.11.3\n   Compiling sha2 v0.11.1\n   Compiling toml_datetime v1.1.2+spec-1.1.0\n   Compiling serde_spanned v1.1.2\n   Compiling toml v1.1.8+spec-1.1.0\n   Compiling serde_derive v1.0.229\n   Compiling repo-conformance v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/crates/conformance)\n   Compiling repo-model v0.1.0 (/Users/casey.allard/lexlean-r4-worktrees/dependency-refresh/crates/model)\n    Finished `test` profile [unoptimized] target(s) in 15.70s\n     Running unittests src/lib.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/repo_conformance-8ad95ac81bda2d6c)\n     Running unittests src/lib.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/repo_model-973825b67b816706)\n"
+}

@@ -1,0 +1,14 @@
+{
+  "main": "5389a4248fd2c768ef3bf8c47c67527adad971b9",
+  "rows": [
+    {
+      "path": ".github/workflows/prismpm.yml",
+      "sha256": "0b964bd1542c0dd47cc6f8af70e7433fc752dae5183aecccbe375a448f936dbd"
+    },
+    {
+      "path": ".github/workflows/template-update.yml",
+      "sha256": "ac7dd695228b4d053413b456082beb289f1f7f311cbd75ebdbadfeb112f7dd9f"
+    }
+  ],
+  "scope": "fresh fetched main workflow bytes match internally reviewed PR1; not workflow runtime acceptance"
+}

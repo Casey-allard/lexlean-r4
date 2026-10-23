@@ -1,0 +1,215 @@
+{
+  "schema": "lexlean-r4-pr4-repair-code-review/v1",
+  "reviewer": "orchestration_host_implementation (non-author)",
+  "at": "2026-10-23T17:34:38.969Z",
+  "status": "PASS_SCOPED_SHA2_COMPATIBILITY_REPAIR",
+  "baseHead": "c5b5c0e4e5fe3f1546f849994c351b27bba121e8",
+  "implementationReport": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-implementation.json",
+    "sha256": "b2202e487e7a3436f93bfb5d3fe9f72e6b3612102c6cafc3dcdc2443430950fb"
+  },
+  "findings": [],
+  "sourceAudit": [
+    {
+      "path": "crates/conformance/tests/codebook_words.rs",
+      "sha256": "db4a4918a4ca627415025a8c49f8009ee533e221c0d10d253965e1146abe924a",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/digest.rs",
+      "sha256": "64233fbe0fe1b4ead3bec5a630b49cfcb1f81320071514447370ebd327adcfc1",
+      "newFile": true
+    },
+    {
+      "path": "crates/conformance/tests/evidence.rs",
+      "sha256": "8815322688d8f3492563e758a4725a9a0bef0cfdd1bd37610d2f653fe2b90d26",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/hash.rs",
+      "sha256": "fde34b3c43a1cd1101e692385037306bfd9e57e5f1f6a438e51c8639a520c21d",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/json_number.rs",
+      "sha256": "b510db50963e74b771cac2135a9114195cb80fac705c9469d106ce6696a03579",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/snapshot_json.rs",
+      "sha256": "e9c488af07f73c804f434450031d5c813ee747e70530de5281d868105046d37a",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/support/mod.rs",
+      "sha256": "277c43149096509aa05ee6b6c3f3224399b059af11cf0d992c0845c21ea0d6a4",
+      "legacyDigestCalls": 3,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/support/sha256.rs",
+      "sha256": "7cb8738682575eab537bbcebef423039ee615843210710e837f517dc429e0050",
+      "newFile": true
+    },
+    {
+      "path": "crates/conformance/tests/tokenizer_json.rs",
+      "sha256": "39d6e0ce863602a868808c3425cc6385967eaf2df5d2bf7206a52664f7efa9f9",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    },
+    {
+      "path": "crates/conformance/tests/tokenizer_text.rs",
+      "sha256": "364cf696aac4137c8fc75c39223ff97981b9e029ddd002f6d12cab9150a0867a",
+      "legacyDigestCalls": 1,
+      "unchanged64HexLiterals": true
+    }
+  ],
+  "checks": {
+    "legacyCallSitesReplaced": 10,
+    "sourcePinsAllMatch": true,
+    "receiptsAllMatch": true,
+    "expectedExistingDigestLiteralsUnchanged": true,
+    "helper": "Sha256 digest is iterated in original byte order; each u8 is formatted with lowercase x and width 2 zero padding, concatenating exactly 64 hexadecimal characters. No unchecked whole-array LowerHex assumption remains.",
+    "sharedRegression": "digest.rs imports the exact support/sha256.rs implementation used by all ten call sites.",
+    "knownVectors": "Independent Node crypto SHA-256 recomputation agrees with all three fixed expected vectors: empty, abc, 286. The 286 result begins 00 and contains additional sub-16 bytes, exercising byte-width preservation.",
+    "semantics": "All changed call expressions hash the same bytes. Fixture identities, receipt/source/build-manifest comparisons, paths, lengths, error propagation and acceptance assertions remain unchanged.",
+    "scope": "Only conformance-test support/callers and one host regression changed; no runtime or production model/source changes. Cargo manifest/lock unchanged by this repair.",
+    "actualEvidence": "Read all nine retained raw process receipts. Initial extracted legacy formatter fails E0277; planted leading-zero removal fails the expected 286 equality with 328... versus 00328...; exact final helper restored and passes. Six scoped green commands exit 0 with null signal.",
+    "tests": [
+      "cargo test -p repo-conformance --test digest --locked: 1 regression passes",
+      "cargo test --workspace --lib --locked: 4 tests pass",
+      "cargo test -p xtask --locked: 14 tests plus 2 nested JavaScript tests pass",
+      "cargo check --workspace --all-targets --all-features --locked: passes compilation",
+      "cargo run --locked -p xtask -- check-model: 19 ids equal model",
+      "cargo run --locked -p xtask -- audit-dependency-updates: ownership/maintenance preserved"
+    ],
+    "noBuildRerun": "Existing exact restored helper regression plus six retained commands suffice for this small mechanical change; this reviewer ran read-only source/pin checks and independent vector recomputation only."
+  },
+  "receipts": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-leading-zero-plant-red.json",
+      "sha256": "013316ce3ea19b94c4b5aa36da5cfdbd0a061bde97e9619782f787c44d95e69a",
+      "status": 101,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-leading-zero-restored-green.json",
+      "sha256": "df549dbcab982345c9b54e2e920058d533891389b723dfb94f7f1dac8489304d",
+      "status": 0,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-regression-red.json",
+      "sha256": "d29ca9d545927e734a0baf12d025a7245694a27683c91c54b997c0965f2bae1d",
+      "status": 101,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-0.json",
+      "sha256": "c40f59dfbb743c790fdf56650f0b7d1366ef9dafa9df955bf0e6b2ade1a3e35c",
+      "status": 0,
+      "args": [
+        "test",
+        "-p",
+        "repo-conformance",
+        "--test",
+        "digest",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-1.json",
+      "sha256": "c218c7f0d5bd3a8f81133aebb0f778f7cb605918ed878b9e892f6703ff50f01e",
+      "status": 0,
+      "args": [
+        "test",
+        "--workspace",
+        "--lib",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-2.json",
+      "sha256": "d666357798276f009cea0cc75ebf3ea40f3c83295ee0cfb62de58f8de5fa0180",
+      "status": 0,
+      "args": [
+        "test",
+        "-p",
+        "xtask",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-3.json",
+      "sha256": "f27eaabf08a675b7e44e1ef8f9839643c91343fbfae58093fed274f267bca1bd",
+      "status": 0,
+      "args": [
+        "check",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--locked"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-4.json",
+      "sha256": "a6cb3d93ca5951163117c83e826fa2fcfc89f1d0b2d20a7dff9e873426933f69",
+      "status": 0,
+      "args": [
+        "run",
+        "--locked",
+        "-p",
+        "xtask",
+        "--",
+        "check-model"
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/branch-merges/sha256-repair-green-5.json",
+      "sha256": "1d565946e8a7ddecf1b57dde6bd8790d3ba8c07160e7f17a0524af3b9cb85fe3",
+      "status": 0,
+      "args": [
+        "run",
+        "--locked",
+        "-p",
+        "xtask",
+        "--",
+        "audit-dependency-updates"
+      ]
+    }
+  ],
+  "limitations": [
+    "Review covers repair source at listed hashes on base c5b5c0e4e5fe3f1546f849994c351b27bba121e8; parent must verify committed tree retains these bytes before delivery.",
+    "Parent docs are separately owned; last observed text correctly states scoped checks and pending review, and may be updated to reflect this review.",
+    "No full LexLean conformance, SDK/compiler, template acceptance, just vv or deployment performed or claimed.",
+    "No fresh compiler/build test rerun by reviewer; actual retained command logs reviewed.",
+    "Independent security review is separate."
+  ],
+  "recommendation": "Proceed with atomic conventional repair commit, exact-byte delivery verification and authorized development merge; do not mark production acceptance."
+}
