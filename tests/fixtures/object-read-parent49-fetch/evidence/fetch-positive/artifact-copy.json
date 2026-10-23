@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-read-parent49-fetch-local-refs-fetch-positive-owned-20261023/.lexlean/verified/54784e8ba9be195787acb83ec4272b6f30004a92dc4928768e3d8b548ae76262",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/fetch-positive/artifact"
+  ],
+  "started": "2026-10-23T22:22:21.482Z",
+  "ended": "2026-10-23T22:22:21.920Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

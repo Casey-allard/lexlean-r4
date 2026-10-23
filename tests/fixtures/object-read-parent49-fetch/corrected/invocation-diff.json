@@ -1,0 +1,33 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-local-reference-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invoke-parent49-fetch.mjs",
+    "bytes": 7728,
+    "sha256": "1fc85927cf8135affaa686e81d552e79f20229054d1556c15bdefe4cef4cb9ff"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/invoke-parent49-fetch.mjs",
+    "bytes": 7739,
+    "sha256": "a2f21e3c38b7b830bd407bb10b1cc26b141c9b0c7826bcfbaeb04ee63563ec8b"
+  },
+  "literalReplacements": [
+    {
+      "from": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10",
+      "to": "0892439d5ddc233e070246e9d43eefc208a2f17200c97bf946aeaa797acf288d",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-parent49-fetch-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-read-parent49-fetch-local-refs-${phase}-owned-20261023",
+      "occurrences": 1
+    }
+  ],
+  "allOtherBytesUnchanged": true,
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invocation-code-review.json",
+    "bytes": 4454,
+    "sha256": "ffd1306f7efecbaba9ca533d668762e2c3af82a483ee30a4be65f48ef49f050d"
+  },
+  "boundary": "Same single phase selectors, both full consumer roots, all guards and independent postcaptures unchanged. Fresh stage prefix and sibling output directories prevent old phase reuse. No invocation executed."
+}

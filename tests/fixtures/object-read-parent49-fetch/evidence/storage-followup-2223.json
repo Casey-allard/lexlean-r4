@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-23T22:23:53.407Z",
+  "reason": "Host availability declined by more than2GiB from negative prephase to later observation",
+  "positiveBeforeBytes": 24030855168,
+  "positiveAfterBytes": 22271680512,
+  "laterAvailableKiB": 20977380,
+  "latestAvailableKiB": 21717188,
+  "swapAllocatedMiB": 11264,
+  "swapAllocationUnchangedAcrossPositive": true,
+  "vmDiskBeforeKiB": 25757280,
+  "vmDiskAfterKiB": 25770072,
+  "recentDirectoriesReportedKiB": {
+    "/private/tmp/deepseek-chk45": 523848,
+    "/private/tmp/m4head-target": 663248,
+    "/private/tmp/vdocs": 4,
+    "/private/tmp/verify-docs1-pr3099": 523828,
+    "/private/tmp/verify-docs1-pr3100": 523828
+  },
+  "interpretation": "Recent temporary directories report about2.13GiB allocation; VM growth about12.5MiB and swap allocation unchanged. Consistent with substantial host pressure but APFS sharing/concurrency prevent exact physical attribution. Read-only audit, no unrelated files or processes changed. Proof completed with clean memory events and post reserve; no new native phase authorized from rebound."
+}

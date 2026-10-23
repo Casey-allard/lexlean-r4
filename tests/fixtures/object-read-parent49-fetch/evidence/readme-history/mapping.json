@@ -1,0 +1,44 @@
+{
+  "schema": "lexlean-r4-exact-historical-readme-recovery/v1",
+  "status": "EXACT_ORIGINAL_BYTES_RECOVERED",
+  "method": "Initial bytes are the exact literal text in the recorded original source-preservation write call. Second version applies the exact single literal replacement recorded in the later negative-acceptance write call. Both byte lengths and SHA256s were checked against already-preserved custody records before materialization. No wording inferred or invented.",
+  "files": [
+    {
+      "path": "README-initial.md",
+      "bytes": 1054,
+      "sha256": "ab42576d367fb0a0a19c98854fc26f349db9b38bc8de06ed15f814db83cb8c2b",
+      "custodyReferences": [
+        {
+          "file": "source-preservation-custody.json",
+          "jsonPointer": "/companionFiles/1"
+        },
+        {
+          "file": "negative-acceptance-supplement.json",
+          "jsonPointer": "/readmeChange/before"
+        }
+      ]
+    },
+    {
+      "path": "README-negative-accepted.md",
+      "bytes": 1348,
+      "sha256": "f96380de06dbac01a00d0a474022aeb51af4622fd855bf923ee03fdf1f3c8a05",
+      "custodyReferences": [
+        {
+          "file": "negative-acceptance-supplement.json",
+          "jsonPointer": "/readmeChange/after"
+        }
+      ]
+    }
+  ],
+  "secondVersionExactReplacement": {
+    "from": "This source checkpoint includes no corrected-phase outputs, native outcome claims, final results or delivery manifest.",
+    "to": "The closed corrected false phase is retained in `evidence/corrected-false/`; `evidence/negative-native-review.json` independently accepts its intended unrelated-zero base rejection after successful source admission. The earlier pending-review raw custody remains historical and unchanged. Positive execution is still pending at this supplement; no positive output, final RESULTS or delivery manifest is included.",
+    "occurrences": 1
+  },
+  "currentReadme": {
+    "path": "../../README.md",
+    "bytes": 1658,
+    "sha256": "319db72e3e4127b3739b5510a6ebb38abbc8bc3e059ef5ec0922a611128cb025"
+  },
+  "boundary": "Historical README text preserves the statuses at those authoring times, not current acceptance. Current README and old custody bytes unchanged. Later RESULTS.md/results.json provide current accepted local-fetch outcome."
+}

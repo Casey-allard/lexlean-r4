@@ -21,6 +21,7 @@ independent reviewers; no external lab or another session owns this work.
 | Object implementation | Five canonical modules reconciled to the reviewed development runtime;20 of403 Object controls independently verified through the existing Store root. Component integration and qualification remain incomplete. | [Store integration results](continuation/2026-10-23/object-store-integration/RESULTS.md), [original draft snapshot](continuation/2026-10-23/pending-manifest.json). The other383 Object controls,20 separate Blake3 controls and required semantic negatives remain open. |
 | Object Read33 integration | Three metadata edits preserve all33 declaration ASTs. Official source admission passed11 modules, but target Lean verification timed out at300009ms under the unchanged300000ms limit. No Read control accepted by this run. | [Read timeout results](continuation/2026-10-23/object-read-integration/RESULTS.md). Zero recorded memory events, no verified artifact; original compatibility rejection and failed emitted source preserved. |
 | Parent-record decode certificate | Actual original49-byte parent record decodes to the complete expected record; false expected ID128→129 is rejected. Independent positive artifact audit:804 empty-axiom declarations and11 kernel replays. This is a local certificate, not a Read control or authenticated-fetch result. | [Decode results](../tests/fixtures/object-read-parent49/RESULTS.md), [connected-fetch design](../tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json). |
+| Connected parent authenticated fetch | Actual `ObjAuthenticatedFetch` with the original four-entry backend, parent ID and scale1 equals the full expected record. Wrong-base proof rejected; positive artifact independently audited with809 empty-axiom declarations and14 kernel replays. Local fetch equation only; zero original Read33 controls discharged. | [Fetch results](../tests/fixtures/object-read-parent49-fetch/RESULTS.md). Original source-admission failure and exact two-field repair are preserved separately. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -335,12 +336,16 @@ boundaries. No original local work was deleted during preservation.
 The reviewed parent49 decode step has now passed actual negative/positive
 verification and independent artifact review. See the [decode checkpoint](../tests/fixtures/object-read-parent49/RESULTS.md):
 wrong expected ID rejected in35,529ms; exact positive verified in268,903ms.
-Production input, runtime and empty axioms remain unchanged. The next step is the
-[reviewed connected-fetch proof](../tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json):
-use the accepted certificate to prove actual `ObjAuthenticatedFetch` with the
-original four-entry backend, parent ID and scale1. Bind the actual decode artifact
-and review in the candidate; preserve lookup, missing-record, error, scale and
-identity checks. The planned wrong-base control and actual fetch consumer are
-NOT_RUN and require source/invocation review before execution. The certificate
-does not discharge any of the33 original Read controls or remaining whole-read
-range, manifest-version and whole-digest computations. Fresh resource gates apply.
+Production input, runtime and empty axioms remain unchanged. The connected
+[authenticated-fetch proof](../tests/fixtures/object-read-parent49-fetch/RESULTS.md)
+now passes: the intended wrong-base proof is rejected in25,138ms and the actual
+full consumer verifies in43,852ms. The original candidate failed source linking
+before verification; removing exactly two self-module qualifiers repaired local
+references without changing runtime, proof terms, configuration or limits.
+Independent review checked145 artifact files,809 empty-axiom declarations and14
+kernel replays, including the original backend, parent ID, scale1 and full Result.
+This local equation does not discharge any original Read33 control. Next identify
+and review the smallest connection from this accepted fetch to the original
+range walk, retaining child-record reads, manifest-version hashing and whole96-byte
+digest obligations. Those proofs remain NOT_RUN. Keep the remaining ten drafts
+in the completion sequence and use fresh resource gates before further native work.

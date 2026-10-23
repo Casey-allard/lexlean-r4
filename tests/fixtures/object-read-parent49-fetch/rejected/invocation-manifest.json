@@ -1,0 +1,56 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/manifest.json",
+    "bytes": 2770,
+    "sha256": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10"
+  },
+  "candidateSourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/candidate-code-review.json",
+    "bytes": 5767,
+    "sha256": "0415c19d929e534105d9063c9042c702eeee2be06ee8f7ac5f4a172df8736e52"
+  },
+  "files": [
+    {
+      "path": "invoke-parent49-fetch.mjs",
+      "bytes": 7728,
+      "sha256": "1fc85927cf8135affaa686e81d552e79f20229054d1556c15bdefe4cef4cb9ff"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2702,
+      "sha256": "b3669266ddbd8a747e81a15b46141fb4e1f0882c23ff6affa0a5ebf98ff1e885"
+    }
+  ],
+  "commands": [
+    "node invoke-parent49-fetch.mjs fetch-false",
+    "Only after independent intended-negative acceptance and fresh resource admission: node invoke-parent49-fetch.mjs fetch-positive"
+  ],
+  "verifyRoot": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+  "inputCounts": {
+    "negative": 18,
+    "positive": 18
+  },
+  "stagePattern": "/tmp/r4-object-read-parent49-fetch-${phase}-owned-20261023",
+  "outputDirectories": [
+    "fetch-false",
+    "fetch-positive"
+  ],
+  "checks": {
+    "nodeSyntaxCommand": "node --check invoke-parent49-fetch.mjs",
+    "exit": 0,
+    "moduleExecuted": false,
+    "both18InputSetsRehashed": true,
+    "frozenEightPayloadsAndFourDependenciesUnchanged": true,
+    "onlyEightLiteralChangesFromReviewedParent49Script": true
+  },
+  "preserved": "Exact container and epoch, 4 GiB / 2 CPU, 300000ms child limits from unchanged configuration, tools before/after, source and lock identity, idle and zero memory events, 20 GiB host launch planning with 10 GiB estimated additional and 10 GiB reserve, guest 11 GiB before / 10 GiB after, independent finally postcaptures, successful artifact capture, exclusive new output/stage. No automatic second phase.",
+  "outcomeBoundary": "Both calls verify the actual full consumer. Negative requires source admission then intended unrelated-zero imported base failure; setup/import-admission failure, timeout, OOM or unexpected success is not intended RED. Positive requires independent complete artifact, observed empty axioms and kernel replay audit. No acceptance follows from script exit status, source review or helper-only success; full Read33/Object/Hash acceptance remains open.",
+  "storage": {
+    "availableBytesBeforeWrite": "25565364224",
+    "maximumAdditionalBytes": 1048576,
+    "reserveBytes": 10737418240
+  },
+  "scope": "Only three small invocation supplement files authored. No SDK/VM/native execution, repository/source/index edit or other-lab changes. Independent invocation CODE and fresh parent resource admission remain required."
+}

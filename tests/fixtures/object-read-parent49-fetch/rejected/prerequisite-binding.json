@@ -1,0 +1,57 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-actual-prerequisite-binding/v1",
+  "status": "ACTUAL_DECODE_PAIR_ACCEPTED_NEW_FETCH_NOT_RUN",
+  "historicalProposal": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/authenticated-fetch-proposal.json",
+    "bytes": 14358,
+    "sha256": "ed97cf6f6931272d5455bdb7470495f398b33d166babe03ccd60f0f2a8d8c7ee"
+  },
+  "historicalSpec": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json",
+    "bytes": 7295,
+    "sha256": "773c9d10d9503128f06cdf4b506aafd55cb28b85461c510aa54ea50ce8ae345d"
+  },
+  "positiveReview": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/positive-native-review.json",
+    "bytes": 11441,
+    "sha256": "7a10d49b23f5cff53e84662be64c5090996e77cdf817530af5789b21b7face28"
+  },
+  "negativeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/negative-native-review.json",
+    "bytes": 17988,
+    "sha256": "168520b90a33e8d0d5b098e7fc26bb263e7b8744d8e70970f6c5c03a322e9aa8"
+  },
+  "acceptedDecodeSource": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+    "bytes": 7116,
+    "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e",
+    "repositoryPath": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex"
+  },
+  "actualAttestation": {
+    "attestationId": "43bcff1d853a153c4d3e10c2e503fb794e5033995d47e205454862508d114033",
+    "buildId": "dc06dfefa33ee9d2d5dece4199037bff325f767ca5301696fca2437df96b8d56",
+    "sourceId": "ef10bab5a1527e869cc4359d2802666d38f903a482777b6ca622ccbf7a8bfe24",
+    "semanticId": "99f8245de1a7c555a8ed174b19631827fcdaaa4ebf9fe8191b3d284f7d21c1cf",
+    "verifyExit": 0,
+    "wholeVerifyMilliseconds": 268903,
+    "lockSha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db",
+    "postcaptureErrors": []
+  },
+  "observedProofAudit": {
+    "declarations": 804,
+    "allPoliciesNoneAndObservedAxiomsEmpty": true,
+    "successfulProcesses": 34,
+    "kernelReplays": 11,
+    "buildOutputs": 55,
+    "fullFileCensus": 115,
+    "fullFileCensusSha256": "1d616ba1cd5a2fec99c5ee9f03d2839d0597cf7dd083ff3cb0ec3c803bbb770b",
+    "manifestBytesAndHashMatch": true,
+    "allOutputAndOleanHashes": true,
+    "allProcessCopiesAndStdoutStderrHashes": true,
+    "allAuditOutputNamesMatch": true,
+    "compilerAndToolIdentitiesMatch": true,
+    "allSourceConfigLockAndLakeBindingsMatch": true,
+    "censusRepresentation": "Every file rehashed; exact expected set asserted against outputs+oleans+process records+audit/probe sources+summary/manifests. Sorted path/bytes/hash census digest retained to keep report bounded."
+  },
+  "meaning": "Separate actualbinding; frozenproposal/SPECnullpending fields unchanged. Accepteddecode only; no authenticatedfetch acceptance or nativeauthorization."
+}

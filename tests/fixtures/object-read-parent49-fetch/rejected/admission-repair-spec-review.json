@@ -1,0 +1,168 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-admission-repair-spec-review/v1",
+  "at": "2026-10-23T22:17:20.945Z",
+  "status": "PASS_EXACT_TWO_LOCAL_REFERENCE_REPAIRS_DESIGN_ONLY",
+  "reviewer": "orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-failure-investigation.json",
+    "bytes": 9753,
+    "sha256": "47b99ffaac585f99e683e0a30faa21e6908f1a920435d17c0cfcb1834bc2d54e"
+  },
+  "scope": "Only remove two self-module qualifiers from existing local function references in the shared fetch context; no other AST/runtime/proof/config changes. No new native execution authorized by this report.",
+  "observedFailure": {
+    "check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/check.json",
+      "bytes": 966,
+      "sha256": "6d4aaa7ab5d5ccd0134327e385b61b0a2b9eba33394429eaee7085f662757a48"
+    },
+    "exit": 1,
+    "code": "LLT4001",
+    "message": "phase link: forward or unavailable module reference `ObjectReadParent49FetchContext`",
+    "diagnosticExactlyMatchesRawStdout": true,
+    "postcapture": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "postcaptureErrors": [],
+    "verify": "NOT_RUN",
+    "classification": "Actual source-admission failure. Intended wrong-base semantic negative and actualpositive consumer remain NOT_RUN; this failure is not intendedRED."
+  },
+  "sourceAudit": {
+    "pinsRehashed": 11,
+    "allFourCandidateSourcesMatchFrozenPins": true,
+    "originalContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17212,
+      "sha256": "130aa503efd2d9df49896ed19e9e189a7dc6ea0e5f5092a7e426ee40ee904b98",
+      "module": "ObjectReadParent49FetchContext",
+      "selfQualifiedReferences": [
+        {
+          "path": "/declarations/1/body/branches/1/body/left/function",
+          "reference": {
+            "module": "ObjectReadParent49FetchContext",
+            "name": "ObjParent49FetchContext"
+          }
+        },
+        {
+          "path": "/declarations/1/body/branches/1/body/right/function",
+          "reference": {
+            "module": "ObjectReadParent49FetchContext",
+            "name": "ObjParent49FetchContext"
+          }
+        }
+      ]
+    },
+    "localDeclarationOrder": [
+      "ObjParent49FetchContext",
+      "ObjParent49FetchGoal"
+    ],
+    "selfQualifiedReferences": [
+      {
+        "path": "/declarations/1/body/branches/1/body/left/function",
+        "reference": {
+          "module": "ObjectReadParent49FetchContext",
+          "name": "ObjParent49FetchContext"
+        }
+      },
+      {
+        "path": "/declarations/1/body/branches/1/body/right/function",
+        "reference": {
+          "module": "ObjectReadParent49FetchContext",
+          "name": "ObjParent49FetchContext"
+        }
+      }
+    ],
+    "otherThreeModulesHaveNoReportedSelfQualifiedReferences": true,
+    "proposedOperations": [
+      {
+        "op": "remove",
+        "path": "/declarations/1/body/branches/1/body/left/function/module",
+        "oldValue": "ObjectReadParent49FetchContext"
+      },
+      {
+        "op": "remove",
+        "path": "/declarations/1/body/branches/1/body/right/function/module",
+        "oldValue": "ObjectReadParent49FetchContext"
+      }
+    ],
+    "after": {
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba",
+      "written": false
+    },
+    "wholeASTComparison": "In-memory original AST with exactly two specified module keys removed deep-equals parsed prospectivetext. Both function names/arguments and all surrounding expressions/types/declarations remain unchanged.",
+    "wholeTextComparison": "Exactly two occurrences of the currentmodule qualifier removed from original canonicaltext;17128bytes and SHAca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba independently reproduced. Not written."
+  },
+  "ruleAssessment": {
+    "officialSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/adoption-plan/lexlean-main-ir.rs",
+      "bytes": 381232,
+      "sha256": "41ca4444ee6c44bfc5bad95a96512fbb1e4ccd823b77e1298035deb8a0163f6a",
+      "lines": {
+        "moduleQualifierAdmission": [
+          3946,
+          3962
+        ],
+        "memberKey": [
+          3701,
+          3706
+        ],
+        "functionLookup": [
+          3788,
+          3790
+        ],
+        "sequentialDeclarationTraversal": [
+          9136,
+          9154
+        ],
+        "ordinaryDefinitionCheck": [
+          9366,
+          9373
+        ]
+      },
+      "evidence": "check_member requires env.imports.contains(module) for explicit module fields and emits the exact observed error. member_key uses bare name for module=None and module::name for Some(module).",
+      "limitation": "Retained official-source snapshot explains the exact observed diagnostic; no new binary-to-source provenance or compiler rebuild is claimed."
+    },
+    "confirmed": "check_member validates any explicit module qualifier against env.imports and emits exact observed forward/unavailable diagnostic. member_key uses bare name for None versus module::name for Some. function_info looks up that key. Ordinary declarations are processed sequentially; referenced localdefinition precedes dependentGoal.",
+    "acceptedPrecedent": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex",
+        "bytes": 29787,
+        "sha256": "2cedfadd3850194f8447f178117ad6af51e9b093f956682652081a6be8ffa5d5"
+      },
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic-review.json",
+        "bytes": 41873,
+        "sha256": "589ac5d44e90b4bf51135b010747a7bab9aa58a423696de1318f55db45ae4804"
+      },
+      "declarations": [
+        "Obj257AtomizedContinuation",
+        "Obj257AtomizedGoal"
+      ],
+      "leftLocalRef": {
+        "name": "Obj257AtomizedContinuation"
+      },
+      "rightLocalRef": {
+        "name": "Obj257AtomizedContinuation"
+      },
+      "evidence": "Accepted context uses the same Nat zero/successor Prop-family pattern and name-only local continuation calls in successor equality. Its native review is PASS_ACTUAL_GENERIC_PRODUCTION_CONSUMER_ONLY, not acceptance of the new fetch."
+    },
+    "precedentChecked": "Both successor-equality calls in retained accepted symboliccontext are name-only localreferences, matching the proposed repair.",
+    "boundary": "Retained officialsource and actualdiagnostic explain failure; no new binary-to-source attestation or compiler rebuild established. Source reasoning predicts admission repair but actualcheck must pass."
+  },
+  "implementationConditions": [
+    "Create a separately frozen successor packet preserving the original failed packet/stage/check and all earlier reviews. Never rewrite the failed evidence or retroactively count it as semanticRED.",
+    "Change only the two designated function.module fields in sharedContext, applying identically to bothvariants. Keep localnames, arguments, imports, declarations, accepteddecode source, positive/false-base proofs, consumerfullResultstatement and originalfourentrybackend unchanged. Do not add self-import.",
+    "Freeze newexactsource hash plus actual18input/config/invocation identities for independent CODE review before parent-owned nativeexecution. Original runtime/proof/config/source pins must compare unchanged except contextpin and necessary successor path/manifest binding.",
+    "First genuine lock/check must admit correctednegative source. Then actualfullconsumer verify must reach the unrelated0=0 zeroApply mismatch and produce intendedsemantic rejection. A timeout, OOM,setup or anydifferentfailure does not satisfy that control.",
+    "Only after independentacceptednegative and freshresourceadmission run correctedpositive fullconsumer. Require authenticartifact/fullcensus/source-lock-toolbinding, emptyobservedaxioms/allkernelreplays, cleanpostchecks and independentnativeaudit.",
+    "Keep300000ms child,4GiB/2CPU, existing20GiBhostlaunch planning/11GiBpre10GiBpost, epoch/tool/source/lock/idle/zeroevent gates. No overlappingjobs, retrylimitincrease or newframework."
+  ],
+  "findings": [],
+  "acceptanceBoundary": "SPEC accepts preparation of this exactminimal name-resolution repair. It establishes neither source-admission success nor intendednegative rejection nor positiveauthenticatedfetch. Helperdecode acceptance remains separate; originalRead33/wholeRead/fullObjectHash/PrismPM/Pages obligations remain open.",
+  "actions": "Read-only source/rawreceipt/hash inspection and in-memory exactreplacement/AST assertions; only this report written. No candidate,repository,index,SDK,VM,runner or nativechanges.",
+  "storage": {
+    "availableBytes": 26052632576
+  }
+}
