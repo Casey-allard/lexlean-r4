@@ -1,0 +1,73 @@
+{
+  "schema": "lexlean-r4-parent49-authenticated-fetch-spec-review/v1",
+  "at": "2026-10-23T21:57:44.933Z",
+  "status": "PASS_CONDITIONAL_CONNECTED_FETCH_SOURCE_DESIGN_ONLY",
+  "reviewer": "orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/authenticated-fetch-proposal.json",
+    "bytes": 14358,
+    "sha256": "ed97cf6f6931272d5455bdb7470495f398b33d166babe03ccd60f0f2a8d8c7ee"
+  },
+  "scope": "One exact connected original-backend authenticated-fetch equation and wrong-baseApply negative. This review does not authorize implementation until actual decode-positive artifact/review is accepted and separately bound. No new native test run.",
+  "prerequisites": {
+    "proposalBindingsStillNull": {
+      "actualDecodeFalseReview": null,
+      "actualDecodePositiveReview": null,
+      "acceptedDecodeArtifact": null,
+      "requirement": "Actual false-ID semantic rejection and positive fullResultdecode artifact must be independently accepted before implementation/execution. Fill real identities in separate reviewed binding; no predicted outcome/pin."
+    },
+    "negativeReviewObserved": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/negative-native-review.json",
+      "bytes": 17988,
+      "sha256": "168520b90a33e8d0d5b098e7fc26bb263e7b8744d8e70970f6c5c03a322e9aa8"
+    },
+    "negativeReviewStatus": "PASS_INTENDED_LOCAL_FALSE_EXPECTED_ID_REJECTION",
+    "positiveReviewObserved": null,
+    "acceptedDecodeArtifact": null,
+    "requiredBeforeImplementation": "Bind actual accepted false-ID review, exact accepted decode-positive artifact and independent review in a separate reviewed successor record. Do not edit frozen proposal or infer success from a healthy/pending job. Decode-positive source must remain01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e, or re-review changed source."
+  },
+  "verified": {
+    "referencedPinsRehashed": 7,
+    "decodeManifestPayloadPinsRehashed": 5,
+    "originalBackendSha256": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "parentEntrySha256": "3ce20bcaae59d3e330c1a98ee03ac6cc6c9f31354cf3e83db431e0c932ae5f9c",
+    "parentIdSha256": "15db1851073d759e5f6dc307f303878e66926ace229e90628a1ec8123a52c03a",
+    "decodeEqualitySha256": "3e155aa167d101ac697bfc71fb7577ba9de7f35b947b37458fd0ea01510dc679",
+    "expectedSuccessSha256": "e67ad52eb2dc3bfca6c3a1aa03b63dafe8bfc44da732e55288c0f75bf0c01798",
+    "actualConsumerSha256": "f6f223a0500c074898bc705abe32f34437cb6f33753293b6b54b7bc3cd7bf344",
+    "productionFetchSha256": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239",
+    "productionSomeBranchSha256": "ba42492b8b6a0776b20dc1a695dff5217bd7787b6c28a682ebfade307f85e954",
+    "contextSha256": "e3716a0a381b32784e30b9b7c0706c6ab8af70c1ccc279ae6d482ad6c919bd03",
+    "completeContextAstMatchesExactlyThreeSubstitutions": true,
+    "positiveLiftProofMatchesVerifiedPatternExceptBoundBaseTheorem": true,
+    "wrongBaseTargetOnlyDifferenceSpecified": true,
+    "fullOriginalFourEntryBackendPreserved": true
+  },
+  "assessment": [
+    "The context is the complete production Option.some branch: decode scrutinee replaced by symbolic Result item, requested scale fixed1 and requested ID fixed exact parent. Error propagation, both scale/id checks, successful full decoded record and integrityFailure remain exact.",
+    "Final consumer is actual ObjAuthenticatedFetch(original4entrybackend,parentID,1)=exactsameResult.okrecord. This keeps Option.none/missing and actual ObjRawLookup in the production function. Converting the concrete lookup to the exactparent49wire is a real finalconsumer obligation; the proposal does not silently replace lookup with the retainedwire.",
+    "P(0) is the exact fullResultdecode equality. P(succ prior) compares C(actualdecode) to C(expectedSuccess). The prior-ignored successor Prop shape and Nat Induction/Cases/Congruence match an actually verified precedent; no unsupported proof-level ResultCases or Rewrite is introduced.",
+    "At count1, final Apply connects the proposition to the actualfetch equality by definitional conversion. C(expectedSuccess) retains then reduces both concrete checks. Kernel acceptance of this conversion is still required; fixed concrete inputs may recompute decode and remain expensive.",
+    "Wrong-base negative changes only zero-case Apply theorem target to local0=0, present in bothvariants. It is a meaningful proof-dependency rejection at basecase, distinct from the prior wrongID semantic negative. Fullconsumer root must sourcecheck before intended proof failure; timeout, malformedsource or missingimports is not acceptedRED.",
+    "The18input plan correctly counts13 existing runtime/workspace inputs plus1 accepteddecode source,3 new modules and1 config. Bothvariants use identicalfullconsumer root/config and genuine independentdevelopmentlocks. Exact freeze/census and invocation review remain future work."
+  ],
+  "implementationConstraints": [
+    "After positive prerequisite acceptance, prepare only specified Context/Transport/AuthenticatedFetch modules plus single wrong-base variant; no otherrecordcertificate or broadframework.",
+    "Freeze all actualASTs/imports/schema/glossaries, exact18input mappings, source/config/resource identities and minimalproofdifference for independent CODE/invocation review before any native call.",
+    "Keep original production definitions, four backend entries/order, parentIDscale1, expectedfullrecord and all Result branches. Positive consumer must Apply accepteddecode transport at1; directrfl replacement does not establish reuse.",
+    "Negative and positive must verify actualconsumer roots. Helper acceptance alone is insufficient. Actualpositive needs authenticartifact, exactlock/source/runtime identity, emptyobservedaxioms and allkernelreplays with independentaudit.",
+    "Preserve300000ms child/4GiB/2CPU, currentresourceepoch/tool/source/lock/idle/zeroevent/postcapture requirements,20GiB hostlaunch planning and11GiBpre/10GiBpost gates. No overlapping nativejobs or equivalent retry/limitincrease.",
+    "If conversion or source admission fails, preserve outcome and classify honestly. Any additional lookup equation or symbolic abstraction requires a separate minimal reviewed change; do not assume away lookup."
+  ],
+  "findings": [],
+  "remaining": "Parentfetch acceptance would still leave3child authentication/traversal/rangefinish/manifestversion/whole96digest/originalwholeconsumer and all33coverage/integration open, plus Objectsemanticnegatives,Hash,productionPrismPM/fulljustvv/Pages.",
+  "limitations": [
+    "Existingpattern acceptance belongs to earlierstatements; this concrete transport and consumer allNOT_RUN.",
+    "Negative review pin is observed, not independently rerun in this source-only review. No positive result inferred or SDKjob inspected.",
+    "No candidate/source/runner/config/stage/repository/index edits or SDK/VM/native calls. Only this report written."
+  ],
+  "storage": {
+    "availableBytes": 20951371776,
+    "note": "Parent notified of decline to about20.58GiB during sourceinspection; no newnative launch performed or permitted by this report."
+  }
+}

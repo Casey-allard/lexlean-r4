@@ -20,6 +20,7 @@ independent reviewers; no external lab or another session owns this work.
 | HashWire | Positive baseline for 78 roots; restoration accepted 16/78; mutation qualification 2/7. Incomplete. | [HashWire](HASH-WIRE.md), [checkpoint](../tests/fixtures/hash-wire/finite-checkpoint.json). Direct10 starts the remaining 62. |
 | Object implementation | Five canonical modules reconciled to the reviewed development runtime;20 of403 Object controls independently verified through the existing Store root. Component integration and qualification remain incomplete. | [Store integration results](continuation/2026-10-23/object-store-integration/RESULTS.md), [original draft snapshot](continuation/2026-10-23/pending-manifest.json). The other383 Object controls,20 separate Blake3 controls and required semantic negatives remain open. |
 | Object Read33 integration | Three metadata edits preserve all33 declaration ASTs. Official source admission passed11 modules, but target Lean verification timed out at300009ms under the unchanged300000ms limit. No Read control accepted by this run. | [Read timeout results](continuation/2026-10-23/object-read-integration/RESULTS.md). Zero recorded memory events, no verified artifact; original compatibility rejection and failed emitted source preserved. |
+| Parent-record decode certificate | Actual original49-byte parent record decodes to the complete expected record; false expected ID128→129 is rejected. Independent positive artifact audit:804 empty-axiom declarations and11 kernel replays. This is a local certificate, not a Read control or authenticated-fetch result. | [Decode results](../tests/fixtures/object-read-parent49/RESULTS.md), [connected-fetch design](../tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json). |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -85,9 +86,10 @@ The other32 declarations are therefore not necessary for this configuration to
 exceed its limit; this does not locate the earlier aggregate stopping point or
 identify an expensive subterm. All33 controls remain unaccepted. Keep the canonical
 full33 source intact and do not raise limits or automatically expand33 variants.
-The next source investigation follows the actual authenticated-record, range-walk,
-manifest-version and whole-data hashing chain; any certificate must reconnect to
-the original production consumer. Proposed new proof tests remain NOT_RUN.
+The source investigation follows the actual authenticated-record, range-walk,
+manifest-version and whole-data hashing chain. The parent49 decode certificate
+now passes as recorded above; the next authenticated-fetch connection remains
+NOT_RUN and must reconnect to the original production consumer.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
@@ -330,11 +332,15 @@ plugin changes remain excluded and preserved locally; acceptance cannot rely on
 missing raw artifacts. The inventories state their traversal and comparison
 boundaries. No original local work was deleted during preservation.
 
-The [reviewed next Read step](continuation/2026-10-23/object-read-isolated26/next-step-spec-review.json)
-permits one exact parent49 `ObjDecodeRecord` certificate and a false expected-ID
-control (byte0,128 to129). Preserve the original wire, scale, payload, runtime,
-empty axioms and limits. Source CODE review precedes native execution. An accepted
-decode must subsequently connect to the actual `ObjAuthenticatedFetch` with the
-original four-entry backend, parent ID and scale1; helper success cannot replace
-that consumer or the remaining range/version/whole-digest obligations. These
-new proof tests are NOT_RUN.
+The reviewed parent49 decode step has now passed actual negative/positive
+verification and independent artifact review. See the [decode checkpoint](../tests/fixtures/object-read-parent49/RESULTS.md):
+wrong expected ID rejected in35,529ms; exact positive verified in268,903ms.
+Production input, runtime and empty axioms remain unchanged. The next step is the
+[reviewed connected-fetch proof](../tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json):
+use the accepted certificate to prove actual `ObjAuthenticatedFetch` with the
+original four-entry backend, parent ID and scale1. Bind the actual decode artifact
+and review in the candidate; preserve lookup, missing-record, error, scale and
+identity checks. The planned wrong-base control and actual fetch consumer are
+NOT_RUN and require source/invocation review before execution. The certificate
+does not discharge any of the33 original Read controls or remaining whole-read
+range, manifest-version and whole-digest computations. Fresh resource gates apply.

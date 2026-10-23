@@ -1,0 +1,50 @@
+{
+  "schema": "lexlean-r4-parent49-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/manifest.json",
+    "bytes": 1662,
+    "sha256": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+  },
+  "candidateSourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/candidate-code-review.json",
+    "bytes": 5192,
+    "sha256": "aa018847ee5e8089965738ab51b851de66ff2568c09b4a4a0ddabe0716d05b9a"
+  },
+  "files": [
+    {
+      "path": "invoke-parent49.mjs",
+      "bytes": 7697,
+      "sha256": "0ed92cd3744b2f4f46a34717be4de97f7d0161322d7e96924fc094f979eb677c"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2386,
+      "sha256": "8c4e96ace048243cb6178f67ec3fc0c85c5820361f2f9af47b74827d9915e31a"
+    }
+  ],
+  "commands": [
+    "node invoke-parent49.mjs decode-false",
+    "After actual intendednegative and independent audit: node invoke-parent49.mjs decode-positive"
+  ],
+  "stagePattern": "/tmp/r4-object-read-parent49-${phase}-owned-20261023",
+  "outputDirectories": [
+    "decode-false",
+    "decode-positive"
+  ],
+  "checks": {
+    "nodeSyntaxCommand": "node --check invoke-parent49.mjs",
+    "exit": 0,
+    "moduleExecuted": false,
+    "both15inputSetsRehashed": true,
+    "frozenCandidatePayloadsUnchanged": true
+  },
+  "preserved": "ExactCID/epoch/4GiB2CPU, toolhashesbeforeafter, idle/zeroevents/source/lock,20GiBhostlaunchwith10GiBpeakestimate/reserve,guest11GiBpre10GiBpost and independent finallypostcaptures unchanged. Eachphase newexclusive output/stage; no automaticsecondphase.",
+  "outcomeBoundary": "Script captures actual results and successfulartifact; exit0 alone doesnotaccept. Falsecontrol requires sourcecheck0 then intendedsemanticverifyfailure; timeout/import/OOM/unexpectedsuccess isnotRED. Positive requires independent actualartifact/emptyaxioms/kernel audit. No fetch or Read33acceptance.",
+  "storage": {
+    "availableKiBAfterScriptWriteBeforeManifest": 25845156,
+    "reserveBytes": 10737418240,
+    "maximumAdditionalBytes": 1048576
+  },
+  "scope": "Oneoffadaptation only; no SDK/VM/native/repo/indexaction. IndependentinvocationCODE stillrequired."
+}

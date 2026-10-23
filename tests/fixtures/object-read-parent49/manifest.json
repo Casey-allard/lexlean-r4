@@ -1,0 +1,44 @@
+{
+  "schema": "lexlean-r4-parent49-decode-manifest/v1",
+  "status": "FROZEN_SOURCE_PAIR_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "d8be3441ddf3d1d543ed7ad6934db55954b08f8062984a24bad1243958e19f27"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 682,
+      "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 22000,
+      "sha256": "2db2d89332c5cb4066096b7be6083f1105452fcbc8f2cadbabb412866e52b4e1"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 2486,
+      "sha256": "a6919fa81506da12b260da8ac017cff2df81d3f3fdc1a3a80a7cc70d371f56f6"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/next-step-spec-review.json",
+      "bytes": 13466,
+      "sha256": "e5e2649e35c202d2e10ab8b9c3cdf5090451b51b9b33b0d37b9ef5e9cf2ea452"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/production-call-analysis.json",
+      "bytes": 23925,
+      "sha256": "589df28f4905c4644e285cc741cf14cc90b984c7cefcdfb5af52b5b9d76752b3"
+    }
+  ],
+  "boundary": "Decodepair only. Actualnegative/positive/source/invocation review required; connectedfulloriginalbackendfetch remains mandatory later. No wholeRead/all33acceptance."
+}

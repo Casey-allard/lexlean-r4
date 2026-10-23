@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-parent49-decode-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/ObjectReadParent49.lex.tex"
+  ],
+  "started": "2026-10-23T21:54:20.351Z",
+  "ended": "2026-10-23T21:58:49.254Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/43bcff1d853a153c4d3e10c2e503fb794e5033995d47e205454862508d114033\"],\"attestation_id\":\"43bcff1d853a153c4d3e10c2e503fb794e5033995d47e205454862508d114033\",\"build_id\":\"dc06dfefa33ee9d2d5dece4199037bff325f767ca5301696fca2437df96b8d56\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadParent49\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"99f8245de1a7c555a8ed174b19631827fcdaaa4ebf9fe8191b3d284f7d21c1cf\",\"source_id\":\"ef10bab5a1527e869cc4359d2802666d38f903a482777b6ca622ccbf7a8bfe24\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

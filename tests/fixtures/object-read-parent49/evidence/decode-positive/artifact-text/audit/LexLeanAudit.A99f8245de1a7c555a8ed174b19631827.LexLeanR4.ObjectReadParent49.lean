@@ -1,0 +1,3 @@
+module
+import LexLeanR4.ObjectReadParent49
+#print axioms LexLeanR4.ObjectReadParent49.objParent49Decode

@@ -1,0 +1,19 @@
+{
+  "schema": "lexlean-r4-parent49-positive-review-custody/v1",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/positive-native-review.json",
+    "bytes": 11441,
+    "sha256": "7a10d49b23f5cff53e84662be64c5090996e77cdf817530af5789b21b7face28"
+  },
+  "destination": {
+    "path": "tests/fixtures/object-read-parent49/evidence/positive-native-review.json",
+    "bytes": 11441,
+    "sha256": "7a10d49b23f5cff53e84662be64c5090996e77cdf817530af5789b21b7face28"
+  },
+  "priorPositiveCustody": {
+    "path": "tests/fixtures/object-read-parent49/positive-custody.json",
+    "bytes": 21413,
+    "sha256": "42e071e8dc219a26ce2f007e3440decd85a511c21fd3adc3bdf155195db089a5"
+  },
+  "note": "Positive review arrived after capture. Original pending status in positive-custody and source-bindings is historical and remains unchanged; actual current acceptance is recorded in results.json/RESULTS.md. Decode only."
+}
