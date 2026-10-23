@@ -6,7 +6,8 @@ mathematical/error-domain reviews passed on 2026-10-21. The target-free source,
 31 frozen controls, missing-module RED and seven semantic plants now have a
 verified development checkpoint. General identity-projection length and exact
 nonempty-list finalizer receipt proofs also passed, together with exact supervised
-receipt factorization through the target-free finalizer; see the
+receipt factorization through the target-free finalizer and shared-selection
+composition at the score-outcome boundary; see the
 [verification record](../PREDICTION.md). Full admitted-domain refinement and
 mandatory integration remain required. No serving or model execution is claimed.
 

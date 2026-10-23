@@ -203,3 +203,47 @@ This establishes exact finalizer composition, not that scoring or ranking succee
 that the supplied ranking is complete or minimal, or that the selected loss is
 safe. Full admitted-domain writer refinement and mandatory integration remain
 required.
+
+## Shared occupied-cell and token selection
+
+The general shared-selection theorem connects the actual supervised
+`Admission.finishScores` continuation and target-free
+`Prediction.predictionScores` to the same occupied-cell selection and token
+ranking expressions for arbitrary `ScoresOutcome`, target, kept-cell count,
+width, objective policy and telemetry flag. Its two conjuncts preserve the
+original score-error branches and defensive prediction-error mapping. The
+supervised conjunct retains target lookup and the unchanged supervised
+continuation; it does not assume that either succeeds.
+
+The [proof](../tests/lexlean/PredictionSharedSelectionControls.lex.tex) uses
+conjunction construction, cases on the score outcome and reflexivity. Its
+[frozen obligations](../tests/fixtures/prediction/shared-selection-obligations.json)
+retain all six parameter types and both original statements. No runtime source,
+precondition or axiom policy changed. Baseline and restored verification each
+passed 874 none-axiom declaration audits, seven module compilations and kernel
+replays, 35 generated outputs and seven compiled module files. Independent
+actual-artifact review checked the complete source, output and process custody.
+
+The source-valid false companion changes only the target-free expected
+selection count from kept cells to target. A separate source-valid plant changes
+the actual target-free selection count from kept cells to zero. Both were
+rejected by their exact named statements with `LLV7002`. The plant was removed,
+exact original Prediction bytes were restored, and a fresh complete positive
+audit reproduced all four baseline artifact identities.
+
+The first executed sequence stopped because its diagnostic classifier expected
+an unfolded selection call while Lean printed an opaque left-hand expression.
+That incomplete run remains preserved. The reviewed successor requires the
+complete role-specific diagnostics and passed the full sequence. Earlier
+prepared output inventories were also corrected to the official SDK's
+kind-then-path ordering, with new source-derived checks against this candidate's
+own plan; neither an incomplete run nor a host check is treated as proof.
+
+[`shared-selection-checkpoint.json`](../tests/fixtures/prediction/shared-selection-checkpoint.json)
+binds the accepted sequence, frozen contracts, prior checkpoint, failed run,
+independent review and full custody manifest under
+`/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/shared-selection/`.
+This establishes exact shared-selection composition at the score-outcome
+boundary. Scoring success, target lookup success, ranking nonemptiness,
+completeness and minimum, safe supervised loss, full admitted-domain writer
+refinement and mandatory integration remain required.

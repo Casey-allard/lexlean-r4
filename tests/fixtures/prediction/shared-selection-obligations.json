@@ -1,0 +1,1267 @@
+{
+  "spec": "r4-prediction-shared-selection-obligations/1",
+  "status": "FROZEN_BEFORE_PROOF",
+  "positiveContract": {
+    "schema": "r4-frozen-semantic-theorem-contract/1",
+    "status": "FROZEN_CONTRACT_ONLY_NOT_IMPLEMENTED_NOT_RUN",
+    "name": "predictionAndWriterShareSelection",
+    "parameters": [
+      {
+        "name": "scores",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "name": "ScoresOutcome",
+            "module": "R4.Admission"
+          }
+        }
+      },
+      {
+        "name": "target",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "kept",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "width",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "policy",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "module": "R4.Objective",
+            "name": "ObjectivePolicy"
+          }
+        }
+      },
+      {
+        "name": "trace",
+        "type": {
+          "kind": "bool"
+        }
+      }
+    ],
+    "axioms": [],
+    "statement": {
+      "kind": "prop_and",
+      "left": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Admission",
+            "name": "finishScores"
+          },
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "scores"
+            },
+            {
+              "kind": "var",
+              "name": "target"
+            },
+            {
+              "kind": "var",
+              "name": "kept"
+            },
+            {
+              "kind": "var",
+              "name": "width"
+            },
+            {
+              "kind": "var",
+              "name": "policy"
+            },
+            {
+              "kind": "var",
+              "name": "trace"
+            }
+          ]
+        },
+        "right": {
+          "branches": [
+            {
+              "binders": [
+                "reason"
+              ],
+              "body": {
+                "arguments": [
+                  {
+                    "kind": "var",
+                    "name": "reason"
+                  }
+                ],
+                "constructor": {
+                  "name": "WriterOutcome.error",
+                  "module": "R4.Admission"
+                },
+                "kind": "constructor"
+              },
+              "constructor": {
+                "name": "ScoresOutcome.error",
+                "module": "R4.Admission"
+              }
+            },
+            {
+              "binders": [
+                "tokens"
+              ],
+              "body": {
+                "kind": "let",
+                "binder": {
+                  "name": "sharedOccupied",
+                  "type": {
+                    "kind": "list",
+                    "element": {
+                      "kind": "named",
+                      "member": {
+                        "module": "R4.Admission",
+                        "name": "CellScore"
+                      },
+                      "arguments": []
+                    }
+                  }
+                },
+                "value": {
+                  "kind": "call",
+                  "function": {
+                    "module": "R4.Admission",
+                    "name": "occupied"
+                  },
+                  "arguments": [
+                    {
+                      "kind": "var",
+                      "name": "tokens"
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "let",
+                  "binder": {
+                    "name": "sharedCells",
+                    "type": {
+                      "kind": "list",
+                      "element": {
+                        "kind": "named",
+                        "member": {
+                          "module": "R4.Admission",
+                          "name": "CellScore"
+                        },
+                        "arguments": []
+                      }
+                    }
+                  },
+                  "value": {
+                    "kind": "call",
+                    "function": {
+                      "module": "R4.Admission",
+                      "name": "takeCells"
+                    },
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "kept"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "sharedOccupied"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "kind": "let",
+                    "binder": {
+                      "name": "sharedRanked",
+                      "type": {
+                        "kind": "list",
+                        "element": {
+                          "kind": "named",
+                          "member": {
+                            "module": "R4.Admission",
+                            "name": "TokenScore"
+                          },
+                          "arguments": []
+                        }
+                      }
+                    },
+                    "value": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Admission",
+                        "name": "rankTokens"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "tokens"
+                        },
+                        {
+                          "kind": "var",
+                          "name": "sharedCells"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "branches": [
+                        {
+                          "binders": [],
+                          "body": {
+                            "arguments": [
+                              {
+                                "arguments": [],
+                                "constructor": {
+                                  "name": "WriterError.invalidTarget",
+                                  "module": "R4.Admission"
+                                },
+                                "kind": "constructor"
+                              }
+                            ],
+                            "constructor": {
+                              "name": "WriterOutcome.error",
+                              "module": "R4.Admission"
+                            },
+                            "kind": "constructor"
+                          },
+                          "constructor": {
+                            "name": "Option.none"
+                          }
+                        },
+                        {
+                          "binders": [
+                            "entry"
+                          ],
+                          "body": {
+                            "kind": "call",
+                            "function": {
+                              "module": "R4.Admission",
+                              "name": "finishAdmission"
+                            },
+                            "arguments": [
+                              {
+                                "kind": "var",
+                                "name": "entry"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "sharedCells"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "sharedRanked"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "sharedOccupied"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "kept"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "width"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "policy"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "trace"
+                              }
+                            ]
+                          },
+                          "constructor": {
+                            "name": "Option.some"
+                          }
+                        }
+                      ],
+                      "kind": "match",
+                      "scrutinee": {
+                        "arguments": [
+                          {
+                            "kind": "var",
+                            "name": "target"
+                          },
+                          {
+                            "kind": "var",
+                            "name": "tokens"
+                          }
+                        ],
+                        "function": {
+                          "name": "lookupToken",
+                          "module": "R4.Admission"
+                        },
+                        "kind": "call"
+                      }
+                    }
+                  }
+                }
+              },
+              "constructor": {
+                "name": "ScoresOutcome.value",
+                "module": "R4.Admission"
+              }
+            }
+          ],
+          "kind": "match",
+          "scrutinee": {
+            "kind": "var",
+            "name": "scores"
+          }
+        }
+      },
+      "right": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Prediction",
+            "name": "predictionScores"
+          },
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "scores"
+            },
+            {
+              "kind": "var",
+              "name": "kept"
+            }
+          ]
+        },
+        "right": {
+          "branches": [
+            {
+              "binders": [
+                "reason"
+              ],
+              "body": {
+                "arguments": [
+                  {
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "reason"
+                      }
+                    ],
+                    "function": {
+                      "name": "predictionScoreError",
+                      "module": "R4.Prediction"
+                    },
+                    "kind": "call"
+                  }
+                ],
+                "constructor": {
+                  "name": "PredictionResult.error",
+                  "module": "R4.Prediction"
+                },
+                "kind": "constructor"
+              },
+              "constructor": {
+                "module": "R4.Admission",
+                "name": "ScoresOutcome.error"
+              }
+            },
+            {
+              "binders": [
+                "tokens"
+              ],
+              "body": {
+                "kind": "let",
+                "binder": {
+                  "name": "sharedOccupied",
+                  "type": {
+                    "kind": "list",
+                    "element": {
+                      "kind": "named",
+                      "member": {
+                        "module": "R4.Admission",
+                        "name": "CellScore"
+                      },
+                      "arguments": []
+                    }
+                  }
+                },
+                "value": {
+                  "kind": "call",
+                  "function": {
+                    "module": "R4.Admission",
+                    "name": "occupied"
+                  },
+                  "arguments": [
+                    {
+                      "kind": "var",
+                      "name": "tokens"
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "let",
+                  "binder": {
+                    "name": "sharedCells",
+                    "type": {
+                      "kind": "list",
+                      "element": {
+                        "kind": "named",
+                        "member": {
+                          "module": "R4.Admission",
+                          "name": "CellScore"
+                        },
+                        "arguments": []
+                      }
+                    }
+                  },
+                  "value": {
+                    "kind": "call",
+                    "function": {
+                      "module": "R4.Admission",
+                      "name": "takeCells"
+                    },
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "kept"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "sharedOccupied"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "kind": "let",
+                    "binder": {
+                      "name": "sharedRanked",
+                      "type": {
+                        "kind": "list",
+                        "element": {
+                          "kind": "named",
+                          "member": {
+                            "module": "R4.Admission",
+                            "name": "TokenScore"
+                          },
+                          "arguments": []
+                        }
+                      }
+                    },
+                    "value": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Admission",
+                        "name": "rankTokens"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "tokens"
+                        },
+                        {
+                          "kind": "var",
+                          "name": "sharedCells"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Prediction",
+                        "name": "predictionRanked"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "sharedRanked"
+                        },
+                        {
+                          "kind": "var",
+                          "name": "sharedCells"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "constructor": {
+                "module": "R4.Admission",
+                "name": "ScoresOutcome.value"
+              }
+            }
+          ],
+          "kind": "match",
+          "scrutinee": {
+            "kind": "var",
+            "name": "scores"
+          }
+        }
+      }
+    }
+  },
+  "falseContract": {
+    "schema": "r4-frozen-semantic-theorem-contract/1",
+    "status": "FROZEN_CONTRACT_ONLY_NOT_IMPLEMENTED_NOT_RUN",
+    "name": "predictionSelectionUsesTargetFalse",
+    "parameters": [
+      {
+        "name": "scores",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "name": "ScoresOutcome",
+            "module": "R4.Admission"
+          }
+        }
+      },
+      {
+        "name": "target",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "kept",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "width",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "policy",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "module": "R4.Objective",
+            "name": "ObjectivePolicy"
+          }
+        }
+      },
+      {
+        "name": "trace",
+        "type": {
+          "kind": "bool"
+        }
+      }
+    ],
+    "axioms": [],
+    "statement": {
+      "kind": "prop_and",
+      "left": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Admission",
+            "name": "finishScores"
+          },
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "scores"
+            },
+            {
+              "kind": "var",
+              "name": "target"
+            },
+            {
+              "kind": "var",
+              "name": "kept"
+            },
+            {
+              "kind": "var",
+              "name": "width"
+            },
+            {
+              "kind": "var",
+              "name": "policy"
+            },
+            {
+              "kind": "var",
+              "name": "trace"
+            }
+          ]
+        },
+        "right": {
+          "branches": [
+            {
+              "binders": [
+                "reason"
+              ],
+              "body": {
+                "arguments": [
+                  {
+                    "kind": "var",
+                    "name": "reason"
+                  }
+                ],
+                "constructor": {
+                  "name": "WriterOutcome.error",
+                  "module": "R4.Admission"
+                },
+                "kind": "constructor"
+              },
+              "constructor": {
+                "name": "ScoresOutcome.error",
+                "module": "R4.Admission"
+              }
+            },
+            {
+              "binders": [
+                "tokens"
+              ],
+              "body": {
+                "kind": "let",
+                "binder": {
+                  "name": "sharedOccupied",
+                  "type": {
+                    "kind": "list",
+                    "element": {
+                      "kind": "named",
+                      "member": {
+                        "module": "R4.Admission",
+                        "name": "CellScore"
+                      },
+                      "arguments": []
+                    }
+                  }
+                },
+                "value": {
+                  "kind": "call",
+                  "function": {
+                    "module": "R4.Admission",
+                    "name": "occupied"
+                  },
+                  "arguments": [
+                    {
+                      "kind": "var",
+                      "name": "tokens"
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "let",
+                  "binder": {
+                    "name": "sharedCells",
+                    "type": {
+                      "kind": "list",
+                      "element": {
+                        "kind": "named",
+                        "member": {
+                          "module": "R4.Admission",
+                          "name": "CellScore"
+                        },
+                        "arguments": []
+                      }
+                    }
+                  },
+                  "value": {
+                    "kind": "call",
+                    "function": {
+                      "module": "R4.Admission",
+                      "name": "takeCells"
+                    },
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "kept"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "sharedOccupied"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "kind": "let",
+                    "binder": {
+                      "name": "sharedRanked",
+                      "type": {
+                        "kind": "list",
+                        "element": {
+                          "kind": "named",
+                          "member": {
+                            "module": "R4.Admission",
+                            "name": "TokenScore"
+                          },
+                          "arguments": []
+                        }
+                      }
+                    },
+                    "value": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Admission",
+                        "name": "rankTokens"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "tokens"
+                        },
+                        {
+                          "kind": "var",
+                          "name": "sharedCells"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "branches": [
+                        {
+                          "binders": [],
+                          "body": {
+                            "arguments": [
+                              {
+                                "arguments": [],
+                                "constructor": {
+                                  "name": "WriterError.invalidTarget",
+                                  "module": "R4.Admission"
+                                },
+                                "kind": "constructor"
+                              }
+                            ],
+                            "constructor": {
+                              "name": "WriterOutcome.error",
+                              "module": "R4.Admission"
+                            },
+                            "kind": "constructor"
+                          },
+                          "constructor": {
+                            "name": "Option.none"
+                          }
+                        },
+                        {
+                          "binders": [
+                            "entry"
+                          ],
+                          "body": {
+                            "kind": "call",
+                            "function": {
+                              "module": "R4.Admission",
+                              "name": "finishAdmission"
+                            },
+                            "arguments": [
+                              {
+                                "kind": "var",
+                                "name": "entry"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "sharedCells"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "sharedRanked"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "sharedOccupied"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "kept"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "width"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "policy"
+                              },
+                              {
+                                "kind": "var",
+                                "name": "trace"
+                              }
+                            ]
+                          },
+                          "constructor": {
+                            "name": "Option.some"
+                          }
+                        }
+                      ],
+                      "kind": "match",
+                      "scrutinee": {
+                        "arguments": [
+                          {
+                            "kind": "var",
+                            "name": "target"
+                          },
+                          {
+                            "kind": "var",
+                            "name": "tokens"
+                          }
+                        ],
+                        "function": {
+                          "name": "lookupToken",
+                          "module": "R4.Admission"
+                        },
+                        "kind": "call"
+                      }
+                    }
+                  }
+                }
+              },
+              "constructor": {
+                "name": "ScoresOutcome.value",
+                "module": "R4.Admission"
+              }
+            }
+          ],
+          "kind": "match",
+          "scrutinee": {
+            "kind": "var",
+            "name": "scores"
+          }
+        }
+      },
+      "right": {
+        "kind": "eq",
+        "left": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Prediction",
+            "name": "predictionScores"
+          },
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "scores"
+            },
+            {
+              "kind": "var",
+              "name": "kept"
+            }
+          ]
+        },
+        "right": {
+          "branches": [
+            {
+              "binders": [
+                "reason"
+              ],
+              "body": {
+                "arguments": [
+                  {
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "reason"
+                      }
+                    ],
+                    "function": {
+                      "name": "predictionScoreError",
+                      "module": "R4.Prediction"
+                    },
+                    "kind": "call"
+                  }
+                ],
+                "constructor": {
+                  "name": "PredictionResult.error",
+                  "module": "R4.Prediction"
+                },
+                "kind": "constructor"
+              },
+              "constructor": {
+                "module": "R4.Admission",
+                "name": "ScoresOutcome.error"
+              }
+            },
+            {
+              "binders": [
+                "tokens"
+              ],
+              "body": {
+                "kind": "let",
+                "binder": {
+                  "name": "sharedOccupied",
+                  "type": {
+                    "kind": "list",
+                    "element": {
+                      "kind": "named",
+                      "member": {
+                        "module": "R4.Admission",
+                        "name": "CellScore"
+                      },
+                      "arguments": []
+                    }
+                  }
+                },
+                "value": {
+                  "kind": "call",
+                  "function": {
+                    "module": "R4.Admission",
+                    "name": "occupied"
+                  },
+                  "arguments": [
+                    {
+                      "kind": "var",
+                      "name": "tokens"
+                    }
+                  ]
+                },
+                "body": {
+                  "kind": "let",
+                  "binder": {
+                    "name": "sharedCells",
+                    "type": {
+                      "kind": "list",
+                      "element": {
+                        "kind": "named",
+                        "member": {
+                          "module": "R4.Admission",
+                          "name": "CellScore"
+                        },
+                        "arguments": []
+                      }
+                    }
+                  },
+                  "value": {
+                    "kind": "call",
+                    "function": {
+                      "module": "R4.Admission",
+                      "name": "takeCells"
+                    },
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "target"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "sharedOccupied"
+                      }
+                    ]
+                  },
+                  "body": {
+                    "kind": "let",
+                    "binder": {
+                      "name": "sharedRanked",
+                      "type": {
+                        "kind": "list",
+                        "element": {
+                          "kind": "named",
+                          "member": {
+                            "module": "R4.Admission",
+                            "name": "TokenScore"
+                          },
+                          "arguments": []
+                        }
+                      }
+                    },
+                    "value": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Admission",
+                        "name": "rankTokens"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "tokens"
+                        },
+                        {
+                          "kind": "var",
+                          "name": "sharedCells"
+                        }
+                      ]
+                    },
+                    "body": {
+                      "kind": "call",
+                      "function": {
+                        "module": "R4.Prediction",
+                        "name": "predictionRanked"
+                      },
+                      "arguments": [
+                        {
+                          "kind": "var",
+                          "name": "sharedRanked"
+                        },
+                        {
+                          "kind": "var",
+                          "name": "sharedCells"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "constructor": {
+                "module": "R4.Admission",
+                "name": "ScoresOutcome.value"
+              }
+            }
+          ],
+          "kind": "match",
+          "scrutinee": {
+            "kind": "var",
+            "name": "scores"
+          }
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "prerequisiteCheckpoint": "tests/fixtures/prediction/receipt-factorization-checkpoint.json",
+    "sha256": "973cb1def2638169b5c449f105664d457ab9a685f626d150c80483b0bcb49e56",
+    "scope": "Previously accepted finalizer receipt factorization; full prior actual sequence reaudited by execution admission."
+  },
+  "sourcePins": {
+    "repository": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+    "observedHead": "89771defe920c9e36211f77050e41912a198816a",
+    "scope": "Read existing tree; unrelated dirty changes excluded",
+    "sources": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Admission.lex.tex",
+        "bytes": 68840,
+        "sha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Prediction.lex.tex",
+        "bytes": 10229,
+        "sha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Objective.lex.tex",
+        "bytes": 12106,
+        "sha256": "379e2a52851628a5cc762c6cd911a18d97a3d30df8b9eecdb86542b82fe441ec"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Carrier.lex.tex",
+        "bytes": 31312,
+        "sha256": "ce696f2b297bebae8f0b7c6bb36e063ed80442a3c0ca952e5c428d983c19b0a6"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Types.lex.tex",
+        "bytes": 1984,
+        "sha256": "c140409edf9a9fd2490a35f1692dfedb7577a6181165b9dc141773e609b5b456"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Geometry.lex.tex",
+        "bytes": 1453753,
+        "sha256": "2b934cd1ff5eccf6c8d5b4af1c34901fa964d31958e8a435cdc05bb6e52c7167"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Binder.lex.tex",
+        "bytes": 72087,
+        "sha256": "2b66660f539c88fe2ce23229300c31bf7bbfba5ab83e9b23bd450bb237f6a449"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Route.lex.tex",
+        "bytes": 50353,
+        "sha256": "a5d799a17e9c33a4252df1ae2f222b5610e9c4fd042d13b1a156f227815fd554"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/specs/target-free-writer-api.md",
+        "bytes": 8977,
+        "sha256": "3fb2618218052d85c0d14d9298c47001db09b276db0a7b0bfe561365e294e992"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/PREDICTION.md",
+        "bytes": 10569,
+        "sha256": "41e6ef45d934e7b3212122b255272bc077476d7f6d8a26b57b53384272e32209"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/specs/constructive-proof-capability.md",
+        "bytes": 8111,
+        "sha256": "01f6bf1763b68dd509fd722664ade42164fcc47db308a5faa1c25516635de9e1"
+      },
+      {
+        "path": "/tmp/r4-0865-semantic-ir.rs",
+        "bytes": 353541,
+        "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf"
+      },
+      {
+        "path": "/tmp/r4-0865-semantic-backend.rs",
+        "bytes": 162725,
+        "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-receipt-factorization-contract-20261022/positive-contract.json",
+        "bytes": 21351,
+        "sha256": "025dd8c68f0c21599fd50964f97cfb96d8dc2af5920446da56fa717e5a4ede0c"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-receipt-factorization-contract-20261022/proof-dependencies.json",
+        "bytes": 4685,
+        "sha256": "4430578cb7a9d9dc95f0632b562c3dac6a89b501c6e0779130eee3a940d82306"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-receipt-factorization-candidate-20261022/stage/tests/lexlean/PredictionReceiptFactorizationControls.lex.tex",
+        "bytes": 7096,
+        "sha256": "c681398e2ac85d5e90766955d8467fe546c93a331018fab91f1e61c146bd7433"
+      }
+    ],
+    "declarations": [
+      {
+        "module": "R4.Admission",
+        "name": "finishScores",
+        "canonicalAstSha256": "87e096b689c13b2772e726d1f2cc476b4c25ef0a94f4678694d0583787bf95fd"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishOccupied",
+        "canonicalAstSha256": "ce43536fca5806ee80c752cabd33d981f13d9840f954e06ea51d8792a7a955cd"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishCells",
+        "canonicalAstSha256": "dae432a039a30f40fd71f25c697f7079388abdbcf8d72dacbee2efea64eaa7a2"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishAdmission",
+        "canonicalAstSha256": "af5647a19961694e656d468f6a8315195469aab84b34ef766af208ea631cc0fe"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishRankValue",
+        "canonicalAstSha256": "39eaaaf2e95797ae9e75b19dc1b3bc35b2471408fa9079bd2eb98bde617b1670"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishRank",
+        "canonicalAstSha256": "b4ffde7b74ffdee2066b75665499dc45a26777b7f5793370531ff6545bb243e6"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishHinges",
+        "canonicalAstSha256": "d5dc56e8e34d1b637b88f390741806397f8075fbd374c568e2a34a2ec6b419dd"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishWeights",
+        "canonicalAstSha256": "0f7ac2649a6dd3ecb4ce8e15ee3b53b2c910955897486aa012febaab5f2b94bd"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "finishReceipt",
+        "canonicalAstSha256": "d44d7591454c78991250454e807830132f7747e4bcf2c4cdb51523d639ddfee1"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "writer",
+        "canonicalAstSha256": "dfe227e3e86f5a07fef3ad7d0601529da282cc3d1c75debe709ff25751763885"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "occupied",
+        "canonicalAstSha256": "7f7598673f909aa1ad1edf20c3b862be12215b692e18fe0d830a671eac718235"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "takeCells",
+        "canonicalAstSha256": "95fc3b1c7b8684cab001c57445cb5a55e3b8047baee0720dd2cc9123d01b965f"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "rankTokens",
+        "canonicalAstSha256": "c1368bf2fbd68937449e5afaf39e7292a8ee3df2e2ed35fd4f01bca6357baa8a"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "lookupToken",
+        "canonicalAstSha256": "2898d80f4e62daa259de548c303fb586bb2c38025d49c5a98bb394b5bc6d111d"
+      },
+      {
+        "module": "R4.Admission",
+        "name": "scoreBook",
+        "canonicalAstSha256": "0a016757c049919c313cd965f45ff8df53575481ce11bce97868656d39329d2b"
+      },
+      {
+        "module": "R4.Prediction",
+        "name": "predictionScores",
+        "canonicalAstSha256": "70dd954113cd2299644511eeb909d7b89c01b5fd1c741093745493145e46e101"
+      },
+      {
+        "module": "R4.Prediction",
+        "name": "predictionRanked",
+        "canonicalAstSha256": "1ed818ebccb43e4d21a016bf0474e5af84e69aea24b0fe251e23804456669bad"
+      },
+      {
+        "module": "R4.Prediction",
+        "name": "predictionScoreError",
+        "canonicalAstSha256": "e828ad1e8f9d6da9861d46cc869c3155553cc6881946f2b0756efce168550003"
+      },
+      {
+        "module": "R4.Prediction",
+        "name": "predict",
+        "canonicalAstSha256": "ff9d46eaac7d0533f20d97b79ea3d0bb12acf7c154bc4104165a7d5275939ef1"
+      }
+    ]
+  },
+  "sourceCorrespondence": {
+    "status": "PASS_SOURCE_AST_CHECK_ONLY",
+    "supervised": "Exact capture-free expansion of actual finishScores through finishOccupied and finishCells, stopping at actual finishAdmission",
+    "targetFree": "Exact let substitution of actual predictionScores, stopping at actual predictionRanked",
+    "positiveContractSha256": "8eab2176c97586f04a1e7af475ab11b295bc6978ac8a67df1da226b9e39cc171",
+    "falseContractSha256": "f02b292053451882581e5ce3d56870207e10611bc1c3a548e2a28048894d5454",
+    "statementDeltaCount": 1,
+    "proofASTAuthored": false,
+    "sourceAdmission": "NOT_RUN",
+    "formalVerification": "NOT_RUN",
+    "applicationEvaluated": false,
+    "SDKInvoked": false
+  },
+  "plantIntent": {
+    "schema": "r4-shared-selection-plant-intent/1",
+    "status": "PROPOSED_NOT_INDEPENDENTLY_REVIEWED_NOT_AUTHORED_NOT_RUN",
+    "source": "/tmp/lexlean-r4-prediction-shared-selection-candidate-20261022/stage/src/R4/Prediction.lex.tex",
+    "sourceSha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0",
+    "declaration": "predictionScores",
+    "declarationCanonicalSha256": "70dd954113cd2299644511eeb909d7b89c01b5fd1c741093745493145e46e101",
+    "astPath": [
+      "declarations",
+      5,
+      "body",
+      "branches",
+      1,
+      "body",
+      "value",
+      "arguments",
+      0
+    ],
+    "before": {
+      "kind": "var",
+      "name": "kept"
+    },
+    "after": {
+      "kind": "nat",
+      "value": "0"
+    },
+    "intendedSemanticChange": "Always take zero occupied cells in successful score selection; keep every other source byte and AST node unchanged.",
+    "sourceValidityRationale": "takeCells takes a Nat count and zero is a closed Nat. predictionScores has no target parameter; target is not inserted.",
+    "expectedPositiveWitness": "PredictionSharedSelectionControls.predictionAndWriterShareSelection",
+    "counterexample": {
+      "status": "SOURCE_REASONING_ONLY_NOT_EXECUTED",
+      "scores": "ScoresOutcome.value [{identity=0,cell=0,distance=0,addressDistance=0}]",
+      "target": 0,
+      "kept": 1,
+      "width": 0,
+      "policy": "nearestAddress",
+      "trace": false,
+      "baselinePrediction": "PredictionResult.value {prediction=0,admittedCells=[0],rankedTokens=[0]}",
+      "intendedPlantPrediction": "PredictionResult.error noPrediction"
+    },
+    "requiredBeforeAuthoring": "Independent architectural review of this exact intent; no source plant exists in this packet."
+  },
+  "scope": "Exact arbitrary six-parameter shared-selection conjunction at ScoresOutcome boundary. Full writer, scoring success, sorting/completeness/global minimum, safe weighted selected loss, public guards, integration and production remain unestablished."
+}
