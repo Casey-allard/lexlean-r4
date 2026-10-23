@@ -41,9 +41,14 @@ capability follows from these finite proofs.
    An earlier source-admission failure came from three noncanonical JSON objects;
    the isolated key-order repair preserved all parsed semantics and both controls.
    Both the rejected source and actual failures remain in the repository.
-   The next bounded task is to design/review the connection to the actual
-   `ObjAtomize original257 [] 0` fold core and remaining225-byte suffix from the
-   certified first state, without introducing trusted intermediate hashes.
+   The next bounded task is the independently reviewed
+   [original atomized-core proposal](continuation/2026-10-23/atomized-core-proposal.json)
+   and [source SPEC review](continuation/2026-10-23/atomized-core-spec-review.json):
+   connect the actual `ObjAtomize original257 [] 0` fold core to the remaining225-byte
+   suffix from the certified first state, without trusted intermediate hashes.
+   Candidate construction must take S from the accepted state theorem's
+   `right.arguments[0]` (the ObjCarryState); `right` itself is already `ok S`.
+   Do not double-wrap it. No candidate or native result exists for this step yet.
    That larger consumer and its atomization-prefix conversion are **NOT_RUN**.
    Require the actual consumer, unchanged limits and intended wrong-base control;
    helper-only success is insufficient. Possible hash recomputation remains open.
