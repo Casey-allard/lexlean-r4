@@ -1,0 +1,304 @@
+{
+  "schema": "lexlean-r4-read33-positive-failure-review/v1",
+  "at": "2026-10-23T21:26:13.519Z",
+  "status": "CONFIRMED_CHILD_TIMEOUT_CONFIGURATION_FAILURE_NO_PROOF_ACCEPTANCE",
+  "findings": [],
+  "plan": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/read33-plan.json",
+    "bytes": 19549,
+    "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+  },
+  "invocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/run-read33.mjs",
+    "bytes": 7501,
+    "sha256": "c3e1a1e968671f2f803121cdcb384baf6b49cf3a0feebaf60792347490a1af78"
+  },
+  "invocationReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/invocation-source-review.json",
+    "bytes": 4187,
+    "sha256": "caa888a6acfccd0b603d82470be7b97f07fd798c12838a11267ec8777f72ee25"
+  },
+  "writtenSourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/control-migration-code-review.json",
+    "bytes": 7962,
+    "sha256": "abda57d8b99b385c3b73521ec78581ed4978a6a7d69be64b78f5bd36baefee1c"
+  },
+  "observed": {
+    "lockStatus": 0,
+    "sourcecheckStatus": 0,
+    "sourcecheckModules": 11,
+    "semanticId": "1de2f6bdabd69c6df106ffcf325961dc0d5242f22bd5fa4f0e1cc95661162170",
+    "sourceId": "4e7e5be3dea588b16bcfaddf37928ad1ede2fb3586e8505c6ce64d6a4feda314",
+    "verifyStatus": 4,
+    "verifySuccess": false,
+    "wholeVerifyWallMilliseconds": 316328,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadControls: configured 300000, observed 300009 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "childConfiguredMilliseconds": 300000,
+    "childObservedMilliseconds": 300009,
+    "artifacts": [],
+    "postcaptureErrors": [],
+    "lockSha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88",
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "memoryBeforeAfter": "All six captured memory.events counters zero, including oom and oom_kill."
+  },
+  "checks": {
+    "exact15PlanInputsAndActualCopyPaths": true,
+    "all15HostAndGuestBeforeAfterSourceHashes": true,
+    "genuineLanguage12LockUnchanged": true,
+    "nativeSequenceLockCheckVerify": true,
+    "sourceAdmissionPassed": true,
+    "actualExit4LLS8002TimeoutDiagnostic": true,
+    "noArtifact": true,
+    "knownFourToolsBeforeAndAfterExact": true,
+    "sameReviewedEpochZeroMemoryAndIdleBeforeAfter": true,
+    "independentPostchecksOrderingAndStorageGates": true
+  },
+  "storage": {
+    "before": {
+      "hostAvailableBytes": "25097637888",
+      "guestAvailableKiB": "53153272",
+      "estimateBytes": "10737418240",
+      "reserveBytes": "10737418240"
+    },
+    "after": {
+      "hostAvailableBytes": "33536475136",
+      "guestAvailableKiB": "53149024",
+      "estimateBytes": "0",
+      "reserveBytes": "10737418240"
+    }
+  },
+  "receiptInventory": [
+    {
+      "path": "positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "69a8fc585a4025bfde11c7d8bf9e49ef56a0d9dd0f10a590657a3afcedc32ab1"
+    },
+    {
+      "path": "positive/check.json",
+      "bytes": 879,
+      "sha256": "baaebc8b37e331243ec07931ce50c467a7dc8628a4ccb617ce59c57faacae019"
+    },
+    {
+      "path": "positive/copy-0.json",
+      "bytes": 441,
+      "sha256": "f860d782f04bac18b175b7cd496c0d3ed53c9ae71541d8bb964f19af29787c53"
+    },
+    {
+      "path": "positive/copy-1.json",
+      "bytes": 439,
+      "sha256": "8643658db7a55f4257c8d54c51ad0cc9717aaeef38508f8ff8bb86648862256b"
+    },
+    {
+      "path": "positive/copy-10.json",
+      "bytes": 427,
+      "sha256": "a47751ffd6a89d70a5ddefbd4511daf47ea2c94dec5940d554899087a9ef4746"
+    },
+    {
+      "path": "positive/copy-11.json",
+      "bytes": 437,
+      "sha256": "fad4119deca7194b15a822b656d1fae6d5539a8c7d2a92bac060f06cf00f68c0"
+    },
+    {
+      "path": "positive/copy-12.json",
+      "bytes": 429,
+      "sha256": "e82df431983c0403be4507842b7d2c958279740c3eae749d7e15eb9d6a1734de"
+    },
+    {
+      "path": "positive/copy-13.json",
+      "bytes": 433,
+      "sha256": "843329f89de2250fbc34d92c158b1976630785a3ac66e2fb9043d67bd93d7872"
+    },
+    {
+      "path": "positive/copy-14.json",
+      "bytes": 419,
+      "sha256": "a16e68b525d67e4150b95d9e2f9fcad69159bcb3a83fa9a2a720648f3c5164cf"
+    },
+    {
+      "path": "positive/copy-2.json",
+      "bytes": 445,
+      "sha256": "55f64882e57393cd3e2c1ea531220b02e8012b4ef8347cdb7abe023937262aa8"
+    },
+    {
+      "path": "positive/copy-3.json",
+      "bytes": 453,
+      "sha256": "a431cc947fe63ba89484b6f764f9081dbb343cc48772e88a70549d8c8558dcbf"
+    },
+    {
+      "path": "positive/copy-4.json",
+      "bytes": 447,
+      "sha256": "8b92c422a4627bd77296a61cfb47bf0ce89794685344e43d8e5410d02cbde2d8"
+    },
+    {
+      "path": "positive/copy-5.json",
+      "bytes": 405,
+      "sha256": "413d2abd6a420efee96d431beb48565306a8699a5f5b5e740f42d539eb831c14"
+    },
+    {
+      "path": "positive/copy-6.json",
+      "bytes": 405,
+      "sha256": "1cdd2896ca2cb77c2918e745f6f8400357d83ad2ece59d20cc53ebc149948d16"
+    },
+    {
+      "path": "positive/copy-7.json",
+      "bytes": 405,
+      "sha256": "6d9273eea92b92c6de85bef6a3046caa71087dac7c195fe74b7db31c653b539c"
+    },
+    {
+      "path": "positive/copy-8.json",
+      "bytes": 403,
+      "sha256": "c9c104098d7bd43007d31b9bd00cdd3853861b6005e8f2ee496e0d0e3877ab15"
+    },
+    {
+      "path": "positive/copy-9.json",
+      "bytes": 395,
+      "sha256": "f93c62a926251b6b34017f47a9cffad1b2380010bf1fce3f70606515d0f5c727"
+    },
+    {
+      "path": "positive/directories.json",
+      "bytes": 398,
+      "sha256": "bd11d0a8662db6c605e55367edc2d8bfef5d0d63822e32eb9b4c7af757ed1a3d"
+    },
+    {
+      "path": "positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "1c52094eb5d170d5f387d7d45eb6a20874c3b25f2b280227352a1ddf486bd1e6"
+    },
+    {
+      "path": "positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "1f8c4358c9e9eb442c57bee3701d896f4c3f3594f86cd83bba881fa325f4b325"
+    },
+    {
+      "path": "positive/expected-inputs.json",
+      "bytes": 4199,
+      "sha256": "c2ac71fb396f6958c6c651ab4bed7c101ed6b0499d8d182326ba323d469349c6"
+    },
+    {
+      "path": "positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "842586e2a009e7a7204b9e1079c8da5b3201490f9bfa8b50e6eb8a1c6858c095"
+    },
+    {
+      "path": "positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "3e79ca03171752c9e4b9063de5db5d7c592c3387f72720f2e56ae6f94613f9bb"
+    },
+    {
+      "path": "positive/host-after.json",
+      "bytes": 142,
+      "sha256": "07d1237072c639ed3daa76eb9c5c63fed68df7bd5fcbdbd611abe6a03d49867b"
+    },
+    {
+      "path": "positive/host-before.json",
+      "bytes": 152,
+      "sha256": "d1346abd23ff08ca13f67b7864860efaa695bb2d82c642d20e8c7ff80dc440db"
+    },
+    {
+      "path": "positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "3e83e1b6edf6211fd126090135bb9aa167397229494b1c01116df04c735c2daa"
+    },
+    {
+      "path": "positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "8b1905df2b563d46272aa307f37216df462cdb644c57197dca69b825c1c886da"
+    },
+    {
+      "path": "positive/lock-after.json",
+      "bytes": 457,
+      "sha256": "b43ec0e69d3a65c06b67fd9c52e3bc5f63149a72a63a7e7161b224c312c248fd"
+    },
+    {
+      "path": "positive/lock-bytes.json",
+      "bytes": 2039,
+      "sha256": "90cd3161fbb6728517d616b8cc8538ad37537d44d81e8df0c229ad0f72f1c7a5"
+    },
+    {
+      "path": "positive/lock.json",
+      "bytes": 523,
+      "sha256": "fda3f57e4adcf15995cc6fac4e4bee1c94dd36b5cc8cbaaf5415f70207945afc"
+    },
+    {
+      "path": "positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "8022180ec0cfd9db2375a7b5ac95bea2dcd7f0e349daa0b824d81b20b04ee38f"
+    },
+    {
+      "path": "positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "c8f0833137ecf982a9280108cbb07f4828bd416a7443a8488f7eaf9d6ed49439"
+    },
+    {
+      "path": "positive/new-stage.json",
+      "bytes": 314,
+      "sha256": "0267c66a4d72e794e0c9a2d71b966f18d854cbe5cdad8760848f58d9c9eebed9"
+    },
+    {
+      "path": "positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "positive/result.json",
+      "bytes": 856,
+      "sha256": "5294051d492d39f13a7073b6998d90aac5423e851e47783d0f2dc088a20ef2c5"
+    },
+    {
+      "path": "positive/source-after.json",
+      "bytes": 3447,
+      "sha256": "d29a1b1c2da966c8722cd11579b7235c5d8b3d505042de39267fc0229021d625"
+    },
+    {
+      "path": "positive/source-before.json",
+      "bytes": 3447,
+      "sha256": "754d36f4c132dad6956692a2d6f65d8123222f6955ccd90d69884b0f9734d010"
+    },
+    {
+      "path": "positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "0cfc4651e8fb0620b2b83d5db30912bb33ba0bd9132df13548c4b4110e77397b"
+    },
+    {
+      "path": "positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "b33ff2a1d1c4ed869ee417dc4a5e34dd8ce8c7b03d9b65e94bbdd8173bc2ad46"
+    },
+    {
+      "path": "positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "634b9bb2f8000885a77bd864e221de39960ad837cb3f3ab210d76acbe5babf56"
+    },
+    {
+      "path": "positive/verify.json",
+      "bytes": 977,
+      "sha256": "74a56279e8e0d7ac95ce73f38462fee3f52d817fc4955b670f9b6ddea4d66b8b"
+    }
+  ],
+  "interpretation": "The migrated source passes official admission, but Lean verification of the ObjectReadControls module exceeds the unchanged child timeout. This closes the exact attempted configuration as an unaccepted resource-time failure. It is not a semantic counterexample or intended theorem negative; zero cgroup memory events provide no recorded OOM/kill evidence in this epoch.",
+  "limitations": [
+    "No Read33 theorem or partial subset is credited without a successful independently audited artifact. Module-level diagnostic does not identify the exact theorem/tactic/subexpression causing elapsed time.",
+    "Any existing compiled intermediates or build emission are diagnostic only, not verified artifacts.",
+    "Launcher0, if reported, concerns capture completion only; actual compiler verify exits4.",
+    "Preserve failed source/stage/lock/receipts and prior compatibility RED. No equivalent retry or automatic limit increase is approved by this review.",
+    "No acceptance of remaining Object/Blake3 controls,full257,Hash qualification,model/PrismPM/Pages.",
+    "Reviewer performed no native/VM/repository actions. Storage/idle are sampled observations; recovered free space does not establish attribution or continuous peak behavior."
+  ]
+}

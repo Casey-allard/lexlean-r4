@@ -1,0 +1,143 @@
+{
+  "schema": "lexlean-r4-read33-integration-result/v1",
+  "status": "SOURCE_ADMISSION_PASS_VERIFY_TIMEOUT_NO_READ_CONTROL_ACCEPTANCE",
+  "baseCommit": "9271da24650eb311c752c8898efc12a0e56e3983",
+  "scope": "Existing Read33 three-literal metadata migration and exact completed native failure record only.",
+  "source": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "original": {
+    "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+  },
+  "controlCount": 33,
+  "acceptedReadControls": 0,
+  "sourceDeclarationArraySha256": "faf90470372e1d762f3073020aa0e3b096857e5afb9b3b4ebbf1eabb3e483a2a",
+  "sourceChanges": "bool/nat glossary1.1.0→1.2.0 and semantic-module/1→2; all33whole AST unchanged.",
+  "negative": {
+    "lockStatus": 0,
+    "checkStatus": 1,
+    "diagnostic": "LLR3001",
+    "verify": "NOT_RUN",
+    "classification": "Original source-admission compatibility negative only; no semantic mutant credit.",
+    "receipt": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/check.json",
+      "bytes": 879,
+      "sha256": "2227f6111f03ff35114202726510fdd8dddbc791a7d24a783adcfb14081df0e8"
+    },
+    "review": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative-native-review.json",
+      "bytes": 10069,
+      "sha256": "91c9c2a0f58a72dbeb07f95ff1c71f955323a835dacd950496150908bc89313c"
+    }
+  },
+  "positive": {
+    "lockStatus": 0,
+    "sourcecheckStatus": 0,
+    "sourcecheckModules": 11,
+    "sourceId": "4e7e5be3dea588b16bcfaddf37928ad1ede2fb3586e8505c6ce64d6a4feda314",
+    "semanticId": "1de2f6bdabd69c6df106ffcf325961dc0d5242f22bd5fa4f0e1cc95661162170",
+    "verifyStatus": 4,
+    "verifySuccess": false,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadControls: configured 300000, observed 300009 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "configuredChildMilliseconds": 300000,
+    "observedChildMilliseconds": 300009,
+    "wholeVerifyWallMilliseconds": 316328,
+    "artifacts": [],
+    "acceptedAttestationId": null,
+    "acceptedBuildId": null,
+    "postcaptureErrors": [],
+    "memory": "All six captured memory.events counters zero before and after; no observed OOM/kill.",
+    "lock": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+    },
+    "check": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/check.json",
+      "bytes": 879,
+      "sha256": "baaebc8b37e331243ec07931ce50c467a7dc8628a4ccb617ce59c57faacae019"
+    },
+    "verify": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/verify.json",
+      "bytes": 977,
+      "sha256": "74a56279e8e0d7ac95ce73f38462fee3f52d817fc4955b670f9b6ddea4d66b8b"
+    },
+    "review": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive-failure-review.json",
+      "bytes": 11121,
+      "sha256": "a9138e827c3508158c45964d5195b9f9034c6e923e7ae27b95b221482e007213"
+    }
+  },
+  "diagnosticEmission": {
+    "capture": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/emission-capture.json",
+      "bytes": 529,
+      "sha256": "18a511b6d7c9a725e36467ca7e2988c944d4c7d0669f9e9b37fd7677622991bf"
+    },
+    "module": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/emitted-ObjectReadControls.lean",
+      "bytes": 68871,
+      "sha256": "ba9f597d99863f6374c7024c1b6050f7d57bdca53c931b0037dd0ef0205d2167"
+    },
+    "artifactAcceptance": false,
+    "note": "Actual generated build module; not verified evidence. Build path identifier is not an accepted attestation/build result."
+  },
+  "portable": {
+    "bindings": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/current-portable-bindings.json",
+      "bytes": 13661,
+      "sha256": "685ffefee1c66d4ff6cee20a972f112df5bedfcbfbc203fc2b38f71caa6de534"
+    },
+    "negativeCustody": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative-source-custody.json",
+      "bytes": 19985,
+      "sha256": "61567c2b176106285af6ec9ed941867c82037a8af038d2b8a42317be6ec27007"
+    },
+    "positiveCustody": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive-custody.json",
+      "bytes": 17742,
+      "sha256": "984239ced8c963259335a52f0608019383141086062902689c46ab3d891c5a57"
+    },
+    "historicalSourceBindings": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/source-bindings.json",
+      "bytes": 13219,
+      "sha256": "f002c2f8147f24cc1e811b5617257b358be3f8851d7b86ca0911a8174bffba09"
+    },
+    "codecNextSpec": {
+      "path": "docs/continuation/2026-10-23/object-read-integration/codec-next-spec.json",
+      "bytes": 22454,
+      "sha256": "bf987bede7322846bbead22522ea6b91f40becad384b98056601d950de7e2d12"
+    }
+  },
+  "interpretation": "Closed target-module Lean timeout at unchanged300000ms limit. Not semantic falsity, not successfulRead33, not failure localized to a theorem, and not OOM. Sourcecheck success does not establish any theorem subset.",
+  "continuation": "Preserve exact failed configuration. No equivalent retry or automatic limit increase. Source-only Codec plan retains NOT_RUN and its stated Read-acceptance prerequisite remains unmet. Read root-cause investigation/revised continuation is separate and not asserted here.",
+  "open": "Read33 unaccepted; Codec311/Construction39,20 separate Blake3 controls, semantic negatives/restoration, whole257,Hash qualification,model/scenario/wrapper/conformance,productionPrismPM/fulljustvv/Pages remain required. EarlierStore20 acceptance unchanged.",
+  "limitations": [
+    "Recorded result and independent audit; this packaging step ran no native command.",
+    "Selected raw/build text only; not all local copy receipts/build files are included.",
+    "Historical absolute evidence paths are provenance; current portable source bindings use repository-relative paths.",
+    "Storage/memory/idle observations are samples, not continuous high-water claims."
+  ]
+}

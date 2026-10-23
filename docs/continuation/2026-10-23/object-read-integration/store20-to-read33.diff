@@ -1,0 +1,71 @@
+--- /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/run-store20.mjs	2026-10-23 16:45:47
++++ /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/run-read33.mjs	2026-10-23 17:16:24
+@@ -1,15 +1,15 @@
+-// One-off official-compiler invocation for the reviewed ObjectStore20 draft language migration.
++// One-off official-compiler invocation for the reviewed ObjectRead33 draft language migration.
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import crypto from 'node:crypto';
+ import {spawnSync} from 'node:child_process';
+ const repo='/Users/casey.allard/lexlean-r4-worktrees/model-port';
+-const proposalPath=path.join(import.meta.dirname,'store20-header-migration-proposal.json');
++const proposalPath=path.join(import.meta.dirname,'read33-plan.json');
+ const phase=process.argv[2];
+ if(!['negative','positive'].includes(phase)) throw Error('phase');
+ const out=path.join(import.meta.dirname,phase);
+ fs.mkdirSync(out);
+-const stage=`/tmp/r4-object-store20-${phase}-owned-20261023`;
++const stage=`/tmp/r4-object-read33-${phase}-owned-20261023`;
+ const cid='cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf';
+ const env={...process.env,DOCKER_CONFIG:'/tmp/lexlean-r4-docker-config-20261021',DOCKER_HOST:'unix:///Users/casey.allard/.colima/lexlean-r4/docker.sock'};
+ const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+@@ -29,22 +29,27 @@
+ function epoch(name){const r=docker(name,['inspect','--format','{{.State.StartedAt}} {{.RestartCount}} {{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.HostConfig.NetworkMode}} {{json .Mounts}}',cid]);if(r.stdout.trim()!=='2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []')throw Error('epoch/config drift');}
+ function idle(name){const r=guest(name,['ps','-eo','pid,comm,args']);if(r.stdout.split('\n').some(l=>/^\s*\d+\s+(lexlean|lean|lake|leanchecker)\s/.test(l)))throw Error('active compiler');}
+ function capacity(name,pre){const r=guest(name,['df','-Pk','/tmp']);const k=BigInt(r.stdout.trim().split('\n').at(-1).trim().split(/\s+/)[3]);if(k*1024n<(pre?11n:10n)*GiB)throw Error('guest reserve');}
++function toolsIdentity(name){
++ const tools=guest(name,['sha256sum','/usr/local/bin/lexlean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker']);
++ const expectedTools=['107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5','79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085','8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba','8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de'];
++ const lines=tools.stdout.trim().split('\n');
++ if(lines.length!==expectedTools.length||lines.some((l,i)=>l.slice(0,64)!==expectedTools[i]))throw Error('tool drift');
++}
+ let inputs=[],lockHash;
+ function sources(name){const r=guest(name,['sha256sum',...inputs.map(x=>stage+'/'+x.destination)]);const lines=r.stdout.trim().split('\n');if(lines.length!==inputs.length||lines.some((l,i)=>l.slice(0,64)!==inputs[i].sha256))throw Error('source mismatch');}
+ try{
+  const proposalBytes=fs.readFileSync(proposalPath);
+- if(hash(proposalBytes)!=='4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a')throw Error('proposal drift');
++ if(hash(proposalBytes)!=='c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6')throw Error('proposal drift');
+  const proposal=JSON.parse(proposalBytes);
+- inputs=proposal.phaseSpec[phase].inputs;
++ const phasePlan=proposal.phases.find(x=>x.name===(phase==='negative'?'read33-admission-negative':'read33-positive'));
++ inputs=phasePlan.inputs.map(x=>x.destination==='lexlean.toml'?{...x,path:path.join(import.meta.dirname,'lexlean.toml')}:x);
+  if(inputs.length!==15||new Set(inputs.map(x=>x.destination)).size!==15)throw Error('input census');
+  for(const x of inputs){const b=fs.readFileSync(path.resolve(repo,x.path));if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('input drift '+x.path);}
+  host('host-before',true);
+  command('allocated-before','du',['-k','/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk','/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk']);
+  command('swap-before','sysctl',['vm.swapusage']);
+  epoch('epoch-before');idle('idle-before');zeroMemory('memory-before');capacity('guest-before',true);
+- const tools=guest('tools-before',['sha256sum','/usr/local/bin/lexlean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker']);
+- const expectedTools=['107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5','79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085','8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba','8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de'];
+- if(tools.stdout.trim().split('\n').some((l,i)=>l.slice(0,64)!==expectedTools[i]))throw Error('tool drift');
++ toolsIdentity('tools-before');
+  save('expected-inputs',inputs);
+  guest('new-stage',['mkdir',stage]);guest('directories',['mkdir','-p',stage+'/src/R4',stage+'/tests/lexlean']);
+  for(let i=0;i<inputs.length;i++)docker('copy-'+i,['cp',path.resolve(repo,inputs[i].path),cid+':'+stage+'/'+inputs[i].destination]);
+@@ -58,7 +63,7 @@
+   if(phase==='negative')save('result',{phase,stage,classification:'source-admission-only',lockStatus:lockResult.status,checkStatus:checked.status,result:checkParsed,verify:'NOT_RUN'});
+   else{
+    if(checked.status!==0||checkParsed?.success!==true)throw Error('check result');
+-   const result=cli('verify',['verify','tests/lexlean/ObjectStoreControls.lex.tex'],false);const parsed=JSON.parse(result.stdout||'null');
++   const result=cli('verify',['verify','tests/lexlean/ObjectReadControls.lex.tex'],false);const parsed=JSON.parse(result.stdout||'null');
+    save('result',{phase,stage,verifyStatus:result.status,result:parsed});
+    if(result.status===0&&parsed?.success===true){const artifact=parsed.artifacts?.[0];if(!/^\.lexlean\/verified\/[a-f0-9]{64}$/.test(artifact))throw Error('artifact path');docker('artifact-copy',['cp',cid+':'+stage+'/'+artifact,path.join(out,'artifact')]);}
+   }
+@@ -70,6 +75,6 @@
+ }catch(e){save('failure',{message:String(e),stack:e?.stack});process.exitCode=1;}
+ finally{
+  const errors=[];
+- for(const [name,fn] of [['source-after',()=>inputs.length&&sources('source-after')],['lock-after',()=>{if(lockHash){const r=guest('lock-after',['sha256sum',stage+'/lexlean.lock']);if(r.stdout.slice(0,64)!==lockHash)throw Error('lock drift');}}],['epoch-after',()=>epoch('epoch-after')],['memory-after',()=>zeroMemory('memory-after')],['idle-after',()=>idle('idle-after')],['guest-after',()=>capacity('guest-after',false)],['host-after',()=>host('host-after',false)]]){try{fn();}catch(e){errors.push({name,error:String(e)});}}
++ for(const [name,fn] of [['source-after',()=>inputs.length&&sources('source-after')],['lock-after',()=>{if(lockHash){const r=guest('lock-after',['sha256sum',stage+'/lexlean.lock']);if(r.stdout.slice(0,64)!==lockHash)throw Error('lock drift');}}],['tools-after',()=>toolsIdentity('tools-after')],['epoch-after',()=>epoch('epoch-after')],['memory-after',()=>zeroMemory('memory-after')],['idle-after',()=>idle('idle-after')],['guest-after',()=>capacity('guest-after',false)],['host-after',()=>host('host-after',false)]]){try{fn();}catch(e){errors.push({name,error:String(e)});}}
+  save('postcapture-errors',errors);if(errors.length)process.exitCode=1;
+ }

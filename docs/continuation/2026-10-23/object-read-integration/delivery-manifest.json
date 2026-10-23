@@ -1,0 +1,397 @@
+{
+  "schema": "lexlean-r4-object-read-integration-delivery/v1",
+  "baseCommit": "9271da24650eb311c752c8898efc12a0e56e3983",
+  "scope": "Read33 metadata migration/source admission and classified timeout only; no Read proof accepted. Exact first diagnostic source design only, no automatic33variant expansion.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 25835,
+      "sha256": "6ebc3f2296a4bee2d634f2f6267ac2094e82f582750b46598b09e03a94b4024d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/RESULTS.md",
+      "bytes": 4317,
+      "sha256": "10a4f87b84facbe0fafd201422aa5c3bbb17643531661395c9d7cf706d95a573"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/codec-next-spec.json",
+      "bytes": 22454,
+      "sha256": "bf987bede7322846bbead22522ea6b91f40becad384b98056601d950de7e2d12"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/control-migration-code-review.json",
+      "bytes": 7962,
+      "sha256": "abda57d8b99b385c3b73521ec78581ed4978a6a7d69be64b78f5bd36baefee1c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/control-migration.json",
+      "bytes": 6648,
+      "sha256": "b5a335e7c89804ea95d62bdb556308e8c74a58d19a73061bedd399afc7a64611"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/current-portable-bindings.json",
+      "bytes": 13661,
+      "sha256": "685ffefee1c66d4ff6cee20a972f112df5bedfcbfbc203fc2b38f71caa6de534"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/emission-capture.json",
+      "bytes": 529,
+      "sha256": "18a511b6d7c9a725e36467ca7e2988c944d4c7d0669f9e9b37fd7677622991bf"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/emitted-ObjectReadControls.lean",
+      "bytes": 68871,
+      "sha256": "ba9f597d99863f6374c7024c1b6050f7d57bdca53c931b0037dd0ef0205d2167"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/invocation-manifest.json",
+      "bytes": 1613,
+      "sha256": "ada63136172a45be8659da5af803f3785beb614ecbb87461d16ac9beb540eee3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/invocation-preparation.json",
+      "bytes": 5814,
+      "sha256": "185c8ae9997792a78b8b42001a89e17f46dec77742a4b5496ed0e66d1f2a6f31"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/invocation-source-review.json",
+      "bytes": 4187,
+      "sha256": "caa888a6acfccd0b603d82470be7b97f07fd798c12838a11267ec8777f72ee25"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative-native-review.json",
+      "bytes": 10069,
+      "sha256": "91c9c2a0f58a72dbeb07f95ff1c71f955323a835dacd950496150908bc89313c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative-source-custody.json",
+      "bytes": 19985,
+      "sha256": "61567c2b176106285af6ec9ed941867c82037a8af038d2b8a42317be6ec27007"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/allocated-before.json",
+      "bytes": 459,
+      "sha256": "e2e95b146974b1b0f8192f372cdb7fe8ce6737402d8e2eb43c7d142f1604fe08"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/check.json",
+      "bytes": 879,
+      "sha256": "2227f6111f03ff35114202726510fdd8dddbc791a7d24a783adcfb14081df0e8"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/directories.json",
+      "bytes": 398,
+      "sha256": "560c273c36b18b18ef0baa788d318602c2109c5f1e0e2cc569e23781e7615def"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "20ad9fa1e5c31029f1b537d0ba88a7f5ee38c5280f1ccc737dc4caf24adda77e"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "f6439a90e00b69db959a98460f3e3a3003291a38ccc2ae674ca353b7a935c964"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/expected-inputs.json",
+      "bytes": 4214,
+      "sha256": "4dbbcae4124e361cfacdea0d2797557d40752edb29ee0eb13ed92960b522922b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "d7a083a5d749114460b2885a51e95a1b4d999441f83bd23da0e52d6030462458"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "38b063556c5c34f77f5b366610cc5cc91c347558ba0a445151fc3b279f75dc03"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "8e06e9ecea5ce2c36ced32735c7a8c7c3b35c7f9eb19613547e5d7565f1d2df4"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "b83e3b03383d28fca073aba72effde391cf10a10fe6a1c80fea225b028f23ad5"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "3b0e14354112966319526d877bd7f26bf056db7b6e2c0d705145232667fb49b9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "63d7a073794c8313e0d61d888f057c84e94e5b92b440c3ea6494e8018b6e9d85"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/lock-after.json",
+      "bytes": 457,
+      "sha256": "f867fdb813500a7a39b8ff4be3d2fd0b8a29e468f6780af35a3ebee82f79c7b3"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/lock-bytes.json",
+      "bytes": 2039,
+      "sha256": "ac768d70d2b5de894d8b97820b20af050f0919f380217a8b1274d5f1a0eece8b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/lock.json",
+      "bytes": 523,
+      "sha256": "66d0695cba475a25e4927ee7ee48aafa312fc44a494a3d33fa4ef0192c427715"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "0b8fddc16104d10b6065c297b0cf840d05c8dbe1343b5256186930d79e7b9a16"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "bfe8ba536b7c58e9ab9188456ff0aa9135c177d17b0f3611e1ec836e7e577279"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/new-stage.json",
+      "bytes": 314,
+      "sha256": "99d03564a2e6083c41565c39b21c6b0f41de7a4f349aad12cdaf6c3d483f5f44"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/result.json",
+      "bytes": 893,
+      "sha256": "bab93c2bf2eddb28de54d143cf387daacfc639d3aeb79bf68b50eadb4a1244f5"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/source-after.json",
+      "bytes": 3447,
+      "sha256": "a2f53007412513c74c74966893f71178aa370e70dbccd8e8bd362a42aa9c0de9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/source-before.json",
+      "bytes": 3447,
+      "sha256": "39edb79932339352ca87cb662070c3ca20efcebca52a07450c5749b309164d52"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/swap-before.json",
+      "bytes": 265,
+      "sha256": "d6a758c37e8c7172f1c965a5c431615d5947890f1a87472438fe18bdd41c2653"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "c87ce411b9dc47124e3263ca96f963f1f7572042d484d69f150ea201ea5b6f72"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "5cf57c5f990c36b837d32fa50c40aac0ebd3f1282cb04610dca5bab519f5e792"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive-custody.json",
+      "bytes": 17742,
+      "sha256": "984239ced8c963259335a52f0608019383141086062902689c46ab3d891c5a57"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive-failure-review.json",
+      "bytes": 11121,
+      "sha256": "a9138e827c3508158c45964d5195b9f9034c6e923e7ae27b95b221482e007213"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "69a8fc585a4025bfde11c7d8bf9e49ef56a0d9dd0f10a590657a3afcedc32ab1"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/check.json",
+      "bytes": 879,
+      "sha256": "baaebc8b37e331243ec07931ce50c467a7dc8628a4ccb617ce59c57faacae019"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/directories.json",
+      "bytes": 398,
+      "sha256": "bd11d0a8662db6c605e55367edc2d8bfef5d0d63822e32eb9b4c7af757ed1a3d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "1c52094eb5d170d5f387d7d45eb6a20874c3b25f2b280227352a1ddf486bd1e6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "1f8c4358c9e9eb442c57bee3701d896f4c3f3594f86cd83bba881fa325f4b325"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/expected-inputs.json",
+      "bytes": 4199,
+      "sha256": "c2ac71fb396f6958c6c651ab4bed7c101ed6b0499d8d182326ba323d469349c6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "842586e2a009e7a7204b9e1079c8da5b3201490f9bfa8b50e6eb8a1c6858c095"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "3e79ca03171752c9e4b9063de5db5d7c592c3387f72720f2e56ae6f94613f9bb"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "07d1237072c639ed3daa76eb9c5c63fed68df7bd5fcbdbd611abe6a03d49867b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "d1346abd23ff08ca13f67b7864860efaa695bb2d82c642d20e8c7ff80dc440db"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "3e83e1b6edf6211fd126090135bb9aa167397229494b1c01116df04c735c2daa"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "8b1905df2b563d46272aa307f37216df462cdb644c57197dca69b825c1c886da"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/lock-after.json",
+      "bytes": 457,
+      "sha256": "b43ec0e69d3a65c06b67fd9c52e3bc5f63149a72a63a7e7161b224c312c248fd"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/lock-bytes.json",
+      "bytes": 2039,
+      "sha256": "90cd3161fbb6728517d616b8cc8538ad37537d44d81e8df0c229ad0f72f1c7a5"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/lock.json",
+      "bytes": 523,
+      "sha256": "fda3f57e4adcf15995cc6fac4e4bee1c94dd36b5cc8cbaaf5415f70207945afc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "8022180ec0cfd9db2375a7b5ac95bea2dcd7f0e349daa0b824d81b20b04ee38f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "c8f0833137ecf982a9280108cbb07f4828bd416a7443a8488f7eaf9d6ed49439"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/new-stage.json",
+      "bytes": 314,
+      "sha256": "0267c66a4d72e794e0c9a2d71b966f18d854cbe5cdad8760848f58d9c9eebed9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/result.json",
+      "bytes": 856,
+      "sha256": "5294051d492d39f13a7073b6998d90aac5423e851e47783d0f2dc088a20ef2c5"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/source-after.json",
+      "bytes": 3447,
+      "sha256": "d29a1b1c2da966c8722cd11579b7235c5d8b3d505042de39267fc0229021d625"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/source-before.json",
+      "bytes": 3447,
+      "sha256": "754d36f4c132dad6956692a2d6f65d8123222f6955ccd90d69884b0f9734d010"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "0cfc4651e8fb0620b2b83d5db30912bb33ba0bd9132df13548c4b4110e77397b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "b33ff2a1d1c4ed869ee417dc4a5e34dd8ce8c7b03d9b65e94bbdd8173bc2ad46"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "634b9bb2f8000885a77bd864e221de39960ad837cb3f3ab210d76acbe5babf56"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/positive/verify.json",
+      "bytes": 977,
+      "sha256": "74a56279e8e0d7ac95ce73f38462fee3f52d817fc4955b670f9b6ddea4d66b8b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/read33-plan.json",
+      "bytes": 19549,
+      "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/read33-spec-review.json",
+      "bytes": 7821,
+      "sha256": "452c42cf12d1bb6c978902dc89a303bda1b99ccd0128cf4a06e1e5163ce45f70"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/results.json",
+      "bytes": 6735,
+      "sha256": "1143d5cedc3827d7acf6149413d386df91d66287812262769cf0491e7c8b0802"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/source-bindings.json",
+      "bytes": 13219,
+      "sha256": "f002c2f8147f24cc1e811b5617257b358be3f8851d7b86ca0911a8174bffba09"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/store20-to-read33.diff",
+      "bytes": 7713,
+      "sha256": "62108bdaf98aa2e97d6351e1a9b672bfe004ccd44cee772ce3c9459f996080ea"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/timeout-investigation-spec-review.json",
+      "bytes": 4741,
+      "sha256": "5265f06bdd7cd7b803a6f4e450b22db6551c2fae31f40c85c5c2e2e79690cfe7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-read-integration/timeout-investigation.json",
+      "bytes": 28657,
+      "sha256": "33afb3270728fa8fd5ae93c2e26caeb5ed85411b688ae2791a8efb92bc3bd6b6"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 23862,
+      "sha256": "a7a71e776a0e67cdcd12ed1c616f90056f65d033d44a081711d605d00d00306c"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ]
+}

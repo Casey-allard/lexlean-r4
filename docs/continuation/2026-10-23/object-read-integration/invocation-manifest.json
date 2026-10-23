@@ -1,0 +1,48 @@
+{
+  "schema": "lexlean-r4-read33-invocation-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "invocation-preparation.json",
+      "bytes": 5814,
+      "sha256": "185c8ae9997792a78b8b42001a89e17f46dec77742a4b5496ed0e66d1f2a6f31"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "read33-plan.json",
+      "bytes": 19549,
+      "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+    },
+    {
+      "path": "read33-spec-review.json",
+      "bytes": 7821,
+      "sha256": "452c42cf12d1bb6c978902dc89a303bda1b99ccd0128cf4a06e1e5163ce45f70"
+    },
+    {
+      "path": "run-read33.mjs",
+      "bytes": 7501,
+      "sha256": "c3e1a1e968671f2f803121cdcb384baf6b49cf3a0feebaf60792347490a1af78"
+    },
+    {
+      "path": "store20-to-read33.diff",
+      "bytes": 7713,
+      "sha256": "62108bdaf98aa2e97d6351e1a9b672bfe004ccd44cee772ce3c9459f996080ea"
+    }
+  ],
+  "checks": {
+    "nodeSyntax": {
+      "command": "node --check run-read33.mjs",
+      "exit": 0,
+      "scope": "Parse only, module not executed"
+    },
+    "canonicalRead33StillOriginal": true,
+    "planCopyByteExact": true,
+    "specCopyByteExact": true,
+    "configurationMatchesEmbeddedPlan": true
+  },
+  "limitations": "No actualRead33 admission or proof result. Original source must remain until independently accepted original-negative; later migration needs exact source review. Existing source/lock/epoch/storage/tool postguards remain authoritative."
+}

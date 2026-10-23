@@ -1,0 +1,131 @@
+{
+  "schema": "lexlean-r4-read33-metadata-migration-spec-review/v1",
+  "at": "2026-10-23T21:15:43.964Z",
+  "status": "PASS_BOUNDED_READ33_SPEC_WITH_EXPLICIT_IMPLEMENTATION_OBLIGATIONS",
+  "reviewer": "orchestration_design_review",
+  "plan": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/read33-plan.json",
+    "bytes": 19549,
+    "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+  },
+  "base": "9271da24650eb311c752c8898efc12a0e56e3983",
+  "authority": {
+    "path": "docs/continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json",
+    "bytes": 17355,
+    "sha256": "b9be3b7cadcb4badfc8eee4bcdbff4ca01d098512ae564d87ed814d009ee9cb7"
+  },
+  "scope": "Source-only review of existing Read33 metadata migration and planned negative/positive phases. No native admission or proof accepted. No Codec311, Construction39 or Blake3 implementation authorized by this review.",
+  "findings": [],
+  "verified": {
+    "original": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    "immutableSnapshot": {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    "prospective": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "written": false
+    },
+    "edits": [
+      {
+        "from": "\\useglossary{lexlean.std.bool@1.1.0}",
+        "to": "\\useglossary{lexlean.std.bool@1.2.0}"
+      },
+      {
+        "from": "\\useglossary{lexlean.std.nat@1.1.0}",
+        "to": "\\useglossary{lexlean.std.nat@1.2.0}"
+      },
+      {
+        "from": "\"spec\":\"lexlean/semantic-module/1\"",
+        "to": "\"spec\":\"lexlean/semantic-module/2\""
+      }
+    ],
+    "eachEditSingleOccurrence": true,
+    "wholeDeclarationArrayEqual": true,
+    "declarationCount": 33,
+    "declarationArraySha256": "faf90470372e1d762f3073020aa0e3b096857e5afb9b3b4ebbf1eabb3e483a2a",
+    "namesExact": true,
+    "allProofs": {
+      "kind": "reflexivity"
+    },
+    "allDeclaredAxioms": [],
+    "config": {
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7",
+      "bytes": 682,
+      "onlyChange": {
+        "from": "entrypoints = [\"tests/lexlean/ObjectStoreControls.lex.tex\"]",
+        "to": "entrypoints = [\"tests/lexlean/ObjectReadControls.lex.tex\"]"
+      },
+      "allOtherBytesIdentical": true
+    },
+    "phases": {
+      "eachInputs": 15,
+      "eachUniqueDestinations": 15,
+      "sharedInputs": 13,
+      "sharedInputPinsRehashed": true,
+      "negativeOriginalSnapshot": true,
+      "positiveComputedProspectiveBytes": true,
+      "configInlineBytesVerified": true
+    },
+    "sixMergedStoreSourcesUnchanged": true,
+    "tenOtherDraftPinsUnchanged": true,
+    "allNativeTests": "NOT_RUN"
+  },
+  "interpretation": {
+    "compatibility": "Same reviewed language1.2 glossary/schema rules require bool/nat1.2.0 and semantic-module/2. This is a wrapper migration, not a theorem or runtime repair.",
+    "negative": "Generate genuine development lock then check original unchanged Read33. Require actual attributable LLR3001 glossary-version diagnostic, preserve first error, do not verify rejected source. An unrelated setup/resource/proof failure is not intended RED.",
+    "positive": "Only after independently reviewed actual negative and exact written source/config/invocation: generate genuine new lock, sourcecheck and verify the entire unchanged33 root. Sourcecheck alone is insufficient.",
+    "proofScope": "Existing authenticated reads/ranges/closure and protocol96 controls invoke the actual production definitions in the pinned finite closure. They are not an unchanged replay of whole257 ObjFold construction. Computational feasibility remains unknown.",
+    "countBoundary": "Read33 success plus existingStore20 would establish53 of403 controls under this finite context; Codec311+Construction39=350 remain, plus20 separate Blake3 controls and required semantic defect/restoration work."
+  },
+  "implementationObligations": [
+    {
+      "id": "I1",
+      "requirement": "Preserve conservative20GiB host launch planning gate:10GiB estimated peak additional disk plus10GiB emergency reserve, with fresh allocated/free host and guest evidence before materialization/launch. The11GiB immediate pre-root minimum and10GiB post-root reserve remain additional gates, not permission to ignore peak planning.",
+      "basis": "Parent-confirmed existing resource policy and plan admissionAndPostconditions.before requirement for fresh budget. This SPEC does not waive it."
+    },
+    {
+      "id": "I2",
+      "requirement": "Adapted invocation must capture tools-after and compare exact compiler/Lean/Lake/checker identities against prephase pins as well as capture tools-before. Prior Store20 runner tools-before alone is not sufficient for this plan.",
+      "basis": "Plan admissionAndPostconditions.after explicitly requires tools after; exact invocation CODE review must establish implementation."
+    },
+    {
+      "id": "I3",
+      "requirement": "Postcapture obligations apply on successful phase and on command/recording failure, independently attempting all mandatory source/lock/tool/epoch/memory/idle/storage checks. Do not silently skip them when the compiler command throws or fails. This does not require repeating the entire expensive phase audit after each harmless metadata capture.",
+      "basis": "Plan phase/postcondition contract and parent clarification."
+    },
+    {
+      "id": "I4",
+      "requirement": "No execution until actual written-source/config and adapted invocation receive independent exact review, fresh identity/idle/resource admission passes, and negative then positive are sequenced by parent. Stop and preserve unexpected failures; no overlapping native jobs or equivalent retry/limit increase.",
+      "basis": "Plan phaseOrder and admissionAndPostconditions."
+    }
+  ],
+  "unchangedResources": {
+    "childTimeoutMs": 300000,
+    "containerMemoryBytes": 4294967296,
+    "containerCpuCount": 2,
+    "leanToolchain": "leanprover/lean4:v4.32.1",
+    "axiomPolicy": "none",
+    "otherConfigLimits": "Byte-identical to Store20 configuration except entrypoint"
+  },
+  "preservation": "Original snapshot and all earlier failures/accepted evidence stay intact. Only Read33 three literals may change during later reviewed migration; six merged Store20 files and ten other drafts stay byte-identical.",
+  "acceptanceStillRequired": "Actual raw lock/check/verify results; exact source/lock/tool/resource identities; clean postconditions; full actual artifact census and manifest identities; observed empty axioms and all kernel replays;33 emitted control membership/proofs; independent audit. No production PrismPM/full just vv/Pages or fullObject/Hash/whole257 claim.",
+  "limitations": [
+    "Prospective source and configuration reconstructed in memory only; no repository or stage writes.",
+    "No SDK/compiler/VM invocation, runtime fixtures, kernel replays or source execution occurred.",
+    "This plan has no actual Read33 outcome; previous Store20 success and its source-admission negative do not transfer.",
+    "Fresh native execution resource checks and exact invocation review remain parent-owned requirements.",
+    "Declared empty axioms and reflexivity syntax are source observations, not native acceptance."
+  ],
+  "storage": {
+    "observedAvailableBytes": 26379206656,
+    "work": "Only this review report; no materialization."
+  }
+}

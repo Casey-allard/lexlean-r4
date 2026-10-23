@@ -1,0 +1,91 @@
+{
+  "schema": "lexlean-r4-read33-invocation-preparation/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN_REQUIRES_INDEPENDENT_CODE_REVIEW",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/run-store20.mjs",
+    "bytes": 7164,
+    "sha256": "3800e2359d35f23e3583f6859555ce0eb6887ba1be142200d1bd8b20d5faec93"
+  },
+  "files": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/read33-plan.json",
+      "bytes": 19549,
+      "sha256": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/read33-spec-review.json",
+      "bytes": 7821,
+      "sha256": "452c42cf12d1bb6c978902dc89a303bda1b99ccd0128cf4a06e1e5163ce45f70"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/run-read33.mjs",
+      "bytes": 7501,
+      "sha256": "c3e1a1e968671f2f803121cdcb384baf6b49cf3a0feebaf60792347490a1af78"
+    }
+  ],
+  "exactLiteralTransformations": [
+    {
+      "before": "ObjectStore20 draft language migration",
+      "after": "ObjectRead33 draft language migration"
+    },
+    {
+      "before": "'store20-header-migration-proposal.json'",
+      "after": "'read33-plan.json'"
+    },
+    {
+      "before": "r4-object-store20-${phase}-owned-20261023",
+      "after": "r4-object-read33-${phase}-owned-20261023"
+    },
+    {
+      "before": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a",
+      "after": "c29ec21f9d3a5975f1806912b6870609c4a4f67b3afbc85c612f3df0850fb0c6"
+    },
+    {
+      "before": "inputs=proposal.phaseSpec[phase].inputs;",
+      "after": "const phasePlan=proposal.phases.find(x=>x.name===(phase==='negative'?'read33-admission-negative':'read33-positive'));\n inputs=phasePlan.inputs.map(x=>x.destination==='lexlean.toml'?{...x,path:path.join(import.meta.dirname,'lexlean.toml')}:x);"
+    },
+    {
+      "before": " const tools=guest('tools-before',['sha256sum','/usr/local/bin/lexlean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker']);\n const expectedTools=['107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5','79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085','8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba','8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de'];\n if(tools.stdout.trim().split('\\n').some((l,i)=>l.slice(0,64)!==expectedTools[i]))throw Error('tool drift');\n",
+      "after": " toolsIdentity('tools-before');\n"
+    },
+    {
+      "before": "let inputs=[],lockHash;",
+      "after": "function toolsIdentity(name){\n const tools=guest(name,['sha256sum','/usr/local/bin/lexlean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake','/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker']);\n const expectedTools=['107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5','79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085','8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba','8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de'];\n const lines=tools.stdout.trim().split('\\n');\n if(lines.length!==expectedTools.length||lines.some((l,i)=>l.slice(0,64)!==expectedTools[i]))throw Error('tool drift');\n}\nlet inputs=[],lockHash;"
+    },
+    {
+      "before": "['epoch-after',()=>epoch('epoch-after')]",
+      "after": "['tools-after',()=>toolsIdentity('tools-after')],['epoch-after',()=>epoch('epoch-after')]"
+    },
+    {
+      "before": "['verify','tests/lexlean/ObjectStoreControls.lex.tex']",
+      "after": "['verify','tests/lexlean/ObjectReadControls.lex.tex']"
+    }
+  ],
+  "scope": "One-off existing Store20 invocation adaptation; no execution, source migration, repository/index writes or new generic framework.",
+  "phaseCommands": [
+    "node run-read33.mjs negative",
+    "Only after accepted actual negative, authorized source migration and independent source review: node run-read33.mjs positive"
+  ],
+  "intentionalChanges": [
+    "Read33 plan path/hash and exact phase mapping; inline reviewed config materialized unchanged",
+    "Fresh exclusive Read33 owned stage/output names; actual root changed to ObjectReadControls",
+    "Same exact four-tool identity validator now applied independently in postcapture; exact four-row census required before and after"
+  ],
+  "unchangedGuards": [
+    "20GiB host launch,10GiB peak additional estimate/reserve; guest11GiB pre10GiB post",
+    "Container ID/epoch,4GiB/2CPU/network/mounts; idle compiler census and zero memory events",
+    "Exact15input hashes, genuine official lock and post source/lock/epoch/memory/idle/storage checks",
+    "Sequential independent postcapture attempts in finally even on command/recording failure; no overlapping SDK job"
+  ],
+  "interpretation": "Invocation captures outcomes only. Parent must separately accept intended LLR3001 negative and inspect native exit/diagnostics/artifacts/postconditions; process exit alone is not semantic acceptance. No positive admission while canonical Read33 remains legacy.",
+  "storage": {
+    "hostAvailableKiB": 25748452,
+    "maximumNewTextBytes": 102400,
+    "reserveBytes": 10737418240
+  }
+}

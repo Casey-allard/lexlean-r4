@@ -1,0 +1,626 @@
+{
+  "schema": "lexlean-r4-read33-timeout-investigation/v1",
+  "status": "PHASE1_SOURCE_INVESTIGATION_NO_REPAIR_ALL_NEXT_NATIVE_NOT_RUN",
+  "failure": {
+    "receipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/positive/verify.json",
+      "bytes": 977,
+      "sha256": "74a56279e8e0d7ac95ce73f38462fee3f52d817fc4955b670f9b6ddea4d66b8b"
+    },
+    "exitStatus": 4,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadControls: configured 300000, observed 300009 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "wholeCommandMilliseconds": 316328,
+    "check": {
+      "receipt": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/positive/check.json",
+        "bytes": 879,
+        "sha256": "baaebc8b37e331243ec07931ce50c467a7dc8628a4ccb617ce59c57faacae019"
+      },
+      "status": 0,
+      "modules": [
+        "ObjectReadControls",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.Object",
+        "R4.ObjectCodec",
+        "R4.ObjectRead",
+        "R4.ObjectStore",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ],
+      "sourceId": "4e7e5be3dea588b16bcfaddf37928ad1ede2fb3586e8505c6ce64d6a4feda314",
+      "semanticId": "1de2f6bdabd69c6df106ffcf325961dc0d5242f22bd5fa4f0e1cc95661162170"
+    },
+    "verifiedArtifacts": [],
+    "memoryBefore": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "c8f0833137ecf982a9280108cbb07f4828bd416a7443a8488f7eaf9d6ed49439"
+    },
+    "memoryAfter": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "8022180ec0cfd9db2375a7b5ac95bea2dcd7f0e349daa0b824d81b20b04ee38f"
+    },
+    "memoryEventsObserved": "All six counters zero before and after, including max/oom/oom_kill; no OOM evidenced.",
+    "postcapture": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "classification": "Resource-bound Lean child timeout in the aggregate ObjectReadControls module. Source admission passed; no accepted Read33 theorem artifact or semantic counterexample. This is not the earlier glossary admission negative."
+  },
+  "actualEmission": {
+    "pin": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/emitted-ObjectReadControls.lean",
+      "bytes": 68871,
+      "sha256": "ba9f597d99863f6374c7024c1b6050f7d57bdca53c931b0037dd0ef0205d2167"
+    },
+    "capture": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/emission-capture.json",
+      "bytes": 529,
+      "sha256": "18a511b6d7c9a725e36467ca7e2988c944d4c7d0669f9e9b37fd7677622991bf"
+    },
+    "theoremCount": 33,
+    "rflCount": 33,
+    "maxRecDepth": 100000,
+    "maxHeartbeats": 1000000000,
+    "interpretation": "Build emission only, not a verified artifact. Emitted source contains all declarations even if the Lean child had not finished checking them; text presence does not prove any theorem completed."
+  },
+  "source": {
+    "control": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex"
+    },
+    "wholeDeclarationArraySha256": "faf90470372e1d762f3073020aa0e3b096857e5afb9b3b4ebbf1eabb3e483a2a",
+    "runtime": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+        "repositoryPath": "src/R4/Object.lex.tex"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+        "repositoryPath": "src/R4/ObjectRead.lex.tex"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+        "repositoryPath": "src/R4/ObjectCodec.lex.tex"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+        "repositoryPath": "src/R4/ObjectTypes.lex.tex"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+        "repositoryPath": "src/R4/ObjectStore.lex.tex"
+      }
+    ],
+    "config": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-integration/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    "declarationCensus": [
+      {
+        "ordinal": 1,
+        "name": "objEmptyClosureNoRecords",
+        "declarationJsonSha256": "1ef595ea0f1368e58aae5db2860fc3b7eb7811f68609f56278763c1c381ec26f",
+        "declarationJsonBytes": 3800,
+        "calls": [
+          "R4.Object.ObjDiscoverMissing"
+        ]
+      },
+      {
+        "ordinal": 2,
+        "name": "objReversedRangeRefused",
+        "declarationJsonSha256": "a7bff9d99e33cee9c1aea48ca3c24f7609a2461d9468c8fd3dc7482e4144bfb4",
+        "declarationJsonBytes": 3665,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 3,
+        "name": "objBeyondRangeRefused",
+        "declarationJsonSha256": "658447e446811fb93f6f699457eed473d5974c201e986b5ecd2a283a20c6a3b2",
+        "declarationJsonBytes": 3663,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 4,
+        "name": "objReturnBudgetBeforeFetch",
+        "declarationJsonSha256": "d158a56fd2774eb3616c0cb8e5221a77504f28b1fe2888c443e2140cf6c0988d",
+        "declarationJsonBytes": 6478,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 5,
+        "name": "objVisitBudgetBeforeMissingFetch",
+        "declarationJsonSha256": "3938c804a1a3473bf3d0e9a50c520331b3aa8e0e53324e04c89c17a08bfa2290",
+        "declarationJsonBytes": 6483,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 6,
+        "name": "objMissingLeafTyped",
+        "declarationJsonSha256": "cb6e722520df31c76b880570e2e249d89125f039d686b627e982ba57e1706d0c",
+        "declarationJsonBytes": 5429,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 7,
+        "name": "objDuplicateBackendKeysRefused",
+        "declarationJsonSha256": "bcb0894f49adc1aa5681642fda1d4d5bb9f05dafd88972530a121759e6ad96b5",
+        "declarationJsonBytes": 12007,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 8,
+        "name": "objEmptyRangeWithoutFetch",
+        "declarationJsonSha256": "ce76862da56d3bb702ba6e3fa5fa850ad38566164ec6e2ccfb5d4b0508cff06e",
+        "declarationJsonBytes": 5674,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 9,
+        "name": "objOneByteWholeLiteral",
+        "declarationJsonSha256": "78d305647ed6afcf7b505de38f3b22775c1a2302942abbc8329e608292476b26",
+        "declarationJsonBytes": 8809,
+        "calls": [
+          "R4.Object.ObjWholeRead"
+        ]
+      },
+      {
+        "ordinal": 10,
+        "name": "objFullLeafRangeLiteral",
+        "declarationJsonSha256": "284049df4f528c3c653bcb30259c626a8e0b0cd022285da58c2718dfc73bddc5",
+        "declarationJsonBytes": 10789,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 11,
+        "name": "objMiddleRangeLiteral",
+        "declarationJsonSha256": "507f2c19d18e0fa6c1bd26d802fb3553b685211765fa18db8b1a5483f4c163c2",
+        "declarationJsonBytes": 9170,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 12,
+        "name": "objMiddleRangeStats",
+        "declarationJsonSha256": "e551207750e78c88dabbfccd017360939fcbd4c01d5dbd23a06e45a8a4e6bb91",
+        "declarationJsonBytes": 9319,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 13,
+        "name": "objMiddleRangeRemainder",
+        "declarationJsonSha256": "403405001e1808bd37bb2e6ea2fbc2911448d581505b5e94ef705c43940419e4",
+        "declarationJsonBytes": 9671,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 14,
+        "name": "objWholeWrongDigestRefused",
+        "declarationJsonSha256": "f448de9a57e39330f347c969a6fc3ba9a0d959ed409d34a326a389fbf210a84d",
+        "declarationJsonBytes": 8123,
+        "calls": [
+          "R4.Object.ObjWholeRead"
+        ]
+      },
+      {
+        "ordinal": 15,
+        "name": "objFullRangeDoesNotRehashWholeDigest",
+        "declarationJsonSha256": "338a2a7687c8454a3affe21ca18726e5ab370542c81f344b1ba6d31d0cbb4cb1",
+        "declarationJsonBytes": 10752,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 16,
+        "name": "objNonzeroTailEvenForEarlyRange",
+        "declarationJsonSha256": "bf43e139077add6e8dc516e0c5ac9b32649abda0cb4edf40ad7e6ef69a928bef",
+        "declarationJsonBytes": 8364,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 17,
+        "name": "objClosureNonzeroTailRefused",
+        "declarationJsonSha256": "63a1cb2a53b8c645b878866d827a7d33614a5ac88e767e78b283b7735422c5a3",
+        "declarationJsonBytes": 8176,
+        "calls": [
+          "R4.Object.ObjValidateClosure"
+        ]
+      },
+      {
+        "ordinal": 18,
+        "name": "objCorruptExternalRecordRefused",
+        "declarationJsonSha256": "ff61620bd2ca717cb0cfdd18f996d1212cd765e34198cd1835ac4e148f08ac64",
+        "declarationJsonBytes": 8364,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 19,
+        "name": "objRepeatedRootsOccurrenceStats",
+        "declarationJsonSha256": "7da62c8fe9187e75f3af2ab4d243495588be054b56318578e10763285292fe14",
+        "declarationJsonBytes": 10317,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 20,
+        "name": "objRepeatedRootsBytesRetained",
+        "declarationJsonSha256": "27639b7305e22411bff715a21cdb1a13210d43869e43ead26a4f9c5676f77234",
+        "declarationJsonBytes": 10223,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 21,
+        "name": "objRepeatedRootsVisitBudget",
+        "declarationJsonSha256": "93a50183697e4817e34b3d187dd1e8b52c1e82cdbccb1704f949056554e7e6af",
+        "declarationJsonBytes": 11119,
+        "calls": [
+          "R4.Object.ObjRangeRead"
+        ]
+      },
+      {
+        "ordinal": 22,
+        "name": "objPresentParentMissingDescendants",
+        "declarationJsonSha256": "84120a6454d06b953f7796b339680e717acdbc065fb9446fcb325126c58a3803",
+        "declarationJsonBytes": 14217,
+        "calls": [
+          "R4.Object.ObjDiscoverMissing",
+          "R4.ObjectTypes.ObjAppendBytes"
+        ]
+      },
+      {
+        "ordinal": 23,
+        "name": "objAbsentParentStopsDiscovery",
+        "declarationJsonSha256": "2bbf698ac0c1ab27e4fb06a98f8cd0713d89e46ebf1827d8da5fded5c4b35a81",
+        "declarationJsonBytes": 6612,
+        "calls": [
+          "R4.Object.ObjDiscoverMissing"
+        ]
+      },
+      {
+        "ordinal": 24,
+        "name": "objMissingScaleReuseRefused",
+        "declarationJsonSha256": "818f7f7b52ecd87c6dfc3cc0f9f5fcd9c2c286b903f128f547c0d9e889558501",
+        "declarationJsonBytes": 5517,
+        "calls": [
+          "R4.Object.ObjDiscoverMissing"
+        ]
+      },
+      {
+        "ordinal": 25,
+        "name": "objManifestVersionProtocolLiteral",
+        "declarationJsonSha256": "ec11b13523080b668f1591dd4809f50ba81eea1f81e7ac059ab270a43b81c282",
+        "declarationJsonBytes": 6885,
+        "calls": [
+          "R4.ObjectCodec.ObjManifestVersion"
+        ]
+      },
+      {
+        "ordinal": 26,
+        "name": "objProtocolWholeBytes",
+        "declarationJsonSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+        "declarationJsonBytes": 25994,
+        "calls": [
+          "R4.Object.ObjWholeRead",
+          "R4.ObjectTypes.ObjAppendBytes"
+        ]
+      },
+      {
+        "ordinal": 27,
+        "name": "objProtocolFullOccurrenceStats",
+        "declarationJsonSha256": "0c28600a361b61da86fe2b75344b1fe985c716c8b873db29ac84325ef89c024a",
+        "declarationJsonBytes": 20821,
+        "calls": [
+          "R4.Object.ObjRangeRead",
+          "R4.ObjectTypes.ObjAppendBytes"
+        ]
+      },
+      {
+        "ordinal": 28,
+        "name": "objProtocolCrossLeafRange",
+        "declarationJsonSha256": "9f806ec2c639b33296f360b15e7f73e9971e5583d929c01390f6f3d11d3fe2f0",
+        "declarationJsonBytes": 20731,
+        "calls": [
+          "R4.Object.ObjRangeRead",
+          "R4.ObjectTypes.ObjAppendBytes"
+        ]
+      },
+      {
+        "ordinal": 29,
+        "name": "objProtocolCrossLeafStats",
+        "declarationJsonSha256": "f2e7efd083b3280ac8b4b6d54a8a44d3e7dc664fcf052d53d4f2d82143ce41ce",
+        "declarationJsonBytes": 20817,
+        "calls": [
+          "R4.Object.ObjRangeRead",
+          "R4.ObjectTypes.ObjAppendBytes"
+        ]
+      },
+      {
+        "ordinal": 30,
+        "name": "objProtocolClosureComplete",
+        "declarationJsonSha256": "75a212a305ec1842203d4da6c57dcafcce78850c9c32c28b114df680ebc6267f",
+        "declarationJsonBytes": 19818,
+        "calls": [
+          "R4.Object.ObjValidateClosure",
+          "R4.ObjectTypes.ObjAppendBytes"
+        ]
+      },
+      {
+        "ordinal": 31,
+        "name": "objWrongExpectedChildScale",
+        "declarationJsonSha256": "a6d9e120cf00bb8b23c68318d03445df1cb04a68c838949c7ca1c2185297d965",
+        "declarationJsonBytes": 8122,
+        "calls": [
+          "R4.Object.ObjDiscoverMissing"
+        ]
+      },
+      {
+        "ordinal": 32,
+        "name": "objMissingBeforeVisitedBytesOverflow",
+        "declarationJsonSha256": "4d972c23d779ec763ddd3408d00d306e70871d403a69c754fade0b3e9168d663",
+        "declarationJsonBytes": 3470,
+        "calls": [
+          "R4.ObjectRead.ObjVisitNode"
+        ]
+      },
+      {
+        "ordinal": 33,
+        "name": "objMalformedBeforeVisitedBytesOverflow",
+        "declarationJsonSha256": "f0851c2bada5854bb39ef14423b9547958789651bdd78b609a13ba4b7da6beac",
+        "declarationJsonBytes": 6359,
+        "calls": [
+          "R4.ObjectRead.ObjVisitNode"
+        ]
+      }
+    ],
+    "callGraph": [
+      {
+        "name": "R4.Object.ObjRangeRead",
+        "astSha256": "f72d88401a28e263098a91bdf3e8fb50cbc72e097ee28e8b2775ffac3697c23b",
+        "calls": [
+          "R4.ObjectRead.ObjRawKeysValid",
+          "R4.ObjectRead.ObjRangeAdmitted",
+          "R4.ObjectCodec.ObjAdmitManifest"
+        ]
+      },
+      {
+        "name": "R4.Object.ObjWholeRead",
+        "astSha256": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+        "calls": [
+          "R4.ObjectRead.ObjRawKeysValid",
+          "R4.ObjectRead.ObjWholeAdmitted",
+          "R4.ObjectCodec.ObjAdmitManifest"
+        ]
+      },
+      {
+        "name": "R4.Object.ObjValidateClosure",
+        "astSha256": "dbafb351b40d8cd050853bf1c6a5e546d880cd1e2633e2dd4515235cef431637",
+        "calls": [
+          "R4.ObjectRead.ObjRawKeysValid",
+          "R4.ObjectRead.ObjValidateClosureAdmitted",
+          "R4.ObjectCodec.ObjAdmitManifest"
+        ]
+      },
+      {
+        "name": "R4.ObjectRead.ObjAuthenticatedFetch",
+        "astSha256": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239",
+        "calls": [
+          "R4.ObjectTypes.ObjBytesEqual",
+          "R4.ObjectCodec.ObjDecodeRecord",
+          "R4.ObjectRead.ObjRawLookup"
+        ]
+      },
+      {
+        "name": "R4.ObjectRead.ObjVisitNode",
+        "astSha256": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00",
+        "calls": [
+          "R4.ObjectRead.ObjReadLeaf",
+          "R4.ObjectRead.ObjAccountRecord",
+          "R4.ObjectRead.ObjAuthenticatedFetch",
+          "R4.ObjectRead.ObjMarkVisit",
+          "R4.ObjectRead.ObjCheckedOffset",
+          "R4.ObjectCodec.ObjSpan",
+          "R4.ObjectRead.ObjVisitNode",
+          "R4.ObjectRead.ObjChildIdentity"
+        ]
+      },
+      {
+        "name": "R4.ObjectRead.ObjRangeAdmitted",
+        "astSha256": "2ec51dfd32cb123b90157a00c1568641c6346d8976ce1e4688af55780c8aba5c",
+        "calls": [
+          "R4.ObjectTypes.ObjSubtract64",
+          "R4.ObjectRead.ObjRangeFinish",
+          "R4.ObjectRead.ObjVisitRoots",
+          "R4.ObjectRead.ObjPlanRoots"
+        ]
+      },
+      {
+        "name": "R4.ObjectRead.ObjWholeAdmitted",
+        "astSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+        "calls": [
+          "R4.ObjectTypes.ObjBytesEqual",
+          "R4.ObjectCodec.ObjHashBytes",
+          "R4.ObjectRead.ObjRangeAdmitted"
+        ]
+      },
+      {
+        "name": "R4.ObjectCodec.ObjHashBytes",
+        "astSha256": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588",
+        "calls": [
+          "R4.HashWire.hashWireSha256"
+        ]
+      },
+      {
+        "name": "R4.ObjectCodec.ObjNodeHash",
+        "astSha256": "ea97fc81c5f7d9c546dec31c382cf9887607cf35225d3c3b777bdb0e926dd02d",
+        "calls": [
+          "R4.HashWire.hashWireNodeId"
+        ]
+      },
+      {
+        "name": "R4.ObjectCodec.ObjDecodeRecordScale",
+        "astSha256": "ae4a9f848585317eb3c45c640328da16ed6ce30abf57e4e31cd39769ddd85771",
+        "calls": [
+          "R4.ObjectTypes.ObjByteLength",
+          "R4.ObjectCodec.ObjWireLength",
+          "R4.ObjectTypes.ObjBytesValid",
+          "R4.ObjectTypes.ObjBytesEqual",
+          "R4.ObjectTypes.ObjTakeBytes",
+          "R4.ObjectTypes.ObjDropBytes",
+          "R4.ObjectCodec.ObjNodeHash"
+        ]
+      },
+      {
+        "name": "R4.ObjectCodec.ObjDecodeRecord",
+        "astSha256": "224b7c4dbe25c4472bf6ff4635e374913e8127ec2545320214cebc69eae69937",
+        "calls": [
+          "R4.ObjectCodec.ObjDecodeRecordScale"
+        ]
+      }
+    ],
+    "localDependencyCheck": "No Read33 declaration calls another member of ObjectReadControls; all33 are closed parameterless Reflexivity obligations using imported runtime. Before singleton extraction, independently check complete semantic references/types/proof targets as well as calls; no inferred cross-module lemma substitution."
+  },
+  "findings": [
+    {
+      "fact": "Only three glossary/schema metadata literals changed; complete33 declaration array remains identical to original snapshot.",
+      "implication": "No new theorem strategy or expression change explains this as a source regression. Current finite HashWire/runtime context is distinct from historical older SDK acceptance."
+    },
+    {
+      "fact": "Each of33 emitted proofs is rfl; no shared certified result or transport lemma is used in this control module.",
+      "implication": "Each equality asks Lean to reduce its actual production computation. Repeated computations across distinct controls may consume aggregate child time; no measured individual cost is available."
+    },
+    {
+      "fact": "Controls26–30 by1basedordinal are protocol whole bytes, full occurrence stats, cross-leaf range, cross-leaf stats and closure. Their declaration JSONs are the largest group; control26 objProtocolWholeBytes is25994bytes.",
+      "implication": "Source size and authenticated whole-read call make objProtocolWholeBytes a useful first isolation candidate, not proof it caused timeout or is most expensive."
+    },
+    {
+      "fact": "ObjWholeRead admits manifest/backend and calls ObjWholeAdmitted; authenticated fetch decodes actual wire and validates identities, with Codec hash operations dispatching to actual HashWire functions.",
+      "implication": "Proof-local certificates of exact successful/error intermediate computations might eventually avoid repeated conversion, but such proof changes need a localized failing computation and real empty-axiom verification first."
+    }
+  ],
+  "knownUnknown": {
+    "known": [
+      "Actual source check passed11modules.",
+      "ObjectReadControls Lean child exceeded300000ms at300009ms; verify wall316328ms includes earlier phases.",
+      "No artifact, no OOM counters, no postcapture errors.",
+      "All33 statement/proof ASTs unchanged and no per-theorem instrumentation in the retained receipt."
+    ],
+    "unknown": [
+      "Which theorem was being elaborated when killed.",
+      "Whether aggregate repeated work or one indivisible control dominates.",
+      "Any per-theorem cost, progress, partial proof acceptance, or cost distribution.",
+      "Whether any proposed isolation will succeed under unchanged limits.",
+      "Whether proof decomposition is necessary and whether congruence transport can close each exact runtime context without large definitional conversion."
+    ]
+  },
+  "recommendedNext": {
+    "kind": "Exact declaration isolation before proof repair",
+    "hypothesis": "The module-level300s gate may be exhausted by aggregation of individually feasible rfl controls. An independently compiled unchanged single declaration can discriminate this from at least one individually infeasible obligation.",
+    "first": "Isolate original ordinal26 objProtocolWholeBytes with the identical complete declaration object, module name ObjectReadControls, imports/glossaries/schema, source path tests/lexlean/ObjectReadControls.lex.tex, runtime15-input recipe/config and proof. Keep canonical full33 file unchanged. Parent executes only after source/invocation review and fresh resource admission.",
+    "whyFirst": "Concrete production whole-read result over the protocol96 backend; largest source declaration and reaches actual whole digest verification. This selection is source-informed, not measured hot-spot attribution.",
+    "fullCoveragePlan": "Freeze33 independent source variants, each with one exact original declaration in original namespace and identical four imports. Reuse runtime/workspace dependencies by reference, not33 copied runtimes or new caches. Record each variant originalordinal/name/fullASThash and coverage bijection. All33 remain mandatory; preserve unchanged canonical33 source. Compile sequentially with separately frozen source identity and genuine lock/artifact custody. No new generalized harness.",
+    "exactExtraction": "Change only semantic-module declarations array to the chosen singleton; preserve selected declaration JSON AST including name, statement, parameters, proof, axioms. Preserve all other semantic-module fields and wrapper metadata; canonical serializer required. Same module/path across isolated stages keeps theorem FQN unchanged. New source/build/semantic/artifact identities are expected and must not be labeled the aggregate artifact.",
+    "stoppingAndInterpretation": [
+      "If first singleton times out or resource-fails, stop that configuration and preserve failure; it localizes an individually expensive control but does not prove any othercontrol passed. Investigate its exact runtime call before changing proof.",
+      "If first singleton succeeds, do not accept Read33 or infer aggregate-only cause yet; complete all32 remaining exact obligations with unchanged limits and full audit.",
+      "If all33 singletons succeed, accept only explicitly inventoried per-declaration coverage under this finite closure, with all33 named receipts/audits and exact AST bijection. Original aggregate verification remains failed; no fabricated aggregate receipt. Model/conformance integration must explicitly consume audited coverage or await a separately reviewed aggregate import arrangement.",
+      "Any singleton failing source admission due to extraction/canonicalization is an instrument failure, not a semantic negative. Any axiom drift, statement drift, missing/duplicate declaration, wrong runtime binding or artifact mismatch prevents coverage acceptance."
+    ],
+    "falsifiableCoverageControls": [
+      "Source-only exact33name/AST bijection rejects omitted, duplicated or edited obligations; such structural checks are preparation only.",
+      "Actual native result distinguishes feasible singleton versus localized resource failure. No predicted timing or success.",
+      "Existing Read33 admission negative remains compatibility-only. Required planted semantic Object mutants/restoration remain additional obligations; no grouping success discharges them."
+    ],
+    "budgetAndLimits": "All native phases NOT_RUN. Retain300000ms child/4GiB/2CPU/emptyaxioms and20GiBhostplanning with10GiBpeak/reserve,11GiB immediatepre and10GiBpost. Only bounded source variants; sourceproposal separately reviewed before authoring. Preserve all failed aggregate receipts and emitted text."
+  },
+  "proofDecompositionAlternative": {
+    "status": "CONDITIONAL_NOT_YET_JUSTIFIED_NO_SOURCE_AUTHORIZATION",
+    "trigger": "An exact singleton still fails under unchanged limits and its emitted computation identifies repeated expensive authenticated decode/hash or whole verification.",
+    "minimalCandidate": "For that same existing control, prove one exact intermediate production Result equation, such as ObjAuthenticatedFetch applied to its literal backend/id/scale, with Reflexivity and actual HashWire computation. Then transport it through the exact remaining consumer context using the already supported Nat-family/Induction/Cases/Congruence/Apply pattern, preserving both Result branches. No assumed hashes or host-computed replacement.",
+    "qualification": "Choose actual subterm and exact consumer occurrence only after localized evidence. A generic helper theorem alone is insufficient; final original singleton statement must compile with none-policy/empty observed axioms and kernel replay.",
+    "negative": "An unrelated0=0 base Apply or one false intermediate identity, source-valid and reviewed, must yield intended semantic rejection; then actual connected positive and original consumer must pass. Do not claim any such negative or positive has run.",
+    "risks": [
+      "Prior supported transport helper success does not guarantee consumer conversion is cheap; previously accepted atomized helper still had an OOM concrete consumer before symbolic abstraction.",
+      "Simplify was previously rejected for propext in Object history; do not use Simplify or raw Lean tactic injection to shortcut emptyaxioms.",
+      "Do not divert into original257 construction or blind certificate expansion. Scope remains all33 unchanged Read statements."
+    ]
+  },
+  "priorPatternPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/RESULTS.md",
+      "bytes": 2674,
+      "sha256": "5a3219e55736b6896688218bf5cc5ae26bd48e4848a88f2a7a087a798de6e738"
+    }
+  ],
+  "preservation": "Read-only analysis plus thisreport. No source, SDK, VM, process, stage, limits, index or repository edits. All previous sources/failures unchanged.",
+  "nextNativeStatus": "NOT_RUN"
+}
