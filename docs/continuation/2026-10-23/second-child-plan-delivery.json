@@ -1,0 +1,32 @@
+{
+  "schema": "lexlean-r4-second-child-plan-delivery/v1",
+  "base": "87044b4c9fabc7275348cdd448384d7463e80c28",
+  "scope": "Accepted bounded second-child design only; no candidate or native result.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 33592,
+      "sha256": "c1ee1d652f603f20d646e78112488ffacb73334fbe5384bf47a45ddb4d178b47"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-second-child-proposal.json",
+      "bytes": 13280,
+      "sha256": "4122812d2735a044fd5db121a1e275619b4f9417c2a8153a4eeb2f916b0b04c5"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-second-child-spec-review.json",
+      "bytes": 8503,
+      "sha256": "e76deca376dc91778b3e09f2bc4f0c7395c480632e4356c177cfd2a5c13e50cc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/second-child-plan-bindings.json",
+      "bytes": 3976,
+      "sha256": "250e3a6d787e96cc0066d50444f677283b39ecf641c43cc847d10c26fd56f31e"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 27970,
+      "sha256": "1851c4e90473ef3dfce24b0abab69f9e9ac27f9f1ceeff4a9a3e46c0bc2b7da9"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "schema": "lexlean-r4-second-child-visit-spec-review/v1",
+  "status": "PASS_BOUNDED_DESIGN_WITH_MANDATORY_ORIGINAL_PARENT_CONSUMER",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T23:31:40.223Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/next-second-child-proposal.json",
+    "bytes": 13280,
+    "sha256": "4122812d2735a044fd5db121a1e275619b4f9417c2a8153a4eeb2f916b0b04c5"
+  },
+  "scope": "Read-only independent source SPEC review for one second-child state and mandatory actual original-parent continuation. No new candidate/source admission/native proof run.",
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "bytes": 62699,
+      "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      "bytes": 25500,
+      "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive-native-review.json",
+      "bytes": 8864,
+      "sha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+      "bytes": 2236,
+      "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/lexlean.toml",
+      "bytes": 696,
+      "sha256": "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "checks": {
+    "allEightAuthorityFilesRehashed": true,
+    "prerequisite": "Actual first-child continuation source and its full statement hash match. S94 incoming state is deep-equal to accepted first-child theorem RHS. Retained actual attestation0f923611 contains accepted first-child continuation with empty observed axioms; review61182786 agrees. No dependency inferred merely from prose.",
+    "closedCall": "Exact bound second-call subtree hashcfc44c07 reproduced; only variable secondBase replaced by Nat32 yields closed9a774374. Accepted outer scrutinee is actual ObjCheckedOffset(0,32), with Result error branch preserved in original theorem. Closing this bound value is a proposed conversion obligation, not an unchecked success premise.",
+    "backend": "Original index3 record hash39a226e2 matched; exactly45wirebytes parsed as scale0,12listedIDbytes and32listedpayloadbytes. Original parent payload bytes12..23 equal that ID. Actual child still calls original ObjChildIdentity/lookup/decode/hash/id/scale checks; no trusted ID result substituted.",
+    "expectedState": "Independently reconstructed S139 canonicalfaa4426d: output is exact first32 payload followed by new32, visits3,wireBytes139,seen[parent128...,first204...,second229...]. Original incoming state/runtime/limits preserved. Production MarkVisit increments2→3 under1000000budget; AccountRecord adds45 under u64 guard and sorted insertion; ReadLeaf base32/stop64/logicalLength96/range0..96 collects full32 bytes and appends to first32.",
+    "allSixProductionDeclarationPinsMatch": true,
+    "reconstructedCanonicalPins": {
+      "acceptedContinuation": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3",
+      "closedChild": "9a7743746813a939ff77f3d90a32f82b6914973e08cb6a7c7cf6e1ca7d135f85",
+      "childState": "faa4426d8e4c8714e31bbc4d042808550326d7efb69f3bdfc5fb6460095fe9e6",
+      "childStatement": "be8253d4d406ac798fdb6c63536620206bb5d1508f04f0698908f271435d52f5",
+      "originalParentLeft": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1",
+      "remainingContinuation": "8811132f5094894453cd9af0330c476f39679a858374b8f3e2631f402112c98c",
+      "mandatoryParentStatement": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1"
+    },
+    "lastContinuation": "Exact selected second-child success subtree with only afterSecond=S139 and secondBase32 substitution. It retains ObjCheckedOffset(32,32), failure propagation and exactly one actual ObjVisitNode call at child identity offset24, boundthirdBase, S139 and originalbackend/range/limits/collect. No third-child result asserted.",
+    "reuse": "Prior first-child theorem statement and output hashes checked. Its call differs from new child in actual identity/base/inputstate; payload hashes a833d7a8 versus37bee472 differ. It supplies accepted source/state context, not an exact second-child certificate.",
+    "proof": "Reflexivity and direct Apply accepted ObjectReadFirstChildContinuation.objFirstChildContinuation are existing supported source constructors. Child theorem remains imported checked dependency/control; parent proof does not rewrite using it."
+  },
+  "implementationConstraints": [
+    {
+      "id": "C1",
+      "requirement": "Materialize only two logical modules/three phase source variants plus minimum configuration, with unchanged actual full parent LHS and exact pinned closed child/remaining Result continuation. Same-module references bare; external refs qualified; eq tag, canonical semantic-module/2/language1.2 and emptyaxioms."
+    },
+    {
+      "id": "C2",
+      "requirement": "Both native phases verify the same mandatory full parent consumer importing the corresponding child theorem. Sole mutation is expected child wireBytes139→140. Require admitted source followed by intended LLV7002 Reflexivity mismatch; source error, timeout or OOM does not count as semantic RED."
+    },
+    {
+      "id": "C3",
+      "requirement": "Positive must verify both exact second-child result and actual original-parent-to-last-child equation, then independently audit source/input/tool/lock/epoch/artifact/emptyaxiom/kernel evidence. Child-only success is incomplete."
+    },
+    {
+      "id": "C4",
+      "requirement": "Consumer Apply must establish actual ObjCheckedOffset(0,32) and second-child-success definitional conversion. Preserve last ObjCheckedOffset(32,32) and final call/errors; do not silently replace offset or successful result with trusted facts."
+    },
+    {
+      "id": "C5",
+      "requirement": "No cached/rewrite use of imported child theorem is claimed. Direct Apply conversion may recompute child authentication/hash and preceding work;180381ms prior aggregate gives no second-child cost prediction. Failure must remain recorded/classified before a changed candidate."
+    },
+    {
+      "id": "C6",
+      "requirement": "Independent exact candidate/invocation CODE review and fresh operational gates before execution. Retain300000ms child/4GiB2CPU,20GiBhostlaunch10GiBreserve,11GiBguestpre10GiBpost and1MiBsource budget. Design PASS supports bounded candidate preparation, not native launch or acceptance."
+    }
+  ],
+  "findings": [],
+  "tests": "All proposed source admission/negative/positive native tests NOT_RUN. Read-only hash and AST reconstruction checks completed; these are not native proof results.",
+  "acceptanceBoundary": "Future success would establish only second authenticated childS139 and original parent continuation with finalthirdcall retained. Third result, finalwalk/output/stats/rootwrapping/rangefinish/manifestversion/wholehash/originalwholeRead/allRead33 and remainingObject257/Hash/PrismPM/Pages remain open.",
+  "actions": "Only this small external review written; no source/candidate/index/stage/repository/native/SDK/compiler/VM/API/other-lab changes."
+}

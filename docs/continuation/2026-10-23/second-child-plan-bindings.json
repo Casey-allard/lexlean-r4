@@ -1,0 +1,68 @@
+{
+  "schema": "lexlean-r4-plan-portable-bindings/v1",
+  "base": "87044b4c9fabc7275348cdd448384d7463e80c28",
+  "status": "INDEPENDENT_SPEC_ACCEPTED_DESIGN_ONLY_NATIVE_NOT_RUN",
+  "aliases": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "bytes": 62699,
+      "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c",
+      "repositoryPath": "tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      "bytes": 25500,
+      "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31",
+      "repositoryPath": "tests/fixtures/object-read-first-child/candidate/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive-native-review.json",
+      "bytes": 8864,
+      "sha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53",
+      "repositoryPath": "tests/fixtures/object-read-first-child/evidence/positive/positive-native-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+      "bytes": 2236,
+      "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463",
+      "repositoryPath": "tests/fixtures/object-read-first-child/candidate/manifest.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/lexlean.toml",
+      "bytes": 696,
+      "sha256": "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2",
+      "repositoryPath": "tests/fixtures/object-read-first-child/candidate/lexlean.toml"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "repositoryPath": "src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/next-second-child-proposal.json",
+      "repositoryPath": "docs/continuation/2026-10-23/next-second-child-proposal.json",
+      "bytes": 13280,
+      "sha256": "4122812d2735a044fd5db121a1e275619b4f9417c2a8153a4eeb2f916b0b04c5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/next-second-child-spec-review.json",
+      "repositoryPath": "docs/continuation/2026-10-23/next-second-child-spec-review.json",
+      "bytes": 8503,
+      "sha256": "e76deca376dc91778b3e09f2bc4f0c7395c480632e4356c177cfd2a5c13e50cc"
+    }
+  ],
+  "boundary": "Original dated proposal and review are preserved byte-identically. These aliases resolve authority files from GitHub without requiring original host paths. No second-child candidate or native result exists; source review, fresh resource admission, intended negative and mandatory full-parent positive with independent artifact review remain required."
+}

@@ -380,8 +380,17 @@ The original-parent consumer retains the two later child calls. Direct Apply
 uses definitional conversion; the child certificate is not a rewrite or cache.
 The initial unsupported equality tag was corrected before native execution;
 the original preparation and exact correction are preserved separately.
-Next review a bounded proof of the second actual child and its resulting state,
-then the final child and completed walk before reconnecting manifest-version and
-whole96-byte hashing. No second-child candidate or native result exists yet.
+The [second-child proposal](continuation/2026-10-23/next-second-child-proposal.json)
+and [independent SPEC review](continuation/2026-10-23/next-second-child-spec-review.json)
+now define the next bounded step. Implement the exact second call from S94 to
+proposed S139: 64 output bytes, three visits, 139 wire bytes and sorted seen IDs.
+Its negative changes only expected wire bytes 139→140. The mandatory original
+parent consumer must retain the final child call and checked offset/error branch;
+native verification must establish the offset and child-success conversion.
+[Portable bindings](continuation/2026-10-23/second-child-plan-bindings.json)
+resolve the original source references from this repository. This is accepted
+design only; no second-child candidate or native result exists yet. Complete
+the final child and walked state before reconnecting manifest-version and
+whole96-byte hashing.
 Keep the ten remaining drafts in the completion sequence and use fresh resource
 gates before further native work.
