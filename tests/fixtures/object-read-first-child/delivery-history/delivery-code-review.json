@@ -1,0 +1,537 @@
+{
+  "schema": "lexlean-r4-first-child-delivery-code-review/v1",
+  "status": "PASS_EXACT_STAGED_DELIVERY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:29:04.847Z",
+  "reviewedHead": "4117154a01bfc51e7754d2f5af04a09d29680a6d",
+  "branch": "codex/object-first-child-proof",
+  "manifest": {
+    "path": "tests/fixtures/object-read-first-child/delivery-manifest.json",
+    "bytes": 20416,
+    "sha256": "5591bf62610b4b4475a486deed795e28ce87256919683f8c8e6ea5cbd56493de"
+  },
+  "disclosure": "Reviewer authored the prior source/invocation, intended-negative and positive-native reviews. This gate independently checks delivery against those immutable records. A separate internal security reviewer provides the second delivery gate.",
+  "checks": {
+    "stagedFiles": 95,
+    "manifestPayloads": 94,
+    "payloadBytes": 694279,
+    "indexSetExactlyManifestPlusSelf": true,
+    "everyIndexByteEqualsWorkingAndManifest": true,
+    "scope": "Only tests/fixtures/object-read-first-child and two portable plan documents.",
+    "copiedCustodyRecordsRehashed": 81,
+    "allSourceAndDestinationCopiesByteIdentical": true,
+    "phaseInputReferencesRehashed": 50,
+    "authorityAliasesRehashed": 27,
+    "sourceCandidateAndHistoricalManifestsPreserved": true,
+    "derivedLocksEqualActualOfficialLockStdout": true,
+    "all215ActualArtifactCensusPinsRehashed": true,
+    "censusArrayDigestMatchesReview": true,
+    "derivedAttestationSummaryScalarsAndCountsMatchOriginal": true,
+    "portablePositiveResultsEqualActualReview": true,
+    "selectedEmittedProofsAndBuildManifestByteIdentical": true,
+    "negativeReviewSha256": "10ca25d9efd8b5fa11b12bb13d8dc0504d77ec0f45a662a8c67e6b1b54213a95",
+    "positiveReviewSha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53",
+    "sixMergedSourcesAndFullRead33UnchangedAndUnstaged": true,
+    "tenRemainingDraftsUnchangedAndUnstaged": true,
+    "all17OriginalSnapshotsUnchanged": true,
+    "markdownRelativeLinksChecked": 77,
+    "allStagedFilesValidUTF8NoNul": true,
+    "gitCachedDiffCheck": "PASS"
+  },
+  "claimsReview": {
+    "accepted": "Actual authenticated first-child32-byte output andS94, and mandatory original-parent continuation retaining both later child calls.",
+    "native": "check21; intended wire95 negativeverify1LLV7002/20606ms; positiveverify0/180381ms;818emptyaxiom declarations/64processes/21kernelreplays/215files. Exact attestation0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f.",
+    "preservedHistory": "Initial unsupported equal tag remains preserved under authoring-history and correction record. It was a static authoring correction before native; successful admission and intended94→95 negative are separate facts. Frozen preparation NOT_RUN labels are explicitly historical, subordinate to current RESULTS/results.json.",
+    "proofBoundary": "Consumer directly Applies prior accepted consumer; child certificate is checked dependency/control, not rewrite/cache or efficiency evidence. No full walked state, later child result, wholeRead33, Object/Hash/PrismPM/Pages claim.",
+    "portability": "Both25input maps and authority aliases resolve within repository. Original one-off scripts and raw receipts retain exact environment paths as historical provenance, explicitly not portable execution authority. Full raw binary artifact remains local and pinned; selected proof texts/derivedsummary do not substitute for it.",
+    "plan": "Two docs record accepted first-child step and require bounded second-child review, later finalchild/walk and manifest/wholehash obligations. No second-child native result is claimed. Ten remaining drafts retained incompletionsequence."
+  },
+  "findings": [],
+  "stagedInventoryColumns": [
+    "path",
+    "bytes",
+    "sha256"
+  ],
+  "stagedInventory": [
+    [
+      "docs/CONTINUATION.md",
+      32929,
+      "7518e87ef020cecd3dde3d626c070c9747b18f16a5d2f45ce01b48f785d47f77"
+    ],
+    [
+      "docs/plans/2026-10-21-lexlean-r4.md",
+      27512,
+      "384c3a9c0d009f2a9a3acbbf527557f864a8faa71ad4534a100df49deda1de55"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/README.md",
+      1365,
+      "4070e13330bba56112510d257d294ab8bd3e85877d53574e839a52b2022a600a"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/RESULTS.md",
+      2816,
+      "1a00cdcbf9738b448e5b0ebdb89ca0c73485d8a58aa51a01f3aa13a7b31fb635"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/README.md",
+      529,
+      "d07a1920207153d73aebd504e70da58ee74d928067b4ee79d407acd70507ee47"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/candidate.json",
+      19973,
+      "f641cd8fbf3468e0565276110c8c9597d4624096a577e73cfca06a707baa2dd0"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      62699,
+      "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/invocation-diff.json",
+      2510,
+      "1795cc6b02569e3eda6e746d8a5ab5d1e4070fe53cb0dff9d76c7de99ab35f70"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/invocation-manifest.json",
+      1683,
+      "5cb30719a2c890ea3ee562994f3fcff9a23420894c9f4c97c17b0a49f1e0adc3"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/invoke-first-child.mjs",
+      7734,
+      "c8a9cef979ba0dfe739f9c0c6169449110b4b41c951a319fce8d68348ec47815"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/lexlean.toml",
+      696,
+      "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/manifest.json",
+      2236,
+      "309d910f2b922c52927f3c3efedf827a358e8161bf209ba1f5c91ee316524f3f"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/negative/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      25503,
+      "807402c946568236075f0f701c283adb6eb9cbaf7a9a4b6b13eec9e7568bc6a0"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      25503,
+      "83497bbb70c86e3359b443edf77b7d1466c7c42307fcdb9f499617fd5855815e"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/authoring-history/invalid-equality-tag/structural-audit.json",
+      5232,
+      "b3c8b51bf5e5d6d18c34fcf06d872a459c271b34563e31ab127163942b45816f"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/README.md",
+      529,
+      "d07a1920207153d73aebd504e70da58ee74d928067b4ee79d407acd70507ee47"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/candidate.json",
+      19973,
+      "83643153e4698b71518b857c3e127982d77b5755e2643d95f91c86ad2cff9ec9"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      62699,
+      "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/lexlean.toml",
+      696,
+      "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/manifest.json",
+      2236,
+      "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/negative/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      25500,
+      "e833dd4d1ffa59eab8edba84b8c8a7c943529e4923488c144842fc2e1a5ba640"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      25500,
+      "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/candidate/structural-audit.json",
+      5781,
+      "894a179e3ef1606f7a8262aec21ad0f88cd8c38b6d9b4c1addb806fb1201cce1"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/delivery-manifest.json",
+      20416,
+      "5591bf62610b4b4475a486deed795e28ce87256919683f8c8e6ea5cbd56493de"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/design/next-child-visit-proposal.json",
+      12231,
+      "1b810e3772f2ad6cb222cc1b257496f2049c9a5066b3428af00533c449f3e176"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/design/next-child-visit-spec-review.json",
+      7946,
+      "e93d197a8b6673d080922be25bebf7f19bc182810595d802d5a17266546b2703"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/authoring-correction.json",
+      6693,
+      "d040f9c48a4266cbf72e30c791068d8e04c40ea95eab929e268e3bfbef308ff9"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/code-review.json",
+      7345,
+      "a6684449a050de8c23fb20ba40424ebdca61704aa95441846a97b644eb63e8d8"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/invocation-diff.json",
+      2510,
+      "c3255b6696f938f59ee796b7e6e284fd877d0dfae2b7e8ff0fec8980ccca1610"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/invocation-manifest.json",
+      1683,
+      "165bf2620d81331da7695cee9e6521f9da4b744485d7311faa0d77eab5dd0414"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/invoke-first-child.mjs",
+      7734,
+      "227891d0e933e4f06aaee33bb722d147fe9fa20e2a25e5cfa12f0b3f6a3bac28"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/allocated-before.json",
+      459,
+      "666e74e6a35d1a721becee4505ed5ad849abc31150bc08205b99d57ad1c31f17"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/check.json",
+      1261,
+      "7f0c33fe4f93b6ee1825454caf35b12a26270e5077f610d06e1be6df585770c7"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/epoch-after.json",
+      470,
+      "e5d46aaf0ec7668bec2d73762d8981c82824232b1919d2529b305feda652d807"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/epoch-before.json",
+      470,
+      "fc216e13b24e6a097980b264c24ac017f1548600b44def8436f643a9a913d378"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/expected-inputs.json",
+      9169,
+      "b3627d0caad7c79fea3227fc2fa3ba7237cf0af000b77e721e0efff5cd922356"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/guest-after.json",
+      406,
+      "c1bca085785b4eca231326425d694e51c2f0be75e5c3468a43808b075a85ecd0"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/guest-before.json",
+      406,
+      "a7db7682b2051a8ccfcb9be00cdf7ba59d3b2fd7e8553dd30095cdf19cbbac81"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/host-after.json",
+      142,
+      "cf93a84f4b5d29ed601ca08a16813a524461f89125eb372ae37184e08f594f23"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/host-before.json",
+      152,
+      "e114e7e7ba05869c4027c8cd64aafbfa074e89be58026634657d65f6f513aa73"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/idle-after.json",
+      460,
+      "1b53cb37b6d406d55041fcaab7229f6b17e00ef0b57d26018ff4c28276435b9e"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/idle-before.json",
+      460,
+      "6f9d13ac6c214205778d0a2e0d511539af447cdd4386ec5c24066fdef3b4d5bb"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/lexlean.lock",
+      1597,
+      "e27234683b8ac0aea5511caeaeb423b147d4c5639373eaae4fca1ace9edc3e68"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/lock-after.json",
+      483,
+      "e306589084a6d12ae53fe3ed7e11e813be04ee56af990f3de2e2d11cd01bb0de"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/lock-bytes.json",
+      2052,
+      "358d4a4513baa9ab818400fa99a65bf33c0bf6dbc9fe2b604dfbd4f5984bb164"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/lock.json",
+      536,
+      "fcd99af2cb55449e2712adfa59390e147701133dfe369876c1e8eb1b777fc1a8"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/memory-after.json",
+      354,
+      "61afe137d6ada66ba0b409665e416df2373ae13b0e67a8d01796b265176a95cd"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/memory-before.json",
+      354,
+      "846f0f90c2c09eee8de210ab38e7a3b915deb58d18de5f0c760c9526e68d3a0e"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/negative-native-review.json",
+      13079,
+      "10ca25d9efd8b5fa11b12bb13d8dc0504d77ec0f45a662a8c67e6b1b54213a95"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/postcapture-errors.json",
+      3,
+      "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/result.json",
+      6384,
+      "c32fad4e92d2e56e7310991bb1dace379f227b13091b99a3fb7c81a3f8e8a7c2"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/source-after.json",
+      6855,
+      "5b210f1378b93b5408543d250c9d789d2daf0315184225997e295d6e71a3b52c"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/source-before.json",
+      6855,
+      "8972f3d11ae5967d273f04bdada2b3745844c537de52ab0f5bf91751bc743047"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/swap-before.json",
+      265,
+      "56d460ce69ca5ba96a6bc5f8398d215f678fcb0f374febf97b2e3f09f024a8c6"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/tools-after.json",
+      1005,
+      "3261015a386612e58b58c409edc29375c5d42e06a0fa4c1a65d1dd96f51ab198"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/tools-before.json",
+      1005,
+      "7142af11a54f315ecb5f3be49e87af49ff3a5008f58afc1d4cfa1193f8f2c28c"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/negative/verify.json",
+      6560,
+      "a5a87d91c199f1662eb67b024b8d5c0bef7e9bc003cc5a1a7667fc0b17ed2798"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive-artifact-census.json",
+      41765,
+      "4e929a63135177da44eb779a28ceadecc9c7a75a158002dc6c992cb58545f554"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/allocated-before.json",
+      459,
+      "4f243559d6a4c175918cc2023a540514e4f7b973afa53a1bbfadc11079d81fec"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/artifact-copy.json",
+      516,
+      "9dbd377592ac8a29cc6084e59043a64cd6fc1b0ec2d7ec0242e57cdb13909470"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/artifact/attestation-summary.json",
+      1288,
+      "e5940d27a8f3afbdebfd30bd9a5bf4c3e6848fb0042bc678df107a596c3ac969"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/artifact/build-manifest.json",
+      25964,
+      "cdd8f5b552355c622774b47786a713e988d0bd948f3078dea2d5d98072d0fb24"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/artifact/modules/LexLeanR4/ObjectReadFirstChildContinuation.lean",
+      12485,
+      "30b873d96e5de2e399e5165a45f2cf3a34a6007def1d62da21fb500bd363a276"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/artifact/modules/LexLeanR4/ObjectReadFirstChildState.lean",
+      5225,
+      "eff2441905f6f5b394a710d2d30e2ccad587bd40871bd24cfb1c3d2dde136f9e"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/check.json",
+      1264,
+      "bf229919bedbfe05d6677a77c81cfdac212c980e093fafe5b5e81160efb7cc25"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/epoch-after.json",
+      470,
+      "9f77caa868d4f09224bbaac08e3d4509ff009e90fb023ab6ad8c9a0fe3ccd503"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/epoch-before.json",
+      470,
+      "874d5ef03eccb7b97523c4fc7321981bb2b6edc4cd30d67c628f31c0887c8333"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/expected-inputs.json",
+      9169,
+      "680a1010e6acdb5fed32f8a6fd23d5fd505b59b088a9c85f542e1e5d72200e8d"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/guest-after.json",
+      406,
+      "33ec9c9f8b41e083c673329ed40db3ccce0a9c9c8ab8d97baa8e9ee479c438b9"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/guest-before.json",
+      406,
+      "8b147083f43a6cc2f68cc811c06c23729a8d2d02a6029481f65c15971669e3c9"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/host-after.json",
+      142,
+      "bd3dbfe8744375d614fe57f51e870efc4a6bfd2f4240174869071edc11298ccb"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/host-before.json",
+      152,
+      "a3df6cc60b2734d4f000c95a9c7a27c76e9713a1a80063898b2d31b2b5f06291"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/idle-after.json",
+      460,
+      "58d845f9ca6b7bf3be665c5e069a4c2c673c1a4df6ce4302880d266706e5b685"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/idle-before.json",
+      460,
+      "c1b1bc9e7ed29cf3a8c00f4e1ec449b732d3709d88628ec2c600f65279d5ff3a"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/lexlean.lock",
+      1597,
+      "e27234683b8ac0aea5511caeaeb423b147d4c5639373eaae4fca1ace9edc3e68"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/lock-after.json",
+      489,
+      "d7c0a23a26e1352d003f1c31907a9e415e08ed81b7e990e83bc8ecd830a11131"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/lock-bytes.json",
+      2055,
+      "7852c851ebff7486648fbc367aaa7b455ffd4ad95238842a91e2c4fcddcbf435"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/lock.json",
+      539,
+      "523ce71dc32452207a53a33df88b484fc90c0911e01983f6410142b151900e9d"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/memory-after.json",
+      354,
+      "e9388383458cb3d58426623e69b724ce957b6cd0c14fc817cd0b651e6f0ff6a2"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/memory-before.json",
+      354,
+      "25c986b64da96ffd90037001b87d219f808764f5547e70f34f4449d0f956fe7e"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/positive-native-review.json",
+      8864,
+      "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/postcapture-errors.json",
+      3,
+      "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/result.json",
+      1423,
+      "79adb1b647c24766414bb11dc700a78ee9b5a2438d8f79a6487a1bbb25becf9b"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/source-after.json",
+      7005,
+      "28fa5c12cec219d868c47628c86c903bc6389129b42710fc3cccf1f8c551acee"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/source-before.json",
+      7005,
+      "39a5503ab40483cf7f69410a8af23829b9b8dd4fb433f86b5771cc0e663d2668"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/swap-before.json",
+      264,
+      "0d1124613eacd49d208919fa79889352090fa840275de1bfbb61d48f38b07eeb"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/tools-after.json",
+      1005,
+      "7e5b01ff4b0010818b017e3b4d67a46022525decffb85a64bfd55b3090b396c6"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/tools-before.json",
+      1005,
+      "c036ca851519effe582a26594860309957a7c413313068fdf73ab87bf84ab3b5"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/positive/verify.json",
+      1584,
+      "21e183919f2c1d288888b95420df9634a47e7f88d35c437c394318a9042860b8"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/evidence/readiness.json",
+      1871,
+      "b566411c3dbf0d02c797980d8aef769e307e267ed52bd065cd51ddd3667f3500"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/negative-custody.json",
+      13855,
+      "1304daf0b195a76bf09e2c040d6ef4008243a6cd3b38b6220cab4ad3f50dc54e"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/positive-custody.json",
+      16080,
+      "683839019c5fd69073c9e9a4da337b149cc200847c4e6e0e81e51e7c2d1d188a"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/results.json",
+      8193,
+      "647da63d4a07f39ac787aaebbf16faaa0b4ea9a976342019297c46509ee7e15b"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/source-bindings.json",
+      32180,
+      "7df11df429b9bca39f2bdedaf2933164176c8d83441dbdae3317af596ad8d093"
+    ],
+    [
+      "tests/fixtures/object-read-first-child/source-preservation-custody.json",
+      18235,
+      "c785de10e7d445616d2ccc5ccaa4d3e9c1f01637341dbecbcdc87c63fd28233c"
+    ]
+  ],
+  "storage": {
+    "availableBytes": "29686231040",
+    "newReviewBudgetBytes": 25000
+  },
+  "actions": "Read-only repository/index/native evidence audit plus this external report only. No SDK rerun, repository/index/source/frozen changes, binary copying or other-lab actions."
+}

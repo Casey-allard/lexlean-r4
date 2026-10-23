@@ -24,6 +24,7 @@ independent reviewers; no external lab or another session owns this work.
 | Connected parent authenticated fetch | Actual `ObjAuthenticatedFetch` with the original four-entry backend, parent ID and scale1 equals the full expected record. Wrong-base proof rejected; positive artifact independently audited with809 empty-axiom declarations and14 kernel replays. Local fetch equation only; zero original Read33 controls discharged. | [Fetch results](../tests/fixtures/object-read-parent49-fetch/RESULTS.md). Original source-admission failure and exact two-field repair are preserved separately. |
 | Parent visitor transition | Actual original `ObjVisitNode` equals its complete continuation with the certified parent record substituted. Wrong-base proof rejected; positive independently audited:814 empty-axiom declarations and17 kernel replays. All three child calls remain; no final walked state or Read33 acceptance. | [Visitor results](../tests/fixtures/object-read-parent49-visit/RESULTS.md). |
 | Concrete parent accounting and child entry | Actual parent state is empty output, one visit, 49 wire bytes and the original parent ID in seen. The full original visitor equals its three-child continuation with this state; false expected wire 50 is rejected. Independent audit: 816 empty-axiom declarations, 19 kernel replays. | [Accounting results](../tests/fixtures/object-read-parent49-accounting/RESULTS.md). Child results and final walked state remain open. |
+| First actual child visit and parent continuation | The original first leaf authenticates and returns its 32-byte payload, two visits, 94 wire bytes and the sorted parent/child seen IDs. False expected wire 95 is rejected. The original parent visitor equals the continuation with both later child calls retained. Independent audit: 818 empty-axiom declarations and 21 kernel replays. | [First-child results](../tests/fixtures/object-read-first-child/RESULTS.md). The two later child results, final walked state and original Read33 controls remain open. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -368,7 +369,19 @@ output, one visit, 49 wire bytes and the original parent ID in seen.
 The consumer directly applies the accepted visitor theorem through definitional
 conversion; it does not rewrite with the accounting certificate or establish
 cached computation. All three actual child calls remain in its continuation.
-Next review a bounded proof of the child visits and resulting state, then
-reconnect manifest-version and whole96-byte hashing. No such next candidate or
-native result exists yet. Keep the ten remaining drafts in the completion
-sequence and use fresh resource gates before further native work.
+The [first actual child visit](../tests/fixtures/object-read-first-child/RESULTS.md)
+now also passes: the false wire count 94→95 is rejected in 20,606 ms; the positive
+child state and mandatory original-parent consumer verify in 180,381 ms.
+Independent review checked 215 artifact files, 105 outputs, 818 empty-axiom
+declarations, 64 successful process records and 21 kernel replays. All 25 inputs
+and operational postchecks passed with zero memory events. The state contains
+the actual 32-byte leaf output, two visits, 94 wire bytes and both sorted seen IDs.
+The original-parent consumer retains the two later child calls. Direct Apply
+uses definitional conversion; the child certificate is not a rewrite or cache.
+The initial unsupported equality tag was corrected before native execution;
+the original preparation and exact correction are preserved separately.
+Next review a bounded proof of the second actual child and its resulting state,
+then the final child and completed walk before reconnecting manifest-version and
+whole96-byte hashing. No second-child candidate or native result exists yet.
+Keep the ten remaining drafts in the completion sequence and use fresh resource
+gates before further native work.

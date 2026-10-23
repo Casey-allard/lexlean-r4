@@ -1,0 +1,160 @@
+{
+  "schema": "lexlean-r4-first-child-positive-native-review/v1",
+  "status": "PASS_LOCAL_FIRST_CHILD_AND_ORIGINAL_PARENT_CONTINUATION",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:26:23.738Z",
+  "scope": "Independent read-only audit of actual native positive evidence and complete retained artifact. Reviewer authored prior source/negative audit; candidate and native run authored/executed by other internal agents.",
+  "identities": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+      "bytes": 2236,
+      "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-manifest.json",
+      "bytes": 1683,
+      "sha256": "165bf2620d81331da7695cee9e6521f9da4b744485d7311faa0d77eab5dd0414"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invoke-first-child.mjs",
+      "bytes": 7734,
+      "sha256": "227891d0e933e4f06aaee33bb722d147fe9fa20e2a25e5cfa12f0b3f6a3bac28"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/code-review.json",
+      "bytes": 7345,
+      "sha256": "a6684449a050de8c23fb20ba40424ebdca61704aa95441846a97b644eb63e8d8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/negative-native-review.json",
+      "bytes": 13079,
+      "sha256": "10ca25d9efd8b5fa11b12bb13d8dc0504d77ec0f45a662a8c67e6b1b54213a95"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/verify.json",
+      "bytes": 1584,
+      "sha256": "21e183919f2c1d288888b95420df9634a47e7f88d35c437c394318a9042860b8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/result.json",
+      "bytes": 1423,
+      "sha256": "79adb1b647c24766414bb11dc700a78ee9b5a2438d8f79a6487a1bbb25becf9b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/artifact/attestation.json",
+      "bytes": 187518,
+      "sha256": "d78edd26aa63ee887d356262ef2328cb5f2277f47513c99b522e8d2649b44770"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/artifact/build-manifest.json",
+      "bytes": 25964,
+      "sha256": "cdd8f5b552355c622774b47786a713e988d0bd948f3078dea2d5d98072d0fb24"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/artifact/modules/LexLeanR4/ObjectReadFirstChildState.lean",
+      "bytes": 5225,
+      "sha256": "eff2441905f6f5b394a710d2d30e2ccad587bd40871bd24cfb1c3d2dde136f9e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/artifact/modules/LexLeanR4/ObjectReadFirstChildContinuation.lean",
+      "bytes": 12485,
+      "sha256": "30b873d96e5de2e399e5165a45f2cf3a34a6007def1d62da21fb500bd363a276"
+    }
+  ],
+  "actualOutcome": {
+    "checkExit": 0,
+    "checkModules": 21,
+    "verifyExit": 0,
+    "success": true,
+    "diagnostics": [],
+    "verifyElapsedMs": 180381,
+    "attestationId": "0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f",
+    "buildId": "0f1596f14dd4104fb4dd5210b21e5e4da1ead6d7b817f4e52c0cfae2d2fe7492",
+    "sourceId": "6f8e4ee1f01a9c83961dad41c955a04adc097136945b2e65fa5639eb12d33b7c",
+    "semanticId": "4aaf17b80ed1192b4ffebcc9cd52bd61540032435d790fb128ec8a010bc85261",
+    "stage": "/tmp/r4-object-read-first-child-child-positive-owned-20261023",
+    "lockSha256": "e27234683b8ac0aea5511caeaeb423b147d4c5639373eaae4fca1ace9edc3e68"
+  },
+  "artifactAudit": {
+    "files": 215,
+    "sortedCensusSha256": "66515f2b4a3e75486d1a1a8c5196814e360e31a72137571d6cc1ec82bbd60820",
+    "censusEncoding": "SHA256(JSON.stringify(ordinal-path-sorted array of {path,bytes,sha256})); every retained regular file hashed, no symlinks, exact expected set.",
+    "buildOutputs": 105,
+    "oleans": 21,
+    "declarations": 818,
+    "processes": 64,
+    "kernelReplays": 21,
+    "allExpectedFilesPresentNoExtras": true,
+    "buildManifestHashAndLengthMatchAttestation": true,
+    "allOutputAndOleanLengthsHashesMatch": true,
+    "allProcessCopiesDeepEqualAttestation": true,
+    "allProcessExitCodesZero": true,
+    "allProcessStdoutStderrHashesMatch": true,
+    "allProcessExecutableHashesMatchKnownLeanOrChecker": true,
+    "kernelReplayModulesExactlyBuildModules": true,
+    "allDeclarationsObservedAxioms": [],
+    "allDeclarationsPolicy": {
+      "kind": "none",
+      "axioms": []
+    },
+    "allDeclarationsResult": "ok",
+    "auditOutputAndPerModuleProcessNamesExactlyAttestedDeclarations": true,
+    "probeAuditSourcesAndProcessRecordsIncludedInFullCensus": true,
+    "inputSourcesConfigLockAndLakeWorkspaceBound": true,
+    "embeddedLexicons": "Embedded lexicon identities are recorded by build manifest/lock; unbundled embedded package bytes were not independently extracted or rehashed."
+  },
+  "proofInspection": {
+    "child": "Actual emitted ObjectReadFirstChildState.objFirstChildState states complete original ObjVisitNode scale0 call fromS49 over original backend/range/limits, equal to Except.ok original32-byte output,visits2,wireBytes94,seen[parent,child]; actual proof rfl. No trusted decode/hash replacement.",
+    "mandatoryConsumer": "Actual emitted ObjectReadFirstChildContinuation.objFirstChildContinuation preserves original parent ObjVisitNode scale1/initialempty/fullbackend/96/range/limits/collect. RHS contains checked offset0+32, actual second child usingS94, propagated errors, checked secondBase+32 and actual third child usingboundafterSecond. Actual proof exact ObjectReadParent49ConcreteChildEntry.objParent49ConcreteChildEntry.",
+    "literalSequenceChecks": {
+      "childListNatLiterals": 348,
+      "consumerListNatLiterals": 860,
+      "allMatchSourceASTEmissionOrder": true
+    },
+    "consumerActualVisitCallsIncludingOriginalLeft": 3,
+    "consumerCheckedOffsets": 2,
+    "bothNewDeclarationsObservedEmptyAxiomsAndKernelReplayed": true,
+    "noSorryOrAdmitInNewEmissions": true,
+    "conversion": "Native success establishes this concrete definitional conversion. Imported first-child theorem is independently checked dependency/control; consumer does not apply it as a rewrite or cache. No avoided-work or efficiency claim."
+  },
+  "receiptAudit": {
+    "rawCommands": 47,
+    "allExitZeroSignalsNullNoErrors": true,
+    "lockCheckVerifySequenceAndFullConsumerTargetExact": true,
+    "artifactCopyActualSuccessfulPathExact": true,
+    "all25InputsEqualFrozenPositiveMapping": true,
+    "all25HostInputsRehashed": true,
+    "all25CopyReceiptsMatch": true,
+    "sourceBeforeAfterExactPathsAndHashes": true,
+    "genuineOfficialLockAndAfterHashUnchanged": true,
+    "allFrozenPayloadsAndDependenciesRehashed": true,
+    "toolsBeforeAfterExactKnownFourHashes": true,
+    "epochBeforeAfter": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "memoryBeforeAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "idleBeforeAfter": true,
+    "independentPostcapturesAfterVerify": true,
+    "postcaptureErrors": [],
+    "hostBeforeAvailableBytes": "31134846976",
+    "hostAfterAvailableBytes": "30740865024",
+    "hostPre20GiBPost10GiBGatesPass": true,
+    "guestBeforeAvailableKiB": "53077572",
+    "guestAfterAvailableKiB": "53065220",
+    "guestPre11GiBPost10GiBGatesPass": true
+  },
+  "findings": [],
+  "accepted": "Actual first authenticated child result with32outputbytes/S94, and mandatory original-parent continuation retaining both later child calls. This is more than helper-only acceptance.",
+  "limitations": "Not a completed child sequence/walk, full output/statistics/root wrapping/range finish/manifest version/whole hash, originalRead33/fullObject/Hash/PrismPM/Pages acceptance. No compiler/native rerun by reviewer. No benchmark or general efficiency inference. Historical invalid equal-tag preparation remains source-only, distinct from accepted intended94→95 negative and this actual positive.",
+  "storage": {
+    "reviewAvailableBytes": "30711934976",
+    "writeBudgetBytes": 25000,
+    "noBuildsOrCopies": true
+  },
+  "actions": "Only this bounded external review JSON written. All original artifact/raw/source/evidence preserved; no repository/index/native/VM/other-lab modifications."
+}

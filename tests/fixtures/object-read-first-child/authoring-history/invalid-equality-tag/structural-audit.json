@@ -1,0 +1,138 @@
+{
+  "schema": "lexlean-r4-first-child-structural-audit/v1",
+  "status": "READ_ONLY_STRUCTURE_PASS_NATIVE_NOT_RUN",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/next-child-visit-proposal.json",
+    "bytes": 12231,
+    "sha256": "1b810e3772f2ad6cb222cc1b257496f2049c9a5066b3428af00533c449f3e176"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/next-child-visit-spec-review.json",
+    "bytes": 7946,
+    "sha256": "e93d197a8b6673d080922be25bebf7f19bc182810595d802d5a17266546b2703"
+  },
+  "actualASTHashes": {
+    "acceptedChildEntryStatement": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789",
+    "exactChildCall": "14ce41b1e262b194dc2e7417372c31420ddabc93d86324bd44c6e4ba8c00010a",
+    "backendEntry": "cfb62a49b557b601bd450c976dcaad6a47621c3dfaff3bd396775aadc1cf9451",
+    "incomingS49": "8d2b1342cf324189f6fb76a5cfdaa15667d41b4d9f323b99e67c968f3ebb3c37",
+    "expectedS94": "064c1afff120c9b3f6f17698c57669ff83015c43e69a2727a429dd4009cc8f57",
+    "remainingContinuation": "024b2ad13159a723210b8465b99113b76c7993b04fe936b589715b47a9e78d77",
+    "mandatoryConsumerStatement": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3"
+  },
+  "allEightSpecASTPinsMatch": true,
+  "negativeOnlyDifferences": [
+    {
+      "path": "/declarations/0/statement/right/arguments/0/fields/2/value/value",
+      "positive": "94",
+      "negative": "95"
+    }
+  ],
+  "negativeAndPositiveWholeConsumerIdentical": true,
+  "originalParentLeftUnchanged": true,
+  "remainingChildCalls": 2,
+  "consumerDirectApply": {
+    "arguments": [],
+    "kind": "apply",
+    "theorem": {
+      "module": "ObjectReadParent49ConcreteChildEntry",
+      "name": "objParent49ConcreteChildEntry"
+    },
+    "type_arguments": []
+  },
+  "childProof": {
+    "kind": "reflexivity"
+  },
+  "emptyAxioms": true,
+  "canonicalJSON": true,
+  "sharedInputs": 22,
+  "eachPhaseInputs": 25,
+  "configOnlyEntrypointChange": true,
+  "wire45": 45,
+  "payload32": 32,
+  "noCertifiedOldLeafReuse": true,
+  "preservedSources": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "nativeStatuses": {
+    "sourcecheck": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positive": "NOT_RUN"
+  },
+  "expectedNegative": "Actual sourcecheck pass followed by imported first-child Reflexivity94/95 mismatch; timeout/OOM/setup/admission failure not accepted.",
+  "requiredPositive": "Actual first-child theorem and full original parent consumer both verify, with independent exactsource/artifact/emptyaxiom/kernel audit. No guarantee of cost or conversion."
+}

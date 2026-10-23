@@ -1,0 +1,26 @@
+{
+  "schema": "lexlean-r4-selected-attestation-summary/v1",
+  "status": "DERIVED_SUMMARY_NOT_FULL_ATTESTATION",
+  "original": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/child-positive/artifact/attestation.json",
+    "bytes": 187518,
+    "sha256": "d78edd26aa63ee887d356262ef2328cb5f2277f47513c99b522e8d2649b44770"
+  },
+  "scalarFields": {
+    "attestation_id": "0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f",
+    "build_id": "0f1596f14dd4104fb4dd5210b21e5e4da1ead6d7b817f4e52c0cfae2d2fe7492",
+    "semantic_id": "4aaf17b80ed1192b4ffebcc9cd52bd61540032435d790fb128ec8a010bc85261",
+    "source_id": "6f8e4ee1f01a9c83961dad41c955a04adc097136945b2e65fa5639eb12d33b7c",
+    "spec": "lexlean/attestation/2",
+    "status": "verified"
+  },
+  "declarations": 818,
+  "processes": 64,
+  "oleans": 21,
+  "review": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive-native-review.json",
+    "bytes": 8864,
+    "sha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53"
+  },
+  "boundary": "Full raw artifact remains local and pinned by complete census; summary is not a substitute for original attestation or independent audit."
+}

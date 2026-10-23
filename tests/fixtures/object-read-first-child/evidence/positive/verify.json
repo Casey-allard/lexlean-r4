@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-first-child-child-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/ObjectReadFirstChildContinuation.lex.tex"
+  ],
+  "started": "2026-10-23T23:21:13.111Z",
+  "ended": "2026-10-23T23:24:13.492Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f\"],\"attestation_id\":\"0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f\",\"build_id\":\"0f1596f14dd4104fb4dd5210b21e5e4da1ead6d7b817f4e52c0cfae2d2fe7492\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadFirstChildContinuation\",\"ObjectReadFirstChildState\",\"ObjectReadParent49\",\"ObjectReadParent49AccountingState\",\"ObjectReadParent49AuthenticatedFetch\",\"ObjectReadParent49ConcreteChildEntry\",\"ObjectReadParent49FetchContext\",\"ObjectReadParent49FetchTransport\",\"ObjectReadParent49VisitContext\",\"ObjectReadParent49VisitTransition\",\"ObjectReadParent49VisitTransport\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"4aaf17b80ed1192b4ffebcc9cd52bd61540032435d790fb128ec8a010bc85261\",\"source_id\":\"6f8e4ee1f01a9c83961dad41c955a04adc097136945b2e65fa5639eb12d33b7c\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

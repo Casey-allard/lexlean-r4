@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-first-child-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/invoke-parent49-accounting.mjs",
+    "bytes": 7760,
+    "sha256": "b2d51e9816256b71a49d9700c9c3411bb0af18cb0c98d21c4ebda8856bceebbf"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/candidate-invocation-code-review.json",
+    "bytes": 6984,
+    "sha256": "633582146d7a30af15d72d8f4c19ec20d9a4c195e50980375ab63849df3f5377"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invoke-first-child.mjs",
+    "bytes": 7734,
+    "sha256": "c8a9cef979ba0dfe739f9c0c6169449110b4b41c951a319fce8d68348ec47815"
+  },
+  "literalReplacements": [
+    {
+      "from": "// One-off official-compiler invocation for one selected parent49 accounting and full child-entry consumer; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one selected first child and full original parent continuation; no Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['accounting-false','accounting-positive']",
+      "to": "['child-false','child-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one accounting phase",
+      "to": "select exactly one first-child phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-parent49-accounting-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-read-first-child-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "from": "e74c95007f77f27efd6de96431213ca75623ff2596de63c0f1273e622573cd9f",
+      "to": "309d910f2b922c52927f3c3efedf827a358e8161bf209ba1f5c91ee316524f3f",
+      "occurrences": 1
+    },
+    {
+      "from": "phase==='accounting-false'",
+      "to": "phase==='child-false'",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==23||new Set(inputs.map(x=>x.destination)).size!==23",
+      "to": "inputs.length!==25||new Set(inputs.map(x=>x.destination)).size!==25",
+      "occurrences": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "to": "tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "allOtherOperationalGuardAndPostcaptureBytesUnchanged": true
+}

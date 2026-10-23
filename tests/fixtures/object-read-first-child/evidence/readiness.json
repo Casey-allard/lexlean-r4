@@ -1,0 +1,48 @@
+{
+  "schema": "lexlean-r4-first-child-readiness/v1",
+  "status": "SOURCE_ONLY_VERIFIED_FROZEN_NATIVE_NOT_RUN",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+    "bytes": 2236,
+    "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invocation-manifest.json",
+    "bytes": 1683,
+    "sha256": "165bf2620d81331da7695cee9e6521f9da4b744485d7311faa0d77eab5dd0414"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/invoke-first-child.mjs",
+    "bytes": 7734,
+    "sha256": "227891d0e933e4f06aaee33bb722d147fe9fa20e2a25e5cfa12f0b3f6a3bac28"
+  },
+  "staticCorrection": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/authoring-correction.json",
+    "bytes": 6693,
+    "sha256": "d040f9c48a4266cbf72e30c791068d8e04c40ea95eab929e268e3bfbef308ff9"
+  },
+  "checks": {
+    "manifestFilesAndDependencies": true,
+    "both25Inputs": true,
+    "canonicalJSON": true,
+    "onlyTwoEqualToEqRepairs": true,
+    "semanticNegativeDifferences": [
+      {
+        "path": "/declarations/0/statement/right/arguments/0/fields/2/value/value",
+        "before": "94",
+        "after": "95"
+      }
+    ],
+    "allEightInvocationLiteralChangesOnly": true,
+    "tenDraftsSixSourcesFull33Unchanged": true,
+    "historyByteExact": true,
+    "nodeCheckExit": 0,
+    "moduleExecuted": false
+  },
+  "censusBeforeReadiness": {
+    "files": 23,
+    "bytes": 315832,
+    "allocated": 368640
+  },
+  "boundary": "Ready for independent source/invocation CODE review only. No sourcecheck or native proof acceptance."
+}
