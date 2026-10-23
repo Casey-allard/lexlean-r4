@@ -7,7 +7,6 @@ use std::error::Error;
 use std::path::Path;
 
 use serde_json::{json, Value};
-use sha2::{Digest, Sha256};
 
 const ORIGINAL: &str = "tests/fixtures/hash/HashControls.lex.tex";
 const ORIGINAL_SHA: &str = "0603c79620ff19e4a30239a7b180b214af5941d925f60161479a0049b8acd60e";
@@ -17,7 +16,7 @@ const INVENTORY_SHA: &str = "66f2661bb885aa61c36365329cf267fe21ff7c245ec3a0d98e9
 fn frozen_source(root: &Path, path: &str, digest: &str) -> Result<String, Box<dyn Error>> {
     let source = std::fs::read_to_string(root.join(path))?;
     assert_eq!(
-        format!("{:x}", Sha256::digest(source.as_bytes())),
+        support::sha256_hex(source.as_bytes()),
         digest,
         "reviewed hash fixture changed: {path}"
     );
