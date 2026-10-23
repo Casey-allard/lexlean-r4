@@ -2,7 +2,7 @@
   "schema": "lexlean-r4/hash-wire-finite-checkpoint/1",
   "date": "2026-10-23",
   "status": "BASELINE_VERIFIED_MUTATION_INCOMPLETE",
-  "statusMeaning": "Only the exact isolated 78-root/636-control finite positive baseline is accepted here. Mutation sensitivity is incomplete after a whole Admission-module child timeout; full restoration was running at this recorded checkpoint and is not accepted. This is a source/proof-fixture baseline checkpoint, not component or integration acceptance.",
+  "statusMeaning": "Only the exact isolated 78-root/636-control finite positive baseline is accepted here. Mutation sensitivity is incomplete after a whole Admission-module child timeout; restoration subsequently timed out at HashWireCross05Controls after seven completed roots. This is a source/proof-fixture baseline checkpoint, not component or integration acceptance.",
   "schemaPrecedent": "tests/fixtures/snapshot-parameters/finite-checkpoint.json",
   "sourceSha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
   "controlsSha256": "861d8e3435c84a1fa12e0bed1e0cc1fce2b97b47564c3fa0462a19e0608b530d",
@@ -749,7 +749,7 @@
       "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.HashWireAdmissionControls: configured 300000, observed 300016 ms",
       "scope": "Whole module timeout; no per-theorem timing identifies the active declaration. Exact immutable failure-stream/process digests are recorded without binding a volatile overall run summary."
     },
-    "restorationAtCheckpoint": "RUNNING_NOT_ACCEPTED",
+    "restorationAtCheckpoint": "INCOMPLETE_RESOURCE_TIMEOUT_AFTER_SEVEN_ROOTS",
     "remainingMutants": "Four later mutants not reached in this failed sequence; all seven frozen expectations remain required.",
     "completedPartialAuditPins": [
       {
@@ -773,5 +773,10 @@
   "componentAccepted": false,
   "canonicalHashAccepted": false,
   "fullFiniteCheckpointAccepted": false,
-  "baselineAccepted": true
+  "baselineAccepted": true,
+  "restorationInterruption": {
+    "path": "tests/fixtures/hash-wire/restoration-interruption.json",
+    "sha256": "62421c54883e7acf2206f87f16a8e0c5139c30b7c39432246bdafcfbb0cbc608",
+    "fullRestorationAccepted": false
+  }
 }
