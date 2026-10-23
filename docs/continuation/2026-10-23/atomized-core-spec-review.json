@@ -1,0 +1,111 @@
+{
+  "schema": "lexlean-r4-original257-atomized-prefix-bridge-spec-review/v1",
+  "at": "2026-10-23T18:53:42.168Z",
+  "status": "PASS_BOUNDED_SOURCE_PROPOSAL_ONLY_NEW_NATIVE_NOT_RUN",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/nonempty-continuation/canonical/next-product-step-proposal.json",
+    "bytes": 12112,
+    "sha256": "dc169b8a41bb95bc7645946056891bfdad903a002beed46f45868889799f4db7"
+  },
+  "pinsVerified": [
+    {
+      "path": "docs/continuation/2026-10-23/original257/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/evidence/state-native-review.json",
+      "bytes": 29949,
+      "sha256": "c18c2dc1399a10dc64f5b96186abaf06bb28497f3d67e7a9cd92f9a9343e3efb"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/manifest.json",
+      "bytes": 8831,
+      "sha256": "0658e146a3b03048346f84b14fb29759237dbd252a9d0160b41d88d9d7d81d06"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+      "bytes": 19206,
+      "sha256": "727ba3a5a6d996f189f388a7a8220b8c6d9ec7e5075c4a66c8d30c7a3a609cf6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/nonempty-continuation/canonical/continuation-positive/verify.json",
+      "bytes": 1356,
+      "sha256": "d99fefb87bcbcf04e6251083a539d3cfbaff796c77074c85f81951bbc7309f44"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/nonempty-continuation/canonical/continuation-positive/result.json",
+      "bytes": 1170,
+      "sha256": "665e5475a195f7f960a582ace9d20b4b2a542ab7f3a958a3d5a17f4ec2904316"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/nonempty-continuation/canonical/continuation-positive/artifact/modules/LexLeanR4/Object257NonemptyContinuation.lean",
+      "bytes": 3182,
+      "sha256": "abf792a460dddcb6f909e22dacaf9aa94ea49c4b9ed9f88fd84b93d2a1959dd2"
+    }
+  ],
+  "currentNativeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/nonempty-continuation/canonical/native-review.json",
+    "bytes": 51094,
+    "sha256": "4711b58ff309516cf76a34cd18d05f9e9dcd968ac404f5b0618d942f14cfe958",
+    "status": "PASS_ACTUAL_TWO_ATOM_CONTINUATION_WITH_INTENDED_NEGATIVE",
+    "scope": "Read and bound independent existing native audit; no fresh replay or repeat artifact audit."
+  },
+  "findings": [],
+  "sourceChecks": {
+    "exactInput": "Parsed original objFoldDigest257 source AST. Exact ObjFold input-expression JSON hash matches26af1534387a4c980b3142824b56abdee3235a2159e68fddeac69b55bd53ad94. Literal/ObjAppendBytes source decoding yields257bytes; proposed suffixBytes exactly original bytes after32, length225:32..255 then0. This is source correspondence, not native atomization evidence.",
+    "initialState": "Original input store records field is nil; original limits AST equals accepted first-state statement left arguments[3]. Copy F as exact first-state left. S must be the ObjCarryState record at firstState.statement.right.arguments[0]; full firstState.statement.right is Result.ok S. Do not double-wrap the Result.ok constructor.",
+    "atomizer": "Inspected production ObjAtomize AST: it accumulates pending bytes, emits pending++[head] when count=31, resets pending/count, and emits final pending atom iff count nonzero. With I/R exact inputs, exposing the first32-byte atom then Q is a justified concrete conversion target. Actual compiler acceptance remains required.",
+    "foldCore": "Actual ObjFoldAdmitted, after prior checks, calls ObjFoldAtoms(ObjAtomize items []0) [] original.records original.limits and then either propagates failure or calls ObjFoldFinish. Proposed left is precisely this core specialized to the original empty store/I/L. It does not claim the surrounding admission or finish branches.",
+    "context": "K is legal term-level Result matching: preserve error e and on ok carried invoke actual ObjFoldAtoms Q carried.frontier carried.inventory L. Both branches have Result ObjCarryState ObjError. No proof Cases on Result is introduced.",
+    "proofShape": "Current actually emitted two-atom module uses Induction count; zero exact accepted first-state theorem; successor Nat Cases prior; congr1 in both branches; exact lifted1 at actual consumer. Proposed shape uses the same supported constructors and reducible Prop-family representation. Replace the tail expression only with real ObjAtomize R []0 and consumer head with real ObjAtomize I []0.",
+    "claim": "Consumer proves equality of the full atomized fold-core and remaining-suffix fold from firstState if it actually verifies. It is not a theorem explicitly enumerating all atoms or a universal atomizer/error proof. Remaining suffix stays a real computation, without supplied future IDs or expected final state."
+  },
+  "candidateRequirements": [
+    "Use S=accepted right.arguments[0] and okS=accepted right exactly; proposal terms.S prose mentions Result.ok but every projection and base equality requires the unwrapped record. Explicit typed AST selection avoids ambiguity.",
+    "Keep exact original I AST, original limits, first-state F/S, production definitions and original digest unchanged. Construct R only from source bytes32..255 then0, compare full225-byte list; retain actual ObjAtomize calls rather than host-supplied atom lists.",
+    "K must retain explicit error/success branches and output type, same L, and real carry-state projections. No new certificate, expected hash or runtime fallback.",
+    "Negative and positive must contain same unrelated0=0 theorem and differ only in zero-base Apply target after module identity normalization. Require sourcecheck success then specific intended base mismatch; setup/canonicality/dependency/resource failure is not RED.",
+    "Require actual lifted AND actual production consumer positive; helper-only proof is incomplete. Audit emitted T/Q original/suffix expressions, empty observed axioms, recorded kernel replays and exact artifacts independently.",
+    "Author canonical semantic JSON with recursive required key ordering; preserve previous LLT4001 as an instrument/source-format failure, not a semantic negative.",
+    "Keep exact300000ms and4GiB/2CPU limits and existing storage/idle/epoch/tool gates. No automatic enlarged/equivalent retry; preserve actual failure and classify before revising.",
+    "Publish repository-relative source mappings and copied review/result identities for portable resumption. Historical absolute artifact references must not become the only continuation inputs."
+  ],
+  "uncertainty": {
+    "conversion": "Current two-atom success does not establish the larger atomized consumer. K(F) versus nested fold matches and atomization prefix conversion still depend on concrete native definitional conversion.",
+    "computation": "Larger Q/T may trigger repeated first-leaf or remaining hash unfolding. Source-level retention of computation does not promise opacity, bounded cost or hash avoidance. Preserve time/memory/error evidence; no performance benefit claimed.",
+    "negativeLimit": "Unrelated-base negative checks consumed certificate dependency. It does not independently qualify all error cases or universal atomizer properties; exact production consumer verification is mandatory."
+  },
+  "tests": {
+    "structuralAdmission": "NOT_RUN",
+    "intendedBaseNegative": "NOT_RUN",
+    "originalAtomizedCorePositive": "NOT_RUN"
+  },
+  "acceptance": {
+    "readyForMinimalCandidatePreparation": true,
+    "newSourceAdmission": false,
+    "newBridge": false,
+    "wholeAtomizerTheorem": false,
+    "remainingStateEvaluation": false,
+    "original257Digest": false,
+    "Object": false,
+    "PrismPM": false,
+    "Pages": false
+  },
+  "historicalStatus": "Proposal currentEvidence.independentReview records pending-at-dispatch. The separate exact native-review pin above now records the existing two-atom PASS; leave original proposal bytes unchanged and present both with chronology.",
+  "limits": [
+    "Source/design review only; no SDK/compiler/VM/native/test/repository/otherlab modification. Only this report written.",
+    "No13-certificate expansion or generic transport framework. Outer admission, remaining states/parents/carries, ObjFoldFinish whole-object SHA and original theorem remain open.",
+    "Proposed complete suffix comprises the remaining original bytes; success does not establish that suffix computes successfully or yields a specific concrete state."
+  ]
+}
