@@ -1,0 +1,34 @@
+{
+  "schema": "lexlean-r4-second-child-readiness/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/manifest.json",
+    "bytes": 2207,
+    "sha256": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invocation-manifest.json",
+    "bytes": 1653,
+    "sha256": "5bc11b24c8e716c0cdf7d4802105851a031535666e889f9a9e7980816e9a6292"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invoke-second-child.mjs",
+    "bytes": 7759,
+    "sha256": "060095b731a2d6c7316202d46ff68c4126ee3e6f6e959a749fed9c3c8285270a"
+  },
+  "checks": {
+    "payloadHashes": 9,
+    "both27InputSetsRehashed": true,
+    "canonicalSemanticJSON": true,
+    "eqTagAndEmptyAxioms": true,
+    "sevenSpecASTPinsMatch": true,
+    "soleNegativeExpected139To140": true,
+    "fullOriginalParentMandatory": true,
+    "exactEightLiteralInvocationChanges": true,
+    "preservedTenDraftsSixSourcesFull33": true,
+    "nodeCheckExit": 0,
+    "moduleExecuted": false
+  },
+  "authority": "Independent exact source/invocation CODE review and parent fresh admission required before native; no actualsourcecheck or proof result.",
+  "authoringFailures": "None encountered in this candidate preparation."
+}
