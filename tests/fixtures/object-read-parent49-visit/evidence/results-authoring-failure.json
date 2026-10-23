@@ -1,0 +1,16 @@
+{
+  "schema": "lexlean-r4-authoring-failure-record/v1",
+  "classification": "HOST_METADATA_AUTHORING_FAILURE_NOT_NATIVE",
+  "error": "ReferenceError: portableHashChecks is not defined",
+  "cause": "Final supplementary custody object used undefined shorthand variable portableHashChecks instead of already computed portableChecks. The results.json property had already correctly saved the checked count.",
+  "effectsBeforeFailure": [
+    "Exact positive review copied",
+    "results.json written",
+    "RESULTS.md written",
+    "Mutable README finalized"
+  ],
+  "effectsNotCompleted": [
+    "positive-review-custody.json"
+  ],
+  "repair": "Use retained results.portableHashChecks to author missing custody only. Preserve existing written outputs. No compiler/source proof failure or native acceptance change."
+}

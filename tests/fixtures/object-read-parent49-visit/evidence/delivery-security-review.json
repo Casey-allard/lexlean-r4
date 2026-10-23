@@ -1,0 +1,71 @@
+{
+  "schema": "lexlean-r4-parent49-visit-delivery-security-review/v1",
+  "status": "PASS_EXACT_89_FILE_STAGED_DELIVERY",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T22:50:48.100Z",
+  "authorshipDisclosure": "Reviewer authored the prior bounded transition SPEC, not candidate implementation, invocation, retained native acceptance report, delivery packaging or current plan edits. This quality gate is not represented as independent of all earlier specification work; separate CODE delivery review remains required.",
+  "delivery": {
+    "branch": "codex/object-parent-visit-proof",
+    "base": "985fea6c0e66ef970050f73959401a2f0bd7ad63",
+    "manifest": {
+      "path": "tests/fixtures/object-read-parent49-visit/delivery-manifest.json",
+      "sha256": "2e81a438af320128046d88870fae15751949ab9291cd073cc43097a77ca2568a"
+    },
+    "stagedFiles": 89,
+    "payloadFiles": 88,
+    "payloadBytes": 560604,
+    "exactManifestIndexWorkingParity": true,
+    "allModes": "100644",
+    "diffCheck": "PASS",
+    "scope": "One new fixture and two plan documents; no canonical runtime/control/CI/toolchain/production lock changes.",
+    "localMarkdownTargetsChecked": 71
+  },
+  "security": {
+    "allStagedTextUtf8NoNul": true,
+    "commonCredentialPatternScan": "PASS for private-key headers, common GitHub tokens and AWS access-key IDs; bounded scan is not a universal no-secrets guarantee.",
+    "binaries": "None staged; compiled native artifacts retained locally and hash-pinned.",
+    "oneOffExecutor": "evidence/invoke-parent49-visit.mjs is an archived environment-specific official-compiler invocation, not an SDK/PrismPM implementation or product fallback. Inspected source: fixed owned container/path, exact candidate/tool/epoch pins, storage/idle/memory gates, independent postcaptures, calls actual lock/check/verify and copies raw artifact. No operational CI wiring or credential/network provisioning. Relocated provenance script is expressly not portable/current execution authority; it was not imported or executed by this review.",
+    "locks": "Both development lexlean.lock copies byte-match actual raw lock-bytes output, unchanged after execution. No fabricated production prismpm.lock/template.lock and no full just vv bypass.",
+    "portableDependencies": "Both21-input phase mappings resolve to actual repository files with exact bytes/hashes. Shared accepted dependencies referenced rather than copied. Historical absolute paths remain provenance; current source-bindings supply portable mappings.",
+    "rawCustody": "164 current portable/local custody/result pin occurrences rehashed with no unresolved pin. Frozen historical NOT_RUN/pending statuses explicitly separated from latest accepted results."
+  },
+  "claimIntegrity": {
+    "positiveReviewSha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c",
+    "attestationId": "8348d05ac25a56d8d0d9a29419b9dbdb6819f6eae688e05793fe238ad43ed943",
+    "artifactAudit": {
+      "files": 175,
+      "exactDiskCensusAndAllFileHashes": true,
+      "buildOutputs": 85,
+      "oleanHashes": 17,
+      "successfulProcesses": 52,
+      "processCopiesAndStdoutStderrHashes": true,
+      "kernelReplays": 17,
+      "emptyAxiomDeclarations": 814,
+      "exactEmptyAxiomAuditNames": true
+    },
+    "negative": "Actual source check0, verify1 LLV7002 wrong unrelated0=0 zero-base Apply in imported lift;37832ms. This is an intended semantic negative, not an admission/resource failure.",
+    "positive": "Actual source check0/17 modules, verify0/120377ms, all four verify identifiers match retained full attestation; mandatory production consumer emits Apply lifted theorem at1.",
+    "proofBoundary": "Inspected actual source and emitted consumer: production ObjVisitNode remains on LHS; RHS calls full Result-valued context. All three child visits and record accounting remain in the context. Context parent fetch is replaced with item; no asserted final successful walked state. Module qualification is correct across context/consumer. This local equation is not child-read or original Read33 acceptance.",
+    "capturedPostconditions": "Both phases21source hashes/paths, matching before/after source/tools/epoch, zero memory events, idle records, same genuine lock, empty postcapture errors, postcapture intervals afterverify. Recorded20GiB host launch/11GiB guest pre/10GiB post reserve samples pass.",
+    "censusDistinction": "Portable census JSON hash9e4a8164 and reviewer sorted census digestc51aa0b3 identify different encodings; docs/results explicitly distinguish both from attestation ID.",
+    "planUpdates": "Two plan changes accurately mark local transition accepted while leaving children, final/accounting state, root wrappers/planning, range finishing, manifest-version, whole digest, originalRead33, canonicalHash/Object, full PrismPM binding and Pages open."
+  },
+  "preservation": {
+    "tenOtherDraftHashes": true,
+    "sixMergedSourceHashes": true,
+    "seventeenOriginalSnapshotsAgainstBase": true,
+    "originalFull33Untouched": true
+  },
+  "limitations": [
+    "No native/kernel/SDK run repeated: actual retained bytes and recorded successful processes audited read-only.",
+    "Embedded lexicon package bytes were not independently rehashed; no new production dependency acceptance inferred.",
+    "No speedup, avoided recomputation or continuous memory/disk high-water claim.",
+    "This review binds only the unchanged89-file manifest. Any additive records or changed manifest require a separate exact delta review."
+  ],
+  "findings": [],
+  "storage": {
+    "startAvailableKiB": 32215780,
+    "activity": "Read-only checks plus small outside-repository review record; no VM/build/fixture creation/cleanup."
+  },
+  "actions": "No repository/index/source/frozen raw evidence changes, no APIs, SDK/compiler/VM calls, or other-lab access."
+}

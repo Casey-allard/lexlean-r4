@@ -1,0 +1,102 @@
+{
+  "schema": "lexlean-r4-parent49-visit-transition-spec-review/v1",
+  "status": "PASS_BOUNDED_DESIGN_WITH_EXPLICIT_SOURCE_IMPLEMENTATION_CONSTRAINTS",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T22:33:55.631Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-proposal.json",
+    "bytes": 12628,
+    "sha256": "b705c5a27614e275a1b050cc977ab77b4fd36ab20f5d267216f1a7a2070ad854"
+  },
+  "scope": "Read-only source SPEC review of one exact parent ObjVisitNode transition. No new source candidate, official source admission, native negative or positive verification performed.",
+  "authorityPins": {
+    "runtime": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "originalControl": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "acceptedFetchSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    },
+    "acceptedFetchReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/positive-native-review.json",
+      "bytes": 11672,
+      "sha256": "fe12af5974cc28f416d7eb2ef0dc8e45fa7a98aca3b60f248527f8879f3995b2"
+    },
+    "acceptedFetchAttestation": "54784e8ba9be195787acb83ec4272b6f30004a92dc4928768e3d8b548ae76262",
+    "acceptedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+    },
+    "acceptedTransport": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    }
+  },
+  "observations": {
+    "allSixFileAuthorityPinsRehashed": true,
+    "originalControl": "Exact name objProtocolWholeBytes at zero-based25/ordinal26; inspected actual source, not preliminary adjacent stats control.",
+    "originalRootConnection": "ObjWholeAdmitted selects range[0,manifest.length]; exact manifest.length96 and single scale1 root carry the original parent ID. ObjRangeAdmitted creates output[]/visits0/wireBytes0/seen[] initial state and calls ObjVisitRoots with collect=true; ObjVisitRoots calls ObjVisitNode with root scale/id and the same state/backend/length/range/limits. Actual wrapper/planning success remains a separate unproved obligation.",
+    "extractionPinsReconstructed": {
+      "backend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+      "manifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+      "limits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+      "rootId": "15db1851073d759e5f6dc307f303878e66926ace229e90628a1ec8123a52c03a",
+      "initialQualifiedState": "949703cedbe8a0abf0a8487bc28378f1baf59ba9a76235c7a88e6647828cec91",
+      "productionVisitDeclaration": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00",
+      "qualifiedInstantiatedSuccessor": "5ab613fae281a56519630ac26c128953a6d432bf9b1ff6a5cea47a7869f74498",
+      "contextAfterSingleHole": "271e1cf9a6cecdfbad64d6e862d6b1851db9122e66f952cd1b737eab89baeac7",
+      "leftActualProductionCall": "4d278acb6ca9ef00c302a985f177a36f41ead257bd6257b76ab91b0b7b5a238b",
+      "schematicStatement": "d761da1bc660f06087fc9b808933e837ff76ce5436d13feda44a842e71358e70"
+    },
+    "context": "Entire successor branch independently instantiated, with original nested matches, range/visit guards, record accounting, error propagation and checked offsets preserved. Only the pinned parent authenticated-fetch occurrence becomes item. Local production references qualified; existing external references retained.",
+    "childCalls": "Exactly three unchanged production recursive ObjVisitNode calls at scale0, child identity payload offsets0/12/24, bases0/secondBase/thirdBase, incoming statesmarked/afterFirst/afterSecond, original four-entry backend, length96, exactrange andlimits, collecttrue. Child calls are not replaced by assumed successful states.",
+    "acceptedPrerequisite": "Actual accepted full fetch attestation54784e8b and its empty-axiom consumer declaration checked against retained artifact; source/review pins match. P0 must be this fetch equality, not the earlier decode equality.",
+    "supportedProof": "Previously accepted source and emitted transport use Nat-indexed Prop, inductioncount, casesprior, congruence in both branches and Applyat1. Proposed same shape is supported at source; success at the larger continuation is unknown.",
+    "negative": "Only zero-base Apply target changes to an unrelated0=0 theorem included in both variants. Source admission must pass and LLV7002 must identify that intended wrong-base mismatch; timeout/OOM/admission failure does not satisfy this negative.",
+    "mandatoryConsumer": "Actual production ObjVisitNode equation is mandatory. A context equality or generic lift alone is not acceptance. RHS remains a Result-valued continuation with children/guards, not an asserted successful walked state.",
+    "remainingProduction": "ObjRangeFinish retains manifest-version computation; ObjWholeAdmitted retains bytes hash and digest comparison. These are outside this transition and remain unchanged/unproved, as do child authentication, statistics/accounting evaluation, root planning/wrapping and all33 original controls."
+  },
+  "implementationConstraints": [
+    {
+      "id": "C1",
+      "requirement": "Preserve original source/limits/empty axioms and exactly one parent-fetch substitution. Perform independent exact candidate CODE review before any native invocation."
+    },
+    {
+      "id": "C2",
+      "requirement": "Constructed proposal hashes are SHA256(JSON.stringify(object)) with insertion order, not recursively sorted canonical JSON. I reproduced those exact pins. The initial-state pin names the already-qualified imported ObjWalkState type, not raw source subtree. Record raw versus qualified/canonical candidate identities separately; do not silently weaken comparisons."
+    },
+    {
+      "id": "C3",
+      "requirement": "Production successor fetch uses Nat.succ(Nat0), whereas accepted fetch theorem uses Nat1. This is expected definitional equality, not literal AST equality. Preserve exact branch expression and require actual final consumer verification to establish conversion; no unproved rewrite or replacement of other expressions."
+    },
+    {
+      "id": "C4",
+      "requirement": "The schematic statement hash d761da1b uses a name-only ObjParent49VisitContext reference. Name-only is legal only in its defining module. If the mandatory consumer is placed in a separate module (as in accepted context/transport/consumer layout), qualify this reference with the actual imported context module and bind the resulting written-source statement hash separately. This necessary module qualification is not a change in the mathematical statement; do not copy the schematic local name across modules. Same-module references must remain name-only to avoid the preserved LLT4001 failure."
+    },
+    {
+      "id": "C5",
+      "requirement": "Bind exact accepted fetch closure, actual artifact/review, unchanged official tool/config resources, and both phase inputs. Sequential negative then positive requires independent source/invocation and resource gates; this design grants no native execution authority."
+    },
+    {
+      "id": "C6",
+      "requirement": "Retain actual consumer source/admission/runtime evidence and complete artifact/axiom/kernel audit. Any cost failure closes that configuration only; preserve failure and investigate rather than replacing whole controls or increasing limits blindly."
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "All proposed candidate/source admission/negative/positive tests remain NOT_RUN. Source reconstruction is not native proof acceptance.",
+    "Congruence and final Apply may evaluate child continuations or recompute fetch; no avoided computation or timing improvement is established.",
+    "No original Read33 control or fullObject/Hash/PrismPM/Pages acceptance follows from this transition, even if its future local proof succeeds."
+  ],
+  "actions": "Only this small review record written outside repository; no native, SDK, VM, candidate, stage, index, repository or other-lab changes."
+}

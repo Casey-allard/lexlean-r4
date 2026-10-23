@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-parent49-visit-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "bd3943c4d5e6a15de1898e446f005c87c26abbf6854c696616d3e75e9718fe45"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "bytes": 97645,
+      "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+      "bytes": 1372,
+      "sha256": "bb8d061a61a67354dbbc8c88d4ef8b45c1aeb5c78b52d539c0edcb2d720cefd1"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "bytes": 21599,
+      "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 697,
+      "sha256": "c8022552c3b086894cb1973cc754c5eeb114ef7388f92d1db82d57534c63f3a1"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 17178,
+      "sha256": "3f67a57414796d2f1a1853e974870487ae8986864456eaeb2e942749337d4623"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 4351,
+      "sha256": "23eee28b065c006405447c74eb192b6803c94c72d8a55c1f070f6fac65edd3d3"
+    },
+    {
+      "path": "README.md",
+      "bytes": 697,
+      "sha256": "657d1d468ac127ce431b4c09d5d4ea8950a0f2226e272ee17e6e522cdadb9e7f"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-proposal.json",
+      "bytes": 12628,
+      "sha256": "b705c5a27614e275a1b050cc977ab77b4fd36ab20f5d267216f1a7a2070ad854"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/next-read-step-spec-review.json",
+      "bytes": 9203,
+      "sha256": "b4713c4b98a60f6bdcc7cd0f8c3482b3d604ea84ef73f96b0f3fa694e6fafbe3"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/evidence/positive-native-review.json",
+      "bytes": 11672,
+      "sha256": "fe12af5974cc28f416d7eb2ef0dc8e45fa7a98aca3b60f248527f8879f3995b2"
+    }
+  ],
+  "boundary": "Independent source and invocation CODE followed by parent resource admission required. No native invocation executed."
+}

@@ -1,0 +1,17 @@
+{
+  "schema": "lexlean-r4-authoring-failure-correction/v1",
+  "supersedesInterpretationOf": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/results-authoring-failure.json",
+    "bytes": 811,
+    "sha256": "2a9a1cff6f968747a2b7eaf95f6768e052cc67f7aa6c9b9c519fc0178e66bc69"
+  },
+  "finding": "Original failure was only final console serialization referencing undefined portableHashChecks. All requested files, including positive-review-custody.json, had already been written successfully. Earlier failure record incorrectly placed failure before custody write.",
+  "secondAttempt": "Attempted exclusive custody write returned EEXIST, preserving existing bytes. No repository result/custody overwritten by recovery.",
+  "verifiedExistingCustody": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/positive-review-custody.json",
+    "bytes": 1560,
+    "sha256": "9582b47f1dff6eab511060dfa0c0df65dfb2a8589c0d85d9239952acb7138bd5"
+  },
+  "newResultsRehashed": true,
+  "native": "Neither metadata-reporting error concerns native verification or its independent audit; no SDK run."
+}

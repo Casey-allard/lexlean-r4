@@ -1,0 +1,207 @@
+{
+  "schema": "lexlean-r4-parent49-visit-transition-proposal/v1",
+  "status": "SOURCE_ONLY_PROPOSED_NATIVE_NOT_RUN",
+  "objective": "Prove one actual parent ObjVisitNode transition that replaces only its authenticated parent fetch with the accepted fullResult record, while retaining all three child visits and production guards. No child result or whole-read digest is asserted.",
+  "authority": {
+    "runtime": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "originalControl": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "acceptedFetchSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    },
+    "acceptedFetchReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/positive-native-review.json",
+      "bytes": 11672,
+      "sha256": "fe12af5974cc28f416d7eb2ef0dc8e45fa7a98aca3b60f248527f8879f3995b2"
+    },
+    "acceptedFetchAttestation": "54784e8ba9be195787acb83ec4272b6f30004a92dc4928768e3d8b548ae76262",
+    "acceptedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+    },
+    "acceptedTransport": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    }
+  },
+  "extractions": {
+    "originalTheorem": "objProtocolWholeBytes",
+    "zeroBasedDeclarationIndex": 25,
+    "oneBasedOrdinal": 26,
+    "wholeReadCall": "/declarations/25/statement/left/scrutinee",
+    "backendPath": "/declarations/25/statement/left/scrutinee/arguments/0",
+    "manifestPath": "/declarations/25/statement/left/scrutinee/arguments/1",
+    "limitsPath": "/declarations/25/statement/left/scrutinee/arguments/2",
+    "backendAstSha256": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "manifestAstSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "limitsAstSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "rootIdAstSha256": "15db1851073d759e5f6dc307f303878e66926ace229e90628a1ec8123a52c03a",
+    "sourceRange": "ObjWholeAdmitted creates range start0/stop manifest.length96; use exact ObjRange record constructor.",
+    "initialStateSource": {
+      "declaration": "ObjRangeAdmitted",
+      "path": "/body/else_value/else_value/else_value/branches/1/body/scrutinee/arguments/2",
+      "qualification": "Only local ObjWalkState type member becomes R4.ObjectRead.ObjWalkState in imported candidate context.",
+      "astSha256": "949703cedbe8a0abf0a8487bc28378f1baf59ba9a76235c7a88e6647828cec91"
+    },
+    "runtimeDeclaration": "ObjVisitNode",
+    "runtimeDeclarationAstSha256": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00",
+    "branch": "/body/branches/1/body",
+    "fetchOccurrence": "/body/branches/1/body/branches/1/body/branches/1/body/else_value/branches/1/body/scrutinee",
+    "singleParentFetchOccurrence": true
+  },
+  "consumer": {
+    "proposedName": "objParent49VisitTransition",
+    "equation": "R4.ObjectRead.ObjVisitNode(1,parentId,0,initialState,originalBackend,96,range(0,96),originalLimits,true) = ObjParent49VisitContext(Result.ok(originalParentRecord))",
+    "type": "Eq over Result R4.ObjectRead.ObjWalkState R4.ObjectTypes.ObjError",
+    "statementRecipe": "Build exact left call from listed original source extractions, qualified production function. RHS applies proposed context to the exact right side of accepted objParent49AuthenticatedFetch; no host-computed intermediate state or digest.",
+    "statementAstSha256": "d761da1bc660f06087fc9b808933e837ff76ce5436d13feda44a842e71358e70",
+    "leftCallAstSha256": "4d278acb6ca9ef00c302a985f177a36f41ead257bd6257b76ab91b0b7b5a238b",
+    "expectedFullResultArgumentAstSha256": "e67ad52eb2dc3bfca6c3a1aa03b63dafe8bfc44da732e55288c0f75bf0c01798",
+    "required": "Final actual consumer Apply-at1 is mandatory; helper-only success does not establish this transition.",
+    "limitation": "RHS is a full Result-valued production continuation, not an asserted final Result.ok fully walked state. Its three child reads remain explicit obligations for subsequent work."
+  },
+  "context": {
+    "name": "ObjParent49VisitContext",
+    "parameter": {
+      "name": "item",
+      "type": "Result R4.ObjectTypes.ObjRecord R4.ObjectTypes.ObjError"
+    },
+    "result": "Result R4.ObjectRead.ObjWalkState R4.ObjectTypes.ObjError",
+    "recipe": [
+      "Copy entire Nat.succ branch of production ObjVisitNode, not merely the decoded success branch.",
+      "Substitute only listed outer free variables; preserve all branch binders including width,stop,counted,decoded,marked,childWidth,afterFirst,secondBase,afterSecond,thirdBase and failures.",
+      "Qualify existing local R4.ObjectRead declaration references and ObjWalkState members for the imported context. Leave built-in Result/Nat names unchanged.",
+      "Replace exactly the unique parent ObjAuthenticatedFetch call at the pinned occurrence with variable item. No other expression or branch is removed."
+    ],
+    "outerSubstitutions": {
+      "prior": "Nat0",
+      "ObjVisitNodeInputId": "exact original parentId",
+      "base": "Nat0",
+      "state": "exact initial output[]/visits0/wireBytes0/seen[]",
+      "view": "exact four-entry original backend",
+      "logicalLength": "manifest.length = Nat96",
+      "range": "ObjRange start0 stop96",
+      "limits": "exact original limits record",
+      "collect": "Booltrue"
+    },
+    "qualifiedInstantiatedSuccessorAstSha256": "5ab613fae281a56519630ac26c128953a6d432bf9b1ff6a5cea47a7869f74498",
+    "contextBodyAstSha256": "271e1cf9a6cecdfbad64d6e862d6b1851db9122e66f952cd1b737eab89baeac7",
+    "retainedChildCalls": [
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body",
+        "arguments": [
+          "0",
+          "ObjChildIdentity",
+          "thirdBase",
+          "afterSecond",
+          "cons",
+          "96",
+          "record",
+          "record",
+          "bool"
+        ]
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "arguments": [
+          "0",
+          "ObjChildIdentity",
+          "secondBase",
+          "afterFirst",
+          "cons",
+          "96",
+          "record",
+          "record",
+          "bool"
+        ]
+      },
+      {
+        "path": "/branches/1/body/branches/1/body/else_value/branches/1/body/branches/1/body/branches/1/body/branches/1/body/scrutinee",
+        "arguments": [
+          "0",
+          "ObjChildIdentity",
+          "0",
+          "marked",
+          "cons",
+          "96",
+          "record",
+          "record",
+          "bool"
+        ]
+      }
+    ],
+    "preserves": [
+      "span1 and checked root offset",
+      "range nonintersection branch",
+      "visit-limit checking and Result errors",
+      "authenticated-fetch error propagation",
+      "ObjAccountRecord wireBytes and sorted seen accounting with overflow error",
+      "child span0",
+      "three actual recursive ObjVisitNode calls using ObjChildIdentity payload offsets0/12/24",
+      "checked second and third base offsets and short-circuit error branches"
+    ]
+  },
+  "proof": {
+    "pattern": "Reuse accepted Nat-indexed Prop family and Induction/Cases/Congruence/Apply1 only.",
+    "P0": "Exact accepted original parent authenticated-fetch equality, not decode equality.",
+    "Psucc": "Eq(ObjParent49VisitContext(actual parent fetch), ObjParent49VisitContext(expected Result.ok record))",
+    "positiveZero": "Apply ObjectReadParent49AuthenticatedFetch.objParent49AuthenticatedFetch with empty args/type args.",
+    "successor": "Induction count; split predecessor by Nat zero/succ; Congruence in both branches, matching previously accepted transport pattern.",
+    "finalConsumer": "Apply lifted theorem at Nat1 to actual production ObjVisitNode equation. Definitional conversion of Nat.succ0 and one production branch must genuinely pass.",
+    "imports": [
+      "R4.ObjectRead",
+      "R4.ObjectTypes",
+      "R4.ObjectCodec",
+      "ObjectReadParent49AuthenticatedFetch"
+    ],
+    "localReferences": "Use name-only references for same-module context/P; no self-module qualifier. External production calls explicitly qualified.",
+    "axioms": [],
+    "forbidden": "No Simplify/propext, raw tactic injection, new runtime function, invented record/hash, skipped child reads or proof by external evaluation."
+  },
+  "negative": {
+    "sameUnrelatedTheoremBothVariants": "objParent49VisitUnrelatedZero : 0 = 0 by Reflexivity",
+    "soleMutation": "Change only Nat-zero base Apply from accepted authenticated-fetch theorem to local unrelated-zero theorem.",
+    "verifyRoot": "Both negative and positive verify actual objParent49VisitTransition consumer module, including imported lift.",
+    "expected": "After official sourcecheck success, actual negative LLV7002 type mismatch at wrong-base Apply; no timeout/OOM/admission failure accepted as RED."
+  },
+  "tests": [
+    {
+      "phase": "source audit",
+      "status": "NOT_RUN",
+      "requirements": "Canonical semanticJSON; exact successor-branch extraction/substitutions; exactsinglefetchhole and three preserved childcalls; full statement AST; emptyaxioms; onlyone negative Apply-target difference."
+    },
+    {
+      "phase": "negative",
+      "status": "NOT_RUN",
+      "requirements": "Fresh official lock/check then fullconsumer verify intended wrong-base rejection, independent audit and clean guards."
+    },
+    {
+      "phase": "positive",
+      "status": "NOT_RUN",
+      "requirements": "Only after acceptednegative/freshadmission, fullconsumer verify0 plus complete artifact/source/runtime/lock/tools/epoch/emptyaxioms/kernel replay independent audit."
+    }
+  ],
+  "cost": {
+    "known": "Accepted parent fetch wholeverify43852ms; earlier full Read33 and isolatedwholeRead timed out at300000ms. Those facts do not predict new transition cost.",
+    "unknown": "Congruence or final Apply conversion may unfold recursive child calls or recompute fetch despite syntactic reuse. No guaranteed avoided computation or time claim. Any failure is preserved and investigated before repair.",
+    "resources": "Existing300000ms child/4GiB2CPU and current storage/epoch/tools/idle/zeroevents gates unchanged; no native launch authorized by this proposal."
+  },
+  "delivery": {
+    "scope": "At most new context/positive-negative transport/actualconsumer source modules and minimal configuration, shared accepted closure by repository reference. No generic harness or blind certificate expansion.",
+    "remaining": "This would remove one parent-authentication obligation inside the actual walk. Child authentication/traversal, account-state evaluation, root wrapper/planning, range finish and manifest-version hash, whole digest and original wholeRead/all33 controls remain open.",
+    "prohibition": "Do not replace original statement, strip its Result/statistics/remainder fields, or promote intermediate transition to Read33 acceptance."
+  },
+  "investigationNote": "A preliminary zero-based26 inspection was the following stats control; corrected by exact theorem-name lookup and asserted index25 before deriving this proposal. No candidate/native result produced from the preliminary lookup.",
+  "actions": "Read-only production/proof inspection and in-memory AST derivation; only this report written outside repository. No edits to staged fixture/drafts, no SDK/native/compiler/VM calls."
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-parent49-visit-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/invoke-parent49-fetch.mjs",
+    "bytes": 7739,
+    "sha256": "a2f21e3c38b7b830bd407bb10b1cc26b141c9b0c7826bcfbaeb04ee63563ec8b"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/invoke-parent49-visit.mjs",
+    "bytes": 7722,
+    "sha256": "3a1ef80c53faee0504a9930ae2c6d9989d14a5eb2dc4446fd78ce08b137934c2"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/candidate-invocation-code-review.json",
+    "bytes": 4499,
+    "sha256": "655000101dd260f20b51a6e36fc7116978810e0d406887edec55d34932187139"
+  },
+  "literalReplacements": [
+    {
+      "from": "// One-off official-compiler invocation for one selected full parent49 authenticated-fetch consumer; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one selected full parent49 visit transition consumer; no Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['fetch-false','fetch-positive']",
+      "to": "['visit-false','visit-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one fetch phase",
+      "to": "select exactly one visit phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-parent49-fetch-local-refs-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-read-parent49-visit-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "from": "0892439d5ddc233e070246e9d43eefc208a2f17200c97bf946aeaa797acf288d",
+      "to": "90157625a83ea1d610ba30ac0cbab94da693e75cab2f1f798cc02e4c238142bc",
+      "occurrences": 1
+    },
+    {
+      "from": "phase==='fetch-false'",
+      "to": "phase==='visit-false'",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18",
+      "to": "inputs.length!==21||new Set(inputs.map(x=>x.destination)).size!==21",
+      "occurrences": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "to": "tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "allOtherGuardCaptureBytesUnchanged": true
+}

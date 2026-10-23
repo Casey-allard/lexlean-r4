@@ -22,6 +22,7 @@ independent reviewers; no external lab or another session owns this work.
 | Object Read33 integration | Three metadata edits preserve all33 declaration ASTs. Official source admission passed11 modules, but target Lean verification timed out at300009ms under the unchanged300000ms limit. No Read control accepted by this run. | [Read timeout results](continuation/2026-10-23/object-read-integration/RESULTS.md). Zero recorded memory events, no verified artifact; original compatibility rejection and failed emitted source preserved. |
 | Parent-record decode certificate | Actual original49-byte parent record decodes to the complete expected record; false expected ID128→129 is rejected. Independent positive artifact audit:804 empty-axiom declarations and11 kernel replays. This is a local certificate, not a Read control or authenticated-fetch result. | [Decode results](../tests/fixtures/object-read-parent49/RESULTS.md), [connected-fetch design](../tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json). |
 | Connected parent authenticated fetch | Actual `ObjAuthenticatedFetch` with the original four-entry backend, parent ID and scale1 equals the full expected record. Wrong-base proof rejected; positive artifact independently audited with809 empty-axiom declarations and14 kernel replays. Local fetch equation only; zero original Read33 controls discharged. | [Fetch results](../tests/fixtures/object-read-parent49-fetch/RESULTS.md). Original source-admission failure and exact two-field repair are preserved separately. |
+| Parent visitor transition | Actual original `ObjVisitNode` equals its complete continuation with the certified parent record substituted. Wrong-base proof rejected; positive independently audited:814 empty-axiom declarations and17 kernel replays. All three child calls remain; no final walked state or Read33 acceptance. | [Visitor results](../tests/fixtures/object-read-parent49-visit/RESULTS.md). |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -89,8 +90,9 @@ identify an expensive subterm. All33 controls remain unaccepted. Keep the canoni
 full33 source intact and do not raise limits or automatically expand33 variants.
 The source investigation follows the actual authenticated-record, range-walk,
 manifest-version and whole-data hashing chain. The parent49 decode certificate
-now passes as recorded above; the next authenticated-fetch connection remains
-NOT_RUN and must reconnect to the original production consumer.
+now passes as recorded above. The authenticated-fetch and original parent visitor
+transition also pass; completed child traversal, manifest-version and whole-data
+hashing remain open.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
@@ -344,8 +346,17 @@ before verification; removing exactly two self-module qualifiers repaired local
 references without changing runtime, proof terms, configuration or limits.
 Independent review checked145 artifact files,809 empty-axiom declarations and14
 kernel replays, including the original backend, parent ID, scale1 and full Result.
-This local equation does not discharge any original Read33 control. Next identify
-and review the smallest connection from this accepted fetch to the original
-range walk, retaining child-record reads, manifest-version hashing and whole96-byte
-digest obligations. Those proofs remain NOT_RUN. Keep the remaining ten drafts
-in the completion sequence and use fresh resource gates before further native work.
+This local equation does not discharge any original Read33 control. The
+[original parent visitor transition](../tests/fixtures/object-read-parent49-visit/RESULTS.md)
+now also passes: wrong-base rejection in37,832ms and actual positive verification
+in120,377ms. Independent review checked175 artifact files,85 build outputs,814
+empty-axiom declarations,52 successful process records and17 kernel replays.
+The exact production successor branch retains all three recursive child calls,
+error propagation, accounting and checked offsets. The equation substitutes the
+certified fetch result into that continuation; it does not assert the completed
+walked state or child results. All21 inputs, genuine development lock, tools,
+resource epoch and postchecks passed, with zero memory events.
+Next review a bounded step through the remaining child reads and state accounting,
+then reconnect manifest-version and whole96-byte hashing. No such next candidate
+or native result exists yet. Keep the ten remaining drafts in the completion
+sequence and use fresh resource gates before further native work.

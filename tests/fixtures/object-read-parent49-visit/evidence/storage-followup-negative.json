@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-23T22:40:46.094Z",
+  "hostPreBytes": 34371395584,
+  "hostPostBytes": 32165228544,
+  "newDropBytes": 2206167040,
+  "latestAvailableKiB": 30397700,
+  "swapAllocatedMiB": 11264,
+  "swapAllocationUnchanged": true,
+  "vmDiskBeforeKiB": 25770072,
+  "vmDiskAfterKiB": 25780280,
+  "recentTemporaryDirectoryReportedKiB": {
+    "/private/tmp/deepseek-c62": 523860,
+    "/private/tmp/deepseek-c63": 523860,
+    "/private/tmp/deepseek-clmos": 523832,
+    "/private/tmp/deepseek-os": 523832,
+    "/private/tmp/deepseek-osc": 523832,
+    "/private/tmp/deepseek-ready": 523832
+  },
+  "interpretation": "Six directories born since22:38 report about3GiB allocation; VM allocation grew about10MiB and swap allocation stayed11GiB. APFS sharing/concurrency prevent exact physical attribution. Read-only checks, no unrelated file/process modification. All native phase pre/post reserve gates passed. Next native phase still requires fresh admission."
+}

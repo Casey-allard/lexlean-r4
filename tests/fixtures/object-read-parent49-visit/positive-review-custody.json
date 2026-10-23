@@ -1,0 +1,41 @@
+{
+  "schema": "lexlean-r4-parent49-visit-positive-review-custody/v1",
+  "status": "ACCEPTED_LOCAL_VISIT_TRANSITION_ONLY",
+  "review": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-visit/positive-native-review.json",
+      "bytes": 10701,
+      "sha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c"
+    },
+    "destination": {
+      "path": "evidence/positive-native-review.json",
+      "bytes": 10701,
+      "sha256": "816bbb8327a847c5511647227730e9527e5fc123e93d94cda7097ddaa33a8d3c"
+    }
+  },
+  "historicalPendingRawCustody": {
+    "path": "positive-raw-custody.json",
+    "bytes": 16606,
+    "sha256": "43afec51cf21170d08d98a276b48d1faf514e687c0c40c4f8f6131f609374076"
+  },
+  "newResults": [
+    {
+      "path": "results.json",
+      "bytes": 6904,
+      "sha256": "5657ca1f358c999242d532ed0e91017affcbdf5ad8963ef2b9392f0df67d5b82"
+    },
+    {
+      "path": "RESULTS.md",
+      "bytes": 2813,
+      "sha256": "a17df1be1a33e3b6bd9c3657449b5dd632ea6a559865d6725a7a4cdf4aa057bc"
+    }
+  ],
+  "currentReadmeExcluded": true,
+  "portableHashChecks": 114,
+  "preservation": "All10 remaining drafts, six merged sources and canonical33 source hash rechecked unchanged. Existing immutable custody records unchanged.",
+  "storage": {
+    "availableBytesBeforeFinalization": "33489756160",
+    "maximumFixtureAllocatedBytes": 1048576
+  },
+  "scope": "Only fixture results/review and mutable README finalized. No SDK/native/index/commit or other repository edits."
+}
