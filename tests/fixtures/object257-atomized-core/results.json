@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-atomized-core-diagnostic-results/v1",
+  "status": "SOURCE_ADMITTED_NEGATIVE_PHASE_TIMEOUT_POSITIVE_NOT_RUN",
+  "sourceManifest": {
+    "path": "manifest.json",
+    "sha256": "185f83b861a3bdf58759070e41bd2f144242385cfc59bedd04e80633be0483e9"
+  },
+  "historicalStatus": "Frozen preparation files preserve earlier NOT_RUN; RESULTS.md and this record describe subsequent actual run.",
+  "actual": {
+    "phase": "atomized-false",
+    "sourcecheckExit": 0,
+    "modules": 14,
+    "verifyExit": 4,
+    "diagnostic": "LLS8002",
+    "child": "LexLeanR4.Object257AtomizedCoreFalseBase",
+    "configuredChildMs": 300000,
+    "observedChildMs": 300006,
+    "wholeVerifyWallMs": 492114,
+    "positive": "NOT_RUN",
+    "acceptedProof": false,
+    "attestation": null,
+    "artifact": null
+  },
+  "reviews": [
+    {
+      "path": "evidence/code-review.json",
+      "sha256": "16aa37af76453793a49f355253ad731a60f7635d44aaa64cdd64805cd7203e98"
+    },
+    {
+      "path": "evidence/failure-review.json",
+      "sha256": "9da3d06e5f1c24b22da5e3d613deaa3cf36d75dc8af78a0dc4393da1650c6dff"
+    }
+  ],
+  "postconditions": "All21inputs/genuine lock/tools/epoch/idle/host and guest reserves unchanged or passed; memory.events allzero; postcapture errors empty. See actual records and independent review.",
+  "interpretation": "Elapsed child limit only. No returned intended unrelated-base mismatch; not semantic RED and not a counterexample to atomization or the mathematical equality. Exact expensive declaration or conversion is not localized by this result.",
+  "next": "Inspect preserved build emission and supported proof constructs; independently review one bounded diagnostic/decomposition before any new native run. No equivalent retry or limit increase.",
+  "scope": "Finite source/debug checkpoint only. No two-atom proof regression, original257 completion, Object/Hash promotion, production binding or deployment claim."
+}
