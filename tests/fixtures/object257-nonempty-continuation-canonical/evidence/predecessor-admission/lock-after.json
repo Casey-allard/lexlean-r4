@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-nonempty-continuation-continuation-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T18:28:14.055Z",
+  "ended": "2026-10-23T18:28:14.174Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "7c55254b19d74e834c9ad2175022b248d5eb09a6290bad442a389bbe3147176c  /tmp/r4-object257-nonempty-continuation-continuation-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

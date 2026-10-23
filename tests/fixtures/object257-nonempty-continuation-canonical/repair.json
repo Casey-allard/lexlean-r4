@@ -1,0 +1,96 @@
+{
+  "schema": "lexlean-r4-canonical-context-source-repair/v1",
+  "status": "ROOT_CAUSE_ESTABLISHED_SOURCE_ONLY_SUCCESSOR_NATIVE_NOT_RUN",
+  "actualFailure": {
+    "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-check.json",
+    "sha256": "b214e371da1cac16663d1f17741f9794ea90f7ec586f58489122861c29217ae4",
+    "compilerExit": 1,
+    "code": "LLT4001",
+    "message": "phase link: semantic-module JSON is not canonical",
+    "phase": "source admission, before verify; not intended semantic RED"
+  },
+  "officialAuthority": [
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2",
+      "lines": "8816-8821: raw parsed JSON canonical-byte equality; schema/default checks occur afterward."
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/artifact/canonical_json.rs",
+      "bytes": 8470,
+      "sha256": "2b5426fd12238c21a95e617c6dd6ed11de341c3b707fb5000c7aa27240c1b6b6",
+      "lines": "22-23,79-92,128-134: BTreeMap object keys serialized in UTF-8 byte order."
+    }
+  ],
+  "cause": "Author serialized newly constructed K match objects with insertion-order JSON.stringify. Exactly three object key lists violate lexical order; no field/default omission is implicated by this failure.",
+  "objects": [
+    {
+      "path": "$.declarations[0].body",
+      "before": [
+        "kind",
+        "scrutinee",
+        "branches"
+      ],
+      "after": [
+        "branches",
+        "kind",
+        "scrutinee"
+      ]
+    },
+    {
+      "path": "$.declarations[0].body.branches[0]",
+      "before": [
+        "constructor",
+        "binders",
+        "body"
+      ],
+      "after": [
+        "binders",
+        "body",
+        "constructor"
+      ]
+    },
+    {
+      "path": "$.declarations[0].body.branches[1]",
+      "before": [
+        "constructor",
+        "binders",
+        "body"
+      ],
+      "after": [
+        "binders",
+        "body",
+        "constructor"
+      ]
+    }
+  ],
+  "change": "Recursive UTF-8 byte-key serialization of existing semantic JSON; only Object257NonemptyContext bytes change. Values, arrays, module header, proof constructors, claims, runtime, consumer, limits and both configs unchanged.",
+  "oldContext": {
+    "path": "tests/fixtures/object257-nonempty-continuation/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+    "bytes": 19206,
+    "sha256": "f9be14088d186ba38658c70cd7e6924cd98e2749e3b1ae18677da9d42b2459fa"
+  },
+  "newContext": {
+    "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+    "bytes": 19206,
+    "sha256": "727ba3a5a6d996f189f388a7a8220b8c6d9ec7e5075c4a66c8d30c7a3a609cf6"
+  },
+  "predecessorManifest": {
+    "path": "tests/fixtures/object257-nonempty-continuation/manifest.json",
+    "bytes": 7145,
+    "sha256": "ee84be5fe86fdb58969c9cb896eb62615a884161bca2648c13dfb4c3f10cd6f0"
+  },
+  "staticCheck": {
+    "predecessorContextCanonical": false,
+    "successorContextCanonical": true,
+    "consumerModulesPreviouslyAndCurrentlyCanonical": true,
+    "parsedSemanticObjectsDeepEqual": true
+  },
+  "limits": [
+    "Static serializer comparison is not official compiler acceptance or intended proof negative.",
+    "Next actual check/verify remains NOT_RUN.",
+    "Original frozen fixture and failed native evidence/stage are retained unchanged.",
+    "No generic harness or new proof/runtime constructs."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "phase": "continuation-positive",
+  "stage": "/tmp/r4-object257-nonempty-continuation-canonical-continuation-positive-owned-20261023",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/7ec728a1b4b9ecb94aeea15ec0d7bf62e57918f9d12163ab525b46b15165ab27"
+    ],
+    "attestation_id": "7ec728a1b4b9ecb94aeea15ec0d7bf62e57918f9d12163ab525b46b15165ab27",
+    "build_id": "5249c0996edb8fd538ef54d5e27958fb1c90113596292cc1e21fc8e94c2c657f",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "Object257FirstAtomGoal",
+      "Object257FirstAtomLeaf",
+      "Object257FirstAtomState",
+      "Object257NonemptyContext",
+      "Object257NonemptyContinuation",
+      "Object257TerminalContext",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "semantic_id": "e14f0c1742fafb7dfa0aaf1db9cf13875d9e480108082fb830a771aef48b547f",
+    "source_id": "444eb9892b6385b06e094127a0ef4c01cc5cc7c52ed9314580a8fe16d7628a26",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}

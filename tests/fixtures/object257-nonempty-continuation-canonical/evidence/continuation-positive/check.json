@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-nonempty-continuation-canonical-continuation-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T18:46:32.122Z",
+  "ended": "2026-10-23T18:46:32.697Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomState\",\"Object257NonemptyContext\",\"Object257NonemptyContinuation\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"e14f0c1742fafb7dfa0aaf1db9cf13875d9e480108082fb830a771aef48b547f\",\"source_id\":\"444eb9892b6385b06e094127a0ef4c01cc5cc7c52ed9314580a8fe16d7628a26\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

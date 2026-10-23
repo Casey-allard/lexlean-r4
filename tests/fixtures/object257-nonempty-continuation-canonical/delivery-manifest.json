@@ -1,0 +1,562 @@
+{
+  "schema": "lexlean-r4-nonempty-continuation-delivery/v1",
+  "baseCommit": "7e59610c6e4a4a9b0d1b98c08a9467bb3b2ff9e4",
+  "scope": "Reviewed development checkpoint; exact original/repaired LexLean sources and actual finite proof evidence. No canonical component promotion or production acceptance.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 17150,
+      "sha256": "79749d59b43bb60913fd944c92c11e6bf0ab125a134037c84a1119e251ad70f1"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 20318,
+      "sha256": "c40fca38a84ab6cf31292534308fd9d70a7136f73e36c131b3a18b1099bf7b3c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/candidate.json",
+      "bytes": 13789,
+      "sha256": "887e02493f86a685ed2f1af29abeec93bef05f6d70ea77e8b3a2b90f15a32a3c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/code-review.json",
+      "bytes": 16997,
+      "sha256": "096de1a744fb2254b86c04f7c39d92d972f4f486397e1dbe9fbfa8e776eb8711"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/allocated-before.json",
+      "bytes": 459,
+      "sha256": "74e6f374d9ff48291c0c8f53f1f1499d17f96b9a13b23a1a3862250a7c84025f"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/check.json",
+      "bytes": 1045,
+      "sha256": "6b3b3cda7ed3611faef8b3dccc726cb83231b6d1ab8ca4f6332399902637bf67"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/directories.json",
+      "bytes": 474,
+      "sha256": "21a2c2f79d79371bc9f12c860feb41e7082f92f75ff759d0d0e6de1d47244b47"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "c8c1d23f26be6f2d9be0efefd65d49489397550c63f970cc95d9ce77e8186944"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/epoch-before.json",
+      "bytes": 470,
+      "sha256": "a1914ba4e16715ffb69befc619855265a7fb2d8ecc76ff9fd647df3e977c74fe"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/expected-inputs.json",
+      "bytes": 5460,
+      "sha256": "95219f544ea5ad96d705cc806b2d0d40788b886a6881572bcae56162071faa2f"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "b7d8bdac4793aadb7ee5fb5aca5b3d31785e807062904b29fd7a1ba0002c7fb2"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/guest-before.json",
+      "bytes": 406,
+      "sha256": "6b56facb1acb13844e88dabf97ff28aa21cf30451e3c390c6567eedae1044a76"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/host-after.json",
+      "bytes": 142,
+      "sha256": "3bac8634b938ddfc253eae484e4a7a55e025fa58a6651ffd59bba5eb2b9eb4f0"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/host-before.json",
+      "bytes": 152,
+      "sha256": "fc0412fe5c3a5e68f752bcd5c900764da8c2e7d41a6cf32912b6739fc38d5653"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "92f05307ebf9f7f29c6b791f09e2dc6c9e0dea6dc770a01a96fdccbae1eff095"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/idle-before.json",
+      "bytes": 460,
+      "sha256": "aa28bd9a717d90b05b908e385964c21a780eff821102cf22ceed3ae128b27ef3"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/lock-after.json",
+      "bytes": 533,
+      "sha256": "afb729fdcefc4b5aa6a1513e724311f9c650832d41e792b674c33ae7d8363f1c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/lock-bytes.json",
+      "bytes": 2077,
+      "sha256": "f68fb52c2c30f686b4380c8e25be8a6b229af7b0c0e9ad5708bc96ba5fabca78"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/lock.json",
+      "bytes": 561,
+      "sha256": "01fdcb603b9a5377beb14a4acc0eb17ddd6f10bce3057ec7cf7edddaac44c190"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "56c33ca06d709a3147892d834a83de26645d27fadf1cc833610b56ea5c50a1d5"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/memory-before.json",
+      "bytes": 354,
+      "sha256": "0741ed2fb760ed6a91fddfbaf2c738a56269020bbe153671fa84cab34d02da72"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/new-stage.json",
+      "bytes": 352,
+      "sha256": "22a220ab4ce61cb51c6f743c1ae62dfaeb66859452bead33cf130a2091666e99"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/result.json",
+      "bytes": 1236,
+      "sha256": "2254b55226d7ede87ba31e8be94d129f54447cd6d29589079edaed17dc87bae8"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/source-after.json",
+      "bytes": 6643,
+      "sha256": "d7035df11ef777a1b65bc12bb58b5d2f327be645975d556f27d94c129db4f50a"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/source-before.json",
+      "bytes": 6643,
+      "sha256": "008f73fe6afcfa665ddfc2a94b5b9123b9df337695cc27cc44c6ff9dd91d48f4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/swap-before.json",
+      "bytes": 265,
+      "sha256": "b1ef730fc92fbaaaa485fbbadb38b537ad57b8297ccb5421ca7aa36697f495e2"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/tools-before.json",
+      "bytes": 1005,
+      "sha256": "0ca6b63b854d8330286a0c3b917f43746be646a5088b163054bf857edb1999b0"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-false/verify.json",
+      "bytes": 1331,
+      "sha256": "bf7b79b24ba08c5da4fed235fd65ab53a7f0fa01d298a4c7c13a4956cdb65b36"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "93587a4f4447329cfe99085a5cea792ba25358b500e88dc00e2a0aa54cb307a8"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/artifact-copy.json",
+      "bytes": 556,
+      "sha256": "8a1c74223520bbf10f7deeafd3fbaaf74874d58faa32143d6923409d0142de95"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/artifact-text/attestation.json",
+      "bytes": 167074,
+      "sha256": "e13a5c71c288ace181e973e62692b3d24495dcf8514c2dbe8d3640df57e37ace"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/artifact-text/build-manifest.json",
+      "bytes": 17040,
+      "sha256": "787c2343c56dec602bda97e03c1a76956abc76a2f240529cc67e0282a5549313"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/artifact-text/modules/LexLeanR4/Object257NonemptyContext.lean",
+      "bytes": 4436,
+      "sha256": "983ca2046537af262acf0221a1af1c0114859bc9ccc383233ed1de44afe7bb36"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/artifact-text/modules/LexLeanR4/Object257NonemptyContinuation.lean",
+      "bytes": 3182,
+      "sha256": "abf792a460dddcb6f909e22dacaf9aa94ea49c4b9ed9f88fd84b93d2a1959dd2"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/check.json",
+      "bytes": 1039,
+      "sha256": "8fc2cf2f44c63e7ea9b52712dee83eab93b185ea8e8e649e27ead3fe68c6104a"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/directories.json",
+      "bytes": 480,
+      "sha256": "e24c1ede22c90ab47981a5c28a2fb62322fc0b2e11bbacf62086a13caf5a8159"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "30bb3feb8a1d35908ab7de341156ac4d7a29463aae14bb7db6ea02603a450e41"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "a16dc1f1fb7c0f196f582febc73c0db304561875fd96aa5059a695b8cd3b9f73"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/expected-inputs.json",
+      "bytes": 5463,
+      "sha256": "15d486d846197a081f36a866249fe4a6093c66a41196df0a39fe73fc6ccdf445"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "c07fbcbc56c34581fee23416b5988fc57e9dbbc8fb19146d9ed7fc9fa94b4276"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "7ab3bdd55ae3f4f8e7e36bdce59bd1aecfd6920f4db1df08d3bbbac56a96c958"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/host-after.json",
+      "bytes": 142,
+      "sha256": "e9cd6e2fff79f5dcad898e76f174f29ca1e3c258f49a5f66f1eda3b12280e1c4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/host-before.json",
+      "bytes": 152,
+      "sha256": "c900e747754d7f64e902f5089a3eeee2aa09821580c463142d424a39523c8375"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "9821fd1ac8089f74a7adc388ac8ab56e667e2ec6d9503d6d4492423b5616bc89"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "07775f3e000f76d0b164da4e001da2765b4b9098c860d61cbb8b7207ffc20866"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/lock-after.json",
+      "bytes": 539,
+      "sha256": "7a0c58330918445fbe2396f38e7e77df47730950e3bc0cccfb32a14bebdfcfd3"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/lock-bytes.json",
+      "bytes": 2080,
+      "sha256": "cb89f7a3a7053c12b4226a4227fd05784f39bcf0ed00b33ceee3a4b3452f5295"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/lock.json",
+      "bytes": 564,
+      "sha256": "f5d2321ab794a0ab6020c5a1ccf084d85089221b383a439a7890d2621568d5d4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "a20b269bde5afb47fc8396cc5e84c2d89f5efe529cd84ed2d65b8a04de6c16a2"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "c4ffcf3d6cb64628cc25de69ef6ec81fe43685a97aa480a292413750940c2af9"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/new-stage.json",
+      "bytes": 355,
+      "sha256": "77c2a486d76cc9fee335d9d5acd513536849502d5b0501428991d42189d62abc"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/result.json",
+      "bytes": 1170,
+      "sha256": "665e5475a195f7f960a582ace9d20b4b2a542ab7f3a958a3d5a17f4ec2904316"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/source-after.json",
+      "bytes": 6769,
+      "sha256": "a21328d96959f644a6b3e17debe1893c227f48c28c0896c2bb10927af5d8c877"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/source-before.json",
+      "bytes": 6769,
+      "sha256": "f55cf7be72945f79bf768d4ee4180648efc3fe5acd90f4874a790db73e3fbcd6"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "587d27605803bdb5a37255361d2b8c335031c7d0dddcdca4734c121eb210df19"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "c1bf1ac0c48b3f8c7ca80e9980ff34ccfa339dfdc5a802c78767b15e084998aa"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/continuation-positive/verify.json",
+      "bytes": 1356,
+      "sha256": "d99fefb87bcbcf04e6251083a539d3cfbaff796c77074c85f81951bbc7309f44"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/native-review.json",
+      "bytes": 51094,
+      "sha256": "4711b58ff309516cf76a34cd18d05f9e9dcd968ac404f5b0618d942f14cfe958"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/negative-review.json",
+      "bytes": 21907,
+      "sha256": "30467b672a3727b308a8a81c2a5aff46c9d7dbe9e57e68c432ceb209a60c5b21"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/allocated-before.json",
+      "bytes": 459,
+      "sha256": "aeb569c0266024a0e4418507141303abe784cf62f1731ce7386ce1284470bd71"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/check.json",
+      "bytes": 937,
+      "sha256": "b214e371da1cac16663d1f17741f9794ea90f7ec586f58489122861c29217ae4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/directories.json",
+      "bytes": 454,
+      "sha256": "c541a8b487e4a785eff37a08b7be69c909cc81811d80ea21e61a2db3e5ed0b2e"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/epoch-after.json",
+      "bytes": 470,
+      "sha256": "767747d7caee04b0215d5a21c3e65f892f5bb3d2355474ff3987c4475feb3959"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/epoch-before.json",
+      "bytes": 470,
+      "sha256": "fedbce5d352ed1de8fb35e5c0e9f339856eb1af2ec7df5df2e6e5ee83d58bd5c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/expected-inputs.json",
+      "bytes": 5420,
+      "sha256": "0de05ba34f38111c3ff3e53374ca81837ba62abd63b4ed9b6659a42983f6a72f"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/failure.json",
+      "bytes": 813,
+      "sha256": "63d3c97931fc9680a63ec17168070264d7d918f73fadb459fb4505a9397264e7"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/guest-after.json",
+      "bytes": 406,
+      "sha256": "b0c427c525e40645a32b0b248cb31a881d86317dde527115c2c6ec1c46d18318"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/guest-before.json",
+      "bytes": 406,
+      "sha256": "33c08b013206aad5b17338dfe688e04e78e5de545463af3e8547ceed103bf05d"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/host-after.json",
+      "bytes": 142,
+      "sha256": "2325e129e76fad787bedd30e1cd3fef68b7c5cf6b9466febc593a3e6edd709bb"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/host-before.json",
+      "bytes": 152,
+      "sha256": "828e7b5ee98f441525f7ca465050a7411f4eeb8133c01bcbbc2bb405b8bf3eed"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/idle-after.json",
+      "bytes": 460,
+      "sha256": "f3c1190b652d36462a68a9674b689167f8cbcb34f303029073faf2b951b2531c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/idle-before.json",
+      "bytes": 460,
+      "sha256": "58f4c1c28db1250dd7d4a68f4306f8f43c09d9a35c5caab7af2c43a0ba68d82f"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/lock-after.json",
+      "bytes": 513,
+      "sha256": "0a1085d9e72b1e3faafc1742e0426cb9b889b711f710aaadada64ad6dac65cf3"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/lock-bytes.json",
+      "bytes": 2067,
+      "sha256": "6d6c63446686c5c0f613d2f15ea86fb968961048538b301544f383fafabb61d6"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/lock.json",
+      "bytes": 551,
+      "sha256": "ec1c32da57e4e189803d3d3b9e1f02c6d45d4f363852530c128d24f90f6ca7cd"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/memory-after.json",
+      "bytes": 354,
+      "sha256": "96f37eb325340836dc5fbb0f0d8a1a9972d1f4dc213d5e34e448680d9333c9d5"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/memory-before.json",
+      "bytes": 354,
+      "sha256": "eddc68ae61aa919e6136f5a257e363fbd99a94faa44f0d2b5d3d32dc47dd82b5"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/new-stage.json",
+      "bytes": 342,
+      "sha256": "901d7adfa7f219a99459f6a7f2b025dfc7e0ebdfa19cdbb4dba733acff2e8d21"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/source-after.json",
+      "bytes": 6223,
+      "sha256": "00141f91ebb215facefaeab135343ea3e5e69d399b7af39d93fa2f74ace6550d"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/source-before.json",
+      "bytes": 6223,
+      "sha256": "6bbe79f3921d42f44ed77eb15cafe07e81da34a1aa0b9a4d4efb1dcce8fcd421"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/swap-before.json",
+      "bytes": 265,
+      "sha256": "936c2fc842d0364b07be0f4dffa27532aec2b2822f9f0475fbe3a7b0695ae3cc"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-admission/tools-before.json",
+      "bytes": 1005,
+      "sha256": "be6861a903765d5e9cc7041d8c748d002029fc8c7b99633db1b80ca072ec118c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-check.json",
+      "bytes": 937,
+      "sha256": "b214e371da1cac16663d1f17741f9794ea90f7ec586f58489122861c29217ae4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-code-review.json",
+      "bytes": 11695,
+      "sha256": "115b0589b406fdc2bf031b0d5cac4e521382b55a6ab20b414e3defd7e80b6069"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-failure-review.json",
+      "bytes": 14073,
+      "sha256": "448e28916a8ed14d8e5885f408d4cd3526f204b930343fb04be0749953ce13f0"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/evidence/predecessor-postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/manifest.json",
+      "bytes": 8831,
+      "sha256": "0658e146a3b03048346f84b14fb29759237dbd252a9d0160b41d88d9d7d81d06"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/phases/continuation-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7c55254b19d74e834c9ad2175022b248d5eb09a6290bad442a389bbe3147176c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/phases/continuation-false/lexlean.toml",
+      "bytes": 702,
+      "sha256": "a8f94d284f9c4d736b0fd4cae431bb1355202f6bc86ab715b0938c5b69a1d1e4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/phases/continuation-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5f901c654d8795c04c5bd926aed31a31a339d63c471099e6bdb93a2c9c298284"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/phases/continuation-positive/lexlean.toml",
+      "bytes": 693,
+      "sha256": "bf922bd0c15672be0aecfca2cc6e6ae88eba4133a8afe35015c382ff8fae039c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+      "bytes": 19206,
+      "sha256": "727ba3a5a6d996f189f388a7a8220b8c6d9ec7e5075c4a66c8d30c7a3a609cf6"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContinuation.lex.tex",
+      "bytes": 12990,
+      "sha256": "85694e9f9f97dd15db43d010ccbd9166ddebb049732a5e2a2db6bb3c33068bb5"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/project/tests/lexlean/Object257NonemptyContinuationFalseBase.lex.tex",
+      "bytes": 12975,
+      "sha256": "19894f0b480dcb319aa62b835f738a9036cab19be6edd1cd845fd70676446685"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/README.md",
+      "bytes": 3046,
+      "sha256": "e2c2ae289de61fe22c3a17a672b3830f0cb0490e6fae3bc127069ac9636bc759"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/repair.json",
+      "bytes": 3611,
+      "sha256": "336fbcfa4959754135a51b86b960de9e44b9f24a8d2bca70ce6c232b0b4db34e"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/results.json",
+      "bytes": 3957,
+      "sha256": "ef7b4f1fe16c225c5fbf5eb26695c1bc4d6676e887f35b1180f8bc7ea8eff6a8"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md",
+      "bytes": 2774,
+      "sha256": "26f2dc92cdb936857d03a218ce80e0094a6fdb696224436da0c9d9f6d04c9590"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation-canonical/structural-audit.json",
+      "bytes": 1805,
+      "sha256": "c4e0953e70198525ae75de507f771b721cabbf41ae8798e355856662b08e37e5"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/candidate.json",
+      "bytes": 12090,
+      "sha256": "0ffc67fb4084d0f8b58fae4f80fd7790edde43f241aee9ef81785efad46a26ae"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/manifest.json",
+      "bytes": 7145,
+      "sha256": "ee84be5fe86fdb58969c9cb896eb62615a884161bca2648c13dfb4c3f10cd6f0"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/phases/continuation-false/lexlean.toml",
+      "bytes": 702,
+      "sha256": "a8f94d284f9c4d736b0fd4cae431bb1355202f6bc86ab715b0938c5b69a1d1e4"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/phases/continuation-positive/lexlean.toml",
+      "bytes": 693,
+      "sha256": "bf922bd0c15672be0aecfca2cc6e6ae88eba4133a8afe35015c382ff8fae039c"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/project/tests/lexlean/Object257NonemptyContext.lex.tex",
+      "bytes": 19206,
+      "sha256": "f9be14088d186ba38658c70cd7e6924cd98e2749e3b1ae18677da9d42b2459fa"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/project/tests/lexlean/Object257NonemptyContinuation.lex.tex",
+      "bytes": 12990,
+      "sha256": "85694e9f9f97dd15db43d010ccbd9166ddebb049732a5e2a2db6bb3c33068bb5"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/project/tests/lexlean/Object257NonemptyContinuationFalseBase.lex.tex",
+      "bytes": 12975,
+      "sha256": "19894f0b480dcb319aa62b835f738a9036cab19be6edd1cd845fd70676446685"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/README.md",
+      "bytes": 3980,
+      "sha256": "c82d04738f3175991753f40a56390caf3e700e19b2c83bdbd0bede1743927e81"
+    },
+    {
+      "path": "tests/fixtures/object257-nonempty-continuation/structural-audit.json",
+      "bytes": 1751,
+      "sha256": "bb9074d3abdda50c21d8d62540c46884e8e0d9e2aba503b3bcddc6550705232e"
+    }
+  ]
+}
