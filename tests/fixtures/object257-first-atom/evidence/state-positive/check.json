@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-first-atom-state-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T18:08:41.912Z",
+  "ended": "2026-10-23T18:08:42.970Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomState\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"5dd81d651dfedac6b25effee99b6b191d166dfa979d63ceaf123ee098ec7aaf8\",\"source_id\":\"86f39ad32aaa87187e0462d62eab67842f6183f2ab1591ba9005912cc641759a\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

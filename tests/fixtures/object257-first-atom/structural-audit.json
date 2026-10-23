@@ -1,0 +1,50 @@
+{
+  "status": "PASS_READ_ONLY_STRUCTURAL_CHECKS_NATIVE_NOT_RUN",
+  "native": {
+    "leaf": "NOT_RUN",
+    "stateNegative": "NOT_RUN",
+    "statePositive": "NOT_RUN"
+  },
+  "checks": [
+    "Exact original Record0 statement, parameters and empty axioms; only proof changed from Simplify to Reflexivity.",
+    "Actual first atom bytes0..31, original limits and exact retained Carry0 RHS.",
+    "Exactly one negative semantic AST difference: expected inventory ID first byte63→64; no frontier/certificate/goal/lift change.",
+    "Goal uses unchanged accepted terminal context with concrete empty state and original limits.",
+    "Lifted proof exactly accepted Nat induction/cases/congruence shape, with only zero theorem reference renamed; consumer exact Apply1.",
+    "All phase configs differ only in entrypoint from accepted300000ms terminal config.",
+    "Every shared input/proposal/source dependency hash matches; no runtime sources copied.",
+    "All17original dirty paths still match committed pending-manifest hashes."
+  ],
+  "negativeSemanticDifferences": [
+    {
+      "path": "/declarations/1/statement/right/arguments/0/fields/0/value/head/fields/0/value/fields/0/value/head/value",
+      "positive": "63",
+      "negative": "64"
+    }
+  ],
+  "originalLeafStatementSha256": "8735cc4a5e0c0ef1ccaf0e305445cdbccf947f5294ecce8a34dcab27b9b02977",
+  "expectedStateAstSha256": "847dc09f5e99df0a2cb2e75eddc91853f076fa233937038403bcb725213eb949",
+  "preservedOriginalDirtyFiles": 17,
+  "sourcePins": [
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomGoal.lex.tex",
+      "bytes": 12546,
+      "sha256": "a681588324b3c4f629775768ddad58a6bceaef3e2199239bc090bebaa0243911"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+      "bytes": 5627,
+      "sha256": "490eec8b45719c4fabae9bf36e3fe7f9674d71968ca45c07b8cf2e782d048444"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomStateFalseId.lex.tex",
+      "bytes": 8737,
+      "sha256": "38b38ee64915685393f4301c2989a05bbf27246be42f4b92d407a4365ce92f45"
+    }
+  ]
+}

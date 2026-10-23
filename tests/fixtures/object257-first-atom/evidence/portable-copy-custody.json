@@ -1,0 +1,491 @@
+{
+  "scope": "Byte-identical selected actual command records and emitted proof text; phase lock is exact successful lock-bytes stdout. Full artifact trees excluded, their complete census is retained in native reviews.",
+  "files": [
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/code-review.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/code-review.json",
+      "bytes": 12496,
+      "sha256": "aa871624c1c59df2b766a82e6de1ba65158d5126771bfde820b1d6c193819abc"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-native-review.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-native-review.json",
+      "bytes": 25830,
+      "sha256": "4484df480bec9faae3e5306072865fa2d780c9a6a2a226d62a74c3b5b826477f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/check.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/check.json",
+      "bytes": 863,
+      "sha256": "1a4af57e3bcedc5a382217044742ecf4a31b97521f1fb0a4a23c1e6710eca85d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/verify.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/verify.json",
+      "bytes": 1173,
+      "sha256": "3b296b00a9336499032a66c871a45f08bba0245be28db4b23bfaf6af61fc5e32"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/result.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/result.json",
+      "bytes": 961,
+      "sha256": "11af9e140dcf511ce3ac9a61912ccf4caeb60ac7449561ec3647395872c65e36"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/expected-inputs.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/expected-inputs.json",
+      "bytes": 4774,
+      "sha256": "34d9c06150cf394d4cb3ee6ac4203520d9ceeab11cd78ea056c6d3ebabc7909d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/source-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/source-before.json",
+      "bytes": 4957,
+      "sha256": "4b8faf29a8dceb401407a794190f4fb819b980dfba90438967f4fd326d1616c1"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/source-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/source-after.json",
+      "bytes": 4957,
+      "sha256": "fe2967f9a55b732534ae60935be1785c7f579a91fa5c37b7de43990a1e84fc37"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/memory-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "e26d2b4037ea64712c6e011a82c8c3ac3386752d63d6bd557e9903f2b439cc13"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/memory-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "0aaa3684a08a0cf128699e832ac87b75de63a9076279cb82a729062b75275817"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/epoch-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "d1ef551390abe1003f26e5290985834bc900b2fa78fa685204e684b688870f53"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/epoch-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "ae9e20587ff00063d766939dab1e189a869c3d697b47aa34756833ec95645c3a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/tools-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "d3651c995d44cb666b9924384a5e453cbe663be7001e48a86ac8ed2d2c52eeb0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/idle-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "84a5a0999293699678a2a35a6a2812e771f90c035b76ba481ca4303ccf0a3551"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/idle-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "49b79c1ca38f583614e37f1791c99157937e9dfed16f49af3b8a0f3cabd0c282"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/host-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/host-before.json",
+      "bytes": 152,
+      "sha256": "88d57e763d5b0cbbfd8ac38865808984057cce7540d090ae7a5a575fb1f9ee46"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/host-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/host-after.json",
+      "bytes": 142,
+      "sha256": "0b7418a5bb8775f73a4617e7b0b245e4ebbd878234a90dceb26cb4a35d0ef423"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/guest-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "1fde8258bfc5fd9f721276456431dc7d3c389ea824dd2be0aafa030026f38c14"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/guest-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "b12821784891ce4cfa2e296db05c64e4f0c457132be077b351b3cd01ef44c643"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/allocated-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "4f6f248c7f5d1c3cb54a34f550c6bbcbee5560302831af39f55ca0e4dd081265"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/swap-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "0a9f9e912652c0154e9251664a8f00d4e902606ca7927a8d31b6697a99f5555a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/lock.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/lock.json",
+      "bytes": 535,
+      "sha256": "54c4e10437cc9b163ebdd47aa7b935c9f32377beec94abcd9b083f9088434892"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/lock-bytes.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/lock-bytes.json",
+      "bytes": 2051,
+      "sha256": "959e044bfc97d4e74ff1f7c184e3ae4e0fa045a29afdd28fb668ed65c5ab3aa2"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/lock-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/lock-after.json",
+      "bytes": 481,
+      "sha256": "7dc02b2befb1a68b1e99521724241c2200af516db853316f5898e53b209473aa"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/postcapture-errors.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/lock-bytes.json#stdout",
+      "path": "tests/fixtures/object257-first-atom/phases/leaf-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "1b890463fcdbf695ad11f649d7302c9eda9708b1c928a0306b82e31f016a9d3a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/leaf-positive/artifact/build-manifest.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/leaf-positive/build-manifest.json",
+      "bytes": 10956,
+      "sha256": "c4cb4cce17009b29f1dafb22255d4a5556b81d5323c8ddba0a85410241842434"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/check.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/check.json",
+      "bytes": 952,
+      "sha256": "ce02856ef69bbdf673645cb264d617a9bbf2185ce35e4a503107749d2fcbfd0c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/verify.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/verify.json",
+      "bytes": 2021,
+      "sha256": "3083ff92b6f181de1357a3887168db21b7245b8a2b631783df9d029979798518"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/result.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/result.json",
+      "bytes": 1914,
+      "sha256": "eff8de9c19861549ec2c5ac4907832d23ad42198fb5b0986be1586597deb72a9"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/expected-inputs.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/expected-inputs.json",
+      "bytes": 4772,
+      "sha256": "8e2e09ba542b7b251c868b898d1c914c7a41bb1c0f3f8abcc37884b735bb3de7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/source-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/source-before.json",
+      "bytes": 4881,
+      "sha256": "f1a0b0eab723b108f8303b7a2baa23ec05c60b31330001a9c6c0978ec0fb5843"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/source-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/source-after.json",
+      "bytes": 4881,
+      "sha256": "8cc21f7505d1cc1f7f2b1cd5baa51b00c440db61c0ed9ad2b854d2c377be5c58"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/memory-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/memory-before.json",
+      "bytes": 354,
+      "sha256": "6580c9953aa2d674d9f9b0ace0c82bcca751ebd435260a99d16d9f7de7187598"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/memory-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "d0c6565d985ba4b47796006d00d0eb59dd6a458956101e70a3437dff63059041"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/epoch-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/epoch-before.json",
+      "bytes": 470,
+      "sha256": "7bb6550c9f7a5a1f3aed55653463b103d554710761af3f0fbda0ea609b6cb482"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/epoch-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "a993bc278d4d8b0980ecc01767e4e42a34659ced80b25ac4a3d04b7e0436e098"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/tools-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/tools-before.json",
+      "bytes": 1005,
+      "sha256": "3b4101d554fcc9cb05b136660f6d4fca6c3d8201cad0b9d12214d8a3d32acd1e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/idle-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/idle-before.json",
+      "bytes": 460,
+      "sha256": "6d334abad240c4f555aa7930d0b4f76c967afae21f698bfcb485e4b07739c819"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/idle-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "438f0a5ca094c615aa4107586bc65ed4807283dfb58ecde1f1fff1c6471e8652"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/host-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/host-before.json",
+      "bytes": 152,
+      "sha256": "7b130203e7a57ef9abd8f92af67fd54ff446c31f29b639520c34054e6ed5b329"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/host-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/host-after.json",
+      "bytes": 142,
+      "sha256": "a5541b6596f7e34ccd6ce23b21be7cd2dac3a2927a31d2efe410de2a1e00de3f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/guest-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/guest-before.json",
+      "bytes": 406,
+      "sha256": "754255d5b0787df8d1f313a85aab76d397ec1796e9838feafd96cadf1dfaf94d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/guest-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "4a90754e7bb800c7f87a18b06e70ed9c5c19b0c889a328897546773d82645044"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/allocated-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/allocated-before.json",
+      "bytes": 459,
+      "sha256": "d18f1168b51bf06413ca763f4f44fdb40416b33777f6aed264f29342c37a7d4e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/swap-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/swap-before.json",
+      "bytes": 265,
+      "sha256": "95af9e857287008b4dd12c0b4e653f8b6a95545756bed424b387fd1fb91ddb95"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/lock.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/lock.json",
+      "bytes": 533,
+      "sha256": "3a9fa01763294ad27c0f83e3a9f43074157a111796f32bcce21762ac42246dcf"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/lock-bytes.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/lock-bytes.json",
+      "bytes": 2049,
+      "sha256": "20c38ce47dcd2b0b59270f8934ac1cf607aef99c97410b45c21b086a3f69661d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/lock-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/lock-after.json",
+      "bytes": 477,
+      "sha256": "daa3f4493a75b3f37d1d609e8fa816a32d8987fbc873c9e213fd8fff5903a8fa"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/postcapture-errors.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-false/lock-bytes.json#stdout",
+      "path": "tests/fixtures/object257-first-atom/phases/state-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "daa7c4dcc5efecd5c420e5994dc15d593ee5175438f82d241fc1df9a56df788f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/check.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/check.json",
+      "bytes": 948,
+      "sha256": "c3ac13ed6a93f150564b7182786fb3e63bb1efc2bf3a38c15056a20263e4dde4"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/verify.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/verify.json",
+      "bytes": 1259,
+      "sha256": "14ed3e45c7ff0eacef6c2bc2feecc7b492218d1cfb25f4b84002712a930a3506"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/result.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/result.json",
+      "bytes": 1062,
+      "sha256": "1340ecb1887798ef00aed0342a17d1034d69a4c39894f1c280129894746ef058"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/expected-inputs.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/expected-inputs.json",
+      "bytes": 4775,
+      "sha256": "3d8dc0528068a2459ce31022912d0019d0082d8768ea6554503b05cc63656631"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/source-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/source-before.json",
+      "bytes": 4995,
+      "sha256": "5d2522e0856f5db3b1eab4894db04e9be3cbf89168396ffec19075e1e2f6f30f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/source-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/source-after.json",
+      "bytes": 4995,
+      "sha256": "cd97a95eae96f1a3538dc529e6db886e1dc44da2e063d48c11145b3b3818ae35"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/memory-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "8256b79bc3a076adfb6aba663ef224178dd11b0c9c1771a75d50fb54b9eb5aaa"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/memory-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "5600a7042c67f39d0871feba6d052139765ae1000e0289cea76825c808eb4181"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/epoch-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "59ad5719aea795bad0755b77a20da9f1c2d23da63324dae6d811b1c949c73c1e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/epoch-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "71c864238d4d7e8472f96271eb0c91de9119c46b7a31d230ca6d14edce4dd4de"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/tools-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "d344c1d2adaed3e96ecf67e0e00637c3ffca613ebbe8a258e01f5916e6773160"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/idle-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "cdd975f20f4ab3b2e43cedc288801d4c61e0b6773618f1f32af681383c0a4021"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/idle-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "21f5c6a39331d94504a1907fcbad341bb0d1bfa1572ed54827a7cda56a4dfa07"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/host-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/host-before.json",
+      "bytes": 152,
+      "sha256": "7a1e19dd1caac4f80629a85752ce42d2ec556c620b2532afd4353966d0acf4f6"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/host-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/host-after.json",
+      "bytes": 142,
+      "sha256": "4b61afac67dd9f51bc0a51d0d53b95427eb982c230f8136d338c813fc19624a3"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/guest-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "864b2b86adbe0eb951641d31c13a56006936a385bdb4d98f1c412c3f5dd4b56d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/guest-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "e7ff1ff1699f43e99f04866c2372a886662cd4e0d6fb59bd1155572ef67dad5b"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/allocated-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "e3560b1c8a51567d76c84eff98d94f28967822bbd72736b8c18a7879fd90040c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/swap-before.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "05ff2206a228c89d502a9d393523461328150d38e74beb2746474faafb1504f2"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/lock.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/lock.json",
+      "bytes": 536,
+      "sha256": "1d47b786204870ca7765df7025f4894c2edf4bf7680f9d1b09420b579d92e319"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/lock-bytes.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/lock-bytes.json",
+      "bytes": 2052,
+      "sha256": "ca94db945152ad7a713db05abe1a9392bdc126242969f5c3f8de50fa5274d8a0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/lock-after.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/lock-after.json",
+      "bytes": 483,
+      "sha256": "f1c6ae89af1cbe4bec1b202e5dc175d4a68ed0017766180c738230096ca2a60b"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/postcapture-errors.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/lock-bytes.json#stdout",
+      "path": "tests/fixtures/object257-first-atom/phases/state-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "3c328c2d0627a3e496f2a4cb53946f3de92caa4747f195bf05b99b846f13324f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/artifact/build-manifest.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-positive/build-manifest.json",
+      "bytes": 14564,
+      "sha256": "0293319813936c8b5535043d47e9dae54a241b5ae246a9c4cf02461e21eecf3e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/artifact/modules/LexLeanR4/Object257FirstAtomLeaf.lean",
+      "path": "tests/fixtures/object257-first-atom/evidence/emitted/Object257FirstAtomLeaf.lean",
+      "bytes": 1206,
+      "sha256": "d4aed88552d502345a04edf1ef0dd9e59347a385f37c1cb182203ad2faa1dd1f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/artifact/modules/LexLeanR4/Object257FirstAtomGoal.lean",
+      "path": "tests/fixtures/object257-first-atom/evidence/emitted/Object257FirstAtomGoal.lean",
+      "bytes": 2796,
+      "sha256": "73b28121e33b3f19c0d07cb4653b3e74e03a2e57c80aceafbc320c1eca649abd"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/artifact/modules/LexLeanR4/Object257FirstAtomState.lean",
+      "path": "tests/fixtures/object257-first-atom/evidence/emitted/Object257FirstAtomState.lean",
+      "bytes": 2355,
+      "sha256": "6912521fa9f468c0c494c032bf2ad64d6ec0805f578bd81da613dc5900b4d91a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-positive/artifact/modules/LexLeanR4/Object257TerminalContext.lean",
+      "path": "tests/fixtures/object257-first-atom/evidence/emitted/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-native-review.json",
+      "path": "tests/fixtures/object257-first-atom/evidence/state-native-review.json",
+      "bytes": 29949,
+      "sha256": "c18c2dc1399a10dc64f5b96186abaf06bb28497f3d67e7a9cd92f9a9343e3efb"
+    }
+  ]
+}

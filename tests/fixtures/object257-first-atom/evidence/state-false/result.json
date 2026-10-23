@@ -1,0 +1,38 @@
+{
+  "phase": "state-false",
+  "stage": "/tmp/r4-object257-first-atom-state-false-owned-20261023",
+  "verifyStatus": 1,
+  "result": {
+    "artifacts": [],
+    "command": "verify",
+    "diagnostics": [
+      {
+        "causes": [],
+        "code": "LLV7002",
+        "help": [],
+        "labels": [],
+        "message": "Lean rejected `LexLeanR4.Object257FirstAtomStateFalseId` (error): Type mismatch\n  obj257FirstAtomLifted 1\nhas type\n  Object257FirstAtomGoal.Obj257FirstAtomGoal 1\nbut is expected to have type\n  R4.ObjectStore.ObjFoldAtoms\n      [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,\n          30, 31]]\n      [] []\n      { objectBytes := 16777216, records := 1000000, recordBytes := 67108864, returnedBytes := 16777216,\n        visits := 1000000 } =\n    Except.ok\n      {\n        inventory :=\n          [{ id := { bytes := [64, 164, 31, 162, 68, 35, 68, 195, 38, 116, 35, 81] }, scale := 0,\n              payload :=\n                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,\n                  28, 29, 30, 31] }],\n        frontier := [{ id := { bytes := [63, 164, 31, 162, 68, 35, 68, 195, 38, 116, 35, 81] }, scale := 0 }] }",
+        "notes": [
+          {
+            "message": "generated location: $STAGING/lean-src/LexLeanR4/Object257FirstAtomStateFalseId.lean:25:2"
+          }
+        ],
+        "primary": {
+          "byte_end": 8663,
+          "byte_start": 1088,
+          "column_end": 8368,
+          "column_start": 793,
+          "line_end": 10,
+          "line_start": 10,
+          "path": "tests/lexlean/Object257FirstAtomStateFalseId.lex.tex"
+        },
+        "severity": "error",
+        "spec": "lexlean/diagnostic/1"
+      }
+    ],
+    "exit_code": 1,
+    "modules": [],
+    "spec": "lexlean/command-result/1",
+    "success": false
+  }
+}

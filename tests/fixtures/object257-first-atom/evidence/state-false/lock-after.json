@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-first-atom-state-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T18:08:23.179Z",
+  "ended": "2026-10-23T18:08:23.252Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "daa7c4dcc5efecd5c420e5994dc15d593ee5175438f82d241fc1df9a56df788f  /tmp/r4-object257-first-atom-state-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

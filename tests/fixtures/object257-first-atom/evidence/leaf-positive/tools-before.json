@@ -1,0 +1,17 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/usr/local/bin/lexlean",
+    "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean",
+    "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake",
+    "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker"
+  ],
+  "started": "2026-10-23T18:04:10.518Z",
+  "ended": "2026-10-23T18:04:11.312Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5  /usr/local/bin/lexlean\n79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean\n8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake\n8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker\n",
+  "stderr": ""
+}
