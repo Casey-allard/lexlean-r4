@@ -1,0 +1,94 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-local-reference-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1306,
+      "sha256": "cb59af073a015dbc39d714ecbb3afc9241e0196dfe1b3b0041164306ccb80244"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 700,
+      "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+    },
+    {
+      "path": "prerequisite-binding.json",
+      "bytes": 3135,
+      "sha256": "792758132e3e60114136aad16686c51e8006f7d3767913d5b0840b2363b9a435"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 18615,
+      "sha256": "da5974d16300b96ae5b9efdb15a8d348af2d3580d3941cd2a94c1ee8bc41e457"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 5121,
+      "sha256": "6f58a8a4044f45cc6a1f199bd1fa70ec9b56523f28660fecbbf472b55835fab1"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/authenticated-fetch-proposal.json",
+      "bytes": 14358,
+      "sha256": "ed97cf6f6931272d5455bdb7470495f398b33d166babe03ccd60f0f2a8d8c7ee"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json",
+      "bytes": 7295,
+      "sha256": "773c9d10d9503128f06cdf4b506aafd55cb28b85461c510aa54ea50ce8ae345d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/positive-native-review.json",
+      "bytes": 11441,
+      "sha256": "7a10d49b23f5cff53e84662be64c5090996e77cdf817530af5789b21b7face28"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/negative-native-review.json",
+      "bytes": 17988,
+      "sha256": "168520b90a33e8d0d5b098e7fc26bb263e7b8744d8e70970f6c5c03a322e9aa8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/manifest.json",
+      "bytes": 2770,
+      "sha256": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/check.json",
+      "bytes": 966,
+      "sha256": "6d4aaa7ab5d5ccd0134327e385b61b0a2b9eba33394429eaee7085f662757a48"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-failure-investigation.json",
+      "bytes": 9753,
+      "sha256": "47b99ffaac585f99e683e0a30faa21e6908f1a920435d17c0cfcb1834bc2d54e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-repair-spec-review.json",
+      "bytes": 9403,
+      "sha256": "0444a70d6fbdc65b6cbdf331510ef10b6fee0e8feaa65619b87a6e1a430370b9"
+    }
+  ],
+  "boundary": "Only two local-reference module fields removed. No inherited positive or intended negative acceptance; all new native checks NOT_RUN."
+}

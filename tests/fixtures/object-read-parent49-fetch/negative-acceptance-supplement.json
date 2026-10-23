@@ -1,0 +1,34 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-negative-acceptance-supplement/v1",
+  "status": "ACCEPTED_INTENDED_FALSE_BASE_REJECTION_ONLY",
+  "sourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/negative-native-review.json",
+    "bytes": 18894,
+    "sha256": "7e0729b2d8417587167672b85277c4ceb89cf903c4cd9ef873cd667872d2c6cf"
+  },
+  "portableReview": {
+    "path": "tests/fixtures/object-read-parent49-fetch/evidence/negative-native-review.json",
+    "bytes": 18894,
+    "sha256": "7e0729b2d8417587167672b85277c4ceb89cf903c4cd9ef873cd667872d2c6cf"
+  },
+  "actualReviewStatus": "PASS_INTENDED_LOCAL_WRONG_BASE_REJECTION",
+  "historicalPendingCustody": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected-false-raw-custody.json",
+    "bytes": 14750,
+    "sha256": "1e49646d00711b44428cd18a9d38713b2110fdf88e7577b8ee39d8b37278aec1"
+  },
+  "readmeChange": {
+    "before": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/README.md",
+      "bytes": 1054,
+      "sha256": "ab42576d367fb0a0a19c98854fc26f349db9b38bc8de06ed15f814db83cb8c2b"
+    },
+    "after": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/README.md",
+      "bytes": 1348,
+      "sha256": "f96380de06dbac01a00d0a474022aeb51af4622fd855bf923ee03fdf1f3c8a05"
+    },
+    "reason": "Correct stale no-corrected-output wording after closed raw receipt preservation and independent negative acceptance."
+  },
+  "boundary": "Corrected source admission succeeded and independent review accepted intended false-base proof rejection. This is not positive fetch or Read33 acceptance. Parent-owned positive run is in progress; no positive outputs read or copied. Historical pending raw custody and frozen candidate files unchanged."
+}

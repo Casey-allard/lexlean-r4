@@ -1,0 +1,921 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-portable-source-bindings/v1",
+  "status": "SOURCE_PROVENANCE_AND_CLOSED_REJECTED_ADMISSION_ONLY",
+  "phaseInputs": [
+    {
+      "candidate": "rejected",
+      "phase": "negative",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "bytes": 17212,
+          "sha256": "130aa503efd2d9df49896ed19e9e189a7dc6ea0e5f5092a7e426ee40ee904b98"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "bytes": 1306,
+          "sha256": "cb59af073a015dbc39d714ecbb3afc9241e0196dfe1b3b0041164306ccb80244"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "bytes": 20373,
+          "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/lexlean.toml",
+          "base": "repository",
+          "destination": "lexlean.toml",
+          "bytes": 700,
+          "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+        }
+      ]
+    },
+    {
+      "candidate": "rejected",
+      "phase": "positive",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "bytes": 17212,
+          "sha256": "130aa503efd2d9df49896ed19e9e189a7dc6ea0e5f5092a7e426ee40ee904b98"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "bytes": 1324,
+          "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "bytes": 20373,
+          "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/rejected/lexlean.toml",
+          "base": "repository",
+          "destination": "lexlean.toml",
+          "bytes": 700,
+          "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+        }
+      ]
+    },
+    {
+      "candidate": "corrected",
+      "phase": "negative",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "bytes": 17128,
+          "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "bytes": 1306,
+          "sha256": "cb59af073a015dbc39d714ecbb3afc9241e0196dfe1b3b0041164306ccb80244"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "bytes": 20373,
+          "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/lexlean.toml",
+          "base": "repository",
+          "destination": "lexlean.toml",
+          "bytes": 700,
+          "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+        }
+      ]
+    },
+    {
+      "candidate": "corrected",
+      "phase": "positive",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+          "bytes": 17128,
+          "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+          "bytes": 1324,
+          "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "base": "repository",
+          "destination": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+          "bytes": 20373,
+          "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+        },
+        {
+          "path": "tests/fixtures/object-read-parent49-fetch/corrected/lexlean.toml",
+          "base": "repository",
+          "destination": "lexlean.toml",
+          "bytes": 700,
+          "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+        }
+      ]
+    }
+  ],
+  "canonicalFull33": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "sixMergedSources": [
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    }
+  ],
+  "tenOtherDrafts": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ],
+  "authorityAliases": [
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "sha256": "130aa503efd2d9df49896ed19e9e189a7dc6ea0e5f5092a7e426ee40ee904b98"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "sha256": "cb59af073a015dbc39d714ecbb3afc9241e0196dfe1b3b0041164306ccb80244"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/lexlean.toml",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/lexlean.toml",
+      "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/prerequisite-binding.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/prerequisite-binding.json",
+      "sha256": "792758132e3e60114136aad16686c51e8006f7d3767913d5b0840b2363b9a435"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/candidate.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/candidate.json",
+      "sha256": "3d77b4c646e5c9ebf69421845536e27f708b9f0181fb419837a1db77491533d4"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/structural-audit.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/structural-audit.json",
+      "sha256": "ef1c87d8ef4cccc65c830936fa49c6ac49d323fcd7d0f759bf82bace2055f839"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/manifest.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/manifest.json",
+      "sha256": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-failure-investigation.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/admission-failure-investigation.json",
+      "sha256": "47b99ffaac585f99e683e0a30faa21e6908f1a920435d17c0cfcb1834bc2d54e"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-failure-review.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/admission-failure-review.json",
+      "sha256": "c2376e535af2432561c6b285bdbf621b8189c2c401bb31f18d2bb3a004c80bac"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-repair-spec-review.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/admission-repair-spec-review.json",
+      "sha256": "0444a70d6fbdc65b6cbdf331510ef10b6fee0e8feaa65619b87a6e1a430370b9"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/candidate-code-review.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/candidate-code-review.json",
+      "sha256": "0415c19d929e534105d9063c9042c702eeee2be06ee8f7ac5f4a172df8736e52"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invocation-code-review.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/invocation-code-review.json",
+      "sha256": "ffd1306f7efecbaba9ca533d668762e2c3af82a483ee30a4be65f48ef49f050d"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invocation-diff.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/invocation-diff.json",
+      "sha256": "b3669266ddbd8a747e81a15b46141fb4e1f0882c23ff6affa0a5ebf98ff1e885"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invocation-manifest.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/invocation-manifest.json",
+      "sha256": "eae5326f49291307e1eb37f2a3951e286f49c99e7513b2731976bac48b967d4b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invoke-parent49-fetch.mjs",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/rejected/invoke-parent49-fetch.mjs",
+      "sha256": "1fc85927cf8135affaa686e81d552e79f20229054d1556c15bdefe4cef4cb9ff"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "sha256": "cb59af073a015dbc39d714ecbb3afc9241e0196dfe1b3b0041164306ccb80244"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/lexlean.toml",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/lexlean.toml",
+      "sha256": "16890093e9916905629d46f12abecb017c0e81d8fffccece59784624601937db"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/prerequisite-binding.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/prerequisite-binding.json",
+      "sha256": "792758132e3e60114136aad16686c51e8006f7d3767913d5b0840b2363b9a435"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/candidate.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/candidate.json",
+      "sha256": "da5974d16300b96ae5b9efdb15a8d348af2d3580d3941cd2a94c1ee8bc41e457"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/structural-audit.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/structural-audit.json",
+      "sha256": "6f58a8a4044f45cc6a1f199bd1fa70ec9b56523f28660fecbbf472b55835fab1"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/manifest.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/manifest.json",
+      "sha256": "0892439d5ddc233e070246e9d43eefc208a2f17200c97bf946aeaa797acf288d"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/candidate-invocation-code-review.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/candidate-invocation-code-review.json",
+      "sha256": "655000101dd260f20b51a6e36fc7116978810e0d406887edec55d34932187139"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/invocation-diff.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/invocation-diff.json",
+      "sha256": "f85e84d6204ee0ea7e4c82c18c5d1a9aa7ee4521d0cca4ec629fb1d31ff281a9"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/invocation-manifest.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/invocation-manifest.json",
+      "sha256": "b27655e45519ad6d9de1de4814e51de472cc032c40cc9fa1528d0153176fbabd"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/invoke-parent49-fetch.mjs",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/corrected/invoke-parent49-fetch.mjs",
+      "sha256": "a2f21e3c38b7b830bd407bb10b1cc26b141c9b0c7826bcfbaeb04ee63563ec8b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/allocated-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/allocated-before.json",
+      "sha256": "2ffaf6d04215dc040c992e7d18f94b17356cf546ffaf34a08d2246c9d1d85f3d"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/check.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/check.json",
+      "sha256": "6d4aaa7ab5d5ccd0134327e385b61b0a2b9eba33394429eaee7085f662757a48"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/epoch-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/epoch-after.json",
+      "sha256": "aa4f27926d2671521f9a81f379380056c7acbaccaebf6bffbf7988efed0d98b6"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/epoch-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/epoch-before.json",
+      "sha256": "2feefdcf2e0cfcdb87fb810a5c74b4a7b1158357c0114228afb9a373a6e22019"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/expected-inputs.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/expected-inputs.json",
+      "sha256": "049f624c2dd0a12371fa744ec234b614211d6c0810b0f7392502a89d712d7b28"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/failure.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/failure.json",
+      "sha256": "f73ff24a016f3bfe622448af275ec7e4a987638c732ae777866ea13a93523957"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/guest-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/guest-after.json",
+      "sha256": "1173d1c2902cc3421d19d16766cbd037a722932d6eacbcb7e0935dc47742931b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/guest-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/guest-before.json",
+      "sha256": "9b691847404ae7639141dd8067c3d9ea2bc2aab2f620a66c86fd4562313d83cd"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/host-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/host-after.json",
+      "sha256": "2c3983df730f903d75cbcde2b9581d5ab67af847d203210ea20f00914712e29b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/host-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/host-before.json",
+      "sha256": "d6b968f6157d8f22a88f31e2b6c6a16a58ab7fd56e5e500d4917b11b35acdfab"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/idle-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/idle-after.json",
+      "sha256": "cadbdc85898da6f97516197004445b98a2acaaa3a65451c9d5098cb411adc5e1"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/idle-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/idle-before.json",
+      "sha256": "44df27de859e7140bf576655b5f748b4a30b9bfc06d833749b013c17c937109c"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/lock-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/lock-after.json",
+      "sha256": "20f3b4f2a3b575424a0165540bcb2d8b521f6bfe891b030c994c49591f24f338"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/lock-bytes.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/lock-bytes.json",
+      "sha256": "9536057bc0429a3c22f6d390302e1c6563e07aa5b37ef1f835affb82c14e1ef5"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/lock.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/lock.json",
+      "sha256": "4723ac6a9b41ff16e9cf3345c58fd4a7cea2dd8dea9104bf7a15838ad3f4f4ea"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/memory-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/memory-after.json",
+      "sha256": "351a999c831e6aa5cc0c6dc0823bf5251832278c0cfbc7f7c175627e7c123b1b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/memory-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/memory-before.json",
+      "sha256": "f367584486bdb363da629bbdf5c7a5b28d6c17aaa2ebfa4334360b4e56e4606d"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/postcapture-errors.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/postcapture-errors.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/source-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/source-after.json",
+      "sha256": "dc07ab7337078ab7be039402c3598b147c827663d08c845bf04240b8f0f833dc"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/source-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/source-before.json",
+      "sha256": "2806efe99b3344b3c96e7e01b0e6551699f57afef252972db89de11d82807735"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/swap-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/swap-before.json",
+      "sha256": "051f33d89ed053266085e6e69d61e3ef5789ea7300498c7a7800885b808dbeb5"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/tools-after.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/tools-after.json",
+      "sha256": "fe37bdc0821ca6a584f162c43c16bf023be348cf3e2eb7748e75f47f2a77722c"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/tools-before.json",
+      "portablePath": "tests/fixtures/object-read-parent49-fetch/evidence/rejected-admission/tools-before.json",
+      "sha256": "e62aa78a17e546d4e99297ad464dcbf490a4edf09f683b2baa9d0a25b3d5712a"
+    }
+  ],
+  "boundary": "Raw original paths remain byte-exact provenance. Companion phase inputs are repository-relative and can be resolved from checkout root. Preserved invocation scripts retain original environment-specific paths and are evidence, not portable launch authorization. Corrected native output is deliberately absent while running; no semantic negative/positive acceptance asserted."
+}

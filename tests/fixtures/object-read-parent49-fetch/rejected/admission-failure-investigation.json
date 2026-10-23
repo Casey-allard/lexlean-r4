@@ -1,0 +1,214 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-admission-failure-investigation/v1",
+  "status": "SOURCE_ROOT_CAUSE_ESTABLISHED_REPAIR_PROPOSED_NOT_IMPLEMENTED",
+  "scope": "Systematic debugging Phase1 and source pattern comparison only. All frozen sources, stage and failure receipts preserved. No SDK/native/repository edits.",
+  "actual": {
+    "check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/check.json",
+      "bytes": 966,
+      "sha256": "6d4aaa7ab5d5ccd0134327e385b61b0a2b9eba33394429eaee7085f662757a48"
+    },
+    "exit": 1,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLT4001",
+      "help": [],
+      "labels": [],
+      "message": "phase link: forward or unavailable module reference `ObjectReadParent49FetchContext`",
+      "notes": [],
+      "primary": {
+        "byte_end": 17175,
+        "byte_start": 263,
+        "column_end": 16927,
+        "column_start": 15,
+        "line_end": 9,
+        "line_start": 9,
+        "path": "tests/lexlean/ObjectReadParent49FetchContext.lex.tex"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "postcapture": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/fetch-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "postcaptureErrors": [],
+    "verify": "NOT_RUN",
+    "classification": "SOURCE_ADMISSION_FAILURE_NOT_INTENDED_SEMANTIC_RED",
+    "positive": "NOT_RUN"
+  },
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/manifest.json",
+    "bytes": 2770,
+    "sha256": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10"
+  },
+  "priorSourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/candidate-code-review.json",
+    "bytes": 5767,
+    "sha256": "0415c19d929e534105d9063c9042c702eeee2be06ee8f7ac5f4a172df8736e52"
+  },
+  "sourceCensus": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17212,
+      "sha256": "130aa503efd2d9df49896ed19e9e189a7dc6ea0e5f5092a7e426ee40ee904b98",
+      "module": "ObjectReadParent49FetchContext",
+      "selfQualifiedReferences": [
+        {
+          "path": "/declarations/1/body/branches/1/body/left/function",
+          "reference": {
+            "module": "ObjectReadParent49FetchContext",
+            "name": "ObjParent49FetchContext"
+          }
+        },
+        {
+          "path": "/declarations/1/body/branches/1/body/right/function",
+          "reference": {
+            "module": "ObjectReadParent49FetchContext",
+            "name": "ObjParent49FetchContext"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1306,
+      "sha256": "cb59af073a015dbc39d714ecbb3afc9241e0196dfe1b3b0041164306ccb80244",
+      "module": "ObjectReadParent49FetchTransport",
+      "selfQualifiedReferences": []
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178",
+      "module": "ObjectReadParent49FetchTransport",
+      "selfQualifiedReferences": []
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35",
+      "module": "ObjectReadParent49AuthenticatedFetch",
+      "selfQualifiedReferences": []
+    }
+  ],
+  "rootCause": {
+    "mechanism": "The successor branch of ObjParent49FetchGoal calls preceding local definition ObjParent49FetchContext with an explicit module qualifier equal to the current module. Explicit module references are validated against imports; the current module is not an import. This is not a missing preceding local declaration or a proof mismatch.",
+    "imports": [
+      "R4.ObjectTypes",
+      "R4.ObjectRead",
+      "R4.ObjectCodec"
+    ],
+    "definitionOrdinal": 0,
+    "dependentDefinitionOrdinal": 1,
+    "numberOfSelfReferences": 2,
+    "paths": [
+      "/declarations/1/body/branches/1/body/left/function",
+      "/declarations/1/body/branches/1/body/right/function"
+    ],
+    "officialSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/adoption-plan/lexlean-main-ir.rs",
+      "bytes": 381232,
+      "sha256": "41ca4444ee6c44bfc5bad95a96512fbb1e4ccd823b77e1298035deb8a0163f6a",
+      "lines": {
+        "moduleQualifierAdmission": [
+          3946,
+          3962
+        ],
+        "memberKey": [
+          3701,
+          3706
+        ],
+        "functionLookup": [
+          3788,
+          3790
+        ],
+        "sequentialDeclarationTraversal": [
+          9136,
+          9154
+        ],
+        "ordinaryDefinitionCheck": [
+          9366,
+          9373
+        ]
+      },
+      "evidence": "check_member requires env.imports.contains(module) for explicit module fields and emits the exact observed error. member_key uses bare name for module=None and module::name for Some(module).",
+      "limitation": "Retained official-source snapshot explains the exact observed diagnostic; no new binary-to-source provenance or compiler rebuild is claimed."
+    },
+    "acceptedPattern": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex",
+        "bytes": 29787,
+        "sha256": "2cedfadd3850194f8447f178117ad6af51e9b093f956682652081a6be8ffa5d5"
+      },
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic-review.json",
+        "bytes": 41873,
+        "sha256": "589ac5d44e90b4bf51135b010747a7bab9aa58a423696de1318f55db45ae4804"
+      },
+      "declarations": [
+        "Obj257AtomizedContinuation",
+        "Obj257AtomizedGoal"
+      ],
+      "leftLocalRef": {
+        "name": "Obj257AtomizedContinuation"
+      },
+      "rightLocalRef": {
+        "name": "Obj257AtomizedContinuation"
+      },
+      "evidence": "Accepted context uses the same Nat zero/successor Prop-family pattern and name-only local continuation calls in successor equality. Its native review is PASS_ACTUAL_GENERIC_PRODUCTION_CONSUMER_ONLY, not acceptance of the new fetch."
+    }
+  },
+  "proposedRepair": {
+    "operations": [
+      {
+        "op": "remove",
+        "path": "/declarations/1/body/branches/1/body/left/function/module",
+        "oldValue": "ObjectReadParent49FetchContext"
+      },
+      {
+        "op": "remove",
+        "path": "/declarations/1/body/branches/1/body/right/function/module",
+        "oldValue": "ObjectReadParent49FetchContext"
+      }
+    ],
+    "newLocalReference": {
+      "name": "ObjParent49FetchContext"
+    },
+    "hypotheticalSource": {
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba",
+      "written": false
+    },
+    "minimality": "Remove exactly two module fields from local function references; keep both function names, all arguments/types/branches/definitions/theorems/axioms/imports/config and full authenticated-fetch consumer unchanged. No self-import and no runtime change.",
+    "comparison": "In-memory AST comparison passed: the complete proposed AST equals original with exactly those two fields removed. Proposed canonical text remains original except two identical qualifier substrings; no candidate was written.",
+    "successor": "Separate fresh candidate directory and source manifest, input pin and invocation manifest; retain original packet/stage/failed check unchanged. Both variants share corrected context and still verify full consumer root.",
+    "tests": [
+      {
+        "order": 1,
+        "status": "NOT_RUN",
+        "kind": "source admission",
+        "expectation": "Fresh official lock/check for corrected negative admits all source; LLT4001 self-module failure absent."
+      },
+      {
+        "order": 2,
+        "status": "NOT_RUN",
+        "kind": "intended semantic negative",
+        "expectation": "Verify actual full consumer root reaches imported false-base proof and rejects the unrelated 0=0 Apply with LLV7002 type mismatch. Timeout/OOM/setup/other failure is not accepted negative."
+      },
+      {
+        "order": 3,
+        "status": "NOT_RUN",
+        "kind": "positive",
+        "expectation": "Only after independently accepted intended negative and fresh resource admission, positive full consumer verify succeeds and complete artifact/empty observed axioms/kernel replays/postconditions pass independent audit."
+      }
+    ],
+    "limits": "No stronger cost/success prediction. Existing 300000ms child budget, 4 GiB/2 CPU, exact epoch/tools, source/lock/storage/idle/zero-event guards remain unchanged. No Read33 acceptance from this investigation."
+  },
+  "storage": {
+    "availableBytesBeforeReport": "24988532736",
+    "maximumReportBytes": 20000,
+    "reserveBytes": 10737418240
+  }
+}

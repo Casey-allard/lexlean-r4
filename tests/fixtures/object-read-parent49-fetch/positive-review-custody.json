@@ -1,0 +1,53 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-positive-review-supplement/v1",
+  "status": "ACCEPTED_LOCAL_FETCH_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/positive-native-review.json",
+        "bytes": 11672,
+        "sha256": "fe12af5974cc28f416d7eb2ef0dc8e45fa7a98aca3b60f248527f8879f3995b2"
+      },
+      "destination": {
+        "path": "evidence/positive-native-review.json",
+        "bytes": 11672,
+        "sha256": "fe12af5974cc28f416d7eb2ef0dc8e45fa7a98aca3b60f248527f8879f3995b2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/storage-followup-2223.json",
+        "bytes": 1080,
+        "sha256": "b3e456c0817fc8aed00c0f5b0960460c6026a95315a2a7a209e8000b916eaebc"
+      },
+      "destination": {
+        "path": "evidence/storage-followup-2223.json",
+        "bytes": 1080,
+        "sha256": "b3e456c0817fc8aed00c0f5b0960460c6026a95315a2a7a209e8000b916eaebc"
+      }
+    }
+  ],
+  "historicalPendingRawCustody": {
+    "path": "positive-raw-custody.json",
+    "bytes": 18369,
+    "sha256": "7ab13bf3150784f63fae66a304d6e2b6c4e4a41d2928725f1afd0b94e608bd64"
+  },
+  "newResults": [
+    {
+      "path": "results.json",
+      "bytes": 6339,
+      "sha256": "a93f88e8cf4ccee9f568ab2fd0d17d09cbaca907f8c6b3ef7764812e91999ab9"
+    },
+    {
+      "path": "RESULTS.md",
+      "bytes": 2395,
+      "sha256": "3a832f8b0684afed854af957dd450a7699d73dab7c0dcb8d2f65850f398e0715"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1658,
+      "sha256": "319db72e3e4127b3739b5510a6ebb38abbc8bc3e059ef5ec0922a611128cb025"
+    }
+  ],
+  "boundary": "Only this exact local authenticated fetch accepted. No binaries/native execution or other source changes. Parent owns delivery manifest and Git delivery."
+}

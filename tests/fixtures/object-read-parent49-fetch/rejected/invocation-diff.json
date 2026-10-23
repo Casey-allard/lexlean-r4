@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/invoke-parent49.mjs",
+    "bytes": 7697,
+    "sha256": "0ed92cd3744b2f4f46a34717be4de97f7d0161322d7e96924fc094f979eb677c"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invoke-parent49-fetch.mjs",
+    "bytes": 7728,
+    "sha256": "1fc85927cf8135affaa686e81d552e79f20229054d1556c15bdefe4cef4cb9ff"
+  },
+  "literalReplacements": [
+    {
+      "from": "// One-off official-compiler invocation for one selected parent49 decode control; no fetch or Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one selected full parent49 authenticated-fetch consumer; no Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['decode-false','decode-positive']",
+      "to": "['fetch-false','fetch-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one decode phase",
+      "to": "select exactly one fetch phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-parent49-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-read-parent49-fetch-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "from": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13",
+      "to": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10",
+      "occurrences": 1
+    },
+    {
+      "from": "x.name===(phase==='decode-false'?'negative':'positive')",
+      "to": "x.phase===(phase==='fetch-false'?'negative':'positive')",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==15||new Set(inputs.map(x=>x.destination)).size!==15",
+      "to": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18",
+      "occurrences": 1
+    },
+    {
+      "from": "['verify','tests/lexlean/ObjectReadParent49.lex.tex']",
+      "to": "['verify','tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex']",
+      "occurrences": 1
+    }
+  ],
+  "checks": {
+    "candidatePayloadsAndDependenciesRehashed": true,
+    "both18InputSetsRehashed": true,
+    "onlyEightLiteralChanges": true
+  },
+  "storage": {
+    "availableBytesBeforeWrite": "25565364224",
+    "maximumAdditionalBytes": 1048576,
+    "reserveBytes": 10737418240
+  },
+  "scope": "No invocation executed. Both phase selectors verify the complete authenticated-fetch consumer root. An intended negative requires admitted source and the imported false-base semantic failure; helper-only verification is excluded."
+}

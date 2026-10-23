@@ -1,0 +1,108 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-source-code-review/v1",
+  "status": "PASS_CONNECTED_FETCH_SOURCE_READINESS_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T22:07:31.293Z",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/manifest.json",
+    "bytes": 2770,
+    "sha256": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10"
+  },
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/authenticated-fetch-proposal.json",
+    "bytes": 14358,
+    "sha256": "ed97cf6f6931272d5455bdb7470495f398b33d166babe03ccd60f0f2a8d8c7ee"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json",
+    "bytes": 7295,
+    "sha256": "773c9d10d9503128f06cdf4b506aafd55cb28b85461c510aa54ea50ce8ae345d"
+  },
+  "prerequisiteBinding": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/prerequisite-binding.json",
+    "bytes": 3135,
+    "sha256": "792758132e3e60114136aad16686c51e8006f7d3767913d5b0840b2363b9a435"
+  },
+  "acceptedDecodeAttestation": "43bcff1d853a153c4d3e10c2e503fb794e5033995d47e205454862508d114033",
+  "checks": {
+    "eightPayloadsFourDependenciesRehashed": true,
+    "actualDecodeReviewAndBindingIdentical": true,
+    "acceptedDecodeSourceExact": true,
+    "originalBackendEntries": 4,
+    "backendOrderAndParentIdExact": true,
+    "consumerScale": 1,
+    "completeProductionSomeContextExactlyThreeSubstitutions": true,
+    "errorPropagationIntegrityScaleAndIdChecksPreserved": true,
+    "fullResultObjRecordObjErrorTypes": true,
+    "NatPropZeroExactAcceptedDecode": true,
+    "NatPropSuccBothExactContextApplications": true,
+    "supportedInductionCasesCongruenceProofExact": true,
+    "positiveBaseApplyActualDecode": true,
+    "consumerActualProductionFetchApplyAtOne": true,
+    "sameUnrelatedZeroBothVariants": true,
+    "soleNegativeChangeBaseApplyTarget": true,
+    "allTheoremsEmptyDeclaredAxioms": true,
+    "canonicalJSONAndLanguage12": true,
+    "configOnlyEntrypointChanged": true,
+    "inputCensus": [
+      18,
+      18
+    ],
+    "originalFull33Unchanged": true
+  },
+  "modules": [
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "module": "ObjectReadParent49FetchContext",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.ObjectRead",
+        "R4.ObjectCodec"
+      ]
+    },
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "module": "ObjectReadParent49FetchTransport",
+      "imports": [
+        "ObjectReadParent49FetchContext",
+        "ObjectReadParent49"
+      ]
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "module": "ObjectReadParent49FetchTransport",
+      "imports": [
+        "ObjectReadParent49FetchContext",
+        "ObjectReadParent49"
+      ]
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "module": "ObjectReadParent49AuthenticatedFetch",
+      "imports": [
+        "ObjectReadParent49FetchTransport",
+        "R4.ObjectRead",
+        "R4.ObjectTypes"
+      ]
+    }
+  ],
+  "findings": [],
+  "assessment": [
+    "The actual consumer applies ObjAuthenticatedFetch to the original four-entry backend in original order, original manifest root parent ID and scale1, equating the entire Result to the accepted expected record. No lookup result, missing branch or runtime definition is substituted.",
+    "Context matches the exact production Option.some branch after only three reviewed substitutions: decode scrutinee→item, expected scale→1, expected ID→original parent ID. Both Result branches and integrity checks remain exact.",
+    "Nat-indexed Prop uses accepted decode at zero and identical context applications at successor. The lifted theorem uses the retained Induction/Cases/Congruence pattern, and final consumer applies it at1. The false variant changes only zero-base Apply to the same unrelated0=0 theorem present in both variants.",
+    "Prerequisite binding names the actual successful43bcff… decode artifact and its exact accepted7a10d49… review. Frozen earlier proposal/SPEC remain historical; no pending field was fabricated into acceptance."
+  ],
+  "boundaries": [
+    "Source readiness only; no invocation runner or native outcome reviewed here. Fresh invocation review and resource admission are mandatory before sequential actual negative/positive calls.",
+    "Both phases must verify the actual consumer root, not only the helper. Actual definitional conversion of original backend lookup and context equality may still recompute or time out; source shape establishes neither success nor efficiency.",
+    "Intended false-base rejection must be observed after source admission. Setup failure, timeout, OOM or unexpected success is not intended RED.",
+    "Any positive acceptance requires actual complete artifact, empty observed axioms, all kernel replays and exact runtime/source/lock/postconditions.",
+    "Accepted fetch would still leave child authentication, range/traversal, manifest-version and whole digest computation, original wholeRead and all33 Read controls open. No component/Hash/PrismPM/Pages claim follows."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 24764366848,
+    "maximumReportBytes": 20000
+  },
+  "actions": "Read-only source/AST/byte/hash review with literal reconstruction; only this report written. No SDK/native/compiler/VM/runner/repository/index/other-lab changes."
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-local-reference-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/manifest.json",
+    "bytes": 4066,
+    "sha256": "0892439d5ddc233e070246e9d43eefc208a2f17200c97bf946aeaa797acf288d"
+  },
+  "repairSpec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/admission-repair-spec-review.json",
+    "bytes": 9403,
+    "sha256": "0444a70d6fbdc65b6cbdf331510ef10b6fee0e8feaa65619b87a6e1a430370b9"
+  },
+  "predecessorInvocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invocation-manifest.json",
+    "bytes": 3028,
+    "sha256": "eae5326f49291307e1eb37f2a3951e286f49c99e7513b2731976bac48b967d4b"
+  },
+  "files": [
+    {
+      "path": "invoke-parent49-fetch.mjs",
+      "bytes": 7739,
+      "sha256": "a2f21e3c38b7b830bd407bb10b1cc26b141c9b0c7826bcfbaeb04ee63563ec8b"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 1606,
+      "sha256": "f85e84d6204ee0ea7e4c82c18c5d1a9aa7ee4521d0cca4ec629fb1d31ff281a9"
+    }
+  ],
+  "commands": [
+    "node invoke-parent49-fetch.mjs fetch-false",
+    "Only after independent intended-negative acceptance and fresh parent resource admission: node invoke-parent49-fetch.mjs fetch-positive"
+  ],
+  "verifyRoot": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+  "inputCounts": {
+    "negative": 18,
+    "positive": 18
+  },
+  "stagePattern": "/tmp/r4-object-read-parent49-fetch-local-refs-${phase}-owned-20261023",
+  "checks": {
+    "syntaxOnlyCommand": "node --check invoke-parent49-fetch.mjs",
+    "exit": 0,
+    "moduleExecuted": false,
+    "newAndPredecessorFrozenPayloadsRehashed": true,
+    "allLexLeanSemanticJSONCanonical": true,
+    "both18InputSetsRehashed": true,
+    "onlyManifestPinAndStagePrefixChangedInInvocation": true
+  },
+  "preserved": "Same exact epoch/container/tools, source/lock, idle/zeroevents,20 GiB host launch with10 GiB estimated additional and10 GiB reserve,11/10 GiB guest,300000ms/4 GiB/2 CPU, independent finally captures and successful artifact capture. One explicit phase per invocation; no automatic second phase.",
+  "boundary": "Original failed packet/stage and old source admission failure unchanged. No semantic negative or positive acceptance from this repair. Independent CODE and fresh parent admission required before actual execution."
+}

@@ -1,0 +1,4 @@
+{
+  "message": "Error: check result",
+  "stack": "Error: check result\n    at file:///Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invoke-parent49-fetch.mjs:66:61\n    at ModuleJob.run (node:internal/modules/esm/module_job:447:25)\n    at async node:internal/modules/esm/loader:646:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)"
+}

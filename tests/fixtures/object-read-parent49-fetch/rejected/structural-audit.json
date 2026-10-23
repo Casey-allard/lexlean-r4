@@ -1,0 +1,123 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-structural-audit/v1",
+  "status": "SOURCE_ASSERTIONS_ONLY_NATIVE_NOT_RUN",
+  "contextFromProductionThreeSubstitutions": [
+    {
+      "path": [
+        "scrutinee"
+      ],
+      "from": "ObjDecodeRecord(wire)",
+      "to": "var item"
+    },
+    {
+      "path": [
+        "branches",
+        1,
+        "body",
+        "condition",
+        "left",
+        "right"
+      ],
+      "from": "scale",
+      "to": "Nat1"
+    },
+    {
+      "path": [
+        "branches",
+        1,
+        "body",
+        "condition",
+        "right",
+        "arguments",
+        1,
+        "value"
+      ],
+      "from": "ObjAuthenticatedFetchInputId",
+      "to": "exactoriginalparentID"
+    }
+  ],
+  "contextSha256": "e3716a0a381b32784e30b9b7c0706c6ab8af70c1ccc279ae6d482ad6c919bd03",
+  "canonicalContextSha256": "e3716a0a381b32784e30b9b7c0706c6ab8af70c1ccc279ae6d482ad6c919bd03",
+  "PzeroExactAcceptedDecodeStatement": true,
+  "PsucBothArgumentsExactDecodeLeftAndExpectedSuccess": true,
+  "actualConsumerExactProposedStatement": true,
+  "originalFourEntryBackendAndOrderExact": true,
+  "fullResultType": "Result R4.ObjectTypes.ObjRecord R4.ObjectTypes.ObjError",
+  "positiveNegativeDifferences": [
+    {
+      "path": [
+        "proof",
+        "branches",
+        "0",
+        "proof",
+        "theorem"
+      ],
+      "positive": {
+        "module": "ObjectReadParent49",
+        "name": "objParent49Decode"
+      },
+      "negative": {
+        "name": "objParent49FetchUnrelatedZero"
+      }
+    }
+  ],
+  "sameUnrelatedZeroBothPhases": true,
+  "allTheoremAxiomsEmpty": true,
+  "supportedNatPatternProofExact": {
+    "branches": [
+      {
+        "binders": [],
+        "constructor": "zero",
+        "proof": {
+          "arguments": [],
+          "kind": "apply",
+          "theorem": {
+            "module": "ObjectReadParent49",
+            "name": "objParent49Decode"
+          },
+          "type_arguments": []
+        }
+      },
+      {
+        "binders": [
+          "prior",
+          "ih"
+        ],
+        "constructor": "succ",
+        "proof": {
+          "branches": [
+            {
+              "binders": [],
+              "constructor": "zero",
+              "proof": {
+                "kind": "congruence"
+              }
+            },
+            {
+              "binders": [
+                "earlier"
+              ],
+              "constructor": "succ",
+              "proof": {
+                "kind": "congruence"
+              }
+            }
+          ],
+          "kind": "cases",
+          "scrutinee": "prior"
+        }
+      }
+    ],
+    "generalizing": [],
+    "kind": "induction",
+    "scrutinee": "count"
+  },
+  "sourceModulesCanonicalJson": true,
+  "each18InputCensusUnique": true,
+  "knownLimit": "Actualconsumer definally matching context at1 and reducing literaloriginalbackendlookup are NOT proved by this audit. May recompute or timeout; preserveoutcome.",
+  "storage": {
+    "hostAvailableKiBBefore": 22330812,
+    "reserveBytes": 10737418240,
+    "maximumNewSourceMetadataBytes": 1048576
+  }
+}

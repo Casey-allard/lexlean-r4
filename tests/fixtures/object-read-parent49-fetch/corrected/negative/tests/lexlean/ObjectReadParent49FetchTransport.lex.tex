@@ -1,0 +1,10 @@
+\begin{lexlean}{ObjectReadParent49FetchTransport}
+\useglossary{lexlean.std.bool@1.2.0}
+\useglossary{lexlean.std.nat@1.2.0}
+\importmodule{ObjectReadParent49FetchContext}
+\importmodule{ObjectReadParent49}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"objParent49FetchUnrelatedZero","parameters":[],"proof":{"kind":"reflexivity"},"statement":{"kind":"eq","left":{"kind":"nat","value":"0"},"right":{"kind":"nat","value":"0"}}},{"axioms":[],"kind":"theorem","name":"objParent49FetchLifted","parameters":[{"name":"count","type":{"kind":"nat"}}],"proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"arguments":[],"kind":"apply","theorem":{"name":"objParent49FetchUnrelatedZero"},"type_arguments":[]}},{"binders":["prior","ih"],"constructor":"succ","proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"kind":"congruence"}},{"binders":["earlier"],"constructor":"succ","proof":{"kind":"congruence"}}],"kind":"cases","scrutinee":"prior"}}],"generalizing":[],"kind":"induction","scrutinee":"count"},"statement":{"arguments":[{"kind":"var","name":"count"}],"function":{"module":"ObjectReadParent49FetchContext","name":"ObjParent49FetchGoal"},"kind":"call"}}],"spec":"lexlean/semantic-module/2"}}
+\end{semanticmodule}
+\end{lexlean}

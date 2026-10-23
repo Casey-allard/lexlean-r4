@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-invocation-code-review/v1",
+  "status": "PASS_EXACT_CONSUMER_INVOCATION_SOURCE_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T22:12:06.309Z",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invocation-manifest.json",
+    "bytes": 3028,
+    "sha256": "eae5326f49291307e1eb37f2a3951e286f49c99e7513b2731976bac48b967d4b"
+  },
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/invoke-parent49-fetch.mjs",
+    "bytes": 7728,
+    "sha256": "1fc85927cf8135affaa686e81d552e79f20229054d1556c15bdefe4cef4cb9ff"
+  },
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/invoke-parent49.mjs",
+    "bytes": 7697,
+    "sha256": "0ed92cd3744b2f4f46a34717be4de97f7d0161322d7e96924fc094f979eb677c"
+  },
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/manifest.json",
+    "bytes": 2770,
+    "sha256": "d4591a0288bbd209fef7e0a3af128d89f2cb38a50c8ff920a94540d4cc174a10"
+  },
+  "candidateSourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch/candidate-code-review.json",
+    "bytes": 5767,
+    "sha256": "0415c19d929e534105d9063c9042c702eeee2be06ee8f7ac5f4a172df8736e52"
+  },
+  "checks": {
+    "exactEightLiteralChanges": true,
+    "allOtherPredecessorBytesUnchanged": true,
+    "nodeSyntaxCheck": "PASS_WITHOUT_MODULE_EXECUTION",
+    "eightCandidatePayloadsFourDependenciesRehashed": true,
+    "bothPhaseInputSets": [
+      18,
+      18
+    ],
+    "uniqueDestinations": true,
+    "correctCandidatePhaseField": true,
+    "actualConsumerRootBothPhases": true,
+    "exclusiveFreshOutputsAbsentAtReview": true
+  },
+  "findings": [],
+  "assessment": [
+    "Both fetch-false and fetch-positive selectors map to the frozen negative/positive candidate.phase field and verify the actual ObjectReadParent49AuthenticatedFetch root. No helper-only path or automatic second phase is introduced.",
+    "The candidate manifest hash and every payload bind the18-input selection. Input sizes/hashes and destination uniqueness are checked before fresh guest-stage creation; actual guest hashes are checked before official lock/check/verify. Exact candidate source CODE is separately pinned in the invocation manifest.",
+    "All predecessor resource and identity guards are byte-unchanged: reviewed20:22:35.225704499Z epoch/container,4GiB/2CPU/networknone/mounts[],20GiB host launch planning with10GiB peak estimate and10GiB reserve,11GiB guest pre/10GiB post, fixed tools before/after, idle, zero memory events, source census and genuine lock identity. Candidate config retains300000ms child limit.",
+    "Fresh exclusive output and distinct owned stages prevent accidental reuse. Artifact capture retains actual successful verify bundles, including unexpected negative success for diagnosis. Independent finally phases aggregate source/lock/tools/epoch/memory/idle/storage errors.",
+    "Launcher exit0 alone is never semantic rejection or proof success. Parent must inspect actual compiler JSON/status and every postcapture error; negative requires intended imported wrong-base mismatch after source admission."
+  ],
+  "boundaries": [
+    "Source/invocation readiness only; no SDK/native execution or live resource admission performed here. Parent must refresh gates before each sequential phase.",
+    "Positive follows only independently accepted intended negative and fresh admission; timeout, OOM, setup/import failure or unexpected success is not RED.",
+    "Positive acceptance requires authentic full consumer artifact, observed empty axioms and all kernel replay evidence with independent audit. Helper acceptance is insufficient.",
+    "Even accepted parent fetch leaves original wholeRead, child authentication/range/version/digest, all33 controls, fullObject/Hash/PrismPM/Pages obligations open."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 25549275136,
+    "reportBudgetBytes": 15000
+  },
+  "actions": "Read-only hashes/literal-diff reconstruction and node --check syntax-only. Only this review JSON written; no module execution, SDK/native/VM/repository/index/other-lab actions."
+}

@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-parent49-fetch-local-refs-fetch-positive-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T22:22:22.021Z",
+  "ended": "2026-10-23T22:22:22.217Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "45544cdd9e7ca9f1a246c66710e41c74be585f4ace8235e9039af81f40ea6454  /tmp/r4-object-read-parent49-fetch-local-refs-fetch-positive-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

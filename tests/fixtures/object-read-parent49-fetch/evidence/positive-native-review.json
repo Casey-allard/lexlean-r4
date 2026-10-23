@@ -1,0 +1,333 @@
+{
+  "schema": "lexlean-r4-parent49-fetch-positive-native-review/v1",
+  "status": "PASS_ACTUAL_CONNECTED_PARENT49_AUTHENTICATED_FETCH_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T22:24:14.385Z",
+  "actual": {
+    "attestationId": "54784e8ba9be195787acb83ec4272b6f30004a92dc4928768e3d8b548ae76262",
+    "buildId": "68e73f98c610611e7a09ad9ecfe8509e330c12cc2a20d4a14b7e2ce64b8e808e",
+    "sourceId": "26e1c2b76ca1726c5bc4d816b3548e169322b713a3a16989ccdc2f03b4773184",
+    "semanticId": "370ce98929d31f9a5c455705c2137f3b4e4340ba7dd099afa1a5b0aa44504b30",
+    "verifyExit": 0,
+    "sourcecheckModules": 14,
+    "wholeVerifyMilliseconds": 43852,
+    "lockSha256": "45544cdd9e7ca9f1a246c66710e41c74be585f4ace8235e9039af81f40ea6454",
+    "postcaptureErrors": []
+  },
+  "proof": {
+    "name": "LexLeanR4.ObjectReadParent49AuthenticatedFetch.objParent49AuthenticatedFetch",
+    "actualFullBackendEntries": 4,
+    "backendAndParentIdEveryLiteralComparedToReviewedAST": true,
+    "scale": 1,
+    "entireExpectedResultRecordComparedToAST": true,
+    "consumerApplyAt1": true,
+    "liftedBaseUsesActualAcceptedDecode": true,
+    "NatInductionCasesTwoCongruenceBranches": true,
+    "emittedContextRetainsErrorsScaleAndIdentityChecks": true,
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-fetch-local-refs/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    }
+  },
+  "artifactAudit": {
+    "declarations": 809,
+    "allNoneAndEmptyObservedAxioms": true,
+    "successfulProcesses": 43,
+    "kernelReplays": 14,
+    "buildOutputs": 70,
+    "fullArtifactFiles": 145,
+    "fullArtifactCensusSha256": "8413e1103b3f44fff80934ec0c2e8ed920deb5925abee84131e29a7a65ffbe6f",
+    "allOutputOleanAndProcessHashes": true,
+    "exactExpectedFileSet": true,
+    "fullAuditNamesMatch": true,
+    "toolCompilerSourceConfigLockAndLakeIdentitiesMatch": true
+  },
+  "postconditions": {
+    "all18FrozenInputsAndCopyArguments": true,
+    "sourceBeforeAfterExact": true,
+    "genuineLockUnchanged": true,
+    "toolsBeforeAfterExact": true,
+    "reviewedEpochUnchanged": true,
+    "zeroMemoryEventsBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "allRawCommandsExitZero": true,
+    "allPostcapturesAfterVerify": true
+  },
+  "storage": {
+    "hostBeforeBytes": "24030855168",
+    "hostAfterBytes": "22271680512",
+    "guestBeforeKiB": "53125152",
+    "guestAfterKiB": "53114284",
+    "recordedPrePostGatesPassed": true,
+    "availableBytesBeforeReport": 21248262144
+  },
+  "findings": [],
+  "limitations": [
+    "Accepts only actual connected parent49 authenticated fetch over the original four-entry backend. No original Read33 control, wholeRead, Object component, canonical Hash qualification, PrismPM integration or Pages acceptance is promoted.",
+    "Earlier source-link failure and corrected intended wrong-base semantic rejection remain distinct preserved outcomes. No retroactive reinterpretation.",
+    "Consumer Apply and successful kernel replay establish this exact connection; no avoided-recomputation or performance improvement is inferred. Whole command43852ms includes multiple phases.",
+    "All artifact files were rehashed and compared to exact expected set; a sorted path/bytes/hash census digest is retained instead of duplicating full inventory. Embedded lexicon package bytes are not bundled and were not independently rehashed.",
+    "Recorded kernel executions were inspected, not rerun. Storage/memory samples do not establish continuous high-water bounds."
+  ],
+  "artifactAnchors": [
+    {
+      "path": "artifact/attestation.json",
+      "bytes": 173381,
+      "sha256": "8beaf9599697a239c97fdc426d06a681548bfb391878e7c668b02bd9b995ee51"
+    },
+    {
+      "path": "artifact/build-manifest.json",
+      "bytes": 16941,
+      "sha256": "fc045439c760dbd7a548f19d7275a1b5428953290f2830947c6acc1e4b5459e7"
+    },
+    {
+      "path": "artifact/modules/LexLeanR4/ObjectReadParent49AuthenticatedFetch.lean",
+      "bytes": 4095,
+      "sha256": "a30a2577fe226561c310c483285ff067c9debc51367c2a6c86fb76836e76f261"
+    },
+    {
+      "path": "artifact/modules/LexLeanR4/ObjectReadParent49FetchTransport.lean",
+      "bytes": 768,
+      "sha256": "2a18d8be1aee2e88e8aae81d58e85344dd6bcb61aef42fb52248017933231154"
+    },
+    {
+      "path": "artifact/modules/LexLeanR4/ObjectReadParent49FetchContext.lean",
+      "bytes": 3549,
+      "sha256": "bd28af23b4ef261361317f79e3a9264b499f28c0e4391979143885e53308690b"
+    },
+    {
+      "path": "artifact/audit/output.txt",
+      "bytes": 56261,
+      "sha256": "8391d7a9c6b5d7bcf399bb1f9e229f0447cd5fdb6c47198269c5c8eae5c59736"
+    }
+  ],
+  "receiptPins": [
+    {
+      "path": "allocated-before.json",
+      "bytes": 459,
+      "sha256": "3785f7dcf1e5bc08691485b251c6605a0deb74144e4b4ca8525dca203f2fff2e"
+    },
+    {
+      "path": "artifact-copy.json",
+      "bytes": 544,
+      "sha256": "1fa493136fe2ced54e7264f442c13af2230e35121fa24f21dc3fda88566ec73d"
+    },
+    {
+      "path": "check.json",
+      "bytes": 1022,
+      "sha256": "3ea9078a4a19e4a1278d12712f7eefff061e5d285de15e6db830787683582a8b"
+    },
+    {
+      "path": "copy-0.json",
+      "bytes": 471,
+      "sha256": "d83e7a406168654bb863c5680e4d9ad42182ca74d21e90579653f0130bb7dc58"
+    },
+    {
+      "path": "copy-1.json",
+      "bytes": 469,
+      "sha256": "dadce890ce2a69e788ef55500f2677531d02430b885e15d461ceb7232eefec6a"
+    },
+    {
+      "path": "copy-10.json",
+      "bytes": 457,
+      "sha256": "7899b8e9db20669edf5547b9b3eaae42023b238ef582aac437847146ef6698a2"
+    },
+    {
+      "path": "copy-11.json",
+      "bytes": 467,
+      "sha256": "d1dd57fbfdac4a977ec36cd6bdc2ac86cc9bf8f9ae0c63090ff1a85e7dd069c2"
+    },
+    {
+      "path": "copy-12.json",
+      "bytes": 459,
+      "sha256": "696f53843a559cfe1b176abef6c6fd23ddf796a4302964f02748579a7f8d60a0"
+    },
+    {
+      "path": "copy-13.json",
+      "bytes": 508,
+      "sha256": "598e92d7b07cb758ac27b1c57c910bd788bf701629f286024881f96e87a1252d"
+    },
+    {
+      "path": "copy-14.json",
+      "bytes": 550,
+      "sha256": "f95f3d63159f9c5d4623ab5a0f5ab4c17e618538c4d055d770ea98e412c66bd2"
+    },
+    {
+      "path": "copy-15.json",
+      "bytes": 556,
+      "sha256": "55920897ca64421a99a110f6462c3b0f3671407198d26e1371ac567952ae6bd6"
+    },
+    {
+      "path": "copy-16.json",
+      "bytes": 562,
+      "sha256": "33d567cc541d3745781cd1c17f5fc806e312985ce6008dbb2098f059daf91ff2"
+    },
+    {
+      "path": "copy-17.json",
+      "bytes": 463,
+      "sha256": "ad09db8483645b20d93251dfaded588bd757c1d7c878c9f7632646bc397c534b"
+    },
+    {
+      "path": "copy-2.json",
+      "bytes": 475,
+      "sha256": "e3f8ac63695eb3b03f1f8569e3b9ad90c05fb7afd72a4bf1c498e1c153276eb7"
+    },
+    {
+      "path": "copy-3.json",
+      "bytes": 483,
+      "sha256": "9972746425f048ccef450f2181491eca7315b2a2ea84344447c639d2cbfb5cf8"
+    },
+    {
+      "path": "copy-4.json",
+      "bytes": 477,
+      "sha256": "daa96b3f80284882d1463c12f2763b5840016162c2206ab6cf67cd1c85eeb678"
+    },
+    {
+      "path": "copy-5.json",
+      "bytes": 435,
+      "sha256": "85c53017ffb50b9c4e5a62ae59936d11c5b009635da51adbfe614a3db5b07bfc"
+    },
+    {
+      "path": "copy-6.json",
+      "bytes": 435,
+      "sha256": "d479fe13c4dc40df6ab2c0fd66e34d351d806bfe037c95b5f7c137f08cd9f81f"
+    },
+    {
+      "path": "copy-7.json",
+      "bytes": 435,
+      "sha256": "6f554c2c76426bc285eb159af61db91e471eb488db6eff6b354e79077c3e1df2"
+    },
+    {
+      "path": "copy-8.json",
+      "bytes": 433,
+      "sha256": "c94d9138e9f9135fdf54bee664a011d3162ac23521fea75d01648df85c05b4d1"
+    },
+    {
+      "path": "copy-9.json",
+      "bytes": 425,
+      "sha256": "c9a7f4cca4bdd559db45b27df648f7888169e38f18d34ddb0c9195ec83078e4c"
+    },
+    {
+      "path": "directories.json",
+      "bytes": 458,
+      "sha256": "d7be445ffd03672080a0bf86cbee712c8cd7fa8545550eb59ed3af72c498841c"
+    },
+    {
+      "path": "epoch-after.json",
+      "bytes": 470,
+      "sha256": "69d00932ed2bef0e939e46fff703f9701d9d3a0e79f3eea1b558525677837e4e"
+    },
+    {
+      "path": "epoch-before.json",
+      "bytes": 470,
+      "sha256": "05735c23672fff8c2b49d87a75c1cb6583b363c067ed1325c3457dd4254f92b7"
+    },
+    {
+      "path": "expected-inputs.json",
+      "bytes": 6448,
+      "sha256": "916a98e99cdbec772b41afd1ed4fd4f120265490ba19d2d03d67516936d54eda"
+    },
+    {
+      "path": "guest-after.json",
+      "bytes": 406,
+      "sha256": "48c1514367fd9e1d1772be10b216008b85698b722f884c6a3a8d3b01ce20650e"
+    },
+    {
+      "path": "guest-before.json",
+      "bytes": 406,
+      "sha256": "c8ddaf900e375228e5300497d6e862a834b8b3f88515212cbc828ff4f1ec85c5"
+    },
+    {
+      "path": "host-after.json",
+      "bytes": 142,
+      "sha256": "809fd9035c8d1919ef604e8b25512b119f699973ff457b1cb0f231fb7917960f"
+    },
+    {
+      "path": "host-before.json",
+      "bytes": 152,
+      "sha256": "8ee813b49dbb472db38ea018ff7200d7ef1068f9c94d2d8e4b81b67e928e22f2"
+    },
+    {
+      "path": "idle-after.json",
+      "bytes": 460,
+      "sha256": "a6ddebaaa067e09ee81817de80f992f42e2d0ca1dfcfdfe9803ae73b4cfa837a"
+    },
+    {
+      "path": "idle-before.json",
+      "bytes": 460,
+      "sha256": "3ee3b0ef114aa8e766b3b31ca420dc14e2340d8ef311e45d4d4d1328ee193f9e"
+    },
+    {
+      "path": "lock-after.json",
+      "bytes": 517,
+      "sha256": "601a816beb797c83e3cce086face2ea5cf53cd572a94ee98fce7e8b6b900512b"
+    },
+    {
+      "path": "lock-bytes.json",
+      "bytes": 2069,
+      "sha256": "2cf5433acd8d9a194ff58f490548fcc3eebd2f7dcc461ef2603feade68f9e3b9"
+    },
+    {
+      "path": "lock.json",
+      "bytes": 553,
+      "sha256": "9bd97461fb1c23bcb52807d60339ce5e27ae36f215ec81f974f08773797b6eec"
+    },
+    {
+      "path": "memory-after.json",
+      "bytes": 354,
+      "sha256": "8f5209ff8e4150fe24416662a79f11ccf2ea352e39e0d28cf1e361abd2c57a26"
+    },
+    {
+      "path": "memory-before.json",
+      "bytes": 354,
+      "sha256": "db0e47f7cac01ccb18bfe6b861b78cc6c2710c8e2e869b665d0cad80a41253f0"
+    },
+    {
+      "path": "new-stage.json",
+      "bytes": 344,
+      "sha256": "db91221e8f0ebad63befae77ea0df825e7e3d9b804255dc8b0e93d5161eb3a16"
+    },
+    {
+      "path": "postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "result.json",
+      "bytes": 1146,
+      "sha256": "744f3ab06926346879438c04082f504e719238efbc3f1360957441301b3fa41a"
+    },
+    {
+      "path": "source-after.json",
+      "bytes": 5359,
+      "sha256": "5dd90b7707efa9b837c71abfe37dfcd99b1fb5408cdd01c8117cb928a99fbf64"
+    },
+    {
+      "path": "source-before.json",
+      "bytes": 5359,
+      "sha256": "6571da93c95eebac1132421162c889c5d86b07209db72c57bc142e0fe955ac32"
+    },
+    {
+      "path": "swap-before.json",
+      "bytes": 265,
+      "sha256": "e8f0a2cb0c1d2c5e274dce21f9df673971ff97975cff2a0f8ffa41c788dfc5f1"
+    },
+    {
+      "path": "tools-after.json",
+      "bytes": 1005,
+      "sha256": "9e16b280d68aedf6c2a582faf0415f0a6f1ecb83245bdf1bffad92f96afda242"
+    },
+    {
+      "path": "tools-before.json",
+      "bytes": 1005,
+      "sha256": "35615326d96a9377c74664d6be705dc39d8ee00ab9e4dc78922f58e7778e1cf0"
+    },
+    {
+      "path": "verify.json",
+      "bytes": 1346,
+      "sha256": "b04a301d9d71720350c7c8c846e03d2d2685cf18c53abb22a239956f6a83a882"
+    }
+  ],
+  "actions": "Read-only actual artifact/source/evidence audit; only this review JSON written. No SDK/native/VM/repository/index/frozen/other-lab changes."
+}
