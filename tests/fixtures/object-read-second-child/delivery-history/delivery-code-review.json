@@ -1,0 +1,86 @@
+{
+  "schema": "lexlean-r4-second-child-delivery-code-review/v1",
+  "status": "PASS_EXACT_STAGED_DELIVERY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:52:30.994Z",
+  "reviewedHead": "55e719a74e87cee6d6583e187b84e2e5dab921e8",
+  "branch": "codex/object-second-child-proof",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/delivery-manifest.json",
+    "bytes": 18885,
+    "sha256": "37a518956d3c05e28a12889983d195ea1ec2a55762f280bdbfd4a81ac721a83e"
+  },
+  "disclosure": "Reviewer authored source/invocation and actual negative/positive audits of this candidate. This exact delivery gate compares against preserved evidence; separate internal security reviewer independently reviews delivery.",
+  "checks": {
+    "stagedFiles": 88,
+    "manifestPayloads": 87,
+    "payloadBytes": 572431,
+    "stagedIndexWorkingAndManifestByteEquality": true,
+    "exactStagedSetEqualsManifestPlusSelf": true,
+    "scope": "Second-child fixture, two plan edits and three final-child design publication files only.",
+    "custodyCopiesRehashed": 69,
+    "pendingFinalPlanHistoryCopySeparatelyRehashed": true,
+    "allSourceDestinationBytesEqual": true,
+    "phaseInputReferences": 54,
+    "sourceAuthorityAliases": 15,
+    "finalDesignPortableAliases": 11,
+    "allAliasesAndInputsRehashed": true,
+    "canonicalFullRead33SixSourcesTenDraftsUnchangedAndUnstaged": true,
+    "all17OriginalSnapshotsRehashed": true,
+    "all235ArtifactCensusPinsRehashed": true,
+    "artifactArrayDigestMatchesNativeReview": true,
+    "derivedSummaryExactlyMatchesOriginalAttestation": true,
+    "resultsPositiveFieldsExactlyMatchActualNativeReview": true,
+    "genuineLocksEqualActualRecordedBytes": true,
+    "sourceCandidateAndFrozenPreparationHistoryUnchanged": true,
+    "relativeMarkdownLinksChecked": 85,
+    "allStagedFilesValidUTF8NoNul": true,
+    "cachedDiffCheck": "PASS"
+  },
+  "actualEvidence": {
+    "negativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/negative-native-review.json",
+      "bytes": 12511,
+      "sha256": "d132ddbf3d23c93adc20e6604768984930b3e150f432affd806ad954aac40f87"
+    },
+    "positiveReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/positive-native-review.json",
+      "bytes": 8835,
+      "sha256": "badb2d9bf1cea162fd4b7de091e014927000cc773375d614bec4bf771dba0567"
+    },
+    "attestationId": "d37171e1aa23f6f6dec7da6688a19496a4aede9abcd00b652134b407a109c1c2",
+    "negative": "check23PASS;verify1LLV7002expectedwire140/28220ms;noartifact.",
+    "positive": "check23PASS;verify0/204491ms;235files/115outputs/820emptyaxiom declarations/70processes/23kernelreplays;27inputs and operational postconditions passed.",
+    "acceptance": "Actual second authenticated childS139 with64outputbytes and mandatory originalparent continuation retaining last thirdchild/checkedoffset/errors only."
+  },
+  "claimsReview": "RESULTS/results and updated plan descriptions match actual reviews. No complete-walk, Read33, fullObject/Hash/PrismPM/Pages or performance/cache claim. Previously accepted checkpoint rows are explicitly historical where later child results now exist. Frozen source NOT_RUN labels remain source-preparation history, not current-native denial.",
+  "nextDesign": {
+    "proposal": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-final-child-proposal.json",
+      "bytes": 13924,
+      "sha256": "daaed71c19a50f806096674c6cf477eee3eb24e853b37844689b9a5fb2f9bb2e"
+    },
+    "spec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-final-child-spec-review.json",
+      "bytes": 9464,
+      "sha256": "97b5b445288717429d82be8f8ecfb9fb14cab6f38f8d2faff9cc0b61a2fabbdc"
+    },
+    "accepted": "Design only; actual final childS139→proposedS184 and mandatory complete originalparent Result.okS184; negative184→185.",
+    "constraints": "Keep original authentication/backend/limits/errors,96-byte traversal output and sorted seen[third,parent,first,second]. Exact source/invocation review,fresh resource gates and actual paired native/artifact audit remain required.",
+    "history": "Earlier pending proposal with null prerequisite review is preserved separately byte-identically and labeled historical; current accepted proposal/SPEC and11portable aliases are distinct.",
+    "noNativeAcceptance": true
+  },
+  "portability": "Immutable copies retain original absolute paths for provenance; portable phase bindings/authority aliases resolve committed source and design dependencies. Environment-specific one-off script is not portable execution authority. Selected proof texts/derived attestation summary do not replace retained full raw artifact.",
+  "findings": [],
+  "stagedInventoryBinding": {
+    "count": 88,
+    "sha256": "3c1d421dcbfa9e3373610963dfb12266755065ae12414d83f6dd311efa2cef58",
+    "encoding": "SHA256(JSON.stringify(ordinal-path-sorted manifest payload records plus manifestself record)); each record {path,bytes,sha256}. Exact individual payload pins are in reviewed manifest."
+  },
+  "limitations": "Delivery review executes no SDK/compiler/native phase. Final thirdchild/walk/rootwrapper/rangefinish/manifestversion/wholehash/originalRead33 and remaining Object/Hash/PrismPM/Pages obligations remain open.",
+  "storage": {
+    "availableBytes": "29728370688",
+    "additionalReviewBudgetBytes": 15000
+  },
+  "actions": "Only this small external review written; no repository/index/frozen/source/VM/other-lab edits."
+}

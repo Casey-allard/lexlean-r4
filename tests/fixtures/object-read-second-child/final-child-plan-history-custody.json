@@ -1,0 +1,17 @@
+{
+  "schema": "lexlean-r4-final-child-proposal-pending-custody/v1",
+  "status": "PRESERVED_HISTORICAL_PENDING_DRAFT_ONLY",
+  "copy": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/next-final-child-proposal-review-pending.json",
+      "bytes": 13174,
+      "sha256": "a1d48766369257cbab64804061eccbaa17ca16b753ce4ec55179561d2f6fac5e"
+    },
+    "destination": {
+      "path": "evidence/next-final-child-proposal-review-pending.json",
+      "bytes": 13174,
+      "sha256": "a1d48766369257cbab64804061eccbaa17ca16b753ce4ec55179561d2f6fac5e"
+    }
+  },
+  "boundary": "Preserves historical null prerequisite review. Current accepted design proposal and SPEC are separately bound in docs; no candidate/native result."
+}

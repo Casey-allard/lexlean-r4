@@ -1,0 +1,412 @@
+{
+  "schema": "lexlean-r4-next-second-child-proposal/v1",
+  "status": "SOURCE_ONLY_NOT_RUN_REQUIRES_INDEPENDENT_SPEC",
+  "objective": "Prove the exact second authenticated child visit from accepted S94 to proposed S139, then the mandatory original parent consumer leaving the actual third call and its checked offset/error branch.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "bytes": 62699,
+      "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      "bytes": 25500,
+      "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/positive-native-review.json",
+      "bytes": 8864,
+      "sha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/manifest.json",
+      "bytes": 2236,
+      "sha256": "696e32bdf2dc1edfc947da1295837a240a588bc578d3628d00de3bc4d29b9463"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-first-child/lexlean.toml",
+      "bytes": 696,
+      "sha256": "df0841bbc9be4ec556a330702e3aee5b89e85703c46dc338939096a2c1eff3a2"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "prerequisite": {
+    "attestation": "0f923611edaac6c1e213b32b93033415478ce8aac45bf2cd249cb71c765ccb4f",
+    "reviewSha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53",
+    "theorem": "objFirstChildContinuation",
+    "acceptedStatementSha256": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3",
+    "boundary": "First actual authenticated child S94 and full original parent-to-two-child continuation accepted. No second child result yet."
+  },
+  "actualSecondCall": {
+    "pointer": "/declarations/0/statement/right/branches/1/body/scrutinee",
+    "unboundASTSha256": "cfc44c07928cc6a38dde0b6b18dafc6e4e16c6e54a62eaceafda2118adb6b8f0",
+    "closeOneBoundVariable": {
+      "secondBase": {
+        "kind": "nat",
+        "value": "32"
+      }
+    },
+    "closedCallSha256": "9a7743746813a939ff77f3d90a32f82b6914973e08cb6a7c7cf6e1ca7d135f85",
+    "expression": "ObjVisitNode(0,ObjChildIdentity(originalParentRecord.payload,12),32,S94,originalFourEntryBackend,96,range[0,96],originalLimits,true)",
+    "parentOffsetCheck": {
+      "pointer": "/declarations/0/statement/right/scrutinee",
+      "actual": {
+        "arguments": [
+          {
+            "kind": "nat",
+            "value": "0"
+          },
+          {
+            "kind": "nat",
+            "value": "32"
+          }
+        ],
+        "function": {
+          "module": "R4.ObjectRead",
+          "name": "ObjCheckedOffset"
+        },
+        "kind": "call"
+      },
+      "requirement": "Existing ObjCheckedOffset(0,32) must genuinely reduce to Result.ok32; no axiom or unchecked offset substitution acceptance."
+    },
+    "backendEntryIndex": 3,
+    "backendEntrySha256": "39a226e2995b9adf202b143c6f1d5cff0433a20f5643a5be917536d7907be71c",
+    "wire45": [
+      "0",
+      "229",
+      "238",
+      "245",
+      "54",
+      "216",
+      "221",
+      "107",
+      "40",
+      "188",
+      "50",
+      "60",
+      "161",
+      "227",
+      "234",
+      "241",
+      "248",
+      "255",
+      "6",
+      "13",
+      "20",
+      "27",
+      "34",
+      "41",
+      "48",
+      "55",
+      "62",
+      "69",
+      "76",
+      "83",
+      "90",
+      "97",
+      "104",
+      "111",
+      "118",
+      "125",
+      "132",
+      "139",
+      "146",
+      "153",
+      "160",
+      "167",
+      "174",
+      "181",
+      "188"
+    ],
+    "id": [
+      "229",
+      "238",
+      "245",
+      "54",
+      "216",
+      "221",
+      "107",
+      "40",
+      "188",
+      "50",
+      "60",
+      "161"
+    ],
+    "payload32": [
+      "227",
+      "234",
+      "241",
+      "248",
+      "255",
+      "6",
+      "13",
+      "20",
+      "27",
+      "34",
+      "41",
+      "48",
+      "55",
+      "62",
+      "69",
+      "76",
+      "83",
+      "90",
+      "97",
+      "104",
+      "111",
+      "118",
+      "125",
+      "132",
+      "139",
+      "146",
+      "153",
+      "160",
+      "167",
+      "174",
+      "181",
+      "188"
+    ],
+    "incomingS94Sha256": "064c1afff120c9b3f6f17698c57669ff83015c43e69a2727a429dd4009cc8f57",
+    "expectedS139": {
+      "output64": [
+        "3",
+        "10",
+        "17",
+        "24",
+        "31",
+        "38",
+        "45",
+        "52",
+        "59",
+        "66",
+        "73",
+        "80",
+        "87",
+        "94",
+        "101",
+        "108",
+        "115",
+        "122",
+        "129",
+        "136",
+        "143",
+        "150",
+        "157",
+        "164",
+        "171",
+        "178",
+        "185",
+        "192",
+        "199",
+        "206",
+        "213",
+        "220",
+        "227",
+        "234",
+        "241",
+        "248",
+        "255",
+        "6",
+        "13",
+        "20",
+        "27",
+        "34",
+        "41",
+        "48",
+        "55",
+        "62",
+        "69",
+        "76",
+        "83",
+        "90",
+        "97",
+        "104",
+        "111",
+        "118",
+        "125",
+        "132",
+        "139",
+        "146",
+        "153",
+        "160",
+        "167",
+        "174",
+        "181",
+        "188"
+      ],
+      "visits": "3",
+      "wireBytes": "139",
+      "seen": [
+        [
+          "128",
+          "174",
+          "112",
+          "205",
+          "237",
+          "99",
+          "32",
+          "90",
+          "110",
+          "198",
+          "109",
+          "200"
+        ],
+        [
+          "204",
+          "224",
+          "130",
+          "100",
+          "35",
+          "209",
+          "207",
+          "137",
+          "18",
+          "167",
+          "134",
+          "61"
+        ],
+        [
+          "229",
+          "238",
+          "245",
+          "54",
+          "216",
+          "221",
+          "107",
+          "40",
+          "188",
+          "50",
+          "60",
+          "161"
+        ]
+      ]
+    },
+    "expectedS139Sha256": "faa4426d8e4c8714e31bbc4d042808550326d7efb69f3bdfc5fb6460095fe9e6",
+    "expectedStatementSha256": "be8253d4d406ac798fdb6c63536620206bb5d1508f04f0698908f271435d52f5",
+    "valueBoundary": "Expected state is source-derived and NOT certified until native proof/audit. Original backend ID is input checked by actual authentication, never trusted instead of hashing."
+  },
+  "derivation": [
+    "Production zero branch spans32; base32 plus32 gives stop64 under checked u64 offset. Range0..96 intersects, logicalLength96>=stop64 so full32 payload selected.",
+    "MarkVisit increments2→3 under original1000000visit limit. Genuine lookup,45-byte decode, hash,ID and scale0 checks run through original ObjAuthenticatedFetch.",
+    "AccountRecord adds actualwire45 to94=139, preserves original guard, and inserts newID229 after sortedparent128/firstchild204.",
+    "ReadLeaf appends second original32 payload to existing first32 output, yielding64bytes. Padding/errors/collect path unchanged."
+  ],
+  "minimalCandidate": {
+    "modules": 2,
+    "sourceVariants": 3,
+    "child": "Exact closed original second call = Result.ok S139, Reflexivity, emptyaxioms. False source changes ONLY expected wireBytes139→140.",
+    "mandatoryConsumer": "Same consumer source in both variants. Original fullparent LHS unchanged; preserve finalthird production call/offset/errors. Imports selected second-child proof and accepted first-child continuation.",
+    "consumerProof": {
+      "kind": "apply",
+      "theorem": {
+        "module": "ObjectReadFirstChildContinuation",
+        "name": "objFirstChildContinuation"
+      },
+      "arguments": [],
+      "type_arguments": []
+    },
+    "proofMeaning": "Direct Apply plus genuine kernel definitional conversion; imported second-child theorem is checked dependency/control, not applied rewrite/cache. Recompute cost possible. No helper-only acceptance.",
+    "supportedConstructors": "Only existing eq/Reflexivity/Apply, canonical semantic-module/2, language1.2. Qualified external references; name-only locals. No Simplify/propext/raw tactic/altered runtime."
+  },
+  "consumerExtraction": {
+    "originalLeftSha256": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1",
+    "selectPointer": "/declarations/0/statement/right/branches/1/body/branches/1/body",
+    "substitute": {
+      "afterSecond": "exact proposed S139",
+      "secondBase": {
+        "kind": "nat",
+        "value": "32"
+      }
+    },
+    "remainingContinuationSha256": "8811132f5094894453cd9af0330c476f39679a858374b8f3e2631f402112c98c",
+    "consumerStatementSha256": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1",
+    "remainingActualVisitCalls": [
+      "/branches/1/body"
+    ],
+    "retained": "ObjCheckedOffset(32,32), its failure branch, final child atObjChildIdentity(parent.payload,24), thirdBase binding, originalbackend/range/limits/collect. Third child result is not asserted."
+  },
+  "certificateReuse": {
+    "acceptedFirstChildStatementSha256": "d804652d8199fe479c1ef276744eea0b8119ad3c8ff2655bc6ca64661d0c1e13",
+    "exactSecondCallEqualsFirstCall": false,
+    "acceptedFirstOutputSha256": "a833d7a87379f758ee402318c8bbddf7eb6e4a968fb88479a8b0ea25e6ab3a0b",
+    "newPayloadSha256": "37bee472043bdad4c19d535d2e98a70bf077dd949c17f0b78d7179ccf4fe23d6",
+    "actualNewPayloadEqualsFirstOutput": false,
+    "conclusion": "Existing firstchild theorem has different call/incomingstate/base/ID/payload. Cannot Apply it as exact secondchild certificate. It supplies the accepted S94 context and previous fullconsumer prerequisite only. No other exact certificate reuse asserted."
+  },
+  "productionPins": [
+    {
+      "name": "ObjInsertIdSorted",
+      "canonicalDeclarationSha256": "541a4e16592b8b8541c562981a9759b4ab87cf7cec05f63e51cc03b303634022"
+    },
+    {
+      "name": "ObjAuthenticatedFetch",
+      "canonicalDeclarationSha256": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239"
+    },
+    {
+      "name": "ObjMarkVisit",
+      "canonicalDeclarationSha256": "7e66b0214a6a4913fab167d09047836540e6366ed8589e123e34826c4b15e1fa"
+    },
+    {
+      "name": "ObjAccountRecord",
+      "canonicalDeclarationSha256": "510cdc20ad979dd6ca45603a7c2a9ce138574ee4af613cb6e22349e635045897"
+    },
+    {
+      "name": "ObjReadLeaf",
+      "canonicalDeclarationSha256": "76618519a90c2ec9c0212e67d57869ac9776aff34d1c79f92d6d56ec59b0fea3"
+    },
+    {
+      "name": "ObjVisitNode",
+      "canonicalDeclarationSha256": "65a78a8fbd1e88a1a41d0d8c3c349ad072b2908592e4206506fd9049c1704d00"
+    }
+  ],
+  "phases": [
+    {
+      "name": "second-child-false",
+      "status": "NOT_RUN",
+      "root": "full originalparent consumer importing false secondchild",
+      "expected": "Official sourcecheck passes then intended LLV7002 Reflexivity139/140 mismatch. Timeout/OOM/admissionfailure is not semantic RED."
+    },
+    {
+      "name": "second-child-positive",
+      "status": "NOT_RUN",
+      "root": "same full originalparent consumer importing correct secondchild",
+      "expected": "Both exact secondchild result and actual fullparent-to-lastchild continuation verify; independent source/artifact/emptyaxiom/kernel audit required."
+    }
+  ],
+  "limits": {
+    "childTimeoutMs": 300000,
+    "memoryBytes": 4294967296,
+    "cpus": 2,
+    "hostLaunchGiB": 20,
+    "hostReserveGiB": 10,
+    "guestPreGiB": 11,
+    "guestPostGiB": 10,
+    "sourceBudgetBytes": 1048576,
+    "noNativeAuthority": true
+  },
+  "uncertainties": [
+    "No native check/proof run for this proposed statement. Firstchild180381ms aggregate does not predict secondchild cost.",
+    "Actualconsumer conversion can recompute childwork; no avoidedhash/cache/performanceclaim. It may exceed bounds; preserve/classify failure rather than equivalent larger retry.",
+    "Only this one child and actualconnectedconsumer proposed, not automatic expansion to full sequence."
+  ],
+  "remaining": [
+    "Third actualchild authenticated result and accounting",
+    "Final whole96walk/output/statistics/rootwrapping/rangefinish",
+    "Manifestversion/wholehash checks and original objProtocolWholeBytes",
+    "Remaining Read33/Object controls, fullObject257/Hash/PrismPM/Pages"
+  ]
+}

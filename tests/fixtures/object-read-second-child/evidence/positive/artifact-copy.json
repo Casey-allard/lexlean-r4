@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-read-second-child-second-child-positive-owned-20261023/.lexlean/verified/d37171e1aa23f6f6dec7da6688a19496a4aede9abcd00b652134b407a109c1c2",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/second-child-positive/artifact"
+  ],
+  "started": "2026-10-23T23:44:06.532Z",
+  "ended": "2026-10-23T23:44:06.810Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

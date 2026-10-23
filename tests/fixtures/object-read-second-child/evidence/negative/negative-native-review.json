@@ -1,0 +1,362 @@
+{
+  "schema": "lexlean-r4-second-child-negative-native-review/v1",
+  "status": "PASS_INTENDED_LOCAL_NEGATIVE",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:40:23.106Z",
+  "scope": "Read-only independent audit of closed actual second-child-false receipts; reviewer previously authored candidate/invocation CODE, not candidate or run.",
+  "identities": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/manifest.json",
+      "bytes": 2207,
+      "sha256": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invocation-manifest.json",
+      "bytes": 1653,
+      "sha256": "5bc11b24c8e716c0cdf7d4802105851a031535666e889f9a9e7980816e9a6292"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invoke-second-child.mjs",
+      "bytes": 7759,
+      "sha256": "060095b731a2d6c7316202d46ff68c4126ee3e6f6e959a749fed9c3c8285270a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/candidate-invocation-code-review.json",
+      "bytes": 6258,
+      "sha256": "1274ca40d00a4644e98c0422fe5446c579fcc49c5a971a601c6a3f78d5c82a9d"
+    }
+  ],
+  "actualOutcome": {
+    "phase": "second-child-false",
+    "stage": "/tmp/r4-object-read-second-child-second-child-false-owned-20261023",
+    "lockExit": 0,
+    "checkExit": 0,
+    "checkModules": 23,
+    "sourceId": "3da81a863b9339ebe2fc3217a1f290dd4c54afbc95751e0f7b6b16760a0e1a14",
+    "semanticId": "a90a3c3ce59ed509add90c9c041c44fbbf5ec2a568c81356e96cd20b05ae8cfa",
+    "verifyExit": 1,
+    "success": false,
+    "diagnosticCode": "LLV7002",
+    "target": "LexLeanR4.ObjectReadSecondChildState",
+    "verifyElapsedMs": 28220,
+    "diagnostic": "Actual original second ObjVisitNode fromS94 with base32 fails rfl against proposed output64/visits3/wireBytes140. Full original call/backend and expected state appear in diagnostic.",
+    "artifacts": [],
+    "classification": "Intended semantic negative after successful source admission, not timeout, OOM, setup/admission failure or positive proof acceptance."
+  },
+  "custody": {
+    "frozenPayloadsAndDependenciesRehashed": true,
+    "inputs": 27,
+    "uniqueDestinations": 27,
+    "allHostInputHashesMatchCandidate": true,
+    "all27ActualCopyPathsAndDestinationsMatch": true,
+    "all27PreAndPostSourcePathsHashesExact": true,
+    "genuineOfficialLockRecorded": true,
+    "lockSha256": "40106ce763044f0d85179b2f02b68a0be02dbe220f4f9975e555f25993c3a5e8",
+    "lockConfigWorkspaceAndSemanticsMatch": true,
+    "lockAfterHashUnchanged": true,
+    "commands": 48,
+    "allCommandsZeroExceptVerifyOne": true,
+    "allSignalsNullNoProcessErrors": true,
+    "exactLockCheckVerifyRootAndSequence": true,
+    "resultEqualsActualVerify": true,
+    "rawFiles": 53,
+    "rawCensusSha256": "3293e4e2ea62ecf176809e9b3e1fd6eedbe491f86250d61100eb8e372dfafd87"
+  },
+  "negativeSource": "Independent deep comparison reconfirmed sole expected wireBytes139→140; complete actual child call, proof, imported full-consumer root and all other AST fields unchanged.",
+  "postconditions": {
+    "tools": "Before/after four exact known compiler/Lean/Lake/checker hashes match.",
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "memoryBeforeAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "idleBeforeAfter": true,
+    "allIndependentPostcapturesAfterVerify": true,
+    "postcaptureErrors": [],
+    "hostBeforeAvailableBytes": "25903042560",
+    "hostAfterAvailableBytes": "26966654976",
+    "hostPre20GiBPost10GiB": true,
+    "guestBeforeAvailableKiB": "53065220",
+    "guestAfterAvailableKiB": "53060388",
+    "guestPre11GiBPost10GiB": true,
+    "noArtifactOrInstrumentFailureRecord": true
+  },
+  "findings": [],
+  "acceptanceBoundary": "Only intended rejection of wrongwire140 is accepted. Positive S139 and mandatory originalparent-to-finalchild consumer remain NOT_RUN at this review; require fresh gates and separate actualpositive artifact audit. No completedwalk, originalRead33, Object/Hash/PrismPM/Pages acceptance. Launcher0 only completed recording.",
+  "storage": {
+    "reviewAvailableBytes": "27524288512",
+    "writeBudgetBytes": 20000
+  },
+  "rawInventory": [
+    {
+      "path": "allocated-before.json",
+      "bytes": 459,
+      "sha256": "552cf645139b3b4d7831179a3ee995151e92242be1cf99c489983cf99437a5ed"
+    },
+    {
+      "path": "check.json",
+      "bytes": 1338,
+      "sha256": "0c7188a634c836b8e396f0d1fb2383c4ebb25a8a0e12f05c713e0c3779115932"
+    },
+    {
+      "path": "copy-0.json",
+      "bytes": 462,
+      "sha256": "2ac8cc99924779c64c3235b48169b17608f6523841d71a569b82de987f528e13"
+    },
+    {
+      "path": "copy-1.json",
+      "bytes": 460,
+      "sha256": "4a7d3181133e6a052251695b355df9189aa22058010cd911ff25ae5f88893422"
+    },
+    {
+      "path": "copy-10.json",
+      "bytes": 448,
+      "sha256": "7dd090c96cd7b0c970c6a1dadfb580bb85dd92e9389c5ceadda46bbdc185c53a"
+    },
+    {
+      "path": "copy-11.json",
+      "bytes": 458,
+      "sha256": "89c879b17f6087455c582e8bcd7c86b2721a935b2d5c0b160f4ca303f7f5e44d"
+    },
+    {
+      "path": "copy-12.json",
+      "bytes": 450,
+      "sha256": "f28b4286aafab2226bb91217a58cf9d160c33cda4847775b90ae5eb400103acf"
+    },
+    {
+      "path": "copy-13.json",
+      "bytes": 499,
+      "sha256": "16d6f6b390c2118292385106cbea76af2a58925063e2f5113f3b4736aa8d173a"
+    },
+    {
+      "path": "copy-14.json",
+      "bytes": 537,
+      "sha256": "40687729f7f0ba4f8252aed0b5e10a25315ed8fb383ff0df229493011fc0746d"
+    },
+    {
+      "path": "copy-15.json",
+      "bytes": 543,
+      "sha256": "6dac1bd7bef9817579172dfa853948dbd07eb75897c902339c3108f623413b9e"
+    },
+    {
+      "path": "copy-16.json",
+      "bytes": 549,
+      "sha256": "1823861e62dcafcc059513c7f546982aca3acf7197df53390b045f10d219d758"
+    },
+    {
+      "path": "copy-17.json",
+      "bytes": 537,
+      "sha256": "ce7758b5964f7b84a38d1197ab58786cea8132bfdfbbc72a8feee96f0755d8c6"
+    },
+    {
+      "path": "copy-18.json",
+      "bytes": 543,
+      "sha256": "c2e9f027993b9f0c4e62a8b77a1aa8ca98e905e632e38c00a33c880831b8a1dd"
+    },
+    {
+      "path": "copy-19.json",
+      "bytes": 543,
+      "sha256": "166ba96f0f8e914a0e105e68563f020a7fa45ddae00280aff0817e54af9b5e6c"
+    },
+    {
+      "path": "copy-2.json",
+      "bytes": 466,
+      "sha256": "95c8dbdee4e5fa52167c3e79c7cee97e89250e1b86f73a434c51e38644f0a313"
+    },
+    {
+      "path": "copy-20.json",
+      "bytes": 550,
+      "sha256": "cdd0d9b043589afb62312f356623e628620669989c79f088621489cb2bb94da3"
+    },
+    {
+      "path": "copy-21.json",
+      "bytes": 554,
+      "sha256": "eb51c0b5becaf35e209606b17dd9e8f912ba66e668dbfa7eeae2990bac5ad4f3"
+    },
+    {
+      "path": "copy-22.json",
+      "bytes": 526,
+      "sha256": "fe0e6635fd0951b07d98b7f552e0dd09485ff56a7fd3335f769e1b450d870315"
+    },
+    {
+      "path": "copy-23.json",
+      "bytes": 538,
+      "sha256": "e19d4a0f15734e3174ce8bbcfdc6568d0d36129d62d796662452652a7f5f8097"
+    },
+    {
+      "path": "copy-24.json",
+      "bytes": 522,
+      "sha256": "f8550cafc006d3481b64d50fffe135e38ea6f910d491642b8c7ee2047af1d018"
+    },
+    {
+      "path": "copy-25.json",
+      "bytes": 534,
+      "sha256": "fcf677ce1d3e977de8e33b73a4731ca70198b628a2bfca7c1e9895a0ba303d3e"
+    },
+    {
+      "path": "copy-26.json",
+      "bytes": 441,
+      "sha256": "5dc20da023a68e75c332cf62b42462686c8c64bacbd4294b2a52bad1e77c8c79"
+    },
+    {
+      "path": "copy-3.json",
+      "bytes": 474,
+      "sha256": "91e871c61f3a618994fb84ca933bfc47707621c8cf8c436b12c479235b1a9f6e"
+    },
+    {
+      "path": "copy-4.json",
+      "bytes": 468,
+      "sha256": "3edbcee78995d1602c100d04ac9161a93aabaa2c97a0c24e89632b3ddef6ce0f"
+    },
+    {
+      "path": "copy-5.json",
+      "bytes": 426,
+      "sha256": "e450a34309174240e85f531f7cd8fe7d5f7306befd58099035d210bcc5edabe7"
+    },
+    {
+      "path": "copy-6.json",
+      "bytes": 426,
+      "sha256": "a19c8550e07a3089189b4735ecffd8ef3f31c2f451ac25c918e90652c683fe7a"
+    },
+    {
+      "path": "copy-7.json",
+      "bytes": 426,
+      "sha256": "c0ecb02aa018a4681a7e7d9d106d99d12b14a8f520efb18ee7322ef9ca364899"
+    },
+    {
+      "path": "copy-8.json",
+      "bytes": 424,
+      "sha256": "a9ada9d28c017c39ad6e42870314693f41b0c320b919b8b51a1be6c20ac60178"
+    },
+    {
+      "path": "copy-9.json",
+      "bytes": 416,
+      "sha256": "abde71f9c030a35640df7a22e3f987a0bfe71549f8647b7b30fee5201071f47d"
+    },
+    {
+      "path": "directories.json",
+      "bytes": 440,
+      "sha256": "b3fb57ee2eeb1f53bc9eceba0ad136166b1d173a25f5fc38bc1e6eb6ca84240a"
+    },
+    {
+      "path": "epoch-after.json",
+      "bytes": 470,
+      "sha256": "0a769820798f781c9f4f1f24a402419d1f3d08cd4ebc764432d030bfb97f701c"
+    },
+    {
+      "path": "epoch-before.json",
+      "bytes": 470,
+      "sha256": "2289b3859748bb173e6af53153c1d15bfa2d5bd2b31e39bff61f220a9c81e3a6"
+    },
+    {
+      "path": "expected-inputs.json",
+      "bytes": 9946,
+      "sha256": "b042e1eb13aea8af8aa498e85ff56248c7caa95fe92b07a35c7a83019e13fd38"
+    },
+    {
+      "path": "guest-after.json",
+      "bytes": 406,
+      "sha256": "df6de2853516498b3c5123ce7050b6155108252591184f5292fe1e83a1c6cba7"
+    },
+    {
+      "path": "guest-before.json",
+      "bytes": 406,
+      "sha256": "a0c441ecf6eae1c11db8e6e9cb5afb2ee6e6c93a702d1ccf328ba10be890aaa9"
+    },
+    {
+      "path": "host-after.json",
+      "bytes": 142,
+      "sha256": "94d66c38ae608853a732fa15838ebd73fdb511c862aede60892a75faad3f91de"
+    },
+    {
+      "path": "host-before.json",
+      "bytes": 152,
+      "sha256": "c62bdbf06cf24e1c28eab725fb193ed2048679d54af9815db56be661525f64f1"
+    },
+    {
+      "path": "idle-after.json",
+      "bytes": 460,
+      "sha256": "36d28baad058400bd1614dfaf0410a2fa1a881560c94858c385f2637d2d84066"
+    },
+    {
+      "path": "idle-before.json",
+      "bytes": 460,
+      "sha256": "0d487615e47a5700435381bd2f4a83ac399c44752c64fb521fa7f6c6ec2b88e0"
+    },
+    {
+      "path": "lock-after.json",
+      "bytes": 499,
+      "sha256": "da4c5d4379c622ecae992f44d6fe40cf923a54feb5ac6531cef0369f2447ae89"
+    },
+    {
+      "path": "lock-bytes.json",
+      "bytes": 2060,
+      "sha256": "b899563d1fd339ff81b83a54d323589b6ae817fa00e766b67811467b9297f631"
+    },
+    {
+      "path": "lock.json",
+      "bytes": 544,
+      "sha256": "d6135ded18e8182c087cd830646659d6565b5140eaaec83435848ee02e10b4e0"
+    },
+    {
+      "path": "memory-after.json",
+      "bytes": 354,
+      "sha256": "5e93776a48f7c61492191fabd7596c71c13e2b6bf2ccf759fdbcadc4b48ccf45"
+    },
+    {
+      "path": "memory-before.json",
+      "bytes": 354,
+      "sha256": "c72b227dbe776c1fcdf698ec3135ee7c386f4aec3ca63e03d9b72f304dc8795c"
+    },
+    {
+      "path": "new-stage.json",
+      "bytes": 335,
+      "sha256": "c277e460b6448174643e75603d408b96bfcf5606301f3d004891ff5aa3985852"
+    },
+    {
+      "path": "postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "result.json",
+      "bytes": 7274,
+      "sha256": "52c87c5660acbc75d97c94b4ca4128391e55489d07a22ba1c3aa9df66ca26865"
+    },
+    {
+      "path": "source-after.json",
+      "bytes": 7881,
+      "sha256": "49c011443b378e35b009cea29c76e4789f20336ea46739ad781efa5c6c51eea3"
+    },
+    {
+      "path": "source-before.json",
+      "bytes": 7881,
+      "sha256": "9d7dba2fe74bc4b32a98a4bc83264481283b4f84d658774c37c1ad26ec4dc13f"
+    },
+    {
+      "path": "swap-before.json",
+      "bytes": 265,
+      "sha256": "8e827a5bdcbab4d70a10ed12914d0240c72aabc79b03b67913bb28a7aa617ea1"
+    },
+    {
+      "path": "tools-after.json",
+      "bytes": 1005,
+      "sha256": "562f03637391c0288d1c5559e75fa7e91881a4143c9342cfe674cecc3e4f3f11"
+    },
+    {
+      "path": "tools-before.json",
+      "bytes": 1005,
+      "sha256": "cde0ba68536dd30d7da32199636901a174a39090c2114a933fc478e3544baa13"
+    },
+    {
+      "path": "verify.json",
+      "bytes": 7458,
+      "sha256": "1cb08ae347ee4fa69c2acb7e0e358495c8ca6c814e34d5dde689b4d1083b56ff"
+    }
+  ],
+  "actions": "Only this external report written. No SDK/native/compiler/VM/repository/index/frozen/other-lab changes."
+}

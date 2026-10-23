@@ -1,0 +1,69 @@
+{
+  "schema": "lexlean-r4-delivery-security-review/v1",
+  "status": "PASS_BOUNDED_EXACT_STAGED_DELIVERY_SECURITY",
+  "reviewer": "/root/orchestration_design_review",
+  "independence": "Reviewer authored prior second-child and final-child SPEC reviews. This is a separate source/evidence delivery security audit, not independent review of that authors own SPEC reasoning. A separate CODE reviewer supplies the independent functional delivery gate.",
+  "base": "55e719a74e87cee6d6583e187b84e2e5dab921e8",
+  "branch": "codex/object-second-child-proof",
+  "manifest": {
+    "path": "tests/fixtures/object-read-second-child/delivery-manifest.json",
+    "bytes": 18885,
+    "sha256": "37a518956d3c05e28a12889983d195ea1ec2a55762f280bdbfd4a81ac721a83e"
+  },
+  "scope": {
+    "stagedFiles": 88,
+    "payloadFiles": 87,
+    "payloadBytes": 572431
+  },
+  "findings": [],
+  "checks": [
+    {
+      "name": "Exact staged identity",
+      "result": "PASS",
+      "details": "Exact manifest payload plus manifest census; every staged byte equals working file, matching declared bytes and SHA256. All modes 100644; git diff --cached --check passes. No extra staged runtime, canonical control, CI, production lock or gate changes."
+    },
+    {
+      "name": "Text, path and credential scan",
+      "result": "PASS_BOUNDED",
+      "details": "All staged bytes round-trip UTF8 without NUL. Manifest paths are relative and have no parent escape. No private-key headers, common GitHub credential patterns or AWS access-key identifiers detected. No binaries or executable-mode files. This is a bounded pattern/source review, not universal secret or security certification."
+    },
+    {
+      "name": "Invocation provenance and authority",
+      "result": "PASS",
+      "details": "Read complete archived invoke-second-child.mjs and candidate configuration. It invokes the retained official LexLean compiler in the exact owned container, enforcing fixed source/tool/epoch/memory/idle and host/guest storage checks. No SDK installation, application substitute, network/credential acquisition, production binding fabrication or gate weakening introduced. The historical one-off script is retained as provenance, not installed as an application or advertised as a portable launch. No script was executed by this reviewer."
+    },
+    {
+      "name": "Portable custody",
+      "result": "PASS",
+      "details": "167 current custody/result pin occurrences resolved and rehashed. Eleven final-child plan aliases match repository and original retained bytes. Both phase maps resolve all 27 inputs. Relative Markdown links resolve. Proposal, SPEC and earlier null-review draft are separately preserved; historical preparation NOT_RUN labels are not silently rewritten."
+    },
+    {
+      "name": "Preservation",
+      "result": "PASS",
+      "details": "Canonical full33, all six previously merged sources and all ten other drafts match their source-binding hashes. Seventeen original pending snapshots match their byte/hash records. No such draft or runtime paths appear in this staged change."
+    },
+    {
+      "name": "Native claim integrity",
+      "result": "PASS_READ_ONLY_RETAINED_EVIDENCE",
+      "details": "Rehashed all 235 retained artifact files against complete census; array digest 261f60387377b737d0ab1499a7039cdb1a1e47550d042999f2d15041486ae9bb. Actual attestation d37171e1aa23f6f6dec7da6688a19496a4aede9abcd00b652134b407a109c1c2 contains 820 declarations with observed empty axioms, policy none/empty, and result ok; 70 process records. Positive raw verify exit0 names this attestation. Negative exit1 is LLV7002 rfl rejection, not timeout. Both check receipts exit0 and postcapture error arrays are empty. Both preserved development locks hash 40106ce763044f0d85179b2f02b68a0be02dbe220f4f9975e555f25993c3a5e8. Full native audit remains separately pinned badb2d9bf1cea162fd4b7de091e014927000cc773375d614bec4bf771dba0567; no compiler/kernel rerun was performed here."
+    },
+    {
+      "name": "Source/control and acceptance scope",
+      "result": "PASS",
+      "details": "Positive versus negative complete semantic AST differs only in /declarations/0/statement/right/arguments/0/fields/2/value/value:139 versus140. Positive source and selected emission establish the second-child S139 and original-parent continuation retaining the final third-child call. Docs distinguish direct Apply conversion from certificate rewriting/caching. Final-child proposal and SPEC remain DESIGN ONLY; candidate and native tests NOT_RUN. Completed walk, root wrapping, range finishing, manifest version, whole96 hash, original Read33, full Object/Hash, production PrismPM binding and Pages remain open."
+    }
+  ],
+  "limitations": [
+    "Selected generated source/build records and attestation summary are portable; full local compiled artifact is hash-censused but intentionally not committed as binary payload. The Git checkpoint is not a full compiler installation or full raw artifact replication.",
+    "Read-only source, raw receipt and hash review does not rerun the kernel, independently qualify canonical Hash, waive resource admission, or establish a blanket security guarantee.",
+    "Own SPEC authorship is disclosed; the independent CODE reviewer is required before delivery."
+  ],
+  "storage": {
+    "earlierAvailableKiB": 29824860,
+    "latestAvailableKiB": 26900964,
+    "dropKiB": 2923896,
+    "classification": "New drop greater than2GiB observed during read-only review; reported to parent. Attribution not established by this audit; no other labs inspected or modified.",
+    "nativeOrBuildStarted": false
+  },
+  "mutations": "Only this external review report; no repo, index, source, frozen evidence, VM, compiler, other-lab or native changes."
+}

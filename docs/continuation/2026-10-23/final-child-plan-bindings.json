@@ -1,0 +1,74 @@
+{
+  "schema": "lexlean-r4-plan-portable-bindings/v1",
+  "base": "55e719a74e87cee6d6583e187b84e2e5dab921e8",
+  "status": "INDEPENDENT_SPEC_ACCEPTED_DESIGN_ONLY_NATIVE_NOT_RUN",
+  "aliases": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+      "bytes": 44871,
+      "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e",
+      "repositoryPath": "tests/fixtures/object-read-second-child/candidate/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+      "bytes": 31018,
+      "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230",
+      "repositoryPath": "tests/fixtures/object-read-second-child/candidate/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/manifest.json",
+      "bytes": 2207,
+      "sha256": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f",
+      "repositoryPath": "tests/fixtures/object-read-second-child/candidate/manifest.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/lexlean.toml",
+      "bytes": 697,
+      "sha256": "6d91223dc1448f56b4912239d388500aba60af5fa83314d3b86948cede75ff52",
+      "repositoryPath": "tests/fixtures/object-read-second-child/candidate/lexlean.toml"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "repositoryPath": "src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/positive-native-review.json",
+      "bytes": 8835,
+      "sha256": "badb2d9bf1cea162fd4b7de091e014927000cc773375d614bec4bf771dba0567",
+      "repositoryPath": "tests/fixtures/object-read-second-child/evidence/positive/positive-native-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/next-final-child-proposal-review-pending.json",
+      "bytes": 13174,
+      "sha256": "a1d48766369257cbab64804061eccbaa17ca16b753ce4ec55179561d2f6fac5e",
+      "repositoryPath": "tests/fixtures/object-read-second-child/evidence/next-final-child-proposal-review-pending.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/next-final-child-proposal.json",
+      "bytes": 13924,
+      "sha256": "daaed71c19a50f806096674c6cf477eee3eb24e853b37844689b9a5fb2f9bb2e",
+      "repositoryPath": "docs/continuation/2026-10-23/next-final-child-proposal.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/next-final-child-spec-review.json",
+      "bytes": 9464,
+      "sha256": "97b5b445288717429d82be8f8ecfb9fb14cab6f38f8d2faff9cc0b61a2fabbdc",
+      "repositoryPath": "docs/continuation/2026-10-23/next-final-child-spec-review.json"
+    }
+  ],
+  "boundary": "Original frozen proposal/SPEC byte-identical; all pinned source/prerequisite/history aliases resolve from repository. Finalthirdchild candidate/native proof NOT_RUN; independent candidate CODE and fresh operational admission required. Accepted priorsecondchild does not accept finalwalk or Read33."
+}

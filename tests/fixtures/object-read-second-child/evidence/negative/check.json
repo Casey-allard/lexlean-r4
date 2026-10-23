@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-second-child-second-child-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T23:38:37.193Z",
+  "ended": "2026-10-23T23:38:38.424Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadFirstChildContinuation\",\"ObjectReadFirstChildState\",\"ObjectReadParent49\",\"ObjectReadParent49AccountingState\",\"ObjectReadParent49AuthenticatedFetch\",\"ObjectReadParent49ConcreteChildEntry\",\"ObjectReadParent49FetchContext\",\"ObjectReadParent49FetchTransport\",\"ObjectReadParent49VisitContext\",\"ObjectReadParent49VisitTransition\",\"ObjectReadParent49VisitTransport\",\"ObjectReadSecondChildContinuation\",\"ObjectReadSecondChildState\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"a90a3c3ce59ed509add90c9c041c44fbbf5ec2a568c81356e96cd20b05ae8cfa\",\"source_id\":\"3da81a863b9339ebe2fc3217a1f290dd4c54afbc95751e0f7b6b16760a0e1a14\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

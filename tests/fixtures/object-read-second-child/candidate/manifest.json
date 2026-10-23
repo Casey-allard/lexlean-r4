@@ -1,0 +1,59 @@
+{
+  "schema": "lexlean-r4-second-child-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+      "bytes": 31018,
+      "sha256": "160e886a342fe491c32b46c21d380c2021cf33625c217d167d3de2c824f36774"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+      "bytes": 31018,
+      "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+      "bytes": 44871,
+      "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 697,
+      "sha256": "6d91223dc1448f56b4912239d388500aba60af5fa83314d3b86948cede75ff52"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 21385,
+      "sha256": "f79cab23c171675694a3aa60088fb37353d3b0497d6261004b001e3295077fc0"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 5277,
+      "sha256": "ec6d6c28f403e921d4cefcd3a4e80964baf7d9a0b29cd47c7be5f8648c908510"
+    },
+    {
+      "path": "README.md",
+      "bytes": 532,
+      "sha256": "10f17c402a95cfbe904372e76f50b3535a92231953e54fd82be8d701f1513bf4"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-second-child-proposal.json",
+      "bytes": 13280,
+      "sha256": "4122812d2735a044fd5db121a1e275619b4f9417c2a8153a4eeb2f916b0b04c5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-second-child-spec-review.json",
+      "bytes": 8503,
+      "sha256": "e76deca376dc91778b3e09f2bc4f0c7395c480632e4356c177cfd2a5c13e50cc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/evidence/positive/positive-native-review.json",
+      "bytes": 8864,
+      "sha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53"
+    }
+  ],
+  "boundary": "No native launch or acceptance before exact independent CODE and fresh parent resource admission."
+}

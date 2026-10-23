@@ -1,0 +1,115 @@
+{
+  "schema": "lexlean-r4-final-child-complete-parent-spec-review/v1",
+  "status": "PASS_BOUNDED_DESIGN_MANDATORY_COMPLETE_ORIGINAL_PARENT",
+  "reviewer": "/root/orchestration_design_review",
+  "reviewedAt": "2026-10-23T23:47:28.952Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/next-final-child-proposal.json",
+    "bytes": 13924,
+    "sha256": "daaed71c19a50f806096674c6cf477eee3eb24e853b37844689b9a5fb2f9bb2e"
+  },
+  "scope": "Read-only independent SPEC for actual third-childS184 and complete original parent Result.okS184. All future candidate/native phases NOT_RUN.",
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+      "bytes": 44871,
+      "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+      "bytes": 31018,
+      "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/manifest.json",
+      "bytes": 2207,
+      "sha256": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/lexlean.toml",
+      "bytes": 697,
+      "sha256": "6d91223dc1448f56b4912239d388500aba60af5fa83314d3b86948cede75ff52"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "prerequisite": {
+    "observedAttestationId": "d37171e1aa23f6f6dec7da6688a19496a4aede9abcd00b652134b407a109c1c2",
+    "independentReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/positive-native-review.json",
+      "bytes": 8835,
+      "sha256": "badb2d9bf1cea162fd4b7de091e014927000cc773375d614bec4bf771dba0567"
+    },
+    "status": "Actual secondchildS139 and mandatory originalparent-to-finalchild continuation independently accepted; no finalchild result implied.",
+    "theorem": "objSecondChildContinuation",
+    "statementSha256": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1"
+  },
+  "checks": {
+    "allSevenAuthorityFilesReviewAndHistoricalDraftRehashed": true,
+    "actualPrerequisite": "Accepted second-child source and whole statement pin51bf0406 match. Incoming S139 deep-equals actual accepted second-child theorem RHS. Retained attestationd37171e1 contains successful empty-axiom second-child continuation; reviewbadb2d9b is pinned and present, not null.",
+    "history": "Compared frozen proposal with preserved review-pending draft. Differences only status, prerequisite independent review/status, prior timing note and appended history object. All semantic proposal fields unchanged.",
+    "reconstructedCanonicalPins": {
+      "unboundThird": "e9c8329451083304f931043b655898b7f0b215a1cbdcd130cd92ee9a95c4d001",
+      "closedThird": "159e1544dcfafd9fc841c4bdd9bbc1525e357eab4de50fa86e0aa4dad464f7a2",
+      "incomingS139": "faa4426d8e4c8714e31bbc4d042808550326d7efb69f3bdfc5fb6460095fe9e6",
+      "backendEntry": "df59ec20c79f219e07e23bcf05e4d3b676ae9fbffaf9125a7cecda7bf9f092fb",
+      "expectedS184": "d7e5529cc71341df46ae9d5c167804e0c3c96d2e3e2df72bf789856e1e07d886",
+      "childStatement": "f139aa022a7ea2ad5105dc5e235ed79a3a8684b363db7ff6be983e4c3f5c6f23",
+      "originalParentLeft": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1",
+      "resultOkS184": "3041154148e9e90760c994ac709ecb310ff4a8e68f8ba382ce8fc10313c8d3e7",
+      "completeParentStatement": "c9a2a2784ccd675bdd29b3293f3be49d0d861cc339d72fe9a0ecd1b9201374a9"
+    },
+    "offset": "Actual accepted parent RHS matches ObjCheckedOffset(32,32), whose success binds thirdBase. Only this bound variable is closed to Nat64 in the proposed child call. No offset result assumed for native acceptance; fullparent Apply must establish actual conversion.",
+    "backendAndPayload": "Original backend index0 record hash matched. Exactly45wire bytes are scale0 plus12 listed identity bytes plus32 listed payload bytes. Original parent payload offsets24..35 match that ID. Call still performs original lookup/decode/hash/id/scale checks; backend ID is not certified merely by copying.",
+    "stateDerivation": "Original zero branch span32, checkedbase64+32=stop96, range0..96 intersection, logicalLength96=stop96. MarkVisit increments3→4 under original limit; AccountRecord adds45 to139 under u64 guard. NewID leading125 sorts before existing128/204/229. ReadLeaf appends actual last32 payload to accepted previous64, producing96 traversal-order bytes.",
+    "exactOutput": "Decoded original objProtocolWholeBytes expected Result.ok/ObjAppendBytes literal expression in read-only AST inspection and compared its96 bytes to proposed S184.output; equal. This source comparison is not proof of original control acceptance.",
+    "sortedSeen": "Independently constructed and matched exact four full IDs in order third125...,parent128...,first204...,second229..., distinct from output traversal order.",
+    "allSixProductionDeclarationPinsMatch": true,
+    "noExactPriorChildReuse": "Prior second-child theorem statement and output pins match; closed third call differs and new32payloadhashcb5eaf32 differs from prior64outputhash058a750c. Prior theorem supplies accepted input state/context only.",
+    "completeParent": "Exact unchanged original parent ObjVisitNode LHS matched. RHS is full Result.ok original ObjWalkStateS184, with output96,visits4,wire184 and4seen IDs; no remaining visitor call on RHS. No production error branch/runtime implementation edited; concrete successful equation must be proven.",
+    "constructors": "Only existing eq, Reflexivity and Apply prior ObjectReadSecondChildContinuation.objSecondChildContinuation with noargs/typeargs required. Prior supported pattern does not guarantee this larger reduction succeeds within resources."
+  },
+  "implementationConstraints": [
+    {
+      "id": "C1",
+      "requirement": "Keep exact original backend/inputstate/range/limits/collect and whole actual third-call AST except closing boundthirdBase64. Preserve complete Result state and original parent left; no hardcoded trusted hash/decode substitute."
+    },
+    {
+      "id": "C2",
+      "requirement": "Both phases verify identical mandatory completeparent consumer importing selected child theorem. Sole negative mutation expected child-state wireBytes184→185. Require admitted source then intended LLV7002 Reflexivity mismatch; timeout/OOM/admission failure is not semantic RED."
+    },
+    {
+      "id": "C3",
+      "requirement": "Positive must verify both exact third child and full original parent Result.okS184, followed by independent complete source/artifact/observedemptyaxiom/kernel audit. Helper-only success is incomplete. Actual offset/error/result reductions must be kernel-checked, not source-inferred."
+    },
+    {
+      "id": "C4",
+      "requirement": "Consumer directly applies prior continuation. Imported final-child theorem is checked dependency/control, not a rewrite or cache. Conversion may recompute authentication and earlier work;204491ms prior aggregate does not predict current cost or efficiency."
+    },
+    {
+      "id": "C5",
+      "requirement": "Canonical semantic-module/2/language1.2, eq not unsupported equal, emptyaxioms and correctly qualified external/name-only local references. Minimum two modules/three variants plus config; no new framework/runtime/mechanism."
+    },
+    {
+      "id": "C6",
+      "requirement": "Independent exact candidate/invocation CODE review and fresh admission gates precede execution. Keep300000ms child/4GiB2CPU,20GiBhostlaunch10GiBreserve,11GiBguestpre10GiBpost,1MiBsource budget. Preserve/classify failure; no equivalent limits raise or partial acceptance."
+    }
+  ],
+  "findings": [],
+  "acceptanceBoundary": "Future positive would complete this exact original parent visitor equation and third child only. Root traversal wrapper/planning, actual rangefinish/output/statistics wrapper, manifest admission/version, whole96hash comparison, ObjWholeRead linkage/originalobjProtocolWholeBytes/allRead33 and fullObject257/Hash/PrismPM/Pages remain open.",
+  "testStatus": "All new candidate/source-admission/native negative/native positive NOT_RUN. Only read-only hash/AST reconstruction and exact source comparisons performed.",
+  "actions": "Only this small external review written; no repository/index/stage/candidate/source/native/SDK/compiler/VM/API/other-lab changes."
+}

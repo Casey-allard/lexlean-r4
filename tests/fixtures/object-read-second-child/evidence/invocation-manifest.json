@@ -1,0 +1,37 @@
+{
+  "schema": "lexlean-r4-second-child-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/manifest.json",
+    "bytes": 2207,
+    "sha256": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f"
+  },
+  "files": [
+    {
+      "path": "invoke-second-child.mjs",
+      "bytes": 7759,
+      "sha256": "060095b731a2d6c7316202d46ff68c4126ee3e6f6e959a749fed9c3c8285270a"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2467,
+      "sha256": "97899364b3ade830f0eba7213fbcd0ef58a18f036f79377f8fcc8effc49f8fa4"
+    }
+  ],
+  "phaseSelectors": [
+    "second-child-false",
+    "second-child-positive"
+  ],
+  "commands": [
+    "node invoke-second-child.mjs second-child-false",
+    "Only after independent intended-negative acceptance and fresh parent gates: node invoke-second-child.mjs second-child-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+  "inputCounts": [
+    27,
+    27
+  ],
+  "stagePattern": "/tmp/r4-object-read-second-child-${phase}-owned-20261023",
+  "preserved": "Existing exact epoch/container/tool/source/lock/idle/zeroevents and independent postcapture;20GiBhostlaunch10GiBpeak+10GiBreserve;11GiBpreguest10GiBpost;300000ms child4GiB2CPU; selected onephase only; fresh exclusive stage/output; actual artifactcopy mechanism unchanged.",
+  "boundary": "No sourcecheck/nativeproof performed. Both new child and mandatory originalparent consumer must actually verify. No automaticsecondphase or limit changes."
+}

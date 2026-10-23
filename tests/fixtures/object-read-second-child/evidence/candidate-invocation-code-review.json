@@ -1,0 +1,78 @@
+{
+  "schema": "lexlean-r4-second-child-candidate-invocation-code-review/v1",
+  "status": "PASS_SOURCE_READINESS_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T23:38:24.570Z",
+  "scope": "Independent source and invocation CODE review against committed proposal4122812d and SPEC e76deca. Candidate authored by another internal agent; this reviewer authored predecessor first-child CODE/native reviews.",
+  "identities": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/manifest.json",
+      "bytes": 2207,
+      "sha256": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invocation-manifest.json",
+      "bytes": 1653,
+      "sha256": "5bc11b24c8e716c0cdf7d4802105851a031535666e889f9a9e7980816e9a6292"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invoke-second-child.mjs",
+      "bytes": 7759,
+      "sha256": "060095b731a2d6c7316202d46ff68c4126ee3e6f6e959a749fed9c3c8285270a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-second-child-proposal.json",
+      "bytes": 13280,
+      "sha256": "4122812d2735a044fd5db121a1e275619b4f9417c2a8153a4eeb2f916b0b04c5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-second-child-spec-review.json",
+      "bytes": 8503,
+      "sha256": "e76deca376dc91778b3e09f2bc4f0c7395c480632e4356c177cfd2a5c13e50cc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/evidence/positive/positive-native-review.json",
+      "bytes": 8864,
+      "sha256": "611827869698d0462c320e19236356d3411028d1a959a79bb9a7455ed00eaa53"
+    }
+  ],
+  "checks": {
+    "sourcePayloadsRehashed": 7,
+    "dependenciesRehashed": 3,
+    "phaseInputReferencesRehashed": 54,
+    "uniqueInputsPerPhase": 27,
+    "preservedSourcePinsRehashed": 17,
+    "originalSnapshotsRehashed": 17,
+    "canonicalJSON": "All three source modules parse and exactly match recursively sorted canonical semantic JSON. eq tag and language/glossary1.2 retained.",
+    "exactChild": "Independently extracted prior accepted second-call subtree, substituted only bound secondBase=Nat32 and matched whole new child LHS. S94 and original full backend/identity offset12/range/limits/collect remain unchanged.",
+    "childStatementSha256": "be8253d4d406ac798fdb6c63536620206bb5d1508f04f0698908f271435d52f5",
+    "expectedState": "Entire S139 AST matches accepted specification: original first32 plus second32 output,visits3,wire139,sorted parent/first/secondseen. Actual lookup/decode/hash/id/scale/state operations remain in full call; no trusted result shortcut.",
+    "negative": "Deep equality of complete variants after changing only expected wireBytes140→139. Both use same full-consumer root, dependencies and reflexivity; no other AST/proof/config difference.",
+    "mandatoryConsumer": "Original fullparent LHS unchanged. Independently extracted prior second-child success subtree, substituted only afterSecond=S139 and secondBase32, and matched exact RHS. Actual last ObjVisitNode and ObjCheckedOffset(32,32), failure branch, boundthirdBase/backend/range/limits/collect remain.",
+    "consumerStatementSha256": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1",
+    "remainingActualChildCalls": 1,
+    "proofs": "Child Reflexivity and consumer Apply ObjectReadFirstChildContinuation.objFirstChildContinuation with empty arguments/type_arguments. Every new declaration axioms[]; no unsupported proof mechanism.",
+    "imports": "All explicit external references have imports and each imported module is present in both phase mappings. No self-qualified local references.",
+    "productionPins": "All six proposal production declaration hashes independently checked unchanged.",
+    "config": "Exact predecessor config except mandatory new consumer entrypoint;300000ms limit and all other limits unchanged.",
+    "invocation": "Eight declared single-occurrence literal replacements exactly reconstruct successor bytes from reviewed first-child runner. Changes limited to comment/phase selectors/selection message/new exclusive stage prefix/manifest pin/negativephase/census25→27/mandatoryroot. All other operational guards and independent postcapture bytes unchanged.",
+    "operationalGuards": "One explicit phase per call, exclusive output and guest stage; source manifest and all selected input identities checked before native; same exact epoch4GiB2CPU/networknone/no mounts, idle, zeroevents, four tool identities,20GiB host planning/10GiB reserve and11GiB guestpre/10post. Genuine lock, sourcecheck, mandatory fullconsumer verify; independent post source/lock/tools/epoch/memory/idle/storage; artifact capture only actualsuccess. Launcher0 not acceptance."
+  },
+  "findings": [],
+  "nativeStatus": {
+    "admission": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positive": "NOT_RUN"
+  },
+  "requiredSequence": [
+    "Fresh parent operational gates before native.",
+    "Negative first must admit source then reject intended139→140 with LLV7002; timeout/OOM/admission/setup failures are not semantic negatives.",
+    "Positive requires actual secondchild and mandatory originalparent-to-lastchild artifact/kernel/emptyaxiom and postcondition audit. No child-only acceptance."
+  ],
+  "limitations": "Static readiness does not establish actual checkedoffset0+32 or child-success definitional conversion. Direct prior-theorem Apply may recompute authentication; imported child certificate is dependency/control, not rewrite/cache. No timing guarantee or equivalent-limit retry authority. Finalthirdchild/walk/output/stats/wholeRead33/fullObject/Hash/PrismPM/Pages remain open.",
+  "storage": {
+    "availableBytes": "25912975360",
+    "additionalReviewBudgetBytes": 20000
+  },
+  "actions": "Only this external small report written; no SDK/compiler/VM/repository/index/frozen/other-lab modifications."
+}
