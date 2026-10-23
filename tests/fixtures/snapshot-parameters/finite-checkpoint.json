@@ -1,0 +1,1016 @@
+{
+  "schema": "lexlean-r4/snapshot-parameters-finite-checkpoint/1",
+  "date": "2026-10-22",
+  "sourceSha256": "2d421760f032599463095071a1a2a0e0f5a276194ec7664f20b1778f80b801eb",
+  "controlsSha256": "cfce4d507c24d01d89bd7094136969d5050439df31a470617b5e80d66d3f1ab5",
+  "contractSha256": "b21353946136cd88a7727b2efe438fcf0956659780c33f4aa3ef3977a6939ff8",
+  "positivePlanSha256": "1d8e53f010836caedd7e49c8f86feb39f24866aaa10029061c1fa51c814cf407",
+  "executionPins": {
+    "planSha256": "98b4de17bb53ee691155cb7df796cb2a018bcf7a24a53a777cf86a543ac0284e",
+    "runnerSha256": "7517ffec38254a3c283abad6bfa9d2bc45b0b0b9031287e68779781d2535ccae",
+    "auditSha256": "ca9ee6ed692c8e00a3bb1e135f63622878e3689105df0aacf94f4bb46e20c370",
+    "readonlyAuditorSha256": "ca9ee6ed692c8e00a3bb1e135f63622878e3689105df0aacf94f4bb46e20c370",
+    "classifierSha256": "b8252d3971347e686b84255c960a0f1f7b268323a8052a30bc4005574ac3a009",
+    "lifecycleSha256": "cf4030a51cb6459c0d84ecc6509c51f46aa5da04f9fb5b856869dff893472283"
+  },
+  "lockSha256": "8f7151ef11671d76c30ee84c7d6a2b3d0edc1e3f14639bde64e777a2c46e8eff",
+  "sourceDependencies": [
+    {
+      "path": "src/R4/Admission.lex.tex",
+      "sha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867",
+      "bytes": 68840
+    },
+    {
+      "path": "src/R4/Binder.lex.tex",
+      "sha256": "2b66660f539c88fe2ce23229300c31bf7bbfba5ab83e9b23bd450bb237f6a449",
+      "bytes": 72087
+    },
+    {
+      "path": "src/R4/Carrier.lex.tex",
+      "sha256": "ce696f2b297bebae8f0b7c6bb36e063ed80442a3c0ca952e5c428d983c19b0a6",
+      "bytes": 31312
+    },
+    {
+      "path": "src/R4/Configuration.lex.tex",
+      "sha256": "7c367ee55b39eb8028b277153fc4f8e573f7bc0dbfcae9a8b7f8f3196475dc88",
+      "bytes": 12029
+    },
+    {
+      "path": "src/R4/Engine.lex.tex",
+      "sha256": "fe1dd371f90db233d4b8675e5dbdddff982382f83c20f619d3ca5cf8acb31f40",
+      "bytes": 370782
+    },
+    {
+      "path": "src/R4/Flock.lex.tex",
+      "sha256": "a87044e862d53236d63d93a643e1caee887b7209d58f10e51e02145270c9b108",
+      "bytes": 92058
+    },
+    {
+      "path": "src/R4/Gates.lex.tex",
+      "sha256": "92dfd0242c216b415420961eb55dab9be96d13676e503d616b4a76e622359f52",
+      "bytes": 7040
+    },
+    {
+      "path": "src/R4/Geometry.lex.tex",
+      "sha256": "2b934cd1ff5eccf6c8d5b4af1c34901fa964d31958e8a435cdc05bb6e52c7167",
+      "bytes": 1453753
+    },
+    {
+      "path": "src/R4/Json.lex.tex",
+      "sha256": "b18031a8626363bfcfb6799424e1527da77fc8b2131a1ebfa75d6390a9da16fe",
+      "bytes": 155596
+    },
+    {
+      "path": "src/R4/JsonNumber.lex.tex",
+      "sha256": "0f99c00b07c7d4e69cb6540d98b0d119394ce11dd3128029348fbfece53398c5",
+      "bytes": 60681
+    },
+    {
+      "path": "src/R4/JsonNumberArithmetic.lex.tex",
+      "sha256": "4a51a2fa99452e883d5304f5a20f21ced2005a9258aec2140e2d6541197af96d",
+      "bytes": 13165
+    },
+    {
+      "path": "src/R4/Learning.lex.tex",
+      "sha256": "3667322e441d1b689dee0eba8bfb7b512a456ae9781ee7063160dc7f98c25d32",
+      "bytes": 105526
+    },
+    {
+      "path": "src/R4/Objective.lex.tex",
+      "sha256": "379e2a52851628a5cc762c6cd911a18d97a3d30df8b9eecdb86542b82fe441ec",
+      "bytes": 12106
+    },
+    {
+      "path": "src/R4/ReadArithmetic.lex.tex",
+      "sha256": "3ada609b6bd4294d798762732d4cdc5c21873cb5281f3046f5d912b9c67a6822",
+      "bytes": 23064
+    },
+    {
+      "path": "src/R4/Relation.lex.tex",
+      "sha256": "a941046bcea53c737a7153e77d5970fbc674667c71f910d1f2aa26e39db8c545",
+      "bytes": 37114
+    },
+    {
+      "path": "src/R4/Route.lex.tex",
+      "sha256": "a5d799a17e9c33a4252df1ae2f222b5610e9c4fd042d13b1a156f227815fd554",
+      "bytes": 50353
+    },
+    {
+      "path": "src/R4/SnapshotJson.lex.tex",
+      "sha256": "cf26668c78b89f1114dc3dbece6c5a3645e90d423bb844789105f4a52f314430",
+      "bytes": 578480
+    },
+    {
+      "path": "src/R4/TokenizerText.lex.tex",
+      "sha256": "87905511d8e7840c439db5c62aba4c59087679a0f1afc1b72d35a3cff9b7fea0",
+      "bytes": 479949
+    },
+    {
+      "path": "src/R4/TokenizerTextUnicode.lex.tex",
+      "sha256": "6e6e5f686e88302aa34717e2a874c3c4d7665c31b9d503fdb7b9bd788eeb1952",
+      "bytes": 318453
+    },
+    {
+      "path": "src/R4/Types.lex.tex",
+      "sha256": "c140409edf9a9fd2490a35f1692dfedb7577a6181165b9dc141773e609b5b456",
+      "bytes": 1984
+    },
+    {
+      "path": "src/R4/Words.lex.tex",
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "bytes": 240864
+    }
+  ],
+  "baseline": {
+    "status": "PASS",
+    "roots": 44,
+    "controls": 666,
+    "auditRows": 54214,
+    "replays": 625,
+    "compilations": 625,
+    "rootsAndIdentities": [
+      {
+        "module": "SnapshotParametersCodecBudgetControls",
+        "controls": 17,
+        "auditRows": 1221,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "0a2be52cdd27b7b69460673a98f18324ad1fc1178cc958231181478bd45067d7",
+        "build": "9313b7e29cd457a0617b9145fb673e9ddfc30113d20fbe293236db7eedab2659",
+        "source": "4550c33176b2535c4c4365b4c65bcb25cf87f2f6513310f04a1b866072b2da85",
+        "semantic": "77bb430977ca5c9bddbdc3cf65b606e73cab8a9fd7f00ad3f202a06791fdfb6d"
+      },
+      {
+        "module": "SnapshotParametersCodecNumeric01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "8cb13f3a1a176c7f0b1fe15b56a927c82edbdc7a0a84946d41ec6d4109b2ef0d",
+        "build": "cd1141db57f20f2688e277f6acc7fbd8a677c4c5bb26944436031c75a54320f9",
+        "source": "1690963d170292c4b258c738a4ca84fb57fbb2d3acb3bfbf0e842a96208c338b",
+        "semantic": "146ec427b7a1022d1f7645ce9d90b5f5c3f6f68ed926653cc5dc66562ebb61e4"
+      },
+      {
+        "module": "SnapshotParametersCodecNumeric02Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "58669ed3763bc3671b209718ecb3df1a33e4dc5bc2cf1a1fbc42fc21820fc294",
+        "build": "ce63074cbbfb262f0c6d2b95ca3b62b2f2d71914943efdc34717f02cb632c6e4",
+        "source": "59e2ec345d0e80994b5d25bde268a4bf3d3d56bbbd36cef448b95a6aba1aa75e",
+        "semantic": "7e04d64febe697b267631fef32ac1b8c4d07e36362e7efadb06df113ae6eadfc"
+      },
+      {
+        "module": "SnapshotParametersCodecNumeric03Controls",
+        "controls": 12,
+        "auditRows": 1216,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "020dbe2951144f6015c20ae8995b5741b2304372e4e11ae90b977901773202c4",
+        "build": "97781f2f512741ab0eb07bfe98613c079d6d535f88f3e646fdd1f35604abd042",
+        "source": "aeffef808a64755de8053a97cb1964269c7aa7190ac5bffd9dfaadbc7a408823",
+        "semantic": "ee66833fd57742a30162f1f6eb8e857d3b45abff592bc5258d10d3f4262ad3df"
+      },
+      {
+        "module": "SnapshotParametersCodecOrder01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "26c8ed794390f68f49681c6647986ea1293475414a8a5f2bb0daa8766b9b8699",
+        "build": "a342769ab92f43f5ad5be471658161365fec644726451714933358d419f9d992",
+        "source": "a62a45393f501cc32ce7eafbfe6d1673691d8d42fffb2a9765df8ffbfab39026",
+        "semantic": "32bcccd76cce93d54baf16d08b32e150ce03aed471e0f2cd54a841e38cd092e2"
+      },
+      {
+        "module": "SnapshotParametersCodecOrder02Controls",
+        "controls": 8,
+        "auditRows": 1212,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "8482ce4c7b14f1806beee697ede8bec6b9b6b3f1f18d9c162e539d91741e2040",
+        "build": "90492f0419c7850976baadefd820b0dc303a338ef08fa4387b4a4f8ee20b07bd",
+        "source": "c6c0bd39c743636af8ba79f3ea7b51839922c3b6e48b1e9b9a45d50d43181f87",
+        "semantic": "1d027bcd8d3e48cacd7eb6ba131a83e7dc4a9585273b33f849d35118b36f9d2b"
+      },
+      {
+        "module": "SnapshotParametersCodecRepresentation01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "6c6d2d9fec1d51767275f0adf0aa6706665af9aaf310f4da9990648a170c5a5d",
+        "build": "ee411f8d2e5bd5302d3e3cf6ef78b80b26ac9f165f36992a858d6fc87b436526",
+        "source": "36eb58339fbc9d0ead97d451b338308eeb822c76984cf074dbcd135c35cce76a",
+        "semantic": "45f4f5dfe69a71317d2168c6be95ebd56cc9c07101ad88d689f0162b64afd925"
+      },
+      {
+        "module": "SnapshotParametersCodecRepresentation02Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "2abd406a445bd5a481f0f3d414fad9a888626b31a071ad3c40f7ec6359f0366e",
+        "build": "2e01167e0544377267625ad37108aa3015ee9a997db1de4e900d7e203b44fdd5",
+        "source": "8b06a3cf7a7e5416ec53e187b6d19e322dba28255ca06a82e96bebbe52fb7d56",
+        "semantic": "d8632008146934e93e62663d0d4ec7d43d84b3882fc557785b33b95d5c9efe75"
+      },
+      {
+        "module": "SnapshotParametersCodecRepresentation03Controls",
+        "controls": 17,
+        "auditRows": 1221,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "1657799f8b1adb5310ddd106338234bc184265b79ff044d6a4f35aef4a2555f2",
+        "build": "eb1ce67b7fbb24c086ba30c75adcb24851a95ccb2ee192e03cc1b3667003fc27",
+        "source": "1a6f4e540a48f2feae0c3ae45ae3f99de754ac05c11ec30c4ee6f8a98553a744",
+        "semantic": "06638d9bbaf3587c8d60cc531369fa520a7affd8308ceef8ac7d72b8dacd2a99"
+      },
+      {
+        "module": "SnapshotParametersCodecSchema01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "9a6084477a729c46c3d3a30e395fe8f17f700c6124296022e2d4a5e5324be36c",
+        "build": "e228af606efa02b4b8b6739f9eab776c63ecab3258b34fda4ed998b47a9deef3",
+        "source": "e0cadbf017d7c6834cf11989143978c352b69cae37e6d3f6557c5a6edbf45c2b",
+        "semantic": "285d4a40f99d223fec4c25f986e501e16862541b50465e96f721700b08d5a619"
+      },
+      {
+        "module": "SnapshotParametersCodecSchema02Controls",
+        "controls": 3,
+        "auditRows": 1207,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "2eb2d9139c0d2fd54943c076b54dd3ee7baf9d38320d7079364a09ac5c5f2fcb",
+        "build": "6c9e0dfe84488f23bdf67c419b64d25ec4ee37831c510c4b597ebf8e9481535e",
+        "source": "5e586332a3bf0b61346840fd8a1b148851cca561eb6bdb11d382354e142f2851",
+        "semantic": "2e6e3e5cd3673d94b9c4c07aecec7fca11b9afc8537ad54053f9e1bcb955bf8a"
+      },
+      {
+        "module": "SnapshotParametersCodecStoredValueControls",
+        "controls": 2,
+        "auditRows": 1206,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "7fdeec6a530d3424bf4e1592d9829b7d489354a2bad4129b45ac6d1abcf08827",
+        "build": "710e40a0bc01dffa8f41eac9863ea0a83f56f70a0abc8e0c91afd6c110ef858c",
+        "source": "1b5e21029a4a392465efca666f5c04bd27c41bc6fe3f51262ad9a8ccaf83815f",
+        "semantic": "24e37ab295147f2d058511a58de96da9394c6160e59b686ea4aa7e3e3ed86164"
+      },
+      {
+        "module": "SnapshotParametersCodecStrictControls",
+        "controls": 22,
+        "auditRows": 1226,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "36032310a75a380071a46731c979eda57b7b8f71aa2cb5d817a3981459f73515",
+        "build": "843bbdf663e4f39451eeccbeb0c831a188e097062d3464e7881fa13a5dcbd71c",
+        "source": "3eb0e91ae1c1cef309b8d753d00f04b385d6797738391ba60659f5ab2a4b23f5",
+        "semantic": "dac4f2851c82128e8b29e028b6652ee9f27daf1d77dc42320a5baa873ae2de70"
+      },
+      {
+        "module": "SnapshotParametersConfigurationControls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "89623f278d09027a3862e0f64550cd373e41374b921ffb76fb6908e9fc3db1d3",
+        "build": "d41ff898c26ceb5ef30954dc1d7448bea66e0275247e2dbc1c6ef34714ed8e9d",
+        "source": "c2dcfa0dc2efe925c7fafa8422db4be810dd547646b24073710f321bcc804901",
+        "semantic": "161829b5244b8f8fa5a7bf960e19e36a8811599edc6a64dbd5c64be8aef06766"
+      },
+      {
+        "module": "SnapshotParametersEngineRelationControls",
+        "controls": 5,
+        "auditRows": 1781,
+        "compilations": 23,
+        "replays": 23,
+        "attestation": "f48dda876949d1d9a7b892391a03c4d7de3965b46bdb9f2c8a7598e67b7c1ab8",
+        "build": "d4365862fbeafa647f8e5eb115e2501f637af41c9276e8b69480fa7b543044c8",
+        "source": "2ed42c802f63cb390a6a4fca472ea9cee9745428b69e6b06a3fe73a9580afa95",
+        "semantic": "876d2f0936305776c1ac9088c748cd5e4f81079c1c6a60ab8f94c77ed7352d44"
+      },
+      {
+        "module": "SnapshotParametersGateErrorsControls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "3de9033ce94d1fa26750b0198a7cf164ce7e68339dc7b76acc07fa65c19ab0ce",
+        "build": "aa13c26200dcc07a050f1a4724e828cc11c60ad8a971ef4fdfb93b44f266a18d",
+        "source": "fe77420f4f4ec29ecda5c0133c3b2399b360968069e60825a9b3b5bc07340c61",
+        "semantic": "db8b901932c32035211dc01885436d629243003eee48dae969c5ebd9aefd540a"
+      },
+      {
+        "module": "SnapshotParametersGatesControls",
+        "controls": 9,
+        "auditRows": 1213,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "27ae431dbde968bf1bcfdc2d7e50a59019538f01e79370e6c5fa1603c669d333",
+        "build": "a2718f48598384f9fe609c953f8894ed248ddcf384b03ae1fa7e4d3c2186246c",
+        "source": "db91fc0eb9696bb3fe0034babe1a1a993b69585a74b70729db511859af6b544f",
+        "semantic": "12136b5c981cf48ed24ae4df668b39dbfc1deff74aa7098346dcc5dedbf9ea96"
+      },
+      {
+        "module": "SnapshotParametersInventoryControls",
+        "controls": 21,
+        "auditRows": 1225,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "39c7221b8a29f87ae4b3dc901b2318e683cf36224d8e69594db68edcca74932f",
+        "build": "4c4df18e0a26f4f3e9056ac645bf391d2408ab99bfd91208f5647b351bc57fcb",
+        "source": "40171ba942ad23790127af47cfa25858d09653b14d740d39b6302a5ed3538201",
+        "semantic": "c82e43f674d84731e58052ed2bb4aa131056e4671d8065488c6b8b8ae7cd7994"
+      },
+      {
+        "module": "SnapshotParametersMappingsControls",
+        "controls": 12,
+        "auditRows": 1216,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "a81a57e1d0578a87a9e596d0db09c1bfc7716f5f4726b85496d900d831a65411",
+        "build": "586edd4c5b585098c9dff520ed1c3594de1e0149dae56c47aea648ded133d004",
+        "source": "8b1205a4b40fa17c785d11114b977a049f9169766674eafd36ecce0d8b527a6d",
+        "semantic": "6f2b0085f087b1a54018c7f9fc99b614b29dcd03f6afec431ca33b446471306b"
+      },
+      {
+        "module": "SnapshotParametersMetadataControls",
+        "controls": 12,
+        "auditRows": 1216,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "c48ba25249b047d81061e4d5bf8a620ff8036859cfb9d9a9f2d666caf04cf51a",
+        "build": "1a5753ec5f3ff81d92826ab45b78c858449f9afb27f2104f39bfe1ebc1ab0f39",
+        "source": "7937688ff9fc2b0072abe1f6da84be1756c81d137ddd11fed62b2da7784df1ef",
+        "semantic": "3bb8c04eaa3aca9ab6e8148fbf242d3e08179ab9b35745da2d7e433c02101bcb"
+      },
+      {
+        "module": "SnapshotParametersNativeControls",
+        "controls": 5,
+        "auditRows": 1209,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "9c145100008c25297ec2eacecacf5b6b86b11f3bb3e040f731167ef8b34354d2",
+        "build": "3560a0d1de21abd075769036ba8d505a0c11330aed65c2301ebf806eec770573",
+        "source": "9af073086d8691fe66c31818427b6bb84e8bcdcd09e2be07232cceb907f142c4",
+        "semantic": "1b1ad48573d88676bb3c5373ae12ef99f517b7a005974aa740835e7121fe231a"
+      },
+      {
+        "module": "SnapshotParametersOrderingControls",
+        "controls": 2,
+        "auditRows": 1206,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "57577ac4c56588ec9bcfaeceb47604467607c45c3484d7d7d681af65c913ac98",
+        "build": "fb7c6490310a41335b6b3898df0eec18870ee2d413353d16020074ef2aac7193",
+        "source": "1c97e162fab46e51555499fda7577f02406ce318f42782d516ec811cc867096b",
+        "semantic": "22b1777cf8766abb52fab69aeef1f697ac2fa6229966316fef630f3a3c7822e1"
+      },
+      {
+        "module": "SnapshotParametersPlansControls",
+        "controls": 7,
+        "auditRows": 1211,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "1727730029dae65f08205e7975f5a6b922e0493696e37e48139abc6a58f2a362",
+        "build": "71cd8e80ca71b3150f28fae76973d2ab7b21025388440e40f81dac550ecc6c96",
+        "source": "c34f239023cf050688c0f6a98ae13bab8808b45cba92aae8d763056ba459c97a",
+        "semantic": "40b957ed53cd0370cfb813f253177ad423c4dc0095f95afe8d06fff2c56346cc"
+      },
+      {
+        "module": "SnapshotParametersPriorityControls",
+        "controls": 11,
+        "auditRows": 1215,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "59b0567f21c5ae26b0210990dd9558cf57af5a77d9018a041a38ee76d5842630",
+        "build": "56154035d2de9d43ff40212cf2c6ebf1b30fe7429534021bf156bf3bbfc2b450",
+        "source": "e30c215ee849baa3b82b0751a56fbccd885a91173e81eeaad241bf4efa4ffc01",
+        "semantic": "77d36c923feb6f76d3d5b240b8a4ee9cc37b6c88551a0e0a695e7f480d7c530c"
+      },
+      {
+        "module": "SnapshotParametersRawControls",
+        "controls": 11,
+        "auditRows": 1215,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "a0b16b039f8aa723840ff4d2b6e6b512fb2aae3b2a02eda3d237bf506f393763",
+        "build": "316ae3618ad9fa9a70ff8108ad9bb53eb51bab5737965fa0e2d9b93a49a4e8e2",
+        "source": "a37ab3ececde43adb462b76c1c0741c6b069985f35f8b81ae4c39d4ea60dab1e",
+        "semantic": "45fcdef70d004450b19aa0b5cf828ceab8b1ea1e017c0096256011d02c94712e"
+      },
+      {
+        "module": "SnapshotParametersRootErrors01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "7e39acb24b11d5ff7f7cfdae14094738a2958c451916c1a22dcecfcc239d89e0",
+        "build": "d49c12c0d0f99737189c0f7fca095ebc99c6a98921fb9668cbdce9fe2ed7f673",
+        "source": "3afaa0d9562087a37edf3fedfd9cfe4cf4d1029d5fdeb89c612b536299229098",
+        "semantic": "ee0bf3123f4c65150874a984cf42b44a89c782dc11d6972f05708eb089d66124"
+      },
+      {
+        "module": "SnapshotParametersRootErrors02Controls",
+        "controls": 6,
+        "auditRows": 1210,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "b17ada724f0c57a4cc2cd9889ec779a75884189e4cd201f2aa06e3a682016143",
+        "build": "335d27e6b60a802551840b2dce01b47654bce895d1005d33c3ac842c322a5652",
+        "source": "d89e1a0dfddf85b285b54c81f511c527e7e2c76de936feef7cd8d206be6c5e01",
+        "semantic": "3c5ebf14ec0867dd4c5bc8acf2fa4317778e6a2bd6c544aab24cd8fd146dcd6a"
+      },
+      {
+        "module": "SnapshotParametersRoots01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "151ced4efd15e21b9bb2ae1f25b4cfffaf66e3781c9f133d40710bd4c105047f",
+        "build": "42d9baa80a42a1c2b04a9df260582f1ac2c2d8f3a2a2500c6a619ebb61a2cc60",
+        "source": "9e16273588b2642edaf94d34b251fe7de72c7c4b0264d386aaed277f459e6257",
+        "semantic": "e1a10e111ccb72e7f20fe22293c816c984762d20fbf66dd33fcd9e9ce42dc4f2"
+      },
+      {
+        "module": "SnapshotParametersRoots02Controls",
+        "controls": 9,
+        "auditRows": 1213,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "b52ff2f2f3232c6f0912c8cda2aa3ebcd882d2e1493bf46478c82ac0492bfa8f",
+        "build": "06c113dd8879d403f017a99454787679c3f4f944f1e03b4efb40035bebaa202b",
+        "source": "9b350d3329ee909e215a4158f965170bda6805d6e8c6f3bb341d902fddf862c0",
+        "semantic": "27aed6435544018766b2608b283fe62699183e504ed3054f1a1a63bb8aceb1b5"
+      },
+      {
+        "module": "SnapshotParametersRouteErrorsControls",
+        "controls": 12,
+        "auditRows": 1216,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "d08ea4ed1297b49f6854a1f2a8984f6f5893b7dc47f608b9dfa92cd87ecaccf9",
+        "build": "ddaf30cf2af1c69308ec3b2964ee2c13c38b01af961e4cc90ef70a3e1d3765d5",
+        "source": "1173cb3f6e0a4d58945999db8b679adc9c8efd2a735dd786623895c44d8a7fd7",
+        "semantic": "414b4b94108a71db48867319f67ec5e303ac5c3cc2e0ec24601aac8a40b7688a"
+      },
+      {
+        "module": "SnapshotParametersRoutes01Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "1c1e357264b348b414349628189c5862e044f67f5a3c698dfea67d702c0f2885",
+        "build": "395676c9aa7f8bbf4fb410feb2bddbbfa51b346e08a8f047808c09e5304f4f95",
+        "source": "8b1854b73bbc532f84ff2e34819c7dd57e2ffadd8fed20dabcf5e6c3ad69985e",
+        "semantic": "81d2bc547d36392e528baa7481be235cef05e43f78abcfa7872d8033954accca"
+      },
+      {
+        "module": "SnapshotParametersRoutes02Controls",
+        "controls": 24,
+        "auditRows": 1228,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "52905073211e787219c6a381b30c4a23dbdf7bbca275f2150e42c334ffc09ec9",
+        "build": "85773a5a1cbf05d300fed8c5d2026a124633ef706db831ae5036849844de132d",
+        "source": "a94ecb303353d54b0d9713a8b8f9c107c2c88a4ab4ffe16284380ddabb891591",
+        "semantic": "10db7697ed1e23baf39fd9ffba8bc6bee4ebecd7e2550d7affe1deadf3405f23"
+      },
+      {
+        "module": "SnapshotParametersRoutes03Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "5a9b9ae7322f19fdd114a77e1fc3005b46239d22d7e2d0815a2b3c912104abd6",
+        "build": "c14af729201d7484d5292a81d5ae848cdbe89a48354ca22a8b3e94132e4b2d27",
+        "source": "412145eec4e15e3ab81dad1b60c5031639a44646ba432771b5b9471139527f77",
+        "semantic": "9019aef5c6aae715e814d6faaf24033e2b6cd0e2f437be63d9790b381e46c670"
+      },
+      {
+        "module": "SnapshotParametersSupplementGateInverseControls",
+        "controls": 9,
+        "auditRows": 1213,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "dbb56f414f6351db4ecf8d2738a9e3bbe40a35ae567e88aa9ff38199f8886b93",
+        "build": "5d89e4388723d1ef1770bf7ba2ebcfd8e1fac14b4e06b3cd52317c4d5cae57ae",
+        "source": "e441bb7007894554337d9415bc20549c922efb3c53ca987e8f6ca49c6f5ec488",
+        "semantic": "9f93f4c79992b9a42955dccb2eee9d07dd2c3694cfb5a70890f358dd234f7c52"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes01Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "5b6de415ce8afe2766da586aeebb886134363565de80d3a1252648b44a2556b2",
+        "build": "43200115583394895b804f37447c5c52c06f35025eea444b9f6d546390ab3a39",
+        "source": "a518e6c370bc4f6e3766bbbdbf23a0afb386fd9fdca00920e0d1c0c616259231",
+        "semantic": "75a5d051469f966c80f51e0ef04094a4d1b0aacf4873d1464f7ae55d2db38bb7"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes02Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "a220d7fce4d9a5e75095b04ea2530110bb4ebcd96010a9bb8d53f4e67fa5b6b6",
+        "build": "10ca5dfd8ab0200a716e47d95fb5addd66c6f613046b20f2d1ff8aadf88d43b5",
+        "source": "076fd35a1421a1dfc8d419218996682ed03f0ddcf93b788fb82475581b728de6",
+        "semantic": "b9de6bb3ce238619f4f06ccccd31e99942fb084e5f539f47d25e2ee16661eda9"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes03Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "4f222aa325bfdcc497bfe1bbaf2e05a0f04ee7129fe0e756afb12dd04c4fd603",
+        "build": "2f1484ae7e8cbe342b2b2bdb8a19ae4482a6bc3b8a7075c6d0393979600b171a",
+        "source": "07b24b3e5c5537c0734ddf6d7ab75faa1e3f84c553c953e6dc2f3406f8c56e04",
+        "semantic": "8afb81b8dff06f0e67dec31b96c50b10a93670377c7cdebb1b33959483db42b5"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes04Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "d1800da0824d9c86480b00f0a8867723bcdf6d06793477f9a0237859d8af74e4",
+        "build": "8f8e433beeeb769b3eb981e4cd249402bffbe91fee3fe1f3527cac285d5efbeb",
+        "source": "fa9ccdb714e0157146f2aed89eeb63d1b2fb0904ade8116ccaf059c157a1910c",
+        "semantic": "8eea1ba6d73f42a8fc6488d62f613cf98a1f76c733d5a425fb61336bf9c2b90d"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes05Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "fe15fc9851c8242ec80d9a493fecdee793f6163d5e1402c91601ace5c24a2231",
+        "build": "410f7fd07dde140df5113bd866ada854ee0d38341705c02e306395694af73275",
+        "source": "97f753ca135d3019c54baece5acaac4d78f28c058d836d52897f98e566931fef",
+        "semantic": "25cb18af9dd7f3bd48937c59b2c25b584809aef7f35734220545c2a32a62ab87"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes06Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "28c529d8b1e089b1611430e1f9e101b1c7fa25243f888e3e630a05f4bddf512d",
+        "build": "3a00f955ff94e9c1d58ffb7715684b52c3cc1754582f33baa1336bda60542ff8",
+        "source": "a95746960c5d8409100fc83bdb391f1072900555af83363489c09862d1134000",
+        "semantic": "1af883875c47250cbbc53a9bf3a95230ffc6186f639cf8b6af4c06657fc6979c"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes07Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "cc9ae40bb5fa4d4cc38f77be5ae8a3a7ee48d6afe9d00aa8f8e5dc6bbe23aea4",
+        "build": "0c6061b2d2a53cb016a013b6c4503c8c1ff543f83e2929b2df2c014dec765d4a",
+        "source": "664850c7e91e7b21e62101b85d7966da3afc1a5a0471ab0c5a8863566a89f58a",
+        "semantic": "0a22c2a985fe8f561372da614ab048b03f260385e92818b59d9bc8a911c358fc"
+      },
+      {
+        "module": "SnapshotParametersSupplementInactiveRoutes08Controls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "d357a19be5200a2c5e191c87e4cf266c03274b0e14df79f604bb2662fe6e6c3b",
+        "build": "24c3891b85eb7310d99cbd6cc83adffa5754d5eba4c75ca36e265c685fe9a1a2",
+        "source": "e913d9e2e3a61b7a09434eebdab1bcba958a5ab5715d80f04c4079c895650649",
+        "semantic": "788679c27f812fa25ec03b250b726bdf4b90fa21960ec6a0b4ddace312c68235"
+      },
+      {
+        "module": "SnapshotParametersSupplementMiddleRoutesControls",
+        "controls": 6,
+        "auditRows": 1210,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "1a87542d3d79354f0618c0f6d0a7671f47770a02ed796f75dece35c33a8c3048",
+        "build": "ad2ea9dfda77205c43cbdec70b94050c8b5a2d0774b072a794fa61ff8688d095",
+        "source": "6700d4f87697bfa2587e941f73361ace5fb83bf5dea4287ed50a6b363b9d8c7f",
+        "semantic": "eede01ea558ca3d00ee259a2a5652088cab1512731dda10c889fa61a68196127"
+      },
+      {
+        "module": "SnapshotParametersSupplementRootInverseControls",
+        "controls": 16,
+        "auditRows": 1220,
+        "compilations": 14,
+        "replays": 14,
+        "attestation": "a50d59f82978816dc40a89a66954647a7189cde411ff7fa653becede7363c43e",
+        "build": "28574862a519147a5fb7748ef75a77328a4c2e3deaec8445fbbb59eae74a4b24",
+        "source": "fd2623cbc755cef28b8b136cb3675c2122685f740f057a6dc4e8225d37f53cec",
+        "semantic": "93eb5f4ed43e427936d485c5e8e13277e4e7fcb7074f8f118d61d2de96f72780"
+      }
+    ]
+  },
+  "mutations": {
+    "status": "PASS",
+    "primaryFailure": null,
+    "restorationFailure": null,
+    "variants": 13,
+    "requiredNamedWitnesses": 15,
+    "rows": [
+      {
+        "id": "bypass-native-codec",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersCodecBudgetControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersCodecbudgetNativeTypedRangeBeforeEncoding"
+              ],
+              "required": [
+                "parametersCodecbudgetNativeTypedRangeBeforeEncoding"
+              ],
+              "diagnostics": 1
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "initialization-before-inventory",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersPriorityControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersInventoryBeforeInitialization"
+              ],
+              "required": [
+                "parametersInventoryBeforeInitialization"
+              ],
+              "diagnostics": 1
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "omit-root-membership",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersRootErrors01Controls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersBadRoot0At0",
+                "parametersBadRoot0At1",
+                "parametersBadRoot0At3",
+                "parametersBadRoot1At0",
+                "parametersBadRoot1At1",
+                "parametersBadRoot1At3",
+                "parametersBadRoot2At0",
+                "parametersBadRoot2At1",
+                "parametersBadRoot2At3",
+                "parametersBadRoot3At0",
+                "parametersBadRoot3At1",
+                "parametersBadRoot3At3"
+              ],
+              "required": [
+                "parametersBadRoot0At0"
+              ],
+              "diagnostics": 12
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "root-negative-unit-scale",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersRoots01Controls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersRoot0At0",
+                "parametersRoot0At3",
+                "parametersRoot10At0",
+                "parametersRoot10At3",
+                "parametersRoot11At0",
+                "parametersRoot11At3",
+                "parametersRoot1At0",
+                "parametersRoot1At3",
+                "parametersRoot2At0",
+                "parametersRoot2At3",
+                "parametersRoot3At0",
+                "parametersRoot3At3",
+                "parametersRoot4At0",
+                "parametersRoot4At3",
+                "parametersRoot5At0",
+                "parametersRoot5At3",
+                "parametersRoot6At0",
+                "parametersRoot6At3",
+                "parametersRoot7At0",
+                "parametersRoot7At3",
+                "parametersRoot8At0",
+                "parametersRoot8At3",
+                "parametersRoot9At0",
+                "parametersRoot9At3"
+              ],
+              "required": [
+                "parametersRoot0At0"
+              ],
+              "diagnostics": 24
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "gate-negative-root-scale",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersGatesControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersGateflockNegative",
+                "parametersGaterelationNegative",
+                "parametersGaterouteNegative"
+              ],
+              "required": [
+                "parametersGaterouteNegative"
+              ],
+              "diagnostics": 3
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "seven-coordinate-step",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersOrderingControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersRelationLevelMajorTail",
+                "parametersTokenBlockOrdering"
+              ],
+              "required": [
+                "parametersTokenBlockOrdering"
+              ],
+              "diagnostics": 2
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "head-only-route-validation",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersSupplementMiddleRoutesControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersMiddleflockSlot1Value64",
+                "parametersMiddleflockSlot2Value4294967295",
+                "parametersMiddlerelationSlot1Value64",
+                "parametersMiddlerelationSlot2Value4294967295",
+                "parametersMiddlerouteSlot1Value64",
+                "parametersMiddlerouteSlot2Value4294967295"
+              ],
+              "required": [
+                "parametersMiddlerouteSlot1Value64"
+              ],
+              "diagnostics": 6
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "skip-inactive-route-validation",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersRouteErrorsControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersBadRouteflock4294967295At0",
+                "parametersBadRouteflock4294967295At1",
+                "parametersBadRouteflock64At0",
+                "parametersBadRouteflock64At1",
+                "parametersBadRouterelation4294967295At0",
+                "parametersBadRouterelation4294967295At1",
+                "parametersBadRouterelation64At0",
+                "parametersBadRouterelation64At1"
+              ],
+              "required": [
+                "parametersBadRouteflock64At0",
+                "parametersBadRouterelation64At0"
+              ],
+              "diagnostics": 8
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "truncate-relation-tail",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersOrderingControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersRelationLevelMajorTail"
+              ],
+              "required": [
+                "parametersRelationLevelMajorTail"
+              ],
+              "diagnostics": 1
+            },
+            {
+              "module": "SnapshotParametersGateErrorsControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersBadGaterelationNegative2147483648At6",
+                "parametersBadGaterelationNegative2At6",
+                "parametersBadGaterelationPositive2147483647At6",
+                "parametersBadGaterelationPositive2At6"
+              ],
+              "required": [
+                "parametersBadGaterelationPositive2At6"
+              ],
+              "diagnostics": 4
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "omit-initialization-compatibility",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersMappingsControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersMaproutenearestAddressMarginV1activeLeafV1",
+                "parametersMaprouteoccupiedCellRankHingeV1activeLeafV1"
+              ],
+              "required": [
+                "parametersMaproutenearestAddressMarginV1activeLeafV1"
+              ],
+              "diagnostics": 2
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "exchange-seed-epoch-projection",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersNativeControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersPreserveSeed0Epoch18446744073709551615",
+                "parametersPreserveSeed4294967295Epoch0",
+                "parametersPreserveSeed4294967295Epoch18446744073709551615"
+              ],
+              "required": [
+                "parametersPreserveSeed4294967295Epoch18446744073709551615"
+              ],
+              "diagnostics": 3
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "discard-original-header",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersMetadataControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersOpaquecompositionKappaEmpty",
+                "parametersOpaquecompositionKappaUnicode",
+                "parametersOpaquegeometrySha256Empty",
+                "parametersOpaquegeometrySha256Unicode",
+                "parametersOpaquekernelSha256Empty",
+                "parametersOpaquekernelSha256Unicode",
+                "parametersOpaqueoperatorKappaEmpty",
+                "parametersOpaqueoperatorKappaUnicode",
+                "parametersOpaqueschemaUnicode",
+                "parametersOpaquesourceSha256Empty",
+                "parametersOpaquesourceSha256Unicode"
+              ],
+              "required": [
+                "parametersOpaqueschemaUnicode"
+              ],
+              "diagnostics": 11
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "reduce-plan-to-counts",
+        "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+        "result": {
+          "status": "PASS",
+          "roots": [
+            {
+              "module": "SnapshotParametersPlansControls",
+              "status": "SOURCE_VALID_ALL_NAMED_SEMANTIC_NEGATIVE",
+              "hits": [
+                "parametersCompletePlan1",
+                "parametersCompletePlan2",
+                "parametersCompletePlan3",
+                "parametersCompletePlan4",
+                "parametersCompletePlan6",
+                "parametersCompletePlan8",
+                "parametersCompletePlan9"
+              ],
+              "required": [
+                "parametersCompletePlan3"
+              ],
+              "diagnostics": 7
+            }
+          ]
+        },
+        "primaryFailure": null,
+        "restorationFailure": null
+      }
+    ]
+  },
+  "restored": {
+    "status": "PASS",
+    "roots": 44,
+    "controls": 666,
+    "auditRows": 54214,
+    "compilations": 625,
+    "replays": 625,
+    "allFourIdsEqualBaseline": true
+  },
+  "baselineSummarySha256": "68a444a22b431dfd2bf1332978d6c3d8ffdddb964f863b1c36c796d417c912ed",
+  "finalSummarySha256": "9f9033c17e70861254b4305fbaa6261194264acf99f29ec71bdc93e131998731",
+  "independentArtifactReviewSha256": "667f59874014862d105cb1b02c9ed1f24bf2f20cc6b6bd750a00286886842bb5",
+  "preliminarySourceReviewSha256": "192bb2ecd0975fd7af926718fc971005d2a4c1b44a6666392021a6165f46ac1b",
+  "completeOwnPropertyDeltaSupplementSha256": "1a09443e07c6b9cb377c20e27a93a3a1244bd01ba36d825fde16576e58b296ea",
+  "custodyManifestSha256": "ef938885be54fe9da220be20f59ebcf63910cae9a6403f5f9f3638de8d79aaa4",
+  "durableEvidence": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/snapshot-parameters",
+  "liveModelRegistrationApplied": false,
+  "mandatoryIntegrationAccepted": false,
+  "generalProofsAccepted": false,
+  "productionAccepted": false
+}

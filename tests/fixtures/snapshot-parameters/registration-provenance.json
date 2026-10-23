@@ -1,0 +1,15 @@
+{
+  "schema": "lexlean-r4/snapshot-parameters-registration-provenance/1",
+  "requirement": "R4-24",
+  "suite": "r4-snapshot-parameters",
+  "intendedFeaturePath": "features/suites/r4-snapshot-parameters.feature",
+  "intendedMandatoryTest": "complete_snapshot_parameter_projection_r4_24",
+  "originalRegistrationSha256": "35a79f10c9efe2cc8220cb846c3e31c1a2700352abfb1b1cd72ad9ef0a8eddf3",
+  "registrationSupplementSha256": "ee5350c59c510eec5706208cfe6603c81727dff6aa9250513486a8408e1e2159",
+  "contractSha256": "b21353946136cd88a7727b2efe438fcf0956659780c33f4aa3ef3977a6939ff8",
+  "durableEvidence": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/snapshot-parameters/provenance",
+  "liveModelRegistrationApplied": false,
+  "mandatoryIntegrationAccepted": false,
+  "generalProofsAccepted": false,
+  "productionAccepted": false
+}
