@@ -783,5 +783,11 @@
     "path": "tests/fixtures/hash-wire/restoration-storage-stop.json",
     "sha256": "b62a5a6b5785229c776547ca88d4c0b58f99398a447530aa20b2ccb4ffa820ec",
     "fullRestorationAccepted": false
+  },
+  "restorationOrderingRepair": {
+    "path": "tests/fixtures/hash-wire/restoration-ordering-repair.json",
+    "sha256": "2cb333c04f3fbe8cd8021f6e7cb713c0f6a13e3195fcb3e5ca49ec2247a1e375",
+    "hostRepairAccepted": true,
+    "fullRestorationAccepted": false
   }
 }
