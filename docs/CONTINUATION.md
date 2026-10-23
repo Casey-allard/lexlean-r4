@@ -41,6 +41,14 @@ capability follows from these finite proofs.
    every success/error case. The bridge is not yet proved. Frozen candidate
    NOT_RUN text records preparation time; the fixture's RESULTS.md/results.json
    records the subsequent actual results.
+   The [bounded next-step proposal](continuation/2026-10-23/first-state-continuation-proposal.json)
+   and [independent source SPEC review](continuation/2026-10-23/first-state-continuation-spec-review.json)
+   now describe the precise next probe: actual two-atom `Fold [A, B] [] [] L`
+   equals `Fold [B] firstState.frontier firstState.inventory L`. All new native
+   phases are **NOT_RUN**. The concrete consumer must establish the required
+   nested-match conversion; a helper equality alone is insufficient. Possible
+   hash recomputation is not ruled out. Include the same unrelated `0 = 0`
+   theorem in both controls and change only the negative zero-base Apply target.
 2. **Complete the connection to the original theorem.** Preserve the original
    input, digest, runtime definitions and empty-axiom policy. Demonstrate a
    supported proof bridge before expanding all thirteen node certificates.

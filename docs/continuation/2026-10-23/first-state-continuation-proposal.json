@@ -1,0 +1,208 @@
+{
+  "schema": "lexlean-r4-object257-nonempty-continuation-proposal/v1",
+  "status": "PROPOSAL_ONLY_SOURCE_INSPECTION_NEW_NATIVE_TESTS_NOT_RUN",
+  "at": "2026-10-23T18:14:11.977Z",
+  "objective": "Connect the newly certified first concrete state to a nonempty actual production continuation, using exactly the first two original atoms. One falsifiable finite bridge; no new node certificates or generic proof framework.",
+  "priorEvidence": {
+    "status": "PASS_ACTUAL_FIRST_CONCRETE_STATE_AND_INTENDED_NEGATIVE",
+    "attestation": "57a540c76f1edcfbd4f8f58582f23e54e47ddbf7f4e55733ab09281ff324516e",
+    "source": "86f39ad32aaa87187e0462d62eab67842f6183f2ab1591ba9005912cc641759a",
+    "observedAxiomsEmpty": true,
+    "scope": "Read independent state review and current source. This proposal does not redo its artifact audit or native replay.",
+    "localReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/state-native-review.json",
+      "bytes": 29949,
+      "sha256": "c18c2dc1399a10dc64f5b96186abaf06bb28497f3d67e7a9cd92f9a9343e3efb"
+    },
+    "portableDeliveryRequirement": "Publish this exact review beside first-atom fixture results and preserve hash mapping before resumption from a new machine. Its absolute local path is provenance, not a prerequisite for portable proof source."
+  },
+  "exactTerms": {
+    "A": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "B": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ],
+    "L": "Copy exact originalLimits AST from obj257FirstAtomState left arguments[3]; unchanged original ObjLimits values.",
+    "F": "Actual R4.ObjectStore.ObjFoldAtoms [A] [] [] L; copy the full left AST of accepted obj257FirstAtomState.",
+    "S": "The exact ObjCarryState inside accepted obj257FirstAtomState right Result.ok. Copy its inventory/frontier AST without recomputing IDs.",
+    "baseEquality": "F = Result.ok S, exactly Object257FirstAtomState.obj257FirstAtomState.",
+    "baseStatementSHA256": "50acce9ae953f70d308f43a63c8f84f8c20ed19053d779b65e93627b512834c5",
+    "originalTheorem": "objFoldDigest257",
+    "originalInputLength": 257,
+    "originalDigestPolicy": "Original input/digest/runtime definition/empty axioms unchanged; no new expected digest or second-atom identity introduced."
+  },
+  "newSource": {
+    "contextName": "Obj257FirstContinuation",
+    "contextType": "(item : Result ObjCarryState ObjError) -> Result ObjCarryState ObjError",
+    "context": "K item := match item with | Result.error e => Result.error e | Result.ok carried => R4.ObjectStore.ObjFoldAtoms [B] carried.frontier carried.inventory L",
+    "contextDetails": "This is a semantic term match with both branches and output type explicitly Result ObjCarryState ObjError. Term-level match already exists in accepted context sources; it is not a proof Cases constructor on Result. K runs the real next-atom fold, not an identity or a host-computed result.",
+    "family": "P count : Prop := match count with | Nat.zero => F = Result.ok S | Nat.succ prior => K F = K (Result.ok S)",
+    "familyDetails": "Use the accepted reducible Prop-family encoding. Both branches now contain equalities at the same Result ObjCarryState ObjError type. All constants are copied from accepted source; only B is new literal source data from original bytes32..63.",
+    "lifted": "obj257FirstContinuationLifted (count : Nat) : P count. Proof Induction count; zero Apply Object257FirstAtomState.obj257FirstAtomState; successor Cases prior; both zero and successor branches Congruence. No new proof constructor, Rewrite, Have, transitivity, raw tactics, Simplify/propext or Result proof Cases.",
+    "consumerName": "obj257FirstTwoAtomsContinuation",
+    "consumerLeft": "Actual R4.ObjectStore.ObjFoldAtoms [A,B] [] [] L",
+    "consumerRight": "Actual R4.ObjectStore.ObjFoldAtoms [B] S.frontier S.inventory L",
+    "consumerProof": "Apply obj257FirstContinuationLifted with argument1. This must verify the actual production consumer, not only the transported K equality.",
+    "minimalFiles": "One context+Prop-family module; one lifted+actual consumer module; one negative copy; two phase configs retaining300000ms. Import existing first-state certificate closure by portable paths. No new leaf or parent certificate and no copies of the whole runtime/artifact bundle."
+  },
+  "criticalNewObligation": {
+    "issue": "K(F) has a match around the result of a completed one-atom fold. ObjFoldAtoms[A,B] instead nests continuation inside the original leaf/stage/carry matches. Those match nestings are NOT assumed definitionally equal for an abstract result.",
+    "concreteReasonToTest": "Here A, initial state and limits are concrete and the first-state theorem has actually verified. Definitional conversion may reduce the concrete first transition far enough to identify the actual consumer with K(F). The exact supported Apply probe determines whether that works under unchanged limits.",
+    "costLimit": "Such conversion may recompute the first leaf hash rather than reuse its certificate computationally; it might even unfold more of the B continuation than intended. No bounded-cost, caching or avoided-hash claim is established. Retain actual duration/resource counters and failures; do not respond by increasing limits or assuming success.",
+    "noVacuousFallback": "If lifted theorem alone succeeds but actual production consumer fails, this bridge is INCOMPLETE. Do not publish only K(F)=K(ok S) as having connected the original fold.",
+    "failureClassification": "Separate source admission, unsupported construct, proof-goal/definitional-conversion mismatch, timeout and OOM. A true native failure should expose its exact emitted goal and dependency identity for a narrowly revised proof or official compiler dependency request; no blanket claim that all composition is impossible."
+  },
+  "tests": [
+    {
+      "name": "Portable source and connection check",
+      "status": "NOT_RUN",
+      "expected": "Rehash mapped source closure; actual compiler sourcecheck accepts new modules under genuine phase lock. Independently compare A/B with first64 original bytes, F/S/L with exact accepted state AST, K with two error/success branches, and consumer with actual Fold[A,B] / Fold[B]. All declarations empty axioms."
+    },
+    {
+      "name": "Intended unrelated-state-base RED",
+      "status": "NOT_RUN",
+      "expected": "Define an earlier zero-arity unrelated0=0 theorem. Negative differs only at zero-base Apply theorem reference, replacing the accepted first-state theorem with that unrelated theorem. Sourcecheck must pass and verification reject specifically this base type mismatch. All consumer/context/literals remain unchanged. Import, resource, prior-certificate or parser failure is not this RED."
+    },
+    {
+      "name": "Actual nonempty continuation GREEN",
+      "status": "NOT_RUN",
+      "expected": "Verify lifted theorem AND actual obj257FirstTwoAtomsContinuation consumer with real compiler. Independently inspect emitted K, P, base exact firstState and real Fold[A,B]/Fold[B] consumer, no-policy/empty observed axioms, actual recorded kernel replays, exact artifacts/source and resource receipts. Do not substitute two helper expressions for consumer."
+    }
+  ],
+  "portableResumption": {
+    "repository": "casey-allard/lexlean-r4",
+    "sourceBaseHead": "ebe9271055aa1cb2fd122029dd6353ee3ce711b9",
+    "paths": "All proof input pins below are repository-relative. Use first-atom candidate.json sharedStageInputs/newStageInputs to reconstruct the existing closure in an owned stage; add only three new modules. Pin exact new candidate before CODE review.",
+    "ordering": [
+      "Finish current first-state artifact/delivery review and GitHub checkpoint.",
+      "Independent SPEC/CODE review of this next proposal/candidate within existing authorization.",
+      "Record fresh storage/epoch/tool/process state, generate genuine phase development locks, run one native job at a time under unchanged limits.",
+      "Preserve intended RED and actual consumer GREEN or concrete failure; independently review actual artifacts, then publish exact sources/results and update continuation."
+    ],
+    "nativeExecutionAuthority": "This proposal alone launches or authorizes no SDK/VM/native phase. Existing resource/identity/custody gates remain."
+  },
+  "remaining": "No second concrete state or second-leaf ID is certified by this relation. Original full atomization, remaining atoms/parent carries, general success/error composition, complete state sequencing, ObjFoldFinish whole-object SHA and original257 theorem remain open. No Object/Hash qualification, production PrismPM or Pages acceptance follows.",
+  "pins": [
+    {
+      "path": "tests/fixtures/object257-first-atom/manifest.json",
+      "bytes": 7030,
+      "sha256": "dc08a9ec63fed7587a2cd6b82fd37ed9527560e887c1698f9da51285197ec2ae"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/candidate.json",
+      "bytes": 11074,
+      "sha256": "40079a7181c9b856b8f025306cef0a9c5578bb59a9d97f9a3a43183f84a3d5b7"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+      "bytes": 5627,
+      "sha256": "490eec8b45719c4fabae9bf36e3fe7f9674d71968ca45c07b8cf2e782d048444"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomGoal.lex.tex",
+      "bytes": 12546,
+      "sha256": "a681588324b3c4f629775768ddad58a6bceaef3e2199239bc090bebaa0243911"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/phases/state-positive/lexlean.toml",
+      "bytes": 687,
+      "sha256": "9566775001b9bee46677e2e6ee301e1ce4dcfb995925efd62bfdab7e8bedede4"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/original257/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    }
+  ],
+  "sourceEvidence": {
+    "supportedShape": "Existing first-state source contains Nat Induction/Cases/Congruence/Apply. Existing terminal context is a legal Result term match. Prior pinned official backend emits congr1 and exact theorem(arguments), with no arbitrary sequential rewrite tactic.",
+    "proofCaseBoundary": "Built-in Result proof Cases remains unsupported by the inspected compiler. This proposal uses only Nat proof Cases and term-level Result matching.",
+    "allNewNativeTests": "NOT_RUN"
+  },
+  "preservation": {
+    "newFileOnly": true,
+    "repositoryEdits": false,
+    "compilerOrVM": false,
+    "originalRuntime": false,
+    "otherLabs": false,
+    "additionalReportBudgetBytes": 15360
+  }
+}
