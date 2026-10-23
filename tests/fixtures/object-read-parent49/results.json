@@ -1,0 +1,203 @@
+{
+  "schema": "lexlean-r4-parent49-results/v1",
+  "status": "PASS_LOCAL_PARENT49_DECODE_WITH_INTENDED_FALSE_ID_REJECTION",
+  "scope": "One exact original parent49 full Result decode equality, not a completed Read33 control or full component.",
+  "candidateManifest": {
+    "path": "tests/fixtures/object-read-parent49/manifest.json",
+    "bytes": 1662,
+    "sha256": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+  },
+  "positiveSource": {
+    "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+    "bytes": 7116,
+    "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+  },
+  "negativeSource": {
+    "path": "tests/fixtures/object-read-parent49/negative/tests/lexlean/ObjectReadParent49.lex.tex",
+    "bytes": 7116,
+    "sha256": "d8be3441ddf3d1d543ed7ad6934db55954b08f8062984a24bad1243958e19f27"
+  },
+  "exactSemanticDifference": [
+    {
+      "path": [
+        "statement",
+        "right",
+        "arguments",
+        "0",
+        "fields",
+        "0",
+        "value",
+        "fields",
+        "0",
+        "value",
+        "head",
+        "value"
+      ],
+      "positive": "128",
+      "negative": "129"
+    }
+  ],
+  "configuration": {
+    "path": "tests/fixtures/object-read-parent49/lexlean.toml",
+    "bytes": 682,
+    "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95"
+  },
+  "portableSourceBindings": {
+    "path": "tests/fixtures/object-read-parent49/source-bindings.json",
+    "bytes": 13269,
+    "sha256": "f5c964a450f52cf4dcd9230be76553d1043d27ab575f51d5d76399b47e9ec125"
+  },
+  "phaseInputs": "Each actual phase uses its exact15source/config/workspace inputs; genuine locks/checks preserved. Runtime dependencies referenced rather than copied.",
+  "phases": [
+    {
+      "name": "decode-false",
+      "status": "PASS_INTENDED_LOCAL_FALSE_EXPECTED_ID_REJECTION",
+      "actual": {
+        "lockStatus": 0,
+        "checkStatus": 0,
+        "checkModules": 11,
+        "sourceId": "7aeae70be52ba13df4eedc1e49460a2b548890f0bf6635b1eeb8660ff2913cf7",
+        "semanticId": "6d214fdf490bab37e7a54b0d21b7cdb191f0382ff616070d8793f505b1f1813c",
+        "verifyStatus": 1,
+        "diagnostic": {
+          "causes": [],
+          "code": "LLV7002",
+          "help": [],
+          "labels": [],
+          "message": "Lean rejected `LexLeanR4.ObjectReadParent49` (error): Tactic `rfl` failed: The left-hand side\n  R4.ObjectCodec.ObjDecodeRecord\n    (R4.ObjectTypes.ObjAppendBytes\n      [1, 128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200, 204, 224, 130, 100, 35, 209, 207, 137, 18, 167, 134]\n      [61, 229, 238, 245, 54, 216, 221, 107, 40, 188, 50, 60, 161, 125, 221, 203, 109, 110, 224, 251, 215, 105, 78, 221,\n        7])\nis not definitionally equal to the right-hand side\n  Except.ok\n    { id := { bytes := [129, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }, scale := 1,\n      payload :=\n        [204, 224, 130, 100, 35, 209, 207, 137, 18, 167, 134, 61, 229, 238, 245, 54, 216, 221, 107, 40, 188, 50, 60,\n          161, 125, 221, 203, 109, 110, 224, 251, 215, 105, 78, 221, 7] }\n⊢ R4.ObjectCodec.ObjDecodeRecord\n      (R4.ObjectTypes.ObjAppendBytes\n        [1, 128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200, 204, 224, 130, 100, 35, 209, 207, 137, 18, 167,\n          134]\n        [61, 229, 238, 245, 54, 216, 221, 107, 40, 188, 50, 60, 161, 125, 221, 203, 109, 110, 224, 251, 215, 105, 78,\n          221, 7]) =\n    Except.ok\n      { id := { bytes := [129, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }, scale := 1,\n        payload :=\n          [204, 224, 130, 100, 35, 209, 207, 137, 18, 167, 134, 61, 229, 238, 245, 54, 216, 221, 107, 40, 188, 50, 60,\n            161, 125, 221, 203, 109, 110, 224, 251, 215, 105, 78, 221, 7] }",
+          "notes": [
+            {
+              "message": "generated location: $STAGING/lean-src/LexLeanR4/ObjectReadParent49.lean:14:2"
+            }
+          ],
+          "primary": {
+            "byte_end": 7042,
+            "byte_start": 293,
+            "column_end": 6781,
+            "column_start": 32,
+            "line_end": 10,
+            "line_start": 10,
+            "path": "tests/lexlean/ObjectReadParent49.lex.tex"
+          },
+          "severity": "error",
+          "spec": "lexlean/diagnostic/1"
+        },
+        "wholeVerifyMilliseconds": 35529,
+        "artifacts": [],
+        "postcaptureErrors": [],
+        "lockSha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db"
+      },
+      "review": {
+        "path": "tests/fixtures/object-read-parent49/evidence/negative-native-review.json",
+        "bytes": 17988,
+        "sha256": "168520b90a33e8d0d5b098e7fc26bb263e7b8744d8e70970f6c5c03a322e9aa8"
+      },
+      "lock": {
+        "path": "tests/fixtures/object-read-parent49/phases/decode-false/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db"
+      },
+      "verify": {
+        "path": "tests/fixtures/object-read-parent49/evidence/decode-false/verify.json",
+        "bytes": 2503,
+        "sha256": "7388f08afb40ddd13a90c7f98613e8dfdd5a0127e72fb67b5ccf89f624470a12"
+      },
+      "interpretation": "Actual sourcecheck0 then LLV7002 rfl mismatch caused by only expectedID firstbyte128→129. Bytevalid identity; same actual49byteinput/runtime/payload/scale/proof. This is intended local false-equation rejection, not a planted production semantic defect."
+    },
+    {
+      "name": "decode-positive",
+      "status": "PASS_ACTUAL_PARENT49_DECODE_ONLY",
+      "actual": {
+        "attestationId": "43bcff1d853a153c4d3e10c2e503fb794e5033995d47e205454862508d114033",
+        "buildId": "dc06dfefa33ee9d2d5dece4199037bff325f767ca5301696fca2437df96b8d56",
+        "sourceId": "ef10bab5a1527e869cc4359d2802666d38f903a482777b6ca622ccbf7a8bfe24",
+        "semanticId": "99f8245de1a7c555a8ed174b19631827fcdaaa4ebf9fe8191b3d284f7d21c1cf",
+        "verifyExit": 0,
+        "wholeVerifyMilliseconds": 268903,
+        "lockSha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db",
+        "postcaptureErrors": []
+      },
+      "proof": {
+        "name": "LexLeanR4.ObjectReadParent49.objParent49Decode",
+        "source": {
+          "phase": "positive",
+          "path": "positive/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "candidate",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+        },
+        "emittedPath": "modules/LexLeanR4/ObjectReadParent49.lean",
+        "emittedSha256": "87f09af168b70ac7886281b4f7c088c5fb897972fd6e11d9ab3d491479eefe62",
+        "statement": "Actual ObjDecodeRecord(original49-byte ObjAppendBytes wire) = Result.ok complete original ObjRecord: original12-byte ID beginning128, scale1,36-byte payload.",
+        "proof": "Actual emitted rfl; none policy and observed empty axioms; successful module compilation and recorded leanchecker replay.",
+        "emittedInputAll49NumeralsAndRhsAll48NumeralsComparedToReviewedAST": true
+      },
+      "artifactAudit": {
+        "declarations": 804,
+        "allPoliciesNoneAndObservedAxiomsEmpty": true,
+        "successfulProcesses": 34,
+        "kernelReplays": 11,
+        "buildOutputs": 55,
+        "fullFileCensus": 115,
+        "fullFileCensusSha256": "1d616ba1cd5a2fec99c5ee9f03d2839d0597cf7dd083ff3cb0ec3c803bbb770b",
+        "manifestBytesAndHashMatch": true,
+        "allOutputAndOleanHashes": true,
+        "allProcessCopiesAndStdoutStderrHashes": true,
+        "allAuditOutputNamesMatch": true,
+        "compilerAndToolIdentitiesMatch": true,
+        "allSourceConfigLockAndLakeBindingsMatch": true,
+        "censusRepresentation": "Every file rehashed; exact expected set asserted against outputs+oleans+process records+audit/probe sources+summary/manifests. Sorted path/bytes/hash census digest retained to keep report bounded."
+      },
+      "review": {
+        "path": "tests/fixtures/object-read-parent49/evidence/positive-native-review.json",
+        "bytes": 11441,
+        "sha256": "7a10d49b23f5cff53e84662be64c5090996e77cdf817530af5789b21b7face28"
+      },
+      "lock": {
+        "path": "tests/fixtures/object-read-parent49/phases/decode-positive/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db"
+      },
+      "verify": {
+        "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/verify.json",
+        "bytes": 1199,
+        "sha256": "6eb6d6b9e71922fd56457ff2672522018b82e9a0905cc5ca4aba4970e9d0fe24"
+      },
+      "custody": {
+        "path": "tests/fixtures/object-read-parent49/positive-custody.json",
+        "bytes": 21413,
+        "sha256": "42e071e8dc219a26ce2f007e3440decd85a511c21fd3adc3bdf155195db089a5"
+      },
+      "fullArtifactCensus": {
+        "path": "tests/fixtures/object-read-parent49/evidence/positive-artifact-census.json",
+        "bytes": 21959,
+        "sha256": "c9d1747f99ef957bcca7c3fdfb930c27140d9cc15f1d321fdf60fd75f86808aa"
+      }
+    }
+  ],
+  "coverage": {
+    "acceptedIntermediateEquations": 1,
+    "newlyAcceptedOriginalRead33Controls": 0,
+    "remainingOriginalReadControls": 33,
+    "otherObjectControlsRemaining": 350,
+    "totalOriginalObjectControls": 403,
+    "previouslyAcceptedStoreControls": 20,
+    "separateBlake3PrimitiveControlsRemaining": 20
+  },
+  "mandatoryNext": "A separately reviewed and actually verified ObjAuthenticatedFetch over allfour original backend entries, originalparentID andscale1, using accepteddecode proof with lookup/missing/errors/scale/id retained. No fetch candidate or result is established by this checkpoint.",
+  "remaining": [
+    "Threechildauthentication/traversal/rangefinish/manifestversionhash/whole96digest/originalObjWholeRead statement and all33Read coverage remain open.",
+    "350 other Object controls plus required production semantic defects/restoration; this local falseexpectedID test does not discharge those six semantic mutants.",
+    "Full257digest/root/distinct, canonicalHash/HashWire binding/qualification, model/conformance/fulljustvv, PrismPM and Pages remain open."
+  ],
+  "historicalStatus": "Frozen candidate/manifests and source-bindings retain preparation-time NOT_RUN or positive-not-included language; positive-custody retains review-pending language. Current actual status is results.json and RESULTS.md. Original aggregate/singleton timeout evidence remains preserved.",
+  "noPerformanceClaim": "35529ms negative and268903ms positive are wholeverify commands including dependencies/audits/replays. They are not comparable microbenchmarks or evidence of avoidedrecomputation. Child300000ms/4GiB2CPU unchanged.",
+  "limitations": [
+    "This accepts only the actual original parent49 decode equality under this finite runtime closure. Mandatory actual authenticated fetch over all four backend entries, original wholeRead and all33 controls remain open.",
+    "Whole verify268903ms includes compilation, audits and replay; no performance or avoided-recomputation claim follows.",
+    "Raw embedded lexicon packages are not bundled. Recorded input identities are provenance, not an independent rehash of absent package bytes.",
+    "Recorded process/kernel evidence was inspected, not rerun. Storage/memory observations are samples, not continuous high-water claims.",
+    "No new native phase is authorized by this review, especially below existing launch storage planning requirements."
+  ]
+}

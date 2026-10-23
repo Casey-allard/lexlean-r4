@@ -1,0 +1,35 @@
+{
+  "schema": "lexlean-r4-parent49-invocation-literal-diff/v1",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/invoke-isolated26.mjs",
+    "bytes": 7558,
+    "sha256": "5bc71d978d4a4eeac4d6a6d8a49994b2c9098787dde8c229294bb83768755584"
+  },
+  "transformations": [
+    {
+      "before": "One-off official-compiler invocation for only the exact Read33 ordinal26 diagnostic; no aggregate acceptance.",
+      "after": "One-off official-compiler invocation for one selected parent49 decode control; no fetch or Read33 acceptance."
+    },
+    {
+      "before": "if(process.argv.length!==2) throw Error('this invocation has only one diagnostic phase');\nconst phase='isolated26';\nconst out=path.join(import.meta.dirname,'diagnostic');",
+      "after": "const phase=process.argv[2];\nif(process.argv.length!==3||!['decode-false','decode-positive'].includes(phase))throw Error('select exactly one decode phase');\nconst out=path.join(import.meta.dirname,phase);"
+    },
+    {
+      "before": "const stage='/tmp/r4-object-read-isolated26-owned-20261023';",
+      "after": "const stage=`/tmp/r4-object-read-parent49-${phase}-owned-20261023`;"
+    },
+    {
+      "before": "709c5aa389837dc5a1af0b7f67fe6e5c44d21c00e73476a91005d6fc78f910a1",
+      "after": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+    },
+    {
+      "before": " inputs=candidate.inputs.map(x=>{if(!['repository','candidate'].includes(x.base))throw Error('input base');return {...x,path:path.resolve(x.base==='repository'?repo:import.meta.dirname,x.path)};});",
+      "after": " const selected=candidate.phases.find(x=>x.name===(phase==='decode-false'?'negative':'positive'));\n inputs=selected.inputs.map(x=>{if(!['repository','candidate'].includes(x.base))throw Error('input base');return {...x,path:path.resolve(x.base==='repository'?repo:import.meta.dirname,x.path)};});"
+    },
+    {
+      "before": "['verify','tests/lexlean/ObjectReadControls.lex.tex']",
+      "after": "['verify','tests/lexlean/ObjectReadParent49.lex.tex']"
+    }
+  ],
+  "unchanged": "Both selected phases actually lock/check/verify. Existing artifact-copy on verify0 retained, including unexpected negative success for diagnosis; parent must inspect actualnegative semantics before accepting/continuing. All resource/identity/postcapture gates unchanged."
+}

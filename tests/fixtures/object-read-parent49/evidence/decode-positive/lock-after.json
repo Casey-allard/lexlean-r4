@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-parent49-decode-positive-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T21:58:54.032Z",
+  "ended": "2026-10-23T21:58:54.577Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db  /tmp/r4-object-read-parent49-decode-positive-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-parent49-invocation-code-review/v1",
+  "status": "PASS_EXACT_ONE_PHASE_INVOCATION_SOURCE_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T21:52:12.840Z",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/invocation-manifest.json",
+    "bytes": 2333,
+    "sha256": "e912ac42ed7ae02f83fee90ea7e2484ccff7d6cb0f09bdb6df4e917ab9ef8223"
+  },
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/invoke-parent49.mjs",
+    "bytes": 7697,
+    "sha256": "0ed92cd3744b2f4f46a34717be4de97f7d0161322d7e96924fc094f979eb677c"
+  },
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/manifest.json",
+    "bytes": 1662,
+    "sha256": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+  },
+  "candidateSourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/candidate-code-review.json",
+    "bytes": 5192,
+    "sha256": "aa018847ee5e8089965738ab51b851de66ff2568c09b4a4a0ddabe0716d05b9a"
+  },
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/invoke-isolated26.mjs",
+    "bytes": 7558,
+    "sha256": "5bc71d978d4a4eeac4d6a6d8a49994b2c9098787dde8c229294bb83768755584"
+  },
+  "checks": {
+    "allSixLiteralChangesExactlyReconstructScript": true,
+    "allOtherScriptBytesUnchanged": true,
+    "nodeCheck": "PASS_SYNTAX_ONLY_NO_MODULE_EXECUTION",
+    "candidateFivePayloadsTwoDependenciesRehashed": true,
+    "bothPhaseInputsRehashed": [
+      15,
+      15
+    ],
+    "phaseDestinationsUnique": true,
+    "outputsAbsentAtReview": true
+  },
+  "findings": [],
+  "assessment": [
+    "Only exact decode-false or decode-positive is accepted as one explicit phase argument; no automatic second phase or looping. Each phase has a distinct owned stage and exclusive fresh output directory. Parent must inspect intended negative and independent audit before invoking positive.",
+    "The frozen candidate manifest and all payloads are checked before source selection or guest stage mutation. Negative/positive maps to the corresponding frozen15-input list; exact byte sizes/hashes and unique destinations are checked. Official lock/check/verify targets ObjectReadParent49.lex.tex in that fresh stage.",
+    "The exact predecessor guard implementations remain unchanged:20GiB host planning with10GiB additional estimate and10GiB reserve; guest11GiBpre/10GiBpost; reviewed20:22:35.225704499Z epoch,4GiB/2CPU/networknone/mounts[]; fixed tools before and after; idle, zero memory events, guest source census, genuine lock capture and posthash.",
+    "Every finally postcapture remains independently attempted with aggregated errors. The raw compiler result and actual successful artifact path are retained. Unexpected false-control success still captures its artifact for diagnosis and does not acquire negative-control acceptance.",
+    "Source errors, timeouts, OOM, unexpected success and postcapture failures cannot count as intended semantic rejection. Launcher exit0 alone never establishes proof success or RED. Actual native status/JSON and artifact/kernel/axiom evidence remain required."
+  ],
+  "boundaries": [
+    "Source/invocation readiness only; no module execution or native calls occurred. Parent owns fresh live admission and sequential dispatch.",
+    "False-control must sourcecheck successfully and then fail for intended expected-ID mismatch. A positive must pass independent actual artifact review before any decode claim.",
+    "Successful decode does not establish authenticated fetch or Read33; mandatory original four-entry backend fetch connection and whole-read/control coverage remain open.",
+    "Do not modify frozen candidate, limits or resource gates; preserve all failures and avoid equivalent retries."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 26450599936,
+    "maximumReportBytes": 15000
+  },
+  "actions": "Read-only file/hash/literal-transform inspection and node --check only. This report is the only write; no SDK/native/VM/repository/index/other-lab action."
+}

@@ -1,0 +1,107 @@
+{
+  "schema": "lexlean-r4-parent49-source-code-review/v1",
+  "status": "PASS_EXACT_DECODE_PAIR_SOURCE_READINESS_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T21:49:36.744Z",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/manifest.json",
+    "bytes": 1662,
+    "sha256": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+  },
+  "authority": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/next-step-spec-review.json",
+    "bytes": 13466,
+    "sha256": "e5e2649e35c202d2e10ab8b9c3cdf5090451b51b9b33b0d37b9ef5e9cf2ea452"
+  },
+  "sources": [
+    {
+      "phase": "negative",
+      "path": "negative/tests/lexlean/ObjectReadParent49.lex.tex",
+      "base": "candidate",
+      "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "d8be3441ddf3d1d543ed7ad6934db55954b08f8062984a24bad1243958e19f27"
+    },
+    {
+      "phase": "positive",
+      "path": "positive/tests/lexlean/ObjectReadParent49.lex.tex",
+      "base": "candidate",
+      "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+    }
+  ],
+  "config": {
+    "path": "lexlean.toml",
+    "base": "candidate",
+    "destination": "lexlean.toml",
+    "bytes": 682,
+    "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95",
+    "original": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/object-read-integration/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7",
+      "repositoryPath": "docs/continuation/2026-10-23/object-read-integration/lexlean.toml"
+    },
+    "onlyEntrypointChanged": true
+  },
+  "checks": {
+    "fiveManifestPayloadsAndTwoDependencies": true,
+    "originalOrdinal26BackendSecondEntryExact": true,
+    "wireASTIncludingObjAppendBytesExact": true,
+    "wireLiteralLength": 49,
+    "completeExpectedResultObjRecordObjError": true,
+    "expectedIDExactOriginalParentEntryAndWireBytes1Through12": true,
+    "scale": 1,
+    "payloadLiteralLength": 36,
+    "payloadExactWireBytes13Through48": true,
+    "onlyNegativeDifference": [
+      {
+        "path": [
+          "statement",
+          "right",
+          "arguments",
+          "0",
+          "fields",
+          "0",
+          "value",
+          "fields",
+          "0",
+          "value",
+          "head",
+          "value"
+        ],
+        "positive": "128",
+        "negative": "129"
+      }
+    ],
+    "oneClosedReflexivityDeclarationPerModule": true,
+    "declaredAxiomsEmpty": true,
+    "canonicalSemanticJSON": true,
+    "wrapperOnlyModuleRename": true,
+    "configOnlyEntrypointRename": true,
+    "phaseInputs": [
+      15,
+      15
+    ],
+    "canonicalFull33AndSixMergedTenOtherDraftsPreserved": true
+  },
+  "findings": [],
+  "assessment": [
+    "Positive statement calls the actual production ObjDecodeRecord on the exact second backend wire expression retained from original ordinal26. The expected entire ObjRecord has original parent ID, scale1 and exact36 payload bytes; host inspection only projects existing literal cons/append syntax and computes no digest.",
+    "The negative changes exactly one expected ID byte128→129. Actual wire, all other expected record fields, proof, imports, config and runtime remain identical. Its intended semantic rejection must still be observed; timeout or admission failure must not be credited as RED.",
+    "Both declarations are parameterless reflexivity with no declared axioms, preserve canonical language1.2 source metadata and use the actual existing runtime closure. Source shape makes no timing or feasibility guarantee."
+  ],
+  "boundaries": [
+    "Candidate review only; no runner was authored or executed. Actual invocation requires separate exact review, fresh gates and parent-owned sequential negative then positive phases.",
+    "No native source admission, semantic negative, decode theorem or artifact is accepted here; all remain NOT_RUN.",
+    "Even an accepted decode certificate must subsequently connect to actual ObjAuthenticatedFetch using all four original backend entries, original parent ID and scale1, retaining lookup/missing/error/scale/ID branches. Exact future transport source requires separate review.",
+    "Actual original whole-read consumer and all33 Read obligations remain mandatory. Helper or fetch success cannot replace complete Read/Object/Hash/PrismPM/Pages acceptance.",
+    "Preserve aggregate and singleton failures, original full33 and unchanged300000ms/4GiB/2CPU/empty-axiom/resource limits. No equivalent retries, trusted hashes or wider automatic certificate expansion."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 26850000896,
+    "reportBudgetBytes": 20000
+  },
+  "actions": "Read-only AST/hash/byte comparisons and literal syntax projection; only this review written. No SDK/compiler/native/VM/runner/repository/index/other-lab changes."
+}

@@ -1,0 +1,311 @@
+{
+  "schema": "lexlean-r4-parent49-positive-native-review/v1",
+  "status": "PASS_ACTUAL_PARENT49_DECODE_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-23T22:01:08.436Z",
+  "actual": {
+    "attestationId": "43bcff1d853a153c4d3e10c2e503fb794e5033995d47e205454862508d114033",
+    "buildId": "dc06dfefa33ee9d2d5dece4199037bff325f767ca5301696fca2437df96b8d56",
+    "sourceId": "ef10bab5a1527e869cc4359d2802666d38f903a482777b6ca622ccbf7a8bfe24",
+    "semanticId": "99f8245de1a7c555a8ed174b19631827fcdaaa4ebf9fe8191b3d284f7d21c1cf",
+    "verifyExit": 0,
+    "wholeVerifyMilliseconds": 268903,
+    "lockSha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db",
+    "postcaptureErrors": []
+  },
+  "proof": {
+    "name": "LexLeanR4.ObjectReadParent49.objParent49Decode",
+    "source": {
+      "phase": "positive",
+      "path": "positive/tests/lexlean/ObjectReadParent49.lex.tex",
+      "base": "candidate",
+      "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+    },
+    "emittedPath": "modules/LexLeanR4/ObjectReadParent49.lean",
+    "emittedSha256": "87f09af168b70ac7886281b4f7c088c5fb897972fd6e11d9ab3d491479eefe62",
+    "statement": "Actual ObjDecodeRecord(original49-byte ObjAppendBytes wire) = Result.ok complete original ObjRecord: original12-byte ID beginning128, scale1,36-byte payload.",
+    "proof": "Actual emitted rfl; none policy and observed empty axioms; successful module compilation and recorded leanchecker replay.",
+    "emittedInputAll49NumeralsAndRhsAll48NumeralsComparedToReviewedAST": true
+  },
+  "artifactAudit": {
+    "declarations": 804,
+    "allPoliciesNoneAndObservedAxiomsEmpty": true,
+    "successfulProcesses": 34,
+    "kernelReplays": 11,
+    "buildOutputs": 55,
+    "fullFileCensus": 115,
+    "fullFileCensusSha256": "1d616ba1cd5a2fec99c5ee9f03d2839d0597cf7dd083ff3cb0ec3c803bbb770b",
+    "manifestBytesAndHashMatch": true,
+    "allOutputAndOleanHashes": true,
+    "allProcessCopiesAndStdoutStderrHashes": true,
+    "allAuditOutputNamesMatch": true,
+    "compilerAndToolIdentitiesMatch": true,
+    "allSourceConfigLockAndLakeBindingsMatch": true,
+    "censusRepresentation": "Every file rehashed; exact expected set asserted against outputs+oleans+process records+audit/probe sources+summary/manifests. Sorted path/bytes/hash census digest retained to keep report bounded."
+  },
+  "postconditions": {
+    "all15InputsAndCopyArguments": true,
+    "sourceBeforeAfterExact": true,
+    "lockUnchanged": true,
+    "toolsBeforeAfterExact": true,
+    "reviewedEpochUnchanged": true,
+    "allMemoryEventsZeroBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "allActualCommandStatusesZero": true,
+    "canonicalFull33Unchanged": true
+  },
+  "storage": {
+    "hostBeforeBytes": "25839546368",
+    "hostAfterBytes": "20729778176",
+    "guestBeforeKiB": "53141428",
+    "guestAfterKiB": "53130980",
+    "allRecordedPrePostGatesPassed": true,
+    "availableBytesBeforeReport": 22725902336
+  },
+  "evidenceAnchors": [
+    {
+      "path": "artifact/attestation.json",
+      "bytes": 167008,
+      "sha256": "1a05e42fd4e6a23ad208da887d5fd74c3a8583dc8a3c01dae8a28640fb8c7575"
+    },
+    {
+      "path": "artifact/build-manifest.json",
+      "bytes": 13045,
+      "sha256": "652096a02a59416a7b6e9b41fae545f365e8ace7c8590b1dcbc6231caf7bd4e3"
+    },
+    {
+      "path": "artifact/modules/LexLeanR4/ObjectReadParent49.lean",
+      "bytes": 1588,
+      "sha256": "87f09af168b70ac7886281b4f7c088c5fb897972fd6e11d9ab3d491479eefe62"
+    },
+    {
+      "path": "artifact/audit/output.txt",
+      "bytes": 55758,
+      "sha256": "a312f7a47e4fee934f83dd25ec110c23267ba5be5aec04f3a38951307551e55f"
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "This accepts only the actual original parent49 decode equality under this finite runtime closure. Mandatory actual authenticated fetch over all four backend entries, original wholeRead and all33 controls remain open.",
+    "Whole verify268903ms includes compilation, audits and replay; no performance or avoided-recomputation claim follows.",
+    "Raw embedded lexicon packages are not bundled. Recorded input identities are provenance, not an independent rehash of absent package bytes.",
+    "Recorded process/kernel evidence was inspected, not rerun. Storage/memory observations are samples, not continuous high-water claims.",
+    "No new native phase is authorized by this review, especially below existing launch storage planning requirements."
+  ],
+  "reviewerCorrection": "First read-only assertion sequence passed all input/postcondition/output/olean/process/audit/fullcensus checks, then a final emitted-source suffix check assumed two trailing newlines and failed. No report or source was written. Corrected whitespace-tolerant suffix check passed, along with fresh exact emitted literal comparisons. This was a reviewer formatting-query error, not a native failure.",
+  "receiptPins": [
+    {
+      "path": "allocated-before.json",
+      "bytes": 459,
+      "sha256": "f3950b47ea430b72e8fdc9e5f8609c7a5d9ddace5fd2167cfdeb9f2b5c59fa7e"
+    },
+    {
+      "path": "artifact-copy.json",
+      "bytes": 512,
+      "sha256": "7ecaa13991f40044cbbc0ae7d74c842f0774c963a4b64186a81e8427669bfea3"
+    },
+    {
+      "path": "check.json",
+      "bytes": 893,
+      "sha256": "df7e9de322b0944cade1b58e3f78cb676fe941cc5b31e826aa91c1d9bef7ee47"
+    },
+    {
+      "path": "copy-0.json",
+      "bytes": 455,
+      "sha256": "ce810e4ee54e2cc93bb05ed43c8725ada441ff3145f49b8bfe2042289e4aaf8b"
+    },
+    {
+      "path": "copy-1.json",
+      "bytes": 453,
+      "sha256": "332b322d4d8f37feb63fed2cc4e81da124215e7e86fa4daa040ab69b6957b046"
+    },
+    {
+      "path": "copy-10.json",
+      "bytes": 441,
+      "sha256": "2a70b908418272867e005fca03153e74d2d5a2df58d956030bcc7d9b45c0fc86"
+    },
+    {
+      "path": "copy-11.json",
+      "bytes": 451,
+      "sha256": "c201ea66a19251d07790234509ab2a9a125cb4ca1b592cdaf9324a7935d70b06"
+    },
+    {
+      "path": "copy-12.json",
+      "bytes": 443,
+      "sha256": "e48c2a461d8cec57e6408058cc987d2704fd3797a6c3959b5044796438710bf8"
+    },
+    {
+      "path": "copy-13.json",
+      "bytes": 495,
+      "sha256": "4152f9d53ca7a4445da458d2a16d63daf5b0b34183566302830d521e9c65ddf6"
+    },
+    {
+      "path": "copy-14.json",
+      "bytes": 430,
+      "sha256": "448514c6eb812a667b786a11ad5c2ea9392996a26115fa3ed6ba18b27984c83b"
+    },
+    {
+      "path": "copy-2.json",
+      "bytes": 459,
+      "sha256": "0ea5bfd11bbda72b26a1bc5929f3825382b943229128460e0e462e12cb3891f1"
+    },
+    {
+      "path": "copy-3.json",
+      "bytes": 467,
+      "sha256": "61123406a6493d62877a73d580848570ca368d94a9735d71436284e9a1ef7929"
+    },
+    {
+      "path": "copy-4.json",
+      "bytes": 461,
+      "sha256": "020fa21556ad9c91cbea21a8274016792a18a98e26b9386d4792878b758b1680"
+    },
+    {
+      "path": "copy-5.json",
+      "bytes": 419,
+      "sha256": "bfcb8ebf133a25fee64c652cc8a9a6628ba1a3a0a64e1c2b0f3d4e3e07990179"
+    },
+    {
+      "path": "copy-6.json",
+      "bytes": 419,
+      "sha256": "8ddf725f92b88e114118df4b98c31492ecf00d641062c0075bb173e97dcfdf76"
+    },
+    {
+      "path": "copy-7.json",
+      "bytes": 419,
+      "sha256": "65b0f2fc6686741e131924b4f5038d836c502f535f11037db195ff454f00dd8c"
+    },
+    {
+      "path": "copy-8.json",
+      "bytes": 417,
+      "sha256": "0205ea0668d16b4305034c65f5788c69f83e6ffb2d6e576b6471583c983d04bb"
+    },
+    {
+      "path": "copy-9.json",
+      "bytes": 409,
+      "sha256": "d5d008db17904eae57f68dc60bcc18ce8a9764a54e270a468a3701ab751d1770"
+    },
+    {
+      "path": "directories.json",
+      "bytes": 426,
+      "sha256": "d7e8700d886f16884a6b9667b02dd5fc712abeb06f8940202963667e8c5c0409"
+    },
+    {
+      "path": "epoch-after.json",
+      "bytes": 470,
+      "sha256": "3007af43ec0efdb27f92eb78b6d69d621cdf905dc53b207cb8c8ae9d852e9412"
+    },
+    {
+      "path": "epoch-before.json",
+      "bytes": 470,
+      "sha256": "893c1b00cb05dbaeb1503a4409855fd476f59096b5bbc66b01f63d90d19d336f"
+    },
+    {
+      "path": "expected-inputs.json",
+      "bytes": 5262,
+      "sha256": "0c27fdc98f2e97ce279e48787d91d7b86e9d589f4fe554c8500a4fe26daf2d32"
+    },
+    {
+      "path": "guest-after.json",
+      "bytes": 406,
+      "sha256": "c6c9375fd7df0e9fe6c90dfc5cf4a68c28e5ac2a24cf17554f95756a4cff0bae"
+    },
+    {
+      "path": "guest-before.json",
+      "bytes": 406,
+      "sha256": "9048873a97809b946fa226754aace31db5c9d27428aa8a24405aa17ec72b59a5"
+    },
+    {
+      "path": "host-after.json",
+      "bytes": 142,
+      "sha256": "2e52e284d0c8eb267cea59deff323382860534c23d94765e14b7db61fd04e2a6"
+    },
+    {
+      "path": "host-before.json",
+      "bytes": 152,
+      "sha256": "8b473cfd91fe166a0cf763a1431d739e840a88149da67ab5834f3b7e247e2332"
+    },
+    {
+      "path": "idle-after.json",
+      "bytes": 460,
+      "sha256": "b733286a5e45fd6dd3ebed6d9e4a4db11a5167c4b666c8576f25b5846113716c"
+    },
+    {
+      "path": "idle-before.json",
+      "bytes": 460,
+      "sha256": "c8210d21fa4e5409635474aec2fbfc869b60b909d48620c1be00e2b7fc5acce0"
+    },
+    {
+      "path": "lock-after.json",
+      "bytes": 485,
+      "sha256": "6a8e754eb317b6a4a450824d202a23776a9c7dccc493b4de9757c5b333feb97a"
+    },
+    {
+      "path": "lock-bytes.json",
+      "bytes": 2053,
+      "sha256": "2234b7745dd02549a2b6ee9488f83665751391e82c774b12cd569ba6f65603d3"
+    },
+    {
+      "path": "lock.json",
+      "bytes": 537,
+      "sha256": "28e53e12cd84cb011c7037b80c35b4fc2d28448addbcb1f58a140b8e9dc47439"
+    },
+    {
+      "path": "memory-after.json",
+      "bytes": 354,
+      "sha256": "17eea4f44980377583dc40f18ace3b46bbcd55eca5b626da5abb4ca901824686"
+    },
+    {
+      "path": "memory-before.json",
+      "bytes": 354,
+      "sha256": "c5fddbdd7f7d2d538f0d9cbaa985cab11514ff1eef115b27fa28a5bb307ca7d9"
+    },
+    {
+      "path": "new-stage.json",
+      "bytes": 328,
+      "sha256": "27fad1a57760bae07ee072329da87e2fe73ec0bf2565d37d3e3d6d4797fd9226"
+    },
+    {
+      "path": "postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "result.json",
+      "bytes": 1003,
+      "sha256": "739e62040c21c4438fd084f4bd1bb7a4c8a3cd601bc06e98c417bbdb6b30ff6a"
+    },
+    {
+      "path": "source-after.json",
+      "bytes": 3867,
+      "sha256": "7a620f784b65e774b70c036f74fad434104c95f7433e46b459119c79e9d82c32"
+    },
+    {
+      "path": "source-before.json",
+      "bytes": 3867,
+      "sha256": "4f1273eb35cd5950eb1c541f28c29194ee1f170667fd7783077f2cecca81e52c"
+    },
+    {
+      "path": "swap-before.json",
+      "bytes": 264,
+      "sha256": "afd6e208caf62f78cd2fa77df8295d4e6b32a64f23a01a6185d6451f0e2cc220"
+    },
+    {
+      "path": "tools-after.json",
+      "bytes": 1005,
+      "sha256": "2d29131563eb68c80ef7ca10d72ed6b511ae7447de95de128accb3232068b289"
+    },
+    {
+      "path": "tools-before.json",
+      "bytes": 1005,
+      "sha256": "eae80176ba6742cc4001b9ba13f3cace6affb8285bee5c336ea4cdb8bc8d46ca"
+    },
+    {
+      "path": "verify.json",
+      "bytes": 1199,
+      "sha256": "6eb6d6b9e71922fd56457ff2672522018b82e9a0905cc5ca4aba4970e9d0fe24"
+    }
+  ],
+  "actions": "Read-only actual artifact and receipt inspection; only this outside-repository review JSON written. No SDK/native/VM/repository/index/other-lab changes."
+}

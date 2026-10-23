@@ -1,0 +1,248 @@
+{
+  "schema": "lexlean-r4-parent49-authenticated-fetch-proposal/v1",
+  "status": "CONDITIONAL_SOURCE_ONLY_ALL_NEW_NATIVE_NOT_RUN",
+  "authority": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/next-step-spec-review.json",
+    "bytes": 13466,
+    "sha256": "e5e2649e35c202d2e10ab8b9c3cdf5090451b51b9b33b0d37b9ef5e9cf2ea452"
+  },
+  "decodeCandidate": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/manifest.json",
+    "bytes": 1662,
+    "sha256": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+  },
+  "sourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49/candidate-code-review.json",
+    "bytes": 5192,
+    "sha256": "aa018847ee5e8089965738ab51b851de66ff2568c09b4a4a0ddabe0716d05b9a"
+  },
+  "prerequisites": {
+    "actualDecodeFalseReview": null,
+    "actualDecodePositiveReview": null,
+    "acceptedDecodeArtifact": null,
+    "requirement": "Actual false-ID semantic rejection and positive fullResultdecode artifact must be independently accepted before implementation/execution. Fill real identities in separate reviewed binding; no predicted outcome/pin."
+  },
+  "scope": "One connected actualparentfetch equation, no otherrecordcertificates/wholewalk/framework. Decodejob untouched.",
+  "originalInputs": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "ordinal": 26,
+    "name": "objProtocolWholeBytes",
+    "backendOccurrence": "declarations[25].statement.left.scrutinee.arguments[0]",
+    "backendAstSha256": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "fourEntriesOriginalOrder": true,
+    "parentEntryIndexZeroBased": 1,
+    "parentEntryAstSha256": "3ce20bcaae59d3e330c1a98ee03ac6cc6c9f31354cf3e83db431e0c932ae5f9c",
+    "parentIdAstSha256": "15db1851073d759e5f6dc307f303878e66926ace229e90628a1ec8123a52c03a",
+    "scale": 1,
+    "decodeEqualitySha256": "3e155aa167d101ac697bfc71fb7577ba9de7f35b947b37458fd0ea01510dc679",
+    "expectedSuccessSha256": "e67ad52eb2dc3bfca6c3a1aa03b63dafe8bfc44da732e55288c0f75bf0c01798",
+    "consumerSha256": "f6f223a0500c074898bc705abe32f34437cb6f33753293b6b54b7bc3cd7bf344",
+    "equation": "R4.ObjectRead.ObjAuthenticatedFetch(original4entrybackend,originalparentID,1)=sameResult.ok expectedObjRecord asaccepteddecode."
+  },
+  "context": {
+    "production": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "fetchAstSha256": "4a52e1449a5fd2154cce8caec3504245943b9d73b8bac1dc8ae4e7bf00bde239",
+    "someBranchSha256": "ba42492b8b6a0776b20dc1a695dff5217bd7787b6c28a682ebfade307f85e954",
+    "contextSha256": "e3716a0a381b32784e30b9b7c0706c6ab8af70c1ccc279ae6d482ad6c919bd03",
+    "exactAstJson": "{\"branches\":[{\"binders\":[\"failure\"],\"body\":{\"arguments\":[{\"kind\":\"var\",\"name\":\"failure\"}],\"constructor\":{\"name\":\"Result.error\"},\"kind\":\"constructor\",\"type_arguments\":[{\"arguments\":[],\"kind\":\"named\",\"member\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjRecord\"}},{\"arguments\":[],\"kind\":\"named\",\"member\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjError\"}}]},\"constructor\":{\"name\":\"Result.error\"}},{\"binders\":[\"decoded\"],\"body\":{\"condition\":{\"kind\":\"and\",\"left\":{\"kind\":\"beq\",\"left\":{\"field\":\"scale\",\"kind\":\"project\",\"value\":{\"kind\":\"var\",\"name\":\"decoded\"}},\"right\":{\"kind\":\"nat\",\"value\":\"1\"}},\"right\":{\"arguments\":[{\"field\":\"bytes\",\"kind\":\"project\",\"value\":{\"field\":\"id\",\"kind\":\"project\",\"value\":{\"kind\":\"var\",\"name\":\"decoded\"}}},{\"field\":\"bytes\",\"kind\":\"project\",\"value\":{\"fields\":[{\"field\":\"bytes\",\"value\":{\"head\":{\"kind\":\"nat\",\"value\":\"128\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"174\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"112\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"205\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"237\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"99\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"32\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"90\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"110\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"198\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"109\"},\"kind\":\"cons\",\"tail\":{\"head\":{\"kind\":\"nat\",\"value\":\"200\"},\"kind\":\"cons\",\"tail\":{\"element\":{\"kind\":\"nat\"},\"kind\":\"nil\"}}}}}}}}}}}}}}],\"kind\":\"record\",\"type\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjNodeId\"}}}],\"function\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjBytesEqual\"},\"kind\":\"call\"}},\"else_value\":{\"arguments\":[{\"arguments\":[],\"constructor\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjError.integrityFailure\"},\"kind\":\"constructor\"}],\"constructor\":{\"name\":\"Result.error\"},\"kind\":\"constructor\",\"type_arguments\":[{\"arguments\":[],\"kind\":\"named\",\"member\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjRecord\"}},{\"arguments\":[],\"kind\":\"named\",\"member\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjError\"}}]},\"kind\":\"if\",\"then_value\":{\"arguments\":[{\"kind\":\"var\",\"name\":\"decoded\"}],\"constructor\":{\"name\":\"Result.ok\"},\"kind\":\"constructor\",\"type_arguments\":[{\"arguments\":[],\"kind\":\"named\",\"member\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjRecord\"}},{\"arguments\":[],\"kind\":\"named\",\"member\":{\"module\":\"R4.ObjectTypes\",\"name\":\"ObjError\"}}]}},\"constructor\":{\"name\":\"Result.ok\"}}],\"kind\":\"match\",\"scrutinee\":{\"kind\":\"var\",\"name\":\"item\"}}",
+    "parameters": "item:Result R4.ObjectTypes.ObjRecord R4.ObjectTypes.ObjError",
+    "result": "sameResulttype",
+    "edits": [
+      {
+        "path": [
+          "scrutinee"
+        ],
+        "from": "ObjDecodeRecord(wire)",
+        "to": "var item"
+      },
+      {
+        "path": [
+          "branches",
+          1,
+          "body",
+          "condition",
+          "left",
+          "right"
+        ],
+        "from": "scale",
+        "to": "Nat1"
+      },
+      {
+        "path": [
+          "branches",
+          1,
+          "body",
+          "condition",
+          "right",
+          "arguments",
+          1,
+          "value"
+        ],
+        "from": "ObjAuthenticatedFetchInputId",
+        "to": "exactoriginalparentID"
+      }
+    ],
+    "preserved": "Original Result.error propagation; Result.ok decoded; both scale==1 AND ObjBytesEqual(decoded.id.bytes,parentID.bytes); integrityFailure on mismatch; complete typedResult."
+  },
+  "lookupContract": "Final consumer retains full ObjRawLookup(original4entrybackend,parentID): Option.none -> missing(parentID.bytes), Option.some wire -> C(ObjDecodeRecord wire). Do not replace backend byoneentry or assume lookup. ActualfinalApply must convert originallookup to exact49wire; failure requires separately reviewed concrete lookup equation, not fabricatedconversion.",
+  "proposedModules": [
+    {
+      "name": "ObjectReadParent49FetchContext",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.ObjectRead",
+        "R4.ObjectCodec"
+      ],
+      "declarations": [
+        "ObjParent49FetchContext(item):Result ObjRecord ObjError = exactAstJson",
+        "ObjParent49FetchGoal(count:Nat):Prop; match count with zero=>exactdecodeeq; succ prior=>Eq(C(exactdecodeleft),C(exactexpectedResult.ok)); priorignored."
+      ]
+    },
+    {
+      "name": "ObjectReadParent49FetchTransport",
+      "imports": [
+        "ObjectReadParent49FetchContext",
+        "ObjectReadParent49"
+      ],
+      "declarations": [
+        "objParent49FetchUnrelatedZero:0=0 byReflexivity; axioms[]",
+        "objParent49FetchLifted(count):ObjParent49FetchGoal(count); axioms[]; exactpositiveLiftProof below"
+      ],
+      "negative": "Same module/path and declarationASTs except zero-case Apply theorem target local objParent49FetchUnrelatedZero. Same args/typeargs and successor proof."
+    },
+    {
+      "name": "ObjectReadParent49AuthenticatedFetch",
+      "imports": [
+        "ObjectReadParent49FetchTransport",
+        "R4.ObjectRead",
+        "R4.ObjectTypes"
+      ],
+      "declarations": [
+        "objParent49AuthenticatedFetch: exactconsumerSha256 statement, no parameters, axioms[]; Apply ObjectReadParent49FetchTransport.objParent49FetchLifted atNat1."
+      ]
+    }
+  ],
+  "positiveLiftProof": {
+    "branches": [
+      {
+        "binders": [],
+        "constructor": "zero",
+        "proof": {
+          "arguments": [],
+          "kind": "apply",
+          "theorem": {
+            "module": "ObjectReadParent49",
+            "name": "objParent49Decode"
+          },
+          "type_arguments": []
+        }
+      },
+      {
+        "binders": [
+          "prior",
+          "ih"
+        ],
+        "constructor": "succ",
+        "proof": {
+          "branches": [
+            {
+              "binders": [],
+              "constructor": "zero",
+              "proof": {
+                "kind": "congruence"
+              }
+            },
+            {
+              "binders": [
+                "earlier"
+              ],
+              "constructor": "succ",
+              "proof": {
+                "kind": "congruence"
+              }
+            }
+          ],
+          "kind": "cases",
+          "scrutinee": "prior"
+        }
+      }
+    ],
+    "generalizing": [],
+    "kind": "induction",
+    "scrutinee": "count"
+  },
+  "negativeProofDifference": {
+    "path": [
+      "branches",
+      0,
+      "proof",
+      "theorem"
+    ],
+    "positive": {
+      "module": "ObjectReadParent49",
+      "name": "objParent49Decode"
+    },
+    "negative": {
+      "name": "objParent49FetchUnrelatedZero"
+    }
+  },
+  "supportedPattern": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLift.lex.tex",
+      "bytes": 1483,
+      "sha256": "6569deeb633478d591ca2ea3305d669e61328db8374f27444c1544998ff7abc1"
+    },
+    "results": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/results.json",
+      "bytes": 14031,
+      "sha256": "5c90df586fa050c4c874fb7d5167a3209eae3759979791b3c055e38a60f4cdd5"
+    },
+    "constructs": "NatProp definition, inductioncount, Natcasesprior, congruence, apply. Result/Optionmatches are production expressionAST, not inventedproofCases. No Rewrite/Simplify/propext/rawLean/axioms.",
+    "scope": "Existingpatternverifiedonlyitsownstatement; this concreteconsumer conversion remains untested."
+  },
+  "genericity": {
+    "decision": "Symbolic resultargument C(item), fixed originalrequestedID/scale; no extra backend/wire abstraction.",
+    "why": "Earliersecondatomgeneralization abstracted independentcontinuationdata while keeping provedbase fixed. Here exactdecodecertificate fixeswire and actuallookup must returnthatwire. Generalizingbackend/wire withoutproofassumptions would disconnectlookup or make proposedresultfalse. No speculative polymorphicframework.",
+    "limit": "This strategy doesnot guarantee avoiding repeateddecodeevaluation. Actualoriginalconsumer compiler/kernel artifact required; helperonlysuccess insufficient. Preserve anyconversiontimeout; no equivalentretry/raisedlimit."
+  },
+  "tests": [
+    {
+      "phase": "fetch-false-base",
+      "status": "NOT_RUN",
+      "root": "Full actual ObjectReadParent49AuthenticatedFetch root, negative transportvariant",
+      "required": "Sourcecheck0 then intendedtype/proofmismatch atzeroApply. Wrongimports/malformedAST/timeout/OOM/unexpectedsuccess are not semanticRED."
+    },
+    {
+      "phase": "fetch-positive",
+      "status": "NOT_RUN",
+      "root": "Same actualconsumer source with positive transportvariant",
+      "required": "Actualcheck/verify0, exactfourentrybackend/scale/id/fullResultstatement, source/runtime/lockbinding, emptyobservedaxioms, allkernelreplays andindependentaudit. Importeddecode theorem mustbeexactacceptedpositive; no directrflsubstitution."
+    }
+  ],
+  "futureClosure": "13existingruntime/workspace inputs+accepteddecode source+3newcontext/transport/consumer modules+entrypoint-onlyconfig=18 beforegenuinelock. Referenceimmutableaccepteddecode positive andallruntimepins; bothphasessameroot/config. Freezeactualsource/config forindependentCODE beforeparentnative. No candidate orrunner authored here.",
+  "structuralTests": [
+    "ExactbackendSHA548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4; fourentries/order retained.",
+    "Complete productioncontextdiff only designatedscrutinee andtypedinputsubstitutions.",
+    "Pzero equalsaccepteddecodewholeAST; Psucccontextarguments exactleft/right.",
+    "False/positiveproof differonlyzeroApplytarget; sameunrelated0=0 presentinboth.",
+    "Actualfinalstatement equals pinnedconsumerAST; Applyat1 referencespositiveproof; emptyaxioms/canonicalJSON/imports reviewed.",
+    "All sourcechecks arepreparationonly; no imaginednativeacceptance."
+  ],
+  "remaining": "Even acceptedfetch leaves3childauth/traversal/rangefinish/versionhash/whole96digest/originalwholeconsumer andall33coverage open; semanticdefects/fullObjectHash/PrismPM/Pages remain.",
+  "resources": {
+    "childTimeoutMs": 300000,
+    "containerMemoryBytes": 4294967296,
+    "cpu": 2,
+    "gates": "Existing20GiBhostlaunch+10peakreserve,11GiBpre10GiBpost,currentepoch/tool/source/lock/idle/zeroevents and independentpostcaptures. No nativeadmission asserted."
+  },
+  "actions": "Onlythis<=20KiBreport written. No sourcecandidate/native/runner/repochanges.",
+  "preparationCorrection": "Initial prettyprintedreport exceeded20KiB and assertion preventedwrite. Reducedduplicateprooftext and compacted exactcontextASTstring; no source/nativefailure or lostevidence."
+}

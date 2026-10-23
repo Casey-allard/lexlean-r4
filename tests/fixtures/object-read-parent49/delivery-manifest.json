@@ -1,0 +1,452 @@
+{
+  "schema": "lexlean-r4-exact-delivery/v1",
+  "base": "f1cd87b43e7a832006f15832d64ed06b6237ee02",
+  "scope": "Actual original parent49 decode certificate and false-ID control, accepted locally; connected fetch and Read33 remain open.",
+  "payloads": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 28140,
+      "sha256": "c23cf67a5941dd82d3f6ffad520a9da70b6d2e45e477c8faa1b6331ec3c3b42d"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 25124,
+      "sha256": "e81dbd8ac7f3b65f16da723da8ba341d7fc9a4dce5df9d43031b81f07b7b1841"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/RESULTS.md",
+      "bytes": 3614,
+      "sha256": "93f9547c073cddb01fcc4a371fc1c93bc156b09697a0c49a0080bb65ecd404ae"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/candidate.json",
+      "bytes": 22000,
+      "sha256": "2db2d89332c5cb4066096b7be6083f1105452fcbc8f2cadbabb412866e52b4e1"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/authenticated-fetch-proposal.json",
+      "bytes": 14358,
+      "sha256": "ed97cf6f6931272d5455bdb7470495f398b33d166babe03ccd60f0f2a8d8c7ee"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/authenticated-fetch-spec-review.json",
+      "bytes": 7295,
+      "sha256": "773c9d10d9503128f06cdf4b506aafd55cb28b85461c510aa54ea50ce8ae345d"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/authority/next-step-spec-review.json",
+      "bytes": 13466,
+      "sha256": "e5e2649e35c202d2e10ab8b9c3cdf5090451b51b9b33b0d37b9ef5e9cf2ea452"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/authority/production-call-analysis.json",
+      "bytes": 23925,
+      "sha256": "589df28f4905c4644e285cc741cf14cc90b984c7cefcdfb5af52b5b9d76752b3"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/candidate-code-review.json",
+      "bytes": 5192,
+      "sha256": "aa018847ee5e8089965738ab51b851de66ff2568c09b4a4a0ddabe0716d05b9a"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/allocated-before.json",
+      "bytes": 459,
+      "sha256": "0a2e84fdebcd6ed757191e7a7e55a4f5890b5d88bb7d110df4c8fb4c38bea49b"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/check.json",
+      "bytes": 890,
+      "sha256": "9b221daef4895a483c3abc45e38c62563a51ca85b7e6e9ed618370d4c8ff83c2"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/directories.json",
+      "bytes": 420,
+      "sha256": "64054dc1c09d866dee42a515ee202984157b26fc080e4f8135954c85fa5f8515"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "bef5d604ba4ba8ce84139b03c73cbf8c78575d205831bb5d8edddbc7cc3a138d"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/epoch-before.json",
+      "bytes": 470,
+      "sha256": "1264f0f7da1b01915d71fc3493a911b9480e55d52964a22342345c8cbbae4a68"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/expected-inputs.json",
+      "bytes": 5262,
+      "sha256": "c17f781bb6058a40aa1b8f09879068940dafc50936386702280c98a6d5051d1f"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "938162b0adcff6b5eecc951f25c71dde902b3702faf6cc6bdd5f2bab90e92022"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/guest-before.json",
+      "bytes": 406,
+      "sha256": "fbd6c82b1b2e06f3fc27ca89c7bd1822592e65f62b912d3fd18ae5acb1d76115"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/host-after.json",
+      "bytes": 142,
+      "sha256": "6a32dadae91d786a67505010f8e3c3854e0403cdbef025b53d4a547b1f657c08"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/host-before.json",
+      "bytes": 152,
+      "sha256": "107b2171808563bd59adff1e97255cfd7d71780849bcf04b841777c90a7aea5d"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "95df3ae6d9f8a5387d567c33aa001724cc2ccb45091b4d4b6cffdea5192c4129"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/idle-before.json",
+      "bytes": 460,
+      "sha256": "20df144b2b63937c6d61686f54e8f35a075d084317a178ef1e8477dddfacccf2"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/lock-after.json",
+      "bytes": 479,
+      "sha256": "558abef895b2febb21fa99fe0c59a501dbc8c41847ba704854515824278a3842"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/lock-bytes.json",
+      "bytes": 2050,
+      "sha256": "4ca2089f03fcf5ddbe434fb939c2e10396b93d0b61d91b1838da72c89a408be2"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/lock.json",
+      "bytes": 534,
+      "sha256": "bcafaa2657a1312d52e75c705aee27b00973600d5b050efe8f4aab54e5edc72d"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "9b168d3af6affb82611ac6704d558615c89ae7b75e0961814e9f527b65630a70"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/memory-before.json",
+      "bytes": 354,
+      "sha256": "d2b2b2cb356fbc1f8ee8d11f12a81d65921a64ba3eb5af6be57fd0fbb69cff76"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/new-stage.json",
+      "bytes": 325,
+      "sha256": "e7b73a079b37948edf2258b188805ee91b283f038120e99596d5fb8fbc0468c9"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/result.json",
+      "bytes": 2405,
+      "sha256": "19b6edbc203202e15d8d8756fb113fba820f9d0bd123abecf12b9a504317986c"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/source-after.json",
+      "bytes": 3777,
+      "sha256": "58ac79079917ecb79aea483a7ff6060bd6c01b934eba68f7de4526f0571c466f"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/source-before.json",
+      "bytes": 3777,
+      "sha256": "a46cbc8903c33ea11fdaf2d9c7f1995b655fa5ff8877a961bd0cb18d6c4780e6"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/swap-before.json",
+      "bytes": 264,
+      "sha256": "cfbfb87b42b807e0d22de761089167f8fb45bbe99ea975f99e5870cc2b5f4aeb"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/tools-after.json",
+      "bytes": 1005,
+      "sha256": "14b0ef742a87e9421c0aa7e41fd8dac2da4977fe3f2b43815896b0040a535be3"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/tools-before.json",
+      "bytes": 1005,
+      "sha256": "4c5df0aee63e320049d01672be099b0b71ae3215f6a50d65f9e0561c2b20a5f8"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-false/verify.json",
+      "bytes": 2503,
+      "sha256": "7388f08afb40ddd13a90c7f98613e8dfdd5a0127e72fb67b5ccf89f624470a12"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "f3950b47ea430b72e8fdc9e5f8609c7a5d9ddace5fd2167cfdeb9f2b5c59fa7e"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-copy.json",
+      "bytes": 512,
+      "sha256": "7ecaa13991f40044cbbc0ae7d74c842f0774c963a4b64186a81e8427669bfea3"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/attestation.json",
+      "bytes": 167008,
+      "sha256": "1a05e42fd4e6a23ad208da887d5fd74c3a8583dc8a3c01dae8a28640fb8c7575"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/audit/LexLeanAudit.A99f8245de1a7c555a8ed174b19631827.LexLeanR4.ObjectReadParent49.lean",
+      "bytes": 104,
+      "sha256": "09c65fea1bfbcc4f3b237ae6f276f32bcf834fd1fe0e491c5af45605209c8172"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/audit/LexLeanAudit.A99f8245de1a7c555a8ed174b19631827.LexLeanR4.ObjectReadParent49.process.json",
+      "bytes": 596,
+      "sha256": "eb3b784b20182283908375469355f96e2aa5638551522ad71f1368de731c192c"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/audit/output.txt",
+      "bytes": 55758,
+      "sha256": "a312f7a47e4fee934f83dd25ec110c23267ba5be5aec04f3a38951307551e55f"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/build-manifest.json",
+      "bytes": 13045,
+      "sha256": "652096a02a59416a7b6e9b41fae545f365e8ace7c8590b1dcbc6231caf7bd4e3"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/maps/LexLeanR4/ObjectReadParent49.map.json",
+      "bytes": 1419,
+      "sha256": "ad32d98270eeabf84caaafb92dcfdd03c1dfe04fef04604a3446ff6b0b70e151"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/modules/LexLeanR4/ObjectReadParent49.lean",
+      "bytes": 1588,
+      "sha256": "87f09af168b70ac7886281b4f7c088c5fb897972fd6e11d9ab3d491479eefe62"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/process/lean/LexLeanR4.ObjectReadParent49.json",
+      "bytes": 510,
+      "sha256": "d04ed584b329bc3077d661494d0913fbbe2ce40f497b7205b0047efdd7343bc3"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/artifact-text/process/leanchecker/LexLeanR4.ObjectReadParent49.json",
+      "bytes": 433,
+      "sha256": "17c07ec8cac141872e28ccdfdf7a8c4975f5f9ffbadf565de3caf63bdf2dc871"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/check.json",
+      "bytes": 893,
+      "sha256": "df7e9de322b0944cade1b58e3f78cb676fe941cc5b31e826aa91c1d9bef7ee47"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/directories.json",
+      "bytes": 426,
+      "sha256": "d7e8700d886f16884a6b9667b02dd5fc712abeb06f8940202963667e8c5c0409"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "3007af43ec0efdb27f92eb78b6d69d621cdf905dc53b207cb8c8ae9d852e9412"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "893c1b00cb05dbaeb1503a4409855fd476f59096b5bbc66b01f63d90d19d336f"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/expected-inputs.json",
+      "bytes": 5262,
+      "sha256": "0c27fdc98f2e97ce279e48787d91d7b86e9d589f4fe554c8500a4fe26daf2d32"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "c6c9375fd7df0e9fe6c90dfc5cf4a68c28e5ac2a24cf17554f95756a4cff0bae"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "9048873a97809b946fa226754aace31db5c9d27428aa8a24405aa17ec72b59a5"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/host-after.json",
+      "bytes": 142,
+      "sha256": "2e52e284d0c8eb267cea59deff323382860534c23d94765e14b7db61fd04e2a6"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/host-before.json",
+      "bytes": 152,
+      "sha256": "8b473cfd91fe166a0cf763a1431d739e840a88149da67ab5834f3b7e247e2332"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "b733286a5e45fd6dd3ebed6d9e4a4db11a5167c4b666c8576f25b5846113716c"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "c8210d21fa4e5409635474aec2fbfc869b60b909d48620c1be00e2b7fc5acce0"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/lock-after.json",
+      "bytes": 485,
+      "sha256": "6a8e754eb317b6a4a450824d202a23776a9c7dccc493b4de9757c5b333feb97a"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/lock-bytes.json",
+      "bytes": 2053,
+      "sha256": "2234b7745dd02549a2b6ee9488f83665751391e82c774b12cd569ba6f65603d3"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/lock.json",
+      "bytes": 537,
+      "sha256": "28e53e12cd84cb011c7037b80c35b4fc2d28448addbcb1f58a140b8e9dc47439"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "17eea4f44980377583dc40f18ace3b46bbcd55eca5b626da5abb4ca901824686"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "c5fddbdd7f7d2d538f0d9cbaa985cab11514ff1eef115b27fa28a5bb307ca7d9"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/new-stage.json",
+      "bytes": 328,
+      "sha256": "27fad1a57760bae07ee072329da87e2fe73ec0bf2565d37d3e3d6d4797fd9226"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/result.json",
+      "bytes": 1003,
+      "sha256": "739e62040c21c4438fd084f4bd1bb7a4c8a3cd601bc06e98c417bbdb6b30ff6a"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/source-after.json",
+      "bytes": 3867,
+      "sha256": "7a620f784b65e774b70c036f74fad434104c95f7433e46b459119c79e9d82c32"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/source-before.json",
+      "bytes": 3867,
+      "sha256": "4f1273eb35cd5950eb1c541f28c29194ee1f170667fd7783077f2cecca81e52c"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/swap-before.json",
+      "bytes": 264,
+      "sha256": "afd6e208caf62f78cd2fa77df8295d4e6b32a64f23a01a6185d6451f0e2cc220"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "2d29131563eb68c80ef7ca10d72ed6b511ae7447de95de128accb3232068b289"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "eae80176ba6742cc4001b9ba13f3cace6affb8285bee5c336ea4cdb8bc8d46ca"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/decode-positive/verify.json",
+      "bytes": 1199,
+      "sha256": "6eb6d6b9e71922fd56457ff2672522018b82e9a0905cc5ca4aba4970e9d0fe24"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/invocation-code-review.json",
+      "bytes": 4333,
+      "sha256": "b3b45579bfbd673f72155215fb3026399c1c6d1dd5111d090f2351d0c9d35f5f"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/invocation-diff.json",
+      "bytes": 2386,
+      "sha256": "8c4e96ace048243cb6178f67ec3fc0c85c5820361f2f9af47b74827d9915e31a"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/invocation-manifest.json",
+      "bytes": 2333,
+      "sha256": "e912ac42ed7ae02f83fee90ea7e2484ccff7d6cb0f09bdb6df4e917ab9ef8223"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/negative-native-review.json",
+      "bytes": 17988,
+      "sha256": "168520b90a33e8d0d5b098e7fc26bb263e7b8744d8e70970f6c5c03a322e9aa8"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/positive-artifact-census.json",
+      "bytes": 21959,
+      "sha256": "c9d1747f99ef957bcca7c3fdfb930c27140d9cc15f1d321fdf60fd75f86808aa"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/positive-native-review.json",
+      "bytes": 11441,
+      "sha256": "7a10d49b23f5cff53e84662be64c5090996e77cdf817530af5789b21b7face28"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/evidence/positive-review-custody.json",
+      "bytes": 971,
+      "sha256": "218cfe5ec64747058e32832cc227d13eef876ccc3d6e385501253b42a6a44e7d"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/lexlean.toml",
+      "bytes": 682,
+      "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/manifest.json",
+      "bytes": 1662,
+      "sha256": "24be34cf4f7eeaa9b7f674b1257f8a6a14c16ddffd1e6703e0d54b8446b3ee13"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/negative/tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "d8be3441ddf3d1d543ed7ad6934db55954b08f8062984a24bad1243958e19f27"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/phases/decode-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/phases/decode-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "84a382eb352d60a3daed5f107f79f3cb73f1961fb2230124774375cd93b767db"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/positive-custody.json",
+      "bytes": 21413,
+      "sha256": "42e071e8dc219a26ce2f007e3440decd85a511c21fd3adc3bdf155195db089a5"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/results.json",
+      "bytes": 11616,
+      "sha256": "e20629d40d57cd0e53b8c9e689aa9123b23eb614e6e5f6542157bb5fdda0063c"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/source-bindings.json",
+      "bytes": 13269,
+      "sha256": "f5c964a450f52cf4dcd9230be76553d1043d27ab575f51d5d76399b47e9ec125"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/source-negative-custody.json",
+      "bytes": 22301,
+      "sha256": "29594160c6e1da8328bb0c817d9237a9232f5b6622244a7df0d000202ac986b2"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/structural-audit.json",
+      "bytes": 2486,
+      "sha256": "a6919fa81506da12b260da8ac017cff2df81d3f3fdc1a3a80a7cc70d371f56f6"
+    }
+  ]
+}

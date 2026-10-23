@@ -1,0 +1,468 @@
+{
+  "schema": "lexlean-r4-parent49-decode-candidate/v1",
+  "status": "SOURCE_ONLY_NATIVE_NEGATIVE_AND_POSITIVE_NOT_RUN",
+  "authority": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/next-step-spec-review.json",
+    "bytes": 13466,
+    "sha256": "e5e2649e35c202d2e10ab8b9c3cdf5090451b51b9b33b0d37b9ef5e9cf2ea452"
+  },
+  "productionAnalysis": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-isolated26/production-call-analysis.json",
+    "bytes": 23925,
+    "sha256": "589df28f4905c4644e285cc741cf14cc90b984c7cefcdfb5af52b5b9d76752b3"
+  },
+  "originalSource": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "selection": {
+    "ordinal": 26,
+    "parentEntryIndexZeroBased": 1,
+    "parentEntryAstSha256": "3ce20bcaae59d3e330c1a98ee03ac6cc6c9f31354cf3e83db431e0c932ae5f9c",
+    "wireAstSha256": "2fb4b81fedbf9258a6edcccd5d9ae90310eb1cab62ecf36ecded600ef98dd55c",
+    "wireBytes": 49,
+    "payloadBytes": 36,
+    "module": "ObjectReadParent49",
+    "declaration": "objParent49Decode",
+    "root": "tests/lexlean/ObjectReadParent49.lex.tex"
+  },
+  "sharedStageInputs": [
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "destination": "src/R4/Words.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+      "destination": "src/R4/Hash.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+      "destination": "src/R4/HashNat.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+      "destination": "src/R4/HashNatCore.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+      "destination": "src/R4/HashWire.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+      "base": "repository"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "destination": "src/R4/ObjectTypes.lex.tex",
+      "origin": "Reconciled canonical draft",
+      "base": "repository"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "destination": "src/R4/ObjectCodec.lex.tex",
+      "origin": "Reconciled canonical draft",
+      "base": "repository"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+      "destination": "src/R4/ObjectStore.lex.tex",
+      "origin": "Reconciled canonical draft",
+      "base": "repository"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "destination": "src/R4/ObjectRead.lex.tex",
+      "origin": "Reconciled canonical draft",
+      "base": "repository"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "destination": "src/R4/Object.lex.tex",
+      "origin": "Reconciled canonical draft",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+      "destination": "lakefile.toml",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+      "destination": "lake-manifest.json",
+      "base": "repository"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+      "destination": "lean-toolchain",
+      "base": "repository"
+    }
+  ],
+  "newStageInputs": [
+    {
+      "phase": "negative",
+      "path": "negative/tests/lexlean/ObjectReadParent49.lex.tex",
+      "base": "candidate",
+      "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "d8be3441ddf3d1d543ed7ad6934db55954b08f8062984a24bad1243958e19f27"
+    },
+    {
+      "phase": "positive",
+      "path": "positive/tests/lexlean/ObjectReadParent49.lex.tex",
+      "base": "candidate",
+      "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+    }
+  ],
+  "config": {
+    "path": "lexlean.toml",
+    "base": "candidate",
+    "destination": "lexlean.toml",
+    "bytes": 682,
+    "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95",
+    "original": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/object-read-integration/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7",
+      "repositoryPath": "docs/continuation/2026-10-23/object-read-integration/lexlean.toml"
+    },
+    "onlyEntrypointChanged": true
+  },
+  "phases": [
+    {
+      "name": "negative",
+      "status": "NOT_RUN",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain",
+          "base": "repository"
+        },
+        {
+          "phase": "negative",
+          "path": "negative/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "candidate",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "d8be3441ddf3d1d543ed7ad6934db55954b08f8062984a24bad1243958e19f27"
+        },
+        {
+          "path": "lexlean.toml",
+          "base": "candidate",
+          "destination": "lexlean.toml",
+          "bytes": 682,
+          "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95"
+        }
+      ],
+      "commands": [
+        "lexlean --diagnostic-format json lock",
+        "lexlean --diagnostic-format json check",
+        "lexlean --diagnostic-format json verify tests/lexlean/ObjectReadParent49.lex.tex"
+      ],
+      "expected": "Sourceadmission passes then intended semantic proof rejection for expectedID129. Timeout/setup/AST failure is not semanticRED."
+    },
+    {
+      "name": "positive",
+      "status": "NOT_RUN",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json",
+          "base": "repository"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain",
+          "base": "repository"
+        },
+        {
+          "phase": "positive",
+          "path": "positive/tests/lexlean/ObjectReadParent49.lex.tex",
+          "base": "candidate",
+          "destination": "tests/lexlean/ObjectReadParent49.lex.tex",
+          "bytes": 7116,
+          "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+        },
+        {
+          "path": "lexlean.toml",
+          "base": "candidate",
+          "destination": "lexlean.toml",
+          "bytes": 682,
+          "sha256": "effc83d749d9233f0213c1026530b05adacffd9f0be528931e1019c928317b95"
+        }
+      ],
+      "commands": [
+        "lexlean --diagnostic-format json lock",
+        "lexlean --diagnostic-format json check",
+        "lexlean --diagnostic-format json verify tests/lexlean/ObjectReadParent49.lex.tex"
+      ],
+      "expected": "Actual complete production decode equality ID128; empty observedaxioms/fullartifact/kernel audit required. No fetch/wholeRead acceptance."
+    }
+  ],
+  "exactSemanticDifference": [
+    {
+      "path": [
+        "statement",
+        "right",
+        "arguments",
+        "0",
+        "fields",
+        "0",
+        "value",
+        "fields",
+        "0",
+        "value",
+        "head",
+        "value"
+      ],
+      "positive": "128",
+      "negative": "129"
+    }
+  ],
+  "limits": {
+    "childTimeoutMilliseconds": 300000,
+    "containerMemoryBytes": 4294967296,
+    "containerCpuCount": 2,
+    "axiomPolicy": "none",
+    "storage": "Existing20GiB conservative hostlaunch planning,11GiB host+guest immediatepre,10GiB postreserve; fresh identities/currentepoch/idle/memory and independent postcaptures remain required.",
+    "execution": "Parent-owned sequential official compiler only after exact source/invocation review and fresh admission. No duplicate compiler/cache or unchanged timeout retry."
+  },
+  "mandatoryLaterConsumer": {
+    "equation": "R4.ObjectRead.ObjAuthenticatedFetch(originalBackend, originalManifest.roots[0].id, 1) = Result.ok(expectedRecord)",
+    "backend": "Use all four original entries in original order from selectedDeclaration.statement.left.scrutinee.arguments[0], hash548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4. Parent is second; do not replace lookup with a one-record backend or stub.",
+    "context": "C(r) := match r with Result.error failure => Result.error failure | Result.ok decoded => if decoded.scale == 1 AND ObjBytesEqual(decoded.id.bytes,parentId.bytes) then Result.ok decoded else Result.error ObjError.integrityFailure. Exact Result ObjRecord ObjError throughout.",
+    "productionConnection": "Actual fetch first matches ObjRawLookup(originalBackend,parentId). Preserve Option.none -> ObjError.missing(parentId.bytes), Option.some wire -> C(ObjDecodeRecord wire). Reduction of exact literal lookup to parentWire49 must be established by actual accepted consumer conversion or a separately reviewed actual equation, never assumed. C(Result.ok expectedRecord) reduces through both scale/id checks to expected result.",
+    "supportedTransport": "The retained verified Nat-indexed Prop/Induction/Cases/Congruence/Apply pattern can express P(0)=decode equality and P(succ n)=C(actualDecode)=C(expectedSuccess). Zero Apply uses exact accepted decode theorem; successor cases use the same reviewed congruence pattern. Actual consumer Apply at1 then depends on definitional equality with full fetch. Freeze exact proposed AST and imports before independent CODE review.",
+    "noUnsupportedConstructs": "Result/Option matches above are expression ASTs already present in production. Do not invent proof-level Result Cases, Rewrite, raw Lean injection or Simplify/propext. The selected precedent uses Nat proof cases and congruence.",
+    "mandatoryAcceptance": "An actual native artifact for the full connected fetch equation, exact source/runtime/lock binding, empty observed axioms and kernel replay. Source use of Apply alone is not evidence that transport completes cheaply or avoids recomputation.",
+    "reuseControl": "At source review, verify actual consumer proof references the accepted decode theorem via the supported transport. If a negative is needed to discriminate theorem reuse, use the existing supported unrelated0=0 base-Apply pattern in one bounded reviewed control; do not accept direct rfl recomputation as proof of certificate reuse.",
+    "conditionalScope": "First implement/freeze only exact decode positive/false-ID pair. After their actual outcomes and independent review, prepare the connected fetch source under this contract. Do not generate other record certificates or broader read framework automatically."
+  },
+  "scope": "Only first full ObjDecodeRecord(parent49wire)=Result.ok(expectedObjRecord) pair. Original wire AST including bounded ObjAppendBytes preserved. Expected payload built by literal cons/append projection only; no computed hash, assumedidentity or runtime shortcut. CanonicalRead33/failedstages remain unchanged. No runner/framework/fetchcandidate authored.",
+  "storage": {
+    "hostAvailableKiBBefore": 27025056,
+    "maximumNewTextBytes": 1048576,
+    "reserveBytes": 10737418240
+  }
+}
