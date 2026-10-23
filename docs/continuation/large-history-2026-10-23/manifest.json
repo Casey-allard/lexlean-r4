@@ -1,0 +1,54 @@
+{
+  "scope": "Lossless historical large JSON provenance; no semantic acceptance. Original locations/aliases in inventory.json.",
+  "files": [
+    {
+      "path": "files/2b71f6d66998ecd5f9869165c36dbe99c9d54aa82cd7f3f7bf64a4410662968a.json.gz",
+      "originalSha256": "2b71f6d66998ecd5f9869165c36dbe99c9d54aa82cd7f3f7bf64a4410662968a",
+      "originalBytes": 5072428,
+      "compressedBytes": 125974,
+      "compressedSha256": "416c98915e219ed9c073521fc5a8ede5b4918b5ff6e622e38fd521406027cc3e"
+    },
+    {
+      "path": "files/61bbd6102f14357b04f791b694989e7a24d75fbb6b4bdb2c75f3edaabf79dc0d.json.gz",
+      "originalSha256": "61bbd6102f14357b04f791b694989e7a24d75fbb6b4bdb2c75f3edaabf79dc0d",
+      "originalBytes": 4428128,
+      "compressedBytes": 64458,
+      "compressedSha256": "60f658530748b634dc221b3f3aa1bf65fd9759843bb7cc60074a16385ac7268a"
+    },
+    {
+      "path": "files/a79fb5147ba9491a6234b757c4f2f611cc982f835b6c97ad2d5547fee222cbb6.json.gz",
+      "originalSha256": "a79fb5147ba9491a6234b757c4f2f611cc982f835b6c97ad2d5547fee222cbb6",
+      "originalBytes": 7708295,
+      "compressedBytes": 231542,
+      "compressedSha256": "e4dacb73948c1ebb3f69b3da0e120e801ddf45d2b7b94c52133755a5e7bbf5c7"
+    },
+    {
+      "path": "files/b3ec8e94de250cab2ea3eb7696428fb67d9be42609e3533defc4ac935f06a0b7.json.gz",
+      "originalSha256": "b3ec8e94de250cab2ea3eb7696428fb67d9be42609e3533defc4ac935f06a0b7",
+      "originalBytes": 21628433,
+      "compressedBytes": 826887,
+      "compressedSha256": "8bff4aadf4350e69bcddd478ab88eacb2c39f10b7557620eda77b4122b35534e"
+    },
+    {
+      "path": "files/b515cb519609e750dbee2fc00a8bf0d7b962bcf0c0bf4b71931d3fa69cc8a6fa.json.gz",
+      "originalSha256": "b515cb519609e750dbee2fc00a8bf0d7b962bcf0c0bf4b71931d3fa69cc8a6fa",
+      "originalBytes": 54688754,
+      "compressedBytes": 1865206,
+      "compressedSha256": "be6af7e166e19235fb8b654fadefc8fd6d3b0bb43cbb43069b406a865925f642"
+    },
+    {
+      "path": "files/d68cb91b3592ad53d0f9456123b286677090ffb31c82a08dcbff62e40736ccf2.json.gz",
+      "originalSha256": "d68cb91b3592ad53d0f9456123b286677090ffb31c82a08dcbff62e40736ccf2",
+      "originalBytes": 2986201,
+      "compressedBytes": 210835,
+      "compressedSha256": "48227fb53d0884616983cb21f027199f55eb215a42aa441bd1f4aa97ec4b6b53"
+    },
+    {
+      "path": "files/efa05b5994ecdc494fecfe51f1c72ec2d2914eedf644a8a479e33b6f843430bf.json.gz",
+      "originalSha256": "efa05b5994ecdc494fecfe51f1c72ec2d2914eedf644a8a479e33b6f843430bf",
+      "originalBytes": 2709004,
+      "compressedBytes": 528677,
+      "compressedSha256": "0905010fff0bd38c7c40d887bfdc40f32ebf9ac613ae2c4f9f1e0ad89f431455"
+    }
+  ]
+}

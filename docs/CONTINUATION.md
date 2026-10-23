@@ -202,3 +202,26 @@ preserves the additional 324 small text contents found in the bounded local
 inventory, with source/alias mappings and exact hashes. Active product drafts
 and all 24 inspected candidate/evidence LexLean source occurrences already matched
 committed bytes. This archive preserves provenance; it adds no accepted capability.
+
+### Local-history reconciliation
+
+The [earlier source inventory](continuation/earlier-history-2026-10-23/README.md)
+adds 1,821 deduplicated historical text payloads (60,597,422 original bytes),
+covering 3,729 source/alias locations across 83 named project roots. It compares
+exact committed files and decoded source strings before archival. The
+[large JSON archive](continuation/large-history-2026-10-23/README.md) closes all
+14 large-inventory exclusions with seven losslessly compressed contents
+(99,221,243 original bytes). All eight inspected large Engine/Words source copies
+already matched main. Original and compressed hashes are recorded separately.
+
+These archives preserve old source versions, rejected candidates, negative
+controls, plans and observations. Twenty upstream compiler excerpts are labeled
+historical authority references. They do not install dependencies, revive the
+abandoned harness work or establish new acceptance. Current product development
+continues with the first concrete fold state described above.
+
+This reconciles the enumerated project source/plan locations, not every local
+file. Raw compiler bundles, build/VM caches, compiler checkouts and unrelated
+plugin changes remain excluded and preserved locally; acceptance cannot rely on
+missing raw artifacts. The inventories state their traversal and comparison
+boundaries. No original local work was deleted during preservation.

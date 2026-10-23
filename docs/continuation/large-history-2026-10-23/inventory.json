@@ -1,0 +1,276 @@
+{
+  "at": "2026-10-23T17:45:34.475Z",
+  "status": "PASS_STREAMED_TEXT_INVENTORY_READY_FOR_EXACT_GZIP_ARCHIVE",
+  "priorInventory": {
+    "path": "/tmp/r4-remaining-project-source-inventory-20261023.json",
+    "bytes": 948565,
+    "sha256": "f61521d5f86eeed77854742c335a09dc2059ebcdcdc87c08cd1c5d73176aefad"
+  },
+  "basis": {
+    "repository": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+    "originMain": "31ec155d064cdf70c1db1aa01d18ac744b6d74c6",
+    "remoteFreshness": "Local origin/main reference; no fetch.",
+    "roots": [
+      "/Users/casey.allard/lexlean-r4-evidence/2026-10-21",
+      "/Users/casey.allard/lexlean-r4-evidence/2026-10-22",
+      "/tmp/lexlean-r4-hash-nat-reviewed-mutants-20261023",
+      "/tmp/lexlean-r4-hash-wire-baseline-delivery-20261023",
+      "/tmp/lexlean-r4-hash-wire-budget-witness-projection-20261023",
+      "/tmp/lexlean-r4-hash-wire-checkpoint-draft-20261023",
+      "/tmp/lexlean-r4-hash-wire-mutants-20261021",
+      "/tmp/lexlean-r4-prediction-congr-lift-20261022",
+      "/tmp/lexlean-r4-prediction-insertion-bool-cases-candidate-20261023",
+      "/tmp/lexlean-r4-prediction-insertion-bool-cases-contract-20261023",
+      "/tmp/lexlean-r4-prediction-insertion-bool-helper-candidate-20261022",
+      "/tmp/lexlean-r4-prediction-insertion-bool-helper-contract-20261022",
+      "/tmp/lexlean-r4-prediction-insertion-nonempty-investigation-20261022",
+      "/tmp/lexlean-r4-prediction-ranked-boundary-20261022",
+      "/tmp/lexlean-r4-prediction-receipt-factorization-candidate-20261022",
+      "/tmp/lexlean-r4-prediction-receipt-factorization-contract-20261022",
+      "/tmp/lexlean-r4-prediction-shared-selection-candidate-20261022",
+      "/tmp/lexlean-r4-prediction-shared-selection-contract-20261022",
+      "/tmp/lexlean-r4-prediction-shared-selection-planted-candidate-20261022",
+      "/tmp/r4-hash-nat-recovery-mutation-design-20261023",
+      "/tmp/r4-hash-wire-awaited-cleanup-design-20261023",
+      "/tmp/r4-hash-wire-awaited-cleanup-implementation-20261023",
+      "/tmp/r4-hash-wire-custody-continuation-20261022",
+      "/tmp/r4-hash-wire-custody-continuation-evidence-20261022",
+      "/tmp/r4-hash-wire-eventual-delivery-plan-20261023",
+      "/tmp/r4-hash-wire-formal-evidence-20261021",
+      "/tmp/r4-hash-wire-formal-packet-20261021",
+      "/tmp/r4-hash-wire-fresh-stage-custody-adapter-20261023",
+      "/tmp/r4-hash-wire-fresh-stage-custody-adapter-design-20261023",
+      "/tmp/r4-hash-wire-fresh-temporal-binding-custody-successor-20261023",
+      "/tmp/r4-hash-wire-fresh-temporal-binding-design-20261023",
+      "/tmp/r4-hash-wire-fresh-temporal-binding-implementation-20261023",
+      "/tmp/r4-hash-wire-mutation-custody-evidence-20261023",
+      "/tmp/r4-hash-wire-mutation-custody-execution-20261023",
+      "/tmp/r4-hash-wire-mutation-independent-host-tests-20261023",
+      "/tmp/r4-hash-wire-projected-orchestration-design-20261023",
+      "/tmp/r4-hash-wire-projected-orchestration-design-reviewed-adapter-20261023",
+      "/tmp/r4-hash-wire-projected-orchestration-host-20261023",
+      "/tmp/r4-hash-wire-projected-witness-accounting-successor-20261023",
+      "/tmp/r4-hash-wire-projected-witness-execution-design-20261023",
+      "/tmp/r4-hash-wire-projected-witness-implementation-20261023",
+      "/tmp/r4-hash-wire-publication-diagnosis-20261023",
+      "/tmp/r4-hash-wire-publication-recovery-evidence-20261023",
+      "/tmp/r4-hash-wire-publication-recovery-execution-20261023",
+      "/tmp/r4-hash-wire-publication-recovery-plan-20261023",
+      "/tmp/r4-hash-wire-publication-recovery-record-order-execution-20261023",
+      "/tmp/r4-hash-wire-recovery-independent-host-tests-20261023",
+      "/tmp/r4-hash-wire-recovery-record-order-independent-host-tests-20261023",
+      "/tmp/r4-hash-wire-restoration-continuation-20261023",
+      "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023",
+      "/tmp/r4-hash-wire-restoration-process-successor-20261023",
+      "/tmp/r4-hash-wire-restoration-retained16-successor-20261023",
+      "/tmp/r4-hash-wire-restoration-vm5-successor-20261023",
+      "/tmp/r4-prediction-congr-lift-continuation-20261022",
+      "/tmp/r4-prediction-congr-lift-continuation-evidence-20261022",
+      "/tmp/r4-prediction-congr-lift-evidence-20261022",
+      "/tmp/r4-prediction-congr-lift-independent-reaudit-20261022",
+      "/tmp/r4-prediction-congr-lift-runner-20261022",
+      "/tmp/r4-prediction-congr-lift-two-diagnostic-20261022",
+      "/tmp/r4-prediction-congr-lift-two-diagnostic-evidence-20261022",
+      "/tmp/r4-prediction-insertion-bool-helper-dependency-execution-20261023",
+      "/tmp/r4-prediction-insertion-bool-helper-execution-20261022",
+      "/tmp/r4-prediction-insertion-bool-helper-output-order-execution-20261023",
+      "/tmp/r4-prediction-insertion-bool-helper-shared-role-dependency-evidence-20261023",
+      "/tmp/r4-prediction-insertion-bool-helper-shared-role-dependency-execution-20261023",
+      "/tmp/r4-prediction-proof-final-reviews-20261022",
+      "/tmp/r4-prediction-ranked-boundary-evidence-20261022",
+      "/tmp/r4-prediction-ranked-boundary-execution-20261022",
+      "/tmp/r4-prediction-ranked-boundary-independent-reaudit-20261022",
+      "/tmp/r4-prediction-receipt-factorization-evidence-20261022",
+      "/tmp/r4-prediction-receipt-factorization-execution-20261022",
+      "/tmp/r4-prediction-receipt-factorization-output-order-evidence-20261023",
+      "/tmp/r4-prediction-receipt-factorization-output-order-execution-20261023",
+      "/tmp/r4-prediction-receipt-factorization-role-evidence-20261023",
+      "/tmp/r4-prediction-receipt-factorization-role-execution-20261023",
+      "/tmp/r4-prediction-shared-selection-dependency-execution-20261023",
+      "/tmp/r4-prediction-shared-selection-execution-20261022",
+      "/tmp/r4-prediction-shared-selection-output-order-evidence-20261023",
+      "/tmp/r4-prediction-shared-selection-output-order-execution-20261023",
+      "/tmp/r4-prediction-shared-selection-role-evidence-20261023",
+      "/tmp/r4-prediction-shared-selection-role-execution-20261023",
+      "/tmp/r4-prediction-successor-20261021",
+      "/tmp/r4-prediction-successor-evidence-20261021"
+    ],
+    "locationFormat": "roots[root] + / + relativePath",
+    "scope": "Exactly14 unresolved over2MiB JSON entries in prior inventory, no other directories or data.",
+    "readChunkLimitBytes": 65536
+  },
+  "counts": {
+    "inputLocations": 14,
+    "uniqueAcceptedContents": 7,
+    "acceptedLocations": 14,
+    "uniqueBytes": 99221243,
+    "occurrenceBytes": 333245232,
+    "mainMatchedUnique": 0,
+    "unmatchedUnique": 7,
+    "rejectedLocations": 0
+  },
+  "entries": [
+    {
+      "sha256": "2b71f6d66998ecd5f9869165c36dbe99c9d54aa82cd7f3f7bf64a4410662968a",
+      "bytes": 5072428,
+      "gitBlob": "b37cc3905cd4bc1ca28f9f67b0f1dc01dd900097",
+      "locations": [
+        {
+          "root": 0,
+          "relativePath": "snapshot-domains/finite-crypto/predefinition/authority/snapshot-inventory.json"
+        },
+        {
+          "root": 0,
+          "relativePath": "snapshot-json/control-preparation/controls/inventory.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "2b71f6d66998ecd5f9869165c36dbe99c9d54aa82cd7f3f7bf64a4410662968a.json.gz"
+    },
+    {
+      "sha256": "61bbd6102f14357b04f791b694989e7a24d75fbb6b4bdb2c75f3edaabf79dc0d",
+      "bytes": 4428128,
+      "gitBlob": "1788bbfe25c63d76347de7e779755b80847ec9e1",
+      "locations": [
+        {
+          "root": 0,
+          "relativePath": "blake3-codebook/tmp/r4-codebook-words-controls-inventory.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "61bbd6102f14357b04f791b694989e7a24d75fbb6b4bdb2c75f3edaabf79dc0d.json.gz"
+    },
+    {
+      "sha256": "a79fb5147ba9491a6234b757c4f2f611cc982f835b6c97ad2d5547fee222cbb6",
+      "bytes": 7708295,
+      "gitBlob": "dbea5fd3063bf3fc62fba5a74a5c363c75a0e628",
+      "locations": [
+        {
+          "root": 0,
+          "relativePath": "json/preverification-110/r4-json-controls-inventory.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "a79fb5147ba9491a6234b757c4f2f611cc982f835b6c97ad2d5547fee222cbb6.json.gz"
+    },
+    {
+      "sha256": "b3ec8e94de250cab2ea3eb7696428fb67d9be42609e3533defc4ac935f06a0b7",
+      "bytes": 21628433,
+      "gitBlob": "dfe81eda48a63b683a45025066b8057252e4f5b6",
+      "locations": [
+        {
+          "root": 0,
+          "relativePath": "snapshot-parameters/red/inventory-1.json"
+        },
+        {
+          "root": 0,
+          "relativePath": "snapshot-parameters/supplement/inventory.json"
+        },
+        {
+          "root": 1,
+          "relativePath": "snapshot-parameters/missing-module-red/inventory-1.json"
+        },
+        {
+          "root": 1,
+          "relativePath": "snapshot-parameters/provenance/supplement-inventory.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "b3ec8e94de250cab2ea3eb7696428fb67d9be42609e3533defc4ac935f06a0b7.json.gz"
+    },
+    {
+      "sha256": "b515cb519609e750dbee2fc00a8bf0d7b962bcf0c0bf4b71931d3fa69cc8a6fa",
+      "bytes": 54688754,
+      "gitBlob": "4f97d7202ce8fadafdee84715b186db38737cbe2",
+      "locations": [
+        {
+          "root": 0,
+          "relativePath": "snapshot-parameters/predefinition/inventory.json"
+        },
+        {
+          "root": 0,
+          "relativePath": "snapshot-parameters/red/inventory-0.json"
+        },
+        {
+          "root": 1,
+          "relativePath": "snapshot-parameters/missing-module-red/inventory-0.json"
+        },
+        {
+          "root": 1,
+          "relativePath": "snapshot-parameters/provenance/original-inventory.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "b515cb519609e750dbee2fc00a8bf0d7b962bcf0c0bf4b71931d3fa69cc8a6fa.json.gz"
+    },
+    {
+      "sha256": "d68cb91b3592ad53d0f9456123b286677090ffb31c82a08dcbff62e40736ccf2",
+      "bytes": 2986201,
+      "gitBlob": "dc6a077d68a2b30fec3a0b625421eae7d7067f58",
+      "locations": [
+        {
+          "root": 1,
+          "relativePath": "hash-wire/baseline/custody-manifest.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "d68cb91b3592ad53d0f9456123b286677090ffb31c82a08dcbff62e40736ccf2.json.gz"
+    },
+    {
+      "sha256": "efa05b5994ecdc494fecfe51f1c72ec2d2914eedf644a8a479e33b6f843430bf",
+      "bytes": 2709004,
+      "gitBlob": "2485c9777f460c777f62d2f89f69007611422b6a",
+      "locations": [
+        {
+          "root": 1,
+          "relativePath": "prediction/insertion-bool-cases-preparation/authority/official-source-inventory.json"
+        }
+      ],
+      "mainPaths": [],
+      "utf8Validated": true,
+      "nulDetected": false,
+      "commonCredentialPatternDetected": false,
+      "classification": "HISTORICAL_LARGE_JSON_EXACT_PROVENANCE; may contain embedded source; no proof or implementation acceptance inferred",
+      "suggestedArchiveName": "efa05b5994ecdc494fecfe51f1c72ec2d2914eedf644a8a479e33b6f843430bf.json.gz"
+    }
+  ],
+  "rejected": [],
+  "archiveRequirements": [
+    "Parent may stream gzip exactly one representative for each unmatched SHA256; preserve all original alias mappings.",
+    "After compression, stream-decompress and verify original SHA256/byte length, and separately record compressed SHA256/bytes. Do not call gzip output complete before these checks.",
+    "Gzip is a lossless historical text container, not a compiler binary, installed SDK or executable source activation. No unpacking into active sources or running embedded commands.",
+    "Retain all historical failures/negative statuses and original strings unchanged. Potential embedded source is preserved without asserting acceptance.",
+    "Preserve original files; do not delete on archival."
+  ],
+  "limits": [
+    "No full large JSON loaded or parsed; streaming hash and UTF8/NUL/common credential-marker checks only. JSON syntax/schema correctness and embedded source semantics are not assessed.",
+    "Credential pattern checks include privatekey/GitHub/AWS markers; no matched values printed. These checks are not exhaustive security proof.",
+    "No archive was produced by this reviewer; parent owns compression and eventual publication. No repository/VM/compiler/native/process changes.",
+    "Excluded compiler/build/marketplace/binary trees remain excluded. This closes only named14 large textual exclusions, not universal raw evidence coverage."
+  ],
+  "storageFreeBytes": "30768017408"
+}
