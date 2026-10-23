@@ -810,5 +810,12 @@
     "sha256": "4ce22e64b532261b14a0880f7cb2b3b98292f4863b236941cec2378055752bc4",
     "scope": "HOST_RAW_RECORDER_ONLY",
     "fullRestorationAccepted": false
+  },
+  "guardedCommandPreparation": {
+    "path": "tests/fixtures/hash-wire/guarded-command-preparation.json",
+    "bytes": 7275,
+    "sha256": "bfc939d7e50ac9bd6fb5d2dc8a3ca0b469febeca2fb179c03523941a5f9f73f5",
+    "scope": "HOST_RECEIPT_COMPOSITION_ONLY",
+    "fullRestorationAccepted": false
   }
 }

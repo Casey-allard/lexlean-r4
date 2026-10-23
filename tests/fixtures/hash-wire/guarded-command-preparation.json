@@ -1,0 +1,148 @@
+{
+  "schema": "lexlean-r4/guarded-command-preparation/1",
+  "date": "2026-10-23",
+  "status": "REVIEWED_HOST_RECEIPT_COMPOSITION_ONLY",
+  "scope": "One check or verify receipt callback with explicit trusted synthetic operations. No native process binding, SDK/application substitute, native proof or PrismPM acceptance.",
+  "packet": {
+    "manifest": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/manifest.json",
+      "bytes": 7077,
+      "sha256": "f49f47dab8b6d437ceece7f7d5e967a19e06860a3732f310589db0625ae58dea"
+    },
+    "callback": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/guarded.mjs",
+      "bytes": 20923,
+      "sha256": "d7669737197a0b6ecb59ce726825bb7c5f4b6f0033f381e7fe94db2efac72053"
+    },
+    "tests": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/final-suite.mjs",
+      "bytes": 16807,
+      "sha256": "b52f152fc4d03895ded856c489a6b486d96386513f41519f0d547861e55b56e8"
+    },
+    "repair": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/repair.json",
+      "bytes": 1340,
+      "sha256": "447154cb0edb6027ceae68240ca4171b41794d5be4096e8539996d586d3d08fd"
+    },
+    "sourceArchive": {
+      "path": "tests/fixtures/hash-wire/guarded-command-sources.json",
+      "bytes": 66785,
+      "sha256": "bba41b45f37c921e5c04723501c413ab6fb2e54c8cf2af9d23ff4eb93feb1c35"
+    }
+  },
+  "behavior": [
+    "Independently capture and inspect available post-failure source, SDK, epoch, memory, storage and idle evidence; preserve original nested and falsey errors.",
+    "Validate exact bigint host storage arithmetic and observation intervals, exclusive sample/readback provenance and fully awaited completion persistence.",
+    "Require a private successful check handle and complete current/prior raw hash and file-census checks; reject extra current preguard files before formal recorder invocation.",
+    "Repeat callback-free context, source, epoch and dependency validation after external pins observation, with synchronous raw checks before dispatch and result issuance."
+  ],
+  "reviews": {
+    "spec": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-spec-review-20261023.json",
+      "bytes": 4913,
+      "sha256": "447058b4662aef586ae1b3d999b7a3c77910bfcf105dc123b1962ebe721684c5"
+    },
+    "code": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-code-review-20261023/review.json",
+      "bytes": 11015,
+      "sha256": "3317c60b3b00960a21df927ab02747fd425129b2fd3cdbdc110c052c1f49d5d2"
+    }
+  },
+  "verification": {
+    "authorPredecessorActualFailures": 11,
+    "authorTargetedPassingCases": 11,
+    "authorCompletePassingCases": 63,
+    "independentCodePredecessorActualFailures": 11,
+    "independentCodeTargetedPassingCases": 11,
+    "independentCodeCompletePassingCases": 63,
+    "originalIndependentProbeRegressions": 2,
+    "actualNativeChildProcesses": 0,
+    "authorResult": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/resumed-final-green.json",
+      "bytes": 22555,
+      "sha256": "417e19df956c9018db7e4c4ec96ff5214891b4fe4b96d39eb33a8cd1a261142c"
+    },
+    "codeResult": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-code-review-20261023/reviewer-final-green.json",
+      "bytes": 22618,
+      "sha256": "98150def1339ce6a02ef383ca7b2f8826a277bfa9519fd5e16714ee956569301"
+    },
+    "codeProbeResult": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-code-review-20261023/extra-boundaries.json",
+      "bytes": 1642,
+      "sha256": "d0865c5764998a80be31551c31ea124b474073381f43dd6ff370f5c02166d6a5"
+    },
+    "authorCustody": {
+      "shards": 85,
+      "rawMembers": 9847,
+      "recoverableRawBytes": 11723514
+    },
+    "codeCustody": {
+      "shards": 87,
+      "rawMembers": 10037,
+      "recoverableRawBytes": 11958257
+    },
+    "reviewScope": "SPEC freshly checked source/pins/read-only custody. CODE independently reran exact predecessor failures, targeted successor tests, the complete 63-case suite and its two original fault probes."
+  },
+  "custody": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/guarded-command-preparation/custody.json",
+    "bytes": 21581,
+    "sha256": "82f0f49cd1936a0fdaf1b5db781993439fa0e763f297dac9b2128730be06aa54"
+  },
+  "lineage": {
+    "priorSpecRejection": {
+      "path": "/tmp/r4-wire-guarded-command-implementation-spec-review-20261023.json",
+      "bytes": 8440,
+      "sha256": "8dc00499eb0001723e526a37e77d4e2dde99c44e0f3c1e60310cb81790bf2864"
+    },
+    "priorCodeRejection": {
+      "path": "/tmp/r4-wire-guarded-command-custody-boundary-code-review-20261023/review.json",
+      "bytes": 12106,
+      "sha256": "b2590e99d0f6b55be3436a89f8c64e1c51cfebff5b17eed9625d27843c7ff206"
+    },
+    "priorSpecRejectionCustody": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/guarded-command-spec-rejection/custody.json",
+      "bytes": 8628,
+      "sha256": "66403df8c5824fb346ea2e78f9340d7902fe4531d7ebf9a39d561a70dc214c0f"
+    },
+    "priorCodeRejectionCustody": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/guarded-command-code-rejection/custody.json",
+      "bytes": 17539,
+      "sha256": "ca2f26810997a74316270dbfecfe08050c2403b93483848b4b5cef347bd34eeb"
+    }
+  },
+  "storage": {
+    "userDirectedHostEpoch": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/USER-RESUME-EPOCH.json",
+      "bytes": 943,
+      "sha256": "7633b11417c4b478886ce9f9c2619c61544eecd0ebd0adba7fd27beaddaf5545"
+    },
+    "priorHold": {
+      "path": "/tmp/r4-wire-guarded-command-final-guards-successor-20261023/STORAGE-HOLD.json",
+      "bytes": 2592,
+      "sha256": "87548fbb81cf3ad5b8241a9101ebe3540f7ab52435a6e9c188a6e8d16bb48116"
+    },
+    "authorMaximumReservedProjectionBytes": 909312,
+    "codeMaximumReservedProjectionBytes": 888832,
+    "additionalBudgetBytes": 1048576,
+    "hostReserveBytes": 10737418240,
+    "continuousHighWaterClaim": false,
+    "limitations": "Original archive replacement omitted temporary-copy allocation; uninterrupted predecessor 1 MiB compliance remains unestablished. Earlier partial budget-stopped suite and original pre-fixture hold remain preserved and unaccepted. The user explicitly resumed bounded host work with storage monitoring; native gates did not change."
+  },
+  "limitations": [
+    "All subprocess fixtures write synthetic bytes to owned descriptors; they do not run the SDK or establish native command admission.",
+    "Trusted synchronous operation bindings, ownership of callback effects and exclusion of concurrent writers remain external obligations; no perpetual filesystem immutability or crash durability guarantee.",
+    "This archive is development verification evidence, not an installed host implementation of LexLean or PrismPM.",
+    "Production SDK/template binding, full integration checks and generated GitHub Pages remain open."
+  ],
+  "actual": {
+    "restoredRoots": 16,
+    "requiredRestorationRoots": 78,
+    "observedMutants": 2,
+    "requiredMutants": 7,
+    "fullRestorationAccepted": false,
+    "fullMutationAccepted": false,
+    "actualFull78Binding": null,
+    "actualFreshEpochBinding": null
+  }
+}
