@@ -1,0 +1,14 @@
+# Object257 final-leaf and parent-context certificate candidate
+
+AUTHORED ONLY. Independent source/code review and actual official sourcecheck, negative, positive, axiom audit and kernel replay are required. No native operation was invoked by author.
+
+Six source modules and five entrypoint-only configurations are present. Production closure is pinned by reference in proposal.json. No runtime Object function or original objFoldDigest257 assertion changes. The leaf statement is exactly the retained statement; its expected record is a proposition conclusion, never a trusted implementation input.
+
+Run phases sequentially in proposal.json order. Before any native phase, parent must establish fresh post-OOM resource identity/epoch and budget; old zero OOM counters cannot be reused. Parent alone creates fresh owned stages and genuine locks. Copy the ten shared production sources, three Lake/toolchain inputs, all six candidate source modules and the selected config; do not copy the original ObjectNatDigest257 root into this probe. Sourcecheck every configured closure before verify. False leaf is a one-byte wrong expected output. False transport changes only lifted zero-branch Apply target to a prior zero-argument0=0 theorem. Only intended equality/type diagnostic is accepted as RED; resource or source errors are instrument failures.
+
+The transport intentionally tests existing proof forms: an actual ObjMakeParent1 context C, a structurally recursive Nat iterator I, zero Apply leaf, successor Congruence, and exact Apply at1 to the consumer. Native congr1 elaboration and empty-axiom result are unknown. Do not assume success or broaden to thirteen certificates. Direct imports are explicit to satisfy check_member; draft source inspection corrected three missing direct import envelopes before freeze, without any compiler invocation or false claim of runtime RED.
+
+Read-only local structural check: node /tmp/r4-object257-leaf-transport-candidate-20261023/source-audit.mjs
+Its PASS only checks literal preservation, exact one-site false companions, direct imported module references, canonicalJSON, supported-shape source intent, shared bytes and config deltas. It is not official source checking or proof acceptance. expected-emission.txt is intent, not actual output. Retain actual emitted Lean later and verify the intended context/induction/Apply sequence.
+
+No proof provides Hash/Object/production acceptance or a complete original257 decomposition. Source analysis of an official newer source tree corroborates proof schemas; installed compiler's actual sourcecheck and output remain decisive. The exact installed executable and runtime identities must be independently bound at execution; no compiler adoption is proposed.

@@ -1,0 +1,21 @@
+{
+  "status": "PASS_READ_ONLY_PRODUCTION_AST_AND_PINS",
+  "checks": [
+    "all fifteen historical inputs, SPEC, proposal, accepted leaf and prior proof exact",
+    "exact semantic-module/2 declaration census",
+    "context equals production cons AST after only specified substitutions and qualification",
+    "three typed errors preserve original bound failure at CarryState output",
+    "same bound leaf staged and projected into depth38/scale0 carry; tail remains production call",
+    "exact accepted leaf equation and native-proven Prop family shape",
+    "proof unchanged from successful Induction/Cases/Congruence; consumer Apply1; empty axioms",
+    "consumer actual ObjFoldAtoms [[0]]; RHS exact cons-ok branch certified-leaf substitution",
+    "negative semantic AST differs only at lifted zero Apply theorem",
+    "all module member references directly imported and no unqualified production member",
+    "configs alter only entrypoint, retain 300000ms; phases NOT_RUN"
+  ],
+  "nativeCheck": "NOT_RUN",
+  "nativeNegative": "NOT_RUN",
+  "nativePositive": "NOT_RUN",
+  "kernelReplay": "NOT_RUN",
+  "limit": "Structural correspondence and prior proof shape do not establish current compiler admission, definitional conversion, congruence closure or resource cost."
+}

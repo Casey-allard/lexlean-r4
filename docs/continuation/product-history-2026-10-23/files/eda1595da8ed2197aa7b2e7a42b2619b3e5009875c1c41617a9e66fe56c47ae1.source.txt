@@ -1,0 +1,40 @@
+// Authors only the reviewed proof-local source. No SDK, process launch or production edits.
+import fs from 'node:fs';import crypto from 'node:crypto';import path from 'node:path';import assert from 'node:assert/strict';
+const here=path.dirname(new URL(import.meta.url).pathname),old='/tmp/r4-object257-leaf-transport-candidate-20261023';
+const sha=x=>crypto.createHash('sha256').update(x).digest('hex'),read=p=>fs.readFileSync(p);
+const leafPath=old+'/tests/lexlean/Object257LeafCertificate.lex.tex';
+const oldManifest=JSON.parse(read(old+'/manifest.json'));assert.equal(sha(read(old+'/manifest.json')),'564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4');
+assert.equal(sha(read(leafPath)),oldManifest.files.find(x=>x.path==='tests/lexlean/Object257LeafCertificate.lex.tex').sha256);
+const leaf=JSON.parse(read(leafPath).toString().match(/\\semanticdata\{(.*)\}/)[1]).declarations[0];
+assert.equal(sha(JSON.stringify(leaf.statement)),'d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b');assert.deepEqual(leaf.proof,{kind:'reflexivity'});
+const sort=x=>Array.isArray(x)?x.map(sort):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,sort(x[k])])):x;
+function put(rel,data){const p=here+'/'+rel;fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,typeof data==='string'?data:JSON.stringify(data,null,2)+'\n',{flag:'wx'});}
+function writeModule(name,imports,declarations){put('tests/lexlean/'+name+'.lex.tex','\\begin{lexlean}{'+name+'}\n\\useglossary{lexlean.std.bool@1.2.0}\n\\useglossary{lexlean.std.nat@1.2.0}\n'+imports.map(x=>'\\importmodule{'+x+'}\n').join('')+'\\title{Boolean}\n\\begin{semanticmodule}\n\\semanticdata{'+JSON.stringify(sort({spec:'lexlean/semantic-module/2',declarations}))+'}\n\\end{semanticmodule}\n\\end{lexlean}\n');}
+const ref=(module,name)=>module?{module,name}:{name},v=name=>({kind:'var',name}),n=value=>({kind:'nat',value:String(value)}),call=(module,name,...args)=>({kind:'call',function:ref(module,name),arguments:args});
+const named=name=>({kind:'named',member:ref('R4.ObjectTypes',name),arguments:[]});
+const rec=named('ObjRecord'),err=named('ObjError'),inventory={kind:'list',element:rec},limits=named('ObjLimits'),input={kind:'result',ok:rec,error:err},output={kind:'result',ok:inventory,error:err};
+const param=(name,type)=>({name,type}),shared=[param('inventory',inventory),param('limits',limits)],M='Object257StagingContext';
+const contextBody={kind:'match',scrutinee:v('item'),branches:[{constructor:{name:'Result.error'},binders:['failure'],body:{kind:'constructor',constructor:{name:'Result.error'},arguments:[v('failure')],type_arguments:[inventory,err]}},{constructor:{name:'Result.ok'},binders:['leaf'],body:call('R4.ObjectStore','ObjStageRecord',v('inventory'),v('leaf'),v('limits'))}]};
+const H={kind:'definition',name:'ObjLeafStagingContext',parameters:[...shared,param('item',input)],result:output,body:contextBody};
+const x=structuredClone(leaf.statement.left),y=structuredClone(leaf.statement.right);
+const staged=t=>call(null,H.name,v('inventory'),v('limits'),t);
+const stageEquality={kind:'eq',left:staged(x),right:staged(y)};
+const P={kind:'definition',name:'ObjLeafStagingGoal',parameters:[...shared,param('count',{kind:'nat'})],result:{kind:'prop'},body:{kind:'match',scrutinee:v('count'),branches:[{constructor:{name:'Nat.zero'},binders:[],body:structuredClone(leaf.statement)},{constructor:{name:'Nat.succ'},binders:['prior'],body:stageEquality}]}};
+writeModule(M,['R4.ObjectTypes','R4.ObjectStore'],[H,P]);
+const theorem=(name,parameters,statement,proof)=>({kind:'theorem',name,parameters,axioms:[],statement,proof});
+const apply=(module,name,args=[])=>({kind:'apply',theorem:ref(module,name),type_arguments:[],arguments:args});
+const decoy=theorem('obj257StagingUnrelatedZero',[],{kind:'eq',left:n(0),right:n(0)},{kind:'reflexivity'});
+const lifted=theorem('obj257LeafStagingLifted',[...shared,param('count',{kind:'nat'})],call(M,P.name,v('inventory'),v('limits'),v('count')),{kind:'induction',scrutinee:'count',generalizing:[],branches:[{constructor:'zero',binders:[],proof:apply('Object257LeafCertificate',leaf.name)},{constructor:'succ',binders:['prior','ih'],proof:{kind:'cases',scrutinee:'prior',branches:[{constructor:'zero',binders:[],proof:{kind:'congruence'}},{constructor:'succ',binders:['earlier'],proof:{kind:'congruence'}}]}}]});
+const consumerLeft=structuredClone(contextBody);consumerLeft.scrutinee=structuredClone(x);
+const consumer=theorem('obj257LeafStagingConsumer',shared,{kind:'eq',left:consumerLeft,right:call('R4.ObjectStore','ObjStageRecord',v('inventory'),structuredClone(y.arguments[0]),v('limits'))},apply(null,lifted.name,[v('inventory'),v('limits'),n(1)]));
+const imports=['R4.ObjectTypes','R4.ObjectStore','Object257LeafCertificate',M];
+writeModule('Object257StagingTransport',imports,[decoy,lifted,consumer]);
+const negative=structuredClone(lifted);negative.proof.branches[0].proof=apply(null,decoy.name);
+writeModule('Object257StagingTransportFalseBase',imports,[decoy,negative,consumer]);
+const prior=JSON.parse(read(old+'/proposal.json'));for(const f of prior.sharedInputs){const b=read(f.source);assert.equal(b.length,f.bytes);assert.equal(sha(b),f.sha256);}
+const config=read(prior.sharedInputs.find(f=>f.path==='lexlean.toml').source).toString();
+const phases=[{name:'staging-false',module:'Object257StagingTransportFalseBase',expected:'SOURCE_VALID_BASE_APPLY_TYPE_MISMATCH_NOT_RESOURCE'},{name:'staging-positive',module:'Object257StagingTransport',expected:'ALL_SELECTED_DECLARATIONS_EMPTY_AXIOMS_AND_KERNEL_REPLAY'}];
+for(const phase of phases)put('configs/'+phase.name+'/lexlean.toml',config.replace(/^entrypoints = .*$/m,'entrypoints = ["tests/lexlean/'+phase.module+'.lex.tex"]'));
+put('proposal.json',{status:'AUTHORED_NOT_NATIVE_CHECKED',specReview:{path:'/tmp/r4-object257-staging-transport-spec-review-20261023.json',sha256:'ef65d1ad92130172899041f981133926f66284b7becccb95a65d3a73eb6c9cf6'},priorCandidateManifest:{path:old+'/manifest.json',sha256:sha(read(old+'/manifest.json'))},sharedInputs:prior.sharedInputs,leafCertificate:{path:leafPath,sha256:sha(read(leafPath)),statementJsonSha256:sha(JSON.stringify(leaf.statement))},phasePlan:phases.map(p=>({...p,status:'NOT_RUN',root:'tests/lexlean/'+p.module+'.lex.tex',config:'configs/'+p.name+'/lexlean.toml'})),sourceOnlyBudget:{baselineHostAvailableKiB:34286840,reserveBytes:10737418240,maxAdditionalBytes:1048576},stageComposition:'Parent only: new owned source-only stage containing exact10shared runtime sources,3Lake/toolchain files,byte-identical accepted leaf source,three candidate modules and phase-specificconfig. Omit original257 and prior parent-context controls. Generate actual freshlock. NoSDKinvoked byauthor.',policy:'Exact300000ms baseconfig, no timeout/memory/axiom/compiler changes. Original257/runtime definitions untouched; no13-node expansion.',claim:'Conditional source-supported transport only. Officialcheck/negative/positive/emission/replay/axiomaudit allNOT_RUN. Prop definition and both congr branches may fail; preserve actual diagnostic without weakening obligation.'});
+put('expected-emission.txt','INTENT ONLY, NOT NATIVE OUTPUT\nH inventory limits item := match item with | error e => error e | ok leaf => ObjStageRecord inventory leaf limits\nP inventory limits count : Prop := match count with | zero => originalLeafEq | succ prior => H inventory limits actualLeaf = H inventory limits expectedLeaf\nLifted:\n  induction count with\n  | zero => exact Object257LeafCertificate.objTrace257Record10\n  | succ prior ih =>\n    cases prior with\n    | zero => congr 1\n    | succ earlier => congr 1\nConsumer: exact obj257LeafStagingLifted inventory limits 1\nNegative: only lifted zeroApply target is obj257StagingUnrelatedZero.\n');
+console.log(JSON.stringify({status:'SOURCE_AUTHORED_NATIVE_NOT_RUN',newModules:3,definitions:2,targetTheorems:2,negative:'only zeroApplytarget'}));

@@ -1,0 +1,252 @@
+{
+  "at": "2026-10-23T14:55:01.136Z",
+  "status": "PASS_OBJECT257_REAL_SOURCE_CHECK_AND_PLAN_CONTENT_REVIEW",
+  "reviewedEvidence": {
+    "restart-budget": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/restart-budget.json",
+      "bytes": 448,
+      "sha256": "4190b2a02e1926fc031f45722b3de50a852b8c7d6a78c81ecedc2b7bd10e312d"
+    },
+    "container-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/container-before.json",
+      "bytes": 997,
+      "sha256": "f2d376d0dcc8212497060e04c2a134d35196b3493827ad942f498d5b652f52a6"
+    },
+    "container-start": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/container-start.json",
+      "bytes": 315,
+      "sha256": "3e334a6d162c015a11301f54bec2f3390b4a0d67057975134b68a281299190fe"
+    },
+    "container-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/container-after.json",
+      "bytes": 998,
+      "sha256": "7088854640348a91adde02e9ca832c73e1697a2e262420eaab11c6516584e4fe"
+    },
+    "guest-epoch": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/guest-epoch.json",
+      "bytes": 336,
+      "sha256": "812a72261fe4b88880e6d33332b94fbf757a75e6a38bd522592c3a8ef51d5c60"
+    },
+    "guest-storage": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/guest-storage.json",
+      "bytes": 406,
+      "sha256": "8be09991e83ebb3b80922b716e466b821841f4eb6c9ae29aa431f411066970a2"
+    },
+    "memory-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/memory-before.json",
+      "bytes": 354,
+      "sha256": "a47bcd3284c735b0243e5cc6c8a4b8e5798ef71facbd58405c9926bf7369c503"
+    },
+    "compiler-tools": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/compiler-tools.json",
+      "bytes": 1005,
+      "sha256": "9254e22c5636ac95195dce0197aeac379881867ad277f12951f226449180ee33"
+    },
+    "idle": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/idle.json",
+      "bytes": 451,
+      "sha256": "aea1f8d48f917e74630c89614cefc36614cbaaafea568f92e33ee61d563b2cc9"
+    },
+    "object-diagnostic-inputs": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-diagnostic-inputs.json",
+      "bytes": 2777,
+      "sha256": "39c1962e830261621fbe81651ed75ba97170eb59b4d149f5ffcb8a5ac2768e9d"
+    },
+    "object-absent-upload": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-absent-upload.json",
+      "bytes": 331,
+      "sha256": "d0cd9fb4d40c9275253ac84259445a84f124be7352cb64de80e968cd2573fb87"
+    },
+    "object-absent-stage": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-absent-stage.json",
+      "bytes": 330,
+      "sha256": "57f2777bd8f531890c7d46558a185b5c2c7c47f533053c7fbe79d206aaa8d91d"
+    },
+    "object-upload": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-upload.json",
+      "bytes": 436,
+      "sha256": "9d1f23efd521f70e4a6f1704592ab013cdd1232434fd97f96450a097324c77e0"
+    },
+    "object-own-copy": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-own-copy.json",
+      "bytes": 394,
+      "sha256": "026f2b7e00f407192bfa4f8fe912efe8af1966a3cac55abe32ea22a17ee938ea"
+    },
+    "object-owner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-owner.json",
+      "bytes": 339,
+      "sha256": "85c7eb3e1bf3114cf00acd94b214af0ce754fa1cc4085a894454dce6608a5a36"
+    },
+    "object-source-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-source-before.json",
+      "bytes": 3403,
+      "sha256": "d78cc2d889c9221a76148729532037118e769679fcd2329ddf2d8f0668867b69"
+    },
+    "object-lock": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-lock.json",
+      "bytes": 521,
+      "sha256": "5bd19f664fa46b85642184851d43871cddb8e6f49634d78b27f14fcb1751726f"
+    },
+    "object-lock-bytes": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-lock-bytes.json",
+      "bytes": 2037,
+      "sha256": "eaf5beb68f0dacd21b8fc3ad55f5ca37b42fb4ab2dddd7a1d4e8bc40c1d84e99"
+    },
+    "object-check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-check.json",
+      "bytes": 885,
+      "sha256": "b5bcffe2fd506a66e4f5a976f0c8c1f5d8a2edfd215feab5e3f857c58ab67e2c"
+    },
+    "object-source-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-source-after.json",
+      "bytes": 3403,
+      "sha256": "4a33dcf075b3fb8a0c706308a2b761de82ecfe0ee05b2b00877f3533c1f2af76"
+    },
+    "object-lock-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-lock-after.json",
+      "bytes": 2037,
+      "sha256": "0222a4d3eaf3017f8c569b0d4eb77c01a2d21fdcb37eba994da718336b37a0f4"
+    },
+    "object-memory-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-memory-after.json",
+      "bytes": 354,
+      "sha256": "c9ba34cd373a9de2302dff215dc76bf77621508c2ff1497e257c454e88a61195"
+    },
+    "object-epoch-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-epoch-after.json",
+      "bytes": 523,
+      "sha256": "532cba505cc445ee2667204baacc2469ff6163acce525a336afbacdae1d4054f"
+    },
+    "object-guest-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-guest-after.json",
+      "bytes": 445,
+      "sha256": "72fee41e2ca78c0d2cd391d12665ba8b3d162b976263fe7e5f9c80396ede5fb7"
+    },
+    "object-idle-after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-idle-after.json",
+      "bytes": 451,
+      "sha256": "2f4f904680a211daa1bb46c290b3e121a068ec3fbfd41697bef9bdd78dc95bba"
+    },
+    "host-after-check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/host-after-check.json",
+      "bytes": 74,
+      "sha256": "f34ac3131fb571d344e155727b2817217af374eaf8df97df925103148479d904"
+    },
+    "verify-budget-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-budget-before.json",
+      "bytes": 233,
+      "sha256": "c6417d26463d2ea738c5c9be1c7a3a0e5bcdac69b1346b87260bd6b3f9b688a0"
+    },
+    "verify-guest-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-guest-before.json",
+      "bytes": 445,
+      "sha256": "24b10e82f621a55b01c2d4ef3160e6ed960119d65a76f8e39954116d8dbe84e4"
+    },
+    "verify-memory-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-memory-before.json",
+      "bytes": 354,
+      "sha256": "16251e250ccd355e72c42e0c922af0a91d17aa396645dd6c9185ed2d0c3c996c"
+    },
+    "verify-idle-before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-idle-before.json",
+      "bytes": 451,
+      "sha256": "fdd5f669b0c1fbd5bdb16cecf7dfd37d28eb6524bd8cd78e03672cc0807cf3cd"
+    }
+  },
+  "originalManifest": {
+    "path": "/tmp/r4-hash-wire-formal-packet-20261021/manifest.json",
+    "bytes": 158039,
+    "sha256": "6570cd6f3196715ea0ac5bfc75495fa4bd65a76940f64a3dded12c753e928d9e"
+  },
+  "source": {
+    "retainedFiles": 15,
+    "allLocalBytesMatchOriginalObject257Manifest": true,
+    "beforeAfterGuestHashesMatchAll15": true,
+    "stage": "/tmp/r4-object257-diagnostic-owned-20261023",
+    "absenceAndOwnedCopyRecorded": true
+  },
+  "observedCompilerResult": {
+    "lockExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "modules": 11,
+    "sourceId": "573c14412cbe9608355e61e27be51e81e4ef01f9b386a39cd03f4468b5d094f4",
+    "semanticId": "0c925843d6d9f8f1ddd349a3fb3d4b8dc7a0930eba88ab84d8ca4875ce955c8d",
+    "artifacts": [],
+    "classification": "ACTUAL_OFFICIAL_DEVELOPMENT_COMPILER_SOURCE_CHECK_ONLY"
+  },
+  "generatedDevelopmentLock": {
+    "bytes": 1597,
+    "sha256": "f49589373f2b4bfb05dde9254adc2c805bb3e317913d5730dee1ad6beb244168",
+    "unchangedAfterCheck": true,
+    "compilerSemanticsAndProjectConfigMatch": true,
+    "productionSdkTemplateBinding": false
+  },
+  "identity": {
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "imageCompilerLeanLakeCheckerMatchOriginalManifest": true,
+    "containerMemoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "freshContainerStartedAt": "2026-10-23T14:50:22.294463771Z",
+    "postStartedAtUnchanged": true,
+    "postRestartCount": 0,
+    "newGuestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "memoryEventsUnchangedZero": true,
+    "idleBeforeAndAfterCheck": true,
+    "noCrossRestartCounterComparison": true
+  },
+  "storage": {
+    "initialHostBytes": "43416190976",
+    "hostAfterCheckBytes": "41608605696",
+    "hostBeforeVerifyBytes": "40727818240",
+    "guestBeforeBytes": 54635888640,
+    "guestAfterBytes": 54632120320,
+    "reserveBytes": 10737418240,
+    "estimatedAdditionalBytes": 10737418240,
+    "launchBudgetPass": true,
+    "prePostThresholdsPass": true,
+    "cumulativeHostDeclineBytes": 2688372736,
+    "declineNote": "Cumulative 2.50 GiB loss reported to parent for attribution investigation; reserve remains above conservative launch floor and stated peak allowance. Budget is not attribution proof or continuous storage measurement."
+  },
+  "nextExperiment": {
+    "assessment": "Reasonable separately recorded real product compiler experiment on unchanged retained candidate; not blocked by the absence of combined host orchestration.",
+    "argv": [
+      "lexlean",
+      "--diagnostic-format",
+      "json",
+      "verify",
+      "tests/lexlean/ObjectNatDigest257Controls.lex.tex"
+    ],
+    "classification": "SINGLE_OBJECT257_THEOREM_EXPERIMENT_ONLY",
+    "ongoingSession": 99934,
+    "verifyOutcome": "EXCLUDED_NOT_REVIEWED",
+    "requiredResultHandling": "Retain actual status/diagnostics and post source/lock/epoch/memory/storage observations; inspect real proof/artifacts before any finite theorem claim. No Hash dependency, full Object, restoration or mutation acceptance follows."
+  },
+  "planDelivery": {
+    "status": "PASS_EXACT_PLAN_CONTENT_ONLY",
+    "plan": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 18972,
+      "sha256": "fbe7142b36a08be4bb2b5d261ac742abcaa12cd6cfa085f108d8a3f745b146c9"
+    },
+    "head": "8ad1503964aa5dfc5c95ac8ee1a4deac78b49322",
+    "stagedPathsAtReview": [],
+    "workingAndStagedBytesEqual": null,
+    "diffCheck": "PASS",
+    "preservedDirtyFiles": 17,
+    "allDirtyHashesUnchangedAndUnstaged": true,
+    "authoredObjectControlsConfirmed": 403,
+    "assessment": "Correctly restores product implementation priorities, preserves full pure LexLean/PrismPM scope and existing source/evidence, removes further general harness integration from active sequence, and retains Hash/Object/integration/Pages gates.",
+    "deliveryCondition": "Stage only the exact reviewed plan bytes for docs(plan) commit, recheck staged equality and preserve 17 unrelated dirty paths; no source or model acceptance is conveyed."
+  },
+  "findings": [],
+  "limits": [
+    "Reviewer issued no SDK/compiler/VM command and did not mutate any process; review used retained raw records and local source reads only.",
+    "Check success is source diagnostics, not Lean theorem proof. Ongoing verify outcome is explicitly outside this report.",
+    "Retained Object257 modules differ from current uncommitted canonical Object files; this diagnostic candidate does not integrate or accept the canonical implementation.",
+    "Hash restoration remains16/78 and mutation qualification2/7; Object403 controls, planted defects/restoration, PrismPM and Pages remain open.",
+    "No production locks fabricated; development lock was generated by the official installed compiler."
+  ]
+}

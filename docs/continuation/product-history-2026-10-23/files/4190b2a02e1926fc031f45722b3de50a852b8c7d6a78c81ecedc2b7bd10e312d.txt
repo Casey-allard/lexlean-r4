@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-23T14:49:20.336Z",
+  "hostAvailableBytes": "43416190976",
+  "reserveBytes": "10737418240",
+  "peakAdditionalPlanningBytes": "10737418240",
+  "breakdownGiB": {
+    "proofAndStaging": 1,
+    "paging": 4,
+    "concurrentHostChurn": 5
+  },
+  "allocatedVmDiskKiB": 26959648,
+  "action": "Restart existing lexlean-r4 VM unchanged; capture guest storage and exact tool/source identity before compiler commands",
+  "acceptance": false
+}

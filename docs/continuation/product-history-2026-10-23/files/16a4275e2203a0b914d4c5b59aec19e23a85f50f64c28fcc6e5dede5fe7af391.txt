@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-23T15:02:05.476Z",
+  "hostAvailableBytes": "37281071104",
+  "reserveBytes": 10737418240,
+  "estimatedAdditionalBytes": 10737418240,
+  "breakdownGiB": {
+    "proofAndStaging": 1,
+    "paging": 4,
+    "otherHostChurn": 5
+  }
+}

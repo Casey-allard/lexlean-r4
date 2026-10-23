@@ -1,0 +1,10 @@
+INTENT ONLY, NOT ACTUAL EMITTED LEAN
+Leaf: by rfl
+Apply leaf: exact Object257LeafCertificate.objTrace257Record10
+Lifted: induction count with
+| zero => exact Object257LeafCertificate.objTrace257Record10
+| succ prior ih => congr 1
+Consumer: exact obj257LeafParentLifted firstChild secondChild 1
+Negative lifted zero: exact obj257UnrelatedZero (registered0=0, not leaf certificate)
+C: match item with | error failure => error failure | ok leaf => ObjMakeParent 1 firstChild secondChild leaf.id
+I zero item=item; I (succ prior) item=C (I prior item)

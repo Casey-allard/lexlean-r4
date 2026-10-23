@@ -1,0 +1,17 @@
+{
+  "scope": "Single Object257 timeout-budget experiment; not component acceptance",
+  "sourceConfig": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lexlean.toml",
+  "sourceConfigSha256": "b004fa5049e5d8da103173c11aad1e72386e018c899bbcf594bee163235c894a",
+  "newConfigSha256": "0927991ee643dda588e8d98ff32ff7fa5a6f59f862cc132528e3f936ee8617b8",
+  "onlyDelta": {
+    "child_timeout_ms": {
+      "before": 300000,
+      "after": 900000
+    }
+  },
+  "sourceAndTheoremUnchanged": true,
+  "compilerAndMemoryUnchanged": true,
+  "stage": "/tmp/r4-object257-timeout900-owned-20261023",
+  "failureReviewSha256": "4a84407f4cd5a27130de0b2d39f0cbe2c186f332065cfd84edb390c89f04c5f8",
+  "status": "PROPOSED_NOT_RUN"
+}

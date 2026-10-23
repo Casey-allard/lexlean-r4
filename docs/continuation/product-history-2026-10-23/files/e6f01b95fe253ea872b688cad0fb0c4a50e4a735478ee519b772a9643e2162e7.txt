@@ -1,0 +1,12 @@
+INTENT ONLY, NOT NATIVE OUTPUT
+H inventory limits item := match item with | error e => error e | ok leaf => ObjStageRecord inventory leaf limits
+P inventory limits count : Prop := match count with | zero => originalLeafEq | succ prior => H inventory limits actualLeaf = H inventory limits expectedLeaf
+Lifted:
+  induction count with
+  | zero => exact Object257LeafCertificate.objTrace257Record10
+  | succ prior ih =>
+    cases prior with
+    | zero => congr 1
+    | succ earlier => congr 1
+Consumer: exact obj257LeafStagingLifted inventory limits 1
+Negative: only lifted zeroApply target is obj257StagingUnrelatedZero.

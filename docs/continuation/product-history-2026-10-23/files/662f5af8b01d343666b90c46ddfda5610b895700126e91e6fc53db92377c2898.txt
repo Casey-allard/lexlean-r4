@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-23T17:06:41.943Z",
+  "availableBytes": "32656936960",
+  "estimatedAdditionalBytes": "10737418240",
+  "reserveBytes": "10737418240"
+}

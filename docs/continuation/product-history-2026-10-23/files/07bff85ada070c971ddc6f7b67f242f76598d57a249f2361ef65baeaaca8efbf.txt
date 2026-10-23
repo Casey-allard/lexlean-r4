@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "mkdir",
+    "/tmp/r4-object257-terminal-positive-owned-20261023"
+  ],
+  "started": "2026-10-23T17:06:42.171Z",
+  "ended": "2026-10-23T17:06:42.215Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

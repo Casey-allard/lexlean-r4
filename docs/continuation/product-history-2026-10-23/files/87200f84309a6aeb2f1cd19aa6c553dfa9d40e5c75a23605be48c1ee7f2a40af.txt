@@ -1,0 +1,99 @@
+{
+  "at": "2026-10-23T15:44:43.305Z",
+  "status": "PASS_RECORDED_FRESH_CONTAINER_RESOURCE_EPOCH_ONLY",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/restart-budget.json",
+      "bytes": 262,
+      "sha256": "94c11547a22556e6d7a8d33dcf78d724492a250af954e8673e00da9f56cd43f8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/idle-before.json",
+      "bytes": 451,
+      "sha256": "979637d163fad009e3efaece9a9880621553ecf0b78cadf3aef6e76c4184fd52"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/memory-old.json",
+      "bytes": 359,
+      "sha256": "6667ba12636ab3d8f95f36cf489efc43f433caeee1d1f495ffeacfacc892b305"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/container-before.json",
+      "bytes": 848,
+      "sha256": "6437be28f8b90fec9e4027f1dbf4e46bdf5eb0c7726ea1d49ed9391d68f40a2d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/restart.json",
+      "bytes": 317,
+      "sha256": "5db80a13ff12ca023d4465990a64b2c288f0c8bcfe9a0bc70b35c8e7c32dc7d4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/container-after.json",
+      "bytes": 848,
+      "sha256": "22463486a9857a0accba7886e1e46963a8fa55241682bbcb49988744efd38df0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/boot.json",
+      "bytes": 336,
+      "sha256": "74e3f6eb45bbf934d87a4521431c79fda4be4acf17efef3c47d51a9c7c44e0ba"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/memory-new.json",
+      "bytes": 354,
+      "sha256": "502220114701db033c51bf45e2fbc94bc670b900b3571eab575cf31ff8333ec6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/tools.json",
+      "bytes": 1005,
+      "sha256": "28a0f14d92b33a075b26fc04c30dc36dfb6dfaa92969294bf5393628adb08f8d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/guest-storage.json",
+      "bytes": 406,
+      "sha256": "c9ec78575e54dbd9d87ef880542997f73a5c2cebcbb264a29be4ca337a8af936"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/idle-after.json",
+      "bytes": 451,
+      "sha256": "d412f3c459500af65dcfa00692a9702d032a3faede7710e2492ae2e077fc1628"
+    }
+  ],
+  "container": {
+    "id": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "previousStartedAt": "2026-10-23T14:50:22.294463771Z",
+    "newStartedAt": "2026-10-23T15:43:20.109949525Z",
+    "restartCount": 0,
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "sameExistingContainer": true
+  },
+  "observations": {
+    "idleBeforeRestart": true,
+    "idleAfterRestart": true,
+    "oldOomCountersPreserved": {
+      "max": 467123,
+      "oom": 4,
+      "oom_kill": 2
+    },
+    "newCountersAllZero": true,
+    "guestBootUnchanged": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "compilerLeanLakeCheckerHashesUnchanged": true,
+    "chronologyVerified": true,
+    "hostAvailableBeforeBytes": "38005272576",
+    "estimatedAdditionalBytes": "10737418240",
+    "reserveBytes": "10737418240",
+    "guestAvailableAfterBytes": "54613463040",
+    "planningAndGuestThresholdsPassed": true
+  },
+  "limits": [
+    "Fresh container epoch readiness only; exact source candidate still requires independent review before any proof execution.",
+    "Old OOM failure remains preserved. New zero counters belong to the new StartedAt epoch; do not subtract or compare counters across restart. Manual restartCount remaining0 is not evidence that no restart occurred.",
+    "Unchanged guest boot identifies the same VM boot; this review does not claim an exhaustive VM disk or stage census.",
+    "Compiler/tool observations and recorded storage are time-bound; refresh required pre-experiment checks at actual launch.",
+    "No proof, Object, Hash dependency, restoration, mutation, PrismPM or Pages acceptance.",
+    "Reviewer ran no SDK/VM/process command and did not modify source/stages/compiler/repository/other-lab work."
+  ]
+}

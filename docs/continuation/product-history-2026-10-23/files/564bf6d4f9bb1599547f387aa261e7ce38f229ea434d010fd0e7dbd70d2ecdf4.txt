@@ -1,0 +1,122 @@
+{
+  "status": "FROZEN_SOURCE_CANDIDATE_REQUIRES_INDEPENDENT_REVIEW_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2747,
+      "sha256": "8ef382ba439f946825bdc20b57a315162763e5a8b8426de9afbf7bb025afa73d"
+    },
+    {
+      "path": "author.mjs",
+      "bytes": 9558,
+      "sha256": "68e4d11a24ec7b508b1f77be9a0e264b4f37201e01e8b9670b81b75cfc1e99ac"
+    },
+    {
+      "path": "configs/leaf-apply/lexlean.toml",
+      "bytes": 682,
+      "sha256": "bc01be97c744cf7f78a94030dccb0b10ad6e9378fa36af96b78c4d0ead547255"
+    },
+    {
+      "path": "configs/leaf-false/lexlean.toml",
+      "bytes": 684,
+      "sha256": "c331baeca284a7c50ce002cc816b39b28bed0165de044437a388e724824c3ce6"
+    },
+    {
+      "path": "configs/leaf-positive/lexlean.toml",
+      "bytes": 688,
+      "sha256": "ef17e4c4fe62a6760946aa41df24e91a0712a8bd65d4e23b25af47fc0b3a05c4"
+    },
+    {
+      "path": "configs/transport-false/lexlean.toml",
+      "bytes": 697,
+      "sha256": "2ccf6d415258eb19aec06f2e5be9b4997d1abef3cdeddd888da6bccffcb72fe1"
+    },
+    {
+      "path": "configs/transport-positive/lexlean.toml",
+      "bytes": 688,
+      "sha256": "4b93dea03086b5f49740add8b152410fecf2a4936fd37b0f5b642d1cbe3b1820"
+    },
+    {
+      "path": "expected-emission.txt",
+      "bytes": 547,
+      "sha256": "898b6709661c8fe7f5971ddc224c0551f8aea70a9ba9298e64005d0bbebb7ca6"
+    },
+    {
+      "path": "proposal.json",
+      "bytes": 8228,
+      "sha256": "58372f709f3e03a26d095393eb6628932c9b0806bc9fb983c6e4f12474e1f321"
+    },
+    {
+      "path": "source-audit-result.json",
+      "bytes": 333,
+      "sha256": "531efc23ecc99a3523ebde815830437104cec81a0783bd208cccedd5a26698df"
+    },
+    {
+      "path": "source-audit.mjs",
+      "bytes": 4031,
+      "sha256": "047553cd2e5d69a8a7dae8a06aaff321a685e3b6b5b1dc476db6cc7801a61261"
+    },
+    {
+      "path": "tests/lexlean/Object257LeafApply.lex.tex",
+      "bytes": 3962,
+      "sha256": "b05c4220a0559ad54b50aaedf59fc6c62a1429a5c313039f0884601e42bea8ce"
+    },
+    {
+      "path": "tests/lexlean/Object257LeafCertificate.lex.tex",
+      "bytes": 3826,
+      "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a"
+    },
+    {
+      "path": "tests/lexlean/Object257LeafFalseId.lex.tex",
+      "bytes": 3822,
+      "sha256": "cf316063170e693d641360b1455454108341ee775e8bc49a1557a0671a3b63ab"
+    },
+    {
+      "path": "tests/lexlean/Object257ParentContext.lex.tex",
+      "bytes": 3228,
+      "sha256": "6cc4f7d63b065bbc57022decc95b41531b7bd754b9191ec352612b229eac1157"
+    },
+    {
+      "path": "tests/lexlean/Object257ParentTransport.lex.tex",
+      "bytes": 7626,
+      "sha256": "25b636352c19144704071889c7fcef148bcab5ff49571e2a66bc500064583432"
+    },
+    {
+      "path": "tests/lexlean/Object257ParentTransportFalseBase.lex.tex",
+      "bytes": 7599,
+      "sha256": "b9aede4c249298284785643299adbe3c13aed5a444994d9b9730553205c00a6e"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/tmp/r4-object257-connected-certificate-spec-review-20261023.json",
+      "sha256": "eebefa00b425443c869cd8e2bf5d42fc72c6dd5442de8abb9cf0fda9aedfd17e"
+    },
+    {
+      "path": "/tmp/r4-object257-oom-connected-certificate-proposal-20261023.json",
+      "sha256": "d4ebbcd8cff55bcf2db423466806626d87ba40be14eb74f2137d2095d48ecbfc"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Node10Controls.lex.tex",
+      "sha256": "58668052bf744033511f6f50e99179f70eb7b599521157eb23900b80ddcdd0fd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/PredictionRouteLengthControls.lex.tex",
+      "sha256": "4834b33995b01967dddd31eb25ef2430dfadb5f4588a590dda1c089a910a3b0c"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    }
+  ],
+  "sharedInputs": "All15 exact source/configuration references in proposal.json; original workingfiles unchanged",
+  "proofObligation": "Local production leaf equation and nonidentity parent-context transport only; original257 remains unproved",
+  "SDKInvoked": false,
+  "childProcessInvoked": false,
+  "repositoryModified": false,
+  "allocatedBudgetBytes": 1048576
+}

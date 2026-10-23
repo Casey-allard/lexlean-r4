@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cat",
+    "/tmp/r4-object257-staging-positive-owned-20261023-attempt2/lexlean.lock"
+  ],
+  "started": "2026-10-23T16:39:50.908Z",
+  "ended": "2026-10-23T16:39:50.991Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "spec = \"lexlean/lock/2\"\nlanguage = \"1.2\"\ncompiler_semantics = \"09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86\"\nproject_config_sha256 = \"f08415918158449c25ca6fef0eaeb144e557e589d3c3dbeac9468a01921ab1ac\"\nlean_toolchain = \"leanprover/lean4:v4.32.1\"\n\n[[workspace_file]]\npath = \"lake-manifest.json\"\nsha256 = \"c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b\"\n\n[[workspace_file]]\npath = \"lakefile.toml\"\nsha256 = \"3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88\"\n\n[[workspace_file]]\npath = \"lean-toolchain\"\nsha256 = \"8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af\"\n\n[[package]]\nid = \"lexlean.core\"\nversion = \"1.2.0\"\nkind = \"builtin\"\nsource = \"embedded\"\nrevision = \"compiler-semantics\"\ntree_sha256 = \"827317cae68c162f3a96c8a8de4e53ab348e7d3724fd2b834fa85ecde1a1b392\"\nmanifest_sha256 = \"271079763d269cc873531f515e56da960cd6321393b9460ff0e617666fa01d71\"\nimports = []\n\n[[package]]\nid = \"lexlean.std.bool\"\nversion = \"1.2.0\"\nkind = \"builtin\"\nsource = \"embedded\"\nrevision = \"compiler-semantics\"\ntree_sha256 = \"3bc0fb09d706ffa7d5a1363302ea87c049acc7c7dcafde63c62682620c11be9b\"\nmanifest_sha256 = \"de58de2cf18a7a5a62d8c20649139d6dfe1f7b16b3130c75f150fbac5440a71e\"\nimports = [\"lexlean.core@1.2.0\"]\n\n[[package]]\nid = \"lexlean.std.nat\"\nversion = \"1.2.0\"\nkind = \"builtin\"\nsource = \"embedded\"\nrevision = \"compiler-semantics\"\ntree_sha256 = \"e0db021e01b91d651c43921d66f6b0023c8efbf17cac2ec53192ce5305e4e1ac\"\nmanifest_sha256 = \"6fb446b39e3c1c18a5f10cfa1f7aa2bd431837719eb0eb7489aadf452c9420a7\"\nimports = [\"lexlean.core@1.2.0\", \"lexlean.std.bool@1.2.0\"]\n",
+  "stderr": ""
+}

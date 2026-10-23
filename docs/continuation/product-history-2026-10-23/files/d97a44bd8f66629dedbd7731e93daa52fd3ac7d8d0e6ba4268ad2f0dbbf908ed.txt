@@ -1,0 +1,19 @@
+# Terminal Object257 fold transition candidate
+
+This source-only candidate is frozen for internal CODE review. All native source admission, negative/positive verification, emitted-source inspection, observed-axiom checks and replay are NOT_RUN.
+
+The context is derived from the pinned production ObjFoldAtoms cons AST: replace the outer ObjMakeLeaf(head) scrutinee with item, replace tail with typed [], and qualify former local ObjectStore members. It preserves all three typed failures, stages the same leaf whose id enters carry, retains depth 38 and root scale 0, and calls actual ObjFoldAtoms [] after carry. The consumer's left side is actual ObjFoldAtoms [[0]] with arbitrary incoming frontier/inventory/limits.
+
+The Prop family's zero equation is the unchanged accepted leaf theorem. The lifted proof copies the successful staging Induction/Cases/Congruence proof AST; the consumer applies it at one. The false-base module changes exactly one Apply theorem reference to the earlier unrelated 0=0 theorem. Deeper-context congruence and the actual consumer's definitional conversion are still native obligations.
+
+No production source, original257 theorem/digest, proof axiom policy, installed tool or timeout has changed. Both phase configs retain 300000 ms. The fifteen historical inputs and accepted leaf source are pinned by reference, not copied. Parent stage instructions are in candidate.json; generate a genuine fresh lock in the owned stage. This candidate supplies no lock and no executor.
+
+Read-only comparison:
+
+    node /tmp/r4-object257-fold-transition-candidate-20261023/audit.mjs
+
+This compares the context and consumer against the actual production AST independently of author.mjs and checks pins, same-leaf binding, typed failures, proof AST, direct imports, negative isolation and config changes. The author script uses exclusive output creation and is provenance only; do not rerun it in this frozen packet.
+
+After internal CODE review and parent resource/epoch checks, the intended false-base phase must pass official source check and fail verification for the actual base Apply mismatch. Setup/import/schema errors, timeout or OOM do not qualify as RED. The positive phase must verify both lifted theorem and actual production consumer, followed by emitted-source/empty-observed-axioms/kernel-replay artifact audit. Full original257, earlier transitions, concrete atomization and whole-object digest remain open.
+
+No SDK/native/compiler/VM command, repository write, frozen-input mutation or other-lab change was performed. Initial host availability: 32,958,772 KiB; source packet limit: 1 MiB additional; reserve: 10 GiB.

@@ -1,0 +1,134 @@
+{
+  "status": "AUTHORED_NOT_NATIVE_CHECKED",
+  "specReview": {
+    "path": "/tmp/r4-object257-staging-transport-spec-review-20261023.json",
+    "sha256": "ef65d1ad92130172899041f981133926f66284b7becccb95a65d3a73eb6c9cf6"
+  },
+  "priorCandidateManifest": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/manifest.json",
+    "sha256": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4"
+  },
+  "sharedInputs": [
+    {
+      "path": "lake-manifest.json",
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+      "bytes": 146,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lake-manifest.json"
+    },
+    {
+      "path": "lakefile.toml",
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+      "bytes": 58,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lakefile.toml"
+    },
+    {
+      "path": "lean-toolchain",
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+      "bytes": 25,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lean-toolchain"
+    },
+    {
+      "path": "lexlean.toml",
+      "sha256": "b004fa5049e5d8da103173c11aad1e72386e018c899bbcf594bee163235c894a",
+      "bytes": 690,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lexlean.toml"
+    },
+    {
+      "path": "src/R4/Hash.lex.tex",
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+      "bytes": 782463,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Hash.lex.tex"
+    },
+    {
+      "path": "src/R4/HashNat.lex.tex",
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+      "bytes": 64465,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashNat.lex.tex"
+    },
+    {
+      "path": "src/R4/HashNatCore.lex.tex",
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+      "bytes": 339156,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashNatCore.lex.tex"
+    },
+    {
+      "path": "src/R4/HashWire.lex.tex",
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+      "bytes": 11612,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashWire.lex.tex"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "bytes": 14317,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Object.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "bytes": 111511,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "bytes": 87135,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+      "bytes": 66645,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "bytes": 83627,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectTypes.lex.tex"
+    },
+    {
+      "path": "src/R4/Words.lex.tex",
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "bytes": 240864,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Words.lex.tex"
+    },
+    {
+      "path": "tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6",
+      "bytes": 20194,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex"
+    }
+  ],
+  "leafCertificate": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/tests/lexlean/Object257LeafCertificate.lex.tex",
+    "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a",
+    "statementJsonSha256": "d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b"
+  },
+  "phasePlan": [
+    {
+      "name": "staging-false",
+      "module": "Object257StagingTransportFalseBase",
+      "expected": "SOURCE_VALID_BASE_APPLY_TYPE_MISMATCH_NOT_RESOURCE",
+      "status": "NOT_RUN",
+      "root": "tests/lexlean/Object257StagingTransportFalseBase.lex.tex",
+      "config": "configs/staging-false/lexlean.toml"
+    },
+    {
+      "name": "staging-positive",
+      "module": "Object257StagingTransport",
+      "expected": "ALL_SELECTED_DECLARATIONS_EMPTY_AXIOMS_AND_KERNEL_REPLAY",
+      "status": "NOT_RUN",
+      "root": "tests/lexlean/Object257StagingTransport.lex.tex",
+      "config": "configs/staging-positive/lexlean.toml"
+    }
+  ],
+  "sourceOnlyBudget": {
+    "baselineHostAvailableKiB": 34286840,
+    "reserveBytes": 10737418240,
+    "maxAdditionalBytes": 1048576
+  },
+  "stageComposition": "Parent only: new owned source-only stage containing exact10shared runtime sources,3Lake/toolchain files,byte-identical accepted leaf source,three candidate modules and phase-specificconfig. Omit original257 and prior parent-context controls. Generate actual freshlock. NoSDKinvoked byauthor.",
+  "policy": "Exact300000ms baseconfig, no timeout/memory/axiom/compiler changes. Original257/runtime definitions untouched; no13-node expansion.",
+  "claim": "Conditional source-supported transport only. Officialcheck/negative/positive/emission/replay/axiomaudit allNOT_RUN. Prop definition and both congr branches may fail; preserve actual diagnostic without weakening obligation."
+}

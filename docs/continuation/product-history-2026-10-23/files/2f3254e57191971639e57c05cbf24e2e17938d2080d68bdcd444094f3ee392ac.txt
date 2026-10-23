@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingContext.lex.tex",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object257-staging-false-owned-20261023/tests/lexlean/Object257StagingContext.lex.tex"
+  ],
+  "started": "2026-10-23T16:34:49.222Z",
+  "ended": "2026-10-23T16:34:49.324Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

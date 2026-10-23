@@ -1,0 +1,154 @@
+{
+  "status": "SOURCE_AUTHORED_NATIVE_NOT_RUN",
+  "spec": {
+    "path": "/tmp/r4-object257-fold-transition-spec-review-20261023.json",
+    "sha256": "a12ba72d80f5f4f7a6e2b072b5dfbf59d6cc741d9a8b37d6fada5ccbad110aa2"
+  },
+  "proposal": {
+    "path": "/tmp/r4-object257-fold-transition-next-step-20261023.json",
+    "bytes": 12108,
+    "sha256": "c1fd216e3bb4de71bf2768e2e1770d0ce8ba96f1d76c38c91d666c6bc2bbbdff"
+  },
+  "sharedInputs": [
+    {
+      "path": "lake-manifest.json",
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+      "bytes": 146,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lake-manifest.json"
+    },
+    {
+      "path": "lakefile.toml",
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+      "bytes": 58,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lakefile.toml"
+    },
+    {
+      "path": "lean-toolchain",
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+      "bytes": 25,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lean-toolchain"
+    },
+    {
+      "path": "lexlean.toml",
+      "sha256": "b004fa5049e5d8da103173c11aad1e72386e018c899bbcf594bee163235c894a",
+      "bytes": 690,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/lexlean.toml"
+    },
+    {
+      "path": "src/R4/Hash.lex.tex",
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+      "bytes": 782463,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Hash.lex.tex"
+    },
+    {
+      "path": "src/R4/HashNat.lex.tex",
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+      "bytes": 64465,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashNat.lex.tex"
+    },
+    {
+      "path": "src/R4/HashNatCore.lex.tex",
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+      "bytes": 339156,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashNatCore.lex.tex"
+    },
+    {
+      "path": "src/R4/HashWire.lex.tex",
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+      "bytes": 11612,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/HashWire.lex.tex"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "bytes": 14317,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Object.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "bytes": 111511,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "bytes": 87135,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+      "bytes": 66645,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "bytes": 83627,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectTypes.lex.tex"
+    },
+    {
+      "path": "src/R4/Words.lex.tex",
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "bytes": 240864,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/Words.lex.tex"
+    },
+    {
+      "path": "tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6",
+      "bytes": 20194,
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex"
+    }
+  ],
+  "leafCertificate": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/tests/lexlean/Object257LeafCertificate.lex.tex",
+    "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a",
+    "statementJsonSha256": "d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b"
+  },
+  "productionStore": {
+    "path": "src/R4/ObjectStore.lex.tex",
+    "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+    "bytes": 66645,
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex"
+  },
+  "priorManifest": {
+    "path": "/tmp/r4-object257-staging-transport-candidate-20261023/manifest.json",
+    "sha256": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7"
+  },
+  "priorProof": {
+    "path": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingTransport.lex.tex",
+    "sha256": "c8ee59f938191e8a917ffc6598a5e99e3a99b051b471395775d336691a44a005"
+  },
+  "phases": [
+    {
+      "name": "terminal-false",
+      "module": "Object257TerminalFoldTransitionFalseBase",
+      "expect": "SOURCE_CHECK_PASS_THEN_INTENDED_BASE_APPLY_MISMATCH",
+      "root": "tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex",
+      "config": "configs/terminal-false/lexlean.toml",
+      "status": "NOT_RUN"
+    },
+    {
+      "name": "terminal-positive",
+      "module": "Object257TerminalFoldTransition",
+      "expect": "LIFTED_AND_ACTUAL_FOLD_CONSUMER_VERIFY_EMPTY_OBSERVED_AXIOMS_AND_KERNEL_REPLAY",
+      "root": "tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "config": "configs/terminal-positive/lexlean.toml",
+      "status": "NOT_RUN"
+    }
+  ],
+  "substitutions": [
+    "Production cons branch outer scrutinee -> item",
+    "Production tail variable -> typed empty List (List Nat)",
+    "Local ObjectStore members qualified as R4.ObjectStore; no changed operations or branch types",
+    "Consumer right = context ok branch with the exact certified expected record substituted for its bound leaf"
+  ],
+  "stage": "Parent-owned fresh stage: exact ten shared runtime modules, three Lake/toolchain files, accepted leaf module and these three modules plus chosen phase config. Historical original257 source stays pinned, unselected. Generate genuine fresh phase lock; no lock supplied here.",
+  "limits": "300000 ms unchanged; empty axioms; native/compiler/VM execution NOT_RUN",
+  "budget": {
+    "baselineAvailableKiB": 32958772,
+    "maximumAdditionalBytes": 1048576,
+    "reserveBytes": 10737418240
+  }
+}

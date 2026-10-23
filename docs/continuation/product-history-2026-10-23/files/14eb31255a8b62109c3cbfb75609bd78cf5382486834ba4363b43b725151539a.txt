@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-terminal-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-23T17:05:47.997Z",
+  "ended": "2026-10-23T17:05:50.794Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257LeafCertificate\",\"Object257TerminalContext\",\"Object257TerminalFoldTransitionFalseBase\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"0aa4481a74d8a4c002c8b654d4cbd97a9cf917f514ca8bd1b0207db7a1491671\",\"source_id\":\"03915603ad23adbab3a7e9a525c67bd7aeef97163341be07eb6c70c42b8224ed\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

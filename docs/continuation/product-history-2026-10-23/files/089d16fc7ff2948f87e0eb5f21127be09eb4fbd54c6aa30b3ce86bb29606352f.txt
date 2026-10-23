@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-23T14:54:44.148Z",
+  "observedHostAvailableKiB": 40771368,
+  "initialHostAvailableBytes": 43416190976,
+  "lowestCapturedBeforeVerifyBytes": 40727818240,
+  "vmAllocatedKiBBefore": 26959648,
+  "vmAllocatedKiBAfter": 26973748,
+  "swapAllocationGiB": 9,
+  "attribution": "VM allocation increased 14100 KiB; swap allocation unchanged. Full host availability decline is not attributed. No other labs modified. Current free space preserves planned reserve.",
+  "newLargeWorkStarted": false
+}

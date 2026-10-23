@@ -1,0 +1,36 @@
+{
+  "scope": "Actual scoped host reruns on fetched main after PR4. No LexLean/SDK/full vv acceptance.",
+  "main": "31ec155d064cdf70c1db1aa01d18ac744b6d74c6",
+  "files": [
+    {
+      "path": "fresh-main-0.json",
+      "bytes": 562,
+      "sha256": "622cfa5ad61b56941259a3b2c48a040fb60bef1f6f3f0147985ba6ac9726e24d"
+    },
+    {
+      "path": "fresh-main-1.json",
+      "bytes": 966,
+      "sha256": "0744dd2a2a600b07b81f4b60a187227e32c362608afee6258ff24de36f93dd2c"
+    },
+    {
+      "path": "fresh-main-2.json",
+      "bytes": 1954,
+      "sha256": "9deb93e8865f6e989be473a03b01d1251cca248ba1128ef4e1e919dc7e6b3473"
+    },
+    {
+      "path": "fresh-main-3.json",
+      "bytes": 486,
+      "sha256": "cc17e5a00a8e49f6a00adfe94cc57e5926454696e2dc1391b3bcbcf17aa26cc3"
+    },
+    {
+      "path": "fresh-main-4.json",
+      "bytes": 410,
+      "sha256": "a1e8f56ae8d4c101e6d8893119df86dda060c042815ea121af522af0a0f60cd7"
+    },
+    {
+      "path": "fresh-main-5.json",
+      "bytes": 454,
+      "sha256": "facdc22911e2ad1d4b46deac6544175e31a19286961fcd3f29b05ce849d7d626"
+    }
+  ]
+}

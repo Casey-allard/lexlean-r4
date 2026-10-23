@@ -1,0 +1,12 @@
+{
+  "main": "31ec155d064cdf70c1db1aa01d18ac744b6d74c6",
+  "args": [
+    "test",
+    "--workspace",
+    "--lib",
+    "--locked"
+  ],
+  "status": 0,
+  "stdout": "\nrunning 1 test\ntest meta::tests::the_assertive_vocabulary_is_recognised ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest tests::the_id_register_is_well_formed_cm_02 ... ok\ntest tests::every_some_true_claim_cites_an_authority_cm_03 ... ok\ntest tests::model_is_consistent_cm_01 ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n",
+  "stderr": "    Finished `test` profile [unoptimized] target(s) in 0.09s\n     Running unittests src/lib.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/repo_conformance-8ad95ac81bda2d6c)\n     Running unittests src/lib.rs (/Users/casey.allard/lexlean-r4-build-cache/host/debug/deps/repo_model-973825b67b816706)\n"
+}
