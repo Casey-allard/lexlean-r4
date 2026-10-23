@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object257-symbolic-continuation-symbolic-generic-owned-20261023/.lexlean/verified/d4a38446ef3d316f7e2ab9caa01c19780525c995e23ccc1f9c810f4c17c1b7c6",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-generic/artifact"
+  ],
+  "started": "2026-10-23T20:32:22.685Z",
+  "ended": "2026-10-23T20:32:23.257Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

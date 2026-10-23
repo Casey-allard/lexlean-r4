@@ -1,0 +1,14 @@
+{
+  "args": [
+    "inspect",
+    "--format",
+    "{{.Id}} {{.Image}} {{.State.StartedAt}} {{.RestartCount}} {{.State.Running}} {{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.HostConfig.NetworkMode}} {{json .Mounts}}",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+  ],
+  "start": "2026-10-23T20:22:24.163Z",
+  "end": "2026-10-23T20:22:24.180Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 2026-10-23T15:43:20.109949525Z 0 true 4294967296 2000000000 none []\n",
+  "stderr": ""
+}

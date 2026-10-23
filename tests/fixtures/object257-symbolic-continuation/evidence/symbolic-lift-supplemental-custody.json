@@ -1,0 +1,470 @@
+{
+  "schema": "lexlean-r4-symbolic-lift-supplemental-custody/v1",
+  "status": "BYTE_PRESERVED_REVIEWED_PARAMETERIZED_HELPER_ONLY",
+  "frozenManifest": {
+    "path": "tests/fixtures/object257-symbolic-continuation/manifest.json",
+    "bytes": 18709,
+    "sha256": "a29b688b02ac7c997244e0984bc68120ec11734dbc24298a9a38876aec0eade2"
+  },
+  "files": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift-review.json",
+        "bytes": 40026,
+        "sha256": "891e5e5c8628ab9c3e01566f05b3544115051c355037b2c57ed56a2c8d754ce2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift-review.json",
+        "bytes": 40026,
+        "sha256": "891e5e5c8628ab9c3e01566f05b3544115051c355037b2c57ed56a2c8d754ce2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/allocated-before.json",
+        "bytes": 459,
+        "sha256": "5bbda7a47e0450eba453ea178d6f39b80a64900f97d6725a42f784e67fec2737"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/allocated-before.json",
+        "bytes": 459,
+        "sha256": "5bbda7a47e0450eba453ea178d6f39b80a64900f97d6725a42f784e67fec2737"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact-copy.json",
+        "bytes": 520,
+        "sha256": "08378f9c1a54ecd27dd86bf0916cc9257f70941160b518c25b042c9b4abd29e4"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-copy.json",
+        "bytes": 520,
+        "sha256": "08378f9c1a54ecd27dd86bf0916cc9257f70941160b518c25b042c9b4abd29e4"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/check.json",
+        "bytes": 1013,
+        "sha256": "257d02f90a1f00662696bf0bf2c5c5010acb640448f21a87acbe4c67d8f73e9b"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/check.json",
+        "bytes": 1013,
+        "sha256": "257d02f90a1f00662696bf0bf2c5c5010acb640448f21a87acbe4c67d8f73e9b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/directories.json",
+        "bytes": 444,
+        "sha256": "fe940e4f64bb9509e38e0a3294dbe2535127cbd7826516ed558e7145ef1aeaaa"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/directories.json",
+        "bytes": 444,
+        "sha256": "fe940e4f64bb9509e38e0a3294dbe2535127cbd7826516ed558e7145ef1aeaaa"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/epoch-after.json",
+        "bytes": 470,
+        "sha256": "0f740afd23775962218796579e9a71eb37ff15bb327190ec6f3fafe4f1b5e271"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/epoch-after.json",
+        "bytes": 470,
+        "sha256": "0f740afd23775962218796579e9a71eb37ff15bb327190ec6f3fafe4f1b5e271"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/epoch-before.json",
+        "bytes": 470,
+        "sha256": "6afa48abe20bf612b225f24a0c1131b6bdb6df8e5d7622bc6b53dacae1fe6625"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/epoch-before.json",
+        "bytes": 470,
+        "sha256": "6afa48abe20bf612b225f24a0c1131b6bdb6df8e5d7622bc6b53dacae1fe6625"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/expected-inputs.json",
+        "bytes": 5991,
+        "sha256": "fcbdef5c675e7051fbab2cd8963bff8c62a6e285ddc8f54f2b1a6e23403a3c5d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/expected-inputs.json",
+        "bytes": 5991,
+        "sha256": "fcbdef5c675e7051fbab2cd8963bff8c62a6e285ddc8f54f2b1a6e23403a3c5d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/guest-after.json",
+        "bytes": 406,
+        "sha256": "57ee55c9ec36be8dffef694507f25726bd9550c46f314087eb4326e594964e3e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/guest-after.json",
+        "bytes": 406,
+        "sha256": "57ee55c9ec36be8dffef694507f25726bd9550c46f314087eb4326e594964e3e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/guest-before.json",
+        "bytes": 406,
+        "sha256": "c5eab63984f5f42e40b1f64de3db710b7b1bf7001df088bcabee08505a54cc6a"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/guest-before.json",
+        "bytes": 406,
+        "sha256": "c5eab63984f5f42e40b1f64de3db710b7b1bf7001df088bcabee08505a54cc6a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/host-after.json",
+        "bytes": 142,
+        "sha256": "b8735d8a94904ac2b7a9d730a0c26a0dde093619bf3b93a01df82a29c45994a2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/host-after.json",
+        "bytes": 142,
+        "sha256": "b8735d8a94904ac2b7a9d730a0c26a0dde093619bf3b93a01df82a29c45994a2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/host-before.json",
+        "bytes": 152,
+        "sha256": "6045670bc427c2a68eb24d178561a459cc9d99671d118a0bb533312833d8986e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/host-before.json",
+        "bytes": 152,
+        "sha256": "6045670bc427c2a68eb24d178561a459cc9d99671d118a0bb533312833d8986e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/idle-after.json",
+        "bytes": 460,
+        "sha256": "d13bd2cc53c2519d303ca971af0b58fe5687c768399425aa8d613d34e7f836b5"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/idle-after.json",
+        "bytes": 460,
+        "sha256": "d13bd2cc53c2519d303ca971af0b58fe5687c768399425aa8d613d34e7f836b5"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/idle-before.json",
+        "bytes": 460,
+        "sha256": "dd2f9fffa1a96b5802b8e95d02059efdd990f4dee10132ce867d81602b117a4f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/idle-before.json",
+        "bytes": 460,
+        "sha256": "dd2f9fffa1a96b5802b8e95d02059efdd990f4dee10132ce867d81602b117a4f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/lock-after.json",
+        "bytes": 503,
+        "sha256": "d33780f9f2ec22683c99892cc795313eef94152446bb1fb92473edf2f56c8ccd"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/lock-after.json",
+        "bytes": 503,
+        "sha256": "d33780f9f2ec22683c99892cc795313eef94152446bb1fb92473edf2f56c8ccd"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/lock-bytes.json",
+        "bytes": 2062,
+        "sha256": "2960229de8bd3f1fc5ce917f6d694231f89b653f3c5ab3ab96c184ee9a6291db"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/lock-bytes.json",
+        "bytes": 2062,
+        "sha256": "2960229de8bd3f1fc5ce917f6d694231f89b653f3c5ab3ab96c184ee9a6291db"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/lock.json",
+        "bytes": 546,
+        "sha256": "2616502c0e0bc4ede597d43e0e1d59701ae2ab258d5d5fdca727ce7e4c526455"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/lock.json",
+        "bytes": 546,
+        "sha256": "2616502c0e0bc4ede597d43e0e1d59701ae2ab258d5d5fdca727ce7e4c526455"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/memory-after.json",
+        "bytes": 354,
+        "sha256": "0c26b30e65f4941b481397f3498dbfcbb58a87e80a794fa8bf4d45e0b5c51eaa"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/memory-after.json",
+        "bytes": 354,
+        "sha256": "0c26b30e65f4941b481397f3498dbfcbb58a87e80a794fa8bf4d45e0b5c51eaa"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/memory-before.json",
+        "bytes": 354,
+        "sha256": "0c2edc44c3773aeaa7c927875e41b2b96257e7312f3459fada0bab053edd3cdf"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/memory-before.json",
+        "bytes": 354,
+        "sha256": "0c2edc44c3773aeaa7c927875e41b2b96257e7312f3459fada0bab053edd3cdf"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/new-stage.json",
+        "bytes": 337,
+        "sha256": "29df42a7bd3ff02c7101f9855cb7d78fbe46adc3d7c6f729c94378ad77c425ac"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/new-stage.json",
+        "bytes": 337,
+        "sha256": "29df42a7bd3ff02c7101f9855cb7d78fbe46adc3d7c6f729c94378ad77c425ac"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/result.json",
+        "bytes": 1136,
+        "sha256": "36347763712d1ff8509846c4e71da2b550a8bf87a425eaa12998f7fbf0be8d3d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/result.json",
+        "bytes": 1136,
+        "sha256": "36347763712d1ff8509846c4e71da2b550a8bf87a425eaa12998f7fbf0be8d3d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/source-after.json",
+        "bytes": 6611,
+        "sha256": "5e6a29b568ab2221273411cfcd78df5b596cc579d14551be6073ec0a435bd679"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/source-after.json",
+        "bytes": 6611,
+        "sha256": "5e6a29b568ab2221273411cfcd78df5b596cc579d14551be6073ec0a435bd679"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/source-before.json",
+        "bytes": 6611,
+        "sha256": "261e515b476691fbd33473e9451812b9102566ef5fda3e08dced4cfacb0a50c9"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/source-before.json",
+        "bytes": 6611,
+        "sha256": "261e515b476691fbd33473e9451812b9102566ef5fda3e08dced4cfacb0a50c9"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/swap-before.json",
+        "bytes": 265,
+        "sha256": "991bf2c530339c0c1ecaf3d4a7e682e3c88849871a1240389a38fe85c02ce569"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/swap-before.json",
+        "bytes": 265,
+        "sha256": "991bf2c530339c0c1ecaf3d4a7e682e3c88849871a1240389a38fe85c02ce569"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/tools-before.json",
+        "bytes": 1005,
+        "sha256": "aa323cdeeedbb0de1d1b6d232f6d87888434d13b63a3b66379882a991647c518"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/tools-before.json",
+        "bytes": 1005,
+        "sha256": "aa323cdeeedbb0de1d1b6d232f6d87888434d13b63a3b66379882a991647c518"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/verify.json",
+        "bytes": 1322,
+        "sha256": "fb5d7c77638314bc57c490b1af28c8330eafdf1e35524b658b5836e9f5a78a40"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/verify.json",
+        "bytes": 1322,
+        "sha256": "fb5d7c77638314bc57c490b1af28c8330eafdf1e35524b658b5836e9f5a78a40"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/attestation.json",
+        "bytes": 166686,
+        "sha256": "09f05f5bab3ad13938c27b7cc072fb6dc178c6b9a06a62ead2432703b1cc9a9e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/attestation.json",
+        "bytes": 166686,
+        "sha256": "09f05f5bab3ad13938c27b7cc072fb6dc178c6b9a06a62ead2432703b1cc9a9e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/build-manifest.json",
+        "bytes": 16957,
+        "sha256": "590233ad487272b43bd9975ff50c92522d78ecb908ffc060486d286702b86bc2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/build-manifest.json",
+        "bytes": 16957,
+        "sha256": "590233ad487272b43bd9975ff50c92522d78ecb908ffc060486d286702b86bc2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/modules/LexLeanR4/Object257SymbolicLift.lean",
+        "bytes": 868,
+        "sha256": "414b66b87f084d6353fcb2172dede7c2b5cf7ed0e70c334f3e1386e63fa34eeb"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/modules/LexLeanR4/Object257SymbolicLift.lean",
+        "bytes": 868,
+        "sha256": "414b66b87f084d6353fcb2172dede7c2b5cf7ed0e70c334f3e1386e63fa34eeb"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/modules/LexLeanR4/Object257SymbolicContext.lean",
+        "bytes": 6379,
+        "sha256": "a39094fdb144e4795aafc6e4fbc2ff4ab6b249367b08fc94be6628efaca65eb6"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/modules/LexLeanR4/Object257SymbolicContext.lean",
+        "bytes": 6379,
+        "sha256": "a39094fdb144e4795aafc6e4fbc2ff4ab6b249367b08fc94be6628efaca65eb6"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/maps/LexLeanR4/Object257SymbolicLift.map.json",
+        "bytes": 1735,
+        "sha256": "f05c07d3cc4919c960b7e817934a303819e16c966725f833af073e563472354a"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/maps/LexLeanR4/Object257SymbolicLift.map.json",
+        "bytes": 1735,
+        "sha256": "f05c07d3cc4919c960b7e817934a303819e16c966725f833af073e563472354a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/audit/output.txt",
+        "bytes": 53732,
+        "sha256": "860a8062dafb5ae46e8b242e80fa37b47e92499e032fcb45c9611f2bed25075c"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/audit/output.txt",
+        "bytes": 53732,
+        "sha256": "860a8062dafb5ae46e8b242e80fa37b47e92499e032fcb45c9611f2bed25075c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.lean",
+        "bytes": 187,
+        "sha256": "aa76721ae34c63163c7b2dcf211d1a6edba04656e84586ba76a5fe0f065a9494"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.lean",
+        "bytes": 187,
+        "sha256": "aa76721ae34c63163c7b2dcf211d1a6edba04656e84586ba76a5fe0f065a9494"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/artifact/audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.process.json",
+        "bytes": 701,
+        "sha256": "6143476787b0859ca616b355f143fc1343882aa8735d6c8c1a6fdd6217a6c991"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.process.json",
+        "bytes": 701,
+        "sha256": "6143476787b0859ca616b355f143fc1343882aa8735d6c8c1a6fdd6217a6c991"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-lift/lock-bytes.json",
+        "bytes": 2062,
+        "sha256": "2960229de8bd3f1fc5ce917f6d694231f89b653f3c5ab3ab96c184ee9a6291db"
+      },
+      "extraction": "Exact successful capture stdout matched actual post-lock receipt and independently reviewed lock identity.",
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-lift/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "2e94b137b481040c1307361c75f9137ca8bffdc22ef07238639667a4bd8c3d33"
+      }
+    }
+  ],
+  "artifactSelection": {
+    "selectedTextFiles": [
+      "attestation.json",
+      "build-manifest.json",
+      "modules/LexLeanR4/Object257SymbolicLift.lean",
+      "modules/LexLeanR4/Object257SymbolicContext.lean",
+      "maps/LexLeanR4/Object257SymbolicLift.map.json",
+      "audit/output.txt",
+      "audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.lean",
+      "audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.process.json"
+    ],
+    "completeArtifactCensusInReview": 145,
+    "excludedArtifactFilesPinnedInReview": 137,
+    "completeBundleCopied": false
+  },
+  "boundary": "Completed symbolic-lift helper only. No generic or concrete phase data read or copied. This is supplemental custody, not final RESULTS/delivery acceptance. Historical preparation-time source records remain unchanged.",
+  "preservation": {
+    "frozenPayloadsVerified": 14,
+    "protectedDirtyFilesVerified": 17,
+    "priorNegativeEpochFilesVerified": 49
+  },
+  "storage": {
+    "availableKiBBefore": 35471092,
+    "allocatedPayloadBytes": 434176,
+    "peakAdditionalBudgetBytes": 1048576
+  }
+}

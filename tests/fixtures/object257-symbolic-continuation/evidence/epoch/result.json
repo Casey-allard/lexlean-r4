@@ -1,0 +1,9 @@
+{
+  "status": "CAPTURED_NEW_RESOURCE_EPOCH_PENDING_INDEPENDENT_REVIEW",
+  "oldEpoch": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 2026-10-23T15:43:20.109949525Z 0 true 4294967296 2000000000 none []",
+  "newEpoch": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 2026-10-23T20:22:35.225704499Z 0 true 4294967296 2000000000 none []",
+  "oldMemory": "low 0\nhigh 0\nmax 324059\noom 1\noom_kill 1\noom_group_kill 0\n",
+  "newMemory": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "preservedInputs": 22,
+  "scope": "Only existing idle container restarted after preserving prior OOM epoch. No compiler invocation or proof acceptance."
+}

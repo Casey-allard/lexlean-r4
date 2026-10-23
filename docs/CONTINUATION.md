@@ -26,6 +26,7 @@ independent reviewers; no external lab or another session owns this work.
 | Nonempty two-atom continuation | Actual `Fold [A,B] [] [] L = Fold [B] firstState.frontier firstState.inventory L` verified, with A bytes0–31 and B bytes32–63. Unrelated-base proof rejected. | [Results](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md): positive 93,920 ms, 774 empty-axiom declarations and 14 kernel replays. Actual consumer conversion passed; no second-state, whole257 or efficiency claim. |
 | Original257 atomized fold-core probe | Sourcecheck admitted 14 modules; negative phase timed out in its final Lean module at the unchanged 300-second child limit. Positive not run. | [Timeout record](../tests/fixtures/object257-atomized-core/RESULTS.md). This is not the intended proof negative or an accepted core bridge. |
 | Split atomized continuation | Intended negative and positive helper independently verified; mandatory actual consumer failed with a recorded cgroup OOM kill. Bridge remains unaccepted. | [Split results](../tests/fixtures/object257-atomized-split/RESULTS.md): helper773 empty axioms/14 replays; consumer resource failure, no semantic counterexample. |
+| Symbolic second-atom continuation | Intended wrong-base negative, parameterized lift, generic production consumer and exact original concrete specialization independently verified. | [Actual results](../tests/fixtures/object257-symbolic-continuation/RESULTS.md): concrete775 empty axioms/16 kernel replays,25,240ms. Exact original statement retained. First-state continuation only, not full257 digest or Object acceptance. |
 | Production binding and deployment | Missing production SDK/template binding. `just vv`, generated application and Pages remain incomplete. | [Upstream dependencies](UPSTREAM.md), CI observation below. |
 
 The local Object proof experiments can proceed before full Hash acceptance.
@@ -35,7 +36,17 @@ capability follows from these finite proofs.
 
 ## Next executable product sequence
 
-1. **Connect the certified first state to the original atomized fold core.**
+The immediate next work is the 17-file draft integration package requested by
+Casey. The atomized first-state bridge below is now verified. Complete the actual
+Object control roots and their dependencies, then reconcile the model, scenarios
+and documentation; retain the remaining whole257 obligation within that work.
+The [source-only inventory](../tests/fixtures/object257-symbolic-continuation/evidence/draft-integration-next-step.json)
+identifies 403 Object controls (Codec311, Store20, Read33, Construction39) and
+20 separate Blake3 primitive controls. Begin with source review of the draft
+runtime compatibility changes, then the existing 20-control Store root under
+unchanged limits. The inventory is planning context; that batch is NOT_RUN.
+
+1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
    now passes actual official verification and independent artifact review.
    Its concrete consumer establishes the nested-match conversion, beyond the K
@@ -59,9 +70,16 @@ capability follows from these finite proofs.
    build emission. The reviewed [three-root split](../tests/fixtures/object257-atomized-split/RESULTS.md)
    returned the intended negative and verified the positive helper, but the mandatory
    actual consumer failed with generic LLV7002 and a recorded container OOM kill.
-   The bridge remains unaccepted. The current epoch has nonzero memory events.
-   Independently review a bounded decomposition of the consumer conversion before
-   further native work; do not repeat equivalent runs or increase limits.
+   That split's bridge remains unaccepted and its failed resource epoch is preserved.
+   The separately reviewed symbolic successor abstracts only the complete second
+   atom as a list parameter, then specializes the generic production consumer at
+   the original bytes32–63. Runtime, original statement, digest and limits remain
+   unchanged. It uses a separately reviewed fresh container epoch, preserving the
+   earlier OOM evidence. The negative, lift and generic consumer passed independent
+   native review. The concrete specialization also passed independent artifact
+   review:775 empty-axiom declarations and16 kernel replays, with the entire
+   original theorem statement unchanged. This accepts the atomized first-state
+   continuation bridge; the final digest and subsequent concrete states remain open.
    The suffix uses the original bounded ObjAppendBytes tree minus its first32-byte
    leaf, with all225 bytes checked. That source representation refinement was
    independently reviewed and does not assert an atomization result.
@@ -69,6 +87,9 @@ capability follows from these finite proofs.
    helper-only success is insufficient. Possible hash recomputation remains open.
    Frozen source-preparation NOT_RUN text remains historical; current fixture
    RESULTS.md/results.json records the later outcomes.
+   After this bridge checkpoint, the next work package is completion of the 17
+   preserved drafts requested by Casey. Begin with their actual Object control
+   roots and source reconciliation, rather than extending verification tooling.
 2. **Complete the connection to the original theorem.** Preserve the original
    input, digest, runtime definitions and empty-axiom policy. Demonstrate a
    supported proof bridge before expanding all thirteen node certificates.

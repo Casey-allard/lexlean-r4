@@ -1,0 +1,175 @@
+{
+  "schema": "lexlean-r4-symbolic-continuation-resource-epoch-review/v1",
+  "at": "2026-10-23T20:23:28.788Z",
+  "status": "PASS_DISTINCT_RECORDED_RESOURCE_EPOCH_READINESS_ONLY",
+  "findings": [],
+  "container": {
+    "id": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "oldStartedAt": "2026-10-23T15:43:20.109949525Z",
+    "newStartedAt": "2026-10-23T20:22:35.225704499Z",
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "restartCountBeforeAfter": 0,
+    "vmBootIdBeforeAfter": "44f408ba-d166-4157-93b8-d311639e4a0f"
+  },
+  "checks": {
+    "sameExistingContainerImageAndResourceConfig": true,
+    "onlyRecordedMutationExistingContainerRestart": true,
+    "allBeforeRecordsPrecedeRestart": true,
+    "allAfterRecordsFollowRestart": true,
+    "priorOomMemoryMatchesFailedConsumer": true,
+    "freshMemoryAllZero": true,
+    "all22SourceInputsAndGenuineLockPreserved": true,
+    "exactKnownToolHashesBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "vmBootUnchanged": true,
+    "hostAndGuestReserveAfter10GiBEstimate": true,
+    "allRecordedCommandsExit0": true
+  },
+  "priorMemory": "low 0\nhigh 0\nmax 324059\noom 1\noom_kill 1\noom_group_kill 0\n",
+  "newMemory": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "toolsSha256": [
+    "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+    "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+    "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+    "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+  ],
+  "preservedInputs": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/expected-inputs.json",
+    "bytes": 5645,
+    "sha256": "c742e6c17187723141b62e5a3dcf19a82b60ec7c04c7180752b0473ec06f118f"
+  },
+  "preservedLockSha256": "e021a181fb6435f06f1f8dd74cf8ecf5b9456a7ba27a5541c3669eb4686a5b08",
+  "storage": {
+    "before": {
+      "hostAvailableBytes": "32106098688",
+      "hostAdditionalEstimateBytes": "10737418240",
+      "hostReserveBytes": "10737418240",
+      "guestAvailableKiB": "53204340"
+    },
+    "after": {
+      "hostAvailableBytes": "32109174784",
+      "hostAdditionalEstimateBytes": "10737418240",
+      "hostReserveBytes": "10737418240",
+      "guestAvailableKiB": "53204340"
+    }
+  },
+  "allocationAndSwap": {
+    "allocatedBefore": "25671928\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469500\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+    "swapBefore": "vm.swapusage: total = 11264.00M  used = 11006.62M  free = 257.38M  (encrypted)\n"
+  },
+  "receiptInventory": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/allocated-before.json",
+      "bytes": 455,
+      "sha256": "f0c2b811a8f1053c1b1888d798e142974a3b06a9eeda265d1c2b5cedb13bd41c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/boot-after.json",
+      "bytes": 332,
+      "sha256": "67fbb73637380a55c20c8df9727c643acce771757181e5d57e8184b5ab5c9054"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/boot-before.json",
+      "bytes": 332,
+      "sha256": "87c94a0446a615acefa055d5ee3df041fd305d499b0d200b561355b8b96406e4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/container-after.json",
+      "bytes": 646,
+      "sha256": "f61352822cfd1ea680fad35e9240eeec2971a9887f790a4f4df191c1d9713a3d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/container-before.json",
+      "bytes": 646,
+      "sha256": "1dcd29787c99387a18f98ada2614cbffc239de919254a1900f6c91af8221f665"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/guest-after.json",
+      "bytes": 402,
+      "sha256": "2fcd39146bf89dfdce2addf1b500d0c5a24344c998fdf1e0a774b40dc5afc10b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/guest-before.json",
+      "bytes": 402,
+      "sha256": "bd4a9fe825d7f899ef81a61cc92a12b2a789cc81568daa9accbe90e82e0ddd77"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/host-after.json",
+      "bytes": 147,
+      "sha256": "1f6ed983897b3a6838dc4d36f2719f21c558b940a1af7682b7b617e55b83de10"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/host-before.json",
+      "bytes": 147,
+      "sha256": "87d051d493564d9019774bc4e925ddb08fa04fbd06a6ffc86200b8ddee3128b6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/idle-after.json",
+      "bytes": 456,
+      "sha256": "3c93885d99bc71609fb732f630f996908373c6cf966382e4095ed5ca693a10b1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/idle-before.json",
+      "bytes": 456,
+      "sha256": "eb3461ae8c49945686073a2e2e5fc6dd10395952cb4a7c648cf4b2fa3fdf683a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/memory-after.json",
+      "bytes": 350,
+      "sha256": "7868dba88e99869331dc6eefd1ec22e7d3b6ec6dfe6bf0f986a8390bf8932b89"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/memory-before.json",
+      "bytes": 355,
+      "sha256": "f87ef592784c4c1095065faacd3a8424c76db67c3a65cc8c4195ee33306ab9eb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/restart.json",
+      "bytes": 313,
+      "sha256": "1b2779798f74cb31e1812e95f30b7dc859157f0717b19877e48ecc8cc25b61ff"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/result.json",
+      "bytes": 834,
+      "sha256": "6a15ecfd2010995f4548411722007e5950abfd3eff4bee540bf4553df3648645"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/source-after.json",
+      "bytes": 6293,
+      "sha256": "feb806d4368039b94e19cb429088f9729402dddc2a2163e1191e5e6ac36226d0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/source-before.json",
+      "bytes": 6293,
+      "sha256": "f546e930dff132d7f41611945b080c228f654c95f475c4fa989bcad3ce42c2df"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/swap-before.json",
+      "bytes": 260,
+      "sha256": "0ad44ac02bec8d1c2e477d18d46df1252073c2997f57e1b1fa42685c648fee42"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/tools-after.json",
+      "bytes": 1001,
+      "sha256": "4d6109001e686bab44cbfdec7c543c826fcc4f462fa4b5063cf814fbe4a469b1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/tools-before.json",
+      "bytes": 1001,
+      "sha256": "258f3d7fff5c56ac7bacac8c3f03a14c4afce22a6af4080cb92eb61d1ad5d60f"
+    }
+  ],
+  "interpretation": "Old nonzero OOM epoch is retained and matches prior failed consumer. New all-zero counters belong to a distinct container StartedAt epoch, not a retroactive reset of historical observations. Source/compiler/container image/resource configuration and VM boot remain unchanged across recorded restart.",
+  "scope": "Read-only audit of actual capture records. No SDK/compiler invocation appears in captured command set; only existing idle container restart was recorded. Reviewer performed no native/VM/repository operations.",
+  "limitations": [
+    "Readiness observation only, not source candidate admission or proof acceptance.",
+    "No comparison of cumulative event counters as if the two epochs were continuous. Prior failure and memory-gate rejection remain valid.",
+    "Any later experiment must bind exact new source/config/tool/epoch identities and recheck idle/storage/memory gates at launch.",
+    "Disk observations and 10GiB peak estimate are sampled/planning values, not continuous high-water guarantees.",
+    "No equivalent retry, limit change, production binding or acceptance waiver follows from this review."
+  ]
+}

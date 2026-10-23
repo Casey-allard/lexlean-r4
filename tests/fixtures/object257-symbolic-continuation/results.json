@@ -1,0 +1,308 @@
+{
+  "schema": "lexlean-r4-object257-symbolic-continuation-results/v1",
+  "status": "PASS_LOCAL_EXACT_ORIGINAL_ATOMIZED_FOLD_PREFIX_BRIDGE_WITH_NEGATIVE",
+  "sourceManifest": {
+    "path": "tests/fixtures/object257-symbolic-continuation/manifest.json",
+    "bytes": 18709,
+    "sha256": "a29b688b02ac7c997244e0984bc68120ec11734dbc24298a9a38876aec0eade2"
+  },
+  "sourceReview": {
+    "path": "tests/fixtures/object257-symbolic-continuation/evidence/code-review.json",
+    "bytes": 9614,
+    "sha256": "da1a1cbf9b63bb6a1da1215216004b449f7c9ed7742787b06afd70ee3003b914"
+  },
+  "resourceEpochReview": {
+    "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch-review.json",
+    "bytes": 8945,
+    "sha256": "3e22d2f340e4d8aff078e1af167426d32573f7eb2a1129cb889744e67a52b2f4"
+  },
+  "phases": [
+    {
+      "phase": "symbolic-false",
+      "scope": "Intended false-base control only",
+      "review": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false-review.json",
+        "bytes": 11389,
+        "sha256": "bc9023c84abcebe1c1b61a76a9400da76002c446a22cb5b9b19ce0490927f081"
+      },
+      "reviewStatus": "PASS_INTENDED_LOCAL_NEGATIVE_ONLY",
+      "check": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/check.json",
+        "bytes": 1023,
+        "sha256": "c37b2de2b4f99ef71e3e7c1bd9096bddf25eb7cdad2d3049ee5c731053235d60"
+      },
+      "verify": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/verify.json",
+        "bytes": 1288,
+        "sha256": "e840baa73205595e22f3afad1e45fb63cdeade7ce8d4f9a58578e1a6e6b2784e"
+      },
+      "verifyExit": 1,
+      "wholeCommandWallMilliseconds": 34787,
+      "developmentLock": {
+        "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-false/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "309712a044fb4aa499a10a3d4ee77c170e0e83529bc5dbde4efb718973e7d06c"
+      },
+      "attestationId": null,
+      "buildId": null,
+      "semanticId": "23c66641a47a505e315fafdaa98f9bedaec89897080eb400bfbfb16c84bff3ae",
+      "sourceId": "51614d4e5d55c2183f1cb2afcd08074590b1dd3299eb090270c122bfea20d049",
+      "sourcecheckModules": 14,
+      "diagnostics": [
+        {
+          "causes": [],
+          "code": "LLV7002",
+          "help": [],
+          "labels": [],
+          "message": "Lean rejected `LexLeanR4.Object257SymbolicLiftFalseBase` (error): Type mismatch\n  obj257AtomizedUnrelatedZero\nhas type\n  0 = 0\nbut is expected to have type\n  Object257SymbolicContext.Obj257AtomizedGoal suffixHeadBytes 0",
+          "notes": [
+            {
+              "message": "generated location: $STAGING/lean-src/LexLeanR4/Object257SymbolicLiftFalseBase.lean:19:4"
+            }
+          ],
+          "primary": {
+            "byte_end": 1390,
+            "byte_start": 540,
+            "column_end": 1092,
+            "column_start": 242,
+            "line_end": 10,
+            "line_start": 10,
+            "path": "tests/lexlean/Object257SymbolicLiftFalseBase.lex.tex"
+          },
+          "severity": "error",
+          "spec": "lexlean/diagnostic/1"
+        }
+      ],
+      "artifacts": [],
+      "postcaptureErrors": [],
+      "artifactAudit": null
+    },
+    {
+      "phase": "symbolic-lift",
+      "scope": "Parameterized helper only",
+      "review": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift-review.json",
+        "bytes": 40026,
+        "sha256": "891e5e5c8628ab9c3e01566f05b3544115051c355037b2c57ed56a2c8d754ce2"
+      },
+      "reviewStatus": "PASS_VERIFIED_PARAMETERIZED_HELPER_ONLY",
+      "check": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/check.json",
+        "bytes": 1013,
+        "sha256": "257d02f90a1f00662696bf0bf2c5c5010acb640448f21a87acbe4c67d8f73e9b"
+      },
+      "verify": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/verify.json",
+        "bytes": 1322,
+        "sha256": "fb5d7c77638314bc57c490b1af28c8330eafdf1e35524b658b5836e9f5a78a40"
+      },
+      "verifyExit": 0,
+      "wholeCommandWallMilliseconds": 48545,
+      "developmentLock": {
+        "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-lift/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "2e94b137b481040c1307361c75f9137ca8bffdc22ef07238639667a4bd8c3d33"
+      },
+      "attestationId": "4d3a0a4ca732397881faacf16b05564e1832f7b21a841e4c7e4b1e3a3ce5d141",
+      "buildId": "84aeb9986abfa0c2b985a2dc78f9ef233c0bf9d0a79d3f91614ef5a658930044",
+      "semanticId": "ca5bbc4928fd54e04034256f11f8b5d4d4bbfddcca941b4689753a059052201c",
+      "sourceId": "30fce7dc5e71fe87aba4eb5ff58b2ba925aa4aa1c7880484734fac0afb076b1a",
+      "sourcecheckModules": 14,
+      "diagnostics": [],
+      "artifacts": [
+        ".lexlean/verified/4d3a0a4ca732397881faacf16b05564e1832f7b21a841e4c7e4b1e3a3ce5d141"
+      ],
+      "postcaptureErrors": [],
+      "artifactAudit": {
+        "files": 145,
+        "declarations": 773,
+        "kernelReplays": 14,
+        "successfulProcesses": 43,
+        "axiomPolicy": "none",
+        "observedAxioms": "all empty",
+        "completeInventoryInReview": true
+      }
+    },
+    {
+      "phase": "symbolic-generic",
+      "scope": "Generic actual production consumer",
+      "review": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic-review.json",
+        "bytes": 41873,
+        "sha256": "589ac5d44e90b4bf51135b010747a7bab9aa58a423696de1318f55db45ae4804"
+      },
+      "reviewStatus": "PASS_ACTUAL_GENERIC_PRODUCTION_CONSUMER_ONLY",
+      "check": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/check.json",
+        "bytes": 1053,
+        "sha256": "584e8afe1bc6d88b49026a1bfcd34d40d6ac05ccced154334ffe5e46ae57b1be"
+      },
+      "verify": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/verify.json",
+        "bytes": 1373,
+        "sha256": "f949fe94b516c670e09b3debde736915181ef8b706d32859891dd85bfd9b1413"
+      },
+      "verifyExit": 0,
+      "wholeCommandWallMilliseconds": 45704,
+      "developmentLock": {
+        "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-generic/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "976941bd1eea7ad8a8bcca41866cd21625177b7725c151eb2ae0ace356b836ba"
+      },
+      "attestationId": "d4a38446ef3d316f7e2ab9caa01c19780525c995e23ccc1f9c810f4c17c1b7c6",
+      "buildId": "327e29f183d122bf875ecb656ef06cb397fb89ff0d832a9c9e1864f523317dd5",
+      "semanticId": "26f9c8924bc3a6a8cc6b231adffdd61bcd73422f24758385da2fbd61a7b1f6b9",
+      "sourceId": "b358ae193e58d27cba1b6428e24617e0f3c774f6d947f8c78038cc3c602dfa83",
+      "sourcecheckModules": 15,
+      "diagnostics": [],
+      "artifacts": [
+        ".lexlean/verified/d4a38446ef3d316f7e2ab9caa01c19780525c995e23ccc1f9c810f4c17c1b7c6"
+      ],
+      "postcaptureErrors": [],
+      "artifactAudit": {
+        "files": 155,
+        "declarations": 774,
+        "kernelReplays": 15,
+        "successfulProcesses": 46,
+        "axiomPolicy": "none",
+        "observedAxioms": "all empty",
+        "completeInventoryInReview": true
+      }
+    },
+    {
+      "phase": "symbolic-concrete",
+      "scope": "Exact original concrete atomized fold-prefix consumer",
+      "review": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete-review.json",
+        "bytes": 45720,
+        "sha256": "84d59c87e60805512ada9868060f04843e46a93750de97984a6db0032ace90f6"
+      },
+      "reviewStatus": "PASS_EXACT_ORIGINAL_ATOMIZED_FIRST_STATE_CONTINUATION_BRIDGE",
+      "check": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/check.json",
+        "bytes": 1084,
+        "sha256": "36f5ff49dec036a96a8a7a93e2879a986cb46feb3b5b7bcfe8dd6b4ab68f808a"
+      },
+      "verify": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/verify.json",
+        "bytes": 1397,
+        "sha256": "350e8bee2126a1e0a893df5f3bf66758ff597a5a641c7246c2d0bacf0a14ff21"
+      },
+      "verifyExit": 0,
+      "wholeCommandWallMilliseconds": 25240,
+      "developmentLock": {
+        "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-concrete/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "f23234d371c24f32d863e095d10596c1ca6104b53dd626b4a409e7fbed7e86de"
+      },
+      "attestationId": "832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c",
+      "buildId": "14efc85c1dbe75335331132b63fd586357406b0874cb3073043e5c0949024670",
+      "semanticId": "c8f6958ced39212e79cbf1228f38ce2cd932063f315cd0b6f466ede376b39ea3",
+      "sourceId": "5ad5d0d88b3e54168498d777dc7a206718313236fd3be811bea2e10b96ba82d8",
+      "sourcecheckModules": 16,
+      "diagnostics": [],
+      "artifacts": [
+        ".lexlean/verified/832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c"
+      ],
+      "postcaptureErrors": [],
+      "artifactAudit": {
+        "files": 165,
+        "declarations": 775,
+        "kernelReplays": 16,
+        "successfulProcesses": 49,
+        "axiomPolicy": "none",
+        "observedAxioms": "all empty",
+        "completeInventoryInReview": true
+      }
+    }
+  ],
+  "established": "Actual production FoldAtoms(ObjAtomize I []0)[][]L equals FoldAtoms(ObjAtomize R []0)S.frontierS.inventoryL for exact original257 input I, exact225-byte suffix R, accepted first-atom state S and unchanged limits L. Generic parameterization followed by exact concrete Apply passed actual native verification and independent empty-axiom/kernel review.",
+  "statementIdentity": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+      "bytes": 38431,
+      "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+    },
+    "predecessor": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedConsumer.lex.tex",
+      "bytes": 36529,
+      "sha256": "43896b643ce11da2e7311f708c95a4cdc259d9b2d5a80df9fe36898b2bbed0be"
+    },
+    "genericSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicGenericConsumer.lex.tex",
+      "bytes": 32937,
+      "sha256": "7b8c2cc2d1527781f78e64d38fa38fe9e4484405a332a8833b4679124ce66c2a"
+    },
+    "statementAstSha256": "3508254547b0c51cb472cc0a2b9c6133a73108e783f41cde9f9f7b48a63d85df",
+    "entireStatementAstEqualToPredecessor": true,
+    "nameAndEmptyParametersPreserved": true,
+    "emptyDeclaredAxioms": true,
+    "genericSubstitutionAtExactlyTwoVariableOccurrencesRecoversEntireOriginalStatement": true,
+    "concreteArgumentNatValues": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ],
+    "emitted": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-concrete/artifact/modules/LexLeanR4/Object257SymbolicConsumer.lean",
+      "bytes": 7379,
+      "sha256": "1f41eea94a5417d3fd8351d8a24b31b01dc4353e4a2181372fe7a5e7a263f4da"
+    },
+    "priorFailedBuildEmission": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/../atomized-split/emitted-Object257AtomizedConsumer.lean",
+      "bytes": 7074,
+      "sha256": "343648c4c3f99d95a683d3694108b979b4d872aa5e00f6ccd31b7030cf345519"
+    },
+    "entireEmittedTheoremStatementByteEqualToOriginalFailedBuild": true,
+    "inspection": "Actual theorem compares production FoldAtoms(Atomize original257 input) at empty state with production FoldAtoms(Atomize remaining225 input) at the exact certified singleton first state, using original limits. Its proof applies the accepted generic consumer at the original32-byte B=32..63. Helper/context/generic emitted modules remain byte-identical to prior accepted artifact. This is the original first-state continuation bridge, not evaluation of the remaining fold to a digest."
+  },
+  "preparationStatus": "Frozen README.md/candidate.json/structural-audit.json/manifest.json NOT_RUN text records preparation-time status and remains byte-preserved. Current actual outcomes are RESULTS.md and this separate results.json.",
+  "limits": {
+    "childTimeoutMs": 300000,
+    "containerMemoryBytes": 4294967296,
+    "containerCpuCount": 2
+  },
+  "priorFailures": {
+    "combinedNegativeTimeout": "../object257-atomized-core/RESULTS.md",
+    "splitConcreteOom": "../object257-atomized-split/RESULTS.md",
+    "preserved": true,
+    "interpretation": "Previous timeout and intervalOOM outcomes remain failed configurations; no retroactive semantic RED or acceptance. Resource-epoch review binds a distinct later container start."
+  },
+  "boundaries": [
+    "This proves a fold-prefix continuation equality, not evaluation of the remaining225-byte suffix state.",
+    "Original full objFoldDigest257, fullObject/Hash controls and production integration remain open.",
+    "PrismPM SDK/template/fulljustvv and generatedPages remain open.",
+    "Observed timings are individual verification command durations, not controlled performance comparisons or speedup evidence.",
+    "Portable evidence contains selected raw/text artifacts and full independent inventories; compiled binaries/fullbundles remain excluded and hash-pinned."
+  ],
+  "nextPriority": "Complete/integrate the17 preserved draft paths with real dependency/compiler/model gates, not a new general proof framework."
+}
