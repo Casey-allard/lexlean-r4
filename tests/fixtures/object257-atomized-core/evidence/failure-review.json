@@ -1,0 +1,201 @@
+{
+  "schema": "lexlean-r4-atomized-core-native-failure-review/v1",
+  "at": "2026-10-23T19:24:37.793Z",
+  "status": "CONFIRMED_CHILD_TIMEOUT_NOT_INTENDED_SEMANTIC_NEGATIVE",
+  "findings": [],
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-core/manifest.json",
+    "bytes": 8393,
+    "sha256": "185f83b861a3bdf58759070e41bd2f144242385cfc59bedd04e80633be0483e9"
+  },
+  "sourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/code-review.json",
+    "bytes": 17857,
+    "sha256": "16aa37af76453793a49f355253ad731a60f7635d44aaa64cdd64805cd7203e98"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/run-phase.mjs",
+    "bytes": 7175,
+    "sha256": "2de2116ac172ff747b5d76feca8bed9edac64edb0f3fcf476e1e95667ff3e3c3"
+  },
+  "classification": {
+    "sourceAdmission": "PASS:14 modules, check exit0, JSON success true, no diagnostics.",
+    "verifyExit": 4,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.Object257AtomizedCoreFalseBase: configured 300000, observed 300006 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "childLimitMs": 300000,
+    "reportedChildObservedMs": 300006,
+    "entireVerifyWallMs": 492114,
+    "intendedNegative": false,
+    "why": "Native verification stopped on the Lean child time limit in Object257AtomizedCoreFalseBase. No LLV7002 unrelated-base rejection was returned; this cannot be counted as the intended negative or as a mathematical disproof.",
+    "oomEvidence": "All before/after memory.events fields zero. No OOM indication in these receipts.",
+    "partialEvidence": "No successful attestation/artifact. Later emitted-source or partial diagnostics may aid debugging but cannot promote this timeout to proof acceptance or intended negative.",
+    "launcher": "Launcher/postcapture completion is separate from actual compiler verify exit4.",
+    "positive": "NOT_RUN; no positive verify receipt exists at review."
+  },
+  "sourceAndLock": {
+    "all21FrozenInputsRehashed": true,
+    "beforeAfterAll21Match": true,
+    "expectedInputs": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/expected-inputs.json",
+      "bytes": 5352,
+      "sha256": "9d176fda96e48144bff29bfb07a588396a816350e59b0ab05a1c354d775a4d5b"
+    },
+    "genuineLockSha256": "d69ea95950f9083bc2b9ae733b23eccba2baa3077df5c5acadf8745598b63afd",
+    "lockAfterMatches": true,
+    "configLimitUnchanged": true
+  },
+  "postconditions": {
+    "epochUnchanged": true,
+    "toolsMatch": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "zeroMemoryEventsBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "postcaptureErrors": [],
+    "storage": {
+      "before": {
+        "hostAvailableBytes": "30969925632",
+        "guestAvailableKiB": "53226856"
+      },
+      "after": {
+        "hostAvailableBytes": "31468863488",
+        "guestAvailableKiB": "53222848"
+      }
+    },
+    "sampledOnly": true
+  },
+  "reviewedReceipts": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/check.json",
+      "bytes": 1015,
+      "sha256": "da81676e04c01858ae7e52ddce289ffd7a58a5be5084843fbcb96cb280fa28f6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/verify.json",
+      "bytes": 1017,
+      "sha256": "d79dbd235b9c5bcf5650471ed63b39fa1b583ccaaf7f0f322f77e56f9552d22a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/result.json",
+      "bytes": 890,
+      "sha256": "2b8ff43ff57d8be2ab7fc0fb5dfe787665ce3b349c4a358378c959b9ccef7722"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/expected-inputs.json",
+      "bytes": 5352,
+      "sha256": "9d176fda96e48144bff29bfb07a588396a816350e59b0ab05a1c354d775a4d5b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/source-before.json",
+      "bytes": 5687,
+      "sha256": "4afd473e84eb605f83971b41fc42fdb08e032ad29b5932746104c6201583bb9e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/source-after.json",
+      "bytes": 5687,
+      "sha256": "48870c7446035c3c6cecd69fcbcbb47843aac185a85780732c53017aea0ada9f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/lock.json",
+      "bytes": 539,
+      "sha256": "d1355a2d80a3c3088d601017a0a6af26e58449f0c55c340de7061e09da451888"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/lock-bytes.json",
+      "bytes": 2055,
+      "sha256": "7496ae76f676a7458e5bd41e370deefba859cd324bf6a6136cfba46c9e62857c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/lock-after.json",
+      "bytes": 489,
+      "sha256": "7cb1e77420dc71a17d390bd428c55fff01b090bf844e2fc5646973e3c19bc545"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/epoch-before.json",
+      "bytes": 470,
+      "sha256": "0c394a1c424d1b3f15e4eaedb8ee239b00986616a276f4464d9e7c289c8c7fa8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "f7479e204846eb31251477bec039adf3df618eb68d2177851aad63fee12265f5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/memory-before.json",
+      "bytes": 354,
+      "sha256": "6e144ff2e6e79fa81a5531946845d8decc2200915751843c0137115a7ae87082"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "d4d0845cd5109b09520f141ef4642327349b584ddf65d091f954d7489672a5e9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/idle-before.json",
+      "bytes": 460,
+      "sha256": "bfa506c55d809c066fc7f0ed093c53c4f5d82faf1c0aaaccedf68451946c0c3c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "1a5fbfe0c06dc491d0c5834abe02a5eaf02f9fb877afd0bce36ecdc355b54c7f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/host-before.json",
+      "bytes": 152,
+      "sha256": "3c1a72243ecd6ae0e0c613b39fc083874022cd76e47b2768f184c5560abebfc4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/host-after.json",
+      "bytes": 142,
+      "sha256": "4c7c4e2f325c1684afb6f537a857b42f1786bd258c981d9d37caf44e34bf4f4f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/guest-before.json",
+      "bytes": 406,
+      "sha256": "4b18ee500ae497c2dedfbd3eb0dee8e245f18a950019203776d952e261e285e9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "51667699245ea0c7f537717790d6aca508df0e2841713a9a730dc3001b959f19"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/tools-before.json",
+      "bytes": 1005,
+      "sha256": "7b95db2fe8af0d7a52bbb90bf5468fdacefc5c9d45b9f045390f02bd04fbc12c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-core/atomized-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  ],
+  "limits": [
+    "Exact resource failure classification only; no proof or component acceptance.",
+    "Preserve failed stage, source and diagnostics. Do not equivalently rerun or automatically enlarge the limit based on this review.",
+    "Author may investigate actual emitted source and partial compiler records; root-cause diagnosis remains separate.",
+    "No native/SDK/compiler/VM/repository/other-lab operations by reviewer."
+  ]
+}

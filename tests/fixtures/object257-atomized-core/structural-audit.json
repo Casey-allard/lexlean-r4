@@ -1,0 +1,70 @@
+{
+  "status": "PASS_SOURCE_STRUCTURAL_AND_CANONICAL_CHECKS_NATIVE_NOT_RUN",
+  "sourceChecks": [
+    {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedCoreFalseBase.lex.tex",
+      "bytes": 37410,
+      "sha256": "6008ee86c61aec0076a79041a0fa608ede30e97c6149ed6896a63fa59c332d7e",
+      "canonicalBytes": true,
+      "maxJsonContainerDepth": 49
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedContext.lex.tex",
+      "bytes": 31413,
+      "sha256": "cc7ca480ff76a8795d05ea39fbe74c94f52e9168f5f988f9fe509b510e31dc05",
+      "canonicalBytes": true,
+      "maxJsonContainerDepth": 52
+    },
+    {
+      "path": "tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedCore.lex.tex",
+      "bytes": 37429,
+      "sha256": "0c6f4612b823b25950fe8cf42daf1fe395151a1219c466ed14819e8338fb4e52",
+      "canonicalBytes": true,
+      "maxJsonContainerDepth": 49
+    }
+  ],
+  "checks": [
+    "Original I AST exact; original257 decoded literal bytes unchanged.",
+    "R exact original source-tree extraction after first32-byte leaf; full225 decoded bytes match; not atomization or digest computation.",
+    "S is unwrapped accepted carry-state record; F=okS exact accepted base and original L preserved.",
+    "K success uses actual Q fold and carried fields; typed error branch unchanged.",
+    "P/Nat proof unchanged except names; only negative zero-base Apply target differs; same unrelated theorem both.",
+    "Consumer actual FoldAtoms(T)empty/empty/L=FoldAtoms(Q)S.frontier/S.inventory/L.",
+    "No added certificate/hash; all theorem axioms empty.",
+    "Config entrypoint-only change;300000ms unchanged.",
+    "All dependency hashes/portablealiases and17originaldirtyfiles preserved."
+  ],
+  "representationalRefinement": {
+    "requiresIndependentReview": true,
+    "description": "Use bounded original ObjAppendBytes suffix tree rather than flat225cons. Both denote exact source suffix; no new runtime operation.",
+    "reason": "Official SemanticModule::parse uses serde_json::from_str; pinned serde_json1.0.151 default recursion budget128. Preserve original bounded literal leaf representation.",
+    "authority": [
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+        "bytes": 384753,
+        "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2",
+        "lines": "8816-8821"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/Cargo.lock",
+        "bytes": 25022,
+        "sha256": "bb01ffadf3e5015634176c992143c90f7b1712960c4143f30e8543385c4bdd8f",
+        "lines": "592-595"
+      },
+      {
+        "path": "/Users/casey.allard/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/de.rs",
+        "bytes": 86840,
+        "sha256": "4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3",
+        "lines": "34-67,1366-1385,2709: remaining_depth128 and recursion checking"
+      }
+    ],
+    "authorityPaths": "Historical local source provenance only, not staging dependencies. All candidate.dependencies/sharedStageInputs use repo-relative paths.",
+    "sourceOnly": "No actual overdepth compiler failure induced or claimed; pre-freeze representation correction based on source."
+  },
+  "native": {
+    "check": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positiveActualConsumer": "NOT_RUN"
+  },
+  "remaining": "Exact conversion/cost, remainder state and original digest unproved."
+}

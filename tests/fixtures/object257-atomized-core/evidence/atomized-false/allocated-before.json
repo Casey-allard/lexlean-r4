@@ -1,0 +1,13 @@
+{
+  "args": [
+    "-k",
+    "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+    "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+  ],
+  "started": "2026-10-23T19:14:34.665Z",
+  "ended": "2026-10-23T19:14:34.716Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "25640868\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469452\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+  "stderr": ""
+}

@@ -1,0 +1,32 @@
+{
+  "at": "2026-10-23T19:24:24.636Z",
+  "scope": "Read-only build emission after timeout; not an accepted verified artifact.",
+  "files": [
+    {
+      "source": "/tmp/r4-object257-atomized-core-atomized-false-owned-20261023/.lexlean/build/08015b5555575c7fcb77575aee62af85be9052b16fd329ddcd28240e3489b0a9/modules/LexLeanR4/Object257AtomizedCoreFalseBase.lean",
+      "file": "emitted-Object257AtomizedCoreFalseBase.lean",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/tmp/r4-object257-atomized-core-atomized-false-owned-20261023/.lexlean/build/08015b5555575c7fcb77575aee62af85be9052b16fd329ddcd28240e3489b0a9/modules/LexLeanR4/Object257AtomizedCoreFalseBase.lean"
+      ],
+      "status": 0,
+      "bytes": 7372,
+      "sha256": "540b851049bdda15d12807603f069c757008a47fe0aac83e7aa2fe29e71f0608"
+    },
+    {
+      "source": "/tmp/r4-object257-atomized-core-atomized-false-owned-20261023/.lexlean/build/08015b5555575c7fcb77575aee62af85be9052b16fd329ddcd28240e3489b0a9/modules/LexLeanR4/Object257AtomizedContext.lean",
+      "file": "emitted-Object257AtomizedContext.lean",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/tmp/r4-object257-atomized-core-atomized-false-owned-20261023/.lexlean/build/08015b5555575c7fcb77575aee62af85be9052b16fd329ddcd28240e3489b0a9/modules/LexLeanR4/Object257AtomizedContext.lean"
+      ],
+      "status": 0,
+      "bytes": 6539,
+      "sha256": "f15014f44327002ed1396625a3c29b309b503eea6cbf577756b3541ba169157c"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-atomized-core-atomized-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T19:23:09.757Z",
+  "ended": "2026-10-23T19:23:10.157Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "d69ea95950f9083bc2b9ae733b23eccba2baa3077df5c5acadf8745598b63afd  /tmp/r4-object257-atomized-core-atomized-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

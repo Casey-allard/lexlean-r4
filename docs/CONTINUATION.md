@@ -24,6 +24,7 @@ independent reviewers; no external lab or another session owns this work.
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
 | First concrete Object257 atom state | Actual first32-byte leaf and `ObjFoldAtoms [[0,1,...,31]] [] [] originalLimits` singleton state verified. Wrong expected inventory ID rejected at the consumer. | [Actual results](../tests/fixtures/object257-first-atom/RESULTS.md): leaf 66,570 ms; state 48,659 ms, 769 empty-axiom declarations and 12 kernel replays. Local prefix only. |
 | Nonempty two-atom continuation | Actual `Fold [A,B] [] [] L = Fold [B] firstState.frontier firstState.inventory L` verified, with A bytes0–31 and B bytes32–63. Unrelated-base proof rejected. | [Results](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md): positive 93,920 ms, 774 empty-axiom declarations and 14 kernel replays. Actual consumer conversion passed; no second-state, whole257 or efficiency claim. |
+| Original257 atomized fold-core probe | Sourcecheck admitted 14 modules; negative phase timed out in its final Lean module at the unchanged 300-second child limit. Positive not run. | [Timeout record](../tests/fixtures/object257-atomized-core/RESULTS.md). This is not the intended proof negative or an accepted core bridge. |
 | Production binding and deployment | Missing production SDK/template binding. `just vv`, generated application and Pages remain incomplete. | [Upstream dependencies](UPSTREAM.md), CI observation below. |
 
 The local Object proof experiments can proceed before full Hash acceptance.
@@ -48,8 +49,17 @@ capability follows from these finite proofs.
    suffix from the certified first state, without trusted intermediate hashes.
    Candidate construction must take S from the accepted state theorem's
    `right.arguments[0]` (the ObjCarryState); `right` itself is already `ok S`.
-   Do not double-wrap it. No candidate or native result exists for this step yet.
-   That larger consumer and its atomization-prefix conversion are **NOT_RUN**.
+   Do not double-wrap it. The [candidate and actual timeout](../tests/fixtures/object257-atomized-core/RESULTS.md)
+   are now preserved: source admission passed, but the negative module exceeded
+   the 300,000 ms child limit (observed 300,006 ms). The intended unrelated-base
+   diagnostic was not returned. The positive remains **NOT_RUN**, and the larger
+   consumer/atomization-prefix conversion remains unproved. The exact expensive
+   declaration or conversion is not localized by this result. Inspect the retained
+   build emission and independently review one bounded diagnostic/decomposition
+   before more native work; do not repeat equivalent runs or increase limits.
+   The suffix uses the original bounded ObjAppendBytes tree minus its first32-byte
+   leaf, with all225 bytes checked. That source representation refinement was
+   independently reviewed and does not assert an atomization result.
    Require the actual consumer, unchanged limits and intended wrong-base control;
    helper-only success is insufficient. Possible hash recomputation remains open.
    Frozen source-preparation NOT_RUN text remains historical; current fixture
