@@ -1,0 +1,92 @@
+{
+  "at": "2026-10-23T17:02:09.945Z",
+  "status": "PASS_INTERNAL_CODE_TERMINAL_FOLD_CANDIDATE_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/tmp/r4-object257-fold-transition-candidate-20261023/manifest.json",
+    "bytes": 10053,
+    "sha256": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c"
+  },
+  "specReview": {
+    "path": "/tmp/r4-object257-fold-transition-spec-review-20261023.json",
+    "bytes": 9404,
+    "sha256": "a12ba72d80f5f4f7a6e2b072b5dfbf59d6cc741d9a8b37d6fada5ccbad110aa2"
+  },
+  "payloadFiles": 11,
+  "dependencyPins": 28,
+  "sourcePins": [
+    {
+      "path": "configs/terminal-false/lexlean.toml",
+      "bytes": 704,
+      "sha256": "98fdcafeabcd7c26527e2e9ba0d9719c925da08d60022d938d5152e1ab0555e3"
+    },
+    {
+      "path": "configs/terminal-positive/lexlean.toml",
+      "bytes": 695,
+      "sha256": "8a5045bcd6056f705c340d2dec5183d89c0478a541697d1e3f8bfdb7ba0c247f"
+    },
+    {
+      "path": "tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "bytes": 10722,
+      "sha256": "037ffbafb67a359f4b28d1bb61494bed3d3b18382cc75da9509db98ba0f0e320"
+    },
+    {
+      "path": "tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex",
+      "bytes": 10703,
+      "sha256": "5dd5aee68580258bcb7e5d5f5fa555621e26f474d9fb53adb60b9229a58d8420"
+    }
+  ],
+  "findings": [],
+  "independentChecks": [
+    "Reversed only the permitted context transformation: restored original leaf scrutinee and terminal tail variable, removed required ObjectStore qualifications, and compared the entire resulting AST to the actual production cons body. Exact match.",
+    "Inspected the three nested Result matches; each error propagates its own bound failure at Result ObjCarryState ObjError.",
+    "The same bound leaf is staged and projected for carry; actual ObjCarryTriples uses depth38 and root scale0, retains incoming frontier, staged inventory and limits, then calls actual ObjFoldAtoms [] with carried frontier/inventory.",
+    "Actual consumer left is production ObjFoldAtoms [[0]] with arbitrary frontier/inventory/limits, not merely helper equality.",
+    "Accepted leaf equation, Prop-family zero and successor equations, consumer RHS substitutions, prior native-proven proof AST, direct imports, single negative reference mutation and entrypoint-only config delta were checked by the read-only audit after source inspection.",
+    "Exact manifest payload census, all file/dependency hashes and sizes verified independently."
+  ],
+  "readonlyAudit": {
+    "command": "node /tmp/r4-object257-fold-transition-candidate-20261023/audit.mjs",
+    "status": "PASS_READ_ONLY_PRODUCTION_AST_AND_PINS",
+    "checks": [
+      "all fifteen historical inputs, SPEC, proposal, accepted leaf and prior proof exact",
+      "exact semantic-module/2 declaration census",
+      "context equals production cons AST after only specified substitutions and qualification",
+      "three typed errors preserve original bound failure at CarryState output",
+      "same bound leaf staged and projected into depth38/scale0 carry; tail remains production call",
+      "exact accepted leaf equation and native-proven Prop family shape",
+      "proof unchanged from successful Induction/Cases/Congruence; consumer Apply1; empty axioms",
+      "consumer actual ObjFoldAtoms [[0]]; RHS exact cons-ok branch certified-leaf substitution",
+      "negative semantic AST differs only at lifted zero Apply theorem",
+      "all module member references directly imported and no unqualified production member",
+      "configs alter only entrypoint, retain 300000ms; phases NOT_RUN"
+    ],
+    "stdoutSha256": "585e2a15e2fd7c585ebb46a9b067a0ef22fe812e18a0744cfd80ca6d990760ff"
+  },
+  "scope": {
+    "candidatePreparationAccepted": true,
+    "sourceAdmission": "NOT_RUN",
+    "falseBase": "NOT_RUN",
+    "positive": "NOT_RUN",
+    "emittedProof": "NOT_RUN",
+    "observedAxioms": "NOT_RUN",
+    "kernelReplay": "NOT_RUN",
+    "original257Accepted": false,
+    "fullObjectAccepted": false
+  },
+  "executionConditions": [
+    "Parent must retain fresh exact-source/genuine-lock/epoch/resource/storage gates and sequential native execution.",
+    "False-base sourcecheck must succeed and verify must reject the intended wrong-base type mismatch. Setup/import/schema failure, timeout or OOM is not accepted RED.",
+    "Positive must verify both lifted theorem and actual production consumer. Audit actual emitted context/Prop/Induction/Cases/Congruence/Apply1, empty observed axioms and recorded kernel replay with exact source/artifact identities."
+  ],
+  "limitations": [
+    "Prior staging success supports the proof shape but does not establish deeper stage/carry/tail Congruence or actual consumer definitional conversion; these remain native obligations.",
+    "No complete fold, preceding eight transitions, concrete atomization bridge, actual incoming state, whole-object hash, original257 or Object/Hash/PrismPM/Pages acceptance.",
+    "No production source, theorem/digest, axiom policy, compiler or 300000ms limit changed. No reviewer SDK/compiler/VM/repository/frozen/other-lab mutation."
+  ],
+  "storageFreeBytes": "33037127680"
+}

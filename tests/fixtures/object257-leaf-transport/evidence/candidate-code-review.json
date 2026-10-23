@@ -1,0 +1,83 @@
+{
+  "at": "2026-10-23T15:59:10.549Z",
+  "status": "PASS_NARROW_STRUCTURAL_CANDIDATE_REVIEW_NATIVE_NOT_RUN",
+  "manifest": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/manifest.json",
+    "bytes": 4468,
+    "sha256": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4"
+  },
+  "proposal": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/proposal.json",
+    "bytes": 8228,
+    "sha256": "58372f709f3e03a26d095393eb6628932c9b0806bc9fb983c6e4f12474e1f321"
+  },
+  "specReview": {
+    "path": "/tmp/r4-object257-connected-certificate-spec-review-20261023.json",
+    "bytes": 8486,
+    "sha256": "eebefa00b425443c869cd8e2bf5d42fc72c6dd5442de8abb9cf0fda9aedfd17e"
+  },
+  "epochReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/epoch-review.json",
+    "bytes": 4572,
+    "sha256": "87200f84309a6aeb2f1cd19aa6c553dfa9d40e5c75a23605be48c1ee7f2a40af"
+  },
+  "identity": {
+    "payloadFiles": 17,
+    "dependencies": 6,
+    "exactCensus": true,
+    "allHashesAndSizesVerified": true,
+    "sharedInputs": 15
+  },
+  "source": {
+    "modules": 6,
+    "theorems": 9,
+    "configs": 5,
+    "semanticSchema": "lexlean/semantic-module/2",
+    "allNamedModuleReferencesDirectlyImported": true,
+    "allTheoremAxiomsEmpty": true,
+    "leafStatementByteEquivalentASTToRetained": true,
+    "leafProof": "Reflexivity",
+    "falseLeafSoleASTChange": "expected ID first byte128→129",
+    "applyConsumer": "Exact original leaf statement, Apply imported certificate with zero arguments",
+    "context": "Nonidentity actual ObjMakeParent1 on two parameter IDs and projected certified leaf.id; error propagated unchanged.",
+    "iterator": "Nat structural recursion, zero identity, successor actual context over recursive prior count.",
+    "transport": "Lifted sides use identical iterator context over exact leaf equality; zero Apply leaf, successor Congruence, consumer Apply lifted at1.",
+    "falseTransportSoleASTChange": "Zero branch Apply target becomes prior unrelated zero-argument0=0 theorem.",
+    "productionDefinitionsAndOriginal257Unchanged": true,
+    "configDelta": "Entrypoint only; original300000ms limit retained, not timeout900 config."
+  },
+  "verification": {
+    "freshReadOnlySourceAudit": "PASS:6modules9theorems15sharedinputs, expected sole negative mutations",
+    "independentASTAssertions": true,
+    "schemaCorroboration": "Inspected pinned semantic proof enum and backend for Reflexivity, Apply, Induction, Congruence. Referenced newer official source is schema evidence only; installed compiler sourcecheck/emission remain decisive.",
+    "nativeSourceCheck": "NOT_RUN",
+    "nativeNegative": "NOT_RUN",
+    "nativePositive": "NOT_RUN",
+    "kernelReplay": "NOT_RUN"
+  },
+  "experimentScope": {
+    "agreement": true,
+    "sequence": [
+      "leaf-false",
+      "leaf-positive",
+      "leaf-apply",
+      "transport-false",
+      "transport-positive"
+    ],
+    "requirements": [
+      "Fresh owned stages with exact selected config and pinned production closure; genuine compiler locks.",
+      "Sequential actual sourcecheck before each verify; no compiler overlap.",
+      "Leaf false must reject intended equality; transport false must reject intended Apply type mismatch. Timeout/OOM/setup failure is not accepted RED.",
+      "Leaf/Apply must succeed and have independently audited actual artifacts, empty axiom reports and kernel replay before claiming a reusable leaf certificate.",
+      "Inspect actual emitted nonidentity parent context, induction/base Apply/successor congr1/consumer Applyat1 and kernel acceptance. Expected-emission.txt is not emitted output.",
+      "Stop on a resource or structural blocker; no expansion to13certificates or equivalent repeat."
+    ]
+  },
+  "limits": [
+    "Structural approval for the finite experiment only; no actual proof accepted.",
+    "Congruence elaboration, use of the induction hypothesis, conversion cost and axiom reports remain runtime unknowns.",
+    "Success would establish only local leaf and homogeneous Result ObjRecord transport, not heterogeneous carry/inventory/wholeSHA/original257 composition.",
+    "Hash, full Object, restoration/mutations, PrismPM and Pages remain unaccepted.",
+    "No SDK/VM/process/repository/other-lab changes or candidate edits by reviewer."
+  ]
+}

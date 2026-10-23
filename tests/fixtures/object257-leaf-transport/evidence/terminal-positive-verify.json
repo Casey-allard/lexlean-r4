@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-terminal-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/Object257TerminalFoldTransition.lex.tex"
+  ],
+  "started": "2026-10-23T17:06:43.495Z",
+  "ended": "2026-10-23T17:07:06.505Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/6d1a21acea9f870e5dfe05ae1332c4929a5790f53c02d152f7fcc2b25c94f651\"],\"attestation_id\":\"6d1a21acea9f870e5dfe05ae1332c4929a5790f53c02d152f7fcc2b25c94f651\",\"build_id\":\"5a25e406bb17973c244bad3fb75aea7206e5dd21f500855ae861226e6a040f10\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257LeafCertificate\",\"Object257TerminalContext\",\"Object257TerminalFoldTransition\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"71e3b8e400a484f713ffd50fd65f6b952ebfa8a5ef16f3be1ab77540b03cb233\",\"source_id\":\"97b06d50cb783f51e1146f2c804d7c68ed18ba3b28ab15e060f4a1908b84733e\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

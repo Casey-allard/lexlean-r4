@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-leaf-apply-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/Object257LeafApply.lex.tex"
+  ],
+  "started": "2026-10-23T16:06:14.923Z",
+  "ended": "2026-10-23T16:06:55.661Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/f292614463dd0047f30c79691e0c70253f2ed6ca1f77424e60da6491f68ec8eb\"],\"attestation_id\":\"f292614463dd0047f30c79691e0c70253f2ed6ca1f77424e60da6491f68ec8eb\",\"build_id\":\"55ed979b0dea937b846b90c90d45895cca38176c362c82a4ecfc55b72151ce50\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257LeafApply\",\"Object257LeafCertificate\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"8e416f320d9b58f587da7564bda8fb2c3ecd19c561c70b905ed235e8b32f0c86\",\"source_id\":\"30b6137271617ce5101ed175348b57d43730bea0b7e5128ce74b4afdf2358cf2\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

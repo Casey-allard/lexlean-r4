@@ -1,0 +1,152 @@
+# model/ids.toml --- the conformance ID register.
+#
+# Every ID this repository claims, in one place, so that nothing is referenced
+# without being defined. `CONFORMANCE.md` is generated from this file. A test
+# whose name ends in an ID not listed here fails `check-model`, and an ID listed
+# here with no scenario and no test fails it too (CM-02).
+#
+# `level` is the honesty level (R2):
+#   some-true  a fact reproduced from an authority; not established here
+#   build      constructed here and validated against its oracle
+#   open       measured and reported, never asserted
+#
+# Every row here has a scenario in `features/suites/` and a test whose name ends
+# in the ID, lowercased with underscores (R3, CM-02). There is no "pending"
+# state: a capability that is not built does not get a row, and every row in this
+# file is built.
+#
+# Adding a capability starts with a row here, in the order AGENTS.md sets out.
+
+spec = "template/1"
+
+[[id]]
+id = "R4-21"
+level = "build"
+suite = "r4-codebook-words"
+statement = "Pure LexLean implements complete checked 32/64/128-bit integer arithmetic, exact canonical signed32 and unsigned little-endian codecs, and total ordering for codebook precursors. Formal controls do not establish primes, permutations, floating construction, complete codebooks or generated production acceptance."
+
+[[id]]
+id = "R4-20"
+level = "build"
+suite = "r4-tokenizer-json"
+statement = "Pure LexLean completely admits bounded raw tokenizer JSON under the pinned default parser profile, preserving exact numeric observations, string and container errors, duplicate-key replacement, complete postorder representation and revalidation, and staged tokenizer extraction. Formal controls do not establish raw-byte BLAKE3 identity, production execution or deployment."
+
+[[id]]
+id = "R4-18"
+level = "build"
+suite = "r4-json-number"
+statement = "Pure LexLean preserves standalone serde_json 1.0.150 default-profile tokenizer number admission and unsigned-ID classification, including exact binary64 finite acceptance expressed with integers. This does not establish complete JSON parsing, tokenizer identity or accepted generated execution."
+
+[[id]]
+id = "R4-17"
+level = "build"
+suite = "r4-evidence"
+statement = "Pure LexLean preserves the complete pinned mechanism catalog and typed lineage, admits complete finite port-obligation graphs and structurally classifies bound evidence descriptions with explicit failure and observation cases. Structural admission cannot authenticate receipts, promote source status, authorize research or establish deployment."
+
+[[id]]
+id = "R4-16"
+level = "build"
+suite = "r4-tokenizer-kernel"
+statement = "Pure LexLean admits complete typed byte-BPE configurations, performs source-compatible added-token matching, Digits and ByteLevel segmentation, ranked nonoverlapping merges and fallback, and exact raw, lossy and strict decoding. Formal semantic controls do not establish raw JSON acceptance, tokenizer identity or generated runtime acceptance."
+
+[[id]]
+id = "R4-15"
+level = "build"
+suite = "r4-blake3"
+statement = "Pure LexLean computes complete unkeyed BLAKE3-256 over admitted finite byte sequences and incremental updates, preserving full block, chunk, tree and ROOT semantics with exact length and budget admission. Formal known-answer controls establish neither tokenizer composition nor cryptographic injectivity or production acceptance."
+
+[[id]]
+id = "R4-14"
+level = "build"
+suite = "r4-tokenizer-text"
+statement = "Pure LexLean admits Unicode scalar and byte domains, implements exact UTF-8 encoding, strict and Rust-compatible lossy decoding, the complete pinned Unicode predicates and the reversible tokenizer byte alphabet. Formal text controls do not establish BPE, JSON admission, tokenizer identity or runtime acceptance."
+
+[[id]]
+id = "R4-13"
+level = "build"
+suite = "r4-object"
+statement = "Pure LexLean constructs and authenticates canonical content-addressed ternary byte objects, exact record and manifest codecs, bounded atomic inventory changes, occurrence-preserving range reads and distinct whole-object and closure verification. Formal controls establish neither hash injectivity nor peer transactions, tokenizer binding, durable browser persistence or language capability."
+
+[[id]]
+id = "R4-12"
+level = "build"
+suite = "r4-engine"
+statement = "Pure LexLean composes exact seeded state construction, occurrence encoding, canonical causal windows, full binding and epoch admission, all read modes, paired virtual reader and writer candidates, complete loss production and atomic guarded geometric transitions. Formal controls do not establish generated runtime custody, GPU parity, training permission or language capability."
+
+[[id]]
+id = "R4-10"
+level = "build"
+suite = "r4-flock"
+statement = "Pure LexLean models complete Flock and Relation reads over admitted occurrence roots and ordered forests, preserving exact frame transport, snapped consensus, causal ranking, five-edge synchronous cumulative relation sweeps, virtual changes and typed trace projections. Formal controls do not establish batch provenance, GPU parity, training permission or runtime performance."
+
+[[id]]
+id = "R4-11"
+level = "build"
+suite = "r4-hash"
+statement = "Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability."
+
+[[id]]
+id = "R4-01"
+level = "build"
+suite = "r4-types"
+statement = "The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed."
+
+[[id]]
+id = "R4-02"
+level = "build"
+suite = "r4-geometry"
+statement = "The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification."
+
+[[id]]
+id = "R4-03"
+level = "build"
+suite = "r4-objective"
+statement = "The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification."
+
+[[id]]
+id = "R4-04"
+level = "build"
+suite = "r4-binder"
+statement = "The pure LexLean binder model constructs the pinned canonical ordered ternary forest and independently validates general forests with the source's ordered error classes, preserving node order, atom identity, frontier coverage and four-word node serialization. Formal metadata controls do not establish carrier execution, window framing, or learning."
+
+[[id]]
+id = "R4-05"
+level = "build"
+suite = "r4-admission"
+statement = "The pure LexLean writer derives current and virtual product cells, admits occupied cells in distance/ID order, retains every admitted token identity, ranks tokens globally, integrates both checked objectives and optional telemetry, and preserves explicit baseline/candidate eligibility. Formal controls establish source semantics only, not read integration, GPU execution, or serving qualification."
+
+[[id]]
+id = "R4-06"
+level = "build"
+suite = "r4-configuration"
+statement = "The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification."
+
+[[id]]
+id = "R4-09"
+level = "build"
+suite = "r4-words"
+statement = "Pure LexLean fixed-shape 32/64-bit word algebra preserves wrapping addition, Boolean operations, bounded rotation/shifts and exact endian codecs, rejecting malformed bytes, lengths and amounts. Formal word controls do not establish hashing or runtime acceptance."
+
+[[id]]
+id = "R4-07"
+level = "build"
+suite = "r4-route"
+statement = "The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution."
+
+[[id]]
+id = "R4-08"
+level = "build"
+suite = "r4-learning"
+statement = "The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train."
+
+[[id]]
+id = "R4-19"
+level = "build"
+suite = "r4-prediction"
+statement = "Pure LexLean target-free prediction validates complete geometric inputs and retains all identities under occupied-cell admission and global ranking, with general supervised-writer projection and lawful loss-safety proofs. This establishes no artifact custody, generated fixed-memory serving, research parity or deployment."
+
+[[id]]
+id = "R4-22"
+level = "build"
+suite = "r4-snapshot-json"
+statement = "Pure LexLean models complete bounded Snapshot JSON storage admission, exact typed and original-Value compact encodings, all source-compatible Serde representations, and a separately named strict duplicate policy driven by complete actual parser transitions. Formal codec controls establish no runtime artifact admission, compiled provenance, hash-domain acceptance, serving or deployment."

@@ -1,0 +1,150 @@
+{
+  "scope": "Finite diagnostic LexLean source checkpoint; not production Object integration or PrismPM conformance.",
+  "candidateManifest": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4",
+  "compilerSha256": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+  "compilerSemantics": "09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86",
+  "lean": "4.32.1",
+  "limits": {
+    "containerMemoryGiB": 4,
+    "containerCPUs": 2,
+    "childTimeoutMs": 300000
+  },
+  "outcomes": [
+    {
+      "phase": "leaf-false",
+      "root": "tests/lexlean/Object257LeafFalseId.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 41431
+    },
+    {
+      "phase": "leaf-positive",
+      "root": "tests/lexlean/Object257LeafCertificate.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "b16573fcb4c5cb5f0aff1d595938f0c87dca5109280000c633c3013ab23cc2c0",
+      "elapsedMs": 45416
+    },
+    {
+      "phase": "leaf-apply",
+      "root": "tests/lexlean/Object257LeafApply.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "f292614463dd0047f30c79691e0c70253f2ed6ca1f77424e60da6491f68ec8eb",
+      "elapsedMs": 40738
+    },
+    {
+      "phase": "transport-false",
+      "root": "tests/lexlean/Object257ParentTransportFalseBase.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 37103
+    },
+    {
+      "phase": "transport-positive",
+      "root": "tests/lexlean/Object257ParentTransport.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "432355f3610faf6ade14526d14578bad764593b479469eff0eb1bb6d0bdaa2bf",
+      "elapsedMs": 137684
+    },
+    {
+      "phase": "staging-false",
+      "root": "tests/lexlean/Object257StagingTransportFalseBase.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 144724
+    },
+    {
+      "phase": "staging-positive",
+      "root": "tests/lexlean/Object257StagingTransport.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "41eca104bf87957b7aaf6f2d6b9d071c0fe2be9a530e116765ccea7725c1361c",
+      "elapsedMs": 114399
+    },
+    {
+      "phase": "terminal-false",
+      "root": "tests/lexlean/Object257TerminalFoldTransitionFalseBase.lex.tex",
+      "compilerExit": 1,
+      "result": false,
+      "diagnostic": "LLV7002",
+      "attestationId": null,
+      "elapsedMs": 50841
+    },
+    {
+      "phase": "terminal-positive",
+      "root": "tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "compilerExit": 0,
+      "result": true,
+      "diagnostic": null,
+      "attestationId": "6d1a21acea9f870e5dfe05ae1332c4929a5790f53c02d152f7fcc2b25c94f651",
+      "elapsedMs": 23010
+    }
+  ],
+  "reviewed": {
+    "leaf": {
+      "replays": 9,
+      "emptyAxiomDeclarations": 764
+    },
+    "directApply": {
+      "replays": 10,
+      "emptyAxiomDeclarations": 765
+    },
+    "parentTransport": {
+      "replays": 11,
+      "emptyAxiomDeclarations": 769
+    },
+    "inventoryStaging": {
+      "replays": 11,
+      "emptyAxiomDeclarations": 769,
+      "artifactFiles": 115
+    },
+    "terminalFoldTransition": {
+      "replays": 11,
+      "emptyAxiomDeclarations": 769,
+      "artifactFiles": 115
+    }
+  },
+  "open": [
+    "original objFoldDigest257",
+    "full403 Object controls",
+    "Hash restoration and mutation qualification",
+    "canonical product integration",
+    "production PrismPM/template binding",
+    "generated Pages"
+  ],
+  "relocation": "Source/config/lock bytes reproduced from actual verified stages. New repository fixture path itself has not been rerun.",
+  "evidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport",
+  "stagingCandidateManifest": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7",
+  "stagingEvidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport",
+  "stagingSetupFailure": {
+    "compilerInvoked": false,
+    "status": "cp -a failed ownership preservation before config/lock/check/verify",
+    "correction": "Reviewed fresh attempt2 uses cp -R --no-preserve=ownership followed by all18input hash comparisons",
+    "preserved": "evidence/staging-setup-failure.json",
+    "review": "evidence/staging-setup-failure-review.json"
+  },
+  "terminalCandidateManifest": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c",
+  "terminalEvidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition",
+  "terminalAllocationObservation": {
+    "preflightAuxiliaryExit": 1,
+    "reason": "Actual datadisk measured; guessed extra diffdisk path absent. Correct disk path measured afterward only.",
+    "capacityGates": "Independent host and guest capacity reserves passed.",
+    "preserved": [
+      "evidence/terminal-false-allocated-before.json",
+      "evidence/terminal-positive-allocated-before.json",
+      "evidence/terminal-fold-allocation-path-correction.json"
+    ]
+  }
+}

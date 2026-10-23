@@ -1,0 +1,370 @@
+{
+  "spec": "lexlean-r4/language-1.2-alpha-migration/1",
+  "reason": "Official language 1.2 capture diagnostics; local parameter alpha-renaming only",
+  "originalVersionOnlyManifestSha256": "c98a3ec072e69c17df64010bd4b28788a35e96e604dd6723e4b0618b6ac6b5b3",
+  "repairs": [
+    {
+      "step": 1,
+      "before": "83cf3c93d6429b93b89f83413da3a5882fa44843e5470f2ba8a74060c60d689f",
+      "after": "7ed092e4df880bde17ba75f8c06ef77fcd178b467cc8cdd27d733ad3481dac23",
+      "declaration": "discoverGenerators",
+      "oldBinder": "generators",
+      "newBinder": "generatorActions",
+      "boundVariableUses": 1,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "changedFields": [
+        "parameters[1].name",
+        "recursive_argument",
+        "body.scrutinee.name"
+      ],
+      "path": "src/R4/Geometry.lex.tex"
+    },
+    {
+      "step": 2,
+      "before": "7ed092e4df880bde17ba75f8c06ef77fcd178b467cc8cdd27d733ad3481dac23",
+      "after": "633f2dd7fb71562caf79c59c1f601358351e489302bae2ccc46bda6edd81dc79",
+      "declaration": "orbitComplete",
+      "oldBinder": "roots",
+      "newBinder": "orbitRoots",
+      "boundVariableUses": 1,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "changedFields": [
+        "parameters[0].name",
+        "recursive_argument",
+        "body.scrutinee.name"
+      ],
+      "path": "src/R4/Geometry.lex.tex"
+    },
+    {
+      "step": 3,
+      "path": "src/R4/Geometry.lex.tex",
+      "declaration": "orderedRootsFrom",
+      "oldBinder": "roots",
+      "newBinder": "orderedCandidates",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": true,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "633f2dd7fb71562caf79c59c1f601358351e489302bae2ccc46bda6edd81dc79",
+      "after": "c96f0fd6c69c06da0feff920c0cef1fb6e0837aa79c182efefc2d3113391cddf"
+    },
+    {
+      "step": 4,
+      "path": "src/R4/Geometry.lex.tex",
+      "declaration": "transportGenerators",
+      "oldBinder": "generators",
+      "newBinder": "transportGeneratorsInputGenerators",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": true,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "c96f0fd6c69c06da0feff920c0cef1fb6e0837aa79c182efefc2d3113391cddf",
+      "after": "30ab4c6d15aeeec4b4addd16d40171267aa8527b45c454105fa129eaa5e1e278"
+    },
+    {
+      "step": 5,
+      "path": "src/R4/Geometry.lex.tex",
+      "declaration": "allRootsHavePath",
+      "oldBinder": "roots",
+      "newBinder": "allRootsHavePathInputRoots",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": true,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "30ab4c6d15aeeec4b4addd16d40171267aa8527b45c454105fa129eaa5e1e278",
+      "after": "571b169ebe329d461e5f73e28c76fba75d43e6c3313b6517b985651080d8368b"
+    },
+    {
+      "step": 6,
+      "path": "src/R4/Geometry.lex.tex",
+      "declaration": "branchesValid",
+      "oldBinder": "roots",
+      "newBinder": "branchesValidInputRoots",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": true,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "571b169ebe329d461e5f73e28c76fba75d43e6c3313b6517b985651080d8368b",
+      "after": "2b934cd1ff5eccf6c8d5b4af1c34901fa964d31958e8a435cdc05bb6e52c7167"
+    },
+    {
+      "step": 7,
+      "path": "src/R4/Carrier.lex.tex",
+      "declaration": "action",
+      "oldBinder": "action",
+      "newBinder": "actionInputAction",
+      "boundVariableUses": 8,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "878562451dda7110f426024be90ccba9bd2a5d58b98d14c5e9f69d207f3ed4ca",
+      "after": "ce696f2b297bebae8f0b7c6bb36e063ed80442a3c0ca952e5c428d983c19b0a6"
+    },
+    {
+      "step": 8,
+      "path": "src/R4/Admission.lex.tex",
+      "declaration": "finishAdmission",
+      "oldBinder": "occupied",
+      "newBinder": "finishAdmissionInputOccupied",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "8fefd320be82e063d697c13a0fb279bc0899fb4964decc5c2e79b8e01155fb02",
+      "after": "a5f9aef06754575e71496014cf4659059e09f16a929e454ae30acb13801abd93"
+    },
+    {
+      "step": 9,
+      "path": "src/R4/Admission.lex.tex",
+      "declaration": "finishCells",
+      "oldBinder": "occupied",
+      "newBinder": "finishCellsInputOccupied",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "a5f9aef06754575e71496014cf4659059e09f16a929e454ae30acb13801abd93",
+      "after": "72c8d4a3c5db640b731039e7be6ac6328093c646a71dfae7074e41b57e2415cd"
+    },
+    {
+      "step": 10,
+      "path": "src/R4/Admission.lex.tex",
+      "declaration": "finishOccupied",
+      "oldBinder": "occupied",
+      "newBinder": "finishOccupiedInputOccupied",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "72c8d4a3c5db640b731039e7be6ac6328093c646a71dfae7074e41b57e2415cd",
+      "after": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867"
+    },
+    {
+      "step": 11,
+      "path": "src/R4/Flock.lex.tex",
+      "declaration": "makeNode",
+      "oldBinder": "frameBlock",
+      "newBinder": "makeNodeInputFrameBlock",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "ab1160fe047bf26b7a736efafabb6c21756855021d9bbe668b39c67edcb96318",
+      "after": "4364f368e13ddfbbc83615ee1bbba807350384a131ab3d89f9c9bd6c2fdada3d"
+    },
+    {
+      "step": 12,
+      "path": "src/R4/Flock.lex.tex",
+      "declaration": "buildNodes",
+      "oldBinder": "frameBlock",
+      "newBinder": "buildNodesInputFrameBlock",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "4364f368e13ddfbbc83615ee1bbba807350384a131ab3d89f9c9bd6c2fdada3d",
+      "after": "a87044e862d53236d63d93a643e1caee887b7209d58f10e51e02145270c9b108"
+    },
+    {
+      "step": 13,
+      "path": "src/R4/Engine.lex.tex",
+      "declaration": "traceWords",
+      "oldBinder": "forward",
+      "newBinder": "traceWordsInputForward",
+      "boundVariableUses": 4,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "a05e6d1ec3d86163154001955fb90479b664a079683142a8d7017c51d5f5a2cc",
+      "after": "fe1dd371f90db233d4b8675e5dbdddff982382f83c20f619d3ca5cf8acb31f40"
+    },
+    {
+      "step": 14,
+      "path": "src/R4/EvidenceCoverage.lex.tex",
+      "declaration": "coverageHasId",
+      "oldBinder": "id",
+      "newBinder": "coverageHasIdInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "cbebfbf8eb45ec3cdc78cbe42c2a5f912a07ca3310e22059c4e8f61b11cd0ad0",
+      "after": "e4dd002b9c143ac8909aaed3de6b2cb7dbbbcce1a616f774c794e90795fe68af"
+    },
+    {
+      "step": 15,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceHasId",
+      "oldBinder": "id",
+      "newBinder": "evidenceHasIdInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "42676966faa59d6802939678514b6ca517c628259877fc34c3037942ffd12fae",
+      "after": "5089e741f8d99e6fb4a4a84df8162e5a7b3fc8827ba6abe999c021d778fe3c3d"
+    },
+    {
+      "step": 16,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceFindRecord",
+      "oldBinder": "id",
+      "newBinder": "evidenceFindRecordInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "5089e741f8d99e6fb4a4a84df8162e5a7b3fc8827ba6abe999c021d778fe3c3d",
+      "after": "b4340c1eef6453b08491bb7ebc5f1294b8b732ac4228da90989c12c326379ae1"
+    },
+    {
+      "step": 17,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceWord",
+      "oldBinder": "id",
+      "newBinder": "evidenceWordInputId",
+      "boundVariableUses": 1,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "b4340c1eef6453b08491bb7ebc5f1294b8b732ac4228da90989c12c326379ae1",
+      "after": "bdf4d774971f1f6e449dfc350a4987c0b63ae718c07cb5851f4d6cf56931fc37"
+    },
+    {
+      "step": 18,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceSelfIn",
+      "oldBinder": "id",
+      "newBinder": "evidenceSelfInInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "bdf4d774971f1f6e449dfc350a4987c0b63ae718c07cb5851f4d6cf56931fc37",
+      "after": "b320850d9edecec0796e071efd38b9873035e5f5b0dfa1a2fb7c2f3e897ef5f2"
+    },
+    {
+      "step": 19,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceSelectIncoming",
+      "oldBinder": "id",
+      "newBinder": "evidenceSelectIncomingInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "b320850d9edecec0796e071efd38b9873035e5f5b0dfa1a2fb7c2f3e897ef5f2",
+      "after": "ddff8877b520f950e169f37493b3762cb6a91c14eacb4c43354a451612aab7eb"
+    },
+    {
+      "step": 20,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceRecordFor",
+      "oldBinder": "id",
+      "newBinder": "evidenceRecordForInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "ddff8877b520f950e169f37493b3762cb6a91c14eacb4c43354a451612aab7eb",
+      "after": "e8b10f50f6f3f4e1a07830093d23255aa4d959f7bdf2cccb3eef58850692557a"
+    },
+    {
+      "step": 21,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceOutgoingFor",
+      "oldBinder": "id",
+      "newBinder": "evidenceOutgoingForInputId",
+      "boundVariableUses": 2,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "e8b10f50f6f3f4e1a07830093d23255aa4d959f7bdf2cccb3eef58850692557a",
+      "after": "8921aef2288f33b82f42aa7019106162f7552a2bf80eda9a738e506e595e2ed4"
+    },
+    {
+      "step": 22,
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "declaration": "evidenceIncomingFor",
+      "oldBinder": "id",
+      "newBinder": "evidenceIncomingForInputId",
+      "boundVariableUses": 3,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "8921aef2288f33b82f42aa7019106162f7552a2bf80eda9a738e506e595e2ed4",
+      "after": "0c6cd94e4c4b59473ab1f0edd361dfb3ab72ab75f05a83b320ee6c57c5a1a875"
+    },
+    {
+      "step": 23,
+      "path": "src/R4/Hash.lex.tex",
+      "declaration": "encodeNodeId",
+      "oldBinder": "id",
+      "newBinder": "encodeNodeIdInputId",
+      "boundVariableUses": 12,
+      "recursiveArgumentRenamed": false,
+      "nestedShadowingBinders": 0,
+      "inverseAstEqual": true,
+      "before": "fba658728f06c2fcfd14719317e7b4ec253f494fd0c2baab25e7583d80d2681d",
+      "after": "b3f1d4d0bb8d0ca77eaa1dd48bc827311486b5f0edce865b47f6ece426dd404f"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/R4/Geometry.lex.tex",
+      "preAlphaSha256": "83cf3c93d6429b93b89f83413da3a5882fa44843e5470f2ba8a74060c60d689f",
+      "postAlphaSha256": "2b934cd1ff5eccf6c8d5b4af1c34901fa964d31958e8a435cdc05bb6e52c7167",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/Carrier.lex.tex",
+      "preAlphaSha256": "878562451dda7110f426024be90ccba9bd2a5d58b98d14c5e9f69d207f3ed4ca",
+      "postAlphaSha256": "ce696f2b297bebae8f0b7c6bb36e063ed80442a3c0ca952e5c428d983c19b0a6",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/Admission.lex.tex",
+      "preAlphaSha256": "8fefd320be82e063d697c13a0fb279bc0899fb4964decc5c2e79b8e01155fb02",
+      "postAlphaSha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/Flock.lex.tex",
+      "preAlphaSha256": "ab1160fe047bf26b7a736efafabb6c21756855021d9bbe668b39c67edcb96318",
+      "postAlphaSha256": "a87044e862d53236d63d93a643e1caee887b7209d58f10e51e02145270c9b108",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/Engine.lex.tex",
+      "preAlphaSha256": "a05e6d1ec3d86163154001955fb90479b664a079683142a8d7017c51d5f5a2cc",
+      "postAlphaSha256": "fe1dd371f90db233d4b8675e5dbdddff982382f83c20f619d3ca5cf8acb31f40",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/EvidenceCoverage.lex.tex",
+      "preAlphaSha256": "cbebfbf8eb45ec3cdc78cbe42c2a5f912a07ca3310e22059c4e8f61b11cd0ad0",
+      "postAlphaSha256": "e4dd002b9c143ac8909aaed3de6b2cb7dbbbcce1a616f774c794e90795fe68af",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/EvidenceDescription.lex.tex",
+      "preAlphaSha256": "42676966faa59d6802939678514b6ca517c628259877fc34c3037942ffd12fae",
+      "postAlphaSha256": "0c6cd94e4c4b59473ab1f0edd361dfb3ab72ab75f05a83b320ee6c57c5a1a875",
+      "completeInverseAstEqual": true
+    },
+    {
+      "path": "src/R4/Hash.lex.tex",
+      "preAlphaSha256": "fba658728f06c2fcfd14719317e7b4ec253f494fd0c2baab25e7583d80d2681d",
+      "postAlphaSha256": "b3f1d4d0bb8d0ca77eaa1dd48bc827311486b5f0edce865b47f6ece426dd404f",
+      "completeInverseAstEqual": true
+    }
+  ],
+  "defaultGraphCheck": {
+    "success": true,
+    "modules": 84,
+    "evidence": "check-23.json"
+  },
+  "proofAcceptance": "pending complete replay and mandatory integration"
+}

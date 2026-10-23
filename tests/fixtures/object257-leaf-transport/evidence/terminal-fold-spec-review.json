@@ -1,0 +1,125 @@
+{
+  "at": "2026-10-23T16:50:03.822Z",
+  "status": "PASS_BOUNDED_TERMINAL_FOLD_TRANSITION_SOURCE_PROPOSAL_ONLY",
+  "proposal": {
+    "path": "/tmp/r4-object257-fold-transition-next-step-20261023.json",
+    "bytes": 12108,
+    "sha256": "c1fd216e3bb4de71bf2768e2e1770d0ce8ba96f1d76c38c91d666c6bc2bbbdff"
+  },
+  "reviewKind": "Independent SPEC review of proposed next product proof; no new native admission or implementation acceptance.",
+  "pins": [
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/manifest.json",
+      "bytes": 8381,
+      "sha256": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingContext.lex.tex",
+      "bytes": 9472,
+      "sha256": "8cee8c1ff4d0be2bcb87fd8655db70db213aa5d305c47a810276a4703d84fe1f"
+    },
+    {
+      "path": "/tmp/r4-object257-staging-transport-candidate-20261023/tests/lexlean/Object257StagingTransport.lex.tex",
+      "bytes": 6206,
+      "sha256": "c8ee59f938191e8a917ffc6598a5e99e3a99b051b471395775d336691a44a005"
+    },
+    {
+      "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/tests/lexlean/Object257LeafCertificate.lex.tex",
+      "bytes": 3826,
+      "sha256": "a4fbac669445f3e2feeffed80ef454b515d5f622adfb1c5bb9cd6c59c142fe7a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/native-review.json",
+      "bytes": 9021,
+      "sha256": "c53525a009859e41c87d17ff772598dadbdb2d5c308f4b47fbf7aa077c247496"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/verify.json",
+      "bytes": 1279,
+      "sha256": "18e095450821d18c0888562a6bd9f4d24e1a65ac3115aadbf0d0ba7332ac79c5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/verify.json",
+      "bytes": 1236,
+      "sha256": "096aee98ce9abf00cb17e86bba250b3c0ad4b209c5e0ec2c9f6998198ff99234"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/attestation.json",
+      "bytes": 160965,
+      "sha256": "990bd530a1f30317fc8a0f8e878dced54d23d0d63d444924999c4b10c8cf7c48"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingTransport.lean",
+      "bytes": 1933,
+      "sha256": "347d02dc611d4ef3ef6cfaf82fb92c172b01f588be947ed5fdf6e14e8b98a3ee"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingContext.lean",
+      "bytes": 2276,
+      "sha256": "1d4c9519adae49646dc4d5b8a550b20827d5afbe004b24467137e0768a4ac118"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/R4/ObjectStore.lean",
+      "bytes": 18243,
+      "sha256": "c5e218cdbbe9addcaa9af60436ef5ed42b25cf1bdc99cde85abc869000bdfb92"
+    }
+  ],
+  "pinsVerified": 13,
+  "findings": [],
+  "sourceAudit": {
+    "productionAST": "Read actual ObjFoldAtoms declaration in pinned ObjectStore.lex.tex, not only proposal prose. Cons body matches ObjMakeLeaf head; ObjStageRecord inventory leaf limits; ObjCarryTriples 38 ({id := leaf.id, scale := 0} :: frontier) staged limits; ObjFoldAtoms tail carried.frontier carried.inventory limits. All three Result.error branches return the original failure with result types ObjCarryState / ObjError.",
+    "emittedReference": "Pinned emitted ObjectStore.lean lines 53-55 agrees with source AST; ObjStageRecord line29 and ObjCarryTriples lines49-51 retain real duplicate/capacity/integrity/parent/carry behavior.",
+    "contextSubstitution": "Proposed C is the cons body with outer ObjMakeLeaf head scrutinee replaced by item and tail replaced by typed empty List (List Nat). Thus C x specializes actual production to head [0], tail []. C y reduces the same outer Result.ok branch. This is source-level structural correspondence; actual defeq acceptance and cost remain NOT_RUN.",
+    "sameLeaf": "The very same bound leaf is passed to staging and projected for carry-frontier identity. No independently trusted ID, fabricated inventory/frontier, or stage-only replacement is introduced.",
+    "consumer": "Required left side ObjFoldAtoms [[0]] frontier inventory limits is the actual production call. Right side retains ObjStageRecord, ObjCarryTriples 38 and ObjFoldAtoms [] with carried fields. A proof only of C x = C y would not satisfy this proposal.",
+    "typing": "P is Prop-valued: its zero equality has operands Result ObjRecord ObjError; successor equality has operands Result ObjCarryState ObjError. These differ across branches but each equality is homogeneous and both branches have type Prop. C propagates all errors at its output type; arbitrary frontier/inventory/limits need no success assumptions.",
+    "leafStatementSHA256": "d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b",
+    "proofShape": "Pinned prior emitted staging proof actually uses induction count; zero exact accepted leaf; successor cases prior; congr 1 for both branches; consumer exact lifted at1. Reusing this shape is a concrete falsifiable DSL probe, not proof that the deeper context will verify.",
+    "priorEvidence": "Read and hash-verified native-review.json c53525a0..., verify records and attestation pins plus emitted staging modules. Prior review records intended unrelated-base rejection and actual staging success. Did not rerun native verification or independently redo that complete historical artifact audit."
+  },
+  "candidateReviewRequirements": [
+    "Preserve exact accepted leaf statement AST and theorem reference; copy no newly computed/trusted replacement hash.",
+    "Copy the accepted reducible Prop-family declaration shape and explicit result type arguments. Qualify ObjCarryState and production references as R4.ObjectStore when moving local AST into the new module. Rebinding module-local names is necessary for exact semantic correspondence, not a production change.",
+    "Compare candidate C to actual cons AST after the documented substitutions, including all three typed error branches, same-leaf identity, scale0, depth38 and final typed empty-tail call. Compare consumer to actual ObjFoldAtoms [[0]], not helper-only equality.",
+    "Keep zero-base negative limited to the Apply theorem reference to an earlier zero-arity unrelated 0=0 theorem. Sourcecheck must succeed; intended theorem type mismatch is the accepted RED, not timeout/OOM or parser/import failure.",
+    "Require actual lifted theorem and production consumer GREEN with exact emitted source, empty observed axioms, recorded kernel replay, source/artifact identity and independent review under unchanged configured limits."
+  ],
+  "testStatus": {
+    "sourceAndProductionConnection": "NOT_RUN for new candidate; proposal/source correspondence inspected only",
+    "unrelatedBaseNegative": "NOT_RUN",
+    "realTerminalFoldPositive": "NOT_RUN"
+  },
+  "scope": {
+    "candidatePreparation": "Bounded proposal is adequate for separate frozen candidate preparation and CODE review within existing parent/user workflow.",
+    "nativeExecution": "Not authorized by this source review alone; fresh source/lock/resource/storage and execution gates remain parent-controlled.",
+    "original257Theorem": "UNCHANGED and NOT ACCEPTED by this review",
+    "fullFold": "OPEN: prior eight transitions, atomization bridge, actual intermediate carries, final state and whole-object hash",
+    "claimsExcluded": [
+      "No 13-node expansion",
+      "No generic transport framework",
+      "No runtime definitions or limits changed",
+      "No latency or memory improvement established",
+      "No full Object, PrismPM or Pages acceptance"
+    ]
+  },
+  "limits": [
+    "No compiler, SDK, VM or native test was executed. No repository, frozen packet or other-lab file was changed. Only this small review report was written.",
+    "The prior staging success is a supported proof-shape precedent. Nested stage/carry/tail congruence and the real consumer definitional conversion are still falsifiable native obligations.",
+    "Original input/digest source is hash-pinned; this review does not prove concrete atomization or instantiate arbitrary incoming state from the preceding eight steps."
+  ],
+  "storage": {
+    "freshAvailableBytes": "34969858048",
+    "reportBudgetBytes": 15360,
+    "artifactCopies": 0
+  }
+}

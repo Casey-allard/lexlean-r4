@@ -1,0 +1,154 @@
+{
+  "at": "2026-10-23T16:43:31.022Z",
+  "status": "PASS_ACTUAL_STAGING_TRANSPORT_AND_INTENDED_BASE_NEGATIVE",
+  "candidateManifest": {
+    "path": "/tmp/r4-object257-staging-transport-candidate-20261023/manifest.json",
+    "bytes": 8381,
+    "sha256": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7"
+  },
+  "candidateCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/code-review.json",
+    "bytes": 5887,
+    "sha256": "56a5229dabc53668ef80971468367819e91cb2216b5b2e02a7cda65e000d890e"
+  },
+  "phases": [
+    {
+      "phase": "staging-false",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/verify.json",
+        "bytes": 1279,
+        "sha256": "18e095450821d18c0888562a6bd9f4d24e1a65ac3115aadbf0d0ba7332ac79c5"
+      },
+      "wallMs": 144724,
+      "sources": 18,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/source-before.json",
+        "bytes": 4294,
+        "sha256": "b994833822389f477496eb34b2423b817158601d695967451c168d37aef09bd4"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/source-after.json",
+        "bytes": 4294,
+        "sha256": "4dabb9d08749e084206233d25e076957c0a92b37f990f84955f3d6d22e976408"
+      },
+      "lockSha256": "ba6a475001cd59e01225fed7a86b7e18d13f270973df7ecbbaf8a471014ab425",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-false/idle-after.json",
+        "bytes": 450,
+        "sha256": "778c900e9785de0544d49a955846d2da3a26bc9348fc72cdade0ed0c3a64491f"
+      },
+      "status": "PASS_INTENDED_UNRELATED_BASE_REJECTION"
+    },
+    {
+      "phase": "staging-positive",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/verify.json",
+        "bytes": 1236,
+        "sha256": "096aee98ce9abf00cb17e86bba250b3c0ad4b209c5e0ec2c9f6998198ff99234"
+      },
+      "wallMs": 114399,
+      "sources": 18,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/source-before.json",
+        "bytes": 4726,
+        "sha256": "de7ef3482c529d6940f0eadd24eb65ca035f5538ba0c5890c37851d0fd46eba1"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/source-after.json",
+        "bytes": 4726,
+        "sha256": "18d6e0fb47521ad446355e35cedde530d8758c4671ef19fc6fc76aa2726ac2e1"
+      },
+      "lockSha256": "22aed0a04f2c77415beb30a238d746f3dcc6d68ef6ba2044472ad2dad905a241",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/idle-after.json",
+        "bytes": 450,
+        "sha256": "4faf6956ffdc13f8ef849999950e42cb16feef9a3e3df3770b5f14ca43002673"
+      },
+      "status": "PASS_ACTUAL_ARTIFACT_AUDIT",
+      "attestation": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/attestation.json",
+        "bytes": 160965,
+        "sha256": "990bd530a1f30317fc8a0f8e878dced54d23d0d63d444924999c4b10c8cf7c48"
+      },
+      "buildManifest": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/build-manifest.json",
+        "bytes": 13398,
+        "sha256": "a64b14741865f22649dbc517f0a06bd36de6fc7875a05b88320e8a6681b6b59a"
+      },
+      "identities": {
+        "attestation_id": "41eca104bf87957b7aaf6f2d6b9d071c0fe2be9a530e116765ccea7725c1361c",
+        "source_id": "9175fdba5c0fe0bdc3b92c911a6154755c8145ef11ad45587842e27cd41ecb53",
+        "semantic_id": "5286b17262fff2e0d4ea82da47a2c11e29891348de7fe232456a11d473b94417",
+        "build_id": "3de40e243eb033cf95b03ef48eb74cce5450b4fdb0651fc8e354cf2809f2c43d"
+      },
+      "modules": 11,
+      "declarations": 769,
+      "recordedKernelReplays": 11,
+      "processRecords": 34,
+      "outputs": 55,
+      "oleans": 11,
+      "artifactFiles": 115,
+      "artifactCensusSha256": "82c9e7e55f6eb02cbdec375b08d182843e5203036674a4494f00eb008a40e048",
+      "emittedProof": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingTransport.lean",
+        "bytes": 1933,
+        "sha256": "347d02dc611d4ef3ef6cfaf82fb92c172b01f588be947ed5fdf6e14e8b98a3ee"
+      }
+    }
+  ],
+  "proofAudit": {
+    "emittedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257StagingContext.lean",
+      "bytes": 2276,
+      "sha256": "1d4c9519adae49646dc4d5b8a550b20827d5afbe004b24467137e0768a4ac118"
+    },
+    "emittedLeaf": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/staging-positive-attempt2/artifact/modules/LexLeanR4/Object257LeafCertificate.lean",
+      "bytes": 957,
+      "sha256": "5bf1011d4a6eda325f0fbc22b78965c14942db95f8b5775327064fe474a937ac"
+    },
+    "leafEmissionByteIdenticalToPriorVerifiedLeaf": true,
+    "context": "Actual emitted H maps Result ObjRecord to Result (List ObjRecord), preserves failures, and invokes actual ObjStageRecord inventory leaf limits with arbitrary inventory and limits.",
+    "goalFamily": "Actual emitted reducible Prop-valued P uses the original leaf equality at Nat.zero and H(actualLeaf)=H(expectedRecord) at Nat.succ. Equality remains homogeneous inside each branch; no HEq or additional axiom.",
+    "proof": "Actual emitted induction count, zero exact prior leaf theorem, successor cases prior, congr 1 in both cases; consumer exact lifted theorem inventory limits 1.",
+    "negative": "Sourcecheck succeeds, then LLV7002 rejects obj257StagingUnrelatedZero:0=0 where ObjLeafStagingGoal inventory limits 0 is required. Exact positive/negative ASTs differ only in base Apply theorem reference.",
+    "allDeclarationsPolicyNoneObservedAxiomsEmpty": true,
+    "allRecordedKernelReplaysAndProcessesExitZero": true,
+    "exactArtifactCensus": true
+  },
+  "preservedSetupFailure": {
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/staging-transport/setup-failure-review.json",
+      "bytes": 6641,
+      "sha256": "948d611cacccbefbb7dd9e4dcc8df0fc3fb3970066f5e6f1c0aba4d9317507e2"
+    },
+    "originalNineReceiptFilesUnchanged": true,
+    "classification": "Initial positive stage failed during cp -a ownership preservation before configuration/lock/check/verify; not a proof negative.",
+    "recovery": "Fresh attempt2 successfully used reviewed cp -R --no-preserve=ownership; exact 18 source/config pins rechecked before native work. Failed stage preserved."
+  },
+  "acceptance": {
+    "localLeafToInventoryStagingTransport": true,
+    "intendedUnrelatedBaseRejected": true,
+    "original257Accepted": false,
+    "completeInventoryCarrySequencingAccepted": false,
+    "ObjectComponentAccepted": false,
+    "hashDependencyAccepted": false,
+    "PrismPMAccepted": false,
+    "PagesAccepted": false
+  },
+  "limits": [
+    "Independent read-only audit of actual recorded official verification and kernel replay, not a fresh reviewer SDK/compiler/replay execution.",
+    "All 18 source/configuration inputs per phase, genuine development locks, unchanged epoch, zero before/after memory events, post-idle and host/guest storage reserves were audited.",
+    "Full positive bundle has 11 modules, 769 declarations with none policy and empty observed axioms, 34 successful recorded processes including 11 leanchecker replays, 55 generated outputs, 11 oleans and exact 115-file census.",
+    "Success establishes one concrete accepted leaf transported into actual inventory staging with arbitrary inventory/limits. It does not prove the full fold, all leaves/carry steps or final whole-object SHA.",
+    "Reviewer audit initially used the preceding phase budget field name estimateExtraBytes; this phase uses estimatedExtraBytes. The read-only attempt stopped on undefined conversion, then exact field inspection and corrected audit passed. No candidate/evidence mutation resulted.",
+    "No repository, source, VM, compiler, guest or other-lab modification by reviewer."
+  ],
+  "storageFreeBytes": "38544793600"
+}

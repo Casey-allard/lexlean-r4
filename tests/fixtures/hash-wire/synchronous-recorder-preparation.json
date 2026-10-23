@@ -1,0 +1,85 @@
+{
+  "schema": "lexlean-r4/synchronous-recorder-preparation/1",
+  "date": "2026-10-23",
+  "status": "REVIEWED_HOST_RAW_RECORDER_ONLY",
+  "scope": "Development verification instrument with explicit trusted synchronous operations. No live process binding, guarded compiler callback, native proof, pure LexLean application behavior or PrismPM acceptance.",
+  "packet": {
+    "manifest": {
+      "path": "/tmp/r4-wire-synchronous-recorder-implementation-20261023/manifest.json",
+      "bytes": 6996,
+      "sha256": "cce392b26fcdfbd6a7b966368e73ce9b7a3d44d0d55a1bfc1aebb99b2da7f0d2"
+    },
+    "recorder": {
+      "path": "/tmp/r4-wire-synchronous-recorder-implementation-20261023/recorder.mjs",
+      "bytes": 11180,
+      "sha256": "056a6520485a37d9cc6fcaa8e595e55d3a8793172739e056a6951150c2cd24a5"
+    },
+    "tests": {
+      "path": "/tmp/r4-wire-synchronous-recorder-implementation-20261023/tests.mjs",
+      "bytes": 10535,
+      "sha256": "9bcf416f370f4548d14b72f1204f325102377830f056acf8f25de36fcf8e5f9a"
+    },
+    "checkpoint": {
+      "path": "/tmp/r4-wire-synchronous-recorder-implementation-20261023/checkpoint.json",
+      "bytes": 2306,
+      "sha256": "f2c40eb590c41b040c4ead2d99ff63ce03fd3b0d0905077fca2ef7c01a1e05be"
+    },
+    "sourceArchive": {
+      "path": "tests/fixtures/hash-wire/synchronous-recorder-sources.json",
+      "bytes": 39310,
+      "sha256": "1f76ed9bd96c5fbef889a2c9f7b5be466e3ef25d3f94782a2304e1deaec7d5e6"
+    }
+  },
+  "behavior": [
+    "Own each acquired descriptor immediately and independently attempt close/read/hash after failures.",
+    "Preserve original nested and falsey errors and truthful status/signal fields; reject accessor/proxy inputs and results without evaluating them.",
+    "Persist and verify candidate receipt bytes before exclusive same-directory hard-link publication to process.json; successful publication immediately returns prebuilt state.",
+    "Incomplete capture leaves only raw, candidate and separately named diagnostic evidence; no newly published legacy success receipt under the stated local primitive assumptions."
+  ],
+  "reviews": {
+    "spec": {
+      "path": "/tmp/r4-wire-synchronous-recorder-implementation-spec-review-20261023/review.json",
+      "bytes": 10221,
+      "sha256": "b9bb21a52aafdeb418c09d64998195c0a10dfb081cbc1ce04ecf01af4ffaa741"
+    },
+    "code": {
+      "path": "/tmp/r4-wire-synchronous-recorder-implementation-code-review-20261023/review.json",
+      "bytes": 5553,
+      "sha256": "32ce3ce7ef3f8550c3abe6cbcb0d839332dc03d50ec6db952407c257a99c100e"
+    }
+  },
+  "verification": {
+    "historicalExactSourceAssertionFailures": 5,
+    "actualFunctionPassingAssertions": 63,
+    "groups": 6,
+    "targetedPassingAssertions": 5,
+    "plantedSourceDefectsRejected": 5,
+    "localFileSyntheticProcessCompatibilityCases": 4,
+    "additionalCodeAdversarialProbes": 9,
+    "actualChildProcessSpawns": 0,
+    "reviewScope": "SPEC freshly reproduced all listed baseline suites. CODE freshly ran63+5 and9 probes; historical5,planted5,compatibility4 were hash-verified retained evidence, not fresh CODE reruns."
+  },
+  "custody": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/synchronous-recorder-implementation/custody.json",
+    "bytes": 17064,
+    "sha256": "45db85e516320fb5860ee7ecca1791baeb50e4cbd991d2f03c88e3542b51f928"
+  },
+  "storage": "Original storage stop remains preserved in the sealed packet. Each resumed author test phase checked the original baseline and10GiB+1MiB reserve. No native launch follows from host recovery.",
+  "limitations": [
+    "Explicit operations are a trusted caller contract, not a validated runtime capability. A live binding and all source/SDK/idle/storage/epoch gates remain external.",
+    "Injected syscall faults establish sequencing, not real operating-system fault behavior.",
+    "Publication assumes a local same-filesystem single owner and exclusive hard-link semantics; no hostile concurrency, crash durability, throw-after-success primitive or perpetual immutability guarantee.",
+    "Returned Buffers are independent copies, not immutable objects.",
+    "Frozen checkpoint and planned-variant records retain their historical review-required/not-run wording; later exact review and result records establish this bounded host acceptance."
+  ],
+  "actual": {
+    "restoredRoots": 16,
+    "requiredRestorationRoots": 78,
+    "observedMutants": 2,
+    "requiredMutants": 7,
+    "fullRestorationAccepted": false,
+    "fullMutationAccepted": false,
+    "actualFull78Binding": null,
+    "actualFreshEpochBinding": null
+  }
+}

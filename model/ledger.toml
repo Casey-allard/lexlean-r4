@@ -10,9 +10,137 @@
 # The meta-gate proves the suite never asserts an `open` claim as established,
 # and `CM-03` proves every `some-true` row cites an authority that exists.
 #
-# The ledger is empty. A claim added here needs its level chosen first, because
-# the level decides what evidence it owes.
 
 spec = "template/1"
 
-claim = []
+[[claim]]
+id = "AUTH-CODEBOOK-WORDS"
+level = "some-true"
+authority = "UOR-CODEBOOK-WORDS"
+statement = "Source integer operations and exact signed-word bytes are imported authority facts. Local arithmetic formal conformance remains distinct from prime capacity, reference floating semantics, complete codebook construction and generated serving."
+
+[[claim]]
+id = "AUTH-SNAPSHOT-STORAGE"
+level = "some-true"
+authority = "UOR-SNAPSHOT-STORAGE"
+statement = "Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance."
+
+[[claim]]
+id = "AUTH-SERDE-SNAPSHOT-VALUE"
+level = "some-true"
+authority = "SERDE-SNAPSHOT-VALUE"
+statement = "The bounded compatibility surface follows the pinned Serde source profile. Effective production feature binding and generated runtime acceptance remain separate; the stricter raw duplicate policy is locally specified and must be modeled explicitly."
+
+[[claim]]
+id = "AUTH-TOKENIZER-JSON"
+level = "some-true"
+authority = "SERDE-JSON-TOKENIZER"
+statement = "Raw syntax and extraction semantics are imported from the named parser profile and pinned UOR tokenizer. Formal local conformance, complete cryptographic identity and generated product execution remain separate obligations."
+
+[[claim]]
+id = "AUTH-JSON-NUMBER"
+level = "some-true"
+authority = "SERDE-JSON-NUMBER"
+statement = "Pinned serde_json default parser behavior supplies imported compatibility facts; exact integer formal admission neither executes model floating-point operations nor resolves bounded production lowering."
+
+[[claim]]
+id = "AUTH-MECHANISM-EVIDENCE"
+level = "some-true"
+authority = "UOR-MECHANISM-EVIDENCE"
+statement = "Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization."
+
+[[claim]]
+id = "AUTH-TOKENIZER-KERNEL"
+level = "some-true"
+authority = "UOR-TOKENIZER-KERNEL"
+statement = "Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization."
+
+[[claim]]
+id = "AUTH-UNICODE17-TEXT"
+level = "some-true"
+authority = "UNICODE17-TOKENIZER-TEXT"
+statement = "Complete Unicode 17 classification facts and pinned Rust compressed literal inventories are imported and independently compared as data. Local text algorithms require their separate formal controls."
+
+[[claim]]
+id = "AUTH-TOKENIZER-TEXT"
+level = "some-true"
+authority = "UOR-TOKENIZER-TEXT"
+statement = "Tokenizer text and alphabet semantics are imported from pinned UOR and Rust sources. Formal text controls establish neither complete tokenization nor trusted raw-byte tokenizer identity."
+
+[[claim]]
+id = "AUTH-DISCRETE-ENGINE"
+level = "some-true"
+authority = "UOR-DISCRETE-ENGINE"
+statement = "Engine composition and initialization semantics are imported from pinned host and CUDA sources. Formal controls establish neither research qualification nor permission to bypass the source training hold."
+
+[[claim]]
+id = "AUTH-DISCRETE-FLOCK"
+level = "some-true"
+authority = "UOR-DISCRETE-FLOCK"
+statement = "Flock and Relation contracts are imported from pinned integer CUDA source, including cumulative synchronous scores and occurrence-aware causality. Formal controls establish no execution parity or learned capability."
+
+[[claim]]
+id = "AUTH-OBJECT-HASH"
+level = "some-true"
+authority = "UOR-OBJECT-HASH"
+statement = "The exact BLAKE2b node identity convention is imported from pinned source; local controls do not prove collision freedom or durable storage."
+
+[[claim]]
+id = "AUTH-SHA256-VECTORS"
+level = "some-true"
+authority = "NIST-SHA256-VECTORS"
+statement = "SHA-256 semantics and literal digest expectations are imported from the named specification and independently pinned NIST vector archive."
+
+[[claim]]
+id = "AUTH-DISCRETE-SPEC"
+level = "some-true"
+authority = "UOR-DISCRETE-SPEC"
+statement = "The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port."
+
+[[claim]]
+id = "AUTH-FINITE-GEOMETRY"
+level = "some-true"
+authority = "UOR-FINITE-GEOMETRY"
+statement = "The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here."
+
+[[claim]]
+id = "AUTH-DISCRETE-OBJECTIVE"
+level = "some-true"
+authority = "UOR-DISCRETE-OBJECTIVE"
+statement = "The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations."
+
+[[claim]]
+id = "AUTH-DISCRETE-BINDER"
+level = "some-true"
+authority = "UOR-DISCRETE-BINDER"
+statement = "Canonical construction and general forest validation are imported from the pinned ordered ternary binder metadata contract; no model or scientific capability is established."
+
+[[claim]]
+id = "AUTH-DISCRETE-WRITER"
+level = "some-true"
+authority = "UOR-DISCRETE-WRITER"
+statement = "Writer semantics are imported from the pinned CUDA source; formal source checks do not establish GPU parity, model capability, or production acceptance."
+
+[[claim]]
+id = "AUTH-DISCRETE-CONFIGURATION"
+level = "some-true"
+authority = "UOR-DISCRETE-CONFIGURATION"
+statement = "Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result."
+
+[[claim]]
+id = "AUTH-OBJECT-HASH-WORDS"
+level = "some-true"
+authority = "UOR-OBJECT-HASH-WORDS"
+statement = "Cryptographic word requirements are imported from the pinned object-store hash implementation. Fixed-word formal controls do not establish a complete hash, protocol or accepted runtime."
+
+[[claim]]
+id = "AUTH-DISCRETE-ROUTE"
+level = "some-true"
+authority = "UOR-DISCRETE-ROUTE"
+statement = "Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability."
+
+[[claim]]
+id = "AUTH-DISCRETE-LEARNING"
+level = "some-true"
+authority = "UOR-DISCRETE-LEARNING"
+statement = "Finite selection, update and batch eligibility contracts are imported from pinned CUDA and host binding source. Their formal model establishes neither GPU parity, private proposal authenticity nor an owner training release."

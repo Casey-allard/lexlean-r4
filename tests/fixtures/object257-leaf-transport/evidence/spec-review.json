@@ -1,0 +1,124 @@
+{
+  "status": "PASS_MINIMAL_LEAF_AND_FALSIFIABLE_CONTEXT_TRANSPORT_PROPOSAL_ONLY",
+  "proposal": {
+    "path": "/tmp/r4-object257-oom-connected-certificate-proposal-20261023.json",
+    "sha256": "d4ebbcd8cff55bcf2db423466806626d87ba40be14eb74f2137d2095d48ecbfc",
+    "verifiedPins": 11
+  },
+  "findings": [
+    {
+      "id": "TRANSPORT_CLAIM",
+      "severity": "QUALIFY",
+      "finding": "The lack of Rewrite/Have/Transitivity constructors does not establish impossibility of connected certificate transport. Existing Induction, Congruence and Apply expose a plausible small axiom-free route; it must be tried before declaring an actual DSL blocker.",
+      "limit": "Source-supported proposal, NOT_RUN. No success or runtime cost is established."
+    }
+  ],
+  "sourceAnalysis": [
+    {
+      "source": "ir/semantic.rs:689-756; backend/semantic.rs:1219,1249-1279,1292,1371-1386",
+      "facts": "Congruence is a nullary proof form emitting only congr 1. Apply emits exact priorTheorem arguments and validates a prior document theorem, argument arity/types. There is no sequence/continuation on Congruence, so congr then Apply cannot simply be encoded as one proof. Induction emits branches with an induction hypothesis available to a Congruence branch."
+    },
+    {
+      "source": "PredictionRouteLengthControls.lex.tex",
+      "facts": "Existing product proof source already uses Induction with Congruence on a lifted goal and a later exact Apply to a definitionally equal goal. This review inspected its source only; it is an encoding precedent, not fresh acceptance evidence for the Object probe."
+    },
+    {
+      "source": "ObjectProofPolicyResult/Result.log",
+      "facts": "The exact retained small Result Simplify probe was rejected for observed propext. This is not a proof that every possible simp proof introduces propext, nor that Congruence does."
+    }
+  ],
+  "minimalLeaf": {
+    "declaration": "objTrace257Record10",
+    "statementJsonSha256": "d865a586381789a2ea5a65b1b532c091032ba6d3fae6294075aab3914ae8b82b",
+    "preserve": "Exact existing statement AST, parameters [], axioms [], actual ObjMakeLeaf [0] closure and expected record. Only proof changes from Simplify to Reflexivity, in a new owned module.",
+    "expectedIdBytes": [
+      128,
+      154,
+      164,
+      144,
+      109,
+      181,
+      157,
+      164,
+      74,
+      198,
+      157,
+      124
+    ],
+    "expectedScale": 0,
+    "expectedPayload": "32 zero bytes",
+    "falseCompanion": "Change only expected ID byte128 to129. Require valid sourcecheck and intended equality rejection. Timeout/OOM/compiler setup failure is not an accepted RED.",
+    "cost": "Unknown; one actual local leaf equation is the bounded next measurement, not a trusted intermediate hash."
+  },
+  "transportProbe": {
+    "status": "NOT_RUN",
+    "purpose": "Consume that exact accepted leaf equation in a nonidentity actual Object parent-result context using supported pure LexLean proof forms.",
+    "types": "T = Result ObjRecord ObjError; a,b : ObjNodeId are ordinary theorem parameters, not supplied computed hashes.",
+    "context": "C a b r := match r with | Result.error e => Result.error e | Result.ok leaf => R4.ObjectStore.ObjMakeParent 1 a b leaf.id",
+    "whyNonidentity": "C invokes the actual ObjMakeParent operation with two parameter children and the certificate-derived third child. It does not return r, replace the computation with a constant, or assume a parent digest.",
+    "iterator": "I a b 0 r := r; I a b (n+1) r := C a b (I a b n r). Author only this structurally recursive proof-local semantic definition; do not alter production Object definitions.",
+    "liftedStatement": "For parameters a,b,n: I a b n (ObjMakeLeaf [0]) = I a b n (Result.ok expectedRecord).",
+    "proofAST": "Induction on n. zero branch: Apply the accepted objTrace257Record10 certificate, with no arguments. succ branch binders n,ih: Congruence. No Simplify, raw Lean injection or new axiom.",
+    "expectedGeneratedProof": "induction n with\n| zero => exact LeafCertificate.objTrace257Record10\n| succ n ih => congr 1",
+    "consumerStatement": "(match ObjMakeLeaf [0] with | Result.error e => Result.error e | Result.ok leaf => ObjMakeParent 1 a b leaf.id) = ObjMakeParent 1 a b expectedRecord.id",
+    "consumerProof": "Apply lifted theorem with semantic arguments a,b,1. By unfolding I at1, C and the Result.ok match on the right, this target is definitionally equal to that instance. No propositional rewrite is required merely to state this consumer.",
+    "unknowns": [
+      "Actual congr1 elaboration may choose a different reduction/subgoal path or fail to consume ih; only official emitted proof and replay determine this.",
+      "Definitional conversion/elaboration may still reduce costly leaf or parent computations; performance benefit is not presumed.",
+      "This tests an endofunction on Result ObjRecord. Transport into heterogeneous Result ObjCarryState, inventory transitions, SHA finish and the entire original257 proposition remains open."
+    ]
+  },
+  "meaningfulControls": [
+    {
+      "case": "Exact Apply reuse",
+      "requirement": "Identical-statement consumer uses Apply leaf certificate and independently replays under none axioms; preserve emitted source binding."
+    },
+    {
+      "case": "Lifted base dependency negative",
+      "requirement": "Declare an unrelated prior zero-argument Reflexivity theorem, e.g.0=0. Change only the lifted zero branch Apply target to that decoy. Sourcecheck should accept the registered zero-arity theorem reference, but verification must reject intended type mismatch. Resource/setup failure does not count. This distinguishes actual prior-certificate dependency from an unnoticed all-rfl substitute."
+    },
+    {
+      "case": "Nonidentity context and exact proof",
+      "requirement": "Inspect exact generated semantic-to-Lean output: actual ObjMakeParent call in C, base exact leaf theorem, successor congr1, consumer exact lifted theorem. Require independent official kernel replay and empty axiom reports for each accepted theorem. Where proof-term/dependency inspection is available, retain it; source text alone is not kernel acceptance."
+    },
+    {
+      "case": "Result mutation control",
+      "requirement": "Retain false leaf-ID companion separately. Do not accept transport over a false or merely supplied leaf hash. Do not expand to13 node certificates if the one-leaf or transport probe fails."
+    }
+  ],
+  "unchangedOriginal": {
+    "proposition": "objFoldDigest257 original whole ObjFold digest theorem",
+    "emittedSourceSha256": "5bfe8572900f9d61c4cd4315ddcb8e340f3cd208b2f16e1de39ca23cf1bcba7b",
+    "requirements": [
+      "Original257 input, digest observation, complete fold mechanics and empty axiom policy unchanged.",
+      "No trusted intermediate identity, production substitution or caller-supplied hash accepted.",
+      "Full original theorem remains unproved by this proposal; exact existing runtime/compiler/limits and normal resource monitoring still apply.",
+      "No compiler adoption or larger-memory retry follows merely from this source proposal."
+    ]
+  },
+  "observedFailureLimits": "Pinned exit137, empty stdout and after-memory oom4/oom_kill2 support the reported instrument OOM classification; this review did not rerun or fully audit the original process bracket. None is a semantic negative.",
+  "additionalSourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+      "bytes": 66585,
+      "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/PredictionRouteLengthControls.lex.tex",
+      "bytes": 2181,
+      "sha256": "4834b33995b01967dddd31eb25ef2430dfadb5f4588a590dda1c089a910a3b0c"
+    }
+  ],
+  "scope": {
+    "SDKInvoked": false,
+    "nativeProcessesRun": 0,
+    "sourceModified": false,
+    "original257Modified": false,
+    "compilerModified": false,
+    "VMModified": false,
+    "repositoryModified": false,
+    "otherLabsTouched": false,
+    "onlyNewFile": "/tmp/r4-object257-connected-certificate-spec-review-20261023.json"
+  },
+  "next": "Implement only one exact leaf certificate plus these minimal supported transport/negative controls after parent dispatch. Gate further decomposition on actual official empty-axiom kernel results; report an exact unsolved DSL goal if this probe fails."
+}

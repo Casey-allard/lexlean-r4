@@ -1,0 +1,200 @@
+{
+  "at": "2026-10-23T16:13:43.393Z",
+  "status": "PASS_ACTUAL_LEAF_REUSE_AND_PARENT_TRANSPORT_WITH_INTENDED_NEGATIVE",
+  "candidateManifest": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/manifest.json",
+    "bytes": 4468,
+    "sha256": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4"
+  },
+  "priorLeafPairReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-pair-review.json",
+    "bytes": 5413,
+    "sha256": "604432c489cd45537c48eff06e9962cae301a573c6e1ead16a51dfb0766cc640"
+  },
+  "phases": [
+    {
+      "phase": "leaf-apply",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/verify.json",
+        "bytes": 1179,
+        "sha256": "8d6688811ebae81ce3c739d7ca2e6a91507891f94278e8ad7a08d8fbeae25438"
+      },
+      "wallMs": 40738,
+      "sources": 20,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/source-before.json",
+        "bytes": 4672,
+        "sha256": "662a2a7e604d85d1288d1f98634c440ac8f46c68767ba5a326611f5e4e69264d"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/source-after.json",
+        "bytes": 4672,
+        "sha256": "7d16a36335f5013797fb9764eae7f5cb563fe7515e8426e5470e8ae8b8471d2c"
+      },
+      "lockSha256": "4906623f2b959801f9c8240e30850daed1f36a9a8e8e65dd796c8cdd25dbf367",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/idle-after.json",
+        "bytes": 450,
+        "sha256": "bf11a393bda14ed7117324769114cef9cc200d9e9ffd95a35677cd6d066808e0"
+      },
+      "status": "PASS_ACTUAL_ARTIFACT_AUDIT",
+      "attestation": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/artifact/attestation.json",
+        "bytes": 158337,
+        "sha256": "1d86992c583cef7241dc4cfbdaf529718987857b174e3348f45b4d32bb4fb8a9"
+      },
+      "buildManifest": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/artifact/build-manifest.json",
+        "bytes": 12125,
+        "sha256": "51b260f94352e29db5ffe0c18ebcca3579a6725948a518085c5f9d7123a211cb"
+      },
+      "identities": {
+        "attestation_id": "f292614463dd0047f30c79691e0c70253f2ed6ca1f77424e60da6491f68ec8eb",
+        "source_id": "30b6137271617ce5101ed175348b57d43730bea0b7e5128ce74b4afdf2358cf2",
+        "semantic_id": "8e416f320d9b58f587da7564bda8fb2c3ecd19c561c70b905ed235e8b32f0c86",
+        "build_id": "55ed979b0dea937b846b90c90d45895cca38176c362c82a4ecfc55b72151ce50"
+      },
+      "modules": 10,
+      "declarations": 765,
+      "recordedKernelReplays": 10,
+      "processRecords": 31,
+      "outputs": 50,
+      "oleans": 10,
+      "artifactFiles": 105,
+      "artifactCensusSha256": "eec00881bf9d9e446e34e168056e9fed6b52563212c37903617c2f7b56670194",
+      "emittedProof": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-apply/artifact/modules/LexLeanR4/Object257LeafApply.lean",
+        "bytes": 1047,
+        "sha256": "4cc43e8d3ead726403f4736406033b0e20f0a8daa45aa93542c2f2a7a12f0bda"
+      }
+    },
+    {
+      "phase": "transport-false",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-false/verify.json",
+        "bytes": 1637,
+        "sha256": "893bebd11e688e9d82aaeade4a387c127af4feab083c686961c40f29cd20299d"
+      },
+      "wallMs": 37103,
+      "sources": 20,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-false/source-before.json",
+        "bytes": 4872,
+        "sha256": "6a43cbd0352960d151f77548c7a04701657434ea24935aba45c74b9a78632511"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-false/source-after.json",
+        "bytes": 4872,
+        "sha256": "8369a796546dd32042a2d332b8282b20256a762ce6cb37846ef8270dadffa536"
+      },
+      "lockSha256": "5d0edc972dd39c541f4a5041d5207cdcffba5de15335638749b7b30838d33adb",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-false/idle-after.json",
+        "bytes": 450,
+        "sha256": "8374c41ab4437da43648b489ead507a44fcea91289f3fd97e746ece86759226b"
+      },
+      "status": "PASS_INTENDED_UNRELATED_BASE_REJECTION"
+    },
+    {
+      "phase": "transport-positive",
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/verify.json",
+        "bytes": 1226,
+        "sha256": "c980cb55673d9cdc7605cb58fd0daba55696225872fa1d8c1abdf665345e4db9"
+      },
+      "wallMs": 137684,
+      "sources": 20,
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/source-before.json",
+        "bytes": 4992,
+        "sha256": "aa1a9babfedde36b315f9e5b78a21c2f18c2eb52718ccb6e47cb569c4fd2ce63"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/source-after.json",
+        "bytes": 4992,
+        "sha256": "12a137597c2d5a897be1ac84d1df77e1e5955761783d3d88f6ec654739e7a8ee"
+      },
+      "lockSha256": "e9cd6e8643bfad6602f37e0928b380ad7c2ee79da2d4e98cc729c34fa8d6e809",
+      "epochUnchanged": true,
+      "memoryUnchangedZero": true,
+      "storageReservePassed": true,
+      "idleAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/idle-after.json",
+        "bytes": 450,
+        "sha256": "9fae2718ed3fa709f1946f989ed56eba2df5868ef2d0c4e35c7d32fac58ce03f"
+      },
+      "status": "PASS_ACTUAL_ARTIFACT_AUDIT",
+      "attestation": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/artifact/attestation.json",
+        "bytes": 160931,
+        "sha256": "21839a76c232e3ee32dad45d3e0cbe2407fe3a004223320321d75777a9225965"
+      },
+      "buildManifest": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/artifact/build-manifest.json",
+        "bytes": 13378,
+        "sha256": "5742cb8745d81a8b32dc60d806c47b00189aab6bf050eb4fa7c4a831fb42f314"
+      },
+      "identities": {
+        "attestation_id": "432355f3610faf6ade14526d14578bad764593b479469eff0eb1bb6d0bdaa2bf",
+        "source_id": "50fac8e8ce8add6b9454d4456cb8d6fe9d6f3dfd903fb98a2c79af212e7046c5",
+        "semantic_id": "f86eac0b055236977f32d6d5fb7b851b2f93d4f78ec8a0a3a93403e9bd842086",
+        "build_id": "c56a2ef27079fd205a7c54dd486b7534081a760e112abf03886716bdfdc1e197"
+      },
+      "modules": 11,
+      "declarations": 769,
+      "recordedKernelReplays": 11,
+      "processRecords": 34,
+      "outputs": 55,
+      "oleans": 11,
+      "artifactFiles": 115,
+      "artifactCensusSha256": "54f7f6ba7c735ee45eed974b315123797f6b5b04e2464df5a09092c624cb107b",
+      "emittedProof": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/artifact/modules/LexLeanR4/Object257ParentTransport.lean",
+        "bytes": 2235,
+        "sha256": "ffaabe8abe4875634d15babb9c091d7167ee8f46abfdebdde519e41e1ac886ab"
+      }
+    }
+  ],
+  "proofAudit": {
+    "directApply": "Actual emitted exact imported leaf certificate; same leaf equality statement.",
+    "transport": "Actual emitted induction count, zero exact imported leaf certificate, successor congr 1; consumer exact lifted theorem at count 1.",
+    "context": "Actual emitted error-preserving Result context invokes production ObjMakeParent 1 firstChild secondChild leaf.id; Nat iterator composes this nonidentity context.",
+    "emittedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/transport-positive/artifact/modules/LexLeanR4/Object257ParentContext.lean",
+      "bytes": 1387,
+      "sha256": "04749b5e530b0052cdf907c27b84f4ef9538aa0d4e49f584f1a014c4b50d71a6"
+    },
+    "leafCertificateEmissionByteIdenticalToAuditedPositive": true,
+    "sourceNegativeDiff": {
+      "onlySemanticDifference": "zero-branch Apply theorem reference: Object257LeafCertificate.objTrace257Record10 -> local obj257UnrelatedZero",
+      "exactASTComparison": true
+    },
+    "allDeclarationPoliciesNoneAndObservedAxiomsEmpty": true,
+    "allRecordedProcessesExitZeroInPositiveArtifacts": true
+  },
+  "acceptance": {
+    "exactLeafCertificateReuse": true,
+    "localParentContextTransport": true,
+    "unrelatedZeroBaseRejected": true,
+    "original257Accepted": false,
+    "hashDependencyAccepted": false,
+    "ObjectComponentAccepted": false,
+    "PrismPMAccepted": false,
+    "PagesAccepted": false
+  },
+  "limits": [
+    "Independent read-only audit of actual official output, emitted Lean, source inputs and recorded kernel replay; reviewer did not invoke SDK, compiler or a fresh replay.",
+    "Axioms empty was checked for every declaration in both positive closures, with exact expected audit-output names and successful recorded leanchecker invocations.",
+    "The positive result establishes the concrete leaf equality transported through the actual scale-1 parent context and consumed at one iteration; it does not establish heterogeneous 257-byte folding, carry/inventory composition or final whole-object SHA.",
+    "The intended negative is a precise LLV7002 type mismatch of unrelated 0=0 in the induction base; no timeout/OOM/setup failure is counted as a negative.",
+    "All 20 source/configuration inputs per phase matched the retained production sources and frozen candidate; development lock bytes before/after, epoch, zero memory events, idle and storage reserves were checked.",
+    "No repository/source/VM/process or other-lab changes by reviewer; prior leaf-pair report preserved."
+  ],
+  "reviewStorageFreeBytes": "40884957184"
+}

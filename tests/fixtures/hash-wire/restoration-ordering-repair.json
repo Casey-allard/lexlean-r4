@@ -1,0 +1,124 @@
+{
+  "schema": "lexlean-r4/hash-wire-restoration-ordering-repair/1",
+  "date": "2026-10-23",
+  "status": "VERIFIED_HOST_REPAIR_EXECUTION_BLOCKED",
+  "scope": "Verification-instrument repair only. The patches are exact historical host auditor/runner deltas, not production SDK replacements or application behavior.",
+  "defect": {
+    "review": {
+      "path": "/tmp/r4-wire-retained16-code-review-20261023/review.json",
+      "sha256": "850ea4a9fb52895beab2625b60fe6c8e54180c767cea8f4500ad602dda807f25",
+      "bytes": 3373
+    },
+    "diagnosis": {
+      "path": "/tmp/r4-wire-retained16-temporal-custody-phase1-20261023.json",
+      "sha256": "cccadc59f051158b10eecd6d6f59b0f16eba83387a4929bdf06437ed38f26e1e",
+      "bytes": 3784
+    },
+    "description": "The predecessor could combine a later container inspect with an earlier boot receipt and accept an inverted pre-proof interval. Memory observations lacked required placement around verification."
+  },
+  "requiredOrder": [
+    "bound epoch <= inspect start <= inspect end <= boot start <= boot end",
+    "pre-epoch end <= memory-before start <= memory-before end <= verify start <= verify end <= memory-after start <= memory-after end <= post-epoch start",
+    "preflight and final epoch end <= corresponding memory start <= memory end"
+  ],
+  "repair": {
+    "manifest": {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/manifest.json",
+      "sha256": "7c6e046a7a2a7655e4ff25dff6de48808da8ce9d2af3dc3d86af65948cb7c83c",
+      "bytes": 75015
+    },
+    "plan": {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/plan.json",
+      "sha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0",
+      "bytes": 609843
+    },
+    "auditor": {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/audit.mjs",
+      "sha256": "2ddb161ca03f484c5ae1ee3a6022716b205de1420c905614d001b37467082b18",
+      "bytes": 8187
+    },
+    "runner": {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+      "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1",
+      "bytes": 7650
+    },
+    "guards": {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/guards.mjs",
+      "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b",
+      "bytes": 1578
+    },
+    "patches": {
+      "path": "tests/fixtures/hash-wire/restoration-ordering-patches.json",
+      "sha256": "2beae9111ae4e5addd7de543f29dea4752a459f96905a7e86db2d25ca45714fb",
+      "bytes": 17574,
+      "encoding": "Decode each unifiedDiff JSON string as UTF-8; decodedPatchSha256 and decodedPatchBytes bind the exact reviewed diff."
+    }
+  },
+  "verification": {
+    "classification": "SYNTHETIC_TEMPORAL_TESTS_AND_ACTUAL_HISTORICAL_ARTIFACT_REAUDIT",
+    "incorrectPredecessorAcceptances": 11,
+    "temporalCasesPassed": 16,
+    "priorCasesPassed": 68,
+    "originalCounterexampleRejected": true,
+    "executionBlockade": {
+      "externalProcessCalls": 0,
+      "evidenceCreated": false
+    },
+    "actualHistoricalAudit": {
+      "positiveBaselineRoots": 78,
+      "retainedRestorationRoots": 16,
+      "remainingRestorationRoots": 62,
+      "firstRemainingRoot": "HashWireDirect10Controls",
+      "fourBaselineIdsEqualForAllRetained": true
+    },
+    "authorResults": {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/host-verification.json",
+      "sha256": "fd30655c285dd92ffda76e0dd939453e3c11cd7b959041b04bc94e50f36f44d7",
+      "bytes": 952
+    },
+    "parentResults": {
+      "path": "/tmp/r4-ordered-parent-verification-20261023/summary.json",
+      "sha256": "bfe62304f476c0763aa4abd1ffc42c5a882868e6385443b1c4a11c77f04c9cdc",
+      "bytes": 964
+    },
+    "specReview": {
+      "path": "/tmp/r4-wire-ordered-epoch-preparation-spec-review-20261023.json",
+      "sha256": "d04e0e56ac4cae662d2a1f19ffbc4bd94ecc5ea9cd9487ea4a1b566bff158ae6",
+      "bytes": 3256
+    },
+    "codeReview": {
+      "path": "/tmp/r4-wire-ordered-epoch-code-review-20261023/review.json",
+      "sha256": "8be255054c7617179392910b154cc0efb7deb003e30fc20e3744a9e9551a08ed",
+      "bytes": 3497
+    }
+  },
+  "durableEvidence": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/ordered-epoch-repair",
+    "custodySha256": "884622e1de009a8e6283b823bffb95c9bb04c22fe3ef735afb1c9d148aa78c9f",
+    "payloadFiles": 1259,
+    "payloadBytes": 990802
+  },
+  "unchanged": [
+    "Original formal source and genuine development lock",
+    "Compiler, tool, container and proof limits",
+    "11 GiB pre-root and 10 GiB post-root storage gates",
+    "Original failure receipts and rejected preparation",
+    "16 accepted restoration roots and incomplete 2/7 mutation sequence"
+  ],
+  "acceptance": {
+    "hostTemporalRepairAccepted": true,
+    "liveEpochBound": false,
+    "newSdkExecution": false,
+    "newRestoredRoots": 0,
+    "fullRestorationAccepted": false,
+    "fullMutationSequenceAccepted": false,
+    "componentAccepted": false,
+    "integrationAccepted": false,
+    "productionAccepted": false
+  },
+  "remaining": [
+    "Bind actual restart raw records and independent review in a separately frozen successor before scheduling.",
+    "Verify the remaining 62 roots, then independently audit all 78 restored artifacts against all four original identities.",
+    "Complete the seven-mutant sequence, PrismPM integration and generated Pages acceptance."
+  ]
+}

@@ -9,9 +9,9 @@ edition = "2021"
 rust-version = "1.89"
 license = "MIT OR Apache-2.0"
 # Instantiated repositories set their own URLs here.
-repository = "https://github.com/UOR-Foundation/template"
-homepage = "https://github.com/UOR-Foundation/template"
-authors = ["UOR Foundation"]
+repository = "https://github.com/casey-allard/lexlean-r4"
+homepage = "https://casey-allard.github.io/lexlean-r4/"
+authors = ["Casey Allard"]
 keywords = []
 categories = []
 

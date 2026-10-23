@@ -1,0 +1,8 @@
+{
+  "module": "HashNatBlakeRoundsControls",
+  "count": 13,
+  "sha256": "b164ce16a47b35bc52ea9d4c1517a740c722c27872e3183cf44f25d0c7ba0df2",
+  "literal_inventory_sha256": "ad96bbc2501a53f1ca2bac1f3aaafd4de89b65249bb6e557b18c3df07636cafb",
+  "rfc_source_sha256": "c943754888364fe29bbd0bb3c71c6658ef392371497eaa4a9d9dde015b0721e5",
+  "meaning": "BLAKE2b-512 abc internal states; generic rounds only, not configured96-bit public initialization"
+}

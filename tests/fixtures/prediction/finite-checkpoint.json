@@ -1,0 +1,118 @@
+{
+  "schema": "lexlean-r4/prediction-finite-checkpoint/1",
+  "date": "2026-10-22",
+  "sourceSha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0",
+  "controlsSha256": "677087de1a6b844dd353e87909d96d9feb95d8cb2d07108f527d26698d3a5cde",
+  "planSha256": "b26ab88962d93045af3642a06a3c4006499649835920fa125c8cc1941400a6d6",
+  "runnerSha256": "b59b457dd8e36e5194fcb3ca493fea2c1e330fa6b2db39b0886c661477b79687",
+  "auditorSha256": "acb9b586be940133892359099fd11e062e27aefdeb9e7de543d246d835b88d19",
+  "lockSha256": "d63587c369a30a5343561911bf26851fe0b4a254475047ef8714204e86d3eaf4",
+  "baseline": {
+    "status": "PASS",
+    "controls": 31,
+    "declarations": 904,
+    "inputs": 9,
+    "compilations": 7,
+    "replays": 7,
+    "outputs": 35,
+    "oleans": 7,
+    "attestation": "be039ace487033e28491c1a8cdd9d1bcbc5a7c68ebf3ecdef98cf6080582177d",
+    "source": "ab5e3b5f3ec1c128fb484305c5ce0c09846597fbb55e53c8a1eaca52caa512d9",
+    "semantic": "6a985b8fb68980cf011aa85ea15df45816d97f793c53d72b90acf363faf19a74",
+    "build": "724a489111246bb89991f8c9f74ac968ea799499fe1886a16560d739722317f9"
+  },
+  "mutations": {
+    "status": "PASS",
+    "primaryFailure": null,
+    "restorationFailure": null,
+    "rows": [
+      {
+        "id": "01-bypass-spec",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionZeroCells",
+          "LexLeanR4.PredictionControls.predictionAboveMaximumCells",
+          "LexLeanR4.PredictionControls.predictionAboveVocabularyCells",
+          "LexLeanR4.PredictionControls.predictionSpecBeforeOtherAdmission"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "02-cap-one",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionGlobalRankingAcrossCells",
+          "LexLeanR4.PredictionControls.predictionTokenTieUsesIdentityNotCellOrder",
+          "LexLeanR4.PredictionControls.predictionMaximumCellsRetainSeventeenTokens"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "03-first-cell-only",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionGlobalRankingAcrossCells",
+          "LexLeanR4.PredictionControls.predictionTokenTieUsesIdentityNotCellOrder",
+          "LexLeanR4.PredictionControls.predictionMaximumCellsRetainSeventeenTokens"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "04-reversed-identity-tie",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionCrowdedIdentitiesRetained",
+          "LexLeanR4.PredictionControls.predictionTokenTieUsesIdentityNotCellOrder",
+          "LexLeanR4.PredictionControls.predictionCandidateZeroIsCurrent",
+          "LexLeanR4.PredictionControls.predictionMaximumCellsRetainSeventeenTokens",
+          "LexLeanR4.PredictionControls.predictionMaximumWidthUsesWidthMargin"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "05-collapse-crowded-identities",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionCrowdedIdentitiesRetained",
+          "LexLeanR4.PredictionControls.predictionCandidateZeroIsCurrent",
+          "LexLeanR4.PredictionControls.predictionMaximumWidthUsesWidthMargin"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "06-ignore-interior-root",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionGlobalRankingAcrossCells",
+          "LexLeanR4.PredictionControls.predictionInvalidInteriorGeometry"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      },
+      {
+        "id": "07-ignore-virtual-move",
+        "status": "SOURCE_VALID_NAMED_SEMANTIC_NEGATIVE",
+        "hits": [
+          "LexLeanR4.PredictionControls.predictionVirtualEndpointChangesCell",
+          "LexLeanR4.PredictionControls.predictionVirtualTargetUnadmitted"
+        ],
+        "primaryFailure": null,
+        "restorationFailure": null
+      }
+    ],
+    "restoredControls": 31,
+    "productionAccepted": false,
+    "generalProofsAccepted": false
+  },
+  "restoredIdentitiesEqualBaseline": true,
+  "custodyManifestSha256": "8863a60bfaee911709a216aab252ec102f92adf0d99d9ecbbddf95ccd580d32b",
+  "durableEvidence": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/finite-31-successor",
+  "mandatoryIntegrationAccepted": false,
+  "generalProofsAccepted": false,
+  "productionAccepted": false
+}

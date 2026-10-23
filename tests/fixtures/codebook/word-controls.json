@@ -1,0 +1,50 @@
+{
+  "schema": "lexlean-r4/codebook-word-controls/1",
+  "conformance_id": "R4-21",
+  "source_module": "R4.CodebookWords",
+  "control_count": 2404,
+  "fixtures": [
+    {
+      "path": "tests/lexlean/CodebookArithmetic32Controls.lex.tex",
+      "module": "CodebookArithmetic32Controls",
+      "theorem_count": 298,
+      "sha256": "21123003814318e1ed6dc817b3632d7e68837a689ec6e81bfbb16a660c7760f2"
+    },
+    {
+      "path": "tests/lexlean/CodebookCodec32Controls.lex.tex",
+      "module": "CodebookCodec32Controls",
+      "theorem_count": 80,
+      "sha256": "34769088179b5b7a9b4d6c015725a2a065f79aec5651687be3789780fe85b30d"
+    },
+    {
+      "path": "tests/lexlean/CodebookArithmetic64Controls.lex.tex",
+      "module": "CodebookArithmetic64Controls",
+      "theorem_count": 490,
+      "sha256": "cfcae7c13536244a6dc24668500aff199a8c406e6582aa6e2ddc57913af2a3e8"
+    },
+    {
+      "path": "tests/lexlean/CodebookCodec64Controls.lex.tex",
+      "module": "CodebookCodec64Controls",
+      "theorem_count": 148,
+      "sha256": "796a93a44271fbf4b29a83cebff38d052895bce3065d31b57f6c213123c781fe"
+    },
+    {
+      "path": "tests/lexlean/CodebookArithmetic128Controls.lex.tex",
+      "module": "CodebookArithmetic128Controls",
+      "theorem_count": 874,
+      "sha256": "535f7db97cf7470ee740cc5c9e466009a124c121472a5cc6452c5042bce63c4b"
+    },
+    {
+      "path": "tests/lexlean/CodebookCodec128Controls.lex.tex",
+      "module": "CodebookCodec128Controls",
+      "theorem_count": 284,
+      "sha256": "e700b5f1c133c7bc46e6f9abbf1101a54137ea9daf67920670bb6d1591b70d2b"
+    },
+    {
+      "path": "tests/lexlean/CodebookSignedControls.lex.tex",
+      "module": "CodebookSignedControls",
+      "theorem_count": 230,
+      "sha256": "837dba65a5fb004e395a9bb1058928be2a8c2d83fddf5db7baf757ef15f5ccfe"
+    }
+  ]
+}

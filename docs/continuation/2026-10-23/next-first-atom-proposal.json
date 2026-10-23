@@ -1,0 +1,216 @@
+{
+  "status": "PROPOSAL_ONLY_FIRST_ORIGINAL_ATOM_STATE_NATIVE_NOT_RUN",
+  "priorResult": {
+    "status": "PASS_ACTUAL_TERMINAL_FOLD_TRANSITION_AND_INTENDED_NEGATIVE_WITH_AUXILIARY_ALLOCATION_CAVEAT",
+    "attestation": "6d1a21acea9f870e5dfe05ae1332c4929a5790f53c02d152f7fcc2b25c94f651",
+    "positiveWallMs": 23010,
+    "scope": "Read independent terminal native review. Actual parameterized terminal ObjFoldAtoms[[0]] transition accepted with empty observed axioms and replay; preceding transitions and concrete incoming state remain unaccepted. Allocation-observation caveat remains in pinned review; no new replay performed."
+  },
+  "objective": "Compute and prove the actual first concrete carry state of the ORIGINAL 257-byte fold. This introduces one new actual leaf certificate and one production prefix-state consumer, not another arbitrary-context-only demonstration and not thirteen certificates.",
+  "exactData": {
+    "firstAtom": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "expectedRecordSource": "/tmp/ObjectTrace257Node0Controls.lex.tex",
+    "expectedRecordTheorem": "objTrace257Record0",
+    "expectedRecordId": [
+      63,
+      164,
+      31,
+      162,
+      68,
+      35,
+      68,
+      195,
+      38,
+      116,
+      35,
+      81
+    ],
+    "expectedRecordScale": 0,
+    "expectedRecordPayload": "Exactly bytes0..31; copied AST from retained record theorem.",
+    "expectedStateSource": "/tmp/ObjectTrace257Carry0Controls.lex.tex",
+    "expectedStateTheorem": "objTrace257Carry0",
+    "expectedState": "Result.ok { inventory := [record0], frontier := [{id := record0.id, scale := 0}] } copied byte-for-byte as AST, qualifying local ObjCarryState if needed.",
+    "originalLimits": {
+      "fields": [
+        {
+          "field": "objectBytes",
+          "value": {
+            "kind": "nat",
+            "value": "16777216"
+          }
+        },
+        {
+          "field": "records",
+          "value": {
+            "kind": "nat",
+            "value": "1000000"
+          }
+        },
+        {
+          "field": "recordBytes",
+          "value": {
+            "kind": "nat",
+            "value": "67108864"
+          }
+        },
+        {
+          "field": "returnedBytes",
+          "value": {
+            "kind": "nat",
+            "value": "16777216"
+          }
+        },
+        {
+          "field": "visits",
+          "value": {
+            "kind": "nat",
+            "value": "1000000"
+          }
+        }
+      ],
+      "kind": "record",
+      "type": {
+        "module": "R4.ObjectTypes",
+        "name": "ObjLimits"
+      }
+    },
+    "sourceComparisons": "Read-only AST comparison confirms firstAtom matches the first32 original bytes; record0 equals sole record in Carry0 input and output; output frontier equals the one-root input; limits equal the original ObjFold input limits. These are syntax/custody checks, not native proof or actual hash acceptance."
+  },
+  "candidate": {
+    "leafCertificate": "Extract ONLY original objTrace257Record0 statement, parameters and empty axioms into a dedicated source. Change its old Simplify proof to Reflexivity as already tested for the final partial leaf. Do not import old Hash0/Wrapper0 helper theorems or claim their acceptance. The actual ObjMakeLeaf[0..31] must compute its identity under official verification.",
+    "existingContext": "Reuse unchanged Object257TerminalContext.Obj257TerminalContext C frontier inventory limits item from the accepted terminal candidate. Its item input already abstracts leaf bytes; C keeps stage, carry38, all errors and ObjFoldAtoms[]. No new runtime context is needed.",
+    "newGoal": "P count : Prop := match count with | zero => ObjMakeLeaf [0..31] = Result.ok record0 | succ prior => C [] [] originalLimits (ObjMakeLeaf [0..31]) = C [] [] originalLimits (Result.ok record0).",
+    "lifted": "obj257FirstAtomLifted(count) : P count. Induction count; zero Apply new objTrace257Record0; successor Cases prior; both branches Congruence. Empty axioms, no Simplify or raw tactics.",
+    "consumer": "obj257FirstAtomState : ObjFoldAtoms [[0..31]] [] [] originalLimits = Result.ok { inventory := [record0], frontier := [{id := record0.id, scale := 0}] }.",
+    "consumerProof": "Apply obj257FirstAtomLifted at1. The left is the actual production single-atom fold. The right must definitionally reduce C [] [] originalLimits (ok record0): empty lookup, satisfied original budgets, insert singleton, carry on one root returns its state, and ObjFoldAtoms [] returns it. This concrete-state conversion is the new falsifiable obligation.",
+    "whyBounded": "One new32-byte leaf hash is evaluated in its certificate. Stage/carry/state conversion after the certified record has no parent creation because the frontier has one root. No extra leaf or parent hashes are authorized. Reuse existing context and production sources by exact reference.",
+    "minimalFiles": "Dedicated first-leaf certificate module; one Prop-family module importing existing context; positive lifted+consumer module; negative lifted+consumer module differing only in the consumer expected state. Phase configs only change entrypoints and keep300000ms. No whole artifact copy or executable harness."
+  },
+  "tests": [
+    {
+      "name": "Source admission and first actual leaf certificate",
+      "status": "NOT_RUN",
+      "expected": "Actual installed compiler sourcecheck passes; first leaf certificate verifies with none policy and empty observed axioms. If rfl times out or OOMs, preserve that failure and do not classify source as accepted."
+    },
+    {
+      "name": "Concrete state negative",
+      "status": "NOT_RUN",
+      "expected": "Keep the true leaf certificate, P and lifted theorem unchanged. Change ONLY the first byte of expected inventory record.id in consumer RHS from63 to64; keep its expected frontier unchanged. Sourcecheck must pass; exact Apply1 must reject the incorrect returned state. A certificate/setup/resource failure is not this RED."
+    },
+    {
+      "name": "First concrete prefix-state positive",
+      "status": "NOT_RUN",
+      "expected": "Restore original consumer AST from retained Carry0 state. Verify first leaf, lifted theorem AND actual ObjFoldAtoms single-prefix concrete-state consumer. Audit emitted calls and exact expected state, every declaration none-policy/empty observed axioms, actual kernel replay and independent artifacts."
+    }
+  ],
+  "compositionTowardOriginal": {
+    "knownRoute": "The accepted leaf-to-context Prop-family technique transports a kernel-checked equality through an exact production continuation. A leaf certificate supplies an actual record; a parent certificate must compute actual ObjMakeParent with its real ordered child IDs. Stage/carry conversion on those concrete records can then certify the next concrete inventory/frontier. This first-prefix theorem tests that transport can end in an actual concrete state rather than only a symbolic continuation.",
+    "exactNextBoundary": "Before treating a concrete prefix state S_i as the input to remaining atoms, prove the corresponding original full-fold continuation bridge. The needed bridge equates the actual right-nested production prefix execution followed by remaining atoms with the continuation applied to the certified prefix state, preserving every error. Neither a host-evaluated inventory nor a displayed array of certified record IDs is that bridge.",
+    "notEstablished": "No general composition theorem or transitivity route for all thirteen nodes is established. Existing Apply emits exact one prior theorem; the closed proof enum contains no arbitrary Rewrite/Have/Transitivity. Source review also shows built-in Result is absent from Cases elimination support. Thus a proposal using Cases directly on a Result state is not executable under the inspected compiler.",
+    "sourceSupportedVersusFuture": "The current bounded test uses only already observed Nat Induction/Cases/Congruence/Apply and concrete definitional conversion; it does not require Result Cases or generic transitivity. Any later bridge must receive its own concrete source proof and native negative/positive. If it exposes a real DSL limitation, report that exact limitation for the already-required official compiler dependency work; do not fake composition or change the production semantics.",
+    "remaining": "Original full257 input/digest, eight later atoms, actual parent states/carries, complete state sequencing, exact atomization bridge, ObjFoldFinish whole-object SHA, full Object/PrismPM/Pages acceptance remain unchanged and open."
+  },
+  "sourceEvidence": {
+    "proofEnum": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs:689-765",
+    "elimination": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs:8713-8810",
+    "backend": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs:1244-1292 and1371-1386",
+    "scope": "Observed source supports Nat/Cases and exact Apply; no new compiler test is claimed. Original leaf record0 template had Simplify and is not treated as accepted because its source exists."
+  },
+  "pins": [
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/manifest.json",
+      "bytes": 10053,
+      "sha256": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "bytes": 10722,
+      "sha256": "037ffbafb67a359f4b28d1bb61494bed3d3b18382cc75da9509db98ba0f0e320"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Node0Controls.lex.tex",
+      "bytes": 13183,
+      "sha256": "c4b4391ab5df8a4edc2740d073bd6f2c4bf32b75cfc9e1ee40b41f0f8d4a5ad6"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Carry0Controls.lex.tex",
+      "bytes": 10107,
+      "sha256": "dbcb11d23e678be756e0f5415de37d03f1e3d67e68465270997ab40bd0c8e495"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/native-review.json",
+      "bytes": 9670,
+      "sha256": "edbacab285290edbad51f57a09c9dd530ba2d7c23547c89cfabd418fa8dcd9ab"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    }
+  ],
+  "storage": {
+    "latestAvailableKiB": 31836676,
+    "reserveBytes": 10737418240,
+    "maxReportBytes": 15360
+  },
+  "preservation": "Only this tiny proposal is written; no SDK/native/process/VM/repository/frozen/other-lab changes. Original digest, production definitions and empty axiom policy are unchanged.",
+  "next": "Independent SPEC review of this concrete first-atom candidate proposal before source authoring. No native execution authorized by this report."
+}

@@ -1,0 +1,140 @@
+{
+  "at": "2026-10-23T15:00:38.280Z",
+  "status": "AUDITED_RESOURCE_TIMEOUT_NO_THEOREM_ACCEPTANCE",
+  "reviewedPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-verify.json",
+      "bytes": 991,
+      "sha256": "1c2197aba01fd04447994a1ed30f6faf77f465f0ac091b13c20e9ed244d8ee5f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-check.json",
+      "bytes": 885,
+      "sha256": "b5bcffe2fd506a66e4f5a976f0c8c1f5d8a2edfd215feab5e3f857c58ab67e2c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-diagnostic-inputs.json",
+      "bytes": 2777,
+      "sha256": "39c1962e830261621fbe81651ed75ba97170eb59b4d149f5ffcb8a5ac2768e9d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-lock-bytes.json",
+      "bytes": 2037,
+      "sha256": "eaf5beb68f0dacd21b8fc3ad55f5ca37b42fb4ab2dddd7a1d4e8bc40c1d84e99"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-epoch-after.json",
+      "bytes": 523,
+      "sha256": "532cba505cc445ee2667204baacc2469ff6163acce525a336afbacdae1d4054f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-budget-before.json",
+      "bytes": 233,
+      "sha256": "c6417d26463d2ea738c5c9be1c7a3a0e5bcdac69b1346b87260bd6b3f9b688a0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-idle-before.json",
+      "bytes": 451,
+      "sha256": "fdd5f669b0c1fbd5bdb16cecf7dfd37d28eb6524bd8cd78e03672cc0807cf3cd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-memory-before.json",
+      "bytes": 354,
+      "sha256": "16251e250ccd355e72c42e0c922af0a91d17aa396645dd6c9185ed2d0c3c996c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-guest-before.json",
+      "bytes": 445,
+      "sha256": "24b10e82f621a55b01c2d4ef3160e6ed960119d65a76f8e39954116d8dbe84e4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-source-after.json",
+      "bytes": 3403,
+      "sha256": "3768195e2ebf73384147555e6890903d56c9fcaae14b7bdcfea4c5e3265f8572"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-lock-after.json",
+      "bytes": 2037,
+      "sha256": "c0af10a31858b6762ef7feb2b5e75418dc0c6f405916cfac5cae2ee68a635818"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-epoch-after.json",
+      "bytes": 523,
+      "sha256": "04b590bc537c3e854f7d150e48e418d48ccae04a8429f23ab76e91912e038ecc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-memory-after.json",
+      "bytes": 354,
+      "sha256": "2bb901e77a9d759856f09c6e4bb7fea3d4b9461247673e728e7c68df5f862031"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-guest-after.json",
+      "bytes": 445,
+      "sha256": "53f2d6e166b98c2b1b6bde65bdfdc8a8741b1d5bbd431d711f055b030ea663f4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/verify-host-after.json",
+      "bytes": 78,
+      "sha256": "04e5a811089cdbfc423c96231abbd6b599c1343ce78ca46004972099602d9e4e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/storage-followup.json",
+      "bytes": 504,
+      "sha256": "089d16fc7ff2948f87e0eb5f21127be09eb4fbd54c6aa30b3ce86bb29606352f"
+    }
+  ],
+  "result": {
+    "realCompilerExit": 4,
+    "reportedCommandExit": 4,
+    "success": false,
+    "signal": null,
+    "diagnostic": "LLS8002",
+    "phase": "LexLeanR4.ObjectNatDigest257Controls",
+    "childTool": "lean",
+    "configuredChildTimeoutMs": 300000,
+    "observedChildTimeoutMs": 300016,
+    "wholeCommandWallMs": 323845,
+    "reportedArtifacts": [],
+    "reportedModules": [],
+    "classification": "RESOURCE_LIMIT_FAILURE_NOT_SEMANTIC_COUNTEREXAMPLE",
+    "launcherDistinction": "A launcher or evidence-capture script exiting zero only means it completed its recording. It cannot override the retained real compiler status4 and JSON exit_code4/successfalse."
+  },
+  "postconditions": {
+    "sourceFiles": 15,
+    "allListedGuestSourceHashesUnchanged": true,
+    "developmentLockUnchanged": true,
+    "lockSha256": "f49589373f2b4bfb05dde9254adc2c805bb3e317913d5730dee1ad6beb244168",
+    "containerEpochUnchanged": true,
+    "restartCount": 0,
+    "memoryEventsUnchanged": true,
+    "oomAndOomKillCounters": 0,
+    "allFivePostCommandsExitZero": true,
+    "guestBeforeBytes": 54632120320,
+    "guestAfterBytes": 54630121472,
+    "hostBeforeBytes": "40727818240",
+    "hostAfterBytes": "37315219456",
+    "hostDeclineBytes": "3412598784",
+    "reserveBytes": 10737418240,
+    "reservePassed": true,
+    "postIdleObservation": "NOT_PRESENT_IN_REVIEWED_RECORDS; refresh idle before any next compiler run"
+  },
+  "sourceCheck": {
+    "retainedAcceptedObservation": "Official source check succeeded for11modules with no diagnostics.",
+    "theoremProofAccepted": false,
+    "hashDependencyAccepted": false,
+    "objectComponentAccepted": false
+  },
+  "storageAttribution": {
+    "retainedFollowup": "Earlier storage-followup pins VM growth14100KiB and swap9GiB, leaving full earlier decline unattributed.",
+    "laterParentReport": "Heartbeat free36,608,444KiB versus40,771,368KiB; swap9→12GiB; ownedVM allocation unchanged. This later observation is supplied by parent and is not independently evidenced by storage-followup.json.",
+    "interpretation": "Additional swap allocation plausibly explains part of the later host drop; do not attribute the full decline or assign it to this proof or another lab without measurements.",
+    "decision": "Reserve is ample, but record fresh storage and attribution before another resource decision; no rerun performed or accepted here."
+  },
+  "next": "Inspect concrete generated Lean/source computation and compiler phase evidence to explain this timeout. Any later source/limit/resource change is a new exact experiment; preserve this failure unchanged and capture fresh idle/source/tool/epoch/storage before one non-overlapping run.",
+  "limits": [
+    "No accepted theorem or generated proof artifact is reported by this command. Filesystem absence of intermediate artifacts was not audited.",
+    "Timeout does not prove the proposition false or explain why its evaluation exceeded the limit.",
+    "No SDK, VM or process command was issued by this reviewer; source and resource decisions are not made by this report.",
+    "Hash restoration16/78, mutation2/7, complete Object controls, PrismPM and Pages acceptance remain incomplete."
+  ]
+}

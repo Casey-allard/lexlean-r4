@@ -18,14 +18,172 @@ The three honesty levels (R2):
 `cargo xtask audit-limits` fails if any code path returns an error the
 model does not sanction.
 
+## r4-admission
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-05` | `build` | The pure LexLean writer derives current and virtual product cells, admits occupied cells in distance/ID order, retains every admitted token identity, ranks tokens globally, integrates both checked objectives and optional telemetry, and preserves explicit baseline/candidate eligibility. Formal controls establish source semantics only, not read integration, GPU execution, or serving qualification. |
+
+## r4-binder
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-04` | `build` | The pure LexLean binder model constructs the pinned canonical ordered ternary forest and independently validates general forests with the source's ordered error classes, preserving node order, atom identity, frontier coverage and four-word node serialization. Formal metadata controls do not establish carrier execution, window framing, or learning. |
+
+## r4-codebook-words
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-21` | `build` | Pure LexLean implements complete checked 32/64/128-bit integer arithmetic, exact canonical signed32 and unsigned little-endian codecs, and total ordering for codebook precursors. Formal controls do not establish primes, permutations, floating construction, complete codebooks or generated production acceptance. |
+
+## r4-configuration
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-06` | `build` | The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification. |
+
+## r4-engine
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-12` | `build` | Pure LexLean composes exact seeded state construction, occurrence encoding, canonical causal windows, full binding and epoch admission, all read modes, paired virtual reader and writer candidates, complete loss production and atomic guarded geometric transitions. Formal controls do not establish generated runtime custody, GPU parity, training permission or language capability. |
+
+## r4-evidence
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-17` | `build` | Pure LexLean preserves the complete pinned mechanism catalog and typed lineage, admits complete finite port-obligation graphs and structurally classifies bound evidence descriptions with explicit failure and observation cases. Structural admission cannot authenticate receipts, promote source status, authorize research or establish deployment. |
+
+## r4-flock
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-10` | `build` | Pure LexLean models complete Flock and Relation reads over admitted occurrence roots and ordered forests, preserving exact frame transport, snapped consensus, causal ranking, five-edge synchronous cumulative relation sweeps, virtual changes and typed trace projections. Formal controls do not establish batch provenance, GPU parity, training permission or runtime performance. |
+
+## r4-geometry
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-02` | `build` | The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification. |
+
+## r4-hash
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-11` | `build` | Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability. |
+
+## r4-json-number
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-18` | `build` | Pure LexLean preserves standalone serde_json 1.0.150 default-profile tokenizer number admission and unsigned-ID classification, including exact binary64 finite acceptance expressed with integers. This does not establish complete JSON parsing, tokenizer identity or accepted generated execution. |
+
+## r4-learning
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-08` | `build` | The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train. |
+
+## r4-objective
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-03` | `build` | The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification. |
+
+## r4-route
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
+
+## r4-snapshot-json
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-22` | `build` | Pure LexLean models complete bounded Snapshot JSON storage admission, exact typed and original-Value compact encodings, all source-compatible Serde representations, and a separately named strict duplicate policy driven by complete actual parser transitions. Formal codec controls establish no runtime artifact admission, compiled provenance, hash-domain acceptance, serving or deployment. |
+
+## r4-tokenizer-json
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-20` | `build` | Pure LexLean completely admits bounded raw tokenizer JSON under the pinned default parser profile, preserving exact numeric observations, string and container errors, duplicate-key replacement, complete postorder representation and revalidation, and staged tokenizer extraction. Formal controls do not establish raw-byte BLAKE3 identity, production execution or deployment. |
+
+## r4-tokenizer-kernel
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-16` | `build` | Pure LexLean admits complete typed byte-BPE configurations, performs source-compatible added-token matching, Digits and ByteLevel segmentation, ranked nonoverlapping merges and fallback, and exact raw, lossy and strict decoding. Formal semantic controls do not establish raw JSON acceptance, tokenizer identity or generated runtime acceptance. |
+
+## r4-tokenizer-text
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-14` | `build` | Pure LexLean admits Unicode scalar and byte domains, implements exact UTF-8 encoding, strict and Rust-compatible lossy decoding, the complete pinned Unicode predicates and the reversible tokenizer byte alphabet. Formal text controls do not establish BPE, JSON admission, tokenizer identity or runtime acceptance. |
+
+## r4-types
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-01` | `build` | The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed. |
+
+## r4-words
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-09` | `build` | Pure LexLean fixed-shape 32/64-bit word algebra preserves wrapping addition, Boolean operations, bounded rotation/shifts and exact endian codecs, rejecting malformed bytes, lengths and amounts. Formal word controls do not establish hashing or runtime acceptance. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-CODEBOOK-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities | `R4-21` |
+| `UOR-SNAPSHOT-STORAGE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden | `R4-22` |
+| `SERDE-SNAPSHOT-VALUE` | serde_json 1.0.150 src/value/de.rs with serde/serde_derive 1.0.228 and exact companion source pins in docs/specs/snapshot-json-codec-api.md; default BTreeMap and numeric profile | `R4-22` |
+| `SERDE-JSON-TOKENIZER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure | `R4-20` |
+| `SERDE-JSON-NUMBER` | https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation | `R4-18` |
+| `UOR-MECHANISM-EVIDENCE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities | `R4-17` |
+| `UOR-TOKENIZER-KERNEL` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls | `R4-16` |
+| `UNICODE17-TOKENIZER-TEXT` | https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities | `R4-14` |
+| `UOR-TOKENIZER-TEXT` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md pins Rust 1.97.1 UTF-8 and Unicode 17 source dependencies | `R4-14` |
+| `UOR-DISCRETE-ENGINE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels | `R4-12` |
+| `UOR-DISCRETE-FLOCK` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — snap, frame_block, gate_value and flock_vector | `R4-10` |
+| `UOR-OBJECT-HASH` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs; RFC 7693 | `R4-11` |
+| `NIST-SHA256-VECTORS` | https://www.rfc-editor.org/rfc/rfc6234.html; https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/shs/shabytetestvectors.zip | `R4-11` |
+| `UOR-DISCRETE-SPEC` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate | `R4-01` |
+| `UOR-FINITE-GEOMETRY` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs | `R4-02` |
+| `UOR-DISCRETE-OBJECTIVE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer | `R4-03` |
+| `UOR-DISCRETE-BINDER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/metadata.rs — BinderPlan::new, validate and node_words | `R4-04` |
+| `UOR-DISCRETE-WRITER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — table_block, writer, discrete_counterfactual and discrete_evaluate | `R4-05` |
+| `UOR-DISCRETE-CONFIGURATION` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec, ReadSpec, ReadInitialization and gate_count | `R4-06` |
+| `UOR-OBJECT-HASH-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs — BLAKE2b96 compression | `R4-09` |
+| `UOR-DISCRETE-ROUTE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action | `R4-07` |
+| `UOR-DISCRETE-LEARNING` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — discrete_counterfactual, discrete_choose and discrete_apply; companion device.rs Binding, parameter and apply | `R4-08` |
 
 ## Claims that are not conformance IDs
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-CODEBOOK-WORDS` | `some-true` | Source integer operations and exact signed-word bytes are imported authority facts. Local arithmetic formal conformance remains distinct from prime capacity, reference floating semantics, complete codebook construction and generated serving. |
+| `AUTH-SNAPSHOT-STORAGE` | `some-true` | Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance. |
+| `AUTH-SERDE-SNAPSHOT-VALUE` | `some-true` | The bounded compatibility surface follows the pinned Serde source profile. Effective production feature binding and generated runtime acceptance remain separate; the stricter raw duplicate policy is locally specified and must be modeled explicitly. |
+| `AUTH-TOKENIZER-JSON` | `some-true` | Raw syntax and extraction semantics are imported from the named parser profile and pinned UOR tokenizer. Formal local conformance, complete cryptographic identity and generated product execution remain separate obligations. |
+| `AUTH-JSON-NUMBER` | `some-true` | Pinned serde_json default parser behavior supplies imported compatibility facts; exact integer formal admission neither executes model floating-point operations nor resolves bounded production lowering. |
+| `AUTH-MECHANISM-EVIDENCE` | `some-true` | Mechanism identities, lineage, status caveats and evidence distinctions are imported from the pinned board and charter. Formal classification does not establish a local scientific result, trusted receipt or authorization. |
+| `AUTH-TOKENIZER-KERNEL` | `some-true` | Byte-BPE execution and typed configuration acceptance are imported from the pinned tokenizer source; local semantic controls do not authenticate raw tokenizer bytes or establish complete application tokenization. |
+| `AUTH-UNICODE17-TEXT` | `some-true` | Complete Unicode 17 classification facts and pinned Rust compressed literal inventories are imported and independently compared as data. Local text algorithms require their separate formal controls. |
+| `AUTH-TOKENIZER-TEXT` | `some-true` | Tokenizer text and alphabet semantics are imported from pinned UOR and Rust sources. Formal text controls establish neither complete tokenization nor trusted raw-byte tokenizer identity. |
+| `AUTH-DISCRETE-ENGINE` | `some-true` | Engine composition and initialization semantics are imported from pinned host and CUDA sources. Formal controls establish neither research qualification nor permission to bypass the source training hold. |
+| `AUTH-DISCRETE-FLOCK` | `some-true` | Flock and Relation contracts are imported from pinned integer CUDA source, including cumulative synchronous scores and occurrence-aware causality. Formal controls establish no execution parity or learned capability. |
+| `AUTH-OBJECT-HASH` | `some-true` | The exact BLAKE2b node identity convention is imported from pinned source; local controls do not prove collision freedom or durable storage. |
+| `AUTH-SHA256-VECTORS` | `some-true` | SHA-256 semantics and literal digest expectations are imported from the named specification and independently pinned NIST vector archive. |
+| `AUTH-DISCRETE-SPEC` | `some-true` | The source configuration contract is imported from UOR-R4 Spec::validate at the cited revision. Its scientific adequacy is not established by this port. |
+| `AUTH-FINITE-GEOMETRY` | `some-true` | The exact finite-geometry convention is imported from the pinned UOR signed-axis and metadata builders, including action-discovery order and root-transport order. Scientific utility is not established here. |
+| `AUTH-DISCRETE-OBJECTIVE` | `some-true` | The scalar objective contract is imported from the pinned discrete writer. Full writer eligibility, rank-computation policy, GPU parity and scientific value remain separate obligations. |
+| `AUTH-DISCRETE-BINDER` | `some-true` | Canonical construction and general forest validation are imported from the pinned ordered ternary binder metadata contract; no model or scientific capability is established. |
+| `AUTH-DISCRETE-WRITER` | `some-true` | Writer semantics are imported from the pinned CUDA source; formal source checks do not establish GPU parity, model capability, or production acceptance. |
+| `AUTH-DISCRETE-CONFIGURATION` | `some-true` | Read configuration, initialization and gate inventory are imported from the pinned Rust schema; out-of-word naturals are rejected by a distinct local representation-admission result. |
+| `AUTH-OBJECT-HASH-WORDS` | `some-true` | Cryptographic word requirements are imported from the pinned object-store hash implementation. Fixed-word formal controls do not establish a complete hash, protocol or accepted runtime. |
+| `AUTH-DISCRETE-ROUTE` | `some-true` | Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability. |
+| `AUTH-DISCRETE-LEARNING` | `some-true` | Finite selection, update and batch eligibility contracts are imported from pinned CUDA and host binding source. Their formal model establishes neither GPU parity, private proposal authenticity nor an owner training release. |

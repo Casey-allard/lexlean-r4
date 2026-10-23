@@ -1,0 +1,145 @@
+{
+  "spec": "lexlean-r4/tokenizer-json-controls/1",
+  "model_id": "R4-20",
+  "controls": 399,
+  "api": {
+    "path": "docs/specs/tokenizer-json-api.md",
+    "sha256": "253f39fc35267cb2d8f0296319285bdb33417791eb9e8ee9da552081ff921567"
+  },
+  "profile": {
+    "parser": "serde_json",
+    "version": "1.0.150",
+    "enabled_features": [
+      "std"
+    ],
+    "excluded_features": [
+      "float_roundtrip",
+      "arbitrary_precision",
+      "preserve_order",
+      "raw_value",
+      "unbounded_depth"
+    ],
+    "reader": "SliceRead",
+    "max_input_bytes": 2147483647,
+    "max_value_nodes": 2147483647,
+    "max_decoded_string_bytes": 2147483647,
+    "max_container_depth": 127
+  },
+  "sources": [
+    {
+      "repository": "UOR-Foundation/uor-r4",
+      "revision": "4611538bb4843947363ccb9cce5f388e32c46883",
+      "path": "crates/uor-r4-tokenizer/src/lib.rs",
+      "sha256": "52949ae97d4043547d8a3897d04298e0bed64fc5538c835c077feaa0537cff35"
+    },
+    {
+      "package": "serde_json",
+      "version": "1.0.150",
+      "path": "src/de.rs",
+      "sha256": "4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3"
+    },
+    {
+      "package": "serde_json",
+      "version": "1.0.150",
+      "path": "src/read.rs",
+      "sha256": "17a2efe49e5a6937c8d7d4a5c0b9eac84453de0f86bf8e7ee421387e82341bb3"
+    },
+    {
+      "package": "serde_json",
+      "version": "1.0.150",
+      "path": "src/value/de.rs",
+      "sha256": "ceda1bf415aafde89caa83bf275811b70d393717d4e1038e0c61822d2da02993"
+    },
+    {
+      "package": "serde_json",
+      "version": "1.0.150",
+      "path": "src/map.rs",
+      "sha256": "b5a2fd1ee865e6cfd83ef2da0a2e1057f892465ac7ede8a78a11354a60526f33"
+    },
+    {
+      "package": "serde_json",
+      "version": "1.0.150",
+      "path": "src/value/index.rs",
+      "sha256": "f1404ed12e795a5553da4bdf72835c441a5e0cc0f6e794fee875eaa887d65319"
+    }
+  ],
+  "modules": [
+    {
+      "module": "JsonSyntaxControls",
+      "path": "tests/lexlean/JsonSyntaxControls.lex.tex",
+      "controls": 33,
+      "sha256": "1af65c182cb6a8cfcae7410c51ec931cb24a9bf69a9ee07742a2597a951dfa99"
+    },
+    {
+      "module": "JsonStringControls",
+      "path": "tests/lexlean/JsonStringControls.lex.tex",
+      "controls": 88,
+      "sha256": "077e7f640099ef9558c56f17da821b61bff0dd8e3c020c901ea55474ab9265ff"
+    },
+    {
+      "module": "JsonContainerControls",
+      "path": "tests/lexlean/JsonContainerControls.lex.tex",
+      "controls": 26,
+      "sha256": "99975b04ebe8f19b46de3e95599f83c48ea3471b39d2d6f93d2e54f3430424f0"
+    },
+    {
+      "module": "JsonDuplicateControls",
+      "path": "tests/lexlean/JsonDuplicateControls.lex.tex",
+      "controls": 6,
+      "sha256": "47bb500170baf0a25299f7cb18245efce3b977dad469c5c2414ff3fb1d9d0396"
+    },
+    {
+      "module": "JsonBoundaryControls",
+      "path": "tests/lexlean/JsonBoundaryControls.lex.tex",
+      "controls": 32,
+      "sha256": "9bf313905ea945ce7d7058276fca2a3d7855687033b0ce960c5cdfd3a1daf40a"
+    },
+    {
+      "module": "JsonDepthControls",
+      "path": "tests/lexlean/JsonDepthControls.lex.tex",
+      "controls": 7,
+      "sha256": "1a1f8f81324b896a022982407b0209906cd2f21575a93bcb736439818e24a6b7"
+    },
+    {
+      "module": "JsonDocumentControls",
+      "path": "tests/lexlean/JsonDocumentControls.lex.tex",
+      "controls": 18,
+      "sha256": "f5166dde952618673ac28a3ad56bf8dcdb1d8c5d161f7f73b0f947972260a770"
+    },
+    {
+      "module": "TokenizerJsonAdmissionControls",
+      "path": "tests/lexlean/TokenizerJsonAdmissionControls.lex.tex",
+      "controls": 31,
+      "sha256": "d58c9d3548a544ee29c7ac62772fc38554c2f26c6b16417653a36c0a804dacf4"
+    },
+    {
+      "module": "TokenizerJsonErrorControls",
+      "path": "tests/lexlean/TokenizerJsonErrorControls.lex.tex",
+      "controls": 86,
+      "sha256": "71829089a7b0d60179fc4b4c58c8f060cfdb2992bc3db4402c23a5b0b7e85fe8"
+    },
+    {
+      "module": "TokenizerJsonOrderControls",
+      "path": "tests/lexlean/TokenizerJsonOrderControls.lex.tex",
+      "controls": 31,
+      "sha256": "d356c9b25265ea53154ddbd965a2b8a73d843d5740a98e48a33306d2f1b0906f"
+    },
+    {
+      "module": "JsonAdditionalControls",
+      "path": "tests/lexlean/JsonAdditionalControls.lex.tex",
+      "controls": 3,
+      "sha256": "5de73c1fd10f14ea90ff2e6b58e8bd54b5d39e6c1eb5187bec8e066bf91cfa67"
+    },
+    {
+      "module": "JsonStringBoundaryControls",
+      "path": "tests/lexlean/JsonStringBoundaryControls.lex.tex",
+      "controls": 38,
+      "sha256": "3c502c94b72b487b420883c4160ef1bff00eac4232f5f8bcf96dbd7243b98db0"
+    }
+  ],
+  "review": {
+    "author_inventory_sha256": "a79fb5147ba9491a6234b757c4f2f611cc982f835b6c97ad2d5547fee222cbb6",
+    "independent_review_sha256": "383f0812a23530cb24aaf94b30481ba6a968b3d3c4823bcf7c8819f3784bf62c",
+    "literal_chunk_audit_sha256": "4190ee5aefaa8be6113d8517fe089ad2cbf4985d527f4d535e37978208a49595"
+  }
+}

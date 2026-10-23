@@ -1,0 +1,97 @@
+{
+  "at": "2026-10-23T16:34:11.261Z",
+  "status": "PASS_NARROW_STAGING_TRANSPORT_CANDIDATE_CODE_REVIEW_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/tmp/r4-object257-staging-transport-candidate-20261023/manifest.json",
+    "bytes": 8381,
+    "sha256": "2494b6dbf1392e5387f4511695207bd4e12fc4546d75aea64cb74cdd39af19c7"
+  },
+  "specReview": {
+    "path": "/tmp/r4-object257-staging-transport-spec-review-20261023.json",
+    "bytes": 7806,
+    "sha256": "ef65d1ad92130172899041f981133926f66284b7becccb95a65d3a73eb6c9cf6"
+  },
+  "payloadFiles": 11,
+  "exactDependencyPins": 22,
+  "payloadBytes": 48935,
+  "sourcePins": [
+    {
+      "path": "configs/staging-false/lexlean.toml",
+      "bytes": 698,
+      "sha256": "6267523043b547a309b4d38d5a64f5b582dcc438f3a907c08cd60917da195332"
+    },
+    {
+      "path": "configs/staging-positive/lexlean.toml",
+      "bytes": 689,
+      "sha256": "f08415918158449c25ca6fef0eaeb144e557e589d3c3dbeac9468a01921ab1ac"
+    },
+    {
+      "path": "tests/lexlean/Object257StagingContext.lex.tex",
+      "bytes": 9472,
+      "sha256": "8cee8c1ff4d0be2bcb87fd8655db70db213aa5d305c47a810276a4703d84fe1f"
+    },
+    {
+      "path": "tests/lexlean/Object257StagingTransport.lex.tex",
+      "bytes": 6206,
+      "sha256": "c8ee59f938191e8a917ffc6598a5e99e3a99b051b471395775d336691a44a005"
+    },
+    {
+      "path": "tests/lexlean/Object257StagingTransportFalseBase.lex.tex",
+      "bytes": 6186,
+      "sha256": "e3fb8403dc43489523585f09c4f1c1aaabe1c3e7acee4975121bce0ebbaf5d5d"
+    }
+  ],
+  "findings": [],
+  "checks": {
+    "exactManifestAndPayloadCensus": true,
+    "allDependencyBytesAndSizesMatch": true,
+    "readonlyAuditCommand": "node /tmp/r4-object257-staging-transport-candidate-20261023/audit.mjs",
+    "readonlyAuditStatus": "PASS_READ_ONLY_STRUCTURE_AND_PINS_ONLY",
+    "readonlyAuditStdoutSha256": "168dd0e4e2f6b17eabbcbc9ddae71e1619f15dfb0e76f634f53e33327e224337",
+    "readonlyAuditChecks": [
+      "all 15 shared input bytes unchanged",
+      "prior manifest, leaf and SPEC review exact",
+      "proposal and official source/prior native review exact",
+      "semantic-module/2, exact declaration census",
+      "accepted actual leaf statement and Reflexivity unchanged",
+      "H actual staging operation and exact error-preserving output type",
+      "P zero original equation; successor exact H equation",
+      "exact Induction/Cases/Congruence/Apply proof shape and empty axioms",
+      "consumer directly exposes production staging expression",
+      "negative differs at only zero Apply target",
+      "all explicit external members directly imported",
+      "phase configs change entrypoint only; 300000 ms retained"
+    ],
+    "additionalIndependentChecks": [
+      "H, P, lifted theorem and consumer retain arbitrary correctly typed inventory/limits parameters; count is Nat only where needed.",
+      "Lifted theorem statement is exactly the intended call to P inventory limits count.",
+      "P zero branch is structurally the accepted actual leaf equation; leaf Reflexivity and empty axiom declaration remain pinned.",
+      "H matches actual error-preserving ObjStageRecord inventory leaf limits continuation of ObjFoldAtoms; runtime source is unchanged. Actual function parameters are inventory,value,limits.",
+      "Positive and negative semantic ASTs differ solely at zero-branch Apply theorem reference.",
+      "All payload paths, sizes, hashes and dependency pins checked independently; audit was read before read-only invocation."
+    ]
+  },
+  "assessment": {
+    "proof": "Induction count; zero Apply accepted leaf certificate; successor Cases prior with Congruence in zero and successor; consumer Apply lifted theorem at 1.",
+    "types": "P returns Prop in both branches; equality operands are Result ObjRecord at zero and Result (List ObjRecord) at successor. No HEq axiom or equality assumption is introduced.",
+    "schemaSupport": "Inspected pinned official semantic IR/backend Nat binder checks, Prop statement requirement and cases/induction/congr1 emission. This official source is supporting evidence, not installed-compiler acceptance.",
+    "productionConnection": "Pinned ObjFoldAtoms invokes actual ObjStageRecord inventory leaf limits after successful ObjMakeLeaf; H retains the operation and failure result without substituting an implementation input.",
+    "config": "Only entrypoints change relative to original config; 300000 ms child timeout retained. Fresh genuine lock required."
+  },
+  "reviewerCheckCorrection": "An additional reviewer assertion initially guessed the ObjStageRecord second formal parameter name as record; actual source names it value. The assertion failed before any report write. Source inspection and corrected parameter-name assertion passed; no candidate file changed. This was a reviewer assumption error, not a source/native failure.",
+  "nextAuthorizedScope": "Sequential parent-controlled sourcecheck, intended unrelated-base negative, positive lifted/consumer verification and emitted-source/empty-axiom/kernel-replay independent artifact audit, conditional on fresh resource gates.",
+  "native": {
+    "sourceAdmission": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positive": "NOT_RUN",
+    "observedAxioms": "NOT_RUN",
+    "kernelReplay": "NOT_RUN"
+  },
+  "limits": [
+    "No prediction that congr 1 closes both specialized goals. Actual installed compiler may reject schema or leave an unsolved goal; preserve those outcomes.",
+    "Sourcecheck/setup failure, timeout or OOM cannot count as intended negative.",
+    "Success establishes only local transport into inventory staging, not full inventory/carry sequencing, original257 equality or Object/Hash/PrismPM/Pages acceptance.",
+    "No SDK/compiler/VM operations, repository modifications, production edits, source mutations or other-lab actions by reviewer."
+  ],
+  "storageFreeBytes": "32108105728"
+}

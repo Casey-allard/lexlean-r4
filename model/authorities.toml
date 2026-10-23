@@ -9,9 +9,181 @@
 # realizes the cited fact. Evidence is not proof, and the meta-gate fails the
 # build if any document blurs the two registers.
 #
-# Empty. The first authority this repository cites goes here, before any claim
-# is allowed to say `some-true`.
 
 spec = "template/1"
 
-authority = []
+[[authority]]
+id = "UOR-CODEBOOK-WORDS"
+name = "Exact codebook integer and byte boundaries"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities"
+checksum = "sha256:2f1ab07fe6094be6c3887c3b700868f89f8a63fcf311652c16ed4227be8b4e54"
+statement = "Pinned source specifies wrapping word operations, signed-i32 little-endian serialization and checked scalar-domain obligations for codebook precursors. Generic 128-bit arithmetic and explicit Nat admission errors are separately named port boundaries; source provenance does not establish local construction or production lowering."
+realized_by = ["R4-21"]
+
+[[authority]]
+id = "UOR-SNAPSHOT-STORAGE"
+name = "UOR-R4 Snapshot fields and distinct serialization domains"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden"
+checksum = "sha256:c03dcb7bc0e0e966951285a52cf76bf672ee74bf136c42403b40d1a4b5da1170"
+statement = "Pinned Snapshot storage defines fifteen fields, exact default omission and distinct compact encodings of original Value and typed Snapshot. Runtime validation and compiled identities remain separate from storage decoding."
+realized_by = ["R4-22"]
+
+[[authority]]
+id = "SERDE-SNAPSHOT-VALUE"
+name = "Pinned Serde Value deserialization and serialization profile"
+citation = "serde_json 1.0.150 src/value/de.rs with serde/serde_derive 1.0.228 and exact companion source pins in docs/specs/snapshot-json-codec-api.md; default BTreeMap and numeric profile"
+checksum = "sha256:ceda1bf415aafde89caa83bf275811b70d393717d4e1038e0c61822d2da02993"
+statement = "Pinned Value and derived visitors define sorted surviving-map traversal, accepted positional and enum representations, exact integer admission and complete typed decoding. Strict raw duplicate rejection is an explicitly local profile, not original Value behavior."
+realized_by = ["R4-22"]
+
+[[authority]]
+id = "SERDE-JSON-TOKENIZER"
+name = "Complete standalone JSON admission and UOR tokenizer extraction"
+citation = "https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-json-api.md pins SliceRead, Value, map and UOR tokenizer sources and the exact feature closure"
+checksum = "sha256:4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3"
+statement = "The pinned parser and tokenizer sources define complete syntax admission before semantic extraction, decoded-key replacement and ordered errors. Local bounded postorder representation and validation are explicit port obligations; source authority supplies no local runtime acceptance."
+realized_by = ["R4-20"]
+
+[[authority]]
+id = "SERDE-JSON-NUMBER"
+name = "Standalone serde_json 1.0.150 number admission"
+citation = "https://docs.rs/serde_json/1.0.150/src/serde_json/de.rs.html; docs/specs/tokenizer-number-admission.md binds the selected std-only profile and exact arithmetic derivation"
+checksum = "sha256:4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3"
+statement = "Source integer, fraction, long-number and exponent branches define tokenizer-specific numeric observations and finite admission. Different unified parser features require a separately bound contract."
+realized_by = ["R4-18"]
+
+[[authority]]
+id = "UOR-MECHANISM-EVIDENCE"
+name = "Complete UOR mechanism board and evidence distinctions"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/docs/labs/repo-renormalization-2026-10-19/audit/mechanisms/board.json; companion docs/mechanisms/README.md and CHARTER.md section 4; docs/specs/evidence-design.md pins all three identities"
+checksum = "sha256:357cdfc926a220239193b19c6d2fd86beea4e6c0d843926066e6c185e1fdc5d2"
+statement = "The complete 27-entry catalog, 21 lineage edges, metadata and imported statuses are attributed to the pinned source. Charter evidence distinctions constrain descriptions; no imported label or caller-supplied receipt is local execution evidence or authority."
+realized_by = ["R4-17"]
+
+[[authority]]
+id = "UOR-TOKENIZER-KERNEL"
+name = "UOR byte-BPE semantic configuration and execution"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md freezes full kernel behavior and independent literal controls"
+checksum = "sha256:52949ae97d4043547d8a3897d04298e0bed64fc5538c835c077feaa0537cff35"
+statement = "Pinned source defines vocabulary and merge admission, added-token matching, source-compatible preprocessing, BPE and decoding. Raw JSON parser profiles and actual BLAKE3 identity are separate required components."
+realized_by = ["R4-16"]
+
+[[authority]]
+id = "UNICODE17-TOKENIZER-TEXT"
+name = "Unicode 17 properties and Rust 1.97.1 compressed literals"
+citation = "https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt; https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt; https://www.unicode.org/Public/17.0.0/ucd/PropList.txt; docs/TOKENIZER.md records complete downloaded-file and Rust source identities"
+checksum = "sha256:e5d09aaa3d8edd50b0fedd1ea887f779fc319787a9c5f9e74b108f4c6a251b7d"
+statement = "The checksum identifies the complete reviewed unicode-inventory.json, not one UCD file. Independent static decomposition of the pinned Rust literals equals the complete UCD Alphabetic, Numeric and White_Space intervals. Imported table facts are distinct from local lookup and UTF-8 conformance."
+realized_by = ["R4-14"]
+
+[[authority]]
+id = "UOR-TOKENIZER-TEXT"
+name = "UOR tokenizer text and byte alphabet contract"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-tokenizer/src/lib.rs; docs/TOKENIZER.md pins Rust 1.97.1 UTF-8 and Unicode 17 source dependencies"
+checksum = "sha256:52949ae97d4043547d8a3897d04298e0bed64fc5538c835c077feaa0537cff35"
+statement = "Pinned source defines the byte alphabet and Rust text operations used by tokenization. Full Unicode literals and UTF-8 source dependencies are independently inventoried; imported classification data is not a locally proved Unicode standard."
+realized_by = ["R4-14"]
+
+[[authority]]
+id = "UOR-DISCRETE-ENGINE"
+name = "UOR-R4 integrated discrete engine"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/device.rs — initialization, carry, row_plans, admission, forward, propose and apply; companion discrete.cu defines integer kernels"
+checksum = "sha256:47acbd7398ac95e87d9e6b58594012e14d91016941adb90fa72563e41afdd6ae"
+statement = "Pinned source defines engine composition, private carried-batch custody, conditional counterfactual computation and guarded model updates. Explicit semantic consistency checks refine public-record admission without claiming generated runtime custody or permission to train."
+realized_by = ["R4-12"]
+
+[[authority]]
+id = "UOR-DISCRETE-FLOCK"
+name = "UOR-R4 Flock and Relation integer read"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — snap, frame_block, gate_value and flock_vector"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "Pinned source defines per-block transported node payloads, causal retained neighbors, exact residual snapping, five-edge cumulative Relation sweeps and trace layouts. Full artifact admission and explicit signed checks refine the raw kernel interface."
+realized_by = ["R4-10"]
+
+[[authority]]
+id = "UOR-OBJECT-HASH"
+name = "UOR exact BLAKE2b-96 node hashing"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs; RFC 7693"
+checksum = "sha256:f82cc1b4d4ef9ed2f0f0b933a9c8009611fe774de3666299a5f977fc0ed94b5f"
+statement = "Pinned source defines configured twelve-byte BLAKE2b node hashing; output-length configuration, actual counters and exact byte order are imported semantics."
+realized_by = ["R4-11"]
+
+[[authority]]
+id = "NIST-SHA256-VECTORS"
+name = "SHA-256 specification and independent NIST byte vectors"
+citation = "https://www.rfc-editor.org/rfc/rfc6234.html; https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Algorithm-Validation-Program/documents/shs/shabytetestvectors.zip"
+checksum = "sha256:929ef80b7b3418aca026643f6f248815913b60e01741a44bba9e118067f4c9b8"
+statement = "RFC 6234 defines SHA-256; the checksum identifies the independent NIST byte-vector archive used for literal digest expectations, not the RFC HTML or an injectivity guarantee."
+realized_by = ["R4-11"]
+
+[[authority]]
+id = "UOR-DISCRETE-SPEC"
+name = "UOR-R4 discrete engine configuration"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec::validate"
+checksum = "sha256:ffa7d22a9471071a18aa33ff67376ee7f1fafefa4e774ddcd50210b7d54c2ad9"
+statement = "The pinned discrete-engine source defines the configuration bounds reproduced by the LexLean predicate. This citation establishes source provenance, not scientific capability or port parity."
+realized_by = ["R4-01"]
+
+[[authority]]
+id = "UOR-FINITE-GEOMETRY"
+name = "UOR-R4 exact Cl(0,6) finite geometry construction"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/build.rs — geometry_source; companion crates/uor-r4-core/src/spiralcore_operator.rs"
+checksum = "sha256:5353d7dda155244147f77dbcf7ae06b3ac67a98007b6f40a7815894870b13427"
+statement = "The source defines the ordered signed-axis action group, anchor-first sixteen-root orbit, generator-order FIFO transport and ternary branch ports. Its semantics are imported; this port does not establish empirical geometric language capability."
+realized_by = ["R4-02"]
+
+[[authority]]
+id = "UOR-DISCRETE-OBJECTIVE"
+name = "UOR-R4 checked discrete objective arithmetic"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — checked_scaled_add and writer"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned CUDA source defines scalar hinge, rank and checked weighted objective arithmetic; natural hinge reasoning assumes the validated geometric domain where UInt32 addition cannot overflow."
+realized_by = ["R4-03"]
+
+[[authority]]
+id = "UOR-DISCRETE-BINDER"
+name = "UOR-R4 ordered ternary binder metadata"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/metadata.rs — BinderPlan::new, validate and node_words"
+checksum = "sha256:27e53e4feecb391adb4a4db3462712a8d9375aed09c0e57086581134cb6e1e32"
+statement = "The source defines canonical ternary construction and the distinct general-forest validator, ordered failure classes and four-word node serialization. These are imported metadata semantics, not empirical capability."
+realized_by = ["R4-04"]
+
+[[authority]]
+id = "UOR-DISCRETE-WRITER"
+name = "UOR-R4 discrete writer and virtual admission"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — table_block, writer, discrete_counterfactual and discrete_evaluate"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned writer defines exact current/virtual endpoint cell membership, occupied-cell admission, global identity prediction, rival accounting, both weighted objectives, telemetry, and baseline-fixed supervised eligibility. Arbitrary integer inputs require an explicit source-safe arithmetic refinement."
+realized_by = ["R4-05"]
+
+[[authority]]
+id = "UOR-DISCRETE-CONFIGURATION"
+name = "UOR-R4 read configuration and gate inventory"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/lib.rs — Spec, ReadSpec, ReadInitialization and gate_count"
+checksum = "sha256:ffa7d22a9471071a18aa33ff67376ee7f1fafefa4e774ddcd50210b7d54c2ad9"
+statement = "The pinned Rust schema defines read-mode validation, kernel words, independent initialization policy and checked UInt32 gate counts. Local natural-number admission explicitly preserves the source word domain."
+realized_by = ["R4-06"]
+
+[[authority]]
+id = "UOR-OBJECT-HASH-WORDS"
+name = "UOR object-store cryptographic word requirements"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs — BLAKE2b96 compression"
+checksum = "sha256:f82cc1b4d4ef9ed2f0f0b933a9c8009611fe774de3666299a5f977fc0ed94b5f"
+statement = "Pinned BLAKE2b96 node construction requires modulo-2^64 addition, XOR, right rotations 32/24/16/63 and little-endian words. SHA-256 word support is a generic dependency, not an implemented hash claim."
+realized_by = ["R4-09"]
+
+[[authority]]
+id = "UOR-DISCRETE-ROUTE"
+name = "UOR-R4 framed Route traversal"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned Route kernel defines frontier-ordinal and ternary root ports, L1/Hamming/port order, per-stage frames, left-composed path transport, early leaf return and virtual changes. Full row/frame admission is a stronger explicit port interface than visited-only kernel checks."
+realized_by = ["R4-07"]
+
+[[authority]]
+id = "UOR-DISCRETE-LEARNING"
+name = "UOR-R4 finite proposal selection and guarded application"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — discrete_counterfactual, discrete_choose and discrete_apply; companion device.rs Binding, parameter and apply"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "The pinned kernels define baseline-fixed candidate losses, active candidate inventories, deterministic selection and guarded geometric updates; device.rs supplies instance/source/geometry and dual-epoch admission. Explicit model loss inputs do not authenticate a device proposal or release training."
+realized_by = ["R4-08"]

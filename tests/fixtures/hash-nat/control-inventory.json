@@ -1,0 +1,31 @@
+{
+  "method": "Exact positional finite-word integer identities; no candidate or hash evaluation; literal expected ASTs only.",
+  "modules": [
+    {
+      "module": "HashNatArithmetic32Controls",
+      "count": 350,
+      "sha256": "f9b322cf4478f3363b9f40d53523c36acb9d21d6376eb5171881271d226c9722"
+    },
+    {
+      "module": "HashNatCodec32Controls",
+      "count": 223,
+      "sha256": "9fe2ce07e4e653d0322470a3c0bb9813b0f239cc10b428161e27c072a2f76223"
+    },
+    {
+      "module": "HashNatArithmetic64Controls",
+      "count": 670,
+      "sha256": "8f1f3d5942ecf610bb9707298f083d2d799ed39357ad63196292204fc4fc36fd"
+    },
+    {
+      "module": "HashNatCodec64Controls",
+      "count": 415,
+      "sha256": "7a0f1a91ecab4be8a135b2b0cd0bb51f049fa797cbefabc6750c7125530ad29e"
+    },
+    {
+      "module": "HashNatByteControls",
+      "count": 23,
+      "sha256": "85832fe0eda4fb000de45fa5a17e709d5c61c45b5b949af024e69b5bb00ad815"
+    }
+  ],
+  "total": 1681
+}

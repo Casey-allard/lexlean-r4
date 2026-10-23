@@ -1,0 +1,1663 @@
+{
+  "spec": "r4-prediction-receipt-factorization-obligations/1",
+  "status": "FROZEN_BEFORE_PROOF",
+  "positiveContract": {
+    "schema": "r4-frozen-semantic-theorem-contract/1",
+    "status": "FROZEN_CONTRACT_ONLY_NOT_IMPLEMENTED_NOT_RUN",
+    "name": "finishReceiptFactorsThroughPredictionRanked",
+    "parameters": [
+      {
+        "name": "target",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "name": "TokenScore",
+            "module": "R4.Admission"
+          }
+        }
+      },
+      {
+        "name": "cells",
+        "type": {
+          "element": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "name": "CellScore",
+              "module": "R4.Admission"
+            }
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "name": "ranked",
+        "type": {
+          "element": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "name": "TokenScore",
+              "module": "R4.Admission"
+            }
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "name": "occupancy",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "rank",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "rankMiss",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "policy",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "module": "R4.Objective",
+            "name": "ObjectivePolicy"
+          }
+        }
+      },
+      {
+        "name": "trace",
+        "type": {
+          "kind": "bool"
+        }
+      },
+      {
+        "name": "tm",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "am",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "ta",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "tr",
+        "type": {
+          "kind": "nat"
+        }
+      }
+    ],
+    "axioms": [],
+    "statement": {
+      "kind": "eq",
+      "left": {
+        "kind": "call",
+        "function": {
+          "module": "R4.Admission",
+          "name": "finishReceipt"
+        },
+        "arguments": [
+          {
+            "kind": "var",
+            "name": "target"
+          },
+          {
+            "kind": "var",
+            "name": "cells"
+          },
+          {
+            "kind": "var",
+            "name": "ranked"
+          },
+          {
+            "kind": "var",
+            "name": "occupancy"
+          },
+          {
+            "kind": "var",
+            "name": "rank"
+          },
+          {
+            "kind": "var",
+            "name": "rankMiss"
+          },
+          {
+            "kind": "var",
+            "name": "policy"
+          },
+          {
+            "kind": "var",
+            "name": "trace"
+          },
+          {
+            "kind": "var",
+            "name": "tm"
+          },
+          {
+            "kind": "var",
+            "name": "am"
+          },
+          {
+            "kind": "var",
+            "name": "ta"
+          },
+          {
+            "kind": "var",
+            "name": "tr"
+          }
+        ]
+      },
+      "right": {
+        "kind": "match",
+        "scrutinee": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Prediction",
+            "name": "predictionRanked"
+          },
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "ranked"
+            },
+            {
+              "kind": "var",
+              "name": "cells"
+            }
+          ]
+        },
+        "branches": [
+          {
+            "constructor": {
+              "module": "R4.Prediction",
+              "name": "PredictionResult.error"
+            },
+            "binders": [
+              "predictionReason"
+            ],
+            "body": {
+              "arguments": [
+                {
+                  "arguments": [],
+                  "constructor": {
+                    "name": "WriterError.noPrediction",
+                    "module": "R4.Admission"
+                  },
+                  "kind": "constructor"
+                }
+              ],
+              "constructor": {
+                "name": "WriterOutcome.error",
+                "module": "R4.Admission"
+              },
+              "kind": "constructor"
+            }
+          },
+          {
+            "constructor": {
+              "module": "R4.Prediction",
+              "name": "PredictionResult.value"
+            },
+            "binders": [
+              "predictionReceipt"
+            ],
+            "body": {
+              "condition": {
+                "kind": "ble",
+                "left": {
+                  "kind": "nat",
+                  "value": "18446744073709551615"
+                },
+                "right": {
+                  "arguments": [
+                    {
+                      "kind": "var",
+                      "name": "policy"
+                    },
+                    {
+                      "kind": "var",
+                      "name": "ta"
+                    },
+                    {
+                      "kind": "var",
+                      "name": "tr"
+                    }
+                  ],
+                  "function": {
+                    "module": "R4.Objective",
+                    "name": "selectObjective"
+                  },
+                  "kind": "call"
+                }
+              },
+              "else_value": {
+                "arguments": [
+                  {
+                    "fields": [
+                      {
+                        "field": "prediction",
+                        "value": {
+                          "kind": "project",
+                          "value": {
+                            "kind": "var",
+                            "name": "predictionReceipt"
+                          },
+                          "field": "prediction"
+                        }
+                      },
+                      {
+                        "field": "admittedCells",
+                        "value": {
+                          "kind": "project",
+                          "value": {
+                            "kind": "var",
+                            "name": "predictionReceipt"
+                          },
+                          "field": "admittedCells"
+                        }
+                      },
+                      {
+                        "field": "rankedTokens",
+                        "value": {
+                          "kind": "project",
+                          "value": {
+                            "kind": "var",
+                            "name": "predictionReceipt"
+                          },
+                          "field": "rankedTokens"
+                        }
+                      },
+                      {
+                        "field": "tokenRivals",
+                        "value": {
+                          "arguments": [
+                            {
+                              "arguments": [
+                                {
+                                  "kind": "var",
+                                  "name": "ranked"
+                                }
+                              ],
+                              "function": {
+                                "name": "lengthTokens",
+                                "module": "R4.Admission"
+                              },
+                              "kind": "call"
+                            },
+                            {
+                              "condition": {
+                                "arguments": [
+                                  {
+                                    "field": "cell",
+                                    "kind": "project",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "target"
+                                    }
+                                  },
+                                  {
+                                    "kind": "var",
+                                    "name": "cells"
+                                  }
+                                ],
+                                "function": {
+                                  "name": "hasCell",
+                                  "module": "R4.Admission"
+                                },
+                                "kind": "call"
+                              },
+                              "else_value": {
+                                "kind": "nat",
+                                "value": "0"
+                              },
+                              "kind": "if",
+                              "then_value": {
+                                "kind": "nat",
+                                "value": "1"
+                              }
+                            }
+                          ],
+                          "function": {
+                            "module": "R4.Objective",
+                            "name": "subtractNat"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "addressRivals",
+                        "value": {
+                          "arguments": [
+                            {
+                              "arguments": [
+                                {
+                                  "kind": "var",
+                                  "name": "cells"
+                                }
+                              ],
+                              "function": {
+                                "name": "lengthCells",
+                                "module": "R4.Admission"
+                              },
+                              "kind": "call"
+                            },
+                            {
+                              "condition": {
+                                "arguments": [
+                                  {
+                                    "field": "cell",
+                                    "kind": "project",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "target"
+                                    }
+                                  },
+                                  {
+                                    "kind": "var",
+                                    "name": "cells"
+                                  }
+                                ],
+                                "function": {
+                                  "name": "hasCell",
+                                  "module": "R4.Admission"
+                                },
+                                "kind": "call"
+                              },
+                              "else_value": {
+                                "kind": "nat",
+                                "value": "0"
+                              },
+                              "kind": "if",
+                              "then_value": {
+                                "kind": "nat",
+                                "value": "1"
+                              }
+                            }
+                          ],
+                          "function": {
+                            "module": "R4.Objective",
+                            "name": "subtractNat"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "tokenHinge",
+                        "value": {
+                          "kind": "var",
+                          "name": "tm"
+                        }
+                      },
+                      {
+                        "field": "addressHinge",
+                        "value": {
+                          "kind": "var",
+                          "name": "am"
+                        }
+                      },
+                      {
+                        "field": "lossTA",
+                        "value": {
+                          "kind": "var",
+                          "name": "ta"
+                        }
+                      },
+                      {
+                        "field": "lossTR",
+                        "value": {
+                          "kind": "var",
+                          "name": "tr"
+                        }
+                      },
+                      {
+                        "field": "loss",
+                        "value": {
+                          "arguments": [
+                            {
+                              "kind": "var",
+                              "name": "policy"
+                            },
+                            {
+                              "kind": "var",
+                              "name": "ta"
+                            },
+                            {
+                              "kind": "var",
+                              "name": "tr"
+                            }
+                          ],
+                          "function": {
+                            "module": "R4.Objective",
+                            "name": "selectObjective"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "targetAdmitted",
+                        "value": {
+                          "arguments": [
+                            {
+                              "field": "cell",
+                              "kind": "project",
+                              "value": {
+                                "kind": "var",
+                                "name": "target"
+                              }
+                            },
+                            {
+                              "kind": "var",
+                              "name": "cells"
+                            }
+                          ],
+                          "function": {
+                            "name": "hasCell",
+                            "module": "R4.Admission"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "telemetry",
+                        "value": {
+                          "condition": {
+                            "kind": "var",
+                            "name": "trace"
+                          },
+                          "else_value": {
+                            "arguments": [],
+                            "constructor": {
+                              "name": "Option.none"
+                            },
+                            "kind": "constructor",
+                            "type_arguments": [
+                              {
+                                "arguments": [],
+                                "kind": "named",
+                                "member": {
+                                  "name": "Telemetry",
+                                  "module": "R4.Admission"
+                                }
+                              }
+                            ]
+                          },
+                          "kind": "if",
+                          "then_value": {
+                            "arguments": [
+                              {
+                                "fields": [
+                                  {
+                                    "field": "rankViolation",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "rankMiss"
+                                    }
+                                  },
+                                  {
+                                    "field": "targetRank",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "rank"
+                                    }
+                                  },
+                                  {
+                                    "field": "occupiedCells",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "occupancy"
+                                    }
+                                  },
+                                  {
+                                    "field": "admittedTokens",
+                                    "value": {
+                                      "arguments": [
+                                        {
+                                          "kind": "var",
+                                          "name": "ranked"
+                                        }
+                                      ],
+                                      "function": {
+                                        "name": "lengthTokens",
+                                        "module": "R4.Admission"
+                                      },
+                                      "kind": "call"
+                                    }
+                                  },
+                                  {
+                                    "field": "lossTR",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "tr"
+                                    }
+                                  },
+                                  {
+                                    "field": "selectedLoss",
+                                    "value": {
+                                      "arguments": [
+                                        {
+                                          "kind": "var",
+                                          "name": "policy"
+                                        },
+                                        {
+                                          "kind": "var",
+                                          "name": "ta"
+                                        },
+                                        {
+                                          "kind": "var",
+                                          "name": "tr"
+                                        }
+                                      ],
+                                      "function": {
+                                        "module": "R4.Objective",
+                                        "name": "selectObjective"
+                                      },
+                                      "kind": "call"
+                                    }
+                                  }
+                                ],
+                                "kind": "record",
+                                "type": {
+                                  "name": "Telemetry",
+                                  "module": "R4.Admission"
+                                }
+                              }
+                            ],
+                            "constructor": {
+                              "name": "Option.some"
+                            },
+                            "kind": "constructor",
+                            "type_arguments": [
+                              {
+                                "arguments": [],
+                                "kind": "named",
+                                "member": {
+                                  "name": "Telemetry",
+                                  "module": "R4.Admission"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "type": {
+                      "name": "Receipt",
+                      "module": "R4.Admission"
+                    }
+                  }
+                ],
+                "constructor": {
+                  "name": "WriterOutcome.value",
+                  "module": "R4.Admission"
+                },
+                "kind": "constructor"
+              },
+              "kind": "if",
+              "then_value": {
+                "condition": {
+                  "kind": "beq",
+                  "left": {
+                    "kind": "nat",
+                    "value": "18446744073709551615"
+                  },
+                  "right": {
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "policy"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "ta"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "tr"
+                      }
+                    ],
+                    "function": {
+                      "module": "R4.Objective",
+                      "name": "selectObjective"
+                    },
+                    "kind": "call"
+                  }
+                },
+                "else_value": {
+                  "arguments": [
+                    {
+                      "arguments": [],
+                      "constructor": {
+                        "name": "WriterError.arithmeticFailure",
+                        "module": "R4.Admission"
+                      },
+                      "kind": "constructor"
+                    }
+                  ],
+                  "constructor": {
+                    "name": "WriterOutcome.error",
+                    "module": "R4.Admission"
+                  },
+                  "kind": "constructor"
+                },
+                "kind": "if",
+                "then_value": {
+                  "arguments": [
+                    {
+                      "arguments": [],
+                      "constructor": {
+                        "name": "WriterError.sentinelFailure",
+                        "module": "R4.Admission"
+                      },
+                      "kind": "constructor"
+                    }
+                  ],
+                  "constructor": {
+                    "name": "WriterOutcome.error",
+                    "module": "R4.Admission"
+                  },
+                  "kind": "constructor"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "preconditions": [],
+    "scope": "All well-typed parameters; all ranked lists including nil; exact sentinel and overflow guards retained. No runtime helper."
+  },
+  "falseContract": {
+    "schema": "r4-frozen-semantic-theorem-contract/1",
+    "status": "FROZEN_CONTRACT_ONLY_NOT_IMPLEMENTED_NOT_RUN",
+    "name": "finishReceiptTargetPredictionFalse",
+    "parameters": [
+      {
+        "name": "target",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "name": "TokenScore",
+            "module": "R4.Admission"
+          }
+        }
+      },
+      {
+        "name": "cells",
+        "type": {
+          "element": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "name": "CellScore",
+              "module": "R4.Admission"
+            }
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "name": "ranked",
+        "type": {
+          "element": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "name": "TokenScore",
+              "module": "R4.Admission"
+            }
+          },
+          "kind": "list"
+        }
+      },
+      {
+        "name": "occupancy",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "rank",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "rankMiss",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "policy",
+        "type": {
+          "arguments": [],
+          "kind": "named",
+          "member": {
+            "module": "R4.Objective",
+            "name": "ObjectivePolicy"
+          }
+        }
+      },
+      {
+        "name": "trace",
+        "type": {
+          "kind": "bool"
+        }
+      },
+      {
+        "name": "tm",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "am",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "ta",
+        "type": {
+          "kind": "nat"
+        }
+      },
+      {
+        "name": "tr",
+        "type": {
+          "kind": "nat"
+        }
+      }
+    ],
+    "axioms": [],
+    "statement": {
+      "kind": "eq",
+      "left": {
+        "kind": "call",
+        "function": {
+          "module": "R4.Admission",
+          "name": "finishReceipt"
+        },
+        "arguments": [
+          {
+            "kind": "var",
+            "name": "target"
+          },
+          {
+            "kind": "var",
+            "name": "cells"
+          },
+          {
+            "kind": "var",
+            "name": "ranked"
+          },
+          {
+            "kind": "var",
+            "name": "occupancy"
+          },
+          {
+            "kind": "var",
+            "name": "rank"
+          },
+          {
+            "kind": "var",
+            "name": "rankMiss"
+          },
+          {
+            "kind": "var",
+            "name": "policy"
+          },
+          {
+            "kind": "var",
+            "name": "trace"
+          },
+          {
+            "kind": "var",
+            "name": "tm"
+          },
+          {
+            "kind": "var",
+            "name": "am"
+          },
+          {
+            "kind": "var",
+            "name": "ta"
+          },
+          {
+            "kind": "var",
+            "name": "tr"
+          }
+        ]
+      },
+      "right": {
+        "kind": "match",
+        "scrutinee": {
+          "kind": "call",
+          "function": {
+            "module": "R4.Prediction",
+            "name": "predictionRanked"
+          },
+          "arguments": [
+            {
+              "kind": "var",
+              "name": "ranked"
+            },
+            {
+              "kind": "var",
+              "name": "cells"
+            }
+          ]
+        },
+        "branches": [
+          {
+            "constructor": {
+              "module": "R4.Prediction",
+              "name": "PredictionResult.error"
+            },
+            "binders": [
+              "predictionReason"
+            ],
+            "body": {
+              "arguments": [
+                {
+                  "arguments": [],
+                  "constructor": {
+                    "name": "WriterError.noPrediction",
+                    "module": "R4.Admission"
+                  },
+                  "kind": "constructor"
+                }
+              ],
+              "constructor": {
+                "name": "WriterOutcome.error",
+                "module": "R4.Admission"
+              },
+              "kind": "constructor"
+            }
+          },
+          {
+            "constructor": {
+              "module": "R4.Prediction",
+              "name": "PredictionResult.value"
+            },
+            "binders": [
+              "predictionReceipt"
+            ],
+            "body": {
+              "condition": {
+                "kind": "ble",
+                "left": {
+                  "kind": "nat",
+                  "value": "18446744073709551615"
+                },
+                "right": {
+                  "arguments": [
+                    {
+                      "kind": "var",
+                      "name": "policy"
+                    },
+                    {
+                      "kind": "var",
+                      "name": "ta"
+                    },
+                    {
+                      "kind": "var",
+                      "name": "tr"
+                    }
+                  ],
+                  "function": {
+                    "module": "R4.Objective",
+                    "name": "selectObjective"
+                  },
+                  "kind": "call"
+                }
+              },
+              "else_value": {
+                "arguments": [
+                  {
+                    "fields": [
+                      {
+                        "field": "prediction",
+                        "value": {
+                          "kind": "project",
+                          "value": {
+                            "kind": "var",
+                            "name": "target"
+                          },
+                          "field": "identity"
+                        }
+                      },
+                      {
+                        "field": "admittedCells",
+                        "value": {
+                          "kind": "project",
+                          "value": {
+                            "kind": "var",
+                            "name": "predictionReceipt"
+                          },
+                          "field": "admittedCells"
+                        }
+                      },
+                      {
+                        "field": "rankedTokens",
+                        "value": {
+                          "kind": "project",
+                          "value": {
+                            "kind": "var",
+                            "name": "predictionReceipt"
+                          },
+                          "field": "rankedTokens"
+                        }
+                      },
+                      {
+                        "field": "tokenRivals",
+                        "value": {
+                          "arguments": [
+                            {
+                              "arguments": [
+                                {
+                                  "kind": "var",
+                                  "name": "ranked"
+                                }
+                              ],
+                              "function": {
+                                "name": "lengthTokens",
+                                "module": "R4.Admission"
+                              },
+                              "kind": "call"
+                            },
+                            {
+                              "condition": {
+                                "arguments": [
+                                  {
+                                    "field": "cell",
+                                    "kind": "project",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "target"
+                                    }
+                                  },
+                                  {
+                                    "kind": "var",
+                                    "name": "cells"
+                                  }
+                                ],
+                                "function": {
+                                  "name": "hasCell",
+                                  "module": "R4.Admission"
+                                },
+                                "kind": "call"
+                              },
+                              "else_value": {
+                                "kind": "nat",
+                                "value": "0"
+                              },
+                              "kind": "if",
+                              "then_value": {
+                                "kind": "nat",
+                                "value": "1"
+                              }
+                            }
+                          ],
+                          "function": {
+                            "module": "R4.Objective",
+                            "name": "subtractNat"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "addressRivals",
+                        "value": {
+                          "arguments": [
+                            {
+                              "arguments": [
+                                {
+                                  "kind": "var",
+                                  "name": "cells"
+                                }
+                              ],
+                              "function": {
+                                "name": "lengthCells",
+                                "module": "R4.Admission"
+                              },
+                              "kind": "call"
+                            },
+                            {
+                              "condition": {
+                                "arguments": [
+                                  {
+                                    "field": "cell",
+                                    "kind": "project",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "target"
+                                    }
+                                  },
+                                  {
+                                    "kind": "var",
+                                    "name": "cells"
+                                  }
+                                ],
+                                "function": {
+                                  "name": "hasCell",
+                                  "module": "R4.Admission"
+                                },
+                                "kind": "call"
+                              },
+                              "else_value": {
+                                "kind": "nat",
+                                "value": "0"
+                              },
+                              "kind": "if",
+                              "then_value": {
+                                "kind": "nat",
+                                "value": "1"
+                              }
+                            }
+                          ],
+                          "function": {
+                            "module": "R4.Objective",
+                            "name": "subtractNat"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "tokenHinge",
+                        "value": {
+                          "kind": "var",
+                          "name": "tm"
+                        }
+                      },
+                      {
+                        "field": "addressHinge",
+                        "value": {
+                          "kind": "var",
+                          "name": "am"
+                        }
+                      },
+                      {
+                        "field": "lossTA",
+                        "value": {
+                          "kind": "var",
+                          "name": "ta"
+                        }
+                      },
+                      {
+                        "field": "lossTR",
+                        "value": {
+                          "kind": "var",
+                          "name": "tr"
+                        }
+                      },
+                      {
+                        "field": "loss",
+                        "value": {
+                          "arguments": [
+                            {
+                              "kind": "var",
+                              "name": "policy"
+                            },
+                            {
+                              "kind": "var",
+                              "name": "ta"
+                            },
+                            {
+                              "kind": "var",
+                              "name": "tr"
+                            }
+                          ],
+                          "function": {
+                            "module": "R4.Objective",
+                            "name": "selectObjective"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "targetAdmitted",
+                        "value": {
+                          "arguments": [
+                            {
+                              "field": "cell",
+                              "kind": "project",
+                              "value": {
+                                "kind": "var",
+                                "name": "target"
+                              }
+                            },
+                            {
+                              "kind": "var",
+                              "name": "cells"
+                            }
+                          ],
+                          "function": {
+                            "name": "hasCell",
+                            "module": "R4.Admission"
+                          },
+                          "kind": "call"
+                        }
+                      },
+                      {
+                        "field": "telemetry",
+                        "value": {
+                          "condition": {
+                            "kind": "var",
+                            "name": "trace"
+                          },
+                          "else_value": {
+                            "arguments": [],
+                            "constructor": {
+                              "name": "Option.none"
+                            },
+                            "kind": "constructor",
+                            "type_arguments": [
+                              {
+                                "arguments": [],
+                                "kind": "named",
+                                "member": {
+                                  "name": "Telemetry",
+                                  "module": "R4.Admission"
+                                }
+                              }
+                            ]
+                          },
+                          "kind": "if",
+                          "then_value": {
+                            "arguments": [
+                              {
+                                "fields": [
+                                  {
+                                    "field": "rankViolation",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "rankMiss"
+                                    }
+                                  },
+                                  {
+                                    "field": "targetRank",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "rank"
+                                    }
+                                  },
+                                  {
+                                    "field": "occupiedCells",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "occupancy"
+                                    }
+                                  },
+                                  {
+                                    "field": "admittedTokens",
+                                    "value": {
+                                      "arguments": [
+                                        {
+                                          "kind": "var",
+                                          "name": "ranked"
+                                        }
+                                      ],
+                                      "function": {
+                                        "name": "lengthTokens",
+                                        "module": "R4.Admission"
+                                      },
+                                      "kind": "call"
+                                    }
+                                  },
+                                  {
+                                    "field": "lossTR",
+                                    "value": {
+                                      "kind": "var",
+                                      "name": "tr"
+                                    }
+                                  },
+                                  {
+                                    "field": "selectedLoss",
+                                    "value": {
+                                      "arguments": [
+                                        {
+                                          "kind": "var",
+                                          "name": "policy"
+                                        },
+                                        {
+                                          "kind": "var",
+                                          "name": "ta"
+                                        },
+                                        {
+                                          "kind": "var",
+                                          "name": "tr"
+                                        }
+                                      ],
+                                      "function": {
+                                        "module": "R4.Objective",
+                                        "name": "selectObjective"
+                                      },
+                                      "kind": "call"
+                                    }
+                                  }
+                                ],
+                                "kind": "record",
+                                "type": {
+                                  "name": "Telemetry",
+                                  "module": "R4.Admission"
+                                }
+                              }
+                            ],
+                            "constructor": {
+                              "name": "Option.some"
+                            },
+                            "kind": "constructor",
+                            "type_arguments": [
+                              {
+                                "arguments": [],
+                                "kind": "named",
+                                "member": {
+                                  "name": "Telemetry",
+                                  "module": "R4.Admission"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    "kind": "record",
+                    "type": {
+                      "name": "Receipt",
+                      "module": "R4.Admission"
+                    }
+                  }
+                ],
+                "constructor": {
+                  "name": "WriterOutcome.value",
+                  "module": "R4.Admission"
+                },
+                "kind": "constructor"
+              },
+              "kind": "if",
+              "then_value": {
+                "condition": {
+                  "kind": "beq",
+                  "left": {
+                    "kind": "nat",
+                    "value": "18446744073709551615"
+                  },
+                  "right": {
+                    "arguments": [
+                      {
+                        "kind": "var",
+                        "name": "policy"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "ta"
+                      },
+                      {
+                        "kind": "var",
+                        "name": "tr"
+                      }
+                    ],
+                    "function": {
+                      "module": "R4.Objective",
+                      "name": "selectObjective"
+                    },
+                    "kind": "call"
+                  }
+                },
+                "else_value": {
+                  "arguments": [
+                    {
+                      "arguments": [],
+                      "constructor": {
+                        "name": "WriterError.arithmeticFailure",
+                        "module": "R4.Admission"
+                      },
+                      "kind": "constructor"
+                    }
+                  ],
+                  "constructor": {
+                    "name": "WriterOutcome.error",
+                    "module": "R4.Admission"
+                  },
+                  "kind": "constructor"
+                },
+                "kind": "if",
+                "then_value": {
+                  "arguments": [
+                    {
+                      "arguments": [],
+                      "constructor": {
+                        "name": "WriterError.sentinelFailure",
+                        "module": "R4.Admission"
+                      },
+                      "kind": "constructor"
+                    }
+                  ],
+                  "constructor": {
+                    "name": "WriterOutcome.error",
+                    "module": "R4.Admission"
+                  },
+                  "kind": "constructor"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "preconditions": [],
+    "scope": "False universal companion: only RHS successful receipt prediction changes from predictionReceipt.prediction to target.identity; all parameters, guards, fields and other terms unchanged."
+  },
+  "dependencies": {
+    "schema": "r4-prediction-proof-dependency-plan/1",
+    "status": "FROZEN_PLAN_NOT_PROOF",
+    "nextLemma": "finishReceiptFactorsThroughPredictionRanked",
+    "proposedStrategy": "Cases on ranked; nil Reflexivity; cons Reflexivity. This is a proposed strategy, no proof AST or theorem implementation is present.",
+    "nextLemmaDependencies": [
+      "Actual frozen Admission.finishReceipt",
+      "Actual frozen Prediction.predictionRanked"
+    ],
+    "priorSequenceGate": "Wait for parent final acceptance of the projection-length and ranked-boundary sequence; this packet does not assert those gates passed.",
+    "nodes": [
+      {
+        "id": "projection_lengths",
+        "claim": "Identity projection preserves arbitrary-list length, including the lifted successor form",
+        "use": "Complete-list/telemetry cardinality; not a logical prerequisite of factorization"
+      },
+      {
+        "id": "ranked_boundary",
+        "claim": "Exact target-free receipt for arbitrary nonempty ranked list",
+        "use": "Success receipt and cardinality boundary"
+      },
+      {
+        "id": "receipt_factorization",
+        "claim": "Exact guard-preserving factorization through Prediction.predictionRanked",
+        "dependsOn": []
+      },
+      {
+        "id": "receipt_success",
+        "claim": "Nonempty ranked list AND selected loss < UInt64MAX imply successful receipt with matching prediction fields",
+        "dependsOn": [
+          "ranked_boundary",
+          "receipt_factorization",
+          "selected_loss_bound"
+        ]
+      },
+      {
+        "id": "weights_success",
+        "claim": "BOTH nearestAddress and addressRank weightedObjective results are value outcomes; finishWeights rejects either failure regardless of selected policy",
+        "dependsOn": [
+          "hinge_bounds",
+          "rank_bounds",
+          "width_bounds",
+          "checked_arithmetic_success"
+        ]
+      },
+      {
+        "id": "writer_finalization",
+        "claim": "Lift successful projection through finishWeights, finishHinges, finishRank, finishRankValue, finishAdmission, finishCells and finishOccupied",
+        "dependsOn": [
+          "receipt_success",
+          "weights_success"
+        ]
+      },
+      {
+        "id": "scorebook_complete",
+        "claim": "For every admitted spec, safe carrier, complete canonical-root codebook and valid current/virtual view: scoreBook succeeds, preserves exact vocabulary indexing and all token identities, and cannot produce supervised-only score errors",
+        "dependsOn": [
+          "root_geometry",
+          "virtual_root_preservation",
+          "distance_arithmetic_success"
+        ]
+      },
+      {
+        "id": "admission_ranking",
+        "claim": "Occupied cells unique and ordered; admitted cells occupied; all eligible distinct identities retained; ranking ordered by distance/identity; nonempty; first is global minimum",
+        "dependsOn": [
+          "scorebook_complete"
+        ]
+      },
+      {
+        "id": "target_lookup",
+        "claim": "Every target below vocabulary is present and lookup succeeds",
+        "dependsOn": [
+          "scorebook_complete"
+        ]
+      },
+      {
+        "id": "writer_predict",
+        "claim": "For every admitted input and target below vocabulary, both policies and trace flags: writer succeeds and three fields equal predict",
+        "dependsOn": [
+          "writer_finalization",
+          "admission_ranking",
+          "target_lookup",
+          "public_guard_correspondence"
+        ]
+      },
+      {
+        "id": "independence",
+        "claim": "Changing target, policy or trace preserves prediction/admittedCells/rankedTokens",
+        "dependsOn": [
+          "writer_predict"
+        ]
+      }
+    ],
+    "successPreconditions": {
+      "atFinishReceipt": [
+        "ranked = first :: tail",
+        "Objective.selectObjective(policy, ta, tr) < 18446744073709551615"
+      ],
+      "atPublicWriter": [
+        "validSpec",
+        "query shape",
+        "complete codebook shape",
+        "canonical roots including every interior block",
+        "valid current or virtual view",
+        "Carrier.sourceArithmeticSafe",
+        "target below vocabulary"
+      ],
+      "requiredDerivedFacts": [
+        "both weighted outcomes succeed",
+        "selected loss strictly below UInt64MAX",
+        "target lookup succeeds",
+        "ranked list nonempty",
+        "shared scoring succeeds",
+        "all sorting/completeness/global-minimum obligations"
+      ]
+    },
+    "expressivityLimits": "Cases supports Nat/List/document inductives. No ordinary explicit hypothesis-introduction/sequencing/equality-elimination form. LinearArithmetic previously reached nonempty axiom audit; do not widen policy. This factorization retains Boolean guards, so its proposed proof does not need those missing operations. Later conditional/arithmetic proofs remain open."
+  },
+  "sourcePins": {
+    "schema": "r4-source-reference-pins/1",
+    "status": "REFERENCE_PINS_NOT_EXECUTION_MANIFEST",
+    "lexleanRevision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+    "files": [
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/lake-manifest.json",
+        "relativePath": "lake-manifest.json",
+        "bytes": 146,
+        "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/lakefile.toml",
+        "relativePath": "lakefile.toml",
+        "bytes": 58,
+        "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/lean-toolchain",
+        "relativePath": "lean-toolchain",
+        "bytes": 25,
+        "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/lexlean.toml",
+        "relativePath": "lexlean.toml",
+        "bytes": 696,
+        "sha256": "31434237793bd53c6755d0632e064a3155273f0f22bcf9c02afa49d1f32fe5f5",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Admission.lex.tex",
+        "relativePath": "src/R4/Admission.lex.tex",
+        "bytes": 68840,
+        "sha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Binder.lex.tex",
+        "relativePath": "src/R4/Binder.lex.tex",
+        "bytes": 72087,
+        "sha256": "2b66660f539c88fe2ce23229300c31bf7bbfba5ab83e9b23bd450bb237f6a449",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Carrier.lex.tex",
+        "relativePath": "src/R4/Carrier.lex.tex",
+        "bytes": 31312,
+        "sha256": "ce696f2b297bebae8f0b7c6bb36e063ed80442a3c0ca952e5c428d983c19b0a6",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Geometry.lex.tex",
+        "relativePath": "src/R4/Geometry.lex.tex",
+        "bytes": 1453753,
+        "sha256": "2b934cd1ff5eccf6c8d5b4af1c34901fa964d31958e8a435cdc05bb6e52c7167",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Objective.lex.tex",
+        "relativePath": "src/R4/Objective.lex.tex",
+        "bytes": 12106,
+        "sha256": "379e2a52851628a5cc762c6cd911a18d97a3d30df8b9eecdb86542b82fe441ec",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Prediction.lex.tex",
+        "relativePath": "src/R4/Prediction.lex.tex",
+        "bytes": 10229,
+        "sha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Route.lex.tex",
+        "relativePath": "src/R4/Route.lex.tex",
+        "bytes": 50353,
+        "sha256": "a5d799a17e9c33a4252df1ae2f222b5610e9c4fd042d13b1a156f227815fd554",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/src/R4/Types.lex.tex",
+        "relativePath": "src/R4/Types.lex.tex",
+        "bytes": 1984,
+        "sha256": "c140409edf9a9fd2490a35f1692dfedb7577a6181165b9dc141773e609b5b456",
+        "role": "prior_frozen_source_or_configuration"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/tests/lexlean/PredictionRankedBoundaryControls.lex.tex",
+        "relativePath": "tests/lexlean/PredictionRankedBoundaryControls.lex.tex",
+        "bytes": 2584,
+        "sha256": "5b7c3bfbc7824043c838c76bed6fabd37b869222516329f46b8babf95322b4e4",
+        "role": "prior_frozen_control_not_acceptance"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/tests/lexlean/PredictionRankedBoundaryNegativeControls.lex.tex",
+        "relativePath": "tests/lexlean/PredictionRankedBoundaryNegativeControls.lex.tex",
+        "bytes": 2409,
+        "sha256": "cef504271e6adab0717fa227d4f7fb8995bd1b3a9e7a834e6becb5305c025192",
+        "role": "prior_frozen_control_not_acceptance"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-ranked-boundary-20261022/stage/tests/lexlean/PredictionRouteLengthControls.lex.tex",
+        "relativePath": "tests/lexlean/PredictionRouteLengthControls.lex.tex",
+        "bytes": 2181,
+        "sha256": "4834b33995b01967dddd31eb25ef2430dfadb5f4588a590dda1c089a910a3b0c",
+        "role": "prior_frozen_control_not_acceptance"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-current-20261021/src/R4/Admission.lex.tex",
+        "bytes": 68840,
+        "sha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867",
+        "role": "inspected_source"
+      },
+      {
+        "path": "/tmp/lexlean-r4-prediction-current-20261021/src/R4/Prediction.lex.tex",
+        "bytes": 10229,
+        "sha256": "f29047cdc599643e36823ef6cc8ac98538b9e3268c26cbf7ccdca8a373719cd0",
+        "role": "inspected_source"
+      },
+      {
+        "path": "/tmp/r4-prediction-sdk-semantic-ir.rs",
+        "bytes": 353541,
+        "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf",
+        "role": "proof_schema_source_reference"
+      },
+      {
+        "path": "/tmp/r4-prediction-sdk-semantic-backend.rs",
+        "bytes": 162725,
+        "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e",
+        "role": "proof_schema_source_reference"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/specs/target-free-writer-api.md",
+        "bytes": 8726,
+        "sha256": "d0bb51bc3c302c854004bc5858e00a1594dc77cd922842d6976ef5502d37180d",
+        "role": "approved_refinement_spec"
+      }
+    ],
+    "limits": "No SDK/container invocation or acceptance asserted. Prior execution configuration references are not a runnable new stage. Dependency acceptance must be checked from final retained receipts before scheduling this proof."
+  },
+  "plantIntent": {
+    "schema": "r4-source-plant-intent/1",
+    "status": "INTENT_ONLY_NO_PLANT_SOURCE_CREATED",
+    "source": "/tmp/lexlean-r4-prediction-current-20261021/src/R4/Admission.lex.tex",
+    "baselineSha256": "a591a1be8d9cc29d0bba1afedb170c9d1692be20c24257d47acde0a887910867",
+    "module": "R4.Admission",
+    "declaration": "finishReceipt",
+    "location": "body.branches[List.cons].body.else_value.arguments[0].fields[prediction].value",
+    "originalTerm": {
+      "field": "identity",
+      "kind": "project",
+      "value": {
+        "kind": "var",
+        "name": "first"
+      }
+    },
+    "replacementTerm": {
+      "kind": "project",
+      "value": {
+        "kind": "var",
+        "name": "target"
+      },
+      "field": "identity"
+    },
+    "scope": "Change only the actual successful supervised receipt prediction field from first.identity to target.identity. Keep the positive contract byte-identical, Prediction source byte-identical, every guard and other field byte-identical, and all other Admission declarations byte-identical.",
+    "expected": "Source-valid unchanged positive theorem must be rejected semantically (expected LLV7002, exact diagnostics not yet observed). Source/setup/resource failure is not a successful control.",
+    "restoration": "Restore exact Admission source bytes, fresh-lock/check/verify original positive, audit full artifacts, and require equal attestation/source/semantic/build identities to baseline."
+  },
+  "scope": "Arbitrary-typed exact finishReceipt factorization through predictionRanked, all12parameters/receiptfields/guards/telemetry. No fullwriter, selected-loss-bound, ranking/completeness/global-minimum or production claim."
+}

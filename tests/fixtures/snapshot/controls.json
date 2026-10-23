@@ -1,0 +1,63 @@
+{
+  "spec": "lexlean-r4/snapshot-json-controls/1",
+  "model_id": "R4-22",
+  "controls": 476,
+  "api_sha256": "ca21d9308ca83ed5460a7e9e08a7c31cdf36ac414ca6833ff84fb194b784692a",
+  "independently_reviewed_packet_sha256": "2b71f6d66998ecd5f9869165c36dbe99c9d54aa82cd7f3f7bf64a4410662968a",
+  "modules": [
+    {
+      "module": "SnapshotSchemaControls",
+      "path": "tests/lexlean/SnapshotSchemaControls.lex.tex",
+      "controls": 44,
+      "sha256": "23b2c4085b128b5b4f28e9586db8400c2ad73005515bd07741455416599aaf07"
+    },
+    {
+      "module": "SnapshotRepresentationControls",
+      "path": "tests/lexlean/SnapshotRepresentationControls.lex.tex",
+      "controls": 74,
+      "sha256": "066ca5432dedf00591beab4bd97b59a56ffc7c653ac29028451826a9cec9c897"
+    },
+    {
+      "module": "SnapshotNumericControls",
+      "path": "tests/lexlean/SnapshotNumericControls.lex.tex",
+      "controls": 94,
+      "sha256": "695523878f83a5e35edbf4fcb62c17d88f2b4a66b2680f8388df7b3badba7eb7"
+    },
+    {
+      "module": "SnapshotOrderControls",
+      "path": "tests/lexlean/SnapshotOrderControls.lex.tex",
+      "controls": 35,
+      "sha256": "90f73a3d6855f5e2e93274f1368ca1a0b6ca75aa17364087d97915d3300aa33d"
+    },
+    {
+      "module": "SnapshotStoredValueControls",
+      "path": "tests/lexlean/SnapshotStoredValueControls.lex.tex",
+      "controls": 21,
+      "sha256": "41bb56aa458e5de7ba0e50bbaa939e793615f4b54cd25226471921d5c71aac22"
+    },
+    {
+      "module": "SnapshotStringControls",
+      "path": "tests/lexlean/SnapshotStringControls.lex.tex",
+      "controls": 104,
+      "sha256": "d131773424c47ac9f59a5ec38d69ff4278a71919986aaf4aa925b206712e02d4"
+    },
+    {
+      "module": "SnapshotStrictControls",
+      "path": "tests/lexlean/SnapshotStrictControls.lex.tex",
+      "controls": 47,
+      "sha256": "90bda9dc32a83693ba9912f1660393dc76f05db67f19e681f0cb181e5723db6c"
+    },
+    {
+      "module": "SnapshotBudgetControls",
+      "path": "tests/lexlean/SnapshotBudgetControls.lex.tex",
+      "controls": 33,
+      "sha256": "5b97f02e5af2e2aef1d3cab182698a555402be05d51a37c9b97a51f038b6ae7b"
+    },
+    {
+      "module": "SnapshotRoundtripControls",
+      "path": "tests/lexlean/SnapshotRoundtripControls.lex.tex",
+      "controls": 24,
+      "sha256": "d6b4c040777a1c48c5c28896856482816b20dafe92dd50e58c41a7052cf08fa6"
+    }
+  ]
+}

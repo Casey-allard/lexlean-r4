@@ -1,0 +1,162 @@
+{
+  "format": "lexlean-r4/continuation-source-snapshot/1",
+  "status": "HISTORICAL_RESULTS_AND_UNACCEPTED_DRAFTS_NO_PRODUCTION_PROMOTION",
+  "baseCommit": "0e3544a85454276394f58344dfc93772dcd4c444",
+  "files": [
+    {
+      "path": "ci-observation.json",
+      "bytes": 660,
+      "sha256": "5ff1793795fc58de9d7738d401936154fd24dc083f0a0b7dd376a72480d13c05"
+    },
+    {
+      "path": "evidence/original257-timeout300-review.json",
+      "bytes": 6952,
+      "sha256": "4a84407f4cd5a27130de0b2d39f0cbe2c186f332065cfd84edb390c89f04c5f8"
+    },
+    {
+      "path": "evidence/original257-timeout300.json",
+      "bytes": 991,
+      "sha256": "1c2197aba01fd04447994a1ed30f6faf77f465f0ac091b13c20e9ed244d8ee5f"
+    },
+    {
+      "path": "evidence/original257-timeout900-memory-after.json",
+      "bytes": 359,
+      "sha256": "9252da7ac557d86091a66ce5b10cc6129b1db394752e1e621893ecc0a6bbe7e1"
+    },
+    {
+      "path": "evidence/original257-timeout900-memory-before.json",
+      "bytes": 354,
+      "sha256": "57712159b1a2fe660f97e9163bc2d074c1af5ae9d86568579fc9055254e856e4"
+    },
+    {
+      "path": "evidence/original257-timeout900-review.json",
+      "bytes": 8995,
+      "sha256": "478e51183a958aa5a53da714799d6eb19509a43680b6c3c39a29514ffe2b57b1"
+    },
+    {
+      "path": "evidence/original257-timeout900.json",
+      "bytes": 435,
+      "sha256": "e85f48b0a4a2ffbce98523f5c88f223365ef4e8475d5cd2f44cc02c787aaf37f"
+    },
+    {
+      "path": "first-atom-spec-review.json",
+      "bytes": 9813,
+      "sha256": "e274a762da79fbc562532f3016c317267468b9f7096e674f9318cce0ff5206ce"
+    },
+    {
+      "path": "next-first-atom-proposal.json",
+      "bytes": 12612,
+      "sha256": "e4ac2bb21801563c28d1d61ff6446bea1f538862c42a73b9bbfb5b0e66334e22"
+    },
+    {
+      "path": "original257/lexlean.toml",
+      "bytes": 690,
+      "sha256": "b004fa5049e5d8da103173c11aad1e72386e018c899bbcf594bee163235c894a"
+    },
+    {
+      "path": "original257/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "pending-manifest.json",
+      "bytes": 5064,
+      "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+    },
+    {
+      "path": "pending/docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "pending/features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "pending/features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "pending/features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "pending/model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "pending/model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "pending/model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "pending/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+    },
+    {
+      "path": "pending/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111631,
+      "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+    },
+    {
+      "path": "pending/src/R4/ObjectRead.lex.tex",
+      "bytes": 86326,
+      "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+    },
+    {
+      "path": "pending/src/R4/ObjectStore.lex.tex",
+      "bytes": 66585,
+      "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+    },
+    {
+      "path": "pending/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83582,
+      "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+    },
+    {
+      "path": "pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "pending/tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "pending/tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "pending/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "pending/tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "reference/ObjectTrace257Carry0Controls.lex.tex",
+      "bytes": 10107,
+      "sha256": "dbcb11d23e678be756e0f5415de37d03f1e3d67e68465270997ab40bd0c8e495"
+    },
+    {
+      "path": "reference/ObjectTrace257Node0Controls.lex.tex",
+      "bytes": 13183,
+      "sha256": "c4b4391ab5df8a4edc2740d073bd6f2c4bf32b75cfc9e1ee40b41f0f8d4a5ad6"
+    }
+  ]
+}

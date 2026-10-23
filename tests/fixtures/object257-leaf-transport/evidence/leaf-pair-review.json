@@ -1,0 +1,112 @@
+{
+  "at": "2026-10-23T16:07:21.767Z",
+  "status": "PASS_ACTUAL_LEAF_POSITIVE_AND_INTENDED_NEGATIVE_ARTIFACT_AUDIT",
+  "candidateManifest": {
+    "path": "/tmp/r4-object257-leaf-transport-candidate-20261023/manifest.json",
+    "bytes": 4468,
+    "sha256": "564bf6d4f9bb1599547f387aa261e7ce38f229ea434d010fd0e7dbd70d2ecdf4"
+  },
+  "phases": [
+    {
+      "phase": "leaf-false",
+      "status": "PASS_INTENDED_EQUALITY_NEGATIVE",
+      "wallMs": 41431,
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-false/verify.json",
+        "bytes": 1692,
+        "sha256": "729a20fb398df94ba03c9466e95b8d3e5a735824bb9eea773633f3520591bace"
+      },
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-false/source-before.json",
+        "bytes": 4673,
+        "sha256": "bfb313419982eec03d9806d83c594171473b9927db5f3bf95d76d89f0df9ad3e"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-false/source-after.json",
+        "bytes": 4673,
+        "sha256": "853a97a7bb78268d000e9b0df00d5c894de3c56da377cbe7d3b68ded9b60f409"
+      },
+      "developmentLockSha256": "9b4c5e839402d396f3533e0f5c846d466110348f230d3a448ced0f033bc7554c",
+      "sources": 20,
+      "epochUnchanged": true,
+      "memoryCountersUnchangedZero": true,
+      "storageReservePassed": true
+    },
+    {
+      "phase": "leaf-positive",
+      "status": "PASS_ACTUAL_LEAF_PROOF",
+      "wallMs": 45416,
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-positive/verify.json",
+        "bytes": 1166,
+        "sha256": "afb92165734d3049ae1ae1e1639a3577654539d264e55cbd0a258c7215bb7c9b"
+      },
+      "sourceBefore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-positive/source-before.json",
+        "bytes": 4793,
+        "sha256": "45428511dfd05962c204d6ac8ae128680a68a7f1b7c3a23f589adb10ccc5c648"
+      },
+      "sourceAfter": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-positive/source-after.json",
+        "bytes": 4793,
+        "sha256": "9b1678785ad9817eb7c23ef53ed594367460586b6488d8db7920360673325824"
+      },
+      "developmentLockSha256": "23291b02e75d957b2c77102373f08e12c825b1fd76f7381efceda8c0d1e2100d",
+      "sources": 20,
+      "epochUnchanged": true,
+      "memoryCountersUnchangedZero": true,
+      "storageReservePassed": true
+    }
+  ],
+  "positive": {
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-positive/artifact/attestation.json",
+      "bytes": 156542,
+      "sha256": "d222d37101e0eec454433d2fba3024c398d98827708d8843e30539e86df7589d"
+    },
+    "buildManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-positive/artifact/build-manifest.json",
+      "bytes": 10974,
+      "sha256": "230f5bc534c280c252c8d03508be258d49d3f3ea362af6fe3cb5732ca1938d3a"
+    },
+    "attestationId": "b16573fcb4c5cb5f0aff1d595938f0c87dca5109280000c633c3013ab23cc2c0",
+    "sourceId": "3c72aa376601fcd3edd91757ca9582b5e223451a4b70ee53c14114b23010f043",
+    "semanticId": "616e90e96c7ff2076f552e227277d22d49186d0fef9f4185403d446895f7a098",
+    "buildId": "464bf29e25b222547c1c664271f5ed7ff0afd12e18b074c850a34aefbe9dac93",
+    "modules": 9,
+    "declarations": 764,
+    "allPoliciesNoneAndObservedAxiomsEmpty": true,
+    "recordedKernelReplays": 9,
+    "allRecordedProcessesExitZero": true,
+    "processRecords": 28,
+    "outputs": 45,
+    "oleans": 9,
+    "artifactFiles": 95,
+    "exactArtifactCensus": true,
+    "artifactCensusSha256": "84e6738368c814b3884d6906f9612bc5c158ecd2600e9e9970877cbe08b47e06",
+    "emittedProof": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/leaf-positive/artifact/modules/LexLeanR4/Object257LeafCertificate.lean",
+      "bytes": 957,
+      "sha256": "5bf1011d4a6eda325f0fbc22b78965c14942db95f8b5775327064fe474a937ac"
+    },
+    "emittedProofIsActualLeafRfl": true
+  },
+  "acceptance": {
+    "localLeafEquationAccepted": true,
+    "falseExpected129Rejected": true,
+    "exactApplyReuse": "NOT_REVIEWED_HERE",
+    "parentContextTransport": "NOT_REVIEWED_HERE",
+    "original257Accepted": false,
+    "hashDependencyAccepted": false,
+    "ObjectComponentAccepted": false,
+    "PrismPMAccepted": false,
+    "PagesAccepted": false
+  },
+  "limits": [
+    "This is an independent read-only audit of actual official verification artifacts and recorded kernel replay, not a fresh reviewer compiler/replay invocation.",
+    "The leaf proposition states actual ObjMakeLeaf[0] equals the concrete expected record, with expected ID starting128 and32zero payload bytes; no supplied hash was substituted into implementation.",
+    "Leaf-false sourcecheck succeeded, then verify rejected the intended one-byte false equality withLLV7002/rfl; no timeout/OOM is counted as negative.",
+    "No general Object257 decomposition or complete Object/Hash acceptance follows. Prior timeout/OOM failures remain preserved.",
+    "No SDK/VM/process/source/repository/other-lab mutations by reviewer."
+  ]
+}

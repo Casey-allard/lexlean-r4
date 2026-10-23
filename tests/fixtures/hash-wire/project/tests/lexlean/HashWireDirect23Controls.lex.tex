@@ -1,0 +1,13 @@
+\begin{lexlean}{HashWireDirect23Controls}
+\useglossary{lexlean.std.bool@1.2.0}
+\useglossary{lexlean.std.nat@1.2.0}
+\importmodule{R4.Hash}
+\importmodule{R4.HashNat}
+\importmodule{R4.HashNatCore}
+\importmodule{R4.HashWire}
+\importmodule{R4.Words}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"wireDirect23","parameters":[],"proof":{"kind":"reflexivity"},"statement":{"kind":"eq","left":{"arguments":[{"kind":"nat","value":"0"},{"head":{"kind":"nat","value":"256"},"kind":"cons","tail":{"element":{"kind":"nat"},"kind":"nil"}}],"function":{"module":"R4.HashWire","name":"hashWireSha256Bounded"},"kind":"call"},"right":{"arguments":[{"arguments":[{"kind":"nat","value":"0"},{"kind":"nat","value":"1"}],"constructor":{"module":"R4.Hash","name":"HashError.budgetExceeded"},"kind":"constructor","type_arguments":[]}],"constructor":{"name":"Result.error"},"kind":"constructor","type_arguments":[{"element":{"kind":"nat"},"kind":"list"},{"arguments":[],"kind":"named","member":{"module":"R4.Hash","name":"HashError"}}]}}}],"spec":"lexlean/semantic-module/2"}}
+\end{semanticmodule}
+\end{lexlean}
