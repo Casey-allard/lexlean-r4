@@ -1,0 +1,205 @@
+{
+  "at": "2026-10-23T15:14:39.352Z",
+  "status": "AUDITED_CGROUP_OOM_FAILURE_NO_PROOF_ACCEPTANCE",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/proposal.json",
+      "bytes": 797,
+      "sha256": "75523f32404c150a1ee0e033705e1e442af1c2ee1d242423ce15c9f3ef9fd7e8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/proposal-review.json",
+      "bytes": 5182,
+      "sha256": "f9c33742fb00c361b5779674a9193de84103491b38acf9eb91fe47f1b51f16b1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/lexlean.toml",
+      "bytes": 690,
+      "sha256": "0927991ee643dda588e8d98ff32ff7fa5a6f59f862cc132528e3f936ee8617b8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/budget.json",
+      "bytes": 244,
+      "sha256": "16a4275e2203a0b914d4c5b59aec19e23a85f50f64c28fcc6e5dede5fe7af391"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/epoch-before.json",
+      "bytes": 740,
+      "sha256": "2902431084eee7d79714d72efe3c770069ba8472f6f3a47fb14203176ce6bc92"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/tools-before.json",
+      "bytes": 1005,
+      "sha256": "465e30e4ec0e454197f2ad1232a03c38d1ccac661ea7c974e7cf3dff99358b55"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/source-before.json",
+      "bytes": 3403,
+      "sha256": "2a0d9ccff5e6636077d3a9a4e6fc8a6daa6527ab46f859b48c0e5ed09390510f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/lock.json",
+      "bytes": 521,
+      "sha256": "665ae9382a4d096183fe846d78b0959705c36c1f317d1fdc4f40272648b7ff14"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/lock-bytes.json",
+      "bytes": 2037,
+      "sha256": "40436b2e1a2c489052e252ed11329bf39b0aead8f717e386ba7b2c07ab22be41"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/check.json",
+      "bytes": 885,
+      "sha256": "4993a0dbf3f092d3ab9560759fe54e7cd747c41468cca94a71cf28dd3ddc4ba9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/verify.json",
+      "bytes": 435,
+      "sha256": "e85f48b0a4a2ffbce98523f5c88f223365ef4e8475d5cd2f44cc02c787aaf37f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/memory-before.json",
+      "bytes": 354,
+      "sha256": "57712159b1a2fe660f97e9163bc2d074c1af5ae9d86568579fc9055254e856e4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/memory-after.json",
+      "bytes": 359,
+      "sha256": "9252da7ac557d86091a66ce5b10cc6129b1db394752e1e621893ecc0a6bbe7e1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/memory-sample-1512.json",
+      "bytes": 536,
+      "sha256": "497b63319a1e0043d606ffc35deb4f726563d37bd505e8be4179e344e0ca5225"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/process-sample-start.json",
+      "bytes": 1798,
+      "sha256": "2480f7d10726b91f73c06c12238d3dd6ce56df25d451da8147113db3f1b04538"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/process-sample-1512.json",
+      "bytes": 1798,
+      "sha256": "9313110c5367985d47ac49baa707b9f734b70baef9975e3837c2230b01740b70"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/resource-sample-start.json",
+      "bytes": 579,
+      "sha256": "e070f74a09715db5eb47eeb5a829693aa682898656d38cb5f9841669ea4396a6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/resource-sample-1512.json",
+      "bytes": 577,
+      "sha256": "643c4e32d1110573072be28f3b0b3a083671c6a274e20509f67f0c2ff37d7a9c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/epoch-after.json",
+      "bytes": 518,
+      "sha256": "c226747abfae071f8737c18b1645c359dc8289582741695ddf28e27bf1d9d6ba"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/source-after.json",
+      "bytes": 3403,
+      "sha256": "d4e32193bf8dfa92ae2e4e3b87be28f0e58a0f8a887b1954d903a1752bd9d965"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/lock-after.json",
+      "bytes": 2037,
+      "sha256": "79b3be903da3b5576b834fd9ce58dceb41d827a4b73e3f001eb6bb71d2545705"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/guest-after.json",
+      "bytes": 445,
+      "sha256": "8fe87b47a74a78f4230890248d40da7743c1215e4cdb87c58902a90ad0495cc7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/host-after.json",
+      "bytes": 74,
+      "sha256": "18e922a95af63c885f658966a09197ab929f42b16aa7effae8ff723ff104bcac"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/timeout900/idle-after.json",
+      "bytes": 451,
+      "sha256": "11f13467482a283acdc429fe414b439ea03d853445fc72994160badbc9532507"
+    }
+  ],
+  "experiment": {
+    "onlyConfigDelta": "child_timeout_ms300000→900000",
+    "all15BeforeAfterGuestSourcePinsMatch": true,
+    "remaining14InputPinsUnchanged": true,
+    "developmentLockUnchanged": true,
+    "developmentLockSha256": "d83227a4a2bc02745475d97b7f74ce8b0b930251ba8643749fe14d229858c713",
+    "sourceCheckSuccess": true,
+    "sourceCheckModules": 11,
+    "semanticIdUnchanged": "0c925843d6d9f8f1ddd349a3fb3d4b8dc7a0930eba88ab84d8ca4875ce955c8d",
+    "newSourceId": "1d6b870235feb9763d41fa68c1e641e2fb0b8f0b904f8c2b17841f8f884d83b4"
+  },
+  "failure": {
+    "recordedVerifyExit": 137,
+    "signalField": null,
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "structuredCompilerResult": "ABSENT",
+    "wallMs": 543177,
+    "launcher": "A recording launcher may exit0 after saving the failure; this does not override verify exit137 or establish proof success.",
+    "classification": "RESOURCE_FAILURE_WITH_CONFIRMED_CGROUP_OOM_EVENTS",
+    "memoryBefore": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memoryAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 467123,
+      "oom": 4,
+      "oom_kill": 2,
+      "oom_group_kill": 0
+    },
+    "memoryDelta": {
+      "max": 467123,
+      "oom": 4,
+      "oom_kill": 2
+    },
+    "sample": {
+      "containerMemory": "3.999GiB / 4GiB",
+      "containerMemoryPercent": "99.99%",
+      "leanElapsed": "08:35",
+      "leanRssKiB": 3997032,
+      "leanCpuPercent": 73.9,
+      "containerSwapCurrentBytes": 0
+    },
+    "interpretation": "The unchanged4GiB container hit its memory limit and recorded2 OOM kills while the Lean proof was CPU-active near4GiB RSS. Exit137 and these counters establish a memory-resource failure. This is not a repeated900-second timeout or a semantic counterexample. Exact killed-process attribution was not independently established from kernel kill logs."
+  },
+  "postconditions": {
+    "containerEpochUnchanged": true,
+    "restartCount": 0,
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "sourceAndLockUnchanged": true,
+    "postIdleOnlyShellAndSleep": true,
+    "guestAvailableBytes": 54613463040,
+    "hostAvailableBytes": "41152311296",
+    "minimumReserveBytes": 10737418240,
+    "storageReservePassed": true,
+    "memoryGatePassed": false,
+    "newCounterBaselineRequired": true
+  },
+  "acceptance": {
+    "priorSourceCheckRemainsValid": true,
+    "theorem": false,
+    "hashDependency": false,
+    "object": false,
+    "restoration": false,
+    "mutation": false,
+    "production": false,
+    "PrismPM": false,
+    "Pages": false,
+    "artifactStatus": "No successful result JSON or attestation was produced in the reviewed record; filesystem intermediate artifacts not audited."
+  },
+  "next": "Preserve this failed fresh stage and all recorded bytes; no equivalent retry. Review a concrete connected LexLean proof decomposition that preserves the original proposition, expected digest, empty axioms and implementation. Any next experiment needs independently reviewed exact source and fresh resource/counter/idle checks; do not reuse the zero-counter baseline.",
+  "scope": "Read-only retained evidence/config audit and this small review. No SDK, VM, process, repository or other-lab action; no new harness."
+}

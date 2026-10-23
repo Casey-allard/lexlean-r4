@@ -1,0 +1,124 @@
+{
+  "at": "2026-10-23T17:16:32.479Z",
+  "status": "PASS_BOUNDED_FIRST_ATOM_CONCRETE_STATE_SOURCE_PROPOSAL_ONLY",
+  "proposal": {
+    "path": "/tmp/r4-object257-after-terminal-next-step-20261023.json",
+    "bytes": 12612,
+    "sha256": "e4ac2bb21801563c28d1d61ff6446bea1f538862c42a73b9bbfb5b0e66334e22"
+  },
+  "pinsVerified": 11,
+  "pins": [
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/manifest.json",
+      "bytes": 10053,
+      "sha256": "39907ea72a0461fb542631ee6680a8bd57b251a7af58e708c7839fc5bf3fd15c"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "/tmp/r4-object257-fold-transition-candidate-20261023/tests/lexlean/Object257TerminalFoldTransition.lex.tex",
+      "bytes": 10722,
+      "sha256": "037ffbafb67a359f4b28d1bb61494bed3d3b18382cc75da9509db98ba0f0e320"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Node0Controls.lex.tex",
+      "bytes": 13183,
+      "sha256": "c4b4391ab5df8a4edc2740d073bd6f2c4bf32b75cfc9e1ee40b41f0f8d4a5ad6"
+    },
+    {
+      "path": "/tmp/ObjectTrace257Carry0Controls.lex.tex",
+      "bytes": 10107,
+      "sha256": "dbcb11d23e678be756e0f5415de37d03f1e3d67e68465270997ab40bd0c8e495"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/tests/lexlean/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/pause-handoff/pending-inputs/tmp/r4-hash-wire-formal-packet-20261021/object257/payload/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/native-review.json",
+      "bytes": 9670,
+      "sha256": "edbacab285290edbad51f57a09c9dd530ba2d7c23547c89cfabd418fa8dcd9ab"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/fold-transition/terminal-positive/artifact/modules/LexLeanR4/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    }
+  ],
+  "findings": [],
+  "scope": "Independent SPEC review of one proposed first original atom certificate and actual production single-atom concrete-state consumer. Source inspection only; new native work NOT_RUN.",
+  "sourceComparisons": {
+    "method": "Read actual semanticdata ASTs and performed exact deep-equality comparisons in memory; literal/ObjAppendBytes syntax decoding is source inspection, not formal evaluation or kernel replay.",
+    "originalInputLength": 257,
+    "firstAtom": "Confirmed bytes 0..31 from record0 left-hand ObjMakeLeaf argument equal proposal and first32 bytes of original ObjFold input.",
+    "record0": "Exact accepted-data candidate is retained objTrace257Record0: id [63,164,31,162,68,35,68,195,38,116,35,81], scale0, payload0..31. Its original proof is Simplify and its presence is NOT acceptance. Proposed new Reflexivity certificate must actually compute and verify this equality.",
+    "carry0": "Record0 AST equals sole inventory record in both retained Carry0 input and output. Carry0 output frontier AST equals input one-root frontier and its ID equals record0.id. State is Result.ok ObjCarryState with singleton inventory and singleton scale0 frontier.",
+    "limits": "Proposal originalLimits AST exactly equals Carry0 limits argument and limits field in original objFoldDigest257 ObjFold input store: objectBytes16777216, records1000000, recordBytes67108864, returnedBytes16777216, visits1000000.",
+    "leafStatementSHA256": "8735cc4a5e0c0ef1ccaf0e305445cdbccf947f5294ecce8a34dcab27b9b02977",
+    "carryStatementSHA256": "728b9fce0ff2d62f7b454341383f48ff1dffb903aa4408d90a794cb7440d0e24",
+    "expectedResultStateASTSHA256": "847dc09f5e99df0a2cb2e75eddc91853f076fa233937038403bcb725213eb949"
+  },
+  "productionConnection": {
+    "context": "Read pinned actual emitted Obj257TerminalContext and source. Its item argument abstracts leaf construction; it retains all three typed failure branches, actual ObjStageRecord inventory leaf limits, actual ObjCarryTriples38 with the same leaf.id/scale0 root and actual ObjFoldAtoms[] of carried fields. Reuse requires no new runtime definition.",
+    "consumer": "Proposed lhs ObjFoldAtoms [[0..31]] [] [] originalLimits is an actual production call. It is not merely C(x)=C(y). At count1, lifted equality has C(actual ObjMakeLeaf firstAtom)=C(ok record0). Actual production cons conversion connects lhs; concrete stage/carry/tail conversion must connect rhs to the retained state.",
+    "concreteReductionObligation": "Source predicts empty lookup, sufficient original budgets, singleton insertion, carry depth38 returning unchanged one-root state, then nil fold returning that state. No parent is constructed for one root. Official definitional conversion of this exact goal and its bounded resource cost remain NOT_RUN.",
+    "boundary": "This is a concrete single-atom prefix-state theorem, not yet a bridge into the original remaining eight atoms. The proposed full-fold continuation bridge remains explicitly open; no host array or separately certified record list supplies it."
+  },
+  "proofSupport": {
+    "family": "Prop-valued Nat match has leaf-result equality in zero and carry-state-result equality in successor. Each equality has same-typed operands; both branches return Prop. Preserve accepted reducible annotation and correctly qualified named types in candidate.",
+    "constructors": "Inspected pinned semantic.rs elimination_binder_types lines8713-8810: Nat supports induction and cases. Backend lines1244-1292 emits induction/cases/congr1; lines1371-1386 emits exact theorem(arguments). Proposed Apply1 and Nat proof shape use these supported constructors.",
+    "resultCases": "Builtin SemanticType::Result is absent from elimination_binder_types supported cases and falls to rejection. This bounded candidate uses Nat Cases only. This observation does not prove that every future continuation bridge is impossible; alternate supported constructions must be tested concretely.",
+    "priorTerminalEvidence": "Read pinned native-review.json and emitted context. Prior accepted terminal result and its auxiliary allocated-before measurement caveat are retained. This review did not redo prior complete artifact audit or execute fresh replay."
+  },
+  "controls": {
+    "stateNegative": "Meaningful proposed control: keep true leaf certificate, P and lifted theorem unchanged; change only first byte of consumer expected inventory record.id from63 to64 while frontier stays original. The whole ObjCarryState equality observes inventory, so the mismatch is not erased by an ID-only projection. Require actual sourcecheck success and specific Apply1 consumer mismatch after dependencies verify. Resource, leaf-certificate, import or parser failure is not this RED.",
+    "positive": "Require actual first leaf, lifted theorem and concrete production consumer success, exact emitted source/state, none axiom policy with empty observed axioms, recorded kernel replay and independent artifact audit.",
+    "status": "ALL NEW NATIVE TESTS NOT_RUN"
+  },
+  "candidateConditions": [
+    "Copy only record0 statement/parameters/empty axioms and replace its proof with Reflexivity; do not import unaccepted Hash0/Wrapper0 helper proofs.",
+    "Reuse exact unchanged terminal context; preserve original production sources and genuine phase lock/configuration with300000ms limit.",
+    "Positive consumer RHS must be retained Carry0 result AST; negative must differ only at intended inventory ID byte. Preserve frontier, leaf certificate, P and lifted theorem.",
+    "Pin imported closure including unchanged context module; no new extra leaf or parent certificates or whole artifact copying.",
+    "Candidate source and CODE review must precede separately gated native execution. Keep malformed/runtime/resource failures distinct from intended proof negatives."
+  ],
+  "acceptance": {
+    "proposalAdequateForBoundedCandidatePreparation": true,
+    "newLeafCertificate": false,
+    "newConcreteState": false,
+    "original257": false,
+    "fullComposition": false,
+    "Object": false,
+    "PrismPM": false,
+    "Pages": false
+  },
+  "limits": [
+    "Source review does not establish native admission, proof success, controlled performance improvement, or composition of later states.",
+    "No SDK/compiler/native execution, VM changes, repository edits, frozen packet changes, fixture generation or other-lab changes. Only this small report written.",
+    "Publication of this proposal/review or merging a continuation checkpoint does not make missing prismpm.lock or production integration acceptance pass. Portable relative reference mappings are delivery work separate from this source review."
+  ],
+  "storage": {
+    "freshAvailableBytes": "33439453184",
+    "reportBudgetBytes": 15360,
+    "artifactCopies": 0
+  }
+}

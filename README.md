@@ -13,6 +13,10 @@ sources; handwritten implementations of application behavior are excluded.
 
 ## Current state
 
+For the current working plan, next proof, incomplete work and portable handoff,
+start with [CONTINUATION.md](docs/CONTINUATION.md). Reviewed development checkpoints
+are merged through PRs to `main`; this does not imply production acceptance.
+
 **Repository established; implementation and deployment are not complete.**
 This repository was generated through GitHub's template operation from
 [`UOR-Foundation/template`](https://github.com/UOR-Foundation/template).

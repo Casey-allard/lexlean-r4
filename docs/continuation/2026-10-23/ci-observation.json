@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-23T17:15:46.715Z",
+  "headCommit": "0e3544a85454276394f58344dfc93772dcd4c444",
+  "workflowRun": 39993043946,
+  "job": 120549398255,
+  "url": "https://github.com/Casey-allard/lexlean-r4/actions/runs/39993043946/job/120549398255",
+  "source": "Authenticated GitHub Actions job log fetched during checkpoint merge preparation",
+  "step": "Run the template gate through the locked SDK",
+  "diagnostic": "sed: can't read prismpm.lock: No such file or directory",
+  "exitCode": 2,
+  "interpretation": "Failure precedes docker and just vv. Production acceptance was not run. Universal CI was not disabled or changed; no lock fabricated."
+}
