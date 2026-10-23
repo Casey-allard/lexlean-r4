@@ -1,0 +1,286 @@
+{
+  "schema": "lexlean-r4-store20-negative-native-review/v1",
+  "at": "2026-10-23T20:48:19.057Z",
+  "status": "PASS_INTENDED_LANGUAGE_BINDING_ADMISSION_NEGATIVE_ONLY",
+  "findings": [],
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/store20-header-migration-proposal.json",
+    "bytes": 17423,
+    "sha256": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a"
+  },
+  "invocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/run-store20.mjs",
+    "bytes": 7164,
+    "sha256": "3800e2359d35f23e3583f6859555ce0eb6887ba1be142200d1bd8b20d5faec93"
+  },
+  "invocationReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/invocation-source-review.json",
+    "bytes": 3743,
+    "sha256": "23054534b4219c6abb5014f1bc7010977a68ba663b5e458383e2aadb0946454f"
+  },
+  "runtimeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/runtime-source-code-review.json",
+    "bytes": 9258,
+    "sha256": "7dc91b96fb9a769f3230995cb55e5b3dd93f7dc06e4eac1a06d8e9d9d0cb1f98"
+  },
+  "observed": {
+    "lockStatus": 0,
+    "checkStatus": 1,
+    "checkWallMilliseconds": 506,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLR3001",
+      "help": [],
+      "labels": [],
+      "message": "`lexlean.std.bool@1.1.0` does not match the locked version 1.2.0",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "verify": "NOT_RUN",
+    "artifacts": [],
+    "postcaptureErrors": [],
+    "lockSha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2",
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []"
+  },
+  "checks": {
+    "exact15InputProposalAndActualCopyPaths": true,
+    "all15HostSourceHashesAndGuestBeforeAfterHashesMatch": true,
+    "immutableOriginalControlSnapshotUsed": true,
+    "genuineLanguage12LockAndUnchangedLockHash": true,
+    "recordedNativeSequenceOnlyLockThenCheck": true,
+    "intendedLLR3001VersionMismatch": true,
+    "noVerifyReceiptOrArtifact": true,
+    "knownToolsAndSameReviewedNewEpoch": true,
+    "zeroMemoryEventsAndIdleBeforeAfter": true,
+    "independentPostchecksAndStorageGates": true
+  },
+  "storage": {
+    "before": {
+      "hostAvailableBytes": "31360479232",
+      "guestAvailableKiB": "53168088",
+      "estimateBytes": "10737418240",
+      "reserveBytes": "10737418240"
+    },
+    "after": {
+      "hostAvailableBytes": "31358074880",
+      "guestAvailableKiB": "53166144",
+      "estimateBytes": "0",
+      "reserveBytes": "10737418240"
+    }
+  },
+  "receiptInventory": [
+    {
+      "path": "negative/allocated-before.json",
+      "bytes": 459,
+      "sha256": "aecc0a60e4f05b4aa7833f863fd5bf499e4456cb48f012f4c82f11df863bc19f"
+    },
+    {
+      "path": "negative/check.json",
+      "bytes": 880,
+      "sha256": "981c4c660f4cdde105c03599e79e11eec4d7d77ffb832714e007473d0bbf8e28"
+    },
+    {
+      "path": "negative/copy-0.json",
+      "bytes": 442,
+      "sha256": "26fa5409f424d282d28d8dcf0060d4fbaa3bb6dddddbe56e1e07b38f1591f151"
+    },
+    {
+      "path": "negative/copy-1.json",
+      "bytes": 440,
+      "sha256": "431f54f4978cc04f71171bde8015f745136840e29742a2a8c0d308e4e4ba6c77"
+    },
+    {
+      "path": "negative/copy-10.json",
+      "bytes": 473,
+      "sha256": "c71480638988cd56aaeef77c4151e72e89314a900d59be29da466208ec8f0299"
+    },
+    {
+      "path": "negative/copy-11.json",
+      "bytes": 428,
+      "sha256": "af4af620c6960c808d6ca7ea6c7a23003ac87d278763794d46a6563544045fc2"
+    },
+    {
+      "path": "negative/copy-12.json",
+      "bytes": 438,
+      "sha256": "febd0182d56e50207cdec79b0304cd6d8a6f1dd0e286711505b06e7c6ff44632"
+    },
+    {
+      "path": "negative/copy-13.json",
+      "bytes": 430,
+      "sha256": "5dc7ce800f6c861ecac3fbafffe7eca9aeedd6fb5aae100cd317c077257e4eaf"
+    },
+    {
+      "path": "negative/copy-14.json",
+      "bytes": 421,
+      "sha256": "4a871c8216a918f070f3e0740023c647076569d61899ce375dc0ba5160aa89c5"
+    },
+    {
+      "path": "negative/copy-2.json",
+      "bytes": 446,
+      "sha256": "ad9ded527818821aca7dd5842013eba9f1b839da101744e926eca875a4dc35ff"
+    },
+    {
+      "path": "negative/copy-3.json",
+      "bytes": 454,
+      "sha256": "a9197588b4fbdd5698ac552ea98d023720bb6b5c0d4ad0a35c26c9bbef12d9ba"
+    },
+    {
+      "path": "negative/copy-4.json",
+      "bytes": 448,
+      "sha256": "058034774438f6e978fa2b8aa35c6875ebe9fe11cab38ff61f00d08d447c0754"
+    },
+    {
+      "path": "negative/copy-5.json",
+      "bytes": 406,
+      "sha256": "5e2124b7ee13aad9fbaaaddf984c210f8e6c2ceb5e58709d882f88118bc4a798"
+    },
+    {
+      "path": "negative/copy-6.json",
+      "bytes": 406,
+      "sha256": "743438a3fb8d24759feab5d74d8093e0dd41c45ea97e9344cc0aff994e336d0f"
+    },
+    {
+      "path": "negative/copy-7.json",
+      "bytes": 406,
+      "sha256": "09ae84d76e6b924a4b95e03aa8c3d83964d5bca58f7e8d877d0c1ba7ee6861e2"
+    },
+    {
+      "path": "negative/copy-8.json",
+      "bytes": 404,
+      "sha256": "bc600f20c81bab06fd546b85099810fea6d86bd31b51731c0d2ffe0c14d39bf9"
+    },
+    {
+      "path": "negative/copy-9.json",
+      "bytes": 396,
+      "sha256": "02c77e5086242c2d61dee4274d2e5901712cc785d9e7a88996729e6571e05fc6"
+    },
+    {
+      "path": "negative/directories.json",
+      "bytes": 400,
+      "sha256": "a7ef5cd9bc7857ac334a912420b0137dc2bd0e47c5565d4dd0fd0db66e518e3d"
+    },
+    {
+      "path": "negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "e020eba0205e5ae0d72cafdbeff07e9cd5d26034c885c6f1cf076c68eb114892"
+    },
+    {
+      "path": "negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "fffea5c52adcf29b2982b51b11050460ab69449a4542bf7d7f4900b4cc5b8de1"
+    },
+    {
+      "path": "negative/expected-inputs.json",
+      "bytes": 4195,
+      "sha256": "9480be9ad2dba4e171beb81467eb77327e661087098ff539381420f00a94de48"
+    },
+    {
+      "path": "negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "4486e7e788cd5e5509a30199949ea23a76d40b9b2e7c813b63d577f8080a8c4b"
+    },
+    {
+      "path": "negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "9fed8cae22cf2ef1be8adb7ccef843f198e17c78557988ec4d5f3f034952907b"
+    },
+    {
+      "path": "negative/host-after.json",
+      "bytes": 142,
+      "sha256": "773fac40005c3d977279c45f804a504b416db846e0f8861277e9b89e6f89eda0"
+    },
+    {
+      "path": "negative/host-before.json",
+      "bytes": 152,
+      "sha256": "0eda6e47edc2534d3230f1dac47be9876518a227668f450c43439435b6637192"
+    },
+    {
+      "path": "negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "c42d03d4d7800559dd1df2df3c8c3ab66b95020bb73ce9ff79896fa8a5a5a58a"
+    },
+    {
+      "path": "negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "f04ffc434e45e249bb2c6f360d1aa0b2bd5e4007c76dccd17a826e36f9bf6618"
+    },
+    {
+      "path": "negative/lock-after.json",
+      "bytes": 459,
+      "sha256": "10797e55dfa119f270dd7fe4686c169e7e8d873aa858d62546b2d99f04c13e53"
+    },
+    {
+      "path": "negative/lock-bytes.json",
+      "bytes": 2040,
+      "sha256": "43d8e1691848a603026b63cf0a5f12b2ee0754bcba49f092d69eb1b60a4a09cd"
+    },
+    {
+      "path": "negative/lock.json",
+      "bytes": 524,
+      "sha256": "3e48cc90b155e80cfcaf5e47398d2c36a06b80bac23e384bedd8a31a2935a04f"
+    },
+    {
+      "path": "negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "7d52766b4a254677c8cfd7147a0202808cbadb590b61a8fe5bf63e0faae15642"
+    },
+    {
+      "path": "negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "1eb3969a9f88fc83ee1265e13c5e92ab0b4cc564944e41d4e4fdbb4ed97b982a"
+    },
+    {
+      "path": "negative/new-stage.json",
+      "bytes": 315,
+      "sha256": "1fd2aa6367ee6b0bf42365b1a08a86e333ec0677eb8161218b4b33a8a094a70a"
+    },
+    {
+      "path": "negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "negative/result.json",
+      "bytes": 894,
+      "sha256": "172dedeed8c0c4d0df8c0e1f4041f7e7079814ee4a66005119f78e7b4f2aaad1"
+    },
+    {
+      "path": "negative/source-after.json",
+      "bytes": 3479,
+      "sha256": "e3455b1c8431c28353ce76b1a4d42821c357c2b14d329d40f8cb2b22fa938493"
+    },
+    {
+      "path": "negative/source-before.json",
+      "bytes": 3479,
+      "sha256": "a63fc11ddc10204d6e4313b004414160a6eb4a9df087de51a0639c1915282211"
+    },
+    {
+      "path": "negative/swap-before.json",
+      "bytes": 265,
+      "sha256": "5e04a9f4a6f87be84aa52fdc091b73ff06dac98001220a4a2dac39a085dd54b6"
+    },
+    {
+      "path": "negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "085420d2d9e5fbc58b2e0106e8c0ec73f0c41fdfeabadd76b733e167af071554"
+    }
+  ],
+  "interpretation": "Actual official source admission rejects the unchanged legacy bool1.1.0 import against genuine locked1.2.0 exactly as predicted. This is compatibility RED only; no theorem verification was invoked and it is not one of the required Object semantic planted-defect negatives.",
+  "limitations": [
+    "No Store20 proof acceptance. Positive migrated control requires its separate exact source approval, fresh launch gates and independent actual artifact review.",
+    "The sourcecheck stopped at glossary mismatch; schema mismatch was not separately exercised by this run.",
+    "No claim about full403 Object controls, full257, canonical Hash, model integration, PrismPM or Pages.",
+    "Launcher0 describes successful capture/postchecks only; actual sourcecheck exit is1.",
+    "Reviewer made no SDK/native/VM/repository changes; sampled storage/idle observations are not continuous monitoring guarantees."
+  ]
+}

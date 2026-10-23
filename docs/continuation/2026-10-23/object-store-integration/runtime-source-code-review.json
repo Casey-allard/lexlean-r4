@@ -1,0 +1,183 @@
+{
+  "schema": "lexlean-r4-object-runtime-source-code-review/v1",
+  "at": "2026-10-23T20:46:04.455Z",
+  "status": "PASS_FIVE_RUNTIME_SOURCE_RECONCILIATIONS_STORE20_EXECUTION_BLOCKED",
+  "findings": [],
+  "reviewedHead": "6e313585f018f04fc07dbb27edaedecaecc62cb9",
+  "branch": "codex/object-draft-store-integration",
+  "reconciliation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/source-reconciliation.json",
+    "bytes": 9112,
+    "sha256": "f07d5abbe87d9fa918ce351dd63011073c856125a4f59e9940e843901b5d7299"
+  },
+  "prewrite": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/source-reconciliation-prewrite.json",
+    "bytes": 23438,
+    "sha256": "6a22eeaca4fd0fd53492cdbb45fb32b22f56a32d1b474b394af3968f61d83212"
+  },
+  "inputManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/input-manifest.json",
+    "bytes": 7582,
+    "sha256": "4cab39919aa21af8fc542c3f2cd23de299be97da556ab461122a91262d91ed94"
+  },
+  "snapshotManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending-manifest.json",
+    "bytes": 5064,
+    "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+  },
+  "modules": [
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "beforeSnapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83582,
+        "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+      },
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      "finiteTarget": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      "declarations": 109,
+      "changedDeclarations": [
+        "ObjIdValid"
+      ]
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "beforeSnapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111631,
+        "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+      },
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      "finiteTarget": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      "declarations": 100,
+      "changedDeclarations": [
+        "ObjHashBytes",
+        "ObjNodeHash"
+      ]
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "beforeSnapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectStore.lex.tex",
+        "bytes": 66585,
+        "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+      },
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      "finiteTarget": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      "declarations": 24,
+      "changedDeclarations": [
+        "ObjLookupRecord"
+      ]
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "beforeSnapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectRead.lex.tex",
+        "bytes": 86326,
+        "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+      },
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "finiteTarget": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "declarations": 32,
+      "changedDeclarations": [
+        "ObjIdMember",
+        "ObjInsertIdSorted",
+        "ObjRawLookup",
+        "ObjAuthenticatedFetch",
+        "ObjVisitNode",
+        "ObjSeenScaleLookup",
+        "ObjMissingAdvance",
+        "ObjMissingAbsent",
+        "ObjMissingNode"
+      ]
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "beforeSnapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+      },
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      "finiteTarget": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      "declarations": 8,
+      "changedDeclarations": []
+    }
+  ],
+  "checks": {
+    "all17ImmutableSnapshotsMatchOriginalBaseline": true,
+    "all5CurrentRuntimeFilesByteEqualReviewedFiniteTarget": true,
+    "totalDeclarations": 273,
+    "unchangedDeclarations": 260,
+    "alphaRenamedDeclarations": 11,
+    "dispatchChanges": 2,
+    "schemaAndGlossaryMigrations": 5,
+    "entireExpectedAstReconstructionMatches": true,
+    "canonicalSemanticJson": true,
+    "envelopesOnlyGlossaryVersionsAndCodecImport": true,
+    "remaining12DraftHashesUnchanged": true,
+    "Store20DeclarationNamesAndEmptyAxiomsUnchanged": true,
+    "all15BlockedInputPinsAndUniqueDestinations": true,
+    "configOnlyEntrypointChangedAnd300000msPreserved": true,
+    "officialCompatibilitySourcePinsVerified": true,
+    "indexEmpty": true
+  },
+  "interpretation": {
+    "alphaRenames": "Independently changed each parameter id to its fresh declaration-specific InputId and only matching var nodes; rejected id shadowing in branch binders and compared entire resulting declarations. Record/member id fields unchanged.",
+    "dispatch": "Only ObjHashBytes and ObjNodeHash switch to finite HashWire functions and directly use their Nat-byte results. Input arguments, error propagation, output records and all other fields preserved. This is an explicit finite compatibility implementation change, not a proof of general canonical Hash/HashWire equivalence.",
+    "wholeObject": "All facade declarations and all other260 declarations unchanged; original input/digest control source and limits untouched. No whole257 or fullObject proof follows from source reconciliation.",
+    "migration": "All5 modules explicitly migrate schema1 to2 and bool/nat1.1.0 to1.2.0; this does not assert general SDK semantic equivalence."
+  },
+  "executionBlock": {
+    "status": "FROZEN_15INPUT_PREPARATION_BLOCKED_LEGACY_CONTROL_BINDING",
+    "reason": "Store20 retains schema1 and glossary1.1.0 but config language1.2 requires schema2 and exact locked1.2.0 package references. Independently inspected official link.rs677-697 and semantic.rs2459-2462/8908 validation. This is a source-backed incompatibility, not an actual native failure.",
+    "next": "Separate reviewed minimal Store20 schema/glossary successor with every declaration AST unchanged and refreshed input identities before genuine lock/check/verify."
+  },
+  "limitations": [
+    "Source review only; no actual new sourcecheck/verify or RED/GREEN acceptance.",
+    "Finite Hash dependencies remain isolated development inputs; canonical Hash qualification/general equivalence remains open.",
+    "Full403 Object controls,20 primitive controls, required defect/restoration coverage, model/conformance, productionPrismPM/fulljustvv and Pages remain open.",
+    "No SDK/native/VM/repository/index changes by reviewer."
+  ],
+  "reviewInstrumentation": "An initial inline audit had a JavaScript syntax error before execution and wrote nothing. Corrected independent reconstruction then completed all assertions."
+}

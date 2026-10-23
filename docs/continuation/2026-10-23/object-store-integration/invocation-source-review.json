@@ -1,0 +1,59 @@
+{
+  "schema": "lexlean-r4-store20-invocation-source-review/v1",
+  "at": "2026-10-23T20:46:49.149Z",
+  "status": "PASS_BOUNDED_ONE_OFF_SOURCE_INVOCATION_WITH_SEPARATE_PHASE_ACCEPTANCE",
+  "findings": [],
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/run-store20.mjs",
+    "bytes": 7164,
+    "sha256": "3800e2359d35f23e3583f6859555ce0eb6887ba1be142200d1bd8b20d5faec93"
+  },
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/store20-header-migration-proposal.json",
+    "bytes": 17423,
+    "sha256": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a"
+  },
+  "proposalSpecReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/store20-header-migration-spec-review.json",
+    "bytes": 7159,
+    "sha256": "9ae13e33ba9c2570b5579a66e2a20d18d8b1b67aa0b17a9f813203f4e9637e06"
+  },
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/../symbolic-continuation/run-phase.mjs",
+    "bytes": 7246,
+    "sha256": "e53bb29fd796a83287597490d353bfffc5f1ad863b902f8cb637fd8bbc9b8cdc"
+  },
+  "runtimeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/runtime-source-code-review.json",
+    "bytes": 9258,
+    "sha256": "7dc91b96fb9a769f3230995cb55e5b3dd93f7dc06e4eac1a06d8e9d9d0cb1f98"
+  },
+  "checks": {
+    "nodeSyntaxCheckOnly": true,
+    "proposalExactHashPinned": true,
+    "negativeAndPositive15InputCensusesVerified": true,
+    "positiveProposedBytesReconstructedFromExactly3Edits": true,
+    "onlyControlBindingDiffersBetweenPhases": true,
+    "destinationPathsConfinedAndUnique": true,
+    "resourceToolsEpochIdleSourceHelpersByteUnchanged": true,
+    "preflightStorageAllocatedSwapEpochIdleToolsByteUnchanged": true,
+    "independentFinallyPostchecksByteUnchanged": true,
+    "noAutomaticPhaseLoop": true,
+    "negativeContainsNoVerifyDispatch": true,
+    "positiveRequiresSuccessfulLockAndCheckBeforeVerify": true,
+    "genuineLockBytesAndPosthashPreserved": true,
+    "freshDistinctStageAndExclusiveOutputDirectory": true
+  },
+  "interpretation": "This narrowly adapts the reviewed one-off invocation to the exact15-input Store20 proposal. Negative records actual lock/check results only; a genuine lock failure or unexpected check success remains evidence for parent classification, never an automatically accepted RED. Positive requires lock/check success and copies an artifact only when verify returns status0/success with a valid verified artifact path.",
+  "requiredBoundaries": [
+    "Parent must inspect intended legacy-version/schema diagnostic and postconditions before advancing; launcher exit0 alone does not accept a negative or a proof.",
+    "Source CODE review of the actual3metadata-edit successor remains required before positive dispatch. Reconstructed proposed bytes do not claim canonical successor has been written or reviewed.",
+    "Each phase requires fresh live gates; script review is not a resource reservation.",
+    "Actual positive artifact requires independent source/lock/epoch/storage, empty-axiom and kernel audit; no general runner reliability or fullObject acceptance."
+  ],
+  "limitations": [
+    "No SDK/compiler/Docker/VM operation or source mutation performed; only node --check (syntax parsing) and read-only source comparisons.",
+    "Inherited one-off shell-process observations are checked again from actual receipts; this is not a generic adversarial execution framework.",
+    "No native outcomes established by this report."
+  ]
+}

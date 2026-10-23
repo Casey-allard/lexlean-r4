@@ -1,0 +1,355 @@
+{
+  "schema": "lexlean-r4-store20-header-migration-proposal/v1",
+  "status": "SOURCE_ONLY_PROPOSAL_CONTROL_UNCHANGED_NATIVE_NOT_RUN",
+  "scope": "Smallest language1.2 compatibility migration for existing20Store control declarations. No new fixture, framework, altered statement/proof/axiom/runtime or lock fabrication.",
+  "originalControl": {
+    "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+    "bytes": 120318,
+    "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+  },
+  "immutableSnapshot": {
+    "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+    "bytes": 120318,
+    "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+  },
+  "proposedSuccessor": {
+    "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+    "bytes": 120318,
+    "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687",
+    "written": false
+  },
+  "exactChanges": [
+    {
+      "from": "\\useglossary{lexlean.std.bool@1.1.0}",
+      "to": "\\useglossary{lexlean.std.bool@1.2.0}"
+    },
+    {
+      "from": "\\useglossary{lexlean.std.nat@1.1.0}",
+      "to": "\\useglossary{lexlean.std.nat@1.2.0}"
+    },
+    {
+      "from": "\"spec\":\"lexlean/semantic-module/1\"",
+      "to": "\"spec\":\"lexlean/semantic-module/2\""
+    }
+  ],
+  "declarationAudit": {
+    "count": 20,
+    "entireDeclarationArrayExact": true,
+    "originalDeclarationsSha256": "1d870d4cf1a26831c1d83b1ff5e39eb3497598aaeb6c521936c7eb1e3a4901a5",
+    "successorDeclarationsSha256": "1d870d4cf1a26831c1d83b1ff5e39eb3497598aaeb6c521936c7eb1e3a4901a5",
+    "names": [
+      "objFoldObjectBudget",
+      "objFoldConstructionBudget",
+      "objImportFragmentRefused",
+      "objImportTrailingFragmentRefused",
+      "objImportRawBudgetBeforeDuplicate",
+      "objImportVisitsCountDuplicates",
+      "objImportIdempotentStats",
+      "objImportIdenticalDuplicateStats",
+      "objExistingRecordCountBudget",
+      "objExistingWireBytesBudget",
+      "objExportExactZeroRecord",
+      "objExternalInventoryMustAuthenticate",
+      "objFoldRejectsInvalidByte",
+      "objCallerLimitOutsideU64",
+      "objCompleteAdditionalRecordAccepted",
+      "objExportSortedByRawId",
+      "objTypedShortIdLongPayloadRefused",
+      "objTypedLongIdShortPayloadRefused",
+      "objInventoryShortIdAliasRefused",
+      "objInventoryLongIdAliasRefused"
+    ],
+    "statementsProofsParametersAxiomsUnchanged": true,
+    "allDeclaredAxiomsEmpty": true,
+    "byteLengthUnchanged": true,
+    "method": "Only3exact literal replacements on original bytes in memory; no control write. Parsed before/after declaration arrays deep-equal."
+  },
+  "officialCompatibility": {
+    "status": "BLOCKED_BY_LEGACY_CONTROL_LANGUAGE_BINDING_NOT_NATIVE_TEST_FAILURE",
+    "facts": [
+      "Store20 retains bool/nat@1.1.0 and semantic-module/1.",
+      "Reviewed config language1.2 uses bootstrap1.2 package versions1.2.0.",
+      "link.rs677-697 requires glossary version equality with loaded locked closure; mismatch produces LLR3001.",
+      "semantic.rs2459-2462 selects semantic-module/2 for1.2; validate8908 rejects self.spec mismatch."
+    ],
+    "officialPins": [
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/link.rs",
+        "bytes": 92765,
+        "sha256": "d12b7dc54b5282daa65395f9df62aca2e7b6d134c10a0f96055689852cedbc26"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+        "bytes": 384753,
+        "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/lexicon/mod.rs",
+        "bytes": 17570,
+        "sha256": "f99e70bd5c6f14afb8394441e15294d42e115bc706e3b952af3589639da740df"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/language/bootstrap-1.2.toml",
+        "bytes": 4156,
+        "sha256": "11b4d391094090cc082116d36b333f0a20934f2f59658b54470a8b3ae60e5c40"
+      }
+    ],
+    "proposedMinimalSuccessor": "Only Store20 two glossary version strings1.1.0->1.2.0 and top-level semantic-module/1->/2. Preserve every20declaration AST (statements, proofs, parameters and empty axioms) exactly; re-freeze15input identities/config under independent source review. Do not execute unchanged legacy packet or weaken admission.",
+    "implemented": false
+  },
+  "runtimeReconciliation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/source-reconciliation.json",
+    "bytes": 9112,
+    "sha256": "f07d5abbe87d9fa918ce351dd63011073c856125a4f59e9940e843901b5d7299"
+  },
+  "initialInventory": {
+    "pin": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/input-manifest.json",
+      "bytes": 7582,
+      "sha256": "4cab39919aa21af8fc542c3f2cd23de299be97da556ab461122a91262d91ed94"
+    },
+    "interpretation": "Preserved initial blocked source-compatibility inventory, not an approved executable proof packet. The original legacy control is used only for the reviewed admission-negative phase below."
+  },
+  "phaseSpec": {
+    "shape": "One bounded15input Store20 batch;14inputs/config stable, only control language binding differs. Parent one-off operation only, no generalized runner.",
+    "negative": {
+      "status": "NOT_RUN",
+      "classification": "Source-admission compatibility RED only; not a semantic proof negative",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+          "bytes": 120318,
+          "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993",
+          "destination": "tests/lexlean/ObjectStoreControls.lex.tex",
+          "origin": "Exact immutable original control snapshot for admission RED"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/lexlean.toml",
+          "bytes": 683,
+          "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde",
+          "destination": "lexlean.toml"
+        }
+      ],
+      "commands": [
+        "lexlean --diagnostic-format json lock",
+        "lexlean --diagnostic-format json check"
+      ],
+      "expected": "Under unchanged language1.2 config, genuine generatedlock resolves1.2.0 builtins. Source check should reject legacy1.1.0 glossary against locked version with LLR3001 (or independently established schema mismatch if ordering differs). Retain exact actual diagnostic. Do not invoke verify on this expected source-admission failure.",
+      "stop": "If source check passes unexpectedly or fails for unrelated setup/resource/corruption reason, stop and investigate; no manufactured RED."
+    },
+    "positive": {
+      "status": "NOT_RUN",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+          "destination": "src/R4/Words.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+          "destination": "src/R4/Hash.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+          "destination": "src/R4/HashNat.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+          "destination": "src/R4/HashWire.lex.tex",
+          "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+          "destination": "src/R4/Object.lex.tex",
+          "origin": "Reconciled canonical draft"
+        },
+        {
+          "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+          "bytes": 120318,
+          "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687",
+          "destination": "tests/lexlean/ObjectStoreControls.lex.tex",
+          "origin": "PROPOSED header/schema-only migrated control; not written yet"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+          "destination": "lakefile.toml"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+          "destination": "lake-manifest.json"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+          "destination": "lean-toolchain"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/lexlean.toml",
+          "bytes": 683,
+          "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde",
+          "destination": "lexlean.toml"
+        }
+      ],
+      "commands": [
+        "lexlean --diagnostic-format json lock",
+        "lexlean --diagnostic-format json check",
+        "lexlean --diagnostic-format json verify tests/lexlean/ObjectStoreControls.lex.tex"
+      ],
+      "expected": "After independent source review author only3version/spec edits to canonical control and freeze new sourcehash; sourcecheck and actual20control verify must pass with fresh genuine lock and independent artifact/emptyaxiom/kernel audit. Source compatibility GREEN alone is not20proof acceptance."
+    },
+    "limits": {
+      "childTimeoutMs": 300000,
+      "containerMemoryBytes": 4294967296,
+      "containerCpuCount": 2
+    },
+    "requirements": [
+      "Independent exact runtime+control migration source CODE before any actual phase.",
+      "Fresh source/tool/config/lock/epoch/idle/zero-memory/storage gates and independent postchecks.",
+      "Preserve original negative source/receipts and snapshots after green.",
+      "No fallback to older language, dependency replacement, hand-authored lock or relaxed axiom/limits.",
+      "Only this Store20root; other383Object controls and20Blake3 remain open.",
+      "Required semantic planted defects remain separate; admission RED never counts as one."
+    ]
+  },
+  "unchangedUntilReview": "Canonical tests/lexlean/ObjectStoreControls.lex.tex remains original. Remaining12drafts including thiscontrol remain unchanged. Runtime5source edits separately retained. Proposal authoring uses no compiler/native/VM/index/commit."
+}

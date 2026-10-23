@@ -1,0 +1,218 @@
+{
+  "schema": "lexlean-r4-object-draft-source-reconciliation/v1",
+  "status": "FIVE_CANONICAL_RUNTIME_SOURCES_RECONCILED_STORE20_PACKET_BLOCKED_SOURCE_COMPATIBILITY",
+  "prewriteRecord": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/source-reconciliation-prewrite.json",
+    "bytes": 23438,
+    "sha256": "6a22eeaca4fd0fd53492cdbb45fb32b22f56a32d1b474b394af3968f61d83212"
+  },
+  "after": [
+    {
+      "canonical": {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      "verifiedFiniteTarget": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      "byteIdentical": true
+    },
+    {
+      "canonical": {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      "verifiedFiniteTarget": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      "byteIdentical": true
+    },
+    {
+      "canonical": {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      "verifiedFiniteTarget": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      "byteIdentical": true
+    },
+    {
+      "canonical": {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "verifiedFiniteTarget": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "byteIdentical": true
+    },
+    {
+      "canonical": {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      "verifiedFiniteTarget": {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      "byteIdentical": true
+    }
+  ],
+  "semanticSummary": {
+    "HashWireDispatchChanges": 2,
+    "alphaRenamedDeclarations": 11,
+    "unchangedDeclarations": 260,
+    "totalDeclarations": 273,
+    "formatMigrationModules": 5,
+    "facadeDeclarationsUnchanged": true,
+    "facadeBytesChanged": true
+  },
+  "control": {
+    "pin": {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    "declarations": 20,
+    "names": [
+      "objFoldObjectBudget",
+      "objFoldConstructionBudget",
+      "objImportFragmentRefused",
+      "objImportTrailingFragmentRefused",
+      "objImportRawBudgetBeforeDuplicate",
+      "objImportVisitsCountDuplicates",
+      "objImportIdempotentStats",
+      "objImportIdenticalDuplicateStats",
+      "objExistingRecordCountBudget",
+      "objExistingWireBytesBudget",
+      "objExportExactZeroRecord",
+      "objExternalInventoryMustAuthenticate",
+      "objFoldRejectsInvalidByte",
+      "objCallerLimitOutsideU64",
+      "objCompleteAdditionalRecordAccepted",
+      "objExportSortedByRawId",
+      "objTypedShortIdLongPayloadRefused",
+      "objTypedLongIdShortPayloadRefused",
+      "objInventoryShortIdAliasRefused",
+      "objInventoryLongIdAliasRefused"
+    ],
+    "allDeclaredAxiomsEmpty": true,
+    "unchanged": true,
+    "check": "NOT_RUN",
+    "verify": "NOT_RUN"
+  },
+  "config": {
+    "source": {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-concrete/lexlean.toml",
+      "bytes": 689,
+      "sha256": "3d5ddb3181c9253e337829f14d01263e9871a0d89907a438f48adf86646a0852"
+    },
+    "candidate": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/lexlean.toml",
+      "bytes": 683,
+      "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde"
+    },
+    "onlyDifference": "entrypoints"
+  },
+  "compatibility": {
+    "status": "BLOCKED_BY_LEGACY_CONTROL_LANGUAGE_BINDING_NOT_NATIVE_TEST_FAILURE",
+    "facts": [
+      "Store20 retains bool/nat@1.1.0 and semantic-module/1.",
+      "Reviewed config language1.2 uses bootstrap1.2 package versions1.2.0.",
+      "link.rs677-697 requires glossary version equality with loaded locked closure; mismatch produces LLR3001.",
+      "semantic.rs2459-2462 selects semantic-module/2 for1.2; validate8908 rejects self.spec mismatch."
+    ],
+    "officialPins": [
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/link.rs",
+        "bytes": 92765,
+        "sha256": "d12b7dc54b5282daa65395f9df62aca2e7b6d134c10a0f96055689852cedbc26"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+        "bytes": 384753,
+        "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/lexicon/mod.rs",
+        "bytes": 17570,
+        "sha256": "f99e70bd5c6f14afb8394441e15294d42e115bc706e3b952af3589639da740df"
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/language/bootstrap-1.2.toml",
+        "bytes": 4156,
+        "sha256": "11b4d391094090cc082116d36b333f0a20934f2f59658b54470a8b3ae60e5c40"
+      }
+    ],
+    "proposedMinimalSuccessor": "Only Store20 two glossary version strings1.1.0->1.2.0 and top-level semantic-module/1->/2. Preserve every20declaration AST (statements, proofs, parameters and empty axioms) exactly; re-freeze15input identities/config under independent source review. Do not execute unchanged legacy packet or weaken admission.",
+    "implemented": false
+  },
+  "testsFirst": "Existing20controls retained unchanged. HashWire dispatch has finite-fixture proof history; this canonical draft batch has no actual new RED/GREEN. No source check/verification run or fabricated failure is claimed. Existing403Object controls remain mandatory.",
+  "remainingTwelveUnchanged": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ],
+  "scope": "Only the5authorized canonical runtime paths and this small evidence/config packet changed. No test/model/feature/docs/source beyond those5, SDK/VM/native/build/index/commit, other-lab or frozen fixture changes. No lock generated.",
+  "acceptance": "Independent source CODE review and a reviewed control-format successor are required before native execution. Scoped Store20 success, if later achieved, does not establish completeObject, Hash qualification, PrismPM/fulljustvv or Pages."
+}

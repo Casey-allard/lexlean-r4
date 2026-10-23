@@ -1,0 +1,22 @@
+module
+import LexLeanR4.ObjectStoreControls
+#print axioms LexLeanR4.ObjectStoreControls.objCallerLimitOutsideU64
+#print axioms LexLeanR4.ObjectStoreControls.objCompleteAdditionalRecordAccepted
+#print axioms LexLeanR4.ObjectStoreControls.objExistingRecordCountBudget
+#print axioms LexLeanR4.ObjectStoreControls.objExistingWireBytesBudget
+#print axioms LexLeanR4.ObjectStoreControls.objExportExactZeroRecord
+#print axioms LexLeanR4.ObjectStoreControls.objExportSortedByRawId
+#print axioms LexLeanR4.ObjectStoreControls.objExternalInventoryMustAuthenticate
+#print axioms LexLeanR4.ObjectStoreControls.objFoldConstructionBudget
+#print axioms LexLeanR4.ObjectStoreControls.objFoldObjectBudget
+#print axioms LexLeanR4.ObjectStoreControls.objFoldRejectsInvalidByte
+#print axioms LexLeanR4.ObjectStoreControls.objImportFragmentRefused
+#print axioms LexLeanR4.ObjectStoreControls.objImportIdempotentStats
+#print axioms LexLeanR4.ObjectStoreControls.objImportIdenticalDuplicateStats
+#print axioms LexLeanR4.ObjectStoreControls.objImportRawBudgetBeforeDuplicate
+#print axioms LexLeanR4.ObjectStoreControls.objImportTrailingFragmentRefused
+#print axioms LexLeanR4.ObjectStoreControls.objImportVisitsCountDuplicates
+#print axioms LexLeanR4.ObjectStoreControls.objInventoryLongIdAliasRefused
+#print axioms LexLeanR4.ObjectStoreControls.objInventoryShortIdAliasRefused
+#print axioms LexLeanR4.ObjectStoreControls.objTypedLongIdShortPayloadRefused
+#print axioms LexLeanR4.ObjectStoreControls.objTypedShortIdLongPayloadRefused

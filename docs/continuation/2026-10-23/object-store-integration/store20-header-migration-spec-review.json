@@ -1,0 +1,88 @@
+{
+  "schema": "lexlean-r4-store20-header-migration-spec-review/v1",
+  "status": "PASS_MINIMAL_EXISTING_CONTROL_MIGRATION_DESIGN_NATIVE_NOT_RUN",
+  "reviewer": "orchestration_design_review",
+  "at": "2026-10-23T20:45:55.499Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/store20-header-migration-proposal.json",
+    "bytes": 17423,
+    "sha256": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a"
+  },
+  "verifiedPins": [
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/source-reconciliation.json",
+      "bytes": 9112,
+      "sha256": "f07d5abbe87d9fa918ce351dd63011073c856125a4f59e9940e843901b5d7299"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/input-manifest.json",
+      "bytes": 7582,
+      "sha256": "4cab39919aa21af8fc542c3f2cd23de299be97da556ab461122a91262d91ed94"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/link.rs",
+      "bytes": 92765,
+      "sha256": "d12b7dc54b5282daa65395f9df62aca2e7b6d134c10a0f96055689852cedbc26"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/lexicon/mod.rs",
+      "bytes": 17570,
+      "sha256": "f99e70bd5c6f14afb8394441e15294d42e115bc706e3b952af3589639da740df"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/language/bootstrap-1.2.toml",
+      "bytes": 4156,
+      "sha256": "11b4d391094090cc082116d36b333f0a20934f2f59658b54470a8b3ae60e5c40"
+    }
+  ],
+  "checks": {
+    "currentSource": "Original canonical control still matches immutable snapshot8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993; proposed successor not written during this review.",
+    "literalEdits": "PASS independently applied exactly one occurrence each of bool1.1.0→1.2.0, nat1.1.0→1.2.0, semantic-module/1→/2 in memory. Result120318bytes SHA25628324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687.",
+    "declarations": "PASS entire parsed20-declaration array deeply equal before/after; hash1d870d4cf1a26831c1d83b1ff5e39eb3497598aaeb6c521936c7eb1e3a4901a5. Statements/proofs/parameters/empty declared axioms unchanged. All20 are theorem declarations.",
+    "officialVersionRule": "Pinned link.rs677–697 checks exact glossary package version against loaded locked closure and emitsLLR3001 on mismatch. lexicon/mod.rs175–194 selects bootstrap1.2 for language1.2; bootstrap1.2 records package1.2.0.",
+    "officialSchemaRule": "Pinned semantic.rs2459–2462 maps language1.2 to semantic-module/2; validate around8906–8914 rejects mismatchedself.spec. This is actual source justification, not a native test result.",
+    "phaseMapping": "PASS all15negative inputs hash/size checked and unique destinations. Positive differs only at control source row, selecting the proposed successor hash; remaining14inputs/config identical.10runtime+1control+3workspace+1config.",
+    "config": "PASS current Store20 config equals reviewed symbolic-concrete config except entrypoint. Existing language1.2/Lean4.32.1,300000ms and other source/output/recursion limits unchanged.",
+    "runtimeBoundary": "Five reconciled draft runtime modules and pinned five-module Hash closure are bound in the proposal; their independent CODE review remains separate. This SPEC review does not accept runtime integration or canonical Hash qualification."
+  },
+  "phaseAssessment": {
+    "negative": "Acceptable minimal admission control: immutable original snapshot, actual genuine lock generation and sourcecheck only. Never invoke verify after the expected admission failure. Observe and retain actual first diagnostic; source prediction alone is not RED.",
+    "ordering": "If lock itself fails, classify its actual reason separately and do not claim a later check occurred. If check passes unexpectedly, stop and investigate. If check fails for unrelated setup/resource/corruption, reject as control evidence. A schema rejection can count only if its actual diagnostic independently establishes the proposed version/schema incompatibility.",
+    "coverage": "One combined three-edit negative need not separately expose all three mismatch causes because source validation stops at first failure. Retain this limited admission coverage explicitly; do not claim three independently demonstrated errors.",
+    "positive": "After applying only the three literals and exact-source CODE review, regenerate genuine phase lock, require actual check then verification of all20existing controls. Source admission success alone is not proof acceptance.",
+    "meaning": "Admission RED is a language-binding compatibility failure, never an Object semantic mutant or proof counterexample. Required Object planted defects/restoration remain separate."
+  },
+  "conditions": [
+    "Preserve immutable original snapshot and all old receipts; freeze actual written successor against exact target hash and declaration array before any native work.",
+    "Obtain separate runtime+control source CODE and parent admission checks. No compiler/VM/epoch change is authorized by this report.",
+    "Keep4GiB/2CPU/300000ms, exact tool/source/config/genuine lock identities, storage/idle/zero-memory gates and independent postchecks.",
+    "Require independent actual artifact/empty observed axioms/kernel review after successful20control verification.",
+    "Other383Object controls plus20Blake3primitive controls, Hash qualification, model/scenario integration, full257 and productionPages remain open."
+  ],
+  "findings": [],
+  "limitations": [
+    "Read-only/in-memory analysis only; no source/header write, nativecheck, verify, lock generation, SDK or VM operation.",
+    "Both phases remain NOT_RUN at this report; directory inspection found proposal/preparation records only.",
+    "Changing schema discriminator is source compatibility work requiring real compiler admission; byte-equal theorem AST is not proof that new compiler accepts or preserves every language-level interpretation."
+  ],
+  "storage": {
+    "hostAvailableBytes": 31356760064,
+    "materialization": "Only this small report."
+  },
+  "verdict": "PASS minimal three-literal existing-test migration proposal, suitable for authoring and independent exact-source CODE review. No new framework, runtime substitute, native acceptance or execution authority."
+}

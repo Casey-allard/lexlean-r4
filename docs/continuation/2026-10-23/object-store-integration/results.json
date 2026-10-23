@@ -1,0 +1,459 @@
+{
+  "schema": "lexlean-r4-object-store-integration-results/v1",
+  "status": "PASS_LOCAL_EXISTING_20_OBJECT_STORE_CONTROLS",
+  "scope": "Canonical five Object runtime modules plus header-only Store20 control migration, verified under exact finite development dependencies. No full Object or production acceptance.",
+  "sourceChanges": {
+    "runtimeDeclarationCount": 273,
+    "codecDispatches": 2,
+    "alphaRenamings": 11,
+    "otherwiseIdenticalDeclarations": 260,
+    "codec": "ObjHashBytes and ObjNodeHash dispatch through the already finite-verified HashWire Nat-byte functions; HashWire import added, Hash import retained.",
+    "alphaRenaming": "Bound id inputs renamed in Types1/Store1/Read9 declarations; no other declaration changes.",
+    "runtimeMetadata": "All five runtime wrappers use bool/nat glossary1.2.0 and semantic-module/2.",
+    "control": "Exactly three glossary/schema literal replacements; all20 whole declaration ASTs and empty-axiom Reflexivity proofs unchanged.",
+    "controlDeclarationArraySha256": "1d870d4cf1a26831c1d83b1ff5e39eb3497598aaeb6c521936c7eb1e3a4901a5"
+  },
+  "currentSixSources": [
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    }
+  ],
+  "immutableOriginals": [
+    {
+      "originalPath": "src/R4/Object.lex.tex",
+      "snapshot": {
+        "path": "docs/continuation/2026-10-23/pending/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+      }
+    },
+    {
+      "originalPath": "src/R4/ObjectCodec.lex.tex",
+      "snapshot": {
+        "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111631,
+        "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+      }
+    },
+    {
+      "originalPath": "src/R4/ObjectRead.lex.tex",
+      "snapshot": {
+        "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectRead.lex.tex",
+        "bytes": 86326,
+        "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+      }
+    },
+    {
+      "originalPath": "src/R4/ObjectStore.lex.tex",
+      "snapshot": {
+        "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectStore.lex.tex",
+        "bytes": 66585,
+        "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+      }
+    },
+    {
+      "originalPath": "src/R4/ObjectTypes.lex.tex",
+      "snapshot": {
+        "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83582,
+        "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+      }
+    },
+    {
+      "originalPath": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "snapshot": {
+        "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+      }
+    }
+  ],
+  "remainingElevenUnchanged": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ],
+  "phases": [
+    {
+      "name": "legacy-admission-negative",
+      "status": "PASS_INTENDED_ADMISSION_REJECTION",
+      "observed": {
+        "lockStatus": 0,
+        "checkStatus": 1,
+        "checkWallMilliseconds": 506,
+        "diagnostic": {
+          "causes": [],
+          "code": "LLR3001",
+          "help": [],
+          "labels": [],
+          "message": "`lexlean.std.bool@1.1.0` does not match the locked version 1.2.0",
+          "notes": [],
+          "primary": {
+            "byte_end": 0,
+            "byte_start": 0,
+            "column_end": 1,
+            "column_start": 1,
+            "line_end": 1,
+            "line_start": 1,
+            "path": "lexlean.toml"
+          },
+          "severity": "error",
+          "spec": "lexlean/diagnostic/1"
+        },
+        "verify": "NOT_RUN",
+        "artifacts": [],
+        "postcaptureErrors": [],
+        "lockSha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2",
+        "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []"
+      },
+      "review": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/negative-native-review.json",
+        "bytes": 10047,
+        "sha256": "554ba20c9fff829f33c3241eda981d7c7f58551506c77808509a42fb640ce014"
+      },
+      "lock": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/negative/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2"
+      },
+      "check": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/negative/check.json",
+        "bytes": 880,
+        "sha256": "981c4c660f4cdde105c03599e79e11eec4d7d77ffb832714e007473d0bbf8e28"
+      },
+      "custody": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/negative-source-custody.json",
+        "bytes": 20369,
+        "sha256": "1e79abf096b6332325196ad155ab66ae497bc836f346ef58be8b99db866acd11"
+      },
+      "interpretation": "Observed first bool glossary version mismatch only. Source-admission compatibility control, not a planted semantic defect. Verify was not run."
+    },
+    {
+      "name": "migrated-store20-positive",
+      "status": "PASS_LOCAL_EXISTING_20_OBJECT_STORE_CONTROLS",
+      "observed": {
+        "verifyStatus": 0,
+        "wallMilliseconds": 373603,
+        "attestationId": "7ff21e35e542b6817ce0d67ba61d3e6739b1b2d896977a3a8adce92c7d3cc75e",
+        "buildId": "298243fc326bfbbeb0c44ed1121b8b639bec0d96bfe4fc051f984ed17d02d49a",
+        "semanticId": "432ad85e96b7c68797619a2d9ba87a6db8abe6827a5c411598f73f67c60cfb78",
+        "sourceId": "120791b7dd6e31e7f2fb876cdb24d0c69e234ac96face7a28083a9a9ecb0a012",
+        "lockSha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2",
+        "sourcecheckModules": 11,
+        "postcaptureErrors": [],
+        "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []"
+      },
+      "review": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/positive-native-review.json",
+        "bytes": 33620,
+        "sha256": "0fd9bc23e46e264ca9d6ea4be7940247d8dfe747216b26a516c6d9acb13bc1bd"
+      },
+      "lock": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/positive/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "f8fceeb925ba5a23cd02f192eca29ea32f5105f5679e2e2bd2eb490135b336a2"
+      },
+      "check": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/positive/check.json",
+        "bytes": 881,
+        "sha256": "0c6f0672466cff92a018131b341e19075c95599c5d9c5e1fca3d17b23814c5a3"
+      },
+      "verify": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/positive/verify.json",
+        "bytes": 1188,
+        "sha256": "b6acf62de43726c53bbd6f51d067ea83dc099883cf8218fb43fade847aa8e98c"
+      },
+      "custody": {
+        "path": "docs/continuation/2026-10-23/object-store-integration/positive-custody.json",
+        "bytes": 21270,
+        "sha256": "ea9d971eb893be76e08f97f538cad3d99c39483e573be8672537a765b86e59bb"
+      },
+      "audit": {
+        "emptyAxiomDeclarations": 823,
+        "successfulProcesses": 34,
+        "kernelReplays": 11,
+        "artifactFiles": 115,
+        "originalControlsUnchanged": 20,
+        "allTwentyEmittedProofs": "rfl"
+      },
+      "controls": [
+        "objFoldObjectBudget",
+        "objFoldConstructionBudget",
+        "objImportFragmentRefused",
+        "objImportTrailingFragmentRefused",
+        "objImportRawBudgetBeforeDuplicate",
+        "objImportVisitsCountDuplicates",
+        "objImportIdempotentStats",
+        "objImportIdenticalDuplicateStats",
+        "objExistingRecordCountBudget",
+        "objExistingWireBytesBudget",
+        "objExportExactZeroRecord",
+        "objExternalInventoryMustAuthenticate",
+        "objFoldRejectsInvalidByte",
+        "objCallerLimitOutsideU64",
+        "objCompleteAdditionalRecordAccepted",
+        "objExportSortedByRawId",
+        "objTypedShortIdLongPayloadRefused",
+        "objTypedLongIdShortPayloadRefused",
+        "objInventoryShortIdAliasRefused",
+        "objInventoryLongIdAliasRefused"
+      ],
+      "interpretation": "11-module source check and actual verify succeeded. Independent exact-artifact audit accepted this20-control root. Whole command373603ms spans multiple child processes; it is not a per-child timeout failure or a performance benchmark."
+    }
+  ],
+  "sourceReviews": [
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/runtime-source-code-review.json",
+      "bytes": 9258,
+      "sha256": "7dc91b96fb9a769f3230995cb55e5b3dd93f7dc06e4eac1a06d8e9d9d0cb1f98"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/store20-header-migration-spec-review.json",
+      "bytes": 7159,
+      "sha256": "9ae13e33ba9c2570b5579a66e2a20d18d8b1b67aa0b17a9f813203f4e9637e06"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/control-migration-code-review.json",
+      "bytes": 5558,
+      "sha256": "b15cb954971622ac6394d8255a274256d721c6526d5e216462b7534dcee3405b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/invocation-source-review.json",
+      "bytes": 3743,
+      "sha256": "23054534b4219c6abb5014f1bc7010977a68ba663b5e458383e2aadb0946454f"
+    }
+  ],
+  "historicalRecords": {
+    "sourceBindings": {
+      "path": "docs/continuation/2026-10-23/object-store-integration/source-bindings.json",
+      "bytes": 9519,
+      "sha256": "4c75064cef00f3343ddc74f05a6fbfcb963d9217cfc19a39c3b4c2203b514d3f"
+    },
+    "initialInputManifest": {
+      "path": "docs/continuation/2026-10-23/object-store-integration/input-manifest.json",
+      "bytes": 7582,
+      "sha256": "4cab39919aa21af8fc542c3f2cd23de299be97da556ab461122a91262d91ed94"
+    },
+    "migration": {
+      "path": "docs/continuation/2026-10-23/object-store-integration/control-migration.json",
+      "bytes": 5081,
+      "sha256": "c89d2176c848242840dd23fa9e878699c58411ea5dea83f6e3952cc32cbf53e9"
+    },
+    "proposal": {
+      "path": "docs/continuation/2026-10-23/object-store-integration/store20-header-migration-proposal.json",
+      "bytes": 17423,
+      "sha256": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a"
+    },
+    "note": "Initial input-manifest and source-bindings retain their preparation-time blocked/pending descriptions. This results record and RESULTS.md report the later actual reviewed results. Proposal phase inputs and control-migration bind the actual successor; old statuses are not retroactively changed."
+  },
+  "remaining": {
+    "objectControls": 383,
+    "objectBreakdown": {
+      "codec": 311,
+      "read": 33,
+      "construction": 39
+    },
+    "separateBlake3PrimitiveControls": 20,
+    "semanticDefects": [
+      "reverse child order",
+      "hash padded rather than logical bytes",
+      "omit final tail validation",
+      "deduplicate read occurrences",
+      "ignore existing inventory capacity",
+      "stop closure at a present parent"
+    ],
+    "gates": [
+      "Semantic planted-defect negatives and restoration remain separate from the glossary admission negative.",
+      "Complete original Object257 digest/root/distinct proof remains open.",
+      "Full HashNat/HashWire qualification, canonical Hash equivalence and production dependency binding remain open.",
+      "Remaining model/feature/config/receipt conformance integration, full just vv, production PrismPM integration and generated Pages acceptance remain open."
+    ]
+  },
+  "limits": {
+    "perChildTimeoutMilliseconds": 300000,
+    "containerMemoryBytes": 4294967296,
+    "containerCpuCount": 2,
+    "axiomPolicy": "none",
+    "runtimeDigestDefinitions": "Preserved except explicitly reviewed HashWire dispatch integration; no asserted digest shortcut."
+  },
+  "portableReplay": {
+    "config": {
+      "path": "docs/continuation/2026-10-23/object-store-integration/lexlean.toml",
+      "bytes": 683,
+      "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde"
+    },
+    "sharedStageInputs": [
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+        "bytes": 240864,
+        "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+        "destination": "src/R4/Words.lex.tex"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+        "bytes": 782463,
+        "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+        "destination": "src/R4/Hash.lex.tex"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+        "bytes": 64465,
+        "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+        "destination": "src/R4/HashNat.lex.tex"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+        "bytes": 339156,
+        "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+        "destination": "src/R4/HashNatCore.lex.tex"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+        "bytes": 11612,
+        "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+        "destination": "src/R4/HashWire.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+        "destination": "src/R4/ObjectTypes.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+        "destination": "src/R4/ObjectCodec.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+        "destination": "src/R4/ObjectStore.lex.tex"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+        "destination": "src/R4/ObjectRead.lex.tex"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+        "destination": "src/R4/Object.lex.tex"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687",
+        "destination": "tests/lexlean/ObjectStoreControls.lex.tex"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+        "bytes": 58,
+        "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+        "destination": "lakefile.toml"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+        "bytes": 146,
+        "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+        "destination": "lake-manifest.json"
+      },
+      {
+        "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+        "bytes": 25,
+        "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+        "destination": "lean-toolchain"
+      },
+      {
+        "path": "docs/continuation/2026-10-23/object-store-integration/lexlean.toml",
+        "bytes": 683,
+        "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde",
+        "destination": "lexlean.toml"
+      }
+    ],
+    "notice": "Stage exact pinned repository inputs to their destination paths; keep original legacy control for the admission negative and migrated control for the positive. Locks here are genuine phase development locks, not production prismpm.lock/template.lock. Any new execution needs fresh resource/identity checks and sequential parent-owned compiler admission.",
+    "currentBindings": {
+      "path": "docs/continuation/2026-10-23/object-store-integration/current-portable-bindings.json",
+      "sha256": "82fc345ddf2fa80b3db4855a73f39a28d6f15c74a61979b5abd5e6fff6da6263"
+    }
+  },
+  "limitations": [
+    "Accepts this20-control root only under exact finite development dependencies. Remaining383 Object controls and20 separate Blake3 controls remain open.",
+    "Prior glossary admission RED is compatibility-only and does not count as a semantic planted-defect negative; required defect/restoration work remains open.",
+    "No full257 digest, fullHash qualification, general canonicalHash/HashWire equivalence, model/conformance integration, productionPrismPM/fulljustvv or Pages acceptance.",
+    "373603ms is whole command wall time across multiple child processes, not a per-child timeout failure or efficiency benchmark.",
+    "Recorded artifact audit only; reviewer did not rerun compiler/kernel or modify native/VM/repository state. Embedded lexicon raw package bytes are not included; actual lock tree identities were checked.",
+    "Storage/idle are sampled observations, not continuous high-water guarantees."
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "schema": "lexlean-r4-store20-control-migration/v1",
+  "status": "THREE_REVIEWED_FORMAT_EDITS_APPLIED_NATIVE_NOT_RUN_PENDING_CODE",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/store20-header-migration-proposal.json",
+    "bytes": 17423,
+    "sha256": "4b5dc4da88b4c62f568de9099a9a23f6999a17c7de883e4c7b05471eb535d79a"
+  },
+  "specReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/store20-header-migration-spec-review.json",
+    "bytes": 7159,
+    "sha256": "9ae13e33ba9c2570b5579a66e2a20d18d8b1b67aa0b17a9f813203f4e9637e06"
+  },
+  "before": {
+    "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+    "bytes": 120318,
+    "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+  },
+  "after": {
+    "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+    "bytes": 120318,
+    "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+  },
+  "immutableOriginalSnapshot": {
+    "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+    "bytes": 120318,
+    "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+  },
+  "exactChanges": [
+    {
+      "from": "\\useglossary{lexlean.std.bool@1.1.0}",
+      "to": "\\useglossary{lexlean.std.bool@1.2.0}"
+    },
+    {
+      "from": "\\useglossary{lexlean.std.nat@1.1.0}",
+      "to": "\\useglossary{lexlean.std.nat@1.2.0}"
+    },
+    {
+      "from": "\"spec\":\"lexlean/semantic-module/1\"",
+      "to": "\"spec\":\"lexlean/semantic-module/2\""
+    }
+  ],
+  "declarationAudit": {
+    "count": 20,
+    "wholeArrayDeepEqual": true,
+    "sha256": "1d870d4cf1a26831c1d83b1ff5e39eb3497598aaeb6c521936c7eb1e3a4901a5",
+    "statementsProofsParametersAxiomsUnchanged": true,
+    "allTheorems": true,
+    "allDeclaredAxiomsEmpty": true
+  },
+  "runtimePinsUnchanged": [
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    }
+  ],
+  "remainingElevenUnchanged": [
+    {
+      "path": "docs/OBJECT.md",
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "model/authorities.toml",
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ],
+  "positiveInputBinding": "The accepted proposal phaseSpec.positive.inputs now resolves exact written source. Initial blocked input-manifest.json remains historical and unchanged. No new manifest replaces it silently.",
+  "testsFirst": "Actual source-admission RED against immutable original and migrated-source check/verify GREEN remain NOT_RUN. No native/compiler/SDK/VM/lock generation, no semantic negative claimed. Independent exact source CODE precedes parent-owned actual phases.",
+  "boundary": "Only canonical ObjectStoreControls header/spec literals were modified. No new test declaration, runtime semantics, other draft, fixture, model/feature/docs, staging or commit changes."
+}
