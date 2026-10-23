@@ -803,5 +803,12 @@
     "sha256": "9834fd6e77496c5c4706ebaad03a2b532b965a76ed5ceb4f54665fad2f68421c",
     "scope": "HOST_RECEIPT_READER_ONLY",
     "fullRestorationAccepted": false
+  },
+  "synchronousRecorderPreparation": {
+    "path": "tests/fixtures/hash-wire/synchronous-recorder-preparation.json",
+    "bytes": 4587,
+    "sha256": "4ce22e64b532261b14a0880f7cb2b3b98292f4863b236941cec2378055752bc4",
+    "scope": "HOST_RAW_RECORDER_ONLY",
+    "fullRestorationAccepted": false
   }
 }
