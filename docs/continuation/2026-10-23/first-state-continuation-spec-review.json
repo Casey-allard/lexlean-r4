@@ -1,0 +1,101 @@
+{
+  "schema": "lexlean-r4-nonempty-continuation-spec-review/v1",
+  "at": "2026-10-23T18:16:39.400Z",
+  "status": "PASS_BOUNDED_SOURCE_PROPOSAL_ONLY_NATIVE_NOT_RUN",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/first-atom/next-step-proposal.json",
+    "bytes": 11890,
+    "sha256": "0bbedab51f3fad363ff2a164fab17a4c85a077ee01f676882e61175466ce1f36"
+  },
+  "pinsVerified": [
+    {
+      "path": "tests/fixtures/object257-first-atom/manifest.json",
+      "bytes": 7030,
+      "sha256": "dc08a9ec63fed7587a2cd6b82fd37ed9527560e887c1698f9da51285197ec2ae"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/candidate.json",
+      "bytes": 11074,
+      "sha256": "40079a7181c9b856b8f025306cef0a9c5578bb59a9d97f9a3a43183f84a3d5b7"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+      "bytes": 5627,
+      "sha256": "490eec8b45719c4fabae9bf36e3fe7f9674d71968ca45c07b8cf2e782d048444"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomGoal.lex.tex",
+      "bytes": 12546,
+      "sha256": "a681588324b3c4f629775768ddad58a6bceaef3e2199239bc090bebaa0243911"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "tests/fixtures/object257-first-atom/phases/state-positive/lexlean.toml",
+      "bytes": 687,
+      "sha256": "9566775001b9bee46677e2e6ee301e1ce4dcfb995925efd62bfdab7e8bedede4"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalContext.lex.tex",
+      "bytes": 11554,
+      "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/original257/ObjectNatDigest257Controls.lex.tex",
+      "bytes": 20194,
+      "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+    }
+  ],
+  "findings": [],
+  "objectiveAssessment": "One finite actual production two-atom continuation equality tests whether the accepted first concrete state can connect to a nonempty remainder. It avoids a new node-certificate collection and retains the original runtime and digest obligations.",
+  "sourceChecks": {
+    "baseStatement": "Exact canonical JSON SHA256 of accepted obj257FirstAtomState statement matches50acce9ae953f70d308f43a63c8f84f8c20ed19053d779b65e93627b512834c5. F=okS is the actual previously verified production statement, not only a helper equality.",
+    "input": "Read actual original ObjFold argument. Decode only literal cons/nil and ObjAppendBytes syntax:257bytes; proposed A exactly first32 bytes0..31, B next32bytes32..63. This source comparison is not an atomization proof.",
+    "limits": "Proposed L from accepted state matches exact original ObjFold store limits AST.",
+    "runtime": "Inspected actual ObjFoldAtoms AST: nil returns inventory/frontier; cons matches ObjMakeLeaf, ObjStageRecord, ObjCarryTriples38, preserving each error; success recurs on actual tail with carried.frontier/inventory and unchanged limits.",
+    "context": "K must term-match Result ObjCarryState ObjError, return same error unchanged, and call real ObjFoldAtoms[B] carried.frontier carried.inventory L on success. Term matching is already used by accepted terminal context and runtime. No proof Cases on Result is proposed.",
+    "proof": "Nat Prop family, induction, zero Apply accepted first-state theorem, successor Nat Cases and congruence follow previously verified source/emission pattern. Apply at1 must prove actual Fold[A,B][][]L = Fold[B] S.frontier S.inventory L. Named type/module qualification and branch types must be checked in the actual candidate."
+  },
+  "criticalUncertainty": {
+    "association": "K(F) wraps a match around completed one-atom folding. Actual two-atom Fold nests the continuation within leaf/stage/carry matches. These are not definitionally equal for abstract intermediate matches; source inspection does not grant the concrete conversion.",
+    "concreteProbe": "With actual A and empty initial state/L, concrete reduction may expose matching branches and allow the equality. Only native verification of the actual consumer decides this under unchanged limits.",
+    "cost": "Conversion may recompute first-leaf hashing and may unfold B; no certificate-caching, avoided hash work, bounded cost or speedup claim is justified.",
+    "failureMeaning": "If the lifted K equality succeeds but actual production consumer fails, relation remains incomplete. Distinguish unsupported syntax, type mismatch, dependency failure, timeout and OOM; retain exact emitted failure before any revised proposal."
+  },
+  "negativeControl": {
+    "adequacy": "Changing only zero-base Apply reference to earlier unrelated zero-arity0=0 theorem is a meaningful dependency-consumption negative. Expected failure is at lifted zero base against F=okS, before actual consumer.",
+    "candidateRequirement": "Include the same unrelated theorem in both positive and negative modules, so after module identity normalization the only semantic difference is the zero-base Apply target. Keep F/S/L/A/B/context/consumer and accepted first-state closure unchanged.",
+    "limit": "This negative establishes that the lift requires the accepted base theorem; it does not by itself independently qualify abstract bind associativity or all error branches. Actual consumer verification is required."
+  },
+  "requiredCandidateChecks": [
+    "All imports/production sources and accepted first-state closure pinned using portable repository-relative mappings.",
+    "Explicit well-typed K error/success branches, same original L, actual B literal only, no new expected second digest or parent certificate.",
+    "Exact accepted F/S AST and real Fold[A,B]/Fold[B] consumer, not replacement by two helper expressions.",
+    "Empty axiom policies, accepted proof constructors,300000ms phase limits unchanged, genuine development locks from official compiler only.",
+    "Frozen source and non-author CODE review before sequential native phases; exact fresh identity/process/storage gates remain."
+  ],
+  "acceptance": {
+    "proposalReadyForCandidate": true,
+    "actualSourceAdmission": false,
+    "newBridge": false,
+    "newSecondState": false,
+    "original257": false,
+    "PrismPM": false,
+    "Pages": false
+  },
+  "deliveryRelation": "Separate next-step review; does not modify or hold the independently approved98-file first-state checkpoint. Portable proposal/SPEC publication is a subsequent change.",
+  "limits": [
+    "No new source, compiler, SDK, VM or repository edits; only this review JSON.",
+    "Existing first-state native audit reused; no fresh kernel replay.",
+    "All new native tests NOT_RUN. Source reasoning and approved experiment design are not proof acceptance.",
+    "No automatic resource increase or equivalent retry after timeout/OOM. Preserve original semantics and exact failure."
+  ]
+}
