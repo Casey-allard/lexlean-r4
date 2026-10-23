@@ -1,0 +1,912 @@
+{
+  "schema": "lexlean-r4-symbolic-continuation-delivery/v1",
+  "baseCommit": "334de536d0b62ac66424bd2438363c0206e2ac4d",
+  "scope": "Verified exact original atomized first-state continuation; full257 digest and Object integration remain open. Owner17draftcompletion next.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 21964,
+      "sha256": "4a3ee02e0a64ff3a16a0a5d7d65560a3a7feaa170eacc81625d11a20f23caf77"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 21904,
+      "sha256": "a5f8ed8d3125ceb6cbcb2c68a23ecd5fa12faf1ea4e437df69bdd4c8c36ff22d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/README.md",
+      "bytes": 2702,
+      "sha256": "0a9c7b779d51fbe4304bb69d14dd4fb995b0ebbbc9c687ee386f0baade42714b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/RESULTS.md",
+      "bytes": 2674,
+      "sha256": "5a3219e55736b6896688218bf5cc5ae26bd48e4848a88f2a7a087a798de6e738"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/candidate.json",
+      "bytes": 21934,
+      "sha256": "50891e0a284c75fc26254b61598b7d58386838d878faf067f30f0968cffde7c7"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/design/consumer-failure-investigation.json",
+      "bytes": 17935,
+      "sha256": "b37edddbde2862380f2bcd3e2e7888f6c94afe5c4bf4b0cbd6d56dff1d8a534e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/design/consumer-failure-spec-review.json",
+      "bytes": 13327,
+      "sha256": "ecfa8a8b588d3df8c73b17ddd867973cbf2bbdf2d440e1e603013e0980706f89"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/code-review.json",
+      "bytes": 9614,
+      "sha256": "da1a1cbf9b63bb6a1da1215216004b449f7c9ed7742787b06afd70ee3003b914"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/draft-integration-next-step.json",
+      "bytes": 20358,
+      "sha256": "6428358b4580679c9cb2dbc76f3d557a499b481c1acbe4976e72efdffabc7046"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch-review.json",
+      "bytes": 8945,
+      "sha256": "3e22d2f340e4d8aff078e1af167426d32573f7eb2a1129cb889744e67a52b2f4"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/allocated-before.json",
+      "bytes": 455,
+      "sha256": "f0c2b811a8f1053c1b1888d798e142974a3b06a9eeda265d1c2b5cedb13bd41c"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/boot-after.json",
+      "bytes": 332,
+      "sha256": "67fbb73637380a55c20c8df9727c643acce771757181e5d57e8184b5ab5c9054"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/boot-before.json",
+      "bytes": 332,
+      "sha256": "87c94a0446a615acefa055d5ee3df041fd305d499b0d200b561355b8b96406e4"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/container-after.json",
+      "bytes": 646,
+      "sha256": "f61352822cfd1ea680fad35e9240eeec2971a9887f790a4f4df191c1d9713a3d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/container-before.json",
+      "bytes": 646,
+      "sha256": "1dcd29787c99387a18f98ada2614cbffc239de919254a1900f6c91af8221f665"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/guest-after.json",
+      "bytes": 402,
+      "sha256": "2fcd39146bf89dfdce2addf1b500d0c5a24344c998fdf1e0a774b40dc5afc10b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/guest-before.json",
+      "bytes": 402,
+      "sha256": "bd4a9fe825d7f899ef81a61cc92a12b2a789cc81568daa9accbe90e82e0ddd77"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/host-after.json",
+      "bytes": 147,
+      "sha256": "1f6ed983897b3a6838dc4d36f2719f21c558b940a1af7682b7b617e55b83de10"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/host-before.json",
+      "bytes": 147,
+      "sha256": "87d051d493564d9019774bc4e925ddb08fa04fbd06a6ffc86200b8ddee3128b6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/idle-after.json",
+      "bytes": 456,
+      "sha256": "3c93885d99bc71609fb732f630f996908373c6cf966382e4095ed5ca693a10b1"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/idle-before.json",
+      "bytes": 456,
+      "sha256": "eb3461ae8c49945686073a2e2e5fc6dd10395952cb4a7c648cf4b2fa3fdf683a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/memory-after.json",
+      "bytes": 350,
+      "sha256": "7868dba88e99869331dc6eefd1ec22e7d3b6ec6dfe6bf0f986a8390bf8932b89"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/memory-before.json",
+      "bytes": 355,
+      "sha256": "f87ef592784c4c1095065faacd3a8424c76db67c3a65cc8c4195ee33306ab9eb"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/restart.json",
+      "bytes": 313,
+      "sha256": "1b2779798f74cb31e1812e95f30b7dc859157f0717b19877e48ecc8cc25b61ff"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/result.json",
+      "bytes": 834,
+      "sha256": "6a15ecfd2010995f4548411722007e5950abfd3eff4bee540bf4553df3648645"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/source-after.json",
+      "bytes": 6293,
+      "sha256": "feb806d4368039b94e19cb429088f9729402dddc2a2163e1191e5e6ac36226d0"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/source-before.json",
+      "bytes": 6293,
+      "sha256": "f546e930dff132d7f41611945b080c228f654c95f475c4fa989bcad3ce42c2df"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/swap-before.json",
+      "bytes": 260,
+      "sha256": "0ad44ac02bec8d1c2e477d18d46df1252073c2997f57e1b1fa42685c648fee42"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/tools-after.json",
+      "bytes": 1001,
+      "sha256": "4d6109001e686bab44cbfdec7c543c826fcc4f462fa4b5063cf814fbe4a469b1"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/tools-before.json",
+      "bytes": 1001,
+      "sha256": "258f3d7fff5c56ac7bacac8c3f03a14c4afce22a6af4080cb92eb61d1ad5d60f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/negative-epoch-supplemental-custody.json",
+      "bytes": 27550,
+      "sha256": "a583fadb92493a2d21040004178b6618cf59813ba0bd5af777da8ac87974b1f4"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete-review.json",
+      "bytes": 45720,
+      "sha256": "84d59c87e60805512ada9868060f04843e46a93750de97984a6db0032ace90f6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete-supplemental-custody.json",
+      "bytes": 21873,
+      "sha256": "5289c72bfd20d80cc4c9951f85812c34c1baa2dec437451fb9390e31b043e2ed"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/allocated-before.json",
+      "bytes": 459,
+      "sha256": "14f6339a0745584af8591a1ac75dd0ce8f8e93e0e5ae9d846136924b1ba0ac36"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-copy.json",
+      "bytes": 528,
+      "sha256": "5ab17aa5d047c3ca74542770b97f98fab2d60134a87159ee5d70b161afa5770f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/attestation.json",
+      "bytes": 170554,
+      "sha256": "5573f0228bf6a2fd4f51bab5f9ac29a2cebf816a90c12c0a71622532f2fcb8c6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicConsumer.lean",
+      "bytes": 133,
+      "sha256": "d9d507de00fccac39f02d5e25368ddd4cf9b11620318dd09b09e9bc848bca757"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicConsumer.process.json",
+      "bytes": 632,
+      "sha256": "73de8bb940a06cdfd7723830b184e88c77ae2f0c109347059dbdf94f089833b8"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/audit/output.txt",
+      "bytes": 53940,
+      "sha256": "c26238f73e862818e540b48d75207fdb2796c560a3f9386c5d1087d3f3589b82"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/build-manifest.json",
+      "bytes": 19473,
+      "sha256": "fe16a1af28bdf697c2b8351102a6503fe933cdb83c3f41a92f934162d7ed1b22"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/maps/LexLeanR4/Object257SymbolicConsumer.map.json",
+      "bytes": 1453,
+      "sha256": "ec1bab265283ca23e4581f39e13eb7c3952351535c9b960c0318538a7a76cd6d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/modules/LexLeanR4/Object257SymbolicConsumer.lean",
+      "bytes": 7379,
+      "sha256": "1f41eea94a5417d3fd8351d8a24b31b01dc4353e4a2181372fe7a5e7a263f4da"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/artifact-text/modules/LexLeanR4/Object257SymbolicContext.lean",
+      "bytes": 6379,
+      "sha256": "a39094fdb144e4795aafc6e4fbc2ff4ab6b249367b08fc94be6628efaca65eb6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/check.json",
+      "bytes": 1084,
+      "sha256": "36f5ff49dec036a96a8a7a93e2879a986cb46feb3b5b7bcfe8dd6b4ab68f808a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/directories.json",
+      "bytes": 452,
+      "sha256": "ccc7421559aecce82d8be87aee6f7a60d3bb6fb5d1dbb767d61dc1306b4a571f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/epoch-after.json",
+      "bytes": 470,
+      "sha256": "fd0a897711bf2eece1b6669493a206b2b0bb35605922653580fef5616b9e19a1"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/epoch-before.json",
+      "bytes": 470,
+      "sha256": "7ccf1c8ccb89ed6cc85bf87ebedfdb98bec2220e0e3f1d1887ddea6de35de2cc"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/expected-inputs.json",
+      "bytes": 5995,
+      "sha256": "39715011c77418082fa7f72352974d498c187263e21a6b22e72d86386f27b4db"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/guest-after.json",
+      "bytes": 406,
+      "sha256": "f592e3daee6eb7836c26fe255ed4494059b36a234f44eb8539f7c5a9d0c94b11"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/guest-before.json",
+      "bytes": 406,
+      "sha256": "5c8f4cfc319d32c44f83cfce1611cf6f3795b21f7d7dcd25212790fe6f196070"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/host-after.json",
+      "bytes": 142,
+      "sha256": "76801768712db698b3f47ab5ddd77f159079c56c62805444ac0a3c0bd2f5fb80"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/host-before.json",
+      "bytes": 152,
+      "sha256": "035d3130545a13855de9c1628380a8e34f6172595e45ca93d712835b65220dcb"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/idle-after.json",
+      "bytes": 460,
+      "sha256": "a03c25150a0044826658d886028c9ad61406d64ca69cbdcbb47025a5e6b8ec3d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/idle-before.json",
+      "bytes": 460,
+      "sha256": "208651b0ada9d27f97c02cd6bb885be2d6fd79cf090d63994cd8279b28c3c9c4"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/lock-after.json",
+      "bytes": 511,
+      "sha256": "28d342d85bb68084ddd0e961704f360204229073c1723e0de50639e7f1493e86"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/lock-bytes.json",
+      "bytes": 2066,
+      "sha256": "b6dafc2e0b2c7ccf4e47ff2742339aa21c4aa013e6c6e429abd91f890150358a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/lock.json",
+      "bytes": 550,
+      "sha256": "33072a1f8639228e28753e0301108a17dab92abfc71ce254d4672bac3719a65a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/memory-after.json",
+      "bytes": 354,
+      "sha256": "74e0e23664133f4f3d8e8c0645a815cdf5a8a8238223bd8eb49943bf56198844"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/memory-before.json",
+      "bytes": 354,
+      "sha256": "d3f61203b7bf9fc2a2e8931df7a9d815b8339b8c0f223feb4c25916cda69ff5b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/new-stage.json",
+      "bytes": 341,
+      "sha256": "22110ca563f479cfe34846d894ede8a42996676a42008f3e352e42aab6a1564c"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/result.json",
+      "bytes": 1221,
+      "sha256": "dccc8de8ba25bf1a222e03797bbdc3ce0c7f571c5665ab973ddabf970d5e88f2"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/source-after.json",
+      "bytes": 6795,
+      "sha256": "72c206a6aee02f93b4a5cf1a0ac19cf7f972ec2586cd6f74ebd7909e5074c758"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/source-before.json",
+      "bytes": 6795,
+      "sha256": "cc8986955a4b53921b1d1f98306d28988cac8d770d8861c68db96dcfa5ac952b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/swap-before.json",
+      "bytes": 265,
+      "sha256": "a4377e4d6835c767a3ef1a3811c37dfd7e600639550b2de2c85c225c98da0336"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/tools-before.json",
+      "bytes": 1005,
+      "sha256": "16e4210a8afe437fd1183acec2e1ed4fd7e1a39fe76cf154f9c9fe0f148f7dbe"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete/verify.json",
+      "bytes": 1397,
+      "sha256": "350e8bee2126a1e0a893df5f3bf66758ff597a5a641c7246c2d0bacf0a14ff21"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false-review.json",
+      "bytes": 11389,
+      "sha256": "bc9023c84abcebe1c1b61a76a9400da76002c446a22cb5b9b19ce0490927f081"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/allocated-before.json",
+      "bytes": 459,
+      "sha256": "e61514bd41153a7e0b600ddb9ef7b13e40b00ba779d1aa66ba05aee106d3035f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/check.json",
+      "bytes": 1023,
+      "sha256": "c37b2de2b4f99ef71e3e7c1bd9096bddf25eb7cdad2d3049ee5c731053235d60"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/directories.json",
+      "bytes": 446,
+      "sha256": "42b4b5cf6c35399a0e5ad4d6e6664e229e8f1cdb0cdd3c8544302adf45b34664"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "96ddafd20f52790f3ee9ffb2b2bfe1b560b1ef291322c60019f711ef762fd565"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/epoch-before.json",
+      "bytes": 470,
+      "sha256": "d8f0015c5ae97f4e6059750bdabda0e871e0a89645403ff1775424919e104e8f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/expected-inputs.json",
+      "bytes": 5992,
+      "sha256": "5c026f2517ce828c26225b261b7252cd0d31ecec253efa645db3b802e8b3907d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "b9320384d88a95b91af7ce7582e4171bcf10d178f1de8b8587ab8e14ad6aca01"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/guest-before.json",
+      "bytes": 406,
+      "sha256": "bd910342ba87b1a9d4091aeb6e79fe57deaf17f055595b9ce4fb6cdfaa89d6dd"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/host-after.json",
+      "bytes": 142,
+      "sha256": "bd10b5d8cc2f2f4274df1dbeb511e6ace70ad1ffae8d8174c4263dd8938ffac3"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/host-before.json",
+      "bytes": 152,
+      "sha256": "9d91c34d8b9bb05325d5a4575b41bdfba52e5ec5d66d5c4e7fa5dca5052c6784"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "d0a2d11b860f3c5827b31d1df84431b9e43a4476638c695eb705a31e25d315e4"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/idle-before.json",
+      "bytes": 460,
+      "sha256": "218f1db72abcbb6bf50d001134a6d96d20302eda22146c38b252270b929cf640"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/lock-after.json",
+      "bytes": 505,
+      "sha256": "1cd754a001c82e491662c0387d29df4cb2344407676b3c50e0d4a277f222c0fc"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/lock-bytes.json",
+      "bytes": 2063,
+      "sha256": "6c2025f4406a9a51a4cccba325256ff51d06f516ca7699930e503b7591bcf4c7"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/lock.json",
+      "bytes": 547,
+      "sha256": "980ba91f2335b8ef0072440e50c969a781ed8c2c9197f165ff0e1ca3c27ff1dd"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "daec8a7a62a481666cd39461b6d298bafb8aabc5e057d5fc2772d320ad89984b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/memory-before.json",
+      "bytes": 354,
+      "sha256": "8aae72243ecd3fccbd272c36848667240b263f732b6f17bade6d4d4158565126"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/new-stage.json",
+      "bytes": 338,
+      "sha256": "c4e3908a3550eee4b38a6b4ed9490d5d1a78476ae2785cd562015f4a626ee0f9"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/result.json",
+      "bytes": 1197,
+      "sha256": "c2e07b9b16673a3d9f7fe2fc80def95614091723d012f86d23464b0594128bfe"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/source-after.json",
+      "bytes": 6657,
+      "sha256": "e233768a7f8e78d7768ae54a5ada5d159d38215dd358d765bbd57c000be936f7"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/source-before.json",
+      "bytes": 6657,
+      "sha256": "b6a83fd40632dd7313ba545070b69e4574adbe59a425acbc7d8377c8fff2afda"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/swap-before.json",
+      "bytes": 264,
+      "sha256": "42e4e53f03499523e0eada916ac7d92499bc99f0073741cfa67b0e7d23b06372"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/tools-before.json",
+      "bytes": 1005,
+      "sha256": "79868ff242c44a137a9196ee8354a57810d1e84156b8f3f49e834842bee91d4e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/verify.json",
+      "bytes": 1288,
+      "sha256": "e840baa73205595e22f3afad1e45fb63cdeade7ce8d4f9a58578e1a6e6b2784e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic-review.json",
+      "bytes": 41873,
+      "sha256": "589ac5d44e90b4bf51135b010747a7bab9aa58a423696de1318f55db45ae4804"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic-supplemental-custody.json",
+      "bytes": 21824,
+      "sha256": "1ea023c8e1280db6516d6064b0da1cac71b75f9318ae119db73f860e6360ecd0"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/allocated-before.json",
+      "bytes": 459,
+      "sha256": "8bbb42c9b39210101882ee6fa8934ce4b0c1b6d7ea4e8af0ff1095f6ad306232"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-copy.json",
+      "bytes": 526,
+      "sha256": "47c63f562b9dd5ab5855b16c94f558e696ee31e93a7824e853048b5b5cd22b0d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/attestation.json",
+      "bytes": 168654,
+      "sha256": "6ae209dc3fa034134e6943706772aa65cd7ee35c95c7bd8fd8f973ab63bc36cf"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/audit/LexLeanAudit.A26f9c8924bc3a6a8cc6b231adffdd61b.LexLeanR4.Object257SymbolicGenericConsumer.lean",
+      "bytes": 146,
+      "sha256": "ddd7f0813aabf3d01d5a06b1089d05f46741d3730b4cf0308e4a3571d930f5ed"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/audit/LexLeanAudit.A26f9c8924bc3a6a8cc6b231adffdd61b.LexLeanR4.Object257SymbolicGenericConsumer.process.json",
+      "bytes": 652,
+      "sha256": "53e2b1af1292b048be922263743bf67aa3029c46363e9646deb2059b865b78c9"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/audit/output.txt",
+      "bytes": 53839,
+      "sha256": "b651c7661883e47fe2a2f24f5afa39233b8dd971f871ca698cac115c622df92e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/build-manifest.json",
+      "bytes": 18250,
+      "sha256": "321528f3c32f37490849b9c1fbae799eb6e32e44470b6f28307d118cb628545b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/maps/LexLeanR4/Object257SymbolicGenericConsumer.map.json",
+      "bytes": 1481,
+      "sha256": "35055cb7cbd68feef49f76e3731a69dff6f79d03d2f6e7fed4eaa931d1389f01"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/modules/LexLeanR4/Object257SymbolicContext.lean",
+      "bytes": 6379,
+      "sha256": "a39094fdb144e4795aafc6e4fbc2ff4ab6b249367b08fc94be6628efaca65eb6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/artifact-text/modules/LexLeanR4/Object257SymbolicGenericConsumer.lean",
+      "bytes": 6620,
+      "sha256": "e62dfbb176ac712c413681995b1ea47435d85486c7fe76f6d2968f608107da79"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/check.json",
+      "bytes": 1053,
+      "sha256": "584e8afe1bc6d88b49026a1bfcd34d40d6ac05ccced154334ffe5e46ae57b1be"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/directories.json",
+      "bytes": 450,
+      "sha256": "26ae43d73f1a46ff92dd8bcc91e157c1cb89ff428cb376602e48dcfe5ee24ecf"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/epoch-after.json",
+      "bytes": 470,
+      "sha256": "9708e697945aa0753e8b950336f23d9bfe3fa6f26cfe0517fe427d87351d4252"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/epoch-before.json",
+      "bytes": 470,
+      "sha256": "b25c02673faa2d37e7d4ec3cbc87c9816eafad88906f1d7d436cd1c439f96935"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/expected-inputs.json",
+      "bytes": 5994,
+      "sha256": "8cc961e950153813fb9faf49a815351bb014ee31609adc51f09f39bc8d4e7f13"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/guest-after.json",
+      "bytes": 406,
+      "sha256": "f7ff9bcec71f73396330ce046392f17753d9ae3d04fa9d3852b69902305d9e9f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/guest-before.json",
+      "bytes": 406,
+      "sha256": "afa86191bc9ea3a2710e12a0d7b5a659e0e249e47c074276e5ed594f2cfbf7ec"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/host-after.json",
+      "bytes": 142,
+      "sha256": "7bf30bfc3bca102507819f1ac75141953ef7f379326acf2ac7e5cdbf9acd23a6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/host-before.json",
+      "bytes": 152,
+      "sha256": "6e322acb81edb8f169aab319ad7b46fa97bdb1cccf50e3d6ed94a0a670b03851"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/idle-after.json",
+      "bytes": 460,
+      "sha256": "70a8c207d0b2c9e969c691cf7b1b070c4733d954502947ed86b3195018e1706d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/idle-before.json",
+      "bytes": 460,
+      "sha256": "081634595de469aa380f43cdffe48a9a34a10fe78b802c86a7e1bee4cd36e25d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/lock-after.json",
+      "bytes": 509,
+      "sha256": "dabff621d121f41254c8226a2416220581ab3d32520a794375eb28685633f7b7"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/lock-bytes.json",
+      "bytes": 2065,
+      "sha256": "b5dae7170e7bbf54ff41e770627efdcc10441033830c1b1e879c5600f38e390c"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/lock.json",
+      "bytes": 549,
+      "sha256": "9b884c640931d275b23767f7b44e8787917f4f5687da9c97879bb95e1deaa44e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/memory-after.json",
+      "bytes": 354,
+      "sha256": "699a7f2082b29399e920801843a1813dba063e2916f6b7646f8fb945a794dcfd"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/memory-before.json",
+      "bytes": 354,
+      "sha256": "d3ad5c81dc0378cae3407dfff8d6af5e51cba056dbf0ff39e901c8050ddb5926"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/new-stage.json",
+      "bytes": 340,
+      "sha256": "66b1392128aab260fa0f80bad3c404122523663fbb053998abaa36b4a2754cd7"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/result.json",
+      "bytes": 1184,
+      "sha256": "ba3254e57e450853a4bd36760c18d7d4b4bbeac26a2608060f5d5f67913d9572"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/source-after.json",
+      "bytes": 6749,
+      "sha256": "bd293391be142daa699505730a073a24afd51c6187e840fdd661cdded3728e82"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/source-before.json",
+      "bytes": 6749,
+      "sha256": "1d21d24d445a79497986e609e998c5724efc34146ec8935abed60c807b907d8e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/swap-before.json",
+      "bytes": 265,
+      "sha256": "380bea8b9780a433731156d810c29340b543f69bc15522ead82aa5b23a0eaf98"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/tools-before.json",
+      "bytes": 1005,
+      "sha256": "63904b3e08b83d380821b0678ecd47816616749c97c3cb12d167c9af44ffa30b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-generic/verify.json",
+      "bytes": 1373,
+      "sha256": "f949fe94b516c670e09b3debde736915181ef8b706d32859891dd85bfd9b1413"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift-review.json",
+      "bytes": 40026,
+      "sha256": "891e5e5c8628ab9c3e01566f05b3544115051c355037b2c57ed56a2c8d754ce2"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift-supplemental-custody.json",
+      "bytes": 21509,
+      "sha256": "7f9dfdbd090b973f593a8c02dc09ac9116f6c78b2509b59e3c8828b9a28263b9"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/allocated-before.json",
+      "bytes": 459,
+      "sha256": "5bbda7a47e0450eba453ea178d6f39b80a64900f97d6725a42f784e67fec2737"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-copy.json",
+      "bytes": 520,
+      "sha256": "08378f9c1a54ecd27dd86bf0916cc9257f70941160b518c25b042c9b4abd29e4"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/attestation.json",
+      "bytes": 166686,
+      "sha256": "09f05f5bab3ad13938c27b7cc072fb6dc178c6b9a06a62ead2432703b1cc9a9e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.lean",
+      "bytes": 187,
+      "sha256": "aa76721ae34c63163c7b2dcf211d1a6edba04656e84586ba76a5fe0f065a9494"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/audit/LexLeanAudit.Aca5bbc4928fd54e04034256f11f8b5d4.LexLeanR4.Object257SymbolicLift.process.json",
+      "bytes": 701,
+      "sha256": "6143476787b0859ca616b355f143fc1343882aa8735d6c8c1a6fdd6217a6c991"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/audit/output.txt",
+      "bytes": 53732,
+      "sha256": "860a8062dafb5ae46e8b242e80fa37b47e92499e032fcb45c9611f2bed25075c"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/build-manifest.json",
+      "bytes": 16957,
+      "sha256": "590233ad487272b43bd9975ff50c92522d78ecb908ffc060486d286702b86bc2"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/maps/LexLeanR4/Object257SymbolicLift.map.json",
+      "bytes": 1735,
+      "sha256": "f05c07d3cc4919c960b7e817934a303819e16c966725f833af073e563472354a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/modules/LexLeanR4/Object257SymbolicContext.lean",
+      "bytes": 6379,
+      "sha256": "a39094fdb144e4795aafc6e4fbc2ff4ab6b249367b08fc94be6628efaca65eb6"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/artifact-text/modules/LexLeanR4/Object257SymbolicLift.lean",
+      "bytes": 868,
+      "sha256": "414b66b87f084d6353fcb2172dede7c2b5cf7ed0e70c334f3e1386e63fa34eeb"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/check.json",
+      "bytes": 1013,
+      "sha256": "257d02f90a1f00662696bf0bf2c5c5010acb640448f21a87acbe4c67d8f73e9b"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/directories.json",
+      "bytes": 444,
+      "sha256": "fe940e4f64bb9509e38e0a3294dbe2535127cbd7826516ed558e7145ef1aeaaa"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/epoch-after.json",
+      "bytes": 470,
+      "sha256": "0f740afd23775962218796579e9a71eb37ff15bb327190ec6f3fafe4f1b5e271"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/epoch-before.json",
+      "bytes": 470,
+      "sha256": "6afa48abe20bf612b225f24a0c1131b6bdb6df8e5d7622bc6b53dacae1fe6625"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/expected-inputs.json",
+      "bytes": 5991,
+      "sha256": "fcbdef5c675e7051fbab2cd8963bff8c62a6e285ddc8f54f2b1a6e23403a3c5d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/guest-after.json",
+      "bytes": 406,
+      "sha256": "57ee55c9ec36be8dffef694507f25726bd9550c46f314087eb4326e594964e3e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/guest-before.json",
+      "bytes": 406,
+      "sha256": "c5eab63984f5f42e40b1f64de3db710b7b1bf7001df088bcabee08505a54cc6a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/host-after.json",
+      "bytes": 142,
+      "sha256": "b8735d8a94904ac2b7a9d730a0c26a0dde093619bf3b93a01df82a29c45994a2"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/host-before.json",
+      "bytes": 152,
+      "sha256": "6045670bc427c2a68eb24d178561a459cc9d99671d118a0bb533312833d8986e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/idle-after.json",
+      "bytes": 460,
+      "sha256": "d13bd2cc53c2519d303ca971af0b58fe5687c768399425aa8d613d34e7f836b5"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/idle-before.json",
+      "bytes": 460,
+      "sha256": "dd2f9fffa1a96b5802b8e95d02059efdd990f4dee10132ce867d81602b117a4f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/lock-after.json",
+      "bytes": 503,
+      "sha256": "d33780f9f2ec22683c99892cc795313eef94152446bb1fb92473edf2f56c8ccd"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/lock-bytes.json",
+      "bytes": 2062,
+      "sha256": "2960229de8bd3f1fc5ce917f6d694231f89b653f3c5ab3ab96c184ee9a6291db"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/lock.json",
+      "bytes": 546,
+      "sha256": "2616502c0e0bc4ede597d43e0e1d59701ae2ab258d5d5fdca727ce7e4c526455"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/memory-after.json",
+      "bytes": 354,
+      "sha256": "0c26b30e65f4941b481397f3498dbfcbb58a87e80a794fa8bf4d45e0b5c51eaa"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/memory-before.json",
+      "bytes": 354,
+      "sha256": "0c2edc44c3773aeaa7c927875e41b2b96257e7312f3459fada0bab053edd3cdf"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/new-stage.json",
+      "bytes": 337,
+      "sha256": "29df42a7bd3ff02c7101f9855cb7d78fbe46adc3d7c6f729c94378ad77c425ac"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/result.json",
+      "bytes": 1136,
+      "sha256": "36347763712d1ff8509846c4e71da2b550a8bf87a425eaa12998f7fbf0be8d3d"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/source-after.json",
+      "bytes": 6611,
+      "sha256": "5e6a29b568ab2221273411cfcd78df5b596cc579d14551be6073ec0a435bd679"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/source-before.json",
+      "bytes": 6611,
+      "sha256": "261e515b476691fbd33473e9451812b9102566ef5fda3e08dced4cfacb0a50c9"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/swap-before.json",
+      "bytes": 265,
+      "sha256": "991bf2c530339c0c1ecaf3d4a7e682e3c88849871a1240389a38fe85c02ce569"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/tools-before.json",
+      "bytes": 1005,
+      "sha256": "aa323cdeeedbb0de1d1b6d232f6d87888434d13b63a3b66379882a991647c518"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-lift/verify.json",
+      "bytes": 1322,
+      "sha256": "fb5d7c77638314bc57c490b1af28c8330eafdf1e35524b658b5836e9f5a78a40"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/manifest.json",
+      "bytes": 18709,
+      "sha256": "a29b688b02ac7c997244e0984bc68120ec11734dbc24298a9a38876aec0eade2"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-concrete/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "f23234d371c24f32d863e095d10596c1ca6104b53dd626b4a409e7fbed7e86de"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-concrete/lexlean.toml",
+      "bytes": 689,
+      "sha256": "3d5ddb3181c9253e337829f14d01263e9871a0d89907a438f48adf86646a0852"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "309712a044fb4aa499a10a3d4ee77c170e0e83529bc5dbde4efb718973e7d06c"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-false/lexlean.toml",
+      "bytes": 694,
+      "sha256": "044d889fa94036ba675b58e544c84f14fe8767514621ac53a117d74782bfbc7e"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-generic/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "976941bd1eea7ad8a8bcca41866cd21625177b7725c151eb2ae0ace356b836ba"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-generic/lexlean.toml",
+      "bytes": 696,
+      "sha256": "2819b39d8d10726b2484a472e68d2c46590d13aadd798c1dff52030b7d74c0a8"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-lift/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "2e94b137b481040c1307361c75f9137ca8bffdc22ef07238639667a4bd8c3d33"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-lift/lexlean.toml",
+      "bytes": 685,
+      "sha256": "c1cc34ec73b330a780e2a84f88d77beca80b315ab81f10750c6b2031a3aed50f"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+      "bytes": 38431,
+      "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex",
+      "bytes": 29787,
+      "sha256": "2cedfadd3850194f8447f178117ad6af51e9b093f956682652081a6be8ffa5d5"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicGenericConsumer.lex.tex",
+      "bytes": 32937,
+      "sha256": "7b8c2cc2d1527781f78e64d38fa38fe9e4484405a332a8833b4679124ce66c2a"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLift.lex.tex",
+      "bytes": 1483,
+      "sha256": "6569deeb633478d591ca2ea3305d669e61328db8374f27444c1544998ff7abc1"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLiftFalseBase.lex.tex",
+      "bytes": 1464,
+      "sha256": "5bf9b3bdf617da87369c841fbec7a2c4fda54cb9fee9e3ade116ee268d9bdadc"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/results.json",
+      "bytes": 14031,
+      "sha256": "5c90df586fa050c4c874fb7d5167a3209eae3759979791b3c055e38a60f4cdd5"
+    },
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/structural-audit.json",
+      "bytes": 9868,
+      "sha256": "1e7181df8ade023f552e2e9b61ee8a65ceb77071a20d9e0d076a1a482dbeda80"
+    }
+  ]
+}

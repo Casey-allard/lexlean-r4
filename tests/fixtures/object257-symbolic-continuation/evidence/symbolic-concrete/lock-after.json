@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-symbolic-continuation-symbolic-concrete-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T20:35:27.743Z",
+  "ended": "2026-10-23T20:35:27.793Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "f23234d371c24f32d863e095d10596c1ca6104b53dd626b4a409e7fbed7e86de  /tmp/r4-object257-symbolic-continuation-symbolic-concrete-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

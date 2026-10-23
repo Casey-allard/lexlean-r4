@@ -1,0 +1,255 @@
+{
+  "schema": "lexlean-r4-atomized-consumer-failure-investigation/v1",
+  "status": "PHASE1_RESOURCE_FAILURE_SOURCE_PROPOSAL_ONLY_ALL_NEXT_NATIVE_NOT_RUN",
+  "scope": "Read-only source and retained receipt investigation. Only this report is written. No source/SDK/VM/compiler/native job, resource limit, repository/index or other-lab changes.",
+  "evidence": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/check.json",
+      "bytes": 1038,
+      "sha256": "4b1ff7b8c12a747da8c2163da4525b410e9bbdf74186b8e1e747b1ae4dd37b19"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/verify.json",
+      "bytes": 943,
+      "sha256": "9eb7e9e385eebf7e173d2e7567faf7f3db13bc860e15f09c2d5fd76fe8d93215"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/memory-before.json",
+      "bytes": 354,
+      "sha256": "f4b14313c6a0726330272dd76958b0bb46727380ed859ac512b3eea751ca666a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/memory-after.json",
+      "bytes": 359,
+      "sha256": "c0cf85ffb4534aea4ae4e1b747a3dddb5f1d7c44d0646a4359f77ca042da630d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/postcapture-errors.json",
+      "bytes": 84,
+      "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/source-before.json",
+      "bytes": 6069,
+      "sha256": "4057465096b099834188668be00262c2ba78864b25a672aa0f3cb77046663097"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/source-after.json",
+      "bytes": 6069,
+      "sha256": "c12bee73f9297e7a68362a8f11308c8543a451aa759bf0ca71cf11d9227b0eb9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/lock-after.json",
+      "bytes": 493,
+      "sha256": "f081d51fe4f9ae24cc0ec0af82446f9fbe8934d9025d46b76762ab431ee6b443"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/epoch-before.json",
+      "bytes": 470,
+      "sha256": "5a3ad81d6d6d918e8d9710b351ed9d5e9dbbd2a936f593465254b563797454d8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/actual-consumer/epoch-after.json",
+      "bytes": 470,
+      "sha256": "89a20aa52227ae3dd76839a9cb959c5bf4943516046d16969c28ec06c330d6de"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/lift-false-review.json",
+      "bytes": 9644,
+      "sha256": "ae596e087a594f4165367a62c102b9f135f9917e9a638aad7020cb067b9e1f5b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/lift-positive-review.json",
+      "bytes": 43688,
+      "sha256": "b71438bb4fb0140ce432c527ebf9b725d0ef2c75e0d55d128b79d12cd768c49e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/emitted-Object257AtomizedConsumer.lean",
+      "bytes": 7074,
+      "sha256": "343648c4c3f99d95a683d3694108b979b4d872aa5e00f6ccd31b7030cf345519"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/atomized-split/consumer-emission-capture.json",
+      "bytes": 896,
+      "sha256": "1cba6c390394494702771b8a74936e421b8e654740953b282f095cefe4dc4083"
+    }
+  ],
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedConsumer.lex.tex",
+      "bytes": 36529,
+      "sha256": "43896b643ce11da2e7311f708c95a4cdc259d9b2d5a80df9fe36898b2bbed0be"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-core/project/tests/lexlean/Object257AtomizedContext.lex.tex",
+      "bytes": 31413,
+      "sha256": "cc7ca480ff76a8795d05ea39fbe74c94f52e9168f5f988f9fe509b510e31dc05"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedLift.lex.tex",
+      "bytes": 1368,
+      "sha256": "721a810b2e1ce5238a5cb616b37d04c7c6f95253bc3b510d38538a821d93a373"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-split/manifest.json",
+      "bytes": 15714,
+      "sha256": "45ea22f9694628f95b65dca58106b37f7e767a48480660a38e5e9c905cf940ed"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/leaf-transport/spec-review.json",
+      "bytes": 8486,
+      "sha256": "eebefa00b425443c869cd8e2bf5d42fc72c6dd5442de8abb9cf0fda9aedfd17e"
+    }
+  ],
+  "observed": {
+    "sourceCheck": "Actual exit0,15modules. Source admission is not proof acceptance.",
+    "verify": {
+      "exit": 1,
+      "signal": null,
+      "wallMilliseconds": 241045,
+      "code": "LLV7002",
+      "message": "Lean rejected `LexLeanR4.Object257AtomizedConsumer`: ",
+      "artifacts": []
+    },
+    "memoryBefore": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memoryAfter": "low 0\nhigh 0\nmax 324059\noom 1\noom_kill 1\noom_group_kill 0\n",
+    "postcaptureErrors": [
+      {
+        "name": "memory-after",
+        "error": "Error: nonzero memory events"
+      }
+    ],
+    "classification": "Resource-failed consumer attempt, not an intended semantic rejection. Cgroup counters show one OOM and one OOM kill during the bounded interval. The generic empty-detail LLV7002 does not establish a false theorem. Counters alone do not identify a killed PID; no unsupported process-specific attribution is made.",
+    "completedHelpers": "Independently reviewed intended negative and positive helper remain valid separate results; actual consumer has no accepted artifact."
+  },
+  "emissionAnalysis": {
+    "capturedSource": "Actual failed build emission contains only the complete production consumer theorem with exact Apply of Object257AtomizedLift.obj257AtomizedLifted(1). It is retained build text, not a verified artifact.",
+    "conversionGap": "The imported helper returns K(F)=K(okS), through the reducible indexed Prop family. The requested target instead presents FoldAtoms(ObjAtomize I []0)[][]L = FoldAtoms(ObjAtomize R []0)S.frontierS.inventoryL. Exact theorem application asks elaboration/kernel conversion to relate these forms for a completely concrete eight-atom suffix.",
+    "localization": "New split rules out blaming only the previous unrelated base theorem: the positive helper independently passed. The failed child is now named consumer. Whether particular reduction steps, theorem matching or kernel work dominate remains unmeasured.",
+    "hypothesis": "Because both concrete FoldAtoms and atomization can reduce, conversion may evaluate downstream leaf/hash/carry computations before recognizing the common suffix. The memory outcome is consistent with this; no per-subexpression profile was captured, so this is not a proven root cause."
+  },
+  "rejectedAlternative": {
+    "route": "Finite atomization equality plus Simplify using theorem references.",
+    "sourceSupport": "ir/semantic.rs8432–8458 explicitly admits prior theorem references in Simplify.definitions; backend/semantic.rs1234–1242 emits simp only. This establishes syntax support only.",
+    "historicalFailure": "Pinned retained OBJECT.md lines337–360 records LLV7005/propext in isolated Nat, Bool and Result Simplify controls, distinct from the current OOM. leaf-transport/spec-review.json also states the actual small Result refusal. No general theorem about every possible simp proof is inferred.",
+    "decision": "Do not expand the proof pipeline using Simplify on this evidence; no axiom-policy relaxation, raw tactic injection or compiler changes. Prefer the smaller existing Induction/Cases/Congruence/Apply route below.",
+    "rawHistoricalPath": "/tmp/lexlean-r4-object-proof-policy-observed-20261021 was absent on this read-only lookup. Historical result is cited from preserved source-linked documentation and review, not re-observed raw logs in this turn."
+  },
+  "minimalNextStep": {
+    "name": "One symbolic second-atom byte-list parameter, then exact concrete instantiation",
+    "purpose": "Keep the exact original append-tree layout but stop suffix evaluation at an unknown list in the generic proof. Move the K-to-fold conversion into that generic proof; make the final real consumer a syntactically exact theorem instantiation.",
+    "constants": {
+      "A": "Actual original first32 bytes0..31, unchanged.",
+      "B": "Actual original second32 bytes32..63; only this entire AST subtree is abstracted.",
+      "I": "Original257 ObjAppendBytes tree, unchanged except replacing its one B subtree by suffixHeadBytes.",
+      "R": "Original225-byte suffix ObjAppendBytes tree, unchanged except replacing its one B subtree by the same parameter.",
+      "F": "Exact accepted first-atom FoldAtoms[A][][]L.",
+      "S": "Exact accepted first-state right.arguments[0], not okS wrapper.",
+      "L": "Exact original limits."
+    },
+    "parameter": {
+      "name": "suffixHeadBytes",
+      "type": {
+        "kind": "list",
+        "element": {
+          "kind": "nat"
+        }
+      },
+      "meaning": "An arbitrary byte-list-shaped Nat list parameter; no new length32 premise or assumed atomization is introduced. Only the final application fixes it to the original32-element B."
+    },
+    "exactOccurrenceAudit": {
+      "consumerStatementPaths": [
+        "/left/arguments/0/arguments/0/arguments/0/arguments/0/arguments/1",
+        "/right/arguments/0/arguments/0/arguments/0/arguments/0"
+      ],
+      "contextContinuationBodyPaths": [
+        "/branches/1/body/arguments/0/arguments/0/arguments/0/arguments/0"
+      ],
+      "originalBJsonSha256": "11f0dde0a12645aadc66a2d5bd4e85892ac2d7a8c8189b86a9bcbc253b23fe82",
+      "originalConsumerStatementJsonSha256": "3508254547b0c51cb472cc0a2b9c6133a73108e783f41cde9f9f7b48a63d85df",
+      "genericConsumerStatementJsonSha256": "02b0de185548bbe07a9396a0b38a87fc815c744440e27b1b99316ab751dce688",
+      "substituteBackConsumerExact": true,
+      "substituteBackContinuationBodyExact": true,
+      "method": "In-memory canonical AST comparison found exactly2 complete B occurrences in consumer, exactly1 in continuation K. Replacing precisely those nodes and substituting the exact B AST back recovers original JSON structurally. No source files were authored."
+    },
+    "sourceRecipe": [
+      {
+        "module": "New parameterized context",
+        "changes": "Copy actual context. Add suffixHeadBytes:List Nat parameter before item to K. Replace exactly its one whole B subtree by the variable. Keep all Result error/success branches, F/S/L, production calls and surrounding append nodes unchanged. Add same parameter before count to P; pass it as first argument at both K calls. P zero remains exactly F=okS."
+      },
+      {
+        "module": "New parameterized lift and negative",
+        "changes": "Copy actual accepted lift/unrelated theorem. Add suffixHeadBytes:List Nat before count to lifted theorem and pass it to P. Keep Induction count, zero Apply accepted firststate, successor Cases prior and Congruence branches byte-equivalent at proof AST. Parameter stays fixed during count induction. Negative changes only zero Apply target to same unrelated0=0 theorem; declaration/goal/types otherwise identical."
+      },
+      {
+        "module": "Generic actual consumer",
+        "changes": "Use the original complete consumer statement with exactly the two audited B subtrees replaced by suffixHeadBytes and one new parameter. Apply new lifted theorem with [suffixHeadBytes,1]. This performs the required K-to-FoldAtoms conversion while the suffix head is unknown. All three typed error paths remain unchanged in the imported production definitions."
+      },
+      {
+        "module": "Mandatory original concrete consumer",
+        "changes": "Preserve original consumer statement/parameters/axioms exactly. Change only its proof to Apply the new generic consumer with the exact original B AST as sole argument, with proper module qualification. Instantiating generic statement at B must be exact canonical AST equality with original statement; no host-computed output, alternate R representation or trusted suffix state."
+      }
+    ],
+    "supportedConstructs": "List Nat parameters, ordinary parameterized definitions/theorems, Nat Induction/Cases, Congruence and qualified Apply are present in installed-source semantic/2. Apply checks prior theorem and argument types/arity; backend emits exact theorem(args). No arbitrary rewrite/transitivity, Result proof Cases, axiom, new production function or generic framework required.",
+    "whyThisCouldReduceWork": "ObjAtomize reaches the unknown second byte-list before it can enumerate remaining suffix atoms. FoldAtoms on that unknown atomization cannot execute concrete suffix hashes. The final instantiated theorem type is structurally the original goal, avoiding the earlier deliberately different K-form at the concrete consumer boundary. This is a structural explanation, not a cost or success claim.",
+    "uncertainties": [
+      "Source linker must admit the newly parameterized List Nat context/theorems and references with the precise argument order. This was not compiled here.",
+      "The generic conversion may still elaborate/normalize the known first atom and surrounding append/atomize matches; it may fail or remain expensive.",
+      "The already accepted Congruence strategy may behave differently with a fixed additional list parameter. No proof success is assumed.",
+      "Exact final AST matching reduces the identified conversion gap but does not prove the elaborator/kernel will avoid all reduction or resource problems.",
+      "Native axiom auditing remains mandatory; support for a proof constructor is not empty-axiom acceptance."
+    ]
+  },
+  "falsifiableSequence": [
+    {
+      "phase": "Source preparation and independent CODE review",
+      "status": "NOT_RUN",
+      "required": "Freeze separately; canonical JSON; exact B occurrences; all module-reference/type/arity updates; original runtime and source closure hashes; original final consumer equality after instantiation; unchanged300000ms and emptyaxioms. Preserve all old failed/accepted packets."
+    },
+    {
+      "phase": "Parameterized false-base control",
+      "status": "NOT_RUN",
+      "required": "Actual check passes; actual verify rejects unrelated0=0 at P(suffixHeadBytes,0) with intended type mismatch. Timeout/OOM/proof-policy/instrument failure is not accepted negative. Stop before positive on unrelated outcome."
+    },
+    {
+      "phase": "Parameterized positive lift plus generic real consumer",
+      "status": "NOT_RUN",
+      "required": "Actual positive lift and generic FoldAtoms consumer both verify with empty observed axioms and independent artifact/kernel replay audit. A lift-only success is incomplete. Stop on resource/proof failure without equivalent retry or raised limits."
+    },
+    {
+      "phase": "Exact original concrete consumer",
+      "status": "NOT_RUN",
+      "required": "Mandatory actual original target Applies generic bridge at exact B. Require real artifact, original input/digest/runtime identities, none-policy/empty observed axioms, kernel replays and independent review. Generic-only success is not actual bridge acceptance."
+    }
+  ],
+  "limitsAndNextWork": {
+    "resource": "Keep existing4GiB/2CPU and300000ms per-child limits. Current OOM counters invalidate zero-event continuity; parent must establish independently reviewed fresh resource epoch under existing gates before any native phase. No automatic retry or VM action in this report.",
+    "scope": "One symbolic byte-list parameter, not13certificates or wholefold expansion. Full257 digest remains open. After completing/recording this bounded current proof attempt, user-requested17draft completion remains the next product priority; do not substitute a proof-tooling framework.",
+    "storage": "Last observed host availability33020788KiB; only this <=20KiB report is new."
+  }
+}

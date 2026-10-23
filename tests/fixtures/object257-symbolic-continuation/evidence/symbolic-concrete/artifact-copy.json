@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object257-symbolic-continuation-symbolic-concrete-owned-20261023/.lexlean/verified/832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-concrete/artifact"
+  ],
+  "started": "2026-10-23T20:35:27.407Z",
+  "ended": "2026-10-23T20:35:27.674Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

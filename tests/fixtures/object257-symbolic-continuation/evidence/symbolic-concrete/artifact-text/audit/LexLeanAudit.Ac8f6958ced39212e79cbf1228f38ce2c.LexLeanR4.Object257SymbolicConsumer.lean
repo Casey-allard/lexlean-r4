@@ -1,0 +1,3 @@
+module
+import LexLeanR4.Object257SymbolicConsumer
+#print axioms LexLeanR4.Object257SymbolicConsumer.obj257OriginalAtomizedCoreBridge

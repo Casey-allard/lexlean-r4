@@ -1,0 +1,1219 @@
+{
+  "schema": "lexlean-r4-symbolic-concrete-native-review/v1",
+  "at": "2026-10-23T20:36:40.926Z",
+  "status": "PASS_EXACT_ORIGINAL_ATOMIZED_FIRST_STATE_CONTINUATION_BRIDGE",
+  "findings": [],
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/manifest.json",
+    "bytes": 18709,
+    "sha256": "a29b688b02ac7c997244e0984bc68120ec11734dbc24298a9a38876aec0eade2"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/code-review.json",
+    "bytes": 9614,
+    "sha256": "da1a1cbf9b63bb6a1da1215216004b449f7c9ed7742787b06afd70ee3003b914"
+  },
+  "epochReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch-review.json",
+    "bytes": 8945,
+    "sha256": "3e22d2f340e4d8aff078e1af167426d32573f7eb2a1129cb889744e67a52b2f4"
+  },
+  "priorGenericReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-generic-review.json",
+    "bytes": 41873,
+    "sha256": "589ac5d44e90b4bf51135b010747a7bab9aa58a423696de1318f55db45ae4804"
+  },
+  "observed": {
+    "verifyStatus": 0,
+    "wallMilliseconds": 25240,
+    "attestationId": "832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c",
+    "buildId": "14efc85c1dbe75335331132b63fd586357406b0874cb3073043e5c0949024670",
+    "semanticId": "c8f6958ced39212e79cbf1228f38ce2cd932063f315cd0b6f466ede376b39ea3",
+    "sourceId": "5ad5d0d88b3e54168498d777dc7a206718313236fd3be811bea2e10b96ba82d8",
+    "lockSha256": "f23234d371c24f32d863e095d10596c1ca6104b53dd626b4a409e7fbed7e86de",
+    "sourcecheckModules": 16,
+    "postcaptureErrors": [],
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []"
+  },
+  "checks": {
+    "all14FrozenPayloadsAnd51DependenciesRehashed": true,
+    "all23ActualInputsAndGenuineLockBeforeAfter": true,
+    "buildManifestExactByteHash": true,
+    "all80OutputsByteHashed": true,
+    "all21ManifestInputsBound": true,
+    "embeddedLexiconsBoundByGenuineLockTrees": true,
+    "all16OleansByteHashed": true,
+    "all49ProcessRecordsExit0AndStdoutStderrHashesVerified": true,
+    "all16KernelReplayModulesMatchOleans": true,
+    "all775PoliciesNoneObservedEmptyAndActualAuditTextMatches": true,
+    "full165FileCensusExact": true,
+    "knownCompilerLeanLakeChecker": true,
+    "epochAndMemoryZeroBeforeAfter": true,
+    "idleBeforeAfter": true,
+    "postOrderingAndStorageGates": true
+  },
+  "exactOriginalStatement": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+      "bytes": 38431,
+      "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+    },
+    "predecessor": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-atomized-split/project/tests/lexlean/Object257AtomizedConsumer.lex.tex",
+      "bytes": 36529,
+      "sha256": "43896b643ce11da2e7311f708c95a4cdc259d9b2d5a80df9fe36898b2bbed0be"
+    },
+    "genericSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicGenericConsumer.lex.tex",
+      "bytes": 32937,
+      "sha256": "7b8c2cc2d1527781f78e64d38fa38fe9e4484405a332a8833b4679124ce66c2a"
+    },
+    "statementAstSha256": "3508254547b0c51cb472cc0a2b9c6133a73108e783f41cde9f9f7b48a63d85df",
+    "entireStatementAstEqualToPredecessor": true,
+    "nameAndEmptyParametersPreserved": true,
+    "emptyDeclaredAxioms": true,
+    "genericSubstitutionAtExactlyTwoVariableOccurrencesRecoversEntireOriginalStatement": true,
+    "concreteArgumentNatValues": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ],
+    "emitted": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-concrete/artifact/modules/LexLeanR4/Object257SymbolicConsumer.lean",
+      "bytes": 7379,
+      "sha256": "1f41eea94a5417d3fd8351d8a24b31b01dc4353e4a2181372fe7a5e7a263f4da"
+    },
+    "priorFailedBuildEmission": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/../atomized-split/emitted-Object257AtomizedConsumer.lean",
+      "bytes": 7074,
+      "sha256": "343648c4c3f99d95a683d3694108b979b4d872aa5e00f6ccd31b7030cf345519"
+    },
+    "entireEmittedTheoremStatementByteEqualToOriginalFailedBuild": true,
+    "inspection": "Actual theorem compares production FoldAtoms(Atomize original257 input) at empty state with production FoldAtoms(Atomize remaining225 input) at the exact certified singleton first state, using original limits. Its proof applies the accepted generic consumer at the original32-byte B=32..63. Helper/context/generic emitted modules remain byte-identical to prior accepted artifact. This is the original first-state continuation bridge, not evaluation of the remaining fold to a digest."
+  },
+  "storage": {
+    "before": {
+      "hostAvailableBytes": "36309504000",
+      "guestAvailableKiB": "53179016",
+      "hostEstimateBytes": "10737418240",
+      "hostReserveBytes": "10737418240"
+    },
+    "after": {
+      "hostAvailableBytes": "36307386368",
+      "guestAvailableKiB": "53168088",
+      "hostEstimateBytes": "0",
+      "hostReserveBytes": "10737418240"
+    }
+  },
+  "receiptInventory": [
+    {
+      "path": "symbolic-concrete/allocated-before.json",
+      "bytes": 459,
+      "sha256": "14f6339a0745584af8591a1ac75dd0ce8f8e93e0e5ae9d846136924b1ba0ac36"
+    },
+    {
+      "path": "symbolic-concrete/artifact-copy.json",
+      "bytes": 528,
+      "sha256": "5ab17aa5d047c3ca74542770b97f98fab2d60134a87159ee5d70b161afa5770f"
+    },
+    {
+      "path": "symbolic-concrete/check.json",
+      "bytes": 1084,
+      "sha256": "36f5ff49dec036a96a8a7a93e2879a986cb46feb3b5b7bcfe8dd6b4ab68f808a"
+    },
+    {
+      "path": "symbolic-concrete/copy-0.json",
+      "bytes": 520,
+      "sha256": "0cd23a26ebfe31b6ef929621e211899f3ab6ed81583dfed8647eccd9461537cd"
+    },
+    {
+      "path": "symbolic-concrete/copy-1.json",
+      "bytes": 466,
+      "sha256": "bd51ea93fddda9c3cbdb7774341ac465ea8e8235fb129e801cecca81b534d25f"
+    },
+    {
+      "path": "symbolic-concrete/copy-10.json",
+      "bytes": 468,
+      "sha256": "63d43840e101eeab418916499eeb753bab7e25deb406c0251e3eb3df3ade3656"
+    },
+    {
+      "path": "symbolic-concrete/copy-11.json",
+      "bytes": 454,
+      "sha256": "e5f00cf5429c4dff3f315eed8dc8a962b917d64ad07a62e948b56964514de91b"
+    },
+    {
+      "path": "symbolic-concrete/copy-12.json",
+      "bytes": 464,
+      "sha256": "b60d396f448e90bd1b20e45eefe95ce01de3e8c7b94e1ddc827b59e00c1b92f5"
+    },
+    {
+      "path": "symbolic-concrete/copy-13.json",
+      "bytes": 456,
+      "sha256": "3a75d75b54876634d24f12163f464de5ce8123f7ea1b51c950a6f49768c5f3ac"
+    },
+    {
+      "path": "symbolic-concrete/copy-14.json",
+      "bytes": 512,
+      "sha256": "ae6b3d79d406957ba01e0eb56734598c8b3e90f709e0c79c03b3e8980eca7f12"
+    },
+    {
+      "path": "symbolic-concrete/copy-15.json",
+      "bytes": 512,
+      "sha256": "24133e3e4bcbe36fee68aa026e7aa7daca20e881a88d917520187849c968fe41"
+    },
+    {
+      "path": "symbolic-concrete/copy-16.json",
+      "bytes": 514,
+      "sha256": "c1cf3fda50c72f7d7141efd8b0339e01159946c4eef2e8846c3524cfe5e8fe10"
+    },
+    {
+      "path": "symbolic-concrete/copy-17.json",
+      "bytes": 527,
+      "sha256": "30f9c97c97eac00403bb961d100ef75f5253a7ffb223f6822911878e80905541"
+    },
+    {
+      "path": "symbolic-concrete/copy-18.json",
+      "bytes": 539,
+      "sha256": "af0a27dee317b6dc5e40b00bbf7ab94fac4936e8b4f929f97473f919dab4c8e8"
+    },
+    {
+      "path": "symbolic-concrete/copy-19.json",
+      "bytes": 521,
+      "sha256": "83c67139aa2b40e52928cfa7f8e867eaa4d3f9175de3f8806e8fdbc6fca53683"
+    },
+    {
+      "path": "symbolic-concrete/copy-2.json",
+      "bytes": 472,
+      "sha256": "7d30b43cc0e9ac688fd743dd0c18d467132a853543e22a2245aaa772c9179197"
+    },
+    {
+      "path": "symbolic-concrete/copy-20.json",
+      "bytes": 543,
+      "sha256": "50676ab8f7e40d359b0345a2b7106d473939d5bf5ec9007c879d6d895b09bd36"
+    },
+    {
+      "path": "symbolic-concrete/copy-21.json",
+      "bytes": 529,
+      "sha256": "ac44af2f211fe9de0da580e57ff7ac3bd48c36700547547064fc48e69e9cc36c"
+    },
+    {
+      "path": "symbolic-concrete/copy-22.json",
+      "bytes": 476,
+      "sha256": "10f2eec8fb6ee346507a7b1995eb0a8cc757ebe62f73e8da26ba9116d59df0c2"
+    },
+    {
+      "path": "symbolic-concrete/copy-3.json",
+      "bytes": 480,
+      "sha256": "7ad08484fb6004414003e25f8383e666187d09e871a58a24b6d05ac20813bc0b"
+    },
+    {
+      "path": "symbolic-concrete/copy-4.json",
+      "bytes": 474,
+      "sha256": "59e70d1b76435674af485cc74db6c3b2e2d9b9cbe10e619259c5190747286433"
+    },
+    {
+      "path": "symbolic-concrete/copy-5.json",
+      "bytes": 470,
+      "sha256": "e957d6a5c84a3518a32fbce50d4af9f4e500b698ab18a39c3146201f079d3093"
+    },
+    {
+      "path": "symbolic-concrete/copy-6.json",
+      "bytes": 480,
+      "sha256": "a969904bfec007caed3cce4fe2e319bd580ad9699b8f27c752aed3aff3463a94"
+    },
+    {
+      "path": "symbolic-concrete/copy-7.json",
+      "bytes": 478,
+      "sha256": "5279452bffdc3af27d24fa4c59555f6454048d61ef59e4271190775fed2cfd9d"
+    },
+    {
+      "path": "symbolic-concrete/copy-8.json",
+      "bytes": 480,
+      "sha256": "983c80193b42b9bf425f4e11f914b91fcadcaa201647aa69a7dfd5f4c1441114"
+    },
+    {
+      "path": "symbolic-concrete/copy-9.json",
+      "bytes": 480,
+      "sha256": "32b89129d1e5e3513216b4f441e4c09f04e43988858db608784d3186f05cf48f"
+    },
+    {
+      "path": "symbolic-concrete/directories.json",
+      "bytes": 452,
+      "sha256": "ccc7421559aecce82d8be87aee6f7a60d3bb6fb5d1dbb767d61dc1306b4a571f"
+    },
+    {
+      "path": "symbolic-concrete/epoch-after.json",
+      "bytes": 470,
+      "sha256": "fd0a897711bf2eece1b6669493a206b2b0bb35605922653580fef5616b9e19a1"
+    },
+    {
+      "path": "symbolic-concrete/epoch-before.json",
+      "bytes": 470,
+      "sha256": "7ccf1c8ccb89ed6cc85bf87ebedfdb98bec2220e0e3f1d1887ddea6de35de2cc"
+    },
+    {
+      "path": "symbolic-concrete/expected-inputs.json",
+      "bytes": 5995,
+      "sha256": "39715011c77418082fa7f72352974d498c187263e21a6b22e72d86386f27b4db"
+    },
+    {
+      "path": "symbolic-concrete/guest-after.json",
+      "bytes": 406,
+      "sha256": "f592e3daee6eb7836c26fe255ed4494059b36a234f44eb8539f7c5a9d0c94b11"
+    },
+    {
+      "path": "symbolic-concrete/guest-before.json",
+      "bytes": 406,
+      "sha256": "5c8f4cfc319d32c44f83cfce1611cf6f3795b21f7d7dcd25212790fe6f196070"
+    },
+    {
+      "path": "symbolic-concrete/host-after.json",
+      "bytes": 142,
+      "sha256": "76801768712db698b3f47ab5ddd77f159079c56c62805444ac0a3c0bd2f5fb80"
+    },
+    {
+      "path": "symbolic-concrete/host-before.json",
+      "bytes": 152,
+      "sha256": "035d3130545a13855de9c1628380a8e34f6172595e45ca93d712835b65220dcb"
+    },
+    {
+      "path": "symbolic-concrete/idle-after.json",
+      "bytes": 460,
+      "sha256": "a03c25150a0044826658d886028c9ad61406d64ca69cbdcbb47025a5e6b8ec3d"
+    },
+    {
+      "path": "symbolic-concrete/idle-before.json",
+      "bytes": 460,
+      "sha256": "208651b0ada9d27f97c02cd6bb885be2d6fd79cf090d63994cd8279b28c3c9c4"
+    },
+    {
+      "path": "symbolic-concrete/lock-after.json",
+      "bytes": 511,
+      "sha256": "28d342d85bb68084ddd0e961704f360204229073c1723e0de50639e7f1493e86"
+    },
+    {
+      "path": "symbolic-concrete/lock-bytes.json",
+      "bytes": 2066,
+      "sha256": "b6dafc2e0b2c7ccf4e47ff2742339aa21c4aa013e6c6e429abd91f890150358a"
+    },
+    {
+      "path": "symbolic-concrete/lock.json",
+      "bytes": 550,
+      "sha256": "33072a1f8639228e28753e0301108a17dab92abfc71ce254d4672bac3719a65a"
+    },
+    {
+      "path": "symbolic-concrete/memory-after.json",
+      "bytes": 354,
+      "sha256": "74e0e23664133f4f3d8e8c0645a815cdf5a8a8238223bd8eb49943bf56198844"
+    },
+    {
+      "path": "symbolic-concrete/memory-before.json",
+      "bytes": 354,
+      "sha256": "d3f61203b7bf9fc2a2e8931df7a9d815b8339b8c0f223feb4c25916cda69ff5b"
+    },
+    {
+      "path": "symbolic-concrete/new-stage.json",
+      "bytes": 341,
+      "sha256": "22110ca563f479cfe34846d894ede8a42996676a42008f3e352e42aab6a1564c"
+    },
+    {
+      "path": "symbolic-concrete/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "symbolic-concrete/result.json",
+      "bytes": 1221,
+      "sha256": "dccc8de8ba25bf1a222e03797bbdc3ce0c7f571c5665ab973ddabf970d5e88f2"
+    },
+    {
+      "path": "symbolic-concrete/source-after.json",
+      "bytes": 6795,
+      "sha256": "72c206a6aee02f93b4a5cf1a0ac19cf7f972ec2586cd6f74ebd7909e5074c758"
+    },
+    {
+      "path": "symbolic-concrete/source-before.json",
+      "bytes": 6795,
+      "sha256": "cc8986955a4b53921b1d1f98306d28988cac8d770d8861c68db96dcfa5ac952b"
+    },
+    {
+      "path": "symbolic-concrete/swap-before.json",
+      "bytes": 265,
+      "sha256": "a4377e4d6835c767a3ef1a3811c37dfd7e600639550b2de2c85c225c98da0336"
+    },
+    {
+      "path": "symbolic-concrete/tools-before.json",
+      "bytes": 1005,
+      "sha256": "16e4210a8afe437fd1183acec2e1ed4fd7e1a39fe76cf154f9c9fe0f148f7dbe"
+    },
+    {
+      "path": "symbolic-concrete/verify.json",
+      "bytes": 1397,
+      "sha256": "350e8bee2126a1e0a893df5f3bf66758ff597a5a641c7246c2d0bacf0a14ff21"
+    }
+  ],
+  "artifactInventory": [
+    {
+      "path": "attestation.json",
+      "bytes": 170554,
+      "sha256": "5573f0228bf6a2fd4f51bab5f9ac29a2cebf816a90c12c0a71622532f2fcb8c6"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257FirstAtomGoal.lean",
+      "bytes": 114,
+      "sha256": "703ef3885e7915933fcfc149d1ac14639cc0a0050706b2ffaa560cf4eaa76160"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257FirstAtomGoal.process.json",
+      "bytes": 610,
+      "sha256": "c9327236d4f06773153b70968928dc7de08d30a4756a872c0782636c5a9f5d88"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257FirstAtomLeaf.lean",
+      "bytes": 113,
+      "sha256": "93b20822083fe1949ca834f7897e9400f2604aa2939de4276dcaa8db4fcb7d9b"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257FirstAtomLeaf.process.json",
+      "bytes": 609,
+      "sha256": "422382dcc0aac6a2e6ea54ab0af2b90a2912c171871399d0f8d425c3722daf9e"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257FirstAtomState.lean",
+      "bytes": 187,
+      "sha256": "8b32231bc6e5f6d0c33d36d754c4aa032e1c408fedfb4b6b11fb1f2aba8b15e4"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257FirstAtomState.process.json",
+      "bytes": 703,
+      "sha256": "28f24585617e63b1c5eaef5800a6a44cb755ac2cf2552b19c8afccafb840c603"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicConsumer.lean",
+      "bytes": 133,
+      "sha256": "d9d507de00fccac39f02d5e25368ddd4cf9b11620318dd09b09e9bc848bca757"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicConsumer.process.json",
+      "bytes": 632,
+      "sha256": "73de8bb940a06cdfd7723830b184e88c77ae2f0c109347059dbdf94f089833b8"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicContext.lean",
+      "bytes": 193,
+      "sha256": "db3f5217602ac297dad8882a67a64fcf7bce4f762e4b275c90b211ebb6c7afa1"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicContext.process.json",
+      "bytes": 710,
+      "sha256": "908d6f5db23ef6b16af9990c1be5a119e1d0f448ad6cc4ceefa7db61d87b0814"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicGenericConsumer.lean",
+      "bytes": 146,
+      "sha256": "ddd7f0813aabf3d01d5a06b1089d05f46741d3730b4cf0308e4a3571d930f5ed"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicGenericConsumer.process.json",
+      "bytes": 652,
+      "sha256": "d3036393d5690dcf0a9dbe67755755e66f192ab29fac45b5b6a1fbbc79bec52c"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicLift.lean",
+      "bytes": 187,
+      "sha256": "aa76721ae34c63163c7b2dcf211d1a6edba04656e84586ba76a5fe0f065a9494"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257SymbolicLift.process.json",
+      "bytes": 701,
+      "sha256": "8e85821583104632b1d7753ae35d3b116a0e78fbc324c83188e7f97d12eeab8e"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257TerminalContext.lean",
+      "bytes": 188,
+      "sha256": "87efd6b88b35cb6cfad4a74e1c97837b8b8d5120f75cc777e1ee38a4127690fa"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.Object257TerminalContext.process.json",
+      "bytes": 705,
+      "sha256": "105ea072552670cdfdda55479d2b73c1328ebb4afed2c77c63f9b956aa7722be"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.Hash.lean",
+      "bytes": 8214,
+      "sha256": "29f60eaf853ae91ebfeb46d501eb6dbffb257cfb187f80d27d55174ca2c32846"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.Hash.process.json",
+      "bytes": 12229,
+      "sha256": "8adee34b983b669ed5f39a5182baabdf36293be838b34f2b3ffdadeac2ec5fc7"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.HashNat.lean",
+      "bytes": 2095,
+      "sha256": "701a696c007db2070c0956ef89e4bb35d5078447553ccab1d6a91bbeb3f29e1d"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.HashNat.process.json",
+      "bytes": 3320,
+      "sha256": "5ece61a7cbb45fe503dde597d88fdd3fa0576ae74fe4cca67fb3c9776c6a7c03"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.HashNatCore.lean",
+      "bytes": 9649,
+      "sha256": "dd53ba0ac597483cad9f1052af7f9307ba8953d0c7607a963a051ea3a0678cc6"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.HashNatCore.process.json",
+      "bytes": 13310,
+      "sha256": "75cddb9a5eb756a3bfbec58e30ac10857e6815f6254b54b698132a99c292c2c4"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.HashWire.lean",
+      "bytes": 440,
+      "sha256": "562760e2d3844cfc0088f68aa153732a7f6fe6e6b9218c9156b301f54beed4a0"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.HashWire.process.json",
+      "bytes": 1039,
+      "sha256": "407a0fd36604458c627f6df9092b24b6718684d4d9536a1ed1337248be2d0c8c"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.ObjectCodec.lean",
+      "bytes": 5799,
+      "sha256": "bd39af31780fc875be5d377115fc016eb16e9577987612ce5b8b5d154cbf3922"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.ObjectCodec.process.json",
+      "bytes": 8168,
+      "sha256": "571396df5597bedd054c7824961ebacc99e5c1e6997cda239435b4203ea522be"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.ObjectStore.lean",
+      "bytes": 1358,
+      "sha256": "9f9fd62e010379d23733e4f8438bd22753acd8107ac7fa86c01942d0d0172e9a"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.ObjectStore.process.json",
+      "bytes": 2283,
+      "sha256": "324b4672c4c04ba446bcf823b5a6f18e5d0a92f68fdbbb59dfae8dcddbec0e37"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.ObjectTypes.lean",
+      "bytes": 5953,
+      "sha256": "5c83a0d720ae9ef3f9aa48a708debe3ef1672b348c5d65560606b5acbe133109"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.ObjectTypes.process.json",
+      "bytes": 8493,
+      "sha256": "9444850385261b64c167301a8c902a208c9ffbafd5490dba0d883f50c202b7e0"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.Words.lean",
+      "bytes": 5906,
+      "sha256": "ea2e25090559464a3e2a0db3b6f9523b64a5bdd006765eb74577a25f4947ee92"
+    },
+    {
+      "path": "audit/LexLeanAudit.Ac8f6958ced39212e79cbf1228f38ce2c.LexLeanR4.R4.Words.process.json",
+      "bytes": 8801,
+      "sha256": "c762b8fcb4e2b757e5c0d76029752e93207021ef1507b0a066e1c93bb457c40f"
+    },
+    {
+      "path": "audit/output.txt",
+      "bytes": 53940,
+      "sha256": "c26238f73e862818e540b48d75207fdb2796c560a3f9386c5d1087d3f3589b82"
+    },
+    {
+      "path": "build-manifest.json",
+      "bytes": 19473,
+      "sha256": "fe16a1af28bdf697c2b8351102a6503fe933cdb83c3f41a92f934162d7ed1b22"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257FirstAtomGoal.coverage.json",
+      "bytes": 14666,
+      "sha256": "386451c0f4e5ffa0bec5113b278aa85acd488b377a625e84c8583268a66a6d8a"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257FirstAtomLeaf.coverage.json",
+      "bytes": 13575,
+      "sha256": "b7727a0e5d53d878861cdb8754c816e8ebd0a864872e339e7d3777103453b132"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257FirstAtomState.coverage.json",
+      "bytes": 16064,
+      "sha256": "da666d3f58028f04caa3e399e2158089b3f78571505e52e74a3d382fbf711e55"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257SymbolicConsumer.coverage.json",
+      "bytes": 17084,
+      "sha256": "42cb84e0d51414c06272afb9afb36b5a0e43ce330d142b7c071f22895a0ef625"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257SymbolicContext.coverage.json",
+      "bytes": 14005,
+      "sha256": "22d379523fc075c4d4c9f008ec32aadca5fdd26f8713997d5a39c3f41856208c"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257SymbolicGenericConsumer.coverage.json",
+      "bytes": 17716,
+      "sha256": "50de2f99378db2c15247aa7827a104fc5d38bd615bf2489345c7eac87d53590b"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257SymbolicLift.coverage.json",
+      "bytes": 15890,
+      "sha256": "52db2945b408a88b346096e545e8aa01616c431fa178839b3fd05637390452c2"
+    },
+    {
+      "path": "coverage/LexLeanR4/Object257TerminalContext.coverage.json",
+      "bytes": 14005,
+      "sha256": "7e379b373860666efc08c3657ef48c911b2c53de89305a3fb82e9675619b8dce"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/Hash.coverage.json",
+      "bytes": 63324,
+      "sha256": "3bbda9baed672cd694b28cdc7d3063b48d7b4f52e9bf19535cc5a64c9e0aa8f6"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/HashNat.coverage.json",
+      "bytes": 21526,
+      "sha256": "74c9af4380510faf1497e1432b4ccdab2e159a93644a2dc276d512ef6cabdd99"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/HashNatCore.coverage.json",
+      "bytes": 56270,
+      "sha256": "b676ef62f1baab1a31c77830a2774abdc1b86042a66743bd61a1714cf72e841d"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/HashWire.coverage.json",
+      "bytes": 16026,
+      "sha256": "8e639fb7e50b00af3e3888f3ff1b93d80d5f8a9a450a96650714edd0dd2528ca"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/ObjectCodec.coverage.json",
+      "bytes": 40175,
+      "sha256": "1e9cae8813b002fddfa34f8bcd46a9fe670d1e57c5d4a499602f6c810ed42b15"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/ObjectStore.coverage.json",
+      "bytes": 18590,
+      "sha256": "6e1da8bd9d52578687e5b83728e4d11cd91f7c6ce55e5ba9bcce03f965ff7b11"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/ObjectTypes.coverage.json",
+      "bytes": 40201,
+      "sha256": "f5ac7ccd7eaf7c97b8562ec547bf82ac646d316752e769e869f41d0a1f6687e6"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/Words.coverage.json",
+      "bytes": 43925,
+      "sha256": "dc7d05617ba97128f4091876dd32dfec84ba37a602f1b84439065a9785f48ed9"
+    },
+    {
+      "path": "lexicons/Object257FirstAtomGoal.closure.json",
+      "bytes": 10620,
+      "sha256": "6eac19a214e45806cb8f32b942fc5f1b77fae2f88990d3b735d873dad04f0c4f"
+    },
+    {
+      "path": "lexicons/Object257FirstAtomLeaf.closure.json",
+      "bytes": 10620,
+      "sha256": "5700039361fea1e94dd349e20892d3c0b3d44bb801f17dc2ae8a829e3be88bf1"
+    },
+    {
+      "path": "lexicons/Object257FirstAtomState.closure.json",
+      "bytes": 10621,
+      "sha256": "d2c74b39207c712f0cc535f1741055ea992798f053245a241e1895e36c8005d7"
+    },
+    {
+      "path": "lexicons/Object257SymbolicConsumer.closure.json",
+      "bytes": 10623,
+      "sha256": "9cbcc6fbd960fd267178ced92ed9f81979c57dd1c1cf87e6e96d461a6dbbc24b"
+    },
+    {
+      "path": "lexicons/Object257SymbolicContext.closure.json",
+      "bytes": 10622,
+      "sha256": "8090d4b49fe294de839723f52d7c3910fa111258abc20fc71fcb8bb6e2973bd0"
+    },
+    {
+      "path": "lexicons/Object257SymbolicGenericConsumer.closure.json",
+      "bytes": 10630,
+      "sha256": "ce64908965ec783ad35d9592c26976b572bf8860698ef0a40a9e49cec777284a"
+    },
+    {
+      "path": "lexicons/Object257SymbolicLift.closure.json",
+      "bytes": 10619,
+      "sha256": "8f9617e7aa892408d757980c30f12e166b9252ddfff00cc9fd1dc54244604fff"
+    },
+    {
+      "path": "lexicons/Object257TerminalContext.closure.json",
+      "bytes": 10622,
+      "sha256": "7e23d0442ea2bc39593ecbae0597aff765c9cb39326e0110905d967676fe5c99"
+    },
+    {
+      "path": "lexicons/R4.Hash.closure.json",
+      "bytes": 10605,
+      "sha256": "c51b353d2d7f083d83b7ad728237ed172780088f9d4890f36f52b490cb605464"
+    },
+    {
+      "path": "lexicons/R4.HashNat.closure.json",
+      "bytes": 10608,
+      "sha256": "08c675a13d196e10288fd6427e3ea38870216e3d69fd01b282deb3a19bacf988"
+    },
+    {
+      "path": "lexicons/R4.HashNatCore.closure.json",
+      "bytes": 10612,
+      "sha256": "01a5b8e8f945f9feb03e053aefe548d5b42454efd35ca80a86f85e1e74da3220"
+    },
+    {
+      "path": "lexicons/R4.HashWire.closure.json",
+      "bytes": 10609,
+      "sha256": "6905321bc891fd4b2fb05673099f0a9e08e1ad0bf8ab94446e39a4b290ce44bd"
+    },
+    {
+      "path": "lexicons/R4.ObjectCodec.closure.json",
+      "bytes": 10612,
+      "sha256": "0bf7a1843cbcaeb058c5b653adebee3e341b3c8e1aae45ab605b3394d1dbb563"
+    },
+    {
+      "path": "lexicons/R4.ObjectStore.closure.json",
+      "bytes": 10612,
+      "sha256": "9d669fbfb0a2bd65f09c5a89cc32eae55688c149dc5a2baa4295a7ba7c29d2d5"
+    },
+    {
+      "path": "lexicons/R4.ObjectTypes.closure.json",
+      "bytes": 10612,
+      "sha256": "79ee785a39e50e8206c49cda0ea50d329127bab61b7fe1231d6140c3f5c14a6a"
+    },
+    {
+      "path": "lexicons/R4.Words.closure.json",
+      "bytes": 10606,
+      "sha256": "d4945717158680d50eb2c6b0b78f4f11b15cc322ef8bfe24c69fdfad2eaae787"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257FirstAtomGoal.map.json",
+      "bytes": 1441,
+      "sha256": "826afd0ca4ab9cd87362a47e75f1ef9532ab22d90dac8ca65c75e3ed0ea41ef2"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257FirstAtomLeaf.map.json",
+      "bytes": 1435,
+      "sha256": "aa3182658b2c0f73825258062930a44442efaf685ab365a7969fc474d4e82654"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257FirstAtomState.map.json",
+      "bytes": 1753,
+      "sha256": "adf4619f6b280e0345e2ce6243056e5871612509b692cbdb932f6fad80b7837b"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257SymbolicConsumer.map.json",
+      "bytes": 1453,
+      "sha256": "ec1bab265283ca23e4581f39e13eb7c3952351535c9b960c0318538a7a76cd6d"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257SymbolicContext.map.json",
+      "bytes": 1771,
+      "sha256": "24284508b44f170ae1aab4fc4a2549529f8a8ba19275472f7d58753d917c7f15"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257SymbolicGenericConsumer.map.json",
+      "bytes": 1481,
+      "sha256": "9e82fd4bae779960dce446d4ebf8eb03483bfc3ba6b41cb2e65e97ac79181df9"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257SymbolicLift.map.json",
+      "bytes": 1735,
+      "sha256": "6dce559dfa4241913ac65dba9ee7bf44cf7f5e72846bb277b8f00eeb313f2948"
+    },
+    {
+      "path": "maps/LexLeanR4/Object257TerminalContext.map.json",
+      "bytes": 1767,
+      "sha256": "1494f4aea8a2ef58040c1b48e6923bc8b11f317a3d5994ae857d88b9c19360fd"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/Hash.map.json",
+      "bytes": 64125,
+      "sha256": "be9df6a39b7747d47edf6164094a10f736a021e29ec034ea7a6fbd5035c33c34"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/HashNat.map.json",
+      "bytes": 14186,
+      "sha256": "f26b58aa6aa81e107a7810e113e8b37f9c93d999a083bdb2ac391b9ddc72f4ab"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/HashNatCore.map.json",
+      "bytes": 57166,
+      "sha256": "ae93a2bcfd9e67e5486077d7bf8230b87d9eb6724fc3f304049d6e01aa81dec2"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/HashWire.map.json",
+      "bytes": 3307,
+      "sha256": "0416efe85c379e18c30e8e335a58cf7565d4390e61e299ee654526f2c83c3a3d"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/ObjectCodec.map.json",
+      "bytes": 34231,
+      "sha256": "1ed34bb33ea1f75919e209ac4665e612449d305fed338e8b584503085122ad97"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/ObjectStore.map.json",
+      "bytes": 8902,
+      "sha256": "083e5121c8beec0bea0f26cfe7ead94afb65594aa9dedcf8446911bc3d9b4ecf"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/ObjectTypes.map.json",
+      "bytes": 36975,
+      "sha256": "36f14d85d6fdc55112ed2310b71ecbf8c45b1e92a2fc96ec038676bd6306a372"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/Words.map.json",
+      "bytes": 43705,
+      "sha256": "834be9acf3fbd63bcf80ed016050fc762730cb6d1df9a4d0687bade4db4dd95f"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257FirstAtomGoal.lean",
+      "bytes": 2796,
+      "sha256": "73b28121e33b3f19c0d07cb4653b3e74e03a2e57c80aceafbc320c1eca649abd"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257FirstAtomGoal.tex",
+      "bytes": 2749,
+      "sha256": "9fa48a92d9f4e00711fa8b412b2eca9b6bbcf9f002f31f7fec941f691a3e7b1d"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257FirstAtomLeaf.lean",
+      "bytes": 1206,
+      "sha256": "d4aed88552d502345a04edf1ef0dd9e59347a385f37c1cb182203ad2faa1dd1f"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257FirstAtomLeaf.tex",
+      "bytes": 1137,
+      "sha256": "401c9f430aaae8b5169030f58d06f24af3007cf86c7339e399ea781af9b57885"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257FirstAtomState.lean",
+      "bytes": 2355,
+      "sha256": "6912521fa9f468c0c494c032bf2ad64d6ec0805f578bd81da613dc5900b4d91a"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257FirstAtomState.tex",
+      "bytes": 2118,
+      "sha256": "2b18faf00ea3bac8fb1bbc76d5f38f8a38af6ce7d2477b6117653ec403d4e56e"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicConsumer.lean",
+      "bytes": 7379,
+      "sha256": "1f41eea94a5417d3fd8351d8a24b31b01dc4353e4a2181372fe7a5e7a263f4da"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicConsumer.tex",
+      "bytes": 6805,
+      "sha256": "d65d6e1ea171af8df322fe23a16ce64de8b11a6be9caf1748ad59fb21ed57caa"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicContext.lean",
+      "bytes": 6379,
+      "sha256": "a39094fdb144e4795aafc6e4fbc2ff4ab6b249367b08fc94be6628efaca65eb6"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicContext.tex",
+      "bytes": 6573,
+      "sha256": "426f41fbfb4cad17789b1c80eb4dfcfe0684676faef3af857fceb6c4a5d709c0"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicGenericConsumer.lean",
+      "bytes": 6620,
+      "sha256": "e62dfbb176ac712c413681995b1ea47435d85486c7fe76f6d2968f608107da79"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicGenericConsumer.tex",
+      "bytes": 6355,
+      "sha256": "38a21b5898d6309e45b6528590918aecd8ad86763b8ff8f2d07b6580fdeb2ad9"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicLift.lean",
+      "bytes": 868,
+      "sha256": "414b66b87f084d6353fcb2172dede7c2b5cf7ed0e70c334f3e1386e63fa34eeb"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257SymbolicLift.tex",
+      "bytes": 645,
+      "sha256": "e619071998ac1aca64ce347cfb38ea35a94daa7ae478871c18f74da22c49b133"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257TerminalContext.lean",
+      "bytes": 2838,
+      "sha256": "1f8f5a22c3087d3b4ef2af5b83e4c93d9c041b739831f32cb5e3e89e10e8e352"
+    },
+    {
+      "path": "modules/LexLeanR4/Object257TerminalContext.tex",
+      "bytes": 3016,
+      "sha256": "b56285bfbb7adb2b55b568853779056a385ea3c06b5a46cfdd68cfde484902fc"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Hash.lean",
+      "bytes": 191175,
+      "sha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Hash.tex",
+      "bytes": 228602,
+      "sha256": "356633293cc0413835b6ee5948b44d75a383bef0c9ccc977e0ce3b8af2b72d6d"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNat.lean",
+      "bytes": 31334,
+      "sha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNat.tex",
+      "bytes": 24923,
+      "sha256": "1531f5b653d38cd5c2e30ce89389142bfe45a886592aca0c69a9db09535451c2"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNatCore.lean",
+      "bytes": 95917,
+      "sha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNatCore.tex",
+      "bytes": 114315,
+      "sha256": "0c87a37696f2f71ccf1303209878f5e685cc00fa5c254d40f706c5b932f21ff9"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashWire.lean",
+      "bytes": 3926,
+      "sha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashWire.tex",
+      "bytes": 4979,
+      "sha256": "e86620ee84caf0018d62c6e23af4a91d0450165a6e08c41d7f304a453342cac8"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectCodec.lean",
+      "bytes": 32220,
+      "sha256": "cd2a8228d5b124d690bb6961ea709339e17f070cba371b27c286ce3f9400a78c"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectCodec.tex",
+      "bytes": 50391,
+      "sha256": "2f84998672233f9327d63c34d5a804014dfb3c650e5f426157f5bcd79a3392a2"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectStore.lean",
+      "bytes": 18243,
+      "sha256": "c5e218cdbbe9addcaa9af60436ef5ed42b25cf1bdc99cde85abc869000bdfb92"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectStore.tex",
+      "bytes": 22286,
+      "sha256": "f807201d1f9e64b052efa8ab50b5bbbd04bce64eafa52efd52c575459a16b084"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectTypes.lean",
+      "bytes": 24191,
+      "sha256": "9fc38ba3adb44f0329782c5e477a1ff7b4211bdabb08892f7a3702e4edd94aa2"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectTypes.tex",
+      "bytes": 43264,
+      "sha256": "8fb094db832cdacfaaf3f61235be9fa4d9b0b94d0eae895f31685e3f01a17fcd"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Words.lean",
+      "bytes": 51343,
+      "sha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Words.tex",
+      "bytes": 74890,
+      "sha256": "75bebff2e36d7a20b457159c1cd29e6e7d40976e74751849059a4a6f11cbc91e"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257FirstAtomGoal.olean",
+      "bytes": 19440,
+      "sha256": "95f5b739a2450cfb9eab0ee6d4cbcf22d62a83b10c941ca251f080ece4599d9e"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257FirstAtomLeaf.olean",
+      "bytes": 14184,
+      "sha256": "51823a9deb052a3983189026990ce94ae7d7a7dd09996cec395789f59a07a235"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257FirstAtomState.olean",
+      "bytes": 17120,
+      "sha256": "b1684467e6dbcb04cd53e8e7b555f48ea7a17fe0ac107b92897ff312a9797adc"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257SymbolicConsumer.olean",
+      "bytes": 60848,
+      "sha256": "75a82241b4423d5bb3dd17b57639e9bca3027d8216f261ec258d06f6c0de0042"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257SymbolicContext.olean",
+      "bytes": 63968,
+      "sha256": "554447a221304b6490c263db8ad560f59f5b5c8770966c23df5838024041910d"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257SymbolicGenericConsumer.olean",
+      "bytes": 54992,
+      "sha256": "8cc3e1c1d2fe850568a9d7426834b647a4df2b11851c807dd351f64c2e88d7bb"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257SymbolicLift.olean",
+      "bytes": 5416,
+      "sha256": "120187f872bf15673e5b5f0d9190014180cdf7cda99e8e8ddfed5a390afbad61"
+    },
+    {
+      "path": "oleans/LexLeanR4/Object257TerminalContext.olean",
+      "bytes": 25936,
+      "sha256": "9bf97fd31987c37c60e4887ab285b172ad47fecd85514d48aba18ea1f3c6cfc6"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/Hash.olean",
+      "bytes": 739088,
+      "sha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/HashNat.olean",
+      "bytes": 647768,
+      "sha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/HashNatCore.olean",
+      "bytes": 956944,
+      "sha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/HashWire.olean",
+      "bytes": 27464,
+      "sha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/ObjectCodec.olean",
+      "bytes": 228600,
+      "sha256": "4900d0e3839cbc71ebb63f3947f0b702b078cf3972cbe562c5c3233e74cf691a"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/ObjectStore.olean",
+      "bytes": 222752,
+      "sha256": "a8ca9a19d33b4bd1b3454643a817efce759307724c8e065e7fc2fee78c07afa2"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/ObjectTypes.olean",
+      "bytes": 673608,
+      "sha256": "3c5c117885a2e1cf1bcccb98aff2c9ad7e3ba8d760e5faccb5d9ac0ff353b958"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/Words.olean",
+      "bytes": 441064,
+      "sha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b"
+    },
+    {
+      "path": "probe/LexLeanProbe.Pc8f6958ced39212e79cbf1228f38ce2c.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120"
+    },
+    {
+      "path": "probe/process.json",
+      "bytes": 460,
+      "sha256": "179cca409ef356e3b750ded6f99109695651aedc8a81e1176b20696f41d608e7"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257FirstAtomGoal.json",
+      "bytes": 522,
+      "sha256": "ec213360325e072fc81344223f17dd1a465f40f46580257a3c65afa7a842b38f"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257FirstAtomLeaf.json",
+      "bytes": 522,
+      "sha256": "0ba3489c804d2ab7db3755cb88cf33f29517e27952cc7e2cf748a34115e2bc5a"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257FirstAtomState.json",
+      "bytes": 525,
+      "sha256": "764722ecf3e8b27c8b1e1f5186d89ee868ee2c6d9e72e3bc0b4854aa3fafa81b"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257SymbolicConsumer.json",
+      "bytes": 531,
+      "sha256": "ee2e2e3262423fce81c9fb8c56315aca5bd4fcc39c9f31fe2f2726ceca75d68a"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257SymbolicContext.json",
+      "bytes": 528,
+      "sha256": "b15249cfe2827602c048361c8e43602ff5209cc3a931aceb7a077975e11c6508"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257SymbolicGenericConsumer.json",
+      "bytes": 552,
+      "sha256": "915a1f3f0638691d4bb0bbba4615736603507478936abd898dee69e78a561842"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257SymbolicLift.json",
+      "bytes": 519,
+      "sha256": "a054d25504c76699d7a2e208b9947c01726fded5bcb01b4bcbd2d1ef5e050750"
+    },
+    {
+      "path": "process/lean/LexLeanR4.Object257TerminalContext.json",
+      "bytes": 528,
+      "sha256": "b35f3a47c85cf616dc1f7e8c6ff4aef55dd9fb5ff34cd887fb13c13befa5edd2"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.Hash.json",
+      "bytes": 477,
+      "sha256": "017aab9af7a159a6c20ba5c9d92c8d75e686e096a1ff19352ef5bb72bde7b421"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.HashNat.json",
+      "bytes": 486,
+      "sha256": "009fff91727e2bf92de44e6821e12f8e3c1322dff6e15879e445c7d7c6284ab1"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.HashNatCore.json",
+      "bytes": 498,
+      "sha256": "f196aabb95b51439a1c52c010742cc3da0f1c72a677d657b0edd5a988871ff38"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.HashWire.json",
+      "bytes": 489,
+      "sha256": "eabb12be288c87daaae62fdab3a8c9741dffab78b4801073c1388ea9b065dda7"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.ObjectCodec.json",
+      "bytes": 498,
+      "sha256": "223db181a15e02a1ddfd555e748a5eef9684061a44b3114674172dca3d242357"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.ObjectStore.json",
+      "bytes": 498,
+      "sha256": "fb6b0d9696c6ce341ef9ca2dea3b69f5977f408608626f4b2729bfbd563aa990"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.ObjectTypes.json",
+      "bytes": 498,
+      "sha256": "5bf1d31ef13a6b624f84eb8804dd64acca9e413e08d49aa1d9452bbdcd6e747e"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.Words.json",
+      "bytes": 480,
+      "sha256": "8eb43c37e10c8c6557797c50e2d28ba6665367abfcbb9f2dd600eb07ba83c13f"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257FirstAtomGoal.json",
+      "bytes": 441,
+      "sha256": "29881f601ad1ba88806832207c6ca602bc55e9f66e497f2f2e60f888cffec8b0"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257FirstAtomLeaf.json",
+      "bytes": 441,
+      "sha256": "e72fbb9766fa19540769ce1434475b305c9960f35af90862a3dac472dcf6b742"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257FirstAtomState.json",
+      "bytes": 443,
+      "sha256": "ba98fa699e18cb29862625b2a30a45ce937d1853e73283fcecae38a7be9d3678"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257SymbolicConsumer.json",
+      "bytes": 447,
+      "sha256": "aef572b86e19b1716079a238464214de192a27ca85491d8f573f8f315129b3af"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257SymbolicContext.json",
+      "bytes": 445,
+      "sha256": "b6d41598fccca20e68b8c9264e74a3e037aff8850945d0ca996fee35f0ca7bc2"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257SymbolicGenericConsumer.json",
+      "bytes": 461,
+      "sha256": "00bdb80f9eb9131988540269d446114cbf1a3bbff9008107702a7fdfab5c922e"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257SymbolicLift.json",
+      "bytes": 439,
+      "sha256": "7eedbb4f99ca73c329ceedbf36f3d05b5fa9b9b37dd5a83d09ddb0089e1cfa4c"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.Object257TerminalContext.json",
+      "bytes": 445,
+      "sha256": "c289ca552d501e085420d23a4e2f969ff86a11e5401dcdd088688bc9d9046d3e"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.Hash.json",
+      "bytes": 411,
+      "sha256": "65d005266230a37d5441800c80ce704b800ca927d01e0159f07d0337ecb88ad2"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.HashNat.json",
+      "bytes": 417,
+      "sha256": "3b8ac9cbbb932cdc4ea4aa177f647f03b454566d33ca1f04838b107495cbd29c"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.HashNatCore.json",
+      "bytes": 425,
+      "sha256": "9f315e820271b7efba44dec5891411bcb3892dec9a0f2012c651faa05f841e8d"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.HashWire.json",
+      "bytes": 419,
+      "sha256": "9a7a64dde311f9a103e52e90f73e41717d1731c6f362d2770d12d39688131d02"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.ObjectCodec.json",
+      "bytes": 425,
+      "sha256": "5af2ed763cbf940df2ef00a94a725c3a8cf4fcb57e3a3dfae44341e850a95f67"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.ObjectStore.json",
+      "bytes": 425,
+      "sha256": "680a24185e978c85ca370a1925be39b3cccdbb85844bfc6e5abaeb1734b5a1ed"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.ObjectTypes.json",
+      "bytes": 425,
+      "sha256": "f02bbc74631061676acc96d07ba20096a7ad6f00ab8dcf5925e4fd66478dbcde"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.Words.json",
+      "bytes": 413,
+      "sha256": "e888e24025dec9e2587c4028988ede5b65f760c2b194510f9ca60da5b6c2446c"
+    }
+  ],
+  "limitations": [
+    "FIRST-STATE CONTINUATION BRIDGE ONLY. This does not establish the full original257 digest theorem, subsequent concrete states, or full Object/Hash acceptance.",
+    "No production PrismPM binding, generated Pages or full project acceptance.",
+    "Prior failed direct consumers, OOM epoch and timeout evidence remain preserved; new success does not rewrite historical results.",
+    "Read-only audit of actual recorded native artifacts; reviewer did not rerun compiler/kernel or modify VM/repository.",
+    "Embedded lexicon raw package bytes are not bundled; actual lock tree bindings were checked rather than reconstructing package contents.",
+    "Wall duration is an observation, not an efficiency comparison; storage and idle are sampled, not continuous high-water guarantees."
+  ]
+}

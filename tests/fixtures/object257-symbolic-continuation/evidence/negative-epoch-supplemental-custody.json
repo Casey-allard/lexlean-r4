@@ -1,0 +1,633 @@
+{
+  "schema": "lexlean-r4-symbolic-negative-epoch-supplemental-custody/v1",
+  "status": "BYTE_PRESERVED_SOURCE_EPOCH_AND_NEGATIVE_EVIDENCE_ONLY",
+  "frozenManifest": {
+    "path": "tests/fixtures/object257-symbolic-continuation/manifest.json",
+    "bytes": 18709,
+    "sha256": "a29b688b02ac7c997244e0984bc68120ec11734dbc24298a9a38876aec0eade2"
+  },
+  "files": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/code-review.json",
+        "bytes": 9614,
+        "sha256": "da1a1cbf9b63bb6a1da1215216004b449f7c9ed7742787b06afd70ee3003b914"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/code-review.json",
+        "bytes": 9614,
+        "sha256": "da1a1cbf9b63bb6a1da1215216004b449f7c9ed7742787b06afd70ee3003b914"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch-review.json",
+        "bytes": 8945,
+        "sha256": "3e22d2f340e4d8aff078e1af167426d32573f7eb2a1129cb889744e67a52b2f4"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch-review.json",
+        "bytes": 8945,
+        "sha256": "3e22d2f340e4d8aff078e1af167426d32573f7eb2a1129cb889744e67a52b2f4"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false-review.json",
+        "bytes": 11389,
+        "sha256": "bc9023c84abcebe1c1b61a76a9400da76002c446a22cb5b9b19ce0490927f081"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false-review.json",
+        "bytes": 11389,
+        "sha256": "bc9023c84abcebe1c1b61a76a9400da76002c446a22cb5b9b19ce0490927f081"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/allocated-before.json",
+        "bytes": 455,
+        "sha256": "f0c2b811a8f1053c1b1888d798e142974a3b06a9eeda265d1c2b5cedb13bd41c"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/allocated-before.json",
+        "bytes": 455,
+        "sha256": "f0c2b811a8f1053c1b1888d798e142974a3b06a9eeda265d1c2b5cedb13bd41c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/boot-after.json",
+        "bytes": 332,
+        "sha256": "67fbb73637380a55c20c8df9727c643acce771757181e5d57e8184b5ab5c9054"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/boot-after.json",
+        "bytes": 332,
+        "sha256": "67fbb73637380a55c20c8df9727c643acce771757181e5d57e8184b5ab5c9054"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/boot-before.json",
+        "bytes": 332,
+        "sha256": "87c94a0446a615acefa055d5ee3df041fd305d499b0d200b561355b8b96406e4"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/boot-before.json",
+        "bytes": 332,
+        "sha256": "87c94a0446a615acefa055d5ee3df041fd305d499b0d200b561355b8b96406e4"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/container-after.json",
+        "bytes": 646,
+        "sha256": "f61352822cfd1ea680fad35e9240eeec2971a9887f790a4f4df191c1d9713a3d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/container-after.json",
+        "bytes": 646,
+        "sha256": "f61352822cfd1ea680fad35e9240eeec2971a9887f790a4f4df191c1d9713a3d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/container-before.json",
+        "bytes": 646,
+        "sha256": "1dcd29787c99387a18f98ada2614cbffc239de919254a1900f6c91af8221f665"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/container-before.json",
+        "bytes": 646,
+        "sha256": "1dcd29787c99387a18f98ada2614cbffc239de919254a1900f6c91af8221f665"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/guest-after.json",
+        "bytes": 402,
+        "sha256": "2fcd39146bf89dfdce2addf1b500d0c5a24344c998fdf1e0a774b40dc5afc10b"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/guest-after.json",
+        "bytes": 402,
+        "sha256": "2fcd39146bf89dfdce2addf1b500d0c5a24344c998fdf1e0a774b40dc5afc10b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/guest-before.json",
+        "bytes": 402,
+        "sha256": "bd4a9fe825d7f899ef81a61cc92a12b2a789cc81568daa9accbe90e82e0ddd77"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/guest-before.json",
+        "bytes": 402,
+        "sha256": "bd4a9fe825d7f899ef81a61cc92a12b2a789cc81568daa9accbe90e82e0ddd77"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/host-after.json",
+        "bytes": 147,
+        "sha256": "1f6ed983897b3a6838dc4d36f2719f21c558b940a1af7682b7b617e55b83de10"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/host-after.json",
+        "bytes": 147,
+        "sha256": "1f6ed983897b3a6838dc4d36f2719f21c558b940a1af7682b7b617e55b83de10"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/host-before.json",
+        "bytes": 147,
+        "sha256": "87d051d493564d9019774bc4e925ddb08fa04fbd06a6ffc86200b8ddee3128b6"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/host-before.json",
+        "bytes": 147,
+        "sha256": "87d051d493564d9019774bc4e925ddb08fa04fbd06a6ffc86200b8ddee3128b6"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/idle-after.json",
+        "bytes": 456,
+        "sha256": "3c93885d99bc71609fb732f630f996908373c6cf966382e4095ed5ca693a10b1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/idle-after.json",
+        "bytes": 456,
+        "sha256": "3c93885d99bc71609fb732f630f996908373c6cf966382e4095ed5ca693a10b1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/idle-before.json",
+        "bytes": 456,
+        "sha256": "eb3461ae8c49945686073a2e2e5fc6dd10395952cb4a7c648cf4b2fa3fdf683a"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/idle-before.json",
+        "bytes": 456,
+        "sha256": "eb3461ae8c49945686073a2e2e5fc6dd10395952cb4a7c648cf4b2fa3fdf683a"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/memory-after.json",
+        "bytes": 350,
+        "sha256": "7868dba88e99869331dc6eefd1ec22e7d3b6ec6dfe6bf0f986a8390bf8932b89"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/memory-after.json",
+        "bytes": 350,
+        "sha256": "7868dba88e99869331dc6eefd1ec22e7d3b6ec6dfe6bf0f986a8390bf8932b89"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/memory-before.json",
+        "bytes": 355,
+        "sha256": "f87ef592784c4c1095065faacd3a8424c76db67c3a65cc8c4195ee33306ab9eb"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/memory-before.json",
+        "bytes": 355,
+        "sha256": "f87ef592784c4c1095065faacd3a8424c76db67c3a65cc8c4195ee33306ab9eb"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/restart.json",
+        "bytes": 313,
+        "sha256": "1b2779798f74cb31e1812e95f30b7dc859157f0717b19877e48ecc8cc25b61ff"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/restart.json",
+        "bytes": 313,
+        "sha256": "1b2779798f74cb31e1812e95f30b7dc859157f0717b19877e48ecc8cc25b61ff"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/result.json",
+        "bytes": 834,
+        "sha256": "6a15ecfd2010995f4548411722007e5950abfd3eff4bee540bf4553df3648645"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/result.json",
+        "bytes": 834,
+        "sha256": "6a15ecfd2010995f4548411722007e5950abfd3eff4bee540bf4553df3648645"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/source-after.json",
+        "bytes": 6293,
+        "sha256": "feb806d4368039b94e19cb429088f9729402dddc2a2163e1191e5e6ac36226d0"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/source-after.json",
+        "bytes": 6293,
+        "sha256": "feb806d4368039b94e19cb429088f9729402dddc2a2163e1191e5e6ac36226d0"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/source-before.json",
+        "bytes": 6293,
+        "sha256": "f546e930dff132d7f41611945b080c228f654c95f475c4fa989bcad3ce42c2df"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/source-before.json",
+        "bytes": 6293,
+        "sha256": "f546e930dff132d7f41611945b080c228f654c95f475c4fa989bcad3ce42c2df"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/swap-before.json",
+        "bytes": 260,
+        "sha256": "0ad44ac02bec8d1c2e477d18d46df1252073c2997f57e1b1fa42685c648fee42"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/swap-before.json",
+        "bytes": 260,
+        "sha256": "0ad44ac02bec8d1c2e477d18d46df1252073c2997f57e1b1fa42685c648fee42"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/tools-after.json",
+        "bytes": 1001,
+        "sha256": "4d6109001e686bab44cbfdec7c543c826fcc4f462fa4b5063cf814fbe4a469b1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/tools-after.json",
+        "bytes": 1001,
+        "sha256": "4d6109001e686bab44cbfdec7c543c826fcc4f462fa4b5063cf814fbe4a469b1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/epoch/tools-before.json",
+        "bytes": 1001,
+        "sha256": "258f3d7fff5c56ac7bacac8c3f03a14c4afce22a6af4080cb92eb61d1ad5d60f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/epoch/tools-before.json",
+        "bytes": 1001,
+        "sha256": "258f3d7fff5c56ac7bacac8c3f03a14c4afce22a6af4080cb92eb61d1ad5d60f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/allocated-before.json",
+        "bytes": 459,
+        "sha256": "e61514bd41153a7e0b600ddb9ef7b13e40b00ba779d1aa66ba05aee106d3035f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/allocated-before.json",
+        "bytes": 459,
+        "sha256": "e61514bd41153a7e0b600ddb9ef7b13e40b00ba779d1aa66ba05aee106d3035f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/check.json",
+        "bytes": 1023,
+        "sha256": "c37b2de2b4f99ef71e3e7c1bd9096bddf25eb7cdad2d3049ee5c731053235d60"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/check.json",
+        "bytes": 1023,
+        "sha256": "c37b2de2b4f99ef71e3e7c1bd9096bddf25eb7cdad2d3049ee5c731053235d60"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/directories.json",
+        "bytes": 446,
+        "sha256": "42b4b5cf6c35399a0e5ad4d6e6664e229e8f1cdb0cdd3c8544302adf45b34664"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/directories.json",
+        "bytes": 446,
+        "sha256": "42b4b5cf6c35399a0e5ad4d6e6664e229e8f1cdb0cdd3c8544302adf45b34664"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "96ddafd20f52790f3ee9ffb2b2bfe1b560b1ef291322c60019f711ef762fd565"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "96ddafd20f52790f3ee9ffb2b2bfe1b560b1ef291322c60019f711ef762fd565"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "d8f0015c5ae97f4e6059750bdabda0e871e0a89645403ff1775424919e104e8f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "d8f0015c5ae97f4e6059750bdabda0e871e0a89645403ff1775424919e104e8f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/expected-inputs.json",
+        "bytes": 5992,
+        "sha256": "5c026f2517ce828c26225b261b7252cd0d31ecec253efa645db3b802e8b3907d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/expected-inputs.json",
+        "bytes": 5992,
+        "sha256": "5c026f2517ce828c26225b261b7252cd0d31ecec253efa645db3b802e8b3907d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "b9320384d88a95b91af7ce7582e4171bcf10d178f1de8b8587ab8e14ad6aca01"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "b9320384d88a95b91af7ce7582e4171bcf10d178f1de8b8587ab8e14ad6aca01"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "bd910342ba87b1a9d4091aeb6e79fe57deaf17f055595b9ce4fb6cdfaa89d6dd"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "bd910342ba87b1a9d4091aeb6e79fe57deaf17f055595b9ce4fb6cdfaa89d6dd"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/host-after.json",
+        "bytes": 142,
+        "sha256": "bd10b5d8cc2f2f4274df1dbeb511e6ace70ad1ffae8d8174c4263dd8938ffac3"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/host-after.json",
+        "bytes": 142,
+        "sha256": "bd10b5d8cc2f2f4274df1dbeb511e6ace70ad1ffae8d8174c4263dd8938ffac3"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/host-before.json",
+        "bytes": 152,
+        "sha256": "9d91c34d8b9bb05325d5a4575b41bdfba52e5ec5d66d5c4e7fa5dca5052c6784"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/host-before.json",
+        "bytes": 152,
+        "sha256": "9d91c34d8b9bb05325d5a4575b41bdfba52e5ec5d66d5c4e7fa5dca5052c6784"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "d0a2d11b860f3c5827b31d1df84431b9e43a4476638c695eb705a31e25d315e4"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "d0a2d11b860f3c5827b31d1df84431b9e43a4476638c695eb705a31e25d315e4"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "218f1db72abcbb6bf50d001134a6d96d20302eda22146c38b252270b929cf640"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "218f1db72abcbb6bf50d001134a6d96d20302eda22146c38b252270b929cf640"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/lock-after.json",
+        "bytes": 505,
+        "sha256": "1cd754a001c82e491662c0387d29df4cb2344407676b3c50e0d4a277f222c0fc"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/lock-after.json",
+        "bytes": 505,
+        "sha256": "1cd754a001c82e491662c0387d29df4cb2344407676b3c50e0d4a277f222c0fc"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/lock-bytes.json",
+        "bytes": 2063,
+        "sha256": "6c2025f4406a9a51a4cccba325256ff51d06f516ca7699930e503b7591bcf4c7"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/lock-bytes.json",
+        "bytes": 2063,
+        "sha256": "6c2025f4406a9a51a4cccba325256ff51d06f516ca7699930e503b7591bcf4c7"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/lock.json",
+        "bytes": 547,
+        "sha256": "980ba91f2335b8ef0072440e50c969a781ed8c2c9197f165ff0e1ca3c27ff1dd"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/lock.json",
+        "bytes": 547,
+        "sha256": "980ba91f2335b8ef0072440e50c969a781ed8c2c9197f165ff0e1ca3c27ff1dd"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "daec8a7a62a481666cd39461b6d298bafb8aabc5e057d5fc2772d320ad89984b"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "daec8a7a62a481666cd39461b6d298bafb8aabc5e057d5fc2772d320ad89984b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "8aae72243ecd3fccbd272c36848667240b263f732b6f17bade6d4d4158565126"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "8aae72243ecd3fccbd272c36848667240b263f732b6f17bade6d4d4158565126"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/new-stage.json",
+        "bytes": 338,
+        "sha256": "c4e3908a3550eee4b38a6b4ed9490d5d1a78476ae2785cd562015f4a626ee0f9"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/new-stage.json",
+        "bytes": 338,
+        "sha256": "c4e3908a3550eee4b38a6b4ed9490d5d1a78476ae2785cd562015f4a626ee0f9"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/result.json",
+        "bytes": 1197,
+        "sha256": "c2e07b9b16673a3d9f7fe2fc80def95614091723d012f86d23464b0594128bfe"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/result.json",
+        "bytes": 1197,
+        "sha256": "c2e07b9b16673a3d9f7fe2fc80def95614091723d012f86d23464b0594128bfe"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/source-after.json",
+        "bytes": 6657,
+        "sha256": "e233768a7f8e78d7768ae54a5ada5d159d38215dd358d765bbd57c000be936f7"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/source-after.json",
+        "bytes": 6657,
+        "sha256": "e233768a7f8e78d7768ae54a5ada5d159d38215dd358d765bbd57c000be936f7"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/source-before.json",
+        "bytes": 6657,
+        "sha256": "b6a83fd40632dd7313ba545070b69e4574adbe59a425acbc7d8377c8fff2afda"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/source-before.json",
+        "bytes": 6657,
+        "sha256": "b6a83fd40632dd7313ba545070b69e4574adbe59a425acbc7d8377c8fff2afda"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/swap-before.json",
+        "bytes": 264,
+        "sha256": "42e4e53f03499523e0eada916ac7d92499bc99f0073741cfa67b0e7d23b06372"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/swap-before.json",
+        "bytes": 264,
+        "sha256": "42e4e53f03499523e0eada916ac7d92499bc99f0073741cfa67b0e7d23b06372"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "79868ff242c44a137a9196ee8354a57810d1e84156b8f3f49e834842bee91d4e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "79868ff242c44a137a9196ee8354a57810d1e84156b8f3f49e834842bee91d4e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/verify.json",
+        "bytes": 1288,
+        "sha256": "e840baa73205595e22f3afad1e45fb63cdeade7ce8d4f9a58578e1a6e6b2784e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-false/verify.json",
+        "bytes": 1288,
+        "sha256": "e840baa73205595e22f3afad1e45fb63cdeade7ce8d4f9a58578e1a6e6b2784e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/symbolic-false/lock-bytes.json",
+        "bytes": 2063,
+        "sha256": "6c2025f4406a9a51a4cccba325256ff51d06f516ca7699930e503b7591bcf4c7"
+      },
+      "extraction": "Exact stdout from successful genuine phase lock capture; matches actual post-lock SHA256 receipt.",
+      "destination": {
+        "path": "tests/fixtures/object257-symbolic-continuation/phases/symbolic-false/lexlean.lock",
+        "bytes": 1597,
+        "sha256": "309712a044fb4aa499a10a3d4ee77c170e0e83529bc5dbde4efb718973e7d06c"
+      }
+    }
+  ],
+  "counts": {
+    "sourceAndIndependentReviews": 3,
+    "resourceEpochRawRecords": 20,
+    "negativeNonCopyRawRecords": 25,
+    "genuinePhaseLocks": 1
+  },
+  "boundaries": [
+    "Epoch readiness belongs to distinct recorded container start; previous OOM is retained, not erased.",
+    "This is supplemental custody, not final results or delivery acceptance.",
+    "No positive lift/generic/concrete data read or copied; review/execution ownership stays with parent.",
+    "Preparation-time NOT_RUN source records stay byte-identical."
+  ],
+  "excluded": {
+    "perFileCopyReceipts": 23,
+    "runnerPinnedNotCopied": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/symbolic-continuation/run-phase.mjs",
+      "bytes": 7246,
+      "sha256": "e53bb29fd796a83287597490d353bfffc5f1ad863b902f8cb637fd8bbc9b8cdc"
+    },
+    "compiledBundles": "None copied."
+  },
+  "preservation": {
+    "frozenPayloadsVerified": 14,
+    "protectedDirtyFilesVerified": 17
+  },
+  "storage": {
+    "availableKiBBefore": 27815832,
+    "previousAuthorObservationKiB": 31335164,
+    "dropReportedToParent": true,
+    "allocatedPayloadBytes": 245760,
+    "peakAdditionalBudgetBytes": 1048576,
+    "reserveBytes": 10737418240
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object257-symbolic-continuation-symbolic-lift-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-23T20:29:19.860Z",
+  "ended": "2026-10-23T20:29:19.925Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "2e94b137b481040c1307361c75f9137ca8bffdc22ef07238639667a4bd8c3d33  /tmp/r4-object257-symbolic-continuation-symbolic-lift-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

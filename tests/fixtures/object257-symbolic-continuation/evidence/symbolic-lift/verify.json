@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object257-symbolic-continuation-symbolic-lift-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/Object257SymbolicLift.lex.tex"
+  ],
+  "started": "2026-10-23T20:28:30.804Z",
+  "ended": "2026-10-23T20:29:19.349Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/4d3a0a4ca732397881faacf16b05564e1832f7b21a841e4c7e4b1e3a3ce5d141\"],\"attestation_id\":\"4d3a0a4ca732397881faacf16b05564e1832f7b21a841e4c7e4b1e3a3ce5d141\",\"build_id\":\"84aeb9986abfa0c2b985a2dc78f9ef233c0bf9d0a79d3f91614ef5a658930044\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"Object257FirstAtomGoal\",\"Object257FirstAtomLeaf\",\"Object257FirstAtomState\",\"Object257SymbolicContext\",\"Object257SymbolicLift\",\"Object257TerminalContext\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"ca5bbc4928fd54e04034256f11f8b5d4d4bbfddcca941b4689753a059052201c\",\"source_id\":\"30fce7dc5e71fe87aba4eb5ff58b2ba925aa4aa1c7880484734fac0afb076b1a\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

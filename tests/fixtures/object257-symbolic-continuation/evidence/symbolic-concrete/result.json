@@ -1,0 +1,37 @@
+{
+  "phase": "symbolic-concrete",
+  "stage": "/tmp/r4-object257-symbolic-continuation-symbolic-concrete-owned-20261023",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c"
+    ],
+    "attestation_id": "832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c",
+    "build_id": "14efc85c1dbe75335331132b63fd586357406b0874cb3073043e5c0949024670",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "Object257FirstAtomGoal",
+      "Object257FirstAtomLeaf",
+      "Object257FirstAtomState",
+      "Object257SymbolicConsumer",
+      "Object257SymbolicContext",
+      "Object257SymbolicGenericConsumer",
+      "Object257SymbolicLift",
+      "Object257TerminalContext",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "semantic_id": "c8f6958ced39212e79cbf1228f38ce2cd932063f315cd0b6f466ede376b39ea3",
+    "source_id": "5ad5d0d88b3e54168498d777dc7a206718313236fd3be811bea2e10b96ba82d8",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}
