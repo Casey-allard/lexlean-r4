@@ -1,0 +1,19 @@
+{
+  "schema": "lexlean-r4-composition-invocation-manifest/v1",
+  "status": "FROZEN_PENDING_INDEPENDENT_CODE_NOT_EXECUTED",
+  "files": [
+    {
+      "path": "invoke-whole-composed-result.mjs",
+      "bytes": 7762,
+      "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+    },
+    {
+      "path": "invocation-binding.json",
+      "bytes": 2613,
+      "sha256": "8f7d6953e88af9f022b342457e9432809d0808d7252a403090743f977c651948"
+    }
+  ],
+  "candidateManifestSha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+  "sourceCodeReviewSha256": "095587d8bada98b31d8eee8a4635fbd19b42b5ce3814765056b22827a12ae7a9",
+  "epochReviewSha256": "3c0e3aadffeedbb23700c0a28f80d6ee4748dbc862bedadf900c5eb09b0af6a2"
+}

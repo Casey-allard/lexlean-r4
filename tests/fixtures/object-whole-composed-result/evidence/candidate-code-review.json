@@ -1,0 +1,129 @@
+{
+  "schema": "lexlean-r4-native-projection-successor-code-review/v1",
+  "status": "PASS_SOURCE_READY_ONLY",
+  "at": "2026-10-24T05:30:21.422Z",
+  "independence": "Non-author of source and repair. Reviewer authored the rejected predecessor CODE review, governing SPEC and prerequisite native audits. This is renewed independent source review, not native execution.",
+  "pins": [
+    {
+      "path": "manifest.json",
+      "bytes": 2404,
+      "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 39723,
+      "sha256": "fae741ea7682118260b3096647c9a864b391285d9eec5d1aaf1eb4b2fe9e016b"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 10008,
+      "sha256": "7bdf09fddc15ddce5a7ce5f29b529837e0d1a406ec3dbb2a258215f3dd763f01"
+    },
+    {
+      "path": "source-repair-diff.json",
+      "bytes": 4799,
+      "sha256": "e765e82499f0bf842b984c4884435e542fc315e3bb52d145a359af72ef77e0c4"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 14688,
+      "sha256": "afea651b14dc2ce4740c54da8241c550885151b5b77ff3f6320978cb849f529f"
+    },
+    {
+      "path": "negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 14677,
+      "sha256": "06d9921227ed79bf18c4947958dc87ec69ffe84482357088a61abe5c2e52f23f"
+    },
+    {
+      "path": "positive-core-module.json",
+      "bytes": 21021,
+      "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+    },
+    {
+      "path": "negative-core-module.json",
+      "bytes": 21010,
+      "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 689,
+      "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1"
+    },
+    {
+      "path": "preparation-comparison-failure.json",
+      "bytes": 752,
+      "sha256": "beb591cb9a8d1a044ebf9f80d6d1de7d57cc4d7b019e5cd052bd3431264e5401"
+    }
+  ],
+  "predecessor": {
+    "manifestSha256": "30752afbabe7a817f31aa1fedfc212cbd9b7a8cf160af5795900173ac13aea81",
+    "rejectedReviewSha256": "bea8a6aedfe6cfb12e14e932fe455f49666669cd92dfb0faa560114fa1936e24",
+    "allNinePayloadsRehashedUnchanged": true
+  },
+  "findings": [],
+  "resolvedFinding": {
+    "code": "NATIVE_PROJECTION_ARGUMENT_ORDER",
+    "location": "Both source variants, line767 / node744",
+    "actualSuccessor": "@744 := proj LexLeanR4.R4.ObjectTypes.ObjManifest LexLeanR4.R4.ObjectTypes.ObjManifest.length 0 @595",
+    "official": {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/surface/core.rs",
+      "bytes": 74064,
+      "sha256": "50cce501221b30ab184dd55a57cc864771a0718217b22366aa946ef2aa956d41",
+      "printerLine": 552,
+      "parserLines": [
+        1375,
+        1376,
+        1377,
+        1378,
+        1379,
+        1380
+      ]
+    },
+    "independentCheck": "Read and rehashed official source. Reconstructed all789 actual node lines per variant using official notation for constants, applications, naturals and structure-first projections. Reproduced predecessor mismatch exactly[744] and successor mismatch[]. This checks the restricted actual syntax against source rules; the official parser was not executed."
+  },
+  "checks": {
+    "payloads": 10,
+    "phaseInputs": [
+      {
+        "phase": "composed-false",
+        "inputCount": 32,
+        "sourceCount": 28
+      },
+      {
+        "phase": "composed-positive",
+        "inputCount": 32,
+        "sourceCount": 28
+      }
+    ],
+    "closure": "All actual input bytes/sizes/hashes rechecked; independently reconstructed import DFS exactly matches28-module declared order (27 semantic and1 native), no missing or cyclic imports.",
+    "exactRepair": "Comparing complete source lines finds only line767 changed in each variant. Both intended core JSON files and config remain byte-identical to predecessor. Candidate changes only status, two source phase pins, operational eligibility wording and additive lineage; independent normalization matches original candidate exactly.",
+    "nodes": "789 nodes per variant,31 constants/592 applications/165 naturals/1 projection, all child references precede parents;15 proof markers774..788. Sole theorem has policy none. Imports, closed declaration metadata, explicit universes/type arguments and endpoints are unchanged from previous independent intended-core reconstruction.",
+    "proof": "Unchanged intended proof Eq.trans T O A R hOA (Eq.trans T A C R hAC hCR), where O is original ObjWholeRead, A original ObjWholeAdmitted, C actual postrange hash/error continuation and R full original expected Result. Prior endpoint reconstruction remains bound by byte-identical core JSON. Actual mixed-graph admission and kernel endpoint conversion remain untested.",
+    "negative": "Core variants differ only nodes[776].n: actual inner hAC versus exported unrelated0=0. Goals, all other nodes, imports and policies identical. Native intended negative must reject at this mandatory native root; upstream/config/resource failures do not qualify.",
+    "sourceNodeLineEncoding": "UTF-8, node lines joined by LF with one final LF",
+    "nodeLineSha256": {
+      "negative": "3ef1e062a5dfd6cb87ab66cde26f7cc9ee6402c9cea5fa954e325c2f8538358a",
+      "positive": "4ea0047e8d7d372c9e3cf47fdc5f8a1b69a9b45df200f0c2cac3f06af0573e41"
+    },
+    "prerequisites": "Governing proposal/SPEC and all6 pinned prerequisite records rehashed. Prior source rejection and both prewrite author-comparator histories remain preserved; object property-order false positives are not native failures.",
+    "preservation": {
+      "currentPins": 17,
+      "originalSnapshots": 17,
+      "protectedDocuments": 3,
+      "allRehashedUnchanged": true
+    },
+    "limits": "Byte-identical configuration retains child_timeout_ms300000; packet retains4GiB/2CPU. No limit or runtime change."
+  },
+  "boundaries": [
+    "Official parser, formatter, source admission, negative and positive verification remain NOT_RUN. PASS is source readiness only.",
+    "The prior inner artifact remains kernel-verified while its overall run gate failed max46 with oom0/kill0. This source repair grants no resource waiver, reset, restart, retry or execution authority.",
+    "A separately reviewed fresh operational/resource proposal must bind this successor; the old resource proposal is bound to the rejected predecessor.",
+    "Mandatory original native O=R consumer must actually pass; no helper-only acceptance, fullRead33 completion, production Hash acceptance, PrismPM integration or Pages claim follows."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 26708848640,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 10240
+  },
+  "operations": "Read-only bounded source, official grammar, hash and dependency checks. No SDK/compiler/VM/native command, invocation runner, repository/index/frozen mutation or extra fixture. Only this exclusive external report written."
+}

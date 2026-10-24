@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-native-projection-successor-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "predecessorManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/manifest.json",
+    "bytes": 1861,
+    "sha256": "30752afbabe7a817f31aa1fedfc212cbd9b7a8cf160af5795900173ac13aea81"
+  },
+  "predecessorCode": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/candidate-code-review.json",
+    "bytes": 7199,
+    "sha256": "bea8a6aedfe6cfb12e14e932fe455f49666669cd92dfb0faa560114fa1936e24"
+  },
+  "files": [
+    {
+      "path": "preparation-comparison-failure.json",
+      "bytes": 752,
+      "sha256": "beb591cb9a8d1a044ebf9f80d6d1de7d57cc4d7b019e5cd052bd3431264e5401"
+    },
+    {
+      "path": "negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 14677,
+      "sha256": "06d9921227ed79bf18c4947958dc87ec69ffe84482357088a61abe5c2e52f23f"
+    },
+    {
+      "path": "negative-core-module.json",
+      "bytes": 21010,
+      "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 14688,
+      "sha256": "afea651b14dc2ce4740c54da8241c550885151b5b77ff3f6320978cb849f529f"
+    },
+    {
+      "path": "positive-core-module.json",
+      "bytes": 21021,
+      "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 689,
+      "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 39723,
+      "sha256": "fae741ea7682118260b3096647c9a864b391285d9eec5d1aaf1eb4b2fe9e016b"
+    },
+    {
+      "path": "source-repair-diff.json",
+      "bytes": 4799,
+      "sha256": "e765e82499f0bf842b984c4884435e542fc315e3bb52d145a359af72ef77e0c4"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 10008,
+      "sha256": "7bdf09fddc15ddce5a7ce5f29b529837e0d1a406ec3dbb2a258215f3dd763f01"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1597,
+      "sha256": "1792f9b5fd1fc0e43caefa47a2865f28f7fe31c6181f39427573c71de0a3c893"
+    }
+  ],
+  "boundary": "Renewed source CODE plus separate operational eligibility required. No native authority."
+}

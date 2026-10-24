@@ -1,0 +1,120 @@
+{
+  "schema": "lexlean-r4-native-projection-order-repair/v1",
+  "classification": "SOURCE_ESTABLISHED_AUTHOR_NOTATION_DEFECT_NOT_NATIVE_FAILURE",
+  "rootCause": "The original author printer and reverse reader both incorrectly placed projection before structure. Their shared mistake masked the mismatch with the official grammar; intended JSON s/n fields were already correct.",
+  "review": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/candidate-code-review.json",
+    "bytes": 7199,
+    "sha256": "bea8a6aedfe6cfb12e14e932fe455f49666669cd92dfb0faa560114fa1936e24"
+  },
+  "official": {
+    "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/surface/core.rs",
+    "bytes": 74064,
+    "sha256": "50cce501221b30ab184dd55a57cc864771a0718217b22366aa946ef2aa956d41"
+  },
+  "rule": {
+    "printerLine": 552,
+    "parserLines": [
+      1375,
+      1376,
+      1377,
+      1378,
+      1379,
+      1380
+    ],
+    "sourceOrder": "structure, projection, index, operand",
+    "nodeFields": "Projection { n, s, i, x }"
+  },
+  "diffs": [
+    {
+      "path": "negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "line": 767,
+      "node": 744,
+      "old": "@744 := proj LexLeanR4.R4.ObjectTypes.ObjManifest.length LexLeanR4.R4.ObjectTypes.ObjManifest 0 @595",
+      "new": "@744 := proj LexLeanR4.R4.ObjectTypes.ObjManifest LexLeanR4.R4.ObjectTypes.ObjManifest.length 0 @595",
+      "predecessor": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+        "bytes": 14677,
+        "sha256": "9aab533afdaedd4e23c65d507a559ea153e158aab5a8e70138f5cbc19329568b"
+      },
+      "successor": {
+        "path": "negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+        "bytes": 14677,
+        "sha256": "06d9921227ed79bf18c4947958dc87ec69ffe84482357088a61abe5c2e52f23f"
+      },
+      "onlyOneLineChanged": true
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "line": 767,
+      "node": 744,
+      "old": "@744 := proj LexLeanR4.R4.ObjectTypes.ObjManifest.length LexLeanR4.R4.ObjectTypes.ObjManifest 0 @595",
+      "new": "@744 := proj LexLeanR4.R4.ObjectTypes.ObjManifest LexLeanR4.R4.ObjectTypes.ObjManifest.length 0 @595",
+      "predecessor": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+        "bytes": 14688,
+        "sha256": "7eb8a4cf6858a299332566505f3fbb6ce4395de0271f6a9200013abb8ad4623a"
+      },
+      "successor": {
+        "path": "positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+        "bytes": 14688,
+        "sha256": "afea651b14dc2ce4740c54da8241c550885151b5b77ff3f6320978cb849f529f"
+      },
+      "onlyOneLineChanged": true
+    }
+  ],
+  "checks": [
+    {
+      "phase": "negative",
+      "nodeCount": 789,
+      "proofMarkers": 15,
+      "kindCounts": {
+        "c": 31,
+        "a": 592,
+        "n": 165,
+        "j": 1
+      },
+      "oldOfficialRuleMismatch": [
+        744
+      ],
+      "successorMismatch": [],
+      "everyNodeLineCheckedAgainstOfficialRules": true,
+      "decodedCore": {
+        "path": "negative-core-module.json",
+        "bytes": 21010,
+        "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+      },
+      "sameDecodedJsonBytes": true,
+      "sourceNodeLinesSha256": "3ef1e062a5dfd6cb87ab66cde26f7cc9ee6402c9cea5fa954e325c2f8538358a"
+    },
+    {
+      "phase": "positive",
+      "nodeCount": 789,
+      "proofMarkers": 15,
+      "kindCounts": {
+        "c": 31,
+        "a": 592,
+        "n": 165,
+        "j": 1
+      },
+      "oldOfficialRuleMismatch": [
+        744
+      ],
+      "successorMismatch": [],
+      "everyNodeLineCheckedAgainstOfficialRules": true,
+      "decodedCore": {
+        "path": "positive-core-module.json",
+        "bytes": 21021,
+        "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+      },
+      "sameDecodedJsonBytes": true,
+      "sourceNodeLinesSha256": "4ea0047e8d7d372c9e3cf47fdc5f8a1b69a9b45df200f0c2cac3f06af0573e41"
+    }
+  ],
+  "prewriteComparatorFailure": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/preparation-comparison-failure.json",
+    "bytes": 752,
+    "sha256": "beb591cb9a8d1a044ebf9f80d6d1de7d57cc4d7b019e5cd052bd3431264e5401"
+  },
+  "boundary": "Restricted source checks reproduce official rules for the four actual node kinds; no official parser/formatter/native invocation. The only source repair is the two projection lines."
+}

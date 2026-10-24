@@ -1,0 +1,266 @@
+{
+  "schema": "lexlean-r4-native-projection-successor-audit/v1",
+  "status": "STATIC_SUCCESSOR_CHECKS_PASS_NATIVE_NOT_RUN",
+  "predecessorManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/manifest.json",
+    "bytes": 1861,
+    "sha256": "30752afbabe7a817f31aa1fedfc212cbd9b7a8cf160af5795900173ac13aea81"
+  },
+  "predecessorAudit": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/structural-audit.json",
+    "bytes": 12073,
+    "sha256": "148a43390b618bc9180aaa31931af2dabc2cdcfe8bfa4a726b98907b4c1aeea9"
+  },
+  "rejectedCode": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-result/candidate-code-review.json",
+    "bytes": 7199,
+    "sha256": "bea8a6aedfe6cfb12e14e932fe455f49666669cd92dfb0faa560114fa1936e24"
+  },
+  "officialParserPrinter": {
+    "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/surface/core.rs",
+    "bytes": 74064,
+    "sha256": "50cce501221b30ab184dd55a57cc864771a0718217b22366aa946ef2aa956d41"
+  },
+  "sourceDiff": {
+    "path": "source-repair-diff.json",
+    "bytes": 4799,
+    "sha256": "e765e82499f0bf842b984c4884435e542fc315e3bb52d145a359af72ef77e0c4"
+  },
+  "checks": [
+    {
+      "phase": "negative",
+      "nodeCount": 789,
+      "proofMarkers": 15,
+      "kindCounts": {
+        "c": 31,
+        "a": 592,
+        "n": 165,
+        "j": 1
+      },
+      "oldOfficialRuleMismatch": [
+        744
+      ],
+      "successorMismatch": [],
+      "everyNodeLineCheckedAgainstOfficialRules": true,
+      "decodedCore": {
+        "path": "negative-core-module.json",
+        "bytes": 21010,
+        "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+      },
+      "sameDecodedJsonBytes": true,
+      "sourceNodeLinesSha256": "3ef1e062a5dfd6cb87ab66cde26f7cc9ee6402c9cea5fa954e325c2f8538358a"
+    },
+    {
+      "phase": "positive",
+      "nodeCount": 789,
+      "proofMarkers": 15,
+      "kindCounts": {
+        "c": 31,
+        "a": 592,
+        "n": 165,
+        "j": 1
+      },
+      "oldOfficialRuleMismatch": [
+        744
+      ],
+      "successorMismatch": [],
+      "everyNodeLineCheckedAgainstOfficialRules": true,
+      "decodedCore": {
+        "path": "positive-core-module.json",
+        "bytes": 21021,
+        "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+      },
+      "sameDecodedJsonBytes": true,
+      "sourceNodeLinesSha256": "4ea0047e8d7d372c9e3cf47fdc5f8a1b69a9b45df200f0c2cac3f06af0573e41"
+    }
+  ],
+  "intendedCoreBytesUnchanged": true,
+  "semanticEndpointIdentity": {
+    "O": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "A": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+    "R": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+    "range": "7f0a72014dde20c0f0da31abef1529445760457527de299285924fcd738b06d8",
+    "expandedC": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+    "goal": "a61605211c8ddfcdba111fc2f1dc5884716015042bb4c87deeb22bba95afaddd",
+    "expected": {
+      "O": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+      "A": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "C": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "R": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+      "goal": "a61605211c8ddfcdba111fc2f1dc5884716015042bb4c87deeb22bba95afaddd"
+    },
+    "structureOrder": "All constructor fields checked against canonical ObjectTypes declaration order and exact types.",
+    "resultOrdering": "Semantic Result ok,error maps to Except error,ok; Except.ok gets error,ok,value.",
+    "context": "Actual ObjOuterWholeContext applied to exact original range Result. Expansion of actual success branch reproduces inline C; native kernel endpoint conversion still untested."
+  },
+  "proofIdentity": {
+    "formula": "Eq.trans T O A R hOA (Eq.trans T A C R hAC hCR)",
+    "negativeOnlyChange": {
+      "path": "nodes[776].n",
+      "positive": "LexLeanR4.ObjectWholeInnerContinuation.objOriginalWholeInnerContinuation",
+      "negative": "LexLeanR4.ObjectWholeReadTransport.objOuterWholeUnrelatedZero"
+    },
+    "sameGoalImportsAndAllOtherNodes": true,
+    "negativePremise": "Actual existing exported 0=0 theorem; wrong-premise rejection must occur at mandatory native root. Parse/import/config/resource/upstream failure does not establish intended negative."
+  },
+  "closure": {
+    "inputs": 32,
+    "suppliedSources": 28,
+    "staticallyReachable": 28,
+    "semanticModules": 27,
+    "nativeModules": 1,
+    "dependencyOrder": [
+      "R4.Words",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.Hash",
+      "R4.ObjectTypes",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "ObjectWholeOuterShell",
+      "R4.ObjectStore",
+      "R4.Object",
+      "ObjectWholeOuterConsumer",
+      "ObjectWholeReadContext",
+      "ObjectContextualFinishContext",
+      "ObjectManifestVersion",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectAdmittedRangeResult",
+      "ObjectWholeReadTransport",
+      "ObjectWholeInnerContinuation",
+      "HashWireDirect09Controls",
+      "ObjectWholeDigestContext",
+      "ObjectWholeDigestTransport",
+      "ObjectWholeDigest",
+      "ObjectWholePostrangeContext",
+      "ObjectWholePostrangeTransport",
+      "ObjectWholePostrangeResult",
+      "ObjectWholeComposedResult"
+    ],
+    "sharedHashesVerified": true
+  },
+  "config": {
+    "path": "lexlean.toml",
+    "bytes": 689,
+    "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1",
+    "byteIdentical": true,
+    "childTimeoutMs": 300000,
+    "memoryBytes": 4294967296,
+    "cpus": 2
+  },
+  "preservation": {
+    "tenOtherDrafts": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "sixMergedSources": [
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      }
+    ],
+    "canonicalFull33": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "protectedDocuments": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/CONTINUATION.md",
+      "bytes": 60892,
+      "sha256": "dac9d1855ba535e40f52bdf47d3fab788089fb44c4aeb44542a2113594b4eb08"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 46768,
+      "sha256": "aec992d8f8385b9e4213182b8264bcc5aff02853c7ced9de5e4c32cd15385044"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-inner-connection/delivery-manifest.json",
+      "bytes": 9446,
+      "sha256": "e4caacefe072fd3e9047ee8353b0d4a94fdfb8149a002836481c9cae4afa1d1b"
+    }
+  ],
+  "operationalBoundary": {
+    "innerArtifactVerified": true,
+    "innerRunGate": "FAILED max46 oom0 kill0",
+    "oldResourceProposal": "Bound to rejected predecessor; not authorization for this successor.",
+    "renewedSourceCodeRequired": true,
+    "separateFreshOperationalEligibilityRequired": true,
+    "allNewNative": "NOT_RUN"
+  },
+  "storage": {
+    "hostAvailableBytes": "28272803840",
+    "reserveBytes": "10737418240",
+    "capBytes": 1048576,
+    "inMemoryConstruction": true,
+    "noDiskTemporaryCopies": true
+  }
+}

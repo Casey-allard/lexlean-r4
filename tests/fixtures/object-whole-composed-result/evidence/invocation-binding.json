@@ -1,0 +1,68 @@
+{
+  "schema": "lexlean-r4-composition-final-invocation-binding/v1",
+  "status": "FROZEN_FOR_INDEPENDENT_INVOCATION_CODE_NOT_EXECUTED",
+  "predecessorDraft": {
+    "path": "invoke-whole-composed-result.draft.mjs",
+    "bytes": 7745,
+    "sha256": "85b386e259ea9f57e0e90a1d67f0b407c98723bc69c1633064282c0d3695898a"
+  },
+  "draftDelta": {
+    "path": "invocation-draft-delta.json",
+    "bytes": 3462,
+    "sha256": "50f49dc169680fea37f88108fa51d4107174f4e9fec2111ad76b0a0c82b9a532"
+  },
+  "candidateManifest": {
+    "path": "manifest.json",
+    "bytes": 2404,
+    "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+  },
+  "sourceCodeReview": {
+    "path": "candidate-code-review.json",
+    "bytes": 7031,
+    "sha256": "095587d8bada98b31d8eee8a4635fbd19b42b5ce3814765056b22827a12ae7a9"
+  },
+  "actualEpochReview": {
+    "path": "epoch-review.json",
+    "bytes": 9999,
+    "sha256": "3c0e3aadffeedbb23700c0a28f80d6ee4748dbc862bedadf900c5eb09b0af6a2"
+  },
+  "actualEpoch": {
+    "startedAt": "2026-10-24T05:31:03.102794321Z",
+    "restartCount": 0,
+    "container": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": []
+  },
+  "exactReplacements": [
+    {
+      "from": "// DRAFT ONLY: official native LexLean composition of the actual original WholeRead full Result; invalid pending epoch, no execution authority or Read33 acceptance.",
+      "to": "// One-off official native LexLean composition of the actual original WholeRead full Result; reviewed epoch bound, invocation CODE required before execution; no Read33 acceptance.",
+      "count": 1
+    },
+    {
+      "from": "INVALID_PENDING_EPOCH_REVIEW",
+      "to": "2026-10-24T05:31:03.102794321Z",
+      "count": 1
+    }
+  ],
+  "validation": {
+    "reverseSubstitutionEqualsFrozenDraft": true,
+    "allGuardPostcaptureRecorderLimitLogicUnchanged": true,
+    "all20EpochReceiptPinsRehashed": true,
+    "sourceManifestUnchanged": true
+  },
+  "script": {
+    "path": "invoke-whole-composed-result.mjs",
+    "bytes": 7762,
+    "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+  },
+  "boundary": "No execution by author. Actual epoch accepts observed transition only. Independent exact invocation CODE plus fresh launch-time operational checks required. Prior inner max46 failed gate remains historical; new epoch does not erase it.",
+  "storage": {
+    "hostAvailableBytes": "26209628160",
+    "reserveBytes": "10737418240",
+    "additionalCapBytes": 20480,
+    "noTemporaryDiskCopies": true
+  }
+}

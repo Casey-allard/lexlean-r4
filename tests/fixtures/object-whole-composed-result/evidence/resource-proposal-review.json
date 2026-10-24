@@ -1,0 +1,121 @@
+{
+  "schema": "lexlean-r4-composition-resource-proposal-review/v1",
+  "status": "PASS_CONDITIONAL_SOURCE_CODE_AND_FRESH_EPOCH_REQUIRED",
+  "recordedAt": "2026-10-24T05:30:05.418Z",
+  "reviewer": "Independent internal security/delivery reviewer; non-author of corrected candidate and resource proposal",
+  "proposal": {
+    "path": "resource-epoch-proposal.json",
+    "bytes": 6173,
+    "sha256": "25729c1b38e6b8169da996c11c9b712c56af6fe972055591ef0453011593a1d6"
+  },
+  "candidateManifest": {
+    "path": "manifest.json",
+    "bytes": 2404,
+    "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+    "payloadsRehashed": 10
+  },
+  "findings": [],
+  "decision": "Conditional eligibility for the proposed single explicit restart of the confirmed idle owned container to create a separately reviewed resource epoch for the corrected full original O=R composition. Source CODE is pending and mandatory before action. This report does not establish current execution readiness, grant compiler authority, or accept any phase. All exact conditions below must hold; source rejection or changed bytes prevents action.",
+  "predecessorPreservation": {
+    "proposalSha256": "d155b80817eb48319543f11849f2776d3339583d2e42e45f05ee1ba1c6e3193e",
+    "reviewSha256": "b903ededf0fdd8705c96fb566d49539c35a160df97a8b13c369a35d9670b72d0",
+    "candidateSha256": "30752afbabe7a817f31aa1fedfc212cbd9b7a8cf160af5795900173ac13aea81",
+    "codeRejectionSha256": "bea8a6aedfe6cfb12e14e932fe455f49666669cd92dfb0faa560114fa1936e24",
+    "allPredecessorBytesRehashed": true,
+    "disposition": "Old rejected candidate, failed CODE and nonexecutable resource review remain unchanged and nonexecutable. This review applies only to the explicit successor; it does not revise prior reviews or reuse old eligibility."
+  },
+  "candidateIdentity": {
+    "repair": "Successor preserves intended CoreModule JSON and changes only node744 projection spelling to structure-before-projection in each variant. Source-repair diff and preserved predecessor CODE were read; renewed independent CODE owns correctness.",
+    "goal": "One official native LexLean theorem for actual original O=R using two nested Eq.trans applications to concrete O=A, A=C, C=R proof constants.",
+    "phases": [
+      "composed-false",
+      "composed-positive"
+    ],
+    "inputsPerPhase": 32,
+    "reachableSources": 28,
+    "semanticModules": 27,
+    "nativeModules": 1,
+    "limits": {
+      "memoryBytes": 4294967296,
+      "cpus": 2,
+      "childTimeoutMs": 300000
+    },
+    "boundary": "Distinct full-result composition, not another inner A=C attempt or equivalent failed outer retry. Official parser, mixed admission, kernel conversion and new tests remain NOT_RUN."
+  },
+  "observations": {
+    "provenance": "Eight proposal-recorded read-only observations; reviewer inspected records and did not issue Docker/VM/compiler calls. Snapshots are not guarantees of state at future action.",
+    "captureWindow": "2026-10-24T05:26:41.807Z to 2026-10-24T05:26:45.231Z",
+    "allRecordedExitStatuses": 0,
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "startedAt": "2026-10-24T03:23:35.957043396Z",
+    "restartCount": 0,
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "vmBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "idle": "Only sh, sleep infinity and observation ps present in snapshot.",
+    "memoryEvents": {
+      "low": 0,
+      "high": 0,
+      "max": 46,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "tools": "All four recorded compiler/Lean/Lake/checker hashes equal established prior identities.",
+    "hostAvailableBytes": 27757830144,
+    "estimatedAdditionalBytes": 10737418240,
+    "reserveBytes": 10737418240,
+    "headroomAboveEstimateAndReserveBytes": 6282993664,
+    "guestAvailableKiB": 52878128,
+    "swap": "Recorded 13967.38M used of 15360.00M, free 1392.62M. This does not demonstrate peak memory, physical-RAM sufficiency or future operational success."
+  },
+  "conditions": [
+    {
+      "stage": "Before any action",
+      "requirements": [
+        "Independent source CODE must PASS for exact successor manifest 65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243. Pending/rejected CODE or a changed manifest means no restart.",
+        "Immediately recapture idle process state, ownership, full container/image/configuration identities, old StartedAt and VM boot, memory.events, and host/guest budget. Abort on drift, active or foreign work, missing evidence, or inadequate estimate-plus-reserve headroom.",
+        "Preserve old stages, sources, locks, successful inner kernel artifact, raw receipts and failed operational record. Capture immutable pre-transition evidence; do not delete, overwrite or relabel history."
+      ]
+    },
+    {
+      "stage": "One transition only",
+      "requirements": [
+        "Only one explicit restart of container cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf is covered by the proposal after prerequisites. No VM restart, container replacement, global stop, image change, counter-file manipulation or resource-limit increase.",
+        "If restart fails or postconditions fail, preserve diagnostics and stop for new independent review. No repeated restart or implicit retry follows."
+      ]
+    },
+    {
+      "stage": "Actual epoch review before compiler",
+      "requirements": [
+        "Capture new StartedAt, full container/image/configuration, unchanged VM boot ID, exact four tool hashes, all memory.events counters, idle process snapshot and fresh host/guest available space. Independently review actual results before any official lock/check/verify/compiler call.",
+        "Require same container/image/VM/disk/tools, 4 GiB/2 CPU, network none, mounts [], new StartedAt and all-zero events. Do not expect VM boot_id to change or assume manual restart increments RestartCount.",
+        "Bind actual accepted epoch, candidate CODE and exact separately reviewed invocation together. Proposal acceptance alone is not native-launch acceptance.",
+        "Old max46 and new zero counters belong to separate intervals. Never subtract them as continuous counters or treat new zeros as erasing the failed inner resource gate."
+      ]
+    },
+    {
+      "stage": "Future native result boundaries",
+      "requirements": [
+        "Keep 300000 ms per-child proof limit and every unchanged source, lock, tool, epoch, idle and resource gate. Negative must reject the intended wrong premise at mandatory native root; parser/import/dependency/resource failure is not intended negative.",
+        "Positive requires actual full original O=R consumer, exact artifact/custody and independent kernel/empty-axiom audit plus all operational gates; compiler exit zero alone is insufficient.",
+        "No old-inner rerun, gate waiver, resource increase, automatic counter reset or further restart is authorized."
+      ]
+    }
+  ],
+  "preservedStatus": {
+    "oldNativeReviewSha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889",
+    "innerArtifact": "Verified mathematical A=C proof remains retained.",
+    "innerRun": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED, max 0 to46, oom/kill0. Remains operationally unaccepted.",
+    "newCandidate": "SOURCE_ONLY_ALL_NATIVE_NOT_RUN; current CODE pending; no new epoch accepted.",
+    "remaining": "Original ordinal26 projection, Read33, full Object/Hash integration, production PrismPM binding and Pages remain open."
+  },
+  "operations": "Only read-only file/hash/JSON inspection and this new external report. No SDK/native/compiler/container/VM/restart/repository/index actions. No temporary files or binary copies. Old reports and proposals untouched.",
+  "storage": {
+    "reportLimitBytes": 8192,
+    "newFiles": 1
+  }
+}

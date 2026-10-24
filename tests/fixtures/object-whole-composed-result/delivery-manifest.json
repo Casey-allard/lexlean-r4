@@ -1,0 +1,302 @@
+{
+  "schema": "lexlean-r4-portable-delivery-manifest/v1",
+  "status": "FROZEN_ADMISSION_FAILURE_CHECKPOINT_PENDING_DELIVERY_REVIEW",
+  "at": "2026-10-24T05:41:49.577Z",
+  "scope": "Only whole-composed-result fixture and two working status documents. No native acceptance, source mutation, protected draft inclusion or production binding.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 62358,
+      "sha256": "efd43133226f876fb71f042c91724b49c0a9cbfa93e9a0a3f2dc01fb82355a72"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 48237,
+      "sha256": "47a88e1d27d4322f1a29445ea85cd14fe59eb93e6d7be326344826c3bf089139"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/README.md",
+      "bytes": 1023,
+      "sha256": "9cf561a485b96962fcdf43d508d18be8b549c48bb6354d3c6d87e631dcc84a07"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/RESULTS.md",
+      "bytes": 1774,
+      "sha256": "bf298b5b2637ba8f162d6fa384c8cf61ceb265d20b024dd5096ffe5114ea1433"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/admission-custody.json",
+      "bytes": 8415,
+      "sha256": "0f85ffac274848a7b1f264a6c9c6b736eb41f9240604030a21de760aafb2032e"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/README.md",
+      "bytes": 1597,
+      "sha256": "1792f9b5fd1fc0e43caefa47a2865f28f7fe31c6181f39427573c71de0a3c893"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/candidate.json",
+      "bytes": 39723,
+      "sha256": "fae741ea7682118260b3096647c9a864b391285d9eec5d1aaf1eb4b2fe9e016b"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/lexlean.toml",
+      "bytes": 689,
+      "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/manifest.json",
+      "bytes": 2404,
+      "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/negative-core-module.json",
+      "bytes": 21010,
+      "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 14677,
+      "sha256": "06d9921227ed79bf18c4947958dc87ec69ffe84482357088a61abe5c2e52f23f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/positive-core-module.json",
+      "bytes": 21021,
+      "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 14688,
+      "sha256": "afea651b14dc2ce4740c54da8241c550885151b5b77ff3f6320978cb849f529f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/preparation-comparison-failure.json",
+      "bytes": 752,
+      "sha256": "beb591cb9a8d1a044ebf9f80d6d1de7d57cc4d7b019e5cd052bd3431264e5401"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/source-repair-diff.json",
+      "bytes": 4799,
+      "sha256": "e765e82499f0bf842b984c4884435e542fc315e3bb52d145a359af72ef77e0c4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/candidate/structural-audit.json",
+      "bytes": 10008,
+      "sha256": "7bdf09fddc15ddce5a7ce5f29b529837e0d1a406ec3dbb2a258215f3dd763f01"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/admission-failure/raw-receipts.json.gz",
+      "bytes": 9676,
+      "sha256": "85dd69b44ce101abd628521878caa59d60a360e5919c448914be2b433b8d8c12"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/admission-failure/source-admission-review.json",
+      "bytes": 8443,
+      "sha256": "39b75aba439f48c563d2840d7b134bf1182eec36e1c2aeb6f2dd21ab140ee0f4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/admission-failure/storage-followup.json",
+      "bytes": 1054,
+      "sha256": "2c1d4ec52a4411a3040b3917ad0394a440be6116a05a09c0bf8ce822fa0c391c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/candidate-code-review.json",
+      "bytes": 7031,
+      "sha256": "095587d8bada98b31d8eee8a4635fbd19b42b5ce3814765056b22827a12ae7a9"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/epoch-records.json.gz",
+      "bytes": 2797,
+      "sha256": "2cd7e52b39914317a3ea3abdfd173b7e7317140efe6f7b724b155974b2c50eda"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/epoch-review.json",
+      "bytes": 9999,
+      "sha256": "3c0e3aadffeedbb23700c0a28f80d6ee4748dbc862bedadf900c5eb09b0af6a2"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/history/packaging-prewrite-stops.json",
+      "bytes": 650,
+      "sha256": "a76a30de940c4ba647bbba3a6d96e50094e5435ad94b272ff6e8783a3d42b0b4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/history/pre-admission-documents.json.gz",
+      "bytes": 33368,
+      "sha256": "552cfc7cfd4082d1b3d263b5308ead0eeed5082e3b33e9565f790a55ff074e83"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/history/rejected-predecessor.json.gz",
+      "bytes": 28634,
+      "sha256": "798f53b2d6edf95def4e26389d82001e0b129f039d1f5716d9aca5e6b0fe7df5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invocation-binding.json",
+      "bytes": 2613,
+      "sha256": "8f7d6953e88af9f022b342457e9432809d0808d7252a403090743f977c651948"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invocation-code-review.json",
+      "bytes": 4956,
+      "sha256": "52fb9e2cfa05a052bc0ef6ae38e0f295634de794f65f408eb81d0bf3c64f9d13"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invocation-draft-delta.json",
+      "bytes": 3462,
+      "sha256": "50f49dc169680fea37f88108fa51d4107174f4e9fec2111ad76b0a0c82b9a532"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invocation-manifest.json",
+      "bytes": 750,
+      "sha256": "a707dba95618bc2022c2ea1d65404f4afea5d2c320c81dbd03c6747539921ff3"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invoke-whole-composed-result.draft.mjs",
+      "bytes": 7745,
+      "sha256": "85b386e259ea9f57e0e90a1d67f0b407c98723bc69c1633064282c0d3695898a"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invoke-whole-composed-result.mjs",
+      "bytes": 7762,
+      "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/resource-epoch-proposal.json",
+      "bytes": 6173,
+      "sha256": "25729c1b38e6b8169da996c11c9b712c56af6fe972055591ef0453011593a1d6"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/evidence/resource-proposal-review.json",
+      "bytes": 7973,
+      "sha256": "0819ed4f31e8411441ed238996a40c1208e045ef2c3ea71dd602b2e046c2386d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/phases/composed-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "0fdb318a38f12b6b1f0fd1cccd8e9b05f2b647fb818417af8f9ff75b50133efc"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/readiness.json",
+      "bytes": 3843,
+      "sha256": "a931bbf815af98cf5032eb60267c45ca1119273393849116cce0fbf5dce87e75"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/results.json",
+      "bytes": 5052,
+      "sha256": "d2794755a296fbaaf23b90c499b68a3849b423347812d83b79349c408ccd744b"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/source-bindings.json",
+      "bytes": 19837,
+      "sha256": "014c961362d3a18ca995aad312e84d684d7a5f1f52b53239b9282a6e143eb03d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-composed-result/source-custody.json",
+      "bytes": 18481,
+      "sha256": "f9f32caf7b7c8ca3500c20af21f5f64165a4ae6b812984a636c1f8c3833e3a27"
+    }
+  ],
+  "preservation": {
+    "current17": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      },
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      },
+      {
+        "path": "tests/lexlean/ObjectReadControls.lex.tex",
+        "bytes": 330157,
+        "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+      }
+    ],
+    "originalSnapshots": {
+      "manifest": "docs/continuation/2026-10-23/pending-manifest.json",
+      "bytes": 5064,
+      "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980",
+      "verified": 17
+    }
+  },
+  "verification": {
+    "candidatePayloads": 10,
+    "phaseInputMaps": 2,
+    "inputsEach": 32,
+    "priorSourceAndCustody": "PASS",
+    "archiveMembersVerified": 93,
+    "rawFailureRecords": 57,
+    "noVerifyOrArtifact": true
+  },
+  "budget": {
+    "newPortableAndFullDocsAllocatedBytes": 528384,
+    "newExternalRetrievalAllocatedBytes": 16384,
+    "preExistingExternalPacketsExcluded": "Original and corrected source packets precede this portable-delivery phase; referenced without new disk copies except explicit portable copies included above.",
+    "reserveForManifestAndTwoReviews": 32768,
+    "maxNewPhaseBytes": 1048576,
+    "hostFreeBytes": 28306067456,
+    "hostReserveBytes": 10737418240,
+    "compression": "In-memory gzip; no extracted or archive temporary disk copies."
+  }
+}
