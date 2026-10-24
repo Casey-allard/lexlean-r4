@@ -1,0 +1,248 @@
+{
+  "schema": "lexlean-r4-native-format-structural-audit/v1",
+  "status": "STATIC_ONLY_OFFICIAL_NATIVE_NOT_RUN",
+  "at": "2026-10-24T05:52:48.813Z",
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/installed-envelope-investigation/migration-spec-review.json",
+    "bytes": 8318,
+    "sha256": "4e1f2a87b6fdf98c5c405043e7e47867034b0f64a92b5e942186e4bd9aa96bf6"
+  },
+  "predecessorManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/manifest.json",
+    "bytes": 2404,
+    "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+  },
+  "checks": [
+    {
+      "variant": "negative",
+      "oldCore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/negative-core-module.json",
+        "bytes": 21010,
+        "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+      },
+      "payload": {
+        "bytes": 20932,
+        "sha256": "fbe370aeb1f7a7fa8a3f2a526bde35a32156542f8082fd72c9ad8fe5ad4f743f"
+      },
+      "jsonDelta": [
+        "spec /2 -> /1",
+        "remove only declarations[0].all after exact singleton assertion"
+      ],
+      "restoreOldFileBytes": "PASS including original terminal LF; new payload has no terminal LF",
+      "headerFooterUnchanged": true,
+      "nodesUnchanged": 789,
+      "proofMarkersUnchanged": 15,
+      "all789Reachable": true
+    },
+    {
+      "variant": "positive",
+      "oldCore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/positive-core-module.json",
+        "bytes": 21021,
+        "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+      },
+      "payload": {
+        "bytes": 20943,
+        "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+      },
+      "jsonDelta": [
+        "spec /2 -> /1",
+        "remove only declarations[0].all after exact singleton assertion"
+      ],
+      "restoreOldFileBytes": "PASS including original terminal LF; new payload has no terminal LF",
+      "headerFooterUnchanged": true,
+      "nodesUnchanged": 789,
+      "proofMarkersUnchanged": 15,
+      "all789Reachable": true
+    }
+  ],
+  "negative": {
+    "soleDifference": "nodes[776].n",
+    "positive": "LexLeanR4.ObjectWholeInnerContinuation.objOriginalWholeInnerContinuation",
+    "negative": "LexLeanR4.ObjectWholeReadTransport.objOuterWholeUnrelatedZero",
+    "goalUnchanged": true,
+    "intendedOutcome": "Wrong premise rejection at mandatory native root. No acceptance from parser/dependency/resource failure."
+  },
+  "singleton": {
+    "class": false,
+    "generated": false,
+    "kind": "theorem",
+    "levels": [],
+    "name": "LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult",
+    "policy": {
+      "kind": "none"
+    },
+    "transparency": "semireducible",
+    "type": 773,
+    "value": 788
+  },
+  "singletonAuditRequirement": "Actual native positive must confirm exact theorem inclusion in emitted environment, audit inventory and attestation; none policy and empty observed axioms. See pinned independent SPEC producer/audit chain.",
+  "semanticEndpoints": {
+    "O": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "A": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+    "R": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+    "range": "7f0a72014dde20c0f0da31abef1529445760457527de299285924fcd738b06d8",
+    "expandedC": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+    "goal": "a61605211c8ddfcdba111fc2f1dc5884716015042bb4c87deeb22bba95afaddd",
+    "expected": {
+      "O": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+      "A": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "C": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "R": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+      "goal": "a61605211c8ddfcdba111fc2f1dc5884716015042bb4c87deeb22bba95afaddd"
+    },
+    "structureOrder": "All constructor fields checked against canonical ObjectTypes declaration order and exact types.",
+    "resultOrdering": "Semantic Result ok,error maps to Except error,ok; Except.ok gets error,ok,value.",
+    "context": "Actual ObjOuterWholeContext applied to exact original range Result. Expansion of actual success branch reproduces inline C; native kernel endpoint conversion still untested."
+  },
+  "proofIdentity": {
+    "formula": "Eq.trans T O A R hOA (Eq.trans T A C R hAC hCR)",
+    "negativeOnlyChange": {
+      "path": "nodes[776].n",
+      "positive": "LexLeanR4.ObjectWholeInnerContinuation.objOriginalWholeInnerContinuation",
+      "negative": "LexLeanR4.ObjectWholeReadTransport.objOuterWholeUnrelatedZero"
+    },
+    "sameGoalImportsAndAllOtherNodes": true,
+    "negativePremise": "Actual existing exported 0=0 theorem; wrong-premise rejection must occur at mandatory native root. Parse/import/config/resource/upstream failure does not establish intended negative."
+  },
+  "selection": {
+    "inputs": 32,
+    "suppliedSources": 28,
+    "staticallyReachable": 28,
+    "semanticModules": 27,
+    "nativeModules": 1,
+    "order": [
+      "R4.Words",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.Hash",
+      "R4.ObjectTypes",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "ObjectWholeOuterShell",
+      "R4.ObjectStore",
+      "R4.Object",
+      "ObjectWholeOuterConsumer",
+      "ObjectWholeReadContext",
+      "ObjectContextualFinishContext",
+      "ObjectManifestVersion",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectAdmittedRangeResult",
+      "ObjectWholeReadTransport",
+      "ObjectWholeInnerContinuation",
+      "HashWireDirect09Controls",
+      "ObjectWholeDigestContext",
+      "ObjectWholeDigestTransport",
+      "ObjectWholeDigest",
+      "ObjectWholePostrangeContext",
+      "ObjectWholePostrangeTransport",
+      "ObjectWholePostrangeResult",
+      "ObjectWholeComposedResult"
+    ],
+    "actualAdmission": "NOT_RUN"
+  },
+  "preservation": {
+    "tenOtherDrafts": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "sixMergedSources": [
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      }
+    ],
+    "canonicalFull33": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "config": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/lexlean.toml",
+    "bytes": 689,
+    "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1"
+  },
+  "resources": {
+    "childTimeoutMs": 300000,
+    "memoryBytes": 4294967296,
+    "cpus": 2,
+    "nativeExecution": "NO_AUTHORITY_RENEWED_SOURCE_CODE_AND_SEPARATE_FRESH_OPERATIONAL_ELIGIBILITY_REQUIRED"
+  },
+  "storage": {
+    "availableBytes": 24944627712,
+    "reserveBytes": 10737418240,
+    "maxNewAllocatedBytes": 1048576
+  },
+  "limits": [
+    "No official parser or kernel execution by author.",
+    "Actual O=R statement, two Eq.trans applications, imports, root indices, node order and metadata except reviewed singleton all are unchanged.",
+    "No runtime/data/language/limits/axioms changes."
+  ]
+}

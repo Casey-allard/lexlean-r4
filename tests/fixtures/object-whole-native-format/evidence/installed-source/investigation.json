@@ -1,0 +1,157 @@
+{
+  "schema": "lexlean-r4-installed-envelope-source-investigation/v1",
+  "status": "CONFIRMED_COMPILER_CONTRACT_MISMATCH_NO_ENVELOPE_ONLY_REPAIR",
+  "recordedAt": "2026-10-24T05:42:42.226Z",
+  "identity": {
+    "installedLexLeanSha256": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+    "officialRevision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+    "authority": "Current docs/UPSTREAM.md construction identities and retained runtime observations; no independent binary reproducibility claim.",
+    "candidateManifestSha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+    "sourceAdmissionReviewSha256": "39b75aba439f48c563d2840d7b134bf1182eec36e1c2aeb6f2dd21ab140ee0f4"
+  },
+  "conclusion": "Installed0865 cannot accept the existing exact /2 native payload. Envelope-only coredata wrapping leaves schema-tag and declaration-field incompatibilities. Keeping exact /2 requires separately reviewed official compiler-dependency support. A /1 source migration is another bounded proposal requiring equivalence review; no migration or acceptance established.",
+  "findings": [
+    {
+      "id": "ENVELOPE",
+      "source": "grammar/structural.rs:1104-1112",
+      "fact": "Native parser unconditionally requires coredata verbatim brace payload. Existing imports/node/declaration notation is not accepted. This explains actual LLP2003 expected coredata found imports; verify never ran."
+    },
+    {
+      "id": "SCHEMA",
+      "source": "ir/core.rs:377-390; schemas/core-module.schema.json properties.spec",
+      "fact": "Serde decode, validate, canonical-byte check; validate accepts only lexlean/core-module/1. Candidate uses /2."
+    },
+    {
+      "id": "DECLARATION_ALL",
+      "source": "ir/core.rs:317-355; schema $defs.declaration",
+      "fact": "CoreDeclaration denies unknown fields and has no all field. Both candidate declarations contain singleton all. Official schema additionalProperties=false agrees. Changing only envelope or tag is insufficient."
+    }
+  ],
+  "supported": {
+    "language": "lib.rs:98-119 supports1.2. link.rs:656-670 parses core data directly; project language1.2 does not choose native /2.",
+    "proofNodes": "ir/core.rs:368-374,425-434 supports sorted in-range proof_nodes. backend/core.rs:344-348,369-373 excludes marked proofs from sharing;1151-1165 maps them into chunks;1208-1219 carries markers. proof_nodes is NOT unsupported; dropping15 markers is unjustified.",
+    "kernel": "backend/core.rs:853-855 submits theorem via Lean.addDecl;1271-1275 explains checked reconstruction. No actual mixed-module/kernel success inferred.",
+    "nodes": "All789 candidate nodes use supported c/a/n/j kinds; projection n/function and s/structure supported at ir/core.rs:98-108.",
+    "axioms": "ir/core.rs:263-305 policy none requires empty observed axioms; preserve it.",
+    "canonical": "ir/core.rs:547-746 requires compact sorted-key canonical JSON, no null or trailing bytes; no pretty-print/newline payload shortcut."
+  },
+  "candidate": {
+    "negativeSha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52",
+    "positiveSha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8",
+    "negativeBytes": 21010,
+    "positiveBytes": 21021,
+    "unknownTopFields": [],
+    "unknownDeclarationFields": [
+      "all"
+    ],
+    "nodes": 789,
+    "proofMarkers": 15,
+    "method": "Actual field/kind comparison and Rust source reading; no official parser/full schema validation executed."
+  },
+  "nativeExample": {
+    "path": "examples/uor-atlas/src/CensusCert0.lex.tex",
+    "fact": "Official native source uses coremodule/coredata, /1, proof_nodes, no all. Matching config is language1.0; format precedent only, not mixed1.2 acceptance.",
+    "restriction": "Example permits choice/Quot.sound/propext and different limits; none transfer. Not imported/run. Retrieved production Kernel is semanticmodule/2 and supplies no native/2 precedent."
+  },
+  "alternativeV1": {
+    "status": "BOUNDED_SOURCE_MIGRATION_PROPOSAL_ONLY_NOT_AUTHORED",
+    "scope": "Separately review canonical /1 coredata with tag /2 to /1 and omission of /2-only singleton all. Retain all789 nodes,15 markers, imports/endpoints/roots/proof constants, name/type/value/class/generated/transparency, none policy, config/limits and sole negative hAC mutation.",
+    "unresolved": [
+      "Exact0865 backend declaration selection/order/chunking plus attestation/census behavior must establish complete singleton inventory without all. This bounded investigation does not establish the full audit path.",
+      "Independent equality audit must show preserved goal/proof/metadata and all imported declarations; schema similarity alone is insufficient.",
+      "New source manifest/SPEC/CODE and separately bound operational/invocation reviews are required. Old source approval does not transfer.",
+      "Actual check must admit32inputs/28modules; intended negative must reject wrong premise at mandatory root. Parser/import/dependency/resource failure is not intended negative.",
+      "Positive needs exact original O=R, complete artifact/declaration census, independent kernel/empty-axiom audit and all unchanged resource gates."
+    ]
+  },
+  "alternativeDependency": {
+    "status": "SEPARATE_PREPARATION_REQUIRED_TO_KEEP_EXACT_V2",
+    "scope": "Review official immutable compiler/SDK implementing /2, source/executable/image provenance, toolchain/genuine locks and fresh resource eligibility. Source support is not installation authority; no build or replacement performed."
+  },
+  "boundaries": [
+    "Current frozen /2 candidate remains admission-failed. No envelope-only retry authorized.",
+    "No /1 candidate, compiler install/build, limit/runtime/axiom change, native/SDK/check/VM call or repo edit.",
+    "Old A=C mathematical artifact and max46 operational failure remain separate and preserved. Full Result, ordinal26/Read33, production binding and Pages remain open."
+  ],
+  "sources": [
+    {
+      "path": "installed-0865-parser-ir.json.gz",
+      "bytes": 15093,
+      "sha256": "f0ce6ecce7c7b16ca8ae09a4a8aeaf2116690ceed483244af3662dcd87effc4e",
+      "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+      "entries": [
+        {
+          "path": "crates/lexlean/src/grammar/structural.rs",
+          "bytes": 40476,
+          "sha256": "7c33737f5743dd866bf4a48ae6bd1e125a2e2df5270d408802a594fc8f24bfa8"
+        },
+        {
+          "path": "crates/lexlean/src/ir/core.rs",
+          "bytes": 28252,
+          "sha256": "37f25ded6200c458eb546fe8a08cbdc35470bcafdf54967a7bc95f954a19004a"
+        }
+      ]
+    },
+    {
+      "path": "installed-envelope-investigation/additional-official-source.json.gz",
+      "bytes": 33422,
+      "sha256": "2543952e66e0a341f78726582197d02396a2d377bf9a7537b5e285623a91ff88",
+      "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+      "entries": [
+        {
+          "path": "crates/lexlean/src/backend/core.rs",
+          "bytes": 56262,
+          "sha256": "1bcba214b4af6752174ad87776a078caf6db0a7c31bf824fb152f41c746002eb"
+        },
+        {
+          "path": "crates/lexlean/src/link.rs",
+          "bytes": 72648,
+          "sha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd"
+        },
+        {
+          "path": "crates/lexlean/src/lib.rs",
+          "bytes": 8704,
+          "sha256": "57ccec0ffbea3a14f1616d34dcd14c64b58789694ae804f00eede79b8887f070"
+        },
+        {
+          "path": "schemas/core-module.schema.json",
+          "bytes": 6057,
+          "sha256": "63aa3811fe48274f0d28e8c74aa79d82871d08ad11fcda970b133eff7eb65b69"
+        },
+        {
+          "path": "examples/production/src/Kernel.lex.tex",
+          "bytes": 4697,
+          "sha256": "bf4adbd7d2b58bac60c474785717dbef7ea630c9cab71a3f12ba221cd9501ab8"
+        }
+      ]
+    },
+    {
+      "path": "installed-envelope-investigation/official-native-example.json.gz",
+      "bytes": 1674,
+      "sha256": "4d487823a4ed1744fb919e603e67ef2f7dc1659dcdc558c44398e0dfecfe63be",
+      "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+      "entries": [
+        {
+          "path": "examples/uor-atlas/src/CensusCert0.lex.tex",
+          "bytes": 4803,
+          "sha256": "d919a0a2d3fa96ca70d6ca7a5917e553ccbdc96441a161cf0ac06b6343c19522"
+        },
+        {
+          "path": "examples/uor-atlas/lexlean.toml",
+          "bytes": 605,
+          "sha256": "8fd14b0d36e36f8e6ae66961bd7bad0cdfc0b313a659e86ac9fcf6467df7ce23"
+        }
+      ]
+    }
+  ],
+  "sourceURLs": "Each archive retains exact raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/<path> URL, revision, byte count, SHA256 and full text.",
+  "storage": {
+    "aggregateExactSourceBytes": 222504,
+    "sourceLimitBytes": 262144,
+    "reportLimitBytes": 12288,
+    "newArchives": 2,
+    "duplicateFetches": 0,
+    "prewriteHistory": "Two oversized in-memory report serializations12492B and12471B rejected before write; no report file was created."
+  },
+  "operations": "Existing parser/IR archive reused in memory; seven additional exact official files retained in two gzip UTF8 envelopes. All archive/source hashes and fatal UTF8 decoding verified. GitHub tree metadata remained in memory. No clone/build/SDK/compiler/VM/repo actions."
+}

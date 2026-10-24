@@ -1,0 +1,7 @@
+{
+  "classification": "AUTHOR_PREWRITE_ASSERTION_NOT_NATIVE_FAILURE",
+  "error": "Compared attestation.json file SHA to attestation_id; assertion failed before any output writes.",
+  "actualFileSha256": "32252fa1de867f97ef5583d115be67c8eb8f0899b102ccb275b37b6d19ef33b4",
+  "actualAttestationId": "3903719cbb058ed59e9eb243a3f82bd7bad3eb406d48aba6f139945dfc8a1b53",
+  "correction": "Bind file digest and semantic attestation ID separately; official result and attestation JSON IDs match. No artifact/source changes."
+}

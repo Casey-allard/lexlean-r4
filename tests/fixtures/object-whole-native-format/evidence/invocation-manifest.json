@@ -1,0 +1,16 @@
+{
+  "schema": "lexlean-r4-native-format-invocation-manifest/v1",
+  "status": "PENDING_INDEPENDENT_CODE_NOT_RUN",
+  "files": [
+    {
+      "path": "invoke-whole-native-format.mjs",
+      "bytes": 7733,
+      "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+    },
+    {
+      "path": "invocation-delta.json",
+      "bytes": 5746,
+      "sha256": "33fc1d62f62134e266fee6558b1e57af96dbcd27ca7dca62c3ae8fa4cc8ebe3f"
+    }
+  ]
+}

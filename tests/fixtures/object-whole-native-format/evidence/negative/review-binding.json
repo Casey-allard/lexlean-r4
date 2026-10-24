@@ -1,0 +1,20 @@
+{
+  "schema": "lexlean-r4-native-negative-review-binding/v1",
+  "at": "2026-10-24T06:05:38.702Z",
+  "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/negative-review.json",
+  "copy": "evidence/negative/native-review.json",
+  "bytes": 15153,
+  "sha256": "4590f0ceea3db258448a3bf7e2ebe161931b67cdf397d8b070e790dc8b0a685c",
+  "reviewStatus": "PASS_INTENDED_NATIVE_ROOT_NEGATIVE_ONLY",
+  "negativeCustody": {
+    "path": "evidence/negative/custody.json",
+    "bytes": 11822,
+    "sha256": "d7873293d0eb8eade3e9474d151f1b7d13b559fc46348d1502ab5afec1bfdf7c",
+    "preserved": "Exact historical pending-review record; this additive binding supersedes only its review status."
+  },
+  "boundary": "Accepted intended mandatory-root negative only. Positive parent-reported active; no positive output observed or included. No final result or positive acceptance.",
+  "storage": {
+    "hostFreeBytes": 28787372032,
+    "reserveBytes": 10737418240
+  }
+}

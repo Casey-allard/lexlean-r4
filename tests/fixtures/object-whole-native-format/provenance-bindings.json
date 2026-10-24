@@ -1,0 +1,66 @@
+{
+  "schema": "lexlean-r4-portable-provenance-bindings/v1",
+  "aliases": [
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/manifest.json",
+      "path": "tests/fixtures/object-whole-native-format/candidate/manifest.json",
+      "bytes": 2464,
+      "sha256": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/manifest.json",
+      "path": "tests/fixtures/object-whole-composed-result/candidate/manifest.json",
+      "bytes": 2404,
+      "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/source-admission-review.json",
+      "path": "tests/fixtures/object-whole-composed-result/evidence/admission-failure/source-admission-review.json",
+      "bytes": 8443,
+      "sha256": "39b75aba439f48c563d2840d7b134bf1182eec36e1c2aeb6f2dd21ab140ee0f4"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/installed-envelope-investigation/investigation.json",
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/investigation.json",
+      "bytes": 9313,
+      "sha256": "062232ce76d114a214fa63d1c7d61b17e6f47816b7470cc93e697b6b9d143b06"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/installed-envelope-investigation/migration-spec-review.json",
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/migration-spec-review.json",
+      "bytes": 8318,
+      "sha256": "4e1f2a87b6fdf98c5c405043e7e47867034b0f64a92b5e942186e4bd9aa96bf6"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/next-composition-investigation.json",
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/next-composition-investigation.json",
+      "bytes": 18867,
+      "sha256": "a6dfeed45dbcd4b645992ab94041d1f4c30061f9318764e82bb95c0ca5c502a0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/next-composition-spec-review.json",
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/next-composition-spec-review.json",
+      "bytes": 5353,
+      "sha256": "b2c7f1cbbb5f518aac15fa398cceed9afb3bec8cc2c24b54be4f6a44c0302873"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/epoch-review.json",
+      "path": "tests/fixtures/object-whole-composed-result/evidence/epoch-review.json",
+      "bytes": 9999,
+      "sha256": "3c0e3aadffeedbb23700c0a28f80d6ee4748dbc862bedadf900c5eb09b0af6a2"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/invocation-code-review.json",
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invocation-code-review.json",
+      "bytes": 4956,
+      "sha256": "52fb9e2cfa05a052bc0ef6ae38e0f295634de794f65f408eb81d0bf3c64f9d13"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/invoke-whole-composed-result.mjs",
+      "path": "tests/fixtures/object-whole-composed-result/evidence/invoke-whole-composed-result.mjs",
+      "bytes": 7762,
+      "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+    }
+  ],
+  "archiveInterpretation": "Absolute original paths remain unchanged in preserved evidence; these repository-relative aliases resolve authoritative original bytes. Native predecessor phase postchecks are members of the earlier fixture raw-receipts archive."
+}

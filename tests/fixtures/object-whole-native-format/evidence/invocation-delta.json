@@ -1,0 +1,114 @@
+{
+  "schema": "lexlean-r4-native-format-invocation-delta/v1",
+  "status": "FROZEN_INVOCATION_PENDING_INDEPENDENT_CODE_NOT_RUN",
+  "at": "2026-10-24T05:53:08.337Z",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/invoke-whole-composed-result.mjs",
+    "bytes": 7762,
+    "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/invocation-code-review.json",
+    "bytes": 4956,
+    "sha256": "52fb9e2cfa05a052bc0ef6ae38e0f295634de794f65f408eb81d0bf3c64f9d13"
+  },
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/manifest.json",
+    "bytes": 2464,
+    "sha256": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9"
+  },
+  "migrationSpec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/installed-envelope-investigation/migration-spec-review.json",
+    "bytes": 8318,
+    "sha256": "4e1f2a87b6fdf98c5c405043e7e47867034b0f64a92b5e942186e4bd9aa96bf6"
+  },
+  "reviewedEpoch": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/epoch-review.json",
+    "bytes": 9999,
+    "sha256": "3c0e3aadffeedbb23700c0a28f80d6ee4748dbc862bedadf900c5eb09b0af6a2"
+  },
+  "latestClosedPostchecks": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/epoch-after.json",
+      "bytes": 470,
+      "sha256": "ad7bc6addaa8aa4032ffe7d131cb1aa1cc9eb410374738ce453060a2377fb62a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/memory-after.json",
+      "bytes": 354,
+      "sha256": "5e37a1158c9198b848dfd6dbb54118d6bf5a4490de8815a7f55ef534b41e4cc3"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/idle-after.json",
+      "bytes": 460,
+      "sha256": "b437c6764d239a683a81d624940e4e75ab9a732c9a9906ad0d8f8b19935a3546"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/tools-after.json",
+      "bytes": 1005,
+      "sha256": "9ad0916ee7368ae852dbff3ccc88e7e16dbbf4770d703e190d571cbbd74d2bfd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/host-after.json",
+      "bytes": 142,
+      "sha256": "bf3d507366ccbaa47c9eb8d4babec6afe4ff67257562e0d480e7d317f520dd62"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/guest-after.json",
+      "bytes": 406,
+      "sha256": "54e73077c3ad25e8be3965d089622e5fee53b70f3ea10f498b878db656ef537b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/source-after.json",
+      "bytes": 9899,
+      "sha256": "a68746709031fc4eaafe894ee3ab961cda137b8c6cfaed503c5924bbaf02d1dc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/lock-after.json",
+      "bytes": 519,
+      "sha256": "306cdfe0ba6033a4dfe353e1d1b08a3a9fe468db2d7ef944f3ee7c1035d618f7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/composed-false/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  ],
+  "epoch": "2026-10-24T05:31:03.102794321Z",
+  "substitutions": [
+    {
+      "from": "// One-off official native LexLean composition of the actual original WholeRead full Result; reviewed epoch bound, invocation CODE required before execution; no Read33 acceptance.",
+      "to": "// One-off official installed-format singleton composition of the original WholeRead full Result; invocation CODE and fresh launch gates required; no Read33 acceptance."
+    },
+    {
+      "from": "['composed-false','composed-positive']",
+      "to": "['format-false','format-positive']"
+    },
+    {
+      "from": "select exactly one composed-result phase",
+      "to": "select exactly one native-format phase"
+    },
+    {
+      "from": "/tmp/r4-object-whole-composed-projection-order-${phase}-owned-20261024",
+      "to": "/tmp/r4-object-whole-native-format-${phase}-owned-20261024"
+    },
+    {
+      "from": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+      "to": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9"
+    }
+  ],
+  "checks": {
+    "reverseExactPredecessor": "PASS",
+    "allOtherBytesUnchanged": true,
+    "inputsEach": 32,
+    "mandatoryRoot": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+    "limits": "300000ms child/4GiB/2CPU unchanged",
+    "guardAndRecorderLogic": "Unchanged",
+    "freshLaunch": "Prior observations are historical; all existing fresh preflight and independent postcapture gates remain required. No reset/restart/waiver or execution by author."
+  },
+  "newScript": {
+    "path": "invoke-whole-native-format.mjs",
+    "bytes": 7733,
+    "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+  }
+}

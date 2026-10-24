@@ -1,0 +1,121 @@
+{
+  "schema": "lexlean-r4-installed-core-v1-migration-spec-review/v1",
+  "status": "PASS_BOUNDED_SINGLETON_SOURCE_MIGRATION_DESIGN_ONLY",
+  "at": "2026-10-24T05:50:10.643Z",
+  "independence": "Non-author of investigation/future source. Reviewer authored prior composition source/invocation and actual admission-failure audits. No candidate authored or native operation performed.",
+  "investigation": {
+    "path": "investigation.json",
+    "bytes": 9313,
+    "sha256": "062232ce76d114a214fa63d1c7d61b17e6f47816b7470cc93e697b6b9d143b06"
+  },
+  "decision": "Select explicit installed-format /1 migration as the minimal bounded next source repair for this exact nongenerated singleton. It is not an envelope-only change or general schema-equivalence claim. Inspected producer-consumer chain preserves the complete singleton emission, axiom and attestation census without unsupported all.",
+  "allowedDelta": [
+    "Replace notation body by coredata holding compact sorted-key canonical JSON, with no trailing payload bytes. Retain outer header/imports/title/glossaries.",
+    "Change spec from lexlean/core-module/2 to lexlean/core-module/1; omit only declarations[0].all, after asserting it equals exactly[declarations[0].name]. No other declaration metadata removal.",
+    "Retain789 nodes in exact order/values,15proof_nodes,imports,roots/endpoints,full name,kind,levels,type,value,class/generated/transparency,none policy and two Eq.trans proof. Runtime/config/language/limits unchanged.",
+    "Negative remains only nodes[776].n actual inner hAC versus actual unrelated0=0; both phases target mandatory original full O=R theorem."
+  ],
+  "sourceBasis": {
+    "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+    "installedBinary": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+    "provenance": "Tracked UPSTREAM construction identity, not independently reproducible binary build.",
+    "originalInvestigationArchivesRehashed": 3,
+    "originalEntriesRehashed": 9,
+    "reviewAdditions": [
+      {
+        "path": "migration-verifier-source.json.gz",
+        "bytes": 32005,
+        "sha256": "ca70929fe7fe33c71eb95ecff7ed8838335301cd2e7050d46a24ac5713408abd",
+        "rawBytes": 130341
+      },
+      {
+        "path": "migration-backend-source.json.gz",
+        "bytes": 22634,
+        "sha256": "894f2afc676a0c91e91f8ed0b4c737c885ab17a21168d9ab2407d9a51dc43085",
+        "rawBytes": 101963
+      },
+      {
+        "path": "migration-api-source.json.gz",
+        "bytes": 12013,
+        "sha256": "0c7e28b593f3cf516fdb5fe910244a8678402f1a5e3d9dfeeee98013395aab74",
+        "rawBytes": 52821
+      }
+    ],
+    "sourceCustody": "All archives and every embedded full-text byte count/SHA rehashed. Additions retain immutable official URLs/revision/text; no source checkout or compiler build."
+  },
+  "singletonAuditChain": [
+    {
+      "source": "backend/core.rs:588-641",
+      "fact": "environment_declarations includes all nongenerated rows. Sole generated=false theorem has no generated-owner/implementation exclusion and must be retained."
+    },
+    {
+      "source": "backend/core.rs:644-710",
+      "fact": "emission_order selects that singleton once. Imported proof constants are external, not missing local rows."
+    },
+    {
+      "source": "backend/core.rs:1061-1188,1201-1221",
+      "fact": "core_chunk keeps selected singleton and traces/remaps type/value nodes and proof markers. Independent traversal of both actual DAGs reaches all789nodes; all15markers remain. Single-declaration command range is retained, not split away."
+    },
+    {
+      "source": "backend/core.rs:819-855,1271-1299",
+      "fact": "Native emitter submits exact theorem type/value through Lean.addDecl; generated=false avoids early return. No unchecked theorem installation."
+    },
+    {
+      "source": "api.rs:264-276,357-372",
+      "fact": "RenderedModule.declaration_names explicitly extends environment_declarations(core), mapping exact full names. Singleton inventory is produced without all."
+    },
+    {
+      "source": "verify/mod.rs:996-1007; backend/lean.rs:2528-2557",
+      "fact": "Every module declaration list enters audit_modules; it sorts names and prints each exactly once, without filtering this singleton."
+    },
+    {
+      "source": "verify/axiom.rs:188-209; verify/mod.rs:1442-1471",
+      "fact": "Exact count/name/order checked; missing, extra and duplicate records rejected. Cross-member duplicates and total observed-count mismatch rejected."
+    },
+    {
+      "source": "verify/mod.rs:1521-1563,2291; ir/core.rs:263-305",
+      "fact": "Native loop enforces none as empty observed axioms and writes name/policy/observed/result into attestation declarations. Its absent-observed continue is not itself a completeness guarantee: producer and exact-output checks above establish singleton inclusion. Actual artifact audit must explicitly assert that inclusion."
+    }
+  ],
+  "otherSourceChecks": [
+    "grammar/structural.rs1104-1112 requires coredata; link.rs656-670 directly calls CoreModule::parse, without mapping native language1.2 to /2. Keep language1.2; actual admission remains untested.",
+    "ir/core.rs317-390 denies unknown fields, accepts /1 and supports proof_nodes. CanonicalSyntax requires compact sorted keys/no trailing bytes. all must be omitted, proof_nodes must remain.",
+    "Official example supplies format precedent only; its different axiom policy/language/limits do not transfer."
+  ],
+  "inMemoryEquivalence": {
+    "method": "Clone each exact intended core JSON, change spec and remove proven singleton all only. No candidate written. Independent prewrite checks found all789nodes reachable and negative/positive equal after restoring only nodes[776].n.",
+    "proposedCanonicalCorePins": [
+      {
+        "phase": "negative",
+        "bytes": 20932,
+        "sha256": "fbe370aeb1f7a7fa8a3f2a526bde35a32156542f8082fd72c9ad8fe5ad4f743f"
+      },
+      {
+        "phase": "positive",
+        "bytes": 20943,
+        "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+      }
+    ],
+    "meaning": "These are expected source-payload identities, not official parser or kernel acceptance."
+  },
+  "requiredGates": [
+    "Freeze separate source successor and equality audit: restoring /2 and singleton all must reproduce old intended JSON exactly. Independently review actual envelope/payload/imports and newly bound invocation. Preserve old malformed source packets and actual LLP2003 failure.",
+    "Actual source check must admit intended32inputs/28modules. Parser/schema/import/dependency/resource failures never count as intended negative.",
+    "Wrong-hAC negative first must actually reject at mandatory native root. Positive separately gated; no helper-only acceptance.",
+    "Positive artifact audit must confirm original O=R theorem type/value, exact singleton full name in expected audit inventory and attestation, none/empty observed axioms, all imported declarations, kernel replays and complete artifact/output/source/lock/tool identity.",
+    "Retain300000ms child timeout,4GiB/2CPU and fresh storage/idle/epoch/zeroevent checks. No compiler build/replacement or operational waiver. Earlier inner max46 failed gate remains preserved."
+  ],
+  "boundaries": "All migration checks, semantic negative and positive kernel/artifact results remain NOT_RUN. No general /2-to-/1 adapter approval, fullResult/ordinal26/Read33/component/PrismPM/Pages acceptance.",
+  "storage": {
+    "availableBytesBeforeReport": 26359472128,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 10240,
+    "rawAddedBytes": 285125,
+    "budget": "130341B within initial128KiB,101963B explicitly extended,52821B within later256KiB remaining-chain allowance. Retrieval stopped after api inventory producer closed chain.",
+    "prewriteHistory": [
+      "Initial retrieval helper rejected ambiguous require/top-level-await before fetch/write; corrected async wrapper.",
+      "First report serialization11723B exceeded10KiB; guard threw before report write (numeric assertion-message error). This smaller report is the only review file."
+    ]
+  },
+  "operations": "Read-only source/AST checks plus3compressed official UTF8 source additions and this bounded review. No candidate/native/SDK/VM/repository/index mutation."
+}
