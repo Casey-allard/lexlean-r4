@@ -1,0 +1,11 @@
+{
+  "status": "SOURCE_COMPATIBILITY_RED_OBSERVED",
+  "error": "expression if at inner.statement.right.branches.1.body",
+  "scope": "Original pinned Read33 translator rejects existing semantic if; not SDK or native proof negative",
+  "native": "NOT_RUN",
+  "priorAuthor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/author-read33.mjs",
+    "bytes": 17128,
+    "sha256": "3a7fa514e60b0341a8bbe6f1a0b3074d15cae6f9a4adbe9e6576f7590b403fcb"
+  }
+}

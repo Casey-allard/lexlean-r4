@@ -1,0 +1,242 @@
+{
+ "schema": "lexlean-r4-read-supported-boundary-successor/v1",
+ "status": "SOURCE_ONLY_REQUIRES_RENEWED_SPEC_ALL_NEW_NATIVE_NOT_RUN",
+ "at": "2026-10-24T10:24:15.421Z",
+ "author": "/root/construction_second_state_source",
+ "lineage": {
+  "original": {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-negative-dependency-investigation.json",
+   "bytes": 23459,
+   "sha256": "ae1149464cfd18050123c1a92f74d93918ca17063f386ee220d1ec55795600b3"
+  },
+  "rejection": {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-dependency-repair-spec-review.json",
+   "bytes": 5354,
+   "sha256": "5f987f4f04de4e47c400f963ef3439e7c019df6cdf3fbd6673ef94b86e6804c4"
+  },
+  "preserved": true
+ },
+ "semanticAssessment": {
+  "sources": [
+   {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/previous-sdk/r4-0865-semantic-ir.rs",
+    "bytes": 353541,
+    "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf",
+    "lines": "609-655 enum;7820-7872 Apply;7873-7904 Simplify;8053-8130 elimination"
+   },
+   {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/previous-sdk/r4-0865-semantic-backend.rs",
+    "bytes": 162725,
+    "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e",
+    "lines": "1105-1183 emitter"
+   }
+  ],
+  "finding": "No justified semantic-compatible empty-axiom composition found in this bounded review, not an impossibility claim. Apply accepts prior semantic proof rules; no Eq.trans/Have/Rewrite/Sequence constructor is exposed. Cases cannot eliminate Prop equality hypotheses. Congruence emits congr1 rather than a general theorem-composition sequence.",
+  "simplify": "Simplify can name both accepted equalities and emits simp only, so grammar alone does not exclude it. The retained Result probe observed propext under none policy; that is semantic-module/1/glossary1.1, not a fresh1.2 transitivity test. No authority to insert Simplify or relax emptyaxioms follows.",
+  "historicalProbe": [
+   {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/hash-object/lexlean-r4-object-proof-policy-observed-20261021/ObjectProofPolicyResult.lex.tex",
+    "bytes": 917,
+    "sha256": "add4886d45b42313c26265872be3ea38914f1cda48ee636dbf18e0ab9a175563"
+   },
+   {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/hash-object/lexlean-r4-object-proof-policy-observed-20261021/Result.log",
+    "bytes": 132,
+    "sha256": "1476ab3a254b736db0ec244a8c8e5309cd3b7018b5d40eebaa5da4369c9e7ca8"
+   }
+  ],
+  "remainingUnknown": "No new semantic diagnostic ran. Arithmetic/reflection are specialized operations and supply no established Result-equality composition here."
+ },
+ "interface": {
+  "authority": "Use exact installed0865 link.rs archive/entry pins and679-698 diagnosis in the preserved rejection; native declarations are absent from imported_semantic.",
+  "failureEdge": "Semantic ObjectWholeReadTransport Apply -> proposed native ObjectAdmittedRangeResult.",
+  "supportedCut": "Native A=C -> native inner congrArg -> already native composed result -> already native ReadControls. Runtime, context, connected-range and finishing certificates remain semantic.",
+  "changedFiles": [
+   {
+    "source": {
+     "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-admitted-range-result/candidate/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+     "bytes": 35487,
+     "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+    },
+    "change": "Ordinary core-module/1 theorem with same qualified name, parameters, exact original A=C type and emptyaxiom policy. Value is Eq.trans of accepted ObjectReadConnectedRange.objOriginalConnectedRange (A=B) and ObjectContextualRangeFinish.objOriginalContextualRangeFinish (B=C).",
+    "imports": [
+     "R4.ObjectRead",
+     "R4.ObjectTypes",
+     "ObjectReadConnectedRange",
+     "ObjectContextualRangeFinish"
+    ]
+   },
+   {
+    "source": {
+     "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-inner-connection/candidate/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+     "bytes": 72570,
+     "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+    },
+    "change": "Ordinary core-module/1 sole theorem with same qualified name and exact original statement. Value is congrArg ObjectWholeReadContext.ObjOuterWholeContext applied to the repaired admitted-range A=C theorem. Retain actual ObjWholeAdmitted left and original complete postrange right.",
+    "imports": [
+     "R4.Object",
+     "R4.ObjectRead",
+     "R4.ObjectTypes",
+     "R4.ObjectCodec",
+     "ObjectWholeReadContext",
+     "ObjectAdmittedRangeResult"
+    ]
+   },
+   {
+    "source": {
+     "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+     "bytes": 21425,
+     "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+    },
+    "change": "Remove ONLY unused ObjectWholeReadTransport import from both envelope and core.imports. All declarations/types/nodes/proof_nodes/policies unchanged.",
+    "sourceCheck": "No DAG constant or proof_node references ObjectWholeReadTransport. Leaving this import would still select the incompatible semantic consumer."
+   }
+  ],
+  "unchangedContext": {
+   "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+   "bytes": 77000,
+   "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+  },
+  "unselectedHistoricalTransport": {
+   "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+   "bytes": 1318,
+   "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+  },
+  "preservation": "Do not edit/delete historical transport. Omit it from newstage input map and selected closure; its role is replaced by explicit congrArg, no original Read proposition omitted. No other source or runtime/context representation migration."
+ },
+ "endpointChecks": {
+  "encoding": "Recursively sorted-key JSON of parsed canonical AST; all equalities independently checked here.",
+  "A": {
+   "canonicalJsonBytes": 22703,
+   "sha256": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc"
+  },
+  "B": {
+   "canonicalJsonBytes": 17003,
+   "sha256": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c"
+  },
+  "C": {
+   "canonicalJsonBytes": 12140,
+   "sha256": "7f0a72014dde20c0f0da31abef1529445760457527de299285924fcd738b06d8"
+  },
+  "admittedStatement": {
+   "canonicalJsonBytes": 34873,
+   "sha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d"
+  },
+  "innerStatement": {
+   "canonicalJsonBytes": 71888,
+   "sha256": "11fb9d0d02fc6cc15147bcff3ae7dbfb63991df04975b7903ab43892c6bf7ed4"
+  },
+  "connected": {
+   "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+   "bytes": 40403,
+   "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+  },
+  "finish": {
+   "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+   "bytes": 29808,
+   "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+  },
+  "exact": true,
+  "innerLeft": "Substitute original inner inputs into production ObjWholeAdmitted body and qualify same-module ObjRangeAdmitted at /scrutinee/function/module. This equals K(A) AST exactly; there is no evaluation of actual traversal in this source comparison.",
+  "innerRight": "Substitute C Result.ok payload for read in K ok branch (one constructor/iota step). This equals unchanged inner RHS AST exactly.",
+  "constructorAuthority": {
+   "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+    "bytes": 233421,
+    "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+   },
+   "EqTransLine": 397,
+   "congrArgLine": 424
+  },
+  "candidateRequirement": "Check exact semantic-to-native type mapping, ordinary core envelope, declared constants/universes and DAG against supported sources. Structural equations do not prove native cost, admission or emptyaxiom result."
+ },
+ "closure": {
+  "oldInputs": 33,
+  "oldSelected": 29,
+  "addedExistingSources": 19,
+  "omittedExistingSources": 1,
+  "newInputs": 51,
+  "newSelected": 47,
+  "omittedModule": "ObjectWholeReadTransport",
+  "changedInputContents": 3,
+  "addedAuthority": {
+   "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/source-bindings.json",
+   "bytes": 29730,
+   "sha256": "48f629b74d2cd64368c99f73ee1d87de0ca4c65b829dca81ab860fb78e35d527"
+  },
+  "addedPinsReference": "Exact19 addedDependencies in preserved original proposal; unchanged and rehashed again. Keep current Read config, not connected fixture config; official fresh lock later.",
+  "selectedModules": [
+   "HashWireDirect09Controls",
+   "ObjectAdmittedRangeResult",
+   "ObjectContextualFinishContext",
+   "ObjectContextualFinishTransport",
+   "ObjectContextualRangeFinish",
+   "ObjectManifestVersion",
+   "ObjectReadCompleteParent",
+   "ObjectReadConnectedRange",
+   "ObjectReadConnectedRangeContext",
+   "ObjectReadConnectedRangeTransport",
+   "ObjectReadControls",
+   "ObjectReadFinalChildState",
+   "ObjectReadFirstChildContinuation",
+   "ObjectReadFirstChildState",
+   "ObjectReadParent49",
+   "ObjectReadParent49AccountingState",
+   "ObjectReadParent49AuthenticatedFetch",
+   "ObjectReadParent49ConcreteChildEntry",
+   "ObjectReadParent49FetchContext",
+   "ObjectReadParent49FetchTransport",
+   "ObjectReadParent49VisitContext",
+   "ObjectReadParent49VisitTransition",
+   "ObjectReadParent49VisitTransport",
+   "ObjectReadRootTraversal",
+   "ObjectReadSecondChildContinuation",
+   "ObjectReadSecondChildState",
+   "ObjectWholeComposedResult",
+   "ObjectWholeDigest",
+   "ObjectWholeDigestContext",
+   "ObjectWholeDigestTransport",
+   "ObjectWholeInnerContinuation",
+   "ObjectWholeOuterConsumer",
+   "ObjectWholeOuterShell",
+   "ObjectWholePostrangeContext",
+   "ObjectWholePostrangeResult",
+   "ObjectWholePostrangeTransport",
+   "ObjectWholeReadContext",
+   "R4.Hash",
+   "R4.HashNat",
+   "R4.HashNatCore",
+   "R4.HashWire",
+   "R4.Object",
+   "R4.ObjectCodec",
+   "R4.ObjectRead",
+   "R4.ObjectStore",
+   "R4.ObjectTypes",
+   "R4.Words"
+  ],
+  "risk": "47selected modules versus29current, not the rejected48 estimate. All19 existing traversal dependencies need fresh verification. Explicit proofs may avoid the old final implicit conversion but may move cost into a larger closure. No performance, memory or success guarantee; no oldolean reuse/skip.",
+  "proofBoundary": "No remaining selected semantic consumer imports either migrated native theorem. The existing native composed and Read modules terminate the cut."
+ },
+ "nextSequence": {
+  "candidate": "After renewed independent SPEC, author only3changedsource files in fresh bounded candidate and reference shared inputs; preserve9drafts and original33proposition mapping. Independent sourceCODE and exact one-phase invocation review before execution.",
+  "negative": "Unchanged ordinal26-negative through repaired47-module closure. Require actual intended target LLV7002; source rejection, dependency timeout, axiom failure or postgate failure cannot count as intended negative.",
+  "positive": "Only after independent negative review run unchanged focused ordinal26-positive; independently inspect actual artifacts, exactnames/types/inputs, emptyaxioms and kernel replay.",
+  "full33": "Mandatory full33positive and independent actualartifact review remains required. Focused proof or helper pass cannot accept fullRead.",
+  "focusedDiagnostic": "A separate admitted-range-only diagnostic could isolate this composition, but is NOT part of this three-phase successor scope and requires separate review before invocation. No additional phase or generic framework is authorized here.",
+  "stop": "Any unexpectedfailure stops for classification. No equivalent retry/limit increase/axiom shortcut/trustedhash. Native cost and all new outcomes NOT_RUN."
+ },
+ "resources": {
+  "epoch": "Current max178 epoch remains ineligible under existingstrictzero gate. Preservefailure; any newepoch decision requires parentcapture/review, no automaticrestart/reset/waiver.",
+  "unchanged": "300000ms child/4GiB/2CPU; no concurrent SDK; host20GiB planning floor=10GiBpeak+10GiBreserve, guest11GiBpre10GiBpost.",
+  "freeHostBytes": "22965927936",
+  "reportBudgetBytes": 24576,
+  "noTemporaryCopies": true
+ },
+ "scope": {
+  "repositoryEdits": 0,
+  "nativeCalls": 0,
+  "newControlAcceptance": 0,
+  "currentAccepted": "331/403; fullHashmutationqualification/Object/PrismPMbinding/Pages stillopen.",
+  "authoringNote": "An initial in-memory structural assertion used JSON.stringify after adding a qualification key; key order caused mismatch before any write. Deep object comparison now verifies the exact structural equality, and report hashes use explicit sorted-key encoding."
+ }
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "lexlean-r4-read-composed-dependencies-code-review/v1",
+  "at": "2026-10-24T10:39:30.656845+00:00",
+  "reviewer": "/root/construction_second_state_code_review",
+  "verdict": "PASS_SOURCE_CODE_ONLY_NATIVE_NOT_RUN",
+  "candidate": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies",
+    "manifest": {
+      "bytes": 28727,
+      "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+    },
+    "payloads": 19,
+    "dependencies": 94,
+    "modifiedSources": [
+      {
+        "path": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+        "bytes": 21034,
+        "sha256": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f"
+      },
+      {
+        "path": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+        "bytes": 21348,
+        "sha256": "83e2a9ea9ec84e02a4ffacf2cf851746b035495365118659761112cb6d21d5f9"
+      },
+      {
+        "path": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+        "bytes": 22735,
+        "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+      }
+    ]
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-semantic-boundary-successor-spec-review.json",
+    "bytes": 6162,
+    "sha256": "65f69e3fa932cca644b46cd3399435265a72ff7da92713a3980be33b13925a2c"
+  },
+  "findings": [],
+  "independentActualChecks": {
+    "custody": "All19 payloads and94 dependency files directly rehashed before and after review. Candidate manifest unchanged. No missing/mismatching source pin.",
+    "method": "Read-only in-memory Python reconstruction of typed native expression trees from original semantic AST and actual production declaration signatures, independently compared with recursively decoded native DAG. Did not execute author-source.mjs or rely on author typed-mapping pass status. Source-only node translator probe described separately.",
+    "admitted": {
+      "nodeCount": 792,
+      "typeRoot": 761,
+      "valueRoot": 791,
+      "statement": "Independently reconstructed original exact A=C with Eq.{1} over Except.{0,0} ObjError ObjRangeVerified; exact decoded DAG equality passed.",
+      "proof": "Exact Eq.trans.{1} explicit type,A,B,C and two zero-argument proof constants ObjectReadConnectedRange.objOriginalConnectedRange and ObjectContextualRangeFinish.objOriginalContextualRangeFinish. Original A=B and B=C endpoints were independently deep-compared in SPEC. No supplied hash, computation oracle, unrelated proof or changed result.",
+      "policy": "Sole original qualified theorem name; no levels, no generated/class declaration, policy none, original no-parameter semantic theorem. proof_nodes points exactly to theorem value."
+    },
+    "inner": {
+      "nodeCount": 818,
+      "typeRoot": 799,
+      "valueRoot": 817,
+      "statement": "Independent exact lowering of both original endpoints passed: actual ObjWholeAdmitted invocation on left and complete original postrange match/Boolean-if on right. Right side is not replaced by an isolated context-call assertion.",
+      "proof": "Exact congrArg.{1,1} explicit input/output Result types,A,C,unchanged ObjOuterWholeContext and repaired admitted theorem. Context conversion AST obligations independently checked in SPEC, but actual Lean definitional equality is NOT_RUN.",
+      "policy": "Sole original qualified theorem name; no levels, no generated/class declaration, policy none. proof_nodes points exactly to theorem value."
+    },
+    "nativeStructure": "All node reference edges point backward to valid indices; theorem type/value trees have no free de Bruijn variables. Record fields/projections checked against production declarations; constructor arity, call parameter types, Except error/ok ordering, result type arguments, match branch binder types and motives checked. Canonical sorted-key core JSON and envelope/core import agreement checked for both new native modules.",
+    "composed": "Compared exact complete old/new source. Only removal of ObjectWholeReadTransport envelope line and corresponding core.imports entry. Every declaration/type/value, node, proof_node, universe and policy unchanged; there is no remaining transport constant anywhere in non-import payload.",
+    "phaseMaps": "Each ordinal26-negative, ordinal26-positive and read33-positive map directly rehashed:51 unique inputs,47 reachable selected modules. Exactly3 source content changes against the respective frozen Read map;19 exact existing additions; historical transport excluded from new stage only. Config/runtime/each existing control source byte-identical. No semantic importer references either new native theorem.",
+    "controlBoundary": "Original focused negative and focused positive retained by exact file hash; full33 positive retained by exact file hash. The existing ordinal26 wrong proof is not altered by this candidate. No current intended-negative or positive acceptance follows.",
+    "preservation": "All17 current source/draft pins and all17 archived snapshot pins match preservation.json at review; frozen Read inputs and manifest unchanged. No repository edits or staging by reviewer.",
+    "mapping": "Inspected gzip typed-mapping containing3749 records; independently reconstructed endpoint/proof DAGs rather than treating this author artifact as proof. No compiler output created."
+  },
+  "conditionalLowering": {
+    "sourceAuthority": {
+      "Prelude": "Installed pinned Prelude.lean.stdout SHA44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9 line1161: cond {alpha : Sort u} (c : Bool) (x y : alpha) : alpha, true/false match branches.",
+      "semanticIR": "Pinned semantic-ir.rs SHAe273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf lines7623-7629 requires Bool condition and matching branch type.",
+      "backend": "Pinned semantic-backend.rs SHAd747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e lines899-915 emits ordinary if without branch hypothesis, or Bool match with hypothesis."
+    },
+    "actualDAG": "cond.{1} with explicit exact Result ObjWholeVerified ObjError type, original Bool condition, exact original then and else branches in order. Independent typed source reconstruction verifies branch/condition typing and actual native arguments. No new invented core constructor, modified predicate or precomputed branch.",
+    "limitation": "Conversion of the preserved semantic Boolean-if elaboration to cond in this native theorem remains a genuine NOT_RUN kernel obligation. Equivalent branch intent does not establish definitional equality, performance, or avoidance of recomputation."
+  },
+  "predecessorEvidence": {
+    "inspectedAndRerun": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/predecessor-translator-probe-attempt3.mjs",
+    "scriptSha256": "829ce56b171858d2bbd197683c3c2dd8f94bea3f9094a581b52d97048de5b3c6",
+    "execution": "After reviewing top-level code for read-only behavior, ran exact attempt3 using node. Exit0; SOURCE_COMPATIBILITY_RED_OBSERVED with expression if at inner.statement.right.branches.1.body. No writer called, no fixture produced.",
+    "classification": "Source translator compatibility rejection only. Attempts1 and2 setup failures preserved, not target negatives. No native/compiler negative was run.",
+    "successor": "Independent full exact source-to-DAG reconstruction including preserved if completed successfully. Author planted typing checks were read, not claimed as independently rerun."
+  },
+  "remainingRequired": [
+    "Independent exact invocation review and separately reviewed resource epoch; current max178 epoch remains ineligible under strict-zero guards.",
+    "Real ordinal26-negative must reach intended target LLV7002 after all dependencies pass; any dependency timeout, source admission, axiom or postcondition failure must stop and be classified.",
+    "Only after accepted intended negative: focused positive actual artifact/type/axiom/kernel/postcondition review.",
+    "Full33 positive and independent actual artifact review remain mandatory for Read33 acceptance.",
+    "All19 added dependencies need fresh official verification; old source/proof provenance is not new closure acceptance.",
+    "Maintain300000ms child,4GiB,2CPU and all source/lock/tool/epoch/idle/storage gates. No limit increase, automatic retry, fabricated lock, reused old artifact acceptance or generic framework."
+  ],
+  "storage": {
+    "availableBytes": 21126701056,
+    "reserveBytes": 10737418240,
+    "nativePlanningFloorBytes": 21474836480,
+    "reportCapBytes": 20480,
+    "temporaryFixtureAllocationBytes": 0,
+    "note": "Read-only in-memory checks and one small external report only. Native launch requires its own fresh budget and all gates."
+  },
+  "actions": {
+    "officialCompilerCalls": 0,
+    "SDKCalls": 0,
+    "VMCalls": 0,
+    "repositoryWrites": 0,
+    "candidateWrites": 0,
+    "reportWrites": 1,
+    "hostProbeExecutions": 1
+  },
+  "acceptance": "SOURCE CODE ONLY. ALL_NEW_NATIVE_NOT_RUN;331/403 unchanged. No Read33/full Object, remaining Hash mutation qualification, production PrismPM/template binding or Pages acceptance."
+}
