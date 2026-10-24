@@ -1,0 +1,155 @@
+{
+  "schema": "lexlean-r4-admitted-range-results/v1",
+  "status": "PASS_ACTUAL_COMPLETE_ORIGINAL_ADMITTED_RANGE_RESULT_ONLY",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 2009,
+    "sha256": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 19292,
+    "sha256": "b638b5cac6abf96988c69593cb2143093690ae70455d8bb1ea355d8aa3ca6905"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/code-review.json",
+      "bytes": 5723,
+      "sha256": "8df4d6de5a81dd22746c81d61901344fa67e9549df88c03a8e1dffa316a12164"
+    },
+    "negative": {
+      "path": "evidence/negative/negative-native-review.json",
+      "bytes": 11474,
+      "sha256": "de2dd7727a3e262dae2b9d7dbd4dc46465794377e999337602075f36e8150db9"
+    },
+    "positive": {
+      "path": "evidence/positive/positive-native-review.json",
+      "bytes": 6708,
+      "sha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530"
+    }
+  },
+  "negative": {
+    "checkExit": 0,
+    "suppliedSourceModules": 15,
+    "selectedAdmittedModules": 13,
+    "sourceId": "c32e184191858db59d5e70924a83227637a3b375a25e74fcbb6a9927a342ebdf",
+    "semanticId": "faa9022991f0e5176aafa7f0ad644b9e42e569fc1adf0868fefa1bdc580c97a8",
+    "verifyExit": 1,
+    "code": "LLV7002",
+    "target": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+    "classification": "Intended negative candidate rejected at actual full admitted-range consumer Apply of accepted contextual finish theorem. Actual diagnostic preserves ObjRangeFinish on supplied theorem and ObjRangeAdmitted on expected goal, and stats184 versus185. This does not establish positive LHS definitional conversion or isolate mismatch causation to that field alone.",
+    "verifyStarted": "2026-10-24T02:26:13.367Z",
+    "verifyEnded": "2026-10-24T02:28:02.095Z",
+    "aggregateVerifyElapsedMs": 108728,
+    "finalModuleElapsedMs": null,
+    "artifacts": [],
+    "postcaptureErrors": [],
+    "reviewBoundary": "The negative alone neither establishes positive LHS conversion nor isolates mismatch causation to one field; the separately verified positive establishes actual conversion for this case.",
+    "lock": {
+      "path": "evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "90322909081ce2ddee6069f05082301834841eaabd071b22d551c0e39b897754"
+    },
+    "acceptedCustody": {
+      "path": "negative-accepted-custody.json",
+      "bytes": 963,
+      "sha256": "9696adee6565d2c8980d53fd2ad4958527abe83f0b7abef8025d91e9df2bcd16"
+    },
+    "positiveStatusAtNegativeReview": "NOT_RUN"
+  },
+  "positive": {
+    "attestationId": "04bd586bdb38f0b0effae7f8d6de2153561d38f1d507e2952b51b15a79a2b409",
+    "buildId": "c249b582023da690932bc4512b8b31399ba77da9746405ccfc869915b213e32c",
+    "sourceId": "9ab4665b30985b3860db4186b3c9ab8c75a06bf2e989f90f4d692df605c8700f",
+    "semanticId": "c44109c209a0c9a2f201b2e155e4e8166cfb176a51d2448205fb311558b56e4e",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T02:31:53.740Z",
+    "verifyEnded": "2026-10-24T02:36:43.244Z",
+    "aggregateVerifyElapsedMs": 289504,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "equation": "Actual original ObjRangeAdmitted(original four-entry backend, original manifest96, whole range, original limits) = Result.ok complete range result: original96 bytes, exact version, range, empty remainder, visits4/distinct4/wire184.",
+    "counts": {
+      "inputs": 19,
+      "suppliedSourceModules": 15,
+      "admittedModules": 13,
+      "rawFiles": 47,
+      "rawCommandReceipts": 41,
+      "extraReadOnlyResourceSamples": 3,
+      "artifactFiles": 135,
+      "buildOutputs": 65,
+      "oleans": 13,
+      "emptyAxiomDeclarations": 777,
+      "successfulProcesses": 40,
+      "kernelReplays": 13,
+      "auditProcesses": 13,
+      "theoremStatementListNatLiterals": 492
+    },
+    "selection": {
+      "suppliedButUnselected": [
+        "R4.Object",
+        "R4.ObjectStore"
+      ],
+      "actualModules": [
+        "ObjectAdmittedRangeResult",
+        "ObjectContextualFinishContext",
+        "ObjectContextualFinishTransport",
+        "ObjectContextualRangeFinish",
+        "ObjectManifestVersion",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ]
+    },
+    "resources": {
+      "hostBeforeBytes": "34571419648",
+      "hostAfterBytes": "34993147904",
+      "guestBeforeKiB": "52956604",
+      "guestAfterKiB": "52945960",
+      "reviewTimeHostAvailableBytes": 34158092288,
+      "sampleBoundary": "One read-only ps/memory/stats observation during verification (Lean RSS1063340KiB and container1.568GiB/4GiB); not continuous peak measurement or an efficiency claim."
+    },
+    "lock": {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "90322909081ce2ddee6069f05082301834841eaabd071b22d551c0e39b897754"
+    },
+    "acceptedCustody": {
+      "path": "positive-accepted-custody.json",
+      "bytes": 3342,
+      "sha256": "46356dd8a97979cb8599937dc9122ae3b8fe0e174625d1d88a597fc5ebc1971b"
+    }
+  },
+  "census": {
+    "arraySha256": "0fa39fbabb185818ec7d2e016ef950df133705a37c5ac54d90b5bf5417d86790",
+    "envelope": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 25598,
+      "sha256": "0c35cf13e5c9ad3cf00097a0641552e52f63b36d32855932c9684e8d2436af7f"
+    },
+    "distinction": "Compact ordered array digest and complete JSON envelope SHA are different serialization identities."
+  },
+  "limitations": [
+    "Acceptance is this original complete admitted-range Result only. Outer admission/whole-data hash/original Read33/full Object/full Hash/PrismPM/Pages remain open.",
+    "No new native replay was run; this is independent auditing of actual recorded compiler/kernel evidence.",
+    "Aggregate verification timing is not target-only runtime, cached-proof behavior, avoided recomputation or a general efficiency claim.",
+    "Original direct finish timeout and intended negative retain separate status and evidence; this result does not retroactively change them."
+  ],
+  "history": "Preparation NOT_RUN, pre-write selector failure and earlier pending custody stay byte-exact. Prior direct-finish and Read33/ordinal26 timeouts remain failed configurations. Current result does not retroactively accept those.",
+  "compressedRawAttestation": {
+    "path": "evidence/positive/attestation.json.gz",
+    "bytes": 11144,
+    "sha256": "e3253adac83fbb24f15454d312a40cfc3c492d2f75f7ef90fb3f94612b6380f6",
+    "encoding": "gzip",
+    "decodedBytes": 165839,
+    "decodedSha256": "e40982aaa83a2f9e8cd676809bf10803320832d2cf1ae3d2c6434e5ed66d1fdf",
+    "boundary": "Inert textual raw attestation retained losslessly for exact plan dependency; no compiled binary."
+  }
+}

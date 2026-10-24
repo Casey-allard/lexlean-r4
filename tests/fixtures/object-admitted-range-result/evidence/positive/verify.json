@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-admitted-range-result-range-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/ObjectAdmittedRangeResult.lex.tex"
+  ],
+  "started": "2026-10-24T02:31:53.740Z",
+  "ended": "2026-10-24T02:36:43.244Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/04bd586bdb38f0b0effae7f8d6de2153561d38f1d507e2952b51b15a79a2b409\"],\"attestation_id\":\"04bd586bdb38f0b0effae7f8d6de2153561d38f1d507e2952b51b15a79a2b409\",\"build_id\":\"c249b582023da690932bc4512b8b31399ba77da9746405ccfc869915b213e32c\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectAdmittedRangeResult\",\"ObjectContextualFinishContext\",\"ObjectContextualFinishTransport\",\"ObjectContextualRangeFinish\",\"ObjectManifestVersion\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"c44109c209a0c9a2f201b2e155e4e8166cfb176a51d2448205fb311558b56e4e\",\"source_id\":\"9ab4665b30985b3860db4186b3c9ab8c75a06bf2e989f90f4d692df605c8700f\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

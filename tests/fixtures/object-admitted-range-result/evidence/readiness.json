@@ -1,0 +1,40 @@
+{
+  "schema": "lexlean-r4-admitted-range-readiness/v1",
+  "status": "FROZEN_SOURCE_AND_INVOCATION_READY_FOR_INDEPENDENT_CODE_NATIVE_NOT_RUN",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/manifest.json",
+    "bytes": 2009,
+    "sha256": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/invocation-manifest.json",
+    "bytes": 2007,
+    "sha256": "e60f43c7c091e7c132c995a1e6a010470345cb1356be6eea2464638038b3bc96"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/invoke-admitted-range-result.mjs",
+    "bytes": 7710,
+    "sha256": "aea4eac295cd9a66b77c2d10d60510afd0920a239cf5de5109999f65d813ecc9"
+  },
+  "checks": {
+    "sourceAndInvocationPins": 47,
+    "inputsPerPhase": 19,
+    "suppliedSources": 15,
+    "staticReachableModules": 13,
+    "canonicalSemanticJson": true,
+    "exactReviewedPositiveNegativeWholeStatements": true,
+    "onlyExpectedWireMutation": true,
+    "unchangedRuntimeAnd17CurrentPins": true,
+    "nodeSyntaxCheck": {
+      "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/invoke-admitted-range-result.mjs",
+      "exitCode": 0,
+      "scope": "JavaScript syntax only; script not executed"
+    }
+  },
+  "preparationFailure": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/preparation-observation.json",
+    "bytes": 984,
+    "sha256": "02b01473fc099a800e416096347502a1612586632be7628b51e10709e77734fb"
+  },
+  "boundary": "Official check, intended fullconsumer negative and actual positive all NOT_RUN. Direct Apply may require expensive conversion; no cached result, explicit rewrite/transitivity or runtime-cost acceptance."
+}

@@ -1,0 +1,44 @@
+{
+  "samples": [
+    {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,etime,rss,args"
+      ],
+      "started": "2026-10-24T02:34:29.936Z",
+      "ended": "2026-10-24T02:34:33.233Z",
+      "status": 0,
+      "stdout": "    PID COMMAND             ELAPSED   RSS COMMAND\n      1 sh                 06:12:09  1544 /bin/sh -c sleep infinity\n      7 sleep              06:12:09  1580 sleep infinity\n  16326 lexlean               02:38 163080 lexlean --diagnostic-format json verify tests/lexlean/ObjectAdmittedRangeResult.lex.tex\n  16507 lake                  01:51 106288 /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env lean -R /tmp/r4-object-admitted-range-result-range-positive-owned-20261023/.lexlean/verified/.staging-z5pSVE/lean-src -o /tmp/r4-object-admitted-range-result-range-positive-owned-20261023/.lexlean/verified/.staging-z5pSVE/oleans/LexLeanR4/ObjectAdmittedRangeResult.olean /tmp/r4-object-admitted-range-result-range-positive-owned-20261023/.lexlean/verified/.staging-z5pSVE/lean-src/LexLeanR4/ObjectAdmittedRangeResult.lean\n  16512 lean                  01:51 1063340 lean -R /tmp/r4-object-admitted-range-result-range-positive-owned-20261023/.lexlean/verified/.staging-z5pSVE/lean-src -o /tmp/r4-object-admitted-range-result-range-positive-owned-20261023/.lexlean/verified/.staging-z5pSVE/oleans/LexLeanR4/ObjectAdmittedRangeResult.olean /tmp/r4-object-admitted-range-result-range-positive-owned-20261023/.lexlean/verified/.staging-z5pSVE/lean-src/LexLeanR4/ObjectAdmittedRangeResult.lean\n  16518 ps                    00:01  3644 ps -eo pid,comm,etime,rss,args\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T02:34:33.237Z",
+      "ended": "2026-10-24T02:34:38.633Z",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "stats",
+        "--no-stream",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "started": "2026-10-24T02:34:38.633Z",
+      "ended": "2026-10-24T02:34:40.162Z",
+      "status": 0,
+      "stdout": "CONTAINER ID   NAME                     CPU %     MEM USAGE / LIMIT   MEM %     NET I/O   BLOCK I/O       PIDS\ncbd8cf8ac724   lexlean-r4-current-sdk   118.35%   1.568GiB / 4GiB     39.21%    0B / 0B   490MB / 433MB   16\n",
+      "stderr": ""
+    }
+  ],
+  "boundary": "Read-only sample, not peak measurement or completed proof."
+}

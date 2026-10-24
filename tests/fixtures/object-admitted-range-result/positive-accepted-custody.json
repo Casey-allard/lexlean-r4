@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-admitted-range-positive-accepted-custody/v1",
+  "status": "ACTUAL_COMPLETE_ADMITTED_RANGE_ACCEPTED_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive-native-review.json",
+        "bytes": 6708,
+        "sha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/positive/positive-native-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive-artifact-census.json",
+        "bytes": 25598,
+        "sha256": "0c35cf13e5c9ad3cf00097a0641552e52f63b36d32855932c9684e8d2436af7f"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/positive-artifact-census.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact/build-manifest.json",
+        "bytes": 15948,
+        "sha256": "5491cf9ffb8c48b1efc1ab8225fc13c2162458c4930f20881515f09b51e2ef50"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/positive/build-manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact/audit/output.txt",
+        "bytes": 53961,
+        "sha256": "95452acd928b6f3009cd72e3d097f8bbdac73ec0a49e44d88bc920fde4206bd9"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/positive/audit-output.txt"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact/modules/LexLeanR4/ObjectAdmittedRangeResult.lean",
+        "bytes": 7195,
+        "sha256": "2cbb02ba9f7c28bb06151b158d490269ec916cf869b9a1dd538fcee7169a09c3"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/positive/ObjectAdmittedRangeResult.lean"
+    }
+  ],
+  "pendingRawCustody": {
+    "path": "tests/fixtures/object-admitted-range-result/positive-raw-custody.json",
+    "bytes": 10709,
+    "sha256": "db252f7580871e035fd0478b71a0daf3dbbca7bfeebbbc04b080dd98e517ac06"
+  },
+  "derivedSummary": {
+    "path": "tests/fixtures/object-admitted-range-result/evidence/positive/derived-attestation-summary.json",
+    "bytes": 1578,
+    "sha256": "b7417d1e3ff57b7064e636c5cd1ac342c005018c64e6aef837feb90150264b11"
+  },
+  "fullArtifact": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact",
+    "files": 135,
+    "ordinalArraySha256": "0fa39fbabb185818ec7d2e016ef950df133705a37c5ac54d90b5bf5417d86790",
+    "portableCensus": {
+      "path": "tests/fixtures/object-admitted-range-result/evidence/positive-artifact-census.json",
+      "bytes": 25598,
+      "sha256": "0c35cf13e5c9ad3cf00097a0641552e52f63b36d32855932c9684e8d2436af7f"
+    }
+  },
+  "boundary": "Earlier pending custody remains immutable. No full whole-read, data-hash comparison, allRead33 or component acceptance."
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "lexlean-r4-derived-attestation-summary/v1",
+  "status": "DERIVED_SUMMARY_NOT_RAW_ATTESTATION",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact/attestation.json",
+    "bytes": 165839,
+    "sha256": "e40982aaa83a2f9e8cd676809bf10803320832d2cf1ae3d2c6434e5ed66d1fdf"
+  },
+  "attestationId": "04bd586bdb38f0b0effae7f8d6de2153561d38f1d507e2952b51b15a79a2b409",
+  "buildId": "c249b582023da690932bc4512b8b31399ba77da9746405ccfc869915b213e32c",
+  "sourceId": "9ab4665b30985b3860db4186b3c9ab8c75a06bf2e989f90f4d692df605c8700f",
+  "semanticId": "c44109c209a0c9a2f201b2e155e4e8166cfb176a51d2448205fb311558b56e4e",
+  "counts": {
+    "inputs": 19,
+    "suppliedSourceModules": 15,
+    "admittedModules": 13,
+    "rawFiles": 47,
+    "rawCommandReceipts": 41,
+    "extraReadOnlyResourceSamples": 3,
+    "artifactFiles": 135,
+    "buildOutputs": 65,
+    "oleans": 13,
+    "emptyAxiomDeclarations": 777,
+    "successfulProcesses": 40,
+    "kernelReplays": 13,
+    "auditProcesses": 13,
+    "theoremStatementListNatLiterals": 492
+  },
+  "review": {
+    "path": "tests/fixtures/object-admitted-range-result/evidence/positive/positive-native-review.json",
+    "bytes": 6708,
+    "sha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530"
+  },
+  "boundary": "Full actual binary artifact and raw attestation remain local; complete exact census and selected text are portable. Values summarized from exact independently audited evidence, not a replacement proof."
+}

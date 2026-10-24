@@ -1,0 +1,46 @@
+{
+  "schema": "lexlean-r4-next-whole-read-history-custody/v1",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/next-whole-read-proposal-bound.json",
+        "bytes": 12614,
+        "sha256": "e16fa93f9386b23e9122b8681244ed4dba4882b6a34c85d9eb64abe849f3b8c9"
+      },
+      "destination": "docs/continuation/2026-10-23/next-whole-read-continuation-proposal.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/next-whole-read-spec-review.json",
+        "bytes": 8694,
+        "sha256": "7943da3a2d7199b6235ffe1e77cafcf4aa22bf93f562aee268223ab0aae77b87"
+      },
+      "destination": "docs/continuation/2026-10-23/next-whole-read-continuation-spec-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/next-outer-range-proposal.json",
+        "bytes": 11705,
+        "sha256": "4d0fc86a77715115760e3a46894c23e2c55f896581ff72a4481c1e7fe049f590"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/next-whole-read-conditional-history.json"
+    }
+  ],
+  "compressedCopy": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact/attestation.json",
+      "bytes": 165839,
+      "sha256": "e40982aaa83a2f9e8cd676809bf10803320832d2cf1ae3d2c6434e5ed66d1fdf"
+    },
+    "destination": {
+      "path": "tests/fixtures/object-admitted-range-result/evidence/positive/attestation.json.gz",
+      "bytes": 11144,
+      "sha256": "e3253adac83fbb24f15454d312a40cfc3c492d2f75f7ef90fb3f94612b6380f6"
+    },
+    "encoding": "gzip",
+    "decodedBytes": 165839,
+    "decodedSha256": "e40982aaa83a2f9e8cd676809bf10803320832d2cf1ae3d2c6434e5ed66d1fdf",
+    "roundtripExact": true,
+    "boundary": "Inert raw textual evidence compressed losslessly; no compiled binary or executable artifact."
+  }
+}

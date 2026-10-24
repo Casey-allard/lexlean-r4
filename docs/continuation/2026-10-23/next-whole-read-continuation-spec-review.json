@@ -1,0 +1,86 @@
+{
+  "schema": "lexlean-r4-next-original-whole-read-spec-review/v1",
+  "status": "PASS_BOUNDED_SOURCE_DESIGN_ONLY_CANDIDATE_AND_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T02:41:35.393Z",
+  "authorIndependence": "Non-author of conditional proposal or bound successor. Reviewer authored the prior admitted-range source/native audits; rechecked their exact pins and actual prerequisite identities here. No new native execution.",
+  "findings": [],
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/next-whole-read-proposal-bound.json",
+    "bytes": 12614,
+    "sha256": "e16fa93f9386b23e9122b8681244ed4dba4882b6a34c85d9eb64abe849f3b8c9"
+  },
+  "preservedConditionalHistory": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/next-outer-range-proposal.json",
+    "bytes": 11705,
+    "sha256": "4d0fc86a77715115760e3a46894c23e2c55f896581ff72a4481c1e7fe049f590"
+  },
+  "actualPrerequisite": {
+    "result": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/result.json",
+      "bytes": 1121,
+      "sha256": "33d4f41690b43962d179b59e09a3ba8859cc08b9b0cdafa50d7f818e95f8de1e"
+    },
+    "nativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive-native-review.json",
+      "bytes": 6708,
+      "sha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530"
+    },
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/artifact/attestation.json",
+      "bytes": 165839,
+      "sha256": "e40982aaa83a2f9e8cd676809bf10803320832d2cf1ae3d2c6434e5ed66d1fdf"
+    },
+    "attestationId": "04bd586bdb38f0b0effae7f8d6de2153561d38f1d507e2952b51b15a79a2b409",
+    "status": "PASS_ACTUAL_COMPLETE_ADMITTED_RANGE_RESULT_ONLY"
+  },
+  "reconstruction": {
+    "canonicalEncoding": "Recursive ordinal object-key sort, ordered arrays, JSON.stringify SHA256",
+    "controlOrdinal": 26,
+    "controlName": "objProtocolWholeBytes",
+    "controlStatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "leftSha256": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "rightSha256": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+    "statementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "sourceDeclarationSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+    "instantiatedBodySha256": "33fb656f83a645f7cb78f2fb2d0f9fc08a97c860706b4e7c23a298ebf185eb8b",
+    "holeOriginalQualifiedSha256": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "contextBodySha256": "2eee974fe42d7ec8d13174d340d28c497220fa0ed45cc8cb37322d17f91f900e",
+    "backendSha256": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "manifestSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "limitsSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "admittedRangeStatementSha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d",
+    "completeRangeRecordSha256": "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+    "wholeReadDeclarationSha256": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+    "outerGuard": "ObjWholeRead production body still calls ObjAdmitManifest, preserves its errors, evaluates ObjRawKeysValid(view,Option.none), rejects invalid keys, and calls ObjWholeAdmitted with the actually admitted manifest."
+  },
+  "checks": {
+    "bindingDelta": "Only status, actual result/native-review prerequisite pins and boundary, conditionalHistory and bindingDelta differ from preserved conditional proposal. Exact goal, context, proof route, negative, resources and remaining scope unchanged.",
+    "sourceAuthority": "Rehashed all four runtime/control source pins, prerequisite source/manifest/CODE, accepted actual result/native review, and supported proof precedent. Original declaration ordinal26 and original backend/manifest/limits match every stated canonical hash.",
+    "exactGoal": "Independently extracted original control statement.left.scrutinee, the actual R4.Object.ObjWholeRead call. Instantiated production ObjWholeAdmitted.body with exact original view/manifest/limits; extracted successful-range branch and substituted only bound read with actual complete range record. All14 proposed structural hashes reproduced exactly.",
+    "context": "Reconstructed one-hole context replacing only top-level range scrutinee by rangeResult. Restoring original accepted range LHS with only redundant R4.ObjectRead module qualification removed reproduces the complete instantiated body exactly. No unqualified local calls remain in extracted context. Bound failure/read/digest variables and typed Result branches preserved.",
+    "actualHash": "RHS retains real R4.ObjectCodec.ObjHashBytes over complete range bytes, matches actual hash Result, compares bytes with unchanged original manifest.digest using ObjBytesEqual, preserves hash-error and integrityFailure branches, and constructs complete whole bytes/version/stats only on success. No precomputed digest, unconditional success or original projected-bytes theorem asserted.",
+    "outerAdmission": "Mandatory LHS remains original ObjWholeRead. Its production definition still performs ObjAdmitManifest, propagates errors, tests ObjRawKeysValid(view,None), handles invalid keys and calls ObjWholeAdmitted with the admitted manifest. None of these gates is erased; actual conversion is still unproved.",
+    "proofShape": "Supported predecessor has Nat induction, base Apply, successor Cases prior and Congruence in both cases. The proposed Nat-indexed Prop family has exact admitted-range equality at zero and H(left)=H(right) at successors. Different equality operand types are contained within Prop. Full consumer Applies lifted theorem at Nat1; no unsupported transitivity, rewrite, simplification or raw tactic introduced.",
+    "negative": "One wrong zero-Apply target with identical unrelated0=0 theorem in both variants. All goals/context/runtime/data/digest/resources remain identical. Actual selected full-consumer verification may reject dependency transport first; this is not consumer elaboration and must be labeled accordingly.",
+    "scope": "This is a direct next connection along original ordinal26 call path. Public sibling ObjRangeRead wrapper is not needed to establish this selected equation. Candidate must retain complete inherited closure and explicit Result types/import qualification; actual module count must come from official admission."
+  },
+  "requirements": [
+    "Freeze actual candidate, exact input/config/import census and unchanged source identities, then independent CODE review before execution.",
+    "Run intended negative first with original300000ms child/4GiB2CPU and all fresh source/tool/lock/epoch/idle/zero-event/storage/postcapture gates. Admission failure, timeout or OOM cannot count as intended negative.",
+    "Only after intended negative acceptance and fresh gates run the mandatory original ObjWholeRead consumer; helper-only acceptance is insufficient. Independently audit full actual artifact, processes, kernel replays, axioms and postconditions.",
+    "Preserve original negative/failure evidence. No automatic equivalent retry, limit increase, assumed memoization, precomputed hash or unreviewed strategy switch.",
+    "Genuine whole96 hashing/digest success, complete successful whole Result and original ordinal26 projection, all33 controls, ten drafts, full Hash, PrismPM and Pages remain required."
+  ],
+  "nativeStatus": "ALL_NEXT_CANDIDATE_CHECKS_AND_NATIVE_TESTS_NOT_RUN",
+  "limitations": [
+    "Supported source shape and exact structural reconstruction do not establish native conversion, completion, bounded runtime or empty observed axioms for a future candidate.",
+    "The proposed equation ends in the real hash/digest continuation; it does not yet assert successful whole read or original projected output.",
+    "Prior admitted-range aggregate timing does not establish caching or cost for this step."
+  ],
+  "storage": {
+    "availableBytes": 32249380864,
+    "additionalOutputBoundBytes": 20480
+  },
+  "mutations": "Only this bounded external review JSON. No candidate, native, repository, index, VM or other-lab changes."
+}
