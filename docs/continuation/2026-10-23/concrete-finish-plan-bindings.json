@@ -1,0 +1,89 @@
+{
+  "schema": "lexlean-r4-concrete-finish-portable-plan-bindings/v1",
+  "status": "REVISED_DESIGN_SPEC_PASS_NATIVE_NOT_RUN",
+  "proposal": {
+    "path": "docs/continuation/2026-10-23/next-concrete-finish-proposal.json",
+    "bytes": 10218,
+    "sha256": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae"
+  },
+  "spec": {
+    "path": "docs/continuation/2026-10-23/next-concrete-finish-spec-review.json",
+    "bytes": 7095,
+    "sha256": "704495a76355899efc1b9a5ad57f70d7ae7081088f4660d103b7bc485a1420a9"
+  },
+  "aliases": [
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "repositoryPath": "tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/result.json",
+      "repositoryPath": "tests/fixtures/object-manifest-version/evidence/positive/result.json",
+      "bytes": 945,
+      "sha256": "cc9ba15698e11d2cfdb0901525b07c30f08c0126cec29b88732b8c08d04cf4c5"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive-native-review.json",
+      "repositoryPath": "tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+      "bytes": 7429,
+      "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-manifest-version-proposal.json",
+      "repositoryPath": "docs/continuation/2026-10-23/next-manifest-version-proposal.json",
+      "bytes": 11217,
+      "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-manifest-version-spec-review.json",
+      "repositoryPath": "docs/continuation/2026-10-23/next-manifest-version-spec-review.json",
+      "bytes": 5722,
+      "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "repositoryPath": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "repositoryPath": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/next-concrete-finish-proposal.json",
+      "repositoryPath": "tests/fixtures/object-manifest-version/evidence/next-concrete-finish-proposal-review-pending.json",
+      "bytes": 9136,
+      "sha256": "0399200b274994612385083152dc2ad6183771fcd813651a1440dbd7d79dc8f7"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/next-concrete-finish-proposal-bound.json",
+      "repositoryPath": "docs/continuation/2026-10-23/next-concrete-finish-proposal.json",
+      "bytes": 10218,
+      "sha256": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae"
+    }
+  ],
+  "boundary": "Direct Reflexivity is an explicitly reviewed replacement for the former conditional contextual Apply1 design. No concrete finish candidate or native result is established. Original null and earlier design records remain byte-exact."
+}

@@ -1,0 +1,267 @@
+{
+  "schema": "lexlean-r4-manifest-version-positive-custody/v1",
+  "status": "ACCEPTED_SPECIFIC_FULL_MANIFEST_VERSION_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/check.json",
+        "bytes": 849,
+        "sha256": "2e9cabad972ff527f8d1d90710bb849cf883088459874c9270b84bb5642b73d0"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/check.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/verify.json",
+        "bytes": 1158,
+        "sha256": "5564583027a230a4cff1ba65491e311a40104a809651c92951b0054135de75a4"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/verify.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/result.json",
+        "bytes": 945,
+        "sha256": "cc9ba15698e11d2cfdb0901525b07c30f08c0126cec29b88732b8c08d04cf4c5"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/result.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/expected-inputs.json",
+        "bytes": 5249,
+        "sha256": "d33c32a6beb6a0ac56992c11dfc9de4da313d18440e802993148b25da0e187b1"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/expected-inputs.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/source-before.json",
+        "bytes": 3993,
+        "sha256": "f437fe2d810226faa9e89c853ecb0b6b9559b5376b4d7eccb28a16ce6061c123"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/source-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/source-after.json",
+        "bytes": 3993,
+        "sha256": "038bc6309443a0c72aa5253b836f31824990f2ed0815c09462f697f331106f06"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/source-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/lock.json",
+        "bytes": 541,
+        "sha256": "6d1fca41492cdc4c3156f8083c6f9ff47417214e9720975198e166a4faa0f2d0"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/lock.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/lock-bytes.json",
+        "bytes": 2057,
+        "sha256": "9358ff9fc23143cd9f797e2f88efe81022bbcc9096352ff37b9eb19a76d3721c"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/lock-bytes.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/lock-after.json",
+        "bytes": 493,
+        "sha256": "7ac430d26e384ee561b772107cc8b37eb18ded73c123ad29c550750722c2db82"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/lock-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/tools-before.json",
+        "bytes": 1005,
+        "sha256": "a0280234d330829c48ea5c19ab70b267297269330af14e8c5f527e4eaf278593"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/tools-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/tools-after.json",
+        "bytes": 1005,
+        "sha256": "f3973e615cefc990999e2c087a445600e6fa7ad7dd5d9707ce770263d190ac85"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/tools-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/epoch-before.json",
+        "bytes": 470,
+        "sha256": "f63b37f013392f1c8541d763bea1c76d7c9b5b88fc70111c25a52780d3a4a18b"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/epoch-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/epoch-after.json",
+        "bytes": 470,
+        "sha256": "a10e55c6ed8c3f5ce633ac5511a48d859f3786eef93f1ac2a8d3da3b6a95c075"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/epoch-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/memory-before.json",
+        "bytes": 354,
+        "sha256": "1af3d96c435194a55c06da967fd3ca755ea78460e55f6168b9ddb6219dcaf2bb"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/memory-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/memory-after.json",
+        "bytes": 354,
+        "sha256": "cd5961fc26a4fe6ba2be00566b7ceff8eaa1358591ec310702534937b5035aae"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/memory-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/idle-before.json",
+        "bytes": 460,
+        "sha256": "eb405799d588477633a5af6d4abd952b21159fc7854bd5b5fa4a62e35297e344"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/idle-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/idle-after.json",
+        "bytes": 460,
+        "sha256": "54a1f0d52b07e3ce0a8405b81956338cea98d924eb1498808dd82e9c243be7f8"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/idle-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/host-before.json",
+        "bytes": 152,
+        "sha256": "7fae8aea2473f47ff3b58aeb14d9514e6bf3a5103f734f6776704ecdd3bb747b"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/host-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/host-after.json",
+        "bytes": 142,
+        "sha256": "7c9344ea10b6c4fe00c56709f7035400807423619c43f481570db252680a19f3"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/host-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/guest-before.json",
+        "bytes": 406,
+        "sha256": "0e4c81eac9c660181a69c485e7394737b60d1c8b2eff59ebbb6d26fdb07bc74f"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/guest-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/guest-after.json",
+        "bytes": 406,
+        "sha256": "672809f5af090d345f1f1a42ae4ab74bbedb1d0b5b6ceccabd0a6200004db578"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/guest-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/postcapture-errors.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive-native-review.json",
+        "bytes": 7429,
+        "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive-artifact-census.json",
+        "bytes": 15803,
+        "sha256": "21e81f83e8afa5b7e0f32919aa7025e3977fe95b30ce7801e26efc3a8f97dcaf"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive-artifact-census.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/artifact/build-manifest.json",
+        "bytes": 9851,
+        "sha256": "22945f9b798f073cde49cfd432bc4524172b54f5d49a371ca91cff692a05256f"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/build-manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/artifact/modules/LexLeanR4/ObjectManifestVersion.lean",
+        "bytes": 1667,
+        "sha256": "5a4a4c9466c823bf8f91ff3dc7f74f7469b160678ff5535105bb18040533c4d4"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/ObjectManifestVersion.lean"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/artifact/audit/output.txt",
+        "bytes": 51196,
+        "sha256": "bd97d75338f7095fe07778369ac1ce3d4116ded9fb8b8cb493ba50207c814435"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/positive/audit-output.txt"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/next-concrete-finish-proposal.json",
+        "bytes": 9136,
+        "sha256": "0399200b274994612385083152dc2ad6183771fcd813651a1440dbd7d79dc8f7"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/next-concrete-finish-proposal-review-pending.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/next-concrete-finish-proposal-bound.json",
+        "bytes": 10218,
+        "sha256": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae"
+      },
+      "destination": "tests/fixtures/object-manifest-version/evidence/next-concrete-finish-proposal-bound.json"
+    }
+  ],
+  "derivedLock": {
+    "sourceReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/lock-bytes.json",
+      "bytes": 2057,
+      "sha256": "9358ff9fc23143cd9f797e2f88efe81022bbcc9096352ff37b9eb19a76d3721c"
+    },
+    "operation": "Exact captured stdout bytes",
+    "destination": "tests/fixtures/object-manifest-version/evidence/positive/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "b0ed68fa9d03da0f2cd22d4b72f89ec1f3ac6ab031aae6dfcb9e14af5c0c3c8b"
+  },
+  "artifactCensus": {
+    "files": 85,
+    "ordinalArraySha256": "036cf0650c3a6273953c9bbea2f44cf9945f3939b08d1f61308f20d30655b17e",
+    "portableEnvelope": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/evidence/positive-artifact-census.json",
+      "bytes": 15803,
+      "sha256": "21e81f83e8afa5b7e0f32919aa7025e3977fe95b30ce7801e26efc3a8f97dcaf"
+    },
+    "independentlyRehashedForCopy": true
+  },
+  "budget": {
+    "hostAvailableBytes": "32184016896",
+    "allocatedBefore": 241664,
+    "conservativeFinalEstimateBytes": 692224,
+    "limitBytes": 1048576
+  },
+  "omissions": "All original raw receipts and complete artifact remain local. No binaries, oleans, full attestation or entire imported-source build tree copied. Per-file staging receipts and allocation/swap/redundant directory receipts omitted from portable selection.",
+  "boundary": "11 source files supplied,8 modules selected and verified. This specific manifest fullResult only; no concrete finish or whole Read33 acceptance."
+}

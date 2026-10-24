@@ -1,0 +1,13 @@
+{
+  "schema": "lexlean-r4-manifest-version-code-review-custody/v1",
+  "status": "INDEPENDENT_SOURCE_CODE_REVIEW_PASS_NATIVE_OUTCOMES_NOT_CLAIMED",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/candidate-invocation-code-review.json",
+      "destination": "tests/fixtures/object-manifest-version/evidence/candidate-invocation-code-review.json",
+      "bytes": 6489,
+      "sha256": "537af4f04e20fc585dc31e7b0ff3f7ed0790869708525e6378b4ed015032e49f"
+    }
+  ],
+  "boundary": "Source and invocation review only. No active phase outputs read or copied; no native outcome or proof acceptance is claimed."
+}

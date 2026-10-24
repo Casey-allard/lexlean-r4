@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-manifest-version-version-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/ObjectManifestVersion.lex.tex"
+  ],
+  "started": "2026-10-24T01:28:57.019Z",
+  "ended": "2026-10-24T01:29:35.771Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/41433579dc4290c00d87ad7cd8e9508962de842d1844f3456750854a4dcf2370\"],\"attestation_id\":\"41433579dc4290c00d87ad7cd8e9508962de842d1844f3456750854a4dcf2370\",\"build_id\":\"f3b637fe0f5e64b0022af1d708d575a13beee8bc701a2ca593124b96eb0e2069\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectManifestVersion\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"ff8a52d9c27855415f63fd0a5ac561018467c8a1941b410946dee6d83eb2e1cd\",\"source_id\":\"61fb062c8ab6635428ab396861ee107a9e3f73654133077bc4c6a21f0b02a17f\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

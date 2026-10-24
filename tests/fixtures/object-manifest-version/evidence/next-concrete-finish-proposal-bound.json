@@ -1,0 +1,154 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-revised-proposal/v1",
+  "status": "SOURCE_ONLY_REVISED_DESIGN_REQUIRES_INDEPENDENT_SPEC_TESTS_NOT_RUN",
+  "prerequisite": {
+    "versionSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    "actualVersionResult": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/result.json",
+      "bytes": 945,
+      "sha256": "cc9ba15698e11d2cfdb0901525b07c30f08c0126cec29b88732b8c08d04cf4c5"
+    },
+    "independentVersionNativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive-native-review.json",
+      "bytes": 7429,
+      "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+    },
+    "boundary": "Actual version independently accepted locally; proposed concrete finish and revised direct Reflexivity design remain NOT_RUN and require independent SPEC.",
+    "attestationId": "41433579dc4290c00d87ad7cd8e9508962de842d1844f3456750854a4dcf2370"
+  },
+  "revision": {
+    "originalProposal": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-manifest-version-proposal.json",
+      "bytes": 11217,
+      "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+    },
+    "originalSpec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-manifest-version-spec-review.json",
+      "bytes": 5722,
+      "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+    },
+    "unchanged": "Exact full ObjRangeFinish equation, original state/manifest/range/limits, real version computation, empty axioms and limits.",
+    "changed": "Propose one direct Reflexivity theorem instead of the previously conditional contextual Nat/Induction/Cases/Congruence/Apply1 transport. Change intended negative from wrong base Apply to expected visitedRecordBytes184→185. This is an explicit source-design revision requiring independent SPEC; it does not amend the original records.",
+    "rationale": "Direct Reflexivity is already supported and evaluates the full production result, including actual admission, encoding and hash. It avoids additional context/transport modules while retaining the mandatory concrete finish consumer. No speedup, cached certificate or cost transfer is claimed."
+  },
+  "statement": {
+    "text": "ObjRangeFinish(S184, originalManifest96, originalWholeRange, originalLimits) = Result.ok (ObjRangeVerified {bytes=original96,version=originalVersion,range=originalWholeRange,remainder=[],stats={visits=4,distinctRecords=4,visitedRecordBytes=184}})",
+    "positiveCanonicalSha256": "e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4",
+    "negativeCanonicalSha256": "9cbc34fbf69ba2c9b3d576c8de9ec5d49656ac32ce31dd5e88d65d6c10cd5d51",
+    "leftCanonicalSha256": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+    "rightCanonicalSha256": "7f0a72014dde20c0f0da31abef1529445760457527de299285924fcd738b06d8",
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    "extraction": "LHS is exactly accepted connected-range declaration0.statement.right. State, manifest, range and limits are its unchanged four arguments. RHS follows ObjRangeFinish success record field order and actual ObjRangeVerified/ObjReadStats types.",
+    "proof": {
+      "kind": "reflexivity"
+    },
+    "axioms": [],
+    "negative": {
+      "path": "statement.right.arguments[0].fields[4].value.fields[2].value.value",
+      "positive": "184",
+      "negative": "185",
+      "boundary": "Only expected stats.visitedRecordBytes changes. Actual state.wireBytes stays184; all inputs, output/version/range, proof, other fields and error-capable production call remain unchanged."
+    }
+  },
+  "fieldDerivation": {
+    "bytes": {
+      "source": "LHS.arguments[0].fields[name=output].value",
+      "count": 96,
+      "canonicalSha256": "18e104da0977a4475490ccc65b0dbb1b51cfea01eddb607b30e0f63fe430534f"
+    },
+    "version": {
+      "source": "Exact original ordinal25 expected version wrapped in ObjVersion, identical to version candidate RHS. Test literal remains untrusted until actual independent version acceptance; direct finish proof recomputes genuine version.",
+      "canonicalSha256": "53209b4fac0e424396c60ce5da017fd77e971700a11d0f7d66eae32be019ec97"
+    },
+    "range": {
+      "source": "Exact LHS.arguments[2], retaining stop=originalManifest.length projection",
+      "canonicalSha256": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f"
+    },
+    "remainder": {
+      "source": "Actual ObjReadRemainder checks start0 and stop=manifest.length; expected empty list is source-derived, not yet a proved finish outcome."
+    },
+    "stats": {
+      "visits": "Exact S184.visits=4",
+      "distinctRecords": "S184.seen is an actual cons-list of four IDs; ObjWalkStatistics calls ObjCountIds on it.",
+      "visitedRecordBytes": "Exact S184.wireBytes=184"
+    },
+    "stateCanonicalSha256": "d7e5529cc71341df46ae9d5c167804e0c3c96d2e3e2df72bf789856e1e07d886",
+    "manifestCanonicalSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "limitsCanonicalSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82"
+  },
+  "productionDependencies": [
+    "ObjRangeFinish retains output-length equality guard and error result.",
+    "The success branch calls actual ObjManifestVersion; no substitution of its output or trusted hash.",
+    "ObjManifestVersion calls genuine ObjEncodeManifest/ObjAdmitManifest and ObjHashBytes/HashWire.",
+    "ObjReadRemainder and ObjWalkStatistics remain actual production calls; the complete Result record must be established."
+  ],
+  "comparison": {
+    "directReflexivity": "One logical theorem, two expected-result variants; no separate helper-only success. Kernel must establish full actual result by reduction.",
+    "priorContextualTransport": "Would instantiate the full finish body around one version-result hole, use Nat family and Apply1. Remains a supported conditional alternative, not an implemented or verified finish proof.",
+    "uncertainty": "Direct reduction may recompute real encoding/hash. The accepted version theorem timing or cost does not predict this result. No claim of cached reuse or superior performance. If timeout/OOM/admission failure occurs, preserve it and investigate rather than silently switch designs or raise limits."
+  },
+  "proposedTests": [
+    {
+      "phase": "finish-false",
+      "status": "NOT_RUN",
+      "expected": "Official source check succeeds then full theorem verify returns intended proof mismatch for expected wire185. Timeout/OOM/admission rejection is not the intended negative."
+    },
+    {
+      "phase": "finish-positive",
+      "status": "NOT_RUN",
+      "expected": "Only after independent negative review and fresh gates: actual full finish theorem verify0; independently audit empty axioms, exact source/artifact/process/kernel replay, locks/tools/resources and all result fields."
+    }
+  ],
+  "delivery": {
+    "scope": "Future new minimal one-module/two-variant fixture with ten unchanged runtime files plus existing3Lake metadata/config. No runtime modifications or generic framework. Candidate authoring/native requires parent dispatch after accepted version and revised independent SPEC.",
+    "resources": "Keep300000ms child,4GiB/2CPU, exact compiler/language/source/lock identity and established storage/epoch/idle/zeroevent guards. No equivalent retry or increased limits."
+  },
+  "remaining": [
+    "Compose concrete finish with accepted ObjRangeAdmitted=ObjRangeFinish to establish original successful admitted range.",
+    "Outer ObjWholeRead still performs actual manifest admission and backend-key validation.",
+    "WholeAdmitted hashes returned96bytes and compares original whole digest; distinct from manifest-version hash.",
+    "Original ordinal26 projected whole-read result, all33 controls, other drafts, Hash/component/PrismPM/Pages acceptance remain open."
+  ],
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "storage": {
+    "hostAvailableBytes": "34547769344",
+    "reportLimitBytes": 16384,
+    "reserveBytes": 10737418240
+  },
+  "actions": "Read-only AST extraction and this report only; no candidate, native calls, source/runtime/repository or frozen record changes.",
+  "conditionalHistory": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/next-concrete-finish-proposal.json",
+    "bytes": 9136,
+    "sha256": "0399200b274994612385083152dc2ad6183771fcd813651a1440dbd7d79dc8f7"
+  },
+  "bindingDelta": "Only actual prerequisite identities/status/history added; statement/proof/negative and semantic design unchanged from preserved conditional proposal."
+}
