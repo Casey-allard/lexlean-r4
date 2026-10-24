@@ -1,0 +1,736 @@
+{
+  "schema": "lexlean-r4-read33-invocation-routing/v1",
+  "status": "SOURCE_ONLY_NOT_RUN",
+  "sourceBindings": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/source-bindings.json",
+    "bytes": 90809,
+    "sha256": "e2008bef5d1e5081bdf6490fc3bfd48292eedf357b2ffe6b7cf5da8dbcf7078c"
+  },
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/manifest.json",
+    "bytes": 19655,
+    "sha256": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f"
+  },
+  "sourceReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/source-code-review.json",
+    "bytes": 16904,
+    "sha256": "f769798f03ddd4c2f201402cdbfb64b1748cc5e7396ecb719e03923967027ddb"
+  },
+  "phases": [
+    {
+      "phase": "read33-positive",
+      "entrypoint": "tests/lexlean/ObjectReadControls.lex.tex",
+      "declarations": 33,
+      "inputs": [
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "sourceKind": "repository",
+          "destination": "lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "sourceKind": "repository",
+          "destination": "lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "sourceKind": "repository",
+          "destination": "lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectManifestVersion.lex.tex",
+          "bytes": 6635,
+          "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualFinishContext.lex.tex",
+          "bytes": 62202,
+          "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+          "bytes": 1110,
+          "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+          "bytes": 29808,
+          "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-admitted-range-result/candidate/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+          "bytes": 35487,
+          "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeReadContext.lex.tex",
+          "bytes": 77000,
+          "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeReadTransport.lex.tex",
+          "bytes": 1318,
+          "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-inner-connection/candidate/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "bytes": 72570,
+          "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeOuterShell.lex.tex",
+          "bytes": 21790,
+          "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+          "bytes": 58020,
+          "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "bytes": 8523,
+          "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigestContext.lex.tex",
+          "bytes": 18360,
+          "sha256": "305d028f9214f7d0165c3a27fdb15598a19ebc28515447a3fe4335acc2d6b64d"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+          "bytes": 1097,
+          "sha256": "76347126056bad1caf162686d652892d641d2c40d126ab9c4a7c30b436230567"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/positive/tests/lexlean/ObjectWholeDigest.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigest.lex.tex",
+          "bytes": 14941,
+          "sha256": "5f431772e03c4d883468b414a8dd6dc7d7dd30797e0704cbf8cee9c0ff976f04"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+          "bytes": 70774,
+          "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+          "bytes": 1108,
+          "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+          "bytes": 61795,
+          "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+          "bytes": 21425,
+          "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/positive/tests/lexlean/ObjectReadControls.lex.tex",
+          "sourceKind": "external-candidate",
+          "destination": "tests/lexlean/ObjectReadControls.lex.tex",
+          "bytes": 52458,
+          "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/lexlean.toml",
+          "sourceKind": "external-candidate",
+          "destination": "lexlean.toml",
+          "bytes": 682,
+          "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+        }
+      ]
+    },
+    {
+      "phase": "ordinal26-negative",
+      "entrypoint": "tests/lexlean/ObjectReadControls.lex.tex",
+      "declarations": 1,
+      "inputs": [
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "sourceKind": "repository",
+          "destination": "lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "sourceKind": "repository",
+          "destination": "lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "sourceKind": "repository",
+          "destination": "lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectManifestVersion.lex.tex",
+          "bytes": 6635,
+          "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualFinishContext.lex.tex",
+          "bytes": 62202,
+          "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+          "bytes": 1110,
+          "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+          "bytes": 29808,
+          "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-admitted-range-result/candidate/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+          "bytes": 35487,
+          "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeReadContext.lex.tex",
+          "bytes": 77000,
+          "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeReadTransport.lex.tex",
+          "bytes": 1318,
+          "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-inner-connection/candidate/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "bytes": 72570,
+          "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeOuterShell.lex.tex",
+          "bytes": 21790,
+          "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+          "bytes": 58020,
+          "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "bytes": 8523,
+          "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigestContext.lex.tex",
+          "bytes": 18360,
+          "sha256": "305d028f9214f7d0165c3a27fdb15598a19ebc28515447a3fe4335acc2d6b64d"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+          "bytes": 1097,
+          "sha256": "76347126056bad1caf162686d652892d641d2c40d126ab9c4a7c30b436230567"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/positive/tests/lexlean/ObjectWholeDigest.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigest.lex.tex",
+          "bytes": 14941,
+          "sha256": "5f431772e03c4d883468b414a8dd6dc7d7dd30797e0704cbf8cee9c0ff976f04"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+          "bytes": 70774,
+          "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+          "bytes": 1108,
+          "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+          "bytes": 61795,
+          "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+          "bytes": 21425,
+          "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/focused-negative/tests/lexlean/ObjectReadControls.lex.tex",
+          "sourceKind": "external-candidate",
+          "destination": "tests/lexlean/ObjectReadControls.lex.tex",
+          "bytes": 45768,
+          "sha256": "f110de1fd5d6bb789acb4dd9f1f5c55aa8051363770e71012dca4c503d935de6"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/lexlean.toml",
+          "sourceKind": "external-candidate",
+          "destination": "lexlean.toml",
+          "bytes": 682,
+          "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+        }
+      ]
+    },
+    {
+      "phase": "ordinal26-positive",
+      "entrypoint": "tests/lexlean/ObjectReadControls.lex.tex",
+      "declarations": 1,
+      "inputs": [
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+          "sourceKind": "repository",
+          "destination": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "sourceKind": "repository",
+          "destination": "lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "sourceKind": "repository",
+          "destination": "lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "sourceKind": "repository",
+          "destination": "lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectManifestVersion.lex.tex",
+          "bytes": 6635,
+          "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualFinishContext.lex.tex",
+          "bytes": 62202,
+          "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+          "bytes": 1110,
+          "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+          "bytes": 29808,
+          "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-admitted-range-result/candidate/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+          "bytes": 35487,
+          "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeReadContext.lex.tex",
+          "bytes": 77000,
+          "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeReadTransport.lex.tex",
+          "bytes": 1318,
+          "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-inner-connection/candidate/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "bytes": 72570,
+          "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeOuterShell.lex.tex",
+          "bytes": 21790,
+          "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+          "bytes": 58020,
+          "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "bytes": 8523,
+          "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigestContext.lex.tex",
+          "bytes": 18360,
+          "sha256": "305d028f9214f7d0165c3a27fdb15598a19ebc28515447a3fe4335acc2d6b64d"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+          "bytes": 1097,
+          "sha256": "76347126056bad1caf162686d652892d641d2c40d126ab9c4a7c30b436230567"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/positive/tests/lexlean/ObjectWholeDigest.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeDigest.lex.tex",
+          "bytes": 14941,
+          "sha256": "5f431772e03c4d883468b414a8dd6dc7d7dd30797e0704cbf8cee9c0ff976f04"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+          "bytes": 70774,
+          "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+          "bytes": 1108,
+          "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+          "bytes": 61795,
+          "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+          "sourceKind": "repository",
+          "destination": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+          "bytes": 21425,
+          "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/focused-positive/tests/lexlean/ObjectReadControls.lex.tex",
+          "sourceKind": "external-candidate",
+          "destination": "tests/lexlean/ObjectReadControls.lex.tex",
+          "bytes": 45768,
+          "sha256": "1874a2d964c31b640f5a9daaacd68a7f47369e6e5a9d11c23391ab8234e9b460"
+        },
+        {
+          "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/lexlean.toml",
+          "sourceKind": "external-candidate",
+          "destination": "lexlean.toml",
+          "bytes": 682,
+          "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+        }
+      ]
+    }
+  ],
+  "note": "Runner reads frozen parent source-bindings; supplemental map is review evidence, not a different executable authority."
+}

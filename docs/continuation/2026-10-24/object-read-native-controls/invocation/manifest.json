@@ -1,0 +1,58 @@
+{
+  "schema": "lexlean-r4-read33-invocation-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_PENDING_INDEPENDENT_INVOCATION_CODE_NO_EXECUTION",
+  "files": [
+    {
+      "path": "author-prewrite-observation.json",
+      "bytes": 557,
+      "sha256": "bb96665631ba4de76edf315c29eecce9e6692b19ef8ccd95311dc7e8f12d1aa5"
+    },
+    {
+      "path": "invocation-delta.json",
+      "bytes": 5526,
+      "sha256": "5fa8ece15952f30c0c4247c1e533a225f15ddd91c80c6766926814841dfca970"
+    },
+    {
+      "path": "invoke-read33.mjs",
+      "bytes": 7984,
+      "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+    },
+    {
+      "path": "source-mappings.json",
+      "bytes": 40538,
+      "sha256": "7878cd3f9f47f4f7af92438e21070a06925b2ffcbe8787886cc64c2dbd51973c"
+    },
+    {
+      "path": "static-validation.json",
+      "bytes": 656,
+      "sha256": "4721c547467ad7e8a17af6b6e245c468605fa23bf0a15c9d8d87841e1ba511fd"
+    }
+  ],
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/manifest.json",
+    "bytes": 19655,
+    "sha256": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/source-code-review.json",
+    "bytes": 16904,
+    "sha256": "f769798f03ddd4c2f201402cdbfb64b1748cc5e7396ecb719e03923967027ddb"
+  },
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/invoke-whole-native-format.mjs",
+    "bytes": 7733,
+    "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/candidate-invocation-code-review.json",
+    "bytes": 8372,
+    "sha256": "b7f7bb10fd5f067282de79e605c8f390e0c229991efc7fbbfbc0dcb18efb3618"
+  },
+  "budget": {
+    "capBytes": 524288,
+    "measuredPayloadAllocationBytes": 65536,
+    "reservedManifestBytes": 8192,
+    "temporaryDiskCopies": 0
+  },
+  "executionBoundary": "Restoration70584 remains sole active native job. No planned Read33 phase has run; future explicit phase dispatch needs independent invocation review and fresh resource/epoch eligibility."
+}

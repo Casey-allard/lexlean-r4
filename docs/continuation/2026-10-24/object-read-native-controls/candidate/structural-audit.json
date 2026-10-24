@@ -1,0 +1,44 @@
+{
+  "schema": "lexlean-r4-read33-native-structural-audit/v1",
+  "status": "PASS_SOURCE_ONLY_OFFICIAL_ADMISSION_AND_PROOFS_NOT_RUN",
+  "constantSource": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/constant-signatures.json",
+    "bytes": 5380,
+    "sha256": "4a1100faf83855b1a0991ce5fd0f2a4a362eb53ddee33da7feaf6c02fe200468"
+  },
+  "correspondence": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/statement-correspondence.json",
+    "bytes": 23606,
+    "sha256": "48ca08299840a5048dca660fdc6bebfb7949e9aa717874dfaeb6cccd6a22313d"
+  },
+  "mapping": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/typed-subtree-mapping.json.gz",
+    "bytes": 309673,
+    "sha256": "293839438934faea2139d166ccdc1a066167b49437f78393b8339b6cdd34e813"
+  },
+  "checks": {
+    "originalNames": 33,
+    "originalPropositions": 33,
+    "reverseDecodedTypedViewsMatched": 33,
+    "typedSubtreeMappings": 8997,
+    "nativeNodes": 1651,
+    "originalOrdinal26AppendRhsRetained": true,
+    "originalOrdinal26ScrutineeAcceptedNativeOExpandedSubtreeEqual": true,
+    "positiveNegativeOnlyDeclaration25ValueChanged": true,
+    "focusedPairDerivedBySelectingExactOrdinal26Row": true,
+    "focusedNodesSharedWithFullCandidate": true,
+    "canonicalJsonRoundtripAllFour": true,
+    "allTypeValueRootsClosed": true,
+    "allDagEdgesBackward": true,
+    "sharedInputHashes": 31,
+    "phaseInputHashes": 33,
+    "staticReachableModules": 29,
+    "canonicalPositiveByteEqual": true,
+    "other16CurrentPreserved": true,
+    "original17SnapshotsPreserved": true
+  },
+  "sourceDerivation": "Independent decoder reconstructs expression form/type from native DAG using installed Result/Except mapping and exact runtime declarations. Author source view then compares with decoder. This is a bounded one-off translator for these33 controls, not a new runtime/compiler or acceptance harness. Kernel correctness remains unestablished.",
+  "ordering": "Original33 rows remain canonical ordinal order. Official backend may emit/audit dependency/sorted order; compare its expected order separately without changing canonical correspondence.",
+  "negative": "Only wrong proof 0=0 fed as hFull into same congrArg application; no runtime data/goal change. Focused actual kernel mismatch required before intended negative established.",
+  "allNewTests": "NOT_RUN"
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "lexlean-r4-read33-author-observations/v1",
+  "events": [
+    {
+      "classification": "READ_ONLY_INSPECTION_ERROR_NOT_NATIVE",
+      "detail": "One source-inspection query looked for ObjRangeRead in ObjectRead instead of Object; undefined declaration body access raised TypeError before any candidate write. Correct canonical call inventory establishes R4.Object.ObjRangeRead."
+    },
+    {
+      "classification": "READ_ONLY_GLOB_ERROR_NOT_NATIVE",
+      "detail": "An optional zsh listing /tmp/*compos* had no matches and returned1 after source grep; no modifications."
+    },
+    {
+      "classification": "SOURCE_STRUCTURAL_CHECK",
+      "detail": "author-attempt1 performed in-memory full translation and passed; no candidate outputs written."
+    },
+    {
+      "classification": "SOURCE_WRITE",
+      "detail": "author-attempt2 repeated exact translation and wrote exclusive source outputs plus sole authorized canonical replacement after preimage capture. Both stderr files empty. Native proofs remain NOT_RUN."
+    }
+  ],
+  "unchangedEarlierGate": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/construction-gate.json",
+    "bytes": 10617,
+    "sha256": "47e1085f512f4dd54e550aa02db21a8c89a207ca4c9d77eaea1b79e9d0773e7d"
+  }
+}

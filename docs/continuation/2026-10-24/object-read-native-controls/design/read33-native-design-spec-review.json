@@ -1,0 +1,184 @@
+{
+  "schema": "lexlean-r4-read33-native-design-spec-review/v1",
+  "status": "PASS_DESIGN_ONLY_WITH_EXPLICIT_CONSTRUCTION_AND_EXECUTION_GATES",
+  "reviewer": "inner_delivery_security_review",
+  "decision": "The concrete canonical Read33 native representation is a supported-language product route. Approve this design-level revision of the prior metadata-only/no-native-promotion restrictions specifically for a complete ordinary33-declaration native root preserving every original qualified name and proposition. This does not approve a candidate that does not yet exist, authorize implementation or execution by this reviewer, or accept any Read control.",
+  "reviewedDesign": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/read33-native-design.json",
+    "bytes": 18400,
+    "sha256": "1ffb3bab706a88bfac155e22f3effdbf8c3748b5c2a3e970a14b4a27093eca66"
+  },
+  "findings": [],
+  "sourceChecks": {
+    "pins": "All seven direct design pins and all four governing-record pins rehashed successfully. All eight installed0865 primary-source members rehashed to the route-record identities. All32 format-positive input mappings rehashed successfully;28 supplied LexLean sources, with no ObjectReadControls root among them.",
+    "canonical": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "declarations": 33,
+      "allNamesAndOrdinalsMatch": true,
+      "all33StatementDigestsMatch": true,
+      "hashEncoding": "UTF8 JSON.stringify recursively key-sorted objects, arrays preserved, no newline",
+      "allClosed": true,
+      "allDeclaredAxiomsEmpty": true,
+      "allOriginalProofs": "semantic reflexivity",
+      "allStatements": "equality"
+    },
+    "expressionInventory": {
+      "eq": 33,
+      "call": 40,
+      "nil": 240,
+      "named": 170,
+      "record": 292,
+      "nat": 4464,
+      "cons": 3997,
+      "constructor": 79,
+      "project": 26,
+      "match": 14,
+      "var": 28,
+      "list": 27,
+      "bool": 2
+    },
+    "inventoryMeaning": "Source syntax census, not a translated native candidate or proof of definitional conversion. All current names/propositions are pinned by the exact design canonical33 array; a future native AST must independently correspond to each.",
+    "installedRevision": "0865df4e540ca643b090a29e9df6d319d6906da6"
+  },
+  "architecture": {
+    "ordinaryMultipleDeclarations": "PASS. Installed ir/core.rs317-460 declares Vec<CoreDeclaration>, requires at least one, validates unique names and type/value roots, and has no singleton cap. /1 proof_nodes is supported. No /2 all field is needed.",
+    "nativeAdmission": "grammar/structural.rs1104-1112 requires coremodule/coredata. CoreModule::parse379-384 checks closed schema then canonical syntax. Const/App/Lambda/BVar/Projection/Nat/Sort/Forall are existing constructors; no raw Lean injection or custom SDK interface is proposed.",
+    "theoremConstruction": "backend/core.rs819-886 submits each ordinary theorem with Lean.addDecl(.thmDecl {name,levelParams,type,value}). Internal function name addOneUnchecked is not an axiom or bypass: the theorem goes through Lean.addDecl. The source review itself is not kernel acceptance.",
+    "coverage": "backend/core.rs588-641 includes ordinary generated=false declarations;644-710 computes dependency-respecting emission and rejects cycles;1169-1199 chunks the entire order. api.rs264-276 adds all native environment declaration names. verify/mod.rs996-1007,1442-1471 and verify/axiom.rs188-209 require complete observed name coverage and reject missing/misordered/duplicate audit records.",
+    "axioms": "Installed CoreAxiomPolicy::None permits only observed.is_empty(). The correct source row is policy:{kind:none}; do not copy the route investigation's loose policy axioms=[] wording as a schema field. Native and imported closure declarations still require actual empty-axiom audits.",
+    "orderClarification": "Canonical ordinals must remain mapped one-to-one to original names and types. Actual installed backend scheduling and audit names are sorted/dependency ordered, so kernel/audit output need not literally follow canonical ordinal order. Future CODE must check exact expected emitted/audit order under this implementation and retain the canonical ordinal correspondence separately.",
+    "interopBoundary": "The direct native-to-semantic proof-rule import remains unavailable in installed link.rs679-687. This design changes the canonical root's representation to the already supported native direction; it does not assert that native imports became semantic Apply rules or that all semantic routes are impossible.",
+    "scopeDecision": "The restriction revision is explicit and limited to preserving all33 canonical propositions with a different representation/proof encoding. No helper-only or singleton all acceptance; no runtime modification, trusted hash replacement, added axiom, compiler change or general framework."
+  },
+  "ordinal26": {
+    "name": "LexLeanR4.ObjectReadControls.objProtocolWholeBytes",
+    "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "acceptedTheorem": "LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult",
+    "acceptedCore": {
+      "bytes": 20943,
+      "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917",
+      "typeRoot": 773,
+      "valueRoot": 788,
+      "nodes": 789
+    },
+    "acceptedReview": {
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955",
+      "status": "PASS_LOCAL_FULL_WHOLE_RESULT_AND_RUN_GATES",
+      "boundary": "Inspected retained review, not replayed its285 artifacts in this SPEC task."
+    },
+    "correctType": "A = Except LexLeanR4.R4.ObjectTypes.ObjError LexLeanR4.R4.ObjectTypes.ObjWholeVerified; B = Except LexLeanR4.R4.ObjectTypes.ObjError (List Nat). ObjReadResult in earlier route prose is not the actual full-result type.",
+    "structure": {
+      "name": "ObjWholeVerified",
+      "fields": [
+        "bytes",
+        "version",
+        "stats"
+      ],
+      "bytesProjectionIndex": 0,
+      "statementSha256": "1b4fccd1114334b3b0edc5a58ca7dab2372e5942870b92f498e7811dc957ddfb"
+    },
+    "projection": "F:error e maps to error e; ok v maps to ok v.bytes. The original statement has exactly these branches. The error type and value must remain intact. A function returning an unconditional list or discarding errors would not preserve this goal.",
+    "endpointInspection": {
+      "acceptedType": "Eq (Except ObjError ObjWholeVerified) O R",
+      "acceptedO": 607,
+      "acceptedR": 769,
+      "acceptedRStructure": 767,
+      "acceptedRBytes": 678,
+      "originalCallComparison": "Original semantic match scrutinee and accepted native O structurally match after expanding curried applications and ordering record arguments by actual runtime structure fields. This independent source comparison did not evaluate ObjWholeRead or any hash.",
+      "rhsComparison": "Original RHS keeps ObjAppendBytes applied to its two literal48-byte lists. Accepted R.bytes is a literal96-byte list, not the same syntactic tree. Independently enumerated literal sequences agree exactly, and actual ObjAppendBytes is the original structural recursion on its first list.",
+      "requiredKernelConversion": "The candidate must preserve original call/match and original append expression in its type. Kernel conversion must connect F O to the original LHS and F R to the original ok(ObjAppendBytes left48 right48). Source sequence equality is supporting evidence only; do not replace original RHS syntax with a host-computed result."
+    },
+    "proofAssessment": "congrArg F hFull is the appropriate error-preserving equality transport. It consumes the actual accepted complete O=R theorem rather than re-proving whole-read reflexivity. Its concrete native application and endpoint conversions are not yet constructed or checked.",
+    "constructionGate": "Before candidate freeze establish exact installed congrArg and Except recursor/cases types, universe instantiations, argument order and constant B-valued motive. Independently inspect lambda/binder indices and projection structure/name/index. Correct ordinary mathematical notation is insufficient to validate a native DAG.",
+    "remainingRisk": "Definitional endpoint conversion and imported dependency replay can still fail or exceed unchanged limits. No cost reduction or acceptance is inferred."
+  },
+  "other32": {
+    "assessment": "Using native Eq.refl at each typed original RHS is a valid proposed proof shape precisely when the original LHS is definitionally equal. All32 original proofs were semantic reflexivity, so this is a faithful proposed proof translation, not evidence of successful computation.",
+    "requirements": "Translate every constructor/type argument, call, literal, list, record, match, projection and binder against exact runtime types. Keep original source propositions and names; per-row typed-subtree mapping and independently inspected emitted type correspondence are mandatory.",
+    "cost": "NOT_RUN. Full33 and isolated26 semantic timeout history cannot supply per-row native timings. Protocol25 and27-30 remain obvious cost risks. No repeated unchanged failed run, omitted row, lower coverage bar or larger limit follows from this SPEC.",
+    "failureHandling": "Preserve any failed candidate/raw result. A targeted connected proof remedy or meaningful diagnostic isolation requires a reviewed change; do not claim32 controls from admission or count alone."
+  },
+  "negativeAndSequence": {
+    "negative": "Replacing only ordinal26's hFull proof argument with closed Eq.refl Nat0 is a meaningful applicability/type-safety negative: 0=0 is not the required O=R proof. Freeze exact goal,F,imports and other32 proofs. The admitted source must reach an actual ordinal26 kernel type rejection; parser/import/resource/timeout failures are not the intended negative.",
+    "limitation": "This validates rejection of an unrelated equality at the new proof connection. It is not a runtime mutation, false-output theorem test, all32 semantic negative, or completion of outstanding product mutation obligations.",
+    "sequence": [
+      "After separate authoring authorization, freeze the complete33 candidate, exact one-proof negative and full proposition correspondence map; independent CODE/invocation review before compiler action.",
+      "Derive focused ordinal26 negative/positive diagnostic stages from that exact candidate, retaining the same qualified name/path/import closure and unchanged limits. Negative then positive. They establish only the projection connection and never replace full-root verification.",
+      "Mandatory official lock/check/verify of the complete33 canonical root, with fresh phase-specific locks, all original names/types exactly once, empty observed axioms, actual emitted/output/olean identities, complete artifact/kernel replay audit and all operational gates."
+    ],
+    "noCandidateYet": true,
+    "allNewTests": "NOT_RUN"
+  },
+  "closure": {
+    "verifiedPriorInputs": 32,
+    "verifiedPriorSuppliedLexLeanSources": 28,
+    "anticipatedInputs": 33,
+    "anticipatedSuppliedSources": 29,
+    "selectedModuleCount": "29 anticipated, not observed; exact static closure and official check must establish it.",
+    "config": {
+      "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1",
+      "onlyPlannedChange": "entrypoint -> tests/lexlean/ObjectReadControls.lex.tex",
+      "language": "1.2",
+      "max_file_bytes": 4194304,
+      "max_total_source_bytes": 67108864,
+      "child_timeout_ms": 300000
+    },
+    "constraints": "Reuse the exact accepted format-positive closure by reference, retain ObjectWholeComposedResult and all prerequisites, add one canonical native root, and exclude the old semantic root from the staged closure. No duplicate declarations or cycles. Measure expanded source bytes prospectively without silently expanding file/source limits or source-packet budgets."
+  },
+  "primarySourcePins": [
+    {
+      "path": "crates/lexlean/src/grammar/structural.rs",
+      "sha256": "7c33737f5743dd866bf4a48ae6bd1e125a2e2df5270d408802a594fc8f24bfa8"
+    },
+    {
+      "path": "crates/lexlean/src/ir/core.rs",
+      "sha256": "37f25ded6200c458eb546fe8a08cbdc35470bcafdf54967a7bc95f954a19004a"
+    },
+    {
+      "path": "crates/lexlean/src/backend/core.rs",
+      "sha256": "1bcba214b4af6752174ad87776a078caf6db0a7c31bf824fb152f41c746002eb"
+    },
+    {
+      "path": "crates/lexlean/src/link.rs",
+      "sha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd"
+    },
+    {
+      "path": "crates/lexlean/src/api.rs",
+      "sha256": "364b79d579260adbc74ce29b7376232287fc5acac3de6e829ac0c32dc41673fa"
+    },
+    {
+      "path": "crates/lexlean/src/verify/mod.rs",
+      "sha256": "487a582ffc55ce12e204729191bc3a36baad521a4e2e5eb90b9774f88bd02b29"
+    },
+    {
+      "path": "crates/lexlean/src/verify/axiom.rs",
+      "sha256": "d07cd054f7b150a9719f8148fd025316292f9d7f80b82c2111c5f622749a9b97"
+    },
+    {
+      "path": "crates/lexlean/src/backend/lean.rs",
+      "sha256": "c9eeacf11d6a563def83c81334e75f1aab199ea087b87a3767bc884c49e6aa1c"
+    }
+  ],
+  "authorityLimits": [
+    "Read33 remains open. Current local accepted Object controls remain331/403 through Store20+Codec311; Construction39 and all original full-product goals remain required.",
+    "Preserve all original semantic bytes, original17 snapshots/current17 pins, nine drafts, full33/isolated26 timeout history and prior resource failures. A later intentional representation change needs its own owned-branch review/delivery.",
+    "All native work is NOT_RUN in this review. Parent restoration job70584 is outside this scope; no overlap or process control was attempted.",
+    "Future native phases require separate fresh resource eligibility/source/invocation review and exact installed SDK/tool/epoch/idle/source/counter binding. No reset/retry/cleanup/limit waiver is granted.",
+    "This SPEC approves design intent only. Next concrete task is a bounded complete33 source candidate and correspondence map, after parent authorization; it is not a new certificate family or generic framework."
+  ],
+  "operations": {
+    "sdkCalls": 0,
+    "compilerCalls": 0,
+    "dockerCalls": 0,
+    "repositoryChanges": 0,
+    "sourceOrCandidateWrites": 0,
+    "newSourceDownloads": 0,
+    "reportCapBytes": 20480,
+    "discreteHostAvailableBytes": 29244952576,
+    "storageMeaning": "Read-only statfs observation for report capacity, not native launch eligibility.",
+    "prewriteIssue": "One read-only Node inspection had a missing closing brace and failed before execution; corrected inspection completed. No source/native effects."
+  },
+  "reviewedAt": "2026-10-24T07:37:19.550Z"
+}

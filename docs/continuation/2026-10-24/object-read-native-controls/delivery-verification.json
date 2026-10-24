@@ -1,0 +1,36 @@
+{
+  "schema": "lexlean-r4-read33-delivery-verification/v1",
+  "status": "PASS_SOURCE_CUSTODY_ONLY_NATIVE_NOT_RUN",
+  "verifiedAt": "2026-10-24T08:07:06.072Z",
+  "sourcePayloads": 24,
+  "sourceDependencies": 57,
+  "exactCopies": 35,
+  "archiveMembers": 24,
+  "portableAliases": 95,
+  "phaseInputMaps": [
+    {
+      "phase": "read33-negative",
+      "inputs": 33
+    },
+    {
+      "phase": "read33-positive",
+      "inputs": 33
+    },
+    {
+      "phase": "ordinal26-negative",
+      "inputs": 33
+    },
+    {
+      "phase": "ordinal26-positive",
+      "inputs": 33
+    }
+  ],
+  "preservedOtherCurrentPins": 16,
+  "originalSnapshots": 17,
+  "canonicalSha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c",
+  "invocationReviewSha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5",
+  "localMarkdownLinksChecked": 166,
+  "sourceAndInvocationReview": "PASS_STATIC_ONLY",
+  "nativePhases": "NOT_RUN",
+  "preservation": "No native calls, staging, commits or protected draft edits."
+}

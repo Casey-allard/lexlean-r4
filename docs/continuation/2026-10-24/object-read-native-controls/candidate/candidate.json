@@ -1,0 +1,43 @@
+{
+  "schema": "lexlean-r4-read33-native-candidate/v1",
+  "status": "FROZEN_UNVERIFIED_SOURCE_ALL_NATIVE_NOT_RUN",
+  "design": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/read33-native-design.json",
+    "bytes": 18400,
+    "sha256": "1ffb3bab706a88bfac155e22f3effdbf8c3748b5c2a3e970a14b4a27093eca66"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/read33-native-design-spec-review.json",
+    "bytes": 14936,
+    "sha256": "3388c3f8fe471bc1a2b30606d6ab6d28dcf036d1f71a3bd501fb0c05d10e3e27"
+  },
+  "constantSignatures": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/constant-signatures.json",
+    "bytes": 5380,
+    "sha256": "4a1100faf83855b1a0991ce5fd0f2a4a362eb53ddee33da7feaf6c02fe200468"
+  },
+  "sourceBindings": "source-bindings.json",
+  "structuralAudit": "structural-audit.json",
+  "sourceConfig": "lexlean.toml",
+  "canonical": {
+    "before": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "after": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+    }
+  },
+  "module": "ObjectReadControls",
+  "phaseOrder": [
+    "ordinal26-negative",
+    "ordinal26-positive",
+    "read33-positive"
+  ],
+  "additionalAvailableControl": "read33-negative retains all33 names/goals and changes only ordinal26 proof; focused negative does not claim whole-suite rejection.",
+  "futureExecution": "Separate independent source CODE and invocation/resource review required. Parent restoration job70584 active; no SDK/compiler/native/VM/process actions by author. No locks or artifacts fabricated.",
+  "coverage": "Only accepted complete33 can close canonical Read33; focused26 diagnostic proof does not. Source admission never establishes controls. All other original product obligations remain."
+}

@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4-read33-native-constant-signatures/v1",
+  "status": "SOURCE_DERIVED_TYPES_NOT_KERNEL_TESTED",
+  "installedCapture": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/capture.json",
+    "bytes": 4854,
+    "sha256": "b110350d8eaeed8dfd46004ed84b00d37b86aa64d75517674e52bc76bd9c5eff"
+  },
+  "installedPrelude": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+    "bytes": 233421,
+    "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+  },
+  "installedExcept": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Except.lean.stdout",
+    "bytes": 11443,
+    "sha256": "e23c9f608884d7371ffbe3b48aadfc7b629cfe826577fb7398ab0594b9ff16b1"
+  },
+  "installedGeneratorCapture": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source-generators/capture.json",
+    "bytes": 3745,
+    "sha256": "eb68d3c0c78dc39efb74bec8553b9ae8ae2a94b850ff24c0e4d1bd6a2cc81d56"
+  },
+  "publishedGeneratorCapture": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/official-release-generators.json",
+    "bytes": 69042,
+    "sha256": "77d01d933c1cfd34cbeeda3982e053d0f3adde3f7f160bbd34241773b224cdf6"
+  },
+  "publishedFiles": [
+    {
+      "path": "src/library/constructions/cases_on.cpp",
+      "url": "https://raw.githubusercontent.com/leanprover/lean4/v4.32.1/src/library/constructions/cases_on.cpp",
+      "bytes": 7997,
+      "sha256": "5cb926166f163abcaf37df01fb40cebcde269b674c5dd177493ca78e19df9a56",
+      "immutableUrl": "https://raw.githubusercontent.com/leanprover/lean4/f054605aea4b840552cca2e725580bffd1e1b704/src/library/constructions/cases_on.cpp"
+    },
+    {
+      "path": "src/kernel/inductive.cpp",
+      "url": "https://raw.githubusercontent.com/leanprover/lean4/v4.32.1/src/kernel/inductive.cpp",
+      "bytes": 58268,
+      "sha256": "483fd791504ada6cdf94e9eb63f13c62f5a3a0196367a83ce8cd896ad0408db5",
+      "immutableUrl": "https://raw.githubusercontent.com/leanprover/lean4/f054605aea4b840552cca2e725580bffd1e1b704/src/kernel/inductive.cpp"
+    }
+  ],
+  "sourceDistinction": "Prelude/Except and Lean generator wrappers are exact installed bytes. cases_on.cpp/inductive.cpp are official published v4.32.1 release sources, tag resolved to f054605aea4b840552cca2e725580bffd1e1b704 and both files rehashed from immutable commit URL; these C++ files are absent in installed source tree and are not claimed installed-byte captures.",
+  "congrArg": {
+    "source": "Prelude.lean lines424-425",
+    "type": "congrArg.{u,v} {α:Sort u} {β:Sort v} {a₁ a₂:α} (f:α→β) (h:Eq a₁ a₂):Eq (f a₁) (f a₂)",
+    "explicitCoreArguments": [
+      "α",
+      "β",
+      "a₁",
+      "a₂",
+      "f",
+      "h"
+    ],
+    "instantiation": "u=v=1 because A=Except ObjError ObjWholeVerified and B=Except ObjError (List Nat) both inhabit Sort1"
+  },
+  "except": {
+    "source": "Prelude.lean lines4000-4004",
+    "declaration": "Except (ε:Type u) (α:Type v); constructor order error:ε→Except ε α, then ok:α→Except ε α; no indices/recursive fields",
+    "typeUniverseArguments": [
+      0,
+      0
+    ],
+    "constructorCoreArguments": [
+      "ε",
+      "α",
+      "payload"
+    ]
+  },
+  "casesOn": {
+    "derivation": [
+      "inductive.cpp lines536-547 generates elimination universe for non-Prop Except; lines678-689 prepend elimination universe to original inductive level parameters.",
+      "inductive.cpp lines600-670 builds one dependent motive and minor premises in constructor order; lines762-772 recursor parameter order As,Cs,minors,indices,major.",
+      "cases_on.cpp lines84-86 and179-182 preserve recursor universe parameters; lines96-111 add parameters then main motive; lines118-120 add indices/major before minors; lines148-169 preserve nonrecursive constructor payload binders and constructor order.",
+      "Installed RecOn.lean documents the same As,Cs,indices,major,minors rearrangement; installed CasesOn.lean calls lean_mk_cases_on. No compiler execution used."
+    ],
+    "type": "Except.casesOn.{w,u,v} (ε:Type u) (α:Type v) (motive:Except ε α→Sort w) (major:Except ε α) (error:(e:ε)→motive(Except.error e)) (ok:(a:α)→motive(Except.ok a)) : motive major",
+    "explicitCoreArguments": [
+      "ε",
+      "α",
+      "motive",
+      "major",
+      "error",
+      "ok"
+    ],
+    "instantiatedUniverses": [
+      1,
+      0,
+      0
+    ],
+    "motive": "lambda (_result:Except ε α) => B; B is closed, Sort1-valued",
+    "minorBinders": "Both branches add exactly one payload binder; error and ok payload use BVar0. Outer F binder uses BVar0 for scrutinee before branch scope; nested branch extends env and preserves it at BVar1 if referenced."
+  },
+  "runtimeProjection": "ObjWholeVerified fields bytes/version/stats; bytes uses native Projection s=LexLeanR4.R4.ObjectTypes.ObjWholeVerified,n=...bytes,i=0. Other32 projections use exact declaration-field indices.",
+  "boundary": "This closes the source construction gate only. Official source admission/kernel typechecking, endpoint conversion, empty-axiom and resource acceptance all remain NOT_RUN."
+}

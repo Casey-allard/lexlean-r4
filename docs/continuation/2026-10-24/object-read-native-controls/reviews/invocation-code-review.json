@@ -1,0 +1,109 @@
+{
+  "schema": "lexlean-r4-read33-invocation-code-review/v1",
+  "at": "2026-10-24T08:01:20.452Z",
+  "status": "PASS_STATIC_INVOCATION_READY_ONLY_EXECUTION_BLOCKED_WHILE_RESTORATION_ACTIVE",
+  "independence": "Non-author of invocation/source; same reviewer previously audited source and predecessor. No runner import/evaluation or SDK calls.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/manifest.json",
+      "bytes": 2341,
+      "sha256": "512b419be2ea36fc108268b0eb24a85485a3a1a8f267c89f76c0c47263154260"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/author-prewrite-observation.json",
+      "bytes": 557,
+      "sha256": "bb96665631ba4de76edf315c29eecce9e6692b19ef8ccd95311dc7e8f12d1aa5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invocation-delta.json",
+      "bytes": 5526,
+      "sha256": "5fa8ece15952f30c0c4247c1e533a225f15ddd91c80c6766926814841dfca970"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+      "bytes": 7984,
+      "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/source-mappings.json",
+      "bytes": 40538,
+      "sha256": "7878cd3f9f47f4f7af92438e21070a06925b2ffcbe8787886cc64c2dbd51973c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/static-validation.json",
+      "bytes": 656,
+      "sha256": "4721c547467ad7e8a17af6b6e245c468605fa23bf0a15c9d8d87841e1ba511fd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/manifest.json",
+      "bytes": 19655,
+      "sha256": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/source-code-review.json",
+      "bytes": 16904,
+      "sha256": "f769798f03ddd4c2f201402cdbfb64b1748cc5e7396ecb719e03923967027ddb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/invoke-whole-native-format.mjs",
+      "bytes": 7733,
+      "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/candidate-invocation-code-review.json",
+      "bytes": 8372,
+      "sha256": "b7f7bb10fd5f067282de79e605c8f390e0c229991efc7fbbfbc0dcb18efb3618"
+    }
+  ],
+  "findings": [],
+  "checks": {
+    "exactDelta": "Independently applied ten single-occurrence substitutions and reversed them in reverse order: complete bytes match in both directions. Loader adaptation explicitly selects source-bindings phases/sourceKind/source at parent candidateRoot. All recorder, operational guards, lock/check/result/artifact logic and finally postcaptures outside the ten substitutions are byte-identical.",
+    "syntax": "Standalone env -u NODE_OPTIONS -u NODE_PATH node --check invoke-read33.mjs exited0 with empty output. Parsing only.",
+    "custody": "Rehashed all5 invocation payloads,24 source payloads,57 dependencies, canonical source and both source/predecessor reviews. Verified all99 input records,33 unique confined relative destinations per selected phase, sourceKind and absolute source root restrictions, and equality with frozen source-mappings. The source manifest pins source-bindings; actual input sizes/hashes are checked before guest staging. Ordered guest pre/post source hashes cover all33 inputs.",
+    "phaseSelection": "One explicit argument ordinal26-negative, ordinal26-positive or read33-positive; argv.length===3. No phase loop. Every phase checks/verifies tests/lexlean/ObjectReadControls.lex.tex. Focused variants contain one exact ordinal26 declaration; full positive contains33 and matches canonical98f2... source. The full negative variant is not a dispatch selector.",
+    "roots": [
+      {
+        "phase": "ordinal26-negative",
+        "inputs": 33,
+        "declarations": 1,
+        "sha256": "f110de1fd5d6bb789acb4dd9f1f5c55aa8051363770e71012dca4c503d935de6"
+      },
+      {
+        "phase": "ordinal26-positive",
+        "inputs": 33,
+        "declarations": 1,
+        "sha256": "1874a2d964c31b640f5a9daaacd68a7f47369e6e5a9d11c23391ab8234e9b460"
+      },
+      {
+        "phase": "read33-positive",
+        "inputs": 33,
+        "declarations": 33,
+        "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+      }
+    ],
+    "paths": "Exclusive host phase mkdir and guest /tmp/r4-object-read-native-${phase}-owned-20261024 mkdir; no reuse/deletion. None of three host output directories exists at review; guest paths were not queried.",
+    "config": "Identical682-byte config across phases; entrypoint ObjectReadControls, language1.2, Lean4.32.1, timeout300000ms, file4MiB/total64MiB. Prior source audit establishes29 static reachable modules; no actual compiler selected-module count claimed.",
+    "commands": "Official lock generated and raw lock bytes captured; lock status0/success true required before check; check status0/success true before mandatory verify. Raw verify status and JSON recorded separately from launcher status. Artifact copy requires status0/success true and exact verified/64hex path. Verify1 can produce launcher0; parent must classify the actual diagnostic.",
+    "guards": "Identical container ID, StartedAt2026-10-24T05:31:03.102794321Z/restart0,4GiB/2CPU/networknone/mounts[], four executable hashes, compiler-idle and all-zero memory.events. Host20GiB pre includes10GiB estimate plus10GiB reserve; guest11GiB pre; host/guest10GiB post. Disk allocation/swap observations unchanged. No fresh guest/epoch facts were captured here.",
+    "postcaptures": "Unchanged synchronous finally independently attempts source, lock, tools, epoch, memory, idle, guest and host; collects errors and sets nonzero launcher status for any error. No detached work. Inherited preparation failures may still cause diagnostic postcapture commands if invoked.",
+    "imports": "Only builtin node:fs/path/crypto/child_process imports, no dynamic import/eval/author-script execution or background dispatch. This is deliberately top-level executable code, NOT safe to import for inspection. It was only read/parsed.",
+    "preservation": "16 other current source pins and17 original snapshots independently rehashed unchanged. Canonical remains98f2...; no repository/index/frozen file writes."
+  },
+  "boundaries": [
+    "Restoration70584 is parent-reported active. This verdict permits no concurrent native dispatch, interruption or SDK overlap. Wait for actual terminal outcome and fresh launch eligibility.",
+    "Pinned epoch is historical. Fresh source/tool/idle/zero-event/storage predicates must pass at each future launch; changed epoch/nonzero memory events block this exact runner. No restart/reset/limit exception is authorized.",
+    "Runner does not enforce prior-phase acceptance history. Parent must enforce negative review, focused positive review, then complete33 verification and independent full declaration/axiom/kernel/artifact audit. Focused success is not Read33 acceptance.",
+    "Invocation bytes and Node/PATH/environment must remain controlled at launch. No new genuine lock/parser admission/native negative/proof acceptance/production SDK or PrismPM/Pages acceptance is established."
+  ],
+  "reviewInstrumentation": [
+    "Initial inline preservation checker used cwd for relative docs/OBJECT.md and failed ENOENT; corrected only checker base to model-port, then16current/17snapshot/99input checks passed. No source or SDK effects.",
+    "First report writer had a quoting SyntaxError before evaluation/writes. This corrected report is the only file created; original tool error retained in conversation."
+  ],
+  "storage": {
+    "availableKiBBeforeReview": 25792832,
+    "availableBytesBeforeReport": "26270429184",
+    "reserveBytes": "10737418240",
+    "reportCapBytes": 20480
+  },
+  "operations": "Read-only hashes, JSON/source reads, in-memory forward/reverse literal comparison, syntax parse. Only this external report written; no fixtures, runner execution, SDK, VM, repo or index changes."
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "lexlean-r4-read33-native-freeze-budget/v1",
+  "recordedAt": "2026-10-24T07:49:50.333Z",
+  "capBytes": 4194304,
+  "measuredAllExternalAllocatedBytes": 1404928,
+  "canonicalNewAllocationBytes": 53248,
+  "conservativeTotalIncludingSeparatelyBudgetedInstalledCaptures": 1458176,
+  "additionalFreezeMetadataReserveBytes": 131072,
+  "hostFreeBytes": 28022906880,
+  "hostReserveBytes": 10737418240,
+  "tempDiskCopies": 0,
+  "note": "Counts all installed-source captures conservatively even though parent budgeted those separately. Frozen source candidate has no native artifact/build/output trees."
+}

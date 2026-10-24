@@ -1,0 +1,55 @@
+{
+  "status": "DRAFT_STRUCTURAL_CHECKS_PASS_NO_COMPILER",
+  "files": [
+    {
+      "path": "positive/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+    },
+    {
+      "path": "negative/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "edb027b0f7fb221b4f40f0143582189042e50287e3aa98c706fb5f1c290ce3cf"
+    },
+    {
+      "path": "focused-positive/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 45768,
+      "sha256": "1874a2d964c31b640f5a9daaacd68a7f47369e6e5a9d11c23391ab8234e9b460"
+    },
+    {
+      "path": "focused-negative/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 45768,
+      "sha256": "f110de1fd5d6bb789acb4dd9f1f5c55aa8051363770e71012dca4c503d935de6"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "canonical-preimage.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "statement-correspondence.json",
+      "bytes": 23606,
+      "sha256": "48ca08299840a5048dca660fdc6bebfb7949e9aa717874dfaeb6cccd6a22313d"
+    },
+    {
+      "path": "typed-subtree-mapping.json.gz",
+      "bytes": 309673,
+      "sha256": "293839438934faea2139d166ccdc1a066167b49437f78393b8339b6cdd34e813"
+    },
+    {
+      "path": "mapping-custody.json",
+      "bytes": 327,
+      "sha256": "018a7f1d3a39db69c384ac66e07da2cc891a7bd553b38114d4a415fc6523c47c"
+    }
+  ],
+  "nodeCount": 1651,
+  "subtreeMappings": 8997,
+  "plannedAllocatedBytesIncludingCanonical": 933888,
+  "reservedMetadataBytes": 262144,
+  "freeBytes": 27383209984
+}
