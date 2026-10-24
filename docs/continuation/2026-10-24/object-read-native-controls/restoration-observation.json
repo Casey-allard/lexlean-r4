@@ -1,0 +1,12 @@
+{
+  "schema": "lexlean-r4-parent-reported-restoration-observation/v1",
+  "recordedAt": "2026-10-24T08:02:52.965Z",
+  "status": "RUNNING_REPORTED_NOT_FINAL_ACCEPTANCE",
+  "source": "Parent message during portable preparation; packager did not poll or manipulate native job.",
+  "session": 70584,
+  "lastReportedRoot": "HashWireCross15Controls",
+  "reportedProgress": "28/78",
+  "terminalRunnerProcessRecord": "Parent reported absent",
+  "parentReportedHostAvailableKiB": 26508156,
+  "meaning": "Timestamp is this record creation, not an invented sample or kernel completion time. Existing recovery checkpoint reviewed16 retained roots. Running progress is not final artifact/kernel review or full restoration acceptance. No Read33 phase may overlap the active native job."
+}

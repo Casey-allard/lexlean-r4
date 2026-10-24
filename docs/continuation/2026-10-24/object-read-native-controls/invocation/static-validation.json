@@ -1,0 +1,21 @@
+{
+  "schema": "lexlean-r4-read33-invocation-static-validation/v1",
+  "status": "PASS_STATIC_ONLY_NATIVE_NOT_RUN",
+  "javascriptSyntax": "node --check exit0; parsing only, no module evaluation/import/runner execution",
+  "exactReverseDelta": true,
+  "frozenSourceFiles24": "PASS",
+  "frozenDependencies57": "PASS",
+  "canonicalPin": "PASS",
+  "protected16Current17Snapshots": "PASS",
+  "selectedPhases": [
+    "ordinal26-negative",
+    "ordinal26-positive",
+    "read33-positive"
+  ],
+  "inputCountEach": 33,
+  "guardAndFinallyByteEquality": "PASS per exact delta",
+  "nativeCalls": 0,
+  "compilerCalls": 0,
+  "sourceEdits": 0,
+  "phaseOutputsCreated": 0
+}

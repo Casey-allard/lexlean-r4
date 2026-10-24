@@ -1,0 +1,11 @@
+{
+  "schema": "lexlean-r4-read33-portable-budget/v1",
+  "recordedAt": "2026-10-24T08:01:05.472Z",
+  "capBytes": 4194304,
+  "freshHostAvailableBytes": 26293940224,
+  "hostReserveBytes": 10737418240,
+  "prospectiveAllocatedCopiesArchiveFullDocsCanonicalPlusMetadataReserve": 1835008,
+  "additionalMetadataReserveBytes": 262144,
+  "temporaryDiskCopies": 0,
+  "method": "Prepare gzip and exact copy buffers in memory, exclusive destination writes. Count full changed docs and canonical source conservatively; no compiled/native output."
+}

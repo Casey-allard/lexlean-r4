@@ -1,0 +1,5 @@
+{
+  "classification": "AUTHOR_PREWRITE_SYNTAX_FAILURE_NOT_NATIVE",
+  "error": "Missing } in template expression in inline documentation-edit script",
+  "effect": "Script failed during parsing before any filesystem writes. Corrected template below; no source, proof or native failure."
+}

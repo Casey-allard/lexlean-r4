@@ -1,0 +1,286 @@
+{
+  "schema": "lexlean-r4-read33-native-design/v1",
+  "status": "DESIGN_ONLY_PENDING_INDEPENDENT_SPEC_ALL_NEW_TESTS_NOT_RUN",
+  "recordedAt": "2026-10-24T07:32:21.506Z",
+  "decision": "Explicitly propose replacing prior metadata-only and no-native-promotion restrictions for canonical Read33 with a reviewed native representation/proof migration. Preserve exact 33 qualified names and propositions, not semantic JSON bytes. Installed /1 supports ordinary multiple declarations; no SDK change, singleton all, new axiom/runtime, trusted hash or generic framework. This report is not implementation or execution authority.",
+  "pins": {
+    "route": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/read33-supported-proof-route.json",
+      "bytes": 15447,
+      "sha256": "294697ea74cb68d050afe0e0e8056c82fabf7dfa0ff4230ea17702981eae6bae"
+    },
+    "canonical": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "acceptedCore": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/positive-core-module.json",
+      "bytes": 20943,
+      "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+    },
+    "acceptedFullResultReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/positive-review.json",
+      "bytes": 16897,
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955"
+    },
+    "acceptedInputMap": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/source-bindings.json",
+      "bytes": 19843,
+      "sha256": "3d89d82515fb823dcf52594e1b8bab3652f97922e7951896ba00356477f03530"
+    },
+    "config": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/lexlean.toml",
+      "bytes": 689,
+      "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1"
+    },
+    "types": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    }
+  },
+  "governingRecords": "Exact four governing records and installed-source archive pins are retained in the pinned route investigation. This design explicitly revises the remaining-controls metadata-only restriction and next-ordinal26 no-native-promotion restriction; independent approval must name this revision. No prior review is silently treated as approving it.",
+  "sourceEvidence": "Read and rehashed all eight installed-source members specified by the route investigation, including /1 CoreNode/declaration schema, native emission and name/axiom census. Accepted core node2 is ObjWholeVerified; accepted theorem row uses policy.kind=none, not an axioms field. All 32 accepted input mappings were freshly rehashed; none defines ObjectReadControls.",
+  "canonical33": [
+    {
+      "ordinal": 1,
+      "name": "LexLeanR4.ObjectReadControls.objEmptyClosureNoRecords",
+      "statementSha256": "1100e34d4e93bf754e71ea0883e9cbfcf35fddea0d3fa87ee6a902e160a4d891"
+    },
+    {
+      "ordinal": 2,
+      "name": "LexLeanR4.ObjectReadControls.objReversedRangeRefused",
+      "statementSha256": "fabc2b86378f21a3ca3f21f30deae6d39454a935ff822a727b127c99f56a7874"
+    },
+    {
+      "ordinal": 3,
+      "name": "LexLeanR4.ObjectReadControls.objBeyondRangeRefused",
+      "statementSha256": "8b6e0db0c0d0c6a52bd631c09f37d5f72666e8ecc7b7ed04d4b2c5c2decd440b"
+    },
+    {
+      "ordinal": 4,
+      "name": "LexLeanR4.ObjectReadControls.objReturnBudgetBeforeFetch",
+      "statementSha256": "4b6a711980a970cead2d8491f1e56037526dcfce3684d661f25416d0c485d73e"
+    },
+    {
+      "ordinal": 5,
+      "name": "LexLeanR4.ObjectReadControls.objVisitBudgetBeforeMissingFetch",
+      "statementSha256": "3b63bd8b9d46856506577b0f0f22c489590d9acab3ae5f71826be95ce7bf1632"
+    },
+    {
+      "ordinal": 6,
+      "name": "LexLeanR4.ObjectReadControls.objMissingLeafTyped",
+      "statementSha256": "8d28f3b8bc9f39ab52d8044ad201ca5af22e08c3eb8e0862e8f523d927718647"
+    },
+    {
+      "ordinal": 7,
+      "name": "LexLeanR4.ObjectReadControls.objDuplicateBackendKeysRefused",
+      "statementSha256": "8af38c358b8929409e001aec5a4c95f8b34c4baecf167f23a629eedfecf4e28a"
+    },
+    {
+      "ordinal": 8,
+      "name": "LexLeanR4.ObjectReadControls.objEmptyRangeWithoutFetch",
+      "statementSha256": "46068418d4c4cb0190a8fe598e57dd33721a92e49d0de7f5b2ad8937a0ad22d5"
+    },
+    {
+      "ordinal": 9,
+      "name": "LexLeanR4.ObjectReadControls.objOneByteWholeLiteral",
+      "statementSha256": "7f11e461119d7fb22389a09c83d286d6b5b4c4be1141fee51dc9b26276b209e5"
+    },
+    {
+      "ordinal": 10,
+      "name": "LexLeanR4.ObjectReadControls.objFullLeafRangeLiteral",
+      "statementSha256": "7461be42ae0223d11b64c97e7d6d90809f58b97da730d3106c282dca00cadf9f"
+    },
+    {
+      "ordinal": 11,
+      "name": "LexLeanR4.ObjectReadControls.objMiddleRangeLiteral",
+      "statementSha256": "1a240e90a9035dc20253fb6112a9e9942b65227158f383f001f93f2c8447cc73"
+    },
+    {
+      "ordinal": 12,
+      "name": "LexLeanR4.ObjectReadControls.objMiddleRangeStats",
+      "statementSha256": "3670a7fc691d785b69d44bb98317fe14ec336b2f1ba004513e9dc40fec5787ac"
+    },
+    {
+      "ordinal": 13,
+      "name": "LexLeanR4.ObjectReadControls.objMiddleRangeRemainder",
+      "statementSha256": "f56a88303d794ed00fff1c32c87269ef41f7101b7ddf6c52f246143a8d665a92"
+    },
+    {
+      "ordinal": 14,
+      "name": "LexLeanR4.ObjectReadControls.objWholeWrongDigestRefused",
+      "statementSha256": "be8c3a1f4af544d64088b7bb65706eb8f143c1fa31cf94af5125e5fb1ed72289"
+    },
+    {
+      "ordinal": 15,
+      "name": "LexLeanR4.ObjectReadControls.objFullRangeDoesNotRehashWholeDigest",
+      "statementSha256": "3b94944c5d82094176e75e6a792c5e5657e60bd584d587012fab7bf4def7eb12"
+    },
+    {
+      "ordinal": 16,
+      "name": "LexLeanR4.ObjectReadControls.objNonzeroTailEvenForEarlyRange",
+      "statementSha256": "1a5c4c2f8464f8a84a2624b3c04d827a580e73d849e5093a00d79d30ba594127"
+    },
+    {
+      "ordinal": 17,
+      "name": "LexLeanR4.ObjectReadControls.objClosureNonzeroTailRefused",
+      "statementSha256": "2f3f0d539611dd6f0ddf6cbfa3942a75a619f09970317e20fd158f6362e7ac7c"
+    },
+    {
+      "ordinal": 18,
+      "name": "LexLeanR4.ObjectReadControls.objCorruptExternalRecordRefused",
+      "statementSha256": "6417ef93c961d5a947900e0883acd7eb96bab3286d59a7f77b78430db39605ac"
+    },
+    {
+      "ordinal": 19,
+      "name": "LexLeanR4.ObjectReadControls.objRepeatedRootsOccurrenceStats",
+      "statementSha256": "81feb0cb6aa563fc985cb9c9da45b4fd7480834ce29944e0bccad7dee98c58a0"
+    },
+    {
+      "ordinal": 20,
+      "name": "LexLeanR4.ObjectReadControls.objRepeatedRootsBytesRetained",
+      "statementSha256": "700ff5bb4e758732fa9972165a307f6a6881e87a9d9aee9e2f07efdd15221795"
+    },
+    {
+      "ordinal": 21,
+      "name": "LexLeanR4.ObjectReadControls.objRepeatedRootsVisitBudget",
+      "statementSha256": "2d90cbf1d67c5975525f679a9d79475e76c74164e2239e1db4eda25a31e9e2e3"
+    },
+    {
+      "ordinal": 22,
+      "name": "LexLeanR4.ObjectReadControls.objPresentParentMissingDescendants",
+      "statementSha256": "e34e0bc9b2fbcdb936e192f08e6fe8ecc383819c7a8d7dfa0606163292eab44e"
+    },
+    {
+      "ordinal": 23,
+      "name": "LexLeanR4.ObjectReadControls.objAbsentParentStopsDiscovery",
+      "statementSha256": "ad5545d11875d5e2407164a8af68f9509302b47f4bc70c4fe07e8f5a5ba4fefd"
+    },
+    {
+      "ordinal": 24,
+      "name": "LexLeanR4.ObjectReadControls.objMissingScaleReuseRefused",
+      "statementSha256": "87f0a897f108b65f5d40ccc309c9781010e8da0958ded94338505b1bb7b683a2"
+    },
+    {
+      "ordinal": 25,
+      "name": "LexLeanR4.ObjectReadControls.objManifestVersionProtocolLiteral",
+      "statementSha256": "4286771ebffd901a90ce32125398eb3dce7701ced6ac85a5a8323593feac4fd7"
+    },
+    {
+      "ordinal": 26,
+      "name": "LexLeanR4.ObjectReadControls.objProtocolWholeBytes",
+      "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d"
+    },
+    {
+      "ordinal": 27,
+      "name": "LexLeanR4.ObjectReadControls.objProtocolFullOccurrenceStats",
+      "statementSha256": "0829b20ccfc832ef23d64a19cf0e9b517498c8c3eac7dd1edaea3541b6971169"
+    },
+    {
+      "ordinal": 28,
+      "name": "LexLeanR4.ObjectReadControls.objProtocolCrossLeafRange",
+      "statementSha256": "85ec264bdfbcdb41e49fe3298378b4ba8c1405d834d8a70ec8f63d9dc886e671"
+    },
+    {
+      "ordinal": 29,
+      "name": "LexLeanR4.ObjectReadControls.objProtocolCrossLeafStats",
+      "statementSha256": "7086281df083da12ea8b36cfa83a2def0481f74d92f1149de6648af0cad5f558"
+    },
+    {
+      "ordinal": 30,
+      "name": "LexLeanR4.ObjectReadControls.objProtocolClosureComplete",
+      "statementSha256": "25b7860683e0818b4e2d68a3150093b57a4dad12a16f8710565731b10b9a815d"
+    },
+    {
+      "ordinal": 31,
+      "name": "LexLeanR4.ObjectReadControls.objWrongExpectedChildScale",
+      "statementSha256": "69acbc9e2368e01dd387d6dbd612aba462afc5b6d943d59c78af0266e8aa4334"
+    },
+    {
+      "ordinal": 32,
+      "name": "LexLeanR4.ObjectReadControls.objMissingBeforeVisitedBytesOverflow",
+      "statementSha256": "f78851c62609476c3add87066dd7b6e3f2483b117595bc59c274cb9445476dcd"
+    },
+    {
+      "ordinal": 33,
+      "name": "LexLeanR4.ObjectReadControls.objMalformedBeforeVisitedBytesOverflow",
+      "statementSha256": "fa3c6d871d2a15f84bc32ebb0ec62e3e72f87530ed4013dd413a82b784aa8cb0"
+    }
+  ],
+  "hashEncoding": "UTF8 JSON.stringify recursively key-sorted objects, original arrays, no newline.",
+  "representation": {
+    "module": "ObjectReadControls",
+    "format": "Accepted coremodule/coredata canonical lexlean/core-module/1 JSON under current language1.2. No raw notation or backend Lean injection.",
+    "rows": "Exactly original33 ordinary theorem rows, generated=false, class=false, levels=[], policy={kind:none}, transparency=semireducible, valid type/value roots. No all field or suppressed/generated controls. Inline projection/proof terms avoid extra public helpers.",
+    "dag": "Installed Const/App/Lambda/BVar/Projection/Nat and required Sort/Forall nodes. Earlier-node edges, closed roots, correct constant universes and de Bruijn scopes; retain proof_nodes markers, which do not substitute for audit.",
+    "correspondence": "For every original statement, supply a per-node mapping to native typed subtrees and independently compare expanded type expressions: original fully qualified calls/argument order, constructors, literals, lists/append syntax, record field order, error branches/matches/projections and equality type. Cross-format JSON hashes cannot alone establish equivalence. No host reduction replacing calls/hash data. Canonical roundtrip and schema checks precede native type-check."
+  },
+  "ordinal26": {
+    "typeCorrection": "The investigation says ObjReadResult; actual accepted native DAG and runtime say ObjWholeVerified. Correct that source-only description explicitly. No existing source/proof bytes change.",
+    "inputType": "A = Except LexLeanR4.R4.ObjectTypes.ObjError LexLeanR4.R4.ObjectTypes.ObjWholeVerified",
+    "outputType": "B = Except LexLeanR4.R4.ObjectTypes.ObjError (List Nat)",
+    "F": "lambda r => match r with error e => error e | ok v => ok v.bytes",
+    "projection": "Structure LexLeanR4.R4.ObjectTypes.ObjWholeVerified, projection .bytes, index0. Runtime field order is bytes,version,stats.",
+    "structureSha256": "1b4fccd1114334b3b0edc5a58ca7dab2372e5942870b92f498e7811dc957ddfb",
+    "proof": "Native congrArg F hFull, where hFull is LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult : O=R. Actual kernel conversion must establish the original ordinal26 match as F O and original ok(ObjAppendBytes left48 right48) as F R.",
+    "goal": "Exact original match on ObjWholeRead(original four-entry backend, manifest96, limits), error=>same error, ok item=>ok item.bytes, equals original96-byte append RHS. A theorem just about F or a literal list is insufficient.",
+    "constructionGate": "Before candidate freeze establish installed Lean congrArg and Except recursor/cases constant types, universe/argument order and constant B-valued motive; independently inspect error/ok binder indices and primitive structure projection. The present notation is design, not a checked DAG. Stop if a required constant type cannot be established; never guess its application.",
+    "negative": "Replace only ordinal26 hFull proof argument with closed unrelated Eq.refl Nat 0 (0=0). Goal/F/imports and other32 proofs remain identical; inline term needs no34th theorem. Actual mandatory ordinal26 kernel type rejection is intended. Admission/import/timeout/resource failure is not that semantic negative."
+  },
+  "other32": {
+    "proof": "Every original declaration is closed parameters=[],axioms=[],semantic Reflexivity. For each unchanged equality type use native Eq.refl at its typed original RHS; kernel must convert the actual original LHS. No cached expected computation or substituted runtime.",
+    "feasibility": "Inspected expressions use equality/call/constructor/list/record/nat/bool/match/projection/variables. Installed native DAG can express these using actual constants/recursors. This is source expressibility, not successful proof or bounded conversion cost.",
+    "risk": "Especially protocol25,27-30 may still reduce costly computations. Aggregate full33 timeout provides no per-theorem timing. Preserve any failed row exactly; targeted isolation/connected replacement then needs review. Never omit a row, change its goal or raise limits to claim coverage."
+  },
+  "closure": {
+    "reuse": "Reuse committed accepted format-positive inputs by reference, retain ObjectWholeComposedResult and complete closure, add canonical ObjectReadControls source. Only config entrypoint changes to tests/lexlean/ObjectReadControls.lex.tex; other limits byte-identical.",
+    "priorInputs": 32,
+    "priorSuppliedSources": 28,
+    "prospectiveInputs": 33,
+    "prospectiveSuppliedSources": 29,
+    "reachable": "Prior selected28; new29 anticipated subject to exact static closure and official check. Supplied and selected counts are separate. No old semantic ObjectReadControls loaded alongside new root.",
+    "locks": "Fresh official development locks for every distinct phase, never fabricated or copied as new receipts."
+  },
+  "stages": [
+    {
+      "order": 1,
+      "name": "source-review",
+      "action": "After design acceptance author complete33 candidate plus exact one-proof negative and per-row mapping; independent CODE reviews constants/types/imports/config and invocation. No source authoring in this task."
+    },
+    {
+      "order": 2,
+      "name": "focused-ordinal26-pair",
+      "action": "Fresh diagnostic stages with same module/path and exact ordinal26 declaration only, negative then positive. Official lock/check/verify with original limits and complete artifact audit. Bounded validation of new projection; no permanent fixture hierarchy/framework and no Read33 acceptance from this subset."
+    },
+    {
+      "order": 3,
+      "name": "mandatory-full33",
+      "action": "Actual full33 canonical root lock/check/verify, all32 reflexivity proofs and ordinal26 projection. Independent exact name/order/type/axiom/output/olean/kernel replay census and operational gates. No selection or helper-only acceptance."
+    }
+  ],
+  "acceptance": {
+    "census": "All33 original qualified names and propositions exactly once, ordinary non-generated declarations. Imported dependency counts are not controls. Require source mapping, actual emitted statement correspondence and full artifact/kernel audit, not count alone.",
+    "negative": "Focused failure demonstrates applicability rejection only; not every other32 goal nor a full-suite negative. Accepted full33 positive remains mandatory.",
+    "scope": "Read33 remains open,331/403 accepted local controls are Codec311+Store20. Construction39, whole Object/model integration, production Hash qualification/restoration/mutations/binding, PrismPM and Pages remain open. Accepted concrete96-byte fullResult alone does not discharge canonical ordinal26.",
+    "preservation": "Keep original semantic bytes/full33 and isolated26 timeouts, original17snapshots/current17pins, nine drafts and prior resource failures intact. Later intentional canonical representation edit requires reviewed owned-branch delivery."
+  },
+  "resource": {
+    "freeBytesBefore": 27405586432,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 20480,
+    "source": "Expanded native DAG may exceed semantic source size; prospectively measure source packet before writes. Do not presume old1MiB cap or silently increase compiler max_file_bytes.",
+    "native": "No native authority; parent currently owns sole restoration job70584. No overlap. Same installed0865 compiler107e identity, Lean4.32.1, child300s,4GiB/2CPU. Fresh separate resource eligibility/source/invocation review before any future phase.",
+    "guards": "Existing20GiB host launch floor plus10GiB peak/reserve accounting,11/10GiB pre/post checks, exact epoch/tools/source/idle/counters and independent postcapture. Historical rebound/approval elsewhere is not launch authority. Resource gate failure remains failed even if kernel artifact exists.",
+    "unknown": "No cost savings predicted. Projection endpoint conversion, dependency replay and remaining32 reductions can still timeout or pressure memory. No automatic equivalent retry, reset or raised limits."
+  },
+  "operations": {
+    "allNewTests": "NOT_RUN",
+    "writes": "Only this external JSON; no repo/candidate/native/SDK/VM/process-control/index or frozen-delivery changes.",
+    "prewriteEvents": [
+      "Normal-object histogram collided with constructor property; fixed in memory using null-prototype map, no source/native effect.",
+      "Two verbose JSON preparations (20697B and26084B) failed20KiB pre-write cap; no files were created. This concise report preserves the design and33 statement pins."
+    ]
+  }
+}

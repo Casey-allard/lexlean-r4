@@ -1,0 +1,13 @@
+{
+  "schema": "lexlean-r4-read33-invocation-review-binding/v1",
+  "recordedAt": "2026-10-24T08:02:52.965Z",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation-code-review.json",
+    "bytes": 8561,
+    "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+  },
+  "destination": "docs/continuation/2026-10-24/object-read-native-controls/reviews/invocation-code-review.json",
+  "classification": "PASS_STATIC_SOURCE_INVOCATION_READINESS_ONLY_NATIVE_NOT_RUN",
+  "history": "Source-custody invocation-review-pending status records its earlier preparation time. This additive exact review supersedes pending status, not native results.",
+  "sequencing": "Runner selects one phase but does not enforce earlier-phase history. Parent must enforce independent negative review before focused positive, and independent focused-positive review before full33, alongside fresh operational gates and no overlap with restoration70584."
+}

@@ -1,0 +1,210 @@
+{
+  "schema": "lexlean-r4-read33-supported-proof-route-investigation/v1",
+  "recordedAt": "2026-10-24T07:20:19.346Z",
+  "status": "SUPPORTED_NATIVE_MULTIPLE_DECLARATIONS_REQUIRES_NEW_DESIGN_AND_REAL_CHECKS",
+  "scope": "Independent read-only product architecture investigation; prior source/native reviewer, not implementation author. No candidate, native execution, SDK change or canonical acceptance.",
+  "conclusion": "Installed core-module/1 supports multiple ordinary theorem declarations and complete declaration-name audit coverage. An all-native canonical Read33 representation is a supported-language alternative to blocked native-to-semantic imports, subject to a separately reviewed design preserving all original names/propositions and actual full-root verification. No new SDK is intrinsically required merely to express multiple native theorems. No evidence here establishes that the 33 resulting proofs will pass.",
+  "canonical": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+    "count": 33,
+    "qualifiedPrefix": "LexLeanR4.ObjectReadControls.",
+    "names": [
+      "objEmptyClosureNoRecords",
+      "objReversedRangeRefused",
+      "objBeyondRangeRefused",
+      "objReturnBudgetBeforeFetch",
+      "objVisitBudgetBeforeMissingFetch",
+      "objMissingLeafTyped",
+      "objDuplicateBackendKeysRefused",
+      "objEmptyRangeWithoutFetch",
+      "objOneByteWholeLiteral",
+      "objFullLeafRangeLiteral",
+      "objMiddleRangeLiteral",
+      "objMiddleRangeStats",
+      "objMiddleRangeRemainder",
+      "objWholeWrongDigestRefused",
+      "objFullRangeDoesNotRehashWholeDigest",
+      "objNonzeroTailEvenForEarlyRange",
+      "objClosureNonzeroTailRefused",
+      "objCorruptExternalRecordRefused",
+      "objRepeatedRootsOccurrenceStats",
+      "objRepeatedRootsBytesRetained",
+      "objRepeatedRootsVisitBudget",
+      "objPresentParentMissingDescendants",
+      "objAbsentParentStopsDiscovery",
+      "objMissingScaleReuseRefused",
+      "objManifestVersionProtocolLiteral",
+      "objProtocolWholeBytes",
+      "objProtocolFullOccurrenceStats",
+      "objProtocolCrossLeafRange",
+      "objProtocolCrossLeafStats",
+      "objProtocolClosureComplete",
+      "objWrongExpectedChildScale",
+      "objMissingBeforeVisitedBytesOverflow",
+      "objMalformedBeforeVisitedBytesOverflow"
+    ],
+    "observed": "All 33 are closed, have empty declared axioms and currently use semantic reflexivity.",
+    "preserve": "Exact original qualified names and mathematical propositions, runtime inputs, errors, budgets and expected results. Native migration changes source/schema/proof encoding; it cannot be described as metadata-only or byte-identical semantic AST preservation."
+  },
+  "installedSupport": {
+    "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+    "format": "Canonical lexlean/core-module/1 JSON in supported coremodule/coredata envelope; kernel expression DAG, not raw backend Lean or host proof.",
+    "multipleDeclarations": "CoreModule.declarations is a Vec. Validation requires nonempty declarations, unique names, valid roots and theorem values; no singleton cap. Ordinary theorem rows use generated=false and policy axioms=[]. The unsupported /2 all field is not required for multi-declaration coverage.",
+    "emission": "environment_declarations includes all ordinary non-generated declarations. emission_order resolves dependencies. core_command_ranges splits declaration ranges when necessary without selecting a subset; emitters submit each theorem via Lean.addDecl.",
+    "census": "api.rs extends declaration_names with every native environment declaration. The Lean audit emits those names; verifier checks exact count/order/names and duplicates, then axiom policy. Future acceptance must independently compare the original 33 qualified names against actual emitted declarations, attestation axioms and artifact/kernel replay closure. No excluded/generated row or missing observed name may discharge coverage.",
+    "moduleChoice": "One canonical native module preserving the 33 qualified names is the narrowest apparent alternative. Multiple modules are supported in principle but require an explicit complete-root inventory and no duplicate definitions or cycles; no splitting plan is authored.",
+    "imports": "Existing accepted native composition already imports and references real checked semantic-generated and native theorem constants. This native direction does not register a native theorem in semantic proof_rules."
+  },
+  "ordinal26": {
+    "acceptedFullResultReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/positive-review.json",
+      "bytes": 16897,
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955"
+    },
+    "fullResultTheorem": "LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult",
+    "originalName": "LexLeanR4.ObjectReadControls.objProtocolWholeBytes",
+    "originalStatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "statementEncoding": "UTF8 JSON.stringify recursively key-sorted objects, original arrays, no newline.",
+    "connection": "Let F map error e to error e and ok v to ok v.bytes. Native congrArg F hFull yields F(O)=F(R). Actual kernel conversion must identify the original match with F(O) and original ok(ObjAppendBytes left48 right48) with F(R). Original 96 bytes, error branch, runtime and expected RHS remain exact.",
+    "syntaxBoundary": "Installed native constants/universe levels/application/lambda/projection/recursor DAG can encode this term. Exact congrArg/Except motive, universes and binder indices must be authored and reviewed against real constant types; no new term is constructed or claimed checked here.",
+    "intendedNegative": "A future independently reviewed negative can replace only the hFull proof reference with an imported closed unrelated equality while preserving the exact ordinal26 goal, F and imports; actual kernel type rejection is required. Parser/import/time/resource failure would not establish that semantic negative.",
+    "acceptance": "Native ordinal26 evidence alone cannot close Read33. The original canonical root requires a reviewed representation decision and complete 33-declaration proof and axiom census."
+  },
+  "other32": {
+    "observed": "Parsed all current declarations: closed reflexivity, no declared axioms, ordinary equality/call/constructor/list/record/match/projection forms. No new semantic axiom requirement is apparent.",
+    "unknown": "This investigation does not translate/type-check all propositions or prove all remaining 32. Native Eq.refl may retain expensive reduction. Existing helpers require exact types and actual import closure. Neither termination, resource savings nor complete-suite acceptance is established. No expanded certificate family is proposed."
+  },
+  "semanticRoute": {
+    "blocker": "Installed link.rs constructs imported_semantic only from document.semantic. Semantic Apply/Simplify use registered semantic proof rules, so direct naming of the native full-result theorem remains unavailable. The exact newer-linker investigation reports the same filter.",
+    "supportedButNotSolved": "Semantic Reflexivity/Cases/Induction/Congruence/Apply remain supported, but no concrete admitted proof-only semantic route from the accepted native certificate to ordinal26 is established. No invented proof constructor or unregistered name is proposed.",
+    "qualification": "An official interoperability change is required for that direct native-to-semantic reuse route; it is not proven necessary for every supported-language solution. Canonical native representation is a distinct alternative."
+  },
+  "newerComparison": {
+    "revision": "5967d9ff2393cdee433290e6cb5837c667a953e3",
+    "facts": "Validation accepts /1 and /2; /2 requires language 1.2 and adds environment/metadata fields. all describes mutual groups rather than an all-declarations audit switch. Ordinary multi-theorem inclusion exists already in /1. Newer group-aware scheduling does not remove the need for exact declaration census. No installation/update is proposed.",
+    "sources": [
+      {
+        "path": "crates/lexlean/src/ir/core.rs",
+        "bytes": 65620,
+        "sha256": "a099836bb513a7b728179653c83076d4d207995b907c7e448fed3734929fa370",
+        "lines": "573-618,687-691,890-933,995-1005",
+        "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/5967d9ff2393cdee433290e6cb5837c667a953e3/crates/lexlean/src/ir/core.rs"
+      },
+      {
+        "path": "crates/lexlean/src/backend/core.rs",
+        "bytes": 64621,
+        "sha256": "c88931d594a1e3ecf3533a468484b299e8b3bd90f364b6e614a35fb4df1859c9",
+        "lines": "609-798,835-837",
+        "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/5967d9ff2393cdee433290e6cb5837c667a953e3/crates/lexlean/src/backend/core.rs"
+      }
+    ],
+    "retrieval": "Exact official HTTP sources read and hashed in memory only. No new raw source copies. Newer capabilities are not assumed installed."
+  },
+  "installedSourceArchiveBase": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source",
+  "installedSources": [
+    {
+      "path": "crates/lexlean/src/grammar/structural.rs",
+      "bytes": 40476,
+      "sha256": "7c33737f5743dd866bf4a48ae6bd1e125a2e2df5270d408802a594fc8f24bfa8",
+      "lines": "1104-1121",
+      "archive": "installed-0865-parser-ir.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/grammar/structural.rs"
+    },
+    {
+      "path": "crates/lexlean/src/ir/core.rs",
+      "bytes": 28252,
+      "sha256": "37f25ded6200c458eb546fe8a08cbdc35470bcafdf54967a7bc95f954a19004a",
+      "lines": "317-460",
+      "archive": "installed-0865-parser-ir.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/ir/core.rs"
+    },
+    {
+      "path": "crates/lexlean/src/backend/core.rs",
+      "bytes": 56262,
+      "sha256": "1bcba214b4af6752174ad87776a078caf6db0a7c31bf824fb152f41c746002eb",
+      "lines": "588-710,819-886,1061-1199,1287-1292",
+      "archive": "additional-official-source.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/backend/core.rs"
+    },
+    {
+      "path": "crates/lexlean/src/link.rs",
+      "bytes": 72648,
+      "sha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd",
+      "lines": "656-687",
+      "archive": "additional-official-source.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/link.rs"
+    },
+    {
+      "path": "crates/lexlean/src/api.rs",
+      "bytes": 52821,
+      "sha256": "364b79d579260adbc74ce29b7376232287fc5acac3de6e829ac0c32dc41673fa",
+      "lines": "264-276",
+      "archive": "migration-api-source.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/api.rs"
+    },
+    {
+      "path": "crates/lexlean/src/verify/mod.rs",
+      "bytes": 106157,
+      "sha256": "487a582ffc55ce12e204729191bc3a36baad521a4e2e5eb90b9774f88bd02b29",
+      "lines": "996-1007,1442-1471,1521-1563",
+      "archive": "migration-verifier-source.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/verify/mod.rs"
+    },
+    {
+      "path": "crates/lexlean/src/verify/axiom.rs",
+      "bytes": 8830,
+      "sha256": "d07cd054f7b150a9719f8148fd025316292f9d7f80b82c2111c5f622749a9b97",
+      "lines": "188-209",
+      "archive": "migration-verifier-source.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/verify/axiom.rs"
+    },
+    {
+      "path": "crates/lexlean/src/backend/lean.rs",
+      "bytes": 94759,
+      "sha256": "c9eeacf11d6a563def83c81334e75f1aab199ea087b87a3767bc884c49e6aa1c",
+      "lines": "2528-2557",
+      "archive": "migration-backend-source.json.gz",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/backend/lean.rs"
+    }
+  ],
+  "governingRecords": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/next-draft-investigation.json",
+      "bytes": 19795,
+      "sha256": "d6d063d209db5b05e44837042d8a7b1cee1b876c0e055e3012e658f61715bbc6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/next-ordinal26-investigation.json",
+      "bytes": 14858,
+      "sha256": "b68fb0cf86031b1af2a84787dea37fb44808026b54f4a4a6942436e8d8b4661c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/next-integration-spec-review.json",
+      "bytes": 15414,
+      "sha256": "6e84ae5cb826f017c8dde2c5e9919458253954f04b429cc2b3b3d46f4b9dab5b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json",
+      "bytes": 17355,
+      "sha256": "b9be3b7cadcb4badfc8eee4bcdbff4ca01d098512ae564d87ed814d009ee9cb7"
+    }
+  ],
+  "decisionBoundary": [
+    "Existing ordinal26 report forbids all33 native promotion merely to bypass imports; remaining-controls proposal permits metadata-only changes. This investigation does not override either. A new explicit representation design and non-author review are required before candidate authoring.",
+    "The new design must retain all33 goals/names/count, original runtime and empty axioms, with exact proposition correspondence, real official admission/negative controls/mandatory full-root verification, complete artifact and kernel census and unchanged operational gates. No acceptance by helper or local composition alone.",
+    "Preserve original semantic bytes and timeout histories, previous resource failures and all unique evidence. No retroactive canonical promotion or resource waiver.",
+    "Read33 remains open; 331/403 locally accepted Object controls are Codec311 plus Store20, with Read33 and Construction39 still required. Full Object, Hash qualification, PrismPM integration and Pages remain open."
+  ],
+  "operations": {
+    "storageFreeBytesBeforeReport": 26475171840,
+    "reportCapBytes": 16384,
+    "noActions": "No SDK, compiler, build, VM, process control, candidate/source/repo/index changes or counter reset. Only this external report is written.",
+    "lookupHistory": [
+      "Guessed portable next-ordinal26 path absent; exact retained external report read instead.",
+      "Initial report serialization was 17066 bytes and failed the pre-write 16384-byte cap; no file written. This shorter report preserves the same substantive conclusions."
+    ],
+    "tests": "No new proof tests, admission or native conversion run; all proposed work NOT_RUN."
+  }
+}

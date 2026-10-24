@@ -1,0 +1,105 @@
+{
+  "schema": "lexlean-r4-read33-invocation-delta/v1",
+  "status": "SOURCE_ONLY_NOT_RUN_PENDING_INDEPENDENT_INVOCATION_CODE",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/invoke-whole-native-format.mjs",
+    "bytes": 7733,
+    "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/candidate-invocation-code-review.json",
+    "bytes": 8372,
+    "sha256": "b7f7bb10fd5f067282de79e605c8f390e0c229991efc7fbbfbc0dcb18efb3618"
+  },
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/manifest.json",
+    "bytes": 19655,
+    "sha256": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/source-code-review.json",
+    "bytes": 16904,
+    "sha256": "f769798f03ddd4c2f201402cdbfb64b1748cc5e7396ecb719e03923967027ddb"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+    "bytes": 7984,
+    "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+  },
+  "substitutions": [
+    {
+      "before": "// One-off official installed-format singleton composition of the original WholeRead full Result; invocation CODE and fresh launch gates required; no Read33 acceptance.",
+      "after": "// One-off native Read33 focused diagnostic or mandatory full33 phase; invocation CODE and fresh launch gates required.",
+      "occurrences": 1
+    },
+    {
+      "before": "const manifestPath=path.join(import.meta.dirname,'manifest.json');",
+      "after": "const candidateRoot=path.resolve(import.meta.dirname,'..');\nconst manifestPath=path.join(candidateRoot,'manifest.json');",
+      "occurrences": 1
+    },
+    {
+      "before": "['format-false','format-positive']",
+      "after": "['ordinal26-negative','ordinal26-positive','read33-positive']",
+      "occurrences": 1
+    },
+    {
+      "before": "select exactly one native-format phase",
+      "after": "select exactly one reviewed Read33 phase",
+      "occurrences": 1
+    },
+    {
+      "before": "/tmp/r4-object-whole-native-format-${phase}-owned-20261024",
+      "after": "/tmp/r4-object-read-native-${phase}-owned-20261024",
+      "occurrences": 1
+    },
+    {
+      "before": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9",
+      "after": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f",
+      "occurrences": 1
+    },
+    {
+      "before": "path.join(import.meta.dirname,x.path)",
+      "after": "path.join(candidateRoot,x.path)",
+      "occurrences": 1
+    },
+    {
+      "before": "const candidate=JSON.parse(fs.readFileSync(path.join(import.meta.dirname,'candidate.json')));\n const selected=candidate.phases.find(x=>x.phase===phase);\n inputs=selected.inputs.map(x=>{if(!['repository','candidate'].includes(x.base))throw Error('input base');return {...x,path:path.resolve(x.base==='repository'?repo:import.meta.dirname,x.path)};});",
+      "after": "const bindings=JSON.parse(fs.readFileSync(path.join(candidateRoot,'source-bindings.json')));\n const selected=bindings.phases.find(x=>x.phase===phase);\n if(!selected||selected.entrypoint!=='tests/lexlean/ObjectReadControls.lex.tex')throw Error('phase binding');\n inputs=selected.inputs.map(x=>{if(!['repository','external-candidate'].includes(x.sourceKind))throw Error('input base');const inputRoot=x.sourceKind==='repository'?repo:candidateRoot;const inputPath=path.resolve(x.source);if(!inputPath.startsWith(inputRoot+path.sep))throw Error('input root');return {...x,path:inputPath};});",
+      "occurrences": 1
+    },
+    {
+      "before": "inputs.length!==32||new Set(inputs.map(x=>x.destination)).size!==32",
+      "after": "inputs.length!==33||new Set(inputs.map(x=>x.destination)).size!==33",
+      "occurrences": 1
+    },
+    {
+      "before": "['verify','tests/lexlean/ObjectWholeComposedResult.lex.tex']",
+      "after": "['verify','tests/lexlean/ObjectReadControls.lex.tex']",
+      "occurrences": 1
+    }
+  ],
+  "checks": {
+    "reverseSubstitutionByteEqual": true,
+    "recorderOperationalGuardDefinitionsByteIdentical": true,
+    "independentFinallyPostcaptureByteIdentical": true,
+    "onePhasePerCall": true,
+    "automaticProgression": false,
+    "inputsEach": 33,
+    "staticReachableModulesEach": 29,
+    "epochLiteralUnchanged": "2026-10-24T05:31:03.102794321Z",
+    "hostFloorPeakReserveGiB": [
+      20,
+      10,
+      10
+    ],
+    "guestPrePostGiB": [
+      11,
+      10
+    ],
+    "compilerAndLimitsUnchanged": true
+  },
+  "loaderChange": "New packet stores phases in source-bindings using sourceKind/source instead of candidate.phases base/path. Adapter maps only those fields, rejects unrecognized phase/root/base and retains downstream input hash checks. Parent manifest location is explicit; fresh stage/output prefixes avoid historical overlap.",
+  "execution": "No invocation performed. Source review PASS is not execution authority. Restoration70584 is sole native job; future phase requires independent invocation review plus fresh eligibility. Historical epoch literal is checked at future launch, not a new captured epoch.",
+  "freshHostAvailableBytes": 27154706432,
+  "budgetCapBytes": 524288
+}

@@ -1,0 +1,6 @@
+{
+  "classification": "AUTHOR_VALIDATION_PREWRITE_ERROR_NOT_NATIVE",
+  "error": "Initial inverse-delta check matched the short target path twice because it appeared in both new phase binding and verify call. Failed before invocation directory or files were created.",
+  "correction": "Use the complete verify argument-array literal for exact single-occurrence forward/reverse substitutions. All ten substitutions now invert to predecessor bytes.",
+  "sourceOrNativeEffects": "None from the failed preparation. No source/frozen packet edits or SDK calls."
+}

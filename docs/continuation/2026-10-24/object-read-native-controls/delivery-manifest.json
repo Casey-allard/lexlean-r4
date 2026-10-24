@@ -1,0 +1,303 @@
+{
+  "schema": "lexlean-r4-read33-source-delivery-manifest/v1",
+  "repositoryBase": "8298deac67957115b1d7b368cf9d372d7fa45120",
+  "status": "FROZEN_SOURCE_AND_INVOCATION_REVIEWED_NATIVE_NOT_RUN",
+  "scope": "Entire portable source checkpoint, frozen canonical Read33 and exactly two continuation documents. No other draft is delivered.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 72510,
+      "sha256": "1a67df7c519c4c65de035ee03507ea5d8bead929ebec59bea5b895930662beb0"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/README.md",
+      "bytes": 843,
+      "sha256": "a6e1c5acd9ab644044e407741f9bac2327c858c569dfa84c43129eb7c4253cbc"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/RESULTS.md",
+      "bytes": 2895,
+      "sha256": "14243724e884cec27336834d03cf6cb19f8651fccc10f0e78445cfaf79d83b5d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/README.md",
+      "bytes": 1295,
+      "sha256": "b009ffd6e7f70990fdd8aa1cb442331de9c1e2e2f28f36e88d31254cc20e5f53"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/author-attempt1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/author-attempt1.stdout",
+      "bytes": 1790,
+      "sha256": "3201a23eac083f2fce8496d3479aa0eff9a4acfea074647037066723a51eb42e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/author-attempt2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/author-attempt2.stdout",
+      "bytes": 1790,
+      "sha256": "eb0d8781e42ff1c06021df605115c8c653766a4bde42cc313704cdf78cfb6a10"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/author-observations.json",
+      "bytes": 1299,
+      "sha256": "e2a79b1aba8e90e6973d88967cd402c173ea4812616d5b4c6e70404705f652a3"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/author-read33.mjs",
+      "bytes": 17128,
+      "sha256": "3a7fa514e60b0341a8bbe6f1a0b3074d15cae6f9a4adbe9e6576f7590b403fcb"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/candidate.json",
+      "bytes": 2085,
+      "sha256": "a0ec794f437766934b3b43eeb401a3125c6e24983703445c04abf0b184a09fe7"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/canonical-preimage.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/constant-signatures.json",
+      "bytes": 5380,
+      "sha256": "4a1100faf83855b1a0991ce5fd0f2a4a362eb53ddee33da7feaf6c02fe200468"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/construction-gate.json",
+      "bytes": 10617,
+      "sha256": "47e1085f512f4dd54e550aa02db21a8c89a207ca4c9d77eaea1b79e9d0773e7d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/focused-negative/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 45768,
+      "sha256": "f110de1fd5d6bb789acb4dd9f1f5c55aa8051363770e71012dca4c503d935de6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/focused-positive/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 45768,
+      "sha256": "1874a2d964c31b640f5a9daaacd68a7f47369e6e5a9d11c23391ab8234e9b460"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/freeze-budget.json",
+      "bytes": 609,
+      "sha256": "2b254d9d75ad93c6194a8c32c19c86f6b78c12ca9f5e5c3def0d298b956d5a28"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/manifest.json",
+      "bytes": 19655,
+      "sha256": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/mapping-custody.json",
+      "bytes": 327,
+      "sha256": "018a7f1d3a39db69c384ac66e07da2cc891a7bd553b38114d4a415fc6523c47c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/negative/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "edb027b0f7fb221b4f40f0143582189042e50287e3aa98c706fb5f1c290ce3cf"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/official-release-generators.json",
+      "bytes": 69042,
+      "sha256": "77d01d933c1cfd34cbeeda3982e053d0f3adde3f7f160bbd34241773b224cdf6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/positive/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/prewrite-budget.json",
+      "bytes": 790,
+      "sha256": "a89b0d52992711a4af0203fe5e3f7726867de370e51eb42a75c80fb1e70a91e6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/source-bindings.json",
+      "bytes": 90809,
+      "sha256": "e2008bef5d1e5081bdf6490fc3bfd48292eedf357b2ffe6b7cf5da8dbcf7078c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/statement-correspondence.json",
+      "bytes": 23606,
+      "sha256": "48ca08299840a5048dca660fdc6bebfb7949e9aa717874dfaeb6cccd6a22313d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/structural-audit.json",
+      "bytes": 2452,
+      "sha256": "fafbcd1f25e78d370ed31badb93af8203c57b899b60c618a95fa26ae988a123e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/typed-subtree-mapping.json.gz",
+      "bytes": 309673,
+      "sha256": "293839438934faea2139d166ccdc1a066167b49437f78393b8339b6cdd34e813"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/delivery-budget.json",
+      "bytes": 535,
+      "sha256": "b9e79c9c7f667f305e84ef0670001323960356fe91a396245819fbef1a85267d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/delivery-verification.json",
+      "bytes": 1022,
+      "sha256": "d6f0a6d1bb78ed321c450f2595bfd61ba6fe04379aa30b63e7fe4061cf4103f6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/design/read33-native-design-spec-review.json",
+      "bytes": 14936,
+      "sha256": "3388c3f8fe471bc1a2b30606d6ab6d28dcf036d1f71a3bd501fb0c05d10e3e27"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/design/read33-native-design.json",
+      "bytes": 18400,
+      "sha256": "1ffb3bab706a88bfac155e22f3effdbf8c3748b5c2a3e970a14b4a27093eca66"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/design/read33-supported-proof-route.json",
+      "bytes": 15447,
+      "sha256": "294697ea74cb68d050afe0e0e8056c82fabf7dfa0ff4230ea17702981eae6bae"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/evidence/delivery-author-observation.json",
+      "bytes": 287,
+      "sha256": "841167cf7fc136a333bb9e90d90867259ee8f0a591cb9a16fd0fa14bf9769455"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/evidence/installed-source-and-doc-preimages.json.gz",
+      "bytes": 106311,
+      "sha256": "78168d6e25bee844c2554d3ca1efc3457bd56c5ac591b1b1077e631cadad880a"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/author-prewrite-observation.json",
+      "bytes": 557,
+      "sha256": "bb96665631ba4de76edf315c29eecce9e6692b19ef8ccd95311dc7e8f12d1aa5"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/invocation-delta.json",
+      "bytes": 5526,
+      "sha256": "5fa8ece15952f30c0c4247c1e533a225f15ddd91c80c6766926814841dfca970"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+      "bytes": 7984,
+      "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/manifest.json",
+      "bytes": 2341,
+      "sha256": "512b419be2ea36fc108268b0eb24a85485a3a1a8f267c89f76c0c47263154260"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/source-mappings.json",
+      "bytes": 40538,
+      "sha256": "7878cd3f9f47f4f7af92438e21070a06925b2ffcbe8787886cc64c2dbd51973c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/static-validation.json",
+      "bytes": 656,
+      "sha256": "4721c547467ad7e8a17af6b6e245c468605fa23bf0a15c9d8d87841e1ba511fd"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/portable-bindings.json",
+      "bytes": 85362,
+      "sha256": "50ad208b4cd998720e7e3d8c55a65508dea7d2380db8eb20b5dece393c4d813e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/restoration-observation.json",
+      "bytes": 774,
+      "sha256": "5789adfa17fd398b5f72daafa71f38f14e0db496fa9e7a1be3ccdcfa6ce802c3"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/results.json",
+      "bytes": 4545,
+      "sha256": "1121dfafa2abfcc7509a263a1345e4418fbaf6800a12efa69dbffc389f7855c8"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/review-binding.json",
+      "bytes": 1010,
+      "sha256": "3734444ba78454902190295959846ea64db35ca6c7f9b9e554081b6b6b87009b"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/reviews/invocation-code-review.json",
+      "bytes": 8561,
+      "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/reviews/source-code-review.json",
+      "bytes": 16904,
+      "sha256": "f769798f03ddd4c2f201402cdbfb64b1748cc5e7396ecb719e03923967027ddb"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/source-custody.json",
+      "bytes": 21469,
+      "sha256": "44de5842f7cbadbade2508c84720cb67dffc1c98f138fc4050472fc2d520d820"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 56179,
+      "sha256": "2ce2a529ae51ffcca573de8ed0958899e339e63f6982e3ea8e412a829deca654"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+    }
+  ],
+  "budget": {
+    "capBytes": 4194304,
+    "allocatedPayloadBytes": 1732608,
+    "reservedManifestAndReviewHeadroomBytes": 131072,
+    "hostFreeBytes": 26447945728,
+    "accounting": "Includes full two changed documents and canonical source; no on-disk temporary copies. Pre-existing external source preparation is separately budgeted. Archive compression/decompression was in memory."
+  },
+  "checks": {
+    "schema": "lexlean-r4-read33-delivery-verification/v1",
+    "status": "PASS_SOURCE_CUSTODY_ONLY_NATIVE_NOT_RUN",
+    "verifiedAt": "2026-10-24T08:07:06.072Z",
+    "sourcePayloads": 24,
+    "sourceDependencies": 57,
+    "exactCopies": 35,
+    "archiveMembers": 24,
+    "portableAliases": 95,
+    "phaseInputMaps": [
+      {
+        "phase": "read33-negative",
+        "inputs": 33
+      },
+      {
+        "phase": "read33-positive",
+        "inputs": 33
+      },
+      {
+        "phase": "ordinal26-negative",
+        "inputs": 33
+      },
+      {
+        "phase": "ordinal26-positive",
+        "inputs": 33
+      }
+    ],
+    "preservedOtherCurrentPins": 16,
+    "originalSnapshots": 17,
+    "canonicalSha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c",
+    "invocationReviewSha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5",
+    "localMarkdownLinksChecked": 166,
+    "sourceAndInvocationReview": "PASS_STATIC_ONLY",
+    "nativePhases": "NOT_RUN",
+    "preservation": "No native calls, staging, commits or protected draft edits."
+  },
+  "executionAuthority": "None. Parent review sequencing and fresh operational eligibility required; no overlap with restoration70584.",
+  "exclusions": "Manifest excludes itself. No new locks/native receipts/artifacts/binaries or duplicated runtime closure."
+}

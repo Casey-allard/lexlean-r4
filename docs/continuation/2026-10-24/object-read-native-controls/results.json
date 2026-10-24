@@ -1,0 +1,85 @@
+{
+  "schema": "lexlean-r4-read33-source-checkpoint-results/v1",
+  "status": "SOURCE_AND_INVOCATION_REVIEWED_ALL_READ_NATIVE_NOT_RUN",
+  "recordedAt": "2026-10-24T08:02:52.965Z",
+  "sourceManifest": {
+    "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/manifest.json",
+    "bytes": 19655,
+    "sha256": "539ad628ae2987965285ce596e918bb1470288990804ab2246bc7944c4fdb21f"
+  },
+  "sourceReview": {
+    "path": "docs/continuation/2026-10-24/object-read-native-controls/reviews/source-code-review.json",
+    "bytes": 16904,
+    "sha256": "f769798f03ddd4c2f201402cdbfb64b1748cc5e7396ecb719e03923967027ddb"
+  },
+  "invocationManifest": {
+    "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/manifest.json",
+    "bytes": 2341,
+    "sha256": "512b419be2ea36fc108268b0eb24a85485a3a1a8f267c89f76c0c47263154260"
+  },
+  "invocationReview": {
+    "path": "docs/continuation/2026-10-24/object-read-native-controls/reviews/invocation-code-review.json",
+    "bytes": 8561,
+    "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+  },
+  "canonical": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 52458,
+    "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+  },
+  "originalCanonicalPreimage": {
+    "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/canonical-preimage.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+  },
+  "coverage": {
+    "ordinaryNativeDeclarations": 33,
+    "exactOriginalNamesAndPropositions": 33,
+    "typedSubtreeMappings": 8997,
+    "nativeDagNodes": 1651,
+    "sourceOnlyReverseCorrespondence": "PASS",
+    "suppliedInputsPerPhase": 33,
+    "suppliedLexLeanSources": 29,
+    "staticReachableModules": 29,
+    "actualOfficialSelectedModules": null
+  },
+  "phases": [
+    {
+      "phase": "ordinal26-negative",
+      "status": "NOT_RUN",
+      "required": "Actual ordinal26 kernel mismatch from unrelated0=0 proof, not admission/resource failure."
+    },
+    {
+      "phase": "ordinal26-positive",
+      "status": "NOT_RUN",
+      "required": "Exact original bytes-projection goal; diagnostic only."
+    },
+    {
+      "phase": "read33-positive",
+      "status": "NOT_RUN",
+      "required": "Complete33 original canonical goals and independent artifact/kernel/axiom/resource audit."
+    }
+  ],
+  "additionalSourceVariant": "read33-negative is preserved as full33 source control but is not in the current three-phase invocation allowlist.",
+  "sequencing": "Parent orchestration must enforce negative review -> focused-positive review -> full33, since the one-phase runner does not enforce earlier-phase history. No automatic progression or execution authority.",
+  "currentAcceptedObjectControls": {
+    "count": 331,
+    "total": 403,
+    "from": [
+      "Codec311",
+      "Store20"
+    ],
+    "remaining": [
+      "Read33",
+      "Construction39"
+    ],
+    "newReadControlsAccepted": 0
+  },
+  "construction": "All32 other controls retain original propositions with Eq.refl; ordinal26 uses error-preserving Except projection of accepted concrete whole-result theorem via congrArg. Original append RHS retained. Kernel conversion and resource cost remain unknown.",
+  "representationDecision": "Explicit independently reviewed migration of canonical Read33 to supported core-module/1; prior metadata-only/no-native-promotion restriction is revised for this module. Direct native-to-semantic imports remain unavailable; no SDK/runtime/limit/axiom change.",
+  "constantAuthority": "Exact installed Prelude/Except and generator wrappers plus separately labeled official published Lean4.32.1 generator source, all byte-pinned. Source evidence is not kernel acceptance.",
+  "historicalEvidence": "Original semantic preimage/timeouts and prior source/author/resource failures remain preserved. Earlier construction-gate and pending-review records describe their original times and are superseded only by reviewed source readiness.",
+  "restorationObservation": "restoration-observation.json",
+  "omissions": "No genuine new Read locks, compiler receipts, artifacts, oleans, binaries, full runtime copy or native execution. Existing shared sources resolve through portable-bindings.json; historical scripts retain original host paths and require a new reviewed environment binding elsewhere.",
+  "preservation": "Other16 current pins and all17 original snapshots unchanged; nine pending product drafts remain required."
+}

@@ -1,0 +1,18 @@
+{
+  "status": "PASS_PROSPECTIVE_PREWRITE",
+  "recordedAt": "2026-10-24T07:47:14.779Z",
+  "phaseCapBytes": 4194304,
+  "currentPhaseAllocatedBytes": 114688,
+  "plannedSourcesMapsPreimageCanonicalAllocation": 933888,
+  "reservedAdditionalMetadataBytes": 262144,
+  "conservativeProspectiveTotal": 1310720,
+  "separatelyBudgetedInstalledSourceCaptures": [
+    "installed-lean-source",
+    "installed-lean-source-generators"
+  ],
+  "hostFreeBytes": 27457134592,
+  "hostReserveBytes": 10737418240,
+  "temporaryDiskCopies": 0,
+  "method": "All source/map serialization and gzip prepared in memory; byte-exclusive external outputs and one authorized canonical replacement after exact preimage preservation.",
+  "preimageAndOtherPins": "All17current +17snapshots PASS before canonical replacement"
+}
