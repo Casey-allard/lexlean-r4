@@ -1,0 +1,481 @@
+{
+  "schema": "lexlean-r4/child-entry-timeout-phase1/1",
+  "status": "INVESTIGATION_ONLY_NO_SOURCE_FIX_ESTABLISHED",
+  "createdAt": "2026-10-24T12:34:30.037Z",
+  "facts": {
+    "diagnostic": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadParent49ConcreteChildEntry: configured 300000, observed 300016 ms",
+    "verifyExit": 4,
+    "wholeVerifyMilliseconds": 1036542,
+    "checkModules": 34,
+    "intendedNegative": "NOT_REACHED",
+    "positive": "NOT_RUN",
+    "artifact": "NONE",
+    "memoryBefore": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memoryAfter": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "postcaptureErrors": [],
+    "priorAcceptance": {
+      "attestationId": "3a2c801521374b47a284080480b223ef1d89427ebad69b85c1a52e674c17d203",
+      "selectedModules": 19,
+      "wholeVerificationMilliseconds": 136745,
+      "rootDeclaration": {
+        "name": "LexLeanR4.ObjectReadParent49ConcreteChildEntry.objParent49ConcreteChildEntry",
+        "observed": [],
+        "policy": {
+          "axioms": [],
+          "kind": "none"
+        },
+        "result": "ok"
+      },
+      "rootLeanProcess": {
+        "argv": [
+          "env",
+          "lean",
+          "-R",
+          "$STAGING/lean-src",
+          "-o",
+          "$STAGING/oleans/LexLeanR4/ObjectReadParent49ConcreteChildEntry.olean",
+          "$STAGING/lean-src/LexLeanR4/ObjectReadParent49ConcreteChildEntry.lean"
+        ],
+        "executable_sha256": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "exit_code": 0,
+        "module": "LexLeanR4.ObjectReadParent49ConcreteChildEntry",
+        "stderr": "\n",
+        "stderr_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "stdout": "\n",
+        "stdout_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "tool": "lean"
+      },
+      "timingBoundary": "Process row has no elapsed field.136745ms is whole19-module verification, not root timing or cache/replay timing."
+    }
+  },
+  "comparisons": {
+    "current51FilesRehashed": true,
+    "all19SourceInputs": [
+      {
+        "path": "src/R4/Hash.lex.tex",
+        "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/HashNat.lex.tex",
+        "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/HashNatCore.lex.tex",
+        "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/HashWire.lex.tex",
+        "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+        "currentMatches": true
+      },
+      {
+        "path": "src/R4/Words.lex.tex",
+        "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49.lex.tex",
+        "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+        "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+        "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+        "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+        "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+        "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+        "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e",
+        "currentMatches": true
+      },
+      {
+        "path": "tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+        "sha256": "bb8d061a61a67354dbbc8c88d4ef8b45c1aeb5c78b52d539c0edcb2d720cefd1",
+        "currentMatches": true
+      }
+    ],
+    "all19Emissions": [
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49.lean",
+        "bytes": 1588,
+        "sha256": "87f09af168b70ac7886281b4f7c088c5fb897972fd6e11d9ab3d491479eefe62",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49AccountingState.lean",
+        "bytes": 1843,
+        "sha256": "e84f41888a67075fceeab662ed64584d9805a6961488963b60ff3343ba251e3d",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49AuthenticatedFetch.lean",
+        "bytes": 4095,
+        "sha256": "a30a2577fe226561c310c483285ff067c9debc51367c2a6c86fb76836e76f261",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49ConcreteChildEntry.lean",
+        "bytes": 15933,
+        "sha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49FetchContext.lean",
+        "bytes": 3549,
+        "sha256": "bd28af23b4ef261361317f79e3a9264b499f28c0e4391979143885e53308690b",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49FetchTransport.lean",
+        "bytes": 768,
+        "sha256": "2a18d8be1aee2e88e8aae81d58e85344dd6bcb61aef42fb52248017933231154",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49VisitContext.lean",
+        "bytes": 19084,
+        "sha256": "1c5098e8a6208c565af1b99d19dedb86c85ddc4c17b47b727fe8be61c507a3f3",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49VisitTransition.lean",
+        "bytes": 4604,
+        "sha256": "e4b72587390e3c30f6fffa6c238ce2616c33f4960fac4937b8844109de0f6c8b",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/ObjectReadParent49VisitTransport.lean",
+        "bytes": 816,
+        "sha256": "f0db6c3726e936860d1a17381ee5450892e660ad0e6d2dd308d78ca7cc35525b",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/Hash.lean",
+        "bytes": 191175,
+        "sha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/HashNat.lean",
+        "bytes": 31334,
+        "sha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/HashNatCore.lean",
+        "bytes": 95917,
+        "sha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/HashWire.lean",
+        "bytes": 3926,
+        "sha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/Object.lean",
+        "bytes": 4486,
+        "sha256": "c64b3b6f285ca88e55df309badcf435835e7cbe935245f01b58fa248c5a4e968",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/ObjectCodec.lean",
+        "bytes": 32220,
+        "sha256": "cd2a8228d5b124d690bb6961ea709339e17f070cba371b27c286ce3f9400a78c",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/ObjectRead.lean",
+        "bytes": 24436,
+        "sha256": "9333789c72b972842ae48d851e3f2986e60d15ffa222a8486e740fabe398413a",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/ObjectStore.lean",
+        "bytes": 18243,
+        "sha256": "c5e218cdbbe9addcaa9af60436ef5ed42b25cf1bdc99cde85abc869000bdfb92",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/ObjectTypes.lean",
+        "bytes": 24191,
+        "sha256": "9fc38ba3adb44f0329782c5e477a1ff7b4211bdabb08892f7a3702e4edd94aa2",
+        "currentManifestMatches": true
+      },
+      {
+        "path": "modules/LexLeanR4/R4/Words.lean",
+        "bytes": 51343,
+        "sha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6",
+        "currentManifestMatches": true
+      }
+    ],
+    "actualRecoveredPair": [
+      {
+        "name": "ObjectReadParent49ConcreteChildEntry",
+        "priorSha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd",
+        "currentSha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd",
+        "byteEqual": true
+      },
+      {
+        "name": "ObjectReadParent49VisitTransition",
+        "priorSha256": "e4b72587390e3c30f6fffa6c238ce2616c33f4960fac4937b8844109de0f6c8b",
+        "currentSha256": "e4b72587390e3c30f6fffa6c238ce2616c33f4960fac4937b8844109de0f6c8b",
+        "byteEqual": true
+      }
+    ],
+    "sameFourToolHashes": true,
+    "configurationEqualExceptDefaultEntrypoint": true,
+    "configurationDelta": "Old default ChildEntry; current default ReadControls overridden by CLI admitted root. All limits including300000ms and v4.32.1 unchanged. Locks/build/source identities differ with selection and are not equated.",
+    "currentCompiledDependencyIdentity": "UNESTABLISHED",
+    "emissionCustody": "Prior19 actual .lean files rehashed. Two current actual recovered files read and compared byte-for-byte. Remaining17 current identities compared via actual recovered build-manifest outputs, not independently recaptured bytes."
+  },
+  "proofAnalysis": {
+    "childDeclarationCount": 1,
+    "childProof": {
+      "arguments": [],
+      "kind": "apply",
+      "theorem": {
+        "module": "ObjectReadParent49VisitTransition",
+        "name": "objParent49VisitTransition"
+      },
+      "type_arguments": []
+    },
+    "childStatementAstSha256": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789",
+    "transitionStatementAstSha256": "a38851abd3458a345bcdc9376184c8641004f23e31b5247d77dd601a89f8a491",
+    "identicalLeftAST": true,
+    "transitionRight": {
+      "module": "ObjectReadParent49VisitContext",
+      "name": "ObjParent49VisitContext"
+    },
+    "childRight": "Error-preserving match ObjSpan(0), then three ordered ObjVisitNode(0) calls and two checked child offsets; first child state S49=(output[],visits1,wireBytes49,seen singleton originalParentID).",
+    "accountingProof": {
+      "kind": "reflexivity"
+    },
+    "accountingStatementAstSha256": "1c929bbb7980807e3723005ba77b4901c3db33bb1b2b3556b4ac16d02b54382b",
+    "accountingLeft": "Match ObjMarkVisit result; error propagated, ok marked => ObjAccountRecord marked originalParentRecord originalLimits.",
+    "accountingRight": "Result.ok S49",
+    "unusedCertificate": "Actual emitted child proof is exact objParent49VisitTransition. Accounting theorem is an imported checked dependency but not referenced by proof. Prior results explicitly disclaim accounting rewrite/cached intermediate/avoided computation.",
+    "contextOperations": [
+      "ObjSpan",
+      "ObjCheckedOffset",
+      "Boolean test",
+      "ObjMarkVisit",
+      "ObjAccountRecord",
+      "three child ObjVisitNode calls",
+      "two checked child offsets",
+      "all original Result.error branches"
+    ],
+    "conversionBoundary": "Apply must reconcile transition RHS ObjParent49VisitContext(Result.ok originalParentRecord) with explicit child-entry RHS. No trace identifies which subterm or elaboration/kernel work consumed timeout."
+  },
+  "cause": {
+    "established": "Elapsed child deadline hit in a byte-unchanged, previously accepted dependency before intended admitted negative. Same19 source/emission identities, tools and limits rule out those byte changes.",
+    "unknown": [
+      "Current compiled dependency identities and exact complete process environment",
+      "Continuous CPU scheduling, paging/I/O or contention; no current ChildEntry CPU/RSS sample retained in the two sampled records",
+      "Specific expensive conversion subterm, hash recomputation, cache behavior or selected-project-size causation"
+    ],
+    "samples": "Current samples at12:13:11 and12:15:42 show earlier ObjectManifestVersion and ObjectReadParent49 children, not failing ChildEntry. All-zero memory.events does not establish absence of paging or all memory pressure.",
+    "hypothesis": "Implicit RHS conversion is a source-backed possible proof-cost boundary, not established cause. Environmental/compiled-context variation remains plausible and unresolved."
+  },
+  "conditionalProductAlternative": {
+    "status": "NOT_AN_ACCEPTED_REPAIR_NO_CANDIDATE_ALL_NATIVE_NOT_RUN",
+    "exactEndpoints": {
+      "A": "Original ChildEntry statement.left (identical to VisitTransition.left).",
+      "B": "Original VisitTransition.statement.right = ObjParent49VisitContext(Result.ok originalParentRecord).",
+      "M": "Exact accounting theorem.statement.left; not a host computed hash or new premise.",
+      "S": "Exact accounting theorem.statement.right = Result.ok S49.",
+      "C": "Original ChildEntry.statement.right, unchanged."
+    },
+    "proposedContinuation": "K : Result ObjWalkState ObjError -> Result ObjWalkState ObjError. K(Result.error e)=Result.error e. K(Result.ok s)=original C with ONLY first child input state replaced by bound s; subsequent afterFirst/afterSecond error propagation and offsets unchanged. This is a finite term-design candidate, not yet authored or validated.",
+    "availableLemmas": [
+      "hTransition : A=B, actual previously kernel accepted",
+      "hAccounting : M=S, actual previously kernel accepted"
+    ],
+    "intendedComposition": "If and only if B is definitionally equal to K(M), and K(S) is definitionally equal to C, congrArg K hAccounting yields B=C and Eq.trans hTransition (...) yields original A=C. Native Eq.trans/congrArg exist in installed accepted ordinary core format, but endpoint conversions and downstream representation remain obligations.",
+    "unprovedObligations": [
+      "B =def K(M): original context contains pre-accounting guards/offsets; all must normalize identically without forcing the same expensive branch. NOT established by this report.",
+      "K(S) =def C with exact source types/binders; intended one Result.ok iota-substitution but no candidate AST/native check exists.",
+      "Explicit accounting use may merely move conversion cost; no performance benefit established.",
+      "ObjectReadFirstChildContinuation is semantic-module/2 and Apply references ChildEntry. Single-file native replacement creates unsupported semantic-to-native import boundary. Need supported semantic composition or independently reviewed minimum downstream cut before any implementation."
+    ],
+    "negative": "For a separately reviewed exact candidate, change only accounting premise to unrelated Nat0=0 while retaining statement/runtime. Actual intended type mismatch, not timeout or dependency failure, must be independently audited before positive.",
+    "positiveAndFullCriteria": "Actual exact ChildEntry theorem/source admission, unchanged statement, empty axioms, actual artifact and kernel replay. Then original admitted wrong-trans/positive and remaining inner plus mandatory original ordinal26 negative/focusedpositive/full33; helper-only result is insufficient. All proposed phases NOT_RUN."
+  },
+  "nextAction": {
+    "preferred": "Read-only custody discrimination first if parent finds retained failed compiled dependency/process files: compare exact19 dependency oleans and child argv/environment to prior artifact. Do not rerender/retry to manufacture missing records.",
+    "noAutomaticRetry": true,
+    "sourceDecision": "No justified source repair is established now. Freeze this finding for independent SPEC; if choosing explicit certificate route, first establish the two named endpoint conversions and representation boundary. No isolated same-source retry, raised limits, imported borrowed artifact, runtime change or trusted intermediate hash is proposed."
+  },
+  "preservation": {
+    "newFileOnly": true,
+    "SDK_VM_NativeCalls": 0,
+    "repoEdits": 0,
+    "earlierSerializationAttempt": "Initial26,810B in-memory pretty JSON exceeded24KiB cap; guard threw before fs.writeFileSync. No first report file or native test existed. This bounded successor removes redundant copied rawfields; no evidence erased."
+  },
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/result.json",
+      "bytes": 902,
+      "sha256": "6db9609e14de6ea1e9210b7800dfc80b01b52464f55cb8e504a3557cec403e90"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/verify.json",
+      "bytes": 1015,
+      "sha256": "ce430d596518af30de766c9de1ef47034b8111f9bf11f779ed4f371f88093552"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/check.json",
+      "bytes": 1733,
+      "sha256": "6bbc4720a9e4653193f360602321f5e6053eec7be03c819cbffff18b4d295bed"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "1e1e94025c2189ed3264ddb4951bbe5682c7de2fccad8d3c782aa93a4c7de854"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "2515061d60154408c2a364aa6f56e28739d842def00e8d804063b7ede022e7c9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "3b941086a19ed3c62d15dddda5f5859927a2f76ad333a24652998023d6c68384"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/parent-resource-1.json",
+      "bytes": 1959,
+      "sha256": "a0a67d9d33100d609dad6c3846a6f513985ec745d14116f3eedb39b6a2e5ff87"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/admitted-trans-negative/parent-resource-2.json",
+      "bytes": 1816,
+      "sha256": "1974a53d5ece28b6ab396ffe71f0ce064bf0ae0f78adec37eba5699c9da45e3e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/manifest.json",
+      "bytes": 42132,
+      "sha256": "df74ebc896ef5413fad3171dd5b2da3749d3e9ba71593756fb66048b399b2a05"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/ObjectReadParent49ConcreteChildEntry.lean",
+      "bytes": 15933,
+      "sha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/ObjectReadParent49VisitTransition.lean",
+      "bytes": 4604,
+      "sha256": "e4b72587390e3c30f6fffa6c238ce2616c33f4960fac4937b8844109de0f6c8b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact/build-manifest.json",
+      "bytes": 23446,
+      "sha256": "330fc2357d457f7697c114a6ab931d43156d93bdf93cc70d44c2690abd993e19"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-parent49-accounting/accounting-positive/artifact/attestation.json",
+      "bytes": 183690,
+      "sha256": "c15fb37c0771f66e7b71d0aeedcb217af5f7d0a2c5649b14be9de83576b76d4d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/results.json",
+      "bytes": 6198,
+      "sha256": "b859618375b17ee82c45100cb1801da4844a57ec60708b5ffc0592aec23f52b5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/evidence/positive-native-review.json",
+      "bytes": 10844,
+      "sha256": "0b147e6c9b3315e8a382c5d0b720f5d83d590caff328152e16a7b986b41005ad"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 80485,
+      "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "bytes": 21599,
+      "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/candidate/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+      "bytes": 6731,
+      "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "bytes": 97645,
+      "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "bytes": 62699,
+      "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+      "bytes": 36221,
+      "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+    }
+  ]
+}

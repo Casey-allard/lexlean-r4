@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4/admitted-product-invocation-static/1",
+  "status": "PASS_SOURCE_STATIC_ONLY_NATIVE_NOT_RUN",
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/invoke-admitted-product.mjs",
+    "bytes": 12193,
+    "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b"
+  },
+  "syntax": {
+    "method": "node --check only; script not imported or executed",
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "edits": 16,
+  "exactForwardSubstitutionsReconstructScript": true,
+  "reverseMethod": "changes.json preserves exact removed text, positions/order through original snippets; changes.diff is a reversible unified patch. Empty replacements are not reversed by ambiguous string search.",
+  "finallySuffixByteIdentical": true,
+  "epochBindingByteEquivalent": true,
+  "candidatePayloadsRehashed": 9,
+  "dependenciesRehashed": 55,
+  "phaseCounts": [
+    {
+      "mode": "admitted-trans-negative",
+      "inputCount": 51,
+      "selectedCount": 34
+    },
+    {
+      "mode": "admitted-trans-positive",
+      "inputCount": 51,
+      "selectedCount": 34
+    }
+  ],
+  "verifyCallSites": 1,
+  "checkTargetExplicit": true,
+  "actualNative": "NOT_RUN",
+  "SDKVMCallsByAuthor": 0
+}

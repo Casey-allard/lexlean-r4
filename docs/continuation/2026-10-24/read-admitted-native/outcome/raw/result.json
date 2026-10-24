@@ -1,0 +1,34 @@
+{
+  "phase": "admitted-trans-negative",
+  "stage": "/tmp/r4-object-read-admitted-trans-negative-owned-20261024",
+  "verifyStatus": 4,
+  "result": {
+    "artifacts": [],
+    "command": "verify",
+    "diagnostics": [
+      {
+        "causes": [],
+        "code": "LLS8002",
+        "help": [],
+        "labels": [],
+        "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.ObjectReadParent49ConcreteChildEntry: configured 300000, observed 300016 ms",
+        "notes": [],
+        "primary": {
+          "byte_end": 0,
+          "byte_start": 0,
+          "column_end": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "line_start": 1,
+          "path": "lexlean.toml"
+        },
+        "severity": "error",
+        "spec": "lexlean/diagnostic/1"
+      }
+    ],
+    "exit_code": 4,
+    "modules": [],
+    "spec": "lexlean/command-result/1",
+    "success": false
+  }
+}

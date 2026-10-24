@@ -1,0 +1,85 @@
+{
+  "schema": "lexlean-r4/independent-invocation-code-review/1",
+  "createdAt": "2026-10-24T12:10:17.478164+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "verdict": "PASS_BOUNDED_ONE_PHASE_INVOCATION_SOURCE_ONLY",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/manifest.json",
+    "bytes": 5778,
+    "sha256": "791913f750fb30cbb711dce331de1b9995fbf1e8dd7b06abaf1fd5667e2afc22"
+  },
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/invoke-admitted-product.mjs",
+    "bytes": 12193,
+    "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b"
+  },
+  "base": {
+    "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a",
+    "priorInvocationReview": "6b1b8948378060c63a7b2598547955e799c935cbcd80ed0d089b6831ca2df1ac"
+  },
+  "checks": {
+    "allFivePayloadsAnd18DirectDependenciesRehashed": true,
+    "candidateNinePayloadsAnd55DependenciesRehashed": true,
+    "both51InputMapsRehashed": true,
+    "exact16ForwardSubstitutionsReconstructEntireScript": true,
+    "nodeCheckParseOnlyExit": 0,
+    "scriptEvaluatedOrImported": false,
+    "completeGuardDefinitionsByteIdenticalToBase": true,
+    "finallySuffixByteIdenticalToBase": true,
+    "freshEpochBindingLiteralByteIdenticalToBase": true,
+    "verifyCallSites": 1,
+    "checkCallSites": 1,
+    "lockCallSites": 1,
+    "bothPhaseEvidenceDirectoriesAbsentAtReview": true
+  },
+  "assessment": [
+    {
+      "topic": "Selection and negative isolation",
+      "result": "PASS",
+      "detail": "Strict exactly-one CLI phase admits only admitted-trans-negative or admitted-trans-positive. The same phase selects the corresponding frozen51-input map. Both maps bind the explicit admitted theorem target and exact34 module list. check and verify receive this explicit target despite unchanged configuration defaulting to ReadControls. check success/status and sorted actual module list are required before the sole verify call. Hash09 and ReadControls are absent from selected34; old wrong Read source remains unselected. The positive and negative share50 byte-identical inputs and differ only in reviewed admitted proof source."
+    },
+    {
+      "topic": "Confinement and freshness",
+      "result": "PASS_BOUNDED_PINNED_INPUTS",
+      "detail": "Input repository path confinement is explicit and all actual pinned51 destinations are safe relative paths without parent traversal, with precreated src/R4 and tests/lexlean directories. Phase names are a closed enumeration. Exclusive nonrecursive host phase mkdir and guest stage mkdir fail on reuse. No removal, restore, retry or evidence overwrite operation introduced. Guest stage absence must be observed by the actual mkdir receipt; no guest inspection was performed in review."
+    },
+    {
+      "topic": "Authority and custody",
+      "result": "PASS",
+      "detail": "Exact candidate manifest, all payload/dependency bytes, actual source CODE hash, selected map and individual inputs are validated before native phase work. Proposal and SPEC are pinned through candidate payloads; old Hash09-only diagnostic authority loop is appropriately removed. Genuine official lock success is checked and exact bytes retained, no generated substitute lock. Guest source hashes are checked after copy and in final capture; lock and tool hashes are independently rechecked afterward."
+    },
+    {
+      "topic": "Resource and lifecycle guards",
+      "result": "PASS_UNCHANGED",
+      "detail": "Inherited20GiB host pre floor includes10GiB peak allowance plus10GiB reserve; host post10GiB, guest pre11GiB/post10GiB. Original tool hashes, same container/start/restartCount/4GiB/2CPU/networknone/mounts checks, idle and strict all-zero memory checks are retained. Historical freshEpochBinding is only a pinned snapshot, not present readiness. No restart or counter reset exists. Epoch review/raw dependency hashes were independently checked in this review; the script itself compares live epoch/config rather than rehashing every historical epoch raw file. Parent remains responsible for fresh source-bound resource eligibility and exact script identity before launch."
+    },
+    {
+      "topic": "Raw outcomes and independent postchecks",
+      "result": "PASS",
+      "detail": "Command records preserve args/start/end/status/signal/stdout/stderr/error. Official lock/check/verify JSON is parsed; failed check or census blocks verify. Successful verify requires status0 and success true before artifact copy, whose path is restricted to a .lexlean/verified/64hex directory. Nonzero verify is recorded without being classified as intended negative. Finally independently attempts source/lock/tools/epoch/memory/idle/guest/host checks and aggregates errors; no short-circuit introduced. Launcher exit0 can coexist with verify failure and never establishes acceptance."
+    },
+    {
+      "topic": "Progression and remaining authority",
+      "result": "PASS_WITH_PARENT_OWNED_SEQUENCE",
+      "detail": "No loop or automatic positive/fullRead continuation exists. Positive mode is technically callable without an embedded prior-negative approval token; README explicitly assigns actual intended-negative review and positive launch authority to parent. This review accepts that bounded manual sequencing contract, not an autonomous admission guard. Setup/dependency/timeout/resource failure does not satisfy the negative. Any next phase still needs fresh resource checks and independent actual outcome review."
+    }
+  ],
+  "findings": [],
+  "nativeStatus": {
+    "admittedSourceAdmission": "NOT_RUN",
+    "intendedNegative": "NOT_RUN",
+    "positive": "NOT_RUN",
+    "artifactAxiomKernel": "NOT_RUN",
+    "inner36AndRead33": "SEPARATE_REQUIRED_GATES"
+  },
+  "limitations": [
+    "No SDK, Docker, VM, compiler or runner invocation was performed. Node --check parses syntax only.",
+    "No efficiency, semantic negative, positive proof or production acceptance follows from this static review.",
+    "Inherited script is a bounded one-off raw recorder with parent-owned interpretation and sequence decisions; not a general acceptance framework."
+  ],
+  "resource": {
+    "hostAvailableAtReviewEndBytes": 22514126848,
+    "reviewReserveBytes": 10737418240,
+    "nativeLaunchRequiresFreshMeasurement": true
+  }
+}

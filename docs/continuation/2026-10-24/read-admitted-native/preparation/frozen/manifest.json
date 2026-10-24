@@ -1,0 +1,125 @@
+{
+  "schema": "lexlean-r4/admitted-product-invocation-preparation/1",
+  "status": "FROZEN_INVOCATION_SOURCE_PENDING_CODE_ALL_NATIVE_NOT_RUN",
+  "payloads": [
+    {
+      "path": "README.md",
+      "bytes": 3241,
+      "sha256": "fc1fa166578b53d2c69fbdf3066698ec1852c5f5bef5608e9e04e1cc27c15394"
+    },
+    {
+      "path": "changes.diff",
+      "bytes": 11131,
+      "sha256": "f576741470d12e0381cd7fbfe2817a5f294e90436efd392824cd834b5ae489ed"
+    },
+    {
+      "path": "changes.json",
+      "bytes": 8195,
+      "sha256": "fb3be9d1d23eb7ed4930cc90da266db38ec4b4b4149b82e2093f0549cc7629f4"
+    },
+    {
+      "path": "invoke-admitted-product.mjs",
+      "bytes": 12193,
+      "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b"
+    },
+    {
+      "path": "static-validation.json",
+      "bytes": 1280,
+      "sha256": "c2edc0b0113c676ebf7c214159b9f01f1d07add702339713d0d17725fe3b829f"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/invoke-hash09-isolated.mjs",
+      "bytes": 12796,
+      "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/manifest.json",
+      "bytes": 3931,
+      "sha256": "450a7c8ca12341ce0717d174a3a17c629f5434a358c8211874aff329e432ad42"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invocation-code-review.json",
+      "bytes": 5158,
+      "sha256": "6b1b8948378060c63a7b2598547955e799c935cbcd80ed0d089b6831ca2df1ac"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/manifest.json",
+      "bytes": 14763,
+      "sha256": "c42c707a0757e63f01cf9ea9ca5f56a6dd89248b62b38dedf7c2a026a8152617"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+      "bytes": 36221,
+      "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-proof-code-review.json",
+      "bytes": 6147,
+      "sha256": "28dc9bb8c3f539a0f7a3b09f19a07256798e8e0b8899193a03356abf707364e5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/evidence/proposal.json",
+      "bytes": 11247,
+      "sha256": "f127353e79b51a55152cee7bd0a542ad3f63384da59d14206f2414e84cb3983d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/evidence/spec-review.json",
+      "bytes": 8033,
+      "sha256": "4589f8334627e789a035aa6a55e3706823fe3f89a46e21a12e401a4a33ff2a35"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/fresh-epoch-review.json",
+      "bytes": 8154,
+      "sha256": "b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json",
+      "bytes": 12854,
+      "sha256": "bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-budget.json",
+      "bytes": 136,
+      "sha256": "e3bf6c904b6adcaf47991318e0d4d41f096d79a6edcd3cfb4977cff7375adf4a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-idle-before.json",
+      "bytes": 472,
+      "sha256": "b56ece4f802baf49f84a7891c5708fd8f0a260f48383f678b5437b2873c82154"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-before.json",
+      "bytes": 8787,
+      "sha256": "8882ad9b4e9b04e2e60f58a1dd5c2910ba3157df6f95f09d08c9f28662ec722a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-memory-before.json",
+      "bytes": 368,
+      "sha256": "6176e46bccf6440e54ad7ab7f293bbfd0ce9e942dedaabc299591b7571917340"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-guest-before.json",
+      "bytes": 418,
+      "sha256": "93839779086ac110eebc7c78b7436bbd3cb2d5c20266f662e8f1999254206356"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart.json",
+      "bytes": 329,
+      "sha256": "e2b8c44c10468ae0aca35b61dd625b38f7819671dc0e96ae519a836fe8207c35"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-after.json",
+      "bytes": 482,
+      "sha256": "c581fffefc596b43009aef64a971eda6f9363e3f8cc0d7b698676000d2f3fa73"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/after.json",
+      "bytes": 12852,
+      "sha256": "424c91533535df7d199b7591ae7ddfbdf25eec9c811d22b9f5d0efe905b1900d"
+    }
+  ],
+  "transitiveDependencies": "Candidate manifest55 repository dependencies and9payloads, plus both exact51 input maps, are rehashed by source checks and invocation. Source closure is referenced, not duplicated.",
+  "noNativeExecution": true
+}

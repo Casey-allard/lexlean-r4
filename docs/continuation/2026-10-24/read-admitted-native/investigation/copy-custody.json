@@ -1,0 +1,22 @@
+{
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-investigation.json",
+      "path": "phase1.json",
+      "bytes": 24340,
+      "sha256": "d55483bc069814e98873e438dd3d7c43c4c42e0121d48518caf67b066b8fe91c"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/failed-stage-compiled-search.json",
+      "path": "failed-stage-compiled-search.json",
+      "bytes": 595,
+      "sha256": "e5e46a93f8f30f6f7d5d3d5d37cb1cebbc685ca1b13c68e41504a51ba2f34bf9"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-spec-review.json",
+      "path": "spec-review.json",
+      "bytes": 12514,
+      "sha256": "bffa90dff11487fd51ff47a8ddea60992a9c3e60648a6c9aad30dedacf5fdcd2"
+    }
+  ]
+}

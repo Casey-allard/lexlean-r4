@@ -1,0 +1,23 @@
+{
+  "status": "READ_ONLY_RECOVERY_NO_NATIVE_REPLAY",
+  "files": [
+    {
+      "source": "/tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/build/ab5229842614b2e1079d14db20aabeb79a6c47911f01bdd7e77c281bca9adb3c/manifest.json",
+      "path": "manifest.json",
+      "bytes": 42132,
+      "sha256": "df74ebc896ef5413fad3171dd5b2da3749d3e9ba71593756fb66048b399b2a05"
+    },
+    {
+      "source": "/tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/build/ab5229842614b2e1079d14db20aabeb79a6c47911f01bdd7e77c281bca9adb3c/modules/LexLeanR4/ObjectReadParent49ConcreteChildEntry.lean",
+      "path": "ObjectReadParent49ConcreteChildEntry.lean",
+      "bytes": 15933,
+      "sha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd"
+    },
+    {
+      "source": "/tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/build/ab5229842614b2e1079d14db20aabeb79a6c47911f01bdd7e77c281bca9adb3c/modules/LexLeanR4/ObjectReadParent49VisitTransition.lean",
+      "path": "ObjectReadParent49VisitTransition.lean",
+      "bytes": 4604,
+      "sha256": "e4b72587390e3c30f6fffa6c238ce2616c33f4960fac4937b8844109de0f6c8b"
+    }
+  ]
+}

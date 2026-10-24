@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4/invocation-preparation-copy-custody/1",
+  "scope": "Exact historical preparation only; no native outcome copied or accepted.",
+  "copies": [
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/README.md",
+      "path": "frozen/README.md",
+      "bytes": 3241,
+      "sha256": "fc1fa166578b53d2c69fbdf3066698ec1852c5f5bef5608e9e04e1cc27c15394"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/changes.diff",
+      "path": "frozen/changes.diff",
+      "bytes": 11131,
+      "sha256": "f576741470d12e0381cd7fbfe2817a5f294e90436efd392824cd834b5ae489ed"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/changes.json",
+      "path": "frozen/changes.json",
+      "bytes": 8195,
+      "sha256": "fb3be9d1d23eb7ed4930cc90da266db38ec4b4b4149b82e2093f0549cc7629f4"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/invoke-admitted-product.mjs",
+      "path": "frozen/invoke-admitted-product.mjs",
+      "bytes": 12193,
+      "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/static-validation.json",
+      "path": "frozen/static-validation.json",
+      "bytes": 1280,
+      "sha256": "c2edc0b0113c676ebf7c214159b9f01f1d07add702339713d0d17725fe3b829f"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/manifest.json",
+      "path": "frozen/manifest.json",
+      "bytes": 5778,
+      "sha256": "791913f750fb30cbb711dce331de1b9995fbf1e8dd7b06abaf1fd5667e2afc22"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation-code-review.json",
+      "path": "invocation-code-review.json",
+      "bytes": 6401,
+      "sha256": "a03602de9a701478f6c89ca240ad5805a4eaf7cbdf0d531ddfb60e62574c4473"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/negative-parent-preflight.json",
+      "path": "negative-parent-preflight.json",
+      "bytes": 2169,
+      "sha256": "9ad1d99080ecee93f685868e5382f655a2729bc312b537a28a1a625371f8ec52"
+    }
+  ],
+  "verification": "All eight original files and exact copies independently read and SHA-256 checked during packaging.",
+  "hostAvailableBeforeBytes": "24119504896",
+  "additionalAllocationCapBytes": 131072,
+  "sourceClosure": "tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+  "sourceClosureSha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9",
+  "limitations": [
+    "Running phase records excluded.",
+    "Original absolute paths remain historical identifiers; wrapper does not rewrite original script or authorize execution.",
+    "External dependencies listed by frozen manifest are not duplicated here; this is not a self-contained SDK or proof artifact."
+  ]
+}
