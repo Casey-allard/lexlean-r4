@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-whole-digest-reuse-digest-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-24T03:29:43.778Z",
+  "ended": "2026-10-24T03:29:53.772Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"HashWireDirect09Controls\",\"ObjectWholeDigest\",\"ObjectWholeDigestContext\",\"ObjectWholeDigestTransport\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"f06b2f686010d7ba031f5eb37084f03d9de12844858c496811680c5a8557e213\",\"source_id\":\"c52fe02721e3de4c8e93e34cc241a57fde5e2fe6c9866a101ed3d07770cd9a61\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

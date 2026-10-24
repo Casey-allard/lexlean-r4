@@ -1,0 +1,70 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NOT_EXECUTED",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invoke-whole-read-continuation.mjs",
+    "bytes": 7734,
+    "sha256": "b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61"
+  },
+  "plan": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-delta-plan.json",
+    "bytes": 2910,
+    "sha256": "ea7618b48941fc3702fbb306f14cc45e49bcf5afd936e64d4ced4c63f09cd5c2"
+  },
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+    "bytes": 2080,
+    "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+  },
+  "epochCapture": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/epoch/summary.json",
+    "bytes": 260,
+    "sha256": "10807cd0cadb824f4abee9c68669bd4b9412af4709dc80236a60f4eedcdfad65"
+  },
+  "epochAcceptance": "PENDING_INDEPENDENT_REVIEW",
+  "substitutions": [
+    {
+      "before": "['whole-false','whole-positive']",
+      "after": "['digest-false','digest-positive']"
+    },
+    {
+      "before": "select exactly one whole-read continuation phase",
+      "after": "select exactly one whole-digest reuse phase"
+    },
+    {
+      "before": "/tmp/r4-object-whole-read-continuation-${phase}-owned-20261023",
+      "after": "/tmp/r4-object-whole-digest-reuse-${phase}-owned-20261023"
+    },
+    {
+      "before": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8",
+      "after": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+    },
+    {
+      "before": "x.phase===(phase==='whole-false'?'negative':'positive')",
+      "after": "x.phase===phase"
+    },
+    {
+      "before": "inputs.length!==22||new Set(inputs.map(x=>x.destination)).size!==22",
+      "after": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18"
+    },
+    {
+      "before": "tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "after": "tests/lexlean/ObjectWholeDigest.lex.tex"
+    },
+    {
+      "before": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+      "after": "2026-10-24T03:23:35.957043396Z 0 4294967296 2000000000 none []"
+    },
+    {
+      "before": "// One-off official-compiler invocation for one original whole-read hash/digest continuation; no Read33 acceptance.",
+      "after": "// One-off official-compiler invocation for the exact projected whole-digest wrapper; no Read33 acceptance."
+    }
+  ],
+  "exactInverseReconstruction": true,
+  "scope": "Seven planned operational literal substitutions, one exact captured epoch literal, one descriptive comment. All guard/postcapture/command logic unchanged.",
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invoke-whole-digest-reuse.mjs",
+    "bytes": 7668,
+    "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+  }
+}

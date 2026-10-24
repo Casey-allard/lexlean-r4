@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-whole-digest-reuse-digest-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/ObjectWholeDigest.lex.tex"
+  ],
+  "started": "2026-10-24T03:29:53.775Z",
+  "ended": "2026-10-24T03:31:49.212Z",
+  "status": 1,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"verify\",\"diagnostics\":[{\"causes\":[],\"code\":\"LLV7002\",\"help\":[],\"labels\":[],\"message\":\"Lean rejected `LexLeanR4.ObjectWholeDigest` (error): Type mismatch\\n  ObjectWholeDigestTransport.objWholeDigestLifted 1\\nhas type\\n  ObjectWholeDigestContext.ObjWholeDigestGoal 1\\nbut is expected to have type\\n  R4.ObjectCodec.ObjHashBytes\\n      {\\n          bytes :=\\n            [3, 10, 17, 24, 31, 38, 45, 52, 59, 66, 73, 80, 87, 94, 101, 108, 115, 122, 129, 136, 143, 150, 157, 164,\\n              171, 178, 185, 192, 199, 206, 213, 220, 227, 234, 241, 248, 255, 6, 13, 20, 27, 34, 41, 48, 55, 62, 69,\\n              ⋯],\\n          version :=\\n            {\\n              bytes :=\\n                [146, 74, 190, 232, 62, 91, 175, 190, 237, 157, 113, 38, 4, 8, 17, 5, 253, 233, 231, 187, 31, 113, 235,\\n                  100, 5, 194, 189, 181, 34, 231, 150, 142] },\\n          range :=\\n            { start := 0,\\n              stop :=\\n                { length := 96,\\n                    roots :=\\n                      [{ id := { bytes := [128, 174, 112, 205, 237, 99, 32, 90, 110, 198, 109, 200] }, scale := 1 }],\\n                    digest :=\\n                      {\\n                        bytes :=\\n                          [201, 241, 165, 247, 157, 123, 234, 1, 165, 79, 78, 219, 65, 103, 55, 34, 246, 39, 238, 46,\\n                            130, 221, 163, 36, 148, 107, 99, 207, 75, 155, 22, 175] } }.length },\\n          remainder := [], stats := { visits := 4, distinctRecords := 4, visitedRecordBytes := 184 } }.bytes =\\n    Except.ok\\n      {\\n        bytes :=\\n          [202, 241, 165, 247, 157, 123, 234, 1, 165, 79, 78, 219, 65, 103, 55, 34, 246, 39, 238, 46, 130, 221, 163, 36,\\n            148, 107, 99, 207, 75, 155, 22, 175] }\",\"notes\":[{\"message\":\"generated location: $STAGING/lean-src/LexLeanR4/ObjectWholeDigest.lean:13:2\"}],\"primary\":{\"byte_end\":14867,\"byte_start\":280,\"column_end\":14619,\"column_start\":32,\"line_end\":9,\"line_start\":9,\"path\":\"tests/lexlean/ObjectWholeDigest.lex.tex\"},\"severity\":\"error\",\"spec\":\"lexlean/diagnostic/1\"}],\"exit_code\":1,\"modules\":[],\"spec\":\"lexlean/command-result/1\",\"success\":false}\n",
+  "stderr": ""
+}

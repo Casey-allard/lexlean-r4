@@ -1,0 +1,27 @@
+{
+  "schema": "lexlean-r4-delivery-readme-correction/v1",
+  "timestamp": "2026-10-24T03:49:27.059Z",
+  "status": "CORRECTED_PENDING_RENEWED_EXACT_REVIEW",
+  "reason": "Both delivery reviewers rejected only stale mutable root README current-status wording. Source, native evidence and earlier immutable preparation history remain byte unchanged.",
+  "previousManifest": "b592d523a6eaea12a657494222f20e62fed5a42728fa3356462dd07e721f879e",
+  "preservation": {
+    "path": "rejected-delivery.json.gz",
+    "bytes": 10067,
+    "sha256": "39206d87da2be13cfeda02d8ab33447043b462b307cc3762507d34eef3374b6a",
+    "decodedBytes": 30184,
+    "decodedSha256": "37061eff01d10cff1bdce88adedf477b6e833c3c485e46d8c5d5414f15b586cc"
+  },
+  "changes": [
+    "Root README links current accepted narrow digest results and labels retained preparation history",
+    "Regenerated exact delivery manifest includes this correction and byte-preserved rejection"
+  ],
+  "verification": "No source, runtime, native proof or limits changed; no native rerun needed.",
+  "budget": {
+    "phase": "separate bounded publication correction after rejected preparation delivery",
+    "additionalLimitBytes": 131072,
+    "estimatedPeakAdditionalBytes": 65536,
+    "hostAvailableBytes": "27384676352",
+    "reserveBytes": "10737418240",
+    "priorPreparationCapNotRetroactivelyChanged": true
+  }
+}

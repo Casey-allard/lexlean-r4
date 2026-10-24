@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-invocation-code-review/v1",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "status": "PASS_BOUNDED_INVOCATION_SOURCE_WITH_SEPARATELY_ACCEPTED_EPOCH",
+  "reviewedAt": "2026-10-24T03:29:02.414Z",
+  "identities": [
+    {
+      "path": "invocation-manifest.json",
+      "bytes": 2565,
+      "sha256": "92574e1b56158e0cea0fd4a54c4e7291401f35f220abb9756be3fc40cd98f2af"
+    },
+    {
+      "path": "invoke-whole-digest-reuse.mjs",
+      "bytes": 7668,
+      "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 3190,
+      "sha256": "87b14eec41925717af204b0f1ab55bfed94f49b0a887562fb25128ac8503e9c9"
+    },
+    {
+      "path": "invocation-delta-plan.json",
+      "bytes": 2910,
+      "sha256": "ea7618b48941fc3702fbb306f14cc45e49bcf5afd936e64d4ced4c63f09cd5c2"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 2080,
+      "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+    },
+    {
+      "path": "candidate-code-review.json",
+      "bytes": 5984,
+      "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+    },
+    {
+      "path": "epoch-review.json",
+      "bytes": 7677,
+      "sha256": "074cf5f61f522b68832beae02959b34f359383939cd4926b589a1ce6046c749e"
+    }
+  ],
+  "checks": {
+    "literalDelta": "Independently reconstructed exact successor bytes from predecessor b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61 and exact predecessor bytes by reversing all nine single-occurrence substitutions. First seven equal the planned literal changes; other two are the independently accepted new epoch and descriptive comment. No other operational byte changes.",
+    "sourceCustody": "Rehashed all eight candidate payloads and both phases’ 18 input mappings against current repository/candidate bytes and sizes; each has 18 unique destinations. Rehashed source CODE review and all invocation references. Full consumer is tests/lexlean/ObjectWholeDigest.lex.tex in both phase selection and unchanged-limit config.",
+    "selectors": "Exactly one digest-false or digest-positive argument; phase fields match actual candidate. Exclusive phase output creation and exclusive fresh owned stage names prevent implicit overwrite. No phase loop or automatic positive follow-up.",
+    "limits": "Retains 300000ms child timeout; exact owned container, 4GiB memory, 2CPU, no network/mounts, four executable identity checks before and after. Host planning threshold20GiB includes10GiB estimated additional use and10GiB reserve; guest11GiB before/10GiB after; zero memory events and idle gates retained.",
+    "commands": "Frozen manifest and all selected source pins checked before Docker mutation. Fresh copy hash census, genuine official lock, successful source check required before full-target verify. Actual verify exit and parsed result retained; artifact copied only on exit0/success with constrained verified-artifact path. Launcher0 is not proof acceptance.",
+    "postconditions": "Independent postcapture attempts remain source, generated lock, tools, epoch, memory events, idle, guest reserve and host reserve. Any failed postcapture produces nonzero orchestration status and retained errors. No changed exception handling or weaker acceptance predicates.",
+    "epoch": "Read and bound independent epoch review074cf5f61f522b68832beae02959b34f359383939cd4926b589a1ce6046c749e; rehashed its19 retained capture records. Runner literal matches actual inspect-after new start2026-10-24T03:23:35.957043396Z. Frozen pending/null fields are historical and left untouched; this additive review binds separate acceptance."
+  },
+  "findings": [],
+  "boundaries": [
+    "Source/invocation readiness only. Neither runner imported nor executed; no native proof, lock generation, artifact creation, runtime or model acceptance performed by this reviewer.",
+    "Parent must refresh operational gates before each phase and independently accept intended negative before positive. The runner does not itself enforce external review sequencing.",
+    "14 supplied source modules and11 static reachable modules remain predictions until actual check receipts. All current native tests NOT_RUN.",
+    "The standalone exact projected ObjHashBytes fullResult proof does not accept failed original whole-read continuation, Read33, full Hash restoration, PrismPM or Pages. No caching or efficiency claim.",
+    "Old nonzero memory epoch and failed whole-read stages remain preserved; new epoch is distinct and does not repair historical failures."
+  ],
+  "disclosure": "Reviewer previously authored candidate source CODE review; reviewed invocation authored by another internal team member. Epoch acceptance was independently authored by design reviewer and is referenced, not claimed as a fresh restart audit.",
+  "storage": {
+    "freshHostAvailableBytes": "26930819072",
+    "reportLimitBytes": 10240,
+    "measurement": "Point-in-time statfs; no continuous peak claim."
+  },
+  "execution": "Only read-only local file inspection and ephemeral Node assertions; one new external review JSON, no repository/index/frozen/VM/SDK/native/other-lab mutation."
+}

@@ -1,0 +1,327 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-positive-native-review/v1",
+  "status": "PASS_ACTUAL_PROJECTED_WHOLE_DIGEST_FULL_RESULT_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T03:37:59.944Z",
+  "identities": {
+    "attestation": {
+      "path": "attestation.json",
+      "bytes": 156151,
+      "sha256": "eea86cce27a020e43716b0c270c05fa77feef49fe5dcc60978578890895164d0"
+    },
+    "buildManifest": {
+      "path": "build-manifest.json",
+      "bytes": 13467,
+      "sha256": "fab25d005b5704cc89c33eeadfcdd77f469142749b66a01358e828259267fdd9"
+    },
+    "sourceId": "c4f59796f2f6fae868b269278635efb4c88827c6da0fdb9d55199151a2819352",
+    "semanticId": "c3cf55ad85716aecfaf7a23ac0467deb1960d9c364e337596df06b07a9804354",
+    "buildId": "cc7538c18bc2f29bea4ea7f6d06893df7e0e0b8315b0caced7c98c37a4f34d3f",
+    "attestationId": "821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f",
+    "preparation": [
+      {
+        "path": "manifest.json",
+        "bytes": 2080,
+        "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+      },
+      {
+        "path": "candidate-code-review.json",
+        "bytes": 5984,
+        "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+      },
+      {
+        "path": "invocation-manifest.json",
+        "bytes": 2565,
+        "sha256": "92574e1b56158e0cea0fd4a54c4e7291401f35f220abb9756be3fc40cd98f2af"
+      },
+      {
+        "path": "invoke-whole-digest-reuse.mjs",
+        "bytes": 7668,
+        "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+      },
+      {
+        "path": "invocation-code-review.json",
+        "bytes": 5260,
+        "sha256": "b470219ac19ea0d3d796579bafbecffd8ea535019dccb1dd05f24676a5bfb684"
+      },
+      {
+        "path": "epoch-review.json",
+        "bytes": 7677,
+        "sha256": "074cf5f61f522b68832beae02959b34f359383939cd4926b589a1ce6046c749e"
+      },
+      {
+        "path": "negative-native-review.json",
+        "bytes": 13197,
+        "sha256": "c3127bd99bd0b6dd580f8689d3872de193ffe0e1d6889d690fb2720bf07b9ade"
+      },
+      {
+        "path": "positive-launch-preflight.json",
+        "bytes": 516,
+        "sha256": "dc07f921fe69b69fce9d81c8e800cfcfebd0bdd7534154be45da7b14eac85f82"
+      }
+    ]
+  },
+  "actual": {
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "started": "2026-10-24T03:34:10.212Z",
+    "ended": "2026-10-24T03:36:03.401Z",
+    "aggregateVerifyElapsedMs": 113189,
+    "selectedModules": [
+      "HashWireDirect09Controls",
+      "ObjectWholeDigest",
+      "ObjectWholeDigestContext",
+      "ObjectWholeDigestTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedModules": 14,
+    "inputs": 18,
+    "artifactFiles": 115,
+    "buildOutputs": 55,
+    "oleans": 11,
+    "observedEmptyAxiomDeclarations": 744,
+    "successfulProcesses": 34,
+    "kernelReplays": 11,
+    "auditProcesses": 11,
+    "probeProcesses": 1
+  },
+  "proofAudit": {
+    "consumer": "Actual emitted objOriginalWholeDigest is parameterless fullResult equality: production R4.ObjectCodec.ObjHashBytes on original complete range record.bytes equals Except.ok original32-byte ObjWholeDigest beginning201. All96 projected bytes retained; original version/range/manifest/remainder/stats184 remain in the input record. Body is exact objWholeDigestLifted1, not a helper-only substitute.",
+    "transport": "Actual emitted Nat induction zero applies wireDirect09; successor cases prior and congr1. Context retains Result error mapping to ObjError.hashFailure and success digest wrapping. Consumer, context and transport are all selected, elaborated and kernel replayed.",
+    "literals": "Parsed all five emitted consumer Nat lists:96 input,32 version,12 rootID,32 original manifest digest,32 expected digest.96 bytes equal original(3+7i)mod256; expecteddigest exactly equals originalmanifestdigest. Source CODE already reconstructed exact original projected AST and real runtime wrapper; current source/build binding unchanged.",
+    "axioms": "All744 declaration records observed[]/policy none with empty axioms/resultok. Retained audit outputs contain the exact same744 unique declaration names; concatenated audit output matches audit/output.txt.",
+    "artifactIntegrity": "All actual files recursively rehashed; exact115-file set reconstructed from55 declared outputs,11oleans,34 process records,probe/audit source files and two manifests plus audit output. Every output size/hash and olean pin matches; every retained process object equals attestation and exits0; stdout/stderr hashes and fixed Lean/checker executable identities match. Kernel module set equals all11 build modules."
+  },
+  "custody": {
+    "inputCopies": "All18 frozen input paths/bytes/hashes and copy argv agree; guest source-before/after exact. Build nonembedded input and Lake workspace hashes agree with current sources/config/lock. Embedded package raw bytes were not separately extracted; their recorded identities agree through lock/build semantics.",
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "58d169336b82627002f9b7913b742477c2f9ee78a580c6c37eb95b22da6b58e9",
+      "description": "Official fresh lock0 captured exact bytes and unchanged posthash; not a production lock."
+    },
+    "toolsEpoch": "Before/after tools unchanged, exact reviewed new StartedAt2026-10-24T03:23:35.957043396Z,4GiB/2CPU/networknone/mounts[]. Idle before/after and all six memory.events before/after are zero.",
+    "postcapture": "All40 top-level command receipts exit0/null signal; all independent command postchecks follow verify completion; postcapture-errors[]. Launcher0 alone was not used as acceptance.",
+    "prelaunch": "Parent preflight records an earlier read-only schema helper TypeError aborted before SDK. Corrected read path then rehashed prior negative closure; record preserved. It is neither a compiler negative nor an extra native attempt."
+  },
+  "resources": {
+    "hostBeforeBytes": "28914585600",
+    "hostAfterBytes": "28629590016",
+    "guestBeforeAvailableKiB": "52933352",
+    "guestAfterAvailableKiB": "52923568",
+    "freshReviewHostAvailableBytes": "28063461376",
+    "observation": "Three discrete observations lie inside actual verify interval. ps identifies active leanchecker on HashWireDirect09Controls RSS618552KiB; sequential stats885.9MiB/4GiB121.09%CPU and zeroevents. Under1GiB at that discrete container sample only, not peak or continuous bound. No efficiency comparison established.",
+    "storage": "Host20GiBpre/10GiBpost andguest11GiBpre/10GiBpost passed; planning estimate not measured highwater."
+  },
+  "artifactCensus": {
+    "path": "positive-artifact-census.json",
+    "bytes": 21509,
+    "sha256": "27103ad56627cf726c4db6f70b3f26074914ddaf2410c94bea31f10dc9d241cc",
+    "recordsSha256": "3e637947e864d2e7261442da080b84466fc3045b3795a809f789358f21003a81"
+  },
+  "rawClosure": {
+    "files": 46,
+    "commandReceipts": 40,
+    "bytes": 40367,
+    "sha256": "760e347d3d01b01f5fe436a8e348bc7cd0789684d5a30c1af50afad4a1b7f908",
+    "encoding": "JSON.stringify(ordinal-filename-sorted path/bytes/sha256 records)",
+    "records": [
+      {
+        "path": "allocated-before.json",
+        "sha256": "5cce0faa6205bbd036b37725f42ff26508af41c24b8f1381b34516bb35296472"
+      },
+      {
+        "path": "artifact-copy.json",
+        "sha256": "690de4e3ce0a6a212ac0e00d486c22480c631630ce0ba43ab4258a11380ae49b"
+      },
+      {
+        "path": "check.json",
+        "sha256": "a4d9f30b7ba6fba4370bd3df2c6dde2f87173037e2c951803d260dd232435441"
+      },
+      {
+        "path": "copy-0.json",
+        "sha256": "ddb0899dabb2ca6ab372cf9190126338473f9fc17e0d707add39bfe29866d560"
+      },
+      {
+        "path": "copy-1.json",
+        "sha256": "a92fca6a85c817e6bfbb516955e08089af6a998395178be9e6f3f0a92248e7f7"
+      },
+      {
+        "path": "copy-10.json",
+        "sha256": "755e9fc2acddfdf1e9478a753f54957642e9dd72bd1401514c6f0d71ee359c90"
+      },
+      {
+        "path": "copy-11.json",
+        "sha256": "7c0898f1a73fa2e5616513893ed3a55b888d239d3bfb04d85aed20f4e5986f95"
+      },
+      {
+        "path": "copy-12.json",
+        "sha256": "d2747b4e40ceeef9670b44a71f695cef5add613f602a0e693a22c407877cdb78"
+      },
+      {
+        "path": "copy-13.json",
+        "sha256": "59f3bb7270cbe93744b3dad6a9cd24dc5a24513b77dc65f4a6b769eaee8a3a49"
+      },
+      {
+        "path": "copy-14.json",
+        "sha256": "c570e0241b8f6be745fa4087392ccf07dc474cb713e21b71e68c64454b4c4725"
+      },
+      {
+        "path": "copy-15.json",
+        "sha256": "57451f421e342cc06bd8af3c01e08b39875ac6fdc4e87540522abc693095e199"
+      },
+      {
+        "path": "copy-16.json",
+        "sha256": "40d85a083326fe9e17cd03c781e922256aa629b2a1b863d4b4fc1b1e7b6d7e7b"
+      },
+      {
+        "path": "copy-17.json",
+        "sha256": "493ead978b12689cbb9dc9746a7216a64053db300b6665595b070e3223381e75"
+      },
+      {
+        "path": "copy-2.json",
+        "sha256": "78b054fe9a8f51b57790f6829591f55f97bab2b2d3b8f492473435e4c318cc28"
+      },
+      {
+        "path": "copy-3.json",
+        "sha256": "09eef1db4e5cc9f5eeb3f80074256b2241adff0a4fe519d3819f890fe0438d3e"
+      },
+      {
+        "path": "copy-4.json",
+        "sha256": "9d928599d47e5f64387538bd674f7806b2dca16eac36a7735ec6631caf9e88d0"
+      },
+      {
+        "path": "copy-5.json",
+        "sha256": "5b5b2e029716836e2013c53a59c4cc4b0bdf50a19d9fa1883c93be70ab4c536e"
+      },
+      {
+        "path": "copy-6.json",
+        "sha256": "0e996b3ae4402235b3e0cdf561b5a58115615c5d03345717120d90735da7f160"
+      },
+      {
+        "path": "copy-7.json",
+        "sha256": "d39b10aaa2501ae5839d288040aafda188bfd96e5240d0b82d8d91bf786e0d29"
+      },
+      {
+        "path": "copy-8.json",
+        "sha256": "02e0a1bdce3be7648b199588eef93acda63a6fe1434877c94aaee962a85c6540"
+      },
+      {
+        "path": "copy-9.json",
+        "sha256": "a03eab5f97199da133967b66aa8f7a71409bfb8b71ec19a867199fac7c840da6"
+      },
+      {
+        "path": "directories.json",
+        "sha256": "cbb140760a27006f6402e93460d24acf372b2a6ba269e9981d92ca9581338a6c"
+      },
+      {
+        "path": "epoch-after.json",
+        "sha256": "1ceab5825883109139801ef2c4549f1dc54a3940976d10035b81f29c27f8a522"
+      },
+      {
+        "path": "epoch-before.json",
+        "sha256": "6ef11e762da6ec22b0e032b4ecf5747582834f3acd16e26fe082f040431611f5"
+      },
+      {
+        "path": "expected-inputs.json",
+        "sha256": "ba533ce881b73f047594020b402ec51061657136a3da732d9e8d66c505460c8b"
+      },
+      {
+        "path": "guest-after.json",
+        "sha256": "cec497112d13f39aa28d48a5d47fb2b17d34441a7e39db8341a29b13220d8135"
+      },
+      {
+        "path": "guest-before.json",
+        "sha256": "e4875ac9de4b0f7f50dd4230433b655a0f65b201041deaf9288ced4de13fd93c"
+      },
+      {
+        "path": "host-after.json",
+        "sha256": "dea09f4aaf8c6e0419efea383d57f279013b1358ac86ee79bb064eef6290c863"
+      },
+      {
+        "path": "host-before.json",
+        "sha256": "24d923af5129c1a72cf232c40d6ad9b3305d3d1fda2490146674d17176920686"
+      },
+      {
+        "path": "idle-after.json",
+        "sha256": "0427e24b98b60b14c63f53c5a8ed8440f840f44a9888b513a2164522fcf99b22"
+      },
+      {
+        "path": "idle-before.json",
+        "sha256": "0d996838677db04a0fa164207e6a618b75237084e9c978069c5ce494cdd47396"
+      },
+      {
+        "path": "lock-after.json",
+        "sha256": "7e1d0a37daad8d4fb51cb4626d242f0f1811786a89a40c9e07b57737238eb6a0"
+      },
+      {
+        "path": "lock-bytes.json",
+        "sha256": "a3eb2c36efa073a3146ad173f472917f0d1abd62fada2d1c6f685fff3f03c9c3"
+      },
+      {
+        "path": "lock.json",
+        "sha256": "faaaf2e6c1f87f05cca5dfa75bccaecb38300cf8e1f4de60175d4142c94a7b7e"
+      },
+      {
+        "path": "memory-after.json",
+        "sha256": "1e8125519a40c41806b619fc73e77aa3282a1c93dc0606df2af8e4cc2af49b76"
+      },
+      {
+        "path": "memory-before.json",
+        "sha256": "bc30b9c8cc1359b2422ec8ed4dac9f93abfd98615193561193295844f00dae03"
+      },
+      {
+        "path": "new-stage.json",
+        "sha256": "182ed32733b8299d1b75167d9d7816df52a55f59ac5f96786371fc9bb1e66332"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "resource-observation.json",
+        "sha256": "9cdcd3a02c43e113765bb9c8efed47541b3aeceef9ab14b5f2d2c2ffb2618e87"
+      },
+      {
+        "path": "result.json",
+        "sha256": "64e19666306e089bbf2e608106e38b1f762a6381b8fbb78dfebe7f8018cd7867"
+      },
+      {
+        "path": "source-after.json",
+        "sha256": "56fe8262e3dc65cdb4dd9ebeedc0f4d9d8110072012b80aa25f5c77496fbc8cb"
+      },
+      {
+        "path": "source-before.json",
+        "sha256": "000d2ef316c78b31cfa0f8f601ee370091baf2942481de7b1bd104786da55eab"
+      },
+      {
+        "path": "swap-before.json",
+        "sha256": "57de18b37d4eea6dfdc70bb7f32698a74cc2f574d7d39ef1e81ae28f011fae98"
+      },
+      {
+        "path": "tools-after.json",
+        "sha256": "e05f2c53bb3b55b88fa0a6f91ec5e39d9e82148cc8168a7590a0658400705895"
+      },
+      {
+        "path": "tools-before.json",
+        "sha256": "2fa254b33cadeef9d94b358330ca3d9c9c0be6ff92d4addea24316f8a9906bc4"
+      },
+      {
+        "path": "verify.json",
+        "sha256": "27a67e938c4463ae5f56081bdd02cc532f3a198607ddb1dfe63f8af760d4032d"
+      }
+    ]
+  },
+  "findings": [],
+  "limitations": [
+    "Accepted exact standalone projected ObjHashBytes fullResult consumer only. Original whole-read continuation remains failed/open; no original Read33/full Object257/full Hash restoration/PrismPM/Pages acceptance.",
+    "Native positive establishes this consumer conversion; no caching, computational bottleneck localization or resource-efficiency claim follows.",
+    "Read-only independent audit of retained actual artifacts and receipts; no SDK invocation, kernel rerun, source/repository/index/VM/other-lab mutation. Two bounded external review/census files written."
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-invocation-delta-plan/v1",
+  "status": "PLAN_ONLY_RUNNER_NOT_WRITTEN_OR_FROZEN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invoke-whole-read-continuation.mjs",
+    "bytes": 7734,
+    "sha256": "b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61"
+  },
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+    "bytes": 2080,
+    "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate-code-review.json",
+    "bytes": 5984,
+    "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+  },
+  "plannedLiteralChanges": [
+    {
+      "before": "['whole-false','whole-positive']",
+      "after": "['digest-false','digest-positive']"
+    },
+    {
+      "before": "select exactly one whole-read continuation phase",
+      "after": "select exactly one whole-digest reuse phase"
+    },
+    {
+      "before": "/tmp/r4-object-whole-read-continuation-${phase}-owned-20261023",
+      "after": "/tmp/r4-object-whole-digest-reuse-${phase}-owned-20261023"
+    },
+    {
+      "before": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8",
+      "after": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+    },
+    {
+      "before": "x.phase===(phase==='whole-false'?'negative':'positive')",
+      "after": "x.phase===phase"
+    },
+    {
+      "before": "inputs.length!==22||new Set(inputs.map(x=>x.destination)).size!==22",
+      "after": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18"
+    },
+    {
+      "before": "tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "after": "tests/lexlean/ObjectWholeDigest.lex.tex"
+    }
+  ],
+  "commentOnly": "Replace original whole-read continuation description with exact projected whole-digest wrapper; no Read33 acceptance.",
+  "epochLiteral": {
+    "old": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "new": null,
+    "reviewedRawBinding": null,
+    "status": "BLOCKED_UNTIL_PARENT_SUPPLIES_REVIEWED_FRESH_EPOCH"
+  },
+  "invariants": "Keep all guard/recorder/command/postcapture logic and tools/CID/300s config unchanged. Same host20GiB launch with10GiB estimate/reserve, guest11pre10post, exact sources/lock/tools/epoch/zeroevents/idle and independent postcaptures.",
+  "noAuthority": "No runnable adapter created. No stage/directories/native effects. Parent must supply exact fresh reviewed epoch before final literal substitution and independent invocation CODE.",
+  "storage": {
+    "freshHostAvailableKiB": 25792112,
+    "aggregateLimitBytes": 1048576
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "classification": "DISCRETE_OBSERVATION_NOT_PEAK",
+  "observations": [
+    {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,etime,rss,args"
+      ],
+      "started": "2026-10-24T03:35:24.608Z",
+      "ended": "2026-10-24T03:35:25.172Z",
+      "status": 0,
+      "stdout": "    PID COMMAND             ELAPSED   RSS COMMAND\n      1 sh                    11:48  1544 /bin/sh -c sleep infinity\n      7 sleep                 11:48  1564 sleep infinity\n    377 lexlean               01:14 162772 lexlean --diagnostic-format json verify tests/lexlean/ObjectWholeDigest.lex.tex\n    545 lake                  00:06 106236 /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker LexLeanR4.HashWireDirect09Controls\n    550 leanchecker           00:06 618552 /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker LexLeanR4.HashWireDirect09Controls\n    554 ps                    00:00  3604 ps -eo pid,comm,etime,rss,args\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "stats",
+        "--no-stream",
+        "--format",
+        "{{.MemUsage}} {{.CPUPerc}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "started": "2026-10-24T03:35:25.172Z",
+      "ended": "2026-10-24T03:35:26.276Z",
+      "status": 0,
+      "stdout": "885.9MiB / 4GiB 121.09%\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T03:35:26.276Z",
+      "ended": "2026-10-24T03:35:26.485Z",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    }
+  ]
+}

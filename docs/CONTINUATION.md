@@ -33,7 +33,8 @@ independent reviewers; no external lab or another session owns this work.
 | Concrete range-finish direct proof | Full-result wrong-wire phase passed source admission for 9 selected modules from 11 supplied source files, then timed out in target Lean at 300,013 ms against the unchanged 300,000 ms limit. Aggregate verification 425,362 ms; no artifact, intended negative not established, positive NOT_RUN. | [Failure checkpoint](../tests/fixtures/object-concrete-range-finish/RESULTS.md). This configuration remains unaccepted. The distinct contextual successor is recorded in the next row. |
 | Contextual complete range finish | The complete original ObjRangeFinish Result is verified; expected wire statistic 185 is rejected. Independent audit: 125 files, 776 empty-axiom declarations, 12 kernel replays; positive aggregate 49,645 ms. | [Contextual-finish results](../tests/fixtures/object-contextual-range-finish/RESULTS.md). The subsequent admitted-range result is accepted; whole-read obligations remain open. |
 | Original admitted-range full Result | The actual original ObjRangeAdmitted call returns all 96 bytes, exact version, range, empty remainder and statistics 4/4/184. The intended full-consumer negative is rejected; successful positive conversion is separately kernel checked. Independent audit: 135 files, 777 empty-axiom declarations, 13 kernel replays; aggregate 289,504 ms. | [Admitted-range results](../tests/fixtures/object-admitted-range-result/RESULTS.md). Outer whole-read admission, genuine data hash/digest comparison and Read33 remain open. |
-| Original whole-read continuation attempt | Intended transport negative rejected; sourcecheck18 passed, but the actual whole-read consumer timed out at300004ms. Memory max450159 with oom0/oom_kill0; no artifact or continuation acceptance. | [Failure checkpoint](../tests/fixtures/object-whole-read-continuation/RESULTS.md). Preserve the nonzero resource epoch; no equivalent limit retry. Corrected hash-reuse investigation remains a separate source-only step. |
+| Original whole-read continuation attempt | Intended transport negative rejected; sourcecheck18 passed, but the actual whole-read consumer timed out at300004ms. Memory max450159 with oom0/oom_kill0; no artifact or continuation acceptance. | [Failure checkpoint](../tests/fixtures/object-whole-read-continuation/RESULTS.md). Preserve the nonzero resource epoch; no equivalent limit retry. The subsequent standalone digest proof does not repair this failed connection. |
+| Genuine projected whole-data digest | The production ObjHashBytes call on the original range record's96 projected bytes returns the complete expected digest Result. Expected first byte201→202 is rejected at the mandatory consumer. Positive independently audited:744 empty-axiom declarations,11 kernel replays,115 artifact files,113189ms. | [Digest reuse results](../tests/fixtures/object-whole-digest-reuse/RESULTS.md). The failed outer whole-read continuation, final digest comparison/wrapping and Read33 remain open. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -516,7 +517,8 @@ permit preparing this standalone lemma without requiring the failed whole
 connection to pass first. It must retain the exact projected input, genuine
 Result wrapper and expected-byte201→202 negative. Written-source review, a new
 official closure/lock and a separately reviewed fresh resource epoch are still
-required before native work. All wrapper tests are NOT_RUN. Historical native
+required before native work. At that design checkpoint all wrapper tests were
+NOT_RUN; the subsequent digest checkpoint below records their actual results. Historical native
 artifact binaries remain local; the new closure must be verified from source.
 This does not retroactively prove the failed whole-read connection.
 
@@ -524,3 +526,36 @@ Outer whole-read admission and wrapping, genuine whole-data hashing and digest
 comparison, original ordinal 26/all Read33 and full integration remain open.
 Keep the ten remaining drafts in the completion sequence and use fresh resource
 gates before native work. All earlier failed configurations remain preserved.
+
+## Genuine whole-data digest checkpoint
+
+The [standalone digest lemma](../tests/fixtures/object-whole-digest-reuse/RESULTS.md)
+has now passed official verification and independent artifact review. It proves
+the production ObjHashBytes call on the original admitted range record's96
+projected bytes equals the complete expected successful digest Result. The
+exact Direct09 source is imported and reverified through the real Result wrapper
+and supported transport; no historical binary or lock is transplanted.
+
+Both source checks admitted11 modules from14 supplied source modules and18
+inputs. The expected first digest byte201→202 negative is rejected in the full
+consumer in115437ms. Positive verification took113189ms; independent review
+checked115 artifact files,55 outputs,11 oleans,744 empty-axiom declarations,
+34 successful processes and11 kernel replays. All source, genuine development
+lock, tool, epoch, idle, memory-event and storage checks passed. The negative
+resource observation is post-run; the positive885.9MiB observation is an active
+Direct09 replay sample, not peak consumption or a general efficiency claim.
+
+The old whole-read timeout and nonzero resource history remain preserved. These
+new phases used the separately reviewed2026-10-24T03:23:35.957043396Z epoch with
+unchanged container, compiler, limits and failed stages. The prior source-only
+preparation records remain historical; the new RESULTS and reviews record the
+actual narrower acceptance.
+
+Next review a bounded connection from the genuine post-range hash/digest
+continuation to the complete ObjWholeVerified Result, retaining comparison,
+errors and wrapping. Its actual source proposal and tests require separate
+review; do not repeat the failed outer ObjWholeRead consumer or treat this hash
+lemma as proof of it. Outer admission/backend validation, the original whole
+consumer/ordinal26/Read33, ten drafts and full integration remain required.
+
+The exact [next continuation proposal](../tests/fixtures/object-whole-digest-reuse/evidence/next-whole-result-investigation.json) and [independent SPEC](../tests/fixtures/object-whole-digest-reuse/evidence/next-whole-result-spec-review.json) are now accepted as source design only. The mandatory consumer is the unchanged production post-range continuation expression returning the complete ObjWholeVerified Result; its negative changes only expected wire184→185. New candidate and native tests remain NOT_RUN. This is a distinct step, not an equivalent retry of the failed outer consumer.

@@ -1,0 +1,48 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-invocation-custody/v1",
+  "status": "EXACT_COPY_FROZEN_INVOCATION_PENDING_EPOCH_AND_INVOCATION_REVIEW",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invoke-whole-digest-reuse.mjs",
+        "bytes": 7668,
+        "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/invocation/invoke-whole-digest-reuse.mjs"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-diff.json",
+        "bytes": 3190,
+        "sha256": "87b14eec41925717af204b0f1ab55bfed94f49b0a887562fb25128ac8503e9c9"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/invocation/invocation-diff.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-manifest.json",
+        "bytes": 2565,
+        "sha256": "92574e1b56158e0cea0fd4a54c4e7291401f35f220abb9756be3fc40cd98f2af"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/invocation/invocation-manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-delta-plan.json",
+        "bytes": 2910,
+        "sha256": "ea7618b48941fc3702fbb306f14cc45e49bcf5afd936e64d4ced4c63f09cd5c2"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/invocation/invocation-delta-plan.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/epoch/summary.json",
+        "bytes": 260,
+        "sha256": "10807cd0cadb824f4abee9c68669bd4b9412af4709dc80236a60f4eedcdfad65"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/invocation/captured-epoch-summary.json"
+    }
+  ],
+  "history": "Earlier source/readiness/custody remain unchanged; their pending status records capture time.",
+  "mutableReadmeExcluded": true
+}

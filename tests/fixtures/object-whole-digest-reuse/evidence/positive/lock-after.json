@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-whole-digest-reuse-digest-positive-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-24T03:36:03.962Z",
+  "ended": "2026-10-24T03:36:04.037Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "58d169336b82627002f9b7913b742477c2f9ee78a580c6c37eb95b22da6b58e9  /tmp/r4-object-whole-digest-reuse-digest-positive-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

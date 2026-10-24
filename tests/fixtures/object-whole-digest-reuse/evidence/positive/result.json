@@ -1,0 +1,32 @@
+{
+  "phase": "digest-positive",
+  "stage": "/tmp/r4-object-whole-digest-reuse-digest-positive-owned-20261023",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f"
+    ],
+    "attestation_id": "821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f",
+    "build_id": "cc7538c18bc2f29bea4ea7f6d06893df7e0e0b8315b0caced7c98c37a4f34d3f",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "HashWireDirect09Controls",
+      "ObjectWholeDigest",
+      "ObjectWholeDigestContext",
+      "ObjectWholeDigestTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "semantic_id": "c3cf55ad85716aecfaf7a23ac0467deb1960d9c364e337596df06b07a9804354",
+    "source_id": "c4f59796f2f6fae868b269278635efb4c88827c6da0fdb9d55199151a2819352",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}

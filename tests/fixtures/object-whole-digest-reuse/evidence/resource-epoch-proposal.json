@@ -1,0 +1,109 @@
+{
+  "schema": "lexlean-r4-digest-reuse-resource-proposal/v1",
+  "status": "PROPOSED_FRESH_EPOCH_NOT_EXECUTED",
+  "at": "2026-10-24T03:20:56.221Z",
+  "candidateManifest": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd",
+  "failureReview": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd",
+  "hostAvailableBytes": "26597580800",
+  "peakIncrementEstimateBytes": "10737418240",
+  "reserveBytes": "10737418240",
+  "plan": "After independent review, restart only this idle owned container to establish a separate resource epoch for new standalone genuine ObjHashBytes reuse proof. Keep VM,disk,image,compiler,limits,network,mounts and failed stages. Recheck all identities/new start/zero counters/idle/guest/host budget; never compare old and new counters continuously. This does not retry or accept failed whole continuation. No SDK until candidate/invocation and fresh epoch reviews.",
+  "observations": [
+    {
+      "exe": "docker",
+      "args": [
+        "inspect",
+        "--format",
+        "{{.State.StartedAt}} {{.RestartCount}} {{.Image}} {{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.HostConfig.NetworkMode}} {{json .Mounts}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "started": "2026-10-24T03:20:54.200Z",
+      "ended": "2026-10-24T03:20:55.179Z",
+      "status": 0,
+      "stdout": "2026-10-23T20:22:35.225704499Z 0 sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 4294967296 2000000000 none []\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,args"
+      ],
+      "started": "2026-10-24T03:20:55.179Z",
+      "ended": "2026-10-24T03:20:55.478Z",
+      "status": 0,
+      "stdout": "    PID COMMAND         COMMAND\n      1 sh              /bin/sh -c sleep infinity\n      7 sleep           sleep infinity\n  17564 ps              ps -eo pid,comm,args\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T03:20:55.478Z",
+      "ended": "2026-10-24T03:20:55.734Z",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 450159\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "df",
+        "-Pk",
+        "/tmp"
+      ],
+      "started": "2026-10-24T03:20:55.734Z",
+      "ended": "2026-10-24T03:20:56.046Z",
+      "status": 0,
+      "stdout": "Filesystem     1024-blocks     Used Available Capacity Mounted on\noverlay           82249372 25521236  52937064      33% /\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "started": "2026-10-24T03:20:56.046Z",
+      "ended": "2026-10-24T03:20:56.206Z",
+      "status": 0,
+      "stdout": "44f408ba-d166-4157-93b8-d311639e4a0f\n",
+      "stderr": ""
+    },
+    {
+      "exe": "du",
+      "args": [
+        "-k",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+      ],
+      "started": "2026-10-24T03:20:56.206Z",
+      "ended": "2026-10-24T03:20:56.214Z",
+      "status": 0,
+      "stdout": "25980072\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469580\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+      "stderr": ""
+    },
+    {
+      "exe": "sysctl",
+      "args": [
+        "vm.swapusage"
+      ],
+      "started": "2026-10-24T03:20:56.214Z",
+      "ended": "2026-10-24T03:20:56.221Z",
+      "status": 0,
+      "stdout": "vm.swapusage: total = 14336.00M  used = 13261.81M  free = 1074.19M  (encrypted)\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-successor/v1",
+  "status": "SOURCE_ONLY_CONDITIONAL_NOT_RUN_REVIEW_REQUIRED",
+  "lineage": {
+    "rejected": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/next-whole-digest-investigation.json",
+      "bytes": 11585,
+      "sha256": "407c296a3a370d7816006c104a6d9055d31f55577c9dc31dc120ad72c2779d59"
+    },
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/next-whole-digest-spec-conditional.json",
+      "bytes": 8188,
+      "sha256": "d28c8962333f6429febbbb9878dcf612deb0f6bab87ff9c8fa1e817164298fce"
+    },
+    "preservation": "Both frozen records unchanged; only false-zero reuse justification corrected."
+  },
+  "prerequisites": {
+    "actualWholeContinuationResult": null,
+    "independentWholeContinuationReview": null,
+    "note": "Parent reports whole-positive closed with LLS8002 and memory max-event failure. No accepted whole bridge. Author did not inspect positive outputs."
+  },
+  "phase1": {
+    "classification": "AUTHOR_SOURCE_AUDIT_FALSE_NEGATIVE",
+    "cause": "Decoder accepted ObjAppendBytes but rejected qualified R4.Hash.append; silent catch turned unsupported decoding into false absence.",
+    "exactOldError": "nonliteral call:{\"module\":\"R4.Hash\",\"name\":\"append\"}",
+    "oldDecoder": "nil=>[]; cons=>head plus tail; call name ObjAppendBytes=>concatenate decoded arguments; otherwise throw, caller silently catches.",
+    "correction": "Also decode qualified R4.Hash.append after inspecting its actual recursive List.nil/List.cons append definition; count all undecodable calls separately.",
+    "definitionSource": "tests/fixtures/hash-wire/project/src/R4/Hash.lex.tex",
+    "definitionSourceSha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+    "roots": [
+      "tests/lexlean",
+      "tests/fixtures/hash-wire/project/tests/lexlean",
+      "tests/fixtures/hash"
+    ],
+    "parsedFiles": 227,
+    "parseFailures": 0,
+    "actualReproduction": {
+      "oldBroad": {
+        "predicate": "/sha256|ObjHashBytes/i",
+        "calls": 85,
+        "decodeFailures": 33,
+        "exact96": 0
+      },
+      "fixedBroad": {
+        "calls": 85,
+        "decodeFailures": 21,
+        "exact96": 6
+      },
+      "fixedSelected": {
+        "predicate": [
+          "sha256",
+          "hashWireSha256",
+          "ObjHashBytes"
+        ],
+        "calls": 64,
+        "decodeFailures": 0,
+        "exact96": 6
+      }
+    },
+    "interpretation": "Six exact96 occurrences in five files; remaining21 broad helper inputs unknown, not nonmatches. No outside-scope inference.",
+    "preparationFailures": "Read-only lookups initially tried nonexistent result.json/bundle and transport without candidate/ segment; corrected. Two report constructions exceeded14KiB and failed before writing; first also used numeric assertion message. Only final bounded report written."
+  },
+  "matches": [
+    {
+      "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e",
+      "declaration": "wireDirect09",
+      "matches": 1
+    },
+    {
+      "path": "tests/lexlean/HashCase09.lex.tex",
+      "sha256": "d6063b0a2a95833f8bbfe0c8d2c13dcb9476ddca7d89bf80d7def79cf4f364e1",
+      "declaration": "sha256ProtocolObject",
+      "matches": 1
+    },
+    {
+      "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross09Controls.lex.tex",
+      "sha256": "80327b8ff5817fcb5571710cc88b17cd05cc2c3334bd87dfe66a9108d7359202",
+      "declaration": "wireCross09",
+      "matches": 2
+    },
+    {
+      "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape09Controls.lex.tex",
+      "sha256": "24dce5e7ea157bb92d2da27c383c7feb43f49dd3a41068b532eabec86b7d2bcb",
+      "declaration": "wireShapeOriginal09",
+      "matches": 1
+    },
+    {
+      "path": "tests/fixtures/hash/HashControls.lex.tex",
+      "sha256": "0603c79620ff19e4a30239a7b180b214af5941d925f60161479a0049b8acd60e",
+      "declaration": "sha256ProtocolObject",
+      "matches": 1
+    }
+  ],
+  "exactMatch": {
+    "wireStatementSha256": "3b6c2ee8b218666bdddc35baefec3b30a3d08f0caa8b45fed94de03444a3788a",
+    "decodedInputLength": 96,
+    "decodedDigestLength": 32,
+    "actualProjectedRangeBytesEqual": true,
+    "originalManifestDigestBytesEqual": true,
+    "verification": "Decoded actual consumer RHS.scrutinee.arguments[0].value.fields[bytes] and original ordinal26 manifest digest, compared all96/32 values with Direct09. Different append AST representations still require genuine definitional conversion.",
+    "positiveGoalSha256": "4f00f85ed5e8c9cbf5cd205ecad63f22a6672f698194f51eeca39be830263a89",
+    "negativeGoalSha256": "736d627d758a4835ad3c9904e7fe8cf7bbea78b0dd26ee939bb94c01f98b3cd4",
+    "wrapperDeclarationSha256": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588"
+  },
+  "acceptance": {
+    "classification": "EXACT_HISTORICALLY_ACCEPTED_LOCAL_CERTIFICATE_NOT_FULL_RESTORATION",
+    "independentAudit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-vm5-storage-stop/independent-audit.json",
+      "bytes": 11992,
+      "sha256": "59a5dfe8b938a5533f033a7dd00c6a6e866294a85d72a082d33356dcff7e19b6"
+    },
+    "rootAudit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-vm5-storage-stop/evidence/positive/HashWireDirect09Controls/audit.json",
+      "bytes": 499,
+      "sha256": "cc1b80d08a2da2fd3017081fc60dafb61c4b5d44d0586b85b934f4f5ebd66640"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-vm5-storage-stop/evidence/positive/HashWireDirect09Controls/verify/stdout",
+      "bytes": 626,
+      "sha256": "22df523481e73d16db0c1b41a7dbb7120f31e9b75c1d7ef213cebedebeee9497"
+    },
+    "process": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-vm5-storage-stop/evidence/positive/HashWireDirect09Controls/verify/process.json",
+      "bytes": 608,
+      "sha256": "e54a0c9792ba5a77772f5fa8cbef937d249d11d63ab13c374c027fe357afb03b"
+    },
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-vm5-storage-stop/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/attestation.json",
+      "bytes": 106971,
+      "sha256": "0902e02fdd4fe8d73725f745b0e33a14468f4fffdc822cd5e65788b5c4e088a1"
+    },
+    "buildManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-vm5-storage-stop/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/build-manifest.json",
+      "bytes": 7689,
+      "sha256": "b2ae8b31263ac9a286ef775b1dd7320b0f85e7098ff3e0216483a525447f13ca"
+    },
+    "identities": {
+      "attestation": "46f323fb306637bd0d9082a0c3375852b4119d5208ea17d09bf90392634940b5",
+      "source": "b53223f93e7bc6d7b049b28c09012a0456e98ad6b68fcd17e8a0f840026d3622",
+      "semantic": "2b432e6acfe8810bc6d7abeab03968231d40249641366d370cbbb79b7fa7e4bf",
+      "build": "6919d632a4d90076e7f19ba35f504fd9a7290d93e6f8b72b140c13368e3633e7"
+    },
+    "actualReadOnlyReaudit": {
+      "outputs": 30,
+      "allOutputHashesAndLengthsPass": true,
+      "oleans": 6,
+      "allOleanHashesAndLengthsPass": true,
+      "buildManifestHashMatchesAttestation": true,
+      "declarations": 531,
+      "allObservedAndDeclaredAxiomsEmpty": true,
+      "processes": 19,
+      "allExitZeroAndStreamHashesPass": true,
+      "kernelReplays": 6
+    },
+    "compiler": {
+      "compiler_semantics": "09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86",
+      "executable_sha256": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "version": "0.3.0"
+    },
+    "toolchain": {
+      "lake": {
+        "executable_sha256": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "version_output": "Lake version 5.0.0-src+f054605 (Lean version 4.32.1)"
+      },
+      "lean": {
+        "executable_sha256": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "version_output": "Lean (version 4.32.1, aarch64-unknown-linux-gnu, commit f054605aea4b840552cca2e725580bffd1e1b704, Release)"
+      },
+      "leanchecker": {
+        "executable_sha256": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de",
+        "version_output": "leanchecker bin/leanchecker sha256:8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de\nuncaught exception: Could not find any oleans for: LexLeanIdentityProbe\n"
+      }
+    },
+    "sourcePins": [
+      {
+        "path": "src/R4/Hash.lex.tex",
+        "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+      },
+      {
+        "path": "src/R4/HashNat.lex.tex",
+        "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+      },
+      {
+        "path": "src/R4/HashNatCore.lex.tex",
+        "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+      },
+      {
+        "path": "src/R4/HashWire.lex.tex",
+        "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+      },
+      {
+        "path": "src/R4/Words.lex.tex",
+        "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+      },
+      {
+        "path": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+        "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+      }
+    ],
+    "sourceComparison": "All six sources rehashed against current repository aliases: five runtime files under tests/fixtures/object257-leaf-transport/project, Direct09 under tests/fixtures/hash-wire/project. All matched.",
+    "lock": {
+      "byte_length": 1597,
+      "kind": "lock",
+      "path": "lexlean.lock",
+      "sha256": "44a802299f0898a341dff5ac68275fce08da5be599126cebb5f5b69acab2d951"
+    },
+    "config": {
+      "byte_length": 4508,
+      "kind": "project-config",
+      "path": "lexlean.toml",
+      "sha256": "db8a3be71be87f8aaf2db8122895e3083a0a50971291d6ee4011464b3792682e"
+    },
+    "boundary": "Historical lock/config/resource epoch are provenance, not current gate authority. Import exact source and reverify new official closure, never transplant binary/lock. Full78 restoration remains16 accepted; mutation2/7 incomplete; Direct10 unaccepted."
+  },
+  "nextProof": {
+    "decision": "Reuse accepted wireDirect09 through actual ObjHashBytes Result context. Fresh standalone Reflexivity recomputation is not justified by false absence.",
+    "base": "Import exact HashWireDirect09Controls.wireDirect09 source7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e.",
+    "context": "H(r:Result (List Nat) R4.Hash.HashError) is exact ObjHashBytes.body with only hashWireSha256(items) scrutinee replaced by r. Preserve error->ObjError.hashFailure and success->ObjWholeDigest branches, type arguments and scope.",
+    "family": "P0=wireDirect09 exact equality; P(Nat.succ n)=H(wireDirect09.left)=H(wireDirect09.right).",
+    "transport": "Supported Nat Induction: zero Apply wireDirect09, successor Cases prior then Congruence in both cases. Shared transported equality at1; no Rewrite/Eq.trans/Simplify/host hash.",
+    "consumer": "Mandatory exact original projected ObjHashBytes fullResult positive goal uses Apply shared transport at1. Exact projection/append/wrapper conversion must pass; helper alone insufficient.",
+    "negative": "Only expected actual consumer first digest byte201→202. Same genuine base/shared transport/proof, unchanged input/manifest. Require equality rejection, not timeout/OOM/source failure.",
+    "pattern": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+      "bytes": 1110,
+      "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+    },
+    "minimalModules": [
+      "Result context/Nat family",
+      "shared transport",
+      "exact consumer positive/false variants"
+    ],
+    "limits": "Original300000ms/4GiB2CPU, empty axioms, exact source/tool/lock/epoch/idle/storage/postcapture gates.",
+    "unknowns": [
+      "Official import/current lock/closure qualification.",
+      "Actual conversion and observed empty axioms.",
+      "No cost/cache/efficiency claim; imported source may recompile/recompute.",
+      "Original whole-read complete Result and ordinal26 projection remain unproved."
+    ],
+    "wholeTimeout": "The genuine wrapper hash equation can support a later explicit Result-context decomposition. It does not accept/repair the failed whole bridge. Inspect actual emitted consumer and failure audit before separate proposal; do not repeat the failed bridge or assume cheap conversion.",
+    "execution": "All new tests NOT_RUN. Independent SPEC before candidate, CODE before parent native."
+  },
+  "storage": {
+    "hostAvailableKiB": 28746192,
+    "reportLimitBytes": 14336,
+    "noArtifactCopies": true
+  },
+  "writes": "Only successor JSON; no repository/candidate/runtime/native/VM/lock/mutant/artifact changes."
+}
