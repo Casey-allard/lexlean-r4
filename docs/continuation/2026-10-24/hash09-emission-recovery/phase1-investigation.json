@@ -1,0 +1,365 @@
+{
+  "schema": "lexlean-r4/hash09-dependency-investigation/1",
+  "status": "PHASE1_SOURCE_AND_RETAINED_EVIDENCE_ONLY_NO_SOURCE_REPAIR_JUSTIFIED",
+  "createdAt": "2026-10-24T11:22:22.515Z",
+  "scope": "Explain dependency selection and compare exact retained source/config/tool evidence after the actual ordinal26 negative timed out in HashWireDirect09Controls. No native invocation, VM call, source edit, limit change, proof acceptance or intended-negative claim.",
+  "observedFailure": {
+    "process": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/verify.json",
+      "bytes": 1000,
+      "sha256": "6924d48918e6fbaceba315ed7187be29b4e87bb1126713dc6e4829899e7cbf96"
+    },
+    "check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/check.json",
+      "bytes": 2058,
+      "sha256": "c760fdae1d8e3a634706c41b0ab666717a7abad32d3046ef1f3435633dd6d582"
+    },
+    "inputMap": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/expected-inputs.json",
+      "bytes": 27678,
+      "sha256": "18aa3ed3f31de699fa6808ad1a1e9b8d9d4e6a4f83a52b2ff47c02a8d284b265"
+    },
+    "status": 4,
+    "wholeElapsedMs": 363154,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.HashWireDirect09Controls: configured 300000, observed 300008 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "selectedModules": 47,
+    "intendedTargetReached": false,
+    "verifiedArtifactAccepted": false,
+    "memoryAfter": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "37e30f2b50581126c360667e6163d632dc62f6d2ddc0094137d626b76b178cec"
+    },
+    "postcaptureErrors": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "classification": "The official verifier reported child timeout. This does not identify the expensive reduction subterm or establish a false Read theorem. Parent reports all memory-event counters zero; no OOM explanation is established."
+  },
+  "dependencyFinding": {
+    "notNewToCompositionRepair": true,
+    "old33InputMap": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/expected-inputs.json",
+      "bytes": 16599,
+      "sha256": "47c31a769dc9876fcb7daaafc5694f82ebc2b42c0c7a57991000152c8459af9c"
+    },
+    "oldHash09": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "destination": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "bytes": 8523,
+      "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e",
+      "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "sourceKind": "repository"
+    },
+    "currentHash09": {
+      "destination": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "bytes": 8523,
+      "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e",
+      "sourceKind": "unchanged-pinned-reference",
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex"
+    },
+    "declarationCount": 1,
+    "theorem": "wireDirect09",
+    "proof": {
+      "kind": "reflexivity"
+    },
+    "axioms": [],
+    "imports": [
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Words"
+    ],
+    "actualUse": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+        "bytes": 1097,
+        "sha256": "76347126056bad1caf162686d652892d641d2c40d126ab9c4a7c30b436230567"
+      },
+      "declaration": "objWholeDigestLifted",
+      "path": "declarations[0].proof.branches[constructor=zero].proof.theorem",
+      "callee": "HashWireDirect09Controls.wireDirect09",
+      "role": "Base equality for whole-digest contextual lift; required by the current whole-result chain reaching the actual ordinal26 control."
+    },
+    "siblingPruning": "NOT_APPLICABLE: this module has only wireDirect09, whose proof is reflexivity. It is actually applied, not merely an unused module import.",
+    "whyNewlyObserved": "Earlier Read33 attempt stopped in ObjectAdmittedRangeResult. Composition changed that earlier proof path and the total selected closure, exposing a later already-existing Hash09 dependency. No evidence establishes that adding 19 sources itself caused Hash09 slowdown."
+  },
+  "priorAcceptedComparison": {
+    "scope": "Historical retained Hash09 root, independently re-audited during full restoration; not freshly replayed by the restoration audit.",
+    "process": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/process.json",
+      "bytes": 608,
+      "sha256": "e54a0c9792ba5a77772f5fa8cbef937d249d11d63ab13c374c027fe357afb03b"
+    },
+    "stdout": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/stdout",
+      "bytes": 626,
+      "sha256": "22df523481e73d16db0c1b41a7dbb7120f31e9b75c1d7ef213cebedebeee9497"
+    },
+    "status": 0,
+    "wholeElapsedMs": 39628,
+    "rootAudit": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/audit.json",
+      "bytes": 499,
+      "sha256": "cc1b80d08a2da2fd3017081fc60dafb61c4b5d44d0586b85b934f4f5ebd66640"
+    },
+    "audit": {
+      "module": "HashWireDirect09Controls",
+      "controls": 1,
+      "declarations": 531,
+      "replays": 6,
+      "outputs": 30,
+      "files": 65,
+      "attestation": "46f323fb306637bd0d9082a0c3375852b4119d5208ea17d09bf90392634940b5",
+      "source": "b53223f93e7bc6d7b049b28c09012a0456e98ad6b68fcd17e8a0f840026d3622",
+      "semantic": "2b432e6acfe8810bc6d7abeab03968231d40249641366d370cbbb79b7fa7e4bf",
+      "build": "6919d632a4d90076e7f19ba35f504fd9a7290d93e6f8b72b140c13368e3633e7",
+      "status": "PASS_ACTUAL_ARTIFACT_AUDIT"
+    },
+    "buildManifest": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/build-manifest.json",
+      "bytes": 7689,
+      "sha256": "b2ae8b31263ac9a286ef775b1dd7320b0f85e7098ff3e0216483a525447f13ca"
+    },
+    "attestation": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/attestation.json",
+      "bytes": 106971,
+      "sha256": "0902e02fdd4fe8d73725f745b0e33a14468f4fffdc822cd5e65788b5c4e088a1"
+    },
+    "priorEmittedHash09": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/HashWireDirect09Controls.lean",
+      "bytes": 1706,
+      "sha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336"
+    },
+    "sixSourceEquality": [
+      {
+        "destination": "src/R4/Hash.lex.tex",
+        "bytes": 782463,
+        "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+        "currentSource": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+        "exactSourceMatch": true
+      },
+      {
+        "destination": "src/R4/HashNat.lex.tex",
+        "bytes": 64465,
+        "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+        "currentSource": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+        "exactSourceMatch": true
+      },
+      {
+        "destination": "src/R4/HashNatCore.lex.tex",
+        "bytes": 339156,
+        "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+        "currentSource": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+        "exactSourceMatch": true
+      },
+      {
+        "destination": "src/R4/HashWire.lex.tex",
+        "bytes": 11612,
+        "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+        "currentSource": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+        "exactSourceMatch": true
+      },
+      {
+        "destination": "src/R4/Words.lex.tex",
+        "bytes": 240864,
+        "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+        "currentSource": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+        "exactSourceMatch": true
+      },
+      {
+        "destination": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+        "bytes": 8523,
+        "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e",
+        "currentSource": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+        "exactSourceMatch": true
+      }
+    ],
+    "configuration": {
+      "prior": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/project/lexlean.toml",
+        "bytes": 4508,
+        "sha256": "db8a3be71be87f8aaf2db8122895e3083a0a50971291d6ee4011464b3792682e"
+      },
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/lexlean.toml",
+        "bytes": 682,
+        "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+      },
+      "byteIdenticalAfterOnlyEntrypointsArrayReplacement": true,
+      "childTimeoutMsBoth": 300000,
+      "difference": "Prior project lists 78 entrypoints; current project lists ObjectReadControls. Explicit verify selection and closure differ: prior six-module Hash09 root versus current 47-module Read root. Whole source/semantic/build/lock identities need not match.",
+      "unchanged": "All other config bytes, including limits, Lean toolchain, language, source roots, module prefix and lexicon source."
+    },
+    "toolEquality": {
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/tools-before.json",
+        "bytes": 1005,
+        "sha256": "cab1fa8d6b04833e3fba9255ef5e67e0a9e13cd699a998fd1bf8ec313013dff7"
+      },
+      "priorCompiler": {
+        "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/sdk-before/executable/stdout",
+        "bytes": 89,
+        "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c"
+      },
+      "priorTools": {
+        "lake": {
+          "executable_sha256": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+          "version_output": "Lake version 5.0.0-src+f054605 (Lean version 4.32.1)"
+        },
+        "lean": {
+          "executable_sha256": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+          "version_output": "Lean (version 4.32.1, aarch64-unknown-linux-gnu, commit f054605aea4b840552cca2e725580bffd1e1b704, Release)"
+        },
+        "leanchecker": {
+          "executable_sha256": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de",
+          "version_output": "leanchecker bin/leanchecker sha256:8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de\nuncaught exception: Could not find any oleans for: LexLeanIdentityProbe\n"
+        }
+      },
+      "allFourExecutableHashesMatch": true
+    },
+    "resources": {
+      "priorInspect": {
+        "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/sdk-before/inspect/stdout",
+        "bytes": 256,
+        "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5"
+      },
+      "currentEpoch": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/epoch-before.json",
+        "bytes": 470,
+        "sha256": "5158252ad625968e9d0dff536e93172e561172086c7e4a50b0021b4860a29bce"
+      },
+      "comparison": "Prior observed container limit4GiB/2CPU matches current approved limit. Different resource epochs and host workload, page/cache state and contention are not controlled as equal. A sampled counter or RSS observation is not a peak or elapsed-cost explanation."
+    }
+  },
+  "emissionBoundary": {
+    "currentStagingRead": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/hash09-emitted-after.json",
+      "bytes": 717,
+      "sha256": "f67d1ab77007be1fedab5212a5b7dc9de1e2335b098668269c4dbd4d71fd1f46"
+    },
+    "currentHash09EmittedBytesCaptured": false,
+    "priorEmittedBytesExist": true,
+    "limitation": "Missing .verified staging path after cleanup does not imply content-addressed build output is absent. No byte-equality claim about actual current Hash09 Lean is established by the source/config comparison."
+  },
+  "officialDiagnostic": {
+    "authority": {
+      "archive": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/migration-api-source.json.gz",
+        "bytes": 12013,
+        "sha256": "0c7e28b593f3cf516fdb5fe910244a8678402f1a5e3d9dfeeee98013395aab74"
+      },
+      "entry": {
+        "path": "crates/lexlean/src/api.rs",
+        "bytes": 52821,
+        "sha256": "364b79d579260adbc74ce29b7376232287fc5acac3de6e829ac0c32dc41673fa"
+      },
+      "installedRevision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+      "cliSourceUrl": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/cli.rs"
+    },
+    "sourceFacts": [
+      {
+        "lines": "api.rs223–225,311–321",
+        "fact": "Renderer publishes each Lean text as modules/<lean_module with dots replaced by slashes>.lean with output byte hash."
+      },
+      {
+        "lines": "api.rs515–526",
+        "fact": "Build output target is <build_root>/build/<build_id>."
+      },
+      {
+        "lines": "api.rs913–936",
+        "fact": "Verify renders and publishes build before invoking verify::run."
+      },
+      {
+        "lines": "api.rs870–904",
+        "fact": "Official build checks selection, renders and publishes output, returning identities and paths; this method does not call verify::run."
+      },
+      {
+        "lines": "cli.rs94–108,130–132,173–194 (web zero-based line labels)",
+        "fact": "The official CLI exposes separate build and verify commands with explicit input selection; no separate emit command is required."
+      }
+    ],
+    "firstAction": {
+      "status": "PROPOSED_READ_ONLY_NOT_EXECUTED_BY_AUTHOR",
+      "request": "Inspect the existing failed-stage .lexlean/build/<id>/build-manifest.json and modules/LexLeanR4/HashWireDirect09Controls.lean, plus the same five dependency emissions. If present, retain exact bytes and verify manifest output hashes and all source-input pins before comparing with accepted historical build."
+    },
+    "fallbackOnlyIfAbsent": {
+      "status": "PROPOSED_NOT_RUN_REQUIRES_INDEPENDENT_REVIEW_AND_PARENT_RESOURCE_GATES",
+      "argv": [
+        "lexlean",
+        "--diagnostic-format",
+        "json",
+        "build",
+        "tests/lexlean/ObjectReadControls.lex.tex"
+      ],
+      "sameSelectionRequired": true,
+      "boundaries": "Use unchanged exact 51 inputs/config/genuine lock and approved installed compiler in fresh owned diagnostic stage. This renders the full current selection without proof verification, not merely a six-module Hash09 selection. It is a new render diagnostic and must never be described as recovered historical failed emission or native proof. No child verifier/limit retry, no forked compiler.",
+      "observations": "Record resulting source/semantic/build IDs, all generated module hashes and exact Hash09+five dependency emitted bytes. Matching selected source IDs and output hashes are mandatory before comparing."
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "statement": "Different whole-selection context may change emitted Hash09 or dependency Lean despite identical six input files.",
+      "status": "UNTESTED",
+      "discriminator": "Compare actual current retained build module bytes/manifests against accepted six-module build; then inspect an actual differing generated term/import only if found."
+    },
+    {
+      "id": "H2",
+      "statement": "Hash09 emitted bytes may be identical but execution conditions differ, e.g. page/cache pressure or host scheduling.",
+      "status": "UNTESTED",
+      "discriminator": "Byte equality eliminates an emission-drift hypothesis but does not identify environmental cause. Existing zero OOM events do not prove absence of pressure or CPU contention; no equivalent timed proof retry is authorized by this report."
+    },
+    {
+      "id": "H3",
+      "statement": "An unused sibling theorem in Hash09 explains unnecessary work.",
+      "status": "REJECTED_BY_SOURCE",
+      "discriminator": "Module has exactly one required theorem."
+    }
+  ],
+  "remedyDecision": {
+    "sourceChange": "NONE_PROPOSED_YET",
+    "reason": "No causal trace or actual emitted-code comparison justifies decomposing the sole required rfl theorem. Arbitrarily splitting modules, removing required Hash09, supplying a trusted digest, changing axioms/runtime/goals, or raising limits would not be a supported minimal repair.",
+    "nextGate": "Independent SPEC of this bounded diagnostic first. Retained-output read is preferred; build-only fallback requires review and fresh resource gates. Only a concrete resulting source-backed difference can justify a later separate candidate."
+  },
+  "continuingProductCriteria": {
+    "nativeStatuses": "No new native tests performed by this investigation.",
+    "required": [
+      "Preserve exact original 33 Read propositions, runtime definitions and empty axioms.",
+      "Preserve genuine development lock generation and unchanged child300000/4GiB/2CPU constraints.",
+      "Ordinal26 false must reach the intended wrong-proof rejection; current timeout is not that negative.",
+      "Then actual ordinal26 positive and mandatory full33 verification with independent artifact/axiom/kernel review.",
+      "No helper-only, source check, historical Hash09 acceptance or render build can promote Read33."
+    ]
+  },
+  "authorWrites": "This JSON report only. No source/runner/SDK/VM/repository changes.",
+  "sourceOnlyChecks": {
+    "sixPriorSourceHashesEqualCurrent": true,
+    "configurationExceptEntrypointsEqual": true,
+    "Hash09AlreadyInPrior33Inputs": true,
+    "oneRequiredTheorem": true,
+    "fourToolHashesEqual": true,
+    "installedApiEntryHashVerified": true
+  }
+}

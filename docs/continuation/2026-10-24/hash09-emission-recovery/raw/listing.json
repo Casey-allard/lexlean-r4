@@ -1,0 +1,16 @@
+{
+  "args": [
+    "docker",
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "ls",
+    "-la",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531"
+  ],
+  "started": "2026-10-24T11:21:20.599911+00:00",
+  "ended": "2026-10-24T11:21:20.903531+00:00",
+  "status": 0,
+  "stdoutBytes": 353,
+  "stdoutSha256": "56a2b0898920326cb863e85220ea4de90b0025975d93d0217416789ccada409e",
+  "stderr": ""
+}

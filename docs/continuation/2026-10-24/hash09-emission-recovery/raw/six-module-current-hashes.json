@@ -1,0 +1,19 @@
+{
+  "args": [
+    "docker",
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/HashWireDirect09Controls.lean",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/Hash.lean",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/HashNat.lean",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/HashNatCore.lean",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/HashWire.lean",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/Words.lean"
+  ],
+  "started": "2026-10-24T11:24:03.260560+00:00",
+  "ended": "2026-10-24T11:24:04.542070+00:00",
+  "status": 0,
+  "stdout": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336  /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/HashWireDirect09Controls.lean\n545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b  /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/Hash.lean\nfc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000  /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/HashNat.lean\n5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377  /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/HashNatCore.lean\na023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b  /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/HashWire.lean\n303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6  /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/R4/Words.lean\n",
+  "stderr": ""
+}

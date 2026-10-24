@@ -1,0 +1,65 @@
+{
+  "scope": "Actual emitted text read during active verification; not proof acceptance or replay",
+  "receipts": [
+    {
+      "args": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src/LexLeanR4/ObjectAdmittedRangeResult.lean"
+      ],
+      "started": "2026-10-24T11:06:40.248961+00:00",
+      "ended": "2026-10-24T11:06:44.788879+00:00",
+      "status": 0,
+      "stdoutBytes": 40486,
+      "stdoutSha256": "344a52d36ea5562c727da3f20035c9e73c90a3764d6452bf6633ae486c1f478a",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src/LexLeanR4/ObjectWholeInnerContinuation.lean"
+      ],
+      "started": "2026-10-24T11:06:44.789502+00:00",
+      "ended": "2026-10-24T11:06:45.906580+00:00",
+      "status": 0,
+      "stdoutBytes": 42544,
+      "stdoutSha256": "9dc00d297bff8cc237e087ea8edbc317303f2e7f9efe7008343fb63b6d69d977",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src/LexLeanR4/ObjectWholeComposedResult.lean"
+      ],
+      "started": "2026-10-24T11:06:45.907987+00:00",
+      "ended": "2026-10-24T11:06:47.132011+00:00",
+      "status": 0,
+      "stdoutBytes": 40813,
+      "stdoutSha256": "827dbae8e01ff2266d390ff019a23e84e3f72bccfe867ae0a132b0b35d58839c",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src/LexLeanR4/ObjectReadControls.lean"
+      ],
+      "started": "2026-10-24T11:06:47.132800+00:00",
+      "ended": "2026-10-24T11:06:48.177631+00:00",
+      "status": 0,
+      "stdoutBytes": 42109,
+      "stdoutSha256": "57a8fcd7711d18aa128eaa1605e564c3d433a0f931ccdacc2ac00aecda9424e5",
+      "stderr": ""
+    }
+  ]
+}
