@@ -1,0 +1,45 @@
+{
+  "schema": "lexlean-r4-inner-connection-invocation-diff/v1",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/invoke-whole-outer-shell.mjs",
+    "bytes": 7717,
+    "sha256": "9fa2ffe58370ca9816d8412910ddeb2392a04d476fb192b7dc218a3da7e35578"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/invoke-whole-inner-connection.mjs",
+    "bytes": 7737,
+    "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+  },
+  "substitutions": [
+    [
+      "// One-off official-compiler invocation for the exact outer admission shell and mandatory original consumer; no complete WholeRead Result or Read33 acceptance.",
+      "// One-off official-compiler invocation for the exact admitted-inner continuation and mandatory original consumer; no complete WholeRead Result or Read33 acceptance."
+    ],
+    [
+      "['outer-false','outer-positive']",
+      "['inner-false','inner-positive']"
+    ],
+    [
+      "select exactly one outer-shell phase",
+      "select exactly one inner-connection phase"
+    ],
+    [
+      "/tmp/r4-object-whole-outer-shell-${phase}-owned-20261024",
+      "/tmp/r4-object-whole-inner-connection-${phase}-owned-20261024"
+    ],
+    [
+      "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2",
+      "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+    ],
+    [
+      "inputs.length!==16||new Set(inputs.map(x=>x.destination)).size!==16",
+      "inputs.length!==22||new Set(inputs.map(x=>x.destination)).size!==22"
+    ],
+    [
+      "tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+      "tests/lexlean/ObjectWholeInnerContinuation.lex.tex"
+    ]
+  ],
+  "exactRoundtrip": true,
+  "unchanged": "Source/tool/lock/epoch/idle/memory/storage guards, independent postcapture and limits unchanged. No native run."
+}

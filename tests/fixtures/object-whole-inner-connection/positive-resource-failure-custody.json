@@ -1,0 +1,347 @@
+{
+  "schema": "lexlean-r4-inner-connection-positive-resource-failure-custody/v1",
+  "status": "COMPILER_SUCCESS_RESOURCE_POSTGATE_FAILED_NATIVE_AUDIT_PENDING",
+  "recordedAt": "2026-10-24T05:06:00.659Z",
+  "files": [
+    {
+      "path": "evidence/positive/raw-receipts.json.gz",
+      "bytes": 8506,
+      "sha256": "6a05be75be8fb5b89f75f2df31d0953fc789d3b1bff9d2377d014bb31bf776df"
+    },
+    {
+      "path": "evidence/positive/attestation.json.gz",
+      "bytes": 11482,
+      "sha256": "a0ceecb6f16654828a79f44a9bf802626e8683a1843836d340a43f0d38a83441"
+    },
+    {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5"
+    },
+    {
+      "path": "evidence/negative-review.json",
+      "bytes": 13535,
+      "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90"
+    }
+  ],
+  "raw": {
+    "sourceDirectory": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/inner-positive",
+    "fileCount": 49,
+    "sourceBytes": 45914,
+    "recordsSha256": "a8caffb46cc5ec318ba75e7e18a3889c5be58f74a29e6ff4d43c9985bf9c9b8f",
+    "decodedEnvelopeBytes": 57750,
+    "decodedEnvelopeSha256": "cc4329aede408fab80ca87d3101ab4986f6a7856f32395454d271ed141dbc3ff",
+    "records": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 459,
+        "sha256": "565eb6b105cbfc0f480b6daa80ffe8256139ba660cb0c6e05bef33c4403f1759"
+      },
+      {
+        "path": "artifact-copy.json",
+        "bytes": 528,
+        "sha256": "304677c19d71ac37328188fdd7705adf9d22cfb4d5d3806605cadaec10817230"
+      },
+      {
+        "path": "check.json",
+        "bytes": 1125,
+        "sha256": "36271fdf744dc58d8dfed0fc1f5701160da2b4d3485db098dc5c614f0762b8b3"
+      },
+      {
+        "path": "copy-0.json",
+        "bytes": 463,
+        "sha256": "3d59f2fbd203424043636836b9d13bde86d4c5df9461402a699fe414e10dfd10"
+      },
+      {
+        "path": "copy-1.json",
+        "bytes": 461,
+        "sha256": "997bbf5bed81f489716aecf62bff90bf4786c47b1258e9e608fd091fe40a354d"
+      },
+      {
+        "path": "copy-10.json",
+        "bytes": 449,
+        "sha256": "3bdf2763e57a8e42836a7dd3e5da608dfff5a56f9f6c6c2be88999887ad90505"
+      },
+      {
+        "path": "copy-11.json",
+        "bytes": 459,
+        "sha256": "17e55c28ae42d03e69390e67f3a9c43bcfed13b12d991e43bfaa472ef43d8161"
+      },
+      {
+        "path": "copy-12.json",
+        "bytes": 451,
+        "sha256": "db0478b4d0f53c9b906d12bfda8fac32cde33f8c20c712ad68b580a72271b401"
+      },
+      {
+        "path": "copy-13.json",
+        "bytes": 519,
+        "sha256": "9a47914828d22175a8c94121ab831300e1e6e1443b4a0452baa4683e302942fb"
+      },
+      {
+        "path": "copy-14.json",
+        "bytes": 540,
+        "sha256": "0a63d07cfc2b9698d886794447f10e7b7ac90bedf77d90f913a2ae9843970b47"
+      },
+      {
+        "path": "copy-15.json",
+        "bytes": 544,
+        "sha256": "1f7f5caa82ccfc213a305f22c5b51a2ec25eaea197ca48ba1b8ec18030ef9ea6"
+      },
+      {
+        "path": "copy-16.json",
+        "bytes": 538,
+        "sha256": "9b2c8cdd016116821c5973dcaaa3015fafb7e5c6c6183c8dc1f22e25f6191e3b"
+      },
+      {
+        "path": "copy-17.json",
+        "bytes": 532,
+        "sha256": "e284f38bcfb71d32929599718cd0c35dc7ede910e085f99e43481736166a1c66"
+      },
+      {
+        "path": "copy-18.json",
+        "bytes": 526,
+        "sha256": "c2038864ac64b8242d9f5419983ca4954898b3cde52ca67ec288b4c7de32a9c2"
+      },
+      {
+        "path": "copy-19.json",
+        "bytes": 532,
+        "sha256": "96e91b661aa40d5e4112be622ea2f2d50dc7a31e00e836f6169b2fc46ee2210f"
+      },
+      {
+        "path": "copy-2.json",
+        "bytes": 467,
+        "sha256": "dc5485a163b68c78a7c5c02949e389cbb5e0cd781a0f24f35e2832b468383aa8"
+      },
+      {
+        "path": "copy-20.json",
+        "bytes": 530,
+        "sha256": "c6e61197dd0f04cace022fcd6a9e55268f6b4227c1cbe7df7afcb0150e06a458"
+      },
+      {
+        "path": "copy-21.json",
+        "bytes": 447,
+        "sha256": "fdc670128c843d5aee22a52f25e7cab41ec4162e5c2506e1382d7821c1e9edcd"
+      },
+      {
+        "path": "copy-3.json",
+        "bytes": 475,
+        "sha256": "2fc4647f0237ed0147dc6e811da0cf91160460e4d68bddf91fa68eaeeccc8e6e"
+      },
+      {
+        "path": "copy-4.json",
+        "bytes": 469,
+        "sha256": "0fbb061dfe23780918ac2ff68f18ce6d47b24e9fed665cecd22c894c31c4a69f"
+      },
+      {
+        "path": "copy-5.json",
+        "bytes": 427,
+        "sha256": "8e53a0d3db1a59bb5387d579f8a4d935268cf58a6d480935d6b4e8273b18c789"
+      },
+      {
+        "path": "copy-6.json",
+        "bytes": 427,
+        "sha256": "392bde9456f3f10d6af8eb412be97c3769c12909a18fae0a00734ea2cc6d2bd0"
+      },
+      {
+        "path": "copy-7.json",
+        "bytes": 427,
+        "sha256": "72901ca5696a616f3c93c3f766fb8119aa3ff8dff0cb4af2e683a74c23ef7543"
+      },
+      {
+        "path": "copy-8.json",
+        "bytes": 425,
+        "sha256": "9ade15790a3fc21ff486f1e16acec5c3b203ce99d581a1b5ee9978e0919ede57"
+      },
+      {
+        "path": "copy-9.json",
+        "bytes": 417,
+        "sha256": "5716071db51173fa3ff76bb29dc713d0f5d9bdc139a5b7382e31e1d9d0a6c31c"
+      },
+      {
+        "path": "directories.json",
+        "bytes": 442,
+        "sha256": "56a19015add13952e22d8b89af8678aa6e459621e6e6f080ce78823f04184a29"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "24c87e111bcbe55ae27ab39de4ce06466ea740ec0417a668c8ef9f8926e39c05"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "aea6150a839c1359c4b38ebb64df553969012dd15b4e81ec7ddab268e523ebdc"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 8094,
+        "sha256": "bc5f1481fa7755a673d1990049e49749a8b3aba51b8d5633c5f5286038445b37"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "4b9b0de6aa3729a53808c47404afe5c67f839d17db95ae2578a93fb1ab26f25a"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "da9b2076e576876ebd3afc37157644ef60883dc6e795a5a0f98627f0a7ec7d9e"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "8f3af6a0091058658a1e8a1e6a9b004e174d294e74c2d9ea51f68bd07e5454da"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "285b80f0fc9964386d1b765ae9a5da7a2e6601b9b42b4e0544d3219589a8539c"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "e845ec86e80ef4cb45ddec6c9edc92808cf6c995da6bca17b6fb40d7c0fb20ba"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "f1eda1454b881fce335c72c562d825aeca8b29ab90121267d6167b5bb30fc1fe"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 501,
+        "sha256": "67e56647db8109f889a126216c3738bcb1a348d4a072ad90bda716425762bd12"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2061,
+        "sha256": "febeeab1b483e3716ef1d4bac950860552f9737e5ccc16b742df0fc9389a2a42"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 545,
+        "sha256": "643e731f0a7d44422efb272d901d16727f1b6ee4f7a60858836011d893243e63"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 355,
+        "sha256": "efb92c8caa40ca683b333b23d72a86d12eb3861f823015a94f46686d15ee4a8a"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "35cb6ca96b84de5c8e67878112014b48bdddf77f423e451c9138aa3caad50130"
+      },
+      {
+        "path": "new-stage.json",
+        "bytes": 336,
+        "sha256": "b77fd72343363b61a05f7ec5b696980db73656b268af8cacd607a5b1338f214f"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 84,
+        "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+      },
+      {
+        "path": "result.json",
+        "bytes": 1269,
+        "sha256": "e9e759a72cbc8b6abe51523d2124169d39999cd47cd9604ea2da64046ca6114c"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 6277,
+        "sha256": "815b6482b5e6d79a5407c2067dc4914a1442aef5d65e316479f7e6380de6cddd"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 6277,
+        "sha256": "18a5a18cc24331bfe52e94e366d3750f4ba99f56d937ee17254e680291d8e4a4"
+      },
+      {
+        "path": "swap-before.json",
+        "bytes": 265,
+        "sha256": "6ef367e69c55d88c0bdd3026523b1439ab260509d01f3d821cd799d24ee3e5a5"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "69c5ed25cf5e973977fb3ebe883575bfc8adb39a0124b4bb94e3115811775d59"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "b363f24e64ca8bb54f423924c9e22b731d4da1fa4bd2bb0fc0d71def2a74f34f"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 1441,
+        "sha256": "f195dcd25901bafaa99432010d2a164974350ed848adc37bb3ffb9372344833a"
+      }
+    ],
+    "method": "Lossless UTF-8 JSON envelope; every exact original receipt text retained, hashed and roundtripped in memory. No extracted temporary copy."
+  },
+  "attestation": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/inner-positive/artifact/attestation.json",
+      "bytes": 181007,
+      "sha256": "83908ebedb41e284189d62c5c9aae107a3f9c2461e3af1c9453329aa68878dd8"
+    },
+    "decodedBytes": 181007,
+    "decodedSha256": "83908ebedb41e284189d62c5c9aae107a3f9c2461e3af1c9453329aa68878dd8",
+    "classification": "INERT_EXACT_UTF8_JSON_TEXT; no artifact binary/output/olean copied; observed artifact is not operational acceptance"
+  },
+  "officialLock": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/inner-positive/lock-bytes.json",
+      "bytes": 2061,
+      "sha256": "febeeab1b483e3716ef1d4bac950860552f9737e5ccc16b742df0fc9389a2a42"
+    },
+    "bytes": 1597,
+    "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5",
+    "method": "Exact official development-lock stdout matching post-run hash; not production acceptance."
+  },
+  "negativeReview": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/negative-review.json",
+      "bytes": 13535,
+      "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90"
+    },
+    "destination": "evidence/negative-review.json",
+    "status": "PASS_INTENDED_DEPENDENCY_NEGATIVE_ONLY"
+  },
+  "observed": {
+    "checkExit": 0,
+    "admittedModules": 18,
+    "verifyExit": 0,
+    "aggregateVerifyMs": 264273,
+    "attestationId": "4e1e8a432c06fb92985d8c470b43deabb71772b9d92aebad565281e29fd79f20",
+    "memoryBefore": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "memoryAfter": "low 0\nhigh 0\nmax 46\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "postcaptureErrors": [
+      {
+        "name": "memory-after",
+        "error": "Error: nonzero memory events"
+      }
+    ],
+    "launcherExitReportedByParent": 1,
+    "independentPositiveReview": null
+  },
+  "history": "Prior20files including pending-negative custody/source readiness remain unchanged. This additive record preserves completed negative review and compiler-success/resource-failed positive evidence. Earlier statuses are historical observations.",
+  "inspectionFailure": {
+    "classification": "READ_ONLY_PACKAGER_FILENAME_LOOKUP_ERROR",
+    "message": "First lookup assumed negative-native-review.json and got ENOENT before any write. Directory listing identified the actual negative-review.json; its86dd18cb-prefixed exact identity was verified. This is not a native failure."
+  },
+  "preservation": {
+    "prior20FilesUnchanged": true,
+    "current17PinsUnchanged": true
+  },
+  "storage": {
+    "hostAvailableBytes": "27149377536",
+    "aggregateBeforeBytes": 434176,
+    "additionalLimitBytes": 131072,
+    "aggregateLimitBytes": 1048576,
+    "conservativeAdditionalEstimateBytes": 73728,
+    "noDiskTemporaryCopies": true
+  },
+  "boundary": "Official compiler exit0 and retained attestation do not satisfy the failed memory postgate. max increased0→46 with oom/kill0. No positive acceptance, final results, restart or retry inferred; independent artifact/native audit remains pending."
+}

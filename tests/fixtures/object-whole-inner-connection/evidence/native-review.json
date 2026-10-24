@@ -1,0 +1,430 @@
+{
+  "schema": "lexlean-r4-inner-connection-native-review/v1",
+  "status": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED",
+  "at": "2026-10-24T05:06:26.557Z",
+  "independence": "Reviewer previously performed source CODE, negative native and governing SPEC audits; independent of source author and runner.",
+  "pins": {
+    "manifest.json": {
+      "bytes": 1254,
+      "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+    },
+    "candidate.json": {
+      "bytes": 25604,
+      "sha256": "d21d31e0340fb88529609e7b4334a6c42bbfcc4dd45b0b178e9b1365127ff70c"
+    },
+    "candidate-code-review.json": {
+      "bytes": 4970,
+      "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0"
+    },
+    "invocation-manifest.json": {
+      "bytes": 452,
+      "sha256": "e5072d9c77754906c43f5dc5774aa78fee4d75f43f1f43a5a9ae521c4250304f"
+    },
+    "invoke-whole-inner-connection.mjs": {
+      "bytes": 7737,
+      "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+    },
+    "invocation-code-review.json": {
+      "bytes": 4932,
+      "sha256": "0ddbb75358dad5a2cd8db09351fe637b9229be22f9e26eebbfb0309519c52a09"
+    },
+    "negative-review.json": {
+      "bytes": 13535,
+      "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90"
+    }
+  },
+  "officialResult": {
+    "launcherStatus": 1,
+    "launcherStatusAuthority": "Parent terminal notice; consistent with sole failed postcondition. Distinct from raw official verify status.",
+    "verifyStatus": 0,
+    "success": true,
+    "diagnostics": [],
+    "checkModules": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "ObjectWholeInnerContinuation",
+      "ObjectWholeReadContext",
+      "ObjectWholeReadTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "aggregateElapsedMs": 264273,
+    "started": "2026-10-24T04:59:49.159Z",
+    "ended": "2026-10-24T05:04:13.432Z",
+    "attestationId": "4e1e8a432c06fb92985d8c470b43deabb71772b9d92aebad565281e29fd79f20",
+    "buildId": "7bea0eb5eb22a5e50a72d56ede68bce65294c9b60f076fe8ae9d2aed666d2667",
+    "sourceId": "1a69ad99f8f1b1f312fe9196202e4099fba3d9eb87c4f468acd6b59a038cb5b2",
+    "semanticId": "07e9988f86e20c549a300d89506a5a7e6f444dce1c20fa2b43316361b832b284"
+  },
+  "artifactAudit": {
+    "attestation": {
+      "bytes": 181007,
+      "sha256": "83908ebedb41e284189d62c5c9aae107a3f9c2461e3af1c9453329aa68878dd8"
+    },
+    "buildManifest": {
+      "bytes": 21746,
+      "sha256": "bfeaa687f618cf92d7e5171d9baa7d0d115152a02fcf9479b247a13423e92b81"
+    },
+    "files": 185,
+    "totalBytes": 7090990,
+    "buildOutputs": 90,
+    "oleans": 18,
+    "emptyAxiomDeclarations": 814,
+    "processes": 55,
+    "kernelReplays": 18,
+    "axiomAuditProcesses": 18,
+    "allProcessStatuses": 0,
+    "allProcessRecords": "Exact equality with attestation; executable and stdout/stderr hashes checked.",
+    "closure": "Exact complete file set: build outputs, oleans, actual process/probe/audit sources and records, combined axiom output, manifests. All byte lengths and hashes checked.",
+    "census": {
+      "path": "artifact-census.json",
+      "bytes": 28760,
+      "sha256": "78302e2c97455debba93fe6f33fcacc481737e3d28cfd0f0a9977ada526b31c5",
+      "recordsSha256": "f6888138d51acfac7b9f2d1febe391d4803e28448839def653e07f5790eba346"
+    },
+    "consumer": {
+      "path": "modules/LexLeanR4/ObjectWholeInnerContinuation.lean",
+      "bytes": 14262,
+      "sha256": "4dbd94a8d5559d4d5d1f6694c1ecdddbb85bebc2ffcbada5d3234f356f088c3a",
+      "statementSha256": "11fb9d0d02fc6cc15147bcff3ae7dbfb63991df04975b7903ab43892c6bf7ed4",
+      "rightCsha256": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "check": "Entire emitted statement and exact lifted-at-Nat1 proof reconstructed byte-for-byte from frozen original concrete AST. LHS is actual ObjWholeAdmitted with original arguments; RHS is complete postrange C with genuine hash/digest comparison/errors. Target declaration has empty observed axioms and successful actual kernel replay."
+    },
+    "transport": "Actual emitted induction/Cases/Congruence and accepted range base observed, target Apply uses lifted1. No helper-only substitution."
+  },
+  "runGate": {
+    "status": "FAIL_ZERO_MEMORY_EVENT_POSTCONDITION",
+    "postcaptureErrors": [
+      {
+        "name": "memory-after",
+        "error": "Error: nonzero memory events"
+      }
+    ],
+    "memoryBefore": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memoryAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 46,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "interpretation": "Nonzero max event count breaches unchanged run gate. This does not erase successful compiler/kernel evidence and does not waive the operational gate. No OOM kill recorded; no PID, exact cause, peak usage or time attribution inferred."
+  },
+  "otherChecks": {
+    "inputCount": 22,
+    "localFrozenPhaseInputHashes": "All exact size/hash and destination mappings checked; all22 copy receipts exit0.",
+    "guestPrePostSources": "All22 source/config/workspace hashes exact before and after.",
+    "genuineDevelopmentLock": {
+      "bytes": 1597,
+      "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5",
+      "unchangedAfter": true,
+      "officialLockStatus": 0
+    },
+    "tools": "All four known compiler/Lean/Lake/checker hashes exact and unchanged.",
+    "epoch": "2026-10-24T03:23:35.957043396Z 0 4294967296 2000000000 none []",
+    "idle": "No compiler process observed in pre/post snapshots.",
+    "hostAvailableBytes": {
+      "before": "29028044800",
+      "after": "28278890496"
+    },
+    "hostLaunchEstimateBytes": "10737418240",
+    "hostReserveBytes": "10737418240",
+    "guestAvailableKiB": {
+      "before": 52890036,
+      "after": 52878128
+    },
+    "allCaptureCommandStatuses": 0,
+    "commandCount": 44,
+    "remainingPostcaptureErrors": []
+  },
+  "rawClosure": {
+    "directory": "inner-positive",
+    "fileCount": 49,
+    "totalBytes": 45914,
+    "encoding": "SHA256 of UTF-8 JSON.stringify(records), ordinal path order, keys path,bytes,sha256.",
+    "sha256": "a8caffb46cc5ec318ba75e7e18a3889c5be58f74a29e6ff4d43c9985bf9c9b8f",
+    "records": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 459,
+        "sha256": "565eb6b105cbfc0f480b6daa80ffe8256139ba660cb0c6e05bef33c4403f1759"
+      },
+      {
+        "path": "artifact-copy.json",
+        "bytes": 528,
+        "sha256": "304677c19d71ac37328188fdd7705adf9d22cfb4d5d3806605cadaec10817230"
+      },
+      {
+        "path": "check.json",
+        "bytes": 1125,
+        "sha256": "36271fdf744dc58d8dfed0fc1f5701160da2b4d3485db098dc5c614f0762b8b3"
+      },
+      {
+        "path": "copy-0.json",
+        "bytes": 463,
+        "sha256": "3d59f2fbd203424043636836b9d13bde86d4c5df9461402a699fe414e10dfd10"
+      },
+      {
+        "path": "copy-1.json",
+        "bytes": 461,
+        "sha256": "997bbf5bed81f489716aecf62bff90bf4786c47b1258e9e608fd091fe40a354d"
+      },
+      {
+        "path": "copy-10.json",
+        "bytes": 449,
+        "sha256": "3bdf2763e57a8e42836a7dd3e5da608dfff5a56f9f6c6c2be88999887ad90505"
+      },
+      {
+        "path": "copy-11.json",
+        "bytes": 459,
+        "sha256": "17e55c28ae42d03e69390e67f3a9c43bcfed13b12d991e43bfaa472ef43d8161"
+      },
+      {
+        "path": "copy-12.json",
+        "bytes": 451,
+        "sha256": "db0478b4d0f53c9b906d12bfda8fac32cde33f8c20c712ad68b580a72271b401"
+      },
+      {
+        "path": "copy-13.json",
+        "bytes": 519,
+        "sha256": "9a47914828d22175a8c94121ab831300e1e6e1443b4a0452baa4683e302942fb"
+      },
+      {
+        "path": "copy-14.json",
+        "bytes": 540,
+        "sha256": "0a63d07cfc2b9698d886794447f10e7b7ac90bedf77d90f913a2ae9843970b47"
+      },
+      {
+        "path": "copy-15.json",
+        "bytes": 544,
+        "sha256": "1f7f5caa82ccfc213a305f22c5b51a2ec25eaea197ca48ba1b8ec18030ef9ea6"
+      },
+      {
+        "path": "copy-16.json",
+        "bytes": 538,
+        "sha256": "9b2c8cdd016116821c5973dcaaa3015fafb7e5c6c6183c8dc1f22e25f6191e3b"
+      },
+      {
+        "path": "copy-17.json",
+        "bytes": 532,
+        "sha256": "e284f38bcfb71d32929599718cd0c35dc7ede910e085f99e43481736166a1c66"
+      },
+      {
+        "path": "copy-18.json",
+        "bytes": 526,
+        "sha256": "c2038864ac64b8242d9f5419983ca4954898b3cde52ca67ec288b4c7de32a9c2"
+      },
+      {
+        "path": "copy-19.json",
+        "bytes": 532,
+        "sha256": "96e91b661aa40d5e4112be622ea2f2d50dc7a31e00e836f6169b2fc46ee2210f"
+      },
+      {
+        "path": "copy-2.json",
+        "bytes": 467,
+        "sha256": "dc5485a163b68c78a7c5c02949e389cbb5e0cd781a0f24f35e2832b468383aa8"
+      },
+      {
+        "path": "copy-20.json",
+        "bytes": 530,
+        "sha256": "c6e61197dd0f04cace022fcd6a9e55268f6b4227c1cbe7df7afcb0150e06a458"
+      },
+      {
+        "path": "copy-21.json",
+        "bytes": 447,
+        "sha256": "fdc670128c843d5aee22a52f25e7cab41ec4162e5c2506e1382d7821c1e9edcd"
+      },
+      {
+        "path": "copy-3.json",
+        "bytes": 475,
+        "sha256": "2fc4647f0237ed0147dc6e811da0cf91160460e4d68bddf91fa68eaeeccc8e6e"
+      },
+      {
+        "path": "copy-4.json",
+        "bytes": 469,
+        "sha256": "0fbb061dfe23780918ac2ff68f18ce6d47b24e9fed665cecd22c894c31c4a69f"
+      },
+      {
+        "path": "copy-5.json",
+        "bytes": 427,
+        "sha256": "8e53a0d3db1a59bb5387d579f8a4d935268cf58a6d480935d6b4e8273b18c789"
+      },
+      {
+        "path": "copy-6.json",
+        "bytes": 427,
+        "sha256": "392bde9456f3f10d6af8eb412be97c3769c12909a18fae0a00734ea2cc6d2bd0"
+      },
+      {
+        "path": "copy-7.json",
+        "bytes": 427,
+        "sha256": "72901ca5696a616f3c93c3f766fb8119aa3ff8dff0cb4af2e683a74c23ef7543"
+      },
+      {
+        "path": "copy-8.json",
+        "bytes": 425,
+        "sha256": "9ade15790a3fc21ff486f1e16acec5c3b203ce99d581a1b5ee9978e0919ede57"
+      },
+      {
+        "path": "copy-9.json",
+        "bytes": 417,
+        "sha256": "5716071db51173fa3ff76bb29dc713d0f5d9bdc139a5b7382e31e1d9d0a6c31c"
+      },
+      {
+        "path": "directories.json",
+        "bytes": 442,
+        "sha256": "56a19015add13952e22d8b89af8678aa6e459621e6e6f080ce78823f04184a29"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "24c87e111bcbe55ae27ab39de4ce06466ea740ec0417a668c8ef9f8926e39c05"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "aea6150a839c1359c4b38ebb64df553969012dd15b4e81ec7ddab268e523ebdc"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 8094,
+        "sha256": "bc5f1481fa7755a673d1990049e49749a8b3aba51b8d5633c5f5286038445b37"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "4b9b0de6aa3729a53808c47404afe5c67f839d17db95ae2578a93fb1ab26f25a"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "da9b2076e576876ebd3afc37157644ef60883dc6e795a5a0f98627f0a7ec7d9e"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "8f3af6a0091058658a1e8a1e6a9b004e174d294e74c2d9ea51f68bd07e5454da"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "285b80f0fc9964386d1b765ae9a5da7a2e6601b9b42b4e0544d3219589a8539c"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "e845ec86e80ef4cb45ddec6c9edc92808cf6c995da6bca17b6fb40d7c0fb20ba"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "f1eda1454b881fce335c72c562d825aeca8b29ab90121267d6167b5bb30fc1fe"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 501,
+        "sha256": "67e56647db8109f889a126216c3738bcb1a348d4a072ad90bda716425762bd12"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2061,
+        "sha256": "febeeab1b483e3716ef1d4bac950860552f9737e5ccc16b742df0fc9389a2a42"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 545,
+        "sha256": "643e731f0a7d44422efb272d901d16727f1b6ee4f7a60858836011d893243e63"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 355,
+        "sha256": "efb92c8caa40ca683b333b23d72a86d12eb3861f823015a94f46686d15ee4a8a"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "35cb6ca96b84de5c8e67878112014b48bdddf77f423e451c9138aa3caad50130"
+      },
+      {
+        "path": "new-stage.json",
+        "bytes": 336,
+        "sha256": "b77fd72343363b61a05f7ec5b696980db73656b268af8cacd607a5b1338f214f"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 84,
+        "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+      },
+      {
+        "path": "result.json",
+        "bytes": 1269,
+        "sha256": "e9e759a72cbc8b6abe51523d2124169d39999cd47cd9604ea2da64046ca6114c"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 6277,
+        "sha256": "815b6482b5e6d79a5407c2067dc4914a1442aef5d65e316479f7e6380de6cddd"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 6277,
+        "sha256": "18a5a18cc24331bfe52e94e366d3750f4ba99f56d937ee17254e680291d8e4a4"
+      },
+      {
+        "path": "swap-before.json",
+        "bytes": 265,
+        "sha256": "6ef367e69c55d88c0bdd3026523b1439ab260509d01f3d821cd799d24ee3e5a5"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "69c5ed25cf5e973977fb3ebe883575bfc8adb39a0124b4bb94e3115811775d59"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "b363f24e64ca8bb54f423924c9e22b731d4da1fa4bd2bb0fc0d71def2a74f34f"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 1441,
+        "sha256": "f195dcd25901bafaa99432010d2a164974350ed848adc37bb3ffb9372344833a"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "severity": "blocking_phase_acceptance",
+      "code": "RESOURCE_GATE",
+      "message": "Post-run memory.events.max increased0→46. Overall phase remains unaccepted under the unchanged zero-event gate; no automatic next execution or resource reset authorized by this review."
+    }
+  ],
+  "boundaries": [
+    "Official compiler success and kernel-checked inner=C artifact are established; full phase acceptance is not.",
+    "No successful full inner/outer Result composition, ordinal26/Read33 or complete Object/Hash/PrismPM acceptance.",
+    "Resource observations are discrete snapshots, not continuous high-water or performance evidence.",
+    "No SDK/native replay, counter reset, container restart, repository/source changes or rerun by reviewer. Raw failed gate and artifact both preserved."
+  ],
+  "storageBeforeReport": {
+    "availableBytes": "27138215936",
+    "reserveBytes": "10737418240"
+  }
+}

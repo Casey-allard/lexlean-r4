@@ -1,0 +1,88 @@
+{
+  "schema": "lexlean-r4-inner-connection-source-code-review/v1",
+  "status": "PASS_SOURCE_READY_NATIVE_NOT_RUN",
+  "at": "2026-10-24T04:49:15.289Z",
+  "manifest": {
+    "bytes": 1254,
+    "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+  },
+  "candidate": {
+    "bytes": 25604,
+    "sha256": "d21d31e0340fb88529609e7b4334a6c42bbfcc4dd45b0b178e9b1365127ff70c"
+  },
+  "structuralAudit": {
+    "bytes": 8972,
+    "sha256": "a8372166c3c5ad447fab48b4efd35ab52e90703428de75abc092ccfa5e8fa6fe"
+  },
+  "source": {
+    "path": "common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+    "bytes": 72570,
+    "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+  },
+  "governingProposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/next-inner-connection-investigation.json",
+    "bytes": 15302,
+    "sha256": "159e987a0fb302fd7b8c026d3bbe886de663f562365873a6399c74d0abaadd31"
+  },
+  "governingSpec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/next-inner-connection-spec-review.json",
+    "bytes": 4565,
+    "sha256": "728ed6d627539dd508d41b14a6163025165d19cf75e56e60a4c09bf71090d1fd"
+  },
+  "independence": "Reviewer authored governing SPEC and prerequisite native audits; independent of this source author.",
+  "checks": {
+    "payloads": 5,
+    "dependencyPins": 18,
+    "astPins": {
+      "statement": "11fb9d0d02fc6cc15147bcff3ae7dbfb63991df04975b7903ab43892c6bf7ed4",
+      "declaration": "6152951ae8320ae287cccbfe06793443ecaf477bbe15aacc2396d6a06f083474",
+      "left": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "right": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "proof": "dc4ba55b5720b5665784d34083e83258d9a53e1de0dba6ee9ab9104abcb32381"
+    },
+    "exactDelta": "Entire module AST equals old consumer after theorem rename and sole LHS function change from R4.Object.ObjWholeRead to R4.ObjectRead.ObjWholeAdmitted. Original three arguments, complete RHS, proof and all remaining fields unchanged. Header renamed; only explicit ObjectRead import added.",
+    "canonical": "Exact canonical semantic-module/2 serialization; empty axioms and no theorem parameters or free variables. No handwritten Lean or added proof constructs.",
+    "restoration": {
+      "bodySha256": "96f03f26ade4cb2150325a1c91d214c51f33063d02705c0a5143aca2198efdb2",
+      "result": "Exact original production body instantiated with view/manifest/limits, sole local range reference qualified. Retained context with restored actual range scrutinee equals entire production body; context success branch at actual ok range record equals C."
+    },
+    "links": "New LHS exactly accepted outer RHS; new RHS exactly accepted postrange LHS. Source equalities do not constitute final theorem composition.",
+    "negative": "Retained transport variants unchanged byte-for-byte; only wrong zero-Apply reference differs. Dependency-level rejection is required, not full-consumer negative. Same mandatory consumer selected in both phases.",
+    "proof": "Unchanged lifted-at-Nat1 Apply. Retained positive transport uses Nat induction, accepted actual range zero theorem, Cases prior and Congruence successor arms.",
+    "closures": [
+      {
+        "phase": "inner-false",
+        "inputs": 22,
+        "supplied": 18,
+        "staticReachable": 18
+      },
+      {
+        "phase": "inner-positive",
+        "inputs": 22,
+        "supplied": 18,
+        "staticReachable": 18
+      }
+    ],
+    "config": "Only selected entrypoint changed; all other config bytes and300000ms limit preserved.",
+    "preservation": {
+      "currentPins": 17,
+      "originalSnapshots": 17,
+      "portableContextTransportAliases": 3,
+      "result": "All exact bytes rehashed."
+    }
+  },
+  "findings": [],
+  "boundaries": [
+    "Actual inner call/context conversion remains unproved; successful source admission, intended negative and mandatory positive native consumer/kernel replay remain NOT_RUN.",
+    "Failed outer consumer remains preserved/unaccepted; this changes only the actual LHS to its inner call and makes no bottleneck or efficiency claim.",
+    "Retained context/transport source must be compiled anew; no historical lock, binary or failed-closure acceptance transferred.",
+    "Even inner=C acceptance would not compose complete inner/outer Result, original ordinal26 or Read33; later supported composition required.",
+    "This source review does not review or authorize a yet-unreviewed invocation; fresh exact source/tool/epoch/idle/zeroevents/storage/genuine-lock gates remain."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 27350687744,
+    "reserveBytes": 10737418240,
+    "maximumReportBytes": 10240
+  },
+  "operations": "Read-only source/AST/hash review; only bounded external report. No SDK/native/repository/index/VM/source changes."
+}

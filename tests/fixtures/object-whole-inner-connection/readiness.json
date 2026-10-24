@@ -1,0 +1,28 @@
+{
+  "schema": "lexlean-r4-inner-connection-portable-readiness/v1",
+  "status": "SOURCE_REVIEWED_NATIVE_NOT_RUN_AT_PARENT_DISPATCH",
+  "recordedAt": "2026-10-24T04:51:42.417Z",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/manifest.json",
+    "bytes": 1254,
+    "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/candidate-code-review.json",
+    "bytes": 4970,
+    "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0"
+  },
+  "parentObservation": "Parent reported no SDK job and all new inner-connection native phases NOT_RUN at task dispatch. No phase outputs inspected by packager. This dated report is not a perpetual live-status assertion.",
+  "phases": [
+    {
+      "phase": "inner-false",
+      "status": "NOT_RUN_AT_PARENT_DISPATCH"
+    },
+    {
+      "phase": "inner-positive",
+      "status": "NOT_RUN_AT_PARENT_DISPATCH"
+    }
+  ],
+  "invocation": "Prepared and reviewed separately by parent; no runner or execution authority provided by this source checkpoint.",
+  "scope": "Actual inner ObjWholeAdmitted=C conversion remains unproved until mandatory consumer compiles and kernel-replays. Retained transport source is reverified, not transplanted acceptance from failed whole closure. No full successful inner/outer Result, ordinal26/Read33 or component acceptance; no efficiency/cache claim."
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "lexlean-r4-inner-connection-invocation-code-review/v1",
+  "status": "PASS_EXACT_NARROW_INVOCATION_ADAPTATION_FRESH_NATIVE_GATES_REQUIRED",
+  "reviewer": "orchestration_design_review",
+  "disclosure": "I authored the next-inner proposal. The invocation is parent-authored; candidate source has separate independent CODE review. This review covers invocation adaptation, not independent review of my own source design or native acceptance.",
+  "pins": {
+    "runner": {
+      "bytes": 7737,
+      "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+    },
+    "diff": {
+      "bytes": 1944,
+      "sha256": "0433315331851677093acadc31ea329d26790c7fc880f95a09d2c1e3ff9ce286"
+    },
+    "invocationManifest": {
+      "bytes": 452,
+      "sha256": "e5072d9c77754906c43f5dc5774aa78fee4d75f43f1f43a5a9ae521c4250304f"
+    },
+    "sourceManifest": {
+      "bytes": 1254,
+      "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+    },
+    "sourceCode": {
+      "bytes": 4970,
+      "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0",
+      "status": "PASS_SOURCE_READY_NATIVE_NOT_RUN"
+    },
+    "predecessor": {
+      "bytes": 7717,
+      "sha256": "9fa2ffe58370ca9816d8412910ddeb2392a04d476fb192b7dc218a3da7e35578"
+    },
+    "configuration": {
+      "bytes": 692,
+      "sha256": "9dc83d521c5e3ce43cee06c3f51dc96008cc3c430adca9cc4b5fa2dd3f190706"
+    }
+  },
+  "checks": {
+    "sevenLiteralSubstitutionsForwardAndInverseExact": true,
+    "sourceManifestPayloadsRehashed": 5,
+    "invocationPayloadsRehashed": 2,
+    "phaseInputMappingsRehashed": 44,
+    "inputsPerPhase": 22,
+    "uniqueSafeDestinations": 22,
+    "suppliedSourceModulesPerPhase": 18,
+    "staticReachableModules": 18,
+    "actualModuleAdmission": "NOT_RUN; official check must establish this count.",
+    "phases": [
+      "inner-false",
+      "inner-positive"
+    ],
+    "mandatoryRoot": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+    "guestStage": "/tmp/r4-object-whole-inner-connection-${phase}-owned-20261024",
+    "hostPhaseDirectoriesObserved": [
+      {
+        "phase": "inner-false",
+        "exists": false
+      },
+      {
+        "phase": "inner-positive",
+        "exists": false
+      }
+    ],
+    "config": "Only root name changes from reviewed outer configuration; child_timeout_ms300000 and all other limits unchanged.",
+    "guards": "Exact source/manifest/config pins, tools, host/guest reserves, current fixed epoch, idle, zero memory events, official lock capture and independent postcapture loop are byte-identical apart from seven scoped substitutions. New-stage mkdir and exclusive host mkdir/wx receipts prevent reuse/overwrite. No automatic restart, deletion or overlapping phase dispatch added.",
+    "lock": "No development lock appears in either22-input mapping. The script calls actual official lexlean lock in the new stage, records JSON and lock bytes, requires successful source check before verify, and rechecks lock hash afterward. No fabricated production SDK binding.",
+    "outcomes": "Verify status and JSON are retained. Artifact copy requires status0/success:true and validated verified-artifact path. Negative rejection is not inferred from launcher exit; parent must independently classify intended wrong-base transport rejection and all postguards before positive."
+  },
+  "resources": {
+    "hostAvailableBytesObserved": 26230513664,
+    "childTimeoutMs": 300000,
+    "containerBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "epochStartedAt": "2026-10-24T03:23:35.957043396Z",
+    "network": "none",
+    "mounts": [],
+    "hostPreGiB": 20,
+    "hostPostGiB": 10,
+    "guestPreGiB": 11,
+    "guestPostGiB": 10,
+    "boundary": "Only fresh host free space observed here; guest stage absence/current idle/current epoch/counters require actual preflight. Historical epoch acceptance is not perpetual execution authority."
+  },
+  "nextGates": [
+    "Parent dispatches exactly one false phase under fresh source/resource/idle gates.",
+    "Independent classification of actual dependency negative and complete postcapture before positive.",
+    "Positive must verify actual inner consumer and complete selected closure, with source/artifact custody, empty axioms and kernel replay evidence."
+  ],
+  "limits": [
+    "All new native tests NOT_RUN at review. No SDK/compiler/VM calls made.",
+    "Inner=C is not complete successful WholeRead, ordinal26, Read33, component or production binding acceptance.",
+    "No cache/recomputation/timing advantage is assumed."
+  ],
+  "findings": [],
+  "reviewToolNote": "First read-only checker expected the predecessor metadata key changes; actual diff uses substitutions. Corrected reader then verified both exact roundtrips. No files or native work were affected.",
+  "mutations": "Only this external report; candidate, invocation, repository/index, VM and unrelated work untouched."
+}

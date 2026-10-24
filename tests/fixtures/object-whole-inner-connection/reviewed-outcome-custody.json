@@ -1,0 +1,84 @@
+{
+  "schema": "lexlean-r4-inner-connection-reviewed-outcome-custody/v1",
+  "status": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED",
+  "recordedAt": "2026-10-24T05:09:57.246Z",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/native-review.json",
+      "destination": "evidence/native-review.json",
+      "bytes": 15321,
+      "sha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/artifact-census.json",
+      "destination": "evidence/artifact-census.json",
+      "bytes": 28760,
+      "sha256": "78302e2c97455debba93fe6f33fcacc481737e3d28cfd0f0a9977ada526b31c5"
+    }
+  ],
+  "existingNegativeReview": {
+    "path": "evidence/negative-review.json",
+    "bytes": 13535,
+    "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90",
+    "unchanged": true
+  },
+  "newFiles": [
+    {
+      "path": "evidence/native-review.json",
+      "bytes": 15321,
+      "sha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889"
+    },
+    {
+      "path": "evidence/artifact-census.json",
+      "bytes": 28760,
+      "sha256": "78302e2c97455debba93fe6f33fcacc481737e3d28cfd0f0a9977ada526b31c5"
+    },
+    {
+      "path": "evidence/history/README-before-native-review.md",
+      "bytes": 1229,
+      "sha256": "5565e620ae80ab5f4833abe09ba8e38def1342807502b1b07a50b087053aaa9b"
+    },
+    {
+      "path": "results.json",
+      "bytes": 6430,
+      "sha256": "8cd3f416aee261ff76770c2d7359ce412900f822b7b411b2ada0a2b31f5c954e"
+    },
+    {
+      "path": "RESULTS.md",
+      "bytes": 2682,
+      "sha256": "0dbce403d13530cb604d8a58fe6e197d0c8ecfba0cd72356240c9651cc035ef1"
+    }
+  ],
+  "readme": {
+    "oldPath": "evidence/history/README-before-native-review.md",
+    "oldSha256": "5565e620ae80ab5f4833abe09ba8e38def1342807502b1b07a50b087053aaa9b",
+    "currentSha256": "e10d4cae8ce5de85203a2b011ae5ff48d77cf2e180b4bc1010671d2ed1c62a94"
+  },
+  "preservation": {
+    "old24NonReadmeFilesUnchanged": true,
+    "current17PinsUnchanged": true
+  },
+  "docs": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "beforeSha256": "aeb7ae8c12283962c18f67a1994130e067151ca6c9278001931b7c360dd7f90d",
+      "bytes": 60322,
+      "sha256": "130dda753d3a2d2339d9499d110872716cc655f13209cf4c71b966697ab6de16"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "beforeSha256": "24cce39aa1bc32a33885886c21a1e627fab7ab1db32a7509fbcfee787110a8e8",
+      "bytes": 46192,
+      "sha256": "c00c6d2ea7fdcd8059fc2ca0882e85fa86dcde4c96808b88a62f576226b43596"
+    }
+  ],
+  "storage": {
+    "hostAvailableBytes": "24177061888",
+    "reserveBytes": "10737418240",
+    "beforeAllocatedBytes": 573440,
+    "plannedMaximumAdditionalBytes": 204800,
+    "aggregateLimitBytes": 1048576,
+    "noDiskTemporaryCopies": true
+  },
+  "scope": "No native execution, source changes, index changes, acceptance waiver or final delivery manifest. Await exact next proposal/SPEC."
+}

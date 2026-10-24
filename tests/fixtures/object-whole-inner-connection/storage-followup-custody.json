@@ -1,0 +1,19 @@
+{
+  "schema": "lexlean-r4-inner-storage-followup-custody/v1",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/storage-followup.json",
+      "destination": "evidence/storage-followup.json",
+      "bytes": 1824,
+      "sha256": "2278c60ab85859949eb38cae91c19365a43b194a1a06e8de549bdacb4d1e2654"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/storage-followup-2.json",
+      "destination": "evidence/storage-followup-2.json",
+      "bytes": 1580,
+      "sha256": "001a90e3a02d258d5998f84e986fb8979748f44191a3d2322d3ed89931d3ff3d"
+    }
+  ],
+  "interpretation": "Bounded parent read-only observations; incomplete attribution. First followup versus inner-positive pre-run VM allocation: 26037560-26031368=6192 KiB; secondary VM file unchanged. Swap allocation was 14 GiB at both inner pre-run and first followup, then 15 GiB at followup2. VM allocation unchanged between followups; sampled temporary directories grew. No unrelated files or processes modified.",
+  "nativeAuthority": false
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "lexlean-r4-whole-result-native-composition-investigation/v1",
+  "status": "SOURCE_DESIGN_ONLY_NOT_RUN_FRESH_EXECUTION_REVIEW_REQUIRED",
+  "at": "2026-10-24T05:08:45.896Z",
+  "role": "Investigation author, not independent SPEC reviewer. One bounded source-backed proposal; no candidate or native job.",
+  "storage": {
+    "hostAvailableKiB": 27379680,
+    "method": "Read-only df -k at investigation start",
+    "reserveGiB": 10,
+    "reportCapBytes": 20480,
+    "otherWrites": false
+  },
+  "prerequisites": {
+    "outerReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/positive-native-review.json",
+      "bytes": 13365,
+      "sha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b"
+    },
+    "postrangeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive-native-review.json",
+      "bytes": 14058,
+      "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+    },
+    "innerReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/native-review.json",
+      "bytes": 15321,
+      "sha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889"
+    },
+    "innerNegative": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/negative-review.json",
+      "bytes": 13535,
+      "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90"
+    },
+    "innerSourceManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/manifest.json",
+      "bytes": 1254,
+      "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+    },
+    "innerSourceCodeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/candidate-code-review.json",
+      "bytes": 4970,
+      "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0"
+    },
+    "innerClassification": {
+      "status": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED",
+      "officialVerifyStatus": 0,
+      "attestationId": "4e1e8a432c06fb92985d8c470b43deabb71772b9d92aebad565281e29fd79f20",
+      "aggregateElapsedMs": 264273,
+      "artifactFiles": 185,
+      "emptyAxiomDeclarations": 814,
+      "kernelReplays": 18,
+      "successfulProcesses": 55,
+      "runGate": "FAIL_ZERO_MEMORY_EVENT_POSTCONDITION",
+      "memoryBefore": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryAfter": {
+        "low": 0,
+        "high": 0,
+        "max": 46,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "fullPhaseAcceptance": null
+    },
+    "interpretation": "The actual inner A=C mathematical artifact is independently verified and can be retained as a development proof prerequisite. The unchanged zero-event run gate failed (max 0 to46, oom/kill0). Do not erase or require re-proving checked mathematical evidence merely to rename it; equally do not declare the overall phase accepted. A distinct composition configuration requires separately reviewed fresh resource epoch/budget/operational eligibility, preserving the entire failed-gate history. No restart, equivalent retry, waiver or next native execution follows from this proposal."
+  },
+  "sourcePins": {
+    "outer": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+      "bytes": 58020,
+      "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+    },
+    "inner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 72570,
+      "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+    },
+    "post": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    "context": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+      "bytes": 77000,
+      "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+    },
+    "transport": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+      "bytes": 1318,
+      "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+    },
+    "original": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "officialSource": {
+    "root": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source",
+    "files": [
+      {
+        "path": "SPEC.md",
+        "bytes": 721867,
+        "sha256": "7db0ac1680f8e5f2be17a3040890ab7307928c5fd9a325260f7ecdb24143cacf"
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "bytes": 384753,
+        "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic/laws.rs",
+        "bytes": 4083,
+        "sha256": "d293bbc9ba97a632c712878759926928801d65bf2ebc3fa70c3bdbb002c430e6"
+      },
+      {
+        "path": "crates/lexlean/src/ir/core.rs",
+        "bytes": 65620,
+        "sha256": "a099836bb513a7b728179653c83076d4d207995b907c7e448fed3734929fa370"
+      },
+      {
+        "path": "crates/lexlean/src/backend/semantic.rs",
+        "bytes": 138766,
+        "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+      },
+      {
+        "path": "crates/lexlean/src/backend/core.rs",
+        "bytes": 64621,
+        "sha256": "c88931d594a1e3ecf3533a468484b299e8b3bd90f364b6e614a35fb4df1859c9"
+      },
+      {
+        "path": "crates/lexlean/src/backend/lean.rs",
+        "bytes": 99382,
+        "sha256": "910b72a4ffedab1378031fdb42837aa25a9c14d328f7094261b9b8490e830a44"
+      },
+      {
+        "path": "crates/lexlean/src/link.rs",
+        "bytes": 92765,
+        "sha256": "d12b7dc54b5282daa65395f9df62aca2e7b6d134c10a0f96055689852cedbc26"
+      },
+      {
+        "path": "language/runtime-1.2/laws.toml",
+        "bytes": 4500,
+        "sha256": "58f06a069ab9647460f000bd7a4eca1ce72a0360eea94dbb6976615e53e8649e"
+      },
+      {
+        "path": "language/runtime-1.2/library/src/Laws.lex.tex",
+        "bytes": 380270,
+        "sha256": "10ec5300427504b8497c53598afe2ac9c4670c100ac08ca024d1d7b5779c371d"
+      }
+    ],
+    "observations": [
+      {
+        "at": "SPEC.md §17.10:2343-2389; §17.21.8:7109-7195",
+        "fact": "Native coremodule is official LexLean source: a closed kernel-expression DAG with explicit declaration metadata and axiom policy, not a backend-source field. Language1.2 core-module/2 authoring notation supports named nodes, constant/universe/application expressions, and proof(...) node marks. A person may author a theorem directly in that notation."
+      },
+      {
+        "at": "ir/semantic.rs:689-757,8312ff; ir/semantic/laws.rs; language/runtime-1.2/laws.toml",
+        "fact": "Semantic Proof has no Eq.trans constructor; Apply is bound to prior/registered semantic proofs. Full shipped law registry contains list_fold_fusion, list_fold_pair and list_fold_append, not equality transitivity. This bounded finding does not imply composition is impossible."
+      },
+      {
+        "at": "language/runtime-1.2/library/src/Laws.lex.tex:1159-1164",
+        "fact": "Actual native authoring precedent: @405 := proof(Eq.trans.{1}), followed by explicit type/endpoints applications. This is syntax and constant evidence only. Do not import Laws as an empty-axiom shortcut: some declarations there deliberately permit propext or Quot.sound."
+      },
+      {
+        "at": "backend/core.rs:1285-1338; backend/lean.rs:2086ff",
+        "fact": "Official backend emits public imports of listed module names and reconstructs native expressions/declarations using checked kernel declaration APIs. This motivates a falsifiable mixed native/semantic graph; no actual mixed graph admission was performed here."
+      },
+      {
+        "at": "link.rs:850-905",
+        "fact": "Native parse/depth checks exist. Semantic proof environments filter imported semantic modules, so do not assume semantic Apply can consume a native theorem. Proposed mandatory final root is itself native."
+      },
+      {
+        "at": "ir/core.rs:303-347; backend/semantic.rs:515-516,565",
+        "fact": "Core policy none requires empty observed axioms. Semantic Result ok/error lowers to Except error ok; Result.ok lowers to Except.ok. Explicit type and universe argument order must be checked in the actual candidate."
+      }
+    ]
+  },
+  "connection": {
+    "canonicalization": "Recursive sorted object keys, preserved array order, JSON.stringify UTF8 without whitespace; separate from literal source hashes.",
+    "hashes": {
+      "O": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+      "A": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "C": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "R": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+      "goal": "a61605211c8ddfcdba111fc2f1dc5884716015042bb4c87deeb22bba95afaddd"
+    },
+    "original": {
+      "name": "objProtocolWholeBytes",
+      "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "uniqueWholeReadCall": true
+    },
+    "checks": {
+      "outerRightEqualsInnerLeft": true,
+      "innerRightEqualsPostrangeLeft": true,
+      "originalWholeReadCallEqualsO": true,
+      "threeClosedTheorems": true
+    },
+    "certificates": [
+      {
+        "global": "LexLeanR4.ObjectWholeOuterConsumer.objOriginalWholeReadToAdmitted",
+        "type": "O=A",
+        "acceptance": "accepted local outer equation"
+      },
+      {
+        "global": "LexLeanR4.ObjectWholeInnerContinuation.objOriginalWholeInnerContinuation",
+        "type": "A=C",
+        "acceptance": "kernel artifact verified; operational run gate failed"
+      },
+      {
+        "global": "LexLeanR4.ObjectWholePostrangeResult.objOriginalWholePostrangeResult",
+        "type": "C=R",
+        "acceptance": "accepted local full postrange result"
+      }
+    ],
+    "O": "Original R4.Object.ObjWholeRead on unchanged four-entry backend, manifest and limits.",
+    "A": "Actual R4.ObjectRead.ObjWholeAdmitted on those exact operands.",
+    "C": "Exact genuine post-range hash/digest-comparison continuation; inner RHS and postrange LHS are canonically identical.",
+    "R": "Full original Result.ok ObjWholeVerified record, including original96bytes, actual version, visits4/distinctRecords4/visitedRecordBytes184.",
+    "preservation": "No original runtime, error branch, admission, backend validation, manifest, limits, bytes, digest, version or output field changes."
+  },
+  "proposal": {
+    "scope": "ONE native LexLean theorem for actual O=R, two nested applications of existing kernel Eq.trans to the three concrete proof constants. No generic theorem library, semantic AST constructor extension, handwritten Lean source, SDK substitute, trusted hash or assumption.",
+    "module": "ObjectWholeComposedResult",
+    "theorem": "LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult",
+    "form": "Language1.2 .lex.tex ordinary module header/title/imports followed by coremodule/2 authoring notation. Independently review exact valid header/glossary/title pins and canonical rendering; this report is not executable candidate text.",
+    "documentImports": [
+      "ObjectWholeOuterConsumer",
+      "ObjectWholeInnerContinuation",
+      "ObjectWholePostrangeResult",
+      "ObjectWholeReadTransport",
+      "ObjectWholeReadContext",
+      "R4.Object",
+      "R4.ObjectRead",
+      "R4.ObjectTypes"
+    ],
+    "nativeImports": [
+      "Init",
+      "LexLeanR4.ObjectWholeOuterConsumer",
+      "LexLeanR4.ObjectWholeInnerContinuation",
+      "LexLeanR4.ObjectWholePostrangeResult",
+      "LexLeanR4.ObjectWholeReadTransport",
+      "LexLeanR4.ObjectWholeReadContext",
+      "LexLeanR4.R4.Object",
+      "LexLeanR4.R4.ObjectRead",
+      "LexLeanR4.R4.ObjectTypes"
+    ],
+    "importsConstraint": "Names in imports are module names, not theorem names. Source union must be closed/pinned and every generated dependency supplied. No separately authored implementation import. Native imports of generated semantic modules must actually pass official linking/build/check.",
+    "typeRecipe": "@T := Except.{0,0} LexLeanR4.R4.ObjectTypes.ObjError LexLeanR4.R4.ObjectTypes.ObjWholeVerified; @goal := Eq.{1} @T @O @R",
+    "proofRecipe": "@value := proof(Eq.trans.{1} @T @O @A @R proof(LexLeanR4.ObjectWholeOuterConsumer.objOriginalWholeReadToAdmitted) proof(Eq.trans.{1} @T @A @C @R proof(LexLeanR4.ObjectWholeInnerContinuation.objOriginalWholeInnerContinuation) proof(LexLeanR4.ObjectWholePostrangeResult.objOriginalWholePostrangeResult)))",
+    "metadata": "One closed theorem, generated false, class false, all containing its sole global name, no universe parameters, policy none, semireducible metadata; closed type/value DAG and explicit proof nodes. No added axioms.",
+    "operandTranslation": "Construct exact closed native nodes corresponding to pinned semantic O/A/C/R; preserve constructor argument order, explicit universe/type arguments, projections and original literals. Every shared node must be child-before-parent. Candidate must contain all actual nodes, never placeholders/metavariables. Require source-level roundtrip/reconstruction against the original complete semantic AST, not just a matching goal label.",
+    "middleC": "Minimal option uses existing LexLeanR4.ObjectWholeReadContext.ObjOuterWholeContext applied to the exact original Result.ok range record instead of manually encoding its match recursor. Source expansion must reproduce pinned inline C; actual kernel conversion of imported equality endpoints is mandatory and unproved by this report. Exact inline-C DAG is an alternative only if needed, without runtime edits.",
+    "mandatoryConsumer": "The selected theorem must prove literal original ObjWholeRead(...) = full Result.ok record. Do not replace this with abstract transitivity or accept only dependency/helper verification.",
+    "cost": "Unknown. Kernel conversion and replay may still normalize costly expressions. Explicit proof composition is a distinct configuration from failed reflexivity/Apply outer retries; no cache, speed or success guarantee."
+  },
+  "tests": {
+    "status": "ALL_NEW_TESTS_NOT_RUN",
+    "negative": {
+      "mutation": "Replace only inner hAC proof constant in nested Eq.trans with existing LexLeanR4.ObjectWholeReadTransport.objOuterWholeUnrelatedZero; preserve same imports, goal O=R and every other node.",
+      "meaning": "Existing exported closed0=0 theorem has wrong type for A=C. Tests real bridge consumption, not undefined identifier or malformed syntax.",
+      "acceptance": "Actual wrong-premise/type rejection of the mandatory native composition root. Parse/import/configuration errors, timeout/resource failure or an upstream dependency failure do not establish intended negative."
+    },
+    "positive": {
+      "mutation": "Restore exact inner theorem constant only.",
+      "acceptance": "Actual official lock/check/verify selects full original O=R; genuine artifact, exact consumer reconstruction, independent kernel replay, complete closure/custody and empty observed axioms. All new-run resource/storage gates must also pass; compiler exit0 alone is insufficient."
+    },
+    "limits": "Existing300000ms per-target proof limit,4GiB/2CPU and exact tools remain. Actual new union input/source/module census must be measured, not assumed to equal prior18."
+  },
+  "orderedNext": [
+    "Independent non-author SPEC review of this official native authoring route and the separation of checked proof evidence from failed operational qualification.",
+    "On reviewed source implementation dispatch, prepare only one actual composition candidate and one wrong-proof variant, with exact unchanged dependency closure and independently reviewed native metadata/imports/AST reconstruction. This is preparation, not execution authority.",
+    "Separately review fresh operational epoch/budget eligibility before any native execution, preserving current max46 history. Do not automatically rerun inner, reset counters, restart container, increase limits or waive gates.",
+    "Only if eligible, run negative then restored positive sequentially with existing exact official compiler/lock tooling and full captures; independently classify actual admission/type/resource/artifact results.",
+    "If mixed-module admission, closed term representation or audit fails, preserve exact diagnostics and identify the real compiler dependency. No rawLean/checker/runtime modification to force acceptance."
+  ],
+  "remaining": "Finite O=R proof would not itself finish original ordinal26 projection/control, allRead33, remaining drafts, fullHash/object integration or production PrismPM/Pages. Native final theorem is not automatically a semantic proof_rule or model promotion.",
+  "limitsOfInvestigation": [
+    "Not independent SPEC acceptance, compiled candidate, mixed-graph proof or native execution authorization.",
+    "Read the final independent native-review report and bound its current exact bytes; this investigation did not repeat its185artifact/49raw-file audit.",
+    "Shipped Laws used only as source precedent; no relaxed axiom policy or production lock fabricated.",
+    "Historical documented Simplify/propext negatives do not establish blanket impossibility; this proposal avoids that known risky route.",
+    "Initial in-memory pretty-printed draft was20769bytes and rejected by pre-write20KiB cap; no file was created. This sole shorter final report includes the subsequent completed native audit."
+  ],
+  "operations": "Read-only source/hash/AST inspection and this one bounded external report. No SDK/native/container/process jobs, repository edits or additional fixtures/copies."
+}

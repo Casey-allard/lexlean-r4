@@ -1,0 +1,32 @@
+{
+  "schema": "lexlean-r4-whole-inner-connection-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 72570,
+      "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 692,
+      "sha256": "9dc83d521c5e3ce43cee06c3f51dc96008cc3c430adca9cc4b5fa2dd3f190706"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 25604,
+      "sha256": "d21d31e0340fb88529609e7b4334a6c42bbfcc4dd45b0b178e9b1365127ff70c"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 8972,
+      "sha256": "a8372166c3c5ad447fab48b4efd35ab52e90703428de75abc092ccfa5e8fa6fe"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1248,
+      "sha256": "f2065b07e8890965f5c291afa094e14c0a98f64d1940f9cc0f5d924ca79d887c"
+    }
+  ],
+  "boundary": "Actual inner ObjWholeAdmitted=C conversion remains unproved until mandatory consumer compiles and kernel-replays. Retained transport source is reverified, not transplanted acceptance from failed whole closure. No full successful inner/outer Result, ordinal26/Read33 or component acceptance; no efficiency/cache claim."
+}

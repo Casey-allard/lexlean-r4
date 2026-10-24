@@ -1,0 +1,145 @@
+{
+  "schema": "lexlean-r4-inner-connection-portable-source-custody/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN_AT_PARENT_DISPATCH",
+  "recordedAt": "2026-10-24T04:51:42.417Z",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+        "bytes": 72570,
+        "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/candidate/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+        "bytes": 72570,
+        "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/lexlean.toml",
+        "bytes": 692,
+        "sha256": "9dc83d521c5e3ce43cee06c3f51dc96008cc3c430adca9cc4b5fa2dd3f190706"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/candidate/lexlean.toml",
+        "bytes": 692,
+        "sha256": "9dc83d521c5e3ce43cee06c3f51dc96008cc3c430adca9cc4b5fa2dd3f190706"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/candidate.json",
+        "bytes": 25604,
+        "sha256": "d21d31e0340fb88529609e7b4334a6c42bbfcc4dd45b0b178e9b1365127ff70c"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/candidate/candidate.json",
+        "bytes": 25604,
+        "sha256": "d21d31e0340fb88529609e7b4334a6c42bbfcc4dd45b0b178e9b1365127ff70c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/structural-audit.json",
+        "bytes": 8972,
+        "sha256": "a8372166c3c5ad447fab48b4efd35ab52e90703428de75abc092ccfa5e8fa6fe"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/candidate/structural-audit.json",
+        "bytes": 8972,
+        "sha256": "a8372166c3c5ad447fab48b4efd35ab52e90703428de75abc092ccfa5e8fa6fe"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/README.md",
+        "bytes": 1248,
+        "sha256": "f2065b07e8890965f5c291afa094e14c0a98f64d1940f9cc0f5d924ca79d887c"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/candidate/README.md",
+        "bytes": 1248,
+        "sha256": "f2065b07e8890965f5c291afa094e14c0a98f64d1940f9cc0f5d924ca79d887c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/manifest.json",
+        "bytes": 1254,
+        "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/candidate/manifest.json",
+        "bytes": 1254,
+        "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/candidate-code-review.json",
+        "bytes": 4970,
+        "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/evidence/candidate-code-review.json",
+        "bytes": 4970,
+        "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/next-inner-connection-investigation.json",
+        "bytes": 15302,
+        "sha256": "159e987a0fb302fd7b8c026d3bbe886de663f562365873a6399c74d0abaadd31"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/evidence/next-inner-connection-investigation.json",
+        "bytes": 15302,
+        "sha256": "159e987a0fb302fd7b8c026d3bbe886de663f562365873a6399c74d0abaadd31"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/next-inner-connection-spec-review.json",
+        "bytes": 4565,
+        "sha256": "728ed6d627539dd508d41b14a6163025165d19cf75e56e60a4c09bf71090d1fd"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-inner-connection/evidence/next-inner-connection-spec-review.json",
+        "bytes": 4565,
+        "sha256": "728ed6d627539dd508d41b14a6163025165d19cf75e56e60a4c09bf71090d1fd"
+      }
+    }
+  ],
+  "generatedRecords": [
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/source-bindings.json",
+      "bytes": 21449,
+      "sha256": "5615a2ffaccada332a1d182cfc09c4a2d9ef62a3b75276c4700941adacba78d0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/readiness.json",
+      "bytes": 1587,
+      "sha256": "ffdb9c375468921e0211e0c9b5c09e2784bea32d4cd30de027f34d117a130197"
+    }
+  ],
+  "preservation": {
+    "current17PinsVerified": true,
+    "originalSnapshotManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending-manifest.json",
+      "bytes": 5064,
+      "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+    },
+    "canonicalSourceBytesUnchanged": true
+  },
+  "storage": {
+    "hostAvailableBytes": "25040711680",
+    "externalPreparationBeforeBytes": 159744,
+    "newPortableLimitBytes": 262144,
+    "aggregatePhaseLimitBytes": 1048576,
+    "conservativePortableEstimateBytes": 229376,
+    "noDiskTemporaryCopies": true
+  },
+  "boundary": "Only frozen source packet, reviewed authority and portable source metadata. No native receipt/lock/result or acceptance. Parent handles invocation and actual tests separately."
+}

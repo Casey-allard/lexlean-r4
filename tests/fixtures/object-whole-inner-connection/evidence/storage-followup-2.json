@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-24T05:09:48.999Z",
+  "availableBytes": "24023314432",
+  "precedingAvailableBytes": "27306704896",
+  "reviewerLowAvailableBytes": "23142076416",
+  "newRecent": [
+    {
+      "path": "/private/tmp/adv3134",
+      "birth": 1792818477008.2341
+    }
+  ],
+  "results": [
+    {
+      "command": "sysctl",
+      "args": [
+        "vm.swapusage"
+      ],
+      "status": 0,
+      "stdout": "vm.swapusage: total = 15360.00M  used = 14205.75M  free = 1154.25M  (encrypted)\n",
+      "stderr": ""
+    },
+    {
+      "command": "du",
+      "args": [
+        "-k",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+      ],
+      "status": 0,
+      "stdout": "26037560\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469640\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+      "stderr": ""
+    },
+    {
+      "command": "du",
+      "args": [
+        "-sk",
+        "/private/tmp/deepseek-ver3134",
+        "/private/tmp/verify-3134-target",
+        "/private/tmp/verify-3134",
+        "/private/tmp/deepseek-cr11",
+        "/private/tmp/adv3134"
+      ],
+      "status": 0,
+      "stdout": "524564\t/private/tmp/deepseek-ver3134\n712676\t/private/tmp/verify-3134-target\n524456\t/private/tmp/verify-3134\n524552\t/private/tmp/deepseek-cr11\n320\t/private/tmp/adv3134\n",
+      "stderr": ""
+    }
+  ],
+  "limitation": "Bounded comparison only, APFS sharing/concurrency prevents exact attribution; no unrelated files or processes modified."
+}

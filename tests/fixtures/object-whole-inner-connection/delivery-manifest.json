@@ -1,0 +1,226 @@
+{
+  "schema": "lexlean-r4-inner-connection-delivery-manifest/v1",
+  "status": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED",
+  "recordedAt": "2026-10-24T05:11:33.720Z",
+  "scope": "Entire object-whole-inner-connection fixture plus only docs/CONTINUATION.md and docs/plans/2026-10-21-lexlean-r4.md. Excludes this manifest; no protected source/model/draft changes.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 60892,
+      "sha256": "dac9d1855ba535e40f52bdf47d3fab788089fb44c4aeb44542a2113594b4eb08"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 46768,
+      "sha256": "aec992d8f8385b9e4213182b8264bcc5aff02853c7ced9de5e4c32cd15385044"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/README.md",
+      "bytes": 1090,
+      "sha256": "e10d4cae8ce5de85203a2b011ae5ff48d77cf2e180b4bc1010671d2ed1c62a94"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/RESULTS.md",
+      "bytes": 3129,
+      "sha256": "3df572adc92a08ee9aa0639762d1112c87e57f1b0188ba5ea4ddca1de4248ba4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/candidate/README.md",
+      "bytes": 1248,
+      "sha256": "f2065b07e8890965f5c291afa094e14c0a98f64d1940f9cc0f5d924ca79d887c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/candidate/candidate.json",
+      "bytes": 25604,
+      "sha256": "d21d31e0340fb88529609e7b4334a6c42bbfcc4dd45b0b178e9b1365127ff70c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/candidate/common/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 72570,
+      "sha256": "5277013cee4f9d8a76621cfb6047e252f35f9e30580b21ebae83bb718226bf68"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/candidate/lexlean.toml",
+      "bytes": 692,
+      "sha256": "9dc83d521c5e3ce43cee06c3f51dc96008cc3c430adca9cc4b5fa2dd3f190706"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/candidate/manifest.json",
+      "bytes": 1254,
+      "sha256": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/candidate/structural-audit.json",
+      "bytes": 8972,
+      "sha256": "a8372166c3c5ad447fab48b4efd35ab52e90703428de75abc092ccfa5e8fa6fe"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/composition-plan-custody.json",
+      "bytes": 3104,
+      "sha256": "fb98a6aba68fcba1de365413fcf82e45b6bc674402722de0727e2efafb9f48bb"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/artifact-census.json",
+      "bytes": 28760,
+      "sha256": "78302e2c97455debba93fe6f33fcacc481737e3d28cfd0f0a9977ada526b31c5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/candidate-code-review.json",
+      "bytes": 4970,
+      "sha256": "647f5fc0cd29dee92ee459b65153248136b13817ecddcf1f6f20fca613b526e0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/history/README-before-native-review.md",
+      "bytes": 1229,
+      "sha256": "5565e620ae80ab5f4833abe09ba8e38def1342807502b1b07a50b087053aaa9b"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/history/pre-composition-spec-texts.json.gz",
+      "bytes": 35906,
+      "sha256": "4fdf440d4bea2bc85cc8c99f8c8502497524e0780146f17ca77c480080458425"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/invocation/invocation-code-review.json",
+      "bytes": 4932,
+      "sha256": "0ddbb75358dad5a2cd8db09351fe637b9229be22f9e26eebbfb0309519c52a09"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/invocation/invocation-diff.json",
+      "bytes": 1944,
+      "sha256": "0433315331851677093acadc31ea329d26790c7fc880f95a09d2c1e3ff9ce286"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/invocation/invocation-manifest.json",
+      "bytes": 452,
+      "sha256": "e5072d9c77754906c43f5dc5774aa78fee4d75f43f1f43a5a9ae521c4250304f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/invocation/invoke-whole-inner-connection.mjs",
+      "bytes": 7737,
+      "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/native-review.json",
+      "bytes": 15321,
+      "sha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/negative-review.json",
+      "bytes": 13535,
+      "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/negative/raw-receipts.json.gz",
+      "bytes": 8347,
+      "sha256": "56e1f1793f2f69068a6751cc58f8e947597e7f5658380b64d4d796a76b76095f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/next-composition-investigation.json",
+      "bytes": 18867,
+      "sha256": "a6dfeed45dbcd4b645992ab94041d1f4c30061f9318764e82bb95c0ca5c502a0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/next-composition-spec-review.json",
+      "bytes": 5353,
+      "sha256": "b2c7f1cbbb5f518aac15fa398cceed9afb3bec8cc2c24b54be4f6a44c0302873"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/next-inner-connection-investigation.json",
+      "bytes": 15302,
+      "sha256": "159e987a0fb302fd7b8c026d3bbe886de663f562365873a6399c74d0abaadd31"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/next-inner-connection-spec-review.json",
+      "bytes": 4565,
+      "sha256": "728ed6d627539dd508d41b14a6163025165d19cf75e56e60a4c09bf71090d1fd"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/positive/attestation.json.gz",
+      "bytes": 11482,
+      "sha256": "a0ceecb6f16654828a79f44a9bf802626e8683a1843836d340a43f0d38a83441"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/positive/raw-receipts.json.gz",
+      "bytes": 8506,
+      "sha256": "6a05be75be8fb5b89f75f2df31d0953fc789d3b1bff9d2377d014bb31bf776df"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/storage-followup-2.json",
+      "bytes": 1580,
+      "sha256": "001a90e3a02d258d5998f84e986fb8979748f44191a3d2322d3ed89931d3ff3d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/evidence/storage-followup.json",
+      "bytes": 1824,
+      "sha256": "2278c60ab85859949eb38cae91c19365a43b194a1a06e8de549bdacb4d1e2654"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/negative-raw-custody.json",
+      "bytes": 12821,
+      "sha256": "8118532c9fd788a00d19c09ec19aecdcc38b01dbab9a35bc62711f3a2f2f2cf5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/positive-resource-failure-custody.json",
+      "bytes": 12512,
+      "sha256": "1f1b6339854f12c10557ea95beb790388a09ffae119cb978165c2d1494117921"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/readiness.json",
+      "bytes": 1587,
+      "sha256": "ffdb9c375468921e0211e0c9b5c09e2784bea32d4cd30de027f34d117a130197"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/results.json",
+      "bytes": 7204,
+      "sha256": "b62bdd2459eb7ae07af57ff4eb1cfb06c9ed7777401e2525fd6a6ae2a2cc3959"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/reviewed-outcome-custody.json",
+      "bytes": 3114,
+      "sha256": "6be3bd1b12ea8185ccb1cf564e3de193a14de7a2c18ecaa1c5040955bbcb3fd2"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/source-bindings.json",
+      "bytes": 21449,
+      "sha256": "5615a2ffaccada332a1d182cfc09c4a2d9ef62a3b75276c4700941adacba78d0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/source-custody.json",
+      "bytes": 6236,
+      "sha256": "9f7e52bf66160629f75988631b630bec102067024bbf2fe912d85cb8588632f4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/storage-followup-custody.json",
+      "bytes": 1158,
+      "sha256": "d0e43e32795667e3a624c5b281c47ecfcaff1a1cc3426944ccadebd583d4cdce"
+    }
+  ],
+  "preservation": {
+    "current17PinsVerified": true,
+    "original17SnapshotsVerified": true
+  },
+  "nextDesign": {
+    "proposalSha256": "a6dfeed45dbcd4b645992ab94041d1f4c30061f9318764e82bb95c0ca5c502a0",
+    "specSha256": "b2c7f1cbbb5f518aac15fa398cceed9afb3bec8cc2c24b54be4f6a44c0302873",
+    "status": "PASS_BOUNDED_CONDITIONAL_SOURCE_DESIGN_ONLY",
+    "newTests": "ALL_NOT_RUN",
+    "freshOperationalEligibilityRequired": true
+  },
+  "storage": {
+    "hostAvailableBytes": "28141146112",
+    "reserveBytes": "10737418240",
+    "aggregateCapBytes": 1048576,
+    "allocationBeforeManifestBytes": 843776,
+    "noDiskTemporaryCopies": true
+  }
+}
