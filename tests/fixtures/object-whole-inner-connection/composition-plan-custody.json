@@ -1,0 +1,80 @@
+{
+  "schema": "lexlean-r4-inner-composition-plan-custody/v1",
+  "recordedAt": "2026-10-24T05:11:33.708Z",
+  "status": "PASS_BOUNDED_CONDITIONAL_SOURCE_DESIGN_ONLY",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/next-composition-investigation.json",
+      "path": "evidence/next-composition-investigation.json",
+      "bytes": 18867,
+      "sha256": "a6dfeed45dbcd4b645992ab94041d1f4c30061f9318764e82bb95c0ca5c502a0"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/next-composition-spec-review.json",
+      "path": "evidence/next-composition-spec-review.json",
+      "bytes": 5353,
+      "sha256": "b2c7f1cbbb5f518aac15fa398cceed9afb3bec8cc2c24b54be4f6a44c0302873"
+    }
+  ],
+  "history": {
+    "path": "evidence/history/pre-composition-spec-texts.json.gz",
+    "bytes": 35906,
+    "sha256": "4fdf440d4bea2bc85cc8c99f8c8502497524e0780146f17ca77c480080458425",
+    "decodedBytes": 118347,
+    "decodedSha256": "da6374686d150ddd8b1077f7c6389e6fee4e152334d4784ca36e59298e1e7efd",
+    "entries": [
+      {
+        "path": "tests/fixtures/object-whole-inner-connection/results.json",
+        "bytes": 6430,
+        "sha256": "8cd3f416aee261ff76770c2d7359ce412900f822b7b411b2ada0a2b31f5c954e"
+      },
+      {
+        "path": "tests/fixtures/object-whole-inner-connection/RESULTS.md",
+        "bytes": 2682,
+        "sha256": "0dbce403d13530cb604d8a58fe6e197d0c8ecfba0cd72356240c9651cc035ef1"
+      },
+      {
+        "path": "docs/CONTINUATION.md",
+        "bytes": 60322,
+        "sha256": "130dda753d3a2d2339d9499d110872716cc655f13209cf4c71b966697ab6de16"
+      },
+      {
+        "path": "docs/plans/2026-10-21-lexlean-r4.md",
+        "bytes": 46192,
+        "sha256": "c00c6d2ea7fdcd8059fc2ca0882e85fa86dcde4c96808b88a62f576226b43596"
+      }
+    ]
+  },
+  "changed": [
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/results.json",
+      "bytes": 7204,
+      "sha256": "b62bdd2459eb7ae07af57ff4eb1cfb06c9ed7777401e2525fd6a6ae2a2cc3959"
+    },
+    {
+      "path": "tests/fixtures/object-whole-inner-connection/RESULTS.md",
+      "bytes": 3129,
+      "sha256": "3df572adc92a08ee9aa0639762d1112c87e57f1b0188ba5ea4ddca1de4248ba4"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 60892,
+      "sha256": "dac9d1855ba535e40f52bdf47d3fab788089fb44c4aeb44542a2113594b4eb08"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 46768,
+      "sha256": "aec992d8f8385b9e4213182b8264bcc5aff02853c7ced9de5e4c32cd15385044"
+    }
+  ],
+  "currentRunStatus": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED",
+  "newTests": "ALL_NOT_RUN",
+  "preservation": "Earlier immutable evidence and custody remain byte-exact. Pre-SPEC results/docs preserved losslessly; source preparation unaffected.",
+  "storage": {
+    "availableBytes": "28141146112",
+    "reserveBytes": "10737418240",
+    "additionalEstimateBytes": 131072,
+    "aggregateCapBytes": 1048576,
+    "noDiskTemporaryCopies": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "lexlean-r4-inner-connection-invocation/v1",
+  "status": "FROZEN_PENDING_REVIEW_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "invoke-whole-inner-connection.mjs",
+      "bytes": 7737,
+      "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 1944,
+      "sha256": "0433315331851677093acadc31ea329d26790c7fc880f95a09d2c1e3ff9ce286"
+    }
+  ]
+}

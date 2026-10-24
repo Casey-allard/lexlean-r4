@@ -1,0 +1,177 @@
+{
+  "schema": "lexlean-r4-inner-connection-results/v1",
+  "status": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED",
+  "recordedAt": "2026-10-24T05:09:57.246Z",
+  "scope": {
+    "compilerEquation": "Actual original ObjWholeAdmitted = C, where C retains genuine post-range hash/digest comparison, errors and wrapping.",
+    "compilerArtifactVerified": true,
+    "overallRunAccepted": false,
+    "successfulFullInnerOrOuterResult": false,
+    "ordinal26Accepted": false,
+    "Read33Accepted": false
+  },
+  "positive": {
+    "launcherStatus": 1,
+    "launcherStatusAuthority": "Parent terminal notice; consistent with sole failed postcondition. Distinct from raw official verify status.",
+    "verifyStatus": 0,
+    "success": true,
+    "diagnostics": [],
+    "checkModules": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "ObjectWholeInnerContinuation",
+      "ObjectWholeReadContext",
+      "ObjectWholeReadTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "aggregateElapsedMs": 264273,
+    "started": "2026-10-24T04:59:49.159Z",
+    "ended": "2026-10-24T05:04:13.432Z",
+    "attestationId": "4e1e8a432c06fb92985d8c470b43deabb71772b9d92aebad565281e29fd79f20",
+    "buildId": "7bea0eb5eb22a5e50a72d56ede68bce65294c9b60f076fe8ae9d2aed666d2667",
+    "sourceId": "1a69ad99f8f1b1f312fe9196202e4099fba3d9eb87c4f468acd6b59a038cb5b2",
+    "semanticId": "07e9988f86e20c549a300d89506a5a7e6f444dce1c20fa2b43316361b832b284",
+    "artifact": {
+      "files": 185,
+      "outputs": 90,
+      "oleans": 18,
+      "emptyAxiomDeclarations": 814,
+      "successfulProcesses": 55,
+      "kernelReplays": 18
+    },
+    "runGate": {
+      "status": "FAIL_ZERO_MEMORY_EVENT_POSTCONDITION",
+      "postcaptureErrors": [
+        {
+          "name": "memory-after",
+          "error": "Error: nonzero memory events"
+        }
+      ],
+      "memoryBefore": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryAfter": {
+        "low": 0,
+        "high": 0,
+        "max": 46,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "interpretation": "Nonzero max event count breaches unchanged run gate. This does not erase successful compiler/kernel evidence and does not waive the operational gate. No OOM kill recorded; no PID, exact cause, peak usage or time attribution inferred."
+    },
+    "review": {
+      "path": "evidence/native-review.json",
+      "bytes": 15321,
+      "sha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889"
+    },
+    "census": {
+      "path": "evidence/artifact-census.json",
+      "bytes": 28760,
+      "sha256": "78302e2c97455debba93fe6f33fcacc481737e3d28cfd0f0a9977ada526b31c5",
+      "recordsSha256": "f6888138d51acfac7b9f2d1febe391d4803e28448839def653e07f5790eba346"
+    }
+  },
+  "negative": {
+    "status": "PASS_INTENDED_DEPENDENCY_NEGATIVE_ONLY",
+    "phase": "inner-false",
+    "verifyStatus": 1,
+    "aggregateElapsedMs": 288296,
+    "diagnosticCode": "LLV7002",
+    "failureModule": "ObjectWholeReadTransport",
+    "consumerElaborated": false,
+    "interpretation": "Intended wrong zero-base Apply rejected in the transport dependency; not a negative consumer verification.",
+    "review": {
+      "path": "evidence/negative-review.json",
+      "bytes": 13535,
+      "sha256": "86dd18cb1daa56b7f1eaa8b04b41021869f95835a3c72c8bbc16e845db26ac90"
+    }
+  },
+  "inputs": {
+    "total": 22,
+    "suppliedSources": 18,
+    "checkAdmittedModules": 18,
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5",
+      "unchangedAfter": true,
+      "officialLockStatus": 0
+    },
+    "otherOperationalChecks": {
+      "inputCount": 22,
+      "localFrozenPhaseInputHashes": "All exact size/hash and destination mappings checked; all22 copy receipts exit0.",
+      "guestPrePostSources": "All22 source/config/workspace hashes exact before and after.",
+      "genuineDevelopmentLock": {
+        "bytes": 1597,
+        "sha256": "5a2cd8463a6ce3a76da05a637e3f1bd0c4a76e7f0bc0a4b1454da2cb056a51b5",
+        "unchangedAfter": true,
+        "officialLockStatus": 0
+      },
+      "tools": "All four known compiler/Lean/Lake/checker hashes exact and unchanged.",
+      "epoch": "2026-10-24T03:23:35.957043396Z 0 4294967296 2000000000 none []",
+      "idle": "No compiler process observed in pre/post snapshots.",
+      "hostAvailableBytes": {
+        "before": "29028044800",
+        "after": "28278890496"
+      },
+      "hostLaunchEstimateBytes": "10737418240",
+      "hostReserveBytes": "10737418240",
+      "guestAvailableKiB": {
+        "before": 52890036,
+        "after": 52878128
+      },
+      "allCaptureCommandStatuses": 0,
+      "commandCount": 44,
+      "remainingPostcaptureErrors": []
+    },
+    "exception": "Positive memory.events.max rose 0 to 46; zero-event postcondition failed."
+  },
+  "history": {
+    "priorReadme": {
+      "path": "evidence/history/README-before-native-review.md",
+      "bytes": 1229,
+      "sha256": "5565e620ae80ab5f4833abe09ba8e38def1342807502b1b07a50b087053aaa9b"
+    },
+    "immutablePreparationAndPendingCustodies": "Preserved byte-exact; their NOT_RUN and pending-review observations are historical. These results and native review supersede status only, not original bytes."
+  },
+  "boundaries": [
+    "No operational gate waiver, counter reset, restart, native retry or limit increase.",
+    "No full inner or outer successful Result composition, ordinal26/Read33 or complete Object/Hash/PrismPM/Pages acceptance.",
+    "Timings are aggregate verification intervals; memory observations are snapshots, not peaks or attribution.",
+    "Raw compiler artifact remains local. Portable textual attestation is losslessly compressed; no binaries or oleans are copied."
+  ],
+  "next": {
+    "status": "PASS_BOUNDED_CONDITIONAL_SOURCE_DESIGN_ONLY",
+    "proposal": {
+      "path": "evidence/next-composition-investigation.json",
+      "bytes": 18867,
+      "sha256": "a6dfeed45dbcd4b645992ab94041d1f4c30061f9318764e82bb95c0ca5c502a0"
+    },
+    "spec": {
+      "path": "evidence/next-composition-spec-review.json",
+      "bytes": 5353,
+      "sha256": "b2c7f1cbbb5f518aac15fa398cceed9afb3bec8cc2c24b54be4f6a44c0302873"
+    },
+    "route": "Official LexLean core-module/2 theorem composing concrete O=A, A=C and C=R with two nested kernel Eq.trans applications. This is not an invented semantic proof constructor or handwritten Lean source.",
+    "newTests": "ALL_NOT_RUN",
+    "resourceAuthority": "Fresh operational eligibility, epoch and budget review required. Current inner run remains resource-gate failed. No automatic restart, counter reset, retry, limit increase or waiver.",
+    "boundary": "Mandatory original O=R composition remains unproved; original ordinal26/Read33 and full integration remain open."
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "at": "2026-10-24T05:07:35.411Z",
+  "availableBytes": "27306704896",
+  "precedingAvailableKiB": 28457964,
+  "currentObservationKiB": 25235592,
+  "recent": [
+    {
+      "path": "/private/tmp/deepseek-ver3134",
+      "birth": 1792818451328.886
+    },
+    {
+      "path": "/private/tmp/verify-3134-target",
+      "birth": 1792818379702.8406
+    },
+    {
+      "path": "/private/tmp/verify-3134",
+      "birth": 1792818356930.944
+    },
+    {
+      "path": "/private/tmp/deepseek-cr11",
+      "birth": 1792818355224.601
+    }
+  ],
+  "results": [
+    {
+      "command": "sysctl",
+      "args": [
+        "vm.swapusage"
+      ],
+      "status": 0,
+      "stdout": "vm.swapusage: total = 14336.00M  used = 13532.19M  free = 803.81M  (encrypted)\n",
+      "stderr": ""
+    },
+    {
+      "command": "du",
+      "args": [
+        "-k",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+      ],
+      "status": 0,
+      "stdout": "26037560\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469640\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+      "stderr": ""
+    },
+    {
+      "command": "du",
+      "args": [
+        "-sk",
+        "/private/tmp/deepseek-ver3134",
+        "/private/tmp/verify-3134-target",
+        "/private/tmp/verify-3134",
+        "/private/tmp/deepseek-cr11"
+      ],
+      "status": 0,
+      "stdout": "161260\t/private/tmp/deepseek-ver3134\n546120\t/private/tmp/verify-3134-target\n524456\t/private/tmp/verify-3134\n524552\t/private/tmp/deepseek-cr11\n",
+      "stderr": ""
+    }
+  ],
+  "limitation": "Bounded read-only attribution, not complete physical reconciliation; APFS sharing and concurrent activity may differ from du. No unrelated file/process changed."
+}

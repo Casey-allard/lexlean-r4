@@ -1,0 +1,219 @@
+{
+  "schema": "lexlean-r4-next-inner-connection-investigation/v1",
+  "status": "SOURCE_INVESTIGATION_PROPOSED_MINIMAL_INTERMEDIATE_NEW_TESTS_NOT_RUN",
+  "author": "orchestration_design_review",
+  "independentSpec": null,
+  "purpose": "Prove the actual original ObjWholeAdmitted call equals the already accepted post-range expression C, using retained range-context transport. This is a smaller intermediate toward the complete original WholeRead Result; final composition remains open.",
+  "acceptedPrerequisites": {
+    "outer": {
+      "reviewSha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b",
+      "attestation": "f905d7e39823ac7939f78ccd8b8f73cba4f2042f8ccce6e2cb40e15cf789d7fc",
+      "scope": "Actual original WholeRead=WholeAdmitted, including real admitted-binder conversion, accepted by independent native audit:125files/806emptyaxioms/12kernelreplays/37processes/19772ms aggregate. Not the RHS final value."
+    },
+    "range": {
+      "reviewSha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530",
+      "theorem": "ObjectAdmittedRangeResult.objOriginalAdmittedRangeResult",
+      "scope": "Actual range call returns full original96-byte range record including version and stats4/4/184."
+    },
+    "postrange": {
+      "reviewSha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776",
+      "theorem": "ObjectWholePostrangeResult.objOriginalWholePostrangeResult",
+      "attestation": "c8a21fe7466cd404ccea624de08f094f0f60b6d0be20735b1410295986ecbd43",
+      "scope": "C returns complete expected whole Result. C is exactly the new intermediate RHS, not merely a similar expression."
+    }
+  },
+  "priorFailure": {
+    "auditSha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd",
+    "observed": "Prior selected ObjectWholeReadContinuation attempted original outerWholeRead=C by Apply of a range-context theorem. Actual final module timed out300004ms, aggregate400487ms, memorymax450159/noOOM/noKill; no accepted artifact.",
+    "interpretation": "Observed failing configuration, not bottleneck diagnosis. New LHS is actual inner ObjWholeAdmitted, separating the now independently accepted outer admission/key-validation equality. No repeat of the same failed outer goal or limits increase.",
+    "retainedTransport": "Reuse retained source, not an asserted accepted artifact of the failed closure. Exact newly selected transport and consumer closure must be compiled and audited."
+  },
+  "sourceReconstruction": {
+    "canonicalization": "AST hashes use SHA256(UTF8 JSON.stringify(recursively key-sorted objects, arrays kept in order)). They are distinct from source-file hashes.",
+    "original": {
+      "ordinal": 26,
+      "name": "objProtocolWholeBytes",
+      "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "wholeReadCallOccurrences": 1
+    },
+    "consumer": {
+      "module": "ObjectWholeInnerContinuation",
+      "theorem": "objOriginalWholeInnerContinuation",
+      "sourceTemplate": "object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "edits": [
+        "Rename module/header and theorem as above.",
+        "Replace only statement.left.function {module:R4.Object,name:ObjWholeRead} with {module:R4.ObjectRead,name:ObjWholeAdmitted}. Preserve all three original argument ASTs, complete RHS and proof.",
+        "Add explicit import R4.ObjectRead while preserving other imports and all production sources.",
+        "Select tests/lexlean/ObjectWholeInnerContinuation.lex.tex as sole entrypoint; all other configuration/limits unchanged."
+      ],
+      "oldStatementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+      "newStatementSha256": "11fb9d0d02fc6cc15147bcff3ae7dbfb63991df04975b7903ab43892c6bf7ed4",
+      "newDeclarationSha256": "6152951ae8320ae287cccbfe06793443ecaf477bbe15aacc2396d6a06f083474",
+      "leftSha256": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "rightSha256": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "unchangedProof": {
+        "kind": "apply",
+        "theorem": {
+          "module": "ObjectWholeReadTransport",
+          "name": "objOuterWholeLifted"
+        },
+        "type_arguments": [],
+        "arguments": [
+          {
+            "kind": "nat",
+            "value": "1"
+          }
+        ]
+      },
+      "proofSha256": "dc4ba55b5720b5665784d34083e83258d9a53e1de0dba6ee9ab9104abcb32381"
+    },
+    "productionRestoration": {
+      "declaration": "R4.ObjectRead.ObjWholeAdmitted",
+      "declarationSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+      "substitution": "Substitute view/manifest/limits with the exact original call arguments. Qualify only the local ObjRangeAdmitted reference as R4.ObjectRead.ObjRangeAdmitted.",
+      "context": "ObjectWholeReadContext.ObjOuterWholeContext(rangeResult)",
+      "hole": "Only body.scrutinee: the genuine ObjRangeAdmitted call with original backend/manifest/full range0..manifest.length/limits.",
+      "preserved": "Both Result branches, real ObjHashBytes(read.bytes), original manifest digest comparison, integrityFailure, bytes/version/stats construction.",
+      "inMemoryCheck": "Restoring context.body.scrutinee from the zero-branch actual range call exactly reproduces the instantiated production body after qualification.",
+      "bothBodySha256": "96f03f26ade4cb2150325a1c91d214c51f33063d02705c0a5143aca2198efdb2"
+    },
+    "connections": {
+      "originalOrdinal26CallEqualsAcceptedOuterLeft": true,
+      "acceptedOuterRightEqualsProposedInnerLeft": true,
+      "proposedRightEqualsAcceptedPostrangeLeft": true,
+      "postrangeFullStatementSha256": "e87027e4861787ae645bfacb6d0eeb2e60b42667f08fa83c1c2936bd5a5b01be",
+      "expectedWholeResultSha256": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6"
+    }
+  },
+  "proofRoute": {
+    "reuse": "Unchanged ObjectWholeReadContext and selected positive/negative ObjectWholeReadTransport source; no new context or generic proof framework.",
+    "family": "P0 is actualRangeCall=Result.ok originalRangeRecord. P(succ n) is context(actualRangeCall)=context(Result.ok originalRangeRecord).",
+    "positive": "Nat Induction count; zero Apply ObjectAdmittedRangeResult.objOriginalAdmittedRangeResult. Successor Cases prior with Congruence in both branches. New mandatory actual inner consumer Applies objOuterWholeLifted at Nat1.",
+    "compilerSupport": "Pinned IR supports Nat Induction/Cases/Congruence/Apply. backend/semantic.rs:1292 emits congr1;1371-1387 Apply emits exact referenced theorem with ordinary term arguments. Existing retained source uses these actual constructors.",
+    "unprovedConversion": "The actual consumer must convert real ObjWholeAdmitted into context(actualRangeCall), and context(Result.ok originalRangeRecord) into C. Structural restoration is supporting source evidence, not native proof. The concrete consumer must elaborate and kernel replay within unchanged limits.",
+    "excluded": "No Rewrite/Have/Eq.trans/propext, handwritten Lean injection, trusted hash, host computation substitute, or assumed equality. No blanket impossibility claim from absent constructors."
+  },
+  "controls": {
+    "negative": "Reuse exact negative transport source: only zero-branch Apply changes from accepted range theorem to local objOuterWholeUnrelatedZero proving0=0. Keep new actual inner consumer, inputs, runtime and context identical.",
+    "classification": "Dependency-level negative; it may reject before concrete consumer elaboration. Do not label it a fully elaborated false consumer. Timeout/resource/admission failure is not the intended negative.",
+    "positive": "Require official source check/verify, complete newly selected closure, exact source/config/tools/lock identities, actual emitted inner consumer statement, empty observed axioms and independent kernel evidence.",
+    "newNative": "NOT_RUN",
+    "sequence": "Nonauthor SPEC, minimal candidate CODE, reviewed one-off invocation and fresh gates; classify actual false phase and all postguards before positive. No overlapping jobs."
+  },
+  "minimalCandidate": {
+    "inputCensus": "Reuse pinned previous22-input candidate mapping, substituting only new consumer file/destination/root config and selecting the existing false/positive transport.18sourcefiles/22inputs is planned, not observed new admission.",
+    "portableReuse": "Retained context/transport and prerequisite sources already have committed fixture equivalents. Verify exact bytes when mapping them; do not transplant old locks, binaries or acceptance. Add explicit R4.ObjectRead consumer import.",
+    "postrangeUse": "Accepted postrange theorem binds exact RHS provenance but is not applied by this intermediate. Identical RHS AST does not itself compose complete inner success.",
+    "limits": "300000ms child timeout,4GiB/2CPU exact existing tools. Fresh source/epoch/idle/zero-event gates; host20GiB launch estimate including10GiB reserve, guest11GiBpre/10GiBpost. No new compiler build or VM replacement.",
+    "failure": "Preserve any failed actual smaller conversion and inspect exact source/emission. No equivalent rerun/limit escalation or unsupported bottleneck inference."
+  },
+  "remaining": [
+    "Actual proposed inner equality is unproved; it may recompute or time out.",
+    "Even if accepted, explicitly supported composition of inner=C with accepted C=fullResult remains required; this plan invents no transitivity theorem.",
+    "Then connect outer=inner with successful innerResult and original ordinal26 byte projection through actual mandatory consumers.",
+    "Read33 suite, ten unfinished drafts, whole257/Hash/Object qualification, production PrismPM binding and generated Pages remain required."
+  ],
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "bytes": 72531,
+      "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+      "bytes": 77000,
+      "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+      "bytes": 1318,
+      "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/negative/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+      "bytes": 1277,
+      "sha256": "116b4489060e2b74c6258ab5acd02d2f13d4a14abd3ab630cba443a5bdf6f694"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/candidate.json",
+      "bytes": 18284,
+      "sha256": "d14a4eb9cccb3e7c4f2ae654ffe6f61adb0e604de29a05336f69a271aaac6baa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/failure-native-review.json",
+      "bytes": 14520,
+      "sha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 35487,
+      "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive-native-review.json",
+      "bytes": 6708,
+      "sha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive-native-review.json",
+      "bytes": 14058,
+      "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+      "bytes": 58020,
+      "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/positive-native-review.json",
+      "bytes": 13365,
+      "sha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/outer-positive/result.json",
+      "bytes": 1042,
+      "sha256": "99f86b781587ce0609c56d1ac8e7198c687c033b54e5976ac98246ce6d4a59f8"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    }
+  ],
+  "storage": {
+    "hostAvailableBytesObserved": 30452310016,
+    "reportMaximumBytes": 16384,
+    "operations": "One report only; no fixtures/copies/native/SDK/VM/build/repository changes."
+  },
+  "authoringNote": "An initial serialization exceeded the16KiB report cap and was rejected before any file write. This bounded report preserves the same intended minimal scope; no candidate or native failure occurred.",
+  "limitations": [
+    "Authored Phase1 investigation, not independent SPEC or executable authority.",
+    "Actual prerequisite reviews bind prior finite results, not current resource authorization.",
+    "No timing transfer, caching, avoided recomputation, efficiency or success claim."
+  ]
+}
