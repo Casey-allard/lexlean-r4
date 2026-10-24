@@ -1,0 +1,45 @@
+{
+  "schema": "lexlean-r4-outer-shell-invocation-diff/v1",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/invoke-whole-postrange-result.mjs",
+    "bytes": 7702,
+    "sha256": "aa836ae976e315373c8e2155958f6ea8ddafdcc83a054778c837c411d587f4df"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/invoke-whole-outer-shell.mjs",
+    "bytes": 7717,
+    "sha256": "9fa2ffe58370ca9816d8412910ddeb2392a04d476fb192b7dc218a3da7e35578"
+  },
+  "changes": [
+    [
+      "// One-off official-compiler invocation for the exact post-range complete Result; no outer whole-read or Read33 acceptance.",
+      "// One-off official-compiler invocation for the exact outer admission shell and mandatory original consumer; no complete WholeRead Result or Read33 acceptance."
+    ],
+    [
+      "['postrange-false','postrange-positive']",
+      "['outer-false','outer-positive']"
+    ],
+    [
+      "select exactly one post-range result phase",
+      "select exactly one outer-shell phase"
+    ],
+    [
+      "/tmp/r4-object-whole-postrange-result-${phase}-owned-20261024",
+      "/tmp/r4-object-whole-outer-shell-${phase}-owned-20261024"
+    ],
+    [
+      "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1",
+      "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+    ],
+    [
+      "inputs.length!==21||new Set(inputs.map(x=>x.destination)).size!==21",
+      "inputs.length!==16||new Set(inputs.map(x=>x.destination)).size!==16"
+    ],
+    [
+      "tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "tests/lexlean/ObjectWholeOuterConsumer.lex.tex"
+    ]
+  ],
+  "exactRoundtrip": true,
+  "unchanged": "All resource/source/tool/lock/epoch/idle/zero-memory/storage guards and independent postcapture unchanged. No native run."
+}

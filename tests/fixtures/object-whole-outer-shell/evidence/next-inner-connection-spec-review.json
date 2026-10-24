@@ -1,0 +1,55 @@
+{
+  "schema": "lexlean-r4-inner-connection-spec-review/v1",
+  "status": "PASS_BOUNDED_SOURCE_DESIGN_ONLY_NEW_TESTS_NOT_RUN",
+  "at": "2026-10-24T04:43:40.084Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/next-inner-connection-investigation.json",
+    "bytes": 15302,
+    "sha256": "159e987a0fb302fd7b8c026d3bbe886de663f562365873a6399c74d0abaadd31"
+  },
+  "independence": "Non-author of proposal. Reviewer previously audited the actual outer and post-range proofs and reviewed prior source; authorship disclosed.",
+  "verified": {
+    "sourcePins": 18,
+    "originalControl": {
+      "ordinal": 26,
+      "name": "objProtocolWholeBytes",
+      "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "wholeReadCallOccurrences": 1
+    },
+    "consumerAst": {
+      "statement": "11fb9d0d02fc6cc15147bcff3ae7dbfb63991df04975b7903ab43892c6bf7ed4",
+      "declaration": "6152951ae8320ae287cccbfe06793443ecaf477bbe15aacc2396d6a06f083474",
+      "left": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "right": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "proof": "dc4ba55b5720b5665784d34083e83258d9a53e1de0dba6ee9ab9104abcb32381"
+    },
+    "productionRoundtrip": {
+      "bodySha256": "96f03f26ade4cb2150325a1c91d214c51f33063d02705c0a5143aca2198efdb2",
+      "result": "Instantiated only original view/manifest/limits; qualified sole local ObjRangeAdmitted reference. Replacing retained context scrutinee by actual range call reproduces entire production body exactly."
+    },
+    "connections": "Original ordinal26 outer call equals accepted outer LHS; accepted outer RHS equals new inner LHS; new RHS equals accepted postrange LHS; full expected Result pins match. These identities are source facts, not a composed proof.",
+    "context": "Actual zero family exactly matches accepted complete range statement; successor applies same real context to both sides. Substituting range ok record into context success branch yields exact C. Hash errors, real digest comparison/integrityFailure and full bytes/version/stats preserved.",
+    "constructors": "Unchanged actual induction(count), zero Apply accepted range theorem, successor Cases prior and Congruence both arms; mandatory consumer Apply lifted at Nat1. Supported retained source, no invented rewrite/transitivity constructor.",
+    "negative": "Restoring sole wrong zero-Apply theorem reference reconstructs complete positive transport module. Dependency rejection required; admission/timeout/OOM is not intended negative and consumer may remain unelaborated.",
+    "acceptedPrerequisite": {
+      "reviewSha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b",
+      "attestation": "f905d7e39823ac7939f78ccd8b8f73cba4f2042f8ccce6e2cb40e15cf789d7fc",
+      "scope": "Actual original WholeRead=WholeAdmitted, including real admitted-binder conversion, accepted by independent native audit:125files/806emptyaxioms/12kernelreplays/37processes/19772ms aggregate. Not the RHS final value."
+    },
+    "phaseScope": "Previous22-input/18-source mapping is a plan only; new consumer name/direct ObjectRead import and sole entrypoint require separate candidate/invocation validation."
+  },
+  "findings": [],
+  "requiredBoundaries": [
+    "Freeze and independently CODE review exact new consumer, imports, unchanged context/transports/runtime and all mappings before native execution.",
+    "Actual inner call to context(actualRange) and context(okRecord) to C conversions remain unproved until mandatory consumer compiles and kernel replay passes. Helper success alone is insufficient.",
+    "New LHS is real ObjWholeAdmitted, distinct from failed outer ObjWholeRead=C; timeout history stays failed and preserved. No bottleneck, avoided-recomputation or efficiency inference.",
+    "Even successful inner=C does not automatically compose C=fullResult, outer=inner or original ordinal26 byte projection. Those exact supported consumers and allRead33/fullscope remain required.",
+    "Keep300000ms/4GiB/2CPU; fresh epoch/tool/source/genuine-lock/idle/zeroevents/storage gates and sequential intendednegative then positive."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 26587779072,
+    "reserveBytes": 10737418240,
+    "maximumReportBytes": 8192
+  },
+  "operations": "Read-only source and evidence reconstruction; only this bounded external SPEC report. No candidate authoring, SDK/native/VM/repository/index change."
+}

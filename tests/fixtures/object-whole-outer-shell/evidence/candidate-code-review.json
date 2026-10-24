@@ -1,0 +1,86 @@
+{
+  "schema": "lexlean-r4-whole-outer-shell-source-code-review/v1",
+  "status": "PASS_SOURCE_READY_NATIVE_NOT_RUN",
+  "at": "2026-10-24T04:34:16.800Z",
+  "manifest": {
+    "bytes": 1649,
+    "sha256": "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+  },
+  "candidate": {
+    "bytes": 22551,
+    "sha256": "fa089af671e4f5e26f17b7c02248a94a27ced30f5512e101d8a2b7e8796d509f"
+  },
+  "audit": {
+    "bytes": 11002,
+    "sha256": "952ab86b5d323528ec2f3a8e069cc0a843ede0e9ad0b933e35046e317ed8f199"
+  },
+  "governance": {
+    "proposal": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/evidence/next-outer-whole-investigation.json",
+      "bytes": 16336,
+      "sha256": "b446303d8d3035b8e8c0e7316cda9765656192a71452c8ba3fad310674cd9645"
+    },
+    "spec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/evidence/next-outer-whole-spec-review.json",
+      "bytes": 6871,
+      "sha256": "1b6943b6f44784fd112dcd46d6c58370818ba2b7fcc768ea939fc11887fe0f5e"
+    }
+  },
+  "independence": "Reviewer authored governing SPEC and previous post-range native audit; independent of this candidate author.",
+  "checks": {
+    "payloadFiles": 7,
+    "dependenciesRehashed": 13,
+    "canonicalJson": "All three actual sources exact recursively key-sorted semantic-module/2 JSON; no candidate mutation.",
+    "astPins": [
+      "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+      "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+      "3c02004c669fcb53fd0cd4241b9d35b7fd617fc56ac8f98c459f3141bafb2042",
+      "afcab4e0ad14e2ed27df38a8c3045e2c2ed369539f04a49be1246a64285da8f5",
+      "3a229d6c566ca4a82433ac3724a820fc065031e4a35bc188fcd50e86ddab2290",
+      "dc712168c569c0774839acb094dd5847ca5f84f2fa6d14b6502fe5c446ec1095",
+      "d1159e06729627e10a18ec9c02581669e13e94a0dd53f8904a95b6884b79cf54",
+      "04772f22b5e94f04e1ee0b34abaf19bdb968e89ef3415ea5f65318696bbd041e",
+      "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "e348f1ee960e5997710a0dac08a3a5de8329b5182380ad8e58bbaf71dcebafeb",
+      "47c4579d00b4dc03a1acc750508c410e2d9b2124ca4313c6838abd7321bda5ab",
+      "dfc279e1953e3dceaf3b68c7e1aa3ba04d6d0fddca8a436e57ca0d6e80389fa7"
+    ],
+    "roundtrip": "Original ordinal26 call arguments instantiate only view/manifest/limits in exact production ObjWholeRead. Replace only original admitted success then_value with tailResult; restoring exact binder-dependent call reconstructs entire body. Admission/key guards and typed errors retained.",
+    "helper": "Fully qualified Result ObjWholeVerified ObjError parameter/result; bare same-module call, parameterized equality and supported reflexivity; axioms empty.",
+    "negative": "Only helper theorem RHS tailResult changes to original typed schemaMismatch error. Repair reconstructs entire positive module. Dependency-level rejection is intended; selected consumer may not elaborate.",
+    "consumer": "Exact original ObjWholeRead call equals ObjWholeAdmitted with same original backend/manifest/limits. Qualified Apply references helper with exact RHS as single ordinary term argument, no type arguments or axioms. Actual admitted-binder conversion remains unproved.",
+    "freeVariables": [],
+    "closures": [
+      {
+        "phase": "outer-false",
+        "inputs": 16,
+        "supplied": 12,
+        "reachable": 12
+      },
+      {
+        "phase": "outer-positive",
+        "inputs": 16,
+        "supplied": 12,
+        "reachable": 12
+      }
+    ],
+    "config": "Only entrypoint changed from accepted predecessor; all limits including300000ms child unchanged.",
+    "currentPreservation": 17,
+    "originalSnapshots": 17
+  },
+  "findings": [],
+  "instrumentation": "Initial read-only reviewer assertion mistakenly expected lexlean/semantic/2. Actual canonical spec is lexlean/semantic-module/2; corrected assertion passed. No source writes or compiler execution occurred.",
+  "limitations": [
+    "Source readiness only; actual admission, meaningful negative and mandatory positive consumer remain NOT_RUN.",
+    "Helper success and structural roundtrip cannot establish concrete original consumer conversion.",
+    "No full successful outer WholeRead Result, ordinal26/allRead33 or component acceptance; prior whole-to-continuation timeout remains preserved.",
+    "No invocation packet reviewed in this source-only task; independent invocation/resource gates still required before native execution."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 27221143552,
+    "reserveBytes": 10737418240,
+    "maximumReportBytes": 10240
+  },
+  "writes": "Only this external bounded review; no SDK/native/VM/repository/index/frozen source changes."
+}

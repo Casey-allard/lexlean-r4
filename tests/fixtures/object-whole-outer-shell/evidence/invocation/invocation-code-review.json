@@ -1,0 +1,77 @@
+{
+  "schema": "lexlean-r4-outer-shell-invocation-code-review/v1",
+  "status": "PASS_NARROW_INVOCATION_ADAPTATION_CONDITIONAL_ON_SOURCE_CODE_AND_FRESH_GATES",
+  "reviewer": "orchestration_design_review",
+  "disclosure": "I authored the outer-shell source investigation and reviewed the predecessor invocation. This review checks the parent-authored invocation adaptation; independent source CODE review remains separate.",
+  "pins": {
+    "runner": {
+      "bytes": 7717,
+      "sha256": "9fa2ffe58370ca9816d8412910ddeb2392a04d476fb192b7dc218a3da7e35578"
+    },
+    "diff": {
+      "bytes": 1908,
+      "sha256": "0572c5569b030ca40aa9390b0ed0e3486450dfb1584127b420b3f209e66415e3"
+    },
+    "invocationManifest": {
+      "bytes": 454,
+      "sha256": "df1f475a40880878a191d1f0c57c80f10f359a9a608feb5d5ff83c6ea38e78f8"
+    },
+    "sourceManifest": {
+      "bytes": 1649,
+      "sha256": "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+    },
+    "predecessor": {
+      "bytes": 7702,
+      "sha256": "aa836ae976e315373c8e2155958f6ea8ddafdcc83a054778c837c411d587f4df"
+    },
+    "config": {
+      "bytes": 688,
+      "sha256": "2123b165481063661aa815eeec7ce03bc893fbfd8e4ffb518d79b65251feec44"
+    }
+  },
+  "checks": {
+    "sevenLiteralReplacementsForwardAndInverseByteExact": true,
+    "sourceManifestSevenPayloadsRehashed": true,
+    "invocationManifestTwoPayloadsRehashed": true,
+    "phaseInputMapsRehashed": 32,
+    "inputsPerPhase": 16,
+    "uniqueSafeDestinationsPerPhase": 16,
+    "phases": [
+      "outer-false",
+      "outer-positive"
+    ],
+    "entrypoint": "tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+    "stage": "/tmp/r4-object-whole-outer-shell-${phase}-owned-20261024",
+    "configChange": "Only entrypoint name differs from predecessor; all limits unchanged.",
+    "guards": "Same exact source/config/manifest hash checks, host/guest reserves, tools, epoch, idle, zero memory events, genuine official lock capture and independent postcapture loop. Phase/output directories use exclusive creation and receipts wx; failed stages are preserved. No restart, deletion, credentials, network or replacement SDK behavior added.",
+    "resultHandling": "Official lock/check/verify JSON is recorded. Positive artifact copy requires status0 and success:true plus a validated verified-artifact path. Neither a verify failure nor process exit alone is automatically accepted as the intended negative. Parent must inspect the actual false-helper rejection and completed postguards before separately launching positive.",
+    "scope": "The false variant rejects a dependency-level symbolic helper. Positive must accept the mandatory original WholeRead=WholeAdmitted consumer; helper success alone, a selected root name, or an intended negative does not establish full consumer acceptance."
+  },
+  "resourceBoundary": {
+    "childTimeoutMs": 300000,
+    "containerBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "epochStartedAt": "2026-10-24T03:23:35.957043396Z",
+    "network": "none",
+    "mounts": [],
+    "hostPreGiB": 20,
+    "hostPostGiB": 10,
+    "guestPreGiB": 11,
+    "guestPostGiB": 10,
+    "hostAvailableBytesObserved": 28412145664,
+    "note": "Fresh host observation only. No live guest/epoch/idle check was performed in this source-only review; actual preflight must re-establish all predicates. Historical epoch acceptance is not perpetual authorization."
+  },
+  "requiredBeforeExecution": [
+    "Independent exact candidate CODE PASS.",
+    "Parent sequential phase dispatch with current native resource/source/tool/idle/storage gates.",
+    "After false phase, intended dependency rejection and postcapture independently classified before positive.",
+    "Positive actual artifact audit with empty axioms and mandatory concrete consumer kernel evidence."
+  ],
+  "findings": [],
+  "limitations": [
+    "Static exact adaptation review, not a runtime test or current epoch certification.",
+    "No complete successful WholeRead Result, ordinal26, Read33, component or production SDK acceptance.",
+    "No cache, recomputation avoidance, efficiency or completion-time claim."
+  ],
+  "operations": "Read-only source/hash checks and this single external report; no runner import, SDK/native job, VM or repository mutation."
+}

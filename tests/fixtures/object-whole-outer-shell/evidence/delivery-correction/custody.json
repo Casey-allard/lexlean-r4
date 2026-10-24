@@ -1,0 +1,43 @@
+{
+  "schema": "lexlean-r4-delivery-wording-successor/v1",
+  "predecessorManifest": "a9224c28340921c08b2058a02f527249b0a93e28b2df50919f7a2c86d7a9f2a6",
+  "archive": {
+    "path": "tests/fixtures/object-whole-outer-shell/evidence/delivery-correction/predecessor-texts.json.gz",
+    "bytes": 38045,
+    "sha256": "3f8ddec82e35cfc5a8456a6815861c087647bcaccb52bd814ceea32451a8b8ae",
+    "decodedBytes": 124869,
+    "decodedSha256": "7768156817a06be245226a6b59ff754a5a6864b56b9eae78da68f1ce3eac82c1",
+    "entries": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/delivery-manifest.json",
+        "bytes": 8589,
+        "sha256": "a9224c28340921c08b2058a02f527249b0a93e28b2df50919f7a2c86d7a9f2a6"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/CONTINUATION.md",
+        "bytes": 58294,
+        "sha256": "707dd7cb3816d567ac9803c99b3ca92409169a49ac7f048b8b8d710e9153bd80"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-21-lexlean-r4.md",
+        "bytes": 44161,
+        "sha256": "0e8f98594c23f759e803f2d571adc95714115c1c6fabf6a45134b185caa00d14"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/delivery-code-review.json",
+        "bytes": 5121,
+        "sha256": "b8db8918b23404efa11bc6094780dad37476ba75525be2f0bc84af7a74f18700"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/delivery-security-review.json",
+        "bytes": 5188,
+        "sha256": "f890d237ba02c6384a384393a35fb4e54a22e9e702a9d4baa072f247ce9dc5a0"
+      }
+    ]
+  },
+  "change": {
+    "from": "Outer admission/backend validation, the original\nwhole consumer/ordinal26/Read33, ten drafts and full integration remain required.",
+    "to": "The later outer-shell checkpoint establishes admission/backend conversion; the complete\nwhole Result/ordinal26/Read33, ten drafts and full integration remain required."
+  },
+  "boundary": "Only both current documentation clauses corrected;37 other prior payloads/source/native acceptance unchanged; next inner design remains NOT_RUN."
+}

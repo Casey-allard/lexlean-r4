@@ -1,0 +1,168 @@
+{
+  "schema": "lexlean-r4-outer-shell-portable-source-custody/v1",
+  "status": "SOURCE_ONLY_NATIVE_RUNNING_NOT_ACCEPTED",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/negative/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+        "bytes": 22144,
+        "sha256": "e23fd7befbf7c5cf1cc1309013d46a42e56f34892b96665505c4a110b81fac99"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/negative/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+        "bytes": 22144,
+        "sha256": "e23fd7befbf7c5cf1cc1309013d46a42e56f34892b96665505c4a110b81fac99"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+        "bytes": 21790,
+        "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+        "bytes": 21790,
+        "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+        "bytes": 58020,
+        "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+        "bytes": 58020,
+        "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/lexlean.toml",
+        "bytes": 688,
+        "sha256": "2123b165481063661aa815eeec7ce03bc893fbfd8e4ffb518d79b65251feec44"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/lexlean.toml",
+        "bytes": 688,
+        "sha256": "2123b165481063661aa815eeec7ce03bc893fbfd8e4ffb518d79b65251feec44"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/candidate.json",
+        "bytes": 22551,
+        "sha256": "fa089af671e4f5e26f17b7c02248a94a27ced30f5512e101d8a2b7e8796d509f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/candidate.json",
+        "bytes": 22551,
+        "sha256": "fa089af671e4f5e26f17b7c02248a94a27ced30f5512e101d8a2b7e8796d509f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/structural-audit.json",
+        "bytes": 11002,
+        "sha256": "952ab86b5d323528ec2f3a8e069cc0a843ede0e9ad0b933e35046e317ed8f199"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/structural-audit.json",
+        "bytes": 11002,
+        "sha256": "952ab86b5d323528ec2f3a8e069cc0a843ede0e9ad0b933e35046e317ed8f199"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/README.md",
+        "bytes": 1295,
+        "sha256": "8ecd39f8ed7ba3c4c63b78f2873e49cb04382a39842d3c807ff61a27871b5cb7"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/README.md",
+        "bytes": 1295,
+        "sha256": "8ecd39f8ed7ba3c4c63b78f2873e49cb04382a39842d3c807ff61a27871b5cb7"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/manifest.json",
+        "bytes": 1649,
+        "sha256": "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/candidate/manifest.json",
+        "bytes": 1649,
+        "sha256": "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/candidate-code-review.json",
+        "bytes": 4889,
+        "sha256": "0d3445f67fc86db73bcbc5bbc192287f488aafe972769e4c29009ec2dcca0469"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/evidence/candidate-code-review.json",
+        "bytes": 4889,
+        "sha256": "0d3445f67fc86db73bcbc5bbc192287f488aafe972769e4c29009ec2dcca0469"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/evidence/next-outer-whole-investigation.json",
+        "bytes": 16336,
+        "sha256": "b446303d8d3035b8e8c0e7316cda9765656192a71452c8ba3fad310674cd9645"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/evidence/next-outer-whole-investigation.json",
+        "bytes": 16336,
+        "sha256": "b446303d8d3035b8e8c0e7316cda9765656192a71452c8ba3fad310674cd9645"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/evidence/next-outer-whole-spec-review.json",
+        "bytes": 6871,
+        "sha256": "1b6943b6f44784fd112dcd46d6c58370818ba2b7fcc768ea939fc11887fe0f5e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-whole-outer-shell/evidence/next-outer-whole-spec-review.json",
+        "bytes": 6871,
+        "sha256": "1b6943b6f44784fd112dcd46d6c58370818ba2b7fcc768ea939fc11887fe0f5e"
+      }
+    }
+  ],
+  "generatedRecords": [
+    {
+      "path": "tests/fixtures/object-whole-outer-shell/source-bindings.json",
+      "bytes": 16204,
+      "sha256": "d72ddef17c785d94be674688db0bcf26e9476f6b88a474c33d9c3e998268f020"
+    },
+    {
+      "path": "tests/fixtures/object-whole-outer-shell/readiness.json",
+      "bytes": 1808,
+      "sha256": "d48d626c90b3376fd7ac6b419f421eb0ce064333fc8e61e1282dff18bf9795e9"
+    }
+  ],
+  "preservation": {
+    "current17PinsVerified": true,
+    "originalSnapshotManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending-manifest.json",
+      "bytes": 5064,
+      "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+    },
+    "originalSnapshotRecheck": "See exact source structural audit; byte-preserved here. No original snapshot modified."
+  },
+  "storage": {
+    "hostAvailableBytes": "25138855936",
+    "externalPreparationBeforeBytes": 192512,
+    "newPortableLimitBytes": 262144,
+    "aggregatePhaseLimitBytes": 1048576,
+    "conservativeNewPortableEstimateBytes": 245760,
+    "noDiskTemporaryCopies": true
+  },
+  "boundary": "Only reviewed source packet/proposal/SPEC/CODE and portable metadata. No native receipt, outcome, result, production lock or acceptance. Historical frozen statuses unchanged; mutable README excluded."
+}
