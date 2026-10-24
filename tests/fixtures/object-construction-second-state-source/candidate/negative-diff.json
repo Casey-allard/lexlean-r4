@@ -1,0 +1,18 @@
+{
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "sourceWriteOrder": [
+    "negative",
+    "positive"
+  ],
+  "differences": [
+    {
+      "path": "/statement/right/arguments/0/fields/0/value/tail/head/fields/0/value/fields/0/value/head/value",
+      "before": "76",
+      "after": "77"
+    }
+  ],
+  "consumerUnchanged": true,
+  "frontierUnchanged": true,
+  "intendedFailure": "Dependency-level Object257SecondState.obj257SecondAtomState reflexivity type mismatch. Negative does not establish final-consumer verification.",
+  "notAcceptedFailures": "Admission/import/timeout/OOM/process/resource/axiom failures are not intended semantic negatives. Unexpected negative success blocks progression."
+}

@@ -1,0 +1,11 @@
+# Second original atom and original257 prefix consumer
+
+SOURCE CANDIDATE ONLY. Every native admission, negative, positive, axiom inventory and kernel replay is NOT_RUN. Independent source SPEC/CODE and separate invocation review are required. The sole current restoration job and pending Read33 retain native priority. No runner is supplied.
+
+The negative source was written first and changes only expected second inventory ID byte 76 to 77. Frontier ID76 and the mandatory actual original257 A=E final consumer are identical. Execute negative before positive only after parent fresh resource/idle/source/tool gates and successful Read33 sequencing. Admission, timeout, OOM or axiom failure is not the intended negative.
+
+Materialize a fresh owned stage using inputs/second-prefix-false.json, verifying every source and destination hash. Generate lexlean.lock only with the official compiler. Run official check and verify using lexlean.toml; inspect the dependency-level state reflexivity diagnostic before considering the corresponding positive phase in a separate fresh stage. The positive must include state, lift, generic prefix, exact suffix and native original257 consumer, empty observed axioms and all kernel replays. Helpers alone do not accept the bridge. Parent must provide a separately reviewed invocation; these instructions grant no execution authority.
+
+All shared closure files are pinned references, not copied. The accepted symbolic closure includes one unselected negative module, preserved as an input but excluded by the selected import graph. Config changes only the entrypoint. No production lock, SDK substitute or runtime definition change is supplied. The native DAG contains ordinary theorem Eq.trans with Except error-first type and Type0 Eq universe1; typed-endpoint-mapping.json.gz records every lowered A/M/E subtree for independent checking against the pinned plan. Semantic correspondence is byte-canonical parsed AST identity. author-source.mjs is an inert reproducible source authoring record; it uses exclusive writes and must never be rerun inside this frozen directory.
+
+The remaining 193 bytes/seven atoms and all original39 control propositions remain open. Accepted count331/403 is unchanged. All17 current files and original17 snapshots remain byte-preserved. No cache, speed or full257 claim.

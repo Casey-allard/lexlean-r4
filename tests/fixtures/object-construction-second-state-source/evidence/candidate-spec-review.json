@@ -1,0 +1,95 @@
+{
+  "schema": "lexlean-r4-second-state-candidate-spec-review/v1",
+  "at": "2026-10-24T09:02:57.287Z",
+  "verdict": "PASS_SOURCE_SPEC_COMPLIANCE_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "independence": "Non-author of candidate and translator. Author of preceding independent plan SPEC. Actual native endpoint reconstruction in this review used source declaration signatures and a separate in-memory lowering checker, not author-source.mjs or author reverse translation.",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/manifest.json",
+    "bytes": 17448,
+    "sha256": "d2a7fb28b4ff14100cfb261f2b8d4dccc790953e6c7b2c090174dd39855e094c"
+  },
+  "authorities": {
+    "plan": "87f56ec9e0b61c3920b2f5d2a2480c876fbeab6bc413974a99d9aa8f805e336a",
+    "astGzip": "1ee1f7342530225b3caf94b9d89bd7ba95145ffaa0d5d005baa71dedccd28b38",
+    "planSpec": "6fa82fc7106aea0cb23338bd8ae9d1b5591aecccb0cf52328781b6f3b17482d1"
+  },
+  "checks": {
+    "custody": {
+      "payloads": 17,
+      "dependencies": 54,
+      "allSizeAndSha256": "PASS"
+    },
+    "semantic": {
+      "moduleVariants": 4,
+      "declarations": 7,
+      "method": "Parsed actual semanticdata and deep-compared full declaration arrays against independently reviewed exact plan pointers: negative state, positive state, context definition/family, transport lifted/generic/suffix. No proof or statement change.",
+      "canonical": "All five candidate lex.tex module payloads, including native consumer, use recursively sorted compact JSON. No planHole/endpoint marker introduced into actual semantic declarations.",
+      "proof": "Original state reflexivity, Result error forwarding, Nat family, Induction/Cases/Congruence/Apply and exact original suffix unchanged. Same-module names are local; external context/state names qualified."
+    },
+    "native": {
+      "coreSpec": "lexlean/core-module/1",
+      "nodes": 899,
+      "typedSubtreeChecks": 1794,
+      "endpoints": {
+        "A": 810,
+        "M": 848,
+        "E": 880
+      },
+      "typeNode": 889,
+      "valueNode": 898,
+      "method": "Read ObjectTypes/ObjectStore actual structure field order and function parameter/result types. Independently lower original plan endpoints into expanded native constant/application trees with explicit list element arguments and universe levels. Compared all three full trees to expanded actual DAG nodes. Did not use typed-endpoint-mapping.json.gz as translation authority.",
+      "statement": "Exact Eq.{1} (Except.{0,0} ObjError ObjCarryState) A E.",
+      "proof": "Exact Eq.trans.{1} alpha A M E Object257SymbolicConsumer.obj257OriginalAtomizedCoreBridge Object257SecondTransport.obj257SecondOriginalSuffix.",
+      "declaration": "One ordinary theorem, same planned fully qualified name, levels[], policy none, class false, generated false, transparency semireducible; no invented all attribute. proof_nodes[] does not replace ordinary declaration audit.",
+      "envelope": "Actual coredata parses byte-canonically to separate native-core-module.json. Core imports Init plus emitted qualified ObjectTypes/ObjectStore/SymbolicConsumer/SecondTransport; corresponding LexLean importmodule entries present.",
+      "dag": "Expanded proof/type endpoints use only earlier-index applications, constants and Nat literals; constants match actual typed production constructors, original functions and two proof constants."
+    },
+    "phases": {
+      "eachInputs": 27,
+      "suppliedModules": 23,
+      "staticReachableModules": 20,
+      "method": "Rehashed both actual source/destination maps, checked destination uniqueness, parsed all importmodule headers and traversed selected Object257SecondPrefixConsumer graph.",
+      "unselected": [
+        "R4.Object",
+        "R4.ObjectRead",
+        "Object257SymbolicLiftFalseBase"
+      ],
+      "historicalNegative": "Historical symbolic negative remains supplied but unselected by both import graphs; README and source-audit identify this accurately. Actual compiler admission/selection remain NOT_RUN.",
+      "soleMappingChange": "tests/lexlean/Object257SecondState.lex.tex",
+      "mandatoryConsumer": "Identical native original257 A=E root in both phases; no helper-only target."
+    },
+    "negative": {
+      "soleChange": "/statement/right/arguments/0/fields/0/value/tail/head/fields/0/value/fields/0/value/head/value:76→77",
+      "sourceIdentity": "Both full state declarations equal their approved exact plan variants. F and frontier76, remaining declarations and final native consumer unchanged.",
+      "requiredOutcome": "Actual state dependency reflexivity mismatch, not final consumer elaboration. Admission/import/resource/timeout/axiom failure is not the intended negative; unexpected success blocks progression."
+    },
+    "configuration": "Byte-identical accepted symbolic-concrete lexlean.toml except entrypoint to Object257SecondPrefixConsumer;300000ms child timeout and all source/parser limits unchanged. No genuine lock exists or is claimed.",
+    "preservation": {
+      "currentPins": 17,
+      "originalSnapshotPins": 17,
+      "allRehashed": "PASS",
+      "repositoryEditsByReviewer": 0,
+      "canonicalConstruction39": "Unchanged original ObjectControls source; no native canonical39 promotion."
+    }
+  },
+  "findings": [],
+  "requiredNext": [
+    "Separate source CODE quality gate and frozen invocation review before any native dispatch. This SPEC report does not replace them.",
+    "Retain Read33 priority and sole active restoration isolation. Fresh epoch/idle/storage/tool/source gates required; no dispatch from this report.",
+    "Generate development lock using official compiler only in a fresh owned stage; negative then positive independently audited.",
+    "Positive acceptance requires actual state/lift/generic/suffix AND mandatory native original257 A=E declaration with observed empty axioms and complete kernel replay/process/output audit. Verify actual singleton inclusion despite absent all flag."
+  ],
+  "limitations": [
+    "No author writer, SDK, compiler, VM or runner executed. No new runner or native results exist in this packet.",
+    "Nested-match reassociation, FoldAtoms[] reduction, original R225/R193 atomization and actual native proof endpoint conversion remain unproved by this source review.",
+    "Second expected ID is still an uncertified original expected literal until real state computation succeeds.",
+    "Remaining193 bytes/seven atoms and all39 original final control obligations remain open.331/403 accepted count unchanged; no full257 digest, resource efficiency or cache claim."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": "24194891776",
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 24576,
+    "additionalFixtureCopies": 0
+  }
+}
