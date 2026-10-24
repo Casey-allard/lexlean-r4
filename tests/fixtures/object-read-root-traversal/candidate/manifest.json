@@ -1,0 +1,63 @@
+{
+  "schema": "lexlean-r4-root-traversal-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "b0620593ef6bd98065f9c4fed25515bd1bec360ef14af0eb9f52211c0b25f551"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 687,
+      "sha256": "952771ea17a260a1129db2c50f2b35af4b6e11fe51e4c26337373501e470dd03"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 23935,
+      "sha256": "d1d9fc50395339f14fbee78db1596143f41a3556194687cc9cd2d1f7e7c3c9a1"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 7430,
+      "sha256": "9f329c8e03550b1144d560615bf4ef0aef6e15a7566f303e4d7be32166e08968"
+    },
+    {
+      "path": "README.md",
+      "bytes": 505,
+      "sha256": "8fdc6fe707a2150005eeb39b5e5a7f463064a7e758f134ab6a2dbf9dc3e2ebf5"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-root-traversal-proposal.json",
+      "bytes": 12053,
+      "sha256": "dbb2b220dddd02e12ca223ccb331c0e731964a88264d3cbed1eeec16acb4bf39"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-root-traversal-spec-review.json",
+      "bytes": 8206,
+      "sha256": "7e4d9f1c691b0ef282da09ac50876766a3b2df3b92882d0a71b6490b48eab5a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/root-traversal-plan-bindings.json",
+      "bytes": 4489,
+      "sha256": "395508b69a11a4162f8b675d07cb990fbd562feada42cb3813ad263ce879a22a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/evidence/positive/positive-native-review.json",
+      "bytes": 8986,
+      "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    }
+  ]
+}

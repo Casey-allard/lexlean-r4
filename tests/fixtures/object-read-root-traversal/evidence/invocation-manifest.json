@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-root-traversal-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/manifest.json",
+    "bytes": 2433,
+    "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+  },
+  "files": [
+    {
+      "path": "invoke-root-traversal.mjs",
+      "bytes": 7702,
+      "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2420,
+      "sha256": "f132a226d309576f38eb9bb63ae8beca9af9c7ab79ce0bc01dd054f089baf85d"
+    }
+  ],
+  "phaseSelectors": [
+    "roots-false",
+    "roots-positive"
+  ],
+  "commands": [
+    "node invoke-root-traversal.mjs roots-false",
+    "Only after independent intended-negative acceptance and fresh parent gates: node invoke-root-traversal.mjs roots-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectReadRootTraversal.lex.tex",
+  "inputCounts": [
+    30,
+    30
+  ],
+  "expectedSourceModules": 26,
+  "stagePattern": "/tmp/r4-object-read-root-traversal-${phase}-owned-20261023",
+  "preserved": "All original guards, epoch, tool identities, source/lock/idle/memory/storage checks, independent postcaptures and artifact capture remain byte-identical outside the eight recorded literal substitutions.",
+  "boundary": "Independent source/invocation CODE and fresh parent resource admission required. No native invocation run."
+}

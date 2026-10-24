@@ -1,0 +1,144 @@
+{
+  "schema": "lexlean-r4-root-traversal-source-preservation/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/README.md",
+        "bytes": 505,
+        "sha256": "8fdc6fe707a2150005eeb39b5e5a7f463064a7e758f134ab6a2dbf9dc3e2ebf5"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/README.md",
+        "bytes": 505,
+        "sha256": "8fdc6fe707a2150005eeb39b5e5a7f463064a7e758f134ab6a2dbf9dc3e2ebf5"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/candidate.json",
+        "bytes": 23935,
+        "sha256": "d1d9fc50395339f14fbee78db1596143f41a3556194687cc9cd2d1f7e7c3c9a1"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/candidate.json",
+        "bytes": 23935,
+        "sha256": "d1d9fc50395339f14fbee78db1596143f41a3556194687cc9cd2d1f7e7c3c9a1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invocation-diff.json",
+        "bytes": 2420,
+        "sha256": "f132a226d309576f38eb9bb63ae8beca9af9c7ab79ce0bc01dd054f089baf85d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/evidence/invocation-diff.json",
+        "bytes": 2420,
+        "sha256": "f132a226d309576f38eb9bb63ae8beca9af9c7ab79ce0bc01dd054f089baf85d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invocation-manifest.json",
+        "bytes": 1541,
+        "sha256": "b64d76e5ca3ece2907ce53df34d39529e49a5451e7929e788efca1d62a18447f"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/evidence/invocation-manifest.json",
+        "bytes": 1541,
+        "sha256": "b64d76e5ca3ece2907ce53df34d39529e49a5451e7929e788efca1d62a18447f"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invoke-root-traversal.mjs",
+        "bytes": 7702,
+        "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/evidence/invoke-root-traversal.mjs",
+        "bytes": 7702,
+        "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/lexlean.toml",
+        "bytes": 687,
+        "sha256": "952771ea17a260a1129db2c50f2b35af4b6e11fe51e4c26337373501e470dd03"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/lexlean.toml",
+        "bytes": 687,
+        "sha256": "952771ea17a260a1129db2c50f2b35af4b6e11fe51e4c26337373501e470dd03"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/manifest.json",
+        "bytes": 2433,
+        "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/manifest.json",
+        "bytes": 2433,
+        "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/negative/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 37090,
+        "sha256": "b0620593ef6bd98065f9c4fed25515bd1bec360ef14af0eb9f52211c0b25f551"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/negative/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 37090,
+        "sha256": "b0620593ef6bd98065f9c4fed25515bd1bec360ef14af0eb9f52211c0b25f551"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 37090,
+        "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 37090,
+        "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/readiness.json",
+        "bytes": 1495,
+        "sha256": "bff78e83fc58bbfb74cc78e8a7e124b8d360776afb3b3f0c6c14a55e36a7c537"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/evidence/readiness.json",
+        "bytes": 1495,
+        "sha256": "bff78e83fc58bbfb74cc78e8a7e124b8d360776afb3b3f0c6c14a55e36a7c537"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/structural-audit.json",
+        "bytes": 7430,
+        "sha256": "9f329c8e03550b1144d560615bf4ef0aef6e15a7566f303e4d7be32166e08968"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-root-traversal/candidate/structural-audit.json",
+        "bytes": 7430,
+        "sha256": "9f329c8e03550b1144d560615bf4ef0aef6e15a7566f303e4d7be32166e08968"
+      }
+    }
+  ],
+  "sourceBindings": {
+    "path": "tests/fixtures/object-read-root-traversal/source-bindings.json",
+    "bytes": 27416,
+    "sha256": "857d9021a17c42ac7d4d0612d4f36d47f9595c12ecd1471e2bad209a046e1acf"
+  },
+  "boundary": "Exact frozen source and invocation evidence only. No native result, generated lock or acceptance fabricated."
+}

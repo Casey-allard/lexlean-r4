@@ -1,0 +1,86 @@
+{
+  "schema": "lexlean-r4-plan-portable-bindings/v1",
+  "base": "19599c9b628e739169f965b6a2c3a889ce2c37da",
+  "status": "INDEPENDENT_SPEC_ACCEPTED_DESIGN_ONLY_NATIVE_NOT_RUN",
+  "aliases": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/candidate-invocation-code-review.json",
+      "bytes": 7973,
+      "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/evidence/candidate-invocation-code-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/check.json",
+      "bytes": 1423,
+      "sha256": "eb02d116634c48728d01ba096b7cee0751a663f12dc97db5455ffd8e08d6192a",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/evidence/positive/check.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/verify.json",
+      "bytes": 1734,
+      "sha256": "7149fba8b52eac3c6ce409b9da70b893bdfbb93bfa022da611ab57301914b2f1",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/evidence/positive/verify.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/result.json",
+      "bytes": 1607,
+      "sha256": "60b07757f456b385ef8a4a3c867d94f74b79c2d57cadcc68ebfef1f500feca04",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/evidence/positive/result.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive-native-review.json",
+      "bytes": 6844,
+      "sha256": "efe4f4280a776b7653d81b529adf80a46b98aecf773bcca4310f68ffb66abe3c",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/evidence/positive/positive-native-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178",
+      "repositoryPath": "tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "repositoryPath": "src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "repositoryPath": "src/R4/Object.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/next-read-step-investigation.json",
+      "bytes": 13412,
+      "sha256": "3b38ba51285c332a19576ca0f0b19dabb4e03e88e621803cb861fc7968b8e71b",
+      "repositoryPath": "tests/fixtures/object-read-root-traversal/evidence/next-read-step-investigation.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/next-read-step-proposal.json",
+      "bytes": 15044,
+      "sha256": "9e9ea32f6e5aabef6d854c2977b554fbadb40f4a5f7d424ae7a9e2b6fe17f6fa",
+      "repositoryPath": "docs/continuation/2026-10-23/next-connected-range-proposal.json"
+    }
+  ],
+  "boundary": "The root prerequisite is accepted locally; the next connected range equation is design only. Negative verification targets the complete consumer but may reject the wrong-base transport dependency before elaborating that consumer. Only actual positive consumer verification could accept the new equation."
+}

@@ -1,0 +1,204 @@
+{
+  "schema": "lexlean-r4-next-read-source-investigation/v1",
+  "status": "SOURCE_BACKED_PROPOSAL_PENDING_INDEPENDENT_SPEC",
+  "prerequisite": {
+    "rootCandidate": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+    },
+    "rootSourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/candidate-invocation-code-review.json",
+      "bytes": 7973,
+      "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+    },
+    "actualRootResult": {
+      "attestationId": "0ae0d1959a69577114be7b279ca4b751911340e9969bd2d8e1bc8f236e81ff79",
+      "check": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/check.json",
+        "bytes": 1423,
+        "sha256": "eb02d116634c48728d01ba096b7cee0751a663f12dc97db5455ffd8e08d6192a"
+      },
+      "verify": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/verify.json",
+        "bytes": 1734,
+        "sha256": "7149fba8b52eac3c6ce409b9da70b893bdfbb93bfa022da611ab57301914b2f1"
+      },
+      "result": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/result.json",
+        "bytes": 1607,
+        "sha256": "60b07757f456b385ef8a4a3c867d94f74b79c2d57cadcc68ebfef1f500feca04"
+      }
+    },
+    "independentRootNativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive-native-review.json",
+      "bytes": 6844,
+      "sha256": "efe4f4280a776b7653d81b529adf80a46b98aecf773bcca4310f68ffb66abe3c"
+    },
+    "boundary": "The actual original root traversal is now independently accepted locally. This proposed next connected range equation has no candidate or native acceptance and requires independent SPEC."
+  },
+  "finding": "The next connected production equation should include the actual nonempty ObjRangeAdmitted outer checks and planner, ending at the still-real ObjRangeFinish call on S184. This closes the selection/traversal-to-finishing connection while retaining genuine manifest-version hashing as a subsequent obligation.",
+  "recommendedEquation": {
+    "text": "ObjRangeAdmitted(originalBackend, originalManifest96, {start=0,stop=originalManifest96.length}, originalLimits) = ObjRangeFinish(S184, originalManifest96, {start=0,stop=originalManifest96.length}, originalLimits)",
+    "resultType": "Result R4.ObjectTypes.ObjRangeVerified R4.ObjectTypes.ObjError",
+    "leftExtraction": "Original ObjWholeAdmitted.body.scrutinee; substitute original ordinal26 view/manifest/limits; qualify the local ObjRangeAdmitted reference as R4.ObjectRead.",
+    "rightExtraction": "Original ObjRangeAdmitted nonempty branch successful walk continuation: retain ObjRangeFinish and substitute walked with the exact root theorem Result.ok argument S184, while binding the exact original manifest/range/limits.",
+    "canonicalPins": {
+      "originalControlStatement": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+      "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+      "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+      "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+      "pendingRootEquation": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+      "productionRootOccurrence": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+      "completeRangeLeft": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+      "realRangeFinishRight": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+      "proposedStatement": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613",
+      "singleHoleContext": "f4bdb92e12338f844d53a69e6bca4afb2b1c77c52b56ded0ecad6837ec8ec2d1"
+    }
+  },
+  "outerValidationAndPlanner": {
+    "exactSource": "ObjRangeAdmitted.body retains invalidRange, returnedBytes-limit, empty/nonempty branches, actual ObjPlanRoots Result match, and actual walk Result match.",
+    "sourceDerivedForThisInput": [
+      "0 <= 96 <= manifest.length96; requested96 <= original returnedBytes16777216. These are source-derived concrete arithmetic expectations, not native acceptance.",
+      "Nonempty range selects the planner and traversal branch.",
+      "ObjPlanRoots uses singleton scale1 parent root, span96, checked offset0+96, overlap[0,96), and ObjPlanLevels.",
+      "ObjPlanAtWidth computes 1+(floor((stop-1)/width)-floor(start/width)); width96 contributes1 parent, width32 contributes3 leaves. ObjPlanAdd checks u64 and original visit budget1000000, then empty roots returns planned4. This derivation is not a new host-generated proof or trusted numeral substituted into production.",
+      "The proposed consumer retains the actual planner call; no assumed planner certificate replaces it."
+    ],
+    "plannerCertificate": "No separate planner-only proof is proposed as accepted progress. The complete mandatory range equation must establish actual reduction through these guards."
+  },
+  "minimalSupportedTransport": {
+    "why": "The root equality has Result ObjWalkState type, while the new consumer has Result ObjRangeVerified type. Direct Apply of the root theorem alone does not supply this cross-type contextual equality; use the existing small induction/congruence transport pattern.",
+    "context": "K(walkResult) is the entire actual concretely instantiated ObjRangeAdmitted body with its unique nonempty ObjVisitRoots call replaced by the parameter. All outer branches, planner, errors and actual ObjRangeFinish calls remain.",
+    "holeCount": 1,
+    "qualifiedLocalFunctionNames": [
+      "ObjRangeFinish",
+      "ObjPlanRoots"
+    ],
+    "typing": "K parameter: Result R4.ObjectRead.ObjWalkState R4.ObjectTypes.ObjError. K result: Result R4.ObjectTypes.ObjRangeVerified R4.ObjectTypes.ObjError. All external local member references must be properly qualified; same-module references remain name-only.",
+    "family": "P(0) is the exact pending root theorem statement. P(Nat.succ prior) is K(rootLeft) = K(rootRight), independent of prior.",
+    "proof": "Nat induction on count: zero Apply ObjectReadRootTraversal.objOriginalRootTraversal; successor Cases prior with Congruence in both branches. The actual complete ObjRangeAdmitted consumer then Applies this lift at Nat1. Helper-only success is not acceptance.",
+    "negative": "Include the same unrelated 0=0 reflexivity theorem in both variants. Change only the lift zero-branch Apply target to that unrelated theorem in the negative, retaining the same mandatory actual range consumer. This must produce intended proof mismatch; admission failure, timeout or OOM is not the semantic negative.",
+    "supportedPrecedent": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    },
+    "limitations": "These constructors are supported by a prior actual checked contextual transport, not a guarantee for this new cross-type context. Reducibility, congruence, reference admission and consumer matching must be tested. Source construction must demonstrate exact K-hole substitution back to the production body."
+  },
+  "genuineHashingBoundary": {
+    "rangeFinish": "ObjRangeFinish first requires actual output length = range.stop-start. It then calls ObjManifestVersion(manifest,limits), propagates its errors, and constructs the complete ObjRangeVerified bytes/version/range/remainder/stats. It is not a pure field projection.",
+    "manifestVersion": "ObjManifestVersion calls ObjEncodeManifest(value,limits), then actual ObjHashBytes(encoded wire), and returns ObjVersion from the computed digest bytes. Original manifest digest bytes are part of that encoded input; no version bytes are assumed here.",
+    "wholeRead": "ObjWholeRead still admits the original manifest and validates backend keys. ObjWholeAdmitted calls the actual range read, hashes its returned96 bytes with ObjHashBytes and compares the computed digest with the original manifest digest before returning ObjWholeVerified. Ordinal26 then projects bytes from the actual full Result.",
+    "explicitlyNotProved": "The recommended equality retains ObjRangeFinish on the right. It does not assert a concrete ObjRangeVerified version, success of ObjManifestVersion, outer manifest admission/key validation, whole-data digest equality or original ordinal26 acceptance."
+  },
+  "costAndExecution": {
+    "tests": "NOT_RUN",
+    "cost": "Unknown. A function context and Apply may force reduction of planner, visitor or version hashing during elaboration. No cached evaluation, avoided computation, benchmark or lower bound is inferred from previous durations.",
+    "fixed": "Unchanged original runtime/digest/backend/limits, empty axiom policies, language/compiler identities, 300000ms child, 4GiB/2CPU and all existing operational guards.",
+    "failurePolicy": "Preserve any real outcome. No automatic limit increase, equivalent retry, Simplify insertion, guessed intermediate hashes or blanket certificate expansion."
+  },
+  "nextAcceptance": [
+    "Completed root prerequisite is bound above. Independently review this next plan before any candidate.",
+    "Independent SPEC review of this single connected range equation and supported transport before source authoring.",
+    "Independent source CODE checks exact occurrence extraction, one-hole context, canonical JSON/types/imports/empty axioms, and single-target negative diff.",
+    "Actual official negative then positive, both reaching the mandatory complete range consumer, with independent kernel/axiom/source/resource audits."
+  ],
+  "remaining": [
+    "Root traversal prerequisite independently accepted; this does not accept any further range wrapper",
+    "Actual connected range equation until future tests pass",
+    "Concrete ObjRangeFinish and genuine manifest-version hashing",
+    "Outer original manifest admission/backend key validation",
+    "Whole96-byte hashing and original manifest digest comparison",
+    "Original ordinal26 ObjWholeRead equation, all Read33 controls and full Object/Hash/PrismPM/Pages acceptance"
+  ],
+  "sourceDeclarations": [
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjPlanRoots",
+      "canonicalSha256": "56861ad4daca36e38be55b1a3c0343e127cab8b94aabaa4379f3f7bb1ee436a7"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjPlanLevels",
+      "canonicalSha256": "3717c180f4e4d8ac7e9ff3aea74f0f920df77002263b693128dd2cc9b9645a06"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjPlanAdd",
+      "canonicalSha256": "289b6546992278d1c2e537ecd9be65a1ea69e5f4e653ae2deba75cf42adb8ede"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjPlanAtWidth",
+      "canonicalSha256": "5662276d0df3c4b73714c8f602104fd2eebc03c9e52618aac2070dded283d958"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjRangeAdmitted",
+      "canonicalSha256": "2ec51dfd32cb123b90157a00c1568641c6346d8976ce1e4688af55780c8aba5c"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjRangeFinish",
+      "canonicalSha256": "454f8c720f6bf0be27947e65cad2b5759eef590be99eff38325c8dbabbe9caf3"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjWholeAdmitted",
+      "canonicalSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjReadRemainder",
+      "canonicalSha256": "8e60eda84c4f74587aad0ee5dc5b81bcfc2f1f54dfe14c8660d8f1deaf7b52d8"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "name": "ObjWalkStatistics",
+      "canonicalSha256": "9fa041bc69e0ed72403a84d6d8aa037655360e6b796278e35df07423b5611fb3"
+    },
+    {
+      "file": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "name": "ObjManifestVersion",
+      "canonicalSha256": "4f9322b292065302469d97159297188129eae0543ab4ee1a3bff0b86c29f9734"
+    }
+  ],
+  "sources": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    }
+  ],
+  "actions": "Only this bounded external investigation report written. No candidate, repository, runtime, SDK, VM, native output or other-lab changes.",
+  "history": {
+    "pendingInvestigation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/next-read-step-investigation.json",
+      "bytes": 13412,
+      "sha256": "3b38ba51285c332a19576ca0f0b19dabb4e03e88e621803cb861fc7968b8e71b"
+    },
+    "semanticChanges": "None. Only completed prerequisite binding/current sequencing status changes; old null-review investigation remains immutable."
+  }
+}

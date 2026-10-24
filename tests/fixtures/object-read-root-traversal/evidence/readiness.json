@@ -1,0 +1,31 @@
+{
+  "schema": "lexlean-r4-root-traversal-readiness/v1",
+  "status": "FROZEN_SOURCE_ONLY_READY_FOR_INDEPENDENT_CODE_REVIEW",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/manifest.json",
+    "bytes": 2433,
+    "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invocation-manifest.json",
+    "bytes": 1541,
+    "sha256": "b64d76e5ca3ece2907ce53df34d39529e49a5451e7929e788efca1d62a18447f"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invoke-root-traversal.mjs",
+    "bytes": 7702,
+    "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+  },
+  "parseOnly": {
+    "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invoke-root-traversal.mjs",
+    "exitCode": 0,
+    "nativeInvocation": false
+  },
+  "bothPhaseInputCounts": 30,
+  "sourceModuleCount": 26,
+  "allInputsAndImportClosureRechecked": true,
+  "negative": "Expected wireBytes184 to185 only. Intended type-mismatch rejection remains NOT_RUN; admission errors/timeouts/OOM are not semantic-negative acceptance.",
+  "nativeTests": "NOT_RUN",
+  "preparationFailures": [],
+  "noRuntimeOrDraftChanges": true
+}

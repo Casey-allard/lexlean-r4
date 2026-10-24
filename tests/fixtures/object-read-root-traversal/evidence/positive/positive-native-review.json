@@ -1,0 +1,118 @@
+{
+  "schema": "lexlean-r4-root-traversal-positive-native-review/v1",
+  "status": "PASS_ACTUAL_ORIGINAL_ROOT_TRAVERSAL_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T00:42:29.409Z",
+  "findings": [],
+  "pins": {
+    "sourceManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/manifest.json",
+      "bytes": 2433,
+      "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+    },
+    "sourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/candidate-invocation-code-review.json",
+      "bytes": 7973,
+      "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+    },
+    "negativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/negative-native-review.json",
+      "bytes": 15464,
+      "sha256": "088ee8e36646f3d2b63803ad4e1a2d7029e5cb772e68d17a076491e1251ce200"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/verify.json",
+      "bytes": 1734,
+      "sha256": "7149fba8b52eac3c6ce409b9da70b893bdfbb93bfa022da611ab57301914b2f1"
+    },
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/artifact/attestation.json",
+      "bytes": 196974,
+      "sha256": "de3b81c57d0519487e788ffec1e1b0ed8f2c21097460141c13b4602685955766"
+    },
+    "buildManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/artifact/build-manifest.json",
+      "bytes": 32139,
+      "sha256": "8fab7cd8bd9c1fb428a90f88e4fe856895f0cd806415530cb1c83f44fdc3acfd"
+    },
+    "emittedRootTheorem": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/artifact/modules/LexLeanR4/ObjectReadRootTraversal.lean",
+      "bytes": 7584,
+      "sha256": "cdd49ab71481fc3f61501fc8983a1480b8c596ecbb92450369582b6ef1a2f6c0"
+    },
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "939c5a5f62cbbece34479be7b671fb978fa975c79581e89824976efda5780524"
+    }
+  },
+  "actualOutcome": {
+    "attestationId": "0ae0d1959a69577114be7b279ca4b751911340e9969bd2d8e1bc8f236e81ff79",
+    "buildId": "f13d0787814406ceab49ac14cee046f0f4c17d1d3f240445919349341e821d19",
+    "sourceId": "62fc54ca18afe0c16a9b631fc143151820df9359caadc2fa448a2806d7a9f3de",
+    "semanticId": "825a80c9d7ddaaf0c06c7ae678dee528dd7f0a5ded0c044eca6068049200912b",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T00:34:08.167Z",
+    "verifyEnded": "2026-10-24T00:41:09.237Z",
+    "aggregateVerifyElapsedMs": 421070,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": []
+  },
+  "counts": {
+    "inputs": 30,
+    "admittedModules": 26,
+    "rawCommandReceipts": 52,
+    "artifactFiles": 265,
+    "buildOutputs": 130,
+    "oleans": 26,
+    "emptyAxiomDeclarations": 823,
+    "successfulProcesses": 79,
+    "kernelReplays": 26,
+    "auditProcesses": 26,
+    "rootStatementListNatLiterals": 508
+  },
+  "checks": [
+    "Rehashed frozen source and invocation payloads/dependencies and existing source/negative reviews. All30 actual input mappings/copy commands and pre/post source hashes equal exact reviewed positive phase.",
+    "Official genuine lock/check/verify all succeed. Lock config/semantics/workspace identities match actual inputs and after-hash; admitted26-module set equals build and olean closure.",
+    "Actual artifact and result attestation/build/source/semantic identities agree. Every build output and olean byte length/SHA256 matches; every recorded process equals its retained process JSON, exits0, and has verified stdout/stderr/executable hashes.",
+    "Kernel replay module set exactly equals all26 build modules. Every declaration observed[]/policy none/resultok matches all actual audit process outputs and aggregate audit/output.txt. No admitted axioms observed.",
+    "Independently enumerated and rehashed every artifact file; exact expected output/olean/process/probe/audit/manifest set has no extras, omissions or symlinks. Raw embedded lexicon source bytes are not separately bundled; their declarations are not claimed as independent raw-source rehashes.",
+    "Inspected emitted actual root consumer: original ObjVisitRoots with full manifest projections/four-entry backend/range/limits, Result.ok S184 and exact complete-parent Apply. All list numeral sequences match original AST emission order; no admit/sorry. Actual successful compiler/kernel outcome establishes this concrete conversion, not merely imported prerequisite acceptance.",
+    "All recorded host commands exited0. Tools/epoch/zero cgroup events/idle/source/lock and independent postcapture gates pass. Host and guest reserve checks hold; no postcapture errors."
+  ],
+  "artifactCensus": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive-artifact-census.json",
+    "count": 265,
+    "ordinalArraySha256": "51f904f0824e9160c39e6d14702056e13e326f6fcb556b795a180c53d1e5f8a0",
+    "bytes": 51305,
+    "sha256": "3808ae97084ae1ae0b296a32b531fd99a2b37a78a47889712249e2b2c694627b"
+  },
+  "resources": {
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "toolHashes": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "memory": "All six counters zero before and after",
+    "capacity": {
+      "before": {
+        "hostAvailableBytes": "31652278272",
+        "guestAvailableKiB": 53024376
+      },
+      "after": {
+        "hostAvailableBytes": "27876704256",
+        "guestAvailableKiB": 53011012
+      }
+    }
+  },
+  "limitations": [
+    "Acceptance is only the actual original singleton-root traversal equation to complete Result.ok S184.",
+    "No RangeFinish, outer bounds/planner/manifest/backend admission, version, whole hash or original Read33 acceptance.",
+    "Total verify elapsed time is aggregate across imported closure; no separate final-module duration or efficiency/cache/rewrite claim.",
+    "No compiler rerun in this review; actual recorded kernel replays and artifacts audited read-only."
+  ],
+  "mutations": "Only external review and complete artifact-census records; source/repository/VM/other labs untouched."
+}

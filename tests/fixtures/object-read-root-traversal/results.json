@@ -1,0 +1,118 @@
+{
+  "schema": "lexlean-r4-root-traversal-results/v1",
+  "status": "PASS_ACTUAL_ORIGINAL_ROOT_TRAVERSAL_ONLY",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 2433,
+    "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 27416,
+    "sha256": "857d9021a17c42ac7d4d0612d4f36d47f9595c12ecd1471e2bad209a046e1acf"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 7973,
+      "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+    },
+    "negative": {
+      "path": "evidence/negative/negative-native-review.json",
+      "bytes": 15464,
+      "sha256": "088ee8e36646f3d2b63803ad4e1a2d7029e5cb772e68d17a076491e1251ce200"
+    },
+    "positive": {
+      "path": "evidence/positive/positive-native-review.json",
+      "bytes": 6844,
+      "sha256": "efe4f4280a776b7653d81b529adf80a46b98aecf773bcca4310f68ffb66abe3c"
+    }
+  },
+  "negative": {
+    "status": "ACCEPTED_INTENDED_NEGATIVE",
+    "sourcecheckModules": 26,
+    "verifyExit": 1,
+    "aggregateVerifyElapsedMs": 550982,
+    "finalModuleElapsedMs": null,
+    "soleChange": "Expected wireBytes184 to185; Apply type mismatch",
+    "lock": {
+      "path": "evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "939c5a5f62cbbece34479be7b671fb978fa975c79581e89824976efda5780524"
+    },
+    "custody": {
+      "path": "negative-custody.json",
+      "bytes": 13304,
+      "sha256": "808709d33cf1aaa9e9e0591ab4bec813c595c9da32c3d7868f07c5b419116a8d"
+    }
+  },
+  "positive": {
+    "attestationId": "0ae0d1959a69577114be7b279ca4b751911340e9969bd2d8e1bc8f236e81ff79",
+    "buildId": "f13d0787814406ceab49ac14cee046f0f4c17d1d3f240445919349341e821d19",
+    "sourceId": "62fc54ca18afe0c16a9b631fc143151820df9359caadc2fa448a2806d7a9f3de",
+    "semanticId": "825a80c9d7ddaaf0c06c7ae678dee528dd7f0a5ded0c044eca6068049200912b",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T00:34:08.167Z",
+    "verifyEnded": "2026-10-24T00:41:09.237Z",
+    "aggregateVerifyElapsedMs": 421070,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "counts": {
+      "inputs": 30,
+      "admittedModules": 26,
+      "rawCommandReceipts": 52,
+      "artifactFiles": 265,
+      "buildOutputs": 130,
+      "oleans": 26,
+      "emptyAxiomDeclarations": 823,
+      "successfulProcesses": 79,
+      "kernelReplays": 26,
+      "auditProcesses": 26,
+      "rootStatementListNatLiterals": 508
+    },
+    "resources": {
+      "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+      "toolHashes": [
+        "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+        "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+      ],
+      "memory": "All six counters zero before and after",
+      "capacity": {
+        "before": {
+          "hostAvailableBytes": "31652278272",
+          "guestAvailableKiB": 53024376
+        },
+        "after": {
+          "hostAvailableBytes": "27876704256",
+          "guestAvailableKiB": 53011012
+        }
+      }
+    },
+    "lock": {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "939c5a5f62cbbece34479be7b671fb978fa975c79581e89824976efda5780524"
+    }
+  },
+  "artifactCensus": {
+    "reviewerOrdinalArraySha256": "51f904f0824e9160c39e6d14702056e13e326f6fcb556b795a180c53d1e5f8a0",
+    "portableEnvelope": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 51305,
+      "sha256": "3808ae97084ae1ae0b296a32b531fd99a2b37a78a47889712249e2b2c694627b"
+    },
+    "distinction": "Array digest and envelope file SHA identify different serializations. Every actual artifact was independently rehashed for this delivery."
+  },
+  "accepted": "Actual original singleton-root traversal with manifest projections, full original backend/range/limits, returning complete Result.ok S184.",
+  "limitations": [
+    "Acceptance is only the actual original singleton-root traversal equation to complete Result.ok S184.",
+    "No RangeFinish, outer bounds/planner/manifest/backend admission, version, whole hash or original Read33 acceptance.",
+    "Total verify elapsed time is aggregate across imported closure; no separate final-module duration or efficiency/cache/rewrite claim.",
+    "No compiler rerun in this review; actual recorded kernel replays and artifacts audited read-only."
+  ],
+  "history": "Frozen candidate, source bindings and earlier custody NOT_RUN/pending records remain unchanged. This results record and RESULTS.md describe current actual reviewed outcomes. The conditional next investigation remains preserved separately; no new range proof is established."
+}
