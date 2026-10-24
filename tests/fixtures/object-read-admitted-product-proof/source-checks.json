@@ -1,0 +1,144 @@
+{
+  "schema": "lexlean-r4/admitted-product-source-checks/1",
+  "status": "HOST_AST_CANONICAL_HASH_CHECKS_PASS_NATIVE_NOT_RUN",
+  "positive": {
+    "destination": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+    "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+    "bytes": 21034,
+    "sha256": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f",
+    "coreJsonCanonical": true,
+    "nodes": 792,
+    "typeNode": 761,
+    "proofValue": 791
+  },
+  "negative": {
+    "destination": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+    "path": "tests/fixtures/object-read-admitted-product-proof/negative/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+    "bytes": 21209,
+    "sha256": "7e93202da3bdef668ae8c3b1084effd9516d1152aeecf5c07fcf15bf2cc1cb64",
+    "coreJsonCanonical": true,
+    "nodes": 798,
+    "typeNode": 761,
+    "proofValue": 797
+  },
+  "ASTdiff": {
+    "preservedOriginalNodes": 792,
+    "appendedNodes": [
+      {
+        "index": 792,
+        "node": {
+          "k": "c",
+          "n": "Eq.refl",
+          "u": [
+            {
+              "k": "s",
+              "a": {
+                "k": "z"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "index": 793,
+        "node": {
+          "k": "a",
+          "f": 792,
+          "x": 13
+        }
+      },
+      {
+        "index": 794,
+        "node": {
+          "k": "n",
+          "v": "0"
+        }
+      },
+      {
+        "index": 795,
+        "node": {
+          "k": "a",
+          "f": 793,
+          "x": 794
+        }
+      },
+      {
+        "index": 796,
+        "node": {
+          "k": "a",
+          "f": 787,
+          "x": 795
+        }
+      },
+      {
+        "index": 797,
+        "node": {
+          "k": "a",
+          "f": 796,
+          "x": 790
+        }
+      }
+    ],
+    "onlyExistingFieldChange": {
+      "path": "declarations[0].value",
+      "before": 791,
+      "after": 797
+    },
+    "allOtherParsedFieldsEqual": true,
+    "allAppendedReferencesBackward": true,
+    "proofNodesUnchanged": [
+      791
+    ],
+    "removingAppendAndRestoringValueReconstructsExactPositiveJSON": true,
+    "prefixSuffixBytesUnchanged": true
+  },
+  "inputDiff": {
+    "inputCountEach": 51,
+    "differingDestinations": [
+      "tests/lexlean/ObjectAdmittedRangeResult.lex.tex"
+    ],
+    "unchangedOtherInputs": 50,
+    "configUnchanged": true,
+    "positive34IncludesReadNegative": false
+  },
+  "selectedModules": [
+    "ObjectAdmittedRangeResult",
+    "ObjectContextualFinishContext",
+    "ObjectContextualFinishTransport",
+    "ObjectContextualRangeFinish",
+    "ObjectManifestVersion",
+    "ObjectReadCompleteParent",
+    "ObjectReadConnectedRange",
+    "ObjectReadConnectedRangeContext",
+    "ObjectReadConnectedRangeTransport",
+    "ObjectReadFinalChildState",
+    "ObjectReadFirstChildContinuation",
+    "ObjectReadFirstChildState",
+    "ObjectReadParent49",
+    "ObjectReadParent49AccountingState",
+    "ObjectReadParent49AuthenticatedFetch",
+    "ObjectReadParent49ConcreteChildEntry",
+    "ObjectReadParent49FetchContext",
+    "ObjectReadParent49FetchTransport",
+    "ObjectReadParent49VisitContext",
+    "ObjectReadParent49VisitTransition",
+    "ObjectReadParent49VisitTransport",
+    "ObjectReadRootTraversal",
+    "ObjectReadSecondChildContinuation",
+    "ObjectReadSecondChildState",
+    "R4.Hash",
+    "R4.HashNat",
+    "R4.HashNatCore",
+    "R4.HashWire",
+    "R4.Object",
+    "R4.ObjectCodec",
+    "R4.ObjectRead",
+    "R4.ObjectStore",
+    "R4.ObjectTypes",
+    "R4.Words"
+  ],
+  "actualSourceAdmission": "NOT_RUN",
+  "actualIntendedNegative": "NOT_RUN",
+  "actualPositiveVerification": "NOT_RUN",
+  "actualAxiomsAndKernelAudit": "NOT_RUN"
+}

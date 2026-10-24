@@ -1,0 +1,82 @@
+{
+  "schema": "lexlean-r4/independent-source-code-review/1",
+  "createdAt": "2026-10-24T12:04:18.266169+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "verdict": "PASS_SOURCE_CODE_ONLY_NATIVE_NOT_RUN",
+  "scope": "Frozen admitted range transitivity negative and unchanged positive source candidate; no invocation or native acceptance.",
+  "candidate": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof",
+    "manifestBytes": 14763,
+    "manifestSha256": "c42c707a0757e63f01cf9ea9ca5f56a6dd89248b62b38dedf7c2a026a8152617",
+    "payloads": 9,
+    "dependencies": 55,
+    "payloadInventorySha256": "037253bad58ee16e21756ed94f21ff078c468ae7f62603661228d6af274f978f",
+    "allPayloadAndDependencyBytesRehashed": true,
+    "exactFileCensusIncludingManifest": 10,
+    "externalProposalAndSpecCopiesByteEqual": true
+  },
+  "pins": {
+    "proposal": "f127353e79b51a55152cee7bd0a542ad3f63384da59d14206f2414e84cb3983d",
+    "spec": "4589f8334627e789a035aa6a55e3706823fe3f89a46e21a12e401a4a33ff2a35",
+    "negative": "7e93202da3bdef668ae8c3b1084effd9516d1152aeecf5c07fcf15bf2cc1cb64",
+    "unchangedPositive": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f",
+    "sourceBindings": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9",
+    "installedPrelude": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9",
+    "coreIrSourceEntry": "37f25ded6200c458eb546fe8a08cbdc35470bcafdf54967a7bc95f954a19004a"
+  },
+  "independentChecks": [
+    {
+      "name": "Exact negative isolation",
+      "result": "PASS",
+      "detail": "Parsed both core-module payloads independently. Both canonical sorted compact JSON; envelope prefix and suffix byte-equal. All original 792 nodes unchanged. Exactly six nodes appended at 792..797; only prior field change is declarations[0].value 791 to797. Truncating appended nodes and restoring value reproduces entire positive AST. source.diff hunk bytes independently reconstructed exactly; header paths/timestamps are historical metadata."
+    },
+    {
+      "name": "Native proof shape and intended negative",
+      "result": "PASS_SOURCE_ONLY",
+      "detail": "Positive type761 is Eq.{1} type5 A614 C760; type5 is Except ObjError ObjRangeVerified. Value791 applies Eq.trans.{1} to [5,614,785,760,788,790], with actual connected-range and contextual-finish theorem constants. New792 is Eq.refl.{1}, 793 applies Nat13, 794 is Nat0, 795 completes Eq.refl Nat0, 796 substitutes795 for first proof premise of partial transitivity787, and797 supplies unchanged finish790. The new Nat equality is a well-formed term with the wrong premise type, rather than an invented constructor or forward reference. Actual compiler admission and expected type rejection remain NOT_RUN."
+    },
+    {
+      "name": "Schema, universes and proof markers",
+      "result": "PASS_SOURCE_ONLY",
+      "detail": "Six added nodes have supported c/a/n shapes and all application children strictly earlier. Eq.refl.{1} Nat0 and Eq.trans.{1} over Type0 result match retained installed Prelude signatures. Declaration type, name, levels, policy none, transparency, imports and proof_nodes[791] unchanged. Inspected retained core IR validator: proof markers must be ordered/in-range, not necessarily contain declaration.value. Therefore unchanged marker does not create a source-schema defect; emitted elaboration behavior is still untested."
+    },
+    {
+      "name": "Input maps and dependency selection",
+      "result": "PASS",
+      "detail": "Rehashed all51 input maps in both phases. Positive map equals all rows of accepted base ordinal26-negative map exactly. Negative differs solely at ObjectAdmittedRangeResult source. Independently traversed actual envelope imports from admitted root in each map: exact declared34-module census; neither HashWireDirect09Controls nor ObjectReadControls selected. Existing wrong Read source remains present but unselected, so no second selected defect. Runtime/config/other50 inputs byte-identical."
+    },
+    {
+      "name": "Configuration and invocation boundary",
+      "result": "PASS_WITH_EXPLICIT_FUTURE_OBLIGATION",
+      "detail": "Unchanged config still declares default ObjectReadControls entrypoint and300000ms child limit. Candidate phase maps explicitly identify admitted root, but supply no invocation. Future independently reviewed invocation must pass that explicit entrypoint and verify actual34-module source-check census; running config default would not implement this proposal. No lock manufactured and no execution authority granted."
+    },
+    {
+      "name": "Preservation and claims",
+      "result": "PASS",
+      "detail": "Rehashed pending9, current17, original17snapshot, snapshot manifest and prior frozen bindings. Exact9 payload census plus manifest. README/results preserve source-only status, unobserved intended rejection, mandatory positive artifact/empty-axiom/kernel audit, separate inner36 conditional-conversion gate and full Read33 obligations. Current331/403 and production gates unchanged."
+    }
+  ],
+  "findings": [],
+  "nativeStatus": {
+    "sourceAdmission": "NOT_RUN",
+    "negative": "NOT_RUN",
+    "positive": "NOT_RUN",
+    "artifactAxiomKernel": "NOT_RUN",
+    "inner36": "NOT_RUN",
+    "fullRead33": "NOT_RUN",
+    "invocationReviewed": false
+  },
+  "resource": {
+    "hostAvailableAtReviewEndBytes": 21682868224,
+    "reviewReserveBytes": 10737418240,
+    "nativeFloorBytes": 21474836480,
+    "nativeFloorMetAtObservation": true,
+    "activity": "Read-only file parsing, in-memory structural comparisons, hashing and this bounded external report only."
+  },
+  "limitations": [
+    "Static module census is not an observed compiler selection.",
+    "Wrong-premise rejection is predicted, not observed; setup/dependency/timeout/resource failure does not count as semantic negative.",
+    "No SDK/compiler/VM calls, native replay, source authoring, repository edits or source acceptance promotion performed.",
+    "Retained installed source excerpts were inspected locally; no new toolchain retrieval or execution claimed."
+  ]
+}

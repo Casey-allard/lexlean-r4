@@ -1,0 +1,106 @@
+{
+  "schema": "lexlean-r4-independent-product-sequence-spec-review/v1",
+  "reviewedAt": "2026-10-24T11:54:56.231242+00:00",
+  "verdict": "PASS_BOUNDED_ADMITTED_PRODUCT_SEQUENCE_SPEC_ONLY",
+  "reviewer": "construction_second_state_code_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-sequence-proposal.json",
+    "bytes": 11247,
+    "sha256": "f127353e79b51a55152cee7bd0a542ad3f63384da59d14206f2414e84cb3983d"
+  },
+  "findings": [],
+  "independentChecks": [
+    "Rehashed all eight pinned authorities and all51 current phase input files. Recomputed recursive envelope imports directly from47frozen modules: admitted34, inner36, composed46 and Read47; no missing imports.",
+    "Admitted34 and inner36 exclude HashWireDirect09Controls and whole-digest transport. The actual ObjectReadControls file is also unselected. Consequently its retained wrong ordinal26 proof is not a second selected negative in the proposed admitted control.",
+    "Parsed actual native admitted792-node DAG: declarationtype761 is Eq.{1} type5 A614 C760; proofvalue791 is Eq.trans.{1} type5 A614 B785 C760 hConnected788 hFinish790. type5 is Except.{0,0} ObjError ObjRangeVerified. No type/value or runtime mutation is proposed for positive.",
+    "Independently compared original semantic A=C endpoints with actual selected semantic provider statements A=B and B=C. All three endpoint equalities hold; original34873-byte canonical statement hash282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d matches proposal. Existing exact native/semantic translation mapping remains under prior independent CODE acceptance.",
+    "Inspected installed Prelude Eq constructor lines73-76 and Eq.trans line397. Eq.refl.{1} applied to Nat and literal0 is a valid proof of Nat0=0, deliberately incompatible with the already supplied Except-valued first transitivity premise. This is intended type rejection, not a false expected hash or malformed DAG.",
+    "Constructed only an in-memory representation of the proposed six append-only nodes792-797 and checked backward child references. Existing792nodes stay unchanged; original proof_nodes[791] remains sorted/in-range under installed core schema. Declarationvalue797 versus791 is the intended negative difference. No candidate file written, compiler check or native rejection run.",
+    "Verified installed core schema preserves sorted/in-range proof markers and child-before-parent references. These structural checks do not establish actual source admission or the exact emitted diagnostic."
+  ],
+  "acceptedScope": {
+    "firstProductRoot": "ObjectAdmittedRangeResult",
+    "sourceInputs": 51,
+    "selectedModules": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "ObjectReadCompleteParent",
+      "ObjectReadConnectedRange",
+      "ObjectReadConnectedRangeContext",
+      "ObjectReadConnectedRangeTransport",
+      "ObjectReadFinalChildState",
+      "ObjectReadFirstChildContinuation",
+      "ObjectReadFirstChildState",
+      "ObjectReadParent49",
+      "ObjectReadParent49AccountingState",
+      "ObjectReadParent49AuthenticatedFetch",
+      "ObjectReadParent49ConcreteChildEntry",
+      "ObjectReadParent49FetchContext",
+      "ObjectReadParent49FetchTransport",
+      "ObjectReadParent49VisitContext",
+      "ObjectReadParent49VisitTransition",
+      "ObjectReadParent49VisitTransport",
+      "ObjectReadRootTraversal",
+      "ObjectReadSecondChildContinuation",
+      "ObjectReadSecondChildState",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "negative": "Fresh candidate only; preserve all original nodes/imports/type761/runtime/config and50 other input files. Append six valid nodes for wrong Eq.refl Nat0 first premise and unchanged hFinish; set declaration.value797. Frozen originals never edited.",
+    "positive": "Exact21034-byte existing source/value791, same51 current files/config, separately staged after independently accepted intended negative.",
+    "proofMarkers": "The unchanged original proof_nodes[791] is structurally legal. Candidate CODE must check exact emitted mapping and canonical JSON; no unreviewed marker/schema alterations are assumed.",
+    "negativeAcceptance": "Source admission must succeed for exactly34; actual verifier must reject the wrong first transitivity premise. Schema/setup/dependency timeout/OOM/other failure does not satisfy the negative.",
+    "noDoubledNegative": "The retained ordinal26-negative Read file remains among input51 but outside admitted34 selection. Only admitted target proof changes for the new selected negative."
+  },
+  "futureBoundaries": {
+    "inner36": "Separate review after admitted acceptance. Original context(A)/context(C), Result.ok substitution and Boolean-if/cond.{1} definitional compatibility remain untested. Admitted contains no new conditional lowering and cannot discharge these obligations.",
+    "composed46Read47": "Reintroduces whole/digest/Hash09 and final consumer; no automatic retry. Original ordinal26 negative, focused positive and full33 official verification/audits remain mandatory.",
+    "productAcceptance": "331/403 unchanged, no productionPrismPM binding or Pages acceptance."
+  },
+  "executionGates": [
+    "Freeze bounded source maps and minimal invocation; independent candidate CODE before any native execution.",
+    "Fresh idle/source51/config/genuine lock/tools/epoch/strict-zero and allocated/free storage. Host20GiB floor with10GiB estimated peak+10GiB reserve; guest11GiBpre/10GiBpost. No automatic restart or counter reset.",
+    "Unchanged compiler/theorem/runtime/digest/axiom policies/300000ms child/4GiB/2CPU. No borrowed compiled artifacts or historical acceptance used as current cost evidence.",
+    "Independently attempt post source/lock/tools/epoch/memory/idle/storage checks on either outcome. Stop/classify unexpected failures without equivalent retry or limits increase.",
+    "Actual positive artifact/declaration/empty-axiom/kernel audit is required; helper acceptance never becomes fullRead acceptance."
+  ],
+  "limitations": [
+    "This is source-only SPEC acceptance, not candidate implementation, native launch authorization, actual RED/GREEN or performance qualification.",
+    "A34-module closure can still incur substantial recomputation; removing unselected Hash09 from this task does not establish improved cost or diagnose the earlier timeout.",
+    "No earlier negative failure or later isolatedHash09 success is erased or promoted by the proposed sequence."
+  ],
+  "sourceAuthorities": {
+    "prelude": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+      "bytes": 233421,
+      "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+    },
+    "coreSchema": {
+      "archive": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/installed-0865-parser-ir.json.gz",
+      "archiveSha256": "f0ce6ecce7c7b16ca8ae09a4a8aeaf2116690ceed483244af3662dcd87effc4e",
+      "entry": "crates/lexlean/src/ir/core.rs",
+      "entrySha256": "37f25ded6200c458eb546fe8a08cbdc35470bcafdf54967a7bc95f954a19004a"
+    },
+    "priorSourceCODE": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    }
+  },
+  "resource": {
+    "reviewHostAvailableBytes": 22175436800,
+    "minimumReviewReserveBytes": 10737418240,
+    "activity": "Read-only/in-memory source comparisons plus this report only; no SDK/VM/repository operations."
+  }
+}
