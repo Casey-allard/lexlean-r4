@@ -1,0 +1,87 @@
+{
+  "schema": "lexlean-r4-next-whole-digest-spec-review/v1",
+  "status": "CHANGES_REQUIRED_SOURCE_REUSE_AUDIT_FALSE_NEGATIVE_CONDITIONAL_ONLY",
+  "reviewer": "/root/orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/next-whole-digest-investigation.json",
+    "bytes": 11585,
+    "sha256": "407c296a3a370d7816006c104a6d9055d31f55577c9dc31dc120ad72c2779d59"
+  },
+  "independence": "Proposal authored by implementation agent. This review is read-only source analysis, not native verification or execution authorization.",
+  "prerequisites": {
+    "actualWholeContinuationResult": null,
+    "independentNativeReview": null,
+    "boundary": "Null bindings preserved exactly; no mutable running outputs inspected. No digest candidate authority until corrected source investigation is independently reviewed and actual prerequisite acceptance is separately bound."
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "blocking_source_plan",
+      "location": "reuseAudit.decodedLiteral96Calls / exactLiteralInputMatches / directShaOrObjHashCalls",
+      "finding": "The declared audit has a false negative within its own listed roots. Exact original96 bytes occur in existing hash-control statements, and wireDirect09 has exactly the proposed 32-byte expected digest. This changes the justification for a fresh direct Reflexivity attempt and must be corrected before implementation.",
+      "sourceEvidence": [
+        {
+          "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "bytes": 8523,
+          "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e",
+          "declaration": "wireDirect09",
+          "statementSha256": "3b6c2ee8b218666bdddc35baefec3b30a3d08f0caa8b45fed94de03444a3788a",
+          "actualComparison": "Left R4.HashWire.hashWireSha256 argument decodes to exactly all96 proposed input bytes; right Result.ok literal decodes to exactly all32 proposed expected digest bytes. Reflexivity and empty declared axioms. This is the lower-level exact wire equality, not the ObjHashBytes wrapper/projection equation."
+        },
+        {
+          "path": "tests/lexlean/HashCase09.lex.tex",
+          "bytes": 24840,
+          "sha256": "d6063b0a2a95833f8bbfe0c8d2c13dcb9476ddca7d89bf80d7def79cf4f364e1",
+          "declaration": "sha256ProtocolObject",
+          "actualComparison": "Same96 input to R4.Hash.sha256; different digest representation needs actual connection, not substitution."
+        },
+        {
+          "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross09Controls.lex.tex",
+          "bytes": 13024,
+          "sha256": "80327b8ff5817fcb5571710cc88b17cd05cc2c3334bd87dfe66a9108d7359202",
+          "declaration": "wireCross09",
+          "actualComparison": "Both wire and legacy SHA calls use the exact96 bytes; two matching occurrences."
+        },
+        {
+          "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape09Controls.lex.tex",
+          "bytes": 18760,
+          "sha256": "24dce5e7ea157bb92d2da27c383c7feb43f49dd3a41068b532eabec86b7d2bcb",
+          "declaration": "wireShapeOriginal09",
+          "actualComparison": "Contains exact96 wire input but establishes shape rather than the requested complete digest Result."
+        },
+        {
+          "path": "tests/fixtures/hash/HashControls.lex.tex",
+          "bytes": 360187,
+          "sha256": "0603c79620ff19e4a30239a7b180b214af5941d925f60161479a0049b8acd60e",
+          "declaration": "sha256ProtocolObject",
+          "actualComparison": "Same96 legacy SHA input."
+        }
+      ],
+      "reproduction": "Parsed all227 .lex.tex files in the three declared roots, zero parse failures. Traversed theorem statements for sha256/hashWireSha256/ObjHashBytes and decoded literal cons/nil with append handling. This explicitly selected predicate found64 calls and six exact96 occurrences in five files. This is a counterexample to zero matches, not an asserted reproduction of the author’s undocumented85-call predicate.",
+      "minimalCorrection": "Preserve this rejected investigation. Freeze a successor correcting the bounded census and pinning the exact wireDirect09 source. Inspect its actual retained acceptance/failure and exact runtime/compiler/lock identities before selecting either certificate reuse through genuine ObjHashBytes Result context or a justified distinct fresh computation. If no accepted exact certificate is established, say so precisely. Do not infer acceptance merely from theorem source, or automatically replay an unchanged known failed configuration. Keep the same actual full ObjHashBytes goal, meaningful negative and mandatory later original whole-read consumer."
+    }
+  ],
+  "confirmedSourceChecks": {
+    "allTenReferencedBytePins": "PASS",
+    "wholeContinuationStatementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "originalOrdinal26StatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "positiveStatementSha256": "4f00f85ed5e8c9cbf5cd205ecad63f22a6672f698194f51eeca39be830263a89",
+    "negativeStatementSha256": "736d627d758a4835ad3c9904e7fe8cf7bbea78b0dd26ee939bb94c01f98b3cd4",
+    "reconstruction": "Constructed eq with exact current consumer RHS.scrutinee and Result.ok original ordinal26 manifest.digest, preserving explicit Result ObjWholeDigest ObjError type arguments. Canonical recursive-key-sorted hashes equal both proposal goals. The sole negative changes first expected byte201 to202; actual input and manifest stay unchanged.",
+    "projectionSha256": "b3e20b7464353415f891a9674d7bf7beb08dc75123cf904d0dd3eb152bd0435b",
+    "rangeRecordSha256": "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+    "inputAstSha256": "18e104da0977a4475490ccc65b0dbb1b51cfea01eddb607b30e0f63fe430534f",
+    "digestRecordSha256": "9cff29e60c77de94da659a40000e2b15d8b86862a9af9855b3d18011cb8bc05d",
+    "hashRoute": "ObjHashBytes declaration43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588 calls genuine hashWireSha256 declaration5c6e6450a5d1006726e90d8723321bb5aa522f85a2455fa4921c9e170fdee5c1, preserves length guard/SHA core and maps errors to ObjError.hashFailure; wraps genuine output as ObjWholeDigest.",
+    "constructors": "Reflexivity is an actual supported existing constructor, confirmed in pinned accepted version source. Empty declared axioms are a candidate requirement; actual empty observed axioms require official proof and audit.",
+    "differentFold96": "Confirmed objFoldDigest96 declaration81f926afa0bd562f2810b10b5254641045610cafb6cb6ed4ae958c91bcfaecde and argument1 AST37dbc4cb600c7b1090e93def4e474cc6647cd8efba84b6c350d153dc5928a89c. ObjAppendBytes decodes to96 bytes beginning0,1,2,3,4, distinct from this actual3,10,17,24,31 input. Any timeout on that different configuration neither accepts nor rejects this proposed hash equation."
+  },
+  "conditions": [
+    "Original300000ms child,4GiB/2CPU and all source/tool/lock/epoch/idle/zeroevent/storage/postcapture predicates unchanged. No limit increase or timing transfer.",
+    "Intended wrong-digest negative must be actual equality rejection; source failure, timeout and OOM are not that negative.",
+    "Full Result goal must retain production projection and genuine SHA evaluation or an independently accepted exact certificate connected using supported proof constructors; no trusted hash or runtime override.",
+    "Later whole Result context/actual ObjWholeRead consumer and final original ordinal26 projection remain separate unproved obligations. No implicit Eq.trans/Rewrite or efficiency claim."
+  ],
+  "execution": "All proposed new candidate/check/negative/positive tests NOT_RUN. No SDK/native/VM calls, no repository/source/candidate/index edits, no global history search. Only this external report written.",
+  "reviewObservations": "Initial small read-only helper assumptions about record field key and append decoding were corrected before the reported successful reconstructions; no evidence bytes were modified."
+}

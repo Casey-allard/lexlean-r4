@@ -1,0 +1,87 @@
+{
+  "schema": "lexlean-r4-whole-read-continuation-results/v1",
+  "status": "INTENDED_DEPENDENCY_NEGATIVE_ACCEPTED_POSITIVE_TIMEOUT_UNACCEPTED",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/manifest.json",
+    "bytes": 2255,
+    "sha256": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8"
+  },
+  "negative": {
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/negative-native-review.json",
+      "bytes": 12639,
+      "sha256": "35b508db0815bb3b619bd55f8e6e0d2b8a7212445716e61af5001639a0838985"
+    },
+    "portableReview": "evidence/negative-native-review.json",
+    "checkExit": 0,
+    "suppliedSources": 18,
+    "selectedAdmittedModules": 18,
+    "verifyExit": 1,
+    "diagnostic": "LLV7002",
+    "aggregateVerifyElapsedMs": 203247,
+    "scope": "Intended unrelated0=0 zero-Apply rejection in transport dependency. Mandatory whole consumer selected, but no consumer elaboration/conversion established.",
+    "postcaptureErrors": []
+  },
+  "positive": {
+    "failureReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/failure-native-review.json",
+      "bytes": 14520,
+      "sha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd"
+    },
+    "portableReview": "evidence/failure-native-review.json",
+    "checkExit": 0,
+    "suppliedSources": 18,
+    "selectedAdmittedModules": 18,
+    "verifyExit": 4,
+    "diagnostic": "LLS8002",
+    "configuredChildTimeoutMs": 300000,
+    "observedChildTimeoutMs": 300004,
+    "aggregateVerifyElapsedMs": 400487,
+    "artifacts": [],
+    "accepted": false,
+    "memoryEvents": {
+      "low": 0,
+      "high": 0,
+      "max": 450159,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "postcaptureErrors": [
+      {
+        "name": "memory-after",
+        "error": "Error: nonzero memory events"
+      }
+    ],
+    "passingPostconditions": [
+      "source",
+      "lock",
+      "tools",
+      "epoch",
+      "idle",
+      "host storage",
+      "guest storage"
+    ]
+  },
+  "inputsPerPhase": 22,
+  "developmentLock": {
+    "sha256": "1866c2903723806a6d3632788d893044f71174c7130463ef859e71852a9524b8",
+    "bytes": 1597,
+    "scope": "Official generated development lock, no production SDK binding."
+  },
+  "rawClosures": {
+    "negative": {
+      "files": 49,
+      "arraySha256": "4234d3af5b671b13dbf2d6e43b021f524ed916e352f46046b6ef85beac2f924e"
+    },
+    "positive": {
+      "files": 49,
+      "arraySha256": "76097eae9b0303f06219dc43f516d7797c76ca6525bed4e356980cf08defea65"
+    },
+    "boundary": "Complete raw file censuses are in exact reviews. Selected portable raw receipts omit per-input copy/stage/allocation/swap records, which remain local. No accepted artifact exists for either phase."
+  },
+  "resourceBoundary": "Discrete resource-observation.json samples are not measured peaks. max events indicate recorded limit pressure, not an OOM kill or proof of what caused the timeout.",
+  "history": "Preparation README/source manifest NOT_RUN and earlier raw custody pending labels record capture-time history; current outcomes are this file and RESULTS.md. Rejected digest reuse audit and its CHANGES_REQUIRED review preserved exactly.",
+  "next": "Corrected reuse successor remains external/source-only for independent review; whole continuation acceptance remains null. No equivalent retry or timeout increase authorized.",
+  "open": "Actual whole-read continuation, whole hash/digest connection, full whole-read Result, original ordinal26/Read33, remaining ten drafts, Object/Hash/PrismPM/Pages acceptance remain open."
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-whole-read-continuation-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+      "bytes": 77000,
+      "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+    },
+    {
+      "path": "negative/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+      "bytes": 1277,
+      "sha256": "116b4489060e2b74c6258ab5acd02d2f13d4a14abd3ab630cba443a5bdf6f694"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+      "bytes": 1318,
+      "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "bytes": 72531,
+      "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 691,
+      "sha256": "e2dc86f998e0d974c612a67a0924cdd7408969b4424609d9fc8881d23759748b"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 18284,
+      "sha256": "d14a4eb9cccb3e7c4f2ae654ffe6f61adb0e604de29a05336f69a271aaac6baa"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 7189,
+      "sha256": "ed582f17b6c9dffd52f569977c5a52072444b4dccb4bcf8641c31df9f4441016"
+    },
+    {
+      "path": "README.md",
+      "bytes": 803,
+      "sha256": "0dc8d0aa3f0d6cf4df93d2a0523a94cec10a047f39a7a1476429157167e679c6"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "docs/continuation/2026-10-23/next-whole-read-continuation-proposal.json",
+      "bytes": 12614,
+      "sha256": "e16fa93f9386b23e9122b8681244ed4dba4882b6a34c85d9eb64abe849f3b8c9"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-whole-read-continuation-spec-review.json",
+      "bytes": 8694,
+      "sha256": "7943da3a2d7199b6235ffe1e77cafcf4aa22bf93f562aee268223ab0aae77b87"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/whole-read-continuation-plan-bindings.json",
+      "bytes": 7364,
+      "sha256": "30bbed7ecd9d4f04b565fe2cfe6c9b3952c50feacebb28192fa16cc267c20a38"
+    }
+  ],
+  "boundary": "Actual whole-read-to-real-hash-continuation proof preparation only; no native acceptance or whole success."
+}

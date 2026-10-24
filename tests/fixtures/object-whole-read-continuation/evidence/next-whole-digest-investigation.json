@@ -1,0 +1,299 @@
+{
+  "schema": "lexlean-r4-next-whole-digest-investigation/v1",
+  "status": "SOURCE_ONLY_CONDITIONAL_NOT_RUN",
+  "prerequisite": {
+    "wholeContinuationSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "bytes": 72531,
+      "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+    },
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/manifest.json",
+      "bytes": 2255,
+      "sha256": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8"
+    },
+    "actualWholeContinuationResult": null,
+    "independentNativeReview": null,
+    "boundary": "No running native output was accessed or acceptance assumed. Requires actual independent acceptance of full original whole continuation and separate SPEC before candidate."
+  },
+  "selection": "One full Result equality for the exact real ObjHashBytes call on current continuation RHS. Expected digest comes solely from unchanged original manifest, untrusted until proven. No sibling wrapper, generic framework or control expansion.",
+  "exactGoal": {
+    "text": "ObjHashBytes(project bytes exact complete original range record)=Result.ok originalManifest.digest",
+    "extraction": "Current consumer declaration0.statement.right.scrutinee is the exact left. Expected digest is ordinal26 statement.left.scrutinee.arguments[1].fields[digest].value.",
+    "positiveStatementSha256": "4f00f85ed5e8c9cbf5cd205ecad63f22a6672f698194f51eeca39be830263a89",
+    "negativeStatementSha256": "736d627d758a4835ad3c9904e7fe8cf7bbea78b0dd26ee939bb94c01f98b3cd4",
+    "leftSha256": "c706b6a446e4723ac99d9eb5e423df35c649a8d3da5aba2218bd8d8662e19618",
+    "resultType": {
+      "error": {
+        "arguments": [],
+        "kind": "named",
+        "member": {
+          "module": "R4.ObjectTypes",
+          "name": "ObjError"
+        }
+      },
+      "kind": "result",
+      "ok": {
+        "arguments": [],
+        "kind": "named",
+        "member": {
+          "module": "R4.ObjectTypes",
+          "name": "ObjWholeDigest"
+        }
+      }
+    },
+    "expectedDigestRecordSha256": "9cff29e60c77de94da659a40000e2b15d8b86862a9af9855b3d18011cb8bc05d",
+    "expectedDigestBytes": [
+      201,
+      241,
+      165,
+      247,
+      157,
+      123,
+      234,
+      1,
+      165,
+      79,
+      78,
+      219,
+      65,
+      103,
+      55,
+      34,
+      246,
+      39,
+      238,
+      46,
+      130,
+      221,
+      163,
+      36,
+      148,
+      107,
+      99,
+      207,
+      75,
+      155,
+      22,
+      175
+    ],
+    "inputProjectionSha256": "b3e20b7464353415f891a9674d7bf7beb08dc75123cf904d0dd3eb152bd0435b",
+    "rangeRecordSha256": "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+    "literalInputSha256": "18e104da0977a4475490ccc65b0dbb1b51cfea01eddb607b30e0f63fe430534f",
+    "literalInputLength": 96,
+    "inputBytes": [
+      3,
+      10,
+      17,
+      24,
+      31,
+      38,
+      45,
+      52,
+      59,
+      66,
+      73,
+      80,
+      87,
+      94,
+      101,
+      108,
+      115,
+      122,
+      129,
+      136,
+      143,
+      150,
+      157,
+      164,
+      171,
+      178,
+      185,
+      192,
+      199,
+      206,
+      213,
+      220,
+      227,
+      234,
+      241,
+      248,
+      255,
+      6,
+      13,
+      20,
+      27,
+      34,
+      41,
+      48,
+      55,
+      62,
+      69,
+      76,
+      83,
+      90,
+      97,
+      104,
+      111,
+      118,
+      125,
+      132,
+      139,
+      146,
+      153,
+      160,
+      167,
+      174,
+      181,
+      188,
+      195,
+      202,
+      209,
+      216,
+      223,
+      230,
+      237,
+      244,
+      251,
+      2,
+      9,
+      16,
+      23,
+      30,
+      37,
+      44,
+      51,
+      58,
+      65,
+      72,
+      79,
+      86,
+      93,
+      100,
+      107,
+      114,
+      121,
+      128,
+      135,
+      142,
+      149,
+      156
+    ],
+    "currentContinuationStatementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "originalControlStatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d"
+  },
+  "negative": {
+    "onlyChange": "First expected digest byte201→202",
+    "path": "statement.right.arguments[0].fields[0].value.head.value",
+    "proofBoth": {
+      "kind": "reflexivity"
+    },
+    "axiomsBoth": [],
+    "unchanged": "Actual96inputbytes/projection, full Result types and runtime; no manifest/input mutation.",
+    "required": "Source admission then intended actual hash-equality mismatch; timeout/OOM/admission rejection is not intended negative. Positive independently audited only after negative and fresh gates."
+  },
+  "actualHashRoute": {
+    "wrapperSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    "wrapperDeclarationSha256": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588",
+    "wireSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    "wireDeclarationSha256": "5c6e6450a5d1006726e90d8723321bb5aa522f85a2455fa4921c9e170fdee5c1",
+    "description": "ObjHashBytes calls hashWireSha256(items), maps errors to ObjError.hashFailure, and wraps actual returned bytes as ObjWholeDigest. Real guards, SHA computation and typed failures remain intact.",
+    "forbidden": "No host-computed expected hash, intermediate digest axiom, raw tactic, unsupported constructor, modified production definition or false success wrapper."
+  },
+  "reuseAudit": {
+    "roots": [
+      "tests/lexlean",
+      "tests/fixtures/hash-wire/project/tests/lexlean",
+      "tests/fixtures/hash"
+    ],
+    "filesParsed": 227,
+    "parseFailures": 0,
+    "directShaOrObjHashCalls": 85,
+    "decodedLiteral96Calls": 0,
+    "exactLiteralInputMatches": [],
+    "scopeLimit": "Canonical controls plus retained finite hash-control statements only. Literal cons/append AST decoding is source inspection, not hash execution or proof acceptance; no blanket assertion about all archived history.",
+    "fold96": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectControls.lex.tex",
+        "bytes": 345063,
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      "declaration": "objFoldDigest96",
+      "declarationSha256": "81f926afa0bd562f2810b10b5254641045610cafb6cb6ed4ae958c91bcfaecde",
+      "inputPath": "statement.left.scrutinee.arguments[1]; argument0 is ObjStore",
+      "inputLength": 96,
+      "inputSha256": "37dbc4cb600c7b1090e93def4e474cc6647cd8efba84b6c350d153dc5928a89c",
+      "sameInputBytes": false,
+      "expectedDigestPrefix": [
+        8,
+        53,
+        155,
+        16
+      ],
+      "sameExpectedDigest": false,
+      "boundary": "Different input/digest and larger ObjFold statement, not an exact reusable hash equality or accepted substitute."
+    },
+    "versionCertificate": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+        "bytes": 6635,
+        "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+      },
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+        "bytes": 7429,
+        "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+      },
+      "boundary": "Accepted encoded-manifest version, not original96-byte whole data. Cannot substitute this certificate."
+    }
+  },
+  "minimalNextProof": {
+    "constructor": "Reflexivity",
+    "scope": "One logical theorem module with positive/false source variants. Retain actual projection argument rather than replacing production input. Empty axioms; original300000ms child/4GiB2CPU and all source/tool/lock/epoch/idle/zeroevent/storage/postcapture gates.",
+    "support": "Same existing constructor used by actual accepted full version/parent49-decode proofs. Syntactic support does not establish completion, bounded cost or success for this96-byte call.",
+    "futureTests": "All candidate/check/negative/positive tests NOT_RUN; independent SPEC and source CODE required before parent native execution."
+  },
+  "laterComposition": {
+    "afterHashPair": "Independently review one Result context J around the unique actual hash scrutinee of the current continuation. Preserve hash errors, equality comparison against original manifest.digest, integrityFailure and complete bytes/version/stats construction.",
+    "supportedRoute": "Nat-indexed Prop family: P0 actual accepted hash equality, Psucc J(left)=J(right); zeroApply accepted certificate, successorCases prior/Congruence. Mandatory original ObjWholeRead consumer Apply1 must establish outer/range conversion and successful actual comparison reduction. Existing supported pattern only, not a current proof.",
+    "noAssumedTransitivity": "No Eq.trans/Rewrite or automatic use of prior whole-continuation equality as a rewrite. Definitional conversion may recompute substantial expressions; actual final consumer remains mandatory.",
+    "originalProjection": "Only after accepted complete whole Result, separately review original ordinal26 result-to-bytes projection via the supported Result-context transport or another independently established concrete route. Preserve entire original control statement; no assertion that projection proof exists."
+  },
+  "cost": "Unknown. Prior aggregate timeouts/accepted inputs do not measure this hash call. No cached result, efficiency benefit, unchanged equivalent retry or limit increase assumed.",
+  "remaining": "Actual96hash/digest equality, complete successful whole Result, exact ordinal26/allRead33, ten drafts, canonicalHash, fully modeledPrismPM andPages remain required.",
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    }
+  ],
+  "preparationObservation": {
+    "error": "Error: nonliteral",
+    "cause": "Initial read-only reuse comparison attempted to decode ObjFold argument0, which is ObjStore. Inspection confirmed input bytes are argument1. No report/candidate/source/native write occurred before failure.",
+    "correction": "Decoded actual argument1 only; evidence remains source investigation, not a runtime negative."
+  },
+  "storage": {
+    "hostAvailableBytes": "28262936576",
+    "reportLimitBytes": 12288,
+    "reserveBytes": 10737418240
+  }
+}

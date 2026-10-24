@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-whole-read-continuation-readiness/v1",
+  "status": "FROZEN_SOURCE_INVOCATION_READY_FOR_INDEPENDENT_CODE_NATIVE_NOT_RUN",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/manifest.json",
+    "bytes": 2255,
+    "sha256": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invocation-manifest.json",
+    "bytes": 2142,
+    "sha256": "4ec420e0c94c4b9a89b38ac4da7d2a69c4ea2437c18214785009ac25112242c0"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invoke-whole-read-continuation.mjs",
+    "bytes": 7734,
+    "sha256": "b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61"
+  },
+  "checks": {
+    "exactPins": 88,
+    "reviewedStructuralIdentities": 14,
+    "sourceInputMappings": 44,
+    "inputsPerPhase": 22,
+    "suppliedSources": 18,
+    "staticallyReachableModules": 18,
+    "preservedCurrentSourcePins": 17,
+    "originalSnapshots": 17,
+    "canonicalSemanticJson": true,
+    "oneHoleRoundtrip": true,
+    "singleBaseApplyTargetMutation": true,
+    "nodeSyntax": {
+      "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invoke-whole-read-continuation.mjs",
+      "exitCode": 0,
+      "boundary": "Parser only, no invocation execution."
+    }
+  },
+  "boundary": "Actual full consumer preserves original outer manifest admission and key validation. RHS retains real hash/digest comparison and all typed errors/result construction; no whole success assumed. All native tests NOT_RUN; negative may stop at transport dependency."
+}

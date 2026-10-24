@@ -1,0 +1,111 @@
+{
+  "schema": "lexlean-r4-whole-read-continuation-source-custody/v1",
+  "status": "EXACT_PREPARATION_BYTES_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+        "bytes": 77000,
+        "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContext.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/negative/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+        "bytes": 1277,
+        "sha256": "116b4489060e2b74c6258ab5acd02d2f13d4a14abd3ab630cba443a5bdf6f694"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/negative/tests/lexlean/ObjectWholeReadTransport.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+        "bytes": 1318,
+        "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+        "bytes": 72531,
+        "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/lexlean.toml",
+        "bytes": 691,
+        "sha256": "e2dc86f998e0d974c612a67a0924cdd7408969b4424609d9fc8881d23759748b"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/lexlean.toml"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/candidate.json",
+        "bytes": 18284,
+        "sha256": "d14a4eb9cccb3e7c4f2ae654ffe6f61adb0e604de29a05336f69a271aaac6baa"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/candidate.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/structural-audit.json",
+        "bytes": 7189,
+        "sha256": "ed582f17b6c9dffd52f569977c5a52072444b4dccb4bcf8641c31df9f4441016"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/structural-audit.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/README.md",
+        "bytes": 803,
+        "sha256": "0dc8d0aa3f0d6cf4df93d2a0523a94cec10a047f39a7a1476429157167e679c6"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/README.md"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/manifest.json",
+        "bytes": 2255,
+        "sha256": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/candidate/manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invoke-whole-read-continuation.mjs",
+        "bytes": 7734,
+        "sha256": "b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/evidence/invoke-whole-read-continuation.mjs"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invocation-diff.json",
+        "bytes": 2337,
+        "sha256": "47d366e62ba0fcaa87e4ba441e51bc26ec9bc92c043b72fe0bcc8c2c81f13756"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/evidence/invocation-diff.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invocation-manifest.json",
+        "bytes": 2142,
+        "sha256": "4ec420e0c94c4b9a89b38ac4da7d2a69c4ea2437c18214785009ac25112242c0"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/evidence/invocation-manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/readiness.json",
+        "bytes": 1877,
+        "sha256": "9931a214ca32ab48e92543834f0d4d69b950c843d7fb0b4171083e6238e81e49"
+      },
+      "destination": "tests/fixtures/object-whole-read-continuation/evidence/readiness.json"
+    }
+  ],
+  "mutableReadmeExcluded": true
+}

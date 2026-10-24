@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-spec-review/v1",
+  "status": "PASS_BOUNDED_SOURCE_DESIGN_ONLY_NO_EXECUTION_AUTHORITY",
+  "reviewer": "/root/orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/next-whole-digest-reuse-successor.json",
+    "bytes": 13342,
+    "sha256": "7ff3a57eb5320b8fecc71d8fb15a6ac09ce4bb8f93120607a9443b08941c1674"
+  },
+  "lineage": {
+    "originalRejectedSha256": "407c296a3a370d7816006c104a6d9055d31f55577c9dc31dc120ad72c2779d59",
+    "originalReviewSha256": "d28c8962333f6429febbbb9878dcf612deb0f6bab87ff9c8fa1e817164298fce",
+    "result": "Both original byte pins verified unchanged; R1 false-zero census is resolved, not erased."
+  },
+  "checks": {
+    "referencedAbsoluteBytePins": 9,
+    "census": "Independently reparsed227 files in exactly the three declared roots. Reproduced old broad85 calls/33 decode failures/zero matches; corrected broad85/21/six; selected64/zero/six. Qualified R4.Hash.append is actual recursive list append. Six occurrences in five files are exact96-byte input matches; remaining21 broad undecodable expressions remain unknown, not nonmatches. No global census claim.",
+    "exactWireStatementSha256": "3b6c2ee8b218666bdddc35baefec3b30a3d08f0caa8b45fed94de03444a3788a",
+    "inputAndDigest": "Prior independent reconstruction verified all96 proposed projected input bytes and32 expected original manifest digest bytes exactly equal wireDirect09 decoded operands. Retained wrapper goal unchanged.",
+    "positiveGoalSha256": "4f00f85ed5e8c9cbf5cd205ecad63f22a6672f698194f51eeca39be830263a89",
+    "negativeGoalSha256": "736d627d758a4835ad3c9904e7fe8cf7bbea78b0dd26ee939bb94c01f98b3cd4",
+    "wrapperDeclarationSha256": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588"
+  },
+  "historicalCertificate": {
+    "classification": "ACTUAL_RETAINED_ACCEPTED_DIRECT09_ONLY",
+    "independentAuditSha256": "59a5dfe8b938a5533f033a7dd00c6a6e866294a85d72a082d33356dcff7e19b6",
+    "rootAuditSha256": "cc1b80d08a2da2fd3017081fc60dafb61c4b5d44d0586b85b934f4f5ebd66640",
+    "attestationSha256": "0902e02fdd4fe8d73725f745b0e33a14468f4fffdc822cd5e65788b5c4e088a1",
+    "attestationId": "46f323fb306637bd0d9082a0c3375852b4119d5208ea17d09bf90392634940b5",
+    "buildManifestSha256": "b2ae8b31263ac9a286ef775b1dd7320b0f85e7098ff3e0216483a525447f13ca",
+    "readOnlyReaudit": "Rehashed all30 emitted outputs and6 olean files in actual retained65-file bundle; checked531 declarations all result ok, policy none and empty declared/observed axioms; all19 process exits0 and stdout/stderr hashes; source6 hashes equal current repository aliases and build inputs. Retained independent audit explicitly includes Direct09 among16 accepted roots with6 kernel replays. No new replay run.",
+    "compilerAndTools": "Actual attestation compiler/toolchain identities agree with successor pins. Historical lock44a80229... and configdb8a3be7... are provenance, not current lock or resource authority. Never transplant oleans or old lock into a new accepted closure.",
+    "limits": "Restoration remains16/78 and mutation2/7 incomplete; Direct10 unaccepted. This historical local theorem does not promote full Hash/HashWire."
+  },
+  "proofDesign": {
+    "context": "Use exact ObjHashBytes.body, replacing only its top-level hashWireSha256(items) scrutinee with variable r. Context domain Result (List Nat) R4.Hash.HashError; codomain Result R4.ObjectTypes.ObjWholeDigest R4.ObjectTypes.ObjError. Exact existing failure->ObjError.hashFailure and digest->ObjWholeDigest constructors/type arguments retained. No free items variable remains outside the replaced call.",
+    "contextBodyCanonicalSha256": "0c61c7617d6cc47cf7b719a7951bd1ff745d5841b20fe5af359be1585554c8a0",
+    "contextHashConvention": "Canonical recursive sorted-key JSON, literal scrutinee replacement {kind:var,name:r}; parameter spelling therefore matters to this derived diagnostic pin.",
+    "family": "P0 is exact wireDirect09 equality, P(succ n) is H(wireDirect09.left)=H(wireDirect09.right). This is a Prop-valued Nat family with different operand types between zero and successor, matching the supported existing pattern.",
+    "transport": "Nat induction zero Apply HashWireDirect09Controls.wireDirect09; successor Cases prior, then Congruence in both cases, as exact accepted contextual transport pattern3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405. No invented Result Cases, Eq.trans, Rewrite or raw tactic.",
+    "mandatoryConsumer": "Apply shared transport at1 to the exact original projected ObjHashBytes full Result goal. The kernel must establish projection normalization, qualified append equivalence and wrapper/success constructor conversion. Helper alone is insufficient. Do not replace the original projection by a convenient input expression.",
+    "negative": "Only mandatory consumer expected digest first byte201->202; common genuine Direct09 base and transported theorem/proof unchanged. Require actual equality rejection; source rejection, timeout or resource failure is not the intended negative.",
+    "qualification": "Import actual source and qualify the new official dependency closure, current genuine lock and empty observed axioms. Explicit source imports/module qualification/types/proof arguments require candidate CODE review. Source syntax precedent does not establish future native success or cost."
+  },
+  "wholeContinuationFailure": {
+    "audit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/failure-native-review.json",
+      "sha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd"
+    },
+    "observed": "Actual mandatory whole consumer verify4 LLS8002:300004ms target against300000ms,400487ms aggregate; no artifact. Postmemory max450159 with oom/oom_kill0 and memory-after gate failure. These facts establish timeout/resource pressure, not semantic falsity or a localized hash bottleneck.",
+    "actualWholeContinuationResult": null,
+    "acceptedWholeContinuationReview": null,
+    "distinction": "The failure review exists, but accepted-positive prerequisite remains null. The exact projected hash subexpression is an eligible independent bounded source obligation even without successful whole continuation. This source-design PASS does not waive the failed whole prerequisite or establish that hash reuse repairs the whole bridge.",
+    "resourceBoundary": "Existing epoch has nonzero memory events. No run in that epoch, counter reset, VM restart, limit increase or equivalent failed whole-consumer retry is authorized by this review. Parent must establish a separately accepted fresh resource epoch before any later native work."
+  },
+  "smallestNextStep": "Within the already authorized product work, parent may dispatch the narrowly specified source candidate: exact Direct09 source import, one actual ObjHashBytes Result context/Nat family, shared lift, and exact projected consumer positive/false variants. Preserve all rejected/failure evidence. Require independent written-source CODE review and separately valid resource/identity gates before native negative then positive. Do not expand whole-consumer architecture or retry its failed configuration as part of this step.",
+  "remaining": [
+    "Actual new wrapper proof and meaningful wrong-digest negative are NOT_RUN.",
+    "Actual complete successful original ObjWholeRead Result, original ordinal26 projection/allRead33, ten drafts, canonical Hash, fully modeled PrismPM and Pages remain open.",
+    "Later actual whole-read composition must retain genuine hash/digest comparison and errors; no implicit rewrite from the failed whole bridge, no accepted hash treated as opaque axiom, no cost/cache/speed claim."
+  ],
+  "findings": [],
+  "execution": "Read-only source and retained artifact inspection only; no SDK/compiler/VM/native calls, no source/candidate/repository/index edits or artifact copies. This external report is the sole write."
+}
