@@ -1,0 +1,197 @@
+{
+  "schema": "lexlean-r4-hash-restoration-recovery-delivery-manifest/v1",
+  "status": "FROZEN_PORTABLE_CUSTODY_AND_SOURCE_CHECKPOINT_PENDING_EXACT_DELIVERY_CODE_SECURITY",
+  "baseCommit": "d1024f1118bd26a5d167c0c431d59ec670b14dac",
+  "at": "2026-10-24T07:19:52.987Z",
+  "scope": "Only portable recovery folder and two continuation docs. No original protected source, recovered path, runtime, model, source packet or native operation changed.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 71227,
+      "sha256": "fbdb93f832b09851f9fb36ed8f64a611858ae12a08c6561ca53336a0696c89f4"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture1-observations.json.gz",
+      "bytes": 9517,
+      "sha256": "fb5cd42738284e2b18856b966369dc3c6e7118185bb532f094880b6682d985e1"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+      "bytes": 9615,
+      "sha256": "f344ade73278d44e15a402fb477fa1407531279003ab1b5646928eb98ec3705d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+      "bytes": 82187,
+      "sha256": "65cd2cce17ada1e39340e97a005b0cd44b353ddaf54f1b1fb52ade37664c1c9e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/recovery-map-and-host-audit.json.gz",
+      "bytes": 130080,
+      "sha256": "873039bf110c5c227bca9ed20c13eb20e44eb209f173832269893ae52399ef75"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/successor-source.json.gz",
+      "bytes": 83095,
+      "sha256": "731baffae43a3e491003ef4819c9a9e1f63de0dd48d538c98663df1c5ff7422c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/author-prewrite-observation.json",
+      "bytes": 384,
+      "sha256": "707499596568aeab2aa674f7e90c142e9c611d5599bcba78bae26a7e433fab32"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/custody.json",
+      "bytes": 43125,
+      "sha256": "d199e057886484f106bc32dfe0007c3ad47d7a16b1bc1aee3d59d40bbbb9d492"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/documentation-change.json",
+      "bytes": 922,
+      "sha256": "7339fe47ab5285257d566f51d474d8bd2c6bc52645dc3c4f7ed1a7ce3a671e2a"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/README.md",
+      "bytes": 1554,
+      "sha256": "4b54a5f9670981157484fa4d52812f24f77ce7c081a16cece0e870e23cab8177"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/delivery-budget.json",
+      "bytes": 381,
+      "sha256": "1d7a0cee972fc8a1ad1c2b26f8b87fcea58b0322acfd9e213af214c9382e1ddf"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/epoch-review.json",
+      "bytes": 18467,
+      "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/hash-restoration-existing-procedure-binding.json",
+      "bytes": 1885,
+      "sha256": "7873417981e3e318dde581fb248ac57e23cb1bd29e798f82538ee16e1f35cc6b"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/hash-restoration-next-step.json",
+      "bytes": 17194,
+      "sha256": "bd4454ac80a66feab0c1600a9ff684a8ad8ab23e756bc0d7f5ec0a7a07396e83"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+      "bytes": 21353,
+      "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-budget.json",
+      "bytes": 338,
+      "sha256": "6500cb657ebef726248bf0ab58421c409e3532f64f395e9d3a2cae7dd102df74"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-result-review.json",
+      "bytes": 5634,
+      "sha256": "7e369cc80979e670d0b752e0cfdcc62de163fa41a1137b868fa8ee4b19ff8aff"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-spec-review.json",
+      "bytes": 8885,
+      "sha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/storage-followup-0709.json",
+      "bytes": 1071,
+      "sha256": "7622625c938f8f3173ae04a385885697a0ad8c54405195e2fcdeda3c0b8675dc"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/storage-followup-0710.json",
+      "bytes": 1431,
+      "sha256": "a6fd31c3c431e79d6aeeed0e5b3c9cc307735ba91d3a75f5569b6adb5d0430be"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-code-review.json",
+      "bytes": 9348,
+      "sha256": "5c1598946943e1bf67e17c0ff10263d6b595fb93aec169a695f8c7e1523c8639"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-epoch-review.json",
+      "bytes": 17633,
+      "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-spec-review.json",
+      "bytes": 6038,
+      "sha256": "24b35279fb8d8c31bd28abc2b4066ecfb96346d3603202282da67c50fb55a936"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/results.json",
+      "bytes": 7254,
+      "sha256": "d8e1e1a334934c11ed3b811bebafee63fa99a019f8d258e9a1cff43750beac17"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/RESULTS.md",
+      "bytes": 3343,
+      "sha256": "8b2ab9b5f482ea6854c684b191902f77909c5b4fa256b0533c061a1161dff23e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/review-binding.json",
+      "bytes": 2949,
+      "sha256": "63842cc66cce0925fc6ce7b05698644238ba83adf55e63f4aefda5ca6974916b"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/source-bindings.json",
+      "bytes": 181874,
+      "sha256": "8ce8efefde345942927fb93e521b6d6d85b0fc28c7041fa9f5bb22e97d099a87"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 54993,
+      "sha256": "d69e4d377558519c463f62beb94322f29c57a97a316aabd0457419d05d5d517f"
+    }
+  ],
+  "payloadCount": 28,
+  "payloadBytes": 791777,
+  "nativeStatus": "HOLD; SUCCESSOR_NATIVE_NOT_EXECUTED",
+  "proofState": {
+    "baseline": 78,
+    "restored": 16,
+    "remaining": 62,
+    "mutationsAccepted": 2,
+    "mutationsRequired": 7,
+    "newNativeRuns": 0,
+    "newKernelReplays": 0,
+    "newNegativeReaudits": 0
+  },
+  "validation": {
+    "gzipArchives": 5,
+    "exactUtf8Members": 133,
+    "currentPinsUnchanged": 17,
+    "originalSnapshotsUnchanged": 17,
+    "portableSourceInputs": 88,
+    "originalAndMutantRecoverySources": 8,
+    "dependencyPins": 292,
+    "portableDependencyAliases": 75,
+    "externalHistoricalDependencyReferences": 217,
+    "relativeLinksChecked": 170,
+    "reviewCopies": "PASS exact actual source hashes",
+    "archiveRoundtrips": "PASS compressed/decoded/member/source bytes and hashes",
+    "documentationBaseAndCurrentHashes": "PASS",
+    "diffCheck": "PASS"
+  },
+  "budget": {
+    "phase": "Separate prospective portable-delivery phase; recovery/native budgets are not replaced",
+    "capBytes": 2097152,
+    "portableAllocationBeforeManifestBytes": 733184,
+    "fullChangedDocsAllocationBytes": 131072,
+    "newExternalReportAllowanceBytes": 32768,
+    "manifestAllowanceBytes": 16384,
+    "independentDeliveryReviewHeadroomBytes": 65536,
+    "conservativePeakAdditionalBytes": 978944,
+    "hostAvailableBytes": 26604982272,
+    "reserveBytes": 10737418240,
+    "inMemoryCompressionNoTemporaryFiles": true,
+    "observation": "Allocation/current samples only, not measured highwater."
+  },
+  "limits": [
+    "Archive contents are inert text; no binary baseline/restoration artifact copied.",
+    "Original failures/captures/draft status remain exact historical records; results and additive review-binding provide current classification.",
+    "Source CODE and historical audit PASS are not native launch authorization; unresolved storage hold and fresh eligibility gates remain."
+  ]
+}

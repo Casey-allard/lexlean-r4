@@ -1,0 +1,137 @@
+{
+  "schema": "lexlean-r4-restoration-successor-spec-review/v1",
+  "status": "PASS_MINIMAL_FROZEN_SUCCESSOR_SPEC_NO_NATIVE_AUTHORITY",
+  "at": "2026-10-24T07:11:19.316Z",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "scope": "Independent exact delta, bound actual capture facts and host-only historical audit; no SDK/compiler/restart/native calls or source edits.",
+  "pins": [
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/manifest.json",
+      "bytes": 1257,
+      "sha256": "58e35f035f419721ac5f3f72785107d06712659450202273bec305cc57428fa4"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/plan.json",
+      "bytes": 647311,
+      "sha256": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/runner.mjs",
+      "bytes": 7650,
+      "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/audit.mjs",
+      "bytes": 8174,
+      "sha256": "5794e827a728075dd144d8cc12b47222b96376d0d993a3dbcbffa01a014055f1"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/guards.mjs",
+      "bytes": 1578,
+      "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-epoch-review.json",
+      "bytes": 17633,
+      "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-review.json",
+      "bytes": 18467,
+      "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result-review.json",
+      "bytes": 5634,
+      "sha256": "7e369cc80979e670d0b752e0cfdcc62de163fa41a1137b868fa8ee4b19ff8aff"
+    },
+    {
+      "path": "/tmp/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+      "bytes": 21353,
+      "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904"
+    }
+  ],
+  "delta": {
+    "runnerByteIdentical": true,
+    "guardsByteIdentical": true,
+    "auditorOnlyHereLiteral": true,
+    "planChangedKeys": [
+      "here",
+      "evidence",
+      "liveEpoch",
+      "dependencies"
+    ],
+    "priorDependenciesExactPrefix": 217,
+    "appendedDependencies": 75,
+    "totalDependencies": 292,
+    "allDependenciesRehashed": true,
+    "oldStatusUnchangedHistorical": true,
+    "retainedRoots": 16,
+    "remainingRoots": 62,
+    "firstRemaining": "HashWireDirect10Controls",
+    "allOtherSourceRootsLimitsAndPredicatesUnchanged": true
+  },
+  "binding": {
+    "captureFiles": 57,
+    "captureCommands": 18,
+    "allLeavesPinned": true,
+    "allRawStatusesSignalsErrorsAndStreamsChecked": true,
+    "exactSource88CensusPass": true,
+    "exactSdkToolsLimitsNetworkMountsPass": true,
+    "initialAndFinalEpochMemoryPass": true,
+    "completeObservationBracketPass": true,
+    "actualFacts": {
+      "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+      "startedAt": "2026-10-24T05:31:03.102794321Z",
+      "restartCount": 0,
+      "guestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+      "memory": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      }
+    },
+    "noRestartObservedDuringCapture": true,
+    "statusLabelBoundary": "BOUND_PARENT_RESTART_REVIEW is the inherited schema label; this capture reused the existing epoch without a restart.",
+    "filesystem": "Explicit statvfs availableBytes=bavail*frsize verified. The captured bsize differs; no incorrect bavail*bsize inflation accepted."
+  },
+  "hostAudit": {
+    "command": [
+      "/opt/homebrew/Cellar/node/26.4.0/bin/node",
+      "/tmp/r4-hash-wire-restoration-live-epoch-20261024/runner.mjs",
+      "audit-plan"
+    ],
+    "nodeOptionsUnset": true,
+    "nodePathUnset": true,
+    "started": "2026-10-24T07:10:47.117Z",
+    "ended": "2026-10-24T07:11:19.313Z",
+    "status": 0,
+    "signal": null,
+    "stdout": "{\"status\":\"PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT\",\"retainedRoots\":16,\"remainingRoots\":62,\"planSha256\":\"373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04\",\"SDKInvoked\":false}\n",
+    "stderr": "",
+    "stdoutSha256": "8dcbc7ae64b0fc14b72b3ae19fd226435463554ddcff64ea78366fdb5c3b65ad",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result": {
+      "status": "PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT",
+      "retainedRoots": 16,
+      "remainingRoots": 62,
+      "planSha256": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04",
+      "SDKInvoked": false
+    },
+    "executionEvidenceDirectoryStillAbsent": true
+  },
+  "operationalHold": {
+    "nativeNotRun": true,
+    "separateCodeReviewRequired": true,
+    "freshLaunchStorageAndProcessEligibilityRequired": true,
+    "parentReportedUnexplainedStorageDrop": true,
+    "reviewAvailableBytes": "21069303808",
+    "note": "Historical capture above20GiB does not establish present launch readiness. Parent is investigating a subsequent >2GiB decline. This SPEC does not waive the conservative20GiB launch budget or authorize native execution under unexplained decline."
+  },
+  "acceptanceBoundary": "Restoration16/78 and mutation2/7 remain incomplete. Host history freshly audits baseline78/retained16 and pins prior negative evidence, but does not newly execute kernel replays or guards.negative. Full78 artifact audit, remaining62 native outcomes, all7mutations/10witnesses, Object/integration/production acceptance remain required.",
+  "findings": [],
+  "changesMade": "Only this external bounded report. All frozen successor/predecessor files unchanged."
+}

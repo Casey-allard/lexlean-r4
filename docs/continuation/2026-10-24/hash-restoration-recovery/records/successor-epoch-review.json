@@ -1,0 +1,396 @@
+{
+  "schema": "lexlean-r4-hash-restoration-successor-epoch-review/v1",
+  "status": "PASS_ACTUAL_EPOCH_CAPTURE_SUFFICIENT_FOR_LIVE_EPOCH_BINDING",
+  "findings": [],
+  "scope": "Independent read-only review of actual corrected18-command epoch-capture2. Accepts captured facts for the existing liveEpoch binding contract, not restoration execution. No Docker/native/compiler/build/restart/process-control/repository/source changes. Only this report written.",
+  "bindingConclusion": "The corrected capture supplies actual container/StartedAt/restartCount/boot/memory fields and adequate raw identity/source/storage/idle evidence for the existing procedure. Parent may use these facts in the separately reviewed successor liveEpoch object and pin every raw leaf, summary and this completed report. This report does not itself edit that object, authorize execution, audit historical restoration bundles or establish future readiness.",
+  "priorCapture": {
+    "path": "epoch-review.json",
+    "bytes": 18467,
+    "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156",
+    "preserved": true,
+    "disposition": "Original19-command observations and limited review remain immutable. New capture resolves missing bracket and filesystem provenance without backfilling old records."
+  },
+  "procedure": {
+    "path": "/tmp/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+    "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904",
+    "plan": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/plan.json",
+    "planSha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0",
+    "delta": "Move initial inspect→boot→memory before host/SDK/source/storage/idle observations; retain final ordered triple; replace additional post-df command with explicit timed post-statvfs record.18 subprocess commands plus two filesystem observations. No restart/compiler command.",
+    "methodClarification": "Procedure describes Node statfs bavail*bsize. Actual parent used Python statvfs, recording bsize1048576 and frsize4096; POSIX available-block count is multiplied by frsize. Recorded availableBytes exactly equals bavail*frsize. Using bsize here would overstate capacity256-fold. This is explicit measurement API/unit translation, not relaxed budget."
+  },
+  "checks": {
+    "commandIdentity": "PASS: all18 exact argument arrays correspond to pinned procedure observations in corrected order; all actual integer status0, signal:null, spawnError:null.36 raw stdout/stderr hashes independently verified; all stderr empty.",
+    "intervals": "PASS: all18 starts/ends parse and are sequential/nonoverlapping. Initial inspect→boot→memory finishes before pre-statvfs/host observations. All SDK/source/storage/idle observations precede final inspect→boot→memory. Post-statvfs starts after final memory ends. Microsecond ISO strings checked in common+00:00 time basis.",
+    "sourceCensus": "PASS: exact88 path/hash entries equal ordered plan87source files plus genuine lock44a802299f0898a341dff5ac68275fce08da5be599126cebb5f5b69acab2d951. Same sequence as command input. No reported source symlinks; stage/.lexlean/.lake root symlink guards succeed. Compiled .lexlean/.lake trees intentionally pruned; not an artifact audit.",
+    "sdk": "PASS: exact container/image/compiler/Lean/Lake/checker identities retained; runningtrue,oomKilledfalse,4GiB/2CPU,networknone,no mounts. No image replacement or host SDK substitution.",
+    "epoch": "PASS: initial/final container ID/StartedAt/restartCount equal, boot text equal, memory map equal with all six counterszero. Same current05:31 epoch, no reset or historical gate reinterpretation.",
+    "hostStorage": "PASS: explicit absolute/resolved path, device, bsize/frsize/bavail, exact integer availableBytes and start/end for both observations; before24024694784B and after24024387584B exceed10GiBpeak+10GiBreserve21474836480B.",
+    "guestStorage": "PASS: actual df52843160KiB→54111395840B exceeds11GiB11811160064B.",
+    "idle": "PASS: docker top contains only shell sleep-infinity and sleep processes; no native compiler at observation. Full source/resource/idle checks enclosed by equal epoch triples.",
+    "vm": "PASS: actual colima list reports lexlean-r4 Running,aarch64,4CPU,5GiB,80GiB,docker. No restart/config change in declared capture commands.",
+    "publisher": "Parent confirms exclusive fresh directory, actual subprocess outcomes, one-write/readback statfs persistence from actual tool execution. No retained publisher-file claim or requirement added. Receipts preserve exact args under pinned command contract; executable names/environment are associated through procedure and parent execution context. This is sufficient for this established read-only review contract.",
+    "preservation": "Old raw packet/review and all proof failures preserved. No whole restoration, new proof, repaired source or mutation result inferred."
+  },
+  "actualLiveEpochFacts": {
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "startedAt": "2026-10-24T05:31:03.102794321Z",
+    "restartCount": 0,
+    "guestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "memory": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "note": "Existing procedure schema uses status BOUND_PARENT_RESTART_REVIEW; no restart occurred during this capture. Parent binding must retain this factual distinction."
+  },
+  "sdkPins": {
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "lexlean": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+    "lean": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+    "lake": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+    "leanchecker": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+  },
+  "timeBounds": {
+    "initialEpochStart": "2026-10-24T07:04:52.189619+00:00",
+    "initialMemoryEnd": "2026-10-24T07:04:54.605933+00:00",
+    "beforeFilesystemStarted": "2026-10-24T07:04:54.607270+00:00",
+    "beforeFilesystemEnded": "2026-10-24T07:04:54.607341+00:00",
+    "sdkStarted": "2026-10-24T07:04:55.144308+00:00",
+    "sourceHashesStarted": "2026-10-24T07:04:55.593358+00:00",
+    "sourceHashesEnded": "2026-10-24T07:04:55.686823+00:00",
+    "idleEnded": "2026-10-24T07:04:55.803793+00:00",
+    "finalEpochStarted": "2026-10-24T07:04:55.804602+00:00",
+    "finalMemoryEnded": "2026-10-24T07:04:56.056397+00:00",
+    "afterFilesystemStarted": "2026-10-24T07:04:56.057804+00:00",
+    "afterFilesystemEnded": "2026-10-24T07:04:56.057847+00:00"
+  },
+  "futureConditions": [
+    "Freeze actual successor plan/runner/auditor/guards and raw-capture/review dependencies, retaining old dependencies and exact16/62root order. Obtain existing required independent SPEC/CODE reviews; no new provenance framework implied.",
+    "Existing host-only audit-plan must establish all baseline78 and retained16 artifact identities plus transitive source pins. This capture does not establish historical bundles or recovery acceptance.",
+    "At actual execution, existing fresh preflight and per-root/post/final source, tool, epoch, memory, idle and host/guest storage gates remain mandatory. Captured capacity is not a reservation or ongoing observation.",
+    "Restoration remains16/78 and mutation qualification2/7 until actual required execution/audits. Next remaining root is HashWireDirect10Controls; no prior storage-gate failure is relabeled."
+  ],
+  "limits": [
+    "Parent reports separate source recovery/host audit progress; neither is audited or accepted by this epoch report.",
+    "No SDK/native call or new runtime/proof acceptance. Zero counters and capacity only establish recorded intervals, not future safety or performance.",
+    "Hashes attest retained bytes under the existing evidence contract, not cryptographic authenticity of every external event."
+  ],
+  "at": "2026-10-24T07:07:32.641Z",
+  "rawCustody": [
+    {
+      "label": "initial/epoch/inspect",
+      "process": {
+        "bytes": 554,
+        "sha256": "b518d50acd151bfa8ee28fbf60517b73a61df606e87a3b138a9162570aa284b4"
+      },
+      "stdout": {
+        "bytes": 136,
+        "sha256": "0fdf8c63bbae3bc66101152abfef16e5f80ddc480678e0047ddf677f3e551204"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "initial/epoch/boot",
+      "process": {
+        "bytes": 476,
+        "sha256": "175f69479af8f1a7ce3d57a4ee9d35a36950a0ca567cafc5d4c5481ae2edd79d"
+      },
+      "stdout": {
+        "bytes": 37,
+        "sha256": "f160f706eda3999d8525c698872d5b94adad87a47bda991fa9802c59efd088b3"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "initial/memory",
+      "process": {
+        "bytes": 473,
+        "sha256": "298f5cadaba913e662a72c2636ddcaabbb768e5283971fbe1f2dd41f915ef16e"
+      },
+      "stdout": {
+        "bytes": 53,
+        "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "host-before/0",
+      "process": {
+        "bytes": 379,
+        "sha256": "298151a601fb0980d7a010f0efde91c171b5b82ac2e66b63c1b9817bebb1b9f4"
+      },
+      "stdout": {
+        "bytes": 188,
+        "sha256": "2c3c23436d470f45883f9d80bc313880cdb7c615cf71b394b43ff503ee0aea44"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "host-before/1",
+      "process": {
+        "bytes": 362,
+        "sha256": "f038d49ff523f95967996ba20236d87d4365aa77ca63944dc1afedce88a0837b"
+      },
+      "stdout": {
+        "bytes": 80,
+        "sha256": "ffeacde26cbeb15e8c7ba59158b4f355a05495ff266ed3ed0fcdf03d32dbe15c"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "host-before/2",
+      "process": {
+        "bytes": 478,
+        "sha256": "8d80ca8fe1dd240dfd5077beb445707cadf815dfc240ae6ce8f2b769dcc7b24c"
+      },
+      "stdout": {
+        "bytes": 128,
+        "sha256": "11c6b092f58760d2c8d4b926ca02a93c7c1397a9ae694eec1926ef1570832d00"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "host-before/3",
+      "process": {
+        "bytes": 354,
+        "sha256": "32b4c16b6acbb4ba2c08a651ec4c799a34958a1fadf0155a56b5872a739c86e5"
+      },
+      "stdout": {
+        "bytes": 157,
+        "sha256": "8c0475065a49fc88c778d88ddafc922bb6f4eceebd309e4b5c1b0c0aa1d42652"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "sdk/inspect",
+      "process": {
+        "bytes": 727,
+        "sha256": "7ce425fa9337113f3c500fb8e734b593721c74817d600dc47980b52a5c7b93a1"
+      },
+      "stdout": {
+        "bytes": 256,
+        "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "sdk/executable",
+      "process": {
+        "bytes": 473,
+        "sha256": "6761abd3fdc50f209d51f8007662fd822b5ffb988a1beec1b1ddcb1031cd30ef"
+      },
+      "stdout": {
+        "bytes": 89,
+        "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "sdk/tools",
+      "process": {
+        "bytes": 663,
+        "sha256": "9c7fd585d79ec5eef785fb8b8688f9ac85f2bbb7bb1ce8853a663912b618b926"
+      },
+      "stdout": {
+        "bytes": 397,
+        "sha256": "2c5c52f7192b60ea0c45c6c1f33b91dba08c0f3bcf90eb0b44748da3bfc7fbef"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "census/paths",
+      "process": {
+        "bytes": 694,
+        "sha256": "a0f175530ff8dab975c4b09cfca6c53f18bd05e02f8f21b9e6e930261f7fb1f5"
+      },
+      "stdout": {
+        "bytes": 4001,
+        "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "census/links",
+      "process": {
+        "bytes": 694,
+        "sha256": "8b4e6da8dc2fcef36e8474fbfeacf1bfb985e45c7e210082e511086c67ae56af"
+      },
+      "stdout": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "census/hashes",
+      "process": {
+        "bytes": 10076,
+        "sha256": "8ac2e86ca7eb8f64bb5438e416f804e07ed39bc48806937431e3e72ec231dfa8"
+      },
+      "stdout": {
+        "bytes": 14825,
+        "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "storage/guest",
+      "process": {
+        "bytes": 459,
+        "sha256": "97e1896e315ff8cf1dbbf74c918ff79197bc65a9d08928da7b4d7ee039e2d8fc"
+      },
+      "stdout": {
+        "bytes": 123,
+        "sha256": "2cebd41f13ac19fb5e80c000296a65e678f65ef9fd16bde88df253e354cc1c39"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "idle",
+      "process": {
+        "bytes": 457,
+        "sha256": "bb853c47ec7b7311af7a0901f4843cf533d6e74d994621d2184b87fef804e41e"
+      },
+      "stdout": {
+        "bytes": 169,
+        "sha256": "8dd7888909e2ac69b81457bd8379a22b2a38bb4d38bcf765a4a80163248d469f"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "final/epoch/inspect",
+      "process": {
+        "bytes": 554,
+        "sha256": "6a422110caad79cc0c6ea4e72e7d278cb54ec6860cfeaafeb3999ffbcd4fe7a2"
+      },
+      "stdout": {
+        "bytes": 136,
+        "sha256": "0fdf8c63bbae3bc66101152abfef16e5f80ddc480678e0047ddf677f3e551204"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "final/epoch/boot",
+      "process": {
+        "bytes": 476,
+        "sha256": "ea3bf7a918ffa2da211207e58680f11699cc2d5955550b76cfcc3653f29adce3"
+      },
+      "stdout": {
+        "bytes": 37,
+        "sha256": "f160f706eda3999d8525c698872d5b94adad87a47bda991fa9802c59efd088b3"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "final/memory",
+      "process": {
+        "bytes": 473,
+        "sha256": "671cf842deddb3d34d859110f0275a44ceef2f6332130579c11c36cc03e70c02"
+      },
+      "stdout": {
+        "bytes": 53,
+        "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "additionalPins": [
+    {
+      "path": "host-statfs-before.json",
+      "bytes": 441,
+      "sha256": "5c7769f94a9b5167f164d387496ba506a7a5d75c55a282a60404c995ec023aa8"
+    },
+    {
+      "path": "host-statfs-after.json",
+      "bytes": 441,
+      "sha256": "2cf5aca80384540dd338e14c524db1cde09a0d3e02b9fefcf0ae0ab2604876a8"
+    },
+    {
+      "path": "capture-summary.json",
+      "bytes": 1692,
+      "sha256": "60896de3ab69656932ef93cbe9f75c56127592a5f485ce1be83f410f50174d67"
+    }
+  ],
+  "hostFilesystem": {
+    "before": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2",
+      "resolvedPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2",
+      "device": "16777234",
+      "bsize": "1048576",
+      "frsize": "4096",
+      "bavail": "5865404",
+      "availableBytes": "24024694784",
+      "started": "2026-10-24T07:04:54.607270+00:00",
+      "ended": "2026-10-24T07:04:54.607341+00:00"
+    },
+    "after": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2",
+      "resolvedPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2",
+      "device": "16777234",
+      "bsize": "1048576",
+      "frsize": "4096",
+      "bavail": "5865329",
+      "availableBytes": "24024387584",
+      "started": "2026-10-24T07:04:56.057804+00:00",
+      "ended": "2026-10-24T07:04:56.057847+00:00"
+    }
+  }
+}

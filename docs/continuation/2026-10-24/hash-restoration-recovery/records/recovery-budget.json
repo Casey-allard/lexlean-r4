@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-24T07:05:29.154604+00:00",
+  "hostAvailableBeforeBytes": "24030269440",
+  "capBytes": 268435456,
+  "reserveBytes": 10737418240,
+  "destinationFileAllocatedBeforeBytes": 12288,
+  "reviewSha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7",
+  "missingFiles": 2313,
+  "logicalCopyBytes": 139127230
+}

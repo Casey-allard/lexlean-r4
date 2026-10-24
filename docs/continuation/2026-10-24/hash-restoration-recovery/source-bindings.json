@@ -1,0 +1,3546 @@
+{
+  "schema": "lexlean-r4-restoration-portable-reference-bindings/v1",
+  "repositoryBase": "d1024f1118bd26a5d167c0c431d59ec670b14dac",
+  "sourceInputs": [
+    {
+      "stagePath": "lake-manifest.json",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "stagePath": "lakefile.toml",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "stagePath": "lean-toolchain",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "stagePath": "lexlean.toml",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lexlean.toml",
+      "bytes": 4508,
+      "sha256": "db8a3be71be87f8aaf2db8122895e3083a0a50971291d6ee4011464b3792682e"
+    },
+    {
+      "stagePath": "src/R4/Hash.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+    },
+    {
+      "stagePath": "src/R4/HashNat.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+    },
+    {
+      "stagePath": "src/R4/HashNatCore.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+    },
+    {
+      "stagePath": "src/R4/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "stagePath": "src/R4/Words.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "bytes": 109739,
+      "sha256": "3b45c05d65963e419901877da9357a8402ace4ecb23f84c4c7b67566b8f3ac5c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireByteBridgeControls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireByteBridgeControls.lex.tex",
+      "bytes": 97852,
+      "sha256": "0fc0e6dfa6acca98474f4e20c98e029637489976c1be8407400f31267296b3d4"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross02Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross02Controls.lex.tex",
+      "bytes": 1552,
+      "sha256": "0e2155bb17fd959f914fb01c84b36f5862396cdb9e7bf77b2f389f635e704990"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross03Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross03Controls.lex.tex",
+      "bytes": 1900,
+      "sha256": "fdc5154015b3aa5b94a32daae29e3c9107d65b796acc4dc4fb22d422412f81de"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross04Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross04Controls.lex.tex",
+      "bytes": 7990,
+      "sha256": "6f27d7bbcf25d9e72acea9219d83f1ecca8146a6b1aef6d010a6a9cf59646192"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross05Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross05Controls.lex.tex",
+      "bytes": 8108,
+      "sha256": "c82b7a3c8d625bf6ca0b9b6506e5f350602dfea1861a978f77d1279e1c899d03"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross06Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross06Controls.lex.tex",
+      "bytes": 8944,
+      "sha256": "759c3dabea409cac7ca437cbb48510f2e70eefdbdac7c91b5722482b0cb5f439"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross07Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross07Controls.lex.tex",
+      "bytes": 9052,
+      "sha256": "924ac728fbf6c5b9ee5fed15dc2d289374849dbde3849953c341acdbbb237643"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross08Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross08Controls.lex.tex",
+      "bytes": 21108,
+      "sha256": "64b65024a7f0d50cecd5bdfbd370d950878a3f1437f7d5c0b28ae3dbbb5a34c8"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross09Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross09Controls.lex.tex",
+      "bytes": 13024,
+      "sha256": "80327b8ff5817fcb5571710cc88b17cd05cc2c3334bd87dfe66a9108d7359202"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross10Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross10Controls.lex.tex",
+      "bytes": 8782,
+      "sha256": "b22a3df706178bdc8ef8ce8ccf1732a7cdc9b05ba1f2aa6267ed6a6b70deda5e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross11Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross11Controls.lex.tex",
+      "bytes": 5251,
+      "sha256": "67fbde62914cb4a5a6453e92f1c84e37d8d3b4d6d9c504557aa78c15aaaacb57"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross12Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross12Controls.lex.tex",
+      "bytes": 5349,
+      "sha256": "aa1adf7917a62847b9fc44684f9d903c928dd2b7dbeeb43df868632a5b7f93d7"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross13Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross13Controls.lex.tex",
+      "bytes": 5349,
+      "sha256": "90aa09d301f15120e9b7de02bd368c87ff9a187174f8de60519511a850a123e8"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross14Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross14Controls.lex.tex",
+      "bytes": 5347,
+      "sha256": "bb7f7fda7b6af83eec91b5bf81b04db87d41f9ae07a21f7ae98387e84395b9af"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross15Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross15Controls.lex.tex",
+      "bytes": 5831,
+      "sha256": "daa4817510cc21df122c866c7f87f7afd83fddd9ddeb2357c7f962f9240df3fc"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross16Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross16Controls.lex.tex",
+      "bytes": 1577,
+      "sha256": "08899c959032b6798e6b98b0727ceeaa3b679dc2fd668494d70602a0a708ceaf"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross17Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross17Controls.lex.tex",
+      "bytes": 1691,
+      "sha256": "7cca9d03d57ca3a1d81e6ad7231cb29749515085625c354aa57154e087e4cf6c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross18Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross18Controls.lex.tex",
+      "bytes": 1807,
+      "sha256": "0a751be7f2b6fe11b6a82810daf31a00f6e5af8fcdb0ed271e6d6cfa097b2b34"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross19Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross19Controls.lex.tex",
+      "bytes": 1927,
+      "sha256": "955081285de39220e491fc7583a238970d245bad17185f3fb30a04838c6785cf"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross22Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross22Controls.lex.tex",
+      "bytes": 1784,
+      "sha256": "07defc1eff65fc473e70e63fc2ae28d8a755e1b6b17cebb5af40b2e2f60d8a65"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross23Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross23Controls.lex.tex",
+      "bytes": 1738,
+      "sha256": "83f110d94c1b938c42678743c163f6b5a27755da9f78cec0a7e01cf8fba347e5"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross24Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross24Controls.lex.tex",
+      "bytes": 1968,
+      "sha256": "72dac254ab14bfd841c7c864743cff99dd16d231474aa9a649612a20b2c4f7d2"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross25Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross25Controls.lex.tex",
+      "bytes": 5253,
+      "sha256": "2f042c9a4c412634b1d21de196257018aade3041c7f937efcfc4445086fad26d"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross26Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross26Controls.lex.tex",
+      "bytes": 5137,
+      "sha256": "f58ae1d98aeb2cb1a09771a9d628e630ec117101f8780444f8a19e3559dac485"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross27Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross27Controls.lex.tex",
+      "bytes": 5365,
+      "sha256": "ac6e3485a4c8956cb1084d4768c1966a50bffe3b23755579a02c3ac66fca2b26"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross28Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross28Controls.lex.tex",
+      "bytes": 5593,
+      "sha256": "bae81b592d97674b8e93629025cb3000840e27d320ce31ff832303fc5e415fdd"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross29Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross29Controls.lex.tex",
+      "bytes": 5823,
+      "sha256": "a7645c0847ab32cab40fc56189a8e2135227c9f08bcb20f7c04b5395f45c0504"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross30Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross30Controls.lex.tex",
+      "bytes": 16755,
+      "sha256": "4e90105c762e802916165bea91c120d919d4d3c58c042ea6adadedc738cfae9e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect02Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect02Controls.lex.tex",
+      "bytes": 2790,
+      "sha256": "f3d3df7f385713d63de5f0fa02488858b5bd206e3f1f75966d26b9a86979c34a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect03Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect03Controls.lex.tex",
+      "bytes": 2956,
+      "sha256": "7c81579d5917ed696b766aba833e6f37f9d2963c735c4387a4ba6814929f6f6a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect04Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect04Controls.lex.tex",
+      "bytes": 6010,
+      "sha256": "4009ef3333cd0fa86106f7812f3404bcd274453c1622fa4702d8a7773a70fc26"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect05Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect05Controls.lex.tex",
+      "bytes": 6069,
+      "sha256": "9a393c613598e46b07c258fb58f4d64a885821afaa316c924cb401c915ba4f18"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect06Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect06Controls.lex.tex",
+      "bytes": 6481,
+      "sha256": "318e7d977f4b2893fb9422958ca8201b9199ba3f269a59e107afae15214f54db"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect07Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect07Controls.lex.tex",
+      "bytes": 6535,
+      "sha256": "a566714084f15a399860a7d78127410ec6ca2e4fed05599bc36c1f45e282a2ae"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect08Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect08Controls.lex.tex",
+      "bytes": 12561,
+      "sha256": "792b4e521616dc1d71b31f4593bc677e93e62366017a73e84c03da15e7c1c313"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "bytes": 8523,
+      "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect10Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect10Controls.lex.tex",
+      "bytes": 6400,
+      "sha256": "cf94209ab0868d34c7d25cbd3d44bd6186f9b1e6197078f46c5d9aad9cb16cfa"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect11Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect11Controls.lex.tex",
+      "bytes": 3470,
+      "sha256": "eb3ecc5061dbf46b4670bb9521b74b0f9015b89a5f0ce33bfdaf3636ac415dca"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect12Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect12Controls.lex.tex",
+      "bytes": 3517,
+      "sha256": "f29d4082c1ca4242d20a838bad8bb3fa0bc81be3eaefdbb2dfb158c5a9e29128"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect13Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect13Controls.lex.tex",
+      "bytes": 3516,
+      "sha256": "f96c2f19a50f62d1c476597364e48a243dc94a1b517314d9bb40bfc7094066e1"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect14Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect14Controls.lex.tex",
+      "bytes": 3516,
+      "sha256": "f7a81abc18e34fab738d10ac4314c4965787681e2148b7ce5b3aa36b535cc893"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect15Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect15Controls.lex.tex",
+      "bytes": 3758,
+      "sha256": "1013d7ddc9e4d8d660631b4e6a3fa61578c0b4fcf613e26f4bc782c0de8e73c9"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect16Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect16Controls.lex.tex",
+      "bytes": 1631,
+      "sha256": "7857ea7a6da5aae2858d46136852ceb014560c1d4c15fe251dc41b4b6869734a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect17Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect17Controls.lex.tex",
+      "bytes": 1687,
+      "sha256": "3533fcae69768fadf123bc8953e9d3b045d2f3fef46984f49b1f45aa71640bdf"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect18Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect18Controls.lex.tex",
+      "bytes": 1745,
+      "sha256": "1c4b3d63ffe01238c7159966c4520a3ca9742e2470a0c165339a6a6c10fdb080"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect19Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect19Controls.lex.tex",
+      "bytes": 1804,
+      "sha256": "95a9e8d6c3b3f05454b2a94991b646ccf7ed7b701848f10e569efe8eb94a703c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect22Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect22Controls.lex.tex",
+      "bytes": 1170,
+      "sha256": "da23b24205f96259026133bc359777ec8c28362b43ab8d550372ab6c81ed4c00"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect23Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect23Controls.lex.tex",
+      "bytes": 1148,
+      "sha256": "2333a5d435fc1dc48b22da0084046a7729ce1f1a8ed2d3ba3beaa768d84a14aa"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect24Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect24Controls.lex.tex",
+      "bytes": 2990,
+      "sha256": "8595aa774063f5ff1f85779d9c761525cb673f94a8b551f91e287b6321ba0883"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect25Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect25Controls.lex.tex",
+      "bytes": 2879,
+      "sha256": "389fb36dcc91c80e906bd17ccd3f0edd50bc0718faeb845961ef3cdb8179c4d4"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect26Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect26Controls.lex.tex",
+      "bytes": 2850,
+      "sha256": "924c19271971e62bee75f0ff05d5e1412dd9311922586238acd97545844a2b80"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect27Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect27Controls.lex.tex",
+      "bytes": 2964,
+      "sha256": "c4a6c65588675aebf5b0adaaa741de152fbe43fc283a5280cc3829c7b5be564d"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect28Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect28Controls.lex.tex",
+      "bytes": 3078,
+      "sha256": "391ea4b70f0f944ad3d045d3b8f40aef908f9c9a023a48129b85d23da4bb9534"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect29Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect29Controls.lex.tex",
+      "bytes": 3193,
+      "sha256": "0421b88024244a1ad58fd55b512e599e56c873d42c9609c2d3b6598116c672b4"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect30Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect30Controls.lex.tex",
+      "bytes": 8660,
+      "sha256": "59353760afd4f90b07af3860e52e5a8844ef02f224632909d3465ed3c3d6b208"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape02Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape02Controls.lex.tex",
+      "bytes": 13024,
+      "sha256": "407d5d11a66e90e3c405f0e654747a5b1d6bc38b7a2d0ef562bbea60f9c8911a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape03Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape03Controls.lex.tex",
+      "bytes": 13198,
+      "sha256": "f55d740b861d1f0f91541954480d89b570eea7016cc4f9bce7c97baec7399ecd"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape04Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape04Controls.lex.tex",
+      "bytes": 16243,
+      "sha256": "6d59a14da9f45486b64177addd839e262e4104976d8609d94eb2a4c451f81e62"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape05Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape05Controls.lex.tex",
+      "bytes": 16302,
+      "sha256": "ae2183440c175c99ba170d30a6ee0cbfe04eb24f5265264c9b103e8d01627c01"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape06Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape06Controls.lex.tex",
+      "bytes": 16720,
+      "sha256": "7cb75df014831eef35bffaf4dba1a88dd7457021634c401be51026236b51bbc5"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape07Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape07Controls.lex.tex",
+      "bytes": 16774,
+      "sha256": "80e51a8fcce1c292af776eb0386c7326f24ee62d59dd69af1b21288fb532781e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape08Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape08Controls.lex.tex",
+      "bytes": 22802,
+      "sha256": "f6f96923e8e3816c1d4f11c630a4d6ee19615d72c9f8a4277fb89977c2d4be05"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape09Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape09Controls.lex.tex",
+      "bytes": 18760,
+      "sha256": "24dce5e7ea157bb92d2da27c383c7feb43f49dd3a41068b532eabec86b7d2bcb"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape10Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape10Controls.lex.tex",
+      "bytes": 16639,
+      "sha256": "15af5c3f8fe2b5ff703b59eef61009e529e9df0f270bdd08739982e5346aca1c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape11Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape11Controls.lex.tex",
+      "bytes": 7415,
+      "sha256": "e78d6391add63ac852f5de051ef0e27c4e9a3c52cb5525433f3067957bd376ce"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape12Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape12Controls.lex.tex",
+      "bytes": 7464,
+      "sha256": "77ca7be444925ad443ef2ceb64ab05fe06411894033e1af1e3d73da4aaa07988"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape13Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape13Controls.lex.tex",
+      "bytes": 7464,
+      "sha256": "67c91d0c392d05a0a67324c9b17ace8e121e9fd89803f97aafeef14317cfa325"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape14Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape14Controls.lex.tex",
+      "bytes": 7463,
+      "sha256": "04547cf77aeb346164d6a8947b8a4c65f25d2da76c99a487ad39a091fe328148"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape15Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape15Controls.lex.tex",
+      "bytes": 7705,
+      "sha256": "6322a811ef009c90619732927d33b316a254c6fbf8ddfc136b75b8e98dccc536"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape16Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape16Controls.lex.tex",
+      "bytes": 5578,
+      "sha256": "650ed6be5fe35045c99ec64fd8cbe95fd4f26d28a41b6bba50ad900f11f46d80"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape17Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape17Controls.lex.tex",
+      "bytes": 5635,
+      "sha256": "5dea28fea0f497ce8344a8f197e5edf54de900a97869a7db9805483fba85e5ed"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape18Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape18Controls.lex.tex",
+      "bytes": 5693,
+      "sha256": "5d6f973e5297390889d75ab42f4a9ec2b64d68a6d65f52a334a7668c0a99cd71"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape19Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape19Controls.lex.tex",
+      "bytes": 5753,
+      "sha256": "53621490954f2fba79b575caef8e6efbc270a47776bca3f4fb2cb0700876f1fd"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape24Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape24Controls.lex.tex",
+      "bytes": 13232,
+      "sha256": "ca2b84ae3243ac9fc823587b1c6ef4bb718c8ea27ac07b6a43b51c96a257475a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShapeBlake128Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShapeBlake128Controls.lex.tex",
+      "bytes": 13352,
+      "sha256": "61d8dad38f4f7b1833b0481a824eac21f4f96dabab12cc71d3153d4af0a4f921"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShapeNodeScale37Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShapeNodeScale37Controls.lex.tex",
+      "bytes": 7812,
+      "sha256": "92eee9e261f5f755b23cf38e7df47fa75c015e1e9dbeaab2a3ba4cc5b07d62e8"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShaStateControls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShaStateControls.lex.tex",
+      "bytes": 705014,
+      "sha256": "9454c10a45d32a3717573a7aee8371e89c458f3fa2a66e282b72f28aef177513"
+    },
+    {
+      "stagePath": "lexlean.lock",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "44a802299f0898a341dff5ac68275fce08da5be599126cebb5f5b69acab2d951"
+    }
+  ],
+  "recoverySources": [
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/sha-first-word-width-three/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/sha-first-word-width-three/HashWire.lex.tex",
+      "sha256": "af8f770e6cd9e193ee67d44dd19cfdc7054118d627f7f6f26e0e7b5b7e042720"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/sha-first-field-substitution/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/sha-first-field-substitution/HashWire.lex.tex",
+      "sha256": "8fbc31f93113364970566a51b554bc0e5b3e758a5960397c4b077c0c3303371e"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/sha-budget-bypassed/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/sha-budget-bypassed/HashWire.lex.tex",
+      "sha256": "b449dce6446c8e021e99c240e5f1dde25e15b06c815e3570c1fec02b76cc2284"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/blake-block-boundary-short/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/blake-block-boundary-short/HashWire.lex.tex",
+      "sha256": "4280cca991f76185f4d28b2868ea90f2d2c5c256b420f3712bee848ed9ed7495"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/node-scale-thirty-eight-admitted/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/node-scale-thirty-eight-admitted/HashWire.lex.tex",
+      "sha256": "87049f904ca8d933f656f017bf6c22ec156f8da9009956a8cefb90d04b62f299"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/node-parent-width-thirty-five/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/node-parent-width-thirty-five/HashWire.lex.tex",
+      "sha256": "fbbb1b05c94a188bbfc935dd0ce0c7e8c6b1327667a2934238370d094ef74023"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/node-scale-prefix-omitted/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/mutations/node-scale-prefix-omitted/HashWire.lex.tex",
+      "sha256": "450cccc8a830daff28b60662813acbaf20fec477b2b2f9f26f2a8a9908c8b8c7"
+    },
+    {
+      "originalPath": "/tmp/lexlean-r4-hash-wire-mutants-20261021/HashWire-original.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashWire.lex.tex",
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    }
+  ],
+  "mutationInventory": {
+    "repositoryPath": "tests/fixtures/hash-wire/mutations/inventory.json",
+    "sha256": "f52b5587fcb8277ec12760b150a91d644d7a6b979e040cddb3a2b43adf034e4f"
+  },
+  "successorDependencies": [
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/plan.json",
+      "sha256": "4e7d0ec86770fd884ae1f4768dd627b5f5d8c10c144e2560479efe0b2f5a5ad9",
+      "bytes": 2441,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/plan.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/runner.mjs",
+      "sha256": "ef0799a1a587e81c9d5ca51820c690ec77d9d94903696fc6bcd8b243132a59ae",
+      "bytes": 10979,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/runner.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/audit.mjs",
+      "sha256": "d1b82adc362a9f03d45f2ebe518a8e4728ffc897e4cb576fea1f6d40b2d6d740",
+      "bytes": 8171,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/audit.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/guards.mjs",
+      "sha256": "3fae7dc78c61b22399dc3b383883d819d80e4e74cc66ab0c8990f83bc376c84b",
+      "bytes": 3068,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/guards.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-restoration-timeout-phase1-20261023/proposal.json",
+      "sha256": "bdf8e8a6d43d396ab19265070af06a16fc0667ef741ae38834c590c0edf0769d",
+      "bytes": 12726,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-restoration-timeout-phase1-20261023/proposal.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/summary.json",
+      "sha256": "7310cd19e74caeae1389fa5bc1ae9020652e023a8b31b1a7cdb93d93d95b2426",
+      "bytes": 6495,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/summary.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/primary-failure.json",
+      "sha256": "cea86c869a280e1ea12fac9e74b61ad85e03c3bae87079bf193aabbf26daf7de",
+      "bytes": 163,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/primary-failure.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/restoration-failure.json",
+      "sha256": "bf21e1640c5b399ceb2145441407766dbc01cd00edb7124fe845ea60504aba63",
+      "bytes": 93,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/restoration-failure.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-baseline-complete-independent-review-20261023.json",
+      "sha256": "9a007276f53b8cd350099dd0645440f156a839a9423aa24e7a1131574a5b81b0",
+      "bytes": 45262,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-baseline-complete-independent-review-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-publication-recovery-evidence-20261023/summary.json",
+      "sha256": "5d9bf6bbb00a331f25a3b8a4476db9dd1f9501cdfacee35f30a908c34e099b47",
+      "bytes": 43594,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-publication-recovery-evidence-20261023/summary.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-mutation-custody-independent-review-20261023.json",
+      "sha256": "36b9733614e1ee9297a12500c0b9056f4e28b9b6480fe7d4819ecb2365d6512c",
+      "bytes": 4656,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-mutation-custody-independent-review-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/manifest.json",
+      "sha256": "ead82274984160344f5e41f4560970dc2284a4c7c95e6ffcb7a1b15a4218f3c5",
+      "bytes": 1503,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-restoration-preflight-false-positive-phase1-20261023.json",
+      "sha256": "acc6fb549439bac5b049e774997597bcf0d63d5d88eae75e19abc74cc8a932ea",
+      "bytes": 4214,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-restoration-preflight-false-positive-phase1-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/audit.mjs",
+      "sha256": "376d814799439cb4e96cb274b35c75c908db9a232ad3c04bbee05a02a3a5e377",
+      "bytes": 5457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/audit.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/baseline-audit.json",
+      "sha256": "d385e9ebc1f719c9b8e6a7d5e514d95802a7b12c840f870cd5023d7054cd4c1f",
+      "bytes": 43193,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/baseline-audit.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/failure.json",
+      "sha256": "bf21e1640c5b399ceb2145441407766dbc01cd00edb7124fe845ea60504aba63",
+      "bytes": 93,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/failure.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/hashes/process.json",
+      "sha256": "0141ef27944a2f660a6b724c11fbdf8dfa80d4533d8de83079a68df20e5077f3",
+      "bytes": 10060,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/hashes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/hashes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/hashes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/links/process.json",
+      "sha256": "10df518fb6696c16f670986b81c9032b50c1a32137dad6db99733b2318c04252",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/links/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/links/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/links/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/paths/process.json",
+      "sha256": "033df01fedc1673678ee4b69e27d2be211da5d8acf88c4254905f501475f0ae0",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/paths/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/paths/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/census/paths/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/sdk/inspect/process.json",
+      "sha256": "97e53b4c7762015bde73294015f122e27684762bf4a47f96be5a70f76d61ef94",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/sdk/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/sdk/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final/sdk/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final-custody-failure.json",
+      "sha256": "bf21e1640c5b399ceb2145441407766dbc01cd00edb7124fe845ea60504aba63",
+      "bytes": 93,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/final-custody-failure.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/guards.mjs",
+      "sha256": "f4badea6397914c83414d68cda295da4a4f8a7e7ffe286c85eba1f10feb4c80d",
+      "bytes": 1890,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/guards.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/incomplete.json",
+      "sha256": "b447bc33ea10a47232b13eb8cae6caa94424a4a4abd5f0ef8ff07abaa6b8d50e",
+      "bytes": 4675,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/incomplete.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/manifest.json",
+      "sha256": "ead82274984160344f5e41f4560970dc2284a4c7c95e6ffcb7a1b15a4218f3c5",
+      "bytes": 1503,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/plan.json",
+      "sha256": "2e398e22a79e34085d3ac6e20925c73fdb17932aa195bdfe34daa2475393ba75",
+      "bytes": 284336,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/plan.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/idle/process.json",
+      "sha256": "909151b82e2bbfab9a3ee5ae7e46b9b31aa61b33b3008949480aa08f20bbfe87",
+      "bytes": 441,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/idle/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/idle/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/idle/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/idle/stdout",
+      "sha256": "d47cdd3c444206cdd03ef85bc896628ac7e3d456ebb25de4b48f6a4df2a6f0df",
+      "bytes": 169,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/idle/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/sdk/inspect/process.json",
+      "sha256": "4c8a4b00dd208dd55d382d83e7f3d35dae2f1785c327530b2b84090b881d9339",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/sdk/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/sdk/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/sdk/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/guest/process.json",
+      "sha256": "644c8a908a702e77d88af1e269021caf77f6ba94ddcb01fa11dd61edeb7095e5",
+      "bytes": 497,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/guest/process.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/guest/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/guest/stderr"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/guest/stdout",
+      "sha256": "dcd7ae6b06f022f4d6425beeba11531310380e7719d7f49ac7a739cb50b8f6eb",
+      "bytes": 123,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/guest/stdout"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/host.json",
+      "sha256": "90273cbf1db558ad0c4fd1ef510852ac4aa8e6b0aa40df9a42c14dd213f02d85",
+      "bytes": 118,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/preflight/storage/host.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/retained-audit.json",
+      "sha256": "13deaa7cf0039dadb9d91cb69168af866d19c45e53362f4295fe7dee0c88492d",
+      "bytes": 3682,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/retained-audit.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/runner.mjs",
+      "sha256": "5ec8c3ff839c4446601334f1e439d96c8d7782e50cf31a329f89ad432f376aa4",
+      "bytes": 6751,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-continuation-20261023/evidence/runner.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-process-successor-20261023/manifest.json",
+      "sha256": "86eea1a3c535f5fcf2aa4fe74eef0088c559e3af193d75cadd605795b9e67f21",
+      "bytes": 2701,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-process-successor-20261023/manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-repeat-timeout-vm-memory-phase1-20261023.json",
+      "sha256": "4fe7b31b7f9540847b3dbc5f586336cd5daab290298ca8827a4277cc0e5a4c13",
+      "bytes": 5150,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-repeat-timeout-vm-memory-phase1-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/custody-manifest.json",
+      "sha256": "c052ec7c5b6d60c65e68b930339dcaf02065fa832b397573bad0a87fc7e8f605",
+      "bytes": 14548,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/custody-manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-process-successor-spec-review-20261023.json",
+      "sha256": "2aa762fffe16f128e1a82633631c4a73601cd1ceb062c69d977436656d1d190f",
+      "bytes": 2856,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-process-successor-spec-review-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-process-successor-code-review-20261023/review.json",
+      "sha256": "1be24f54137344002cfd1bee40f274c65bde5e2e9417f74714a5bc78a93ed370",
+      "bytes": 2826,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-process-successor-code-review-20261023/review.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/audit.mjs",
+      "sha256": "57f608d7efdc7453e50e525c03434f839cf57a48a66164a717d5881a6e3e1241",
+      "bytes": 5476,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/audit.mjs"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/baseline-audit.json",
+      "sha256": "d385e9ebc1f719c9b8e6a7d5e514d95802a7b12c840f870cd5023d7054cd4c1f",
+      "bytes": 43193,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/baseline-audit.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/failure.json",
+      "sha256": "175bde1d10d73b8f083de67b1444df8563571f837fd9a2b725939e810eb6089b",
+      "bytes": 116,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/failure.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/hashes/process.json",
+      "sha256": "74c23cb318a943a8fc94abec3443d8c6f17c2aad20d4e70589b5c370a9a44b7c",
+      "bytes": 10060,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/hashes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/hashes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/hashes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/links/process.json",
+      "sha256": "f2dcf371787f1a049e755ab98d88bc5cf65495408346f8ce187c585aba707798",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/links/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/links/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/links/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/paths/process.json",
+      "sha256": "96dca03fb1dd4a25af3e07036d703504c023adff73f3406025638c2e810dc887",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/paths/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/paths/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/census/paths/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/idle/process.json",
+      "sha256": "332713b90ebe93918ce062209299279284cf63472b251f7b9ef15222977a6bcf",
+      "bytes": 441,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/idle/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/idle/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/idle/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/idle/stdout",
+      "sha256": "d47cdd3c444206cdd03ef85bc896628ac7e3d456ebb25de4b48f6a4df2a6f0df",
+      "bytes": 169,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/idle/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/executable/process.json",
+      "sha256": "5e1175efac190ffcd76f2f2c32005e59419633a20ba6915b72971f5d8560f4de",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/executable/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/executable/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/executable/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/executable/stdout",
+      "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c",
+      "bytes": 89,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/executable/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/inspect/process.json",
+      "sha256": "21487f43325a05fdc5337b9b23df3ec7c23d4c91041428c632ecf85ed683c6c5",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/sdk/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/guest/process.json",
+      "sha256": "fed8205badea1a4f1127f1ed828b6019ebe254d34a54a9c88ec7fb603511cb7a",
+      "bytes": 497,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/guest/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/guest/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/guest/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/guest/stdout",
+      "sha256": "dcd7ae6b06f022f4d6425beeba11531310380e7719d7f49ac7a739cb50b8f6eb",
+      "bytes": 123,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/guest/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/host.json",
+      "sha256": "aa2b57088f49a672a5728fe50fe01040770edea8a8fff75ad3cb09f0ebf23d6e",
+      "bytes": 118,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/final/storage/host.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/guards.mjs",
+      "sha256": "57e0418e766d6f38a09baffa38f1ba54f7e9ea2820e76d01f9e1d723a9b5d0c6",
+      "bytes": 1944,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/guards.mjs"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/incomplete.json",
+      "sha256": "1479275d432bbb23309db389b933594d6d1093e66696cdb39eff4b01e08ab193",
+      "bytes": 4641,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/incomplete.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/manifest.json",
+      "sha256": "86eea1a3c535f5fcf2aa4fe74eef0088c559e3af193d75cadd605795b9e67f21",
+      "bytes": 2701,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/plan.json",
+      "sha256": "3499e8a73e5274d0141aa22281479b727133e8b76753ca06381d0de7ecac5c45",
+      "bytes": 291434,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/plan.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/hashes/process.json",
+      "sha256": "1fbc62586e49a11777ceba4ad534696dd8c2583a69c8a636032b2ac663401da0",
+      "bytes": 10060,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/hashes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/hashes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/hashes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/links/process.json",
+      "sha256": "63ef70e316442a432dfef57f7960bd2e79deece7a4094d510951f858f0ac05e3",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/links/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/links/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/links/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/paths/process.json",
+      "sha256": "a6b38421635bed9e86e884eb73edfecad523c43a511785fbd9b585144a5f939c",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/paths/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/paths/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/before/paths/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/idle/process.json",
+      "sha256": "8b82ea6eb32daa337e8811f88f4b917d158e812cd7f65ee09c4d4a32486bd790",
+      "bytes": 441,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/idle/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/idle/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/idle/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/idle/stdout",
+      "sha256": "d47cdd3c444206cdd03ef85bc896628ac7e3d456ebb25de4b48f6a4df2a6f0df",
+      "bytes": 169,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/idle/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-after/process.json",
+      "sha256": "08fda172de818381d7e79ea56988b397220cb6271e4cb8bc5cc44d91002e2d4d",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-after/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-after/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-after/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-after/stdout",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+      "bytes": 53,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-after/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-before/process.json",
+      "sha256": "b1eec77171784ffac4e71e454b9ef6bed9dc8fedf878208cb509595da3513685",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-before/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-before/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-before/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-before/stdout",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+      "bytes": 53,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/memory-before/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/executable/process.json",
+      "sha256": "8aaa74fe93c0f6411acf2676010bdd9ab0b1d7a0380b919f6e387f2aa07f9b68",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/executable/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/executable/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/executable/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/executable/stdout",
+      "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c",
+      "bytes": 89,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/executable/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/inspect/process.json",
+      "sha256": "6940ff7de1e27170481f476a88586a30d657db41f727ab6ba9ddc206382132a5",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/sdk-before/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/guest/process.json",
+      "sha256": "4c2563d2bd1b269286b0fc59216eaaf3997c3e4c8a7335567eea794f7416d94c",
+      "bytes": 497,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/guest/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/guest/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/guest/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/guest/stdout",
+      "sha256": "dcd7ae6b06f022f4d6425beeba11531310380e7719d7f49ac7a739cb50b8f6eb",
+      "bytes": 123,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/guest/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/host.json",
+      "sha256": "18f5117553396cd8d9f207ec9a8847c095bfebd7e05eff5a28c72fbde57bf52d",
+      "bytes": 118,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/storage-before/host.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/verify/process.json",
+      "sha256": "8b931561ac0e5fb9d6b3c331811ea74f74415639485e227891e898b9fab08f2b",
+      "bytes": 607,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/verify/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/verify/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/verify/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/verify/stdout",
+      "sha256": "1f7c7ff50d2d66147e438ac02949e9eb0ed32af43eb7b22689b981e1e75a4005",
+      "bytes": 494,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/positive/HashWireCross05Controls/verify/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/hashes/process.json",
+      "sha256": "04d3fd8aed22ab9325965537e9bb0bf735199be4c754cc2c8aa5df5464ec2dae",
+      "bytes": 10060,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/hashes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/hashes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/hashes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/links/process.json",
+      "sha256": "2d733b2705bdb86f4974b97eba851f54206728b8fa16b7c51c1fd22719d06591",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/links/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/links/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/links/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/paths/process.json",
+      "sha256": "b697a67ae7b930874c6e7aa26b97f5d625804058d049be76d9b60c1b10e847bb",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/paths/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/paths/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/census/paths/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/idle/process.json",
+      "sha256": "8ee9e087c110605f642932b395e2f33fcfcdd33d3c42826a9934d55657ffca13",
+      "bytes": 441,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/idle/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/idle/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/idle/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/idle/stdout",
+      "sha256": "d47cdd3c444206cdd03ef85bc896628ac7e3d456ebb25de4b48f6a4df2a6f0df",
+      "bytes": 169,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/idle/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/executable/process.json",
+      "sha256": "aa3fd6eb50896561acd7b64b85713c536719993234d22372bca0b3d281cd1a7c",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/executable/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/executable/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/executable/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/executable/stdout",
+      "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c",
+      "bytes": 89,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/executable/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/inspect/process.json",
+      "sha256": "621566234659aed097d64af84cf60596098d2344a0a59065a789b6ea726dc62a",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/sdk/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/guest/process.json",
+      "sha256": "95fa6305eae0b655dc247188fd56e10a190abab09b4e614103bc09d57cef7a3d",
+      "bytes": 497,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/guest/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/guest/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/guest/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/guest/stdout",
+      "sha256": "dcd7ae6b06f022f4d6425beeba11531310380e7719d7f49ac7a739cb50b8f6eb",
+      "bytes": 123,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/guest/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/host.json",
+      "sha256": "e6156410ac4931744fa28538c1298834add18d2cd97693cb28a12b65fa791fd0",
+      "bytes": 118,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/preflight/storage/host.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/retained-audit.json",
+      "sha256": "13deaa7cf0039dadb9d91cb69168af866d19c45e53362f4295fe7dee0c88492d",
+      "bytes": 3682,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/retained-audit.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/runner.mjs",
+      "sha256": "d90685f95dafabe09451c44ecfc598157dddb4365bc938c335a6b65996e23d9b",
+      "bytes": 6758,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/restoration-timeout-repeat/runner.mjs"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/hashes/process.json",
+      "sha256": "bca3d826885f9a02332b16059181043df838da12fed2a5b42145d897b7bd889e",
+      "bytes": 10060,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/hashes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/hashes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/hashes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/links/process.json",
+      "sha256": "3757efb72feed808007b5992f095acd1e15d7a3048752436dcd5eac7f287c409",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/links/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/links/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/links/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/paths/process.json",
+      "sha256": "e079814c06f7400c980ae18830952b1e9d1e799930940bca357cbf19284cf603",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/paths/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/paths/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/census/paths/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/colima.json",
+      "sha256": "9cf87dd7c59f151830925dcec6f2941fa026153dc92fe3f7653053289f274f30",
+      "bytes": 336,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/colima.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/epoch/process.json",
+      "sha256": "208e9179d2b16fbf36820c31cf9dbd30d9cce85f3da830d4a1779b2b1b4f3ddb",
+      "bytes": 538,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/epoch/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/epoch/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/epoch/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/epoch/stdout",
+      "sha256": "c47e4b83f9c1625d64b5b21ea04c8b5d82c7d3b22b4b7e70ab260c84a2441d96",
+      "bytes": 136,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/epoch/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-boot-id/process.json",
+      "sha256": "c9f5092858e9255db85579f865498fb2100e51260711045050900100e9f9159e",
+      "bytes": 460,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-boot-id/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-boot-id/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-boot-id/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-boot-id/stdout",
+      "sha256": "fe7fafcd68d1366f3585bdb409f004205b7a23ace57ceeb280fea5950c0e5dd2",
+      "bytes": 37,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-boot-id/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-disk/process.json",
+      "sha256": "918490ed4ab5fc8cf6a52251572cf4612191153ee019b56202ada228504956fe",
+      "bytes": 443,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-disk/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-disk/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-disk/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-disk/stdout",
+      "sha256": "dcd7ae6b06f022f4d6425beeba11531310380e7719d7f49ac7a739cb50b8f6eb",
+      "bytes": 123,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/guest-disk/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/host-disk.json",
+      "sha256": "a3d74649d435d9b526a9ba5ac51a8b5912eaa249ecc06926334c517bcee3fc8e",
+      "bytes": 388,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/host-disk.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/host-memory.json",
+      "sha256": "f5bc0487ea228602ab53e0ff12c029ea610da0eb4118bf138826a0b93f28f736",
+      "bytes": 208,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/host-memory.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/load.json",
+      "sha256": "67c63a2b231a7325ad24629a770afa3457f975e9301ec12a07f8495ef88cd5d1",
+      "bytes": 216,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/load.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/memory/process.json",
+      "sha256": "c9425e0c2a65dd64765b29a4fdf8f98fd92c3507fbdf3cf43861aa6ff1134c5f",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/memory/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/memory/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/memory/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/memory/stdout",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+      "bytes": 53,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/memory/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/processes/process.json",
+      "sha256": "fa568ff7c0e1bdf9d6b8e2865e59f82643d530325583334f4ce8338c7f2783a9",
+      "bytes": 436,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/processes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/processes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/processes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/processes/stdout",
+      "sha256": "d26e34e9dd1bab9d608fa1a9ffea0e93a79a6b557bdcd7a546c425c85deb33a6",
+      "bytes": 77,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/processes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/executable/process.json",
+      "sha256": "f12607805aeefa98bed87d34c761a1d4df32073887caa59a349e2713cc64b4e6",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/executable/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/executable/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/executable/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/executable/stdout",
+      "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c",
+      "bytes": 89,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/executable/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/inspect/process.json",
+      "sha256": "8350535bbb93cfb45133e928639353d25281f408f238a4c58292bc9708ab2b5e",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/sdk/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/summary.json",
+      "sha256": "73eae585e90d804aea6e0ffac32c6a576d1e14778aaf799b37e552208a7eb95e",
+      "bytes": 993,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/summary.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/swap.json",
+      "sha256": "2f3a42e5f671f92be2c55142c86fd7e17e83cba24161e0c1ae988f34edd4771f",
+      "bytes": 266,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/swap.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/tools/process.json",
+      "sha256": "7919a043bcc5f259e23c01234d406e90f7a308e7ec5c6cf1d4cd038fed906698",
+      "bytes": 647,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/tools/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/tools/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/tools/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/tools/stdout",
+      "sha256": "2c5c52f7192b60ea0c45c6c1f33b91dba08c0f3bcf90eb0b44748da3bfc7fbef",
+      "bytes": 397,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/tools/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/vm-allocated-disk.json",
+      "sha256": "4c756aeb27526a22e5c127a54afd0d644c9fc22220a385f356c8079a450a4738",
+      "bytes": 429,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/after/vm-allocated-disk.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before-after-audit.json",
+      "sha256": "d3c483a7b805131c7ed0fd63a3c1d4b2125733d695dcca325b95681b0156c6ca",
+      "bytes": 11928,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before-after-audit.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/hashes/process.json",
+      "sha256": "a915b4b90d52024562a859b3719635e20c0ebdab98137e69d3e6c24fce55aea9",
+      "bytes": 10060,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/hashes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/hashes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/hashes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/links/process.json",
+      "sha256": "29434eb79be881d8921891b793c8dc3582de1399d74f8962ec06ed62f1a038c5",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/links/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/links/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/links/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/paths/process.json",
+      "sha256": "4ccb14e760c407452bc69c3a37e5fbccc059ac21ea06e8b8b0246c4668c7eca0",
+      "bytes": 678,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/paths/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/paths/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/census/paths/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/colima.json",
+      "sha256": "8405e3b8372de99c9aaadb691efff26520c241c9abeae2d249fcaf1d7a2baeca",
+      "bytes": 260,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/colima.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/guest-disk/process.json",
+      "sha256": "5d0a9a4c7db48c59effd88d680f81d7853dc32deee54580f2ce7b205f66cba96",
+      "bytes": 443,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/guest-disk/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/guest-disk/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/guest-disk/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/guest-disk/stdout",
+      "sha256": "dcd7ae6b06f022f4d6425beeba11531310380e7719d7f49ac7a739cb50b8f6eb",
+      "bytes": 123,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/guest-disk/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/host-disk.json",
+      "sha256": "630279e9dcb051de8e950053f3e903d335c476dee7ddd95a725ae18b50ae6a5f",
+      "bytes": 312,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/host-disk.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/host-memory.json",
+      "sha256": "652b4deee95d70518b1e773d82f24566ca01268438cac02d01a04f72c60c9175",
+      "bytes": 132,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/host-memory.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/load.json",
+      "sha256": "8c0e27b18a9842228ae145e45f800c5f20a37230e00e6aca2c30626181cfee98",
+      "bytes": 154,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/load.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/memory/process.json",
+      "sha256": "0a89cfb327d36cf1743f42379955bd56a87de7d7bc36efd435ead4a4841ee2c1",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/memory/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/memory/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/memory/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/memory/stdout",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+      "bytes": 53,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/memory/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/processes/process.json",
+      "sha256": "bf2d86a4d2156fcbb4433c785a683365098377653dce286eb03da437dc68635a",
+      "bytes": 436,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/processes/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/processes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/processes/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/processes/stdout",
+      "sha256": "2401426d56ba36ec0339087a1c780d497f91ee6b7a60598aec03d0c287e0a40c",
+      "bytes": 77,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/processes/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/executable/process.json",
+      "sha256": "175a283e85d433f49f1354ae322afd986330faec27b78c5d2e181ff6f1a35130",
+      "bytes": 457,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/executable/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/executable/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/executable/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/executable/stdout",
+      "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c",
+      "bytes": 89,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/executable/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/process.json",
+      "sha256": "c9deab1de3e4dbbaf91b6502642b42e5c1c8c1d8cf10d368e3782d4e689a7cb1",
+      "bytes": 711,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/summary.json",
+      "sha256": "d618adeb4f297792df01ca2285eba3c6e266888ad4bd00f5e3e2d605729209da",
+      "bytes": 419,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/summary.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/swap.json",
+      "sha256": "fef2c64fb9e523857a7e17e87db79475ada766306d251f4f6ef481806f904576",
+      "bytes": 190,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/swap.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/tools/process.json",
+      "sha256": "935274983fe0f3e6daf65ce544de338512daec88c50b2275cb180cfa3d492436",
+      "bytes": 647,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/tools/process.json"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/tools/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/tools/stderr"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/tools/stdout",
+      "sha256": "2c5c52f7192b60ea0c45c6c1f33b91dba08c0f3bcf90eb0b44748da3bfc7fbef",
+      "bytes": 397,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/tools/stdout"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/capture-after.mjs",
+      "sha256": "3fc32f2ac228b3662675fbdf1dc171d9794ba94707d727590741c02efdfa662b",
+      "bytes": 5569,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/capture-after.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/manifest.json",
+      "sha256": "51c61bae1b30cbcd819e121caddde54dfb0ea958ae1af675f6c4c1dc2d5079a6",
+      "bytes": 2251,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/runner.mjs",
+      "sha256": "d90685f95dafabe09451c44ecfc598157dddb4365bc938c335a6b65996e23d9b",
+      "bytes": 6758,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/runner.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/audit.mjs",
+      "sha256": "c18593e9c9cc7373f5e8063fbd99dbd373dc5d37b4d866b3ea5243136639a98a",
+      "bytes": 5472,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/audit.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/guards.mjs",
+      "sha256": "57e0418e766d6f38a09baffa38f1ba54f7e9ea2820e76d01f9e1d723a9b5d0c6",
+      "bytes": 1944,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/guards.mjs"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-vm5-storage-stop-independent-audit-20261023.json",
+      "sha256": "59a5dfe8b938a5533f033a7dd00c6a6e866294a85d72a082d33356dcff7e19b6",
+      "bytes": 11992,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-vm5-storage-stop-independent-audit-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-retained16-resume-assessment-swap16-successor-20261023.json",
+      "sha256": "6fbbfd6383ada08ae48f87932eda3ba5109e30159e26544191089defc99be7be",
+      "bytes": 7061,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-retained16-resume-assessment-swap16-successor-20261023.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-retained16-successor-20261023/manifest.json",
+      "sha256": "746c6ae317dcc37daf0a3888a282e6752e8cf29b7cee11ed46ef08749d1b6993",
+      "bytes": 2730,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-hash-wire-restoration-retained16-successor-20261023/manifest.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-retained16-code-review-20261023/review.json",
+      "sha256": "850ea4a9fb52895beab2625b60fe6c8e54180c767cea8f4500ad602dda807f25",
+      "bytes": 3373,
+      "location": {
+        "kind": "EXTERNAL_RETAINED_REFERENCE_NOT_COPIED",
+        "path": "/tmp/r4-wire-retained16-code-review-20261023/review.json"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/audit.mjs",
+      "sha256": "2ddb161ca03f484c5ae1ee3a6022716b205de1420c905614d001b37467082b18",
+      "bytes": 8187,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+        "memberSourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/audit.mjs",
+        "bytes": 8187,
+        "sha256": "2ddb161ca03f484c5ae1ee3a6022716b205de1420c905614d001b37467082b18"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/guards.mjs",
+      "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b",
+      "bytes": 1578,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+        "memberSourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/guards.mjs",
+        "bytes": 1578,
+        "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/manifest.json",
+      "sha256": "7c6e046a7a2a7655e4ff25dff6de48808da8ce9d2af3dc3d86af65948cb7c83c",
+      "bytes": 75015,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+        "memberSourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/manifest.json",
+        "bytes": 75015,
+        "sha256": "7c6e046a7a2a7655e4ff25dff6de48808da8ce9d2af3dc3d86af65948cb7c83c"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/plan.json",
+      "sha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0",
+      "bytes": 609843,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+        "memberSourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/plan.json",
+        "bytes": 609843,
+        "sha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/RUNBOOK.md",
+      "sha256": "2b26bfd881f2996940083c6026defc138e4bb39536989dba798d09989546bdec",
+      "bytes": 4481,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+        "memberSourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/RUNBOOK.md",
+        "bytes": 4481,
+        "sha256": "2b26bfd881f2996940083c6026defc138e4bb39536989dba798d09989546bdec"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+      "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1",
+      "bytes": 7650,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/predecessor-source.json.gz",
+        "memberSourcePath": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+        "bytes": 7650,
+        "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1"
+      }
+    },
+    {
+      "sourcePath": "/tmp/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+      "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904",
+      "bytes": 21353,
+      "location": {
+        "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+        "bytes": 21353,
+        "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/budget.json",
+      "sha256": "1b6bd2535625f1218797bf8a6549faba58554ae35d18521244fb5f2458316faf",
+      "bytes": 328,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture1-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/budget.json",
+        "bytes": 328,
+        "sha256": "1b6bd2535625f1218797bf8a6549faba58554ae35d18521244fb5f2458316faf"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/capture-summary.json",
+      "sha256": "dff7e9c9a0cb21af8837cd8578f5e4f46a7d0d0411191bc327e7b0d0086f7544",
+      "bytes": 1433,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture1-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/capture-summary.json",
+        "bytes": 1433,
+        "sha256": "dff7e9c9a0cb21af8837cd8578f5e4f46a7d0d0411191bc327e7b0d0086f7544"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/capture-summary.json",
+      "sha256": "60896de3ab69656932ef93cbe9f75c56127592a5f485ce1be83f410f50174d67",
+      "bytes": 1692,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/capture-summary.json",
+        "bytes": 1692,
+        "sha256": "60896de3ab69656932ef93cbe9f75c56127592a5f485ce1be83f410f50174d67"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/hashes/process.json",
+      "sha256": "8ac2e86ca7eb8f64bb5438e416f804e07ed39bc48806937431e3e72ec231dfa8",
+      "bytes": 10076,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/hashes/process.json",
+        "bytes": 10076,
+        "sha256": "8ac2e86ca7eb8f64bb5438e416f804e07ed39bc48806937431e3e72ec231dfa8"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/hashes/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/hashes/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/hashes/stdout",
+      "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4",
+      "bytes": 14825,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/hashes/stdout",
+        "bytes": 14825,
+        "sha256": "7c42a6a1a413167430534e37fa78ebe7fc98e85b078130de30aa7acafd489ef4"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/links/process.json",
+      "sha256": "8b4e6da8dc2fcef36e8474fbfeacf1bfb985e45c7e210082e511086c67ae56af",
+      "bytes": 694,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/links/process.json",
+        "bytes": 694,
+        "sha256": "8b4e6da8dc2fcef36e8474fbfeacf1bfb985e45c7e210082e511086c67ae56af"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/links/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/links/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/links/stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/links/stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/paths/process.json",
+      "sha256": "a0f175530ff8dab975c4b09cfca6c53f18bd05e02f8f21b9e6e930261f7fb1f5",
+      "bytes": 694,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/paths/process.json",
+        "bytes": 694,
+        "sha256": "a0f175530ff8dab975c4b09cfca6c53f18bd05e02f8f21b9e6e930261f7fb1f5"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/paths/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/paths/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/paths/stdout",
+      "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc",
+      "bytes": 4001,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/census/paths/stdout",
+        "bytes": 4001,
+        "sha256": "0d79307a71cde0ac8e061cfecf51816e7dbdbbaf0ac83ac69bd418a5ff6b6cdc"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/boot/process.json",
+      "sha256": "ea3bf7a918ffa2da211207e58680f11699cc2d5955550b76cfcc3653f29adce3",
+      "bytes": 476,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/boot/process.json",
+        "bytes": 476,
+        "sha256": "ea3bf7a918ffa2da211207e58680f11699cc2d5955550b76cfcc3653f29adce3"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/boot/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/boot/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/boot/stdout",
+      "sha256": "f160f706eda3999d8525c698872d5b94adad87a47bda991fa9802c59efd088b3",
+      "bytes": 37,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/boot/stdout",
+        "bytes": 37,
+        "sha256": "f160f706eda3999d8525c698872d5b94adad87a47bda991fa9802c59efd088b3"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/inspect/process.json",
+      "sha256": "6a422110caad79cc0c6ea4e72e7d278cb54ec6860cfeaafeb3999ffbcd4fe7a2",
+      "bytes": 554,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/inspect/process.json",
+        "bytes": 554,
+        "sha256": "6a422110caad79cc0c6ea4e72e7d278cb54ec6860cfeaafeb3999ffbcd4fe7a2"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/inspect/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/inspect/stdout",
+      "sha256": "0fdf8c63bbae3bc66101152abfef16e5f80ddc480678e0047ddf677f3e551204",
+      "bytes": 136,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/epoch/inspect/stdout",
+        "bytes": 136,
+        "sha256": "0fdf8c63bbae3bc66101152abfef16e5f80ddc480678e0047ddf677f3e551204"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/memory/process.json",
+      "sha256": "671cf842deddb3d34d859110f0275a44ceef2f6332130579c11c36cc03e70c02",
+      "bytes": 473,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/memory/process.json",
+        "bytes": 473,
+        "sha256": "671cf842deddb3d34d859110f0275a44ceef2f6332130579c11c36cc03e70c02"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/memory/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/memory/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/memory/stdout",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+      "bytes": 53,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/final/memory/stdout",
+        "bytes": 53,
+        "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/0/process.json",
+      "sha256": "298151a601fb0980d7a010f0efde91c171b5b82ac2e66b63c1b9817bebb1b9f4",
+      "bytes": 379,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/0/process.json",
+        "bytes": 379,
+        "sha256": "298151a601fb0980d7a010f0efde91c171b5b82ac2e66b63c1b9817bebb1b9f4"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/0/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/0/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/0/stdout",
+      "sha256": "2c3c23436d470f45883f9d80bc313880cdb7c615cf71b394b43ff503ee0aea44",
+      "bytes": 188,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/0/stdout",
+        "bytes": 188,
+        "sha256": "2c3c23436d470f45883f9d80bc313880cdb7c615cf71b394b43ff503ee0aea44"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/1/process.json",
+      "sha256": "f038d49ff523f95967996ba20236d87d4365aa77ca63944dc1afedce88a0837b",
+      "bytes": 362,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/1/process.json",
+        "bytes": 362,
+        "sha256": "f038d49ff523f95967996ba20236d87d4365aa77ca63944dc1afedce88a0837b"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/1/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/1/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/1/stdout",
+      "sha256": "ffeacde26cbeb15e8c7ba59158b4f355a05495ff266ed3ed0fcdf03d32dbe15c",
+      "bytes": 80,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/1/stdout",
+        "bytes": 80,
+        "sha256": "ffeacde26cbeb15e8c7ba59158b4f355a05495ff266ed3ed0fcdf03d32dbe15c"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/2/process.json",
+      "sha256": "8d80ca8fe1dd240dfd5077beb445707cadf815dfc240ae6ce8f2b769dcc7b24c",
+      "bytes": 478,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/2/process.json",
+        "bytes": 478,
+        "sha256": "8d80ca8fe1dd240dfd5077beb445707cadf815dfc240ae6ce8f2b769dcc7b24c"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/2/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/2/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/2/stdout",
+      "sha256": "11c6b092f58760d2c8d4b926ca02a93c7c1397a9ae694eec1926ef1570832d00",
+      "bytes": 128,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/2/stdout",
+        "bytes": 128,
+        "sha256": "11c6b092f58760d2c8d4b926ca02a93c7c1397a9ae694eec1926ef1570832d00"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/3/process.json",
+      "sha256": "32b4c16b6acbb4ba2c08a651ec4c799a34958a1fadf0155a56b5872a739c86e5",
+      "bytes": 354,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/3/process.json",
+        "bytes": 354,
+        "sha256": "32b4c16b6acbb4ba2c08a651ec4c799a34958a1fadf0155a56b5872a739c86e5"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/3/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/3/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/3/stdout",
+      "sha256": "8c0475065a49fc88c778d88ddafc922bb6f4eceebd309e4b5c1b0c0aa1d42652",
+      "bytes": 157,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-before/3/stdout",
+        "bytes": 157,
+        "sha256": "8c0475065a49fc88c778d88ddafc922bb6f4eceebd309e4b5c1b0c0aa1d42652"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-statfs-after.json",
+      "sha256": "2cf5aca80384540dd338e14c524db1cde09a0d3e02b9fefcf0ae0ab2604876a8",
+      "bytes": 441,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-statfs-after.json",
+        "bytes": 441,
+        "sha256": "2cf5aca80384540dd338e14c524db1cde09a0d3e02b9fefcf0ae0ab2604876a8"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-statfs-before.json",
+      "sha256": "5c7769f94a9b5167f164d387496ba506a7a5d75c55a282a60404c995ec023aa8",
+      "bytes": 441,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/host-statfs-before.json",
+        "bytes": 441,
+        "sha256": "5c7769f94a9b5167f164d387496ba506a7a5d75c55a282a60404c995ec023aa8"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/idle/process.json",
+      "sha256": "bb853c47ec7b7311af7a0901f4843cf533d6e74d994621d2184b87fef804e41e",
+      "bytes": 457,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/idle/process.json",
+        "bytes": 457,
+        "sha256": "bb853c47ec7b7311af7a0901f4843cf533d6e74d994621d2184b87fef804e41e"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/idle/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/idle/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/idle/stdout",
+      "sha256": "8dd7888909e2ac69b81457bd8379a22b2a38bb4d38bcf765a4a80163248d469f",
+      "bytes": 169,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/idle/stdout",
+        "bytes": 169,
+        "sha256": "8dd7888909e2ac69b81457bd8379a22b2a38bb4d38bcf765a4a80163248d469f"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/boot/process.json",
+      "sha256": "175f69479af8f1a7ce3d57a4ee9d35a36950a0ca567cafc5d4c5481ae2edd79d",
+      "bytes": 476,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/boot/process.json",
+        "bytes": 476,
+        "sha256": "175f69479af8f1a7ce3d57a4ee9d35a36950a0ca567cafc5d4c5481ae2edd79d"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/boot/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/boot/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/boot/stdout",
+      "sha256": "f160f706eda3999d8525c698872d5b94adad87a47bda991fa9802c59efd088b3",
+      "bytes": 37,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/boot/stdout",
+        "bytes": 37,
+        "sha256": "f160f706eda3999d8525c698872d5b94adad87a47bda991fa9802c59efd088b3"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/inspect/process.json",
+      "sha256": "b518d50acd151bfa8ee28fbf60517b73a61df606e87a3b138a9162570aa284b4",
+      "bytes": 554,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/inspect/process.json",
+        "bytes": 554,
+        "sha256": "b518d50acd151bfa8ee28fbf60517b73a61df606e87a3b138a9162570aa284b4"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/inspect/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/inspect/stdout",
+      "sha256": "0fdf8c63bbae3bc66101152abfef16e5f80ddc480678e0047ddf677f3e551204",
+      "bytes": 136,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/epoch/inspect/stdout",
+        "bytes": 136,
+        "sha256": "0fdf8c63bbae3bc66101152abfef16e5f80ddc480678e0047ddf677f3e551204"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/memory/process.json",
+      "sha256": "298f5cadaba913e662a72c2636ddcaabbb768e5283971fbe1f2dd41f915ef16e",
+      "bytes": 473,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/memory/process.json",
+        "bytes": 473,
+        "sha256": "298f5cadaba913e662a72c2636ddcaabbb768e5283971fbe1f2dd41f915ef16e"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/memory/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/memory/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/memory/stdout",
+      "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+      "bytes": 53,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/initial/memory/stdout",
+        "bytes": 53,
+        "sha256": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/executable/process.json",
+      "sha256": "6761abd3fdc50f209d51f8007662fd822b5ffb988a1beec1b1ddcb1031cd30ef",
+      "bytes": 473,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/executable/process.json",
+        "bytes": 473,
+        "sha256": "6761abd3fdc50f209d51f8007662fd822b5ffb988a1beec1b1ddcb1031cd30ef"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/executable/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/executable/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/executable/stdout",
+      "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c",
+      "bytes": 89,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/executable/stdout",
+        "bytes": 89,
+        "sha256": "c24dc04af7fdf52cbd3e28f336c27918c2c4c586489b61f2a6eecec802b8a40c"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/inspect/process.json",
+      "sha256": "7ce425fa9337113f3c500fb8e734b593721c74817d600dc47980b52a5c7b93a1",
+      "bytes": 727,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/inspect/process.json",
+        "bytes": 727,
+        "sha256": "7ce425fa9337113f3c500fb8e734b593721c74817d600dc47980b52a5c7b93a1"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/inspect/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/inspect/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/inspect/stdout",
+      "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5",
+      "bytes": 256,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/inspect/stdout",
+        "bytes": 256,
+        "sha256": "8c15327ffece6213d322ae63b400f967441a117d96b88fe451f6fe796d643aa5"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/tools/process.json",
+      "sha256": "9c7fd585d79ec5eef785fb8b8688f9ac85f2bbb7bb1ce8853a663912b618b926",
+      "bytes": 663,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/tools/process.json",
+        "bytes": 663,
+        "sha256": "9c7fd585d79ec5eef785fb8b8688f9ac85f2bbb7bb1ce8853a663912b618b926"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/tools/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/tools/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/tools/stdout",
+      "sha256": "2c5c52f7192b60ea0c45c6c1f33b91dba08c0f3bcf90eb0b44748da3bfc7fbef",
+      "bytes": 397,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/sdk/tools/stdout",
+        "bytes": 397,
+        "sha256": "2c5c52f7192b60ea0c45c6c1f33b91dba08c0f3bcf90eb0b44748da3bfc7fbef"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/storage/guest/process.json",
+      "sha256": "97e1896e315ff8cf1dbbf74c918ff79197bc65a9d08928da7b4d7ee039e2d8fc",
+      "bytes": 459,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/storage/guest/process.json",
+        "bytes": 459,
+        "sha256": "97e1896e315ff8cf1dbbf74c918ff79197bc65a9d08928da7b4d7ee039e2d8fc"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/storage/guest/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/storage/guest/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/storage/guest/stdout",
+      "sha256": "2cebd41f13ac19fb5e80c000296a65e678f65ef9fd16bde88df253e354cc1c39",
+      "bytes": 123,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/capture2-observations.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-capture2/storage/guest/stdout",
+        "bytes": 123,
+        "sha256": "2cebd41f13ac19fb5e80c000296a65e678f65ef9fd16bde88df253e354cc1c39"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-review.json",
+      "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156",
+      "bytes": 18467,
+      "location": {
+        "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/epoch-review.json",
+        "bytes": 18467,
+        "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/process.json",
+      "sha256": "3a0f3ae82ab6a209baa867eb74d8231241c36cab59d49513d874ccced03ab48e",
+      "bytes": 494,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/recovery-map-and-host-audit.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/process.json",
+        "bytes": 494,
+        "sha256": "3a0f3ae82ab6a209baa867eb74d8231241c36cab59d49513d874ccced03ab48e"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/recovery-map-and-host-audit.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/stdout",
+      "sha256": "a99ec1e9657d2413b8328c8742394de4b5e58118cf828e452aad831ffed53d74",
+      "bytes": 194,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/recovery-map-and-host-audit.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/stdout",
+        "bytes": 194,
+        "sha256": "a99ec1e9657d2413b8328c8742394de4b5e58118cf828e452aad831ffed53d74"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-budget.json",
+      "sha256": "6500cb657ebef726248bf0ab58421c409e3532f64f395e9d3a2cae7dd102df74",
+      "bytes": 338,
+      "location": {
+        "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-budget.json",
+        "bytes": 338,
+        "sha256": "6500cb657ebef726248bf0ab58421c409e3532f64f395e9d3a2cae7dd102df74"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result-review.json",
+      "sha256": "7e369cc80979e670d0b752e0cfdcc62de163fa41a1137b868fa8ee4b19ff8aff",
+      "bytes": 5634,
+      "location": {
+        "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-result-review.json",
+        "bytes": 5634,
+        "sha256": "7e369cc80979e670d0b752e0cfdcc62de163fa41a1137b868fa8ee4b19ff8aff"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result.json",
+      "sha256": "324cede29f5411c6811e3079eccf2b04e7c419ea957e3546db16171089577127",
+      "bytes": 1198422,
+      "location": {
+        "archive": "docs/continuation/2026-10-24/hash-restoration-recovery/archives/recovery-map-and-host-audit.json.gz",
+        "memberSourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result.json",
+        "bytes": 1198422,
+        "sha256": "324cede29f5411c6811e3079eccf2b04e7c419ea957e3546db16171089577127"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-spec-review.json",
+      "sha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7",
+      "bytes": 8885,
+      "location": {
+        "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-spec-review.json",
+        "bytes": 8885,
+        "sha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7"
+      }
+    },
+    {
+      "sourcePath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-epoch-review.json",
+      "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92",
+      "bytes": 17633,
+      "location": {
+        "path": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-epoch-review.json",
+        "bytes": 17633,
+        "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92"
+      }
+    }
+  ],
+  "externalArtifactBoundary": "Baseline78 and retained16 actual bundles remain external at the durable/historical paths pinned in recovery investigation/map. No binaries copied; Git sources provide eight exact recovery source files but do not replace native bundles.",
+  "currentPins": [
+    {
+      "path": "docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    }
+  ],
+  "originalSnapshots": [
+    {
+      "originalPath": "docs/OBJECT.md",
+      "path": "docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "originalPath": "features/suites/r4-blake3.feature",
+      "path": "docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "originalPath": "features/suites/r4-object.feature",
+      "path": "docs/continuation/2026-10-23/pending/features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "originalPath": "features/suites/r4-prediction.feature",
+      "path": "docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "originalPath": "src/R4/Object.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+    },
+    {
+      "originalPath": "src/R4/ObjectCodec.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111631,
+      "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+    },
+    {
+      "originalPath": "src/R4/ObjectRead.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectRead.lex.tex",
+      "bytes": 86326,
+      "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+    },
+    {
+      "originalPath": "src/R4/ObjectStore.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectStore.lex.tex",
+      "bytes": 66585,
+      "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+    },
+    {
+      "originalPath": "src/R4/ObjectTypes.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83582,
+      "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+    },
+    {
+      "originalPath": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "originalPath": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "originalPath": "tests/lexlean/ObjectControls.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "originalPath": "tests/lexlean/ObjectReadControls.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "originalPath": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "originalPath": "model/authorities.toml",
+      "path": "docs/continuation/2026-10-23/pending/model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "originalPath": "model/ids.toml",
+      "path": "docs/continuation/2026-10-23/pending/model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "originalPath": "model/ledger.toml",
+      "path": "docs/continuation/2026-10-23/pending/model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "schema": "lexlean-r4-restoration-live-epoch-successor-code-review/v1",
+  "status": "PASS_EXACT_MINIMAL_SUCCESSOR_CODE_NATIVE_HOLD",
+  "findings": [],
+  "scope": "Independent source CODE review of frozen existing continuation. Read-only byte/AST/pin/receipt inspection; no new SDK/native/compiler/container/process-control/build/test invocation, no repository/source edits. Only this external report written.",
+  "manifest": {
+    "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/manifest.json",
+    "bytes": 1257,
+    "sha256": "58e35f035f419721ac5f3f72785107d06712659450202273bec305cc57428fa4"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-spec-review.json",
+    "bytes": 6038,
+    "sha256": "24b35279fb8d8c31bd28abc2b4066ecfb96346d3603202282da67c50fb55a936",
+    "status": "PASS_MINIMAL_FROZEN_SUCCESSOR_SPEC_NO_NATIVE_AUTHORITY"
+  },
+  "delta": {
+    "runner": "PASS byte-identical to ordered predecessor;7650B SHA4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1.",
+    "guards": "PASS byte-identical;1578B SHA5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b.",
+    "auditor": "PASS exact single replacement of here='/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023' with here='/tmp/r4-hash-wire-restoration-live-epoch-20261024'. All other bytes unchanged;8174B SHA5794e827a728075dd144d8cc12b47222b96376d0d993a3dbcbffa01a014055f1.",
+    "plan": {
+      "bytes": 647311,
+      "sha256": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04",
+      "changedFields": [
+        "here",
+        "evidence",
+        "dependencies",
+        "liveEpoch"
+      ],
+      "otherFieldsDeepEqual": true,
+      "oldDependenciesExactPrefix": 217,
+      "appended": 75,
+      "total": 292,
+      "liveEpochDependenciesEqualAppendedSuffix": true,
+      "uniqueDependencyPaths": 292,
+      "allDependencyHashesVerified": true
+    },
+    "hostFiles": "Manifest hashes/lengths independently verified for draft-status.json and delta.json as well as all four execution files. Historical status strings remain preparation records, not acceptance."
+  },
+  "binding": {
+    "captureLeaves": 57,
+    "allLeavesPinned": true,
+    "additionalNonCaptureRefs": 18,
+    "facts": {
+      "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+      "startedAt": "2026-10-24T05:31:03.102794321Z",
+      "restartCount": 0,
+      "guestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+      "memory": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      }
+    },
+    "validation": "Plan binding values freshly compared against actual corrected initial inspect/boot/memory receipts. Corrected capture and independent epoch review are pinned among75refs; all57capture leaf files are present without symlinks and referenced. All75 new references and217 unchanged predecessor references hash-checked.",
+    "statusTag": "BOUND_PARENT_RESTART_REVIEW is inherited schema name. Captured existing05:31epoch reused; no restart in capture or preparation.",
+    "coverage": "18 noncapture references preserve predecessor runner/auditor/guards/manifest/plan/runbook, original procedure, original limited capture summary/budget/review, actual host-history audit triplet, recovery budget/result/SPEC/independent review and corrected epoch review.",
+    "cycles": "No dependency points into current successor namespace; no current plan/manifest self-reference. Current post-freeze SPEC/CODE reports are not injected into their own dependency set. Static import traversal found8module files and no module-import cycle.",
+    "transitivePin": "One historical imported baseline auditor is not a direct292list entry; it is covered by pinned mutation-plan baseline.auditor and a.pins(), SHA c51a1cc220aa74684d83f1577ff0d3ce76adcb2c16bf8b87592d1a21ce015dbf, independently matched. No unbound third-party module import found; Node builtins remain builtins."
+  },
+  "unchangedChecks": {
+    "invocation": "Exact execute argument array requires scheduled switch and actual plan/runner/auditor/guards hashes. Binding, top-level/transitive pins and history validation precede evidence creation/native invocation. audit-plan branches before any subprocess path and reports SDKInvoked:false.",
+    "exclusiveEvidence": "Evidence directory must be absent. Existing checked path traversal/symlink guards and exclusive wx file creation retained. Per-command stdout/stderr and process outcomes preserved.",
+    "history": "history() retains baseline78/636control audit and retained16 artifacts; validates preserved vm5tree/census,7old+9additional records and independent prior review, then exact16/62split. It does not newly execute negative checks or imply mutation7/7.",
+    "order": "Exactly62 remaining roots from baseline slice16, starting HashWireDirect10Controls. No root omission, reordering or reduced closure; all original source/config/lock/runtime/root-count fields deep-equal.",
+    "perRoot": "Storage and idle, SDK identities and exact source census precede proof. Epoch inspect/boot then memory precede actual verify; memory and epoch collected afterward in finally. Raw interval ordering checked before accepting each root. Command success/resource diagnostics, full artifact audit, exact source/tool postchecks, storage postcheck and bundle-copy receipt required before append.",
+    "memory": "Existing boundEpoch requires zero oom/oom_kill and optional oom_group_kill; sameMemory compares those resource-event keys. Captured map includes allsixzero fields. No stronger new max-counter predicate is claimed; inherited behavior is unchanged.",
+    "storage": "Existing g.storage enforces11GiB host/guest before each root and10GiB after. The separate20GiB parent launch planning floor is additional and not encoded by this11GiB per-root guard. CODE pass therefore cannot establish launch eligibility.",
+    "stopping": "First proof/postcondition/audit failure ends loop, writes failure/incomplete with nonzero exit. Final source/tool/epoch/memory/idle/storage capture remains in finally; final failure cannot become success. Root rows append only after audit/persistence and baseline identity match.",
+    "completion": "Requires all78 ordered roots,636controls and four baseline identity equality, actual full final audit, copied execution files and final custody. Even PASS_RESTORATION leaves mutation status INCOMPLETE accepted2/7 and component/Object/integration/production false."
+  },
+  "actualHostAuditEvidence": {
+    "predecessor": "Actual retained host-history-audit/process.json reports status0,nullsignal,nullspawnError; stdout/stderr hashes independently verified. Result PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT for predecessor plan8d4c8898...,16retained/62remaining,SDKInvoked:false.",
+    "successor": "Exact SPEC review records actual node runner.mjs audit-plan, NODE_OPTIONS/NODE_PATH unset, start2026-10-24T07:10:47.117Z end07:11:19.313Z,status0,nullsignal,stdout result for current373a5dc4...plan,SDKInvoked:false. Embedded stdout/stderr hashes independently recomputed and match. This review inspected that actual result; did not rerun audit-plan or independently re-audit every historical bundle.",
+    "boundary": "No fresh native negative, kernel replay or62-root execution. Successor evidence directory absent at CODE inspection. Host history validates retained evidence; restoration remains16/78."
+  },
+  "nativeHold": {
+    "status": "HOLD_UNCHANGED",
+    "parentAndSpecLatestAvailableBytes": 21069303808,
+    "launchFloorBytes": 21474836480,
+    "shortfallBytes": 405532672,
+    "unexplainedDecline": true,
+    "meaning": "Earlier capture's24.0GB availability does not authorize current launch. Latest supplied/recorded review observation is below20GiB and decline is unresolved. No live resource measurement by this reviewer.",
+    "required": "Resolve storage attribution and meet unchanged parent launch threshold, then fresh idle/source/tool/epoch/memory/host/guest preflight under authorized schedule. No cleanup/deletion/restart/limit increase authorized by this CODE report."
+  },
+  "limits": [
+    "Code acceptance applies only to exact frozen manifest and minimal existing continuation; changed bytes require renewed review.",
+    "No new framework, fixture or test generated; no ad-hoc execution of reviewed runner.",
+    "Recovery success and host-audit evidence do not erase prior failures, close all mutations, or establish full Object/production binding/Pages.",
+    "This report is not a launch command, owner release or resource waiver."
+  ],
+  "at": "2026-10-24T07:14:22.883Z",
+  "executionPins": [
+    {
+      "path": "plan.json",
+      "bytes": 647311,
+      "sha256": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04"
+    },
+    {
+      "path": "runner.mjs",
+      "bytes": 7650,
+      "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1"
+    },
+    {
+      "path": "audit.mjs",
+      "bytes": 8174,
+      "sha256": "5794e827a728075dd144d8cc12b47222b96376d0d993a3dbcbffa01a014055f1"
+    },
+    {
+      "path": "guards.mjs",
+      "bytes": 1578,
+      "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+    }
+  ]
+}

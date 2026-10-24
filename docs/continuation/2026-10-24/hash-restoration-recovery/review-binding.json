@@ -1,0 +1,60 @@
+{
+  "status": "COMPLETED_EXACT_REVIEWS_BOUND_NO_NATIVE_AUTHORITY",
+  "reviews": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-spec-review.json",
+        "bytes": 8885,
+        "sha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-spec-review.json",
+      "status": "PASS_BOUNDED_EXACT_BYTE_RECOVERY_AND_HOST_AUDIT_ONLY"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result-review.json",
+        "bytes": 5634,
+        "sha256": "7e369cc80979e670d0b752e0cfdcc62de163fa41a1137b868fa8ee4b19ff8aff"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-result-review.json",
+      "status": "PASS_USABLE_HISTORICAL_CUSTODY_ONLY"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-review.json",
+        "bytes": 18467,
+        "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/epoch-review.json",
+      "status": "PASS_SCOPED_OBSERVED_CAPTURE_WITH_PROCEDURE_GAPS"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-epoch-review.json",
+        "bytes": 17633,
+        "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-epoch-review.json",
+      "status": "PASS_ACTUAL_EPOCH_CAPTURE_SUFFICIENT_FOR_LIVE_EPOCH_BINDING"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-spec-review.json",
+        "bytes": 6038,
+        "sha256": "24b35279fb8d8c31bd28abc2b4066ecfb96346d3603202282da67c50fb55a936"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-spec-review.json",
+      "status": "PASS_MINIMAL_FROZEN_SUCCESSOR_SPEC_NO_NATIVE_AUTHORITY"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-code-review.json",
+        "bytes": 9348,
+        "sha256": "5c1598946943e1bf67e17c0ff10263d6b595fb93aec169a695f8c7e1523c8639"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-code-review.json",
+      "status": "PASS_EXACT_MINIMAL_SUCCESSOR_CODE_NATIVE_HOLD"
+    }
+  ],
+  "earlierCustodyStatus": "custody.json predates CODE inclusion and remains historical; this additive binding supersedes its pending-inclusion status."
+}

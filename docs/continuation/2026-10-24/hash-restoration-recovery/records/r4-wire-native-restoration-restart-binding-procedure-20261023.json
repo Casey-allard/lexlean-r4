@@ -1,0 +1,357 @@
+{
+  "status": "PROCEDURE_ONLY_NO_NATIVE_INVOCATION_NO_BINDING",
+  "purpose": "Resume existing 16-retained/62-remaining restoration then Object product proof; no new framework",
+  "sourcePins": [
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/manifest.json",
+      "sha256": "7c6e046a7a2a7655e4ff25dff6de48808da8ce9d2af3dc3d86af65948cb7c83c"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+      "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/audit.mjs",
+      "sha256": "2ddb161ca03f484c5ae1ee3a6022716b205de1420c905614d001b37467082b18"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/guards.mjs",
+      "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/plan.json",
+      "sha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/vm-memory-remediation-20261023/before/sdk/inspect/process.json",
+      "sha256": "c9deab1de3e4dbbaf91b6502642b42e5c1c8c1d8cf10d368e3782d4e689a7cb1"
+    }
+  ],
+  "budget": {
+    "launchMinimumBytes": 21474836480,
+    "emergencyReserveBytes": 10737418240,
+    "proofAllowanceBytes": 1073741824,
+    "pagingAllowanceBytes": 4294967296,
+    "aggregateChurnAllowanceBytes": 5368709120,
+    "perRootBeforeBytes": 11811160064,
+    "perRootAfterBytes": 10737418240
+  },
+  "hostBefore": [
+    {
+      "command": "df",
+      "args": [
+        "-k",
+        "/Users/casey.allard"
+      ]
+    },
+    {
+      "command": "sysctl",
+      "args": [
+        "vm.swapusage"
+      ]
+    },
+    {
+      "command": "du",
+      "args": [
+        "-sk",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4"
+      ]
+    },
+    {
+      "command": "colima",
+      "args": [
+        "list"
+      ]
+    }
+  ],
+  "restart": [
+    {
+      "command": "colima",
+      "args": [
+        "start",
+        "--profile",
+        "lexlean-r4"
+      ],
+      "condition": "Parent only, after budget and no active owned run. Preserve existing profile 4CPU/5GiB/80GiB; no new image/disk."
+    },
+    {
+      "command": "docker",
+      "args": [
+        "inspect",
+        "--format",
+        "{{json .State.Running}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "condition": "Query after VM comes up; if already running do not restart container."
+    },
+    {
+      "command": "docker",
+      "args": [
+        "start",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "condition": "Parent only if existing exact container is stopped. Never create or replace."
+    }
+  ],
+  "environment": {
+    "DOCKER_CONFIG": "/tmp/lexlean-r4-docker-config-20261021",
+    "DOCKER_HOST": "unix:///Users/casey.allard/.colima/lexlean-r4/docker.sock"
+  },
+  "capture": {
+    "namespace": "Choose one fresh task-owned directory; never overwrite old before/after capture",
+    "commands": [
+      {
+        "label": "sdk/inspect",
+        "command": "docker",
+        "args": [
+          "inspect",
+          "--format",
+          "{\"id\":{{json .Id}},\"image\":{{json .Image}},\"running\":{{json .State.Running}},\"oomKilled\":{{json .State.OOMKilled}},\"memory\":{{json .HostConfig.Memory}},\"cpus\":{{json .HostConfig.NanoCpus}},\"network\":{{json .HostConfig.NetworkMode}},\"mounts\":{{json .Mounts}}}",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+        ]
+      },
+      {
+        "label": "sdk/executable",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "sha256sum",
+          "/usr/local/bin/lexlean"
+        ]
+      },
+      {
+        "label": "sdk/tools",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "sha256sum",
+          "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean",
+          "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake",
+          "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker"
+        ]
+      },
+      {
+        "label": "census/paths",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "sh",
+          "-c",
+          "test -d \"$1\" && test ! -L \"$1\" && cd \"$1\" && test ! -L .lexlean && test ! -L .lake && find . -path ./.lexlean -prune -o -path ./.lake -prune -o -type f -print",
+          "sh",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023"
+        ]
+      },
+      {
+        "label": "census/links",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "sh",
+          "-c",
+          "test -d \"$1\" && test ! -L \"$1\" && cd \"$1\" && test ! -L .lexlean && test ! -L .lake && find . -path ./.lexlean -prune -o -path ./.lake -prune -o -type l -print",
+          "sh",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023"
+        ]
+      },
+      {
+        "label": "census/hashes",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "sha256sum",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/lake-manifest.json",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/lakefile.toml",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/lean-toolchain",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/lexlean.toml",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/src/R4/Hash.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/src/R4/HashNat.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/src/R4/HashNatCore.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/src/R4/HashWire.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/src/R4/Words.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireAdmissionControls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireByteBridgeControls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross02Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross03Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross04Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross05Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross06Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross07Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross08Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross09Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross10Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross11Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross12Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross13Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross14Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross15Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross16Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross17Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross18Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross19Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross22Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross23Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross24Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross25Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross26Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross27Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross28Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross29Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireCross30Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect02Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect03Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect04Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect05Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect06Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect07Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect08Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect09Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect10Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect11Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect12Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect13Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect14Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect15Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect16Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect17Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect18Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect19Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect22Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect23Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect24Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect25Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect26Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect27Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect28Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect29Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireDirect30Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape02Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape03Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape04Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape05Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape06Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape07Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape08Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape09Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape10Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape11Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape12Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape13Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape14Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape15Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape16Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape17Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape18Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape19Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShape24Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShapeBlake128Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShapeNodeScale37Controls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/tests/lexlean/HashWireShaStateControls.lex.tex",
+          "/tmp/r4-hash-wire-publication-recovery-wire-owned-20261023/lexlean.lock"
+        ]
+      },
+      {
+        "label": "storage/guest",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "df",
+          "-Pk",
+          "/tmp"
+        ]
+      },
+      {
+        "label": "idle",
+        "command": "docker",
+        "args": [
+          "top",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "-eo",
+          "pid,comm,args"
+        ]
+      },
+      {
+        "label": "epoch/inspect",
+        "command": "docker",
+        "args": [
+          "inspect",
+          "--format",
+          "{\"id\":{{json .Id}},\"startedAt\":{{json .State.StartedAt}},\"restartCount\":{{json .RestartCount}}}",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+        ]
+      },
+      {
+        "label": "epoch/boot",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "cat",
+          "/proc/sys/kernel/random/boot_id"
+        ]
+      },
+      {
+        "label": "memory",
+        "command": "docker",
+        "args": [
+          "exec",
+          "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+          "cat",
+          "/sys/fs/cgroup/memory.events"
+        ]
+      }
+    ],
+    "order": "All sequential; epoch/inspect then epoch/boot then memory. End with a second epoch/inspect then epoch/boot then memory in final/ to prove unchanged epoch/counters during capture. Repeat host storage after capture.",
+    "processReceipt": {
+      "args": "exact array above",
+      "started": "actual ISO command start",
+      "ended": "actual ISO command finish",
+      "status": "actual integer or null",
+      "signal": "actual signal or null",
+      "spawnError": "actual error metadata or null",
+      "stdoutSha256": "hash exact retained stdout bytes",
+      "stderrSha256": "hash exact retained stderr bytes"
+    },
+    "rawFiles": "Each label has process.json, stdout, stderr. Retain failed captures separately; no missing or incomplete receipt may be bound.",
+    "hostSample": "fs.statfsSync(existing capture directory,{bigint:true}), hostAvailableBytes=String(bavail*bsize); bind actual filesystem/path, observation times and guest df bytes. Retain raw host allocation and swap observations. No float rounding.",
+    "validation": "Use existing a.identity for sdk; sdkRecord tool hashes; a.census exact 88 sources including genuine lock; g.processSuccess metadata; idleRecord; g.storage; exact epoch inspect/boot and within-epoch memory counters. Preserve shell argument arrays verbatim. No compiler invocation."
+  },
+  "liveEpochSchema": {
+    "status": "BOUND_PARENT_RESTART_REVIEW",
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "startedAt": "ACTUAL container StartedAt string from raw inspect; do not fill before capture",
+    "restartCount": "ACTUAL integer from raw inspect",
+    "guestBootId": "ACTUAL trimmed raw boot UUID",
+    "memory": "ACTUAL parsed memory.events map with oom and oom_kill zero; optional oom_group_kill zero; retain all parsed keys",
+    "dependencies": "Nonempty [{path:absoluteActualFile,sha256:actualHash}] pin every raw capture leaf, summary, and independent review; no predicted data or self-reference"
+  },
+  "reviewRequirements": [
+    "Independently validate complete raw command/status/hash custody; exact image/compiler/Lean/Lake/checker/4GiB/2CPU/networknone/no mounts; exact source88 and genuine lock.",
+    "Check fresh epoch and current zero OOM counters, ordered inspect->boot->memory both at start/end, no comparison to historical pre-restart counters.",
+    "Verify host budget and guest>=11GiB; idle and unchanged VM profile. Review factual capture before setting BOUND_PARENT_RESTART_REVIEW."
+  ],
+  "successor": {
+    "directory": "/tmp/r4-hash-wire-restoration-live-epoch-successor-20261023 (must be absent; suggested name)",
+    "changes": [
+      "Copy runner.mjs and guards.mjs byte-identically.",
+      "Copy audit.mjs with ONLY literal here directory substitution. Preserve all reader predicates and sequencing.",
+      "Copy plan.json preserving source/root/history/resource fields and 16/62 order. Set here/evidence to new namespace; set liveEpoch from actual independently reviewed capture. Add capture/review/old packet pins without removing old dependencies.",
+      "Freeze new execution manifest with actual hashes and exact delta. Obtain independent SPEC then CODE review.",
+      "Run existing successor runner audit-plan host-only after transitive source recovery. This reaudits baseline78 and retained16 artifacts; no synthetic acceptance.",
+      "Parent schedules execute with all four actual plan/runner/auditor/guards hash flags; existing loop starts HashWireDirect10Controls."
+    ]
+  },
+  "blockers": [
+    "liveEpoch is null until actual restart capture and review.",
+    "Missing eight transitive original/mutant source files under /tmp/lexlean-r4-hash-wire-mutants-20261021. Restore exact retained files against inventory; do not weaken a.pins().",
+    "Audit-plan must positively verify all historical artifacts; path existence alone is not a historical artifact acceptance claim."
+  ],
+  "unchangedClaims": "Full restoration remains16/78; mutations2/7; Object/production acceptance false. No new executable generated here."
+}

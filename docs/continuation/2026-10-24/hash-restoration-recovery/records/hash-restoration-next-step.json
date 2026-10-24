@@ -1,0 +1,363 @@
+{
+ "spec": "lexlean-r4/hash-restoration-custody-investigation/1",
+ "at": "2026-10-24T07:01:28.487Z",
+ "status": "READ_ONLY_EXACT_BYTE_RECOVERY_AVAILABLE_NO_EXECUTION_AUTHORITY",
+ "conclusion": "All seven original mutant sources plus original runtime are available byte-identically in committed fixtures. Durable baseline retained32 exactly matches its frozen 2306-file census. Prefer exclusive missing-path reconstruction, followed by unchanged complete historical validation. Dependency-scope relaxation is unnecessary.",
+ "repository": {
+  "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+  "head": "d1024f1118bd26a5d167c0c431d59ec670b14dac",
+  "fixturePathsTrackedClean": true
+ },
+ "authorities": [
+  {
+   "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/plan.json",
+   "bytes": 609843,
+   "sha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/audit.mjs",
+   "bytes": 8187,
+   "sha256": "2ddb161ca03f484c5ae1ee3a6022716b205de1420c905614d001b37467082b18"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/plan.json",
+   "bytes": 2441,
+   "sha256": "4e7d0ec86770fd884ae1f4768dd627b5f5d8c10c144e2560479efe0b2f5a5ad9"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/audit.mjs",
+   "bytes": 8171,
+   "sha256": "d1b82adc362a9f03d45f2ebe518a8e4728ffc897e4cb576fea1f6d40b2d6d740"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/runner.mjs",
+   "bytes": 10979,
+   "sha256": "ef0799a1a587e81c9d5ca51820c690ec77d9d94903696fc6bcd8b243132a59ae"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-publication-recovery-record-order-execution-20261023/plan.json",
+   "bytes": 553127,
+   "sha256": "4d6a808b0e9944f8bea079c66133556540f52ff3c127a1051ed0373f61fab818"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-publication-recovery-record-order-execution-20261023/audit.mjs",
+   "bytes": 12894,
+   "sha256": "c51a1cc220aa74684d83f1577ff0d3ce76adcb2c16bf8b87592d1a21ce015dbf"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/audit.mjs",
+   "bytes": 5472,
+   "sha256": "c18593e9c9cc7373f5e8063fbd99dbd373dc5d37b4d866b3ea5243136639a98a"
+  },
+  {
+   "path": "/tmp/lexlean-r4-hash-wire-mutants-20261021/inventory.json",
+   "bytes": 4680,
+   "sha256": "f52b5587fcb8277ec12760b150a91d644d7a6b979e040cddb3a2b43adf034e4f"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-publication-recovery-evidence-20261023/summary.json",
+   "bytes": 43594,
+   "sha256": "5d9bf6bbb00a331f25a3b8a4476db9dd1f9501cdfacee35f30a908c34e099b47"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/summary.json",
+   "bytes": 6495,
+   "sha256": "7310cd19e74caeae1389fa5bc1ae9020652e023a8b31b1a7cdb93d93d95b2426"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-baseline-complete-independent-review-20261023.json",
+   "bytes": 45262,
+   "sha256": "9a007276f53b8cd350099dd0645440f156a839a9423aa24e7a1131574a5b81b0"
+  },
+  {
+   "path": "/tmp/r4-hash-wire-mutation-custody-independent-review-20261023.json",
+   "bytes": 4656,
+   "sha256": "36b9733614e1ee9297a12500c0b9056f4e28b9b6480fe7d4819ecb2365d6512c"
+  }
+ ],
+ "parentReports": [
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/hash-restoration-dependency-observation.json",
+   "bytes": 2688,
+   "sha256": "e16da820767f1f95aeef6f67d100e86e4643d83efd089c0daf9a91f7ff3dc5b5"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/next-draft-investigation.json",
+   "bytes": 19795,
+   "sha256": "d6d063d209db5b05e44837042d8a7b1cee1b876c0e055e3012e658f61715bbc6"
+  }
+ ],
+ "dependencyRootCause": {
+  "directPinsFreshlyRehashed": 217,
+  "directFailures": [],
+  "chain": [
+   "ordered history -> pins -> mutation pins",
+   "ordered history -> VM5 history -> mutation auditBaseline -> mutation pins"
+  ],
+  "blockingReads": "mutation pins opens plan.mutants/HashWire-original.lex.tex and all seven inventory paths unconditionally. baseline sourcePins/auditRetained also requires original oldEvidence tree.",
+  "meaning": "Direct metadata presence does not establish transitive filesystem closure. These are missing original paths, not missing recoverable source or proof bytes.",
+  "auditorImportsExecuted": false
+ },
+ "sourceRecovery": {
+  "committedRoot": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire",
+  "requiredRoot": "/tmp/lexlean-r4-hash-wire-mutants-20261021",
+  "committedHeadBlobsReadViaGitShow": true,
+  "inventoryCommitted": {
+   "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/hash-wire/mutations/inventory.json",
+   "bytes": 4680,
+   "sha256": "f52b5587fcb8277ec12760b150a91d644d7a6b979e040cddb3a2b43adf034e4f"
+  },
+  "sources": [
+   {
+    "name": "sha-first-word-width-three",
+    "requiredRelativePath": "sha-first-word-width-three/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/sha-first-word-width-three/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "af8f770e6cd9e193ee67d44dd19cfdc7054118d627f7f6f26e0e7b5b7e042720",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": {
+     "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/mutations/sha-first-word-width-three/source.lex.tex",
+     "bytes": 11612,
+     "sha256": "af8f770e6cd9e193ee67d44dd19cfdc7054118d627f7f6f26e0e7b5b7e042720"
+    },
+    "historicalStatus": "Accepted historical semantic negative; unchanged audit required"
+   },
+   {
+    "name": "sha-first-field-substitution",
+    "requiredRelativePath": "sha-first-field-substitution/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/sha-first-field-substitution/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "8fbc31f93113364970566a51b554bc0e5b3e758a5960397c4b077c0c3303371e",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": {
+     "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/mutations/sha-first-field-substitution/source.lex.tex",
+     "bytes": 11612,
+     "sha256": "8fbc31f93113364970566a51b554bc0e5b3e758a5960397c4b077c0c3303371e"
+    },
+    "historicalStatus": "Accepted historical semantic negative; unchanged audit required"
+   },
+   {
+    "name": "sha-budget-bypassed",
+    "requiredRelativePath": "sha-budget-bypassed/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/sha-budget-bypassed/HashWire.lex.tex",
+    "bytes": 10894,
+    "sha256": "b449dce6446c8e021e99c240e5f1dde25e15b06c815e3570c1fec02b76cc2284",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": {
+     "path": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/mutations/sha-budget-bypassed/source.lex.tex",
+     "bytes": 10894,
+     "sha256": "b449dce6446c8e021e99c240e5f1dde25e15b06c815e3570c1fec02b76cc2284"
+    },
+    "historicalStatus": "Executed but unaccepted failure; retained exactly"
+   },
+   {
+    "name": "blake-block-boundary-short",
+    "requiredRelativePath": "blake-block-boundary-short/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/blake-block-boundary-short/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "4280cca991f76185f4d28b2868ea90f2d2c5c256b420f3712bee848ed9ed7495",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": null,
+    "historicalStatus": "Unexecuted in retained mutation attempt; still required"
+   },
+   {
+    "name": "node-scale-thirty-eight-admitted",
+    "requiredRelativePath": "node-scale-thirty-eight-admitted/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/node-scale-thirty-eight-admitted/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "87049f904ca8d933f656f017bf6c22ec156f8da9009956a8cefb90d04b62f299",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": null,
+    "historicalStatus": "Unexecuted in retained mutation attempt; still required"
+   },
+   {
+    "name": "node-parent-width-thirty-five",
+    "requiredRelativePath": "node-parent-width-thirty-five/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/node-parent-width-thirty-five/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "fbbb1b05c94a188bbfc935dd0ce0c7e8c6b1327667a2934238370d094ef74023",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": null,
+    "historicalStatus": "Unexecuted in retained mutation attempt; still required"
+   },
+   {
+    "name": "node-scale-prefix-omitted",
+    "requiredRelativePath": "node-scale-prefix-omitted/HashWire.lex.tex",
+    "requiredPathPresent": false,
+    "committedRelativePath": "mutations/node-scale-prefix-omitted/HashWire.lex.tex",
+    "bytes": 11548,
+    "sha256": "450cccc8a830daff28b60662813acbaf20fec477b2b2f9f26f2a8a9908c8b8c7",
+    "actualWorktreeAndHeadBlobHashesMatch": true,
+    "retainedExecutedSource": null,
+    "historicalStatus": "Unexecuted in retained mutation attempt; still required"
+   }
+  ],
+  "original": {
+   "requiredRelativePath": "HashWire-original.lex.tex",
+   "requiredPathPresent": false,
+   "committedRelativePath": "project/src/R4/HashWire.lex.tex",
+   "bytes": 11612,
+   "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+   "actualWorktreeAndHeadBlobHashesMatch": true,
+   "durableSource": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/baseline/source/formal-wire/payload/src/R4/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+   }
+  },
+  "searchCorrection": "Initial search of 1821/324/7-entry committed historical inventories found no standalone mutant hashes and located only three executed local source.lex.tex files. That bounded absence inference is superseded: direct repository fixture SHA census found all seven exact sources, confirmed with git show HEAD:path. No mutant was regenerated."
+ },
+ "baseline78": {
+  "roots": 78,
+  "controls": 636,
+  "identities": "All four attestation/source/semantic/build IDs read from each actual bundle match the pinned baseline summary rows.",
+  "durableGroups": [
+   {
+    "root": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/baseline/actual/retained32",
+    "summaryRows": "0..31",
+    "bundle": "positive/<module>/verifiedbundle"
+   },
+   {
+    "root": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/baseline/actual/continued46",
+    "summaryRows": "32..77",
+    "bundle": "positive/<module>/verifiedbundle"
+   }
+  ],
+  "checked": {
+   "fourIdsMatched": 78,
+   "buildOutputAndOleanHashesMatched": 2808,
+   "outputByteLengthsMatched": true,
+   "failures": []
+  },
+  "originalPathState": {
+   "oldEvidence": "/tmp/r4-hash-wire-formal-evidence-20261021/wire",
+   "retained32BundlesAvailable": 0,
+   "continued46Root": "/tmp/r4-hash-wire-publication-recovery-evidence-20261023",
+   "continued46BundlesAvailable": 46,
+   "continued46OutputAndOleanHashesMatched": 1656
+  },
+  "retained32Recovery": {
+   "censusAuthority": "/tmp/r4-hash-wire-publication-recovery-record-order-execution-20261023/plan.json#retainedFiles",
+   "sourceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/hash-wire/baseline/actual/retained32",
+   "sourceFileCount": 2306,
+   "expectedFileCount": 2306,
+   "allExpectedBytesAndShaMatch": true,
+   "extraSourceFiles": 0,
+   "existingDestinationMatches": 1,
+   "existingDestinationMismatches": [],
+   "existingMatch": "setup-inputs/lexlean.lock",
+   "missingDestinationFiles": 2305,
+   "missingLogicalBytes": 139035116,
+   "allocation": "Separate prospective recovery budget must account for filesystem block/metadata overhead; no recovery writes authorized by this report."
+  },
+  "limits": "Read-only presence, exact frozen-census and declared output/olean hashing only; no new independent full process/axiom/custody artifact audit or kernel replay."
+ },
+ "retained16": {
+  "modules": [
+   "HashWireDirect02Controls",
+   "HashWireCross02Controls",
+   "HashWireDirect03Controls",
+   "HashWireCross03Controls",
+   "HashWireDirect04Controls",
+   "HashWireCross04Controls",
+   "HashWireDirect05Controls",
+   "HashWireCross05Controls",
+   "HashWireDirect06Controls",
+   "HashWireCross06Controls",
+   "HashWireDirect07Controls",
+   "HashWireCross07Controls",
+   "HashWireDirect08Controls",
+   "HashWireCross08Controls",
+   "HashWireDirect09Controls",
+   "HashWireCross09Controls"
+  ],
+  "groups": [
+   {
+    "root": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023/restoration",
+    "summaryRows": "0..6",
+    "count": 7,
+    "bundle": "positive/<module>/verify/verifiedbundle"
+   },
+   {
+    "root": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence",
+    "summaryRows": "7..15",
+    "count": 9,
+    "bundle": "positive/<module>/verify/verifiedbundle"
+   }
+  ],
+  "fourIdsMatchedBaseline": 16,
+  "outputAndOleanHashesMatched": 576,
+  "failures": [],
+  "limit": "Raw process, source, temporal/resource, exact tree and independent review history still must pass unchanged predicates."
+ },
+ "unchangedObligations": {
+  "retained": 16,
+  "remaining": 62,
+  "nextRoot": "HashWireDirect10Controls",
+  "requiredRoots": 78,
+  "requiredControls": 636,
+  "acceptedMutations": 2,
+  "requiredMutations": 7,
+  "requiredWitnessOccurrences": 10,
+  "shaBudgetBypassed": "Source recovered does not promote the executed failure; exact projected retry plan remains separately required.",
+  "fullRestorationAccepted": false,
+  "componentAccepted": false,
+  "integrationAccepted": false,
+  "productionAccepted": false
+ },
+ "minimumReviewableTask": {
+  "title": "Exclusive exact-byte path recovery; unchanged restoration history audit",
+  "steps": [
+   "Independently review source map against committed HEAD and frozen inventory/census. Preserve original plans, scripts, receipts, failures and reviews unchanged.",
+   "Inspect all path components and reject symlinks, existing mismatches or extra destination files. Rehash both source and existing destination. No overwrite/deletion/regeneration.",
+   "With separately recorded recovery storage budget, exclusively create eight absent mutant/original source paths from committed exact bytes and 2305 absent retained32 files from durable exact census. Record each source/destination path, byte length and SHA. Leave existing exact lock unchanged.",
+   "Recheck complete trees and original inventories. Inspect the auditor import closure before invoking a reviewed host-only history audit. Retain all baseline78/restored16 and historical negative artifact/process/axiom/resource/custody checks.",
+   "Only after complete history validation prepare separately frozen fresh stage/container/tool/source/epoch/storage binding. Preserve corrected temporal ordering and final independent checks. Direct10 remains the next root; all62 and final78 audit remain mandatory."
+  ],
+  "alternative": "A reviewed exact custody alias could avoid a ~139MB duplicate, but must preserve complete original census and historical raw argv identities. No filesystem monkeypatches or frozen globals. Exact missing-path reconstruction is simpler and requires no auditor semantic relaxation.",
+  "negativeChecks": [
+   "Any wrong mutant byte fails unchanged inventory SHA checks.",
+   "An extra/changed retained32 file fails unchanged exact-tree census.",
+   "Any changed attestation/source/semantic/build identity fails unchanged artifact and four-ID checks.",
+   "Missing raw histories or unknown current epoch must still block execution."
+  ],
+  "testStatus": "PROPOSED_NOT_RUN"
+ },
+ "executionBoundary": {
+  "liveEpoch": null,
+  "actualCurrentStageToolsResourceInspection": "NOT_RUN",
+  "completeHistoricalAuditor": "NOT_RUN",
+  "remainingNative62": "NOT_RUN",
+  "SDKInvoked": false,
+  "VMChanged": false,
+  "repositoryChanged": false,
+  "recoveryWrites": 0,
+  "operationalAuthority": false,
+  "comment": "No currently valid epoch is inferred from historical bytes or this host investigation. Parent must independently establish fresh eligibility under unchanged native gates."
+ },
+ "authorInvestigationErrors": [
+  {
+   "kind": "READ_ONLY_PATH_PROBE_ERROR",
+   "detail": "Initial standalone probe incorrectly appended /verify to continued baseline bundle paths. Actual auditor and directory inspection corrected them to positive/<module>/verifiedbundle. Corrected check found46 original continued and78 durable bundles. This was not artifact loss/native failure."
+  },
+  {
+   "kind": "PREWRITE_REPORT_SIZE_GUARD",
+   "detail": "Initial in-memory pretty JSON was23255bytes, exceeding20480. No output was written. Assert formatting also raised ERR_INVALID_ARG_TYPE for numeric message. Report shortened; no native or evidence data changed."
+  }
+ ],
+ "storage": {
+  "freeBytes": 24970825728,
+  "reserveBytes": 10737418240,
+  "newReportCapBytes": 20480,
+  "noTemporaryCopies": true
+ },
+ "changedPaths": [
+  "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/hash-restoration-next-step.json"
+ ]
+}
