@@ -1,0 +1,141 @@
+{
+  "schema": "lexlean-r4-independent-recovery-spec-review/v1",
+  "status": "PASS_BOUNDED_EXACT_BYTE_RECOVERY_AND_HOST_AUDIT_ONLY",
+  "at": "2026-10-24T07:04:43.889Z",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "independence": "Non-author review of investigation, exact sources/censuses and auditor call path. No recovery writes, auditor execution, SDK calls, compiler replay, VM/container operations, repository or frozen-source changes performed.",
+  "investigation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/hash-restoration-next-step.json",
+    "bytes": 17194,
+    "sha256": "bd4454ac80a66feab0c1600a9ff684a8ad8ab23e756bc0d7f5ec0a7a07396e83"
+  },
+  "checks": {
+    "all13AuthorityFilesRehashed": true,
+    "orderedPlanDirectDependenciesRehashed": 217,
+    "committedFixtureHead": "d1024f1118bd26a5d167c0c431d59ec670b14dac",
+    "eightCommittedWorktreeAndGitShowBytesMatch": true,
+    "mutantSources": 7,
+    "originalSources": 1,
+    "sourceLogicalBytes": 92114,
+    "inventoryWitnessOccurrences": 10,
+    "mutantDestinationCurrentFiles": [
+      "inventory.json"
+    ],
+    "eightDestinationsAbsent": true,
+    "retained32SourceCensusExact": true,
+    "retained32SourceFiles": 2306,
+    "extraSourceFiles": 0,
+    "existingDestinationFiles": 1,
+    "existingDestinationExact": "setup-inputs/lexlean.lock",
+    "missingRetained32Files": 2305,
+    "missingRetained32LogicalBytes": 139035116,
+    "combinedMissingLogicalBytes": 139127230,
+    "combined4KiBRoundedFileBytes": 144482304,
+    "pathComponentsInspected": true,
+    "symlinksRejected": true,
+    "existingDestinationMismatches": [],
+    "extraDestinationFiles": [],
+    "orderedRetainedCount": 16,
+    "orderedRemainingCount": 62,
+    "orderedNextRoot": "HashWireDirect10Controls",
+    "liveEpoch": null
+  },
+  "reviewedImportClosure": [
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+      "bytes": 7650,
+      "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/audit.mjs",
+      "bytes": 8187,
+      "sha256": "2ddb161ca03f484c5ae1ee3a6022716b205de1420c905614d001b37467082b18"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/audit.mjs",
+      "bytes": 8171,
+      "sha256": "d1b82adc362a9f03d45f2ebe518a8e4728ffc897e4cb576fea1f6d40b2d6d740"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-mutation-custody-execution-20261023/guards.mjs",
+      "bytes": 3068,
+      "sha256": "3fae7dc78c61b22399dc3b383883d819d80e4e74cc66ab0c8990f83bc376c84b"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-publication-recovery-record-order-execution-20261023/audit.mjs",
+      "bytes": 12894,
+      "sha256": "c51a1cc220aa74684d83f1577ff0d3ce76adcb2c16bf8b87592d1a21ce015dbf"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/guards.mjs",
+      "bytes": 1578,
+      "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/guards.mjs",
+      "bytes": 1944,
+      "sha256": "57e0418e766d6f38a09baffa38f1ba54f7e9ea2820e76d01f9e1d723a9b5d0c6"
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/audit.mjs",
+      "bytes": 5472,
+      "sha256": "c18593e9c9cc7373f5e8063fbd99dbd373dc5d37b4d866b3ea5243136639a98a"
+    }
+  ],
+  "hostAuditAssessment": {
+    "command": [
+      "node",
+      "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+      "audit-plan"
+    ],
+    "sourceOnlySafety": "All eight static local imports inspected. Auditors/guards use filesystem reads, hashes, assertions and local calculations only; no child_process imports, spawn, network or filesystem mutation. Runner imports child_process but the exact audit-plan branch invokes pins/history, prints result and exits before liveEpoch binding, evidence creation or command invocation. Baseline auditor CLI footer is inactive because argv[1] ends runner.mjs, not audit.mjs.",
+    "expectedSuccessfulStatus": "PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT",
+    "historyChecks": "pins validates all dependencies and seven mutant source hashes/ten witness names; baseline audit validates exact retained32 census and continued46 actual bundles, sourcechecks, complete expected files/declarations/empty observed axioms/output and olean hashes/process records/kernel receipts. VM5 history validates the original seven restoration roots plus nine fresh roots, exact closed trees/summary/review and four-ID prefix equivalence. retainedSplit enforces16/62 and Direct10 next.",
+    "importantBoundary": "audit-plan validates the pinned historical negative summary/review identities and source/witness inventory but does not call guards.negative to freshly reevaluate the two negative diagnostic streams. Do not describe this command alone as a fresh semantic-negative re-audit. Previously accepted negative reviews remain preserved; any claim of newly reaudited negatives needs their unchanged dedicated auditor.",
+    "notRun": true,
+    "noKernelReplay": true,
+    "noFreshEpochOrNativeAuthority": true
+  },
+  "recoveryConditions": [
+    "Freshly record available host storage and allocated-space observations, require available minus256MiB at least10GiB; include copying overhead and recovery receipts within the prospective256MiB allowance. Recheck after recovery and investigate any disproportionate decline.",
+    "Recover only the eight explicitly mapped missing mutant/original files and2305 missing retained32 files. Preserve the existing matching lock and inventory byte-identically; no overwrite, regeneration, deletion, alias monkeypatch or dependency-scope relaxation.",
+    "Before writes rehash every source against frozen inventory/census, inspect every destination ancestor and reject symlinks/nonregular entries, extra destination files and existing mismatches. The normal macOS /tmp to /private/tmp mapping is explicit; do not follow arbitrary symlinks.",
+    "Use exclusive creation for absent destination files and reject races/EEXIST. Record exact source/destination, length and SHA; rehash written bytes and verify complete original2306-file destination census and exact eight source identities. Preserve any partial recovery/error record and do not overwrite to hide failure.",
+    "Only after successful byte recovery run the exact reviewed audit-plan command with unchanged imported files and an explicit empty Node preload/environment injection configuration. Capture actual exit/stdout/stderr and preserve failures. A successful host audit reestablishes historical evidence usability, not newly completed native work.",
+    "Keep the closed mutation/resource failures and unaccepted Direct10 attempt intact; restoration remains16/78 and mutations2/7 until separate actual work. No equivalent resource retry or counter reset is granted."
+  ],
+  "storage": {
+    "freshAvailableBytes": "24023379968",
+    "prospectiveRecoveryCapBytes": 268435456,
+    "reserveBytes": 10737418240,
+    "roundedFileEstimateBytes": 144482304,
+    "headroomWithinRecoveryCapBytes": 123953152,
+    "estimateBoundary": "4KiB-rounded file estimate is not observed allocation; directory/metadata/receipt costs fit conservatively but must be observed. No compiler materialization included."
+  },
+  "laterProcedure": {
+    "path": "/tmp/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+    "bytes": 21353,
+    "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904",
+    "assessment": "Separately recorded future resource-epoch capture/binding procedure remains procedural. Its source pins rehashed. No restart or compute authorization is granted by this recovery review; actual stage/source88/tool/container/epoch/idle/storage capture and independent acceptance remain required before a separately frozen executable successor."
+  },
+  "unchangedAcceptance": {
+    "baselineRoots": 78,
+    "baselineControls": 636,
+    "retainedRestorationRoots": 16,
+    "remainingRestorationRoots": 62,
+    "acceptedMutations": 2,
+    "requiredMutations": 7,
+    "requiredWitnessOccurrences": 10,
+    "fullRestorationAccepted": false,
+    "componentAccepted": false,
+    "productionAccepted": false
+  },
+  "findings": [],
+  "limits": [
+    "Read-only exact-census/source checks completed; full host historical auditor has not been executed in this review. Any additional transitive gap discovered by it remains a blocker, not permission to edit predicates.",
+    "The successful Codec311/whole-result product proofs do not replace full Hash restoration/mutation qualification."
+  ],
+  "changesMade": [
+    "This bounded independent recovery-spec-review.json only."
+  ]
+}

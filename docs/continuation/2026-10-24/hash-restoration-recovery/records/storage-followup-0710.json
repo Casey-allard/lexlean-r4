@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-24T07:10:39.052235+00:00",
+  "availableBytes": "21625237504",
+  "recent16": [
+    {
+      "path": "/private/tmp/claude-501",
+      "duStatus": 0,
+      "allocation": "627492\t/private/tmp/claude-501"
+    },
+    {
+      "path": "/private/tmp/r4-hash-wire-restoration-live-epoch-20261024",
+      "duStatus": 0,
+      "allocation": "668\t/private/tmp/r4-hash-wire-restoration-live-epoch-20261024"
+    },
+    {
+      "path": "/private/tmp/deepseek-ver3141",
+      "duStatus": 0,
+      "allocation": "524668\t/private/tmp/deepseek-ver3141"
+    },
+    {
+      "path": "/private/tmp/lexlean-r4-hash-wire-mutants-20261021",
+      "duStatus": 0,
+      "allocation": "104\t/private/tmp/lexlean-r4-hash-wire-mutants-20261021"
+    },
+    {
+      "path": "/private/tmp/deepseek-rv3141",
+      "duStatus": 0,
+      "allocation": "524652\t/private/tmp/deepseek-rv3141"
+    },
+    {
+      "path": "/private/tmp/rv3141-target",
+      "duStatus": 0,
+      "allocation": "686496\t/private/tmp/rv3141-target"
+    }
+  ],
+  "matchingProcessNamesOnly": [
+    "21355 ssh: /Users/casey.allard/.colima/_lima/colima-lexlean-r4/ssh.sock [mux]",
+    "57255 /Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+    "58053 /Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/cargo",
+    "58105 /Users/casey.allard/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc"
+  ],
+  "readOnly": true
+}

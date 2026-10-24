@@ -1,0 +1,5 @@
+{
+  "status": "AUTHOR_INLINE_SCRIPT_PARSE_FAILURE_BEFORE_EXECUTION",
+  "nativeFailure": false,
+  "detail": "First final-packaging inline Node command contained the invalid token sequence cust o dy. Node raised SyntaxError before executing any statement; no files were written by that invocation. Corrected packaging invocation proceeded without changing source/evidence semantics."
+}

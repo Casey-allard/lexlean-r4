@@ -1,0 +1,25 @@
+{
+  "status": "ADDITIVE_READ_ONLY_BINDING_NO_NEW_ARCHITECTURE_OR_EXECUTION_AUTHORITY",
+  "report": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/hash-restoration-next-step.json",
+    "bytes": 17194,
+    "sha256": "bd4454ac80a66feab0c1600a9ff684a8ad8ab23e756bc0d7f5ec0a7a07396e83"
+  },
+  "existingProcedure": {
+    "path": "/tmp/r4-wire-native-restoration-restart-binding-procedure-20261023.json",
+    "bytes": 21353,
+    "sha256": "6fcc05cba1ff80f85d340a711caf1ba6dd7c313039b650a8e9c2aab087a56904"
+  },
+  "application": "Use the existing procedure and its successor/reviewRequirements unchanged where applicable. The new report resolves exact source recovery availability and adds the measured missing retained32 custody paths; it does not replace the existing continuation design.",
+  "preservedRequirements": [
+    "Recover all eight transitive source files exactly; do not weaken a.pins().",
+    "Preserve byte-identical runner and guards; auditor changes only the reviewed here literal.",
+    "Preserve all source/root/history/resource fields and16/62 order; Direct10 first.",
+    "Bind actual88-source census, genuine lock, exact SDK/tools/container and fresh current epoch/resource/idle/storage receipts through independent review.",
+    "Existing audit-plan must positively validate full baseline78 and retained16 actual artifacts before execute; file presence/hash observations here are not substitute acceptance."
+  ],
+  "currentStateCaution": "The procedure contains historical conditional restart commands. This binding does not authorize or require a restart of the currently running owned VM/container. Parent must use freshly observed state and separately reviewed eligibility; never reset counters to bypass a gate.",
+  "newReportBytes": 17194,
+  "noRecoveryPerformed": true,
+  "noNativePerformed": true
+}

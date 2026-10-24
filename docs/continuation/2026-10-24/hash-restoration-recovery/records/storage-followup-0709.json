@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-24T07:09:45.104214+00:00",
+  "hostAvailableBytes": "22001758208",
+  "since": "2026-10-24T07:01:00Z",
+  "boundedNewestDirectoryLimit": 20,
+  "rows": [
+    {
+      "path": "/private/tmp/deepseek-ver3141",
+      "created": "2026-10-24T07:08:43.134378+00:00",
+      "duStatus": 0,
+      "allocation": "524668\t/private/tmp/deepseek-ver3141"
+    },
+    {
+      "path": "/private/tmp/r4-hash-wire-restoration-live-epoch-20261024",
+      "created": "2026-10-24T07:07:29.783528+00:00",
+      "duStatus": 0,
+      "allocation": "668\t/private/tmp/r4-hash-wire-restoration-live-epoch-20261024"
+    }
+  ],
+  "swap": "vm.swapusage: total = 14336.00M  used = 13157.94M  free = 1178.06M  (encrypted)\n",
+  "vmAllocated": "26074520\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4\n1490440\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4\n",
+  "ourRecoveryFileIncrementBytes": 144482304,
+  "attribution": "Reported directory allocation only; APFS sharing/concurrent churn prevents exact physical attribution. No unrelated files/processes modified."
+}

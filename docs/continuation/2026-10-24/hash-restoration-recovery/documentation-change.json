@@ -1,0 +1,22 @@
+{
+  "baseCommit": "d1024f1118bd26a5d167c0c431d59ec670b14dac",
+  "edits": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "beforeBytes": 70009,
+      "beforeSha256": "85e3a592b5df9b13c9affe8265a65cf2c29876ce4ae1e92dfd7f49f3f3fb7f5f",
+      "afterBytes": 71227,
+      "afterSha256": "fbdb93f832b09851f9fb36ed8f64a611858ae12a08c6561ca53336a0696c89f4",
+      "scope": "Current HashWire row replaced and one current-status paragraph added"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "beforeBytes": 53972,
+      "beforeSha256": "9b8cfa67516aca87e3b447912790165cba9e264006e82c8ab52e10775fedc91f",
+      "afterBytes": 54993,
+      "afterSha256": "d69e4d377558519c463f62beb94322f29c57a97a316aabd0457419d05d5d517f",
+      "scope": "One current-status paragraph added"
+    }
+  ],
+  "scope": "Only current Hash custody/hold update; existing Codec acceptance and historical proof records preserved."
+}

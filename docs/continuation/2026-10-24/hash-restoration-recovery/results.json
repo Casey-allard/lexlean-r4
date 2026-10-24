@@ -1,0 +1,155 @@
+{
+  "schema": "lexlean-r4-hash-restoration-recovery-results/v1",
+  "status": "PASS_HISTORICAL_CUSTODY_RECOVERY_AND_REVIEWED_SUCCESSOR_NATIVE_NOT_EXECUTED",
+  "at": "2026-10-24T07:18:01.728Z",
+  "recovery": {
+    "createdFiles": 2313,
+    "retainedExistingFiles": 1,
+    "totalRows": 2314,
+    "originalAndMutantSources": 8,
+    "retained32Files": 2306,
+    "allSourceDestinationHashesMatched": true,
+    "sourceRegeneration": false
+  },
+  "hostAudits": {
+    "predecessor": "PASS parent and independent unchanged audit-plan",
+    "successor": "PASS actual audit-plan recorded in successor SPEC review",
+    "boundary": "Fresh host re-audit of historical baseline78 and retained16 artifacts/custody; zero fresh kernel replays or native negative-stream reaudits."
+  },
+  "proofState": {
+    "historicalBaselineRoots": 78,
+    "baselineControls": 636,
+    "restorationRetained": 16,
+    "restorationRemaining": 62,
+    "nextRoot": "HashWireDirect10Controls",
+    "acceptedMutations": 2,
+    "requiredMutations": 7,
+    "witnessOccurrences": 10,
+    "fullRestorationAccepted": false,
+    "newNativeRuns": 0,
+    "newKernelReplays": 0,
+    "newNegativeStreamReaudits": 0,
+    "componentAccepted": false,
+    "objectAccepted": false,
+    "integrationAccepted": false,
+    "productionAccepted": false
+  },
+  "successor": {
+    "manifest": {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/manifest.json",
+      "bytes": 1257,
+      "sha256": "58e35f035f419721ac5f3f72785107d06712659450202273bec305cc57428fa4"
+    },
+    "executionFiles": [
+      {
+        "path": "plan.json",
+        "bytes": 647311,
+        "sha256": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04"
+      },
+      {
+        "path": "runner.mjs",
+        "bytes": 7650,
+        "sha256": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1"
+      },
+      {
+        "path": "audit.mjs",
+        "bytes": 8174,
+        "sha256": "5794e827a728075dd144d8cc12b47222b96376d0d993a3dbcbffa01a014055f1"
+      },
+      {
+        "path": "guards.mjs",
+        "bytes": 1578,
+        "sha256": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+      }
+    ],
+    "runnerAndGuardsByteIdentical": true,
+    "auditorOnlyHereLiteral": true,
+    "originalDependencyPrefix": 217,
+    "dependencies": 292,
+    "appendedRefs": 75,
+    "capture2Leaves": 57,
+    "reviewedEpoch": "2026-10-24T05:31:03.102794321Z",
+    "restartCount": 0,
+    "restartPerformed": false,
+    "historicalSchemaTag": "BOUND_PARENT_RESTART_REVIEW does not claim a new restart.",
+    "history": "Archived draft-status and old plan status remain preparation-time history. Completed reviews establish current source-review status; they do not establish execution eligibility."
+  },
+  "reviews": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-spec-review.json",
+        "bytes": 8885,
+        "sha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-spec-review.json",
+      "status": "PASS_BOUNDED_EXACT_BYTE_RECOVERY_AND_HOST_AUDIT_ONLY"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result-review.json",
+        "bytes": 5634,
+        "sha256": "7e369cc80979e670d0b752e0cfdcc62de163fa41a1137b868fa8ee4b19ff8aff"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/recovery-result-review.json",
+      "status": "PASS_USABLE_HISTORICAL_CUSTODY_ONLY"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/epoch-review.json",
+        "bytes": 18467,
+        "sha256": "0df3a0da2adac529d18c64b54dbe34f884213464bc58848fc175eaf0d695d156"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/epoch-review.json",
+      "status": "PASS_SCOPED_OBSERVED_CAPTURE_WITH_PROCEDURE_GAPS"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-epoch-review.json",
+        "bytes": 17633,
+        "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-epoch-review.json",
+      "status": "PASS_ACTUAL_EPOCH_CAPTURE_SUFFICIENT_FOR_LIVE_EPOCH_BINDING"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-spec-review.json",
+        "bytes": 6038,
+        "sha256": "24b35279fb8d8c31bd28abc2b4066ecfb96346d3603202282da67c50fb55a936"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-spec-review.json",
+      "status": "PASS_MINIMAL_FROZEN_SUCCESSOR_SPEC_NO_NATIVE_AUTHORITY"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-code-review.json",
+        "bytes": 9348,
+        "sha256": "5c1598946943e1bf67e17c0ff10263d6b595fb93aec169a695f8c7e1523c8639"
+      },
+      "portablePath": "docs/continuation/2026-10-24/hash-restoration-recovery/records/successor-code-review.json",
+      "status": "PASS_EXACT_MINIMAL_SUCCESSOR_CODE_NATIVE_HOLD"
+    }
+  ],
+  "nativeEligibility": {
+    "status": "HOLD_NO_LAUNCH_DECISION",
+    "codeReviewObservationBytes": 21069303808,
+    "observationBoundary": "Historical sample supplied to CODE review, not a current continuous measurement.",
+    "parentLaunchFloorBytes": 21474836480,
+    "reserveBytes": 10737418240,
+    "peakPlanningAllowanceBytes": 10737418240,
+    "perRootPreBytes": 11811160064,
+    "perRootPostBytes": 10737418240,
+    "unresolvedStorageDecline": true,
+    "interpretation": "Earlier capture passed capacity; later review observation was below20GiB. A rebound alone does not release the hold. Fresh parent resource/idle/source/tool/epoch preflight and eligibility review remain mandatory. No counter reset, cleanup, restart or limit waiver authorized.",
+    "memory": "All six capture2 memory counters were zero. Existing oom/oom_kill/optional groupkill predicates remain unchanged; no stronger max-counter guard claimed."
+  },
+  "remainingScope": "Nine unfinished drafts;331/403 canonical Object controls locally verified through Store20+Codec311;Read33 and Construction39 remain72 open controls. Canonical ordinal26 interoperability, original257 fold,20 primitive controls, semantic mutations,Hash production binding,PrismPM/model/scenarios and Pages remain open.",
+  "deliveryBudget": {
+    "record": "records/delivery-budget.json",
+    "capBytes": 2097152,
+    "hostFreeBytesBeforeFinalWrites": 25485557760,
+    "reserveBytes": 10737418240,
+    "measurement": "Discrete observation, not peak or reservation."
+  },
+  "omissions": "Baseline and restoration binary artifacts remain at their pinned external paths. This checkpoint contains inert UTF8 source/evidence only; archives are exact, not executable substitutes for the retained host environment."
+}

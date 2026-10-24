@@ -1,0 +1,127 @@
+{
+  "schema": "lexlean-r4-independent-recovery-result-review/v1",
+  "status": "PASS_USABLE_HISTORICAL_CUSTODY_ONLY",
+  "at": "2026-10-24T07:07:18.840Z",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "scope": "Independent source/destination full hash census, raw receipt audit and one rerun of the unchanged host-only audit-plan. No SDK/compiler/kernel replay, container/VM action, recovery rewrite, repository or frozen-code change.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-result.json",
+      "bytes": 1198422,
+      "sha256": "324cede29f5411c6811e3079eccf2b04e7c419ea957e3546db16171089577127"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-budget.json",
+      "bytes": 338,
+      "sha256": "6500cb657ebef726248bf0ab58421c409e3532f64f395e9d3a2cae7dd102df74"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/recovery-spec-review.json",
+      "bytes": 8885,
+      "sha256": "630f522b3679420deac7ec7d581d82e0b415e5bff6f51b67304e97e47c410ab7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/process.json",
+      "bytes": 494,
+      "sha256": "3a0f3ae82ab6a209baa867eb74d8231241c36cab59d49513d874ccced03ab48e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/stdout",
+      "bytes": 194,
+      "sha256": "a99ec1e9657d2413b8328c8742394de4b5e58118cf828e452aad831ffed53d74"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/host-history-audit/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "recovery": {
+    "createdFiles": 2313,
+    "retainedExistingFiles": 1,
+    "retainedExistingPath": "setup-inputs/lexlean.lock",
+    "exactRows": 2314,
+    "retained32Files": 2306,
+    "allSourceAndDestinationBytesShaMatch": true,
+    "mutantAndOriginalFiles": 8,
+    "committedGitBlobMatches": 8,
+    "existingInventoryExact": true,
+    "extraDestinationFiles": 0,
+    "symlinks": 0,
+    "reviewedImportFilesUnchanged": 8,
+    "orderedDependenciesUnchanged": 217,
+    "liveEpoch": null,
+    "sourceInventoryWitnessOccurrences": 10
+  },
+  "parentAudit": {
+    "status": 0,
+    "signal": null,
+    "spawnError": null,
+    "stdoutSha256": "a99ec1e9657d2413b8328c8742394de4b5e58118cf828e452aad831ffed53d74",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result": {
+      "status": "PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT",
+      "retainedRoots": 16,
+      "remainingRoots": 62,
+      "planSha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0",
+      "SDKInvoked": false
+    },
+    "elapsedMilliseconds": 10348
+  },
+  "independentHostRerun": {
+    "executable": "/opt/homebrew/Cellar/node/26.4.0/bin/node",
+    "args": [
+      "/tmp/r4-hash-wire-restoration-ordered-epoch-successor-20261023/runner.mjs",
+      "audit-plan"
+    ],
+    "nodeOptionsUnset": true,
+    "nodePathUnset": true,
+    "started": "2026-10-24T07:07:09.388Z",
+    "ended": "2026-10-24T07:07:18.836Z",
+    "status": 0,
+    "signal": null,
+    "stdout": "{\"status\":\"PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT\",\"retainedRoots\":16,\"remainingRoots\":62,\"planSha256\":\"8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0\",\"SDKInvoked\":false}\n",
+    "stderr": "",
+    "stdoutSha256": "a99ec1e9657d2413b8328c8742394de4b5e58118cf828e452aad831ffed53d74",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result": {
+      "status": "PASS_HOST_PLAN_BASELINE78_RETAINED16_AUDIT",
+      "retainedRoots": 16,
+      "remainingRoots": 62,
+      "planSha256": "8d4c88982f4d0067875da605a75386507c3647ca72a5f1ab1a4ad171507a3fa0",
+      "SDKInvoked": false
+    }
+  },
+  "storage": {
+    "prospectiveCapBytes": 268435456,
+    "reserveBytes": 10737418240,
+    "createdFileAllocatedBytes": 144482304,
+    "recoveryReceiptTreeAllocatedBytes": 1601536,
+    "conservativeWithMaximumReviewBytes": 146104320,
+    "hostBeforeBytes": "24030269440",
+    "parentHostAfterBytes": "23884460032",
+    "reviewHostAvailableBytes": "23727955968",
+    "capAndReservePass": true,
+    "observationBoundary": "Discrete samples and current file allocation only; no continuous highwater claim."
+  },
+  "acceptance": {
+    "historicalBaselineRoots": 78,
+    "historicalBaselineControls": 636,
+    "retainedRestorationRoots": 16,
+    "remainingRestorationRoots": 62,
+    "nextRoot": "HashWireDirect10Controls",
+    "acceptedMutations": 2,
+    "requiredMutations": 7,
+    "fullRestorationAccepted": false,
+    "newKernelReplays": 0,
+    "newNegativeDiagnosticReaudits": 0,
+    "nativeExecutionAuthorized": false,
+    "productionAccepted": false
+  },
+  "limits": [
+    "Host audit freshly validates baseline78 and retained16 historical artifacts/custody under unchanged predicates. It binds historical negative summary/reviews but does not call guards.negative to freshly reevaluate old negative streams.",
+    "Recovery establishes usable historical paths, not completion of62 remaining roots, full7 mutations/10 witnesses, component qualification or native resource eligibility.",
+    "A separately frozen actual-stage/tool/source/epoch/storage binding and independent review remain required for any native successor. No counters or old failures were waived."
+  ],
+  "findings": []
+}
