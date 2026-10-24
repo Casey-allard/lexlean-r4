@@ -1,0 +1,61 @@
+{
+  "schema": "lexlean-r4-admitted-range-invocation-diff/v1",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/evidence/invoke-contextual-range-finish.mjs",
+    "bytes": 7742,
+    "sha256": "808ae6ea278ecd74be052fa92d82c16d94c9a8a7bdbf20e487db3a12d276dc36"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/evidence/candidate-invocation-code-review.json",
+    "bytes": 6467,
+    "sha256": "de8322472edd926cc994a4e4ca99d7b6913b4cbc2f2986a5fb8cc63e9fd6353e"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/invoke-admitted-range-result.mjs",
+    "bytes": 7710,
+    "sha256": "aea4eac295cd9a66b77c2d10d60510afd0920a239cf5de5109999f65d813ecc9"
+  },
+  "replacements": [
+    {
+      "before": "one actual contextual range-finish Result",
+      "after": "one actual admitted-range full Result",
+      "occurrences": 1
+    },
+    {
+      "before": "['contextual-false','contextual-positive']",
+      "after": "['range-false','range-positive']",
+      "occurrences": 1
+    },
+    {
+      "before": "select exactly one contextual range-finish phase",
+      "after": "select exactly one admitted-range phase",
+      "occurrences": 1
+    },
+    {
+      "before": "/tmp/r4-object-contextual-range-finish-${phase}-owned-20261023",
+      "after": "/tmp/r4-object-admitted-range-result-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "before": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486",
+      "after": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e",
+      "occurrences": 1
+    },
+    {
+      "before": "phase==='contextual-false'",
+      "after": "phase==='range-false'",
+      "occurrences": 1
+    },
+    {
+      "before": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18",
+      "after": "inputs.length!==19||new Set(inputs.map(x=>x.destination)).size!==19",
+      "occurrences": 1
+    },
+    {
+      "before": "tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+      "after": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "boundary": "Only concrete comment/selectors/stage-prefix/source-manifest/input-census/target literals changed. Every guard, command recorder, cleanup/postcapture/tool/epoch/source/lock/storage check and compiler limit remains byte-identical under these substitutions. No invocation executed."
+}

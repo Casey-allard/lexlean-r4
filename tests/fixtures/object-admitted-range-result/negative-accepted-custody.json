@@ -1,0 +1,20 @@
+{
+  "schema": "lexlean-r4-admitted-range-negative-accepted-custody/v1",
+  "status": "ACCEPTED_INTENDED_FULLCONSUMER_WRONG_STAT_NEGATIVE_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/negative-native-review.json",
+        "bytes": 11474,
+        "sha256": "de2dd7727a3e262dae2b9d7dbd4dc46465794377e999337602075f36e8150db9"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/negative-native-review.json"
+    }
+  ],
+  "priorPendingRawCustody": {
+    "path": "tests/fixtures/object-admitted-range-result/negative-raw-custody.json",
+    "bytes": 11086,
+    "sha256": "6cf6c6a024ddbfcacf6e7fc18209cf0fa9b2e918a6468ad7409e60e822878a2b"
+  },
+  "boundary": "Independent negative review imported additively. The earlier pending raw custody is unchanged. Positive acceptance is pending independent artifact review."
+}

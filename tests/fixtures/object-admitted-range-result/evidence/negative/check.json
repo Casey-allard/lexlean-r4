@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-admitted-range-result-range-false-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-24T02:26:12.755Z",
+  "ended": "2026-10-24T02:26:13.366Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectAdmittedRangeResult\",\"ObjectContextualFinishContext\",\"ObjectContextualFinishTransport\",\"ObjectContextualRangeFinish\",\"ObjectManifestVersion\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"faa9022991f0e5176aafa7f0ad644b9e42e569fc1adf0868fefa1bdc580c97a8\",\"source_id\":\"c32e184191858db59d5e70924a83227637a3b375a25e74fcbb6a9927a342ebdf\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

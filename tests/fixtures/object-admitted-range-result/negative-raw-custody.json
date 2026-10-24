@@ -1,0 +1,227 @@
+{
+  "schema": "lexlean-r4-admitted-range-negative-raw-custody/v1",
+  "status": "CLOSED_NEGATIVE_RAW_PRESERVED_INDEPENDENT_NATIVE_REVIEW_PENDING",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/check.json",
+        "bytes": 999,
+        "sha256": "e65204c563a5f3f7d6c1b045541f86c86b74ea8d54e5a3ffd73d1412906158dc"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/check.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/verify.json",
+        "bytes": 7817,
+        "sha256": "c924989b85f4a6002b4d4228119ee6ca4b43500d1f0aa7b19a96e91879ce9839"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/verify.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/result.json",
+        "bytes": 7619,
+        "sha256": "c9dafc15bbefd39bed1451df5af61e140f1a8b78bf2d37c016f813f8cc6a961f"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/result.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/expected-inputs.json",
+        "bytes": 6943,
+        "sha256": "075a795e89fd389d910e946072ccddffa1b7b0bc5147d547a821f780d5507b42"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/expected-inputs.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/source-before.json",
+        "bytes": 5209,
+        "sha256": "36ee06667173e0eb989baeb9719c6b2bce04494c0cfb897885bec43e22181e6d"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/source-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/source-after.json",
+        "bytes": 5209,
+        "sha256": "3624ba6ae166e887c257c882bffb6c2d8ac1a7e72e61dfa4843fd1b08901e9c6"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/source-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/lock.json",
+        "bytes": 541,
+        "sha256": "7d02fa291542b1120dd0b57d639edd5433cc5c8388bcd1dca4539dfbf9518d04"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/lock.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/lock-bytes.json",
+        "bytes": 2057,
+        "sha256": "9f4b87cd5b206668da907aa1cf106e4fb627b4df2654aa0a31a391de15a7ea29"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/lock-bytes.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/lock-after.json",
+        "bytes": 493,
+        "sha256": "5bb50868b1d524e35909bd2bd13f7f913c97ea31fef22fb5dcb85cebbea003e8"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/lock-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "c87ead5b24ebc733eef010fb54168bd5c0824101ee9d0bbc3aff99dabf09e13a"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/tools-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/tools-after.json",
+        "bytes": 1005,
+        "sha256": "4bc4bcaef576b50805688bb84a123c1e16f99d524956ef96439b6b0e3273f27e"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/tools-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "5f16184ef692122cf228db7ef6441d12ab0c4c7a384f6c8578eef9adef16eebf"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/epoch-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "fefc14876b92f67ee40373423193512ebfb0f4cdf409827e326de3ca3d4a9477"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/epoch-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "f31d67cd03d8cdf1375652af8120c87b936828945a20979402529ca429daa573"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/memory-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "ebce3679808100ed4c90021a2b8aa1677016c9a239b8bb1de2e08fc418eca252"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/memory-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "c590b3f4599821f092db3e81231722b175329f168a4966b1a9dca362815239c8"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/idle-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "0fb7f82dbf4c36d591851a0d2850afc1ab0af357e90037a4c29877db1225843b"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/idle-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/host-before.json",
+        "bytes": 152,
+        "sha256": "255b3e70f1b862b4bc5ca74c0703b1c4a2fba637c8b6374b881493831322b344"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/host-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/host-after.json",
+        "bytes": 142,
+        "sha256": "27e767da248e66538b571e60cfb2d3b0a6e1b60f1f4d1d50b05b7aea980b97aa"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/host-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "45f0389733858f312b7b3d345146c79702eba3d6366bc742c36651a7d6a4d7ca"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/guest-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "ff0b5687943c5eca0214f115b6e9a1e281ed506b0dc708e5a0df1a640ee6b7f1"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/guest-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/postcapture-errors.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/resource-observation.json",
+        "bytes": 2714,
+        "sha256": "83e70b1b4f676b07fc12e9593558cef8ce53f05d0947eaabcb3ac44643de3ebe"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/negative/resource-observation.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/code-review.json",
+        "bytes": 5723,
+        "sha256": "8df4d6de5a81dd22746c81d61901344fa67e9549df88c03a8e1dffa316a12164"
+      },
+      "destination": "tests/fixtures/object-admitted-range-result/evidence/code-review.json"
+    }
+  ],
+  "derivedLock": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-false/lock-bytes.json",
+      "bytes": 2057,
+      "sha256": "9f4b87cd5b206668da907aa1cf106e4fb627b4df2654aa0a31a391de15a7ea29"
+    },
+    "extraction": "Exact UTF-8 stdout bytes from successful official lock-bytes receipt; no reserialization or fabricated production binding.",
+    "destination": {
+      "path": "tests/fixtures/object-admitted-range-result/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "90322909081ce2ddee6069f05082301834841eaabd071b22d551c0e39b897754"
+    }
+  },
+  "observedOnly": {
+    "verifyStatus": 1,
+    "diagnostic": [
+      "LLV7002"
+    ],
+    "artifact": [],
+    "independentNativeAcceptance": null,
+    "positive": "NOT_RUN_AT_PRESERVATION"
+  },
+  "resourceObservation": "The retained resource-observation.json is a discrete operational sample, not a measured peak or proof of maximum memory/CPU use.",
+  "omitted": "Per-input copy/stage/allocation/swap receipts remain preserved in the original local phase directory. No binary artifacts copied; no native verification rerun.",
+  "preservation": "Frozen candidate, source bindings and source custody retain preparation-time NOT_RUN status; no final results authored.",
+  "storage": {
+    "hostAvailableBytes": "35665969152",
+    "portableBudgetBytes": 1048576
+  }
+}

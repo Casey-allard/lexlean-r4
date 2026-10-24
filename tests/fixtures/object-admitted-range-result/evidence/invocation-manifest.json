@@ -1,0 +1,57 @@
+{
+  "schema": "lexlean-r4-admitted-range-invocation/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/manifest.json",
+    "bytes": 2009,
+    "sha256": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e"
+  },
+  "files": [
+    {
+      "path": "invoke-admitted-range-result.mjs",
+      "bytes": 7710,
+      "sha256": "aea4eac295cd9a66b77c2d10d60510afd0920a239cf5de5109999f65d813ecc9"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2590,
+      "sha256": "1e3aae9f590b3e217889f89be6ce711e09890ada4b7f789fb5babb35e942eb97"
+    }
+  ],
+  "selectors": [
+    "range-false",
+    "range-positive"
+  ],
+  "commands": [
+    "node invoke-admitted-range-result.mjs range-false",
+    "After independent intended-negative review and fresh gates: node invoke-admitted-range-result.mjs range-positive"
+  ],
+  "mandatoryTarget": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+  "inputsPerPhase": 19,
+  "selection": {
+    "suppliedSourceFiles": 15,
+    "expectedReachableModules": 13,
+    "selected": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [
+      "R4.Object",
+      "R4.ObjectStore"
+    ],
+    "boundary": "Static import reachability only; actual admission and verification NOT_RUN."
+  },
+  "stagePattern": "/tmp/r4-object-admitted-range-result-${phase}-owned-20261023",
+  "boundary": "No native dispatch. Negative acceptance requires actual fullconsumer mismatch, not prerequisite failure. Positive requires the complete actual original admitted-range equation and independent artifact audit."
+}

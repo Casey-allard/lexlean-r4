@@ -1,0 +1,18 @@
+{
+  "schema": "lexlean-r4-static-preparation-observation/v1",
+  "classification": "AUTHORING_SELECTOR_ASSERTION_FAILURE_BEFORE_ANY_CANDIDATE_WRITE",
+  "observedError": "Error: negative AST []",
+  "actualNativeRun": false,
+  "filesWrittenByFailedAttempt": 0,
+  "failedSelector": "if(k==='visitedRecordBytes'&&v.kind==='nat'&&v.value==='184'){v.value='185';diffs.push(route+'.'+k+'.value')}",
+  "cause": "Semantic records represent fields as {field,value}, not direct properties. The zero-mutation guard stopped construction before filesystem writes.",
+  "correction": "Read the actual stats field and its visitedRecordBytes member; preserve all other AST nodes and independently compare reviewed positive/negative whole-statement identities.",
+  "actualCorrectedDifference": [
+    {
+      "path": "semantic.declarations.0.statement.right.arguments.0.fields.4.value.fields.2.value.value",
+      "before": "184",
+      "after": "185"
+    }
+  ],
+  "notAnIntendedSemanticNegative": true
+}

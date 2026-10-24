@@ -1,0 +1,145 @@
+{
+  "schema": "lexlean-r4-original-whole-outer-connection-proposal/v1",
+  "status": "SOURCE_ONLY_ACTUAL_PREREQUISITE_BOUND_PENDING_INDEPENDENT_SPEC",
+  "author": "/root/orchestration_design_review",
+  "prerequisite": {
+    "admittedRangeSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 35487,
+      "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+    },
+    "candidateManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/manifest.json",
+      "bytes": 2009,
+      "sha256": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e"
+    },
+    "sourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/code-review.json",
+      "bytes": 5723,
+      "sha256": "8df4d6de5a81dd22746c81d61901344fa67e9549df88c03a8e1dffa316a12164"
+    },
+    "actualAdmittedRangeResult": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/range-positive/result.json",
+      "bytes": 1121,
+      "sha256": "33d4f41690b43962d179b59e09a3ba8859cc08b9b0cdafa50d7f818e95f8de1e"
+    },
+    "independentAdmittedRangeNativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive-native-review.json",
+      "bytes": 6708,
+      "sha256": "c39fdda033eb84ad72a3493bd07124daf7e5cf0cbcd1c0a44a9f97f3b4f45530"
+    },
+    "boundary": "Actual admitted-range complete Result independently accepted locally; no new whole-read candidate/native acceptance. This actual prerequisite binding requires independent SPEC of the unchanged next goal and proof route."
+  },
+  "selection": {
+    "notSibling": "The public range wrapper is R4.Object.ObjRangeRead, not ObjReadRange. It is not called by original ordinal26: the control calls R4.Object.ObjWholeRead directly. A new ObjRangeRead theorem would be useful elsewhere but would not close this exact original call path.",
+    "next": "Connect exact original ObjWholeRead call to its still-real whole-data hash/digest-check continuation after successful admitted range. Retain actual outer manifest admission and backend-key validation in the mandatory consumer LHS.",
+    "whySmallest": "One existing supported contextual transport of the full admitted-range equality, then one actual original whole-read consumer. No separate planner/admission identity theorem, new generic lemma or full-control expansion. Genuine whole96 hashing and digest comparison stay explicit on the RHS."
+  },
+  "exactGoal": {
+    "text": "ObjWholeRead(originalBackend, originalManifest96, originalLimits) = exact ObjWholeAdmitted successful-range continuation with read replaced by complete original ObjRangeVerified",
+    "controlOrdinal": 26,
+    "controlName": "objProtocolWholeBytes",
+    "controlStatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "leftPath": "ObjectReadControls.declarations[25].statement.left.scrutinee",
+    "leftSha256": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "rightExtraction": "Instantiate ObjWholeAdmitted.body with original view/manifest/limits; select branches[1].body (successful read); replace only bound read references with admitted-range theorem RHS.arguments[0]. Keep all nested digest binding, actual hash call, digest comparison, typed error and whole-result construction.",
+    "rightSha256": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+    "statementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "type": "Result R4.ObjectTypes.ObjWholeVerified R4.ObjectTypes.ObjError",
+    "rightMeaning": "Actual ObjHashBytes(project bytes completeRangeRecord), then actual comparison against unchanged originalManifest.digest; errors propagate and successful whole record projects bytes/version/stats. This is not Result.ok assertion, precomputed digest or final ordinal26 projected-bytes result."
+  },
+  "context": {
+    "nameSuggestion": "ObjOuterWholeContext",
+    "type": "(rangeResult : Result ObjRangeVerified ObjError) -> Result ObjWholeVerified ObjError",
+    "sourceDeclaration": "R4.ObjectRead.ObjWholeAdmitted",
+    "sourceDeclarationSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+    "instantiatedBodySha256": "33fb656f83a645f7cb78f2fb2d0f9fc08a97c860706b4e7c23a298ebf185eb8b",
+    "holePath": "body.scrutinee",
+    "holeCount": 1,
+    "holeOriginalQualifiedSha256": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "contextBodySha256": "2eee974fe42d7ec8d13174d340d28c497220fa0ed45cc8cb37322d17f91f900e",
+    "operation": "Instantiate actual original view/manifest/limits in production ObjWholeAdmitted.body; replace only top-level ObjRangeAdmitted scrutinee with rangeResult. Preserve Result.error branch, full successful read body, actual ObjHashBytes call, actual digest comparison, integrityFailure and whole record fields.",
+    "scopeQualification": "Removed hole originally references local ObjRangeAdmitted; its accepted theorem LHS is the same call externally qualified R4.ObjectRead. No other local call remains in this context: hash is already R4.ObjectCodec and comparison R4.ObjectTypes. Future same-module context/family references are name-only; imported theorem references explicitly qualified.",
+    "roundTrip": "Substituting original range LHS with only its redundant external module removed exactly reconstructs instantiated production body33fb656f83a645f7cb78f2fb2d0f9fc08a97c860706b4e7c23a298ebf185eb8b. This roundtrip was checked structurally, not executed as a native proof."
+  },
+  "supportedProof": {
+    "family": "P(0) is exact actual admitted-range theorem equality. P(Nat.succ prior) is H(rangeLeft)=H(rangeRight), independent of prior.",
+    "transport": "Nat induction: zero Apply ObjectAdmittedRangeResult.objOriginalAdmittedRangeResult; successor Cases prior, Congruence in both cases. Retain same previously checked constructor pattern, empty axiom policy and actual Result typing.",
+    "mandatoryConsumer": "The exact original ObjWholeRead equation above Applies the lifted theorem at Nat1. Native definitional conversion must establish real ObjAdmitManifest(originalManifest,limits) success returning this manifest, original ObjRawKeysValid(view,None), and equality between actual admitted whole call and H(rangeLeft), plus reduction of H(Result.ok fullRange) to exact success continuation. These gates are not manually removed from the consumer.",
+    "precedent": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+      "bytes": 1110,
+      "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+    },
+    "boundary": "Supported shape only, not established conversion or empty-axiom result. No Eq.trans/Rewrite/Simplify/propext/raw tactics or inferred transitivity lemma."
+  },
+  "negative": {
+    "kind": "Single zero-branch Apply target mutation",
+    "definition": "Include identical unrelated0=0 reflexivity theorem in both transport variants. Positive zero Apply names actual admitted-range theorem. Negative zero Apply names same-module unrelated theorem, without module qualifier. All goal statements, context, fullconsumer, input/runtime/hash/digest data and resources remain identical.",
+    "expectation": "Source admission then intended proof mismatch in transport base, while selecting actual whole consumer as verify target. Dependency rejection may precede consumer elaboration and is not consumer verification. Timeout/OOM/admission rejection is not intended negative.",
+    "why": "The remaining RHS deliberately retains unknown hash Result; changing an assumed digest/output numeral would silently assume success. Wrong-base proof tests exact range-equality dependency without manufacturing a hash."
+  },
+  "preservedOriginalInputs": {
+    "backendSha256": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "manifestSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "limitsSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "admittedRangeStatementSha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d",
+    "completeRangeRecordSha256": "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+    "wholeReadDeclarationSha256": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+    "outerGuard": "ObjWholeRead production body still calls ObjAdmitManifest, preserves its errors, evaluates ObjRawKeysValid(view,Option.none), rejects invalid keys, and calls ObjWholeAdmitted with the actually admitted manifest."
+  },
+  "tests": [
+    {
+      "name": "Source reconstruction",
+      "status": "NOT_RUN_FOR_CANDIDATE",
+      "requirement": "Independent SPEC then candidate CODE: exact original left/right extraction, one-hole restoration, types/imports/module scope, positive/negative single Apply difference, original data/emptyaxioms/resources, complete inherited closure/config census."
+    },
+    {
+      "name": "Actual negative",
+      "status": "NOT_RUN",
+      "requirement": "After prerequisites and fresh gates, official check then full-consumer verify intended wrong-base mismatch, followed by independent negative audit."
+    },
+    {
+      "name": "Actual positive",
+      "status": "NOT_RUN",
+      "requirement": "Only after accepted negative and fresh gates, actual original whole-consumer verification and independent full artifact/kernel/axiom/source/resource audit. Helper-only pass insufficient."
+    }
+  ],
+  "cost": "Unknown. Matching original WholeRead against H may unfold admission, key validation, range/planner/traversal and version/whole hash expressions. Prior admitted-range/finish timings do not prove caching, reduced computation or success. On failure preserve exact evidence; no automatic equivalent retry, limit increase or unreviewed strategy switch.",
+  "resources": "Original runtime/inputs/digest/compiler/language/emptyaxioms unchanged;300000ms child/4GiB2CPU and all source/tool/lock/epoch/idle/zeroevent/storage/postcapture gates. Recompute exact inherited source/config/import census rather than predicting native module count.",
+  "remaining": [
+    "Genuine whole96-byte ObjHashBytes success and equality to original manifest whole digest.",
+    "Actual successful whole Result and original ordinal26 bytes projection.",
+    "All33 controls, ten unfinished drafts, canonical Hash qualification, fully modeled PrismPM integration and Pages."
+  ],
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "actions": "Only frozen source analysis and this external proposal. No native/job polling, compiler, VM, repository, candidate, runtime or other-lab changes.",
+  "reviewRequirement": "This is authored source investigation, not independent SPEC. Requires separate reviewer before implementation; null prerequisite records preserved until exact accepted audit is bound.",
+  "conditionalHistory": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/next-outer-range-proposal.json",
+    "bytes": 11705,
+    "sha256": "4d0fc86a77715115760e3a46894c23e2c55f896581ff72a4481c1e7fe049f590"
+  },
+  "bindingDelta": "Only status, two actual prerequisite pins, boundary and history annotation added; no exact goal, proof route, negative or resource change."
+}

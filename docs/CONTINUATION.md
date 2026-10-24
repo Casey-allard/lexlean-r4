@@ -27,11 +27,12 @@ independent reviewers; no external lab or another session owns this work.
 | First actual child visit and parent continuation | The original first leaf authenticates and returns its 32-byte payload, two visits, 94 wire bytes and the sorted parent/child seen IDs. False expected wire 95 is rejected. The original parent visitor equals the continuation with both later child calls retained. Independent audit: 818 empty-axiom declarations and 21 kernel replays. | [First-child results](../tests/fixtures/object-read-first-child/RESULTS.md). At that checkpoint, two later child results remained open; see the complete-parent row for current progress. Original Read33 remains open. |
 | Second actual child visit and parent continuation | Authenticated 64-byte output, three visits, 139 wire bytes and sorted parent/first/second IDs; false expected wire count 140 rejected. Mandatory original parent retains final third-child call. Independent audit: 820 empty-axiom declarations, 23 kernel replays, 204,491 ms. | [Second-child results](../tests/fixtures/object-read-second-child/RESULTS.md). At that checkpoint, the final third-child result remained open; see the complete-parent row. Whole-data hashing and Read33 remain open. |
 | Complete original parent visitor | Final authenticated child returns S184: 96 original output bytes, four visits, 184 wire bytes and sorted third/parent/first/second IDs. False expected wire count 185 is rejected. The full original parent equation returns Result.ok S184 with no child call remaining. Independent audit: 822 empty-axiom declarations, 25 kernel replays, 212,087 ms. | [Final-child results](../tests/fixtures/object-read-final-child/RESULTS.md). At that checkpoint root traversal, range finish and manifest/version remained open; see the later rows for their subsequent proofs. Whole-data hashing and Read33 remain open. |
-| Original singleton-root traversal | Actual original ObjVisitRoots returns full Result.ok S184 with original manifest projections, backend, range and limits. False expected wire count 185 is rejected. Independent audit: 265 files, 823 empty-axiom declarations, 26 kernel replays; aggregate positive verification 421,070 ms. | [Root-traversal results](../tests/fixtures/object-read-root-traversal/RESULTS.md). At that checkpoint the connected range equation remained open; see the next row. See later version and contextual-finish rows; successful range composition, outer admission, whole hash and Read33 remain open. |
-| Actual connected range equation | The original ObjRangeAdmitted call equals the genuine ObjRangeFinish call on S184; actual consumer Apply1 is kernel checked. Wrong-base negative rejected the transport dependency. Independent audit: 295 files, 828 empty-axiom declarations, 29 kernel replays; aggregate positive verification 570,901 ms. | [Connected-range results](../tests/fixtures/object-read-connected-range/RESULTS.md). At that checkpoint no concrete finish or version result followed from the equation; see the version row for subsequent progress. The later contextual-finish row records the concrete finish proof; successful admitted-range composition remains open. |
+| Original singleton-root traversal | Actual original ObjVisitRoots returns full Result.ok S184 with original manifest projections, backend, range and limits. False expected wire count 185 is rejected. Independent audit: 265 files, 823 empty-axiom declarations, 26 kernel replays; aggregate positive verification 421,070 ms. | [Root-traversal results](../tests/fixtures/object-read-root-traversal/RESULTS.md). At that checkpoint the connected range equation remained open; see the next row. See later version and contextual-finish rows; the later admitted-range result establishes composition; outer admission, whole hash and Read33 remain open. |
+| Actual connected range equation | The original ObjRangeAdmitted call equals the genuine ObjRangeFinish call on S184; actual consumer Apply1 is kernel checked. Wrong-base negative rejected the transport dependency. Independent audit: 295 files, 828 empty-axiom declarations, 29 kernel replays; aggregate positive verification 570,901 ms. | [Connected-range results](../tests/fixtures/object-read-connected-range/RESULTS.md). At that checkpoint no concrete finish or version result followed from the equation; see the version row for subsequent progress. The later contextual-finish row records the concrete finish proof; see the admitted-range result row for subsequent successful composition. |
 | Original manifest-version result | Full original ObjManifestVersion returns the exact ObjVersion through real admission, encoding and HashWire hashing; false expected first byte 147 is rejected. Independent audit: 85 files, 740 empty-axiom declarations, 8 kernel replays; aggregate positive verification 38,752 ms. | [Version results](../tests/fixtures/object-manifest-version/RESULTS.md). Fifteen inputs supplied 11 source files; 8 modules were selected and verified. At that checkpoint concrete finish remained open; see the contextual-finish row. Whole-data hashing and Read33 remain open. |
 | Concrete range-finish direct proof | Full-result wrong-wire phase passed source admission for 9 selected modules from 11 supplied source files, then timed out in target Lean at 300,013 ms against the unchanged 300,000 ms limit. Aggregate verification 425,362 ms; no artifact, intended negative not established, positive NOT_RUN. | [Failure checkpoint](../tests/fixtures/object-concrete-range-finish/RESULTS.md). This configuration remains unaccepted. The distinct contextual successor is recorded in the next row. |
-| Contextual complete range finish | The complete original ObjRangeFinish Result is verified; expected wire statistic 185 is rejected. Independent audit: 125 files, 776 empty-axiom declarations, 12 kernel replays; positive aggregate 49,645 ms. | [Contextual-finish results](../tests/fixtures/object-contextual-range-finish/RESULTS.md). Successful admitted-range composition and whole-read obligations remain open. |
+| Contextual complete range finish | The complete original ObjRangeFinish Result is verified; expected wire statistic 185 is rejected. Independent audit: 125 files, 776 empty-axiom declarations, 12 kernel replays; positive aggregate 49,645 ms. | [Contextual-finish results](../tests/fixtures/object-contextual-range-finish/RESULTS.md). The subsequent admitted-range result is accepted; whole-read obligations remain open. |
+| Original admitted-range full Result | The actual original ObjRangeAdmitted call returns all 96 bytes, exact version, range, empty remainder and statistics 4/4/184. The intended full-consumer negative is rejected; successful positive conversion is separately kernel checked. Independent audit: 135 files, 777 empty-axiom declarations, 13 kernel replays; aggregate 289,504 ms. | [Admitted-range results](../tests/fixtures/object-admitted-range-result/RESULTS.md). Outer whole-read admission, genuine data hash/digest comparison and Read33 remain open. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -87,7 +88,7 @@ Read proofs now establish all three child states and the complete original paren
 visitor equation. The singleton-root traversal and actual connected range
 equation also pass. The original manifest-version full Result is now independently verified.
 The direct concrete range-finish negative timed out without establishing the intended
-rejection. Its distinct contextual successor now proves the complete original finish Result; successful admitted-range composition remains untested.
+rejection. Its distinct contextual successor now proves the complete original finish Result; successful admitted-range composition is now independently verified.
 All 33 Read declarations and their eventual integration remain mandatory.
 The [source investigation](continuation/2026-10-23/object-read-integration/timeout-investigation.json)
 and [independent specification review](continuation/2026-10-23/object-read-integration/timeout-investigation-spec-review.json)
@@ -467,17 +468,34 @@ All recorded source, lock, tool, epoch, memory and storage postconditions passed
 The prior direct-proof timeout remains a failed configuration, and neither
 hash avoidance, caching nor a general timing improvement is claimed.
 
-The [next admitted-range result proposal](continuation/2026-10-23/next-admitted-range-result-proposal.json),
-[final independent SPEC](continuation/2026-10-23/next-admitted-range-result-spec-review.json)
-and [portable bindings](continuation/2026-10-23/admitted-range-result-plan-bindings.json)
-retain the original complete ObjRangeAdmitted statement. The proposed direct
-Apply uses the accepted contextual full consumer and still requires genuine
-definitional conversion; the earlier connected-range equality is not an explicit
-rewrite premise. Its only negative changes expected wire bytes 184 to 185.
-This next candidate and every native test are NOT_RUN. The original null-bound
-investigation and conditional review remain byte-exact in the fixture.
+The [admitted-range checkpoint](../tests/fixtures/object-admitted-range-result/RESULTS.md)
+now independently proves the complete original ObjRangeAdmitted Result. The
+actual consumer directly applies the contextual finish theorem; its successful
+kernel check establishes the required definitional conversion for these inputs.
+The negative consumer was rejected in 108,728 ms aggregate. Its diagnostic alone
+does not establish conversion or isolate mismatch causation to the false statistic;
+the independently verified positive supplies that conversion evidence.
+Positive verification took 289,504 ms aggregate. Audit covered 135 files, 65
+outputs, 777 empty-axiom declarations and 13 kernel replays. Both source checks
+admitted thirteen modules from fifteen supplied source files and nineteen inputs;
+only the positive verified the complete module closure successfully.
+All source, lock, tool, epoch, idle, memory-event and storage postconditions passed.
+Recorded resource observations are samples, not measured peaks. No cache or
+avoided-work claim follows from the successful direct Apply.
 
-Successful admitted-range composition, outer manifest/backend admission,
-whole-data hashing and digest comparison, original ordinal 26/all Read33 and
-full integration remain open. Keep the ten remaining drafts in the completion
-sequence and use fresh resource gates before native work.
+The next bounded connection is the original ordinal 26 call to R4.Object.ObjWholeRead,
+retaining its real whole-data hash and digest-comparison continuation after the
+admitted-range result. ObjRangeRead is a sibling API, not this original call.
+The [next whole-read continuation proposal](continuation/2026-10-23/next-whole-read-continuation-proposal.json),
+[independent SPEC](continuation/2026-10-23/next-whole-read-continuation-spec-review.json)
+and [portable bindings](continuation/2026-10-23/whole-read-continuation-plan-bindings.json)
+are accepted as source design only. The context retains the real hashing, digest
+comparison and all error branches; a wrong zero-base Apply is the intended
+negative and may reject the transport dependency before consumer elaboration.
+The mandatory original whole-read consumer remains required. Its candidate and
+native tests are NOT_RUN, and no complete successful whole-read Result is claimed.
+
+Outer whole-read admission and wrapping, genuine whole-data hashing and digest
+comparison, original ordinal 26/all Read33 and full integration remain open.
+Keep the ten remaining drafts in the completion sequence and use fresh resource
+gates before native work. All earlier failed configurations remain preserved.

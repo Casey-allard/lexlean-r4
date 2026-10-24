@@ -1,0 +1,128 @@
+{
+  "schema": "lexlean-r4-admitted-range-positive-native-review/v1",
+  "status": "PASS_ACTUAL_COMPLETE_ADMITTED_RANGE_RESULT_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T02:39:35.460Z",
+  "findings": [],
+  "pins": {
+    "sourceManifest": {
+      "bytes": 2009,
+      "sha256": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e"
+    },
+    "invocationManifest": {
+      "bytes": 2007,
+      "sha256": "e60f43c7c091e7c132c995a1e6a010470345cb1356be6eea2464638038b3bc96"
+    },
+    "sourceCodeReview": {
+      "bytes": 5723,
+      "sha256": "8df4d6de5a81dd22746c81d61901344fa67e9549df88c03a8e1dffa316a12164"
+    },
+    "positiveSource": {
+      "bytes": 35487,
+      "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+    },
+    "verify": {
+      "bytes": 1315,
+      "sha256": "404eddece810c2e386a4b657e208becf3fdc42c7d3ca0c354299b9ea03f82ea0"
+    },
+    "attestation": {
+      "bytes": 165839,
+      "sha256": "e40982aaa83a2f9e8cd676809bf10803320832d2cf1ae3d2c6434e5ed66d1fdf"
+    },
+    "buildManifest": {
+      "bytes": 15948,
+      "sha256": "5491cf9ffb8c48b1efc1ab8225fc13c2162458c4930f20881515f09b51e2ef50"
+    },
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "90322909081ce2ddee6069f05082301834841eaabd071b22d551c0e39b897754"
+    }
+  },
+  "actualOutcome": {
+    "attestationId": "04bd586bdb38f0b0effae7f8d6de2153561d38f1d507e2952b51b15a79a2b409",
+    "buildId": "c249b582023da690932bc4512b8b31399ba77da9746405ccfc869915b213e32c",
+    "sourceId": "9ab4665b30985b3860db4186b3c9ab8c75a06bf2e989f90f4d692df605c8700f",
+    "semanticId": "c44109c209a0c9a2f201b2e155e4e8166cfb176a51d2448205fb311558b56e4e",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T02:31:53.740Z",
+    "verifyEnded": "2026-10-24T02:36:43.244Z",
+    "aggregateVerifyElapsedMs": 289504,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "equation": "Actual original ObjRangeAdmitted(original four-entry backend, original manifest96, whole range, original limits) = Result.ok complete range result: original96 bytes, exact version, range, empty remainder, visits4/distinct4/wire184."
+  },
+  "counts": {
+    "inputs": 19,
+    "suppliedSourceModules": 15,
+    "admittedModules": 13,
+    "rawFiles": 47,
+    "rawCommandReceipts": 41,
+    "extraReadOnlyResourceSamples": 3,
+    "artifactFiles": 135,
+    "buildOutputs": 65,
+    "oleans": 13,
+    "emptyAxiomDeclarations": 777,
+    "successfulProcesses": 40,
+    "kernelReplays": 13,
+    "auditProcesses": 13,
+    "theoremStatementListNatLiterals": 492
+  },
+  "selection": {
+    "suppliedButUnselected": [
+      "R4.Object",
+      "R4.ObjectStore"
+    ],
+    "actualModules": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ]
+  },
+  "checks": {
+    "source": "Every frozen source/invocation/dependency pin and all19 actual copied inputs match; copy argv and source-before/after hashes exact. Actual check and verify select same13-module closure.",
+    "lock": "Official successful lock command and captured genuine development lock match configuration/compiler/workspace and post-lock hash. Production SDK binding not claimed.",
+    "artifact": "Complete exact file census with no missing/extra/symlink entries. Every build output and olean byte/hash matches. Attestation/build/source/semantic identities and build-manifest size/hash bind raw check/verify. Nonembedded inputs match actual source/config/lock; compiler-owned embedded bytes not separately recovered.",
+    "processes": "Every recorded process exit0; stdout/stderr and executable hashes checked; individual retained records equal attestation. Kernel replay set equals all selected modules. Probe and audit sources included in exact census.",
+    "axioms": "Every declaration has empty observed axioms, policy none/empty and result ok. Successful audit stdout names equal all attested declarations; audit/output.txt equals concatenated audit stdout.",
+    "consumer": "Read actual emitted full ObjRangeAdmitted theorem, complete Result.ok payload and direct exact accepted contextual finish proof. Ordered list-natural literals match full source statement, RHS equals accepted complete finish, canonical whole statement matches reviewed pin. Actual successful full consumer and kernel replay establish the required conversion here; negative alone did not.",
+    "operational": "All raw commands exit0 without signal/error. Four known executable hashes unchanged before/after; same resource epoch/restart0/4GiB2CPU/networknone/mounts[]. Memory events all zero, compiler idle both sides, postcaptures follow actual verify, errors empty. Host20GiBpre/10GiBpost and guest11GiBpre/10GiBpost pass."
+  },
+  "artifactCensus": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-admitted-range-result/positive-artifact-census.json",
+    "bytes": 25598,
+    "sha256": "0c35cf13e5c9ad3cf00097a0641552e52f63b36d32855932c9684e8d2436af7f",
+    "files": 135,
+    "ordinalArraySha256": "0fa39fbabb185818ec7d2e016ef950df133705a37c5ac54d90b5bf5417d86790"
+  },
+  "rawCensus": {
+    "files": 47,
+    "ordinalArraySha256": "9720b54ae61e127b55d8379a3cce8b85151d3270cf59714537cc2db1d4be47a5"
+  },
+  "resources": {
+    "hostBeforeBytes": "34571419648",
+    "hostAfterBytes": "34993147904",
+    "guestBeforeKiB": "52956604",
+    "guestAfterKiB": "52945960",
+    "reviewTimeHostAvailableBytes": 34158092288,
+    "sampleBoundary": "One read-only ps/memory/stats observation during verification (Lean RSS1063340KiB and container1.568GiB/4GiB); not continuous peak measurement or an efficiency claim."
+  },
+  "limitations": [
+    "Acceptance is this original complete admitted-range Result only. Outer admission/whole-data hash/original Read33/full Object/full Hash/PrismPM/Pages remain open.",
+    "No new native replay was run; this is independent auditing of actual recorded compiler/kernel evidence.",
+    "Aggregate verification timing is not target-only runtime, cached-proof behavior, avoided recomputation or a general efficiency claim.",
+    "Original direct finish timeout and intended negative retain separate status and evidence; this result does not retroactively change them."
+  ],
+  "mutations": "Only bounded external review and sorted artifact census JSON; no source/repository/index/native/VM/other-lab changes."
+}
