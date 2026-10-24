@@ -1,0 +1,161 @@
+{
+  "schema": "lexlean-r4-contextual-finish-plan-bindings/v1",
+  "status": "SOURCE_DESIGN_SPEC_PASS_NATIVE_NOT_RUN",
+  "proposal": {
+    "path": "docs/continuation/2026-10-23/next-contextual-finish-proposal.json",
+    "bytes": 14866,
+    "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+  },
+  "spec": {
+    "path": "docs/continuation/2026-10-23/next-contextual-finish-spec-review.json",
+    "bytes": 6705,
+    "sha256": "88eeb4ae9eb16353d0741319bf32ea382ac8db573805feff192c40d917b10d81"
+  },
+  "aliases": [
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/failure-native-review.json",
+      "originalBytes": 11070,
+      "originalSha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/evidence/failure/failure-native-review.json",
+      "bytes": 11070,
+      "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/verify.json",
+      "originalBytes": 1010,
+      "originalSha256": "468c32035c1d2d6b3efe7418604019211610521c70cf6a30e9f8b6d79cba6041",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/evidence/failure/verify.json",
+      "bytes": 1010,
+      "sha256": "468c32035c1d2d6b3efe7418604019211610521c70cf6a30e9f8b6d79cba6041"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/check.json",
+      "originalBytes": 872,
+      "originalSha256": "9370303aeca741d216222f49dae14e66e543c13c05a28f7352a20cf012dba4cf",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/evidence/failure/check.json",
+      "bytes": 872,
+      "sha256": "9370303aeca741d216222f49dae14e66e543c13c05a28f7352a20cf012dba4cf"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/result.json",
+      "originalBytes": 886,
+      "originalSha256": "ea2262627f5c02465a31519b5791b93c12a8d5ecc2b24ded9c1b9bcdaf50ce0c",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/evidence/failure/result.json",
+      "bytes": 886,
+      "sha256": "ea2262627f5c02465a31519b5791b93c12a8d5ecc2b24ded9c1b9bcdaf50ce0c"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-ObjectConcreteRangeFinish.lean",
+      "originalBytes": 6044,
+      "originalSha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/evidence/failure/emitted-ObjectConcreteRangeFinish.lean",
+      "bytes": 6044,
+      "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-capture.json",
+      "originalBytes": 479,
+      "originalSha256": "5ea8e7c2217b6506ea5e89c12948f97bacb3e547ca887394be77ae77cf776a68",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/evidence/failure/emitted-capture.json",
+      "bytes": 479,
+      "sha256": "5ea8e7c2217b6506ea5e89c12948f97bacb3e547ca887394be77ae77cf776a68"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "originalBytes": 87135,
+      "originalSha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "originalBytes": 1347,
+      "originalSha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1347,
+      "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "originalBytes": 29622,
+      "originalSha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/candidate/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "originalBytes": 29622,
+      "originalSha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6",
+      "repositoryPath": "tests/fixtures/object-concrete-range-finish/candidate/negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "originalBytes": 128694,
+      "originalSha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "bytes": 128694,
+      "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json",
+      "originalBytes": 7661,
+      "originalSha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "originalBytes": 6635,
+      "originalSha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23",
+      "repositoryPath": "tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+      "originalBytes": 7429,
+      "originalSha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c",
+      "repositoryPath": "tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+      "bytes": 7429,
+      "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+    },
+    {
+      "originalPath": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "originalBytes": 384753,
+      "originalSha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2",
+      "repositoryPath": "docs/continuation/earlier-history-2026-10-23/files/5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2.txt.gz",
+      "bytes": 67366,
+      "sha256": "9bfb9bc4c3bd2175001289bbf3aad20719ca26781ed0a0061fc9e467b0895344",
+      "encoding": "gzip",
+      "decodedBytes": 384753,
+      "decodedSha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2",
+      "boundary": "Historical upstream compiler authority source only; decompress for read-only review, not an executable dependency."
+    },
+    {
+      "originalPath": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "originalBytes": 138766,
+      "originalSha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43",
+      "repositoryPath": "docs/continuation/earlier-history-2026-10-23/files/e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43.txt.gz",
+      "bytes": 27074,
+      "sha256": "a1b9b554bafc7b3a0b76cea6e048f29cca9204b2a16b1a42a27c1ead373a3955",
+      "encoding": "gzip",
+      "decodedBytes": 138766,
+      "decodedSha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43",
+      "boundary": "Historical upstream compiler authority source only; decompress for read-only review, not an executable dependency."
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/concrete-finish-timeout-investigation.json",
+      "originalBytes": 14866,
+      "originalSha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c",
+      "repositoryPath": "docs/continuation/2026-10-23/next-contextual-finish-proposal.json",
+      "bytes": 14866,
+      "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+    }
+  ],
+  "boundary": "Exact source-only contextual successor design following independently audited failed direct proof. No intended negative or positive finish acceptance; no successor source/native yet. Two compiler authority aliases resolve existing gzip archives; compressed and decoded identities are distinct."
+}

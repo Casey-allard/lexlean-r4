@@ -1,0 +1,249 @@
+{
+  "schema": "lexlean-r4-concrete-finish-failure-custody/v1",
+  "status": "INDEPENDENTLY_AUDITED_TARGET_TIMEOUT_NO_PROOF_ACCEPTANCE",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/check.json",
+        "bytes": 872,
+        "sha256": "9370303aeca741d216222f49dae14e66e543c13c05a28f7352a20cf012dba4cf"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/check.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/verify.json",
+        "bytes": 1010,
+        "sha256": "468c32035c1d2d6b3efe7418604019211610521c70cf6a30e9f8b6d79cba6041"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/verify.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/result.json",
+        "bytes": 886,
+        "sha256": "ea2262627f5c02465a31519b5791b93c12a8d5ecc2b24ded9c1b9bcdaf50ce0c"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/result.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/expected-inputs.json",
+        "bytes": 5268,
+        "sha256": "54ee61dd126fba3e1050c4552745d42ffa3f4ebd7b5f766791a55ea00a14a076"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/expected-inputs.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/source-before.json",
+        "bytes": 4031,
+        "sha256": "ffaa23f4f602d6e9a5ec6113a8230db4a3ad2bfe35b7cfdc4886b4f693a78f6b"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/source-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/source-after.json",
+        "bytes": 4031,
+        "sha256": "ba88d3eeb5154cbf8fef76fe974aa0dcc5e3545260d468d223727a64d085c249"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/source-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/lock.json",
+        "bytes": 542,
+        "sha256": "616d4c8340ba5afac32d2818365d8d88ac17f423f3b8b7e9b30392c6c531d48e"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/lock.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/lock-bytes.json",
+        "bytes": 2058,
+        "sha256": "f22ad4d5ac16d3b560036a20d925ed6966bfdb6f44af438443bd17bb42b698c0"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/lock-bytes.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/lock-after.json",
+        "bytes": 495,
+        "sha256": "b9247e767c2755d383dd7fc3e5b9043b22f44908118ffccecec859942e44ecc3"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/lock-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "0cc520b2a87424372704d833534e95a376a3cc64818d7a904954e419800c8999"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/tools-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/tools-after.json",
+        "bytes": 1005,
+        "sha256": "2cd9f93e447c9453dc204d0e119119dfb684d51a613ad6939c4eceba9fef0802"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/tools-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "2660a2c2cf928bd3c241ef26ee1056f8e82d93aff10c1c4d30e5c39449a6657f"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/epoch-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "52aba7ada9500027486cd9f8afed4556fa09ec7c6a473a3bf5a13fd28825087c"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/epoch-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "fc27e29ba08bf527b67dd063bee34283f4b4090e703d6108c1f7aa7a5c3bca7f"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/memory-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "f1370db003e08598db0393ee82976a5ba090d9dc43291f0fc9e2a95d996893b7"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/memory-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "000597a5920a7229600f97c65a67b25efd16896f357c306c7734901e7e4ddc34"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/idle-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "c9b612dcd16afc4627dab0823ec0c8e69caaf2222f228d4b94776f345ba6467a"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/idle-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/host-before.json",
+        "bytes": 152,
+        "sha256": "33445aee3e143f77540bf556a9654a9e5189c7a45e82b751633b2f521611e90e"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/host-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/host-after.json",
+        "bytes": 142,
+        "sha256": "2fd78624bc456eea0f49a7006ea8835a0469978d355f612b976fd6aa5fc17066"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/host-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "84aae4838fb3f9a45fa46f0b44b5995a25c6b281f87d6df931784ed0751ed79a"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/guest-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "dddae2e6b735090f67d1e04e1048046d7e10c5e9fd94d1248abba79bbc72d45d"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/guest-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/postcapture-errors.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/failure-native-review.json",
+        "bytes": 11070,
+        "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/failure-native-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-ObjectConcreteRangeFinish.lean",
+        "bytes": 6044,
+        "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/emitted-ObjectConcreteRangeFinish.lean"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-capture.json",
+        "bytes": 479,
+        "sha256": "5ea8e7c2217b6506ea5e89c12948f97bacb3e547ca887394be77ae77cf776a68"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/emitted-capture.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/concrete-finish-timeout-investigation.json",
+        "bytes": 14866,
+        "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/concrete-finish-timeout-investigation.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/next-range-result-investigation.json",
+        "bytes": 9835,
+        "sha256": "a78afe7ea44a2ed23cc532580f1e70ab9df58c5c617937ce30762127ac0099c5"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/next-range-result-investigation-conditional.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/next-range-result-spec-review.json",
+        "bytes": 5876,
+        "sha256": "c70f08b9009dfb9a39a7494981407d7ebacb429578275d384fffef35d47326a0"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/next-range-result-spec-review-conditional.json"
+    }
+  ],
+  "derivedLock": {
+    "sourceReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/lock-bytes.json",
+      "bytes": 2058,
+      "sha256": "f22ad4d5ac16d3b560036a20d925ed6966bfdb6f44af438443bd17bb42b698c0"
+    },
+    "operation": "Exact UTF-8 captured stdout, no rewrite",
+    "destination": "tests/fixtures/object-concrete-range-finish/evidence/failure/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "43d9abe23a551f875ca9bcc9be0810bb292913f4d4ede17aee1bf25a956c2b59"
+  },
+  "boundary": "Source/runner/stage/native failure unchanged. Emitted theorem is failed build source, not a verified artifact. Conditional next admitted-range proposal depended on finish success and remains unaccepted for implementation.",
+  "omissions": "All raw receipts remain local. Per-input copy, allocation/swap/directory receipts not duplicated; complete review retains raw census. No artifact exists.",
+  "budget": {
+    "hostAvailableBytes": "32731852800",
+    "beforeAllocatedBytes": 163840,
+    "conservativeFinalEstimateBytes": 565248,
+    "limitBytes": 1048576
+  }
+}

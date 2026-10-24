@@ -1,0 +1,231 @@
+{
+  "schema": "lexlean-r4-concrete-finish-timeout-investigation/v1",
+  "status": "PHASE1_SOURCE_DIAGNOSIS_AND_PROPOSED_DECOMPOSITION_NATIVE_NOT_RUN",
+  "actualFailure": {
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/failure-native-review.json",
+      "bytes": 11070,
+      "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/verify.json",
+      "bytes": 1010,
+      "sha256": "468c32035c1d2d6b3efe7418604019211610521c70cf6a30e9f8b6d79cba6041"
+    },
+    "check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/check.json",
+      "bytes": 872,
+      "sha256": "9370303aeca741d216222f49dae14e66e543c13c05a28f7352a20cf012dba4cf"
+    },
+    "result": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/finish-false/result.json",
+      "bytes": 886,
+      "sha256": "ea2262627f5c02465a31519b5791b93c12a8d5ecc2b24ded9c1b9bcdaf50ce0c"
+    },
+    "emission": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-ObjectConcreteRangeFinish.lean",
+      "bytes": 6044,
+      "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+    },
+    "capture": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-capture.json",
+      "bytes": 479,
+      "sha256": "5ea8e7c2217b6506ea5e89c12948f97bacb3e547ca887394be77ae77cf776a68"
+    },
+    "outcome": {
+      "suppliedSourceFiles": 11,
+      "selectedAdmittedModules": 9,
+      "verifyExit": 4,
+      "diagnostic": "LLS8002",
+      "target": "LexLeanR4.ObjectConcreteRangeFinish",
+      "configuredChildMs": 300000,
+      "observedChildMs": 300013,
+      "aggregateVerifyMs": 425362,
+      "artifact": null,
+      "intendedNegative": "NOT_ESTABLISHED",
+      "positive": "NOT_RUN",
+      "memoryEvents": "Zero according to independently audited receipts",
+      "postcaptureErrors": []
+    }
+  },
+  "observations": [
+    "Actual source admission succeeds and generated theorem is complete expected-wire185 equality ending exactly by rfl. The compiler diagnostic localizes timeout to target Lean module, not source linking or an intended mismatch.",
+    "Actual rfl has no imported version equality application. ObjRangeFinish retains output length check followed by real ObjManifestVersion, then complete record construction. The wrong expected wire185 occurs within the final stats field.",
+    "The independently accepted version proof establishes exact version call=ok expectedversion. This failed direct finish source instead requests normalization inside the full larger expression.",
+    "No per-subexpression profiler or elaborator trace was captured. The timeout does not identify a measured hash, arithmetic, unification or recursion hot spot, and does not establish the positive theorem false."
+  ],
+  "sourceHypothesis": {
+    "statement": "Direct rfl requests expensive definitional equality on the whole concrete finish expression rather than transporting the already proved version equality through the small finishing context. This larger normalization/conversion may repeat the hash path or force additional reductions.",
+    "support": "Retained emission rfl; exact production data flow includes the genuine version call; prior standalone version positive and negative completed, whereas this full wrong-wire proof exhausted the target child limit.",
+    "uncertainty": "Comparison establishes a difference of proof representation and expression, not causation or subterm timing. Cannot assert hash recomputation alone caused300013ms. The proposed transport may still trigger conversion costs in consumer/kernel checking."
+  },
+  "preciseDecomposition": {
+    "context": "H(versionResult : Result ObjVersion ObjError) : Result ObjRangeVerified ObjError",
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "sourceDeclaration": "ObjRangeFinish",
+    "sourceDeclarationSha256": "454f8c720f6bf0be27947e65cad2b5759eef590be99eff38325c8dbabbe9caf3",
+    "parameterSubstitution": [
+      {
+        "parameter": "state",
+        "actualArgumentPath": "positive.statement.left.arguments[0]",
+        "canonicalSha256": "d7e5529cc71341df46ae9d5c167804e0c3c96d2e3e2df72bf789856e1e07d886"
+      },
+      {
+        "parameter": "manifest",
+        "actualArgumentPath": "positive.statement.left.arguments[1]",
+        "canonicalSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52"
+      },
+      {
+        "parameter": "range",
+        "actualArgumentPath": "positive.statement.left.arguments[2]",
+        "canonicalSha256": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f"
+      },
+      {
+        "parameter": "limits",
+        "actualArgumentPath": "positive.statement.left.arguments[3]",
+        "canonicalSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82"
+      }
+    ],
+    "instantiatedProductionBodySha256": "a45e4f4147bae1c8b7afa29b89a2523299a2e7d8d95e4761395fe23418157ff1",
+    "versionHolePath": "body.then_value.scrutinee",
+    "versionHoleCount": 1,
+    "versionCallSha256": "a6e4c2d2856335da7a6000cd1c9d6332b4e4558d1bf5d8835ae2b2a561cec9c7",
+    "acceptedVersionEquationSha256": "6d51de696602b6b07ab7b0e0a3bf84d97ff727fdc96a1055b79764da83f1a626",
+    "contextBodySha256": "5875de5cd19d3bf63bd05a048c5dc9698b3d7fe0b1d5906222c7126db42ba71d",
+    "contextOperation": "Instantiate actual state,manifest,range,limits in unchanged production body; replace only the single exact ObjManifestVersion scrutinee with versionResult. Preserve outer output-length guard, integrityFailure branch, Result.error propagation and complete Result.ok record, real remainder/statistics calls.",
+    "qualificationChanges": [
+      {
+        "path": [
+          "then_value",
+          "branches",
+          "1",
+          "body",
+          "arguments",
+          "0",
+          "fields",
+          "3",
+          "value",
+          "function"
+        ],
+        "name": "ObjReadRemainder",
+        "module": "R4.ObjectRead"
+      },
+      {
+        "path": [
+          "then_value",
+          "branches",
+          "1",
+          "body",
+          "arguments",
+          "0",
+          "fields",
+          "4",
+          "value",
+          "function"
+        ],
+        "name": "ObjWalkStatistics",
+        "module": "R4.ObjectRead"
+      }
+    ],
+    "roundTrip": "Replacing versionResult with original accepted version LHS and undoing the two purely scope-qualification annotations reconstructs the exact instantiated production body canonical hash. No runtime change or additional semantic substitution.",
+    "localReferenceRule": "Within context module, H and family references are name-only. Prior theorem and consumer references across modules must be module-qualified.",
+    "family": {
+      "text": "P(0) := actualVersionCall = Result.ok exactVersion; P(Nat.succ n) := H(actualVersionCall) = H(Result.ok exactVersion).",
+      "type": "Nat -> Prop",
+      "reducible": true
+    },
+    "transport": {
+      "text": "For all count, P count; Induction count, zero Apply ObjectManifestVersion.objOriginalManifestVersion; successor Cases prior and Congruence in both zero/succ cases.",
+      "supportedPattern": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+        "bytes": 1347,
+        "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+      },
+      "priorProofASTSha256": "9d4624db19bba018ab2f84b1cc8f3151e4faffb14b3cf80fd6ed4de014b7a148",
+      "emptyAxioms": true,
+      "explanation": "Zero imports the actual accepted version proof; congruence transports its equality through H rather than asking a new rfl to prove that version equation. The goal is to avoid re-proving the hash inside the whole finish expression; no guarantee that all kernel normalization is avoided."
+    },
+    "mandatoryConsumer": {
+      "text": "Exact original full ObjRangeFinish(S184,originalmanifest,originalrange,originallimits)=completeResult.okrecord; Apply the lifted theorem at Nat1.",
+      "positiveStatementSha256": "e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4",
+      "negativeStatementSha256": "9cbc34fbf69ba2c9b3d576c8de9ec5d49656ac32ce31dd5e88d65d6c10cd5d51",
+      "positiveSource": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+        "bytes": 29622,
+        "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+      },
+      "negativeSource": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+        "bytes": 29622,
+        "sha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6"
+      },
+      "boundary": "Both entire target statement ASTs remain byte-equivalent as parsed to frozen direct-rfl variants; only proof mechanism and imports change. H(ok version) must definitionally yield expected96bytes/version/range/emptyremainder/stats4/4/184. Helper proof alone never accepts actual finish."
+    },
+    "negative": {
+      "mutation": "Retain only expected visitedRecordBytes184→185 in the actual consumer statement. Shared context/transport and positive version certificate identical in both phases.",
+      "required": "Official check succeeds, then actual full consumer rejects with intended proof mismatch. A timeout, OOM, or import/transport failure does not establish this retained intended negative.",
+      "distinction": "No unrelated0=0 base mutation added to this minimal pair; the negative remains the original false field equation and fullconsumer target. Existing prior wrong-base transport control is historical support, not a new semantic outcome."
+    }
+  },
+  "supportedSourceEvidence": {
+    "priorAcceptedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "bytes": 128694,
+      "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+    },
+    "priorAcceptedTransport": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1347,
+      "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+    },
+    "priorActualReview": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    },
+    "versionSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    "versionReview": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+      "bytes": 7429,
+      "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+    },
+    "grammar": {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    "emitter": {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    },
+    "locations": "ir/semantic.rs689–757 has Apply/Induction/Cases/Congruence; backend/semantic.rs1244–1292 emits induction/cases/congr1 and1371–1387 exact theorem application.",
+    "excluded": "No invented Rewrite/Eq.trans, raw tactic injection, Simplify/propext shortcut, host digest or trusted intermediate hash."
+  },
+  "minimumProposedPacket": {
+    "modules": "One common context+Prop-family module; one shared positive transport module; one full-consumer logical module in false/positive variants. Import accepted version certificate by exact committed source reference and retain runtime/metadata closure.",
+    "phaseOrder": [
+      "Source canonical AST/hole reconstruction/import checks and independent revised SPEC/CODE.",
+      "Official false fullconsumer target with wire185 and unchanged limits; require intended-negative independent review.",
+      "Only after negative acceptance and fresh gates, official positive fullconsumer target; independently audit exact artifacts/emptyaxioms/kernel replay/resources."
+    ],
+    "statuses": "All proposed candidate and native phases NOT_RUN. No source candidate authored. No automatic fallback/limit retry."
+  },
+  "scopeAndLimits": "Original full positive/negative Result statements, production definitions and all data remain unchanged. Keep300000ms child,4GiB2CPU, exact compiler/language/tool/source/lock/resource/epoch gates. Do not rerun failed rfl equivalent or raise limits. This decomposition needs independent review before authoring.",
+  "remaining": "Actual successful finish; its later composition with original admitted-range equation; outer manifest/backend admission; actual96-byte whole hash and original digest comparison; ordinal26/all33/remainingdrafts/fullmodel/PrismPM/Pages remain open.",
+  "preserved": "Failed source/runner/stage and emitted negative remain byte-identical. Earlier null next-range investigation remains conditional and is not execution authority. No raw failure portable copies yet.",
+  "storage": {
+    "hostAvailableBytes": "31713730560",
+    "reportLimitBytes": 20480,
+    "reserveBytes": 10737418240
+  },
+  "actions": "Read-only source/grammar/emitted evidence inspection and this one external report only; no compiler, VM, repo candidate or runtime changes."
+}

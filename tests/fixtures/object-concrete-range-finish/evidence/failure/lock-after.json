@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-concrete-range-finish-finish-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-24T01:52:16.904Z",
+  "ended": "2026-10-24T01:52:17.977Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "43d9abe23a551f875ca9bcc9be0810bb292913f4d4ede17aee1bf25a956c2b59  /tmp/r4-object-concrete-range-finish-finish-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

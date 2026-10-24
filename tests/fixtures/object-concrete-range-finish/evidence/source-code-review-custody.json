@@ -1,0 +1,13 @@
+{
+  "schema": "lexlean-r4-concrete-finish-code-review-custody/v1",
+  "status": "SOURCE_INVOCATION_CODE_PASS_NATIVE_OUTCOMES_NOT_CLAIMED",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/candidate-invocation-code-review.json",
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/candidate-invocation-code-review.json",
+      "bytes": 5976,
+      "sha256": "ea73d93b43bd6644a133d9c003c47d75071faf47fb004c31303d71544604217b"
+    }
+  ],
+  "boundary": "No active phase output read or copied; no native result claimed."
+}

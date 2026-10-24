@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-24T01:53:46.837Z",
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cat",
+    "/tmp/r4-object-concrete-range-finish-finish-false-owned-20261023/.lexlean/build/3d3cbc2360bc8541a2c8bf2e4d89b399e8c0568aed6d1d3439e1297173e58d2c/modules/LexLeanR4/ObjectConcreteRangeFinish.lean"
+  ],
+  "status": 0,
+  "stderr": "",
+  "bytes": 6044,
+  "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+}

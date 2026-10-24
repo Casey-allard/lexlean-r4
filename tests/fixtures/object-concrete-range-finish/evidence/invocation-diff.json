@@ -1,0 +1,46 @@
+{
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/evidence/invoke-manifest-version.mjs",
+    "bytes": 7706,
+    "sha256": "edfe83d741cc386c5ae1400a1ca0d78e63375b91765a21592d9bfd0555044f92"
+  },
+  "substitutions": [
+    {
+      "from": "// One-off official-compiler invocation for one actual manifest-version Result; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one actual concrete range-finish Result; no Read33 acceptance.",
+      "count": 1
+    },
+    {
+      "from": "['version-false','version-positive']",
+      "to": "['finish-false','finish-positive']",
+      "count": 1
+    },
+    {
+      "from": "select exactly one manifest-version phase",
+      "to": "select exactly one concrete range-finish phase",
+      "count": 1
+    },
+    {
+      "from": "/tmp/r4-object-manifest-version-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-concrete-range-finish-${phase}-owned-20261023",
+      "count": 1
+    },
+    {
+      "from": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae",
+      "to": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550",
+      "count": 1
+    },
+    {
+      "from": "phase==='version-false'",
+      "to": "phase==='finish-false'",
+      "count": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectManifestVersion.lex.tex",
+      "to": "tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "count": 1
+    }
+  ],
+  "unchanged": "All remaining bytes including 15-input census, resource/epoch/tools/source/lock/idle/zero-memory/independent postcapture guards unchanged.",
+  "native": "NOT_RUN"
+}

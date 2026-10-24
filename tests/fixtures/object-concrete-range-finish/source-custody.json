@@ -1,0 +1,96 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-source-custody/v1",
+  "status": "EXACT_SOURCE_COPIES_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+        "bytes": 29622,
+        "sha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+        "bytes": 29622,
+        "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/lexlean.toml",
+        "bytes": 689,
+        "sha256": "bbea155abe8bf976df157e6d69f155fece31ac88c273b4a03b825bf51a3fd0b1"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/lexlean.toml"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/candidate.json",
+        "bytes": 12680,
+        "sha256": "aa6a17913a0866d22ef6c1cef89cf333445977cd00be35939224d408c8c63648"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/candidate.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/structural-audit.json",
+        "bytes": 6619,
+        "sha256": "bc19f75a9429bce2b452aa90a2dcc3bc1be842838aa551eec8a21fcbc5e986ae"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/structural-audit.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/README.md",
+        "bytes": 615,
+        "sha256": "655ea1ca6869ce55f05addae0923b97d4fe149949550dfcc2aec03216346ebbc"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/README.md"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/manifest.json",
+        "bytes": 2739,
+        "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/candidate/manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/invoke-concrete-range-finish.mjs",
+        "bytes": 7722,
+        "sha256": "73b0861c8b6530d17f28a4fec67e7b2805fba569f41c04463112f3655fd4c049"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/invoke-concrete-range-finish.mjs"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/invocation-diff.json",
+        "bytes": 1665,
+        "sha256": "9e529c9d7ec8867d42b0f8e04462dad8e493ce41194494811f72c72af2751c38"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/invocation-diff.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/invocation-manifest.json",
+        "bytes": 1638,
+        "sha256": "08477bd4357f7efe5c681788136d1a2125112841622089216fcaa9a40891d483"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/invocation-manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/readiness.json",
+        "bytes": 1766,
+        "sha256": "b63ab0aabe21610959255e5fbd13723bacf3a98ee52749299ff3d838071dc3b5"
+      },
+      "destination": "tests/fixtures/object-concrete-range-finish/evidence/readiness.json"
+    }
+  ],
+  "excludedMutableReadme": "README.md",
+  "boundary": "No SDK call, native result, generated lock or artifact exists for this candidate."
+}
