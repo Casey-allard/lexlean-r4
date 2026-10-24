@@ -1,0 +1,108 @@
+{
+  "schema": "lexlean-r4-native-whole-result-results/v1",
+  "status": "PASS_LOCAL_FULL_WHOLE_RESULT_AND_RUN_GATES",
+  "at": "2026-10-24T06:12:45.428Z",
+  "positive": {
+    "review": {
+      "path": "evidence/positive/native-review.json",
+      "bytes": 16897,
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955"
+    },
+    "officialCheck": 0,
+    "officialVerify": 0,
+    "modules": 28,
+    "inputs": 32,
+    "aggregateElapsedMs": 363107,
+    "ids": {
+      "attestation": "3903719cbb058ed59e9eb243a3f82bd7bad3eb406d48aba6f139945dfc8a1b53",
+      "build": "6589173c7c134e2d323808d3bb64f5879bc7a698b2d0a236c1da00cec828e1a0",
+      "source": "9ab9cfad119fc106381de28ff76f56c0870074eb85b8180ecb23d1e1fa53c5a4",
+      "semantic": "cad120f5bcfd21b5ed98169435988d2a9ce2e4930800837d93af9c3e6409263d"
+    },
+    "attestationFile": {
+      "bytes": 200442,
+      "sha256": "32252fa1de867f97ef5583d115be67c8eb8f0899b102ccb275b37b6d19ef33b4"
+    },
+    "counts": {
+      "artifactFiles": 285,
+      "artifactBytes": 7886905,
+      "buildOutputs": 140,
+      "declarations": 827,
+      "processes": 85,
+      "kernelReplays": 28,
+      "axiomAudits": 28,
+      "oleans": 28,
+      "rawFiles": 59,
+      "rawCommands": 54
+    },
+    "singleton": {
+      "name": "LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult",
+      "observed": [],
+      "policy": {
+        "axioms": [],
+        "kind": "none"
+      },
+      "result": "ok"
+    },
+    "artifactRecordsSha256": "8a2eb4f164d0256c32c96f9457d13b025e2328317869fb0951c14c837fbdd7c4",
+    "portableCensus": {
+      "path": "evidence/positive/artifact-census.json.gz",
+      "bytes": 14955,
+      "sha256": "6afb9b5b1ddba43db849c29b76fa1be87c09ab6c1e78310cb21b125820c30ef4"
+    },
+    "allRunGates": "PASS"
+  },
+  "negative": {
+    "review": {
+      "path": "evidence/negative/native-review.json",
+      "bytes": 15153,
+      "sha256": "4590f0ceea3db258448a3bf7e2ebe161931b67cdf397d8b070e790dc8b0a685c"
+    },
+    "status": "PASS_INTENDED_NATIVE_ROOT_NEGATIVE_ONLY",
+    "officialCheck": 0,
+    "modules": 28,
+    "officialVerify": 1,
+    "aggregateElapsedMs": 200642,
+    "scope": "Mandatory native composition root rejects Eq.trans with unrelated0=0 as inner premise; not a missing import/admission/dependency substitute.",
+    "artifact": "ABSENT"
+  },
+  "sourceRepair": "Explicit reviewed canonical coredata /1 migration and removal only of singleton all;789nodes15proofmarkers/twoEq.trans/nonepolicy/fullO=R preserved.",
+  "proofScope": "Exact original concrete four-record backend ObjWholeRead equals full Result.ok ObjWholeVerified with original96bytes/version/statistics4/4/184. Local theorem and current run gates accepted; no general all-input theorem or full Object acceptance.",
+  "history": {
+    "oldReadme": {
+      "path": "evidence/history/README-before-native-acceptance.md",
+      "bytes": 1566,
+      "sha256": "949dcd5b94df3352912a9679057baa17055bd4178560283ba507381805361eb0"
+    },
+    "immutableReadiness": "Source NOT_RUN, running and pending-review observations remain dated history, superseded only by this additive actual-result binding.",
+    "priorInner": "Its kernel artifact remains valid, but historical run gate max46 remains failed. Current zero-event run does not erase it.",
+    "predecessor": "Earlier /2 admission failure and rejected projection-order preparation remain preserved in object-whole-composed-result fixture."
+  },
+  "next": {
+    "investigation": {
+      "path": "evidence/next-ordinal26-investigation.json",
+      "bytes": 14858,
+      "sha256": "b68fb0cf86031b1af2a84787dea37fb44808026b54f4a4a6942436e8d8b4661c"
+    },
+    "status": "SOURCE_ONLY_INVESTIGATION_NOT_EXECUTION_AUTHORITY",
+    "blocker": "Installed0865 semantic proof environment does not register imported native theorem proofs. A native projection alone does not discharge canonical semantic ordinal26.",
+    "practical": "Explicit reviewed scheduling adjustment permits independent Codec311 source migration/review before Read33 completion. Only three metadata literals change; all311 declarations remain exact. Written source and invocation CODE plus fresh operational gates are required; all next tests NOT_RUN. Read33 and semantic/native interoperability are not waived.",
+    "sequencing": {
+      "status": "PASS_BOUNDED_CODEC311_SEQUENCE_ADJUSTMENT_WITH_READ33_OPEN",
+      "review": {
+        "path": "evidence/next-integration-spec-review.json",
+        "bytes": 15414,
+        "sha256": "6e84ae5cb826f017c8dde2c5e9919458253954f04b429cc2b3b3d46f4b9dab5b"
+      },
+      "bindings": "evidence/next-integration-bindings.json",
+      "nativeStatus": "ALL_NEXT_CODEC311_MIGRATION_ADMISSION_AND_PROOF_TESTS_NOT_RUN; ALL_NEW_PROJECTION_AND_INTEROP_TESTS_NOT_RUN"
+    }
+  },
+  "limits": [
+    "Canonical ordinal26 not replaced or discharged; fullRead33 remains incomplete.",
+    "FullObject/Hash qualification,ten drafts,productionPrismPM binding and Pages remain open.",
+    "No measured peak, single-theorem timing or efficiency claim;363107ms is aggregate verification with unchanged300000ms child limit.",
+    "Attestation ID,serialized fileSHA,census record digest and compressed envelope SHA are distinct identities.",
+    "No compiled binaries copied;complete localartifact remains external and hash-censused."
+  ]
+}

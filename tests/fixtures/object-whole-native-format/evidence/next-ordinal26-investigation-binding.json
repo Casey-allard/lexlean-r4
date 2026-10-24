@@ -1,0 +1,96 @@
+{
+  "schema": "lexlean-r4-conditional-investigation-copy-binding/v1",
+  "at": "2026-10-24T06:07:41.759Z",
+  "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/next-ordinal26-investigation.json",
+  "copy": "evidence/next-ordinal26-investigation.json",
+  "bytes": 14858,
+  "sha256": "b68fb0cf86031b1af2a84787dea37fb44808026b54f4a4a6942436e8d8b4661c",
+  "classification": "SOURCE_ONLY_CONDITIONAL_NATIVE_PROJECTION_SEMANTIC_INTEROP_BLOCKED",
+  "bindings": [
+    {
+      "label": "candidateManifest",
+      "path": "tests/fixtures/object-whole-native-format/candidate/manifest.json",
+      "bytes": 2464,
+      "sha256": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9"
+    },
+    {
+      "label": "candidate",
+      "path": "tests/fixtures/object-whole-native-format/candidate/candidate.json",
+      "bytes": 40714,
+      "sha256": "b17de66da09ef3b16c9bbea86d4daa8473c7e57628b08819b6fefa9bd61661f9"
+    },
+    {
+      "label": "sourceInvocationReview",
+      "path": "tests/fixtures/object-whole-native-format/evidence/candidate-invocation-code-review.json",
+      "bytes": 8372,
+      "sha256": "b7f7bb10fd5f067282de79e605c8f390e0c229991efc7fbbfbc0dcb18efb3618"
+    },
+    {
+      "label": "negativeReview",
+      "path": "tests/fixtures/object-whole-native-format/evidence/negative/native-review.json",
+      "bytes": 15153,
+      "sha256": "4590f0ceea3db258448a3bf7e2ebe161931b67cdf397d8b070e790dc8b0a685c"
+    },
+    {
+      "label": "positiveCore",
+      "path": "tests/fixtures/object-whole-native-format/candidate/positive-core-module.json",
+      "bytes": 20943,
+      "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+    },
+    {
+      "label": "positiveSource",
+      "path": "tests/fixtures/object-whole-native-format/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 21425,
+      "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+    },
+    {
+      "label": "canonicalOrdinal26",
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "label": "otherSource",
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "label": "otherSource",
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    }
+  ],
+  "officialSourceResolution": [
+    {
+      "source": "crates/lexlean/src/link.rs",
+      "archive": "evidence/installed-source/additional-official-source.json.gz"
+    },
+    {
+      "source": "crates/lexlean/src/grammar/structural.rs",
+      "archive": "evidence/installed-source/installed-0865-parser-ir.json.gz"
+    }
+  ],
+  "unretainedOfficialSources": [
+    {
+      "path": "crates/lexlean/src/ir/semantic.rs",
+      "bytes": 353541,
+      "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf",
+      "retrieval": "Exact official source read in memory; no retained new copy.",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/ir/semantic.rs"
+    },
+    {
+      "path": "crates/lexlean/src/backend/semantic.rs",
+      "bytes": 162725,
+      "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e",
+      "retrieval": "Exact official source read in memory; no retained new copy.",
+      "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/backend/semantic.rs"
+    }
+  ],
+  "limits": "Exact source investigation only; positive prerequisite remains pending in preserved report. No execution plan acceptance, new candidate, native projection or canonical ordinal26 completion. Additional semantic source HTTP identities are recorded by investigator; no new retrieval by packager.",
+  "storage": {
+    "availableBytes": 29644726272,
+    "reserveBytes": 10737418240
+  }
+}

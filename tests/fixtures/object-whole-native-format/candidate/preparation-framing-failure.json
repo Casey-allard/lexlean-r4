@@ -1,0 +1,17 @@
+{
+  "schema": "lexlean-r4-author-prewrite-failure/v1",
+  "classification": "AUTHOR_JSON_FILE_FRAMING_COMPARISON_NOT_NATIVE_FAILURE",
+  "error": "AssertionError a(enc(restored).equals(orig)) before any source/candidate write.",
+  "cause": "Predecessor intended JSON files end in one LF; compact payload does not. JSON values and proposed canonical payload pins had matched. Initial comparison failed only on terminal file framing.",
+  "correction": "Compare restored canonical payload plus the original single terminal LF with exact predecessor bytes; keep new coredata payload free of trailing bytes.",
+  "predecessorNegative": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/negative-core-module.json",
+    "bytes": 21010,
+    "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+  },
+  "predecessorPositive": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/positive-core-module.json",
+    "bytes": 21021,
+    "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+  }
+}

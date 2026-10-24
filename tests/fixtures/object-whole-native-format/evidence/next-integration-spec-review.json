@@ -1,0 +1,277 @@
+{
+  "schema": "lexlean-r4-next-integration-source-spec-review/v1",
+  "status": "PASS_BOUNDED_CODEC311_SEQUENCE_ADJUSTMENT_WITH_READ33_OPEN",
+  "at": "2026-10-24T06:13:57.835Z",
+  "independence": "Non-author of investigation and original remaining-controls proposal. Reviewer independently audited current native fullResult artifact and earlier source/invocation. This SPEC is source-only; no candidate authored, SDK/native/compiler/container action or repository edit.",
+  "pins": {
+    "investigation": {
+      "bytes": 14858,
+      "sha256": "b68fb0cf86031b1af2a84787dea37fb44808026b54f4a4a6942436e8d8b4661c"
+    },
+    "remainingControlsProposal": {
+      "bytes": 17355,
+      "sha256": "b9be3b7cadcb4badfc8eee4bcdbff4ca01d098512ae564d87ed814d009ee9cb7"
+    },
+    "actualFullResultReview": {
+      "bytes": 16897,
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955"
+    },
+    "actualAttestation": {
+      "bytes": 200442,
+      "sha256": "32252fa1de867f97ef5583d115be67c8eb8f0899b102ccb275b37b6d19ef33b4"
+    },
+    "canonicalRead33": {
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "canonicalCodec311": {
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    "snapshotCodec311": {
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    "reusedStoreConfig": {
+      "bytes": 683,
+      "sha256": "2e16d4568589a1069a5ef9c584623ded64b26ccff6d2b0162ddd94519e029dde"
+    }
+  },
+  "currentPrerequisite": {
+    "status": "PASS_LOCAL_FULL_WHOLE_RESULT_AND_RUN_GATES",
+    "attestationId": "3903719cbb058ed59e9eb243a3f82bd7bad3eb406d48aba6f139945dfc8a1b53",
+    "meaning": "Additive current binding: investigation pending-at-dispatch fields remain historical and unmodified. Actual full O=R local theorem accepted; prior inner max46 gate remains failed historically. Canonical ordinal26 and wholeRead33 still unaccepted."
+  },
+  "ordinal26": {
+    "declarationSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+    "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "originalOHash": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "originalRhsHash": "2f35005544a16a6df9b2ca69f440508f420ae09ca5c777cb927d506d084b5c31",
+    "projection": "Exact original match propagates Result.error reason unchanged and maps Result.ok item to Result.ok item.bytes. F(hFull) via congrArg is mathematically suitable but no new native projection AST or kernel test exists.",
+    "bytes": {
+      "originalAppendLengths": [
+        48,
+        48
+      ],
+      "nativeLength": 96,
+      "sha256": "c43377591dc78174b0f698791f26873786f5e94868f44d047f66866b173a0027",
+      "encoding": "UTF8 JSON.stringify(array of decimal strings), no newline"
+    },
+    "checked": "Native result769 is Except.ok[error1,valueType2,record767]; record767 is ObjWholeVerified.mk[bytes678,version742,stats753]. WholeVerified.bytes is field0. Actual96 literal bytes equal original48+48 lists. Original ObjAppendBytes source primitive recursion confirms intended append; no kernel conversion acceptance inferred.",
+    "semanticInterop": "Installed0865 builds imported_semantic only from document.semantic, excluding native-core declarations. Apply requires env.proof_rules; those imported rules arise from SemanticDeclaration::Theorem. Simplify also rejects unregistered native names. Proof enum has no arbitrary native exact/core payload or checked rewrite-and-finish interface; module grammar closes after one semantic/core body. Therefore the proposed direct native proof reuse is blocked in this installed semantic interface. This is not a proof that no alternate semantic proof could ever be devised.",
+    "remaining": "A native bytes-projection theorem alone must not be called completion of canonical ordinal26. Preserve all33declarations and original statements; no filtering, whole-module native migration, placeholder, axiom or acceptance waiver."
+  },
+  "officialEvidence": {
+    "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+    "checked": [
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "bytes": 353541,
+        "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf",
+        "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/ir/semantic.rs"
+      },
+      {
+        "path": "crates/lexlean/src/backend/semantic.rs",
+        "bytes": 162725,
+        "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e",
+        "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/backend/semantic.rs"
+      },
+      {
+        "path": "crates/lexlean/src/link.rs",
+        "bytes": 72648,
+        "sha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd",
+        "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/link.rs"
+      },
+      {
+        "path": "crates/lexlean/src/grammar/structural.rs",
+        "bytes": 40476,
+        "sha256": "7c33737f5743dd866bf4a48ae6bd1e125a2e2df5270d408802a594fc8f24bfa8",
+        "url": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/crates/lexlean/src/grammar/structural.rs"
+      }
+    ],
+    "method": "Exact two semantic source files independently fetched read-only into memory and hashes matched; exact link/grammar text read from existing retained gzip archives and rehashed. No new source copies written.",
+    "lines": [
+      {
+        "path": "crates/lexlean/src/link.rs",
+        "lines": "679-687,692-698",
+        "fact": "Imported semantic environment is built only from module.document.semantic; core-native module declarations are excluded."
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "lines": "609-654",
+        "fact": "SemanticProof has reflexivity/decide/linear_arithmetic/simplify/constructor/cases/induction/congruence/boolean_reflection/apply; no arbitrary native exact, equality transport, rewrite-and-finish or core proof payload."
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "lines": "7814-7828,8477-8490",
+        "fact": "Apply requires prior env.proof_rules entry; imported entries are constructed from SemanticDeclaration::Theorem. Merely adding importmodule for native fullResult does not register it."
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "lines": "7873-7902",
+        "fact": "Simplify accepts prior functions/proof rules and limited Boolean/local-proposition bridges, not an unregistered native theorem name."
+      },
+      {
+        "path": "crates/lexlean/src/backend/semantic.rs",
+        "lines": "1108-1109,1131-1138,1183,1236-1250",
+        "fact": "Reflexivity emits rfl; Simplify emits simp only; Congruence emits congr1; Apply emits exact only after semantic checks. Congruence is not an interface for supplying hFull."
+      },
+      {
+        "path": "crates/lexlean/src/grammar/structural.rs",
+        "lines": "1104-1121",
+        "fact": "A coremodule or semanticmodule body closes the whole lexlean module; injecting an adjacent native proof block into the canonical semantic module is not supported."
+      }
+    ]
+  },
+  "sequenceDecision": {
+    "prior": "remaining-controls-proposal explicitly schedules Codec311 after Read33 acceptance; this review does not misrepresent that old sequence as already satisfied.",
+    "adjustment": "Permit next bounded canonical Codec311 compatibility migration/source review and separately gated original-admission-negative then full-root native experiment before Read33 is completed. This is a scheduling adjustment to independent work, not removal of Read33 acceptance.",
+    "reason": "Actual semantic/native interop blocks the contemplated proof-only completion path for ordinal26. Codec311 direct imports and full reachable graph have no ObjectReadControls/native composition/Read33 dependency, so progress on this existing independent root does not consume unaccepted Read33 evidence.",
+    "scope": "Onlythree single-occurrence metadata literals: bool1.1→1.2,nat1.1→1.2,semantic-module/1→/2. Entire311declaration array, names, statements, parameters, axioms and reflexivity proofs remain exact.",
+    "proposedSource": {
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865",
+      "declarations": 311,
+      "declarationsJsonSha256": "4667a431d063b4521af1be1b9f9db4da5ad47f90daab8920a2bdc4581cfdb1c9",
+      "written": false
+    },
+    "inputCount": 15,
+    "suppliedSourceModules": 11,
+    "staticallyReachableModules": [
+      "R4.Words",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.Hash",
+      "R4.ObjectTypes",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "ObjectCodecControls"
+    ],
+    "staticCount": 8,
+    "selectionLimit": "Eight is static reachability, not an observed admission/verification count. Store/Read/Object supplied as unchanged existing closure but not selected by this root.",
+    "nextAcceptance": [
+      "Freeze exact written source/config/invocation and obtain independent CODE; source review is not official admission.",
+      "Original compatibility-negative uses immutable legacy control with genuine lock/check only; inspect actual first diagnostic. Prior Store/Read rejection does not count for Codec.",
+      "Use fresh owned stage and current exact installed compiler, genuine development lock, same300000ms/4GiB/2CPU. Require existing idle/epoch/zeroevents/storage gates; no overlapping SDK job.",
+      "Verify complete existing Codec311 root, all311target declaration names/empty observed axioms/kernel replay/full artifact census and independent review; do not select a subset and claim311.",
+      "Preserve any source/proof/resource failure and do not blindly retry or raise limits. Fresh gates required at actual launch; this source-only SPEC does not authorize a stale resource epoch."
+    ],
+    "unchangedObligations": "Read33 and ordinal26, Construction39/full257, Store20 integration, Object semantic mutants/restoration, Hash qualification, remaining drafts/models/scenarios, pure LexLean behavior, full PrismPM production binding and generated Pages remain required."
+  },
+  "future15Inputs": [
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+      "destination": "src/R4/Words.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+      "destination": "src/R4/Hash.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+      "destination": "src/R4/HashNat.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+      "destination": "src/R4/HashNatCore.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+      "destination": "src/R4/HashWire.lex.tex",
+      "origin": "Pinned finite development dependency; canonical Hash qualification remains open"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "destination": "src/R4/ObjectTypes.lex.tex",
+      "origin": "Reconciled canonical draft"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "destination": "src/R4/ObjectCodec.lex.tex",
+      "origin": "Reconciled canonical draft"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+      "destination": "src/R4/ObjectStore.lex.tex",
+      "origin": "Reconciled canonical draft"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "destination": "src/R4/ObjectRead.lex.tex",
+      "origin": "Reconciled canonical draft"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "destination": "src/R4/Object.lex.tex",
+      "origin": "Reconciled canonical draft"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+      "destination": "lakefile.toml"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+      "destination": "lake-manifest.json"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+      "destination": "lean-toolchain"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "destination": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865",
+      "state": "PROPOSED_NOT_WRITTEN"
+    },
+    {
+      "path": "lexlean.toml",
+      "destination": "lexlean.toml",
+      "bytes": 683,
+      "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98",
+      "derivedFrom": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-draft-integration/lexlean.toml",
+      "state": "PROPOSED_NOT_WRITTEN"
+    }
+  ],
+  "preservation": {
+    "rehashCount": 17,
+    "meaning": "Existing current preservation pins inspected unchanged; no canonical source or snapshot written."
+  },
+  "nativeStatus": "ALL_NEXT_CODEC311_MIGRATION_ADMISSION_AND_PROOF_TESTS_NOT_RUN; ALL_NEW_PROJECTION_AND_INTEROP_TESTS_NOT_RUN",
+  "findings": [],
+  "storage": {
+    "hostFreeBytes": 27892981760,
+    "newFiles": 1,
+    "reportCapBytes": 20480
+  }
+}

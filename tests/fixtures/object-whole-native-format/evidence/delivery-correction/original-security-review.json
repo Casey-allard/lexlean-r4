@@ -1,0 +1,154 @@
+{
+  "schema": "lexlean-r4-independent-delivery-security-review/v1",
+  "at": "2026-10-24T06:22:11.551Z",
+  "status": "PASS_SECURITY_AND_CUSTODY_WITH_DOCUMENTATION_DELIVERY_BLOCKER",
+  "deliveryDisposition": "CHANGES_REQUIRED_DOCS_ONLY; not approval to merge this frozen manifest",
+  "independence": "Independent read-only security/custody review; no authorship of repository payload, SDK/compiler/native/container/process-control calls, tests, index or Git mutations.",
+  "manifest": {
+    "path": "tests/fixtures/object-whole-native-format/delivery-manifest.json",
+    "bytes": 12035,
+    "sha256": "a5368bede1b65dde0e55abad23f043c11fc85082c55b4e041fc675504ad2562f",
+    "base": "7653327187c93a4dea547636615efbae5f9a2dbc",
+    "branch": "codex/object-whole-native-format",
+    "payloads": 50,
+    "fixturePayloads": 48,
+    "documentationPayloads": 2,
+    "totalPathsIncludingManifest": 51,
+    "payloadBytes": 668033
+  },
+  "findings": [
+    {
+      "id": "DELIVERY-DOC-1",
+      "severity": "medium",
+      "status": "OPEN",
+      "scope": "truthful current status",
+      "locations": [
+        "docs/CONTINUATION.md:119",
+        "docs/CONTINUATION.md:511",
+        "docs/CONTINUATION.md:530",
+        "docs/CONTINUATION.md:563",
+        "docs/plans/2026-10-21-lexlean-r4.md:545"
+      ],
+      "evidence": "Actual inspected lines continue to call the outer whole-read connection/full successful Result unproved or required without qualifying their historical checkpoint. These conflict with the newly accepted bounded local full O=R result elsewhere in the same documents. Independently corroborates parallel CODE finding.",
+      "requiredAction": "Preserve this frozen packet and reports; clarify these clauses as historical in a separately pinned docs-only successor, retaining canonical ordinal26/Read33 and product obligations as open. Renew exact delivery review; no native rerun is implied."
+    }
+  ],
+  "checks": {
+    "exactFiles": "PASS: all 50 payload bytes/SHA256 match manifest; fixture has exactly 49 files including manifest, with no unlisted payload; two additional documentation paths.",
+    "containment": "PASS: payloads contain no symlinks, executable bits, absolute/traversal paths; gzip JSON member paths are relative and traversal/NUL-free. No extraction performed.",
+    "textOnly": "PASS: fatal UTF-8 decoding of ordinary files and gzip JSON; 10 bounded gzip decodes, 139 full-text members individually byte/hash checked. Archive census stores hashes of omitted binary artifacts rather than portable binaries.",
+    "secrets": "PASS bounded content inspection: no private-key marker or common credential-token patterns found. No credential stores or secret files were read. Not an exhaustive semantic guarantee against arbitrary encoded secrets.",
+    "bindings": "PASS: 64 phase input bindings, 23 external original/copy custody entries, 10 provenance aliases, 7 next-integration aliases and 9 ordinal26 aliases checked against actual bytes; accepted review original/copy match.",
+    "rawCustody": "PASS: all 117 raw receipt text members and 7 selected artifact-text members match their retained original external files byte-for-byte.",
+    "artifactCensus": "PASS: all 285 retained external artifact files rehashed against portable census without copying/executing binaries; records digest 8a2eb4f164d0256c32c96f9457d13b025e2328317869fb0951c14c837fbdd7c4 independently recomputed.",
+    "preservation": "PASS: all 17 protected current source pins match the preceding composed-result manifest; original pending-manifest SHA256 4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980 and all 17 original snapshots match. No protected runtime/model/canonical Read33 changes.",
+    "activation": "PASS: inert one-off runner inspected, no .github/justfile activation reference. Its shell/process arguments are literal/array-based, candidate/tool/source/epoch pins and fail-closed resource checks retained; no reset/restart/limit-raise operation. Portable location lacks its original invocation layout; archived runner is evidence, not reusable authority.",
+    "dependencies": "PASS: pinned official source references and genuine development locks remain diagnostic evidence, not installed SDK substitutes or production PrismPM qualification; no new compiler binary or dependency activation."
+  },
+  "acceptedEvidence": {
+    "review": {
+      "path": "evidence/positive/native-review.json",
+      "bytes": 16897,
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955",
+      "status": "PASS_LOCAL_FULL_WHOLE_RESULT_AND_RUN_GATES"
+    },
+    "scope": "Original concrete 96-byte/four-record O=R through two native Eq.trans applications, complete successful local Result, stats4/4/184. This review checks retained evidence/custody and does not rerun the kernel.",
+    "attestationId": "3903719cbb058ed59e9eb243a3f82bd7bad3eb406d48aba6f139945dfc8a1b53",
+    "attestationFile": {
+      "bytes": 200442,
+      "sha256": "32252fa1de867f97ef5583d115be67c8eb8f0899b102ccb275b37b6d19ef33b4"
+    },
+    "historicalBoundary": "Historical pending labels in immutable evidence remain historical and are superseded by the additive accepted review, not silently edited. Old max46 run remains failed; old /2 envelope failure and unrelated failed preparations remain preserved."
+  },
+  "nextStep": {
+    "specSha256": "6e84ae5cb826f017c8dde2c5e9919458253954f04b429cc2b3b3d46f4b9dab5b",
+    "classification": "Source-only bounded sequencing SPEC; proposed Codec311 metadata changes and closure census are NOT_RUN, not runtime evidence or permission.",
+    "open": [
+      "canonical semantic ordinal26",
+      "full Read33",
+      "official native-to-semantic theorem interop",
+      "ten unfinished drafts",
+      "full Object/Hash qualification",
+      "production PrismPM binding",
+      "generated Pages"
+    ],
+    "boundary": "A native bytes projection helper alone cannot close canonical ordinal26. No generic product or universal input claim follows from the accepted concrete local proof."
+  },
+  "archives": [
+    {
+      "path": "evidence/installed-source/additional-official-source.json.gz",
+      "bytes": 33422,
+      "sha256": "2543952e66e0a341f78726582197d02396a2d377bf9a7537b5e285623a91ff88",
+      "decodedBytes": 156551,
+      "textMembers": 5
+    },
+    {
+      "path": "evidence/installed-source/installed-0865-parser-ir.json.gz",
+      "bytes": 15093,
+      "sha256": "f0ce6ecce7c7b16ca8ae09a4a8aeaf2116690ceed483244af3662dcd87effc4e",
+      "decodedBytes": 72304,
+      "textMembers": 2
+    },
+    {
+      "path": "evidence/installed-source/migration-api-source.json.gz",
+      "bytes": 12013,
+      "sha256": "0c7e28b593f3cf516fdb5fe910244a8678402f1a5e3d9dfeeee98013395aab74",
+      "decodedBytes": 54793,
+      "textMembers": 1
+    },
+    {
+      "path": "evidence/installed-source/migration-backend-source.json.gz",
+      "bytes": 22634,
+      "sha256": "894f2afc676a0c91e91f8ed0b4c737c885ab17a21168d9ab2407d9a51dc43085",
+      "decodedBytes": 106228,
+      "textMembers": 2
+    },
+    {
+      "path": "evidence/installed-source/migration-verifier-source.json.gz",
+      "bytes": 32005,
+      "sha256": "ca70929fe7fe33c71eb95ecff7ed8838335301cd2e7050d46a24ac5713408abd",
+      "decodedBytes": 135660,
+      "textMembers": 3
+    },
+    {
+      "path": "evidence/installed-source/official-native-example.json.gz",
+      "bytes": 1674,
+      "sha256": "4d487823a4ed1744fb919e603e67ef2f7dc1659dcdc558c44398e0dfecfe63be",
+      "decodedBytes": 7335,
+      "textMembers": 2
+    },
+    {
+      "path": "evidence/negative/raw-receipts.json.gz",
+      "bytes": 11981,
+      "sha256": "9e5dc8b6a7b20c9503fdca9a056b585eeed6b9f9172b88bb8a6b0557e74d20b0",
+      "decodedBytes": 89341,
+      "textMembers": 58
+    },
+    {
+      "path": "evidence/positive/artifact-census.json.gz",
+      "bytes": 14955,
+      "sha256": "6afb9b5b1ddba43db849c29b76fa1be87c09ab6c1e78310cb21b125820c30ef4",
+      "decodedBytes": 55075,
+      "textMembers": 0
+    },
+    {
+      "path": "evidence/positive/raw-receipts.json.gz",
+      "bytes": 10150,
+      "sha256": "4d11e1ba1349a50d108b9afe30c18c019fef974363bb5d71086063cc584a96b4",
+      "decodedBytes": 73336,
+      "textMembers": 59
+    },
+    {
+      "path": "evidence/positive/selected-artifact-text.json.gz",
+      "bytes": 36244,
+      "sha256": "46b8aaff51001ec7e047a915aaeb0fe41d8b2d7243a5ce233c5bf9c60870cbf4",
+      "decodedBytes": 373829,
+      "textMembers": 7
+    }
+  ],
+  "limitations": [
+    "Security PASS is limited to frozen payload content/custody and does not override the documentation blocker or independent CODE review.",
+    "No new SDK call, test, compiler verification, resource observation, invocation approval, operational release or production acceptance occurs in this review.",
+    "No source, archive, manifest, repository, index or historical receipt was modified; only this external report was written."
+  ]
+}

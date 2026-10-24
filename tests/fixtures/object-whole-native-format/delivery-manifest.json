@@ -1,0 +1,310 @@
+{
+  "schema": "lexlean-r4-native-format-delivery-manifest/v1",
+  "status": "FROZEN_DOCS_ONLY_SUCCESSOR_PENDING_RENEWED_CODE_AND_SECURITY",
+  "baseCommit": "7653327187c93a4dea547636615efbae5f9a2dbc",
+  "at": "2026-10-24T06:23:10.339Z",
+  "scope": "Entire object-whole-native-format fixture and exactly two continuation documents; no canonical source/model/draft change.",
+  "actualResult": "PASS_LOCAL_CONCRETE_96_BYTE_FOUR_RECORD_FULL_WHOLE_RESULT_AND_RUN_GATES",
+  "boundary": "Canonical semantic ordinal26/Read33 and full Object/Hash/production PrismPM/Pages remain open. Codec311 scheduling adjustment is source design only; all next tests NOT_RUN.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 68359,
+      "sha256": "9040be6939fefddc3eb0c9d125cf72315345fc9bb3cf14e7da7e947e8c6f9584"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 52485,
+      "sha256": "60ecbb0fe3cd5973d0f552fe1a20ca78a71b0f5c13c26881619015464de60f0f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/README.md",
+      "bytes": 1316,
+      "sha256": "3811065d6998a010ba0bac5704cfeba1eb8f647ffd99727c937aedc23c41f2e5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/RESULTS.md",
+      "bytes": 3464,
+      "sha256": "7fa34f49662f352196bd54438452569f017cd72e21c20709d25c1095bd65ed05"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/README.md",
+      "bytes": 1034,
+      "sha256": "22515bfc22db684e1d44fd42038a564815db616c81695eb60cebf725390aafca"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/candidate.json",
+      "bytes": 40714,
+      "sha256": "b17de66da09ef3b16c9bbea86d4daa8473c7e57628b08819b6fefa9bd61661f9"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/lexlean.toml",
+      "bytes": 689,
+      "sha256": "fc4e030ac759a28795080e2e48e33bd25a2ce992a44838c73c78b4408146d1f1"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/manifest.json",
+      "bytes": 2464,
+      "sha256": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/negative-core-module.json",
+      "bytes": 20932,
+      "sha256": "fbe370aeb1f7a7fa8a3f2a526bde35a32156542f8082fd72c9ad8fe5ad4f743f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/negative/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 21414,
+      "sha256": "8fb58e65c6b7ff6f9f6334de3f229b944a37fa7d7913c0e361872f8d706b1caf"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/positive-core-module.json",
+      "bytes": 20943,
+      "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/positive/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 21425,
+      "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/preparation-framing-failure.json",
+      "bytes": 1170,
+      "sha256": "4f17da091a85328f446f729fa63e401f88df9b21465c99713daccb2067eb663d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/source-migration-diff.json",
+      "bytes": 2746,
+      "sha256": "6853a4c92ceea77a5fdf1ad38554de137e4586b91cf2d31591b37079d13e828f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/candidate/structural-audit.json",
+      "bytes": 10014,
+      "sha256": "a1b5a7795c76f6c268785467f4cdd2d3d0f3af1e598736841fc3f8fa0fb3f8f3"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/candidate-invocation-code-review.json",
+      "bytes": 8372,
+      "sha256": "b7f7bb10fd5f067282de79e605c8f390e0c229991efc7fbbfbc0dcb18efb3618"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/delivery-correction/original-security-review.json",
+      "bytes": 8937,
+      "sha256": "e942601a55106fe32e1af4784a578d2462241a1d130591a95c7336aad8de45dc"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/delivery-correction/rejected-delivery.json.gz",
+      "bytes": 42260,
+      "sha256": "75c27470c064cd8365edf3b070b9e42153418a6eb12ff3a7cbd1569c157b2d9c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/delivery-correction/successor-record.json",
+      "bytes": 6492,
+      "sha256": "979d4c38b1d7cd34c593dd4d1efe3e565f911ac5a02b140f29a3e196c804759d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/history/README-before-native-acceptance.md",
+      "bytes": 1566,
+      "sha256": "949dcd5b94df3352912a9679057baa17055bd4178560283ba507381805361eb0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/additional-official-source.json.gz",
+      "bytes": 33422,
+      "sha256": "2543952e66e0a341f78726582197d02396a2d377bf9a7537b5e285623a91ff88"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/installed-0865-parser-ir.json.gz",
+      "bytes": 15093,
+      "sha256": "f0ce6ecce7c7b16ca8ae09a4a8aeaf2116690ceed483244af3662dcd87effc4e"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/investigation.json",
+      "bytes": 9313,
+      "sha256": "062232ce76d114a214fa63d1c7d61b17e6f47816b7470cc93e697b6b9d143b06"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/migration-api-source.json.gz",
+      "bytes": 12013,
+      "sha256": "0c7e28b593f3cf516fdb5fe910244a8678402f1a5e3d9dfeeee98013395aab74"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/migration-backend-source.json.gz",
+      "bytes": 22634,
+      "sha256": "894f2afc676a0c91e91f8ed0b4c737c885ab17a21168d9ab2407d9a51dc43085"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/migration-spec-review.json",
+      "bytes": 8318,
+      "sha256": "4e1f2a87b6fdf98c5c405043e7e47867034b0f64a92b5e942186e4bd9aa96bf6"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/migration-verifier-source.json.gz",
+      "bytes": 32005,
+      "sha256": "ca70929fe7fe33c71eb95ecff7ed8838335301cd2e7050d46a24ac5713408abd"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/installed-source/official-native-example.json.gz",
+      "bytes": 1674,
+      "sha256": "4d487823a4ed1744fb919e603e67ef2f7dc1659dcdc558c44398e0dfecfe63be"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/invocation-delta.json",
+      "bytes": 5746,
+      "sha256": "33fc1d62f62134e266fee6558b1e57af96dbcd27ca7dca62c3ae8fa4cc8ebe3f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/invocation-manifest.json",
+      "bytes": 452,
+      "sha256": "ad5b2627a02098c9a815cc2a58ce2be64901291039dcf86ce68cc38ad68e1518"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/invoke-whole-native-format.mjs",
+      "bytes": 7733,
+      "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/negative/custody.json",
+      "bytes": 11822,
+      "sha256": "d7873293d0eb8eade3e9474d151f1b7d13b559fc46348d1502ab5afec1bfdf7c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/negative/native-review.json",
+      "bytes": 15153,
+      "sha256": "4590f0ceea3db258448a3bf7e2ebe161931b67cdf397d8b070e790dc8b0a685c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/negative/raw-receipts.json.gz",
+      "bytes": 11981,
+      "sha256": "9e5dc8b6a7b20c9503fdca9a056b585eeed6b9f9172b88bb8a6b0557e74d20b0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/negative/review-binding.json",
+      "bytes": 998,
+      "sha256": "78e14c664346d26e6c3dc3bee4d01115742ee018d76f078456f15c35d0207805"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/next-integration-bindings.json",
+      "bytes": 8089,
+      "sha256": "6e6bd2be5562f0cd20ad64a14862301ceb0167db1ac4c541ae9c5443fff7cd86"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/next-integration-spec-review.json",
+      "bytes": 15414,
+      "sha256": "6e84ae5cb826f017c8dde2c5e9919458253954f04b429cc2b3b3d46f4b9dab5b"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/next-ordinal26-investigation-binding.json",
+      "bytes": 4199,
+      "sha256": "1f0869376ef62892ed3e531d13ed60ffed631dfdffd83345195d51128fff3824"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/next-ordinal26-investigation.json",
+      "bytes": 14858,
+      "sha256": "b68fb0cf86031b1af2a84787dea37fb44808026b54f4a4a6942436e8d8b4661c"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/accepted-review-binding.json",
+      "bytes": 8283,
+      "sha256": "9ba74710191232706f5cab925277963549c1a48fb0d9b4529434d64feab17167"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/artifact-census.json.gz",
+      "bytes": 14955,
+      "sha256": "6afb9b5b1ddba43db849c29b76fa1be87c09ab6c1e78310cb21b125820c30ef4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/custody.json",
+      "bytes": 14322,
+      "sha256": "4651a6150e0735cffd78d4964bbeb97a019e5511de283632356b896ff8d57726"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/native-review.json",
+      "bytes": 16897,
+      "sha256": "cbe141490cd0eb545fa9743c8565fa3d338175f4b4613fcc280a18e036d2c955"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/packaging-prewrite-identity-failure.json",
+      "bytes": 517,
+      "sha256": "8fb83a3f9610a7ae86732473ccf9b2082247784b958599b6a5c11a79e7cdaf27"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/raw-receipts.json.gz",
+      "bytes": 10150,
+      "sha256": "4d11e1ba1349a50d108b9afe30c18c019fef974363bb5d71086063cc584a96b4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/positive/selected-artifact-text.json.gz",
+      "bytes": 36244,
+      "sha256": "46b8aaff51001ec7e047a915aaeb0fe41d8b2d7243a5ce233c5bf9c60870cbf4"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/phases/format-false/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "0fdb318a38f12b6b1f0fd1cccd8e9b05f2b647fb818417af8f9ff75b50133efc"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/phases/format-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "0fdb318a38f12b6b1f0fd1cccd8e9b05f2b647fb818417af8f9ff75b50133efc"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/provenance-bindings.json",
+      "bytes": 4100,
+      "sha256": "6345670feef559a26cd9e930c1ac5b666c39285aea538d7b3eb57e3c02bdd0fd"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/readiness.json",
+      "bytes": 3521,
+      "sha256": "76ee632a7c62560060f8a005fb76119d71e7626be007ce04db86fc66a8959f07"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/results.json",
+      "bytes": 5330,
+      "sha256": "ea73dfb86a5116324d9af7adf67b01f8ba8ec8551ab7691624c7a800878cddae"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/source-bindings.json",
+      "bytes": 19843,
+      "sha256": "3d89d82515fb823dcf52594e1b8bab3652f97922e7951896ba00356477f03530"
+    },
+    {
+      "path": "tests/fixtures/object-whole-native-format/source-custody.json",
+      "bytes": 21438,
+      "sha256": "c56fd5e2eb6124b5e5105790466d724b6093dc47c2d2f47ce81affe3d963aae4"
+    }
+  ],
+  "payloadCount": 53,
+  "payloadBytes": 726507,
+  "verification": {
+    "protectedCurrentPins": 17,
+    "originalSnapshots": 17,
+    "sourceMaps": 64,
+    "portableAliases": 26,
+    "gzipArchives": 11,
+    "verifiedUtf8Members": 143,
+    "relativeMarkdownLinks": 158,
+    "candidateAndSourceCustody": "PASS",
+    "original48FixturePayloadsUnchanged": 48,
+    "exactDocumentationSubstitutions": 6,
+    "rejectedArchive": "Four exact UTF8 members independently roundtrip rehashed",
+    "diffCheck": "PASS"
+  },
+  "budget": {
+    "newPortablePayloadAllocatedBytes": 843776,
+    "manifestAllowanceBytes": 32768,
+    "totalCapBytes": 1048576,
+    "hostAvailableBytes": 27923972096,
+    "reserveBytes": 10737418240,
+    "method": "Entire fixture plus full two docs, plus new external rejection archive. All archive encoding/decoding in memory, no extracted disk copies. Pre-existing external source/native packets excluded.",
+    "externalRejectionArchiveAllocatedBytes": 45056
+  },
+  "supersedes": {
+    "sha256": "a5368bede1b65dde0e55abad23f043c11fc85082c55b4e041fc675504ad2562f",
+    "archive": "evidence/delivery-correction/rejected-delivery.json.gz"
+  },
+  "correction": {
+    "path": "evidence/delivery-correction/successor-record.json",
+    "bytes": 6492,
+    "sha256": "979d4c38b1d7cd34c593dd4d1efe3e565f911ac5a02b140f29a3e196c804759d"
+  }
+}

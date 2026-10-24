@@ -1,0 +1,60 @@
+{
+  "schema": "lexlean-r4-native-format-diff/v1",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/manifest.json",
+    "bytes": 2404,
+    "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/installed-envelope-investigation/migration-spec-review.json",
+    "bytes": 8318,
+    "sha256": "4e1f2a87b6fdf98c5c405043e7e47867034b0f64a92b5e942186e4bd9aa96bf6"
+  },
+  "variants": [
+    {
+      "variant": "negative",
+      "oldCore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/negative-core-module.json",
+        "bytes": 21010,
+        "sha256": "4df74747525bc780e1b5bf60bbbcf3551b6e332777324aa0e999353afa22ca52"
+      },
+      "payload": {
+        "bytes": 20932,
+        "sha256": "fbe370aeb1f7a7fa8a3f2a526bde35a32156542f8082fd72c9ad8fe5ad4f743f"
+      },
+      "jsonDelta": [
+        "spec /2 -> /1",
+        "remove only declarations[0].all after exact singleton assertion"
+      ],
+      "restoreOldFileBytes": "PASS including original terminal LF; new payload has no terminal LF",
+      "headerFooterUnchanged": true,
+      "nodesUnchanged": 789,
+      "proofMarkersUnchanged": 15,
+      "all789Reachable": true
+    },
+    {
+      "variant": "positive",
+      "oldCore": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-composed-projection-order/positive-core-module.json",
+        "bytes": 21021,
+        "sha256": "508246458fdf50563255516001a0cf7aca833a9d359b01854c4f1686190975e8"
+      },
+      "payload": {
+        "bytes": 20943,
+        "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+      },
+      "jsonDelta": [
+        "spec /2 -> /1",
+        "remove only declarations[0].all after exact singleton assertion"
+      ],
+      "restoreOldFileBytes": "PASS including original terminal LF; new payload has no terminal LF",
+      "headerFooterUnchanged": true,
+      "nodesUnchanged": 789,
+      "proofMarkersUnchanged": 15,
+      "all789Reachable": true
+    }
+  ],
+  "source": "Only body between existing coremodule delimiters replaced by one canonical coredata payload. Existing header/imports/title/glossaries and footer retained byte-for-byte.",
+  "json": "Change /2 to /1 and remove proven singleton all only. Reverse both edits and retain old external LF: exact predecessor JSON file bytes.",
+  "negative": "Exactly node776 constant name differs; proof structure, type/value indices and entire goal unchanged."
+}

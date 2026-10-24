@@ -1,0 +1,219 @@
+{
+  "schema": "lexlean-r4-next-ordinal26-source-investigation/v1",
+  "status": "SOURCE_ONLY_CONDITIONAL_NATIVE_PROJECTION_SEMANTIC_INTEROP_BLOCKED",
+  "recordedAt": "2026-10-24T06:06:12.669Z",
+  "scope": "Read-only next-step investigation while sole positive composition job51314 is pending. No SDK/process/container call, source/candidate edit, native helper, framework or execution authorization.",
+  "positivePrerequisite": {
+    "reportedAtDispatch": "PENDING; source and intended negative accepted; positive not assumed accepted",
+    "required": "Actual current full original O=R positive must receive independent artifact/kernel/empty-axiom/declaration/custody and operational acceptance before its equality is used as an accepted prerequisite.",
+    "nativeTheorem": "LexLeanR4.ObjectWholeComposedResult.objOriginalWholeComposedResult",
+    "candidateManifest": {
+      "bytes": 2464,
+      "sha256": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9"
+    },
+    "candidate": {
+      "bytes": 40714,
+      "sha256": "b17de66da09ef3b16c9bbea86d4daa8473c7e57628b08819b6fefa9bd61661f9"
+    },
+    "sourceInvocationReview": {
+      "bytes": 8372,
+      "sha256": "b7f7bb10fd5f067282de79e605c8f390e0c229991efc7fbbfbc0dcb18efb3618",
+      "status": "PASS_SOURCE_AND_INVOCATION_READY_ONLY"
+    },
+    "negativeReview": {
+      "bytes": 15153,
+      "sha256": "4590f0ceea3db258448a3bf7e2ebe161931b67cdf397d8b070e790dc8b0a685c"
+    },
+    "positiveCore": {
+      "bytes": 20943,
+      "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+    },
+    "positiveSource": {
+      "bytes": 21425,
+      "sha256": "8ca53309250ea1ad339677e19444d8231e50b1ccf9fbd23ffe009497db2b4a32"
+    },
+    "freshResultRead": false
+  },
+  "canonical": {
+    "path": "tests/lexlean/ObjectReadControls.lex.tex",
+    "bytes": 330157,
+    "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+    "declarations": 33,
+    "ordinal": 26,
+    "zeroBasedIndex": 25,
+    "name": "objProtocolWholeBytes",
+    "parameters": [],
+    "axioms": [],
+    "currentProof": {
+      "kind": "reflexivity"
+    },
+    "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "declarationSha256": "3c3a6d5941acb95442f0070a773be51f25743c10abea0f74466a9d4543376195",
+    "statementHashEncoding": "UTF8 JSON.stringify of recursively key-sorted objects, array order retained; no trailing newline.",
+    "OsemanticSha256": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "rightSemanticSha256": "2f35005544a16a6df9b2ca69f440508f420ae09ca5c777cb927d506d084b5c31",
+    "shape": "match O with error reason => error reason | ok item => ok item.bytes, equal to ok (ObjAppendBytes left48 right48). O is the unchanged original ObjWholeRead on four entries, original96 manifest, original digest and limits."
+  },
+  "projection": {
+    "mathematicalFunction": "F : Except ObjError ObjWholeVerified -> Except ObjError (List Nat); F(error e)=error e; F(ok v)=ok v.bytes.",
+    "conditionalEquation": "Given checked hFull: O=R, congrArg F hFull gives F(O)=F(R). For R=Except.ok (ObjWholeVerified.mk bytes96 version stats), F(R) reduces by match iota and structure projection to Except.ok bytes96. Original RHS is Except.ok (ObjAppendBytes left48 right48).",
+    "sourceVerified": {
+      "RNode": 769,
+      "RHead": "Except.ok",
+      "RArguments": [
+        1,
+        2,
+        767
+      ],
+      "wholeRecordNode": 767,
+      "wholeRecordHead": "LexLeanR4.R4.ObjectTypes.ObjWholeVerified.mk",
+      "wholeRecordArguments": [
+        678,
+        742,
+        753
+      ],
+      "bytesNode": 678,
+      "bytesProjectionIndex": 0,
+      "byteListLength": 96,
+      "originalAppendArgumentLengths": [
+        48,
+        48
+      ],
+      "nativeBytesEqualConcatenatedOriginalLists": true,
+      "byteSequenceSha256": "c43377591dc78174b0f698791f26873786f5e94868f44d047f66866b173a0027",
+      "byteSequenceHashEncoding": "UTF8 JSON.stringify of96 decimal strings, no newline."
+    },
+    "requiredConversions": [
+      "F(O) is the exact original match statement, including error propagation; no error-to-default shortcut.",
+      "F(R) requires only known Except.ok branch and ObjWholeVerified.bytes projection; version/stats stay in full record and are not altered.",
+      "Original RHS retains ObjAppendBytes. Its exact definition recurses over first list with nil=>right and cons=>cons recursive append. Native96 literals equal the two original48 lists concatenated; kernel definitional conversion still must run.",
+      "No unfolding/normalizing ObjWholeRead or replacing original RHS with new literals is needed in the mathematical proof. Runtime savings and actual kernel cost are not established."
+    ],
+    "typeBoundary": "congrArg is a mathematical recipe, not an authored LexLean AST. Exact recursor motive, universes, binder indices and congrArg application order require source/kernel review before any candidate.",
+    "nativeHelperLimit": "A checked native theorem for exactly ordinal26 would be useful proof evidence, but by itself does not discharge or replace the existing canonical semantic declaration."
+  },
+  "concreteBlocker": {
+    "conclusion": "No supported proof-only replacement using the imported native full-result theorem is established under installed0865. Existing semantic Apply/Simplify cannot name that native theorem, and even an accessible O=R theorem is not definitionally the projected ordinal26 goal.",
+    "sourceEvidence": [
+      {
+        "path": "crates/lexlean/src/link.rs",
+        "lines": "679-687,692-698",
+        "fact": "Imported semantic environment is built only from module.document.semantic; core-native module declarations are excluded."
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "lines": "609-654",
+        "fact": "SemanticProof has reflexivity/decide/linear_arithmetic/simplify/constructor/cases/induction/congruence/boolean_reflection/apply; no arbitrary native exact, equality transport, rewrite-and-finish or core proof payload."
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "lines": "7814-7828,8477-8490",
+        "fact": "Apply requires prior env.proof_rules entry; imported entries are constructed from SemanticDeclaration::Theorem. Merely adding importmodule for native fullResult does not register it."
+      },
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "lines": "7873-7902",
+        "fact": "Simplify accepts prior functions/proof rules and limited Boolean/local-proposition bridges, not an unregistered native theorem name."
+      },
+      {
+        "path": "crates/lexlean/src/backend/semantic.rs",
+        "lines": "1108-1109,1131-1138,1183,1236-1250",
+        "fact": "Reflexivity emits rfl; Simplify emits simp only; Congruence emits congr1; Apply emits exact only after semantic checks. Congruence is not an interface for supplying hFull."
+      },
+      {
+        "path": "crates/lexlean/src/grammar/structural.rs",
+        "lines": "1104-1121",
+        "fact": "A coremodule or semanticmodule body closes the whole lexlean module; injecting an adjacent native proof block into the canonical semantic module is not supported."
+      }
+    ],
+    "notValidFixes": [
+      "No invented proof JSON constructor, unchecked native name insertion, relaxed axiom policy, handwritten backend code or semantic theorem stub.",
+      "Do not pass off native helper proof as canonical ordinal26 completion.",
+      "Do not migrate all33 declarations to native merely to bypass this proof-import boundary.",
+      "Do not claim simplify automatically preserves empty axioms; even future imported theorem exposure needs real observed-axiom audit."
+    ]
+  },
+  "officialInteropDependency": {
+    "status": "SOURCE_IDENTIFIED_CAPABILITY_DEPENDENCY_NOT_IMPLEMENTED",
+    "minimumRequirement": "An official supported compiler contract must allow a semantic theorem to consume an authenticated imported native theorem with exact checked type/parameters, preserving kernel checking, source/lock identity and empty-axiom policy. Current0865 lacks that integration in inspected proof environment.",
+    "boundedRoute": "If such official interop becomes available and independently reviewed, a concrete native projection theorem may prove exactly the unchanged ordinal26 statement using hFull; then the existing semantic ordinal26 proof can use supported Apply with that theorem. Imports must be explicit and audited; current header does not import it. Alternatively an official checked equality-transport/rewrite constructor could consume hFull directly, but none exists in the inspected enum.",
+    "strictScope": "A literal only-proof-field edit cannot add needed import or missing compiler capability. Identify this dependency to owner/implementation rather than silently broadening source/schema scope. No compiler fork/build/install or new framework is proposed here.",
+    "requiredChecks": [
+      "Confirm official release/source/executable support for native-to-semantic proof registration, not just native-to-native kernel import.",
+      "Independently verify projected theorem statement matches original statement hash/AST and all runtime modules remain pinned.",
+      "Verify exact imported declaration inventory, same name/signature, false generated/class metadata where applicable, original33 declarations preserved, none policy and observed empty axioms.",
+      "Require new SPEC/source/invocation/resource reviews before execution; current fullResult reviews do not transfer."
+    ]
+  },
+  "meaningfulNegative": {
+    "nativeProjectionControl": "If a native projection candidate is authorized, replace only the hFull proof constant with an existing in-scope closed unrelated0=0 proof while keeping goal/F/imports/nodes otherwise identical. It must fail for actual equality premise/type at the mandatory projection root; missing symbol/parser/import/resource errors do not count.",
+    "canonicalInteropControl": "If official interop is established, replace only ordinal26 proof target with an equally visible but wrong-type closed native theorem. Both must be registered imports; failure must be kernel goal/type mismatch, not missing proof_rules. Restore actual projected theorem, reverify original full33 inventory and observed axioms.",
+    "status": "ALL_NEW_NEGATIVES_NOT_RUN; no candidate authored."
+  },
+  "productSequencing": {
+    "first": "Let sole positive composition finish and independently classify proof/custody/operational outcome. Never infer acceptance from pending job or source/negative PASS.",
+    "then": "Resolve narrow native-to-semantic theorem import dependency before treating a projection helper as canonical completion. Preserve explicit ordinal26 blocker and exact original statement.",
+    "parallelSourceWork": "Other32 Read declarations contain no references to objProtocolWholeBytes, and all currently use reflexivity. Their bodies can be inspected or already-authorized independent diagnostics advanced without changing ordinal26. Whole33 acceptance still requires the unchanged full declaration inventory and canonical ordinal26; omitting/filtering it is not completion.",
+    "codec311": "Canonical ObjectCodecControls has311 declarations and imports R4.Hash,ObjectTypes,ObjectCodec, with no ObjectReadControls or composition reference in its parsed content. Its own qualification is logically separate and may be scheduled after sole current SDK run and fresh eligibility. It uses1.1 glossary pins while current ObjectTypes imports1.2, so actual language/closure compatibility must be reviewed; no Codec311 success asserted.",
+    "noNewFixture": "This report creates no split control fixture, no reduced release path and no additional native job. Any diagnostic selection must be labeled partial and cannot replace fullRead33 or complete just-vv acceptance."
+  },
+  "otherPins": [
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "fact": "ObjWholeVerified fields bytes/version/stats; ObjAppendBytes exact primitive recursion."
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131",
+      "declarations": 311
+    }
+  ],
+  "officialSources": {
+    "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+    "baseURL": "https://raw.githubusercontent.com/UOR-Foundation/LexLean/0865df4e540ca643b090a29e9df6d319d6906da6/",
+    "files": [
+      {
+        "path": "crates/lexlean/src/ir/semantic.rs",
+        "bytes": 353541,
+        "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf",
+        "retrieval": "Exact official source read in memory; no retained new copy."
+      },
+      {
+        "path": "crates/lexlean/src/backend/semantic.rs",
+        "bytes": 162725,
+        "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e",
+        "retrieval": "Exact official source read in memory; no retained new copy."
+      },
+      {
+        "path": "crates/lexlean/src/link.rs",
+        "bytes": 72648,
+        "sha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd",
+        "retrieval": "Existing additional-official-source.json.gz"
+      },
+      {
+        "path": "crates/lexlean/src/grammar/structural.rs",
+        "bytes": 40476,
+        "sha256": "7c33737f5743dd866bf4a48ae6bd1e125a2e2df5270d408802a594fc8f24bfa8",
+        "retrieval": "Existing installed-0865-parser-ir.json.gz"
+      }
+    ]
+  },
+  "limitations": [
+    "Positive status is pending at dispatch and was not polled by this review. All proposed projection/interop tests NOT_RUN.",
+    "No exact new native AST or proof was compiled. Source structural equality and list comparison do not establish kernel conversion, timing or full product acceptance.",
+    "Full Result acceptance would still not establish ordinal26, Read33, Codec311, Hash qualification, production PrismPM or Pages."
+  ],
+  "reviewerLookupHistory": [
+    "Initial rg matched one giant semanticdata line; subsequent reads parsed JSON and selected exact declaration.",
+    "A guessed candidate-code-review filename was absent; actual candidate-invocation-code-review identified and rehashed.",
+    "First byte-field helper expected append application but observed literal cons96; corrected structural comparison confirmed literal96 equals original two48 append inputs. No files altered."
+  ],
+  "storage": {
+    "reportCapBytes": 20480,
+    "newFiles": 1
+  },
+  "operations": "Read-only host source/JSON/hash and official source HTTP reads; one bounded external report. No SDK/check/native/compiler/container/process inspection or repo edit."
+}
