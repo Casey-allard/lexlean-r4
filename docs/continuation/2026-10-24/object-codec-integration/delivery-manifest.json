@@ -1,0 +1,245 @@
+{
+  "schema": "lexlean-r4-codec311-delivery-manifest/v1",
+  "status": "FROZEN_DOCS_ONLY_SUCCESSOR_PENDING_RENEWED_CODE_AND_SECURITY",
+  "baseCommit": "45e9fce71c7fbbadf053e45f09f136968b137e2f",
+  "at": "2026-10-24T06:51:03.466Z",
+  "scope": "Entire portable Codec folder plus only canonical Codec source and two continuation documents. No other current draft/source, model ledger, runtime or frozen historical fixture edited.",
+  "nativeStatus": "PASS_CANONICAL_CODEC311_IN_PINNED_DEVELOPMENT_CLOSURE",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 70009,
+      "sha256": "85e3a592b5df9b13c9affe8265a65cf2c29876ce4ae1e92dfd7f49f3f3fb7f5f"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/README.md",
+      "bytes": 914,
+      "sha256": "e9edb23219cea8dbbec779021104f28f864186819f6418c1b85291e48f7ac944"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/RESULTS.md",
+      "bytes": 2684,
+      "sha256": "151770262bbf2ad8532a3dc7b581aa7fb037e58605aaac01c5c91aa71756509e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/accepted-review-binding.json",
+      "bytes": 2202,
+      "sha256": "86fed1a8f7d33a67ed40e3ae2143bc6e47076ca938a34cd4fc75975bde5d548d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-legacy/raw-receipts.json.gz",
+      "bytes": 6677,
+      "sha256": "f9235eb5f595853fcfef6b93990a52c62b8348034a2760d2e126b0755784ec54"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/artifact-census.json.gz",
+      "bytes": 4786,
+      "sha256": "8e2bac2bff575109cb528d7aa95924c0b391e19840312909330476769f76b535"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/artifact-text.json.gz",
+      "bytes": 24909,
+      "sha256": "5ccb03efb0d4c770144c84329bb31a10837841ea71d05c67cd78241a68cabd22"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/independent-artifact-census.json",
+      "bytes": 33647,
+      "sha256": "81ca074556eb51f915ed7f0eea6ed88c748d7f404a35e92f759090c5fb2444c9"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/raw-receipts.json.gz",
+      "bytes": 6919,
+      "sha256": "20c49d8508defaec6982b487214f599f2a4d9ea0f16f453ead31732c0af591b8"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/custody.json",
+      "bytes": 21564,
+      "sha256": "5a22ead483ad3a253e5eb4a5687c334650ebb35efb3559589075aafff21b2f0c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/delivery-budget.json",
+      "bytes": 853,
+      "sha256": "2af2d31982201a509df7ce85f28a290c34db102a20b55b1cd159176bc17f2fc6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/delivery-correction/correction-record.json",
+      "bytes": 16242,
+      "sha256": "1547dc34a8b5afeab53fac3b4f1cb325e7f68e72f3c147734678617cb55b94b7"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/delivery-correction/rejected-delivery.json.gz",
+      "bytes": 46474,
+      "sha256": "782a78ea09b4b1a1fd8ab2dd183785d178d190a6ed4ed925beaf92712ba95688"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/history/README-before-acceptance.md",
+      "bytes": 780,
+      "sha256": "dbc85189a141f44e501829a5f3f5f5b11593f8dc3a22ce50fc7871044d6b16c1"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/parent-artifact-check.json",
+      "bytes": 536,
+      "sha256": "77ea049500ab3cdf1b88c25daabbaa1cd2408542af7f91ebb32c10496263121f"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/phases/codec-legacy/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "9d0ad7a779f8b627fb2ee6ab17dbfd65ee05229594fcdcf00b0b18ec7a296be2"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/phases/codec-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "9d0ad7a779f8b627fb2ee6ab17dbfd65ee05229594fcdcf00b0b18ec7a296be2"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/results.json",
+      "bytes": 4381,
+      "sha256": "4967dee3cacc9e30a73485341cdef7552c7815c5a9d2f4bc252beb5fc0d05d14"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/reviews/legacy-native-review.json",
+      "bytes": 11114,
+      "sha256": "bc89a2ba78edbce8df4d7eb0ab0a53cc29fc1fb694120c3cf6b81b4d6d5b3fdf"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/reviews/positive-native-review.json",
+      "bytes": 14573,
+      "sha256": "978ca6527d912fadb9baeda3c673432621a1a2fbf329625ba5489e43dcf7a57d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/reviews/source-invocation-code-review.json",
+      "bytes": 6972,
+      "sha256": "589dac4b771f109f3be2d32077b168d0f4a117adedb2c2f6021273b498904bf3"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source-bindings.json",
+      "bytes": 9012,
+      "sha256": "b66e05da46f679de6581d29e3bc2bfa02ad20e93e40fa0e86e3985e7abaf1941"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/README.md",
+      "bytes": 794,
+      "sha256": "0a9356e0705141024316f031f952c5dc6a5e3e5f0dd517d3802d982862b45df0"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/candidate.json",
+      "bytes": 15874,
+      "sha256": "0abe6dce1c1f9cf2f517e358d24a06b85f7915045742ae0d8a32916314c10813"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/control-migration.json",
+      "bytes": 4919,
+      "sha256": "a1f7502d6907a2ee0adda0721606890aa2588701ede7507a2946dd3d7dcde2fe"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/invocation-diff.json",
+      "bytes": 3790,
+      "sha256": "c1f236431fcb959cb582d60bbb9665e42a50fd9d42d2ce40791134e5181dbc86"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/invocation-manifest.json",
+      "bytes": 571,
+      "sha256": "03f692439d019e935e89118c4034db39c46a5a743ccca07fc6fbec3ca0573efd"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/invoke-codec.mjs",
+      "bytes": 7779,
+      "sha256": "61d3a8522969e795488196ab9ebf39eb56e4a411bee41f457076e47ab0fb7b22"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/lexlean.toml",
+      "bytes": 683,
+      "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/manifest.json",
+      "bytes": 1404,
+      "sha256": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/prewrite.json",
+      "bytes": 8115,
+      "sha256": "b98b1b87c9264ab1ee3d09ffb81e2e4b9ac76dc8e570525be4112e705c71ed96"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 53972,
+      "sha256": "9b8cfa67516aca87e3b447912790165cba9e264006e82c8ab52e10775fedc91f"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    }
+  ],
+  "payloadCount": 33,
+  "payloadBytes": 931254,
+  "sourceTransition": {
+    "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+    "before": {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    "after": {
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    },
+    "metadataEdits": 3,
+    "unchangedDeclarationCount": 311
+  },
+  "validation": {
+    "otherCurrentPins": 16,
+    "originalSnapshots": 17,
+    "inputMaps": 30,
+    "gzipArchives": 5,
+    "exactUtf8Members": 93,
+    "artifactFilesComparedToIndependentCensus": 85,
+    "targetNamesCompared": 311,
+    "fullDeclarationArraySha256": "4667a431d063b4521af1be1b9f9db4da5ad47f90daab8920a2bdc4581cfdb1c9",
+    "relativeLinks": 161,
+    "frozenSourceInvocationCustody": "PASS",
+    "diffCheck": "PASS",
+    "unchangedOriginalNonDocPayloads": 29,
+    "exactDocEditGroups": 13,
+    "exactDocReplacementOccurrences": 19,
+    "reconstruction": "PASS exactoldtext plus recorded substitutions equals current two docs"
+  },
+  "counts": {
+    "localObjectRootControls": 331,
+    "totalExistingObjectControls": 403,
+    "openReadAndConstruction": 72,
+    "unfinishedOriginalDrafts": 9
+  },
+  "limitations": [
+    "Pinned development closure, not production Object/Hash/PrismPM/model/scenario/Pages acceptance.",
+    "Legacy negative is first bool-version compatibility diagnostic, not semantic defect or all three independently observed failures.",
+    "Canonical ordinal26/Read33 interoperability and known Construction39/whole257 obligations remain open; separate reviewed remedy needed, no unchanged limits retry.",
+    "All original failure and preparation records retained; parent parser extraction correction did not affect native result."
+  ],
+  "budget": {
+    "authority": {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/delivery-budget.json",
+      "bytes": 853,
+      "sha256": "2af2d31982201a509df7ce85f28a290c34db102a20b55b1cd159176bc17f2fc6"
+    },
+    "maximumAdditionalAllocatedBytes": 2097152,
+    "portablePayloadAllocatedBytes": 1011712,
+    "externalDirectPreparationAndReviewAllocatedBytes": 196608,
+    "manifestAllowanceBytes": 16384,
+    "conservativeCombinedIncludingAllowance": 1224704,
+    "availableBytes": 25644535808,
+    "reserveBytes": 10737418240,
+    "method": "Conservatively includes fullcanonical source and both full documents plus all current direct external preparation/reports; native output dirs excluded. No extracted disk temporaries. Original source preparation1MiB budget remains historical; prospective finaldelivery cap2MiB."
+  },
+  "supersedes": {
+    "bytes": 9665,
+    "sha256": "8a96e55ac4cde8578241ea266e369db6db3cc82eb11922949825c94e46b5ec04",
+    "preservedArchive": "evidence/delivery-correction/rejected-delivery.json.gz"
+  },
+  "correction": {
+    "path": "evidence/delivery-correction/correction-record.json",
+    "bytes": 16242,
+    "sha256": "1547dc34a8b5afeab53fac3b4f1cb325e7f68e72f3c147734678617cb55b94b7"
+  }
+}

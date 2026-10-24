@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4-canonical-codec311-results/v1",
+  "status": "PASS_CANONICAL_CODEC311_IN_PINNED_DEVELOPMENT_CLOSURE",
+  "at": "2026-10-24T06:44:02.112Z",
+  "positive": {
+    "review": {
+      "path": "reviews/positive-native-review.json",
+      "bytes": 14573,
+      "sha256": "978ca6527d912fadb9baeda3c673432621a1a2fbf329625ba5489e43dcf7a57d"
+    },
+    "identities": {
+      "attestation_id": "729216534e08bfb6b1fb2bc89ee2d98114732935fa9280bbd68793451a89d9e5",
+      "build_id": "080ec29a221f79fbc0dd7a660e92d1df6c25fd93b3b666bedaeee232aefdc0ed",
+      "source_id": "ca373964be1b94cfb77924cfd91ad20264fc05c85ef8e72ce329d29e29148db5",
+      "semantic_id": "dee55348cb3bde5608059bd817cbeba22ea4f3ee644386e36ffff30e16db0744"
+    },
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    },
+    "checkExit": 0,
+    "verifyExit": 0,
+    "aggregateVerifyMs": 78702,
+    "targetControls": 311,
+    "wholeDeclarationsSha256": "4667a431d063b4521af1be1b9f9db4da5ad47f90daab8920a2bdc4581cfdb1c9",
+    "exactNamesAndMapsAndReflexivity": true,
+    "inputs": 15,
+    "suppliedSourceModules": 11,
+    "selectedModules": 8,
+    "artifactFiles": 85,
+    "buildOutputs": 40,
+    "emptyAxiomDeclarations": 1050,
+    "successfulProcesses": 25,
+    "kernelReplays": 8,
+    "oleans": 8,
+    "allOperationalGates": "PASS",
+    "census": {
+      "path": "evidence/codec-positive/independent-artifact-census.json",
+      "bytes": 33647,
+      "sha256": "81ca074556eb51f915ed7f0eea6ed88c748d7f404a35e92f759090c5fb2444c9",
+      "filesArraySha256": "80ba537475af127620855781363d87e7729d1df34111eb0ddc5b7cf943b5d954",
+      "targetNamesSha256": "5d82738160b7c4a805f9b7c68574748e321f5c89650f7f52afd3880c7d5b0ca7"
+    },
+    "developmentLock": {
+      "path": "phases/codec-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "9d0ad7a779f8b627fb2ee6ab17dbfd65ee05229594fcdcf00b0b18ec7a296be2"
+    }
+  },
+  "legacy": {
+    "review": {
+      "path": "reviews/legacy-native-review.json",
+      "bytes": 11114,
+      "sha256": "bc89a2ba78edbce8df4d7eb0ab0a53cc29fc1fb694120c3cf6b81b4d6d5b3fdf"
+    },
+    "classification": "PASS_FIRST_METADATA_COMPATIBILITY_NEGATIVE_ONLY",
+    "lockExit": 0,
+    "checkExit": 1,
+    "diagnostic": "LLR3001: lexlean.std.bool@1.1.0 does not match locked1.2.0",
+    "checkMs": 2943,
+    "verify": "NOT_RUN",
+    "boundary": "First metadata compatibility diagnostic only; not a semantic defect negative or separate proof of all three edits."
+  },
+  "sourceChange": "Exactly three approved metadata literals; all311 full declaration ASTs/proofs/axioms unchanged.",
+  "localCoverage": {
+    "existingObjectControls": 403,
+    "acceptedIndependentCodecAndStoreRoots": 331,
+    "codec": 311,
+    "store": 20,
+    "remaining": 72,
+    "Read": 33,
+    "Construction": 39,
+    "qualification": "Pinned development dependency closures; not complete Object integration or production acceptance."
+  },
+  "drafts": {
+    "integratedFromOriginal17": 8,
+    "remaining": 9,
+    "otherCurrentPinsPreserved": 16,
+    "originalSnapshotsPreserved": 17
+  },
+  "history": {
+    "oldReadme": {
+      "path": "evidence/history/README-before-acceptance.md",
+      "bytes": 780,
+      "sha256": "dbc85189a141f44e501829a5f3f5f5b11593f8dc3a22ce50fc7871044d6b16c1"
+    },
+    "immutableCustody": "Prior pending/NOT_RUN records retain their observation-time meaning and are superseded by this additive result. No earlier failure relabeled.",
+    "parentExtraction": "In-memory semanticdata wrapper extraction error corrected before writes or native changes; exact parent-artifact-check retained."
+  },
+  "remaining": [
+    "Canonical ordinal26/Read33 semantic-native interoperability remains blocked in installed interface.",
+    "Construction39 includes exact known whole257 resource-bound obligations; no unchanged limit retry.",
+    "Any official checked proof dependency or proposed remedy needs separate review.",
+    "Nine remaining drafts, required semantic negatives/restoration, full Hash/Object/model/scenario/PrismPM integration and generated Pages remain open."
+  ],
+  "observationLimits": "Pre/post samples are not peaks;78702ms is aggregate, not individual theorem time or general efficiency."
+}

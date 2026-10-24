@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-24T06:42:49.684Z",
+  "phase": "final Codec311 portable delivery and exact review",
+  "scope": "Bounded text, compressed evidence, full independent review records, delivery manifest and two existing documents. No additional compiler job or source proof change.",
+  "hostAvailableBytes": "26350051328",
+  "maximumAdditionalAllocatedBytes": "2097152",
+  "reserveBytes": "10737418240",
+  "reason": "Preserve complete native and delivery reviews without truncation or unnecessary repacking; original source-preparation phase stayed below its1MiB cap. This is a prospective separate delivery-phase budget, not a retroactive waiver or change to compiler limits.",
+  "constraints": [
+    "preserve all unique evidence",
+    "no other labs changes",
+    "same native300s4GiB2CPU limits",
+    "no production acceptance or locks supplied"
+  ]
+}

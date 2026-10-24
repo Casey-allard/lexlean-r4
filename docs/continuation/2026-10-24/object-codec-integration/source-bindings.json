@@ -1,0 +1,212 @@
+{
+  "schema": "lexlean-r4-codec-portable-source-bindings/v1",
+  "phases": [
+    {
+      "phase": "codec-legacy",
+      "status": "Actual outcomes in receipts; positive review pending at packaging",
+      "entrypoint": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "destination": "src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "destination": "src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "destination": "src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "destination": "src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "destination": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "destination": "lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "destination": "lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "destination": "lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectCodecControls.lex.tex",
+          "destination": "tests/lexlean/ObjectCodecControls.lex.tex",
+          "bytes": 544911,
+          "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+        },
+        {
+          "path": "docs/continuation/2026-10-24/object-codec-integration/source/lexlean.toml",
+          "destination": "lexlean.toml",
+          "bytes": 683,
+          "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98"
+        }
+      ]
+    },
+    {
+      "phase": "codec-positive",
+      "status": "Actual outcomes in receipts; positive review pending at packaging",
+      "entrypoint": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "inputs": [
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+          "destination": "src/R4/Words.lex.tex",
+          "bytes": 240864,
+          "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+          "destination": "src/R4/Hash.lex.tex",
+          "bytes": 782463,
+          "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+          "destination": "src/R4/HashNat.lex.tex",
+          "bytes": 64465,
+          "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+          "destination": "src/R4/HashNatCore.lex.tex",
+          "bytes": 339156,
+          "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+          "destination": "src/R4/HashWire.lex.tex",
+          "bytes": 11612,
+          "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+        },
+        {
+          "path": "src/R4/ObjectTypes.lex.tex",
+          "destination": "src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+        },
+        {
+          "path": "src/R4/ObjectCodec.lex.tex",
+          "destination": "src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+        },
+        {
+          "path": "src/R4/ObjectStore.lex.tex",
+          "destination": "src/R4/ObjectStore.lex.tex",
+          "bytes": 66645,
+          "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+        },
+        {
+          "path": "src/R4/ObjectRead.lex.tex",
+          "destination": "src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+        },
+        {
+          "path": "src/R4/Object.lex.tex",
+          "destination": "src/R4/Object.lex.tex",
+          "bytes": 14317,
+          "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+          "destination": "lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+          "destination": "lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+          "destination": "lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+          "destination": "tests/lexlean/ObjectCodecControls.lex.tex",
+          "bytes": 544911,
+          "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+        },
+        {
+          "path": "docs/continuation/2026-10-24/object-codec-integration/source/lexlean.toml",
+          "destination": "lexlean.toml",
+          "bytes": 683,
+          "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98"
+        }
+      ]
+    }
+  ],
+  "authority": [
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/next-integration-spec-review.json",
+      "bytes": 15414,
+      "sha256": "6e84ae5cb826f017c8dde2c5e9919458253954f04b429cc2b3b3d46f4b9dab5b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json",
+      "bytes": 17355,
+      "sha256": "b9be3b7cadcb4badfc8eee4bcdbff4ca01d098512ae564d87ed814d009ee9cb7"
+    }
+  ],
+  "boundary": "Canonical migrated Codec is delivered once at original path. Immutable original snapshot supplies legacy negative. Shared dependencies remain repository references; historical absolute provenance retained unchanged."
+}

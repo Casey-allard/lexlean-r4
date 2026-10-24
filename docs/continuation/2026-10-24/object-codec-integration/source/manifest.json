@@ -1,0 +1,39 @@
+{
+  "schema": "lexlean-r4-codec311-source-manifest/v1",
+  "status": "FROZEN_PENDING_INDEPENDENT_SOURCE_CODE_NATIVE_NOT_RUN",
+  "base": "45e9fce71c7fbbadf053e45f09f136968b137e2f",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 794,
+      "sha256": "0a9356e0705141024316f031f952c5dc6a5e3e5f0dd517d3802d982862b45df0"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 15874,
+      "sha256": "0abe6dce1c1f9cf2f517e358d24a06b85f7915045742ae0d8a32916314c10813"
+    },
+    {
+      "path": "control-migration.json",
+      "bytes": 4919,
+      "sha256": "a1f7502d6907a2ee0adda0721606890aa2588701ede7507a2946dd3d7dcde2fe"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 683,
+      "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98"
+    },
+    {
+      "path": "prewrite.json",
+      "bytes": 8115,
+      "sha256": "b98b1b87c9264ab1ee3d09ffb81e2e4b9ac76dc8e570525be4112e705c71ed96"
+    }
+  ],
+  "canonicalSource": {
+    "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+    "bytes": 544911,
+    "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+  },
+  "sharedInputs": "candidate.json pins existing repository inputs by reference; no copied closure.",
+  "boundary": "No invocation or operational authorization. Preserve actual legacy admission failure, then separately verify complete migrated root after independent review."
+}

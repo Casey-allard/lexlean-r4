@@ -1,0 +1,148 @@
+{
+  "schema": "lexlean-r4-codec311-independent-source-invocation-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_READY_ONLY",
+  "at": "2026-10-24T06:33:28.801Z",
+  "independence": "Non-author of canonical migration and invocation; reviewer authored governing source-only sequencing SPEC. Independent read-only inspection/reconstruction/hash checks; no SDK/compiler/container invocation or candidate execution.",
+  "pins": {
+    "manifest.json": {
+      "bytes": 1404,
+      "sha256": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206"
+    },
+    "candidate.json": {
+      "bytes": 15874,
+      "sha256": "0abe6dce1c1f9cf2f517e358d24a06b85f7915045742ae0d8a32916314c10813"
+    },
+    "control-migration.json": {
+      "bytes": 4919,
+      "sha256": "a1f7502d6907a2ee0adda0721606890aa2588701ede7507a2946dd3d7dcde2fe"
+    },
+    "lexlean.toml": {
+      "bytes": 683,
+      "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98"
+    },
+    "prewrite.json": {
+      "bytes": 8115,
+      "sha256": "b98b1b87c9264ab1ee3d09ffb81e2e4b9ac76dc8e570525be4112e705c71ed96"
+    },
+    "invocation-manifest.json": {
+      "bytes": 571,
+      "sha256": "03f692439d019e935e89118c4034db39c46a5a743ccca07fc6fbec3ca0573efd"
+    },
+    "invocation-diff.json": {
+      "bytes": 3790,
+      "sha256": "c1f236431fcb959cb582d60bbb9665e42a50fd9d42d2ce40791134e5181dbc86"
+    },
+    "invoke-codec.mjs": {
+      "bytes": 7779,
+      "sha256": "61d3a8522969e795488196ab9ebf39eb56e4a411bee41f457076e47ab0fb7b22"
+    }
+  },
+  "authority": [
+    {
+      "path": "tests/fixtures/object-whole-native-format/evidence/next-integration-spec-review.json",
+      "bytes": 15414,
+      "sha256": "6e84ae5cb826f017c8dde2c5e9919458253954f04b429cc2b3b3d46f4b9dab5b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/remaining-controls-proposal.json",
+      "bytes": 17355,
+      "sha256": "b9be3b7cadcb4badfc8eee4bcdbff4ca01d098512ae564d87ed814d009ee9cb7"
+    }
+  ],
+  "source": {
+    "canonical": {
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    },
+    "legacySnapshot": {
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    "edits": [
+      {
+        "from": "\\useglossary{lexlean.std.bool@1.1.0}",
+        "to": "\\useglossary{lexlean.std.bool@1.2.0}",
+        "occurrences": 1
+      },
+      {
+        "from": "\\useglossary{lexlean.std.nat@1.1.0}",
+        "to": "\\useglossary{lexlean.std.nat@1.2.0}",
+        "occurrences": 1
+      },
+      {
+        "from": "\"spec\":\"lexlean/semantic-module/1\"",
+        "to": "\"spec\":\"lexlean/semantic-module/2\"",
+        "occurrences": 1
+      }
+    ],
+    "wholeDeclarations": {
+      "count": 311,
+      "uniqueNames": 311,
+      "sha256": "4667a431d063b4521af1be1b9f9db4da5ad47f90daab8920a2bdc4581cfdb1c9",
+      "encoding": "UTF8 JSON.stringify(declarations), no newline",
+      "allWholeAstsUnchanged": true,
+      "allReflexivity": true,
+      "allDeclaredAxiomsEmpty": true
+    },
+    "checks": "Exact three single-occurrence literal replacements reconstruct canonical bytes from immutable snapshot. Semantic JSON is recursively key-sorted canonical; removing only spec leaves entire semantic object equal. No theorem/body/import/runtime/expected-value change. All311complete declaration ASTs and names retained.",
+    "config": "Exact entrypoint-only Store→Codec change in already retained683B configuration; language1.2/300000ms and otherlimits unchanged."
+  },
+  "phaseCensus": [
+    {
+      "phase": "codec-legacy",
+      "inputs": 15,
+      "suppliedSources": 11,
+      "staticSelected": [
+        "R4.Words",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.Hash",
+        "R4.ObjectTypes",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "ObjectCodecControls"
+      ]
+    },
+    {
+      "phase": "codec-positive",
+      "inputs": 15,
+      "suppliedSources": 11,
+      "staticSelected": [
+        "R4.Words",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.Hash",
+        "R4.ObjectTypes",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "ObjectCodecControls"
+      ]
+    }
+  ],
+  "invocation": {
+    "exactDelta": "All ten literal substitutions replay forward and inverse byteexact against accepted ae7bd90... predecessor; no unlisted changes. Explicit absolute source mapping is safe for this sealed candidate: all30mapped records resolve only intended repository/externalconfig paths and hash before guest writes.",
+    "legacy": "Only official genuine lock then check; records actual check status/JSON even if unexpectedly successful, never verify. Unexpected success, lock/setup/parse/resource error is not accepted as intended admission negative. Parent must inspect complete actual first diagnostic before separately choosing positive.",
+    "positive": "Requires check status0 and success true before full ObjectCodecControls verify. Copies actual artifact only on compilerstatus0/success and exact verifiedartifact path. No declaration selector/subset/synthetic lock/acceptance.",
+    "guards": "Same exclusive output/stage creation, phase allowlist, exact source manifest/payload/input prehash, source-after and lock-after custody, tools-before/after, fixed05:31epoch/restart0/4GiB2CPU/networknone/mounts[], idle and allmemoryevents zero checks. Host20GiBpre planning (10peak+10reserve)/10post; guest11pre/10post unchanged. Every finally postcapture independently attempted and errors aggregated.",
+    "limitations": "Runner records outcomes, not acceptance. Legacy launcher0 can mean unexpected sourcechecksuccess; positive launcher0 can contain compilerfailure. No automatic second phase or equivalent retry. Fresh operational observations and independent actual-result review remain required; this report does not prove current epoch eligibility."
+  },
+  "preservation": {
+    "otherCurrentPins": 16,
+    "originalSnapshots": 17,
+    "allUnchanged": true,
+    "canonicalCodecOnlyAuthorizedChange": true
+  },
+  "nativeStatus": "LEGACY_ADMISSION_AND_POSITIVE_FULL311_NOT_RUN",
+  "acceptanceRequirements": [
+    "Inspect actual legacy admission rejection, preserving complete diagnostics; do not borrow earlier Store/Read failures.",
+    "Only after actual negative acceptance and fresh gates run selected positive once; no SDK overlap.",
+    "Require exact complete311target declaration census, successful kernel replay and observed emptyaxioms plus full artifact/source/lock/tool/epoch/storage/idle/postcapture review.",
+    "AllRead33/ordinal26,Construction39/full257,Hash,remainingdraftintegration,PrismPM/Pages obligations stay open; Codec alone does not establish403Object or release acceptance."
+  ],
+  "findings": [],
+  "storage": {
+    "hostAvailableBytes": 29448794112,
+    "reserveBytes": 10737418240,
+    "newWrites": "One external review, no fixture/source/cache allocation."
+  }
+}

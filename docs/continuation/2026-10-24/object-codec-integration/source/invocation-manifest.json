@@ -1,0 +1,20 @@
+{
+  "schema": "lexlean-r4-codec-invocation-manifest/v1",
+  "status": "FROZEN_PENDING_INDEPENDENT_CODE_NOT_EXECUTED",
+  "candidateManifest": {
+    "bytes": 1404,
+    "sha256": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206"
+  },
+  "files": [
+    {
+      "path": "invoke-codec.mjs",
+      "bytes": 7779,
+      "sha256": "61d3a8522969e795488196ab9ebf39eb56e4a411bee41f457076e47ab0fb7b22"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 3790,
+      "sha256": "c1f236431fcb959cb582d60bbb9665e42a50fd9d42d2ce40791134e5181dbc86"
+    }
+  ]
+}
