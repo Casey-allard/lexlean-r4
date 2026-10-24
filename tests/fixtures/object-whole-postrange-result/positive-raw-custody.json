@@ -1,0 +1,341 @@
+{
+  "schema": "lexlean-r4-portable-positive-raw-custody/v1",
+  "status": "CLOSED_POSITIVE_RAW_INDEPENDENT_ACCEPTANCE_PENDING",
+  "sourceDirectory": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/postrange-positive",
+  "files": [
+    {
+      "path": "evidence/positive/raw-receipts.json.gz",
+      "bytes": 8527,
+      "sha256": "8ac4574f0cdae85998f84e256f8bf4ea18896fe149a18eaa8b3a7dccf07b13e0"
+    },
+    {
+      "path": "evidence/positive/attestation.json.gz",
+      "bytes": 9812,
+      "sha256": "3cc6194d18b519e122b5b6818325cdb4c54adc7d308ea04d0fa69d6b08c793de"
+    },
+    {
+      "path": "evidence/positive/author-artifact-census.json.gz",
+      "bytes": 7763,
+      "sha256": "b1de11a926c940065ae249d50bc6262ccb643aa1c63d827d662a58a874caeb79"
+    },
+    {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "f2dfa0aea9c27c026e1c022c234da4d5074b2a6a13bd705d1cc356e76fdc011e"
+    }
+  ],
+  "raw": {
+    "sourceFileCount": 49,
+    "sourceBytes": 46657,
+    "decodedEnvelopeBytes": 58528,
+    "decodedEnvelopeSha256": "43d3d6e132275ccdc695d7bb80f57d5f0d94879918d656cd08fcde2e5d50da91",
+    "entries": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 459,
+        "sha256": "b4e4769a6308e8895e2b8df2f2eeec1f167cd9ec0a5777130759f3dcb6619277"
+      },
+      {
+        "path": "artifact-copy.json",
+        "bytes": 536,
+        "sha256": "342350f39d8c43f38aabfce08832f8d438785ee3de69c5c2c75f13b5002f5689"
+      },
+      {
+        "path": "check.json",
+        "bytes": 1039,
+        "sha256": "94ccbceb3e2843f00106397238b0151ec5f724b8a3a54753887865ec7f21c9f1"
+      },
+      {
+        "path": "copy-0.json",
+        "bytes": 467,
+        "sha256": "48f001be231d0d6a9501378319a790248e170966b4b4333a768c54af21d07936"
+      },
+      {
+        "path": "copy-1.json",
+        "bytes": 465,
+        "sha256": "0c4da04492ee1596bfd46f19831925c1aac0ce04e80f8309ea63f387dc915389"
+      },
+      {
+        "path": "copy-10.json",
+        "bytes": 453,
+        "sha256": "6a53332ff55877dfbd56ea5a5afb988445ad1a2538e641a7385cac50a5c9dd16"
+      },
+      {
+        "path": "copy-11.json",
+        "bytes": 463,
+        "sha256": "eb04b6c7fa5ca5f5b50c54d3bed9cc42ac51ce4de63662836ece4ed28608b4d9"
+      },
+      {
+        "path": "copy-12.json",
+        "bytes": 455,
+        "sha256": "56279db65203d442154f15ed1458cc5e045216ee39b838496b1902dda87900a9"
+      },
+      {
+        "path": "copy-13.json",
+        "bytes": 504,
+        "sha256": "903d1870ae38b49acdf03e96be108360dc1537bf9490907c680dcda3c355b2ca"
+      },
+      {
+        "path": "copy-14.json",
+        "bytes": 529,
+        "sha256": "4a7e7c34a939718ea0418105381015d0524642679f27839a49b6094fddb5435b"
+      },
+      {
+        "path": "copy-15.json",
+        "bytes": 533,
+        "sha256": "ebdc666d9277ae54f305239ab1c0d343123bdf2a59174ceb667b21c27c59323b"
+      },
+      {
+        "path": "copy-16.json",
+        "bytes": 517,
+        "sha256": "1463ca0de90a48aa4d5f8b9fa6871f5e384600558dee138ea029567fc8791879"
+      },
+      {
+        "path": "copy-17.json",
+        "bytes": 532,
+        "sha256": "3b536576296ddcda9e1d6b89e59d03b58daf4ebe6c58e363b427fe413d639472"
+      },
+      {
+        "path": "copy-18.json",
+        "bytes": 536,
+        "sha256": "2ecd17042c42c05d84a63d4cdb2ad8795239c25df217b9a6a8f12cf2d0cb014d"
+      },
+      {
+        "path": "copy-19.json",
+        "bytes": 532,
+        "sha256": "f0ce876681301436de60aa58d0e76f05b8016c03c79b198dfd2b72c250641889"
+      },
+      {
+        "path": "copy-2.json",
+        "bytes": 471,
+        "sha256": "fcebda7289447bfe85dde72cc210e3ee3ae5026219f962b9dd09281182fda6a2"
+      },
+      {
+        "path": "copy-20.json",
+        "bytes": 451,
+        "sha256": "ae754f1f747dded0f7f20a3587307c88786d231b30d98eabb814954060fc2bc1"
+      },
+      {
+        "path": "copy-3.json",
+        "bytes": 479,
+        "sha256": "940b2811a74ee46cf3ff9538c28e5ff450dd9921cc34ff46f13d25e9e540cb9e"
+      },
+      {
+        "path": "copy-4.json",
+        "bytes": 473,
+        "sha256": "d8cc36300c79a83f989db34abf9b01a20e6b512948217862e548c182b9acfc09"
+      },
+      {
+        "path": "copy-5.json",
+        "bytes": 431,
+        "sha256": "3d9066ef17cd921eeebabc839e1ff10304ad444fbee387a2aadb4fa74806125a"
+      },
+      {
+        "path": "copy-6.json",
+        "bytes": 431,
+        "sha256": "7fc516dae43d0e834f788d013cdea5a775a8de446ff99294ba7ab92b518aa632"
+      },
+      {
+        "path": "copy-7.json",
+        "bytes": 431,
+        "sha256": "4cae1dc7c78d2360a715c99b14619e32614d5d6a7bf350c583036e2c02994986"
+      },
+      {
+        "path": "copy-8.json",
+        "bytes": 429,
+        "sha256": "a83fe59369cdef95237a6f21c637197fd89bcf99bee85124b2d55d0f81b0103c"
+      },
+      {
+        "path": "copy-9.json",
+        "bytes": 421,
+        "sha256": "caacbf8c2a32078e206359110766b33de74725be10cc761afd946083fd76cae8"
+      },
+      {
+        "path": "directories.json",
+        "bytes": 450,
+        "sha256": "f58539abe70e9e4c485db28f536b97fddcb7184a9e22fa891d2b94c3771fb1ea"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "d5165217a75ba496406bd241af25e9c7569619d483733d2f6a21798d8eca9b3a"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "c969efdd123d08b5b55cbab4444210e6c99a13d8808730432e23e77a8056056f"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 7506,
+        "sha256": "81035ef23fa21ed8c175368ac0a94890a4885b95cef95c86a2aa0b04e5d73f4f"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "fa10a2d151da08e89c75f050596af12d42895b0a8427af35ac95a930ed0cdea1"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "837d27a00f37c5990990e9c73b5a4a4debd4793cd6d4a8df7cc0f7e8981b473c"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "265ad3fa30d9a1e62a68eb88e323f32735129192ab53978656000291e0a22726"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "e344ab0f3a84fea5d81d036aff0f5418db15751e6d379a39ad7662f508db5748"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "35a2d532e16a0dd83b32c59bc5359219e8cb2a26bd6dfc33369216ff185e72f2"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "50b306f9f85f4e39e58cd1cb7566d02b6d8e0d8fbc27116a04d5ef83f4a8dcb7"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 509,
+        "sha256": "86cc7bf517e1b4dcf9ba41ace11744c0d87096a4ce6df2534f32286abac09c5e"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2065,
+        "sha256": "23618fc4a2ba6fad3627ae9152cac2bd3be70bcba221d89ad2e7aae1440813a1"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 549,
+        "sha256": "6a28400e7c6627f4b8afe0b1e99524510399cc86996e7af649be98af7f7fa6ff"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 354,
+        "sha256": "d16452159f15b6e3db40aa5ee04d077590646bdcce236bb96228231d92458832"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "5f49980f01647b20c35a89fdb64bd42ce755e1ac3ac9b284008bc6f7f4d3af26"
+      },
+      {
+        "path": "new-stage.json",
+        "bytes": 340,
+        "sha256": "c84a2642f34a4f1299535b8bead5e879259ef122d26edc352733de7d2d0e98e9"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "resource-observation.json",
+        "bytes": 2488,
+        "sha256": "95978d220b743f314b5a70c1921f39a7e2b458d55f7a59d005d17d459334ce1f"
+      },
+      {
+        "path": "result.json",
+        "bytes": 1167,
+        "sha256": "7bc99921502ebb7be3126b11b88358d0dd1c9f018ebd8b27e7649714aff10165"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 6121,
+        "sha256": "56e4822ec90add6f954cb51229be46ad68ec889c7a44751e4c85e4129440361d"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 6121,
+        "sha256": "6ce04da4412903280425886f31fdb60ac2335d46f915569c016d927454a2b591"
+      },
+      {
+        "path": "swap-before.json",
+        "bytes": 264,
+        "sha256": "394627c8dda2b49b457a4a2522ed7544f7ed3d3cbea8ff2a8394b7070c6da77a"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "8b137fc187d561e2cce519311c13c9cbdb9f10e99d0c2e49e729dd9f4fcfccc1"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "563bfb04a980748f00d90c63635eaccea90f03dd94c42e13607c5131bfe9ce87"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 1353,
+        "sha256": "ab35c0f7f0539ff33d9040bc347bcfdf592d376844e82676b6c196bbf95fa113"
+      }
+    ],
+    "method": "Lossless immutable gzip of UTF-8 JSON envelope. Each text string reconstructs exact receipt bytes; every entry length/hash and original equality checked in memory. No extracted temporary disk files."
+  },
+  "attestation": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/postrange-positive/artifact/attestation.json",
+      "bytes": 162113,
+      "sha256": "d049d89807b2dcc44d3e6056d26e58f43a2cadd3a98b90a6126b7d4027a558c2"
+    },
+    "compressedPath": "evidence/positive/attestation.json.gz",
+    "decodedBytes": 162113,
+    "decodedSha256": "d049d89807b2dcc44d3e6056d26e58f43a2cadd3a98b90a6126b7d4027a558c2",
+    "classification": "INERT_EXACT_UTF8_JSON_TEXT; no compiled binary"
+  },
+  "artifactCensus": {
+    "kind": "AUTHOR_DERIVED_COMPLETE_BYTE_CENSUS_NOT_INDEPENDENT_AUDIT",
+    "fileCount": 145,
+    "decodedBytes": 27598,
+    "decodedSha256": "914004caec02ef56621b1fec385fabd24f957c944ced8b5935dc7427d226040e",
+    "filesArraySha256": "d6e0b61818da01cdd644f5f0f50c71d93b0cb9644abff228f5d21b0bb50f38e7",
+    "boundary": "Census hashes all actual artifact files; compiled artifacts remain external and are not copied. Envelope hash, array digest and compressed file hash are distinct identities."
+  },
+  "officialLock": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/postrange-positive/lock-bytes.json",
+      "bytes": 2065,
+      "sha256": "23618fc4a2ba6fad3627ae9152cac2bd3be70bcba221d89ad2e7aae1440813a1"
+    },
+    "method": "Exact stdout of successful official development lock receipt; not a production lock or acceptance."
+  },
+  "observed": {
+    "checkExit": 0,
+    "selectedModules": 14,
+    "verifyExit": 0,
+    "aggregateVerifyElapsedMs": 494719,
+    "attestationId": "c8a21fe7466cd404ccea624de08f094f0f60b6d0be20735b1410295986ecbd43",
+    "postcaptureErrors": [],
+    "independentReview": null
+  },
+  "historicalStatusClarification": {
+    "preservedRecord": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/negative-raw-custody.json",
+      "bytes": 11868,
+      "sha256": "830900e12d7d09682118d8198cc3a4cdf0cb895c6b61e0b76227dd54278354de"
+    },
+    "field": "observed.positive",
+    "historicalValue": "NOT_RUN_AT_CAPTURE",
+    "meaning": "Packager knowledge only: positive output was not observed or included by the packager. Parent reports the positive phase was already running at that capture. This is not reliable global run history; original custody bytes remain unchanged."
+  },
+  "resourceBoundary": "resource-observation.json is a discrete sample, not peak usage or an efficiency result.",
+  "preservation": {
+    "priorFixtureFiles": 23,
+    "priorFixtureBytesUnchanged": true,
+    "currentSourcePinsVerified": 17
+  },
+  "storage": {
+    "hostAvailableBytes": "26578931712",
+    "aggregateBeforeBytes": 671744,
+    "additionalLimitBytes": 131072,
+    "aggregateLimitBytes": 1048576,
+    "independentReviewReserveBytes": 65536,
+    "conservativeAdditionalEstimateBytes": 65536
+  }
+}

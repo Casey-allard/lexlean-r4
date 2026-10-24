@@ -1,0 +1,139 @@
+{
+  "schema": "lexlean-r4-whole-postrange-result-results/v1",
+  "status": "ACCEPTED_LOCAL_ACTUAL_COMPLETE_POSTRANGE_RESULT_ONLY",
+  "scope": "Exact production post-range hash/error/digest-comparison/integrityFailure/whole-record wrapping continuation equals complete Result.ok with original96 bytes, version and stats184. Mandatory consumer compiled and kernel replayed; not helper-only acceptance.",
+  "source": {
+    "candidateManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/manifest.json",
+      "bytes": 2084,
+      "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+    },
+    "portableBindings": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/source-bindings.json",
+      "bytes": 16980,
+      "sha256": "4150ca3486893234cc52bd1c0f97a77174290bc6a5b2078c3f7ddac733905385"
+    },
+    "historicalReadiness": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/readiness.json",
+      "bytes": 1012,
+      "sha256": "9416aa82df413aeee69026f673519a3228c002aa90b32a5a5647de55489d8635"
+    }
+  },
+  "phases": {
+    "negative": {
+      "phase": "postrange-false",
+      "checkExit": 0,
+      "admittedModules": 14,
+      "suppliedModules": 17,
+      "inputs": 21,
+      "verifyExit": 1,
+      "diagnostic": "LLV7002",
+      "aggregateVerifyElapsedMs": 345061,
+      "intendedMutation": "Only expected visitedRecordBytes184→185; full actual computation and input stats184 unchanged.",
+      "rejectedAt": "Mandatory ObjectWholePostrangeResult consumer Apply1",
+      "artifactCount": 0,
+      "review": {
+        "path": "evidence/negative-native-review.json",
+        "sha256": "b4feb372acdc891e7e4ce954d7a39cc4bc482269a74bd75655c4b5a23b389885"
+      }
+    },
+    "positive": {
+      "phase": "postrange-positive",
+      "checkExit": 0,
+      "admittedModules": 14,
+      "suppliedModules": 17,
+      "inputs": 21,
+      "verifyExit": 0,
+      "aggregateVerifyElapsedMs": 494719,
+      "identities": {
+        "attestationId": "c8a21fe7466cd404ccea624de08f094f0f60b6d0be20735b1410295986ecbd43",
+        "buildId": "2b94fb9c8f867f75a7bef2f4f176283895fa675ab6c79135c7085d7f9a6c2614",
+        "sourceId": "c47bccde12e17173cfb6b0b572424857ed404ef6829e7ebed6a532114d42567e",
+        "semanticId": "31a99b2340ffd6d31c117430a00523936b0462986f336ba1f632873cf8a43197",
+        "attestation": {
+          "path": "attestation.json",
+          "bytes": 162113,
+          "sha256": "d049d89807b2dcc44d3e6056d26e58f43a2cadd3a98b90a6126b7d4027a558c2"
+        },
+        "buildManifest": {
+          "path": "build-manifest.json",
+          "bytes": 17207,
+          "sha256": "da2e0b26758eb75f6b46d9a0e3be4e36c3d8f54938e505a7dd88d42bed1350f9"
+        },
+        "preparation": [
+          {
+            "path": "manifest.json",
+            "bytes": 2084,
+            "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+          },
+          {
+            "path": "candidate-code-review.json",
+            "bytes": 7094,
+            "sha256": "7733b51b8fbb10edaf97b954c411b95a8e156afac0bff83c2b02790f7e09baf7"
+          },
+          {
+            "path": "invocation-manifest.json",
+            "bytes": 546,
+            "sha256": "3c4c85fa2e335d293880e7f95741a103fe8caed12203a17b3d02e50a2088b126"
+          },
+          {
+            "path": "invoke-whole-postrange-result.mjs",
+            "bytes": 7702,
+            "sha256": "aa836ae976e315373c8e2155958f6ea8ddafdcc83a054778c837c411d587f4df"
+          },
+          {
+            "path": "invocation-code-review.json",
+            "bytes": 5218,
+            "sha256": "8371973c259a7a94f9e65697b9e789036255b2912ecb8b2df4f6db4cfc0986c5"
+          },
+          {
+            "path": "negative-native-review.json",
+            "bytes": 13185,
+            "sha256": "b4feb372acdc891e7e4ce954d7a39cc4bc482269a74bd75655c4b5a23b389885"
+          }
+        ]
+      },
+      "artifactFiles": 145,
+      "outputs": 70,
+      "oleans": 14,
+      "emptyAxiomDeclarations": 748,
+      "successfulProcesses": 43,
+      "kernelReplays": 14,
+      "review": {
+        "path": "evidence/positive-native-review.json",
+        "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+      }
+    }
+  },
+  "developmentLock": {
+    "path": "evidence/positive/lexlean.lock",
+    "sha256": "f2dfa0aea9c27c026e1c022c234da4d5074b2a6a13bd705d1cc356e76fdc011e",
+    "scope": "Official development lock only; no production binding."
+  },
+  "independentArtifactCensus": {
+    "path": "evidence/positive/independent-artifact-census.json.gz",
+    "compressedBytes": 7612,
+    "compressedSha256": "2d25b338784e82726d69ce91eb4307a10b1b7e2e27c47b0efe2e9c3957a9363e",
+    "decodedBytes": 27439,
+    "decodedSha256": "afb6f035ce92029bb2067666130f2c4331b447353a9e00052decb2d7c28a5b61",
+    "recordsSha256": "d6e0b61818da01cdd644f5f0f50c71d93b0cb9644abff228f5d21b0bb50f38e7",
+    "identityNote": "Compressed file hash, decoded envelope hash and records-array digest are distinct. Earlier author census remains unchanged."
+  },
+  "operationalBoundary": "Both phases preserve exact21 inputs, reviewed tools/epoch/4GiB2CPU limits, genuine development locks, zero memory events, idle checks and host/guest storage reserves. Independent postcapture checks passed. Recorded resource observations are discrete samples, not peak or efficiency measurements. Durations span the entire selected closure, not isolated theorem time.",
+  "history": {
+    "priorReadme": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/README.md",
+      "bytes": 1007,
+      "sha256": "4590acb77fa17dfc7a93c96bbbf90db6729736fc8b41bf5762f350160bec5dbf"
+    },
+    "priorReadmeCopy": "evidence/history/README-source-only.md",
+    "preparation": "Frozen candidate/readiness NOT_RUN and custody pending status record earlier preparation/observation times. This results record and RESULTS.md describe current audited outcomes.",
+    "statusCorrection": "negative-raw-custody.json observed.positive=NOT_RUN_AT_CAPTURE describes packager knowledge only: positive output was not observed or included by the packager. The parent positive invocation was already running at that capture. It is not reliable global run history. Both original raw custody records remain byte-identical; their pending-review status is historical."
+  },
+  "limitations": [
+    "Outer ObjWholeRead connection remains failed/open; no original ordinal26 or allRead33 acceptance.",
+    "No full Object, Hash, PrismPM integration or Pages acceptance.",
+    "No claim of caching, avoided recomputation, speedup or bottleneck localization.",
+    "Compiled artifact binaries remain external; portable gzip files contain inert exact textual JSON evidence."
+  ]
+}

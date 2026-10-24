@@ -1,0 +1,59 @@
+{
+  "schema": "lexlean-r4-whole-postrange-result-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "a11efd0120cfcf8b3910773f61ea404c2ea97b7b1276e8535a24d6a0f2a746d7"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+      "bytes": 70774,
+      "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+      "bytes": 1108,
+      "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 690,
+      "sha256": "becc8e8a3875b1936254795293c16076da0615df84106108b7cb3691026719bd"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 18343,
+      "sha256": "544d7f773d238df671e17f896963a0f7d4da9e7b7678dde363ec75a4b70f5747"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 6922,
+      "sha256": "0f7e2855d14540f057fcfc6f1f902a8e54066e845e4b84c43c6f2a80d4105000"
+    },
+    {
+      "path": "README.md",
+      "bytes": 983,
+      "sha256": "112df924680f1dd6b52df72decd6a7a3c4e716d0060d89a6250ebfd4bbf45c68"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/next-whole-result-investigation.json",
+      "bytes": 13472,
+      "sha256": "5efce5bf0518b91b6010631c11adf4ee903ccab62c17ee24c23a491d482ab25f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/next-whole-result-spec-review.json",
+      "bytes": 5577,
+      "sha256": "7f32fe10d9d476e1c5ae9a883ae28543a69c6c47c54651227a1f0d1048ec181d"
+    }
+  ],
+  "totalPayloadBytes": 222410
+}

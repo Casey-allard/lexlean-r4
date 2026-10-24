@@ -1,0 +1,18 @@
+{
+  "schema": "lexlean-r4-parent-artifact-recheck/v1",
+  "status": "PASS_ACTUAL_FILES_REHASHED",
+  "at": "2026-10-24T04:15:48.694Z",
+  "reviewSha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776",
+  "artifactCensusSha256": "afb6f035ce92029bb2067666130f2c4331b447353a9e00052decb2d7c28a5b61",
+  "actualArtifactFiles": 145,
+  "rawFiles": 49,
+  "rawBytes": 46657,
+  "rawClosureSha256": "5ca327dddad81e62a98089512e91d99bce0176fb329411c06950214f5e367317",
+  "checks": "All actual artifact lengths/hashes, artifact records array, raw individual hashes/aggregate bytes and declared raw closure encoding freshly verified.",
+  "preparationCorrections": [
+    "First read-only check assumed each rawClosure.records item contained bytes; it contains path/sha256 only. Assertion stopped after successful145artifact checks.",
+    "Second check hashed projected path/sha256 records, which differed from declared encoding. No data changed.",
+    "Read explicit encoding: JSON.stringify(ordinal-filename-sorted path/bytes/sha256 records). Reconstructed byte lengths from exact actual files; all49 and aggregate46657bytes plus declared closure hash match."
+  ],
+  "boundary": "Parent read-only schema assumptions corrected, not native failures, new compiler runs, or changed acceptance."
+}

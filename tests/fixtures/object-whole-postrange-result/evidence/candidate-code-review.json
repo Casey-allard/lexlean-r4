@@ -1,0 +1,124 @@
+{
+  "schema": "lexlean-r4-whole-postrange-result-source-code-review/v1",
+  "status": "PASS_ACTUAL_SOURCE_READY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T03:52:55.516Z",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/manifest.json",
+    "bytes": 2084,
+    "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1",
+    "payloads": 8,
+    "payloadBytes": 222410
+  },
+  "sourcePins": [
+    {
+      "path": "negative/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "a11efd0120cfcf8b3910773f61ea404c2ea97b7b1276e8535a24d6a0f2a746d7"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+      "bytes": 70774,
+      "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+      "bytes": 1108,
+      "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 690,
+      "sha256": "becc8e8a3875b1936254795293c16076da0615df84106108b7cb3691026719bd"
+    }
+  ],
+  "governing": {
+    "proposalSha256": "5efce5bf0518b91b6010631c11adf4ee903ccab62c17ee24c23a491d482ab25f",
+    "specSha256": "7f32fe10d9d476e1c5ae9a883ae28543a69c6c47c54651227a1f0d1048ec181d",
+    "acceptedHashReviewSha256": "3591fd26419d7b484ceda45c3b37017c55c4f0041af85d8ba24266bad58c6771",
+    "acceptedHashAttestation": "821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f"
+  },
+  "checks": {
+    "canonical": "All four actual new semantic modules parse as semantic-module/2 and byte-equal recursively canonical JSON. Bool/Nat1.2 glossary and empty theorem axioms retained; no new runtime definitions beyond exact context and Prop family.",
+    "production": "Reconstructed ObjWholeAdmitted successful range branch with original manifest and exact range record. Entire AST equals candidate mandatory consumer left C and preserved failed consumer RHS. C.scrutinee equals actual accepted projected ObjHashBytes theorem left.",
+    "context": "J body exactly single hashResult hole with Result ObjWholeDigest ObjError domain and Result ObjWholeVerified ObjError codomain. Exact replacement restores C; full error propagation, real32-byte comparison, integrityFailure and bytes/version/stats success projections preserved.",
+    "family": "P count Nat returns Prop; zero exactly accepted hash equality; successor exactly J(hash.left)=J(hash.right), same-module context referenced locally with no module key. No new theorem assumed.",
+    "transport": "Actual lift matches accepted Nat induction/Cases/congruence pattern exactly except zero theorem renamed to qualified ObjectWholeDigest.objOriginalWholeDigest. Consumer parameterless Apply qualified objWholePostrangeLifted1; mandatory original continuation, not helper-only.",
+    "negative": "Entire positive/negative modules equal after sole expected visitedRecordBytes184→185 string literal. Left computation/shared transport/proof/axioms unchanged. Both positive and negative statement hashes match governing SPEC; expected fullResult hash matches.",
+    "imports": "All input source bytes rehashed. Both phases supply21unique inputs/17module sources; full mandatory consumer has14 statically reachable imports with no missing/duplicate module. Accepted Direct09/hash context/transport/fullhash consumer imported from exact reviewed source closure. Actual selected modules NOT_RUN.",
+    "config": "Only entrypoint name changes from accepted digest config;300000ms child and all other limits remain byte-identical. No lock fabricated and no runner reviewed in this source-only task.",
+    "preservation": "All17 current protected pins (ten remaining drafts,sixcanonical,fullRead33) and17original snapshots unchanged. All frozen payload/dependency/proposal/prerequisite pins match."
+  },
+  "phases": [
+    {
+      "phase": "postrange-false",
+      "inputs": 21,
+      "suppliedModules": 17,
+      "reachableModules": [
+        "HashWireDirect09Controls",
+        "ObjectWholeDigest",
+        "ObjectWholeDigestContext",
+        "ObjectWholeDigestTransport",
+        "ObjectWholePostrangeContext",
+        "ObjectWholePostrangeResult",
+        "ObjectWholePostrangeTransport",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ]
+    },
+    {
+      "phase": "postrange-positive",
+      "inputs": 21,
+      "suppliedModules": 17,
+      "reachableModules": [
+        "HashWireDirect09Controls",
+        "ObjectWholeDigest",
+        "ObjectWholeDigestContext",
+        "ObjectWholeDigestTransport",
+        "ObjectWholePostrangeContext",
+        "ObjectWholePostrangeResult",
+        "ObjectWholePostrangeTransport",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ]
+    }
+  ],
+  "astHashes": {
+    "C": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+    "J": "09da57dc7e5b6459e2baa55e82ceb5156e60dbb37b0554f736368f9dbc690ad1",
+    "positive": "e87027e4861787ae645bfacb6d0eeb2e60b42667f08fa83c1c2936bd5a5b01be",
+    "negative": "f220adff00936825a062d4064c76dfb6b604784a35e2c55db78847acdbdea693",
+    "expected": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6"
+  },
+  "findings": [],
+  "conditions": [
+    "Separately review actual invocation before execution; refresh source/tools/epoch/zero-events/idle/storage gates. No source review is native authority.",
+    "Intended184→185 full-consumer rejection must precede positive. Admission failure, transport-only rejection, timeout or OOM is not that negative.",
+    "Actual positive consumer conversion/reduction of genuine comparison and projections remains unproved. Require actual artifact/empty-axiom/kernel audit; no helper substitution."
+  ],
+  "limitations": [
+    "This is post-range complete-result continuation only. It does not accept failed outer ObjWholeRead or original ordinal26/Read33/fullObject/Hash/PrismPM/Pages.",
+    "No equivalent failed whole consumer retry, increased resource limits, cache/bottleneck/efficiency claim or automatic subsequent expansion."
+  ],
+  "disclosure": "Reviewer authored governing SPEC and accepted digest native review; did not author this candidate. Independently inspected actual written ASTs, imports, proofs and identity closure.",
+  "storage": {
+    "freshHostAvailableBytes": "25718935552",
+    "maximumReportBytes": 12288
+  },
+  "execution": "Only read-only host file/AST inspection and this bounded external report. No SDK/native/VM/repository/index/source/frozen edits."
+}

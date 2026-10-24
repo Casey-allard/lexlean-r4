@@ -1,0 +1,188 @@
+{
+  "schema": "lexlean-r4-next-outer-whole-source-investigation/v1",
+  "status": "SOURCE_DESIGN_ONLY_ACTUAL_POSTRANGE_BOUND_NEW_TESTS_NOT_RUN",
+  "author": "/root/orchestration_design_review",
+  "selection": "One concrete admission/backend-validation shell identity with a symbolic Result tail, followed by its mandatory actual original ObjWholeRead consumer. No repeat of failed whole-to-hash-continuation Apply and no generic framework.",
+  "actualPrerequisite": {
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive-native-review.json",
+      "bytes": 14058,
+      "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+    },
+    "result": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/postrange-positive/result.json",
+      "bytes": 1167,
+      "sha256": "7bc99921502ebb7be3126b11b88358d0dd1c9f018ebd8b27e7649714aff10165"
+    },
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    "attestation": "c8a21fe7466cd404ccea624de08f094f0f60b6d0be20735b1410295986ecbd43",
+    "scope": "Exact production post-range hash/digest continuation returns complete original ObjWholeVerified Result. Independent review accepts145files/70outputs/14oleans/748emptyaxioms/43successfulprocesses/14kernelreplays,494719ms aggregate. Source/result/review pins read before final report; no pending audit is treated as acceptance.",
+    "notEstablished": "This does not accept original outer ObjWholeRead, ObjWholeAdmitted full connection, originalordinal26 projection/allRead33 or broader components."
+  },
+  "phase1": {
+    "oldFailedConsumer": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "bytes": 72531,
+      "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+    },
+    "oldFailureAudit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/failure-native-review.json",
+      "bytes": 14520,
+      "sha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd"
+    },
+    "oldStatementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "observation": "The former actual ObjWholeRead = hash-continuation equation timed out at300004ms against300000ms; aggregate400487ms, max450159 with oom/kill0 and no artifact. The now accepted range/hash/post-range lemmas do not retroactively make that theorem accepted.",
+    "emissionBoundary": "Bounded inventory of failed external phase and committed fixture found no retained .lean emission file. No VM/stage or running outputs inspected. Actual emitted-cost localization is unavailable; source decomposition is a hypothesis, not a trace-based explanation.",
+    "productionLayers": [
+      "ObjWholeRead first matches genuine ObjAdmitManifest(originalManifest,originalLimits), propagating its typed error.",
+      "On Result.ok admitted, it evaluates genuine ObjRawKeysValid(originalBackend,Option.none); false produces schemaMismatch, true calls ObjWholeAdmitted(originalBackend,admitted,originalLimits).",
+      "ObjWholeAdmitted matches actual range result, then real hash/digest comparison and full result wrapping. Accepted range and post-range certificates address inner expressions but do not themselves compose outer equality."
+    ],
+    "reasonForChoice": "Isolate the original outer admission/key checks with a variable tail so the helper contains no evaluation of range or hash. Mandatory concrete consumer still tests whether the real outer call converts to the admitted call using original inputs. This is a new smaller equation, not a higher-limit retry or full-range recomputation justified by an assumed bottleneck."
+  },
+  "sourcePins": {
+    "originalControl": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "outerRuntime": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    "innerRuntime": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    "codec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    "types": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    "failedConsumer": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "bytes": 72531,
+      "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+    },
+    "failedAudit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/failure-native-review.json",
+      "bytes": 14520,
+      "sha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd"
+    },
+    "postrangeSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    "postrangeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive-native-review.json",
+      "bytes": 14058,
+      "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+    },
+    "postrangeResult": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/postrange-positive/result.json",
+      "bytes": 1167,
+      "sha256": "7bc99921502ebb7be3126b11b88358d0dd1c9f018ebd8b27e7649714aff10165"
+    },
+    "ir": {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    "backend": {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    },
+    "argumentPrecedent": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+      "bytes": 38431,
+      "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+    }
+  },
+  "exactDesign": {
+    "hashConvention": "SHA-256 over UTF-8 JSON.stringify recursively sorted object keys, preserving arrays. Derived theorem names and parameter spellings below are part of stated AST pins.",
+    "originalControl": "ObjectReadControls declaration ordinal26(index25) objProtocolWholeBytes",
+    "originalStatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "originalWholeCall": {
+      "path": "ordinal26.statement.left.scrutinee",
+      "sha256": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86"
+    },
+    "outerDeclarationSha256": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+    "instantiatedOuterBodySha256": "3c02004c669fcb53fd0cd4241b9d35b7fd617fc56ac8f98c459f3141bafb2042",
+    "bodyConstruction": "Substitute only outer declaration parameters view,manifest,limits with exact three original WholeRead arguments. Do not substitute the locally bound admitted variable.",
+    "genuineAdmitCallSha256": "afcab4e0ad14e2ed27df38a8c3045e2c2ed369539f04a49be1246a64285da8f5",
+    "genuineBackendValidationSha256": "3a229d6c566ca4a82433ac3724a820fc065031e4a35bc188fcd50e86ddab2290",
+    "shell": {
+      "name": "ObjOriginalOuterShell",
+      "parameter": {
+        "name": "tailResult",
+        "type": "Result R4.ObjectTypes.ObjWholeVerified R4.ObjectTypes.ObjError"
+      },
+      "construction": "In that instantiated body, replace only branches[1].body.then_value (the ObjWholeAdmitted call under Result.ok admitted and true backend predicate) with {kind:var,name:tailResult}. Preserve entire admission match, original manifest/limits/backend and all typed errors/key validation. No assumption that branches succeed is inserted.",
+      "bodySha256": "dc712168c569c0774839acb094dd5847ca5f84f2fa6d14b6502fe5c446ec1095",
+      "replacedBinderDependentCallSha256": "d1159e06729627e10a18ec9c02581669e13e94a0dd53f8904a95b6884b79cf54",
+      "roundtrip": "Restoring that exact original binder-dependent call reconstructs entire instantiated outer body exactly. This is a source structural check only, not proof that admitted equals originalManifest."
+    },
+    "symbolicPositive": {
+      "parameters": "tailResult:Result ObjWholeVerified ObjError",
+      "statement": "ObjOriginalOuterShell(tailResult)=tailResult",
+      "statementSha256": "04772f22b5e94f04e1ee0b34abaf19bdb968e89ef3415ea5f65318696bbd041e",
+      "proof": {
+        "kind": "reflexivity"
+      },
+      "axioms": [],
+      "interpretation": "For this exact original manifest/backend/limits, actual admission and key validation must reduce to the identity branch. Opaque tail is universally parameterized, not a trusted whole result or host stub."
+    },
+    "actualConsumer": {
+      "parameters": [],
+      "left": "Exact original ordinal26 ObjWholeRead call",
+      "right": "R4.ObjectRead.ObjWholeAdmitted with the same exact original backend, original manifest and original limits",
+      "rightSha256": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "statementSha256": "e348f1ee960e5997710a0dac08a3a5de8329b5182380ad8e58bbaf71dcebafeb",
+      "proof": "Apply the symbolic positive theorem with one explicit argument: exact right-hand ObjWholeAdmitted call AST, not a variable/fabricated result.",
+      "mandatory": "Official selected actual consumer must compile and kernel replay with empty observed axioms; helper acceptance alone is insufficient.",
+      "conversionObligation": "Shell(argument) substitutes a fixed original manifest into the tail, whereas original WholeRead success call uses locally bound admitted. Source restoration alone does not equate them. Actual consumer kernel must reduce original admission to that original manifest, validate backend and compare actual resulting tail. The opaque helper does not waive this concrete conversion."
+    }
+  },
+  "negative": {
+    "type": "Meaningful dependency-level false-identity control; not a claim of negative whole-consumer elaboration.",
+    "change": "Only symbolic theorem expected RHS tailResult becomes actual typed Result.error ObjError.schemaMismatch. Shell body and real guard computations, parameters, Refexivity proof and all runtime sources unchanged. Use exact existing outer else_value AST.",
+    "errorSha256": "47c4579d00b4dc03a1acc750508c410e2d9b2124ca4313c6838abd7321bda5ab",
+    "falseHelperStatementSha256": "dfc279e1953e3dceaf3b68c7e1aa3ba04d6d0fddca8a436e57ca0d6e80389fa7",
+    "expected": "With arbitrary tailResult, a shell that actually preserves the supplied tail cannot universally equal schemaMismatch. Official checker admits well-typed source, then kernel rejects false helper equality. Keep actual consumer as selected root with that dependency; rejection may occur before consumer elaboration and must be labeled accordingly.",
+    "positiveRequirement": "Positive restores sole helper RHS variable and requires full actual consumer proof, not just helper. No false semantic claim about a concrete complete WholeRead result is inferred from this negative.",
+    "alternativeNotSelected": "Do not make expected concrete whole Result schemaMismatch and then force the checker to recompute the entire inner result solely to reject it; that is a different, potentially expensive control and not this minimal plan."
+  },
+  "supportedSyntax": {
+    "ir": "SemanticDeclaration::Theorem at retained semantic.rs1289-1302 accepts Vec<SemanticParameter>; parameter type is existing SemanticType::Result. No new proof constructor or theorem premise is invented.",
+    "lowering": "Backend result type emits Except error ok (line564); Reflexivity emits rfl(line1219); Apply emits exact member with each ordinary SemanticTerm argument(lines1371-1387). Actual concrete call is an ordinary term argument. Exact source/compiler pins above bound these statements.",
+    "precedent": "Existing accepted symbolic Object257 consumer supplies a concrete argument to a parameterized theorem. This is support for argument syntax only, not evidence that this new Result-tail conversion succeeds.",
+    "moduleScope": "Minimal shell definition and symbolic theorem in one module, one actual-consumer module; positive/negative variants only where helper RHS differs. Calls/types in original shell are already qualified. Use same-module bare references and explicit imported theorem reference. Candidate reviewer must verify canonical JSON, imports, exact types/arguments and no free variables."
+  },
+  "futureSequence": [
+    "Independent non-author SPEC of this exact investigation before candidate authoring.",
+    "Freeze narrow candidate with unchanged original runtime/inputs/digest, true/false helper variants and mandatory original consumer; independently source CODE review.",
+    "Review actual fresh official closure/config/invocation and resource identities; no historical lock/binary transplant, no limit increase.",
+    "Run intended false-helper phase, independently classify failure, then fresh gates and positive actual consumer. All proposed new tests currentlyNOT_RUN."
+  ],
+  "remainingConnection": {
+    "ifSuccessful": "Accepted equation would establish the original outer call equals its original admitted-inner call, preserving actual admission/backend checks. It would NOT give the inner call its final successful Result.",
+    "stillRequired": "Connect original ObjWholeAdmitted to accepted complete post-range Result using a separate explicitly supported proof. The old failed whole-to-continuation equation is not an available theorem. Then prove complete original WholeRead Result and finally unchanged ordinal26 result-to-bytes projection.",
+    "constraint": "No invented Rewrite/Have/Eq.trans/propext, no host hash or trusted intermediate, no assertion that syntax lacking an Eq.trans constructor makes composition impossible. A later composition design must inspect actual supported proof/law constructs and supply a falsifiable original consumer; no broad framework or automatic certificate expansion here."
+  },
+  "limits": "Keep300000ms child/4GiB2CPU, all source/tool/lock/epoch/idle/zeroevent/storage/postcapture gates and empty axioms. Fresh host sample25958492KiB above10GiBreserve; actual native launch still requires20GiB estimate+reserve gate. Symbolic helper may reduce unnecessary literal work but no timing, cheap-conversion, cache or efficiency claim is made. A timeout closes only this configuration.",
+  "authorship": "This is my source investigation, not independent SPEC acceptance. Independent reviewer must assess the proposal before source preparation.",
+  "writes": "Only this <=16KiB external JSON. No SDK/native/container/VM, candidate/source/repository/index changes, fixture copies or additional files."
+}
