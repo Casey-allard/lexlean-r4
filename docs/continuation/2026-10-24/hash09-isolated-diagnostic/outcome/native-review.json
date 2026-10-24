@@ -1,0 +1,238 @@
+{
+  "schema": "lexlean-r4-independent-isolated-native-review/v1",
+  "reviewedAt": "2026-10-24T11:44:55.996456+00:00",
+  "verdict": "PASS_ACTUAL_ISOLATED_HASH09_ARTIFACT_AND_POSTCONDITIONS_ONLY",
+  "reviewer": "construction_second_state_code_review",
+  "scope": "Host-only independent audit of actual closed isolated diagnostic, with no SDK/VM/native replay. Parent reports exec21037 launcher0; actual verify0/success and independent postconditions establish the local result, not launcher status alone.",
+  "identities": {
+    "source_id": "115faefb3d3296589ab3b6c32a0fed485477fa2335da25e37c3db1ae4677d511",
+    "semantic_id": "2b432e6acfe8810bc6d7abeab03968231d40249641366d370cbbb79b7fa7e4bf",
+    "build_id": "b6f69cb39192924b751081531d3cb965781a6ea2e334b812686d2d91b9230103",
+    "attestation_id": "f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f"
+  },
+  "officialOutcome": {
+    "selectedModules": [
+      "HashWireDirect09Controls",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Words"
+    ],
+    "checkStatus": 0,
+    "verifyStatus": 0,
+    "verifyStarted": "2026-10-24T11:37:07.902Z",
+    "verifyEnded": "2026-10-24T11:41:06.576Z",
+    "wholeVerifyMs": 238674,
+    "artifacts": [
+      ".lexlean/verified/f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f"
+    ],
+    "rootChildElapsedMs": null,
+    "timingLimitation": "Normalized actual child process record and attestation have no start/end/elapsed fields. No separate exact root completion timing was retained, confirmed by parent. Actual PS samples observed child elapsed00:28 and02:16 at dated captures; these are not exact completed child duration or peaks. Do not substitute238674ms whole verify for child time."
+  },
+  "artifactAudit": {
+    "files": 65,
+    "outputHashesVerified": 30,
+    "sourceDeclarationNamesMatched": 531,
+    "observedEmptyAxiomDeclarations": 531,
+    "successfulRecordedProcesses": 19,
+    "recordedKernelReplays": 6,
+    "moduleElaborations": 6,
+    "axiomAuditProcesses": 6,
+    "probeProcesses": 1,
+    "moduleProof": "Actual root emitted source exactly matches previously accepted1706-byte root with the original wireDirect09 proposition and by rfl. No trusted digest/proof substitution.",
+    "allFileInventorySha256": "7d211724124745e68ebe3e69a54a40fe3ce58bcb53942953623ea68619f5a3ad",
+    "allFileBytes": 4355296,
+    "details": "Verified manifest output hashes, attestation manifest hash/length, six olean hashes/lengths, process argv/tool/status/stdout/stderr hashes and exact saved record equality. Compared531 actual audit stdout declaration names to selected source and attested declaration census. Exact65-file artifact census; no unlisted artifact files."
+  },
+  "sourceAndLock": {
+    "stagedInputs": 51,
+    "sameInputMapAsFailedRead": true,
+    "sourceBeforeAfterMatch": true,
+    "allLocalSourcesRehashed": true,
+    "copyReceipts": 51,
+    "lockSha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88",
+    "genuineLockStatus": 0,
+    "lockPostUnchanged": true,
+    "selectionNote": "Only six modules selected; whole source/build/attestation identities legitimately differ from failed47-module Read and prior configuration. Historical six-module semantic identity matches; no assertion all identities match."
+  },
+  "postconditions": {
+    "epoch": "2026-10-24T10:51:37.465092641Z",
+    "configuration": "Same cid/restart0/4GiB/2CPU/networknone/mounts[]",
+    "tools": "Exact compiler/Lean/Lake/checker before and after, and artifact toolchain hashes verified.",
+    "memory": "All six counters zero before/after.",
+    "idle": "No lexlean/lean/lake/leanchecker in pre/post ps receipts.",
+    "hostPreBytes": 24292409344,
+    "hostPostBytes": 24017113088,
+    "guestPreKiB": 52743296,
+    "guestPostKiB": 52734328,
+    "postcaptureErrors": [],
+    "resourceBudget": "10GiB peak+10GiB reserve/20GiB hostpre,11GiB guestpre and10GiB post floors passed; allocated/swap receipts retained."
+  },
+  "priorComparison": {
+    "sixEmissions": [
+      {
+        "module": "LexLeanR4.HashWireDirect09Controls",
+        "sha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336",
+        "bytes": 1706
+      },
+      {
+        "module": "LexLeanR4.R4.Hash",
+        "sha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b",
+        "bytes": 191175
+      },
+      {
+        "module": "LexLeanR4.R4.HashNat",
+        "sha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000",
+        "bytes": 31334
+      },
+      {
+        "module": "LexLeanR4.R4.HashNatCore",
+        "sha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377",
+        "bytes": 95917
+      },
+      {
+        "module": "LexLeanR4.R4.HashWire",
+        "sha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b",
+        "bytes": 3926
+      },
+      {
+        "module": "LexLeanR4.R4.Words",
+        "sha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6",
+        "bytes": 51343
+      }
+    ],
+    "sixCompiledOutputs": [
+      {
+        "module": "LexLeanR4.HashWireDirect09Controls",
+        "sha256": "e183ec00cc5c542cf474651b51579633627a0e61fb301fe9507951ca9082965e",
+        "bytes": 30032,
+        "priorSha256": "e183ec00cc5c542cf474651b51579633627a0e61fb301fe9507951ca9082965e",
+        "equalsPrior": true
+      },
+      {
+        "module": "LexLeanR4.R4.Hash",
+        "sha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d",
+        "bytes": 739088,
+        "priorSha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d",
+        "equalsPrior": true
+      },
+      {
+        "module": "LexLeanR4.R4.HashNat",
+        "sha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0",
+        "bytes": 647768,
+        "priorSha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0",
+        "equalsPrior": true
+      },
+      {
+        "module": "LexLeanR4.R4.HashNatCore",
+        "sha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894",
+        "bytes": 956944,
+        "priorSha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894",
+        "equalsPrior": true
+      },
+      {
+        "module": "LexLeanR4.R4.HashWire",
+        "sha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4",
+        "bytes": 27464,
+        "priorSha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4",
+        "equalsPrior": true
+      },
+      {
+        "module": "LexLeanR4.R4.Words",
+        "sha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b",
+        "bytes": 441064,
+        "priorSha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b",
+        "equalsPrior": true
+      }
+    ],
+    "priorWholeVerifyMs": 39628,
+    "interpretation": "Current isolated context succeeded now. The five dependency compiled hashes and six emitted sources match prior accepted evidence; current root compiled output comparison is listed explicitly. No environmental cause or closure-size causation is established. Different whole verification times are not a controlled benchmark. Failed47-module Read dependency oleans were not recovered, so they cannot be substituted by isolated ones."
+  },
+  "rawCustody": {
+    "files": 80,
+    "bytes": 102074,
+    "inventorySha256": "b193591cd4838c6858cd78f764039f50a9a79e25d5e2caf911d599a35d21215b",
+    "pins": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/verify.json",
+        "bytes": 1122,
+        "sha256": "f90fef82dae2e6fe48766169bc407681e9fb5b5098cb1ed4b7935c375426058d"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/check.json",
+        "bytes": 864,
+        "sha256": "a1d4bc6d5ca0c5ec5cd4ae60906044c002d9eb35983ab04c9657024dcb9c611a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/result.json",
+        "bytes": 895,
+        "sha256": "7924dbeee5c546b8dee2012eb2ac83afa8105f305ebfcc70d8ab4d3e2f5228d0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/source-before.json",
+        "bytes": 14471,
+        "sha256": "6dd6a73ebf62fd39b7526f4284044db6e50a7a2768fd87dbdf137113d8799db1"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/source-after.json",
+        "bytes": 14471,
+        "sha256": "e8e524273b7b9c5408660ae50e26dc22709d9ffadbf40dc016065a7d8e7a76ac"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/lock-bytes.json",
+        "bytes": 2053,
+        "sha256": "91c7e48d425c33159cc071edfd4e77787b2aeae69ba5ca7e879cd82fface1b8a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/epoch-before.json",
+        "bytes": 470,
+        "sha256": "33b92e4857a879f6625bfc9cece9edc5fa05ee67dbbe41218751b674c28023fc"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/epoch-after.json",
+        "bytes": 470,
+        "sha256": "abf6bcf71e84a4f4fbcdb51c0300d0fcde6550f86dcba0d136549a31ef34def9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/memory-before.json",
+        "bytes": 354,
+        "sha256": "1b1759b2bacc57411f8577fbf52f4dc1d955972cd3fcbd023993534850bbb55f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/memory-after.json",
+        "bytes": 354,
+        "sha256": "f1c22bfa13d3f675df6d93be50e1fb8466ef9f232667b2762b177b7344e1874b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/host-before.json",
+        "bytes": 152,
+        "sha256": "97e6ce1440eaad32dd9d845732a970857286e76c9032a2684e1c509d5d258f7f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/host-after.json",
+        "bytes": 142,
+        "sha256": "c02054dcd878f73c89fabd571fc3ff14888c5411d2baf45c6f16cff25857f055"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    ]
+  },
+  "remainingGates": {
+    "earlierReadAttempt": "Still failed, intendedordinal26negative NOT_REACHED",
+    "ReadFocusedPositive": "NOT_RUN",
+    "ReadFull33": "NOT_RUN",
+    "ObjectAcceptedControls": "331/403 unchanged",
+    "automaticReadRetry": false,
+    "newProductionAcceptance": false,
+    "action": "Stop isolated diagnostic; separately review concrete next source/evidence step. Preserve all failures and source/limits/axioms."
+  },
+  "findings": [],
+  "reviewResource": {
+    "hostAvailableBytes": 23623413760,
+    "newAllocation": "Only this bounded report; no artifact copying or regeneration."
+  }
+}

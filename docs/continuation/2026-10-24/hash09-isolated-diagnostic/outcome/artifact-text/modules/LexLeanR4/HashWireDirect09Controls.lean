@@ -1,0 +1,17 @@
+module
+public import Init
+public import LexLeanR4.R4.Hash
+public import LexLeanR4.R4.HashNat
+public import LexLeanR4.R4.HashNatCore
+public import LexLeanR4.R4.HashWire
+public import LexLeanR4.R4.Words
+set_option autoImplicit false
+set_option maxRecDepth 100000
+set_option maxHeartbeats 1000000000
+set_option linter.constructorNameAsVariable false
+namespace LexLeanR4.HashWireDirect09Controls
+
+public theorem wireDirect09 : (LexLeanR4.R4.HashWire.hashWireSha256 (LexLeanR4.R4.Hash.append ((3 :: (10 :: (17 :: (24 :: (31 :: (38 :: (45 :: (52 :: (59 :: (66 :: (73 :: (80 :: (87 :: (94 :: (101 :: (108 :: (115 :: (122 :: (129 :: (136 :: (143 :: (150 :: (157 :: (164 :: (171 :: (178 :: (185 :: (192 :: (199 :: (206 :: (213 :: (220 :: (227 :: (234 :: (241 :: (248 :: (255 :: (6 :: (13 :: (20 :: (27 :: (34 :: (41 :: (48 :: (55 :: (62 :: (69 :: (76 :: (83 :: (90 :: (97 :: (104 :: (111 :: (118 :: (125 :: (132 :: (139 :: (146 :: (153 :: (160 :: (167 :: (174 :: (181 :: (188 :: ([] : List (Nat))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) ((195 :: (202 :: (209 :: (216 :: (223 :: (230 :: (237 :: (244 :: (251 :: (2 :: (9 :: (16 :: (23 :: (30 :: (37 :: (44 :: (51 :: (58 :: (65 :: (72 :: (79 :: (86 :: (93 :: (100 :: (107 :: (114 :: (121 :: (128 :: (135 :: (142 :: (149 :: (156 :: ([] : List (Nat)))))))))))))))))))))))))))))))))))) = Except.ok ((201 :: (241 :: (165 :: (247 :: (157 :: (123 :: (234 :: (1 :: (165 :: (79 :: (78 :: (219 :: (65 :: (103 :: (55 :: (34 :: (246 :: (39 :: (238 :: (46 :: (130 :: (221 :: (163 :: (36 :: (148 :: (107 :: (99 :: (207 :: (75 :: (155 :: (22 :: (175 :: ([] : List (Nat)))))))))))))))))))))))))))))))))))) := by
+  rfl
+
+end LexLeanR4.HashWireDirect09Controls

@@ -1,0 +1,85 @@
+{
+  "schema": "lexlean-r4-independent-live-olean-comparison/v1",
+  "reviewedAt": "2026-10-24T11:38:46.074065+00:00",
+  "verdict": "PASS_FIVE_CAPTURED_DEPENDENCY_IDENTITIES_MATCH_PRIOR_NO_RUN_ACCEPTANCE",
+  "reviewer": "construction_second_state_code_review",
+  "sample": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/parent-live-sample1.json",
+    "bytes": 3988,
+    "sha256": "21ffcb7685e8bb4173c92a322309c225f5843865ab3a2b974a391bdd26d0eef5",
+    "captureStarted": "2026-10-24T11:38:04.324527+00:00",
+    "captureEnded": "2026-10-24T11:38:04.490122+00:00",
+    "status": 0
+  },
+  "priorAttestation": {
+    "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/attestation.json",
+    "bytes": 106971,
+    "sha256": "0902e02fdd4fe8d73725f745b0e33a14468f4fffdc822cd5e65788b5c4e088a1"
+  },
+  "rows": [
+    {
+      "module": "LexLeanR4.R4.HashWire",
+      "currentSamplePath": "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/HashWire.olean",
+      "currentCapturedSha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/oleans/LexLeanR4/R4/HashWire.olean",
+      "priorBytes": 27464,
+      "priorRecomputedSha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4",
+      "attestedSha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4",
+      "equal": true
+    },
+    {
+      "module": "LexLeanR4.R4.Words",
+      "currentSamplePath": "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/Words.olean",
+      "currentCapturedSha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/oleans/LexLeanR4/R4/Words.olean",
+      "priorBytes": 441064,
+      "priorRecomputedSha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b",
+      "attestedSha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b",
+      "equal": true
+    },
+    {
+      "module": "LexLeanR4.R4.HashNatCore",
+      "currentSamplePath": "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/HashNatCore.olean",
+      "currentCapturedSha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/oleans/LexLeanR4/R4/HashNatCore.olean",
+      "priorBytes": 956944,
+      "priorRecomputedSha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894",
+      "attestedSha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894",
+      "equal": true
+    },
+    {
+      "module": "LexLeanR4.R4.HashNat",
+      "currentSamplePath": "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/HashNat.olean",
+      "currentCapturedSha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/oleans/LexLeanR4/R4/HashNat.olean",
+      "priorBytes": 647768,
+      "priorRecomputedSha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0",
+      "attestedSha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0",
+      "equal": true
+    },
+    {
+      "module": "LexLeanR4.R4.Hash",
+      "currentSamplePath": "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/Hash.olean",
+      "currentCapturedSha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/oleans/LexLeanR4/R4/Hash.olean",
+      "priorBytes": 739088,
+      "priorRecomputedSha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d",
+      "attestedSha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d",
+      "equal": true
+    }
+  ],
+  "scope": "Read-only host inspection of already captured current guest hashes and actual retained historical dependency olean files. Each historical file was independently rehashed and checked against its accepted attestation. No SDK/VM/native invocation or active-run interaction.",
+  "interpretation": [
+    "All five captured current dependency olean hashes equal the actual retained prior accepted dependency files and their attested hashes. No difference in these five compiled dependency identities is observed.",
+    "This is a dated asynchronous custody sample, not final closure, process completion, peak measurement or proof acceptance. The current root Hash09 olean is absent from this five-dependency comparison; no root outcome is inferred.",
+    "The recorded sample contains zero memory events and a running Hash09 child, but it does not characterize the whole run or prove environmental equality.",
+    "Equality does not establish why the earlier 47-module attempt timed out, or authorize repeating that run. The earlier failed run dependency oleans were not recovered; this is isolated-run versus historical accepted-run comparison.",
+    "Serialization metadata can affect olean hashes in general; here the observed five hashes match exactly. No causal inference or timing equivalence follows."
+  ],
+  "nativeOutcome": "PENDING_PARENT_TERMINAL_AND_INDEPENDENT_ACTUAL_ARTIFACT_POSTCONDITION_AUDIT",
+  "resource": {
+    "hostAvailableBytes": 25359138816,
+    "reserveBytes": 10737418240,
+    "newAllocation": "Only this report, below8KiB."
+  }
+}

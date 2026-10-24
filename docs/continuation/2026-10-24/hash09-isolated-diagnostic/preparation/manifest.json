@@ -1,0 +1,90 @@
+{
+  "schema": "lexlean-r4/hash09-isolated-invocation-preparation/1",
+  "status": "FROZEN_SOURCE_ONLY_PENDING_INDEPENDENT_CODE_ALL_NATIVE_NOT_RUN",
+  "payloads": [
+    {
+      "path": "README.md",
+      "bytes": 2868,
+      "sha256": "35a4fae61bbcf7afcd15b60546d7326ecda542d68ce64311b72ea767672292a8"
+    },
+    {
+      "path": "changes.diff",
+      "bytes": 8435,
+      "sha256": "532a2f19717ecde387c173cf07096b579548f87ae5fa42ffcbd9c6319b116098"
+    },
+    {
+      "path": "changes.json",
+      "bytes": 5443,
+      "sha256": "d05b988b54dcc5fd6c883bb0f6019cf689bde36a19406b4aaa2ebfa0a3530a5a"
+    },
+    {
+      "path": "host-prerequisite-inspection.json",
+      "bytes": 2165,
+      "sha256": "456ec572e30ef4643f4d2bb1400cf8425f1f35db361c91bded29360ccb664b0b"
+    },
+    {
+      "path": "invoke-hash09-isolated.mjs",
+      "bytes": 12796,
+      "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a"
+    },
+    {
+      "path": "static-validation.json",
+      "bytes": 1200,
+      "sha256": "2c22a8b2374dd119fbe4fcde20cb800e888711a1ffdcef6b6954a72be2ce4d3a"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invoke-read-composed.mjs",
+      "bytes": 11250,
+      "sha256": "850877aff69521c4f59858c4cea5976c16cce01e9df9e1a4c2dde4771a55fddf"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/manifest.json",
+      "bytes": 5122,
+      "sha256": "48be4e0fc2412f7b8c819fce5d037bf34f7590bdcddc2106f43042ffd64e18ee"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-proposal.json",
+      "bytes": 11948,
+      "sha256": "fac761d6e60d6deeb10022df600bebadce720e204349f030d2b3cec95529f9a1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-spec-review.json",
+      "bytes": 8475,
+      "sha256": "902fafa029772f56b8ae69d65bb0bffc88b13833b8dabdbd14e8bd606267e76a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery-review.json",
+      "bytes": 12422,
+      "sha256": "1dde1b7671ecf1b1618e6be648ba0cd7f067327df03a764886245104649e7bda"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-readonly-prerequisite.json",
+      "bytes": 644,
+      "sha256": "70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/manifest.json",
+      "bytes": 28727,
+      "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/source-bindings.json",
+      "bytes": 71638,
+      "sha256": "05990c4e189a7ea21838e80594913ef7e5b6fe65c595776e8cf7b3e096c7cb68"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation-code-review.json",
+      "bytes": 4232,
+      "sha256": "5e4e936bae87eac55437705861a213591050237b771c7846ab46a4c2cb303120"
+    }
+  ],
+  "transitiveAuthorities": "Original candidate manifest payloads/dependencies and unchanged freshEpochBinding pins remain mandatory; all candidate pins rehashed by host static check and original runner at launch.",
+  "nativeExecuted": false
+}

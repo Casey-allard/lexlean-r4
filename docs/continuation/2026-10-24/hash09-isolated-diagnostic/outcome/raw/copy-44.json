@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/tests/lexlean/ObjectWholeInnerContinuation.lex.tex"
+  ],
+  "started": "2026-10-24T11:37:00.610Z",
+  "ended": "2026-10-24T11:37:00.649Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

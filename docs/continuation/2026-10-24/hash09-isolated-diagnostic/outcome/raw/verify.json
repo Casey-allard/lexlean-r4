@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/HashWireDirect09Controls.lex.tex"
+  ],
+  "started": "2026-10-24T11:37:07.902Z",
+  "ended": "2026-10-24T11:41:06.576Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f\"],\"attestation_id\":\"f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f\",\"build_id\":\"b6f69cb39192924b751081531d3cb965781a6ea2e334b812686d2d91b9230103\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"HashWireDirect09Controls\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Words\"],\"semantic_id\":\"2b432e6acfe8810bc6d7abeab03968231d40249641366d370cbbb79b7fa7e4bf\",\"source_id\":\"115faefb3d3296589ab3b6c32a0fed485477fa2335da25e37c3db1ae4677d511\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

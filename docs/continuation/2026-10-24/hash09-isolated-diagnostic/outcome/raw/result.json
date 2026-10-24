@@ -1,0 +1,27 @@
+{
+  "phase": "hash09-isolated",
+  "stage": "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f"
+    ],
+    "attestation_id": "f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f",
+    "build_id": "b6f69cb39192924b751081531d3cb965781a6ea2e334b812686d2d91b9230103",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "HashWireDirect09Controls",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Words"
+    ],
+    "semantic_id": "2b432e6acfe8810bc6d7abeab03968231d40249641366d370cbbb79b7fa7e4bf",
+    "source_id": "115faefb3d3296589ab3b6c32a0fed485477fa2335da25e37c3db1ae4677d511",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}

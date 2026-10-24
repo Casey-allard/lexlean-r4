@@ -1,0 +1,10 @@
+{
+  "status": "EXACT_TEXT_COPIES_AND_REFERENCES_VERIFIED_NO_NATIVE_OUTCOME",
+  "copiedFiles": 10,
+  "allCopiedBytesEqualOriginal": true,
+  "sourceClosureNotDuplicated": true,
+  "changingRunFilesCopied": false,
+  "existingRepositoryReferenceCount": 5,
+  "setupFault": "First packaging pass stopped after exact copies when guessed existing path-map.json was absent. Actual existing authority is portable-bindings.json; no input bytes changed, no native test ran. References corrected before freeze.",
+  "allocationLimitBytes": 131072
+}

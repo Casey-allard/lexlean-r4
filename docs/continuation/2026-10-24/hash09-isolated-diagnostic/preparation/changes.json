@@ -1,0 +1,69 @@
+{
+  "scope": "Minimal adaptation; original runner remains byte-identical",
+  "base": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invoke-read-composed.mjs",
+    "bytes": 11250,
+    "sha256": "850877aff69521c4f59858c4cea5976c16cce01e9df9e1a4c2dde4771a55fddf"
+  },
+  "edits": [
+    {
+      "old": "// One-off composed-dependency Read33 phase. Bound to reviewed epoch snapshot; fresh launch gates remain mandatory.",
+      "new": "// One-off isolated Hash09 selection diagnostic. Preparation only until independent invocation CODE and fresh live gates pass.",
+      "reason": "Diagnostic scope only, no Read proof acceptance."
+    },
+    {
+      "old": "'../object-read-composed-dependencies'",
+      "new": "'../../object-read-composed-dependencies'",
+      "reason": "New nested preparation directory; same exact candidate."
+    },
+    {
+      "old": "'../object-read-native-controls'",
+      "new": "'../../object-read-native-controls'",
+      "reason": "New nested preparation directory; same pinned original input roots."
+    },
+    {
+      "old": "if(process.argv.length!==3||!['ordinal26-negative','ordinal26-positive','read33-positive'].includes(phase))throw Error('select exactly one reviewed Read33 phase');",
+      "new": "if(process.argv.length!==3||phase!=='hash09-isolated')throw Error('select only hash09-isolated; one attempt, no automatic Read continuation');\nconst sourcePhase='ordinal26-negative';\nconst target='tests/lexlean/HashWireDirect09Controls.lex.tex';\nconst expectedSelectedModules=['HashWireDirect09Controls','R4.Hash','R4.HashNat','R4.HashNatCore','R4.HashWire','R4.Words'];",
+      "reason": "Only one diagnostic mode; preserve original ordinal26-negative51inputmap; explicit six-module target."
+    },
+    {
+      "old": "'../object-read-composed-dependencies-code-review.json'",
+      "new": "'../../object-read-composed-dependencies-code-review.json'",
+      "reason": "Same reviewed candidate source CODE path."
+    },
+    {
+      "old": "const selected=bindings.phases.find(x=>x.mode===phase);",
+      "new": "const selected=bindings.phases.find(x=>x.mode===sourcePhase);",
+      "reason": "Reuse exact original51input phase, not a new reduced source stage."
+    },
+    {
+      "old": " const bindings=JSON.parse(fs.readFileSync(path.join(candidateRoot,'source-bindings.json')));",
+      "new": " for(const authority of [{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-proposal.json\",\"bytes\":11948,\"sha256\":\"fac761d6e60d6deeb10022df600bebadce720e204349f030d2b3cec95529f9a1\"},{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-spec-review.json\",\"bytes\":8475,\"sha256\":\"902fafa029772f56b8ae69d65bb0bffc88b13833b8dabdbd14e8bd606267e76a\"},{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery-review.json\",\"bytes\":12422,\"sha256\":\"1dde1b7671ecf1b1618e6be648ba0cd7f067327df03a764886245104649e7bda\"} ,{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-readonly-prerequisite.json\",\"bytes\":644,\"sha256\":\"70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf\"}]){const bytes=fs.readFileSync(authority.path);if(bytes.length!==authority.bytes||hash(bytes)!==authority.sha256)throw Error('diagnostic authority drift '+authority.path);}\n const bindings=JSON.parse(fs.readFileSync(path.join(candidateRoot,'source-bindings.json')));",
+      "reason": "Pin exact independently accepted diagnostic plan/SPEC/actual recovery before materialization. Also pin completed parent read-only retention result."
+    },
+    {
+      "old": "const checked=cli('check',['check'],false);",
+      "new": "const checked=cli('check',['check',target],false);",
+      "reason": "Official explicit six-module selection check under unchanged current project."
+    },
+    {
+      "old": "if(checked.status!==0||checkParsed?.success!==true)throw Error('check result');",
+      "new": "if(checked.status!==0||checkParsed?.success!==true)throw Error('check result');\n   if(!Array.isArray(checkParsed.modules)||JSON.stringify([...checkParsed.modules].sort())!==JSON.stringify(expectedSelectedModules))throw Error('isolated selected closure mismatch');",
+      "reason": "Reject missing/duplicate/extra/wrong selected modules before sole verify."
+    },
+    {
+      "old": "const result=cli('verify',['verify','tests/lexlean/ObjectReadControls.lex.tex'],false);",
+      "new": "const result=cli('verify',['verify',target],false);",
+      "reason": "Only proof-command target changes; no fullRead invocation."
+    }
+  ],
+  "unchanged": [
+    "all51 input custody/source-kind mapping and original47module binding authority",
+    "all runtime/source/config/tool hashes, genuine lock generation",
+    "epoch literal and strictzero/idle/resource/storage checks",
+    "one verify call and independent after-failure postchecks",
+    "artifactcopy predicate and no loop/retry"
+  ],
+  "maxVerifyCallsPerInvocation": 1,
+  "reentry": "Fixed sole mode makes output mkdir fail on existing evidence directory before any process call; fixed owned stage mkdir also fails if stage exists. Never delete evidence to rerun."
+}
