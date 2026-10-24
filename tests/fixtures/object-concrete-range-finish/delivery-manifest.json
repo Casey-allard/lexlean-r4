@@ -1,0 +1,292 @@
+{
+  "schema": "lexlean-r4-concrete-finish-failure-delivery-manifest/v1",
+  "status": "FROZEN_PENDING_EXACT_DELIVERY_CODE_AND_SECURITY_REVIEW",
+  "baseCommit": "ae8b12e06da8b57f7c75da5977d04ac833424c99",
+  "scope": "Preserved actual direct-rfl target timeout, not intended-negative or proof acceptance; exact failed sources and raw evidence; supported contextual successor DESIGN ONLY; scoped working plan updates.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 42568,
+      "sha256": "649e02f84e1771595fc7aa769ad052a1d2b76d743afd768f7b85873e0a221486"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/contextual-finish-plan-bindings.json",
+      "bytes": 10166,
+      "sha256": "592f2d2f9393219c5b637b0a0a4bfa91cf0b65309a7848a9d9b9980dd10e82ed"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-contextual-finish-proposal.json",
+      "bytes": 14866,
+      "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-contextual-finish-spec-review.json",
+      "bytes": 6705,
+      "sha256": "88eeb4ae9eb16353d0741319bf32ea382ac8db573805feff192c40d917b10d81"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 32463,
+      "sha256": "f1b4cf79d452b1df72568b8d6833da9b0a34182dec0d1ef84bac013c14a4218c"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/README.md",
+      "bytes": 986,
+      "sha256": "f7aab98389f1f386209bda7dbafb37390ba094905e2fc8773a27e1062eb278ed"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/RESULTS.md",
+      "bytes": 2141,
+      "sha256": "faf0a607dcdd4e0b5489700420c4a3becb0e8e4daaf8214c6a357a12047c168a"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/README.md",
+      "bytes": 615,
+      "sha256": "655ea1ca6869ce55f05addae0923b97d4fe149949550dfcc2aec03216346ebbc"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/candidate.json",
+      "bytes": 12680,
+      "sha256": "aa6a17913a0866d22ef6c1cef89cf333445977cd00be35939224d408c8c63648"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/lexlean.toml",
+      "bytes": 689,
+      "sha256": "bbea155abe8bf976df157e6d69f155fece31ac88c273b4a03b825bf51a3fd0b1"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/manifest.json",
+      "bytes": 2739,
+      "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/candidate/structural-audit.json",
+      "bytes": 6619,
+      "sha256": "bc19f75a9429bce2b452aa90a2dcc3bc1be842838aa551eec8a21fcbc5e986ae"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/candidate-invocation-code-review.json",
+      "bytes": 5976,
+      "sha256": "ea73d93b43bd6644a133d9c003c47d75071faf47fb004c31303d71544604217b"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/concrete-finish-timeout-investigation.json",
+      "bytes": 14866,
+      "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/check.json",
+      "bytes": 872,
+      "sha256": "9370303aeca741d216222f49dae14e66e543c13c05a28f7352a20cf012dba4cf"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/emitted-ObjectConcreteRangeFinish.lean",
+      "bytes": 6044,
+      "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/emitted-capture.json",
+      "bytes": 479,
+      "sha256": "5ea8e7c2217b6506ea5e89c12948f97bacb3e547ca887394be77ae77cf776a68"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/epoch-after.json",
+      "bytes": 470,
+      "sha256": "52aba7ada9500027486cd9f8afed4556fa09ec7c6a473a3bf5a13fd28825087c"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/epoch-before.json",
+      "bytes": 470,
+      "sha256": "2660a2c2cf928bd3c241ef26ee1056f8e82d93aff10c1c4d30e5c39449a6657f"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/expected-inputs.json",
+      "bytes": 5268,
+      "sha256": "54ee61dd126fba3e1050c4552745d42ffa3f4ebd7b5f766791a55ea00a14a076"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/failure-native-review.json",
+      "bytes": 11070,
+      "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/guest-after.json",
+      "bytes": 406,
+      "sha256": "dddae2e6b735090f67d1e04e1048046d7e10c5e9fd94d1248abba79bbc72d45d"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/guest-before.json",
+      "bytes": 406,
+      "sha256": "84aae4838fb3f9a45fa46f0b44b5995a25c6b281f87d6df931784ed0751ed79a"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/host-after.json",
+      "bytes": 142,
+      "sha256": "2fd78624bc456eea0f49a7006ea8835a0469978d355f612b976fd6aa5fc17066"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/host-before.json",
+      "bytes": 152,
+      "sha256": "33445aee3e143f77540bf556a9654a9e5189c7a45e82b751633b2f521611e90e"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/idle-after.json",
+      "bytes": 460,
+      "sha256": "c9b612dcd16afc4627dab0823ec0c8e69caaf2222f228d4b94776f345ba6467a"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/idle-before.json",
+      "bytes": 460,
+      "sha256": "000597a5920a7229600f97c65a67b25efd16896f357c306c7734901e7e4ddc34"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "43d9abe23a551f875ca9bcc9be0810bb292913f4d4ede17aee1bf25a956c2b59"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/lock-after.json",
+      "bytes": 495,
+      "sha256": "b9247e767c2755d383dd7fc3e5b9043b22f44908118ffccecec859942e44ecc3"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/lock-bytes.json",
+      "bytes": 2058,
+      "sha256": "f22ad4d5ac16d3b560036a20d925ed6966bfdb6f44af438443bd17bb42b698c0"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/lock.json",
+      "bytes": 542,
+      "sha256": "616d4c8340ba5afac32d2818365d8d88ac17f423f3b8b7e9b30392c6c531d48e"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/memory-after.json",
+      "bytes": 354,
+      "sha256": "f1370db003e08598db0393ee82976a5ba090d9dc43291f0fc9e2a95d996893b7"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/memory-before.json",
+      "bytes": 354,
+      "sha256": "fc27e29ba08bf527b67dd063bee34283f4b4090e703d6108c1f7aa7a5c3bca7f"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/result.json",
+      "bytes": 886,
+      "sha256": "ea2262627f5c02465a31519b5791b93c12a8d5ecc2b24ded9c1b9bcdaf50ce0c"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/source-after.json",
+      "bytes": 4031,
+      "sha256": "ba88d3eeb5154cbf8fef76fe974aa0dcc5e3545260d468d223727a64d085c249"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/source-before.json",
+      "bytes": 4031,
+      "sha256": "ffaa23f4f602d6e9a5ec6113a8230db4a3ad2bfe35b7cfdc4886b4f693a78f6b"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/tools-after.json",
+      "bytes": 1005,
+      "sha256": "2cd9f93e447c9453dc204d0e119119dfb684d51a613ad6939c4eceba9fef0802"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/tools-before.json",
+      "bytes": 1005,
+      "sha256": "0cc520b2a87424372704d833534e95a376a3cc64818d7a904954e419800c8999"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/failure/verify.json",
+      "bytes": 1010,
+      "sha256": "468c32035c1d2d6b3efe7418604019211610521c70cf6a30e9f8b6d79cba6041"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/invocation-diff.json",
+      "bytes": 1665,
+      "sha256": "9e529c9d7ec8867d42b0f8e04462dad8e493ce41194494811f72c72af2751c38"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/invocation-manifest.json",
+      "bytes": 1638,
+      "sha256": "08477bd4357f7efe5c681788136d1a2125112841622089216fcaa9a40891d483"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/invoke-concrete-range-finish.mjs",
+      "bytes": 7722,
+      "sha256": "73b0861c8b6530d17f28a4fec67e7b2805fba569f41c04463112f3655fd4c049"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/next-range-result-investigation-conditional.json",
+      "bytes": 9835,
+      "sha256": "a78afe7ea44a2ed23cc532580f1e70ab9df58c5c617937ce30762127ac0099c5"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/next-range-result-spec-review-conditional.json",
+      "bytes": 5876,
+      "sha256": "c70f08b9009dfb9a39a7494981407d7ebacb429578275d384fffef35d47326a0"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/readiness.json",
+      "bytes": 1766,
+      "sha256": "b63ab0aabe21610959255e5fbd13723bacf3a98ee52749299ff3d838071dc3b5"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/evidence/source-code-review-custody.json",
+      "bytes": 627,
+      "sha256": "7db0d8c4cf10fa6df6d0ac9905717f8011efe644ac78eee31eb23a49f1cb095f"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/failure-custody.json",
+      "bytes": 12500,
+      "sha256": "414d0810c2519305b9412e001a97c2fa7b7214892c64588cc695fcd037e9433d"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/results.json",
+      "bytes": 4100,
+      "sha256": "a12a5e098932217db3e99549b07163bab184e3164f60e95db9ce5c7e66e98ca5"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/source-bindings.json",
+      "bytes": 16333,
+      "sha256": "b278014fee32fe23f4a0f00ee14a6d81cc6234264a33d25536cf318633af0164"
+    },
+    {
+      "path": "tests/fixtures/object-concrete-range-finish/source-custody.json",
+      "bytes": 4610,
+      "sha256": "cea72c33f2e2228cc1e2c2c487fff5e39f578116835d6efdac108bb63d9c1379"
+    }
+  ],
+  "checks": {
+    "portableInputMappings": 30,
+    "currentPreservedSourcePins": 17,
+    "originalSnapshots": 17,
+    "custodyCopies": 40,
+    "planAliases": 17,
+    "gzipAuthorityAliases": 2,
+    "actualSelectedModules": 9,
+    "suppliedSourceFiles": 11,
+    "artifactCount": 0,
+    "nativeRerun": false
+  },
+  "budget": {
+    "payloadAllocatedBytes": 466944,
+    "conservativeIncludingManifestBytes": 499712,
+    "limitBytes": 1048576,
+    "hostAvailableBytes": "33143648256"
+  },
+  "excluded": "Manifest itself, all ten preexisting drafts and unrelated work. No binaries or full artifact because no artifact exists. Mutable README is delivery-pinned here, excluded from source custody."
+}

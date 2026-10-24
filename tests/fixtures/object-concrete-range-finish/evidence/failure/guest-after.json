@@ -1,0 +1,15 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "df",
+    "-Pk",
+    "/tmp"
+  ],
+  "started": "2026-10-24T01:52:21.849Z",
+  "ended": "2026-10-24T01:52:22.110Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "Filesystem     1024-blocks     Used Available Capacity Mounted on\noverlay           82249372 25483364  52974936      33% /\n",
+  "stderr": ""
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-source-invocation-code-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_READY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T01:44:35.388Z",
+  "findings": [],
+  "pins": {
+    "manifest": {
+      "bytes": 2739,
+      "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+    },
+    "invocationManifest": {
+      "bytes": 1638,
+      "sha256": "08477bd4357f7efe5c681788136d1a2125112841622089216fcaa9a40891d483"
+    },
+    "runner": {
+      "bytes": 7722,
+      "sha256": "73b0861c8b6530d17f28a4fec67e7b2805fba569f41c04463112f3655fd4c049"
+    },
+    "positiveSource": {
+      "bytes": 29622,
+      "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+    },
+    "negativeSource": {
+      "bytes": 29622,
+      "sha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6"
+    },
+    "config": {
+      "bytes": 689,
+      "sha256": "bbea155abe8bf976df157e6d69f155fece31ac88c273b4a03b825bf51a3fd0b1"
+    },
+    "proposal": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae",
+    "spec": "704495a76355899efc1b9a5ad57f70d7ae7081088f4660d103b7bc485a1420a9"
+  },
+  "checks": {
+    "frozenBytes": "All six source payloads, six source dependencies, invocation payloads and predecessor script independently rehashed.",
+    "inputs": "Both exact15-input phase maps rehashed; destinations unique. Ten runtime sources, one theorem source, three workspace metadata files and config. Genuine development lock is future compiler output, not fabricated here.",
+    "source": "Both semantic JSON encodings canonical; lexlean/semantic-module/2; one parameter-free theorem objOriginalConcreteRangeFinish, empty axioms and direct Reflexivity.",
+    "positiveCanonicalStatement": "e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4",
+    "negativeCanonicalStatement": "9cbc34fbf69ba2c9b3d576c8de9ec5d49656ac32ce31dd5e88d65d6c10cd5d51",
+    "actualCall": "LHS deep-equals accepted connected-range declaration0.statement.right, preserving all four actual ObjRangeFinish arguments, qualified production function and unchanged S184/manifest/range/limits.",
+    "completeResult": "Result.ok ObjRangeVerified includes exact state.output96 bytes, actual original32-byte ObjVersion, exact range with manifest-length projection, empty remainder and stats visits4/distinct4/visitedRecordBytes184. Original output bytes are (7*i+3)%256 for i0..95; they are copied exactly from accepted state, not substituted.",
+    "negative": "Deep comparison of entire semantic modules after reverting sole expected stats.visitedRecordBytes185→184 equals positive exactly. Input state.wireBytes remains184, proofs/axioms/imports/output/version/range unchanged.",
+    "production": "Read actual ObjRangeFinish, ObjReadRemainder and ObjWalkStatistics definitions. Output-length guard, typed error branches, real ObjManifestVersion call, range/remainder calculations and counts remain active. No trusted equality, imported rewrite or runtime/hash replacement.",
+    "config": "Exact predecessor config except entrypoint ObjectManifestVersion→ObjectConcreteRangeFinish;300000ms child limit unchanged.",
+    "reachability": {
+      "suppliedSources": 11,
+      "expectedReachable": 9,
+      "modules": [
+        "ObjectConcreteRangeFinish",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ],
+      "unselected": [
+        "R4.Object",
+        "R4.ObjectStore"
+      ],
+      "boundary": "Independently traversed source import graph; actual compiler admission NOT_RUN."
+    },
+    "invocation": "Reproduced all seven literal substitutions against exact reviewed predecessor and compared complete script bytes. Both explicit single-phase selectors verify the full theorem; exclusive fresh stages/output directories; no automatic phase loop. Source hashes before/after, genuine lock capture/drift check, exact tool/epoch guards, idle/zero-memory checks, host20GiB launch10GiB post reserve and guest11GiB pre10GiB post retained. All postcapture phases independently attempted; launcher0 never establishes proof success.",
+    "preservation": "Ten remaining drafts, six integrated canonical sources, full Read33 and all17 original snapshots independently rehashed unchanged."
+  },
+  "sequence": [
+    "Parent fresh resource/source/idle/epoch gates, then one intended-negative official run.",
+    "Independent review must distinguish actual expected-stat proof mismatch from admission/timeouts/OOM/instrument failure.",
+    "Only after accepted negative and refreshed gates may parent launch positive. Positive requires actual full-result artifact/kernel/axiom/source/lock/resource audit."
+  ],
+  "limitations": [
+    "Source readiness only; no SDK invocation, native admission, intended rejection or positive proof accepted by this report.",
+    "Accepted prior manifest-version proof is a prerequisite; direct Reflexivity still recomputes production version and does not assume cached reuse or transfer its cost.",
+    "No concrete admitted-range composition, outer whole-read admission, whole96-byte digest/hash, ordinal26, full Read33/Object/Hash/PrismPM/Pages acceptance.",
+    "No equivalent limit retry or silent proof strategy change authorized."
+  ],
+  "reviewInstrumentation": "An exploratory assertion incorrectly assumed output0..95 and failed before any writes. Exact original source comparison was already equal; corrected independent extraction confirmed the actual96-byte(7*i+3)%256 pattern. This was reviewer expectation error, not a source defect or native result.",
+  "storage": {
+    "hostAvailableBytes": 31901343744,
+    "reportLimitBytes": 12288
+  },
+  "mutations": "Only this small external report; no native/SDK/VM/repository/index/frozen packet changes."
+}

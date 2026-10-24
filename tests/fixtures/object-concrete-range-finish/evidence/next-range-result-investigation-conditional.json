@@ -1,0 +1,129 @@
+{
+  "schema": "lexlean-r4-successful-admitted-range-investigation/v1",
+  "status": "SOURCE_ONLY_CONDITIONAL_NOT_RUN",
+  "prerequisite": {
+    "finishSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+    },
+    "finishCandidateManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/manifest.json",
+      "bytes": 2739,
+      "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+    },
+    "finishSourceCodeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/candidate-invocation-code-review.json",
+      "bytes": 5976,
+      "sha256": "ea73d93b43bd6644a133d9c003c47d75071faf47fb004c31303d71544604217b"
+    },
+    "actualFinishResult": null,
+    "independentFinishNativeReview": null,
+    "boundary": "Parent-owned finish run pending; no active output inspected. No finish success or next candidate authority inferred."
+  },
+  "acceptedConnectedRange": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    "positiveReview": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    },
+    "text": "Actual original ObjRangeAdmitted call equals actual ObjRangeFinish(S184, original manifest/range/limits). This theorem alone does not give a concrete Result.ok."
+  },
+  "exactProposedGoal": {
+    "text": "ObjRangeAdmitted(originalBackend, originalManifest96, originalWholeRange, originalLimits) = Result.ok complete original ObjRangeVerified",
+    "positiveStatementSha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d",
+    "negativeStatementSha256": "bd892b0af87a9eb32307def62ed3c5c01947336cf3df6e3019f156300fad4bfe",
+    "leftSha256": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "rightSha256": "7f0a72014dde20c0f0da31abef1529445760457527de299285924fcd738b06d8",
+    "middleIdentity": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+    "exactExtraction": "Positive left is connected-range source declarations[0].statement.left unchanged; right is finish candidate declarations[0].statement.right unchanged. Connected-range RHS and finish LHS are exactly canonical-AST-identical.",
+    "preserved": "Original four-entry backend, manifest including digest/roots/length, range with manifest.length projection and limits. Expected entire record includes96bytes/version/range/emptyremainder/stats4/4/184.",
+    "negative": "Only expected stats.visitedRecordBytes184→185; actual arguments/state and all other expected fields unchanged. Exact target is full actual admitted-range Result, not a helper or bytes projection."
+  },
+  "supportedOptions": {
+    "minimalDirectApply": {
+      "proof": {
+        "kind": "apply",
+        "theorem": {
+          "module": "ObjectConcreteRangeFinish",
+          "name": "objOriginalConcreteRangeFinish"
+        },
+        "type_arguments": [],
+        "arguments": []
+      },
+      "supportedEvidence": "SemanticProof.Apply is admitted as exact application of a prior document theorem; backend emits exact imported theorem. This is the same supported constructor used in accepted concrete parent/child/root consumers.",
+      "mechanism": "Lean must establish definitional conversion between the actual ObjRangeAdmitted LHS and the concrete finish certificate LHS. This retains all original range guards/planning/visitor computations. It does not syntactically rewrite with the accepted connected-range equality, avoid computation or trust an intermediate digest.",
+      "uncertainty": "May unfold and recompute the actual original walk/hash path during conversion. Previous successful wrappers and finish timing do not bound cost. Conversion can fail or exhaust resources. Only actual fullconsumer proof establishes this connection.",
+      "futureMinimalClosure": "One new logical consumer module/two variants, importing ObjectConcreteRangeFinish plus actual runtime references. With full unchanged10-runtime closure, positive finish certificate and consumer, predicted16inputs/12suppliedsourcefiles. Recompute exact import reachability/config/census before any candidate freeze; do not copy unverified counts into native outcome."
+    },
+    "explicitTwoEqualityComposition": {
+      "mathematics": "From A=B and B=C infer A=C; middle AST identity is checked above.",
+      "grammarFinding": "The inspected SemanticProof enum includes Reflexivity, Decide, LinearArithmetic, Simplify, Constructor, Cases, TermCases, Induction, Congruence, BooleanReflection, Law and Apply. It does not contain standalone Eq.trans or Rewrite proof constructors. Apply may refer to a prior checked document theorem; an arbitrary Lean Eq.trans name is not thereby an admitted document theorem.",
+      "constraint": "No complete empty-axiom two-premise transitivity construction under the document schema was established in this bounded review. Do not invent a proof constructor, inject tactics or claim the accepted equalities are already composed. A source-backed separately reviewed supported generic lemma would be needed before choosing this route.",
+      "simplifyBoundary": "Simplify is syntactically supported, but earlier retained Result simplification probes exposed propext; support alone is not empty-axiom acceptance. No Simplify fallback proposed here."
+    }
+  },
+  "recommendation": "After actual finish acceptance and independent SPEC, the smallest falsifiable next product step is one exact admitted-range consumer using the supported direct Apply to the full finish certificate, paired with expected wire185. Treat it as a new full-goal conversion experiment with unknown cost, not certificate rewriting. If review identifies a supported no-recomputation composition within existing schema, revise the design explicitly before authoring; never silently switch after a resource failure.",
+  "priorTimeoutBoundary": {
+    "original": "Canonical Read33 and isolated original ordinal26 ObjWholeRead proof exceeded300000ms; failures remain preserved.",
+    "distinction": "This proposed consumer stops at complete admitted-range Result, before outer whole-read admission/wrapping and separate actual96-byte hash/digest comparison. It uses a different exact statement and Apply proof, so it is not an unchanged retry of ordinal26. Nevertheless its conversion may recompute overlapping expensive subterms; no improvement is asserted.",
+    "onFailure": "Preserve source/receipt/artifact/resource evidence. Admission failure/timeout/OOM is not intended semantic negative. No automatic equivalent retry, resource increase or helper-only acceptance."
+  },
+  "sourcePins": [
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/semantic.rs",
+      "bytes": 384753,
+      "sha256": "5769e3844c10b7acb68213aae9523f35b62f8e793e2d4dd4dde3b8f41b3035c2"
+    },
+    {
+      "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/backend/semantic.rs",
+      "bytes": 138766,
+      "sha256": "e1ff433331315eb1f21bd5323af6b1b1dce416f86bcb4bc04c345cc66544db43"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    }
+  ],
+  "grammarLocations": {
+    "proofEnum": "ir/semantic.rs689–757",
+    "applyBackend": "backend/semantic.rs1371–1387",
+    "casesInductionCongruence": "backend/semantic.rs1244–1292"
+  },
+  "testPlan": [
+    {
+      "phase": "range-result-false",
+      "status": "NOT_RUN",
+      "expected": "Actual source check then intended full-Result Apply mismatch for only expected wire185."
+    },
+    {
+      "phase": "range-result-positive",
+      "status": "NOT_RUN",
+      "expected": "After accepted intended negative and fresh gates, mandatory actual admitted-range consumer verify0 with independently audited exact source, artifacts, empty axioms and kernel replay. Helper-only pass is insufficient."
+    }
+  ],
+  "remaining": [
+    "Actual outer ObjWholeRead manifest/backend admission and WholeAdmitted wrapping.",
+    "Actual hash of96returned bytes and comparison against original whole digest; not manifest-version hash.",
+    "Original ordinal26 projected-bytes statement and all33 controls remain required.",
+    "Ten remaining drafts, canonical Hash qualification, complete modeled PrismPM integration and Pages remain open."
+  ],
+  "resources": "Preserve exact compiler/source/runtime, empty axioms,300000ms child,4GiB2CPU and all epoch/tool/storage/idle/zeroevent/source/lock guards. No native work by this author.",
+  "storage": {
+    "hostAvailableBytes": "30475780096",
+    "reportLimitBytes": 16384,
+    "reserveBytes": 10737418240
+  },
+  "actions": "Read-only sources/grammar and one external JSON only. No active output, candidate, repository, VM/native or other-lab changes."
+}

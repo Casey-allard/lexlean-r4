@@ -1,0 +1,53 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/manifest.json",
+    "bytes": 2739,
+    "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+  },
+  "files": [
+    {
+      "path": "invoke-concrete-range-finish.mjs",
+      "bytes": 7722,
+      "sha256": "73b0861c8b6530d17f28a4fec67e7b2805fba569f41c04463112f3655fd4c049"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 1665,
+      "sha256": "9e529c9d7ec8867d42b0f8e04462dad8e493ce41194494811f72c72af2751c38"
+    }
+  ],
+  "phaseSelectors": [
+    "finish-false",
+    "finish-positive"
+  ],
+  "commands": [
+    "node invoke-concrete-range-finish.mjs finish-false",
+    "Only after accepted intended negative and fresh parent gates: node invoke-concrete-range-finish.mjs finish-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+  "inputCounts": [
+    15,
+    15
+  ],
+  "suppliedSourceFiles": 11,
+  "expectedReachableModules": 9,
+  "selectedModules": [
+    "ObjectConcreteRangeFinish",
+    "R4.Hash",
+    "R4.HashNat",
+    "R4.HashNatCore",
+    "R4.HashWire",
+    "R4.ObjectCodec",
+    "R4.ObjectRead",
+    "R4.ObjectTypes",
+    "R4.Words"
+  ],
+  "suppliedButUnselected": [
+    "R4.Object",
+    "R4.ObjectStore"
+  ],
+  "stagePattern": "/tmp/r4-object-concrete-range-finish-${phase}-owned-20261023",
+  "boundary": "No invocation executed; actual module admission and complete Result proof NOT_RUN."
+}

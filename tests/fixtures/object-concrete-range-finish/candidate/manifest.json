@@ -1,0 +1,68 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "69d250b9e545b66343f01151ea0687019d00572f45c988990e8c7b8276fda4a6"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 689,
+      "sha256": "bbea155abe8bf976df157e6d69f155fece31ac88c273b4a03b825bf51a3fd0b1"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 12680,
+      "sha256": "aa6a17913a0866d22ef6c1cef89cf333445977cd00be35939224d408c8c63648"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 6619,
+      "sha256": "bc19f75a9429bce2b452aa90a2dcc3bc1be842838aa551eec8a21fcbc5e986ae"
+    },
+    {
+      "path": "README.md",
+      "bytes": 615,
+      "sha256": "655ea1ca6869ce55f05addae0923b97d4fe149949550dfcc2aec03216346ebbc"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-concrete-finish-proposal.json",
+      "bytes": 10218,
+      "sha256": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-concrete-finish-spec-review.json",
+      "bytes": 7095,
+      "sha256": "704495a76355899efc1b9a5ad57f70d7ae7081088f4660d103b7bc485a1420a9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/concrete-finish-plan-bindings.json",
+      "bytes": 4990,
+      "sha256": "02c3839e4578764276c3b4595a4cef40970e185f552659fa2420ad4d424c703b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+      "bytes": 7429,
+      "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    }
+  ]
+}

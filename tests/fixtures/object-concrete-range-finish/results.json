@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-results/v1",
+  "status": "FAILED_TARGET_TIMEOUT_INTENDED_NEGATIVE_NOT_ESTABLISHED_POSITIVE_NOT_RUN",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 2739,
+    "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 16333,
+    "sha256": "b278014fee32fe23f4a0f00ee14a6d81cc6234264a33d25536cf318633af0164"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 5976,
+      "sha256": "ea73d93b43bd6644a133d9c003c47d75071faf47fb004c31303d71544604217b"
+    },
+    "failure": {
+      "path": "evidence/failure/failure-native-review.json",
+      "bytes": 11070,
+      "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+    }
+  },
+  "actualOutcome": {
+    "launcherExitReportedByParent": 0,
+    "checkExit": 0,
+    "suppliedSourceModules": 11,
+    "selectedAdmittedModules": 9,
+    "sourceId": "7b72e4e5dde5eb1676acbae69b4e7be4aa80bf96e36137c50f720a804bb191fb",
+    "semanticId": "ed161e55a6fff2541a16b89fad61236f08b1f52a9f962a124b74956b5366e3a4",
+    "verifyExit": 4,
+    "success": false,
+    "diagnostic": "LLS8002",
+    "target": "LexLeanR4.ObjectConcreteRangeFinish",
+    "configuredChildTimeoutMs": 300000,
+    "observedChildMs": 300013,
+    "verifyStarted": "2026-10-24T01:45:05.807Z",
+    "verifyEnded": "2026-10-24T01:52:11.169Z",
+    "aggregateVerifyElapsedMs": 425362,
+    "artifacts": [],
+    "postcaptureErrors": [],
+    "intendedWrongStatsNegative": "NOT_ESTABLISHED",
+    "positive": "NOT_RUN"
+  },
+  "resources": {
+    "hostBeforeBytes": "31649992704",
+    "hostAfterBytes": "31840215040",
+    "guestBeforeKiB": "52978612",
+    "guestAfterKiB": "52974936",
+    "reviewTimeHostAvailableBytes": 31266394112
+  },
+  "failureCustody": {
+    "path": "failure-custody.json",
+    "bytes": 12500,
+    "sha256": "414d0810c2519305b9412e001a97c2fa7b7214892c64588cc695fcd037e9433d"
+  },
+  "genuineDevelopmentLock": {
+    "path": "evidence/failure/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "43d9abe23a551f875ca9bcc9be0810bb292913f4d4ede17aee1bf25a956c2b59"
+  },
+  "emittedUnacceptedTheorem": {
+    "path": "evidence/failure/emitted-ObjectConcreteRangeFinish.lean",
+    "bytes": 6044,
+    "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+  },
+  "investigation": {
+    "path": "evidence/concrete-finish-timeout-investigation.json",
+    "bytes": 14866,
+    "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+  },
+  "limitations": [
+    "No intended semantic negative or concrete-finish positive established. Source admission9modules and operational postconditions are not theorem acceptance.",
+    "Timeout localizes to target Lean module; no subexpression profiler identifies a measured hashing or normalization bottleneck.",
+    "Original wholeRead33, successful admitted-range composition, whole-data hash/digest comparison and full integration remain open."
+  ],
+  "history": "Frozen candidate/source readiness records retain their preparation-time NOT_RUN status. Earlier next admitted-range investigation remains conditional with null finish acceptance. Proposed context transport is separate source design, not a repaired or accepted candidate.",
+  "successorDesign": {
+    "proposal": {
+      "path": "docs/continuation/2026-10-23/next-contextual-finish-proposal.json",
+      "bytes": 14866,
+      "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+    },
+    "spec": {
+      "path": "docs/continuation/2026-10-23/next-contextual-finish-spec-review.json",
+      "bytes": 6705,
+      "sha256": "88eeb4ae9eb16353d0741319bf32ea382ac8db573805feff192c40d917b10d81"
+    },
+    "bindings": {
+      "path": "docs/continuation/2026-10-23/contextual-finish-plan-bindings.json",
+      "bytes": 10166,
+      "sha256": "592f2d2f9393219c5b637b0a0a4bfa91cf0b65309a7848a9d9b9980dd10e82ed"
+    },
+    "status": "DESIGN_SPEC_PASS_ONLY_SUCCESSOR_CANDIDATE_NATIVE_NOT_RUN"
+  }
+}

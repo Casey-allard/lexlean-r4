@@ -1,0 +1,40 @@
+{
+  "schema": "lexlean-r4-concrete-range-finish-readiness/v1",
+  "status": "SOURCE_ONLY_READY_FOR_INDEPENDENT_CODE_NATIVE_NOT_RUN",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/manifest.json",
+    "bytes": 2739,
+    "sha256": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550"
+  },
+  "invocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/invocation-manifest.json",
+    "bytes": 1638,
+    "sha256": "08477bd4357f7efe5c681788136d1a2125112841622089216fcaa9a40891d483"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/invoke-concrete-range-finish.mjs",
+    "bytes": 7722,
+    "sha256": "73b0861c8b6530d17f28a4fec67e7b2805fba569f41c04463112f3655fd4c049"
+  },
+  "parseOnly": {
+    "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/invoke-concrete-range-finish.mjs",
+    "exitCode": 0,
+    "runnerExecuted": false
+  },
+  "checks": {
+    "inputMappingsRehashed": 30,
+    "currentPreservedSources": 17,
+    "originalSnapshots": 17,
+    "expectedReachableModules": 9,
+    "suppliedSourceFiles": 11,
+    "allImportReferencesResolved": true,
+    "canonicalJSONAndExactPositiveNegativeASTs": true
+  },
+  "preparationFailures": [],
+  "storage": {
+    "hostAvailableBytes": "33492795392",
+    "reserveBytes": 10737418240,
+    "aggregateLimitBytes": 1048576
+  },
+  "boundary": "Predicted reachability is separate from actual source admission. Full production finish proof and intended wire185 rejection NOT_RUN; no native or production lock created."
+}

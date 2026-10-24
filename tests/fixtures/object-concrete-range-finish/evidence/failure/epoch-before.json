@@ -1,0 +1,14 @@
+{
+  "args": [
+    "inspect",
+    "--format",
+    "{{.State.StartedAt}} {{.RestartCount}} {{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.HostConfig.NetworkMode}} {{json .Mounts}}",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+  ],
+  "started": "2026-10-24T01:44:48.946Z",
+  "ended": "2026-10-24T01:44:49.382Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []\n",
+  "stderr": ""
+}

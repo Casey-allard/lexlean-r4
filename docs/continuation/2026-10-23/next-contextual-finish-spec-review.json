@@ -1,0 +1,65 @@
+{
+  "schema": "lexlean-r4-concrete-finish-decomposition-spec-review/v1",
+  "status": "PASS_BOUNDED_CONTEXTUAL_DECOMPOSITION_DESIGN_ONLY",
+  "reviewer": "/root/orchestration_design_review",
+  "investigation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/concrete-finish-timeout-investigation.json",
+    "bytes": 14866,
+    "sha256": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c"
+  },
+  "failure": {
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/failure-native-review.json",
+      "bytes": 11070,
+      "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+    },
+    "emission": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-concrete-range-finish/emitted-ObjectConcreteRangeFinish.lean",
+      "bytes": 6044,
+      "sha256": "18ea39aba610d3c0d1c823cbe99651aabc81f6f13ac897a7d20ed9bd7feae6be"
+    },
+    "observed": "Actual verify4 LLS8002 target Lean child300013ms against300000ms; aggregate425362ms, no artifact. Emitted wrong-wire185 theorem ends by rfl. Intended negative NOT_ESTABLISHED, positive NOT_RUN. This closes the direct-rfl configuration, not the truth of the positive theorem."
+  },
+  "findings": [],
+  "checks": [
+    {
+      "name": "Evidence and source pins",
+      "result": "PASS",
+      "details": "Rehashed17 path/byte/SHA256 occurrences, including frozen direct-rfl variants, actual failure receipts/emission/capture/review, production source, prior checked context/transport, accepted version certificate/review and official grammar/emitter. Read actual timeout diagnostic and emitted rfl. No new native execution or mutable active outputs."
+    },
+    {
+      "name": "Exact one-hole reconstruction",
+      "result": "PASS_SOURCE",
+      "details": "Independently instantiated actual ObjRangeFinish.body with the four exact positive-call arguments, verifying all argument hashes and instantiated body a45e4f4147bae1c8b7afa29b89a2523299a2e7d8d95e4761395fe23418157ff1. Actual then_value.scrutinee is structurally identical to accepted version theorem LHS, SHAa6e4c2d2856335da7a6000cd1c9d6332b4e4558d1bf5d8835ae2b2a561cec9c7. Replaced this one occurrence by versionResult and applied exactly the two listed external function qualifications. Context hash5875de5cd19d3bf63bd05a048c5dc9698b3d7fe0b1d5906222c7126db42ba71d matches. Substituting the original call back and undoing only those qualifications reconstructs the original instantiated AST exactly."
+    },
+    {
+      "name": "Real guards, errors and output type",
+      "result": "PASS_DESIGN",
+      "details": "H retains the actual length comparison and integrityFailure, version Result.error propagation and complete success record with actual ObjReadRemainder/ObjWalkStatistics calls. H parameter is Result ObjVersion ObjError; output is Result ObjRangeVerified ObjError. Source data/digest/range/limits and full state remain unchanged. Expected version enters the context only through an equality supplied by the independently accepted genuine version theorem, not a trusted hash substitution into runtime."
+    },
+    {
+      "name": "Supported proof mechanism",
+      "result": "PASS_DESIGN",
+      "details": "Prior accepted transport proof hash9d4624db19bba018ab2f84b1cc8f3151e4faffb14b3cf80fd6ed4de014b7a148 matches actual Induction count, zero Apply, successor Cases prior and Congruence in both branches. New zero applies real objOriginalManifestVersion. At prior0 the induction hypothesis supplies the version equality through H; successor case has the contextual equality. Semantic constructors are supported; within-module references must remain name-only and cross-module theorem references qualified. No Rewrite/Eq.trans/raw tactics/Simplify introduced."
+    },
+    {
+      "name": "Mandatory unchanged actual consumer and negative",
+      "result": "PASS_DESIGN",
+      "details": "Positive full statement e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4 and negative9cbc34fbf69ba2c9b3d576c8de9ec5d49656ac32ce31dd5e88d65d6c10cd5d51 match frozen source exactly. Consumer must Apply lifted proof at Nat1 and establish full concrete Result by real definitional conversion, not merely accept a helper. Shared positive context/transport/version theorem remain identical across phases. Only consumer expected stats.visitedRecordBytes184→185 changes; actual state wire184 stays fixed. Import/transport failures, timeout or OOM do not meet intended-negative acceptance."
+    },
+    {
+      "name": "Diagnosis, scope and uncertainty",
+      "result": "PASS_WITH_LIMITS",
+      "details": "Retained evidence distinguishes source admission from target-module timeout. No measured subexpression hotspot exists; hash-only causation cannot be asserted. New decomposition changes proof representation under identical full goal/data/limits and is not an unchanged-rfl retry. It may still force substantial normalization during congruence/consumer/kernel checks. emptyAxioms:true is a required policy, not an observed new result. No timing improvement, cache effect or new empty-axiom acceptance established."
+    }
+  ],
+  "requiredNextGates": [
+    "Parent may prepare only bounded common context/family, shared positive transport and full-consumer pair after this SPEC. Independent candidate CODE review must rederive exact hole roundtrip, complete statement/negative diff, imports/types and closure/config census.",
+    "Keep original compiler/language/tool/source/lock/runtime/digest identities and300000ms child/4GiB2CPU plus storage/epoch/idle/zero-event/postcapture rules. No failed-rfl retry or increased limits.",
+    "Actual false full consumer must reach intended proof mismatch with accepted dependency chain; independently audit negative before positive. Positive must include actual consumer and independent artifact/kernel/axiom/resource checks.",
+    "Keep failed source/emission/raw receipts immutable and publish them separately from new preparation. Earlier conditional successful-range proposal remains nonexecutable while actual finish acceptance is absent."
+  ],
+  "remaining": "Successful full concrete finish remains unproved. Later admitted-range composition, outer manifest/backend admission, whole96 hash/original digest comparison, ordinal26/all33/remainingdrafts/fullmodel/PrismPM/Pages remain open.",
+  "testStatus": "All new decomposition candidate/native tests NOT_RUN. Source reconstruction and review only.",
+  "mutations": "Only this external report; no repository/index/frozen source/evidence/native/SDK/VM/other-lab changes."
+}
