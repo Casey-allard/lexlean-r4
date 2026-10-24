@@ -1,0 +1,22 @@
+{
+  "schema": "lexlean-r4-whole-postrange-readiness/v1",
+  "status": "SOURCE_CODE_PASS_NATIVE_NOT_RUN",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/manifest.json",
+    "bytes": 2084,
+    "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/candidate-code-review.json",
+    "bytes": 7094,
+    "sha256": "7733b51b8fbb10edaf97b954c411b95a8e156afac0bff83c2b02790f7e09baf7"
+  },
+  "inputsPerPhase": 21,
+  "suppliedSourceModules": 17,
+  "staticallyReachableModules": 14,
+  "actualCheck": null,
+  "actualNegative": null,
+  "actualPositive": null,
+  "scope": "Complete actual production post-range continuation Result only. Full outer ObjWholeRead and Read33 remain open.",
+  "nativeBoundary": "Separate invocation review and fresh operational gates required."
+}

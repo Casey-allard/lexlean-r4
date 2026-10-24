@@ -1,0 +1,60 @@
+{
+  "schema": "lexlean-r4-next-whole-result-spec-review/v1",
+  "status": "PASS_BOUNDED_SOURCE_DESIGN_ONLY_NEW_TESTS_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T03:43:18.877Z",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/next-whole-result-investigation.json",
+    "bytes": 13472,
+    "sha256": "5efce5bf0518b91b6010631c11adf4ee903ccab62c17ee24c23a491d482ab25f"
+  },
+  "prerequisite": {
+    "attestationId": "821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f",
+    "nativeReviewSha256": "3591fd26419d7b484ceda45c3b37017c55c4f0041af85d8ba24266bad58c6771",
+    "scope": "Accepted exact projected ObjHashBytes fullResult only; actual result/source/review bytes independently rehashed. Prior native audit authored by this reviewer; proposal authored by design reviewer."
+  },
+  "checks": {
+    "pinnedFiles": 12,
+    "canonicalAstPins": 10,
+    "astHashes": [
+      "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+      "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+      "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+      "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "4f00f85ed5e8c9cbf5cd205ecad63f22a6672f698194f51eeca39be830263a89",
+      "09da57dc7e5b6459e2baa55e82ceb5156e60dbb37b0554f736368f9dbc690ad1",
+      "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+      "e87027e4861787ae645bfacb6d0eeb2e60b42667f08fa83c1c2936bd5a5b01be",
+      "f220adff00936825a062d4064c76dfb6b604784a35e2c55db78847acdbdea693"
+    ],
+    "productionRoundtrip": "Reconstructed full ObjWholeAdmitted Result.ok range branch using exactly original ordinal26 manifest and accepted complete range record. Canonical AST equals entire failed consumer RHS C. Range record equals C.scrutinee argument projection.",
+    "singleHole": "C.scrutinee equals accepted hash theorem.left exactly. J replaces only that scrutinee with hashResult; restoring it recovers C. Result branches locally bind digest/failure.",
+    "errors": "Full hash-error propagation, real ObjBytesEqual(digest.bytes,originalManifest.digest.bytes), integrityFailure false branch and bytes/version/stats success projections remain unchanged. No constant-true comparison, host hash or trusted intermediate.",
+    "result": "Constructed full Result.ok ObjWholeVerified with explicit ObjWholeVerified/ObjError types and exact original bytes/version/stats fields. All expected and statement hashes match. Negative changes only expected visitedRecordBytes184→185; entire left computation remains byte-identical.",
+    "proof": "Directly inspected accepted pattern AST: induction zero apply, successor cases prior with congruence in both branches. Proposed P0 is actual accepted hash equality; successor uses J on both sides. Mandatory C=expected consumer Apply1 must actually elaborate/replay, including real32-byte comparison and projections. Helper success alone is insufficient.",
+    "types": "J domain Result ObjWholeDigest ObjError; codomain Result ObjWholeVerified ObjError agrees with actual hash and production branch. No unsupported Result-case proof, raw tactic, rewriting or axiom proposed."
+  },
+  "conditions": [
+    "Only three logical modules and two consumer variants are planned. Written source/import/canonical JSON review and reviewed invocation required before native execution.",
+    "Actual intended full-consumer negative first; source rejection, transport-only rejection, timeout or OOM does not qualify. Then verify actual positive consumer, empty axioms and full artifact custody.",
+    "All new tests/conversions remain NOT_RUN. Static review is not proof/native acceptance.",
+    "Retain300000ms child/4GiB/2CPU, exact tools/source/lock and fresh epoch/zero-events/idle/storage gates.",
+    "No equivalent failed whole-read retry, automatic admission/key-validation batches, generic framework or unreviewed limit increase."
+  ],
+  "limitations": [
+    "Original failed ObjWholeRead bridge remains open. Completing C would not itself prove outer admission/key validity or connect accepted range result to whole-admitted/outer-whole.",
+    "No exact bottleneck localization, avoided recomputation, caching or efficiency conclusion follows from failure timing and separate hash success.",
+    "Original whole result, ordinal26 bytes/allRead33, unfinished drafts, canonical Hash/fullObject, fully modeled PrismPM and Pages remain required."
+  ],
+  "reviewerDiagnostics": [
+    "Initial read-only reconstruction used structuredClone on a locally shared AST graph, retaining aliasing between expected stats and left record and producing spurious negative hash mismatch. No files written. JSON round-trip produces independent JSON nodes; sole-right mutation matches proposed f220adff hash and preserves left AST.",
+    "A subsequent reviewer assertion searched uppercase Induction in actual lowercase schema. All10 canonical AST checks had passed before this assertion. Direct AST inspection confirms kind induction/apply/cases/congruence. Both were reviewer instrumentation errors, not proposal/native defects."
+  ],
+  "findings": [],
+  "storage": {
+    "freshHostAvailableBytes": "26879041536",
+    "maximumNewReportBytes": 6144
+  },
+  "execution": "Read-only source/evidence reconstruction; only this new external report. No candidate/native/SDK/VM/repository/index changes."
+}

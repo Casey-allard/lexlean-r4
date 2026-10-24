@@ -1,0 +1,130 @@
+{
+  "schema": "lexlean-r4-next-whole-result-source-investigation/v1",
+  "status": "SOURCE_INVESTIGATION_ACTUAL_HASH_BOUND_NEXT_TESTS_NOT_RUN_REQUIRES_INDEPENDENT_SPEC",
+  "author": "/root/orchestration_design_review",
+  "prerequisite": {
+    "acceptedDigestSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/positive/tests/lexlean/ObjectWholeDigest.lex.tex",
+      "bytes": 14941,
+      "sha256": "5f431772e03c4d883468b414a8dd6dc7d7dd30797e0704cbf8cee9c0ff976f04"
+    },
+    "sourceManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+      "bytes": 2080,
+      "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+    },
+    "sourceCodeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate-code-review.json",
+      "bytes": 5984,
+      "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+    },
+    "actualDigestNativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/positive-native-review.json",
+      "bytes": 14213,
+      "sha256": "3591fd26419d7b484ceda45c3b37017c55c4f0041af85d8ba24266bad58c6771"
+    },
+    "actualDigestResult": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-positive/result.json",
+      "bytes": 1045,
+      "sha256": "64e19666306e089bbf2e608106e38b1f762a6381b8fbb78dfebe7f8018cd7867"
+    },
+    "attestationId": "821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f",
+    "acceptanceScope": "Actual original projected ObjHashBytes full Result only, independently audited115files/55outputs/11oleans/744empty-axiom declarations/34successfulprocesses/11kernelreplays. Aggregate113189ms is not a cost bound for a future proof.",
+    "bindingHistory": "Investigation began with independent audit pending. Before this first/final report was written, exact frozen audit3591fd26419d7b484ceda45c3b37017c55c4f0041af85d8ba24266bad58c6771 was read and actual accepted scope bound. No earlier conditional report is being overwritten."
+  },
+  "phase1": {
+    "failedConsumerSource": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/common/tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "bytes": 72531,
+      "sha256": "06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e"
+    },
+    "failureAudit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/failure-native-review.json",
+      "bytes": 14520,
+      "sha256": "ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd"
+    },
+    "failedStatementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "actualFailure": "Original whole-read-to-hash-continuation consumer timed out at300004ms against300000ms; aggregate400487ms, no artifact, postmemory max450159,oom0,oom_kill0. The context/transport source exists but full consumer is unaccepted. This does not identify a costly subterm or semantic falsity.",
+    "emissionSearch": "No .lean or emitted/capture artifact file was found by bounded filename inventory of this failed phase external directory and its committed fixture. Did not enter VM, fetch stage emission or infer generated-code timing. Therefore current explanation is source-level decomposition, not a traced kernel bottleneck.",
+    "observedNewSuccess": "The separate genuine projected ObjHashBytes consumer now verifies. This proves that exact hash equality; it does not retroactively prove the failed whole conversion or show a performance cause."
+  },
+  "choice": {
+    "next": "One exact genuine post-range hash/digest continuation C = Result.ok complete ObjWholeVerified record, using accepted hash equality through a single Result context.",
+    "whyThisIsDistinct": "C is literally the failed theorem RHS and exactly the production ObjWholeAdmitted success branch after substituting the accepted concrete range record and original manifest. The new mandatory consumer is C itself, with real hash call, digest comparison, integrity error and complete success result. It does not repeat the failed LHS ObjWholeRead conversion or merely prove an unrelated helper.",
+    "scopeBoundary": "This is a complete result for the actual production continuation after the range result. It is not yet the complete original ObjWholeRead result. No old failed equality is used as an accepted premise."
+  },
+  "exactConstruction": {
+    "hashConvention": "SHA-256 of UTF-8 JSON.stringify with recursively sorted object keys; array order retained.",
+    "originalOrdinal26StatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "productionDeclaration": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      "name": "ObjWholeAdmitted",
+      "sha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5"
+    },
+    "originalOuterSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    "originalControlSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "rangeSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-admitted-range-result/candidate/positive/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 35487,
+      "sha256": "60da1faa2fd1edf7459b6d6df2ba23e83c1aabb05d65aea75c91274c22df61dd"
+    },
+    "rangeRecordSha256": "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+    "C": {
+      "extraction": "failedConsumer.declarations[0].statement.right",
+      "sha256": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+      "roundtrip": "Independently reconstruct from ObjectRead.ObjWholeAdmitted.body.branches[Result.ok].body, substitute read with exact range record C.scrutinee.arguments[0].value and manifest with original ordinal26.left.scrutinee.arguments[1]. Reconstructed entire AST equals C byte-for-byte under canonical serialization; no runtime definition changed."
+    },
+    "acceptedHashStatementSha256": "4f00f85ed5e8c9cbf5cd205ecad63f22a6672f698194f51eeca39be830263a89",
+    "singleHole": "C.scrutinee exactly equals accepted ObjectWholeDigest.objOriginalWholeDigest statement.left. Define J(hashResult) by replacing only C.scrutinee with {kind:var,name:hashResult}. Restore that exact scrutinee to recover C.",
+    "JBodySha256": "09da57dc7e5b6459e2baa55e82ceb5156e60dbb37b0554f736368f9dbc690ad1",
+    "JDomain": "Result R4.ObjectTypes.ObjWholeDigest R4.ObjectTypes.ObjError",
+    "JCodomain": "Result R4.ObjectTypes.ObjWholeVerified R4.ObjectTypes.ObjError",
+    "preserved": "Both Result branches; actual hash error propagation; actual ObjBytesEqual(digest.bytes, originalManifest.digest.bytes); integrityFailure on false; original bytes/version/stats projections on true. No replacing the comparison with true, no host hash, no trusted intermediate.",
+    "expected": {
+      "construction": "Result.ok record R4.ObjectTypes.ObjWholeVerified, fields bytes/version/stats in that order copied exactly from named fields of the accepted complete range record. Explicit type_arguments ObjWholeVerified and ObjError. No new hash or version computation authored.",
+      "sha256": "183d032a52fadaed914352a0bd1caa04c0fb8ec1dc4109b935c5735ee61a30c6",
+      "values": "Original96bytes, exact original manifest version, stats visits4/distinctRecords4/visitedRecordBytes184. Whole record has no range/remainder/digest field; those remain inside the actual source computation as appropriate."
+    },
+    "positiveStatementSha256": "e87027e4861787ae645bfacb6d0eeb2e60b42667f08fa83c1c2936bd5a5b01be",
+    "positiveStatement": "{kind:eq,left:C,right:expected}",
+    "negativeStatementSha256": "f220adff00936825a062d4064c76dfb6b604784a35e2c55db78847acdbdea693"
+  },
+  "supportedProof": {
+    "pattern": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+      "bytes": 1110,
+      "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+    },
+    "family": "Prop-valued Nat family P0 = actual accepted hash equality; P(succ n) = J(hash.left)=J(hash.right). Zero/successor equalities have different operand types, as in the already accepted heterogeneous context pattern.",
+    "transport": "Nat Induction zero Apply ObjectWholeDigest.objOriginalWholeDigest, successor Cases prior then Congruence in zero and successor branches. No Result pattern-case proof constructor, Eq.trans, Rewrite, propext, raw tactic or Simplify is introduced.",
+    "mandatoryConsumer": "Actual theorem C=expected uses Apply shared lifted theorem at Nat literal1. The actual kernel must establish exact C/Jleft conversion and reduce J(Result.ok originalDigest), including real32-byte equality and result projections, to expected. Neither source identity nor helper success alone establishes this.",
+    "importsAndScope": "Import exact accepted hash source dependency closure plus production ObjectTypes/Codec definitions required by C. All calls in extracted C are already qualified; candidate CODE review must verify scope, canonical JSON, exact imports and actual closure. New modules are limited to J/Nat family, shared lift, and one logical actual consumer with positive/negative variants."
+  },
+  "controls": {
+    "negative": "Change only expected complete result stats.visitedRecordBytes nat184 to185: statement.right.arguments[0].fields[2].value.fields[2].value.value. Same shared accepted hash lemma, context, transport and Apply1 proof. Do not mutate original backend, range input, manifest digest or runtime.",
+    "expectedObservation": "Actual consumer equality rejection with source admission passing. Timeout, OOM, source rejection or a failure before target consumer is not this intended negative. Positive then requires actual selected consumer/kernel audit and empty observed axioms.",
+    "testStatus": "All new candidate/sourcecheck/negative/positive tests NOT_RUN. This investigation is not independent SPEC acceptance; independent SPEC, written-source CODE, reviewed invocation and fresh operational gates required."
+  },
+  "laterOpenConnection": {
+    "outerWholeRead": "Actual R4.Object.ObjWholeRead first calls ObjAdmitManifest(manifest,limits), propagates its error, then tests ObjRawKeysValid(view,Option.none), returning schemaMismatch on false or ObjWholeAdmitted on true. Preserve all these operations; the current next continuation theorem establishes none of them.",
+    "rangeConnection": "Accepted ObjRangeAdmitted full-result equality still exists, but no implicit rewriting from it or from failed whole-continuation theorem. A subsequent independent proposal must explicitly connect accepted range and completed C to whole-admitted and then outer-whole source.",
+    "possibleSubsequentWork": "If C completes, inspect a separate minimal connection using explicit Result context around actual range output, and separate exact manifest-admission/key-validation statements only if needed by a falsifiable actual outer consumer. A Nat family can express heterogeneous equalities and supported transport; concrete conversion may still reevaluate range/hash. Symbolic parameters can avoid literals during some proof elaboration but no success is assumed. No generic framework or automatic expansion authorized.",
+    "notNextNow": "Do not rerun original failed whole consumer unchanged, increase limits, assert a bottleneck or present a sibling wrapper/host result as original whole success. Do not add admission/key-validation batches before this exact C pair is accepted and reviewed.",
+    "remaining": "Complete original ObjWholeRead result, original ordinal26 bytes projection/allRead33, ten unfinished drafts, canonicalHash/fullObject, fully modeledPrismPM and generatedPages remain required."
+  },
+  "limits": "Original300000ms child/4GiB2CPU, empty axioms and exact source/tool/lock/epoch/idle/zeroevent/storage/postcapture predicates unchanged. Cost unknown; no caching, avoided recomputation or efficiency inference from accepted hash timing. Current phase outcome does not permanently authorize later resource state.",
+  "preparationObservation": "One read-only construction initially looked for stats.wireBytes, which is the walk-state name. Actual complete range stats field is visitedRecordBytes. Inspection corrected the path before successful complete goal hashes and before any report write. This is an authoring lookup error, not a native result.",
+  "writes": "Only this bounded source investigation JSON; no candidate/source/repository/index/VM/native execution or artifact copies."
+}

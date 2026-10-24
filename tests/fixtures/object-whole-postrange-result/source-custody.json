@@ -1,0 +1,121 @@
+{
+  "schema": "lexlean-r4-whole-postrange-source-custody/v1",
+  "status": "EXACT_SOURCE_AND_REVIEW_COPIES_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/negative/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+        "bytes": 61795,
+        "sha256": "a11efd0120cfcf8b3910773f61ea404c2ea97b7b1276e8535a24d6a0f2a746d7"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/negative/tests/lexlean/ObjectWholePostrangeResult.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+        "bytes": 61795,
+        "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+        "bytes": 70774,
+        "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+        "bytes": 1108,
+        "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/lexlean.toml",
+        "bytes": 690,
+        "sha256": "becc8e8a3875b1936254795293c16076da0615df84106108b7cb3691026719bd"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/lexlean.toml"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/candidate.json",
+        "bytes": 18343,
+        "sha256": "544d7f773d238df671e17f896963a0f7d4da9e7b7678dde363ec75a4b70f5747"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/candidate.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/structural-audit.json",
+        "bytes": 6922,
+        "sha256": "0f7e2855d14540f057fcfc6f1f902a8e54066e845e4b84c43c6f2a80d4105000"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/structural-audit.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/README.md",
+        "bytes": 983,
+        "sha256": "112df924680f1dd6b52df72decd6a7a3c4e716d0060d89a6250ebfd4bbf45c68"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/README.md"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/manifest.json",
+        "bytes": 2084,
+        "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/candidate/manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/candidate-code-review.json",
+        "bytes": 7094,
+        "sha256": "7733b51b8fbb10edaf97b954c411b95a8e156afac0bff83c2b02790f7e09baf7"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/evidence/candidate-code-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/next-whole-result-investigation.json",
+        "bytes": 13472,
+        "sha256": "5efce5bf0518b91b6010631c11adf4ee903ccab62c17ee24c23a491d482ab25f"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/evidence/next-whole-result-investigation.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/next-whole-result-spec-review.json",
+        "bytes": 5577,
+        "sha256": "7f32fe10d9d476e1c5ae9a883ae28543a69c6c47c54651227a1f0d1048ec181d"
+      },
+      "destination": "tests/fixtures/object-whole-postrange-result/evidence/next-whole-result-spec-review.json"
+    }
+  ],
+  "companions": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/source-bindings.json",
+      "bytes": 16980,
+      "sha256": "4150ca3486893234cc52bd1c0f97a77174290bc6a5b2078c3f7ddac733905385"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/readiness.json",
+      "bytes": 1012,
+      "sha256": "9416aa82df413aeee69026f673519a3228c002aa90b32a5a5647de55489d8635"
+    }
+  ],
+  "storage": {
+    "hostAvailableKiB": 26178484,
+    "externalInitialAllocation": 434176,
+    "conservativeAdditionalEstimate": 315392,
+    "maximumBytes": 1048576
+  },
+  "mutableREADMEExcluded": true
+}

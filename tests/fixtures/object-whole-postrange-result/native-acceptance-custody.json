@@ -1,0 +1,97 @@
+{
+  "schema": "lexlean-r4-postrange-native-acceptance-custody/v1",
+  "status": "ACCEPTED_LOCAL_COMPLETE_POSTRANGE_RESULT_ONLY",
+  "exactReviewCopies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/negative-native-review.json",
+        "bytes": 13185,
+        "sha256": "b4feb372acdc891e7e4ce954d7a39cc4bc482269a74bd75655c4b5a23b389885"
+      },
+      "destination": "evidence/negative-native-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive-native-review.json",
+        "bytes": 14058,
+        "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+      },
+      "destination": "evidence/positive-native-review.json"
+    }
+  ],
+  "independentCensus": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/positive-artifact-census.json",
+      "bytes": 27439,
+      "sha256": "afb6f035ce92029bb2067666130f2c4331b447353a9e00052decb2d7c28a5b61"
+    },
+    "destination": "evidence/positive/independent-artifact-census.json.gz",
+    "compressedBytes": 7612,
+    "compressedSha256": "2d25b338784e82726d69ce91eb4307a10b1b7e2e27c47b0efe2e9c3957a9363e",
+    "recordsSha256": "d6e0b61818da01cdd644f5f0f50c71d93b0cb9644abff228f5d21b0bb50f38e7",
+    "method": "Lossless in-memory gzip and decoded byte equality; no extracted temporary copy."
+  },
+  "files": [
+    {
+      "path": "evidence/negative-native-review.json",
+      "bytes": 13185,
+      "sha256": "b4feb372acdc891e7e4ce954d7a39cc4bc482269a74bd75655c4b5a23b389885"
+    },
+    {
+      "path": "evidence/positive-native-review.json",
+      "bytes": 14058,
+      "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+    },
+    {
+      "path": "evidence/positive/independent-artifact-census.json.gz",
+      "bytes": 7612,
+      "sha256": "2d25b338784e82726d69ce91eb4307a10b1b7e2e27c47b0efe2e9c3957a9363e"
+    },
+    {
+      "path": "evidence/history/README-source-only.md",
+      "bytes": 1007,
+      "sha256": "4590acb77fa17dfc7a93c96bbbf90db6729736fc8b41bf5762f350160bec5dbf"
+    },
+    {
+      "path": "results.json",
+      "bytes": 6942,
+      "sha256": "e8c78290e2ad24e2eaeb409a9c0c14dc9f410d059753b0be5fc56f1057003f05"
+    },
+    {
+      "path": "RESULTS.md",
+      "bytes": 2810,
+      "sha256": "1101f3a31fae73c73ae37c872820584aca003926223e43a36c0d2c5765c615af"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1236,
+      "sha256": "bbcc31961cca17e9067146af1422a42045ba711a19b0e94eb2cc26e03f173dd2"
+    }
+  ],
+  "priorReadme": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/README.md",
+    "bytes": 1007,
+    "sha256": "4590acb77fa17dfc7a93c96bbbf90db6729736fc8b41bf5762f350160bec5dbf"
+  },
+  "priorReadmeCopy": "evidence/history/README-source-only.md",
+  "historyCorrection": "negative-raw-custody.json observed.positive=NOT_RUN_AT_CAPTURE describes packager knowledge only: positive output was not observed or included by the packager. The parent positive invocation was already running at that capture. It is not reliable global run history. Both original raw custody records remain byte-identical; their pending-review status is historical.",
+  "preservation": {
+    "previousFiles": 28,
+    "onlyPriorMutableFileChanged": "README.md",
+    "immutablePreviousFiles": 27,
+    "currentSourcePinsVerified": 17
+  },
+  "storage": {
+    "hostAvailableBytes": "26571071488",
+    "aggregateBeforeBytes": 765952,
+    "additionalLimitBytes": 81920,
+    "aggregateLimitBytes": 1048576,
+    "conservativeAdditionalEstimateBytes": 65536
+  },
+  "boundary": [
+    "Outer ObjWholeRead connection remains failed/open; no original ordinal26 or allRead33 acceptance.",
+    "No full Object, Hash, PrismPM integration or Pages acceptance.",
+    "No claim of caching, avoided recomputation, speedup or bottleneck localization.",
+    "Compiled artifact binaries remain external; portable gzip files contain inert exact textual JSON evidence."
+  ]
+}

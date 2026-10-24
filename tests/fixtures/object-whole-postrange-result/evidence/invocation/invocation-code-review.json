@@ -1,0 +1,58 @@
+{
+  "schema": "lexlean-r4-postrange-invocation-code-review/v1",
+  "status": "PASS_NARROW_INVOCATION_ADAPTATION_CONDITIONAL_ON_SOURCE_CODE_AND_FRESH_GATES",
+  "reviewer": "/root/orchestration_design_review",
+  "pins": {
+    "runner": {
+      "path": "invoke-whole-postrange-result.mjs",
+      "bytes": 7702,
+      "sha256": "aa836ae976e315373c8e2155958f6ea8ddafdcc83a054778c837c411d587f4df"
+    },
+    "diff": {
+      "path": "invocation-diff.json",
+      "bytes": 2124,
+      "sha256": "2306bb81228b6ceab78384eede004cade82e70ffccbdb1ba43cbed8746601b1d"
+    },
+    "invocationManifest": {
+      "path": "invocation-manifest.json",
+      "sha256": "3c4c85fa2e335d293880e7f95741a103fe8caed12203a17b3d02e50a2088b126"
+    },
+    "sourceManifest": {
+      "path": "manifest.json",
+      "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+    },
+    "predecessor": {
+      "bytes": 7668,
+      "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+    }
+  },
+  "checks": {
+    "exactDelta": "Applied seven specified literal substitutions, each occurring exactly once, to actual accepted predecessor bytes. Result equals successor runner byte-for-byte. Changes only description, two phase names, phase diagnostic, unique owned stage prefix/date, candidate manifest identity,21-input census and mandatory verification entrypoint. No logic/guard/postcapture/resource change.",
+    "sourceCustody": "Rehashed8 candidate payloads plus2 proposal/SPEC dependencies and all42 phase input mappings. Both phases have exactly21 unique relative destinations without path escapes. Actual candidate phases match runner selectors postrange-false/postrange-positive. New context/transport and phase-appropriate consumer map correctly; accepted hash source comes from committed fixture, not historical binary.",
+    "target": "Both CLI verify and lexlean.toml entrypoint name tests/lexlean/ObjectWholePostrangeResult.lex.tex. New stages /tmp/r4-object-whole-postrange-result-${phase}-owned-20261024 use mkdir without recursive overwrite. Output phase directories are exclusive; neither failed whole stage nor earlier digest stage is reused.",
+    "guards": "Unchanged exact owned container, current accepted StartedAt2026-10-24T03:23:35.957043396Z,RestartCount0,4GiB/2CPU,networknone,mounts[]. Same compiler/Lean/Lake/checker hashes. Before phase checks idle,zero memory events,source bytes/tool/epoch and budget. Official lock generated then exact lock bytes retained; no manufactured production lock. All eight postcapture actions independently attempted and errors retained.",
+    "limits": "Config retains child_timeout_ms300000 and inherited source/parser/output limits. Host preflight requires20GiB for10GiB estimated increment plus10GiB reserve; host post10GiB. Guest11GiB pre/10GiB post. No limit or acceptance predicate weakened.",
+    "selection": "Candidate supplies17 source modules among21 inputs, reports14 statically reachable modules. Actual source admission/selected closure must be observed from official check; static count is not acceptance.",
+    "operationalBoundary": "Retained runner records actual verify outcome and copies only validated artifact path on successful official result. Parent must classify intended negative vs timeout/source/resource failure and enforce sequential negative-review-before-positive gating; runner permits either single phase and does not itself enforce their review ordering."
+  },
+  "launchConditions": [
+    "Independent written-source CODE PASS for exact sourceManifest9dd2b2de... remains required separately; this invocation review does not replace it.",
+    "Immediately before launch verify same live epoch/config/tools, no active compiler and zero events; refresh host/guest budget. Historical epoch acceptance is not a perpetual healthy-state guarantee.",
+    "Launch only the negative first; require actual intended mandatory-consumer rejection and independent audit before positive, then refresh all gates. Any source/config/runner change requires renewed exact review.",
+    "No equivalent failed outer-whole retry. Target is the specified production post-range continuation full Result only. WholeRead/ordinal26/Read33 and broader integration remain unaccepted."
+  ],
+  "storage": {
+    "freshHostAvailableKiB": 25179848,
+    "taskDirectorySample": {
+      "files": 13,
+      "logicalBytes": 241960,
+      "allocatedBytes": 274432
+    },
+    "reportUpperBoundBytes": 8192,
+    "aggregatePreparationCapBytes": 1048576,
+    "assessment": "Current small preparation plus report comfortably below1MiB at sampled instant; other reviewer may add its small record. This is not a continuous high-water claim. Fresh host exceeds20GiB planning threshold and10GiB reserve."
+  },
+  "disclosure": "I authored the next-step investigation and prior resource reviews, but not this invocation adaptation. This review is narrowly execution-mapping/security logic; independent source CODE reviewer handles proof semantics.",
+  "findings": [],
+  "execution": "Source/hash/host-storage inspection only; no runner import, SDK, Docker, compiler, VM or native execution, no repository/frozen edits or fixtures. Only this external report written."
+}

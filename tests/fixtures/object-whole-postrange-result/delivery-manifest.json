@@ -1,0 +1,220 @@
+{
+  "schema": "lexlean-r4-postrange-full-result-delivery/v1",
+  "status": "FROZEN_DOCS_CORRECTION_PENDING_RENEWED_CODE_SECURITY_REVIEW",
+  "baseCommit": "315b07438ed09cc454f9347c609e75b70444b54c",
+  "scope": "Actual complete production post-range hash/comparison/wrapping Result, intended184to185 negative, independently audited official artifacts and portable evidence; next outer-shell proposal independently SPEC accepted only. Original outerWholeRead/Read33 remain open.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 55190,
+      "sha256": "6f17f4dd4cce8d2b0bf7e60312eb001e5dbe24805bcb1b8de4ec304e3018d7fe"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 41341,
+      "sha256": "7eb47271332f508de42e6f5e643d9e3db05feec607bf5059e17016b903c16cd8"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/README.md",
+      "bytes": 1236,
+      "sha256": "bbcc31961cca17e9067146af1422a42045ba711a19b0e94eb2cc26e03f173dd2"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/RESULTS.md",
+      "bytes": 2810,
+      "sha256": "1101f3a31fae73c73ae37c872820584aca003926223e43a36c0d2c5765c615af"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/README.md",
+      "bytes": 983,
+      "sha256": "112df924680f1dd6b52df72decd6a7a3c4e716d0060d89a6250ebfd4bbf45c68"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/candidate.json",
+      "bytes": 18343,
+      "sha256": "544d7f773d238df671e17f896963a0f7d4da9e7b7678dde363ec75a4b70f5747"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+      "bytes": 70774,
+      "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+      "bytes": 1108,
+      "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/lexlean.toml",
+      "bytes": 690,
+      "sha256": "becc8e8a3875b1936254795293c16076da0615df84106108b7cb3691026719bd"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/manifest.json",
+      "bytes": 2084,
+      "sha256": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/negative/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "a11efd0120cfcf8b3910773f61ea404c2ea97b7b1276e8535a24d6a0f2a746d7"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/structural-audit.json",
+      "bytes": 6922,
+      "sha256": "0f7e2855d14540f057fcfc6f1f902a8e54066e845e4b84c43c6f2a80d4105000"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/candidate-code-review.json",
+      "bytes": 7094,
+      "sha256": "7733b51b8fbb10edaf97b954c411b95a8e156afac0bff83c2b02790f7e09baf7"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/delivery-correction/custody.json",
+      "bytes": 3353,
+      "sha256": "b156e26e87aa51690c6d0a946f1444c0b3aeb02c654027975c7e9d5ba0082998"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/delivery-correction/predecessor-texts.json.gz",
+      "bytes": 36381,
+      "sha256": "fa9437b1e473ad8506c58159dba4057eec85b2790c7b3a1dc76f3d40031f43be"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/history/README-source-only.md",
+      "bytes": 1007,
+      "sha256": "4590acb77fa17dfc7a93c96bbbf90db6729736fc8b41bf5762f350160bec5dbf"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/invocation/invocation-code-review.json",
+      "bytes": 5218,
+      "sha256": "8371973c259a7a94f9e65697b9e789036255b2912ecb8b2df4f6db4cfc0986c5"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/invocation/invocation-diff.json",
+      "bytes": 2124,
+      "sha256": "2306bb81228b6ceab78384eede004cade82e70ffccbdb1ba43cbed8746601b1d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/invocation/invocation-manifest.json",
+      "bytes": 546,
+      "sha256": "3c4c85fa2e335d293880e7f95741a103fe8caed12203a17b3d02e50a2088b126"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/invocation/invoke-whole-postrange-result.mjs",
+      "bytes": 7702,
+      "sha256": "aa836ae976e315373c8e2155958f6ea8ddafdcc83a054778c837c411d587f4df"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/negative-native-review.json",
+      "bytes": 13185,
+      "sha256": "b4feb372acdc891e7e4ce954d7a39cc4bc482269a74bd75655c4b5a23b389885"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "f2dfa0aea9c27c026e1c022c234da4d5074b2a6a13bd705d1cc356e76fdc011e"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/negative/raw-receipts.json.gz",
+      "bytes": 9503,
+      "sha256": "b0f3a475d45ca70decee234afabb378610652eb4e9dfd469b3d7ea5d3cc39ef8"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/next-outer-whole-investigation.json",
+      "bytes": 16336,
+      "sha256": "b446303d8d3035b8e8c0e7316cda9765656192a71452c8ba3fad310674cd9645"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/next-outer-whole-spec-review.json",
+      "bytes": 6871,
+      "sha256": "1b6943b6f44784fd112dcd46d6c58370818ba2b7fcc768ea939fc11887fe0f5e"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/next-whole-result-investigation.json",
+      "bytes": 13472,
+      "sha256": "5efce5bf0518b91b6010631c11adf4ee903ccab62c17ee24c23a491d482ab25f"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/next-whole-result-spec-review.json",
+      "bytes": 5577,
+      "sha256": "7f32fe10d9d476e1c5ae9a883ae28543a69c6c47c54651227a1f0d1048ec181d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/parent-artifact-recheck.json",
+      "bytes": 1294,
+      "sha256": "40087c13b02ba8b190ccaeb79f78a75a13581995a4d6e1eb9e1350937c4584be"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/positive-native-review.json",
+      "bytes": 14058,
+      "sha256": "6a15748055e5fc8ef3dbaacbeb35574d914730b43aae875e13ec11b7937c0776"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/positive/attestation.json.gz",
+      "bytes": 9812,
+      "sha256": "3cc6194d18b519e122b5b6818325cdb4c54adc7d308ea04d0fa69d6b08c793de"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/positive/author-artifact-census.json.gz",
+      "bytes": 7763,
+      "sha256": "b1de11a926c940065ae249d50bc6262ccb643aa1c63d827d662a58a874caeb79"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/positive/independent-artifact-census.json.gz",
+      "bytes": 7612,
+      "sha256": "2d25b338784e82726d69ce91eb4307a10b1b7e2e27c47b0efe2e9c3957a9363e"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "f2dfa0aea9c27c026e1c022c234da4d5074b2a6a13bd705d1cc356e76fdc011e"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/evidence/positive/raw-receipts.json.gz",
+      "bytes": 8527,
+      "sha256": "8ac4574f0cdae85998f84e256f8bf4ea18896fe149a18eaa8b3a7dccf07b13e0"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/native-acceptance-custody.json",
+      "bytes": 4198,
+      "sha256": "ec29f41b128db6288b9184bff542250c62be0e665388019b966f2fc7e9c16d27"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/negative-raw-custody.json",
+      "bytes": 11868,
+      "sha256": "830900e12d7d09682118d8198cc3a4cdf0cb895c6b61e0b76227dd54278354de"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/positive-raw-custody.json",
+      "bytes": 12125,
+      "sha256": "fa7222a720be473daebc73fcf2a8875e6e328766286b64a6cb31bc96be1f70eb"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/readiness.json",
+      "bytes": 1012,
+      "sha256": "9416aa82df413aeee69026f673519a3228c002aa90b32a5a5647de55489d8635"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/results.json",
+      "bytes": 6942,
+      "sha256": "e8c78290e2ad24e2eaeb409a9c0c14dc9f410d059753b0be5fc56f1057003f05"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/source-bindings.json",
+      "bytes": 16980,
+      "sha256": "4150ca3486893234cc52bd1c0f97a77174290bc6a5b2078c3f7ddac733905385"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/source-custody.json",
+      "bytes": 5807,
+      "sha256": "252fdd178e5c42d63dbdf17f2fccdba38dddbf87e2f163d349955b265061c4af"
+    }
+  ],
+  "predecessorManifestSha256": "4ed4462c38e051c34f38298280dc1aba7ef31279b9caf9b16cba0aef96cafcdf",
+  "correctionCustody": "tests/fixtures/object-whole-postrange-result/evidence/delivery-correction/custody.json"
+}

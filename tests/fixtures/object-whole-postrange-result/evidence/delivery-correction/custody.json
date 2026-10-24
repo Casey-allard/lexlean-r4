@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-delivery-doc-correction-custody/v1",
+  "status": "DOCS_ONLY_SUCCESSOR_PENDING_RENEWED_CODE_SECURITY_REVIEW",
+  "predecessorManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/delivery-manifest.json",
+    "bytes": 7633,
+    "sha256": "4ed4462c38e051c34f38298280dc1aba7ef31279b9caf9b16cba0aef96cafcdf"
+  },
+  "archive": {
+    "path": "tests/fixtures/object-whole-postrange-result/evidence/delivery-correction/predecessor-texts.json.gz",
+    "compressedBytes": 36381,
+    "compressedSha256": "fa9437b1e473ad8506c58159dba4057eec85b2790c7b3a1dc76f3d40031f43be",
+    "decodedBytes": 116066,
+    "decodedSha256": "5311b03caf5467f298c3d70d5b4f01309af373fe7a959797fc8f9b447f00e55b",
+    "entries": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/delivery-manifest.json",
+        "bytes": 7633,
+        "sha256": "4ed4462c38e051c34f38298280dc1aba7ef31279b9caf9b16cba0aef96cafcdf"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/CONTINUATION.md",
+        "bytes": 54234,
+        "sha256": "c2b9e3f6f318cbe1e5d48feb918998e14d75740e1cf92f1b200936fabee1f487"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-21-lexlean-r4.md",
+        "bytes": 41065,
+        "sha256": "df559ac7e9c709099c3c29cc052ce24d83d834893b4c52c0880f6a4bec71e2e8"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/delivery-code-review.json",
+        "bytes": 5238,
+        "sha256": "ab296e92500fe1a87e0ebb746ba34afe2f817715a063d2de69a8c39aa24e6bc0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-postrange-result/delivery-security-review.json",
+        "bytes": 4409,
+        "sha256": "97874a40f489542f5c0ca3af015e876d04ae713feaaee54a6b6d5100eb835dd8"
+      }
+    ],
+    "method": "Lossless UTF-8 JSON entries retain exact previous manifest, both documents and both completed reviews. Roundtrip validated in memory; no extracted temporary copies."
+  },
+  "correction": "Historical open obligations and prior design-only/NOT_RUN paragraphs now explicitly point to later local digest/post-range acceptance. Distinct next outer-shell proposal stays design-only NOT_RUN. No outer whole-read/ordinal26/Read33/component acceptance.",
+  "changedDocuments": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "beforeSha256": "c2b9e3f6f318cbe1e5d48feb918998e14d75740e1cf92f1b200936fabee1f487",
+      "afterBytes": 55190,
+      "afterSha256": "6f17f4dd4cce8d2b0bf7e60312eb001e5dbe24805bcb1b8de4ec304e3018d7fe"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "beforeSha256": "df559ac7e9c709099c3c29cc052ce24d83d834893b4c52c0880f6a4bec71e2e8",
+      "afterBytes": 41341,
+      "afterSha256": "7eb47271332f508de42e6f5e643d9e3db05feec607bf5059e17016b903c16cd8"
+    }
+  ],
+  "preservedNonDocumentPayloads": 38,
+  "storage": {
+    "hostAvailableBytes": "26429128704",
+    "aggregatePreparationAndFixtureBeforeBytes": 909312,
+    "aggregateCapBytes": 1048576,
+    "conservativeIncrementIncludingDocGrowthBytes": 65536,
+    "noDiskTemporaryCopies": true
+  }
+}

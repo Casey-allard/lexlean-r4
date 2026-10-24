@@ -1,0 +1,47 @@
+{
+  "schema": "lexlean-r4-postrange-invocation-delta/v1",
+  "status": "FROZEN_PENDING_INDEPENDENT_REVIEW_NO_NATIVE_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invoke-whole-digest-reuse.mjs",
+    "bytes": 7668,
+    "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+  },
+  "candidate": {
+    "path": "invoke-whole-postrange-result.mjs",
+    "bytes": 7702,
+    "sha256": "aa836ae976e315373c8e2155958f6ea8ddafdcc83a054778c837c411d587f4df"
+  },
+  "changes": [
+    {
+      "before": "// One-off official-compiler invocation for the exact projected whole-digest wrapper; no Read33 acceptance.",
+      "after": "// One-off official-compiler invocation for the exact post-range complete Result; no outer whole-read or Read33 acceptance."
+    },
+    {
+      "before": "['digest-false','digest-positive']",
+      "after": "['postrange-false','postrange-positive']"
+    },
+    {
+      "before": "select exactly one whole-digest reuse phase",
+      "after": "select exactly one post-range result phase"
+    },
+    {
+      "before": "/tmp/r4-object-whole-digest-reuse-${phase}-owned-20261023",
+      "after": "/tmp/r4-object-whole-postrange-result-${phase}-owned-20261024"
+    },
+    {
+      "before": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd",
+      "after": "9dd2b2de68eae798f25caaa6c7b4a445c95985a777245466960ba22525b9fdd1"
+    },
+    {
+      "before": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18",
+      "after": "inputs.length!==21||new Set(inputs.map(x=>x.destination)).size!==21"
+    },
+    {
+      "before": "verify','tests/lexlean/ObjectWholeDigest.lex.tex",
+      "after": "verify','tests/lexlean/ObjectWholePostrangeResult.lex.tex"
+    }
+  ],
+  "inverseRoundTrip": true,
+  "unchanged": "All resource/source/tool/lock/epoch/idle/zero-memory/storage guards and independent postcapture phases; same current accepted03:23:35.957epoch;300s child/4GiB2CPU. Phase only21 exact inputs and mandatoryconsumer. No new framework.",
+  "hostAvailableBytes": "26122391552"
+}
