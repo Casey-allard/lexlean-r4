@@ -1,0 +1,177 @@
+{
+  "schema": "lexlean-r4-whole-read-continuation-structural-audit/v1",
+  "status": "PASS_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "reconstructedHashes": {
+    "controlStatementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "leftSha256": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+    "rightSha256": "671a351ccf7ab585513b884dc92c276bbb5a02bd57acb04fc91ffa3abd80d0b8",
+    "statementSha256": "b5f069006fa68c26769ec931ebb11d0f527913bb7ac41b4b9c70ee666316fa74",
+    "sourceDeclarationSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5",
+    "instantiatedBodySha256": "33fb656f83a645f7cb78f2fb2d0f9fc08a97c860706b4e7c23a298ebf185eb8b",
+    "holeOriginalQualifiedSha256": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "contextBodySha256": "2eee974fe42d7ec8d13174d340d28c497220fa0ed45cc8cb37322d17f91f900e",
+    "backendSha256": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "manifestSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "limitsSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "admittedRangeStatementSha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d",
+    "completeRangeRecordSha256": "fcfd02d0afc87ac60128d9bd095a9aa48f0b5a603a12493677e076c1c4e38b9a",
+    "wholeReadDeclarationSha256": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d"
+  },
+  "reviewedHashesAllMatch": true,
+  "roundtripBodyExact": true,
+  "singleHole": "body.scrutinee",
+  "removedRedundantQualificationOnly": "R4.ObjectRead on original hole restoration",
+  "negativeDifferences": [
+    {
+      "path": "semantic.declarations.1.proof.branches.0.proof.theorem.module",
+      "before": "ObjectAdmittedRangeResult",
+      "after": null
+    },
+    {
+      "path": "semantic.declarations.1.proof.branches.0.proof.theorem.name",
+      "before": "objOriginalAdmittedRangeResult",
+      "after": "objOuterWholeUnrelatedZero"
+    }
+  ],
+  "negativeBoundary": "One theorem-reference replacement; name changes and module key removed for same-module unrelated theorem. Identical unrelated0=0 theorem, family, contexts, full consumer and all actual input data.",
+  "sourceDeclarations": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  ],
+  "axioms": [],
+  "canonicalJson": true,
+  "configChange": "Entrypoint only; unchanged300000ms and all other config fields.",
+  "selection": {
+    "suppliedSourceFiles": 18,
+    "expectedReachableModules": 18,
+    "selected": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "ObjectWholeReadContext",
+      "ObjectWholeReadContinuation",
+      "ObjectWholeReadTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [],
+    "boundary": "Static import analysis only; actual admitted module census requires official check."
+  },
+  "inputsPerPhase": 22,
+  "sharedInputs": 18,
+  "tests": "Static reconstruction only. Both official source checks, intended dependency negative and mandatory positive full consumer NOT_RUN.",
+  "preservation": {
+    "tenOtherDrafts": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "sixMergedSources": [
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      }
+    ],
+    "canonicalFull33": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "storage": {
+    "hostAvailableBytes": "28881563648",
+    "newAggregateBudgetBytes": 1048576,
+    "reserveBytes": 10737418240
+  }
+}

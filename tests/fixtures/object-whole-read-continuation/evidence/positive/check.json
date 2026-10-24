@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-whole-read-continuation-whole-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-24T03:00:58.154Z",
+  "ended": "2026-10-24T03:00:58.884Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectAdmittedRangeResult\",\"ObjectContextualFinishContext\",\"ObjectContextualFinishTransport\",\"ObjectContextualRangeFinish\",\"ObjectManifestVersion\",\"ObjectWholeReadContext\",\"ObjectWholeReadContinuation\",\"ObjectWholeReadTransport\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"e8c9ca4098cba6e9d5130499e9ea39b63acd2ab6bd8af24d0042c2041e6ccda0\",\"source_id\":\"58213596d7c3253e48419d3686c4d571017c92ac6901f891c3e97267adaa7c56\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

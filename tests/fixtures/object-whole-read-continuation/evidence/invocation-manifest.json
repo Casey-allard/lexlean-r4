@@ -1,0 +1,59 @@
+{
+  "schema": "lexlean-r4-whole-read-invocation/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/manifest.json",
+    "bytes": 2255,
+    "sha256": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8"
+  },
+  "files": [
+    {
+      "path": "invoke-whole-read-continuation.mjs",
+      "bytes": 7734,
+      "sha256": "b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2337,
+      "sha256": "47d366e62ba0fcaa87e4ba441e51bc26ec9bc92c043b72fe0bcc8c2c81f13756"
+    }
+  ],
+  "selectors": [
+    "whole-false",
+    "whole-positive"
+  ],
+  "commands": [
+    "node invoke-whole-read-continuation.mjs whole-false",
+    "After independent intended-negative review and fresh gates: node invoke-whole-read-continuation.mjs whole-positive"
+  ],
+  "mandatoryTarget": "tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+  "inputsPerPhase": 22,
+  "selection": {
+    "suppliedSourceFiles": 18,
+    "expectedReachableModules": 18,
+    "selected": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "ObjectWholeReadContext",
+      "ObjectWholeReadContinuation",
+      "ObjectWholeReadTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [],
+    "boundary": "Static import analysis only; actual admitted module census requires official check."
+  },
+  "stagePattern": "/tmp/r4-object-whole-read-continuation-${phase}-owned-20261023",
+  "boundary": "Negative target is full consumer but intended wrong-base failure may occur in transport dependency first. Positive must verify original whole consumer to real hash/digest continuation, not just helper. All native tests NOT_RUN."
+}

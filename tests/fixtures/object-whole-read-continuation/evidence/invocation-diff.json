@@ -1,0 +1,61 @@
+{
+  "schema": "lexlean-r4-whole-read-invocation-diff/v1",
+  "predecessor": {
+    "path": "tests/fixtures/object-admitted-range-result/evidence/invoke-admitted-range-result.mjs",
+    "bytes": 7710,
+    "sha256": "aea4eac295cd9a66b77c2d10d60510afd0920a239cf5de5109999f65d813ecc9"
+  },
+  "predecessorReview": {
+    "path": "tests/fixtures/object-admitted-range-result/evidence/code-review.json",
+    "bytes": 5723,
+    "sha256": "8df4d6de5a81dd22746c81d61901344fa67e9549df88c03a8e1dffa316a12164"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/invoke-whole-read-continuation.mjs",
+    "bytes": 7734,
+    "sha256": "b554fe24f13b13fd2855365483a0af2f2cfccc8e62738fe867fa2a336c885e61"
+  },
+  "replacements": [
+    {
+      "before": "one actual admitted-range full Result",
+      "after": "one original whole-read hash/digest continuation",
+      "occurrences": 1
+    },
+    {
+      "before": "['range-false','range-positive']",
+      "after": "['whole-false','whole-positive']",
+      "occurrences": 1
+    },
+    {
+      "before": "select exactly one admitted-range phase",
+      "after": "select exactly one whole-read continuation phase",
+      "occurrences": 1
+    },
+    {
+      "before": "/tmp/r4-object-admitted-range-result-${phase}-owned-20261023",
+      "after": "/tmp/r4-object-whole-read-continuation-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "before": "80a71bcb80f262214447318d38d44fc1a2a03db27fa3028231294e29960d677e",
+      "after": "9a65fc447b3c1785049539d6aafada4207238f0e758962d3371aa15758080cb8",
+      "occurrences": 1
+    },
+    {
+      "before": "phase==='range-false'",
+      "after": "phase==='whole-false'",
+      "occurrences": 1
+    },
+    {
+      "before": "inputs.length!==19||new Set(inputs.map(x=>x.destination)).size!==19",
+      "after": "inputs.length!==22||new Set(inputs.map(x=>x.destination)).size!==22",
+      "occurrences": 1
+    },
+    {
+      "before": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "after": "tests/lexlean/ObjectWholeReadContinuation.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "boundary": "Eight concrete literal changes only; all command/source/lock/tool/epoch/idle/memory/storage/postcapture guards and resource limits unchanged. No invocation executed."
+}
