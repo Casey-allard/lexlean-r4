@@ -1,0 +1,188 @@
+{
+  "schema": "lexlean-r4/admitted-range-product-sequence-proposal/1",
+  "status": "SOURCE_ONLY_PROPOSED_INDEPENDENT_SPEC_REQUIRED_ALL_NEW_NATIVE_NOT_RUN",
+  "createdAt": "2026-10-24T11:50:03.262Z",
+  "objective": "Explicitly verify changed native ObjectAdmittedRangeResult Eq.trans product root before considering changed InnerContinuation and original Read controls. No automatic fullRead retry or Hash09 decomposition.",
+  "pins": {
+    "candidateManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/manifest.json",
+      "bytes": 28727,
+      "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+    },
+    "sourceBindings": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/source-bindings.json",
+      "bytes": 71638,
+      "sha256": "05990c4e189a7ea21838e80594913ef7e5b6fe65c595776e8cf7b3e096c7cb68"
+    },
+    "sourceAudit": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/source-audit.json",
+      "bytes": 87549,
+      "sha256": "45ddb75955043f737a20f5a74ed021e53618ce0e418aae4270e7895363625083"
+    },
+    "candidateCODE": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    },
+    "isolatedHash09Review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-native-review.json",
+      "bytes": 12103,
+      "sha256": "fcb7a83e971366edf00cad7b7b6e94591abd7fe1e301e5a4828218f1d2a1446a"
+    },
+    "failedReadReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative-failure-review.json",
+      "bytes": 11222,
+      "sha256": "9ef4aca3c30e0a31148d9c8c20a4621d627b0b941a6683e2a946a7dcb615b445"
+    },
+    "admitted": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 21034,
+      "sha256": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f"
+    },
+    "inner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 22735,
+      "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+    }
+  },
+  "whyNotEquivalentRetry": "Failed47-module Read selection stopped in Hash09. New admitted34 and later inner36 do not select Hash09 or whole-digest transport; they test actually changed product proof declarations not reached by that failure. Positive uses unchanged frozen51-input ordinal26-negative project/config; unused negative Read file remains unselected. New selected IDs must be observed, not copied.",
+  "closure": {
+    "method": "Recomputed recursive envelope imports from frozen47 .lex.tex files; no missing imports. Source graph is not native admission.",
+    "admitted": {
+      "count": 34,
+      "modules": [
+        "ObjectAdmittedRangeResult",
+        "ObjectContextualFinishContext",
+        "ObjectContextualFinishTransport",
+        "ObjectContextualRangeFinish",
+        "ObjectManifestVersion",
+        "ObjectReadCompleteParent",
+        "ObjectReadConnectedRange",
+        "ObjectReadConnectedRangeContext",
+        "ObjectReadConnectedRangeTransport",
+        "ObjectReadFinalChildState",
+        "ObjectReadFirstChildContinuation",
+        "ObjectReadFirstChildState",
+        "ObjectReadParent49",
+        "ObjectReadParent49AccountingState",
+        "ObjectReadParent49AuthenticatedFetch",
+        "ObjectReadParent49ConcreteChildEntry",
+        "ObjectReadParent49FetchContext",
+        "ObjectReadParent49FetchTransport",
+        "ObjectReadParent49VisitContext",
+        "ObjectReadParent49VisitTransition",
+        "ObjectReadParent49VisitTransport",
+        "ObjectReadRootTraversal",
+        "ObjectReadSecondChildContinuation",
+        "ObjectReadSecondChildState",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.Object",
+        "R4.ObjectCodec",
+        "R4.ObjectRead",
+        "R4.ObjectStore",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ]
+    },
+    "inner": {
+      "count": 36,
+      "added": [
+        "ObjectWholeInnerContinuation",
+        "ObjectWholeReadContext"
+      ]
+    },
+    "composed": {
+      "count": 46,
+      "added": [
+        "HashWireDirect09Controls",
+        "ObjectWholeComposedResult",
+        "ObjectWholeDigest",
+        "ObjectWholeDigestContext",
+        "ObjectWholeDigestTransport",
+        "ObjectWholeOuterConsumer",
+        "ObjectWholeOuterShell",
+        "ObjectWholePostrangeContext",
+        "ObjectWholePostrangeResult",
+        "ObjectWholePostrangeTransport"
+      ]
+    },
+    "read": {
+      "count": 47,
+      "added": [
+        "ObjectReadControls"
+      ]
+    },
+    "check": "Official explicit-target check must return exactly the declared selected module set before verify."
+  },
+  "admittedGoal": {
+    "name": "LexLeanR4.ObjectAdmittedRangeResult.objOriginalAdmittedRangeResult",
+    "typeNode": 761,
+    "valueNode": 791,
+    "A": 614,
+    "B": 785,
+    "C": 760,
+    "originalSemanticStatementBytes": 34873,
+    "originalSemanticStatementSha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d",
+    "proof": "Eq.trans.{1} (Except ObjError ObjRangeVerified) A B C hConnected hFinish",
+    "hConnected": "ObjectReadConnectedRange.objOriginalConnectedRange : A=B",
+    "hFinish": "ObjectContextualRangeFinish.objOriginalContextualRangeFinish : B=C",
+    "preservation": "Exact original A=C statement; source audit establishes all shared endpoints. No expected value/runtime/axiom change. Actual native elaboration and kernel checking remain NOT_RUN.",
+    "boundary": "Native consumer of semantic providers is supported. No downstream semantic import of a new native theorem is introduced; frozen inner consumer is native too."
+  },
+  "negativeBeforePositive": {
+    "required": true,
+    "reason": "Current timeout/Hash09 acceptance does not exercise Eq.trans; existing ordinal26 negative tests a different downstream proof. A minimal wrong-trans argument is required to establish intended rejection at this product boundary.",
+    "mutation": "Only admitted target proof changes. Preserve all original nodes, type761, imports, runtime/config and50 other input files. Append six valid native DAG nodes for Eq.refl.{1} Nat0, then reapply existing Eq.trans prefix with this wrong first premise and unchanged hFinish; point declaration.value to appended final node.",
+    "exactSketch": "Current nodes13=Nat,787=Eq.trans prefix through A/B/C,788=hConnected,789=prefix hConnected,790=hFinish,791=full proof. Append792=const Eq.refl universe1;793=app792 13;794=Nat literal0;795=app793 794;796=app787 795;797=app796 790. Set only declaration.value=797. All references remain backward; original positive is byte-exact value791.",
+    "expected": "Source check selects34 and succeeds; official proof verification rejects Nat equality0=0 where first transitivity premise expects an equality over Except ObjError ObjRangeVerified. Independent review must confirm intended wrong-argument rejection. Schema/setup error, dependency timeout, OOM or other failure is not this negative.",
+    "limits": "Native shape follows existing ordinary core-language proof terms; actual admission and rejection are NOT_RUN. No fabricatedRED."
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "status": "PROPOSED_ONLY",
+      "action": "Independent SPEC, then bounded separately frozen negative/positive source maps and minimal invocation adaptation. Candidate CODE before native. Existing frozen candidate never edited."
+    },
+    {
+      "step": 2,
+      "status": "NOT_RUN",
+      "action": "Official admitted wrong-trans negative in fresh owned51-input stage; explicit tests/lexlean/ObjectAdmittedRangeResult.lex.tex check+verify. Stop and classify any unexpected failure."
+    },
+    {
+      "step": 3,
+      "status": "NOT_RUN_AFTER_INTENDED_NEGATIVE_REVIEW",
+      "action": "Official admitted positive in another fresh stage, restoring exact21034-byte frozen source/value791. Same51 current inputs/config/300s. Independently review actual artifact/declaration emptyaxioms/kernel replay/source/lock/resources. No borrowed compiled artifacts."
+    },
+    {
+      "step": 4,
+      "status": "FUTURE_SEPARATE_REVIEW_AFTER_ADMITTED_ACCEPTANCE",
+      "action": "Consider actual ObjectWholeInnerContinuation explicit36-module root; define/review its own narrow control if needed. Admitted acceptance alone is not inner proof."
+    },
+    {
+      "step": 5,
+      "status": "FUTURE_SEPARATE_REVIEW_AFTER_INNER",
+      "action": "Original ordinal26 intended wrong-proof negative, focused positive and mandatory full33 official sequence remain required.47-module path reintroduces whole/digest/Hash09; never launch automatically from helper success."
+    }
+  ],
+  "innerObligations": {
+    "originalStatementSha256": "11fb9d0d02fc6cc15147bcff3ae7dbfb63991df04975b7903ab43892c6bf7ed4",
+    "proof": "congrArg.{1,1} originalRangeResult originalWholeResult A C unchanged ObjOuterWholeContext hAdmitted",
+    "required": [
+      "Original ObjWholeAdmitted application must convert to context(A).",
+      "Context(C) after Result.ok substitution must convert to exact original inner RHS.",
+      "Preserved Boolean-if lowered to cond.{1} must be definitionally compatible with actual semantic backend output, not merely semantically equivalent."
+    ],
+    "admittedDoesNotTest": "Admitted module has no new Boolean-if lowering. Its success leaves inner cond/context conversions and later whole composed transitivity/finalRead consumer open."
+  },
+  "gates": {
+    "preserve": "Same exact runtime/digest/all33goals/emptyaxioms/compiler/tools, child300000ms,4GiB2CPU. Official genuine development lock only.",
+    "before": "Independent reviews; no active compiler; fresh source51/config/lock/tool/epoch/strictzero/idle checks. Host20GiB floor (10GiB peak+10GiB reserve), guest11GiBpre/10GiBpost and allocated-space capture. No automatic restart, counter reset or limits change.",
+    "after": "Independently attempt source/lock/tools/epoch/memory/idle/storage checks after either outcome. Unexpected failures stop the sequence; no equivalent retry.",
+    "cost": "34 selected modules still require actual official elaboration/replay. Historical component acceptance does not establish present costs. No efficiency claim or dependency substitute."
+  },
+  "claims": "This is product-source selection testing, not new framework. It changes no331/403 acceptance count, production binding or Pages gate. No new native phase, candidate implementation or source mutation has occurred.",
+  "authorActivity": "Host-only source/import/AST inspection and this report. An initial in-memory draft exceeded12KiB guard before any file write; concise final retains the concrete boundary and obligations."
+}

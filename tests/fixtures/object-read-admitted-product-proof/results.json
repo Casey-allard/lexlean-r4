@@ -1,0 +1,11 @@
+{
+  "status": "SOURCE_CANDIDATE_FROZEN_INDEPENDENT_CODE_PENDING",
+  "sourceHostChecks": "PASS",
+  "sourceAdmission": "NOT_RUN",
+  "intendedWrongTransNegative": "NOT_RUN",
+  "admittedPositive": "NOT_RUN",
+  "artifactAxiomKernelAudit": "NOT_RUN",
+  "read33Acceptance": "UNCHANGED_NOT_ESTABLISHED",
+  "candidateAllocationBudgetBytes": 262144,
+  "hostAvailableBeforeBytes": "21247225856"
+}
