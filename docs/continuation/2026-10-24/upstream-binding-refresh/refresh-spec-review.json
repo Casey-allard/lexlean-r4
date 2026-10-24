@@ -1,0 +1,78 @@
+{
+  "schema": "lexlean-r4-upstream-refresh-source-review/v1",
+  "at": "2026-10-24T10:01:40.824048+00:00",
+  "reviewer": "/root/construction_source_delivery_security",
+  "verdict": "PASS_BOUNDED_SOURCE_OBSERVATION_ONLY",
+  "refresh": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/upstream-binding-refresh/refresh.json",
+    "bytes": 3175,
+    "sha256": "0e0a4f358c1c2247263b271b5fb1e0a8024f9c7aa353ba8c471f72e5fbcb5881"
+  },
+  "captures": [
+    {
+      "path": "RELEASE-STATUS.md",
+      "bytes": 16065,
+      "sha256": "efb444932768a6adc4d2d5b83dc23db97319f6d027db39c4332b970e8e6266cb"
+    },
+    {
+      "path": "golden-development.lock.json",
+      "bytes": 484,
+      "sha256": "71dc2a807214bd2a118524176b92b9532ba5ab218b492a80ed4feb1005d81cc4"
+    },
+    {
+      "path": "prism-main.json",
+      "bytes": 5401,
+      "sha256": "4a015281635bafda5ffc499a2c199aa0cb35be8d623d1f68396c61b615ff3446"
+    },
+    {
+      "path": "prism-releases.json",
+      "bytes": 5033,
+      "sha256": "709fa4f8d1710c1957e7a14e6c5accf99e5aa6227b168f73f53ddcb3c3d4aa7f"
+    },
+    {
+      "path": "template-main.json",
+      "bytes": 1842,
+      "sha256": "a4548b0466e94f0d3ba61b604c38400d67172dcc239429de6b31073dce0f839c"
+    }
+  ],
+  "checks": {
+    "integrity": "All5 captured files exactly match refresh byte lengths/SHA256. Recomputed Git blob SHA1 over blob-length-NUL framing: RELEASE-STATUS b3f00ac68e8a2633551feb7dcaa37606342369f3 and golden-development lock60dcb4b4ff9dfde4882fc6464a1e43640bb9d442 equal recorded identities.",
+    "heads": "Captured PrismPM main names dd8b2f0f9f536bffa3acd8180851b9fb234db194; template main1bea460bac6ea50bae53a7eeb674589d7900e6cb matches dated2026-10-21 UPSTREAM baseline. These are captured observations, not perpetual current-head guarantees.",
+    "release": "Captured collection contains one non-draft/non-prerelease v0.2.0 release published2026-09-05T19:33:01Z; summarized body/URL/date exactly match capture. Body explicitly describes unsigned development bootstrap and denies production-system/SLSA claim. API immutable=false; do not infer immutable GitHub release enforcement from prose beginning Immutable bootstrap release.",
+    "statusDocument": "At captured revision the release-status document explicitly states productionSDK/ecosystem acceptance incomplete and Browser PP2011 closed, along with mandatory six release obligations. Header itself says As of6October2026: this is current fetched documentation, not an independently executed runtime validation or comprehensive live publication audit.",
+    "developmentLock": "Exact lock object matches summarized architecturearm64,index42213da87c564d859e327ab7df2459357d674fa538050f13905caa24c352588e,child2bbf0e55937b23b45cb62852d39f24f6c9e80b02b1c3b81a6cb3edc173d94c87,config97a66398dbb06c3cee772b292544a10b6e0ce97e31f65b0a745d3422e259dd7f,source6ebbef86a300ff4490c4c37f821e50585e211481. Schema golden-development-environment/1 and scope source-golden-review-only explicitly preclude adoption as production binding.",
+    "urls": "Captured branch/commit/releases URLs consistently identify UOR-Foundation/PrismPM and UOR-Foundation/template. No contradictory repository substitution. Exact immutable source URLs for future dated addendum recorded below."
+  },
+  "sourceUrls": [
+    "https://github.com/UOR-Foundation/PrismPM/blob/dd8b2f0f9f536bffa3acd8180851b9fb234db194/RELEASE-STATUS.md",
+    "https://github.com/UOR-Foundation/PrismPM/blob/dd8b2f0f9f536bffa3acd8180851b9fb234db194/sdk/golden-development.lock.json",
+    "https://github.com/UOR-Foundation/PrismPM/releases/tag/v0.2.0",
+    "https://github.com/UOR-Foundation/template/tree/1bea460bac6ea50bae53a7eeb674589d7900e6cb"
+  ],
+  "requiredClaimBounds": [
+    "Say latest returned release or this captured collection, not nootherreleaseexists; raw snapshot does not carry pagination proof or validate every registry/publication channel.",
+    "Say current fetched RELEASE-STATUS declares incomplete/PP2011closed, not this review executed browser profile or established complete absence of a newer usable SDK.",
+    "Do not infer publication,installation,compatibility,dualplatformqualification,securitydisposition or acceptedinventory from development lock digest alone.",
+    "No image pull/compiler replacement/productionlockgeneration is justified. Active Read proof/toolchain remains unchanged by this source-only refresh."
+  ],
+  "documentationRecommendation": "Add only a dated2026-10-24 source-observation addendum to UPSTREAM.md in next actual product checkpoint, link exact revisions/captures/review, explicitly superseding present-tense reading of the dated2026-10-21 observation that RELEASE-STATUS said complete. Preserve old pins, publication/failure history and installedcompiler identities. Update neither production binding nor acceptance labels.",
+  "historicalDocument": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/UPSTREAM.md",
+    "bytes": 11471,
+    "sha256": "c86ed7f3e7c2c0c516537c9b66e4ac04a6dd48e925a9da7e8420a53cb4ed5492",
+    "date": "2026-10-21"
+  },
+  "findings": [],
+  "limits": [
+    "No repeated network fetch necessary for this finite captured-source consistency review; source-file blob identities do not independently prove commit-tree membership beyond parent captured fetch provenance.",
+    "No release asset/image inventory/download/publication receipt verification; no OCI pull or SDK/native/VM/process interaction.",
+    "No repository modifications or completion of product requirements. Browser-generated Pages and all full PrismPM/LexLean acceptance gates remain required."
+  ],
+  "storage": {
+    "initialFreeBytes": 23603879936,
+    "beforeReportFreeBytes": 23602135040,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 12288,
+    "fixtureCopies": 0
+  }
+}

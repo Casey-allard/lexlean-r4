@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-24T10:00:29.339994+00:00",
+  "scope": "Read-only GitHub plugin refresh, no image publication validation, pull, installed tool changes or native calls",
+  "prismRevision": "dd8b2f0f9f536bffa3acd8180851b9fb234db194",
+  "templateRevision": "1bea460bac6ea50bae53a7eeb674589d7900e6cb",
+  "returnedReleases": [
+    {
+      "tag": "v0.2.0",
+      "publishedAt": "2026-09-05T19:33:01Z",
+      "url": "https://github.com/UOR-Foundation/PrismPM/releases/tag/v0.2.0",
+      "body": "Immutable bootstrap release for the accepted Calculator/Holo/1 production line. Built twice from commit f378fd3a8dc5711cb4b22cec9ee2f874353628c3 in clean devcontainer roots; the x86_64 binaries were byte-identical. This release is an unsigned development bootstrap and makes no production-system or SLSA-level claim."
+    }
+  ],
+  "releaseStatusGitBlob": "b3f00ac68e8a2633551feb7dcaa37606342369f3",
+  "developmentLockGitBlob": "60dcb4b4ff9dfde4882fc6464a1e43640bb9d442",
+  "developmentCandidate": {
+    "architecture": "arm64",
+    "child_digest": "sha256:2bbf0e55937b23b45cb62852d39f24f6c9e80b02b1c3b81a6cb3edc173d94c87",
+    "config_digest": "sha256:97a66398dbb06c3cee772b292544a10b6e0ce97e31f65b0a745d3422e259dd7f",
+    "reference": "ghcr.io/uor-foundation/prismpm-sdk-candidate@sha256:42213da87c564d859e327ab7df2459357d674fa538050f13905caa24c352588e",
+    "schema": "prismpm/golden-development-environment/1",
+    "scope": "source-golden-review-only",
+    "source_revision": "6ebbef86a300ff4490c4c37f821e50585e211481"
+  },
+  "observations": [
+    "Current release-status explicitly marks production SDK and ecosystem acceptance incomplete, Browser PP2011 closed.",
+    "Latest returned release remainsv0.2.0 unsigneddevelopmentbootstrap.",
+    "Template main unchanged from alreadyreviewed1bea460; no new template revision observed.",
+    "New golden-development reference differs from historical source-golden candidate; it remains source-golden-review-only. Publication receipt, image inventory and installed compatibility were NOT checked; do not adopt it from this observation.",
+    "Current installed compiler/image unchanged; activeReadproof unaffected."
+  ],
+  "rawMetadataFormat": "GitHub JSON content snapshots normalized with final LF; two repository sourcefiles match returned Gitblob identities byte-exact.",
+  "files": [
+    {
+      "path": "RELEASE-STATUS.md",
+      "bytes": 16065,
+      "sha256": "efb444932768a6adc4d2d5b83dc23db97319f6d027db39c4332b970e8e6266cb"
+    },
+    {
+      "path": "golden-development.lock.json",
+      "bytes": 484,
+      "sha256": "71dc2a807214bd2a118524176b92b9532ba5ab218b492a80ed4feb1005d81cc4"
+    },
+    {
+      "path": "prism-main.json",
+      "bytes": 5401,
+      "sha256": "4a015281635bafda5ffc499a2c199aa0cb35be8d623d1f68396c61b615ff3446"
+    },
+    {
+      "path": "prism-releases.json",
+      "bytes": 5033,
+      "sha256": "709fa4f8d1710c1957e7a14e6c5accf99e5aa6227b168f73f53ddcb3c3d4aa7f"
+    },
+    {
+      "path": "template-main.json",
+      "bytes": 1842,
+      "sha256": "a4548b0466e94f0d3ba61b604c38400d67172dcc239429de6b31073dce0f839c"
+    }
+  ],
+  "acceptance": "NO_PRODUCTION_BINDING_OR_NEW_EXECUTION_AUTHORITY"
+}

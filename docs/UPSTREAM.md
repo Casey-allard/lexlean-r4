@@ -3,6 +3,32 @@
 Reviewed on 2026-10-21. These are source observations, not executable acceptance.
 No research compute, parity evaluation, training, or deployment ran.
 
+## Source observation update, 2026-10-24
+
+The [bounded refresh](continuation/2026-10-24/upstream-binding-refresh/refresh.json)
+and [independent source review](continuation/2026-10-24/upstream-binding-refresh/refresh-spec-review.json)
+preserve fetched metadata and exact source bytes. At captured PrismPM revision
+`dd8b2f0f9f536bffa3acd8180851b9fb234db194`,
+[RELEASE-STATUS.md](https://github.com/UOR-Foundation/PrismPM/blob/dd8b2f0f9f536bffa3acd8180851b9fb234db194/RELEASE-STATUS.md)
+explicitly declares production SDK/ecosystem acceptance incomplete and Browser
+`PP2011` closed. This updates the earlier document observation below; it is
+not a new execution audit of those upstream capabilities.
+
+The fetched release collection still returns `v0.2.0`, whose notes describe an
+unsigned development bootstrap. Its API metadata says `immutable: false`;
+release-note wording does not establish GitHub-enforced immutability. Template
+main remains `1bea460bac6ea50bae53a7eeb674589d7900e6cb` in this observation.
+
+The captured [development lock](https://github.com/UOR-Foundation/PrismPM/blob/dd8b2f0f9f536bffa3acd8180851b9fb234db194/sdk/golden-development.lock.json)
+now names index `sha256:42213da87c564d859e327ab7df2459357d674fa538050f13905caa24c352588e`
+at source `6ebbef86a300ff4490c4c37f821e50585e211481`, with scope
+`source-golden-review-only`. This refresh did not inspect its publication receipt,
+image inventory or installed behavior. It establishes no production binding,
+compatibility or authority to replace the compiler used for the current proofs.
+The installed compiler, earlier source identities and failure history below
+remain unchanged. The captured collection is not an exhaustive audit of every
+publication channel.
+
 ## Source identities
 
 | Source | Reviewed commit | Role |
