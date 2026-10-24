@@ -1,0 +1,297 @@
+{
+  "schema": "lexlean-r4-whole-outer-shell-structural-audit/v1",
+  "status": "SOURCE_ONLY_CHECKS_PASSED_NATIVE_NOT_RUN",
+  "canonicalAstHashes": [
+    {
+      "ordinal": 1,
+      "expected": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "actual": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+      "matches": true
+    },
+    {
+      "ordinal": 2,
+      "expected": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+      "actual": "a3507a2c75e2bbd42937d471666d11a17ef971195bc3af176fc8ba9d1e327c86",
+      "matches": true
+    },
+    {
+      "ordinal": 3,
+      "expected": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+      "actual": "91559aed843fec6924da3b09318186cc6fb208b880a08c9180404f758710584d",
+      "matches": true
+    },
+    {
+      "ordinal": 4,
+      "expected": "3c02004c669fcb53fd0cd4241b9d35b7fd617fc56ac8f98c459f3141bafb2042",
+      "actual": "3c02004c669fcb53fd0cd4241b9d35b7fd617fc56ac8f98c459f3141bafb2042",
+      "matches": true
+    },
+    {
+      "ordinal": 5,
+      "expected": "afcab4e0ad14e2ed27df38a8c3045e2c2ed369539f04a49be1246a64285da8f5",
+      "actual": "afcab4e0ad14e2ed27df38a8c3045e2c2ed369539f04a49be1246a64285da8f5",
+      "matches": true
+    },
+    {
+      "ordinal": 6,
+      "expected": "3a229d6c566ca4a82433ac3724a820fc065031e4a35bc188fcd50e86ddab2290",
+      "actual": "3a229d6c566ca4a82433ac3724a820fc065031e4a35bc188fcd50e86ddab2290",
+      "matches": true
+    },
+    {
+      "ordinal": 7,
+      "expected": "dc712168c569c0774839acb094dd5847ca5f84f2fa6d14b6502fe5c446ec1095",
+      "actual": "dc712168c569c0774839acb094dd5847ca5f84f2fa6d14b6502fe5c446ec1095",
+      "matches": true
+    },
+    {
+      "ordinal": 8,
+      "expected": "d1159e06729627e10a18ec9c02581669e13e94a0dd53f8904a95b6884b79cf54",
+      "actual": "d1159e06729627e10a18ec9c02581669e13e94a0dd53f8904a95b6884b79cf54",
+      "matches": true
+    },
+    {
+      "ordinal": 9,
+      "expected": "04772f22b5e94f04e1ee0b34abaf19bdb968e89ef3415ea5f65318696bbd041e",
+      "actual": "04772f22b5e94f04e1ee0b34abaf19bdb968e89ef3415ea5f65318696bbd041e",
+      "matches": true
+    },
+    {
+      "ordinal": 10,
+      "expected": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "actual": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+      "matches": true
+    },
+    {
+      "ordinal": 11,
+      "expected": "e348f1ee960e5997710a0dac08a3a5de8329b5182380ad8e58bbaf71dcebafeb",
+      "actual": "e348f1ee960e5997710a0dac08a3a5de8329b5182380ad8e58bbaf71dcebafeb",
+      "matches": true
+    },
+    {
+      "ordinal": 12,
+      "expected": "47c4579d00b4dc03a1acc750508c410e2d9b2124ca4313c6838abd7321bda5ab",
+      "actual": "47c4579d00b4dc03a1acc750508c410e2d9b2124ca4313c6838abd7321bda5ab",
+      "matches": true
+    },
+    {
+      "ordinal": 13,
+      "expected": "dfc279e1953e3dceaf3b68c7e1aa3ba04d6d0fddca8a436e57ca0d6e80389fa7",
+      "actual": "dfc279e1953e3dceaf3b68c7e1aa3ba04d6d0fddca8a436e57ca0d6e80389fa7",
+      "matches": true
+    }
+  ],
+  "oneHole": {
+    "path": "/branches/1/body/then_value",
+    "removedCallSha256": "d1159e06729627e10a18ec9c02581669e13e94a0dd53f8904a95b6884b79cf54",
+    "substitute": {
+      "kind": "var",
+      "name": "tailResult"
+    },
+    "restoredInstantiatedBodyExact": true
+  },
+  "positiveHelper": {
+    "parameters": [
+      {
+        "name": "tailResult",
+        "type": {
+          "error": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "module": "R4.ObjectTypes",
+              "name": "ObjError"
+            }
+          },
+          "kind": "result",
+          "ok": {
+            "arguments": [],
+            "kind": "named",
+            "member": {
+              "module": "R4.ObjectTypes",
+              "name": "ObjWholeVerified"
+            }
+          }
+        }
+      }
+    ],
+    "proof": {
+      "kind": "reflexivity"
+    },
+    "axioms": [],
+    "sameModuleReference": "ObjOriginalOuterShell (bare)"
+  },
+  "negative": {
+    "onlyChangedPath": "/declarations/1/statement/right",
+    "positive": {
+      "kind": "var",
+      "name": "tailResult"
+    },
+    "negativeSha256": "47c4579d00b4dc03a1acc750508c410e2d9b2124ca4313c6838abd7321bda5ab",
+    "restoringRightReconstructsEntirePositiveModule": true,
+    "intendedClassification": "Dependency-level false identity. Actual consumer remains selected but proof may stop at helper. Native NOT_RUN."
+  },
+  "consumer": {
+    "statementSha256": "e348f1ee960e5997710a0dac08a3a5de8329b5182380ad8e58bbaf71dcebafeb",
+    "proofKind": "apply",
+    "theorem": {
+      "module": "ObjectWholeOuterShell",
+      "name": "objOriginalOuterShellIdentity"
+    },
+    "typeArguments": [],
+    "argumentCount": 1,
+    "argumentSha256": "4a08ccc3cdb6f3e093100ee9f859bbafabe4b7c64539f5004e108f6acbf75b95",
+    "argumentExactlyStatementRight": true,
+    "axioms": [],
+    "mandatory": "Original admitted binder must convert to the fixed original manifest at actual kernel check. Full actual consumer remains required."
+  },
+  "canonicalJsonAllThreeSources": true,
+  "imports": {
+    "helper": [
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectTypes"
+    ],
+    "consumer": [
+      "ObjectWholeOuterShell",
+      "R4.Object",
+      "R4.ObjectRead",
+      "R4.ObjectTypes"
+    ]
+  },
+  "selection": {
+    "suppliedSourceModules": 12,
+    "staticReachableCount": 12,
+    "staticReachableModules": [
+      "ObjectWholeOuterConsumer",
+      "ObjectWholeOuterShell",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "actualCheck": "NOT_RUN"
+  },
+  "phaseInputCount": 16,
+  "config": {
+    "predecessor": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-postrange-result/candidate/lexlean.toml",
+      "bytes": 690,
+      "sha256": "becc8e8a3875b1936254795293c16076da0615df84106108b7cb3691026719bd"
+    },
+    "onlyDelta": "entrypoint ObjectWholePostrangeResult -> ObjectWholeOuterConsumer",
+    "childTimeoutMs": 300000
+  },
+  "preservation": {
+    "tenOtherDrafts": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "sixMergedSources": [
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      }
+    ],
+    "canonicalFull33": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "originalSnapshotManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending-manifest.json",
+    "bytes": 5064,
+    "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+  },
+  "original17SnapshotsRehashed": true,
+  "preparationInstrumentation": [
+    {
+      "classification": "READ_ONLY_INSPECTION_ERROR_NO_SOURCE_OR_NATIVE_FAILURE",
+      "observation": "A preliminary read-only inspection tried predecessor.sharedStageInputs.length. That predecessor only contains phase.inputs. TypeError: Cannot read properties of undefined (reading length), exit1. No files were written; corrected inspection uses phases[0].inputs."
+    },
+    {
+      "classification": "PRE_WRITE_CONSERVATIVE_BUDGET_ASSERTION_NO_SOURCE_OR_NATIVE_FAILURE",
+      "observation": "First packet serialization included the full concrete consumer argument again as pretty-printed audit metadata. Its rounded allocation exceeded the self-imposed245760-byte estimate and assert(estimate<=245760) rejected before mkdir/write. No candidate files existed or were discarded. This successor metadata uses the exact argument hash and source location instead; all13 semantic AST pins and actual source statements are unchanged. Actual phase cap remains1048576 bytes."
+    }
+  ],
+  "storage": {
+    "hostAvailableBytes": "26570952704",
+    "hostReserveBytes": 10737418240,
+    "phaseAdditionalLimitBytes": 1048576,
+    "conservativePeakAdditionalBytes": 262144,
+    "noSharedSourceCopies": true,
+    "noDiskTemporaryCopies": true
+  },
+  "boundary": "Source preparation only. Actual original ObjWholeRead=ObjWholeAdmitted consumer must compile and kernel replay; admitted binder conversion remains unproved. Structural restoration and helper success alone are insufficient. No complete successful WholeRead Result/Read33/component acceptance, cost/cache/efficiency claim or native authorization."
+}

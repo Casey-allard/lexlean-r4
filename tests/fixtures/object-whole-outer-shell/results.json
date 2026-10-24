@@ -1,0 +1,91 @@
+{
+  "schema": "lexlean-r4-whole-outer-shell-results/v1",
+  "status": "ACCEPTED_LOCAL_ORIGINAL_WHOLE_READ_TO_ADMITTED_EQUATION_ONLY",
+  "statement": "ObjWholeRead(originalBackend,originalManifest,originalLimits) = ObjWholeAdmitted(same exact three original inputs)",
+  "scope": "Actual mandatory consumer and admitted-binder conversion independently kernel checked, retaining genuine manifest admission, backend validation and typed errors. RHS is the real inner call, not its final successful Result.",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/candidate/manifest.json",
+    "bytes": 1649,
+    "sha256": "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+  },
+  "sourceBindings": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/source-bindings.json",
+    "bytes": 16204,
+    "sha256": "d72ddef17c785d94be674688db0bcf26e9476f6b88a474c33d9c3e998268f020"
+  },
+  "phases": {
+    "negative": {
+      "phase": "outer-false",
+      "sourceCheckExit": 0,
+      "admittedModules": 12,
+      "inputs": 16,
+      "verifyExit": 1,
+      "diagnostic": "LLV7002",
+      "aggregateVerifyMs": 14819,
+      "classification": "INTENDED_DEPENDENCY_HELPER_NEGATIVE_ONLY",
+      "mutation": "Only helper expected RHS tailResult becomes actual typed schemaMismatch error.",
+      "boundary": "Rejection in the false symbolic helper; not a full-consumer negative and no positive conversion inferred from it.",
+      "artifactCount": 0,
+      "review": {
+        "path": "evidence/negative-native-review.json",
+        "sha256": "1addfdb37fa41f25052da0c28dd47f3012f91c0fa07e63b70cb8c5be602816c4"
+      }
+    },
+    "positive": {
+      "phase": "outer-positive",
+      "sourceCheckExit": 0,
+      "admittedModules": 12,
+      "inputs": 16,
+      "verifyExit": 0,
+      "aggregateVerifyMs": 19772,
+      "attestationId": "f905d7e39823ac7939f78ccd8b8f73cba4f2042f8ccce6e2cb40e15cf789d7fc",
+      "attestationSha256": "68d2be36a99049c3d4e784c039a07eca6429c2daba5b1de23ee1e7ad21e8a2ab",
+      "buildId": "282a10e6593157340a887d1598f092c6e4022df76b1b2c2f68b38913886b9e08",
+      "sourceId": "d522b788499704bff7ebc383f5372f4fb78d12239cee363c8521d5b052bc8309",
+      "semanticId": "01826eb11925db59146a478796f604d6a91df6b4e90e81b6b21ee870ea9346ba",
+      "artifactFiles": 125,
+      "outputs": 60,
+      "oleans": 12,
+      "emptyAxiomDeclarations": 806,
+      "successfulProcesses": 37,
+      "kernelReplays": 12,
+      "review": {
+        "path": "evidence/positive-native-review.json",
+        "bytes": 13365,
+        "sha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b"
+      }
+    }
+  },
+  "independentArtifactCensus": {
+    "path": "evidence/positive/independent-artifact-census.json.gz",
+    "compressedBytes": 6764,
+    "compressedSha256": "d9b1d99943b8b60c2809da7b25074f841dd9c53497177647eaf450400ca3c143",
+    "decodedBytes": 23337,
+    "decodedSha256": "2816951d06a5a2d5331733a81210f01d28b00c130629e5dd439c2afc0939c5af",
+    "recordsSha256": "46f978c43c2e38195ebded81e25772eb57d56ebfda204458e65a04bd89f4d0e3",
+    "identityNote": "Compressed file hash, decoded JSON envelope hash and records-array digest are distinct; earlier author census preserved unchanged."
+  },
+  "developmentLock": {
+    "path": "evidence/positive/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "2dc8aee284ac6fef9c4680004a8d5c5b21bfc5fdc0d7255b8b8f3777c1a4a22f",
+    "scope": "Genuine official development lock only; not production SDK acceptance."
+  },
+  "operationalChecks": "All16 exact inputs, official lock, source/tool identities, reviewed epoch, idle, zero memory-event counters, storage reserves and independent postcapture checks passed. Observations are discrete samples, not peak or continuous resource measurement.",
+  "history": {
+    "priorReadme": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/README.md",
+      "bytes": 1362,
+      "sha256": "4bfdd4515859ca49031906ca60d709be47128bb6f1a0fbf4b1dfb7fcd4f42968"
+    },
+    "priorReadmeCopy": "evidence/history/README-before-native-acceptance.md",
+    "meaning": "Candidate/readiness/custody files preserve historical preparation, parent-dispatch and pending-review states. Current reviewed outcomes are this results.json and RESULTS.md; earlier status records are not live status."
+  },
+  "limitations": [
+    "No final successful WholeRead Result, original ordinal26 result-to-bytes projection, allRead33 or full Object acceptance.",
+    "Inner ObjWholeAdmitted still needs its separate supported connection to the accepted post-range Result.",
+    "No proof of full Hash, PrismPM integration or Pages acceptance.",
+    "Aggregate times describe these complete selected closures only; no caching, speedup or performance comparison claim.",
+    "Compressed evidence is inert exact text; compiled binaries remain external."
+  ]
+}

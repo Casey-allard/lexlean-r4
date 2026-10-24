@@ -1,0 +1,92 @@
+{
+  "schema": "lexlean-r4-outer-shell-native-acceptance-custody/v1",
+  "status": "ACCEPTED_LOCAL_ORIGINAL_WHOLE_READ_TO_ADMITTED_EQUATION_ONLY",
+  "exactPositiveReview": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/positive-native-review.json",
+      "bytes": 13365,
+      "sha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b"
+    },
+    "destination": "evidence/positive-native-review.json"
+  },
+  "existingNegativeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/evidence/negative-native-review.json",
+    "bytes": 12923,
+    "sha256": "1addfdb37fa41f25052da0c28dd47f3012f91c0fa07e63b70cb8c5be602816c4"
+  },
+  "independentCensus": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/positive-artifact-census.json",
+      "bytes": 23337,
+      "sha256": "2816951d06a5a2d5331733a81210f01d28b00c130629e5dd439c2afc0939c5af"
+    },
+    "path": "evidence/positive/independent-artifact-census.json.gz",
+    "compressedBytes": 6764,
+    "compressedSha256": "d9b1d99943b8b60c2809da7b25074f841dd9c53497177647eaf450400ca3c143",
+    "decodedBytes": 23337,
+    "decodedSha256": "2816951d06a5a2d5331733a81210f01d28b00c130629e5dd439c2afc0939c5af",
+    "recordsSha256": "46f978c43c2e38195ebded81e25772eb57d56ebfda204458e65a04bd89f4d0e3",
+    "identityNote": "Compressed file hash, decoded JSON envelope hash and records-array digest are distinct; earlier author census preserved unchanged.",
+    "method": "Lossless in-memory compression/roundtrip; every census member rehashed against actual artifact. No temporary extracted copies."
+  },
+  "files": [
+    {
+      "path": "evidence/positive-native-review.json",
+      "bytes": 13365,
+      "sha256": "9534c35ab63a89c2590359496fdffdc97da96bbcf07bf397f0aff8fd8e3e6e3b"
+    },
+    {
+      "path": "evidence/positive/independent-artifact-census.json.gz",
+      "bytes": 6764,
+      "sha256": "d9b1d99943b8b60c2809da7b25074f841dd9c53497177647eaf450400ca3c143"
+    },
+    {
+      "path": "evidence/history/README-before-native-acceptance.md",
+      "bytes": 1362,
+      "sha256": "4bfdd4515859ca49031906ca60d709be47128bb6f1a0fbf4b1dfb7fcd4f42968"
+    },
+    {
+      "path": "results.json",
+      "bytes": 4993,
+      "sha256": "e171b127d98a70e15d30e38ea769983d2ddb370573293efc18f8f8acf06fbe6b"
+    },
+    {
+      "path": "RESULTS.md",
+      "bytes": 2789,
+      "sha256": "c72b86eccacfef6878f1666c14a4d1104bc37e3e1e0626ed871a6a46b23ab522"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1139,
+      "sha256": "0e8272e6f4fd8aa26a69de1664f321fd499aa5c26544699412f27befb355ab19"
+    }
+  ],
+  "priorReadme": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-outer-shell/README.md",
+    "bytes": 1362,
+    "sha256": "4bfdd4515859ca49031906ca60d709be47128bb6f1a0fbf4b1dfb7fcd4f42968"
+  },
+  "priorReadmeCopy": "evidence/history/README-before-native-acceptance.md",
+  "preservation": {
+    "priorFiles": 29,
+    "onlyPriorMutableFileChanged": "README.md",
+    "otherPriorFilesUnchanged": 28,
+    "current17PinsUnchanged": true
+  },
+  "history": "Candidate/readiness/custody files preserve historical preparation, parent-dispatch and pending-review states. Current reviewed outcomes are this results.json and RESULTS.md; earlier status records are not live status.",
+  "storage": {
+    "hostAvailableBytes": "29363896320",
+    "aggregateBeforeBytes": 598016,
+    "additionalLimitBytes": 98304,
+    "aggregateLimitBytes": 1048576,
+    "conservativeAdditionalEstimateBytes": 65536,
+    "noDiskTemporaryCopies": true
+  },
+  "boundaries": [
+    "No final successful WholeRead Result, original ordinal26 result-to-bytes projection, allRead33 or full Object acceptance.",
+    "Inner ObjWholeAdmitted still needs its separate supported connection to the accepted post-range Result.",
+    "No proof of full Hash, PrismPM integration or Pages acceptance.",
+    "Aggregate times describe these complete selected closures only; no caching, speedup or performance comparison claim.",
+    "Compressed evidence is inert exact text; compiled binaries remain external."
+  ]
+}

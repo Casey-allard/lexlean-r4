@@ -1,0 +1,33 @@
+{
+  "schema": "lexlean-r4-outer-shell-portable-readiness/v1",
+  "status": "SOURCE_REVIEWED_NATIVE_RUNNING_NOT_ACCEPTED",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/manifest.json",
+    "bytes": 1649,
+    "sha256": "efced9fe7f694709bcfbb6020c4b278fdce0d932ec2d96432b08cdf4b84d4ca2"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/candidate-code-review.json",
+    "bytes": 4889,
+    "sha256": "0d3445f67fc86db73bcbc5bbc192287f488aafe972769e4c29009ec2dcca0469"
+  },
+  "invocationCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-outer-shell/invocation-code-review.json",
+    "bytes": 4265,
+    "sha256": "ca52bff0f421f7771a653090c4505caa0eed49adc584fbfdce2faa6a6da3e45c"
+  },
+  "nativeState": {
+    "source": "Parent dispatch at packaging start; no active phase files inspected.",
+    "negative": {
+      "phase": "outer-false",
+      "session": 31195,
+      "status": "RUNNING_NOT_ACCEPTED_AT_PARENT_DISPATCH"
+    },
+    "positive": {
+      "status": "NO_ACCEPTED_RESULT_SUPPLIED_TO_PACKAGER"
+    },
+    "acceptance": null
+  },
+  "history": "Unchanged candidate source-preparation NOT_RUN is historical. This new readiness record reports the parent-dispatched running negative and no accepted native outcome.",
+  "boundary": "Source preparation only. Actual original ObjWholeRead=ObjWholeAdmitted consumer must compile and kernel replay; admitted binder conversion remains unproved. Structural restoration and helper success alone are insufficient. No complete successful WholeRead Result/Read33/component acceptance, cost/cache/efficiency claim or native authorization."
+}

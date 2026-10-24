@@ -1,0 +1,16 @@
+{
+  "schema": "lexlean-r4-outer-shell-invocation/v1",
+  "status": "FROZEN_PENDING_INDEPENDENT_REVIEW_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "invoke-whole-outer-shell.mjs",
+      "bytes": 7717,
+      "sha256": "9fa2ffe58370ca9816d8412910ddeb2392a04d476fb192b7dc218a3da7e35578"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 1908,
+      "sha256": "0572c5569b030ca40aa9390b0ed0e3486450dfb1584127b420b3f209e66415e3"
+    }
+  ]
+}

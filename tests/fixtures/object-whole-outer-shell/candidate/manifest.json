@@ -1,0 +1,42 @@
+{
+  "schema": "lexlean-r4-whole-outer-shell-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+      "bytes": 22144,
+      "sha256": "e23fd7befbf7c5cf1cc1309013d46a42e56f34892b96665505c4a110b81fac99"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+      "bytes": 21790,
+      "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+      "bytes": 58020,
+      "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 688,
+      "sha256": "2123b165481063661aa815eeec7ce03bc893fbfd8e4ffb518d79b65251feec44"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 22551,
+      "sha256": "fa089af671e4f5e26f17b7c02248a94a27ced30f5512e101d8a2b7e8796d509f"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 11002,
+      "sha256": "952ab86b5d323528ec2f3a8e069cc0a843ede0e9ad0b933e35046e317ed8f199"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1295,
+      "sha256": "8ecd39f8ed7ba3c4c63b78f2873e49cb04382a39842d3c807ff61a27871b5cb7"
+    }
+  ],
+  "boundary": "Source preparation only. Actual original ObjWholeRead=ObjWholeAdmitted consumer must compile and kernel replay; admitted binder conversion remains unproved. Structural restoration and helper success alone are insufficient. No complete successful WholeRead Result/Read33/component acceptance, cost/cache/efficiency claim or native authorization."
+}
