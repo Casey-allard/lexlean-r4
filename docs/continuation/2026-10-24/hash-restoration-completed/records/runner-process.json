@@ -1,0 +1,21 @@
+{
+  "args": [
+    "node",
+    "/tmp/r4-hash-wire-restoration-live-epoch-20261024/runner.mjs",
+    "execute",
+    "--execute-scheduled",
+    "--plan-sha256",
+    "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04",
+    "--runner-sha256",
+    "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1",
+    "--auditor-sha256",
+    "5794e827a728075dd144d8cc12b47222b96376d0d993a3dbcbffa01a014055f1",
+    "--guards-sha256",
+    "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b"
+  ],
+  "started": "2026-10-24T07:31:15.903471+00:00",
+  "ended": "2026-10-24T09:44:39.472979+00:00",
+  "status": 0,
+  "stdoutSha256": "9019b80783fb87539ea748a125655c70d186e3edfd5e1f5a8220d4fdaf665ba5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

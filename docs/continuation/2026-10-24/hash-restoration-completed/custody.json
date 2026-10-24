@@ -1,0 +1,683 @@
+{
+  "schema": "lexlean-r4-completed-restoration-custody/v1",
+  "archive": {
+    "path": "docs/continuation/2026-10-24/hash-restoration-completed/archives/actual-command-text.json.gz",
+    "bytes": 408505,
+    "sha256": "4bfc4d5053ee84dd1bbf71a1ed642282bca3b8d1879f2c35709757429a850ae1",
+    "decodedBytes": 4251506,
+    "decodedSha256": "c089dddd178cb905129048257e3fb8e4f15878192823c1f81f6c0a96ec567c16",
+    "members": 4601,
+    "uniqueTextContents": 1759,
+    "rawMemberBytes": 5476451,
+    "encoding": "JSON files rows bind exact absolute original paths, UTF8 bytes and SHA256; contents indexed bySHA256. Every original can be reconstructed losslessly. Gzip deterministic mtime0; no binary artifacts.",
+    "scope": "All files under current native evidence except verifiedbundle subtrees, plus all launch-immediate files. Includes62individualauditrows,78rootrestorationaudit,baseline/retainedaudits,allper-rootpre/postrawguards and finalguards."
+  },
+  "exactCopies": [
+    {
+      "original": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/summary.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/summary.json",
+      "bytes": 43837,
+      "sha256": "ceb61fd572b6fc75f49d1542b41ff3b505fca59f5cd7d265b0267ef9a3a53aa6"
+    },
+    {
+      "original": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/restoration-audit.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/restoration-audit.json",
+      "bytes": 41006,
+      "sha256": "6f960de8b165836e7ff3c57ecae34ff45876f86072e186688f15cdc0404b64a7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner-process.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner-process.json",
+      "bytes": 803,
+      "sha256": "203841484651feb15c74b6d86a1aee635004a0cd97a3dfc1e381a3b08833af16"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner.stdout",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stdout",
+      "bytes": 6470,
+      "sha256": "9019b80783fb87539ea748a125655c70d186e3edfd5e1f5a8220d4fdaf665ba5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner.stderr",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-final-restoration-review.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-final-restoration-review.json",
+      "bytes": 17582,
+      "sha256": "c23e29a2dc2daed4cd700e9903d1ebf90f002090cab50aa8e81d347d46c60651"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-completed-roots-preaudit.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-completed-roots-preaudit.json",
+      "bytes": 36858,
+      "sha256": "fa905803d1973df374601e5dc93d459da66ecf82b900b5d72f17792b56983b96"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-assessment.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-assessment.json",
+      "bytes": 22186,
+      "sha256": "a6c882d94dc1f11fd83b60493d3006804c8057929ada53e3930a2ca53ead5f80"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-spec-review.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-spec-review.json",
+      "bytes": 6861,
+      "sha256": "88cd8574b49835c2f476487ae766f8f1f0bfa143754138353bdbccefaf22e1dd"
+    }
+  ],
+  "excludedCurrentBundles": [
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireAdmissionControls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4449646,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireByteBridgeControls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4839440,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross10Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4346849,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross11Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4336567,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross12Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4342107,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross13Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4342107,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross14Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4342103,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross15Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4342567,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross16Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4333921,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross17Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4334701,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross18Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4334933,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross19Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4335173,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross22Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4334855,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross23Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4334887,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross24Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4335347,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross25Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4336707,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross26Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4336503,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross27Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4336627,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross28Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4336883,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross29Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4337007,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireCross30Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4341013,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect10Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4345513,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect11Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4332608,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect12Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4338383,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect13Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4338213,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect14Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4338045,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect15Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4338425,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect16Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4330968,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect17Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4331516,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect18Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4331564,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect19Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4331950,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect22Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4329512,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect23Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4329498,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect24Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4335797,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect25Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4330722,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect26Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4330854,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect27Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4330946,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect28Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4331174,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect29Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4331132,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireDirect30Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4333786,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShaStateControls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 5209369,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape02Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4370892,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape03Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4371588,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape04Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4381198,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape05Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4382088,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape06Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4383624,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape07Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4384168,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape08Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4399952,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape09Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4392134,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape10Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4382354,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape11Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4351634,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape12Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4357076,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape13Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4357076,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape14Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4357074,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape15Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4357454,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape16Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4349950,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape17Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4350212,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape18Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4350428,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape19Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4350648,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShape24Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4371786,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShapeBlake128Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4355602,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    },
+    {
+      "path": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/positive/HashWireShapeNodeScale37Controls/verify/verifiedbundle",
+      "files": 65,
+      "bytes": 4353426,
+      "classification": "External actual generated/binary artifact bundle, independently audited; not copied into portable checkpoint."
+    }
+  ],
+  "retainedExternalAuthority": {
+    "plan": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04",
+    "priorEvidence": "/tmp/r4-hash-wire-mutation-custody-evidence-20261023",
+    "retainedRoots": [
+      "HashWireDirect02Controls",
+      "HashWireCross02Controls",
+      "HashWireDirect03Controls",
+      "HashWireCross03Controls",
+      "HashWireDirect04Controls",
+      "HashWireCross04Controls",
+      "HashWireDirect05Controls",
+      "HashWireCross05Controls",
+      "HashWireDirect06Controls",
+      "HashWireCross06Controls",
+      "HashWireDirect07Controls",
+      "HashWireCross07Controls",
+      "HashWireDirect08Controls",
+      "HashWireCross08Controls",
+      "HashWireDirect09Controls",
+      "HashWireCross09Controls"
+    ],
+    "note": "Locations and raw identities are bound by original plan/dependencies and independent actual review, not copied binaries."
+  },
+  "predecessors": [
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/custody.json",
+      "bytes": 43125,
+      "sha256": "d199e057886484f106bc32dfe0007c3ad47d7a16b1bc1aee3d59d40bbbb9d492"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/source-bindings.json",
+      "bytes": 181874,
+      "sha256": "8ce8efefde345942927fb93e521b6d6d85b0fc28c7041fa9f5bb22e97d099a87"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/results.json",
+      "bytes": 7254,
+      "sha256": "d8e1e1a334934c11ed3b811bebafee63fa99a019f8d258e9a1cff43750beac17"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/review-binding.json",
+      "bytes": 2949,
+      "sha256": "63842cc66cce0925fc6ce7b05698644238ba83adf55e63f4aefda5ca6974916b"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/delivery-manifest.json",
+      "bytes": 8481,
+      "sha256": "ca6a5411ff76fe8304475b3f18ea92db8739d429d4e3080901a2f009cf29b5e2"
+    }
+  ],
+  "preservation": {
+    "current17": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/OBJECT.md",
+        "bytes": 22747,
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/features/suites/r4-blake3.feature",
+        "bytes": 827,
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/features/suites/r4-object.feature",
+        "bytes": 993,
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/features/suites/r4-prediction.feature",
+        "bytes": 835,
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "bytes": 9762,
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectCodecControls.lex.tex",
+        "bytes": 544911,
+        "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectControls.lex.tex",
+        "bytes": 345063,
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+        "bytes": 52458,
+        "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/model/authorities.toml",
+        "bytes": 17623,
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/model/ids.toml",
+        "bytes": 9974,
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/model/ledger.toml",
+        "bytes": 8230,
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "snapshots17": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+        "bytes": 22747,
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature",
+        "bytes": 827,
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/features/suites/r4-object.feature",
+        "bytes": 993,
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature",
+        "bytes": 835,
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111631,
+        "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectRead.lex.tex",
+        "bytes": 86326,
+        "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectStore.lex.tex",
+        "bytes": 66585,
+        "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83582,
+        "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "bytes": 9762,
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/tests/lexlean/ObjectCodecControls.lex.tex",
+        "bytes": 544911,
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex",
+        "bytes": 345063,
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/tests/lexlean/ObjectReadControls.lex.tex",
+        "bytes": 330157,
+        "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/model/authorities.toml",
+        "bytes": 17623,
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/model/ids.toml",
+        "bytes": 9974,
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/model/ledger.toml",
+        "bytes": 8230,
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "frozenReadReferences": 83,
+    "current17Unchanged": true,
+    "snapshot17Unchanged": true,
+    "frozenReadUnchanged": true
+  },
+  "storage": {
+    "availableBytesBefore": "21573459968",
+    "availableBytesAfter": "21570535424",
+    "aggregateAllocationCapBytes": 1048576,
+    "temporaryDiskCopies": 0,
+    "compression": "All serialization/gzip/roundtrip in memory; no temporary archive replacement."
+  },
+  "packaging": "No native execution or proof replay; exact source/text packaging only."
+}

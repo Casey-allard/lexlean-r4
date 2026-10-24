@@ -1,0 +1,436 @@
+{
+  "schema": "lexlean-r4-pending-model-scenario-completion-assessment/v1",
+  "at": "2026-10-24T09:31:22.683Z",
+  "status": "READ_ONLY_SOURCE_ASSESSMENT_NOT_ACCEPTANCE",
+  "scope": "Seven non-control drafts; two control-file dispositions remain separate. All seven still equal original archived snapshots. No repository edits or native calls.",
+  "base": "Parent identifies current main a45a816. Current owned sources and primary committed model files were read directly; this assessor did not fetch or operate Git.",
+  "seven": [
+    {
+      "file": "model/authorities.toml",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/model/authorities.toml",
+        "bytes": 17623,
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/model/authorities.toml",
+        "bytes": 17623,
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      "unchangedSinceOriginal": true
+    },
+    {
+      "file": "model/ids.toml",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/model/ids.toml",
+        "bytes": 9974,
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/model/ids.toml",
+        "bytes": 9974,
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      "unchangedSinceOriginal": true
+    },
+    {
+      "file": "model/ledger.toml",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/model/ledger.toml",
+        "bytes": 8230,
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/model/ledger.toml",
+        "bytes": 8230,
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      },
+      "unchangedSinceOriginal": true
+    },
+    {
+      "file": "features/suites/r4-blake3.feature",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/features/suites/r4-blake3.feature",
+        "bytes": 827,
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature",
+        "bytes": 827,
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      "unchangedSinceOriginal": true
+    },
+    {
+      "file": "features/suites/r4-object.feature",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/features/suites/r4-object.feature",
+        "bytes": 993,
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/features/suites/r4-object.feature",
+        "bytes": 993,
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      "unchangedSinceOriginal": true
+    },
+    {
+      "file": "features/suites/r4-prediction.feature",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/features/suites/r4-prediction.feature",
+        "bytes": 835,
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature",
+        "bytes": 835,
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      "unchangedSinceOriginal": true
+    },
+    {
+      "file": "docs/OBJECT.md",
+      "current": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/OBJECT.md",
+        "bytes": 22747,
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      "snapshot": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+        "bytes": 22747,
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      "unchangedSinceOriginal": true
+    }
+  ],
+  "modelDelta": [
+    {
+      "file": "model/ids.toml",
+      "committedBase": {
+        "path": "/Users/casey.allard/lexlean-r4/model/ids.toml",
+        "bytes": 8713,
+        "sha256": "8fc725f867880f5ca47243df1c41973a785ecb54a536d355bd0997753af9f44f"
+      },
+      "baseCount": 19,
+      "draftCount": 22,
+      "addedIds": [
+        "R4-15",
+        "R4-13",
+        "R4-19"
+      ],
+      "removedIds": [],
+      "changedExistingIds": [],
+      "existingRecordOrder": "R4-22 and its two authorities/two claims moved to end without record changes."
+    },
+    {
+      "file": "model/authorities.toml",
+      "committedBase": {
+        "path": "/Users/casey.allard/lexlean-r4/model/authorities.toml",
+        "bytes": 15367,
+        "sha256": "22fdf36360611ded8e036eec476181e0b22086e67756737f6bc50bc5f34390b6"
+      },
+      "baseCount": 22,
+      "draftCount": 25,
+      "addedIds": [
+        "BLAKE3-UNKEYED-VECTORS",
+        "UOR-CONTENT-OBJECTS",
+        "UOR-TARGET-FREE-WRITER"
+      ],
+      "removedIds": [],
+      "changedExistingIds": [],
+      "existingRecordOrder": "R4-22 and its two authorities/two claims moved to end without record changes."
+    },
+    {
+      "file": "model/ledger.toml",
+      "committedBase": {
+        "path": "/Users/casey.allard/lexlean-r4/model/ledger.toml",
+        "bytes": 7307,
+        "sha256": "1e2040c4f9094af9ca5577d8638c01c212d704c65d2f4e31f2f73a6db92166eb"
+      },
+      "baseCount": 22,
+      "draftCount": 25,
+      "addedIds": [
+        "AUTH-BLAKE3-UNKEYED",
+        "AUTH-CONTENT-OBJECTS",
+        "AUTH-TARGET-FREE-WRITER"
+      ],
+      "removedIds": [],
+      "changedExistingIds": [],
+      "existingRecordOrder": "R4-22 and its two authorities/two claims moved to end without record changes."
+    }
+  ],
+  "priorAssessment": {
+    "authority": {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/draft-integration-next-step.json",
+      "bytes": 20358,
+      "sha256": "6428358b4580679c9cb2dbc76f3d557a499b481c1acbe4976e72efdffabc7046"
+    },
+    "alreadyCovered": [
+      "403 controls and six additions after historical397",
+      "Missing canonical_content_objects_r4_13 wrapper, build registration, root mapping and model/scenario/doc integration",
+      "Hash, mutation/restoration, official SDK/PrismPM and Pages boundaries"
+    ],
+    "actualNewDelta": [
+      "Codec311+Store20 now have reviewed local receipts:331/403. Do not redo merged runtime compatibility reconciliation.",
+      "Read33 now uses supported core-module/1 and preserves original33 goals, but official Read phases remain NOT_RUN.",
+      "Construction second-prefix source and invocation are reviewed preparation only; mandatory original257 A=E and all39 remain unaccepted.",
+      "PR40 disposition supersedes the conditional UInt20 representation experiment; this is not 20 passed controls or removal of full BLAKE3 requirements.",
+      "Parsed current model differences are additive rows plus existing-record reordering; no existing record content was deleted or changed.",
+      "Prediction draft still promises full general projection and lawful loss safety beyond accepted finite and boundary proofs."
+    ]
+  },
+  "currentRegistration": {
+    "objectControls": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectCodecControls.lex.tex",
+        "bytes": 544911,
+        "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865",
+        "declarations": 311,
+        "spec": "lexlean/semantic-module/2",
+        "defaultEntrypoint": false
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687",
+        "declarations": 20,
+        "spec": "lexlean/semantic-module/2",
+        "defaultEntrypoint": false
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+        "bytes": 52458,
+        "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c",
+        "declarations": 33,
+        "spec": "lexlean/core-module/1",
+        "defaultEntrypoint": false
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectControls.lex.tex",
+        "bytes": 345063,
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+        "declarations": 39,
+        "spec": "lexlean/semantic-module/1",
+        "defaultEntrypoint": false
+      }
+    ],
+    "defaultEntrypointCount": 88,
+    "predictionRootEntryPoints": [],
+    "blake3RootEntryPoints": [],
+    "requiredRustTestsForR4_13_15_19": [],
+    "sourceScope": "Immediate crates/conformance/tests/*.rs function-name scan. build.rs lines74-124 has no required gate for R4-13/15/19. No executable test run.",
+    "conformance": "CONFORMANCE.md has none of R4-13/15/19. The pending working IDs include them. just model-write is the only allowed generated update; it does not make missing proofs or tests valid.",
+    "bdd": "crates/conformance/tests/bdd.rs lines74-94 enforces ID/scenario/test consistency. Gherkin prose is not receipt verification or semantic proof."
+  },
+  "validPieces": [
+    {
+      "files": [
+        "model/authorities.toml",
+        "model/ledger.toml"
+      ],
+      "refs": [
+        "authorities:55-61,79-85,191-197",
+        "ledger:47-50,65-68,149-152"
+      ],
+      "finding": "The three added authorities bind imported content-object, BLAKE3 and target-free-writer contracts. Corresponding some-true claims reference matching authority IDs and preserve security/runtime limitations. They are not local proof claims. This assessment did not re-download upstream checksums."
+    },
+    {
+      "file": "features/suites/r4-object.feature",
+      "lines": "4-14",
+      "finding": "Preserves ordered occurrence versus record deduplication, typed codecs, atomic import, closure traversal, range authentication and whole SHA distinction. Explicit peer/tokenizer/browser exclusions are correct; these clauses should not be weakened to match partial acceptance."
+    },
+    {
+      "file": "features/suites/r4-blake3.feature",
+      "lines": "5-14",
+      "finding": "Correctly retains all35 vectors, complete block/chunk/tree/counter/ROOT behavior, exact errors and source-valid defects. Admitted representation/no-additional-axioms wording permits the approved Nat design and requires no abandoned UInt API."
+    },
+    {
+      "file": "features/suites/r4-prediction.feature",
+      "lines": "5-13",
+      "finding": "Full identity retention, complete root admission, universal target/policy/telemetry projection and general lawful loss safety match the approved requirement. They remain unsatisfied as a whole."
+    },
+    {
+      "file": "docs/OBJECT.md",
+      "lines": "3-6,88-96,198-200",
+      "finding": "Disclaims full acceptance and correctly separates durability/hash claims. The apparent397 count at161-166 is already corrected to403 at198-200; preserve both as dated history, not an invented missing count repair."
+    }
+  ],
+  "gaps": [
+    {
+      "id": "OBJECT-MODEL",
+      "files": [
+        "model/ids.toml:65-68",
+        "features/suites/r4-object.feature:4-14"
+      ],
+      "mismatch": "The R4-13 build statement covers all Object semantics; actual local root acceptance is331/403, excluding33 Read and39 Construction. A build row means constructed and validated under model/codegen.rs, not merely authored.",
+      "remaining": [
+        "Read33 intended negative, focused positive and full33, with independent actual artifacts/empty axioms/kernel replay review",
+        "All39 original Construction names/propositions, including original257 digest/roots/distinct and other literal/repeated/boundary cases",
+        "Six required Object semantic defects and restored original verification, plus actual Hash qualification",
+        "Existing-architecture actual-receipt wrapper canonical_content_objects_r4_13, mandatory build.rs registration and complete official root/config mapping"
+      ],
+      "minimumNextEdits": "After relevant native gates pass, connect exact accepted roots to the shared receipt verifier and mandatory registration; integrate the corresponding authority, ledger, ID and unchanged full scenario in a reviewed commit; regenerate CONFORMANCE through just model-write. Do not replace the Object behavior in Rust or omit unproved clauses."
+    },
+    {
+      "id": "BLAKE3-MODEL",
+      "files": [
+        "model/ids.toml:53-56",
+        "features/suites/r4-blake3.feature:5-14",
+        "docs/BLAKE3.md:189-195"
+      ],
+      "mismatch": "Complete BLAKE3 build claim exceeds retained255/272 (18/35 published digests). Nat125 certifies primitives only. HashWire SHA256/BLAKE2b96 restoration is not BLAKE3 qualification.",
+      "remaining": [
+        "Revalidate exact retained Nat/Core/algorithm source and checkpoint custody when resuming",
+        "17 remaining published literal-tree digests, retaining all35 required cases",
+        "Nine staged semantic mutants, intended diagnostics, restored positives and full272 integration",
+        "Mandatory actual BLAKE3 receipt gate/default official graph under genuine binding"
+      ],
+      "minimumNextEdits": "Preserve full BLAKE3 statement/scenario and Nat representation approved by design§9. Integrate real accepted Nat implementation and complete gates before build promotion. Do not restore the rejected UInt wrapper or count its20 as passed. Separate byte-preserving physical disposition remains after frozen Read phases close."
+    },
+    {
+      "id": "PREDICTION-MODEL",
+      "files": [
+        "model/ids.toml:143-146",
+        "features/suites/r4-prediction.feature:5-13",
+        "docs/PREDICTION.md:3-9,246-249"
+      ],
+      "mismatch": "31 finite controls with seven semantic mutants/restoration and accepted length/ranked/finalizer/shared-selection lemmas do not establish full general supervised projection or lawful loss safety. Current docs explicitly leave those open.",
+      "remaining": [
+        "General scoring success over the admitted safe domain",
+        "Target lookup success; ranking nonemptiness, complete identities and minimum/order",
+        "General supervised loss safety and full admitted-domain target/policy/telemetry projection",
+        "Mandatory actual prediction receipt gate, build registration and complete default-root integration"
+      ],
+      "minimumNextEdits": "Complete existing proof obligations and runtime composition first. Retain the original full build statement/scenario, then integrate actual roots/receipt gate and regenerate model output. Do not claim artifact custody, fixed-memory serving, GPU research parity or deployment."
+    },
+    {
+      "id": "OBJECT-DOCUMENTATION",
+      "files": [
+        "docs/OBJECT.md:161-166,198-210,272-287,301-307,337-361"
+      ],
+      "mismatch": "The document ends at October21 experiments. Current331/403, later installed native whole-read proof and new Read33 source preparation are missing. Old257-not-run and normalized source hash passages are historical, not current. Lines272-287 prescribe an aggregate using only argument-free semantic Apply, predating the reviewed native Read33 representation.",
+      "minimumNextEdits": "Once the current Read outcome is known, add a dated current-status section with exact current source/result links and accepted boundaries; mark retained October21 text as historical. Reconcile the integration description with independently reviewed actual mixed representations while retaining complete403 goal census, actual receipt/axiom/replay and mutation requirements. Preserve old failures and immutable original document; do not silently replace their source pins."
+    },
+    {
+      "id": "MODEL-ORDERING",
+      "files": [
+        "model/authorities.toml",
+        "model/ids.toml",
+        "model/ledger.toml"
+      ],
+      "mismatch": "Existing R4-22 and its two authorities/two claims moved from earlier positions to the end. Parsed record equality confirms only ordering changed. This is not removed Snapshot functionality.",
+      "minimumNextEdits": "Keep unrelated existing main records and ordering. Integrate only intentional new component rows; never overwrite current main using the entire old draft or treat textual deletion/addition as a semantic removal."
+    },
+    {
+      "id": "INTEGRATION-TRUTHFULNESS",
+      "files": [
+        "justfile:6,15-23",
+        "crates/conformance/build.rs:74-124",
+        "crates/conformance/tests/bdd.rs:74-94",
+        "lexlean.toml:6"
+      ],
+      "mismatch": "Three pending build IDs have scenarios but no mandatory Rust tests/default roots/generated CONFORMANCE. Blind staging all drafts would leave a model/BDD consistency gap. Source snapshots already on main are preservation, not integration.",
+      "minimumNextEdits": "Use existing component delivery sequence, not a new framework: actual full component qualification, exact receipt wrapper plus mandatory registration, genuine config/lock binding, then corresponding model/scenario and generated output. Run existing model/BDD/scoped checks and complete just vv in the actual production SDK when bound. No placeholders, skips, forged locks or reduced release gates."
+    }
+  ],
+  "nextAction": "Retain Read33 native priority behind the sole restoration job; afterward proceed with original Construction proof and real controls. This assessment is preparation only and does not complete any draft. BLAKE3 and Prediction general obligations remain required distinct work.",
+  "preservation": "All seven sources and snapshots rehashed unchanged; no source copy, native command, model-write, model/BDD test, VM operation, repo edit or unrelated process interaction.",
+  "limitations": [
+    "Retained BLAKE3/Prediction counts are current documented historical results, not freshly replayed bundles.",
+    "No acceptance, claim promotion, model redesign, proof substitution or new execution authority.",
+    "Nine pending drafts remain nine."
+  ],
+  "references": [
+    {
+      "path": "tests/fixtures/object257-symbolic-continuation/evidence/draft-integration-next-step.json",
+      "bytes": 20358,
+      "sha256": "6428358b4580679c9cb2dbc76f3d557a499b481c1acbe4976e72efdffabc7046"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/decision.json",
+      "bytes": 16008,
+      "sha256": "898bd2c7cb1117c4867824501b830b8c83c4d4a97dca8d9334998e03ca95185f"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/object-store-integration/RESULTS.md",
+      "bytes": 5307,
+      "sha256": "f3a07d1551c7fbf100e7516ba4b2f2a33cb88031780a6e7a2385ce7821db8709"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/RESULTS.md",
+      "bytes": 2684,
+      "sha256": "151770262bbf2ad8532a3dc7b581aa7fb037e58605aaac01c5c91aa71756509e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/RESULTS.md",
+      "bytes": 2895,
+      "sha256": "14243724e884cec27336834d03cf6cb19f8651fccc10f0e78445cfaf79d83b5d"
+    },
+    {
+      "path": "tests/fixtures/object-construction-second-state-source/results.json",
+      "bytes": 1606,
+      "sha256": "3df9958264939b03be3f48d5856bc1291b4c75ec52e0a235f912d81561734f89"
+    },
+    {
+      "path": "docs/PREDICTION.md",
+      "bytes": 15862,
+      "sha256": "0e809c06d81cbd38782f01cb8409304f0f1fb63819512299579bd656fa40c4ab"
+    },
+    {
+      "path": "docs/BLAKE3.md",
+      "bytes": 18232,
+      "sha256": "3209df04f02764ad8b4cd96219b80a32035439f24df79f23ae105df6240f6992"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 73533,
+      "sha256": "eeb8334da1d97fee56463840a2248ec4d121dbb86a21a801f8a69391d13690fa"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 57748,
+      "sha256": "233548bf7006dd1614d5582aead5ba365d6d12b520364a125cb4843829345c4c"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 4584,
+      "sha256": "572bbd3606d49b9d44788ff483ed9249695428727cbb872b898ed388608e46d4"
+    },
+    {
+      "path": "CONFORMANCE.md",
+      "bytes": 19431,
+      "sha256": "77c0cdfb2e454d4d2eda77e5620b9cfa3bac316d229c5227e1d54fb33b4bd2ab"
+    },
+    {
+      "path": "crates/conformance/build.rs",
+      "bytes": 4285,
+      "sha256": "82a0fbc0d8f5952f0b666a9abc19378ddaee29422577400b70b815f96bdc3e63"
+    },
+    {
+      "path": "crates/conformance/tests/bdd.rs",
+      "bytes": 7622,
+      "sha256": "b56409e009cce3a90d57ad9d4fcff4d91ea7477543f39a264ffe1c264e918548"
+    },
+    {
+      "path": "crates/model/src/codegen.rs",
+      "bytes": 4752,
+      "sha256": "2b9a2aca5c7eab6122049c24956ffd45b8f833377bd1921f3257d95310c10a84"
+    },
+    {
+      "path": "justfile",
+      "bytes": 1816,
+      "sha256": "b626943b363b81c2a707ca5b60bd50cb2b7b4508e4629d4a6216755d29214cf9"
+    }
+  ],
+  "authorHistory": [
+    "Initial in-memory report serialization exceeded24KiB and was rejected before writing; this compact successor omits duplicate full model statements while retaining all IDs, exact pins and concrete gaps.",
+    "A read-only search named absent validate.rs and an unmatched shell glob; no source or runtime changes resulted."
+  ],
+  "storage": {
+    "freeBytesBefore": "21521772544",
+    "minimumReserveBytes": 10737418240,
+    "reportCapBytes": 24576,
+    "sourceCopies": 0
+  }
+}

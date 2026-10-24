@@ -1,0 +1,632 @@
+{
+  "schema": "lexlean-r4-completed-restoration-source-bindings/v1",
+  "priorPortableAuthority": [
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/custody.json",
+      "bytes": 43125,
+      "sha256": "d199e057886484f106bc32dfe0007c3ad47d7a16b1bc1aee3d59d40bbbb9d492"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/source-bindings.json",
+      "bytes": 181874,
+      "sha256": "8ce8efefde345942927fb93e521b6d6d85b0fc28c7041fa9f5bb22e97d099a87"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/results.json",
+      "bytes": 7254,
+      "sha256": "d8e1e1a334934c11ed3b811bebafee63fa99a019f8d258e9a1cff43750beac17"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/review-binding.json",
+      "bytes": 2949,
+      "sha256": "63842cc66cce0925fc6ce7b05698644238ba83adf55e63f4aefda5ca6974916b"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/delivery-manifest.json",
+      "bytes": 8481,
+      "sha256": "ca6a5411ff76fe8304475b3f18ea92db8739d429d4e3080901a2f009cf29b5e2"
+    }
+  ],
+  "sourceInputCount": 88,
+  "sourceInputs": [
+    {
+      "stagePath": "lake-manifest.json",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "stagePath": "lakefile.toml",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "stagePath": "lean-toolchain",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "stagePath": "lexlean.toml",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lexlean.toml",
+      "bytes": 4508,
+      "sha256": "db8a3be71be87f8aaf2db8122895e3083a0a50971291d6ee4011464b3792682e"
+    },
+    {
+      "stagePath": "src/R4/Hash.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+    },
+    {
+      "stagePath": "src/R4/HashNat.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+    },
+    {
+      "stagePath": "src/R4/HashNatCore.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+    },
+    {
+      "stagePath": "src/R4/HashWire.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "stagePath": "src/R4/Words.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireAdmissionControls.lex.tex",
+      "bytes": 109739,
+      "sha256": "3b45c05d65963e419901877da9357a8402ace4ecb23f84c4c7b67566b8f3ac5c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireByteBridgeControls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireByteBridgeControls.lex.tex",
+      "bytes": 97852,
+      "sha256": "0fc0e6dfa6acca98474f4e20c98e029637489976c1be8407400f31267296b3d4"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross02Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross02Controls.lex.tex",
+      "bytes": 1552,
+      "sha256": "0e2155bb17fd959f914fb01c84b36f5862396cdb9e7bf77b2f389f635e704990"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross03Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross03Controls.lex.tex",
+      "bytes": 1900,
+      "sha256": "fdc5154015b3aa5b94a32daae29e3c9107d65b796acc4dc4fb22d422412f81de"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross04Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross04Controls.lex.tex",
+      "bytes": 7990,
+      "sha256": "6f27d7bbcf25d9e72acea9219d83f1ecca8146a6b1aef6d010a6a9cf59646192"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross05Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross05Controls.lex.tex",
+      "bytes": 8108,
+      "sha256": "c82b7a3c8d625bf6ca0b9b6506e5f350602dfea1861a978f77d1279e1c899d03"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross06Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross06Controls.lex.tex",
+      "bytes": 8944,
+      "sha256": "759c3dabea409cac7ca437cbb48510f2e70eefdbdac7c91b5722482b0cb5f439"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross07Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross07Controls.lex.tex",
+      "bytes": 9052,
+      "sha256": "924ac728fbf6c5b9ee5fed15dc2d289374849dbde3849953c341acdbbb237643"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross08Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross08Controls.lex.tex",
+      "bytes": 21108,
+      "sha256": "64b65024a7f0d50cecd5bdfbd370d950878a3f1437f7d5c0b28ae3dbbb5a34c8"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross09Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross09Controls.lex.tex",
+      "bytes": 13024,
+      "sha256": "80327b8ff5817fcb5571710cc88b17cd05cc2c3334bd87dfe66a9108d7359202"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross10Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross10Controls.lex.tex",
+      "bytes": 8782,
+      "sha256": "b22a3df706178bdc8ef8ce8ccf1732a7cdc9b05ba1f2aa6267ed6a6b70deda5e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross11Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross11Controls.lex.tex",
+      "bytes": 5251,
+      "sha256": "67fbde62914cb4a5a6453e92f1c84e37d8d3b4d6d9c504557aa78c15aaaacb57"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross12Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross12Controls.lex.tex",
+      "bytes": 5349,
+      "sha256": "aa1adf7917a62847b9fc44684f9d903c928dd2b7dbeeb43df868632a5b7f93d7"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross13Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross13Controls.lex.tex",
+      "bytes": 5349,
+      "sha256": "90aa09d301f15120e9b7de02bd368c87ff9a187174f8de60519511a850a123e8"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross14Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross14Controls.lex.tex",
+      "bytes": 5347,
+      "sha256": "bb7f7fda7b6af83eec91b5bf81b04db87d41f9ae07a21f7ae98387e84395b9af"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross15Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross15Controls.lex.tex",
+      "bytes": 5831,
+      "sha256": "daa4817510cc21df122c866c7f87f7afd83fddd9ddeb2357c7f962f9240df3fc"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross16Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross16Controls.lex.tex",
+      "bytes": 1577,
+      "sha256": "08899c959032b6798e6b98b0727ceeaa3b679dc2fd668494d70602a0a708ceaf"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross17Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross17Controls.lex.tex",
+      "bytes": 1691,
+      "sha256": "7cca9d03d57ca3a1d81e6ad7231cb29749515085625c354aa57154e087e4cf6c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross18Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross18Controls.lex.tex",
+      "bytes": 1807,
+      "sha256": "0a751be7f2b6fe11b6a82810daf31a00f6e5af8fcdb0ed271e6d6cfa097b2b34"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross19Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross19Controls.lex.tex",
+      "bytes": 1927,
+      "sha256": "955081285de39220e491fc7583a238970d245bad17185f3fb30a04838c6785cf"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross22Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross22Controls.lex.tex",
+      "bytes": 1784,
+      "sha256": "07defc1eff65fc473e70e63fc2ae28d8a755e1b6b17cebb5af40b2e2f60d8a65"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross23Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross23Controls.lex.tex",
+      "bytes": 1738,
+      "sha256": "83f110d94c1b938c42678743c163f6b5a27755da9f78cec0a7e01cf8fba347e5"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross24Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross24Controls.lex.tex",
+      "bytes": 1968,
+      "sha256": "72dac254ab14bfd841c7c864743cff99dd16d231474aa9a649612a20b2c4f7d2"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross25Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross25Controls.lex.tex",
+      "bytes": 5253,
+      "sha256": "2f042c9a4c412634b1d21de196257018aade3041c7f937efcfc4445086fad26d"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross26Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross26Controls.lex.tex",
+      "bytes": 5137,
+      "sha256": "f58ae1d98aeb2cb1a09771a9d628e630ec117101f8780444f8a19e3559dac485"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross27Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross27Controls.lex.tex",
+      "bytes": 5365,
+      "sha256": "ac6e3485a4c8956cb1084d4768c1966a50bffe3b23755579a02c3ac66fca2b26"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross28Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross28Controls.lex.tex",
+      "bytes": 5593,
+      "sha256": "bae81b592d97674b8e93629025cb3000840e27d320ce31ff832303fc5e415fdd"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross29Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross29Controls.lex.tex",
+      "bytes": 5823,
+      "sha256": "a7645c0847ab32cab40fc56189a8e2135227c9f08bcb20f7c04b5395f45c0504"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireCross30Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireCross30Controls.lex.tex",
+      "bytes": 16755,
+      "sha256": "4e90105c762e802916165bea91c120d919d4d3c58c042ea6adadedc738cfae9e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect02Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect02Controls.lex.tex",
+      "bytes": 2790,
+      "sha256": "f3d3df7f385713d63de5f0fa02488858b5bd206e3f1f75966d26b9a86979c34a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect03Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect03Controls.lex.tex",
+      "bytes": 2956,
+      "sha256": "7c81579d5917ed696b766aba833e6f37f9d2963c735c4387a4ba6814929f6f6a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect04Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect04Controls.lex.tex",
+      "bytes": 6010,
+      "sha256": "4009ef3333cd0fa86106f7812f3404bcd274453c1622fa4702d8a7773a70fc26"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect05Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect05Controls.lex.tex",
+      "bytes": 6069,
+      "sha256": "9a393c613598e46b07c258fb58f4d64a885821afaa316c924cb401c915ba4f18"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect06Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect06Controls.lex.tex",
+      "bytes": 6481,
+      "sha256": "318e7d977f4b2893fb9422958ca8201b9199ba3f269a59e107afae15214f54db"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect07Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect07Controls.lex.tex",
+      "bytes": 6535,
+      "sha256": "a566714084f15a399860a7d78127410ec6ca2e4fed05599bc36c1f45e282a2ae"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect08Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect08Controls.lex.tex",
+      "bytes": 12561,
+      "sha256": "792b4e521616dc1d71b31f4593bc677e93e62366017a73e84c03da15e7c1c313"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "bytes": 8523,
+      "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect10Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect10Controls.lex.tex",
+      "bytes": 6400,
+      "sha256": "cf94209ab0868d34c7d25cbd3d44bd6186f9b1e6197078f46c5d9aad9cb16cfa"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect11Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect11Controls.lex.tex",
+      "bytes": 3470,
+      "sha256": "eb3ecc5061dbf46b4670bb9521b74b0f9015b89a5f0ce33bfdaf3636ac415dca"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect12Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect12Controls.lex.tex",
+      "bytes": 3517,
+      "sha256": "f29d4082c1ca4242d20a838bad8bb3fa0bc81be3eaefdbb2dfb158c5a9e29128"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect13Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect13Controls.lex.tex",
+      "bytes": 3516,
+      "sha256": "f96c2f19a50f62d1c476597364e48a243dc94a1b517314d9bb40bfc7094066e1"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect14Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect14Controls.lex.tex",
+      "bytes": 3516,
+      "sha256": "f7a81abc18e34fab738d10ac4314c4965787681e2148b7ce5b3aa36b535cc893"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect15Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect15Controls.lex.tex",
+      "bytes": 3758,
+      "sha256": "1013d7ddc9e4d8d660631b4e6a3fa61578c0b4fcf613e26f4bc782c0de8e73c9"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect16Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect16Controls.lex.tex",
+      "bytes": 1631,
+      "sha256": "7857ea7a6da5aae2858d46136852ceb014560c1d4c15fe251dc41b4b6869734a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect17Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect17Controls.lex.tex",
+      "bytes": 1687,
+      "sha256": "3533fcae69768fadf123bc8953e9d3b045d2f3fef46984f49b1f45aa71640bdf"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect18Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect18Controls.lex.tex",
+      "bytes": 1745,
+      "sha256": "1c4b3d63ffe01238c7159966c4520a3ca9742e2470a0c165339a6a6c10fdb080"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect19Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect19Controls.lex.tex",
+      "bytes": 1804,
+      "sha256": "95a9e8d6c3b3f05454b2a94991b646ccf7ed7b701848f10e569efe8eb94a703c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect22Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect22Controls.lex.tex",
+      "bytes": 1170,
+      "sha256": "da23b24205f96259026133bc359777ec8c28362b43ab8d550372ab6c81ed4c00"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect23Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect23Controls.lex.tex",
+      "bytes": 1148,
+      "sha256": "2333a5d435fc1dc48b22da0084046a7729ce1f1a8ed2d3ba3beaa768d84a14aa"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect24Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect24Controls.lex.tex",
+      "bytes": 2990,
+      "sha256": "8595aa774063f5ff1f85779d9c761525cb673f94a8b551f91e287b6321ba0883"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect25Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect25Controls.lex.tex",
+      "bytes": 2879,
+      "sha256": "389fb36dcc91c80e906bd17ccd3f0edd50bc0718faeb845961ef3cdb8179c4d4"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect26Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect26Controls.lex.tex",
+      "bytes": 2850,
+      "sha256": "924c19271971e62bee75f0ff05d5e1412dd9311922586238acd97545844a2b80"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect27Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect27Controls.lex.tex",
+      "bytes": 2964,
+      "sha256": "c4a6c65588675aebf5b0adaaa741de152fbe43fc283a5280cc3829c7b5be564d"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect28Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect28Controls.lex.tex",
+      "bytes": 3078,
+      "sha256": "391ea4b70f0f944ad3d045d3b8f40aef908f9c9a023a48129b85d23da4bb9534"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect29Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect29Controls.lex.tex",
+      "bytes": 3193,
+      "sha256": "0421b88024244a1ad58fd55b512e599e56c873d42c9609c2d3b6598116c672b4"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireDirect30Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect30Controls.lex.tex",
+      "bytes": 8660,
+      "sha256": "59353760afd4f90b07af3860e52e5a8844ef02f224632909d3465ed3c3d6b208"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape02Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape02Controls.lex.tex",
+      "bytes": 13024,
+      "sha256": "407d5d11a66e90e3c405f0e654747a5b1d6bc38b7a2d0ef562bbea60f9c8911a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape03Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape03Controls.lex.tex",
+      "bytes": 13198,
+      "sha256": "f55d740b861d1f0f91541954480d89b570eea7016cc4f9bce7c97baec7399ecd"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape04Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape04Controls.lex.tex",
+      "bytes": 16243,
+      "sha256": "6d59a14da9f45486b64177addd839e262e4104976d8609d94eb2a4c451f81e62"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape05Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape05Controls.lex.tex",
+      "bytes": 16302,
+      "sha256": "ae2183440c175c99ba170d30a6ee0cbfe04eb24f5265264c9b103e8d01627c01"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape06Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape06Controls.lex.tex",
+      "bytes": 16720,
+      "sha256": "7cb75df014831eef35bffaf4dba1a88dd7457021634c401be51026236b51bbc5"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape07Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape07Controls.lex.tex",
+      "bytes": 16774,
+      "sha256": "80e51a8fcce1c292af776eb0386c7326f24ee62d59dd69af1b21288fb532781e"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape08Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape08Controls.lex.tex",
+      "bytes": 22802,
+      "sha256": "f6f96923e8e3816c1d4f11c630a4d6ee19615d72c9f8a4277fb89977c2d4be05"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape09Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape09Controls.lex.tex",
+      "bytes": 18760,
+      "sha256": "24dce5e7ea157bb92d2da27c383c7feb43f49dd3a41068b532eabec86b7d2bcb"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape10Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape10Controls.lex.tex",
+      "bytes": 16639,
+      "sha256": "15af5c3f8fe2b5ff703b59eef61009e529e9df0f270bdd08739982e5346aca1c"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape11Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape11Controls.lex.tex",
+      "bytes": 7415,
+      "sha256": "e78d6391add63ac852f5de051ef0e27c4e9a3c52cb5525433f3067957bd376ce"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape12Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape12Controls.lex.tex",
+      "bytes": 7464,
+      "sha256": "77ca7be444925ad443ef2ceb64ab05fe06411894033e1af1e3d73da4aaa07988"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape13Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape13Controls.lex.tex",
+      "bytes": 7464,
+      "sha256": "67c91d0c392d05a0a67324c9b17ace8e121e9fd89803f97aafeef14317cfa325"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape14Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape14Controls.lex.tex",
+      "bytes": 7463,
+      "sha256": "04547cf77aeb346164d6a8947b8a4c65f25d2da76c99a487ad39a091fe328148"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape15Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape15Controls.lex.tex",
+      "bytes": 7705,
+      "sha256": "6322a811ef009c90619732927d33b316a254c6fbf8ddfc136b75b8e98dccc536"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape16Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape16Controls.lex.tex",
+      "bytes": 5578,
+      "sha256": "650ed6be5fe35045c99ec64fd8cbe95fd4f26d28a41b6bba50ad900f11f46d80"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape17Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape17Controls.lex.tex",
+      "bytes": 5635,
+      "sha256": "5dea28fea0f497ce8344a8f197e5edf54de900a97869a7db9805483fba85e5ed"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape18Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape18Controls.lex.tex",
+      "bytes": 5693,
+      "sha256": "5d6f973e5297390889d75ab42f4a9ec2b64d68a6d65f52a334a7668c0a99cd71"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape19Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape19Controls.lex.tex",
+      "bytes": 5753,
+      "sha256": "53621490954f2fba79b575caef8e6efbc270a47776bca3f4fb2cb0700876f1fd"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShape24Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShape24Controls.lex.tex",
+      "bytes": 13232,
+      "sha256": "ca2b84ae3243ac9fc823587b1c6ef4bb718c8ea27ac07b6a43b51c96a257475a"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShapeBlake128Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShapeBlake128Controls.lex.tex",
+      "bytes": 13352,
+      "sha256": "61d8dad38f4f7b1833b0481a824eac21f4f96dabab12cc71d3153d4af0a4f921"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShapeNodeScale37Controls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShapeNodeScale37Controls.lex.tex",
+      "bytes": 7812,
+      "sha256": "92eee9e261f5f755b23cf38e7df47fa75c015e1e9dbeaab2a3ba4cc5b07d62e8"
+    },
+    {
+      "stagePath": "tests/lexlean/HashWireShaStateControls.lex.tex",
+      "repositoryPath": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireShaStateControls.lex.tex",
+      "bytes": 705014,
+      "sha256": "9454c10a45d32a3717573a7aee8371e89c458f3fa2a66e282b72f28aef177513"
+    },
+    {
+      "stagePath": "lexlean.lock",
+      "repositoryPath": "tests/fixtures/hash-wire/project/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "44a802299f0898a341dff5ac68275fce08da5be599126cebb5f5b69acab2d951"
+    }
+  ],
+  "aliasCopies": [
+    {
+      "original": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/summary.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/summary.json",
+      "bytes": 43837,
+      "sha256": "ceb61fd572b6fc75f49d1542b41ff3b505fca59f5cd7d265b0267ef9a3a53aa6"
+    },
+    {
+      "original": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/restoration-audit.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/restoration-audit.json",
+      "bytes": 41006,
+      "sha256": "6f960de8b165836e7ff3c57ecae34ff45876f86072e186688f15cdc0404b64a7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner-process.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner-process.json",
+      "bytes": 803,
+      "sha256": "203841484651feb15c74b6d86a1aee635004a0cd97a3dfc1e381a3b08833af16"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner.stdout",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stdout",
+      "bytes": 6470,
+      "sha256": "9019b80783fb87539ea748a125655c70d186e3edfd5e1f5a8220d4fdaf665ba5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner.stderr",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-final-restoration-review.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-final-restoration-review.json",
+      "bytes": 17582,
+      "sha256": "c23e29a2dc2daed4cd700e9903d1ebf90f002090cab50aa8e81d347d46c60651"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-completed-roots-preaudit.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-completed-roots-preaudit.json",
+      "bytes": 36858,
+      "sha256": "fa905803d1973df374601e5dc93d459da66ecf82b900b5d72f17792b56983b96"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-assessment.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-assessment.json",
+      "bytes": 22186,
+      "sha256": "a6c882d94dc1f11fd83b60493d3006804c8057929ada53e3930a2ca53ead5f80"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-spec-review.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-spec-review.json",
+      "bytes": 6861,
+      "sha256": "88cd8574b49835c2f476487ae766f8f1f0bfa143754138353bdbccefaf22e1dd"
+    }
+  ],
+  "rawArchive": {
+    "path": "docs/continuation/2026-10-24/hash-restoration-completed/archives/actual-command-text.json.gz",
+    "bytes": 408505,
+    "sha256": "4bfc4d5053ee84dd1bbf71a1ed642282bca3b8d1879f2c35709757429a850ae1",
+    "decodedBytes": 4251506,
+    "decodedSha256": "c089dddd178cb905129048257e3fb8e4f15878192823c1f81f6c0a96ec567c16",
+    "members": 4601,
+    "uniqueTextContents": 1759,
+    "rawMemberBytes": 5476451,
+    "encoding": "JSON files rows bind exact absolute original paths, UTF8 bytes and SHA256; contents indexed bySHA256. Every original can be reconstructed losslessly. Gzip deterministic mtime0; no binary artifacts.",
+    "scope": "All files under current native evidence except verifiedbundle subtrees, plus all launch-immediate files. Includes62individualauditrows,78rootrestorationaudit,baseline/retainedaudits,allper-rootpre/postrawguards and finalguards."
+  },
+  "originalPlan": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/plan.json",
+  "planSha256": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04",
+  "note": "Original plan/source/epoch/reviews already preserved by prior recovery checkpoint. Exact current plan and runner/auditor/guards are also raw text archive members. These source aliases are provenance, not production SDK installation or newly authored execution authority."
+}
