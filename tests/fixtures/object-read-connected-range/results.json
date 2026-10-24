@@ -1,0 +1,123 @@
+{
+  "schema": "lexlean-r4-connected-range-results/v1",
+  "status": "PASS_ACTUAL_CONNECTED_RANGE_EQUATION_ONLY",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 2848,
+    "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 29730,
+    "sha256": "48f629b74d2cd64368c99f73ee1d87de0ca4c65b829dca81ab860fb78e35d527"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 8999,
+      "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+    },
+    "negative": {
+      "path": "evidence/negative/negative-native-review.json",
+      "bytes": 15507,
+      "sha256": "fe8c399bb7442996f8c444506d04ed8a998b04324c5b15a6b06816cffb05dcfa"
+    },
+    "positive": {
+      "path": "evidence/positive/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    }
+  },
+  "negative": {
+    "status": "ACCEPTED_INTENDED_WRONG_BASE_NEGATIVE",
+    "checkModules": 29,
+    "verifyExit": 1,
+    "aggregateVerifyElapsedMs": 403160,
+    "finalModuleElapsedMs": null,
+    "rejection": "Unrelated0=0 base rejected in transport dependency; full consumer selected but not elaborated successfully.",
+    "lock": {
+      "path": "evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f"
+    },
+    "rawCustody": {
+      "path": "negative-raw-custody.json",
+      "bytes": 11670,
+      "sha256": "c19e41e040ecceb32f2caca2aa156ecc3eee91e5dd229ca343ec99b0fc850e66"
+    },
+    "acceptedCustody": {
+      "path": "negative-accepted-custody.json",
+      "bytes": 1239,
+      "sha256": "1b08cae7e71c55895c4c970f6d4268204f21428656fa52af79b766d0fba01d4f"
+    }
+  },
+  "positive": {
+    "attestationId": "f621e58b3b9201d5df2cb260c54524576fad70964da904662852858ba797077f",
+    "buildId": "539fe1150d5adf027ba7c911ec1525a967d350421e752243b0c527a9529dcb28",
+    "sourceId": "b0d9ae41fb4397ad479e03ca4897b8cffa7e7fad967ccab516822c5f0fccc562",
+    "semanticId": "1ba0645eee325901af327daa36d34efb8da53654014b9245924af41fedaa3456",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T01:05:25.585Z",
+    "verifyEnded": "2026-10-24T01:14:56.486Z",
+    "aggregateVerifyElapsedMs": 570901,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "counts": {
+      "inputs": 33,
+      "admittedModules": 29,
+      "rawCommandReceipts": 55,
+      "artifactFiles": 295,
+      "buildOutputs": 145,
+      "oleans": 29,
+      "emptyAxiomDeclarations": 828,
+      "successfulProcesses": 88,
+      "kernelReplays": 29,
+      "auditProcesses": 29,
+      "consumerStatementListNatLiterals": 552
+    },
+    "resources": {
+      "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+      "toolHashes": [
+        "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+        "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+      ],
+      "memory": "All six counters zero before and after",
+      "capacity": {
+        "before": {
+          "hostAvailableBytes": "34475438080",
+          "guestAvailableKiB": 53005568
+        },
+        "after": {
+          "hostAvailableBytes": "32852070400",
+          "guestAvailableKiB": 52991488
+        }
+      }
+    },
+    "lock": {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f"
+    }
+  },
+  "artifactCensus": {
+    "reviewerOrdinalArraySha256": "16c35c1bc29f46af7030a6aa4a2fb7a04ac463fcc7907bd788c63159f745c44b",
+    "portableEnvelope": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 57291,
+      "sha256": "c38c972d91da70353083bdf6275de1a4bdc789935ae9742c8cf8ca7ffbb5f23e"
+    },
+    "distinction": "Reviewer array digest differs from the serialized portable envelope SHA. Every actual file was rehashed for this delivery."
+  },
+  "accepted": "Actual original ObjRangeAdmitted(original input) equals the genuine ObjRangeFinish(S184,original manifest/range/limits). Mandatory actual consumer Apply1 and context/transport are kernel checked.",
+  "limitations": [
+    "Acceptance is the actual original ObjRangeAdmitted equation ending in the genuine ObjRangeFinish call on S184. The right side still computes real manifest version and may return a Result.error; no concrete successful finished range or version bytes are established.",
+    "Manifest/backend admission, concreteRangeFinish/version/hash, whole96 digest comparison, original ordinal26/allRead33 and full Object/Hash/PrismPM/Pages remain open.",
+    "Aggregate elapsed covers imported verification closure; no separate target-module duration, avoided-work, cache or efficiency claim.",
+    "No native/compiler rerun by reviewer; recorded actual kernel replays and complete artifacts audited read-only."
+  ],
+  "history": "Preparation-time NOT_RUN and earlier raw-negative pending records remain immutable. This record and RESULTS.md describe current actual reviewed outcomes. Conditional next-plan null bindings remain historical and require a separate actual-prerequisite record."
+}

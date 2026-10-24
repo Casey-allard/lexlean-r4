@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "cat",
+    "/sys/fs/cgroup/memory.events"
+  ],
+  "started": "2026-10-24T01:04:15.500Z",
+  "ended": "2026-10-24T01:04:15.543Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "stderr": ""
+}

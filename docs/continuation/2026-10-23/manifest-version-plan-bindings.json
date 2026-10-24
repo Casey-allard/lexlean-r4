@@ -1,0 +1,103 @@
+{
+  "schema": "lexlean-r4-plan-portable-bindings/v1",
+  "base": "6c95478ac3860bea320975b91d789b5f1de85b82",
+  "status": "CONDITIONAL_DESIGN_WITH_ADDITIVE_ACCEPTED_PREREQUISITE_NATIVE_NOT_RUN",
+  "actualPrerequisiteBinding": {
+    "path": "docs/continuation/2026-10-23/manifest-version-prerequisite-binding.json",
+    "bytes": 2915,
+    "sha256": "73dd16a14847f481d3f35768926f887511459683d7c15dc43996e95fe2cc6894"
+  },
+  "aliases": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/next-range-finish-investigation.json",
+      "bytes": 11217,
+      "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0",
+      "repositoryPath": "docs/continuation/2026-10-23/next-manifest-version-proposal.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/next-range-finish-spec-review.json",
+      "bytes": 5722,
+      "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1",
+      "repositoryPath": "docs/continuation/2026-10-23/next-manifest-version-spec-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/check.json",
+      "bytes": 1527,
+      "sha256": "2849ce9b2430192229d7dc7196f79491f7e8e70d4f21ed1150769fe3d6786c46",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/evidence/positive/check.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/verify.json",
+      "bytes": 1839,
+      "sha256": "2c5b3d4986474af2521126295cec944cee13625c52308b1df50b98b4ba1d9ac4",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/evidence/positive/verify.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/result.json",
+      "bytes": 1726,
+      "sha256": "35949fe762497884aba00301561c8a29e2fe7a51d16698f76798333045b79104",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/evidence/positive/result.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/candidate-invocation-code-review.json",
+      "bytes": 8999,
+      "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e",
+      "repositoryPath": "tests/fixtures/object-read-connected-range/evidence/candidate-invocation-code-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "repositoryPath": "src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "repositoryPath": "src/R4/ObjectTypes.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "repositoryPath": "src/R4/Object.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+      "repositoryPath": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178",
+      "repositoryPath": "tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex"
+    }
+  ],
+  "boundary": "Original null-status source records stay immutable. Current actual prerequisite is separate; the proposed version theorem and later finish connection have no native acceptance."
+}

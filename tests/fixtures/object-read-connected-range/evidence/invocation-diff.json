@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-connected-range-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-root-traversal/evidence/invoke-root-traversal.mjs",
+    "bytes": 7702,
+    "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-root-traversal/evidence/candidate-invocation-code-review.json",
+    "bytes": 7973,
+    "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invoke-connected-range.mjs",
+    "bytes": 7707,
+    "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+  },
+  "literalReplacements": [
+    {
+      "from": "// One-off official-compiler invocation for one exact original root traversal; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one actual connected range consumer; no Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['roots-false','roots-positive']",
+      "to": "['range-false','range-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one root-traversal phase",
+      "to": "select exactly one connected-range phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-root-traversal-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-read-connected-range-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "from": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d",
+      "to": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e",
+      "occurrences": 1
+    },
+    {
+      "from": "phase==='roots-false'",
+      "to": "phase==='range-false'",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==30||new Set(inputs.map(x=>x.destination)).size!==30",
+      "to": "inputs.length!==33||new Set(inputs.map(x=>x.destination)).size!==33",
+      "occurrences": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "to": "tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "allOtherBytesUnchanged": true
+}

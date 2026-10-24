@@ -1,0 +1,45 @@
+{
+  "schema": "lexlean-r4-manifest-version-actual-prerequisite-binding/v1",
+  "status": "ACTUAL_CONNECTED_RANGE_PREREQUISITE_ACCEPTED_NEXT_VERSION_DESIGN_ONLY_NOT_RUN",
+  "originalConditionalInvestigation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/next-range-finish-investigation.json",
+    "bytes": 11217,
+    "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+  },
+  "originalConditionalSpec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/next-range-finish-spec-review.json",
+    "bytes": 5722,
+    "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+  },
+  "actualPrerequisite": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    },
+    "check": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/check.json",
+      "bytes": 1527,
+      "sha256": "2849ce9b2430192229d7dc7196f79491f7e8e70d4f21ed1150769fe3d6786c46"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/verify.json",
+      "bytes": 1839,
+      "sha256": "2c5b3d4986474af2521126295cec944cee13625c52308b1df50b98b4ba1d9ac4"
+    },
+    "result": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/result.json",
+      "bytes": 1726,
+      "sha256": "35949fe762497884aba00301561c8a29e2fe7a51d16698f76798333045b79104"
+    },
+    "attestationId": "f621e58b3b9201d5df2cb260c54524576fad70964da904662852858ba797077f"
+  },
+  "semanticChanges": "None. Original proposal and conditional SPEC, including both null prerequisite fields, remain byte-identical. This additive record satisfies their actual-prerequisite binding requirement without modifying proposed version/finish semantics.",
+  "next": "Bounded actual ObjManifestVersion full Result certificate; sole expected byte146→147 negative. Candidate and native tests remain NOT_RUN. Independent candidate CODE and fresh parent admission remain required.",
+  "boundary": "Current acceptance is the ObjRangeAdmitted-to-real-ObjRangeFinish equation only. No concrete successful finish, version bytes, whole digest or original Read33 accepted."
+}

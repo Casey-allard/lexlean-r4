@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-connected-range-range-positive-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-24T01:14:56.893Z",
+  "ended": "2026-10-24T01:14:56.942Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f  /tmp/r4-object-read-connected-range-range-positive-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

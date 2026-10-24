@@ -1,0 +1,428 @@
+{
+  "schema": "lexlean-r4-connected-range-delivery/v1",
+  "base": "6c95478ac3860bea320975b91d789b5f1de85b82",
+  "scope": "Actual original ObjRangeAdmitted equals genuine ObjRangeFinish(S184) accepted locally, paired wrong-base dependency rejection, conditional next version design with byte-preserved null records and additive actual prerequisite. No concrete finish/version/whole-read acceptance.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 39643,
+      "sha256": "14a1b083d83d5b318c090c1e2245b7a7af4cb6e8c4800f5fca916016cf343e26"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/manifest-version-plan-bindings.json",
+      "bytes": 5776,
+      "sha256": "213daf9faf524b857c1ed71afc3ad2828ab8691b624a60270942cd3bc6eac226"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/manifest-version-prerequisite-binding.json",
+      "bytes": 2915,
+      "sha256": "73dd16a14847f481d3f35768926f887511459683d7c15dc43996e95fe2cc6894"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-manifest-version-proposal.json",
+      "bytes": 11217,
+      "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-manifest-version-spec-review.json",
+      "bytes": 5722,
+      "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 31097,
+      "sha256": "2414bdb4faec32ea495c2b6dc02bb51148c347f9fed3605c6f62082787712d85"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/README.md",
+      "bytes": 802,
+      "sha256": "f79134367c8d8e7252ee0429946cc1fd75580ec555172d2424907cf73eb9cdc2"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/RESULTS.md",
+      "bytes": 2459,
+      "sha256": "2baf5f0ec41260214477b217033a66495c185e8649ac30c4b43d9370fff59b7a"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/README.md",
+      "bytes": 546,
+      "sha256": "eebe9c64f090f3d0a2eaeaa9b9e31aabdf009d81c63c7d93422b38bcd02401e5"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/candidate.json",
+      "bytes": 26021,
+      "sha256": "763961a99f033ba4063cfa7c5998d7b802736c0e382823087e9733904e02b4ac"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "bytes": 128694,
+      "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/lexlean.toml",
+      "bytes": 688,
+      "sha256": "6625d737a9049c10b69e96268217e9d3364cf31d21c857c28ecbfa49294019e0"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/manifest.json",
+      "bytes": 2848,
+      "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/negative/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1318,
+      "sha256": "e09b21788c6cb755d4bd04893bd0526beb6adae675e9b181a694ac5dcc62bab7"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1347,
+      "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/structural-audit.json",
+      "bytes": 7163,
+      "sha256": "cab7ccaac6d0a741b19e614a1d73bea96410ab639952ee434ea74c41fe785c56"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/code-review-custody.json",
+      "bytes": 959,
+      "sha256": "09302f3be8cb611f087c10b11f5c9b08431ae8934d6e6cd4d9bf596c5ca976f8"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/candidate-invocation-code-review.json",
+      "bytes": 8999,
+      "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/invocation-diff.json",
+      "bytes": 2404,
+      "sha256": "3c5dd2d07d691e3d989dc16438ec432313bd9adccafdb21e9010c4ea075f2f4b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/invocation-manifest.json",
+      "bytes": 1477,
+      "sha256": "c07b4dc0148b0072fd2ffd5d18d07da402c4644e391e493897d54d11eda2bcd2"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/invoke-connected-range.mjs",
+      "bytes": 7707,
+      "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/check.json",
+      "bytes": 1524,
+      "sha256": "76a0644012c67aeaea53811f180db1f757977d1d877b839bc05cf62bde22c3ca"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "6e848631928259c17b7d9a683f9740df6b4a20102f299b9c82ffaf6150ca701c"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "c21ff80eecd2a92bd55ac6c880c7b0bfd3d2abfb426564b8fdc1dd7bc76bb1d0"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/expected-inputs.json",
+      "bytes": 12244,
+      "sha256": "86e13059948324558de79f1754e3327eaf7e41a837f9611c11ea3e91f26c74fd"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "b0d409c5e800b5b4d4e2307514c2b6492fab757c4646942ad257a3264b7c51d7"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "05d06d619cc1d5cb4439f69cc161a8fcb6cd2df0b792815cc4407395202c3d20"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "18cccbd015b559b816c7c7648f1866aee05891dbc4ee39ae01b15c0751928ba8"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "d978c3417831a973ee5e72f18555ee336e44b001328d500310da84516f16cbaf"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "8a07e7fa124beed9447176e5a0e8b4197392f9f597d708d3e14e00cd59597ba1"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "2d1b3889adcf8cbdf87b5578b2b185cbf50e293a0b97aa6f9691106ab13e499b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/lock-after.json",
+      "bytes": 491,
+      "sha256": "71d003356a7eb18a50da0d279bf15f89eace3269a035576397ad47daebe7fefd"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/lock-bytes.json",
+      "bytes": 2056,
+      "sha256": "ec5a5c1411769a24ca3bbec294e41f16bcdfb649ecbf4e075e69a58d67e0f69b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/lock.json",
+      "bytes": 540,
+      "sha256": "9265b0b830c7593183707c53a1d7349fcfe478ff351dbf8b32aba4cff5781bdb"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "555ce1fca5ac2b45f9c065e1b1153ab6117c7893e9a127c9392b9b338aeeea34"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "6bbcc70d3ab5bfc9983d57acdd149efdb8d2b8cd691bde6f22f679bf27eacfad"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/negative-native-review.json",
+      "bytes": 15507,
+      "sha256": "fe8c399bb7442996f8c444506d04ed8a998b04324c5b15a6b06816cffb05dcfa"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/source-after.json",
+      "bytes": 9461,
+      "sha256": "6f43d00c15669d2ba508dde26c1f9a6bd59254f4db77c6d7dc5c0edfa0b10b0b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/source-before.json",
+      "bytes": 9461,
+      "sha256": "bcaa163e111e6aa7dcfe2a9a06d74e22c0971c27ede85d97a8d2f500acd67c81"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "d2c65a0d2d12e2b6f4d80c6a8cb66cd524da85fc180e276f93473a44422de79d"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "1f4b17a8f257c22ba55de5e9317520ad11b4a130cdeb91bc7c0ce1d32c8ed0bc"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/negative/verify.json",
+      "bytes": 1278,
+      "sha256": "d3cce67a33cadfa6bb38b75e71f97f04c6beac4773c84b72e75d63047ef32e38"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive-artifact-census.json",
+      "bytes": 57291,
+      "sha256": "c38c972d91da70353083bdf6275de1a4bdc789935ae9742c8cf8ca7ffbb5f23e"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/artifact-copy.json",
+      "bytes": 524,
+      "sha256": "a373a973cbf5dd9b930e625144652669ae857af70d5f2e58728d235e86a2564f"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/artifact/attestation-summary.json",
+      "bytes": 1735,
+      "sha256": "c68c414d6e503e16d3822cd01ad7e8145b292eb9b52dad0b7b93a08c0708f41b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/artifact/build-manifest.json",
+      "bytes": 35938,
+      "sha256": "627c4dc6559bf44d8e3b9dce8a7c12d09bb86d3e74ae62de5dda360be87b5642"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/artifact/modules/LexLeanR4/ObjectReadConnectedRange.lean",
+      "bytes": 8401,
+      "sha256": "172e2b7f8e28f7bfdc14804aec2d0ecbd8d38ba6ff55740501bfc05bc9b4fda7"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/artifact/modules/LexLeanR4/ObjectReadConnectedRangeContext.lean",
+      "bytes": 27153,
+      "sha256": "6393b834edf0689f8633ae155744980ca828b307d15451c2dbeed28538095e9d"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/artifact/modules/LexLeanR4/ObjectReadConnectedRangeTransport.lean",
+      "bytes": 792,
+      "sha256": "5bdbd954944a07951863885ef2fb3eb4b8e9852aa3d007ec222ff06fd4cda9eb"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/check.json",
+      "bytes": 1527,
+      "sha256": "2849ce9b2430192229d7dc7196f79491f7e8e70d4f21ed1150769fe3d6786c46"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "155ca13420a4f29dad5e089da3836303a3f0f2115b815a6f37bf914ab8880359"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "d7227745c9ad61217c37028aff2b8b28636226b6c7eb9bdbd5d707db65960f48"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/expected-inputs.json",
+      "bytes": 12244,
+      "sha256": "2185dbe6f067c7fe10bfaa0a37028f5b40de1d60feaec15e7e37d25f207acf11"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "87eed4c517d69fa826a51a85dc1f7c5c99ec6431346c997ef41c9ba85566596e"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "7673c66893816ca0a5645362d50181f01474b56f4e8cb18d47dd26d3ad589db1"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "19efdc2955ec563e4892bdb9ed0979d49900d8c227157c1de5669ebe2c66b10a"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "ffb85ecfa45a45c4d9b2a3a3b2e889a919e8b2071f130d3cc9125eadcc62ea7b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "68046f47fbe9d76063616ed34eec336cf273a8ff859415dc94f16f7e0d66b94e"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "2b8f6b44cad2fa70f3309bfef4666c6bc423b1b0ae893125604f92b639d474b2"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/lock-after.json",
+      "bytes": 497,
+      "sha256": "5384d20110f4af8fbca13c015efc9a5a2ac4afb9c270dc515248e398938a6839"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/lock-bytes.json",
+      "bytes": 2059,
+      "sha256": "9c77e5989693bb530d7a8fb93fb6b50204363868344e0032ea763bebc0726fea"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/lock.json",
+      "bytes": 543,
+      "sha256": "e90d35cc08de0e525f0e553a2f3601c76eb27ca3742b5db7b16618463ef9e29d"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "f00954c5f263246cf4dcaf0e245b4b2f15fb8ec41d09a01f21b5484d12b7ba1e"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "6803de1255ceb6ceac9d2dcfaa7898c04cc2c5a3c64be089553ff047ef63ea03"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/result.json",
+      "bytes": 1726,
+      "sha256": "35949fe762497884aba00301561c8a29e2fe7a51d16698f76798333045b79104"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/source-after.json",
+      "bytes": 9659,
+      "sha256": "3cc3bacb7e9f89ae2626a9e81e34449776f99f9032764d556b5425d68ca19322"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/source-before.json",
+      "bytes": 9659,
+      "sha256": "c18fd4331439a64d54f1b97b27de19033cbbcacfb1ea1de55e24b69056e38ffe"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "e22e56bbc2220f3fd3ffad942675d92b2435f2a8f830c893c869b363a494c053"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "c333e6ef0b197cae6eaf2aff3370d06e69854c1fc8ec25091793501fe3b621ca"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/positive/verify.json",
+      "bytes": 1839,
+      "sha256": "2c5b3d4986474af2521126295cec944cee13625c52308b1df50b98b4ba1d9ac4"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/evidence/readiness.json",
+      "bytes": 1540,
+      "sha256": "990aee42843a064fb5637d2bd896969a970168e393d9ecabbcc74bbc5c3aa37b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/negative-accepted-custody.json",
+      "bytes": 1239,
+      "sha256": "1b08cae7e71c55895c4c970f6d4268204f21428656fa52af79b766d0fba01d4f"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/negative-raw-custody.json",
+      "bytes": 11670,
+      "sha256": "c19e41e040ecceb32f2caca2aa156ecc3eee91e5dd229ca343ec99b0fc850e66"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/next-plan-preservation-custody.json",
+      "bytes": 1303,
+      "sha256": "7ed93aa9bab1dcf9f00b03012b05df6875fc12ba1ce9237479f9169ed8ecabf5"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/positive-custody.json",
+      "bytes": 16322,
+      "sha256": "724fcd5bc098c0bf66231c184c9fa818a773d8e0616f36c485b4c33d4a934ffe"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/results.json",
+      "bytes": 5483,
+      "sha256": "c789a93c06abcad7cedf99fc0b2c2a0e52d7bca571cdc730a1a859fea0207d9b"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/source-bindings.json",
+      "bytes": 29730,
+      "sha256": "48f629b74d2cd64368c99f73ee1d87de0ca4c65b829dca81ab860fb78e35d527"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/source-preservation-custody.json",
+      "bytes": 7442,
+      "sha256": "446ebeabb2e58551d0be1d169480d5e0fbb92ebd351b416ec891430c2f33b209"
+    }
+  ],
+  "excluded": "Manifest excludes itself. Full compiled bundles and omitted raw receipts remain local; complete artifact census is portable. No unrelated source or other-lab work included."
+}

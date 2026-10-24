@@ -1,0 +1,28 @@
+{
+  "schema": "lexlean-r4-connected-range-accepted-negative-custody/v1",
+  "status": "ACCEPTED_INTENDED_WRONG_BASE_NEGATIVE_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/negative-native-review.json",
+        "bytes": 15507,
+        "sha256": "fe8c399bb7442996f8c444506d04ed8a998b04324c5b15a6b06816cffb05dcfa"
+      },
+      "destination": {
+        "path": "evidence/negative/negative-native-review.json",
+        "bytes": 15507,
+        "sha256": "fe8c399bb7442996f8c444506d04ed8a998b04324c5b15a6b06816cffb05dcfa"
+      }
+    }
+  ],
+  "priorRawCustody": {
+    "path": "negative-raw-custody.json",
+    "bytes": 11670,
+    "sha256": "c19e41e040ecceb32f2caca2aa156ecc3eee91e5dd229ca343ec99b0fc850e66"
+  },
+  "boundary": "The accepted negative rejects the transport wrong base before consumer elaboration; full consumer was selected, not verified successfully. Earlier raw custody pending status stays immutable. Positive is active and unaccepted; no active output copied. Conditional next-step prerequisites remain null.",
+  "storage": {
+    "hostAvailableBytes": "34466000896",
+    "additionalAllocationCapBytes": 32768
+  }
+}

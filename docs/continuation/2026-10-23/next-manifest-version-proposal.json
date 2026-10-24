@@ -1,0 +1,191 @@
+{
+  "schema": "lexlean-r4-range-finish-investigation/v1",
+  "status": "SOURCE_ONLY_CONDITIONAL_NOT_RUN",
+  "prerequisite": {
+    "connectedRangeCandidate": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    "sourceInvocationReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/candidate-invocation-code-review.json",
+      "bytes": 8999,
+      "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+    },
+    "actualConnectedRangeResult": null,
+    "independentConnectedRangeNativeReview": null,
+    "boundary": "Current parent-owned native phases are pending. No run output inspected and no connected-range success assumed."
+  },
+  "finding": "The original Read33 source already contains an exact manifest-version literal for the very same protocol96 manifest and limits. It is a useful expected value, not an accepted certificate: the complete Read33 root has not passed. The smallest genuine new computation is a full Result-valued ObjManifestVersion equation, followed by the mandatory concrete ObjRangeFinish connection rather than another identity wrapper.",
+  "exactExistingControl": {
+    "file": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    "ordinal": 25,
+    "name": "objManifestVersionProtocolLiteral",
+    "wholeStatementSha256": "4286771ebffd901a90ce32125398eb3dce7701ced6ac85a5a8323593feac4fd7",
+    "sameManifestASTAsOrdinal26": true,
+    "sameLimitsASTAsOrdinal26": true,
+    "manifestSha256": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "limitsSha256": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "expectedVersionBytes": [
+      146,
+      74,
+      190,
+      232,
+      62,
+      91,
+      175,
+      190,
+      237,
+      157,
+      113,
+      38,
+      4,
+      8,
+      17,
+      5,
+      253,
+      233,
+      231,
+      187,
+      31,
+      113,
+      235,
+      100,
+      5,
+      194,
+      189,
+      181,
+      34,
+      231,
+      150,
+      142
+    ],
+    "expectedVersionASTSha256": "95f8dee5783226dbbcd044f20774b0f1a76dac710d94c89b3383d44310c1eb6c",
+    "boundary": "Existing literal is test data only; an actual empty-axiom proof must compute and establish it. No external digest is invented or used as a trusted intermediate."
+  },
+  "nextMinimalObligation": {
+    "text": "ObjManifestVersion(originalManifest96, originalLimits) = Result.ok (ObjVersion {bytes = the exact original ordinal25 version literal})",
+    "proof": {
+      "kind": "reflexivity"
+    },
+    "emptyAxioms": [],
+    "positiveStatementSha256": "6d51de696602b6b07ab7b0e0a3bf84d97ff727fdc96a1055b79764da83f1a626",
+    "negativeStatementSha256": "84b1dc4f15cb5c1b4ad5218b986f90b26edb74b44218c65293669512b70accfb",
+    "soleNegative": "Change only expected version byte0 from146 to147. Actual input, production function, remaining31bytes, type, proof and empty axioms remain identical.",
+    "sourceExtraction": "Left is original objManifestVersionProtocolLiteral.statement.left.scrutinee. Right wraps that same control statement.right.arguments[0] in the production ObjVersion record and Result.ok; no projection-only acceptance.",
+    "phasePolicy": "Independent SPEC/source review, actual negative then positive under unchanged resource gates. Source admission, timeout or OOM does not satisfy the intended semantic negative. A failed outcome must be preserved and investigated before any different scope."
+  },
+  "actualDependencyChain": {
+    "ObjRangeFinish": "Checks actual output length96 equals range.stop-start, then invokes ObjManifestVersion and propagates errors before constructing bytes/version/range/remainder/stats.",
+    "ObjManifestVersion": "Calls ObjEncodeManifest(value,limits); on success hashes returned wire with actual ObjHashBytes and wraps the computed digest as ObjVersion.",
+    "ObjEncodeManifest": "Calls actual ObjAdmitManifest, retaining limit validity, object length, root count, frontier scales, digest length, root IDs and canonical scales checks. Then emits ObjEncodeManifestUnchecked.",
+    "encoding": "Source-derived wire layout is magic8 + little-endian length8 + original wholeDigest32 + root-count1 + single root(scale1byte+ID12)=62bytes. This is a format-length derivation, not an executed hash or independently proved encoder certificate. Preserve actual encoder call in the theorem.",
+    "hashing": "Canonical ObjectCodec ObjHashBytes dispatches to the pinned R4.HashWire.hashWireSha256. Genuine admitted encoding and hashing must execute in the formal reduction; no host replacement, guessed digest or trusted version axiom.",
+    "cost": "Actual cost unknown. The62-byte encoded input differs from prior49-byte record and32-byte leaf inputs; no previous timing establishes this theorem budget. Do not raise300000ms or equivalent-retry after failure."
+  },
+  "mandatoryFollowingConnection": {
+    "text": "ObjRangeFinish(S184, originalManifest96, originalWholeRange, originalLimits) = Result.ok exact ObjRangeVerified",
+    "statementSha256": "e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4",
+    "expected": "Original96output bytes; version proven from the exact literal; original range0..manifest.length; empty remainder; stats visits4,distinctRecords4,visitedRecordBytes184. Expected fields are source-derived and not accepted yet.",
+    "source": "Use actual ObjRangeFinish body and replace only its unique ObjManifestVersion scrutinee by a Result ObjVersion parameter. Keep the length guard, both error/success branches, original range, ObjReadRemainder and ObjWalkStatistics intact.",
+    "supportedComposition": "If the full version pair is accepted, use the prior supported Nat Prop-family/Induction/Cases/Congruence contextual transport with zero Apply to the version theorem; actual finish consumer Applies at1. Cross-result parameter is Result ObjVersion ObjError and result is Result ObjRangeVerified ObjError. Exact local/external reference qualification and canonical JSON require source review.",
+    "negative": "Both variants retain an unrelated0=0 theorem; wrong zero Apply target must be rejected. Actual finish consumer is selected, but dependency rejection can occur before consumer elaboration. Positive helper-only success cannot establish finishing.",
+    "scopeControl": "This is one mandatory connection after the genuine version computation. Do not author it before the accepted version result or treat this source investigation as implementation authority."
+  },
+  "remainingWholeReadConnection": {
+    "connectedRange": "If current actual connected-range proof and later concrete finish succeed, compose them to the actual ObjRangeAdmitted successful Result. No composition proof is assumed here.",
+    "outer": "ObjWholeRead still calls actual ObjAdmitManifest and validates backend keys. The admitted manifest inside version encoding does not itself constitute the outer whole-read theorem.",
+    "wholeHash": "ObjWholeAdmitted still hashes actual returned96bytes and compares against the original wholeDigest, then wraps ObjWholeVerified. Manifest version hash and whole-data hash are distinct byte inputs and obligations.",
+    "originalGoal": "The complete original ordinal26 projected-bytes equation and all33 controls remain mandatory. Neither this literal certificate nor helper transport is full Object/Hash/PrismPM/Pages acceptance."
+  },
+  "exactSourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    }
+  ],
+  "declarations": [
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjRangeFinish",
+      "canonicalSha256": "454f8c720f6bf0be27947e65cad2b5759eef590be99eff38325c8dbabbe9caf3"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjReadRemainder",
+      "canonicalSha256": "8e60eda84c4f74587aad0ee5dc5b81bcfc2f1f54dfe14c8660d8f1deaf7b52d8"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjWalkStatistics",
+      "canonicalSha256": "9fa041bc69e0ed72403a84d6d8aa037655360e6b796278e35df07423b5611fb3"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjWholeAdmitted",
+      "canonicalSha256": "3b5e2484bb50621dd6dc005188d758262f28989fc43b7424bb6ba67806b617c5"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjManifestVersion",
+      "canonicalSha256": "4f9322b292065302469d97159297188129eae0543ab4ee1a3bff0b86c29f9734"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjEncodeManifest",
+      "canonicalSha256": "5b6d2691a20642071560e87d5d8ebe2cc0ab8df13bd83f363a6a4dd23d90d6c1"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjEncodeManifestUnchecked",
+      "canonicalSha256": "4d527d6e4a96b83392ba8087c0e642e7f098b45eca668ee8696b293c021442ce"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjAdmitManifest",
+      "canonicalSha256": "a5fe4aa720435e6a8122f8abfd0b4cc2a1edaa1ea622ffa398bd3b1ce8e0b64b"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjHashBytes",
+      "canonicalSha256": "43ab69d975d16db0eb34308a4b544fdfb1fdb0795f71c8adb40526e2538a7588"
+    }
+  ],
+  "testStatus": "All proposed native/candidate tests NOT_RUN. Only read-only AST extraction/comparison and this external report performed.",
+  "storage": {
+    "hostAvailableBytes": "33991827456",
+    "reserveBytes": "10737418240",
+    "reportLimitBytes": 20480
+  },
+  "actions": "No candidate, repository, compiler, VM, runtime, active native output or other-lab changes."
+}

@@ -1,0 +1,128 @@
+{
+  "schema": "lexlean-r4-connected-range-positive-native-review/v1",
+  "status": "PASS_ACTUAL_CONNECTED_RANGE_EQUATION_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T01:16:06.963Z",
+  "findings": [],
+  "pins": {
+    "sourceManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/manifest.json",
+      "bytes": 2848,
+      "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+    },
+    "sourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/candidate-invocation-code-review.json",
+      "bytes": 8999,
+      "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+    },
+    "negativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/negative-native-review.json",
+      "bytes": 15507,
+      "sha256": "fe8c399bb7442996f8c444506d04ed8a998b04324c5b15a6b06816cffb05dcfa"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/verify.json",
+      "bytes": 1839,
+      "sha256": "2c5b3d4986474af2521126295cec944cee13625c52308b1df50b98b4ba1d9ac4"
+    },
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/artifact/attestation.json",
+      "bytes": 203251,
+      "sha256": "a86292618ba96fd1abf0d889127df7ab815a1e86280f6905bd1a584dcfa46148"
+    },
+    "buildManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/artifact/build-manifest.json",
+      "bytes": 35938,
+      "sha256": "627c4dc6559bf44d8e3b9dce8a7c12d09bb86d3e74ae62de5dda360be87b5642"
+    },
+    "emittedConsumer": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/artifact/modules/LexLeanR4/ObjectReadConnectedRange.lean",
+      "bytes": 8401,
+      "sha256": "172e2b7f8e28f7bfdc14804aec2d0ecbd8d38ba6ff55740501bfc05bc9b4fda7"
+    },
+    "emittedTransport": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/artifact/modules/LexLeanR4/ObjectReadConnectedRangeTransport.lean",
+      "bytes": 792,
+      "sha256": "5bdbd954944a07951863885ef2fb3eb4b8e9852aa3d007ec222ff06fd4cda9eb"
+    },
+    "emittedContext": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-positive/artifact/modules/LexLeanR4/ObjectReadConnectedRangeContext.lean",
+      "bytes": 27153,
+      "sha256": "6393b834edf0689f8633ae155744980ca828b307d15451c2dbeed28538095e9d"
+    },
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f"
+    }
+  },
+  "actualOutcome": {
+    "attestationId": "f621e58b3b9201d5df2cb260c54524576fad70964da904662852858ba797077f",
+    "buildId": "539fe1150d5adf027ba7c911ec1525a967d350421e752243b0c527a9529dcb28",
+    "sourceId": "b0d9ae41fb4397ad479e03ca4897b8cffa7e7fad967ccab516822c5f0fccc562",
+    "semanticId": "1ba0645eee325901af327daa36d34efb8da53654014b9245924af41fedaa3456",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T01:05:25.585Z",
+    "verifyEnded": "2026-10-24T01:14:56.486Z",
+    "aggregateVerifyElapsedMs": 570901,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": []
+  },
+  "counts": {
+    "inputs": 33,
+    "admittedModules": 29,
+    "rawCommandReceipts": 55,
+    "artifactFiles": 295,
+    "buildOutputs": 145,
+    "oleans": 29,
+    "emptyAxiomDeclarations": 828,
+    "successfulProcesses": 88,
+    "kernelReplays": 29,
+    "auditProcesses": 29,
+    "consumerStatementListNatLiterals": 552
+  },
+  "checks": [
+    "Frozen candidate/runner/reviews rehashed. All33 actual input mappings/copies/prepost source hashes match exact positive phase;29 admitted module names match mapped and artifact closure.",
+    "Genuine official lock/check/verify succeed; lock config/semantics/workspace pins and afterhash agree. Actual source/semantic/build/attestation identities agree across check/result/attestation/manifest.",
+    "Every actual build output and olean byte length/hash verified; every process record equals its retained JSON and has exit0 plus correct stdout/stderr/executable hashes.29 kernel replay module names exactly match29 build modules.",
+    "All declarations have observed[]/none policy/resultok. Actual audit outputs from29 audit processes and audit/output.txt exactly cover the same828 names, including the new context, transport and actual complete consumer.",
+    "Enumerated and rehashed entire artifact directory with exact expected set: no missing/additional files or symlinks. Embedded raw lexicon bytes are not separately bundled, so their raw source rehash is not claimed.",
+    "Inspected actual emitted original ObjRangeAdmitted-to-ObjRangeFinish equation and all list numerals against source. Mandatory consumer exact Apply lift(1) is present and kernel checked. Emitted transport uses actual accepted root base, induction/Cases and both Congruence steps; context retains real planner and finish calls. This is consumer acceptance, not helper-only inference.",
+    "All raw command receipts exit0; unchanged tools/current4GiB2CPU epoch, six zero memory counters, idle checks and source/lock/resource postguards pass; postcapture-errors empty."
+  ],
+  "artifactCensus": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/positive-artifact-census.json",
+    "count": 295,
+    "ordinalArraySha256": "16c35c1bc29f46af7030a6aa4a2fb7a04ac463fcc7907bd788c63159f745c44b",
+    "bytes": 57291,
+    "sha256": "c38c972d91da70353083bdf6275de1a4bdc789935ae9742c8cf8ca7ffbb5f23e"
+  },
+  "resources": {
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "toolHashes": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "memory": "All six counters zero before and after",
+    "capacity": {
+      "before": {
+        "hostAvailableBytes": "34475438080",
+        "guestAvailableKiB": 53005568
+      },
+      "after": {
+        "hostAvailableBytes": "32852070400",
+        "guestAvailableKiB": 52991488
+      }
+    }
+  },
+  "limitations": [
+    "Acceptance is the actual original ObjRangeAdmitted equation ending in the genuine ObjRangeFinish call on S184. The right side still computes real manifest version and may return a Result.error; no concrete successful finished range or version bytes are established.",
+    "Manifest/backend admission, concreteRangeFinish/version/hash, whole96 digest comparison, original ordinal26/allRead33 and full Object/Hash/PrismPM/Pages remain open.",
+    "Aggregate elapsed covers imported verification closure; no separate target-module duration, avoided-work, cache or efficiency claim.",
+    "No native/compiler rerun by reviewer; recorded actual kernel replays and complete artifacts audited read-only."
+  ],
+  "mutations": "Only external review and complete artifact-census records; no source/repository/index/VM/other-lab changes."
+}

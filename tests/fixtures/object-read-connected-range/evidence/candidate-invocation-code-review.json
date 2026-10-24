@@ -1,0 +1,121 @@
+{
+  "schema": "lexlean-r4-connected-range-candidate-code-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T00:56:56.176Z",
+  "reviewedHead": "6c95478ac3860bea320975b91d789b5f1de85b82",
+  "pins": {
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/manifest.json",
+      "bytes": 2848,
+      "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+    },
+    "invocationManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invocation-manifest.json",
+      "bytes": 1477,
+      "sha256": "c07b4dc0148b0072fd2ffd5d18d07da402c4644e391e493897d54d11eda2bcd2"
+    },
+    "runner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invoke-connected-range.mjs",
+      "bytes": 7707,
+      "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+    },
+    "context": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "bytes": 128694,
+      "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+    },
+    "positiveTransport": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1347,
+      "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+    },
+    "negativeTransport": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/negative/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1318,
+      "sha256": "e09b21788c6cb755d4bd04893bd0526beb6adae675e9b181a694ac5dcc62bab7"
+    },
+    "actualConsumer": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    "config": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/lexlean.toml",
+      "bytes": 688,
+      "sha256": "6625d737a9049c10b69e96268217e9d3364cf31d21c857c28ecbfa49294019e0"
+    }
+  },
+  "findings": [],
+  "checks": [
+    {
+      "name": "Exact frozen input and dependency closure",
+      "result": "PASS",
+      "details": "Rehashed eight payloads, five dependencies, invocation files and all three retained proof precedents. Each actual phase has33 distinct destinations and29 semantic modules; all66 input occurrences match bytes/SHA256. All declared imports resolve. All four new source variants are canonical JSON with lexlean/semantic-module/2. New external references resolve via imports and no same-module reference is spuriously qualified."
+    },
+    {
+      "name": "Independent original production reconstruction",
+      "result": "PASS",
+      "details": "Parsed actual canonical Read33 ordinal26 and ObjectRead runtime. Derived original backend/manifest/limits and whole range retaining projected manifest.length. Extracted original ObjWholeAdmitted ObjRangeAdmitted call for complete LHS; extracted actual successful walked continuation for RHS with exact accepted S184. External local function/member qualification only. Independent reconstructed consumer statement equals authored statement exactly, with all11 canonical pins matching accepted SPEC and audit."
+    },
+    {
+      "name": "Entire context, one hole and types",
+      "result": "PASS",
+      "details": "Copied actual entire ObjRangeAdmitted body, replaced only its nonempty root-call scrutinee with walkResult, and instantiated original inputs. The resulting complete context equals authored K body byte-for-AST; exactly one hole occurs. Substituting actual accepted root LHS back restores the complete qualified production body, canonicalSHA07ac3372eeacc1e220a3bfe3fcdd3b6a90145569cc36402812e76128f99d8c42. K input is Result ObjWalkState ObjError; result is Result ObjRangeVerified ObjError. Outer invalidRange/returnedBytes/empty-range/planner/error/walked-error branches remain, as do actual ObjPlanRoots and ObjRangeFinish. No guessed planner result or successful finished value replaces production work."
+    },
+    {
+      "name": "Supported family, transport and mandatory consumer",
+      "result": "PASS_SOURCE_ONLY",
+      "details": "Verified P0 exactly equals accepted root equation. Psucc is K(rootLeft)=K(rootRight), with local unqualified K calls and unused prior binder. Parameters/count/Prop result and Nat.zero/succ branches are exact. Lift uses count induction, root Apply base, Cases prior and Congruence both successor branches with empty axioms. Actual complete ObjRangeAdmitted consumer applies this lift at Nat1. Genuine ObjRangeFinish still includes length/version/hash computation; the equality does not establish its concrete successful result or manifest version. Kernel conversion through outer guards/planner and cross-type transport remains NOT_RUN."
+    },
+    {
+      "name": "Meaningful negative isolation",
+      "result": "PASS",
+      "details": "Whole-module equality after changing only positive zero-branch theorem reference to local objConnectedRangeUnrelatedZero equals the negative variant. Both contain identical0=0 reflexivity theorem, lift statement, remaining proof and mandatory actual consumer. Negative may fail in its transport dependency before consumer elaboration; only intended proof mismatch after source admission counts, not timeout/OOM/admission failure. Positive helper-only success is insufficient."
+    },
+    {
+      "name": "Invocation and unchanged guards",
+      "result": "PASS",
+      "details": "Rehashed reviewed predecessor runner/review and reproduced successor exactly via the eight declared single-occurrence replacements. Both phase selectors target actual ObjectReadConnectedRange. Exclusive fresh stage/output, one phase per call, frozen manifest/source census, epoch4GiB2CPU, tool-before/after, idle, zero memory events, host20GiB launch with10GiB estimate/reserve, guest11GiBpre/10GiBpost, source/lock checks and independent postcaptures/artifact capture unchanged. Config differs only by entrypoint. node --check exited0; runner was never executed/imported."
+    },
+    {
+      "name": "Source preservation",
+      "result": "PASS",
+      "details": "Ten drafts, six merged sources, canonical full33 and all17 original snapshots rehashed unchanged. No runtime source, expected digest, proof limits, axiom policy, repository/index, VM or other-lab modifications."
+    }
+  ],
+  "canonicalASTHashes": {
+    "originalControlStatement": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+    "pendingRootEquation": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+    "productionRootOccurrence": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+    "completeRangeLeft": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "realRangeFinishRight": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+    "proposedStatement": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613",
+    "singleHoleContext": "f4bdb92e12338f844d53a69e6bca4afb2b1c77c52b56ded0ecad6837ec8ec2d1"
+  },
+  "counts": {
+    "sourcePayloads": 8,
+    "dependencies": 5,
+    "newLogicalModules": 3,
+    "newSourceVariants": 4,
+    "inputsPerPhase": 33,
+    "modulesPerPhase": 29,
+    "invocationLiteralChanges": 8
+  },
+  "boundary": {
+    "native": "NOT_RUN",
+    "accepted": "Static source/invocation readiness only. Parent fresh operational gates and sequential actual negative/positive with independent artifact audits remain required.",
+    "remaining": "Concrete finish/version, manifest/backend admission, whole hash/original Read33 and broader Object/Hash/PrismPM/Pages remain open.",
+    "performance": "No cached reduction, rewrite, efficiency or child-duration claim; Apply/congruence/consumer conversion can still be costly or fail."
+  },
+  "storage": {
+    "availableBytes": "32141602816",
+    "reserveBytes": "10737418240",
+    "write": "Only this small external JSON review."
+  },
+  "mutations": "No native calls or source/repository/index/VM modifications."
+}

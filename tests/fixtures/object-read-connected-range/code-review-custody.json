@@ -1,0 +1,23 @@
+{
+  "schema": "lexlean-r4-connected-range-code-review-custody/v1",
+  "status": "SOURCE_AND_INVOCATION_CODE_REVIEW_ACCEPTED_NATIVE_OUTCOMES_NOT_YET_ACCEPTED",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/candidate-invocation-code-review.json",
+        "bytes": 8999,
+        "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+      },
+      "destination": {
+        "path": "evidence/candidate-invocation-code-review.json",
+        "bytes": 8999,
+        "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+      }
+    }
+  ],
+  "boundary": "Supplemental source/invocation review only. No running native output inspected or copied; no intended-negative or positive proof acceptance asserted.",
+  "storage": {
+    "hostAvailableBytes": "30495621120",
+    "maximumAdditionalAllocationBytes": 65536
+  }
+}
