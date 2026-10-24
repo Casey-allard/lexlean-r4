@@ -1,0 +1,33 @@
+{
+  "schema": "lexlean-r4-final-child-readiness/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/manifest.json",
+    "bytes": 2199,
+    "sha256": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/invocation-manifest.json",
+    "bytes": 1595,
+    "sha256": "1bd4d669ff5a298f9ab0ca80672ad3afb71667940facd094e7da3824e87c1315"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/invoke-final-child.mjs",
+    "bytes": 7735,
+    "sha256": "6cc6e0acfd54f6aac66b09aa983306cd4e92702e4e70dbd7bc621c99894490a7"
+  },
+  "checks": {
+    "both29InputSetsRehashed": true,
+    "allNineSpecASTPinsMatch": true,
+    "canonicalSemanticJSONAndEq": true,
+    "emptyAxioms": true,
+    "soleExpectedWire184To185Difference": true,
+    "completeOriginalParentConsumerMandatory": true,
+    "exactEightLiteralInvocationChanges": true,
+    "tenDraftsSixSourcesFull33Unchanged": true,
+    "nodeCheckExit": 0,
+    "moduleExecuted": false
+  },
+  "authoringFailures": "None encountered.",
+  "boundary": "Source-only readiness for independent CODE, not native launch or proof acceptance."
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-final-child-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/invoke-second-child.mjs",
+    "bytes": 7759,
+    "sha256": "060095b731a2d6c7316202d46ff68c4126ee3e6f6e959a749fed9c3c8285270a"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-second-child/candidate-invocation-code-review.json",
+    "bytes": 6258,
+    "sha256": "1274ca40d00a4644e98c0422fe5446c579fcc49c5a971a601c6a3f78d5c82a9d"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/invoke-final-child.mjs",
+    "bytes": 7735,
+    "sha256": "6cc6e0acfd54f6aac66b09aa983306cd4e92702e4e70dbd7bc621c99894490a7"
+  },
+  "literalReplacements": [
+    {
+      "from": "// One-off official-compiler invocation for one selected second child and full original parent continuation; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one selected final child and complete original parent; no Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['second-child-false','second-child-positive']",
+      "to": "['final-child-false','final-child-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one second-child phase",
+      "to": "select exactly one final-child phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-second-child-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-read-final-child-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "from": "d86ad756df54491463ffa5e89a9c24d8220b6fb28e22f27f73d715245dbc888f",
+      "to": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b",
+      "occurrences": 1
+    },
+    {
+      "from": "phase==='second-child-false'",
+      "to": "phase==='final-child-false'",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==27||new Set(inputs.map(x=>x.destination)).size!==27",
+      "to": "inputs.length!==29||new Set(inputs.map(x=>x.destination)).size!==29",
+      "occurrences": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+      "to": "tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "allOtherOperationalGuardAndPostcaptureBytesUnchanged": true
+}

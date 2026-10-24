@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-derived-attestation-summary/v1",
+  "derived": true,
+  "notFullAttestation": true,
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/final-child-positive/artifact/attestation.json",
+    "bytes": 195110,
+    "sha256": "9172e8e5319981f115142bb6d0b7cfdaa1f2a5d5444020ba92b390f9916508a9"
+  },
+  "actualOutcome": {
+    "phase": "final-child-positive",
+    "checkExit": 0,
+    "checkModules": 25,
+    "verifyExit": 0,
+    "success": true,
+    "diagnostics": [],
+    "verifyElapsedMs": 212087,
+    "attestationId": "952ad3ce0fa4f7f3ecbbb56bd606169bddf01e37f0469ba7e94b41d64f87fb82",
+    "buildId": "6eece657027a64748e14e513fa0f98a988f645bbb3d6c2f9b250d39705cc968f",
+    "sourceId": "91c9d71e1e68f7da1eff612ef44006c42d2b40117fe91d3382415c9081c827e1",
+    "semanticId": "b4b97a93fe5a0a565e859dab1cc1c967c9b0d7b0df56b558aa141a0795d06f81",
+    "stage": "/tmp/r4-object-read-final-child-final-child-positive-owned-20261023",
+    "lockSha256": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5"
+  },
+  "counts": {
+    "artifactFiles": 255,
+    "buildOutputs": 125,
+    "emptyAxiomDeclarations": 822,
+    "successfulProcesses": 76,
+    "kernelReplays": 25
+  },
+  "independentReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/positive-native-review.json",
+    "bytes": 8986,
+    "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b"
+  },
+  "fullBundle": "Retained locally, excluded from Git; full exact file census is preserved separately."
+}

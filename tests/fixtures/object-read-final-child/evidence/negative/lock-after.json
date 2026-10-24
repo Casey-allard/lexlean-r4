@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-final-child-final-child-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-24T00:01:02.629Z",
+  "ended": "2026-10-24T00:01:02.671Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5  /tmp/r4-object-read-final-child-final-child-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

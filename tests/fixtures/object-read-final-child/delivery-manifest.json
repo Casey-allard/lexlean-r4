@@ -1,0 +1,467 @@
+{
+  "schema": "lexlean-r4-final-child-delivery/v1",
+  "base": "19d59f84b788f1df420f9871f978f75b4ae1f673",
+  "scope": "Accepted actual final authenticated child and complete original parent visitor Result.ok S184, paired false wire185 negative, and independently accepted root-traversal DESIGN ONLY with all next tests NOT_RUN. No full Read33/model acceptance.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 36406,
+      "sha256": "81a1b9cc9d9f80438fdbefc50a47a0d42d3e365a7b34e2a6fa6b851a73467534"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-root-traversal-proposal.json",
+      "bytes": 12053,
+      "sha256": "dbb2b220dddd02e12ca223ccb331c0e731964a88264d3cbed1eeec16acb4bf39"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-root-traversal-spec-review.json",
+      "bytes": 8206,
+      "sha256": "7e4d9f1c691b0ef282da09ac50876766a3b2df3b92882d0a71b6490b48eab5a7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/root-traversal-plan-bindings.json",
+      "bytes": 4489,
+      "sha256": "395508b69a11a4162f8b675d07cb990fbd562feada42cb3813ad263ce879a22a"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 29363,
+      "sha256": "66bff3ba001e8ba1653094170ce138df2336d66aa9bda9eb455b0cd576259b35"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/README.md",
+      "bytes": 1181,
+      "sha256": "8a188a588e750d9edfab0fd67c5d83bb4cbf69c6b6fa3250414d21f3614fc7df"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/RESULTS.md",
+      "bytes": 2551,
+      "sha256": "5de17ac4ff7f87fec4ba6c6c29a909d2271353a014a7002fff594895de6e214e"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/README.md",
+      "bytes": 596,
+      "sha256": "894a1b70ecad337a7ad7bc77006f10ba642f2453871d85213e4558e3224e8206"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/candidate.json",
+      "bytes": 22874,
+      "sha256": "9de0a4440444dd2f6bdf38335efb1e9419eabe9eaa5085c4b2bc25394c51d91a"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/lexlean.toml",
+      "bytes": 688,
+      "sha256": "af7a2ee15b23c64c965e04484fb128b76702c2104a0c01dd0e84ecaa76e5c8c1"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/manifest.json",
+      "bytes": 2199,
+      "sha256": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/negative/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+      "bytes": 36529,
+      "sha256": "fefb2a588b64300706a5abced576f9f1f036aae8bfaa9ccd252dba4bfbbe3828"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/positive/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+      "bytes": 36529,
+      "sha256": "55aba13d8efdf27155339791bfa40f3d9cd1103e7915d353668c718d0f14e804"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/structural-audit.json",
+      "bytes": 5521,
+      "sha256": "665cb900e9442a69215573bca445e86a01c6b831bab983b30e3e33dd1fa2f1be"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/code-review-custody.json",
+      "bytes": 1077,
+      "sha256": "0f54a994cf76068f9769a6575f1273c86879328986c378d25f43df0aabbd3969"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/delivery-history/delivery-code-review.json",
+      "bytes": 6015,
+      "sha256": "71f1685583ad2b4c25e20c827c95a07de0e9c88ee7cc4367c6081cea9ec98da9"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/delivery-history/delivery-security-review.json",
+      "bytes": 5362,
+      "sha256": "5925498784ddac5d42e2c6813bdfe4aa64c4855e3d9e9cb52f608e20dda60d24"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/delivery-history/initial-manifest.json",
+      "bytes": 18812,
+      "sha256": "1cedf361a86c9296a275bbef2809ab82782ca5a4aa338d014386ff8e5f40ffa7"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/design/next-final-child-proposal.json",
+      "bytes": 13924,
+      "sha256": "daaed71c19a50f806096674c6cf477eee3eb24e853b37844689b9a5fb2f9bb2e"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/design/next-final-child-spec-review.json",
+      "bytes": 9464,
+      "sha256": "97b5b445288717429d82be8f8ecfb9fb14cab6f38f8d2faff9cc0b61a2fabbdc"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/candidate-invocation-code-review.json",
+      "bytes": 6861,
+      "sha256": "6702cb04e7712e3bcefaeb48288a0acc8f1c72365f8ec7a7eb9ec92b106e1f8e"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/invocation-diff.json",
+      "bytes": 2489,
+      "sha256": "78803322c384d604d87845709dc33a829a193b2547925354f89080c126d259d2"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/invocation-manifest.json",
+      "bytes": 1595,
+      "sha256": "1bd4d669ff5a298f9ab0ca80672ad3afb71667940facd094e7da3824e87c1315"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/invoke-final-child.mjs",
+      "bytes": 7735,
+      "sha256": "6cc6e0acfd54f6aac66b09aa983306cd4e92702e4e70dbd7bc621c99894490a7"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/allocated-before.json",
+      "bytes": 459,
+      "sha256": "96359a90335da5f7239ff3530b8f10c0c96358e01bc0d7d76791ab4a48bf899d"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/check.json",
+      "bytes": 1395,
+      "sha256": "adb3c2763b80df2c4f9b9a6ff083364f0e9b15915ac67053eae1fb22b35c7099"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "ffc8395896532ab8f60ea1e1516282869fd3633352303ac0c3f265c824099c4c"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "7cae62b8fb0146a0cfa6719e008f23703939e6c42154c13a225d7faac6adb10b"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/expected-inputs.json",
+      "bytes": 10699,
+      "sha256": "69e2746c074798b77445a4050deb55ecd676db320d33d303b3d2e26c88ac8e89"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "c8fdfded023d963afc6a1f355557a9159ac24c857bf86e7e09171c220ff98680"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "9253418a5e1f856ad80a4ebc48d47b94b1c3b3ba76304b330cb13e34e540f077"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "ca66123330be6b44e678d6f07f9b99d755a4536a481789af9132bcfc7d71827b"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "5169d43a004e6fd60d3eade6c2cba734ae2adb7e6d5501b48209d119fb9f7dde"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "e5afa7c47e57fc1e777c517c70c6a7ea55fa17554beec076babbe9e1ee939be3"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "2a275253fc1a5a3cc7352a8dc4c9fa6a37517b9bb89b620170899d07dba9cac1"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/lock-after.json",
+      "bytes": 495,
+      "sha256": "c7456d59882fb851a1c21d85a5cfe7f4395591a2d9c19dea2f9d3adbe33a55a4"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/lock-bytes.json",
+      "bytes": 2058,
+      "sha256": "e8435c6d593cd5e7e19fdd49b49cd72e630d50912f089cbb57905184ebd654f4"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/lock.json",
+      "bytes": 542,
+      "sha256": "febc98774b8461d1649e02b7f80543e5f06e87fa378e480c79fb1d893c45e33c"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "a8ade560d93ec65829a72feab4b91e75775af3e0f8e9e62cfd81122b9d65b53e"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "7416b62c5b8752d97d7e1306eaf4564feb6c54708c4eb0c51a20cea35e96637e"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/negative-native-review.json",
+      "bytes": 12862,
+      "sha256": "7d6450c98a192c28f3ce0612d4a82cc3c039d01c94af82341aada37b90ae914c"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/result.json",
+      "bytes": 7754,
+      "sha256": "9c5e7a53ec5db16a165a9d7b2b951b6a0d5558f34ef9f07a813956ec5854aa91"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/source-after.json",
+      "bytes": 8371,
+      "sha256": "b54b451c58e508095a2c89b1953dc20a3cb4e5a21f88f5211357f7ed85799784"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/source-before.json",
+      "bytes": 8371,
+      "sha256": "f87913780a859286437624623aa7923bf94f2386d11569775a89371339f4183a"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/swap-before.json",
+      "bytes": 264,
+      "sha256": "36d5e416edd4a147a8df71e63f095574d6e432f3c73e36cd3bd86d0b986309d9"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "1cbbfd9a05eb68138b85e135f43a6c5ce50079282a40894f37f3c033b54f40f2"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "53215efacba1187407dc4e618cc0320f1e45755d7c39d91dbd7f51894fa2bd72"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/negative/verify.json",
+      "bytes": 7934,
+      "sha256": "135cbf4c1f27387ea9aaa85b5a67c5105c1eb3a15a46ab62b2259a6bf724eead"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/next-read-step-proposal-review-pending.json",
+      "bytes": 11317,
+      "sha256": "f9ca767364a25101b5ae1b51b4055461aceaf1d3d89092bb6ef1eaa74f8a0e33"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive-artifact-census.json",
+      "bytes": 49501,
+      "sha256": "bb6695cebaf554087bad5f9dccf99d651c004f42891013a8de66f89d03e58c0f"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "8372ef82d2412ef19f8dac7bdff55542c5fae9c31d69ab4b35e2cfbc8eed70c5"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/artifact-copy.json",
+      "bytes": 528,
+      "sha256": "0841819e378122a49808b72919e2b5cf0c3eb63ab3c373d3b215f54d8e2ff8a0"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/artifact/attestation-summary.json",
+      "bytes": 1631,
+      "sha256": "f32ed6c1bd29f926606ba768759b754a02200be692a2e852b8e018a1ca7107de"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/artifact/build-manifest.json",
+      "bytes": 30936,
+      "sha256": "ec2bc6ecb268f493e789ee18c57c28433a7a99e6e84a23eadc1704f8dae6ec98"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/artifact/modules/LexLeanR4/ObjectReadCompleteParent.lean",
+      "bytes": 5669,
+      "sha256": "bb67d9ecf106acdf40a2e4ee8189bcd88c317e85b134c83f071a8e15a5a74623"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/artifact/modules/LexLeanR4/ObjectReadFinalChildState.lean",
+      "bytes": 7038,
+      "sha256": "82ecde23267abc8fae9abb98c49dc53d272ed4a58d4ff0b71fbfdd3f213353f9"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/check.json",
+      "bytes": 1398,
+      "sha256": "3e0bf3216a33af79401e8d43ceb9d62cfe3a1850cf2ea028d721643d35ba3709"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "d69d7e0ec1612f7e2eafbc319dbf1457771bfb6214358578d9b4edfd271aa411"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "608c9b8fa9aabd749dd53a9d8c914eb417141f163c10ba121c044b990567f46b"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/expected-inputs.json",
+      "bytes": 10699,
+      "sha256": "82713f6d309aec2b531d7d4f64008df20cee05632d379a044584475c258e4c94"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "6c1693b22a24b936c54ca8842d00a021451dbf5b6a7445f0d3bb367bc5e4c570"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "ac2195dd48d3e6cddc2eb6c440a6347342afe4cc48606d92567a38858042f328"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "2e91a761a94a816f3cb55c7f1c23ef7760baabb1783f7a4b82308ff969e6238e"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "df545a8b858d683529373c83a67c67bacd55231780fbaa8f8d69105d6e85d2fb"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "8e32564deeeacbdd4c58e18e664e72932ee35196ec02a50ab4782fb904624756"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "735de9a640af9eab33ee8a9ea17fb9f74c7a315a6633e9733f2200c3b2cfea68"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/lock-after.json",
+      "bytes": 501,
+      "sha256": "62fc659615c34294441e79eff86df3bbc22a985cdba658dc597ea16b8a52a193"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/lock-bytes.json",
+      "bytes": 2061,
+      "sha256": "e0b3403fd6a33a9c6a1b1bc7f37269ac195542ebed45d4d9d03d873bd814f405"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/lock.json",
+      "bytes": 545,
+      "sha256": "ca8b3cecfa5fe97387acff9b1bd0817a05078341723ef8170fc366d60360c80a"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "89611f444909815d1cc4eea2402d864f0f764d0ee785b2a27a7471456c3dd115"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "d320e5b282b6475eb9781c9665e7252df5ad0dff95041c75ce368a28029abda0"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/positive-native-review.json",
+      "bytes": 8986,
+      "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/result.json",
+      "bytes": 1583,
+      "sha256": "a8924743ba0f848237621ee29f924a21dea4428255c5b46d8f9e1d9032137a1a"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/source-after.json",
+      "bytes": 8545,
+      "sha256": "b5a8ded27c1737a84f7e689f83ad0ee466a8dc5ce697a01fda0fea8a63793778"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/source-before.json",
+      "bytes": 8545,
+      "sha256": "fd507acb57dc77f702463019c05a44ecc1880067f02a699a4d6fe9eae85c6d6f"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "cece86d06bda7cadca325094d8d6709d2ba7f0bc12d3c143c27a9c73aab3c7f4"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "1d0967372344e3a6615d523161d865e0bb811e9d3cd637e3a6bd00ad5266e35c"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "eb65fd5b7c95fa08401f1be7611e2d9152e9fb21ea4d5e16aaf6e662da596ecb"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/positive/verify.json",
+      "bytes": 1710,
+      "sha256": "58d75e72dfc1a731952b56038d4c583979ae9896019605755504e53df3652711"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/evidence/readiness.json",
+      "bytes": 1414,
+      "sha256": "172ebe5db27e7b83159f7bf3e3cb281aeca193c5305d201e0b916bc74a8f22ee"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/negative-custody.json",
+      "bytes": 13270,
+      "sha256": "4f5098e35538df74bc573f4fc58ab8d5ef1e4524ad92d8bda8699a3a52d54aff"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/next-proposal-history-custody.json",
+      "bytes": 667,
+      "sha256": "3f7ad0d4ead18951469d30ac237d952009d94d84076b0550c1d38824e19f7f68"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/positive-custody.json",
+      "bytes": 16062,
+      "sha256": "53ceb230e5f814c0a38731ad0abca02e84d99c673027ded87a7c2fe046498d65"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/results.json",
+      "bytes": 7933,
+      "sha256": "578003c26d78aac99ca986f3146742c94867dbac431655191e753aff08017272"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/source-bindings.json",
+      "bytes": 29737,
+      "sha256": "d5f7f0efa903235c2a0c9e12958bc11dc5e7a1ea7f3b9f6c32b16dff6ca85fb0"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/source-preservation-custody.json",
+      "bytes": 10491,
+      "sha256": "69ea38fdc66a7b75baaf7e86612d9730f9cb50d7fdb23842b09ca3b2cf10f39c"
+    }
+  ],
+  "excluded": "This manifest excludes itself. Full native compiled bundles remain locally retained and exactly enumerated by the portable census; other labs and unrelated work are outside this delivery.",
+  "reviewHistory": {
+    "initialManifest": "1cedf361a86c9296a275bbef2809ab82782ca5a4aa338d014386ff8e5f40ffa7",
+    "scope": "Only three byte-preserved delivery-history files added; all initial payloads unchanged. Final additive review required before commit."
+  }
+}

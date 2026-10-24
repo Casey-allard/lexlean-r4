@@ -1,0 +1,22 @@
+{
+  "schema": "lexlean-r4-final-child-code-review-custody/v1",
+  "status": "SOURCE_AND_INVOCATION_CODE_ACCEPTED_NATIVE_OUTCOMES_PENDING",
+  "copy": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/candidate-invocation-code-review.json",
+      "bytes": 6861,
+      "sha256": "6702cb04e7712e3bcefaeb48288a0acc8f1c72365f8ec7a7eb9ec92b106e1f8e"
+    },
+    "destination": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 6861,
+      "sha256": "6702cb04e7712e3bcefaeb48288a0acc8f1c72365f8ec7a7eb9ec92b106e1f8e"
+    }
+  },
+  "historicalSourceCustody": {
+    "path": "source-preservation-custody.json",
+    "bytes": 10491,
+    "sha256": "69ea38fdc66a7b75baaf7e86612d9730f9cb50d7fdb23842b09ca3b2cf10f39c"
+  },
+  "boundary": "Completed source/invocation review only. Negative native phase is parent-controlled and running at preservation. No growing phase files accessed or copied. Source preparation status and original custody remain byte-identical; no native acceptance."
+}
