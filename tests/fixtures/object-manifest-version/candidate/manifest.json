@@ -1,0 +1,63 @@
+{
+  "schema": "lexlean-r4-manifest-version-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "2da9449c574e7799af87618980455166d3e3ba193d7426f6986c9cb26afaa811"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 685,
+      "sha256": "885b74d16b27388319bd8e3a82493944c5c29397a76d39e9e6a6c4880d301e98"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 12576,
+      "sha256": "0310a669a5b9d70f8ad901d593105db770c62d2dfe715e394160d19e01c84968"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 10315,
+      "sha256": "2f4d7c5a1a39928c33723d5d02f81446cac0ce385e302879b92098960982a3d6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 521,
+      "sha256": "63c7f7d187180b686c47f074fa11a98ba6dcd8a4ad5ac85a60c626e49c22578c"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-manifest-version-proposal.json",
+      "bytes": 11217,
+      "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-manifest-version-spec-review.json",
+      "bytes": 5722,
+      "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/manifest-version-prerequisite-binding.json",
+      "bytes": 2915,
+      "sha256": "73dd16a14847f481d3f35768926f887511459683d7c15dc43996e95fe2cc6894"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/manifest-version-plan-bindings.json",
+      "bytes": 5776,
+      "sha256": "213daf9faf524b857c1ed71afc3ad2828ab8691b624a60270942cd3bc6eac226"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/evidence/positive/positive-native-review.json",
+      "bytes": 7661,
+      "sha256": "628ed0984427f235cb0e0d40bdbf633a590a09bbfd3a0d2f5b9ef871a7bb62bb"
+    }
+  ]
+}

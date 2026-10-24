@@ -1,0 +1,171 @@
+{
+  "schema": "lexlean-r4-manifest-version-positive-native-review/v1",
+  "status": "PASS_ACTUAL_SPECIFIC_MANIFEST_VERSION_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T01:30:40.435Z",
+  "findings": [],
+  "pins": {
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/manifest.json",
+      "bytes": 2408,
+      "sha256": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae"
+    },
+    "sourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/candidate-invocation-code-review.json",
+      "bytes": 6489,
+      "sha256": "537af4f04e20fc585dc31e7b0ff3f7ed0790869708525e6378b4ed015032e49f"
+    },
+    "negativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/negative-native-review.json",
+      "bytes": 12797,
+      "sha256": "f260185ea12b8e9b6316923d6cc6b56ce328233c1adca812c428a8cd6b5bf329"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/verify.json",
+      "bytes": 1158,
+      "sha256": "5564583027a230a4cff1ba65491e311a40104a809651c92951b0054135de75a4"
+    },
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/artifact/attestation.json",
+      "bytes": 150378,
+      "sha256": "6d9f187a26cd19bd4f7f81faf325389f777061738b63592ddba780a72dc9f232"
+    },
+    "buildManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/artifact/build-manifest.json",
+      "bytes": 9851,
+      "sha256": "22945f9b798f073cde49cfd432bc4524172b54f5d49a371ca91cff692a05256f"
+    },
+    "emittedTheorem": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-positive/artifact/modules/LexLeanR4/ObjectManifestVersion.lean",
+      "bytes": 1667,
+      "sha256": "5a4a4c9466c823bf8f91ff3dc7f74f7469b160678ff5535105bb18040533c4d4"
+    },
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "b0ed68fa9d03da0f2cd22d4b72f89ec1f3ac6ab031aae6dfcb9e14af5c0c3c8b"
+    }
+  },
+  "actualOutcome": {
+    "attestationId": "41433579dc4290c00d87ad7cd8e9508962de842d1844f3456750854a4dcf2370",
+    "buildId": "f3b637fe0f5e64b0022af1d708d575a13beee8bc701a2ca593124b96eb0e2069",
+    "sourceId": "61fb062c8ab6635428ab396861ee107a9e3f73654133077bc4c6a21f0b02a17f",
+    "semanticId": "ff8a52d9c27855415f63fd0a5ac561018467c8a1941b410946dee6d83eb2e1cd",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T01:28:57.019Z",
+    "verifyEnded": "2026-10-24T01:29:35.771Z",
+    "aggregateVerifyElapsedMs": 38752,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "versionBytes": [
+      146,
+      74,
+      190,
+      232,
+      62,
+      91,
+      175,
+      190,
+      237,
+      157,
+      113,
+      38,
+      4,
+      8,
+      17,
+      5,
+      253,
+      233,
+      231,
+      187,
+      31,
+      113,
+      235,
+      100,
+      5,
+      194,
+      189,
+      181,
+      34,
+      231,
+      150,
+      142
+    ]
+  },
+  "counts": {
+    "inputs": 15,
+    "suppliedSourceModules": 11,
+    "admittedModules": 8,
+    "rawCommandReceipts": 37,
+    "artifactFiles": 85,
+    "buildOutputs": 40,
+    "oleans": 8,
+    "emptyAxiomDeclarations": 740,
+    "successfulProcesses": 25,
+    "kernelReplays": 8,
+    "auditProcesses": 8,
+    "theoremStatementListNatLiterals": 76
+  },
+  "selection": {
+    "selected": [
+      "ObjectManifestVersion",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [
+      "R4.Object",
+      "R4.ObjectRead",
+      "R4.ObjectStore"
+    ],
+    "boundary": "15 supplied inputs contain11 source modules; actual check/build/verify/kernel closure is8 reachable modules. No11-module native acceptance claimed."
+  },
+  "checks": [
+    "Frozen source/runner/reviews rehashed. All15 actual input mappings, copies and sourcebeforeafter hashes equal reviewed positive phase. Actual selected8 modules exactly equal independently traced imports.",
+    "Genuine official lock/check/verify succeed. Developmentlock config/compilersemantics/workspace pins and afterhash match. Result/check/attestation/build source and semantic identities agree.",
+    "All actual buildoutputs/oleans checked by length/SHA256; every process equals retained JSON with exit0 and verified stdout/stderr/executable hashes. Kernelreplayset exactly equals all8 selected modules.",
+    "All740 declarations have empty observed axioms/none policy/resultok;8 actualauditprocess outputs and aggregate output exactly cover those names, including targettheorem.",
+    "Entire artifact directory enumerated and rehashed with exact expected outputs/oleans/process/audit/probe/manifest set and noextras/missing/symlinks. Embeddedrawlexiconbytes are not independently claimed rehashed.",
+    "Actual emitted theorem proves full Result.ok ObjVersion with originalmanifest/limits and exact32bytes, usingrfl. All list numeral positions agree with source; actual admitted encoder and genuine HashWire computation remain in retained runtime/build, no theorem substitution/hosthash shortcut.",
+    "All rawcommands exit0 and posterrors[]. Exacttoolhashes/currentepoch4GiB2CPU, sixzeromemoryevents, idle, source/lock and host/guestreserve guards pass."
+  ],
+  "artifactCensus": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive-artifact-census.json",
+    "count": 85,
+    "ordinalArraySha256": "036cf0650c3a6273953c9bbea2f44cf9945f3939b08d1f61308f20d30655b17e",
+    "bytes": 15803,
+    "sha256": "21e81f83e8afa5b7e0f32919aa7025e3977fe95b30ce7801e26efc3a8f97dcaf"
+  },
+  "resources": {
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "toolHashes": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "memory": "All six counters zero before and after",
+    "capacity": {
+      "before": {
+        "hostAvailableBytes": "34677460992",
+        "guestAvailableKiB": 52987948
+      },
+      "after": {
+        "hostAvailableBytes": "34549923840",
+        "guestAvailableKiB": 52978612
+      }
+    }
+  },
+  "limitations": [
+    "Only this original specific manifest-version fullResult is accepted; no general HashWire conformance or arbitrarymanifest theorem.",
+    "ConcreteRangeFinish/whole96hash/digestcomparison/originalRead33 and full Object/model/PrismPM/Pages remain open.",
+    "Aggregate elapsed covers selectedclosure; no separate module timing, cache/efficiency or avoided-work claim.",
+    "Reviewer made no native/compiler rerun; audited actual retained artifacts and recorded kernel replays."
+  ],
+  "mutations": "Only bounded external review/census records; no source/repository/index/VM/other-lab changes."
+}

@@ -1,0 +1,421 @@
+{
+  "schema": "lexlean-r4-manifest-version-delivery-manifest/v1",
+  "status": "FROZEN_PENDING_EXACT_DELIVERY_CODE_AND_SECURITY_REVIEW",
+  "baseCommit": "e39b85c8ff2ebb35abfb1b86f2d24a56642250ea",
+  "scope": "Specific original manifest-version fullResult and paired negative, exact reviewed native evidence, explicitly revised next concrete-finish DESIGN ONLY, scoped continuation updates. No production model/runtime change or full acceptance.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 40945,
+      "sha256": "0b2e4c0ff1e688953f160c99d774a65fbdc3eef00e2699da67f9785ba8897374"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/concrete-finish-plan-bindings.json",
+      "bytes": 4990,
+      "sha256": "02c3839e4578764276c3b4595a4cef40970e185f552659fa2420ad4d424c703b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-concrete-finish-proposal.json",
+      "bytes": 10218,
+      "sha256": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-concrete-finish-spec-review.json",
+      "bytes": 7095,
+      "sha256": "704495a76355899efc1b9a5ad57f70d7ae7081088f4660d103b7bc485a1420a9"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 31820,
+      "sha256": "421e8a99106bee489c34b954c396fa985f381a0e92043c8c9af2cff2c721bce6"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/README.md",
+      "bytes": 1001,
+      "sha256": "0859f19de2c78a6d5c97c12a8610492d1db69e652a4d9154c249e5319dc7f2e2"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/RESULTS.md",
+      "bytes": 2303,
+      "sha256": "f471d105dabc20b86dda9ae0d5818d354c156f5a105b07ed502c10e7dcb49d3c"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/README.md",
+      "bytes": 521,
+      "sha256": "63c7f7d187180b686c47f074fa11a98ba6dcd8a4ad5ac85a60c626e49c22578c"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/candidate.json",
+      "bytes": 12576,
+      "sha256": "0310a669a5b9d70f8ad901d593105db770c62d2dfe715e394160d19e01c84968"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/lexlean.toml",
+      "bytes": 685,
+      "sha256": "885b74d16b27388319bd8e3a82493944c5c29397a76d39e9e6a6c4880d301e98"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/manifest.json",
+      "bytes": 2408,
+      "sha256": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/negative/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "2da9449c574e7799af87618980455166d3e3ba193d7426f6986c9cb26afaa811"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/structural-audit.json",
+      "bytes": 10315,
+      "sha256": "2f4d7c5a1a39928c33723d5d02f81446cac0ce385e302879b92098960982a3d6"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/candidate-invocation-code-review.json",
+      "bytes": 6489,
+      "sha256": "537af4f04e20fc585dc31e7b0ff3f7ed0790869708525e6378b4ed015032e49f"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/invocation-diff.json",
+      "bytes": 2409,
+      "sha256": "1f31d7772b84a5f2ebb9e0105659f52f5aa063b60c91bebb7f86516b592a56ef"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/invocation-manifest.json",
+      "bytes": 1484,
+      "sha256": "d43849e66c04f459383dfe5c8f4a82368742a3a9e64903c999a046cd4baa0f30"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/invoke-manifest-version.mjs",
+      "bytes": 7706,
+      "sha256": "edfe83d741cc386c5ae1400a1ca0d78e63375b91765a21592d9bfd0555044f92"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/check.json",
+      "bytes": 846,
+      "sha256": "8d03a50c2c890979259896f35b75c79a329916d4ef7d53d84729d42b63cc31cb"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/custody.json",
+      "bytes": 10181,
+      "sha256": "1ab187f8466692e441d6baf4e5c125bd39677db22d1315cf28cb365c81b232cb"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "181234ea572cf4c530c449d0a3c9606377ddaa242cda06d78191c0ea1edfd442"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "eb5ec43b46ca04c38c7a28b5d1b49274bcd40def490c0db7d182032184a3a04d"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/expected-inputs.json",
+      "bytes": 5249,
+      "sha256": "327ab0ac8ca40167817586561999e27eed4a7d758601d20078c6a5949b93990f"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "9a5601c1764b93124337f9eeb186c8e635995593558e3f4e08cf8dff9a4ed931"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "04a77a44fc42fdbdaf746177fa85834b6479357178aa4fc90e903bed29dbe670"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "4bd3af42f4ab2e7e514b40a34073a99361e435c4946deba96541bbe905758497"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "cd0c82897d93fe67a99a5bda40f8a0e1dbc343f5ead7da010b8739b4778137a4"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "e79714ca75e884fa7dac7d27ba5630b860345ec0e5af43d4ad6c933da14bb0bb"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "c94ccc1da4b089a129b1a596b9e0e937b45dacc80c42a855573b6f2ec0081b62"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "b0ed68fa9d03da0f2cd22d4b72f89ec1f3ac6ab031aae6dfcb9e14af5c0c3c8b"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/lock-after.json",
+      "bytes": 487,
+      "sha256": "b442a4c421ae3db3b69bdaff2905521acd58301866480390f55e97deb4a3be5e"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/lock-bytes.json",
+      "bytes": 2054,
+      "sha256": "d5af9cd0835333574eccf8663a9d7615f5c765dae82056357b1375e0657963f8"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/lock.json",
+      "bytes": 538,
+      "sha256": "69763012e7b40d713ead5310853ed3f3553e64ce87888601eeabb72a3cc1dc98"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "af05f6c861be43641b0eb6c87ff289f27cd84fa386a8e062384f5f20fb18aa78"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "36ee746b038fe1d38c4711a18a07ae97e74093ec78b139824c36a20e07be181d"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/negative-native-review.json",
+      "bytes": 12797,
+      "sha256": "f260185ea12b8e9b6316923d6cc6b56ce328233c1adca812c428a8cd6b5bf329"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/source-after.json",
+      "bytes": 3903,
+      "sha256": "a18cec5fc5149c4bbb4c4f0db4c44bffbec738e0f6b17781997f533b3f593f97"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/source-before.json",
+      "bytes": 3903,
+      "sha256": "e87095461c2f56944cd596a12a56afe213100588e99f6b99bd8987073a8ba337"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "d1b52125cb08863a1e06b27454e37bf7b2d948306aa50b94c2e00eab466709dc"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "593fba2631031ed08d85e53613eb589f70e05244760c44d87ad88615b815e9ed"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/negative/verify.json",
+      "bytes": 2697,
+      "sha256": "7657999a6602ffebdc82bb3f40a8b2b5811063b7ff615cdbe16440b8523553aa"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/next-concrete-finish-proposal-bound.json",
+      "bytes": 10218,
+      "sha256": "c3a6a2d092de8c1122dfe904888fc98882a7927a7df2175968798bbd0006afae"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/next-concrete-finish-proposal-review-pending.json",
+      "bytes": 9136,
+      "sha256": "0399200b274994612385083152dc2ad6183771fcd813651a1440dbd7d79dc8f7"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive-artifact-census.json",
+      "bytes": 15803,
+      "sha256": "21e81f83e8afa5b7e0f32919aa7025e3977fe95b30ce7801e26efc3a8f97dcaf"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/ObjectManifestVersion.lean",
+      "bytes": 1667,
+      "sha256": "5a4a4c9466c823bf8f91ff3dc7f74f7469b160678ff5535105bb18040533c4d4"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/attestation-summary.json",
+      "bytes": 1836,
+      "sha256": "a9eadd6f2a37c4e9eaddfb13605485a2cc1140f7cf19b92e15546d8ae67d3814"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/audit-output.txt",
+      "bytes": 51196,
+      "sha256": "bd97d75338f7095fe07778369ac1ce3d4116ded9fb8b8cb493ba50207c814435"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/build-manifest.json",
+      "bytes": 9851,
+      "sha256": "22945f9b798f073cde49cfd432bc4524172b54f5d49a371ca91cff692a05256f"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/check.json",
+      "bytes": 849,
+      "sha256": "2e9cabad972ff527f8d1d90710bb849cf883088459874c9270b84bb5642b73d0"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "a10e55c6ed8c3f5ce633ac5511a48d859f3786eef93f1ac2a8d3da3b6a95c075"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "f63b37f013392f1c8541d763bea1c76d7c9b5b88fc70111c25a52780d3a4a18b"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/expected-inputs.json",
+      "bytes": 5249,
+      "sha256": "d33c32a6beb6a0ac56992c11dfc9de4da313d18440e802993148b25da0e187b1"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "672809f5af090d345f1f1a42ae4ab74bbedb1d0b5b6ceccabd0a6200004db578"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "0e4c81eac9c660181a69c485e7394737b60d1c8b2eff59ebbb6d26fdb07bc74f"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "7c9344ea10b6c4fe00c56709f7035400807423619c43f481570db252680a19f3"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "7fae8aea2473f47ff3b58aeb14d9514e6bf3a5103f734f6776704ecdd3bb747b"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "54a1f0d52b07e3ce0a8405b81956338cea98d924eb1498808dd82e9c243be7f8"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "eb405799d588477633a5af6d4abd952b21159fc7854bd5b5fa4a62e35297e344"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "b0ed68fa9d03da0f2cd22d4b72f89ec1f3ac6ab031aae6dfcb9e14af5c0c3c8b"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/lock-after.json",
+      "bytes": 493,
+      "sha256": "7ac430d26e384ee561b772107cc8b37eb18ded73c123ad29c550750722c2db82"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/lock-bytes.json",
+      "bytes": 2057,
+      "sha256": "9358ff9fc23143cd9f797e2f88efe81022bbcc9096352ff37b9eb19a76d3721c"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/lock.json",
+      "bytes": 541,
+      "sha256": "6d1fca41492cdc4c3156f8083c6f9ff47417214e9720975198e166a4faa0f2d0"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "cd5961fc26a4fe6ba2be00566b7ceff8eaa1358591ec310702534937b5035aae"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "1af3d96c435194a55c06da967fd3ca755ea78460e55f6168b9ddb6219dcaf2bb"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/positive-native-review.json",
+      "bytes": 7429,
+      "sha256": "84a5e3664c0b154824391cb49ca01469eed0d9057b4b4327ffa92f550bb39c9c"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/result.json",
+      "bytes": 945,
+      "sha256": "cc9ba15698e11d2cfdb0901525b07c30f08c0126cec29b88732b8c08d04cf4c5"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/source-after.json",
+      "bytes": 3993,
+      "sha256": "038bc6309443a0c72aa5253b836f31824990f2ed0815c09462f697f331106f06"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/source-before.json",
+      "bytes": 3993,
+      "sha256": "f437fe2d810226faa9e89c853ecb0b6b9559b5376b4d7eccb28a16ce6061c123"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "f3973e615cefc990999e2c087a445600e6fa7ad7dd5d9707ce770263d190ac85"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "a0280234d330829c48ea5c19ab70b267297269330af14e8c5f527e4eaf278593"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/positive/verify.json",
+      "bytes": 1158,
+      "sha256": "5564583027a230a4cff1ba65491e311a40104a809651c92951b0054135de75a4"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/readiness.json",
+      "bytes": 1732,
+      "sha256": "7b85eded50778ddb17240e6ea01e72c465e97ec420d5627e302a3102a6334ed2"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/evidence/source-code-review-custody.json",
+      "bytes": 686,
+      "sha256": "adb77ac40b797f0119be282152b53ecdb4bee8dad2502564e8455ca152c4d2e9"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/positive-custody.json",
+      "bytes": 13209,
+      "sha256": "2929411360fe3af810489ecbdf218b1e42a013adf1e40146e325b750fba77396"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/results.json",
+      "bytes": 6720,
+      "sha256": "740af85c791ac982bb4b03fcdb65485679b7dc1b2e6e6804898fdda9a2fa2f68"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/source-bindings.json",
+      "bytes": 15331,
+      "sha256": "bbdd3375e31bcfaeda2d314bb54db364ffafcfee14169139246e53ecce0cd92b"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/source-custody.json",
+      "bytes": 4470,
+      "sha256": "64b7e834bc755740f1098227636f4e435ababfb5334e489d23d8ade5447cdd39"
+    }
+  ],
+  "checks": {
+    "portableInputMappings": 30,
+    "preservedCurrentSources": 17,
+    "originalDraftSnapshots": 17,
+    "custodyCopies": 63,
+    "nextPlanAliases": 12,
+    "artifactFilesRehashed": 85,
+    "selectedModules": 8,
+    "suppliedSourceFiles": 11,
+    "nativeRerun": false
+  },
+  "budget": {
+    "payloadAllocatedBytes": 593920,
+    "conservativeIncludingManifestBytes": 626688,
+    "limitBytes": 1048576,
+    "hostAvailableBytes": "31795281920"
+  },
+  "excluded": "This manifest itself; all preexisting ten drafts, binaries/compiled bundles and unrelated work. Mutable fixture README is delivery-pinned here, not included in source custody."
+}

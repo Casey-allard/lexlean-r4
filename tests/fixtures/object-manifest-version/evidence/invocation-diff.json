@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-manifest-version-invocation-diff/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/evidence/invoke-connected-range.mjs",
+    "bytes": 7707,
+    "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+  },
+  "predecessorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/evidence/candidate-invocation-code-review.json",
+    "bytes": 8999,
+    "sha256": "842186c5ece4420c3ee2225d8765aec66aa82ab6ca8a3a5b0b2862fd0df89b7e"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invoke-manifest-version.mjs",
+    "bytes": 7706,
+    "sha256": "edfe83d741cc386c5ae1400a1ca0d78e63375b91765a21592d9bfd0555044f92"
+  },
+  "literalReplacements": [
+    {
+      "from": "// One-off official-compiler invocation for one actual connected range consumer; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one actual manifest-version Result; no Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['range-false','range-positive']",
+      "to": "['version-false','version-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one connected-range phase",
+      "to": "select exactly one manifest-version phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-read-connected-range-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-manifest-version-${phase}-owned-20261023",
+      "occurrences": 1
+    },
+    {
+      "from": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e",
+      "to": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae",
+      "occurrences": 1
+    },
+    {
+      "from": "phase==='range-false'",
+      "to": "phase==='version-false'",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==33||new Set(inputs.map(x=>x.destination)).size!==33",
+      "to": "inputs.length!==15||new Set(inputs.map(x=>x.destination)).size!==15",
+      "occurrences": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "to": "tests/lexlean/ObjectManifestVersion.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "allOtherBytesUnchanged": true
+}

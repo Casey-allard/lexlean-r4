@@ -1,0 +1,335 @@
+{
+  "schema": "lexlean-r4-manifest-version-negative-native-review/v1",
+  "status": "PASS_INTENDED_MANIFEST_VERSION_NEGATIVE_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T01:28:46.055Z",
+  "findings": [],
+  "pins": {
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/manifest.json",
+      "bytes": 2408,
+      "sha256": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae"
+    },
+    "invocation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invocation-manifest.json",
+      "bytes": 1484,
+      "sha256": "d43849e66c04f459383dfe5c8f4a82368742a3a9e64903c999a046cd4baa0f30"
+    },
+    "sourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/candidate-invocation-code-review.json",
+      "bytes": 6489,
+      "sha256": "537af4f04e20fc585dc31e7b0ff3f7ed0790869708525e6378b4ed015032e49f"
+    },
+    "verify": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-false/verify.json",
+      "bytes": 2697,
+      "sha256": "7657999a6602ffebdc82bb3f40a8b2b5811063b7ff615cdbe16440b8523553aa"
+    },
+    "result": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-false/result.json",
+      "bytes": 2588,
+      "sha256": "59b786e3b53adec4a7d1cefb28bbf6f4a9aa56ed0f5319156893fba9f627f2f1"
+    },
+    "sourceCheck": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-false/check.json",
+      "bytes": 846,
+      "sha256": "8d03a50c2c890979259896f35b75c79a329916d4ef7d53d84729d42b63cc31cb"
+    },
+    "lockBytesReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/version-false/lock-bytes.json",
+      "bytes": 2054,
+      "sha256": "d5af9cd0835333574eccf8663a9d7615f5c765dae82056357b1375e0657963f8"
+    },
+    "developmentLock": {
+      "bytes": 1597,
+      "sha256": "b0ed68fa9d03da0f2cd22d4b72f89ec1f3ac6ab031aae6dfcb9e14af5c0c3c8b"
+    }
+  },
+  "outcome": {
+    "checkExit": 0,
+    "sourceCheckModules": 8,
+    "suppliedSourceModules": 11,
+    "sourceId": "f6e45c26baccfb661a2942b13e4a1d68486529e312e95dc58f4ab3f7d7af7dee",
+    "semanticId": "9969c8c945603fb5877b332eec92172822fdcfdd5896c7fb87d340d2b6ed9ebf",
+    "verifyExit": 1,
+    "code": "LLV7002",
+    "target": "tests/lexlean/ObjectManifestVersion.lex.tex",
+    "classification": "Intended actual full Result wrong-byte proof rejection: rfl rejects ObjManifestVersion(originalmanifest,originallimits)=Result.ok ObjVersion with firstexpectedbyte147. No admission failure, timeout, OOM or instrument failure.",
+    "verifyStarted": "2026-10-24T01:26:43.283Z",
+    "verifyEnded": "2026-10-24T01:27:11.308Z",
+    "aggregateVerifyElapsedMs": 28025,
+    "finalModuleElapsedMs": null,
+    "artifacts": [],
+    "postcaptureErrors": []
+  },
+  "checks": [
+    "Frozen source/invocation/source-review hashes and allpayloads/dependencies were verified before raw audit; no source changes. Entire negative AST differs from positive solely in expectedbyte146→147.",
+    "All15 actual input mappings/copies/prepostguest hashes match reviewed phase.11 supplied source modules exist, but only8 are reachable from selected ObjectManifestVersion and admitted; actualcheck modules exactly equal independently reconstructed import closure.",
+    "Official lock/check exit0 success; genuine developmentlock binds exactconfig/compilersemantics/threeworkspaceinputs, postlockhash unchanged.",
+    "Actual fullversionroot verify1 returns oneLLV7002 with explicitrfl mismatch/expected147. Result equals rawverify. No artifact/artifactcopy/failure record.",
+    "All other rawcommands exit0/nullsignal/noerror; lock/check/verify order and independentpostcaptures pass.",
+    "Exacttoolhashes/4GiB2CPUepoch unchanged; sixmemorycounterszero, idleclear, host20/10GiBguest11/10GiB reserves pass; postcaptureerrors[]."
+  ],
+  "counts": {
+    "rawFiles": 41,
+    "commandReceipts": 36,
+    "inputs": 15,
+    "suppliedSourceModules": 11,
+    "admittedSourceModules": 8
+  },
+  "admission": {
+    "selected": [
+      "ObjectManifestVersion",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [
+      "R4.Object",
+      "R4.ObjectRead",
+      "R4.ObjectStore"
+    ],
+    "correction": "Dispatch summary said check11PASS; actualreceipt reports8. Initial reviewer assertion repeated11 and failed; corrected to separately verify supplied11 versus reachable/admitted8. No source/runner failure and no packet edits."
+  },
+  "rawCensus": {
+    "encoding": "JSON.stringify ordinal-filename-sorted path/bytes/sha256 array",
+    "arraySha256": "8d27c008f08133e63b03e61700395611fea753281d97a966cda31b58cbf28f0a",
+    "files": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 459,
+        "sha256": "c80fa859e2731844147311f701992b3b58178e5c6c4db0e51d7d3b8a80740675"
+      },
+      {
+        "path": "check.json",
+        "bytes": 846,
+        "sha256": "8d03a50c2c890979259896f35b75c79a329916d4ef7d53d84729d42b63cc31cb"
+      },
+      {
+        "path": "copy-0.json",
+        "bytes": 456,
+        "sha256": "5c0f47431f3b8614346c107ac38c638b33bd39b707468c29ad286f4de5d541e1"
+      },
+      {
+        "path": "copy-1.json",
+        "bytes": 454,
+        "sha256": "0b7984972cabe7d344ef02b534b644d19fae79d94f41d8368ef57e6c392ecce5"
+      },
+      {
+        "path": "copy-10.json",
+        "bytes": 442,
+        "sha256": "a06fc8aaeb94609e42812661c131799dd25deee30825f5024dc244d0dce66a3a"
+      },
+      {
+        "path": "copy-11.json",
+        "bytes": 452,
+        "sha256": "79a4801b8ad65f3461f43a7802e72215fbbd489e740ec76c5bb4b9db66594a52"
+      },
+      {
+        "path": "copy-12.json",
+        "bytes": 444,
+        "sha256": "dc8461b7701b3d6631c5af49b9c341807b1f7fdf139575baf59af1a7f297f9f3"
+      },
+      {
+        "path": "copy-13.json",
+        "bytes": 505,
+        "sha256": "256cdc8716a7761e207ff8ebe259a3ef769d43d6b35afdf8a4132a157c743bfb"
+      },
+      {
+        "path": "copy-14.json",
+        "bytes": 434,
+        "sha256": "7fe352f87ba739e7d9a08401dab16e6669f2d4e1956e46df6e4342c871e81b0b"
+      },
+      {
+        "path": "copy-2.json",
+        "bytes": 460,
+        "sha256": "f96342e2c5f9f0a33f7a931ac123ed56f4ac1353b59ac31e79c3eab65dc48aad"
+      },
+      {
+        "path": "copy-3.json",
+        "bytes": 468,
+        "sha256": "b1ed5b0524f53d8cded4c2ec1e27fc24111d280eedb49191039245292301db9c"
+      },
+      {
+        "path": "copy-4.json",
+        "bytes": 462,
+        "sha256": "a7456519745899d223b000a4294238404dab942ade58559dc307d23f0d00b1a3"
+      },
+      {
+        "path": "copy-5.json",
+        "bytes": 420,
+        "sha256": "92a6d73527392e65ecf337ff23bf0d787e950e3c1af21e30f79ecffdc712a2f7"
+      },
+      {
+        "path": "copy-6.json",
+        "bytes": 420,
+        "sha256": "47945b368d0572b5f11b9fd0991e48effb863319709b591a7a7ff722a83bc1de"
+      },
+      {
+        "path": "copy-7.json",
+        "bytes": 420,
+        "sha256": "7c7d93f39dd40cc9e29ceaf4796a0e913be72c8c94324b662230db2eb40050f8"
+      },
+      {
+        "path": "copy-8.json",
+        "bytes": 418,
+        "sha256": "d9cdf15d887fccad86d8a7bb28146881e0404a61a793bb93a17c029104e12aae"
+      },
+      {
+        "path": "copy-9.json",
+        "bytes": 410,
+        "sha256": "ce8260d5074666e7854450e61013e6e61d50f4b4388cf1d4ba74bafd74e6572b"
+      },
+      {
+        "path": "directories.json",
+        "bytes": 428,
+        "sha256": "659a71797befc0a0ed7632e26544060129a91c5a7e28f8e131fcb209f41d51a9"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "181234ea572cf4c530c449d0a3c9606377ddaa242cda06d78191c0ea1edfd442"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "eb5ec43b46ca04c38c7a28b5d1b49274bcd40def490c0db7d182032184a3a04d"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 5249,
+        "sha256": "327ab0ac8ca40167817586561999e27eed4a7d758601d20078c6a5949b93990f"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "9a5601c1764b93124337f9eeb186c8e635995593558e3f4e08cf8dff9a4ed931"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "04a77a44fc42fdbdaf746177fa85834b6479357178aa4fc90e903bed29dbe670"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "4bd3af42f4ab2e7e514b40a34073a99361e435c4946deba96541bbe905758497"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "cd0c82897d93fe67a99a5bda40f8a0e1dbc343f5ead7da010b8739b4778137a4"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "e79714ca75e884fa7dac7d27ba5630b860345ec0e5af43d4ad6c933da14bb0bb"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "c94ccc1da4b089a129b1a596b9e0e937b45dacc80c42a855573b6f2ec0081b62"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 487,
+        "sha256": "b442a4c421ae3db3b69bdaff2905521acd58301866480390f55e97deb4a3be5e"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2054,
+        "sha256": "d5af9cd0835333574eccf8663a9d7615f5c765dae82056357b1375e0657963f8"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 538,
+        "sha256": "69763012e7b40d713ead5310853ed3f3553e64ce87888601eeabb72a3cc1dc98"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 354,
+        "sha256": "af05f6c861be43641b0eb6c87ff289f27cd84fa386a8e062384f5f20fb18aa78"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "36ee746b038fe1d38c4711a18a07ae97e74093ec78b139824c36a20e07be181d"
+      },
+      {
+        "path": "new-stage.json",
+        "bytes": 329,
+        "sha256": "29809dd873245f76c1be48eadca0d03e3d8fa60b40258da02140063ddbfbccc8"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "result.json",
+        "bytes": 2588,
+        "sha256": "59b786e3b53adec4a7d1cefb28bbf6f4a9aa56ed0f5319156893fba9f627f2f1"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 3903,
+        "sha256": "a18cec5fc5149c4bbb4c4f0db4c44bffbec738e0f6b17781997f533b3f593f97"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 3903,
+        "sha256": "e87095461c2f56944cd596a12a56afe213100588e99f6b99bd8987073a8ba337"
+      },
+      {
+        "path": "swap-before.json",
+        "bytes": 265,
+        "sha256": "8724fcfd7834aef0ea01b8a9e561e09ad5e2ec3de2e896abaa5f34c406c4d912"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "d1b52125cb08863a1e06b27454e37bf7b2d948306aa50b94c2e00eab466709dc"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "593fba2631031ed08d85e53613eb589f70e05244760c44d87ad88615b815e9ed"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 2697,
+        "sha256": "7657999a6602ffebdc82bb3f40a8b2b5811063b7ff615cdbe16440b8523553aa"
+      }
+    ]
+  },
+  "resources": {
+    "epoch": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+    "toolHashes": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "memoryBeforeAfter": "All six counters zero",
+    "capacity": {
+      "before": {
+        "hostAvailableBytes": "34404823040",
+        "guestAvailableKiB": 52991488
+      },
+      "after": {
+        "hostAvailableBytes": "35501355008",
+        "guestAvailableKiB": 52987948
+      }
+    }
+  },
+  "limitations": [
+    "Intended negative only; positive actualversion result remains NOT_RUN. Rejection does not establish146 correctness.",
+    "Aggregate elapsed covers selected closure; no separate targetduration or performance claim.",
+    "No concretefinish/version/wholehash/originalRead33 or broaderintegration acceptance fromthisnegative."
+  ],
+  "mutations": "Only external review. No SDK/native rerun, source/repository/index/VM or other-lab changes."
+}

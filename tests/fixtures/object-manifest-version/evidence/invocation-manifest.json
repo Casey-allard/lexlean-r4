@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-manifest-version-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/manifest.json",
+    "bytes": 2408,
+    "sha256": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae"
+  },
+  "files": [
+    {
+      "path": "invoke-manifest-version.mjs",
+      "bytes": 7706,
+      "sha256": "edfe83d741cc386c5ae1400a1ca0d78e63375b91765a21592d9bfd0555044f92"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2409,
+      "sha256": "1f31d7772b84a5f2ebb9e0105659f52f5aa063b60c91bebb7f86516b592a56ef"
+    }
+  ],
+  "phaseSelectors": [
+    "version-false",
+    "version-positive"
+  ],
+  "commands": [
+    "node invoke-manifest-version.mjs version-false",
+    "Only after intended-negative review and fresh parent admission: node invoke-manifest-version.mjs version-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectManifestVersion.lex.tex",
+  "inputCounts": [
+    15,
+    15
+  ],
+  "expectedSourceModules": 11,
+  "stagePattern": "/tmp/r4-object-manifest-version-${phase}-owned-20261023",
+  "preserved": "All operational guards, tool/epoch identity, source/lock, memory/idle/storage and independent postcaptures remain unchanged outside eight exact literal substitutions.",
+  "boundary": "No invocation executed. Actual direct version proof required; no generated lock invented."
+}

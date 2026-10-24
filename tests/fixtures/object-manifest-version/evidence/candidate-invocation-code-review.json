@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4-manifest-version-candidate-code-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T01:26:27.612Z",
+  "reviewedHead": "e39b85c8ff2ebb35abfb1b86f2d24a56642250ea",
+  "pins": {
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/manifest.json",
+      "bytes": 2408,
+      "sha256": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae"
+    },
+    "invocationManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invocation-manifest.json",
+      "bytes": 1484,
+      "sha256": "d43849e66c04f459383dfe5c8f4a82368742a3a9e64903c999a046cd4baa0f30"
+    },
+    "runner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invoke-manifest-version.mjs",
+      "bytes": 7706,
+      "sha256": "edfe83d741cc386c5ae1400a1ca0d78e63375b91765a21592d9bfd0555044f92"
+    },
+    "positive": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    "negative": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/negative/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "2da9449c574e7799af87618980455166d3e3ba193d7426f6986c9cb26afaa811"
+    },
+    "config": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/lexlean.toml",
+      "bytes": 685,
+      "sha256": "885b74d16b27388319bd8e3a82493944c5c29397a76d39e9e6a6c4880d301e98"
+    }
+  },
+  "findings": [],
+  "checks": [
+    {
+      "name": "Original full Result reconstruction",
+      "result": "PASS",
+      "details": "Parsed canonical Read33 ordinal25 objManifestVersionProtocolLiteral. Its complete statement pin matches4286771e.... Reconstructed LHS from its actual ObjManifestVersion scrutinee and complete Result.ok ObjVersion RHS from its exact32-byte expected list with ObjError typing. Authored fullResult statement equals reconstruction exactly; manifest and limits match ordinal26 inputs without substitution or reduction. Positive/negative canonical statement pins match accepted design."
+    },
+    {
+      "name": "Exact isolated negative and supported proof",
+      "result": "PASS",
+      "details": "Both entire semantic modules differ solely at first expected version byte146→147. Remaining31 bytes, original function/arguments, parameters[], proof reflexivity and axioms[] are identical. Expected bytes originate in unchanged original test data; they are not an accepted original Read33 proof or trusted runtime value. Both modules use exact canonical semantic-module/2 JSON."
+    },
+    {
+      "name": "Real runtime computation and closure",
+      "result": "PASS_SOURCE_ONLY",
+      "details": "Read actual ObjManifestVersion, ObjEncodeManifest and ObjHashBytes definitions: admitted encoding, real HashWire SHA256 dispatch, typed failure propagation and computed digest-byte wrapping are retained. All ten prior runtime modules and three Lake/toolchain metadata inputs match previous closure byte-for-byte. Earlier standalone proof modules are omitted because direct reflexivity imports none; no runtime implementation or hash work is replaced. Each phase has15 distinct mapped inputs and11 modules; all imports and new external module references resolve."
+    },
+    {
+      "name": "Prior approval and prerequisite custody",
+      "result": "PASS",
+      "details": "Rehashed six source payloads, five dependencies, invocation files and all30 phase input occurrences. Conditional proposal/SPEC remain exact; separate actual-prerequisite record pins accepted connected-range source/check/verify/result/review and attestationf621e58b..., satisfying the conditional dependency without modifying null history."
+    },
+    {
+      "name": "Invocation and resources",
+      "result": "PASS",
+      "details": "Exact eight declared literal substitutions reproduce successor from reviewed connected-range runner. Both single-phase selectors verify ObjectManifestVersion; input census adjusts to15 and uses fresh exclusive stage/output. Config changes only entrypoint. All source/lock/tool/epoch/idle/zero-memory/storage and independent postcapture guards unchanged, including300000ms child,4GiB2CPU,host20GiBlaunch10GiBreserve and guest11/10GiB gates. node --check0 only; runner never executed/imported."
+    },
+    {
+      "name": "Preservation",
+      "result": "PASS",
+      "details": "Ten drafts, six integrated sources, full canonicalRead33 and all17 original snapshots rehashed unchanged. No repository/index/frozen/native/VM/other-lab changes."
+    }
+  ],
+  "reconstruction": {
+    "originalControlStatementSha256": "4286771ebffd901a90ce32125398eb3dce7701ced6ac85a5a8323593feac4fd7",
+    "positiveStatementSha256": "6d51de696602b6b07ab7b0e0a3bf84d97ff727fdc96a1055b79764da83f1a626",
+    "negativeStatementSha256": "84b1dc4f15cb5c1b4ad5218b986f90b26edb74b44218c65293669512b70accfb",
+    "expected32BytesASTSha256": "95f8dee5783226dbbcd044f20774b0f1a76dac710d94c89b3383d44310c1eb6c",
+    "expectedByteCount": 32,
+    "firstExpectedByte": "146",
+    "negativeFirstExpectedByte": "147"
+  },
+  "counts": {
+    "payloads": 6,
+    "dependencies": 5,
+    "phaseInputs": 15,
+    "phaseModules": 11,
+    "unchangedRuntimeModules": 10,
+    "unchangedWorkspaceFiles": 3,
+    "invocationLiteralChanges": 8
+  },
+  "boundary": {
+    "native": "NOT_RUN",
+    "acceptance": "Static source/invocation readiness only; actual negative then positive with independent artifact audits and refreshed operational gates required.",
+    "negative": "Only actual intended wrong-byte proof mismatch counts; admission failure, timeout or OOM cannot count as semantic negative.",
+    "remaining": "No concreteversion acceptance yet. Subsequent concreteRangeFinish/composition, whole96digest/originalRead33 and full Object/Hash/PrismPM/Pages remain open.",
+    "performance": "No inferred timing from input size or prior proof, no hash shortcut/cache/raisedlimits."
+  },
+  "mutations": "Only this bounded external review record."
+}

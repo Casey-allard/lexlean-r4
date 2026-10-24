@@ -1,0 +1,39 @@
+{
+  "schema": "lexlean-r4-manifest-version-readiness/v1",
+  "status": "SOURCE_ONLY_READY_FOR_INDEPENDENT_CODE_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/manifest.json",
+    "bytes": 2408,
+    "sha256": "430625f8de5f9ac7e545eda06c3b82cd49afa1b633ae0a73f556261e976574ae"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invocation-manifest.json",
+    "bytes": 1484,
+    "sha256": "d43849e66c04f459383dfe5c8f4a82368742a3a9e64903c999a046cd4baa0f30"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invoke-manifest-version.mjs",
+    "bytes": 7706,
+    "sha256": "edfe83d741cc386c5ae1400a1ca0d78e63375b91765a21592d9bfd0555044f92"
+  },
+  "parseOnly": {
+    "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-manifest-version/invoke-manifest-version.mjs",
+    "exitCode": 0,
+    "executedRunner": false
+  },
+  "sourceChecks": {
+    "all30InputMappingsRehashed": true,
+    "all22ModuleImportClosuresResolved": true,
+    "all17PreservationPinsMatched": true,
+    "canonicalJSONAndNegativeASTDiff": "structural-audit.json",
+    "sourceModuleCountPerPhase": 11,
+    "inputsPerPhase": 15
+  },
+  "preparationFailures": [],
+  "storage": {
+    "hostAvailableBytes": "30734487552",
+    "aggregateLimitBytes": 1048576,
+    "reserveBytes": 10737418240
+  },
+  "boundary": "Native source admission and both semantic outcomes NOT_RUN. Expected literal is test data, not a trusted axiom. No RangeFinish or whole-read acceptance."
+}
