@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-composition-invocation-code-review/v1",
+  "status": "PASS_EXACT_INVOCATION_SOURCE_ONLY",
+  "at": "2026-10-24T05:34:13.656Z",
+  "independence": "Non-author of invocation; reviewer authored source CODE and earlier prerequisite audits. Resource epoch was independently reviewed by another internal reviewer.",
+  "pins": {
+    "manifest": {
+      "bytes": 750,
+      "sha256": "a707dba95618bc2022c2ea1d65404f4afea5d2c320c81dbd03c6747539921ff3"
+    },
+    "script": {
+      "path": "invoke-whole-composed-result.mjs",
+      "bytes": 7762,
+      "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+    },
+    "binding": {
+      "bytes": 2613,
+      "sha256": "8f7d6953e88af9f022b342457e9432809d0808d7252a403090743f977c651948"
+    },
+    "candidateManifest": {
+      "path": "manifest.json",
+      "bytes": 2404,
+      "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+    },
+    "sourceCodeReview": {
+      "path": "candidate-code-review.json",
+      "bytes": 7031,
+      "sha256": "095587d8bada98b31d8eee8a4635fbd19b42b5ce3814765056b22827a12ae7a9"
+    },
+    "acceptedEpochReview": {
+      "path": "epoch-review.json",
+      "bytes": 9999,
+      "sha256": "3c0e3aadffeedbb23700c0a28f80d6ee4748dbc862bedadf900c5eb09b0af6a2"
+    },
+    "predecessor": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/invoke-whole-inner-connection.mjs",
+      "bytes": 7737,
+      "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+    }
+  },
+  "findings": [],
+  "checks": {
+    "exactDelta": "Reproduced all8 literal predecessor-to-draft substitutions with exact occurrence counts, then the2 final draft-to-invocation substitutions. Result is byte-identical to frozen script. All other recorder, resource, error and postcapture logic unchanged.",
+    "sourceCustody": "Rehashed all10 candidate payloads, both32-input phase mappings and exact input bytes/sizes. Selected entrypoint and explicit verify argument both designate mandatory ObjectWholeComposedResult native consumer, not helper. Frozen source review remains exact.",
+    "selectors": "Exactly one composed-false or composed-positive argument. No automatic phase loop. New distinct output directory uses exclusive mkdir and reports wx writes; new stage uses mkdir without -p so existing stage fails. Original stages remain untouched.",
+    "preflight": "Manifest and all payload/input hashes checked before Docker mutation; host>=20GiB with10GiB incremental estimate/10GiB reserve; guest>=11GiB; exact reviewed StartedAt/restart count/4GiB/2CPU/network-none/mounts-empty; no active compiler; every memory event zero; four exact tool hashes. Host allocation and swap observations retained.",
+    "nativeSequence": "Copy32 exact inputs, guest hash comparison, official genuine lock with successful JSON required, lock byte hash, successful source check required, then explicit mandatory verify. Verification status and actual parsed JSON saved; artifact copying requires verify status0 and success true and an exact verified-artifact path.",
+    "postconditions": "Every source/lock/tools/epoch/memory/idle/guest/host check independently attempted in finally; errors aggregated and force launcher nonzero. Post host/guest floor10GiB, all memory events must remain zero. No limit/counter waiver, no restart or implicit retry.",
+    "epoch": "Rehashed accepted independent epoch review and all20 pinned capture records. Final script uses2026-10-24T05:31:03.102794321Z with same full container ID/configuration. Old inner max46 belongs to prior epoch and remains failed; new zero counters are not historical subtraction.",
+    "classification": "Launcher0 alone is not proof acceptance. An official verify failure can produce launcher0 when captures pass; parent must inspect verify status/JSON/diagnostic. Check/admission/import/resource failures do not establish intended negative. Artifact copy alone does not establish independent artifact or operational acceptance."
+  },
+  "limitations": [
+    "No runner import or execution, Docker/SDK/compiler/VM call or parser/native test performed by reviewer.",
+    "Fresh operational checks are required at each launch; epoch snapshots are not perpetual eligibility. No additional reset, retry or resource increase authorized.",
+    "Parent must run negative first, audit actual intended wrong-premise rejection, then separately gate positive. Positive requires full original O=R consumer and independent complete artifact/kernel/axiom/postcondition audit.",
+    "Original ordinal26 projection, Read33 and remaining full implementation acceptance remain open."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 25056178176,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 8192
+  },
+  "operations": "Read-only exact byte, JSON and code-flow review; only this exclusive external report written."
+}

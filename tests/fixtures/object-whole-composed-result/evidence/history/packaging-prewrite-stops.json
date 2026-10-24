@@ -1,0 +1,15 @@
+{
+  "classification": "AUTHOR_ACCOUNTING_ASSERTIONS_NO_WRITES",
+  "attempts": [
+    {
+      "plannedAllocation": 114688,
+      "assertion": "allocated < 110000",
+      "outcome": "Failed before writes"
+    },
+    {
+      "assertion": "newalloc <= 98304",
+      "outcome": "Failed before writes; exact total not emitted"
+    }
+  ],
+  "correction": "Parent clarified this delivery budget covers newly allocated portable fixture, full changed documents and genuinely new delivery evidence, not pre-existing external packets referenced by custody. Both prior assertions were author accounting events, not native failures. No original bytes were lost."
+}

@@ -1,0 +1,205 @@
+{
+  "schema": "lexlean-r4-composition-source-admission-review/v1",
+  "status": "CONFIRMED_SOURCE_ENVELOPE_ADMISSION_FAILURE_NOT_INTENDED_NEGATIVE",
+  "at": "2026-10-24T05:36:29.286Z",
+  "independence": "Reviewer authored source/invocation CODE, not source or runner. Prior readiness was explicitly source-only; actual installed compiler admission now fails and supersedes any execution-readiness inference.",
+  "outcome": {
+    "launcher": "Parent-reported exec86087 closed1; raw runner failure is Error: check result.",
+    "lockStatus": 0,
+    "checkStatus": 1,
+    "checkSuccess": false,
+    "checkElapsedMs": 441,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLP2003",
+      "help": [],
+      "labels": [],
+      "message": "expected `\\coredata`, found `imports`",
+      "notes": [],
+      "primary": {
+        "byte_end": 446,
+        "byte_start": 439,
+        "column_end": 8,
+        "column_start": 1,
+        "line_end": 14,
+        "line_start": 14,
+        "path": "tests/lexlean/ObjectWholeComposedResult.lex.tex"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "selectedModules": 0,
+    "verify": "NOT_RUN",
+    "artifact": "ABSENT",
+    "intendedNegative": "NOT_ESTABLISHED",
+    "positive": "NOT_RUN"
+  },
+  "pins": {
+    "candidateManifest": {
+      "bytes": 2404,
+      "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+    },
+    "invocation": {
+      "bytes": 7762,
+      "sha256": "156890918e90c15cb9441841859a124aea8f7fbf2682cd5c731d1e575c577b34"
+    },
+    "invocationManifest": {
+      "bytes": 750,
+      "sha256": "a707dba95618bc2022c2ea1d65404f4afea5d2c320c81dbd03c6747539921ff3"
+    },
+    "sourceCode": {
+      "bytes": 7031,
+      "sha256": "095587d8bada98b31d8eee8a4635fbd19b42b5ce3814765056b22827a12ae7a9"
+    },
+    "invocationCode": {
+      "bytes": 4956,
+      "sha256": "52fb9e2cfa05a052bc0ef6ae38e0f295634de794f65f408eb81d0bf3c64f9d13"
+    },
+    "check": {
+      "bytes": 927,
+      "sha256": "9b317fd03607240abff90cb501b1f84fecfd6f91b507498b708d4975e4feef09"
+    },
+    "lock": {
+      "bytes": 554,
+      "sha256": "d8b0a7d0bf8d7a3aeae33e2616f6eefc91e49665b1c77b8cbfb78e97d3223d4e"
+    },
+    "failure": {
+      "bytes": 443,
+      "sha256": "f04a49d4b48cb2acba89d8a76c266fc6a6511716263f395216882779f8eaa9d1"
+    },
+    "postcapture": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "negativeSource": {
+      "bytes": 14677,
+      "sha256": "06d9921227ed79bf18c4947958dc87ec69ffe84482357088a61abe5c2e52f23f"
+    },
+    "generatedDevelopmentLock": {
+      "bytes": 1597,
+      "sha256": "0fdb318a38f12b6b1f0fd1cccd8e9b05f2b647fb818417af8f9ff75b50133efc"
+    }
+  },
+  "rawClosure": {
+    "directory": "composed-false",
+    "files": 57,
+    "commandReceipts": 52,
+    "totalBytes": 59493,
+    "encoding": "SHA256 of UTF-8 JSON.stringify(records), where records are all immediate JSON files sorted by ordinal filename, objects inserted as path,bytes,sha256; no trailing newline.",
+    "sha256": "cbe67911bb36864cef00a00757f263d6630da0b8e6aeefe4b86af69157a3247a",
+    "filenames": [
+      "allocated-before.json",
+      "check.json",
+      "copy-0.json",
+      "copy-1.json",
+      "copy-10.json",
+      "copy-11.json",
+      "copy-12.json",
+      "copy-13.json",
+      "copy-14.json",
+      "copy-15.json",
+      "copy-16.json",
+      "copy-17.json",
+      "copy-18.json",
+      "copy-19.json",
+      "copy-2.json",
+      "copy-20.json",
+      "copy-21.json",
+      "copy-22.json",
+      "copy-23.json",
+      "copy-24.json",
+      "copy-25.json",
+      "copy-26.json",
+      "copy-27.json",
+      "copy-28.json",
+      "copy-29.json",
+      "copy-3.json",
+      "copy-30.json",
+      "copy-31.json",
+      "copy-4.json",
+      "copy-5.json",
+      "copy-6.json",
+      "copy-7.json",
+      "copy-8.json",
+      "copy-9.json",
+      "directories.json",
+      "epoch-after.json",
+      "epoch-before.json",
+      "expected-inputs.json",
+      "failure.json",
+      "guest-after.json",
+      "guest-before.json",
+      "host-after.json",
+      "host-before.json",
+      "idle-after.json",
+      "idle-before.json",
+      "lock-after.json",
+      "lock-bytes.json",
+      "lock.json",
+      "memory-after.json",
+      "memory-before.json",
+      "new-stage.json",
+      "postcapture-errors.json",
+      "source-after.json",
+      "source-before.json",
+      "swap-before.json",
+      "tools-after.json",
+      "tools-before.json"
+    ]
+  },
+  "audit": {
+    "commands": "All command receipts read. Lock/copy/identity/resource/postcaptures exit0, check alone exit1; signals null, stderr empty, no spawn error. No verify command/result/artifact recorded. Complete phase file census retained.",
+    "source": "All32 expected host input hashes/sizes match frozen composed-false mapping;32copy receipts checked. Guest before/after source outputs match every ordered destination and hash. All10 source packet payloads and invocation rehashed unchanged.",
+    "lock": "Official lock command succeeded and actual1597-byte development lock text was captured. Its config/workspace/language provenance remains available; sha matches post-lock guest digest. No production lock created.",
+    "tools": "Four tool hashes match accepted epoch review before and after; exact same compiler executable as reviewed invocation.",
+    "epoch": "Exact StartedAt2026-10-24T05:31:03.102794321Z/restart0/4GiB/2CPU/networknone/mounts[] observed before and after.",
+    "resources": {
+      "memoryBefore": "All six counters zero",
+      "memoryAfter": "All six counters zero",
+      "idle": "No compiler process in either captured ps snapshot.",
+      "hostBeforeBytes": 25073315840,
+      "hostAfterBytes": 25069543424,
+      "guestBeforeKiB": 52878128,
+      "guestAfterKiB": 52875716,
+      "postcaptureErrors": [],
+      "observationBoundary": "Discrete snapshots, not continuous monitoring or measured peak. No timeout/OOM or resource failure is established by this check result."
+    }
+  },
+  "sourceEnvelopeEvidence": {
+    "actual": "At line14 installed compiler expects \\coredata and rejects imports before reaching native nodes or wrong proof premise.",
+    "pinnedOfficialSource": [
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/grammar/structural.rs",
+        "bytes": 44639,
+        "sha256": "23e7efaadde3021edb82f4ae2ad91548681817e723d8f64bd06adcc30ff07bd5",
+        "lines": [
+          1154,
+          1164
+        ],
+        "finding": "This source accepts coredata or else a verbatim authoring-notation body."
+      },
+      {
+        "path": "/tmp/r4-lexlean-bool-cases-official-5967d9f-20261023/source/crates/lexlean/src/ir/core.rs",
+        "bytes": 65620,
+        "sha256": "a099836bb513a7b728179653c83076d4d207995b907c7e448fed3734929fa370",
+        "lines": [
+          742,
+          760
+        ],
+        "finding": "This source routes notation to from_notation and explicitly rejects coredata under language1.2."
+      }
+    ],
+    "assessment": "Observed installed-executable envelope behavior is not explained by the previously reviewed5967d9f authoring-notation parser source. Exact executable-to-source capability correspondence must be resolved; static syntax checks were insufficient to establish admission.",
+    "minimalNextDecision": "Preserve this packet and failure. Inspect the actual installed compiler source/build provenance and its native envelope contract before preparing a distinct minimal successor. Do not assume adding coredata under unchanged language1.2 is admitted merely from this diagnostic; pinned newer source explicitly rejects that combination. No blanket downgrade, changed proof, retry or success prediction is authorized here."
+  },
+  "boundaries": [
+    "This failure is admission/instrument compatibility, not semantic falsity or the intended unrelated0=0 control. Native composition and final consumer conversion remain untested.",
+    "Earlier inner checked artifact with max46 failed run gate remains preserved; current zero samples neither erase it nor grant perpetual resource eligibility.",
+    "No SDK/native/compiler calls, counter resets, source/repository/frozen edits or retries by reviewer. Only this additive report written."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": 26551484416,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 10240
+  }
+}

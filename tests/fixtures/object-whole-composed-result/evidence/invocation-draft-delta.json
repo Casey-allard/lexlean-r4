@@ -1,0 +1,78 @@
+{
+  "schema": "lexlean-r4-composed-result-invocation-draft/v1",
+  "status": "INVALID_PENDING_EPOCH_REVIEW_NOT_EXECUTABLE_NOT_FROZEN",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-inner-connection/invoke-whole-inner-connection.mjs",
+    "bytes": 7737,
+    "sha256": "692186da13967a711bbaf8b89aa062c8e07dd76b15185144675168171e4792a7"
+  },
+  "candidateManifest": {
+    "path": "manifest.json",
+    "sha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243"
+  },
+  "draft": {
+    "path": "invoke-whole-composed-result.draft.mjs",
+    "bytes": 7745,
+    "sha256": "85b386e259ea9f57e0e90a1d67f0b407c98723bc69c1633064282c0d3695898a"
+  },
+  "replacements": [
+    {
+      "from": "// One-off official-compiler invocation for the exact admitted-inner continuation and mandatory original consumer; no complete WholeRead Result or Read33 acceptance.",
+      "to": "// DRAFT ONLY: official native LexLean composition of the actual original WholeRead full Result; invalid pending epoch, no execution authority or Read33 acceptance.",
+      "occurrences": 1
+    },
+    {
+      "from": "['inner-false','inner-positive']",
+      "to": "['composed-false','composed-positive']",
+      "occurrences": 1
+    },
+    {
+      "from": "select exactly one inner-connection phase",
+      "to": "select exactly one composed-result phase",
+      "occurrences": 1
+    },
+    {
+      "from": "/tmp/r4-object-whole-inner-connection-${phase}-owned-20261024",
+      "to": "/tmp/r4-object-whole-composed-projection-order-${phase}-owned-20261024",
+      "occurrences": 1
+    },
+    {
+      "from": "e54d57a599b564c51c53f1a15085a5b7da158ba9905d154a3611beb3b7d78269",
+      "to": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+      "occurrences": 1
+    },
+    {
+      "from": "inputs.length!==22||new Set(inputs.map(x=>x.destination)).size!==22",
+      "to": "inputs.length!==32||new Set(inputs.map(x=>x.destination)).size!==32",
+      "occurrences": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "to": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "occurrences": 1
+    },
+    {
+      "from": "2026-10-24T03:23:35.957043396Z 0 4294967296 2000000000 none []",
+      "to": "INVALID_PENDING_EPOCH_REVIEW 0 4294967296 2000000000 none []",
+      "occurrences": 1
+    }
+  ],
+  "validation": {
+    "exactReverseSubstitutionRestoresPredecessor": true,
+    "onlyEightLiteralReplacements": true,
+    "allGuardPostcaptureLimitAndRecorderLogicUnchanged": true
+  },
+  "epoch": {
+    "literal": "INVALID_PENDING_EPOCH_REVIEW",
+    "actualReviewedBinding": null,
+    "limitation": "Do not invoke this draft. The intentionally impossible epoch fails the inherited epoch equality. This is not a no-side-effect sandbox: if mistakenly invoked, inherited preflight observations and postcaptures could run before refusal. No compiler/native launch authority exists."
+  },
+  "next": "Parent must supply independently reviewed actual fresh epoch. Only then may a separately frozen invocation replace this draft and undergo independent invocation CODE; preserve this draft unchanged.",
+  "storage": {
+    "hostAvailableBytes": "26820493312",
+    "reserveBytes": "10737418240",
+    "newTextCapBytes": 20480,
+    "noDiskTemporaryCopies": true
+  },
+  "operations": "File construction only. No SDK/native/VM/process invocation or repository/index modification."
+}

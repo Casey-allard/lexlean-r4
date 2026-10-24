@@ -1,0 +1,221 @@
+{
+  "schema": "lexlean-r4-composition-actual-epoch-review/v1",
+  "status": "PASS_OBSERVED_FRESH_RESOURCE_EPOCH_ONLY",
+  "recordedAt": "2026-10-24T05:32:17.885Z",
+  "reviewer": "Independent internal resource/security reviewer; no executor action",
+  "findings": [],
+  "pins": {
+    "candidateManifestSha256": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+    "sourceCodeReview": {
+      "bytes": 7031,
+      "sha256": "095587d8bada98b31d8eee8a4635fbd19b42b5ce3814765056b22827a12ae7a9",
+      "status": "PASS_SOURCE_READY_ONLY",
+      "at": "2026-10-24T05:30:21.422Z"
+    },
+    "resourceProposal": {
+      "bytes": 6173,
+      "sha256": "25729c1b38e6b8169da996c11c9b712c56af6fe972055591ef0453011593a1d6"
+    },
+    "resourceProposalReview": {
+      "bytes": 7973,
+      "sha256": "0819ed4f31e8411441ed238996a40c1208e045ef2c3ea71dd602b2e046c2386d"
+    },
+    "allAboveRehashed": true
+  },
+  "decision": "Observed transition satisfies the reviewed single-restart identity, idle, tool, counter and storage conditions for a separate resource epoch bound to this corrected composition candidate. This accepts only the captured epoch transition. Exact invocation review and fresh launch-time checks remain required before any official compiler call. No native result or production acceptance is inferred.",
+  "receiptAudit": {
+    "files": 20,
+    "commandReceipts": 17,
+    "allCommandExitStatuses": 0,
+    "allCommandSignals": null,
+    "allCommandStderrEmpty": true,
+    "restartReceipts": 1,
+    "nonCommandRecords": "Two host statfs/budget snapshots and one result summary.",
+    "captureStarted": "2026-10-24T05:30:52.007Z",
+    "captureEnded": "2026-10-24T05:31:03.873Z",
+    "sourceCodePredatesAction": true,
+    "parentReportedLauncher": "78110 closed with status0; launcher status is parent-reported, while all17 command statuses and final result.json were independently read.",
+    "noCompilerCommandInCapture": true,
+    "recordedRestartArgs": [
+      "restart",
+      "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+    ]
+  },
+  "identity": {
+    "container": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "oldStartedAt": "2026-10-24T03:23:35.957043396Z",
+    "newStartedAt": "2026-10-24T05:31:03.102794321Z",
+    "restartCountBefore": 0,
+    "restartCountAfter": 0,
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "bootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "interpretation": "Same full container/image/configuration and VM boot on both sides; StartedAt differs. A manual restart need not increment RestartCount; observed0 is retained without rewriting it.",
+    "toolHashes": {
+      "lexlean": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "lean": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "lake": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "leanchecker": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    },
+    "toolsExactBeforeAfter": true
+  },
+  "resources": {
+    "idle": "Both ps snapshots contain only sh, sleep infinity and observing ps; no compiler/foreign workload observed.",
+    "memoryBefore": {
+      "low": 0,
+      "high": 0,
+      "max": 46,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memoryAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "hostBeforeBytes": 26709053440,
+    "hostAfterBytes": 27255693312,
+    "incrementEstimateBytes": 10737418240,
+    "reserveBytes": 10737418240,
+    "beforeHeadroomBytes": 5234216960,
+    "afterHeadroomBytes": 5780856832,
+    "guestAvailableBeforeKiB": 52878128,
+    "guestAvailableAfterKiB": 52878128,
+    "allocation": "Retained datadisk path allocation increased32KiB; VM disk allocation unchanged. This is not a whole-disk hash.",
+    "swap": "Before13813.56M/after13685.56M used of15360.00M. Snapshots prove neither peak use, adequate future RAM nor performance.",
+    "counterBoundary": "Old max46 and new zero belong to different StartedAt intervals. No continuous-counter subtraction, gate waiver or old failure erasure."
+  },
+  "preservation": {
+    "successorPayloadsRehashed": 10,
+    "oldInnerSourcePayloadsRehashed": 5,
+    "oldInnerRawReceiptsRehashed": 97,
+    "oldNativeReviewSha256": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889",
+    "oldAttestationSha256": "83908ebedb41e284189d62c5c9aae107a3f9c2461e3af1c9453329aa68878dd8",
+    "oldAttestationBytes": 181007,
+    "localEvidence": "Old source packet, native report, original attestation and raw receipts still match retained exact pins. Rejected predecessor and historical failure classifications are not modified.",
+    "guestStageLimitation": "Same container/image/VM boot and persistent disk paths support continuity, but these20 records do not hash/list old guest stage contents after restart. Guest-stage byte preservation is not independently established by this audit. No full binary recopy or guest query was performed.",
+    "unchangedOldStatus": "COMPILER_ARTIFACT_VERIFIED_RUN_GATE_FAILED; checked A=C mathematical artifact retained, operational max46 failure remains unaccepted."
+  },
+  "conditionsBeforeNative": [
+    "Independent exact invocation review must bind this accepted epoch, source CODE and candidate manifest; no compiler authority follows solely from this report.",
+    "Immediately before native launch, revalidate exact container StartedAt/image/configuration/tools, idle state, zero memory events and host/guest estimate-plus-reserve budget. Abort on drift or failed predicates; snapshots here are not perpetual readiness.",
+    "Use fresh owned composition stage/output paths; do not overwrite/delete/reuse old stages as accepted outputs. Retain old failed evidence and preserve all source/model pins. Any stronger guest-stage preservation claim needs actual read-only evidence.",
+    "Preserve4GiB/2CPU and300000ms per-child limits. No further restart, counter reset, resource increase, equivalent retry or gate waiver is granted.",
+    "All new tests remain NOT_RUN. Actual wrong-premise rejection must occur at mandatory native root; positive requires full original O=R, exact artifact/custody/kernel/empty-axiom audit and every operational gate.",
+    "Original ordinal26/Read33, full Object/Hash, production PrismPM and Pages remain open."
+  ],
+  "receipts": [
+    {
+      "path": "epoch/after-allocated.json",
+      "bytes": 474,
+      "sha256": "0bc8519d89c968b02d692de45ec612e15836d3aca9297147061c33ef6319dda5"
+    },
+    {
+      "path": "epoch/after-boot.json",
+      "bytes": 355,
+      "sha256": "6d2e4bac5571834942ad34bda8ce503486d9f25df3f0d678b7c32fd9701e70e5"
+    },
+    {
+      "path": "epoch/after-guest.json",
+      "bytes": 425,
+      "sha256": "4a284b9bc5a2c71aa5b3097e303f8860d55cd523b6037e94f8e5ba5b4bc2d109"
+    },
+    {
+      "path": "epoch/after-host.json",
+      "bytes": 152,
+      "sha256": "ea604e09fdecc959d830e9041061a6e8643673a2f16c7e8aa981bd33e766fd12"
+    },
+    {
+      "path": "epoch/after-identity.json",
+      "bytes": 645,
+      "sha256": "cc96e1c28e4f7d9b98cac6ca1a617e227ba6d4c15cdc097b575f73e7818638ad"
+    },
+    {
+      "path": "epoch/after-idle.json",
+      "bytes": 479,
+      "sha256": "aff902002e26c9a96df0ef24299bcefdfc83aad38d23a027442b85365496cd04"
+    },
+    {
+      "path": "epoch/after-memory.json",
+      "bytes": 373,
+      "sha256": "354ead32acecce3980072f1899b844f3d721f3cd9b99e8b4fd7c17c71ad64a6b"
+    },
+    {
+      "path": "epoch/after-swap.json",
+      "bytes": 284,
+      "sha256": "5e28a037b20092886929e84096885066b2f060fa7a33c6c0089999a08f2ae029"
+    },
+    {
+      "path": "epoch/after-tools.json",
+      "bytes": 1024,
+      "sha256": "a1c0bacf2857673eab21d2514bdcd2e1b96174b03d00570fda6ce2e30c20c231"
+    },
+    {
+      "path": "epoch/before-allocated.json",
+      "bytes": 474,
+      "sha256": "b0aa50e4c2ca200121b2ce6aad834d15528bdf7473200ba679a9cb5e006fb141"
+    },
+    {
+      "path": "epoch/before-boot.json",
+      "bytes": 355,
+      "sha256": "d9c22a58948dd90478804652c5ecc30d3c49550ba89be450a6a190ebc2530820"
+    },
+    {
+      "path": "epoch/before-guest.json",
+      "bytes": 425,
+      "sha256": "0ce8af6b76b234313645578ff12ac03a30c002a7c7077f95bf54193ac1baa952"
+    },
+    {
+      "path": "epoch/before-host.json",
+      "bytes": 152,
+      "sha256": "2036a5b7ff8770b4c4af8ca851ddf78f02f2a47b345afec3eadfda4ed8e4176d"
+    },
+    {
+      "path": "epoch/before-identity.json",
+      "bytes": 645,
+      "sha256": "3187c9fca12a54dbdf62c8c35f3c542ff280b252b311a55fc739c282c5ea0107"
+    },
+    {
+      "path": "epoch/before-idle.json",
+      "bytes": 479,
+      "sha256": "cab7dadfe1259d00e78916ad780881b0cae17b76624ebb9b2b7cf5cae439ae26"
+    },
+    {
+      "path": "epoch/before-memory.json",
+      "bytes": 374,
+      "sha256": "21ae5d34bbcd48192b2640305766369f21eb8f2210b8347ec3ffeed645f02cbb"
+    },
+    {
+      "path": "epoch/before-swap.json",
+      "bytes": 284,
+      "sha256": "f278163fbec989c6ec3742845ecd66360312d6a56df800ada79ae623881ac9fe"
+    },
+    {
+      "path": "epoch/before-tools.json",
+      "bytes": 1024,
+      "sha256": "30888abdeb9f50bccf86ce6d7455000bbe87cafd1d17d82193430c67b5f774a2"
+    },
+    {
+      "path": "epoch/restart.json",
+      "bytes": 336,
+      "sha256": "bf1ea27ca26c0c98e894151376ad987fda68cc383efa548aec5533c19dd01e4f"
+    },
+    {
+      "path": "epoch/result.json",
+      "bytes": 817,
+      "sha256": "93b92fcad50137d0abfe4f499052bfa542743d986f1b6e55db375050cfd203c3"
+    }
+  ],
+  "operations": "Read-only host filesystem/hash/JSON inspection and this one external report. No Docker/SDK/compiler/native/VM calls, repository/index changes, binary copies or temporary files.",
+  "storage": {
+    "reportLimitBytes": 10240,
+    "newFiles": 1
+  }
+}

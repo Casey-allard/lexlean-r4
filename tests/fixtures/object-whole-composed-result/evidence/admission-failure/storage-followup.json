@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-24T05:37:08.270Z",
+  "priorEpochHostBytes": "27255693312",
+  "nativePostHostBytes": "25069543424",
+  "currentHostBytes": "26553868288",
+  "observations": [
+    {
+      "exe": "sysctl",
+      "args": [
+        "vm.swapusage"
+      ],
+      "status": 0,
+      "stdout": "vm.swapusage: total = 14336.00M  used = 12956.31M  free = 1379.69M  (encrypted)\n",
+      "stderr": ""
+    },
+    {
+      "exe": "du",
+      "args": [
+        "-k",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+      ],
+      "status": 0,
+      "stdout": "26037880\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469672\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+      "stderr": ""
+    }
+  ],
+  "interpretation": "Bounded follow-up to >2GiB decline; no other files/processes changed. Swap and VM snapshots alone cannot fully attribute APFS free-space changes. No large new build permitted without fresh estimate+reserve."
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "lexlean-r4-projection-successor-author-check-failure/v1",
+  "classification": "PREWRITE_AUTHOR_COMPARATOR_FAILURE_NOT_NATIVE",
+  "error": "Expected mismatch-node array [744]; actual array contained 595 nodes.",
+  "cause": "Comparison used JSON.stringify between parsed node objects in constructor field order and intended canonical-key-sorted JSON. Property order caused false mismatches, in addition to actual projection mismatch.",
+  "repair": "Use object structural equality, insensitive to object property insertion order but preserving arrays and values, then require predecessor mismatch exactly744 and successor mismatch none.",
+  "sourceMutation": false,
+  "candidateFilesWrittenBeforeFailure": 0,
+  "officialTests": "NOT_RUN"
+}

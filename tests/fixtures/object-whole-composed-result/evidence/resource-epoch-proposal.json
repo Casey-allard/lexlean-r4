@@ -1,0 +1,133 @@
+{
+  "schema": "lexlean-r4-composed-result-resource-proposal/v1",
+  "status": "PROPOSED_FRESH_EPOCH_NOT_EXECUTED",
+  "at": "2026-10-24T05:26:45.231Z",
+  "candidateManifest": "65da7fd8f78509053c15970677e158e7ab0ad5cf3aec3dcbc5f3e523d64b4243",
+  "candidateCodeReview": "PENDING_REQUIRED_BEFORE_EXECUTION",
+  "priorArtifactAndRunReview": "1f8b2da9693bc854053137fa2deb0f925e1df4407725b54e6a36e77fb30c0889",
+  "hostAvailableBytes": "27757830144",
+  "peakIncrementEstimateBytes": "10737418240",
+  "reserveBytes": "10737418240",
+  "plan": "After independent review and source CODE acceptance, restart only this confirmed idle owned container for the distinct original whole-result native composition test. Preserve VM/disk/container/image/compiler/4GiB2CPU/network/mounts and all old stages/artifacts, including successful inner kernel evidence and max46 failed operational gate. Capture immediate pre-action idle/epoch/events/budget again and full post-restart new identity/boot/tool hashes/zero events/idle/guest+host space. Independently review actual new epoch before any official compiler call. Do not compare counters across restart as continuous, rerun the old inner phase, increase limits, or erase/waive its failure. Native invocation and candidate need their own exact reviews. All new composition tests remain NOT_RUN.",
+  "observations": [
+    {
+      "exe": "docker",
+      "args": [
+        "inspect",
+        "--format",
+        "{{.State.StartedAt}} {{.RestartCount}} {{.Image}} {{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.HostConfig.NetworkMode}} {{json .Mounts}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "started": "2026-10-24T05:26:41.807Z",
+      "ended": "2026-10-24T05:26:42.462Z",
+      "status": 0,
+      "stdout": "2026-10-24T03:23:35.957043396Z 0 sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 4294967296 2000000000 none []\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,args"
+      ],
+      "started": "2026-10-24T05:26:42.462Z",
+      "ended": "2026-10-24T05:26:43.126Z",
+      "status": 0,
+      "stdout": "    PID COMMAND         COMMAND\n      1 sh              /bin/sh -c sleep infinity\n      7 sleep           sleep infinity\n   3713 ps              ps -eo pid,comm,args\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T05:26:43.126Z",
+      "ended": "2026-10-24T05:26:43.850Z",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 46\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "df",
+        "-Pk",
+        "/tmp"
+      ],
+      "started": "2026-10-24T05:26:43.850Z",
+      "ended": "2026-10-24T05:26:44.327Z",
+      "status": 0,
+      "stdout": "Filesystem     1024-blocks     Used Available Capacity Mounted on\noverlay           82249372 25580172  52878128      33% /\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "started": "2026-10-24T05:26:44.327Z",
+      "ended": "2026-10-24T05:26:44.561Z",
+      "status": 0,
+      "stdout": "44f408ba-d166-4157-93b8-d311639e4a0f\n",
+      "stderr": ""
+    },
+    {
+      "exe": "docker",
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "sha256sum",
+        "/usr/local/bin/lexlean",
+        "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean",
+        "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake",
+        "/usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker"
+      ],
+      "started": "2026-10-24T05:26:44.561Z",
+      "ended": "2026-10-24T05:26:45.185Z",
+      "status": 0,
+      "stdout": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5  /usr/local/bin/lexlean\n79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean\n8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake\n8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker\n",
+      "stderr": ""
+    },
+    {
+      "exe": "du",
+      "args": [
+        "-k",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+      ],
+      "started": "2026-10-24T05:26:45.185Z",
+      "ended": "2026-10-24T05:26:45.219Z",
+      "status": 0,
+      "stdout": "26037560\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469656\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+      "stderr": ""
+    },
+    {
+      "exe": "sysctl",
+      "args": [
+        "vm.swapusage"
+      ],
+      "started": "2026-10-24T05:26:45.219Z",
+      "ended": "2026-10-24T05:26:45.231Z",
+      "status": 0,
+      "stdout": "vm.swapusage: total = 15360.00M  used = 13967.38M  free = 1392.62M  (encrypted)\n",
+      "stderr": ""
+    }
+  ],
+  "predecessor": {
+    "proposal": "d155b80817eb48319543f11849f2776d3339583d2e42e45f05ee1ba1c6e3193e",
+    "review": "b903ededf0fdd8705c96fb566d49539c35a160df97a8b13c369a35d9670b72d0",
+    "candidate": "30752afbabe7a817f31aa1fedfc212cbd9b7a8cf160af5795900173ac13aea81",
+    "disposition": "Rejected candidate and nonexecutable resource plan preserved unchanged. This separate successor binds the two-line projection-order repair; renewed source CODE is required before any action. No earlier eligibility is reused."
+  }
+}
