@@ -1,0 +1,62 @@
+{
+  "scope": "Actual retained current build files match captured build manifest and previously accepted emitted source; not replay or hot-subterm diagnosis",
+  "currentBuildId": "598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531",
+  "currentSourceId": "277bcdd0bc40ae42216758211f3764984a2c3a38dc8c48ff02dc2b2d7f238fa7",
+  "currentSemanticId": "805413655a59b05d66b06239321c314c7bed81626d5bcc419ee1a4e443ced311",
+  "rows": [
+    {
+      "modulePath": "modules/LexLeanR4/HashWireDirect09Controls.lean",
+      "currentBytes": 1706,
+      "currentSha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/HashWireDirect09Controls.lean",
+      "priorBytes": 1706,
+      "priorSha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336",
+      "byteHashIdentity": true
+    },
+    {
+      "modulePath": "modules/LexLeanR4/R4/Hash.lean",
+      "currentBytes": 191175,
+      "currentSha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/Hash.lean",
+      "priorBytes": 191175,
+      "priorSha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b",
+      "byteHashIdentity": true
+    },
+    {
+      "modulePath": "modules/LexLeanR4/R4/HashNat.lean",
+      "currentBytes": 31334,
+      "currentSha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/HashNat.lean",
+      "priorBytes": 31334,
+      "priorSha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000",
+      "byteHashIdentity": true
+    },
+    {
+      "modulePath": "modules/LexLeanR4/R4/HashNatCore.lean",
+      "currentBytes": 95917,
+      "currentSha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/HashNatCore.lean",
+      "priorBytes": 95917,
+      "priorSha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377",
+      "byteHashIdentity": true
+    },
+    {
+      "modulePath": "modules/LexLeanR4/R4/HashWire.lean",
+      "currentBytes": 3926,
+      "currentSha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/HashWire.lean",
+      "priorBytes": 3926,
+      "priorSha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b",
+      "byteHashIdentity": true
+    },
+    {
+      "modulePath": "modules/LexLeanR4/R4/Words.lean",
+      "currentBytes": 51343,
+      "currentSha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6",
+      "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/Words.lean",
+      "priorBytes": 51343,
+      "priorSha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6",
+      "byteHashIdentity": true
+    }
+  ]
+}

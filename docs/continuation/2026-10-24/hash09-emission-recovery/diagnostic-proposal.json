@@ -1,0 +1,201 @@
+{
+  "schema": "lexlean-r4/hash09-context-diagnostic-proposal/1",
+  "status": "PROPOSED_SOURCE_ONLY_ALL_NEW_NATIVE_NOT_RUN",
+  "createdAt": "2026-10-24T11:28:54.665Z",
+  "objective": "One falsifiable six-module selected-root diagnostic after exact current emitted-source recovery, not a repeat of the47-module Read attempt. No source, proof, runtime, digest, tool or limit change.",
+  "authority": {
+    "phase1": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-dependency-investigation.json",
+      "bytes": 20213,
+      "sha256": "7f2b7f8f7db28d3e211e1fc8d012dfe2eec242973e5fb8a77e0e22172eece2b5"
+    },
+    "actualSixEmissionComparison": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/six-module-comparison.json",
+      "bytes": 3583,
+      "sha256": "e9555385d54f6f23b1de98ddefb8901f9ebd4c6657f1800de28cb361dcef91a6"
+    },
+    "currentManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/manifest.stdout",
+      "bytes": 57894,
+      "sha256": "0e5746294e1d6272e5ba75c314775af3d2232de64aa8dd41bee0bc27d11de178"
+    },
+    "currentHashReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/six-module-current-hashes.json",
+      "bytes": 2873,
+      "sha256": "bf2d1968a252236c1f1cc903b6b109cebe971bd6ab4644f797961c4f3a81993a"
+    },
+    "currentFailure": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/verify.json",
+      "bytes": 1000,
+      "sha256": "6924d48918e6fbaceba315ed7187be29b4e87bb1126713dc6e4829899e7cbf96"
+    },
+    "currentInputs": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/expected-inputs.json",
+      "bytes": 27678,
+      "sha256": "18aa3ed3f31de699fa6808ad1a1e9b8d9d4e6a4f83a52b2ff47c02a8d284b265"
+    },
+    "currentResourceSample": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/parent-resource-sample1.json",
+      "bytes": 2626,
+      "sha256": "702f68b691b1af5a5c71e70a544620f154dcd1d818891b4688ca9ad2d9b661b5"
+    },
+    "priorAttestation": {
+      "path": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/attestation.json",
+      "bytes": 106971,
+      "sha256": "0902e02fdd4fe8d73725f745b0e33a14468f4fffdc822cd5e65788b5c4e088a1"
+    },
+    "installedVerifier": {
+      "archive": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/migration-verifier-source.json.gz",
+        "bytes": 32005,
+        "sha256": "ca70929fe7fe33c71eb95ecff7ed8838335301cd2e7050d46a24ac5713408abd"
+      },
+      "entry": {
+        "path": "crates/lexlean/src/verify/mod.rs",
+        "bytes": 106157,
+        "sha256": "487a582ffc55ce12e204729191bc3a36baad521a4e2e5eb90b9774f88bd02b29"
+      },
+      "revision": "0865df4e540ca643b090a29e9df6d319d6906da6"
+    }
+  },
+  "established": {
+    "currentBuild": "598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531",
+    "allSixEmittedHashesEqualPrior": true,
+    "currentHash09": {
+      "bytes": 1706,
+      "sha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336"
+    },
+    "workspaceIdentity": [
+      {
+        "path": "lake-manifest.json",
+        "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+        "exactMatch": true
+      },
+      {
+        "path": "lakefile.toml",
+        "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+        "exactMatch": true
+      },
+      {
+        "path": "lean-toolchain",
+        "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+        "exactMatch": true
+      }
+    ],
+    "processIdentity": "Prior attested Hash09 lake env lean argv matches current observed child argv after staging-path normalization. Current failed dependency oleans and full child environment remain unretained; identical emitted text does not establish their equality.",
+    "resourceObservation": "Retained single sample: Lean97.2%CPU/407184KiB RSS; lexlean230868KiB/lake106432KiB. Container stats433MiB/4GiB, all memory.events zero. Asynchronous samples are not peaks, matched controls or a causal diagnosis.",
+    "configuration": "Existing Phase1 establishes all four executable hashes and six sources match. Config differs from historical only in entrypoints. Diagnostic preserves current config, genuine lock and300000ms/4GiB/2CPU."
+  },
+  "readOnlyFirst": [
+    {
+      "id": "R1",
+      "action": "Bounded inspection of exact failed owned .lexlean/verified directory for any retained actual process records or five dependency oleans. If already confirmed cleaned, record absence and stop this branch; do not regenerate or search unrelated trees.",
+      "comparison": "If actual files survive, compare dependency hashes and normalized process records with prior accepted bundle. Source-identical does not imply olean-byte-identical; a difference alone does not diagnose failure.",
+      "status": "NOT_EXECUTED_BY_AUTHOR"
+    },
+    {
+      "id": "R2",
+      "action": "Installed verifier setup source inspected, with archive entry hash verified.",
+      "facts": [
+        {
+          "lines": "713–718",
+          "fact": "PROCESS_WIDTH=1: official outer module processes do not overlap."
+        },
+        {
+          "lines": "1133–1152",
+          "fact": "Fresh per-invocation staging source/olean tree, with LEAN_PATH set to the staging olean root."
+        },
+        {
+          "lines": "1231–1293",
+          "fact": "Topological selected modules use pinned lake env lean, fixed -R/-o arguments, workspace cwd and explicit staging LEAN_PATH."
+        },
+        {
+          "lines": "1296–1336",
+          "fact": "Successful child records and expected produced oleans are checked during staging; a failed run does not publish a complete accepted bundle."
+        }
+      ],
+      "limit": "Source describes intended setup; it does not reconstruct erased failed-run files."
+    },
+    {
+      "id": "R3",
+      "action": "Use any ALREADY retained actual child cwd/argv and allowlisted LEAN_PATH/LEAN_SRC_PATH records. Never dump whole environments/secrets. Current idle environment cannot stand in for historical failed-child evidence.",
+      "status": "OPTIONAL_READ_ONLY",
+      "limit": "No broad profiling/instrumentation work. Missing historical custody remains unknown."
+    }
+  ],
+  "diagnostic": {
+    "status": "NOT_RUN_REQUIRES_INDEPENDENT_SPEC_AND_INVOCATION_REVIEW",
+    "hypothesis": "Hash09 may succeed with its six-module selected closure in the same project while the observed larger Read selection timed out. A single isolated-root outcome distinguishes whether47 selected modules are necessary to reproduce failure in that attempt; it cannot prove causal closure-size effects or erase time/resource confounding.",
+    "stage": "Fresh owned diagnostic stage containing all SAME51 input files from the frozen ordinal26-negative map, unchanged current config/workspace/control sources. Use official genuine lock generation/check and hash-preserve it. Do not inject old compiled oleans or delete source files.",
+    "intervention": "ONLY explicit command target changes from ObjectReadControls.lex.tex to HashWireDirect09Controls.lex.tex. Import selection becomes six modules while all51 source inputs remain. New selected source/semantic/build/attestation IDs must be recorded, not equated with current47-module Read identities.",
+    "expectedSelectedModules": [
+      "HashWireDirect09Controls",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Words"
+    ],
+    "proposedCommands": [
+      [
+        "lexlean",
+        "--diagnostic-format",
+        "json",
+        "check",
+        "tests/lexlean/HashWireDirect09Controls.lex.tex"
+      ],
+      [
+        "lexlean",
+        "--diagnostic-format",
+        "json",
+        "verify",
+        "tests/lexlean/HashWireDirect09Controls.lex.tex"
+      ]
+    ],
+    "preconditions": [
+      "Independent review of actual six-emission recovery and this diagnostic, then separately reviewed minimal invocation adaptation.",
+      "No active SDK/compiler process; preserve failed epochs/receipts. No automatic restart or counter reset.",
+      "Fresh exact tools, source51, config, genuine lock, reviewed resource epoch and strictzero event gates. Official source check must select exactly six modules.",
+      "Fresh host/guest free and allocated storage:10GiB peak estimate plus10GiB reserve, host20GiB planning floor, guest11GiB pre/10GiB post; original per-phase gates unchanged."
+    ],
+    "during": "One official verify at unchanged300000ms. Bounded parent-owned read-only samples may capture actual child argv/cwd, completed dependency olean hashes, source hashes, allowlisted LEAN_PATH and resource counters while healthy work continues. No process interruption, borrowed compiled artifacts, broad env dumps or framework. Missing optional samples do not authorize rerun.",
+    "after": "Independent source/lock/tools/epoch/memory/storage/idle postchecks after success or failure. Preserve all raw/partial evidence. Success requires actual six-module artifact/emptyaxiom/kernel audit; no Read acceptance follows.",
+    "outcomes": [
+      {
+        "if": "Isolated verify and all actual artifact/postcondition checks pass",
+        "means": "Hash09 is executable in this selected context now. Compatible with context or temporal/resource effect, not proof of cause.",
+        "next": "Compare emitted/compiled dependencies and normalized process records. Stop; separately review concrete resulting diagnosis before any Read retry."
+      },
+      {
+        "if": "Same timeout or other resource failure",
+        "means": "47-module selection is not necessary to reproduce failure in this isolated attempt. No semantic-false claim.",
+        "next": "Stop after one attempt; preserve actual custody. No equivalent retry or limit increase."
+      },
+      {
+        "if": "Setup, selected closure, source/hash, tool, lock, epoch or storage mismatch",
+        "means": "Invalid or not launchable diagnostic.",
+        "next": "Do not verify or interpret mechanism; classify exact setup/gate failure."
+      },
+      {
+        "if": "Semantic/axiom/kernel failure",
+        "means": "Unexpected failure, not the intended ordinal26 negative.",
+        "next": "Stop and independently classify; no source fallback or trusted intermediate digest."
+      }
+    ],
+    "maxVerifyAttempts": 1,
+    "automaticReadRetry": false
+  },
+  "prohibited": [
+    "No proof/runtime/expectedvalue/axiom/limit changes.",
+    "No full47-module Read retry within this diagnostic.",
+    "No build-only diagnostic now: actual six generated texts are already recovered.",
+    "No imported old oleans or SDK substitute.",
+    "No isolated success promoted to Read33/fullObject acceptance."
+  ],
+  "productGatesRemain": [
+    "Original ordinal26 false must actually reach intended wrong-proof rejection.",
+    "Then ordinal26 positive and mandatory full33 require actual official verification and independent artifact/axiom/kernel audit.",
+    "All original33propositions/runtime remain unchanged."
+  ],
+  "authorActivity": "Read-only source/evidence checks and this report only. First in-memory draft exceeded16KiB guard before writing; reduced proposal below cap. No source/runner/VM/native/repository edits; all proposed commandsNOT_RUN."
+}

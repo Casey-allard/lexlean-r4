@@ -1,0 +1,20 @@
+{
+  "args": [
+    "docker",
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "find",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build",
+    "-maxdepth",
+    "5",
+    "-type",
+    "f",
+    "-name",
+    "HashWireDirect09Controls.lean"
+  ],
+  "started": "2026-10-24T11:20:27.473170+00:00",
+  "ended": "2026-10-24T11:20:29.398432+00:00",
+  "status": 0,
+  "stdout": "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/build/598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531/modules/LexLeanR4/HashWireDirect09Controls.lean\n",
+  "stderr": ""
+}

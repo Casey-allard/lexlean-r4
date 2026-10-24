@@ -1,0 +1,263 @@
+{
+  "schema": "lexlean-r4-read-composed-ordinal26-failure-review/v1",
+  "at": "2026-10-24T11:12:51.821066+00:00",
+  "reviewer": "/root/construction_second_state_code_review",
+  "verdict": "PASS_INDEPENDENT_FAILURE_CLASSIFICATION_NOT_INTENDED_NEGATIVE",
+  "phase": "ordinal26-negative",
+  "evidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative",
+  "classification": {
+    "verifyExit": 4,
+    "launcherExit": {
+      "reportedByParent": 0,
+      "standaloneReceiptInPhaseDirectory": false,
+      "meaning": "Parent terminal notification says exec74960 closed0. Raw verify status4 and empty postcapture-errors independently observed; launcher0 is not proof success."
+    },
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.HashWireDirect09Controls: configured 300000, observed 300008 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "verifyStarted": "2026-10-24T11:04:35.026Z",
+    "verifyEnded": "2026-10-24T11:10:38.180Z",
+    "wholeVerifyMs": 363154,
+    "intendedNegative": "NOT_REACHED",
+    "artifacts": [],
+    "positiveFocused": "NOT_RUN",
+    "full33Positive": "NOT_RUN",
+    "interpretation": "Official compiler reports child-timeout in HashWireDirect09Controls, not a semantic counterexample or intended ordinal26 wrong-proof rejection. No failed subexpression, exact Lean internal hot path or hardware cause is identified by this diagnostic. No OOM/memory-event increment observed."
+  },
+  "checks": {
+    "source": "All51 exact expected local inputs directly rehashed against frozen source bindings; all51 copy statuses0 and ordered before/after guest source SHA rows match all destinations and hashes exactly.",
+    "sourceAdmission": {
+      "command": "check",
+      "exit": 0,
+      "success": true,
+      "diagnostics": [],
+      "modules": 47,
+      "selectedModulesExact": true,
+      "semanticId": "805413655a59b05d66b06239321c314c7bed81626d5bcc419ee1a4e443ced311",
+      "sourceId": "277bcdd0bc40ae42216758211f3764984a2c3a38dc8c48ff02dc2b2d7f238fa7"
+    },
+    "genuineLock": {
+      "officialLockExit": 0,
+      "success": true,
+      "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88",
+      "configSha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7",
+      "workspaceEntries": 3,
+      "postLockSame": true,
+      "scope": "Official development lock; not production PrismPM binding."
+    },
+    "resources": "Exact unchanged StartedAt10:51:37.465092641Z/restart0/4GiB/2CPU/networknone/mounts[] before/after; four tool hashes identical. All six memory.events zero before/after. Actual post-idle shows only init sh,sleep,observation ps.",
+    "postguards": "Raw independent source,lock,tools,epoch,memory,idle,guest andhost postcaptures all succeed. postcapture-errors[]; no strict-zero or reserve failure.",
+    "storage": {
+      "hostBeforeBytes": 23455645696,
+      "hostPeakEstimateBytes": 10737418240,
+      "hostAfterBytes": 25900982272,
+      "guestBeforeAvailableKiB": 52750344,
+      "guestAfterAvailableKiB": 52743296,
+      "prePostReservePass": true
+    },
+    "emitted": "Four actual emitted Lean files captured during verify with successful dated raw reads and matching SHA/size. Independently decoded embedded native JSON; exact declaration metadata, imports and expanded type/value trees match frozen sources. First three DAGs retain792/818/789nodes. ReadControls emits839nodes from1651source nodes through pruning/remapping, but exact focused statement and wrong-proof tree remain equal. Common embedded runtime prefix identical across4. This is source-emission fidelity, not successful compilation or kernel audit.",
+    "reviewMethod": "Host-only reads/in-memory structural checks. Initial overly strict assumptions about relative guest paths and unchanged emitted node indices/proof-root census were corrected against raw records; no product failure or test result inferred from reviewer setup assertions."
+  },
+  "emittedSnapshots": [
+    {
+      "module": "ObjectAdmittedRangeResult",
+      "path": "parent-emitted/ObjectAdmittedRangeResult.stdout",
+      "bytes": 40486,
+      "sha256": "344a52d36ea5562c727da3f20035c9e73c90a3764d6452bf6633ae486c1f478a",
+      "sourceNodeCount": 792,
+      "emittedNodeCount": 792,
+      "exactExpandedTypeAndValue": "PASS",
+      "acceptance": "NOT_ESTABLISHED_BY_EMISSION"
+    },
+    {
+      "module": "ObjectWholeInnerContinuation",
+      "path": "parent-emitted/ObjectWholeInnerContinuation.stdout",
+      "bytes": 42544,
+      "sha256": "9dc00d297bff8cc237e087ea8edbc317303f2e7f9efe7008343fb63b6d69d977",
+      "sourceNodeCount": 818,
+      "emittedNodeCount": 818,
+      "exactExpandedTypeAndValue": "PASS",
+      "acceptance": "NOT_ESTABLISHED_BY_EMISSION"
+    },
+    {
+      "module": "ObjectWholeComposedResult",
+      "path": "parent-emitted/ObjectWholeComposedResult.stdout",
+      "bytes": 40813,
+      "sha256": "827dbae8e01ff2266d390ff019a23e84e3f72bccfe867ae0a132b0b35d58839c",
+      "sourceNodeCount": 789,
+      "emittedNodeCount": 789,
+      "exactExpandedTypeAndValue": "PASS",
+      "acceptance": "NOT_ESTABLISHED_BY_EMISSION"
+    },
+    {
+      "module": "ObjectReadControls",
+      "path": "parent-emitted/ObjectReadControls.stdout",
+      "bytes": 42109,
+      "sha256": "57a8fcd7711d18aa128eaa1605e564c3d433a0f931ccdacc2ac00aecda9424e5",
+      "sourceNodeCount": 1651,
+      "emittedNodeCount": 839,
+      "exactExpandedTypeAndValue": "PASS",
+      "acceptance": "NOT_ESTABLISHED_BY_EMISSION"
+    }
+  ],
+  "rawCustody": {
+    "fileCount": 84,
+    "totalBytes": 268750,
+    "inventoryEncoding": "UTF8 compact JSON array of all recursively sorted relative files with keys sorted: path,bytes,sha256",
+    "inventorySha256": "44d63618e7a273fa447b0f0a1abeb7fd11a1758251baa541a3bed059aa6fe5a0",
+    "selectedPins": [
+      {
+        "path": "check.json",
+        "bytes": 2058,
+        "sha256": "c760fdae1d8e3a634706c41b0ab666717a7abad32d3046ef1f3435633dd6d582"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "56e0744c286f4ad4fceb118740c01008815b67fd4d934bc9a5837fe84d5c6cc2"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "5158252ad625968e9d0dff536e93172e561172086c7e4a50b0021b4860a29bce"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 27678,
+        "sha256": "18aa3ed3f31de699fa6808ad1a1e9b8d9d4e6a4f83a52b2ff47c02a8d284b265"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "f9fd5d5338d5e4b716503bf840701a460f947d07ecff7d6d87c3ea2d1a3b9a95"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "f5355e5c2a3f8ef03bf62fece9bee345731bea406cade65723b99d1246d93116"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "d8657f7a92a3f5b194415f6e4c09191889ba9cec6a4bb752109abacd967e2ddf"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "4ae3d072d7aabbf6dde43d5bb5f38e939dc10c68a99c6dca5d430ee9f934aa43"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "c1dfbb90577a3a7b9f070016582191c25780fa3d2e93f5e5157aff7644ade780"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "d405900383a98cc081275d9bf12840f8258acf2cdfc16c0292abe50fa50dbb0b"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 491,
+        "sha256": "5d371b4264604657e7797781ba5f0ea5a1ea5751bdec3b7227eeb224f7afc0d2"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2056,
+        "sha256": "0ee9239a5ff35300f7e6d0aa53f1d7e0783ab517712737ea57fdb178eab0dfb6"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 540,
+        "sha256": "97c77b9fe85c0ff99e7f992e92dd084f8109e4486d03367cb5d319bd693631b4"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 354,
+        "sha256": "37e30f2b50581126c360667e6163d632dc62f6d2ddc0094137d626b76b178cec"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "19b0a5a130c72815e9abf0abd94a0dfe6d22d406728084af8f6e07938f1de509"
+      },
+      {
+        "path": "parent-emitted/capture.json",
+        "bytes": 2437,
+        "sha256": "bc30cb484ce587b2d119e06e1d576e59768aeb27c5c2bd707faf14ea521619d7"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "result.json",
+        "bytes": 889,
+        "sha256": "08f682b26353e72e20710a04ce7034f9a0ad73f1d127afd932a8c4387e867b1a"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 14777,
+        "sha256": "f11b47ef2f1bb763ce4bb206f3c737eae2314d243d371972d0a59aa9ff7bee5c"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 14777,
+        "sha256": "bfd6414cbf33f29b3dfd50b4ac4a6993fb32f4b24c69f59eb88a71468fbc3190"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "31d5fa0c95c25b375f2fd6099d7ad6a57f596987a9a3706c441c52b2ebb535df"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "cab1fa8d6b04833e3fba9255ef5e67e0a9e13cd699a998fd1bf8ec313013dff7"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 1000,
+        "sha256": "6924d48918e6fbaceba315ed7187be29b4e87bb1126713dc6e4829899e7cbf96"
+      }
+    ]
+  },
+  "sourceBinding": {
+    "manifestSha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37",
+    "invocationSha256": "850877aff69521c4f59858c4cea5976c16cce01e9df9e1a4c2dde4771a55fddf",
+    "resourceEpochReviewSha256": "b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"
+  },
+  "requiredNext": [
+    "Preserve this failure, original stages/emitted snapshots and earlier failures unchanged.",
+    "Stop current three-phase sequence; focusedpositive/full33 cannot advance without intended-negative gate.",
+    "Investigate concrete selected HashWireDirect09Controls dependency and exact source/config/closure before separately reviewed successor. No equivalent same-source timeout retry or limit increase.",
+    "No new native launch follows from source emission or clean postconditions. Fresh source/tool/epoch/zero/idle/storage predicates and independent invocation review remain mandatory."
+  ],
+  "acceptance": "331/403 unchanged. No new Read proof, intended negative, component/whole Object, full Hash mutation qualification, production binding or Pages acceptance.",
+  "reviewActions": {
+    "SDK": 0,
+    "VM": 0,
+    "processInspection": 0,
+    "repositoryEdits": 0,
+    "candidateEdits": 0,
+    "newCompilerReplays": 0,
+    "reportWrites": 1
+  }
+}

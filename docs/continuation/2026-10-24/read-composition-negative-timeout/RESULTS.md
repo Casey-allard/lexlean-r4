@@ -1,0 +1,11 @@
+# Read composition: dependency timeout
+
+The official compiler admitted all **47 selected modules**, then verification exited **4** with `LLS8002` in `HashWireDirect09Controls`: **300,008 ms** against the unchanged **300,000 ms** child limit. Whole verification took **363,154 ms**. The deliberately wrong ordinal26 proof was **not reached**; no intended negative or artifact was established. The parent-observed launcher exit 0 is not verifier success.
+
+[Independent failure review](failure-review.json) checked all 51 staged inputs, genuine development lock, source admission, exact tools and resource epoch, idle state and storage. All six memory-event counters remained zero, and every independently attempted post-run guard passed. This is a dependency timeout, not an observed OOM kill or semantic counterexample.
+
+The 84 exact raw files include four actual changed/target module emissions and the dated failed read of the Hash09 emission after compiler cleanup. The four captured declarations/proof values match their reviewed source, but this is not kernel acceptance. The failing Hash09 emitted bytes were unavailable; no comparison of that emission or failing subexpression is claimed. The recorded inventory SHA256 in the failure review covers all 84 files, including the missing-emission receipt.
+
+The [source candidate](../../../../tests/fixtures/object-read-composed-dependencies/README.md) and [reviewed invocation](../read-composition-invocation/README.md) remain separate. `raw-path-map.json` maps exact local originals to these retained raw records. The three 51-input maps remain in the existing source checkpoint; no runtime or proof-source closure is duplicated here. `lexlean.lock` is copied exactly from the successful official development lock command; it is not a production PrismPM lock.
+
+Stop the phase sequence and investigate this concrete dependency. Do not repeat the equivalent run, raise limits, skip the intended negative, or promote a source check into proof acceptance. Focused-positive and full Read33 remain **NOT_RUN**. Object acceptance remains **331/403**; the nine pending drafts, remaining control obligations, integration and production PrismPM/Pages scope stay open.

@@ -1,0 +1,270 @@
+module
+public import Init
+public import LexLeanR4.R4.ObjectTypes
+public import LexLeanR4.R4.ObjectCodec
+public import LexLeanR4.R4.ObjectRead
+public import LexLeanR4.R4.Object
+public import LexLeanR4.ObjectWholeComposedResult
+import Lean
+set_option autoImplicit false
+set_option maxRecDepth 100000
+set_option maxHeartbeats 1000000000
+set_option Elab.async false
+
+open Lean
+
+namespace LexLeanCore.Runtime
+
+private def fail {α : Type} (message : String) : Except String α := .error message
+
+private def field (json : Json) (name : String) : Except String Json :=
+  json.getObjVal? name
+
+private def stringField (json : Json) (name : String) : Except String String := do
+  (← field json name).getStr?
+
+private def natField (json : Json) (name : String) : Except String Nat := do
+  (← field json name).getNat?
+
+private def boolField (json : Json) (name : String) : Except String Bool := do
+  (← field json name).getBool?
+
+private def arrayField (json : Json) (name : String) : Except String (Array Json) := do
+  (← field json name).getArr?
+
+private def optionalField (json : Json) (name : String) : Option Json :=
+  match json.getObjVal? name with
+  | .ok value => some value
+  | .error _ => none
+
+private def nameOf (value : String) : Name :=
+  value.splitOn "." |>.foldl (fun name part => name.str part) .anonymous
+
+private partial def levelOf (json : Json) : Except String Level := do
+  match ← stringField json "k" with
+  | "z" => pure .zero
+  | "s" => pure (.succ (← levelOf (← field json "a")))
+  | "m" | "i" =>
+      let values ← (← field json "a").getArr?
+      let some left := values[0]? | fail "core level pair lacks its left value"
+      let some right := values[1]? | fail "core level pair lacks its right value"
+      if values.size != 2 then fail "core level pair has extra values"
+      let left ← levelOf left
+      let right ← levelOf right
+      if (← stringField json "k") == "m" then pure (.max left right) else pure (.imax left right)
+  | "p" => pure (.param (nameOf (← stringField json "a")))
+  | kind => fail s!"unknown core level kind '{kind}'"
+
+private def levelsOf (json : Json) : Except String (List Level) := do
+  let values ← json.getArr?
+  values.toList.mapM levelOf
+
+private def namesOf (json : Json) : Except String (List Name) := do
+  let values ← json.getArr?
+  values.toList.mapM fun value => do pure (nameOf (← value.getStr?))
+
+private def binderOf (value : String) : Except String BinderInfo :=
+  match value with
+  | "e" => pure .default
+  | "i" => pure .implicit
+  | "s" => pure .strictImplicit
+  | "c" => pure .instImplicit
+  | kind => fail s!"unknown core binder kind '{kind}'"
+
+private def nodeAt (nodes : Array Expr) (index : Nat) : Except String Expr :=
+  match nodes[index]? with
+  | some node => .ok node
+  | none => fail s!"core node reference {index} is out of range"
+
+private def nodeOf (nodes : Array Expr) (json : Json) : Except String Expr := do
+  match ← stringField json "k" with
+  | "b" => pure (.bvar (← natField json "i"))
+  | "s" => pure (.sort (← levelOf (← field json "l")))
+  | "c" => pure (.const (nameOf (← stringField json "n")) (← levelsOf (← field json "u")))
+  | "a" => pure (.app (← nodeAt nodes (← natField json "f")) (← nodeAt nodes (← natField json "x")))
+  | "l" => pure (.lam `_ (← nodeAt nodes (← natField json "t"))
+      (← nodeAt nodes (← natField json "v")) (← binderOf (← stringField json "b")))
+  | "p" => pure (.forallE `_ (← nodeAt nodes (← natField json "t"))
+      (← nodeAt nodes (← natField json "v")) (← binderOf (← stringField json "b")))
+  | "e" => pure (.letE `_ (← nodeAt nodes (← natField json "t"))
+      (← nodeAt nodes (← natField json "v")) (← nodeAt nodes (← natField json "body"))
+      (← boolField json "d"))
+  | "n" =>
+      let value ← stringField json "v"
+      let some value := value.toNat? | fail s!"invalid core natural literal '{value}'"
+      pure (.lit (.natVal value))
+  | "t" =>
+      let values ← (← field json "v").getArr?
+      let chars ← values.toList.mapM fun value => do pure (Char.ofNat (← value.getNat?))
+      pure (.lit (.strVal (String.ofList chars)))
+  | "j" => pure (.proj (nameOf (← stringField json "s")) (← natField json "i")
+      (← nodeAt nodes (← natField json "x")))
+  | kind => fail s!"unknown core node kind '{kind}'"
+
+private def liftString {α : Type} : Except String α → CoreM α
+  | .ok value => pure value
+  | .error message => throwError message
+
+private def findDeclaration (declarations : Array Json) (name : String) : CoreM Json := do
+  for declaration in declarations do
+    if (← liftString (stringField declaration "name")) == name then return declaration
+  throwError s!"core declaration '{name}' is absent"
+
+private def addOneUnchecked (nodes : Array Expr) (declarations : Array Json)
+    (json : Json) : CoreM Unit := do
+  if ← liftString (boolField json "generated") then return
+  let nameString ← liftString (stringField json "name")
+  let name := nameOf nameString
+  let levelParams ← liftString (namesOf (← liftString (field json "levels")))
+  let type ← liftString (nodeAt nodes (← liftString (natField json "type")))
+  let kindString ← liftString (stringField json "kind")
+  match kindString with
+  | "inductive" =>
+      let metadata ← liftString (field json "inductive")
+      let numParams ← liftString (natField metadata "num_params")
+      let constructorNames ← liftString (arrayField metadata "constructors")
+      let mut constructors : List Constructor := []
+      for constructorName in constructorNames do
+        let constructorName ← liftString constructorName.getStr?
+        let row ← findDeclaration declarations constructorName
+        let constructorType ← liftString (nodeAt nodes (← liftString (natField row "type")))
+        constructors := constructors.concat { name := nameOf constructorName, type := constructorType }
+      Lean.addDecl (.inductDecl levelParams numParams [{ name, type, ctors := constructors }] false)
+        (forceExpose := true)
+  | "abbrev" | "definition" =>
+      let valueIndex ← liftString (natField json "value")
+      let value ← liftString (nodeAt nodes valueIndex)
+      let metadata ← liftString (field json "reducibility")
+      let reducibilityKind ← liftString (stringField metadata "kind")
+      let hints ← match reducibilityKind with
+        | "abbrev" => pure ReducibilityHints.abbrev
+        | "opaque" => pure (default : ReducibilityHints)
+        | "regular" => pure (ReducibilityHints.regular
+            (UInt32.ofNat (← liftString (natField metadata "height"))))
+        | other => throwError s!"unknown core reducibility kind '{other}'"
+      Lean.addDecl (.defnDecl { name, levelParams, type, value, hints, safety := .safe })
+        (forceExpose := true)
+  | "theorem" =>
+      let value ← liftString (nodeAt nodes (← liftString (natField json "value")))
+      Lean.addDecl (.thmDecl { name, levelParams, type, value }) (forceExpose := true)
+  | "constructor" | "recursor" =>
+      throwError s!"non-generated primitive core declaration '{nameString}'"
+  | kind => throwError s!"unknown core declaration kind '{kind}'"
+
+private def addOne (nodes : Array Expr) (declarations : Array Json) (json : Json) : CoreM Unit := do
+  let name ← liftString (stringField json "name")
+  try
+    addOneUnchecked nodes declarations json
+  catch error =>
+    throwError m!"native core declaration '{name}':{indentD error.toMessageData}"
+
+private def decodeNodeBatch (nodes : Array Expr) (data : String) : CoreM (Array Expr) := do
+  let json ← liftString (Json.parse data)
+  let rows ← liftString json.getArr?
+  let mut nodes := nodes
+  for row in rows do
+    nodes := nodes.push (← liftString (nodeOf nodes row))
+  pure nodes
+
+def decodeAndAdd (nodeBatches : Array String) (data : String) : CoreM Unit := do
+  let mut nodes : Array Expr := #[]
+  for batch in nodeBatches do
+    nodes ← decodeNodeBatch nodes batch
+  let document ← liftString (Json.parse data)
+  let declarations ← liftString (arrayField document "declarations")
+  let order ← liftString (arrayField document "order")
+  for index in order do
+    let index ← liftString index.getNat?
+    let some declaration := declarations[index]? |
+      throwError s!"core declaration order index {index} is out of range"
+    addOne nodes declarations declaration
+  for declaration in declarations do
+    if (← liftString (stringField declaration "kind")) == "inductive" then
+      let metadata ← liftString (field declaration "inductive")
+      if let some structureData := optionalField metadata "structure" then
+        let name := nameOf (← liftString (stringField declaration "name"))
+        let fieldRows ← liftString (arrayField structureData "fields")
+        let mut fields : Array StructureFieldInfo := #[]
+        for row in fieldRows do
+          let subobject? : Option Name ← match optionalField row "subobject" with
+            | some value => pure (some (nameOf (← liftString value.getStr?)))
+            | none => pure none
+          let autoParam? : Option Expr ← match optionalField row "auto_param" with
+            | some value => pure (some (← liftString (nodeAt nodes (← liftString value.getNat?))))
+            | none => pure none
+          let fieldName := nameOf (← liftString (stringField row "name"))
+          let projFn := nameOf (← liftString (stringField row "projection"))
+          let binderInfo ← liftString (binderOf (← liftString (stringField row "binder")))
+          fields := fields.push {
+            fieldName
+            projFn
+            subobject?
+            binderInfo
+            autoParam? }
+        setEnv <| Lean.registerStructure (← getEnv) { structName := name, fields }
+  for declaration in declarations do
+    if (← liftString (stringField declaration "kind")) == "inductive" then
+      let metadata ← liftString (field declaration "inductive")
+      if let some structureData := optionalField metadata "structure" then
+        let name := nameOf (← liftString (stringField declaration "name"))
+        let parentRows ← liftString (arrayField structureData "parents")
+        let mut parents : Array StructureParentInfo := #[]
+        for row in parentRows do
+          let structName := nameOf (← liftString (stringField row "name"))
+          let subobject ← liftString (boolField row "subobject")
+          let projFn := nameOf (← liftString (stringField row "projection"))
+          parents := parents.push {
+            structName
+            subobject
+            projFn }
+        Lean.setStructureParents name parents
+  for declaration in declarations do
+    if (← liftString (stringField declaration "kind")) == "inductive" then
+      let metadata ← liftString (field declaration "inductive")
+      if (optionalField metadata "structure").isSome then
+        discard <| Lean.computeStructureResolutionOrder
+          (nameOf (← liftString (stringField declaration "name"))) true
+  for declaration in declarations do
+    let name := nameOf (← liftString (stringField declaration "name"))
+    let status ← match ← liftString (stringField declaration "transparency") with
+      | "reducible" => pure ReducibilityStatus.reducible
+      | "semireducible" => pure ReducibilityStatus.semireducible
+      | "irreducible" => pure ReducibilityStatus.irreducible
+      | "implicit-reducible" => pure ReducibilityStatus.implicitReducible
+      | other => throwError s!"unknown core transparency '{other}'"
+    Lean.setReducibilityStatus name status
+  for declaration in declarations do
+    let generated ← liftString (boolField declaration "generated")
+    if !generated && (← liftString (boolField declaration "class")) then
+      let name := nameOf (← liftString (stringField declaration "name"))
+      match Lean.addClass (← getEnv) name with
+      | .ok env => setEnv env
+      | .error message => throwError message
+  for declaration in declarations do
+    if let some metadata := optionalField declaration "instance" then
+      let name := nameOf (← liftString (stringField declaration "name"))
+      let priority ← liftString (natField metadata "priority")
+      let attributeKind ← match ← liftString (stringField metadata "attribute") with
+        | "global" => pure AttributeKind.global
+        | "local" => pure AttributeKind.local
+        | "scoped" => pure AttributeKind.scoped
+        | other => throwError s!"unknown core instance attribute kind '{other}'"
+      Lean.Meta.MetaM.run' <| Lean.Meta.addInstance name attributeKind priority
+      let expectedRows ← liftString (arrayField metadata "synthesis_order")
+      let mut expected : Array Nat := #[]
+      for row in expectedRows do expected := expected.push (← liftString row.getNat?)
+      let some actual := (Lean.Meta.instanceExtension.getState (← getEnv)
+          |>.instanceNames.find? name) |
+        throwError s!"core instance '{name}' was not registered"
+      unless actual.synthOrder == expected do
+        throwError s!"core instance '{name}' reconstructed synthesis order {actual.synthOrder.toList} instead of {expected.toList}"
+
+end LexLeanCore.Runtime
+
+run_cmd Lean.Elab.Command.liftCoreM (LexLeanCore.Runtime.decodeAndAdd #[
+  (
+    "[{\"k\":\"c\",\"n\":\"List.nil\",\"u\":[{\"k\":\"z\"}]},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjRawEntry\",\"u\":[]},{\"k\":\"a\",\"f\":0,\"x\":1},{\"k\":\"n\",\"v\":\"0\"},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjRoot\",\"u\":[]},{\"k\":\"a\",\"f\":0,\"x\":4},{\"k\":\"n\",\"v\":\"227\"},{\"k\":\"n\",\"v\":\"66\"},{\"k\":\"n\",\"v\":\"20\"},{\"k\":\"n\",\"v\":\"251\"},{\"k\":\"n\",\"v\":\"244\"},{\"k\":\"n\",\"v\":\"200\"},{\"k\":\"n\",\"v\":\"153\"},{\"k\":\"n\",\"v\":\"111\"},{\"k\":\"n\",\"v\":\"185\"},{\"k\":\"n\",\"v\":\"36\"},{\"k\":\"n\",\"v\":\"39\"},{\"k\":\"n\",\"v\":\"174\"},{\"k\":\"n\",\"v\":\"65\"},{\"k\":\"n\",\"v\":\"100\"},{\"k\":\"n\",\"v\":\"155\"},{\"k\":\"n\",\"v\":\"76\"},{\"k\":\"n\",\"v\":\"164\"},{\"k\":\"n\",\"v\":\"149\"},{\"k\":\"n\",\"v\":\"27\"},{\"k\":\"n\",\"v\":\"184\"},{\"k\":\"c\",\"n\":\"Nat\",\"u\":[]},{\"k\":\"a\",\"f\":0,\"x\":26},{\"k\":\"c\",\"n\":\"List.cons\",\"u\":[{\"k\":\"z\"}]},{\"k\":\"a\",\"f\":28,\"x\":26},{\"k\":\"a\",\"f\":29,\"x\":24},{\"k\":\"a\",\"f\":29,\"x\":12},{\"k\":\"a\",\"f\":29,\"x\":23},{\"k\":\"a\",\"f\":29,\"x\":22},{\"k\":\"a\",\"f\":29,\"x\":21},{\"k\":\"a\",\"f\":29,\"x\":20},{\"k\":\"a\",\"f\":29,\"x\":19},{\"k\":\"a\",\"f\":29,\"x\":18},{\"k\":\"a\",\"f\":29,\"x\":17},{\"k\":\"a\",\"f\":29,\"x\":16},{\"k\":\"a\",\"f\":29,\"x\":15},{\"k\":\"a\",\"f\":29,\"x\":14},{\"k\":\"a\",\"f\":29,\"x\":13},{\"k\":\"a\",\"f\":29,\"x\":11},{\"k\":\"a\",\"f\":29,\"x\":10},{\"k\":\"a\",\"f\":29,\"x\":9},{\"k\":\"a\",\"f\":29,\"x\":8},{\"k\":\"a\",\"f\":29,\"x\":7},{\"k\":\"a\",\"f\":29,\"x\":6},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjWholeDigest.mk\",\"u\":[]},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjManifest.mk\",\"u\":[]},{\"k\":\"n\",\"v\":\"16777216\"},{\"k\":\"n\",\"v\":\"1000000\"},{\"k\":\"n\",\"v\":\"67108864\"},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjLimits.mk\",\"u\":[]},{\"k\":\"a\",\"f\":54,\"x\":51},{\"k\":\"a\",\"f\":55,\"x\":52},{\"k\":\"a\",\"f\":56,\"x\":53},{\"k\":\"a\",\"f\":57,\"x\":51},{\"k\":\"a\",\"f\":58,\"x\":52},{\"k\":\"c\",\"n\":\"Except.ok\",\"u\":[{\"k\":\"z\"},{\"k\":\"z\"}]},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjError\",\"u\":[]},{\"k\":\"a\",\"f\":60,\"x\":61},{\"k\":\"c\",\"n\":\"Eq\",\"u\":[{\"k\":\"s\",\"a\":{\"k\":\"z\"}}]},{\"k\":\"c\",\"n\":\"Except\",\"u\":[{\"k\":\"z\"},{\"k\":\"z\"}]},{\"k\":\"a\",\"f\":64,\"x\":61},{\"k\":\"c\",\"n\":\"Eq.refl\",\"u\":[{\"k\":\"s\",\"a\":{\"k\":\"z\"}}]},{\"k\":\"n\",\"v\":\"1\"},{\"k\":\"c\",\"n\":\"Except.error\",\"u\":[{\"k\":\"z\"},{\"k\":\"z\"}]},{\"k\":\"a\",\"f\":68,\"x\":61},{\"k\":\"n\",\"v\":\"32\"},{\"k\":\"n\",\"v\":\"31\"},{\"k\":\"n\",\"v\":\"35\"},{\"k\":\"n\",\"v\":\"195\"},{\"k\":\"n\",\"v\":\"38\"},{\"k\":\"a\",\"f\":29,\"x\":72},{\"k\":\"a\",\"f\":29,\"x\":74},{\"k\":\"a\",\"f\":29,\"x\":73},{\"k\":\"a\",\"f\":29,\"x\":71},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjNodeId.mk\",\"u\":[]},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjRoot.mk\",\"u\":[]},{\"k\":\"a\",\"f\":28,\"x\":4},{\"k\":\"n\",\"v\":\"99\"},{\"k\":\"n\",\"v\":\"13\"},{\"k\":\"n\",\"v\":\"205\"},{\"k\":\"n\",\"v\":\"41\"},{\"k\":\"n\",\"v\":\"51\"},{\"k\":\"n\",\"v\":\"18\"},{\"k\":\"n\",\"v\":\"72\"},{\"k\":\"n\",\"v\":\"187\"},{\"k\":\"n\",\"v\":\"178\"},{\"k\":\"n\",\"v\":\"91\"},{\"k\":\"n\",\"v\":\"79\"},{\"k\":\"n\",\"v\":\"156\"},{\"k\":\"n\",\"v\":\"115\"},{\"k\":\"n\",\"v\":\"45\"},{\"k\":\"n\",\"v\":\"171\"},{\"k\":\"n\",\"v\":\"215\"},{\"k\":\"n\",\"v\":\"16\"},{\"k\":\"n\",\"v\":\"221\"},{\"k\":\"a\",\"f\":29,\"x\":99},{\"k\":\"a\",\"f\":29,\"x\":98},{\"k\":\"a\",\"f\":29,\"x\":97},{\"k\":\"a\",\"f\":29,\"x\":96},{\"k\":\"a\",\"f\":29,\"x\":90},{\"k\":\"a\",\"f\":29,\"x\":95},{\"k\":\"a\",\"f\":29,\"x\":94},{\"k\":\"a\",\"f\":29,\"x\":93},{\"k\":\"a\",\"f\":29,\"x\":87},{\"k\":\"a\",\"f\":29,\"x\":92},{\"k\":\"a\",\"f\":29,\"x\":91},{\"k\":\"a\",\"f\":29,\"x\":89},{\"k\":\"a\",\"f\":29,\"x\":88},{\"k\":\"a\",\"f\":29,\"x\":86},{\"k\":\"a\",\"f\":29,\"x\":85},{\"k\":\"a\",\"f\":29,\"x\":84},{\"k\":\"a\",\"f\":29,\"x\":83},{\"k\":\"a\",\"f\":29,\"x\":82},{\"k\":\"n\",\"v\":\"128\"},{\"k\":\"n\",\"v\":\"109\"},{\"k\":\"n\",\"v\":\"181\"},{\"k\":\"n\",\"v\":\"157\"},{\"k\":\"n\",\"v\":\"74\"},{\"k\":\"n\",\"v\":\"198\"},{\"k\":\"a\",\"f\":29,\"x\":121},{\"k\":\"a\",\"f\":29,\"x\":123},{\"k\":\"a\",\"f\":29,\"x\":122},{\"k\":\"a\",\"f\":29,\"x\":120},{\"k\":\"a\",\"f\":29,\"x\":119},{\"k\":\"a\",\"f\":29,\"x\":118},{\"k\":\"a\",\"f\":29,\"x\":3},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjRawEntry.mk\",\"u\":[]},{\"k\":\"a\",\"f\":28,\"x\":1},{\"k\":\"n\",\"v\":\"110\"},{\"k\":\"n\",\"v\":\"52\"},{\"k\":\"n\",\"v\":\"255\"},{\"k\":\"n\",\"v\":\"122\"},{\"k\":\"n\",\"v\":\"165\"},{\"k\":\"n\",\"v\":\"230\"},{\"k\":\"n\",\"v\":\"10\"},{\"k\":\"n\",\"v\":\"44\"},{\"k\":\"n\",\"v\":\"55\"},{\"k\":\"n\",\"v\":\"118\"},{\"k\":\"n\",\"v\":\"17\"},{\"k\":\"n\",\"v\":\"163\"},{\"k\":\"n\",\"v\":\"6\"},{\"k\":\"n\",\"v\":\"23\"},{\"k\":\"n\",\"v\":\"175\"},{\"k\":\"n\",\"v\":\"160\"},{\"k\":\"a\",\"f\":29,\"x\":148},{\"k\":\"a\",\"f\":29,\"x\":147},{\"k\":\"a\",\"f\":29,\"x\":146},{\"k\":\"a\",\"f\":29,\"x\":145},{\"k\":\"a\",\"f\":29,\"x\":144},{\"k\":\"a\",\"f\":29,\"x\":143},{\"k\":\"a\",\"f\":29,\"x\":142},{\"k\":\"a\",\"f\":29,\"x\":141},{\"k\":\"a\",\"f\":29,\"x\":140},{\"k\":\"a\",\"f\":29,\"x\":139},{\"k\":\"a\",\"f\":29,\"x\":138},{\"k\":\"a\",\"f\":29,\"x\":137},{\"k\":\"a\",\"f\":29,\"x\":136},{\"k\":\"a\",\"f\":29,\"x\":135},{\"k\":\"a\",\"f\":29,\"x\":134},{\"k\":\"a\",\"f\":29,\"x\":133},{\"k\":\"b\",\"i\":0},{\"k\":\"c\",\"n\":\"Except.casesOn\",\"u\":[{\"k\":\"s\",\"a\":{\"k\":\"z\"}},{\"k\":\"z\"},{\"k\":\"z\"}]},{\"k\":\"a\",\"f\":166,\"x\":61},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjReadStats.mk\",\"u\":[]},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.Object.ObjWholeRead\",\"u\":[]},{\"k\":\"c\",\"n\":\"List\",\"u\":[{\"k\":\"z\"}]},{\"k\":\"a\",\"f\":170,\"x\":26},{\"k\":\"a\",\"f\":69,\"x\":171},{\"k\":\"a\",\"f\":172,\"x\":165},{\"k\":\"l\",\"n\":\"reason\",\"b\":\"e\",\"t\":61,\"v\":173},{\"k\":\"j\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjWholeVerified.bytes\",\"s\":\"LexLeanR4.R4.ObjectTypes.ObjWholeVerified\",\"i\":0,\"x\":165},{\"k\":\"a\",\"f\":62,\"x\":171},{\"k\":\"a\",\"f\":176,\"x\":175},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjWholeVerified\",\"u\":[]},{\"k\":\"l\",\"n\":\"item\",\"b\":\"e\",\"t\":178,\"v\":177},{\"k\":\"a\",\"f\":65,\"x\":178},{\"k\":\"a\",\"f\":65,\"x\":171},{\"k\":\"l\",\"n\":\"_result\",\"b\":\"e\",\"t\":180,\"v\":181},{\"k\":\"a\",\"f\":167,\"x\":178},{\"k\":\"a\",\"f\":183,\"x\":182},{\"k\":\"a\",\"f\":63,\"x\":181},{\"k\":\"n\",\"v\":\"2\"},{\"k\":\"n\",\"v\":\"3\"},{\"k\":\"n\",\"v\":\"4\"},{\"k\":\"n\",\"v\":\"5\"},{\"k\":\"n\",\"v\":\"7\"},{\"k\":\"n\",\"v\":\"8\"},{\"k\":\"n\",\"v\":\"9\"},{\"k\":\"n\",\"v\":\"22\"},{\"k\":\"n\",\"v\":\"24\"},{\"k\":\"n\",\"v\":\"30\"},{\"k\":\"a\",\"f\":29,\"x\":195},{\"k\":\"a\",\"f\":29,\"x\":194},{\"k\":\"a\",\"f\":29,\"x\":193},{\"k\":\"a\",\"f\":29,\"x\":192},{\"k\":\"a\",\"f\":29,\"x\":191},{\"k\":\"a\",\"f\":29,\"x\":190},{\"k\":\"a\",\"f\":29,\"x\":189},{\"k\":\"a\",\"f\":29,\"x\":188},{\"k\":\"a\",\"f\":29,\"x\":187},{\"k\":\"a\",\"f\":29,\"x\":186},{\"k\":\"a\",\"f\":29,\"x\":67},{\"k\":\"n\",\"v\":\"90\"},{\"k\":\"n\",\"v\":\"112\"},{\"k\":\"n\",\"v\":\"237\"},{\"k\":\"a\",\"f\":43,\"x\":27},{\"k\":\"a\",\"f\":128,\"x\":210},{\"k\":\"a\",\"f\":125,\"x\":211},{\"k\":\"a\",\"f\":164,\"x\":212},{\"k\":\"a\",\"f\":29,\"x\":207},{\"k\":\"a\",\"f\":214,\"x\":213},{\"k\":\"a\",\"f\":29,\"x\":70},{\"k\":\"a\",\"f\":216,\"x\":215},{\"k\":\"a\",\"f\":117,\"x\":217},{\"k\":\"a\",\"f\":29,\"x\":209},{\"k\":\"a\",\"f\":219,\"x\":218},{\"k\":\"a\",\"f\":115,\"x\":220},{\"k\":\"a\",\"f\":29,\"x\":208},{\"k\":\"a\",\"f\":222,\"x\":221},{\"k\":\"a\",\"f\":38,\"x\":223},{\"k\":\"a\",\"f\":129,\"x\":224},{\"k\":\"a\",\"f\":79,\"x\":225},{\"k\":\"n\",\"v\":\"204\"},{\"k\":\"n\",\"v\":\"224\"},{\"k\":\"n\",\"v\":\"130\"},{\"k\":\"n\",\"v\":\"209\"},{\"k\":\"n\",\"v\":\"207\"},{\"k\":\"n\",\"v\":\"137\"},{\"k\":\"n\",\"v\":\"167\"},{\"k\":\"n\",\"v\":\"134\"},{\"k\":\"a\",\"f\":29,\"x\":234},{\"k\":\"a\",\"f\":235,\"x\":27},{\"k\":\"a\",\"f\":29,\"x\":233},{\"k\":\"a\",\"f\":237,\"x\":236},{\"k\":\"a\",\"f\":108,\"x\":238},{\"k\":\"a\",\"f\":29,\"x\":232},{\"k\":\"a\",\"f\":240,\"x\":239},{\"k\":\"a\",\"f\":29,\"x\":231},{\"k\":\"a\",\"f\":242,\"x\":241},{\"k\":\"a\",\"f\":29,\"x\":230},{\"k\":\"a\",\"f\":244,\"x\":243},{\"k\":\"a\",\"f\":75,\"x\":245},{\"k\":\"a\",\"f\":36,\"x\":246},{\"k\":\"a\",\"f\":29,\"x\":229},{\"k\":\"a\",\"f\":248,\"x\":247},{\"k\":\"a\",\"f\":29,\"x\":228},{\"k\":\"a\",\"f\":250,\"x\":249},{\"k\":\"a\",\"f\":29,\"x\":227},{\"k\":\"a\",\"f\":252,\"x\":251},{\"k\":\"a\",\"f\":43,\"x\":253},{\"k\":\"a\",\"f\":128,\"x\":254},{\"k\":\"a\",\"f\":125,\"x\":255},{\"k\":\"a\",\"f\":164,\"x\":256},{\"k\":\"a\",\"f\":214,\"x\":257},{\"k\":\"a\",\"f\":216,\"x\":258},{\"k\":\"a\",\"f\":117,\"x\":259},{\"k\":\"a\",\"f\":219,\"x\":260},{\"k\":\"a\",\"f\":115,\"x\":261},{\"k\":\"a\",\"f\":222,\"x\":262},{\"k\":\"a\",\"f\":38,\"x\":263},{\"k\":\"a\",\"f\":129,\"x\":264},{\"k\":\"a\",\"f\":206,\"x\":265},{\"k\":\"n\",\"v\":\"61\"},{\"k\":\"n\",\"v\":\"229\"},{\"k\":\"n\",\"v\":\"238\"},{\"k\":\"n\",\"v\":\"245\"},{\"k\":\"n\",\"v\":\"54\"},{\"k\":\"n\",\"v\":\"216\"},{\"k\":\"n\",\"v\":\"107\"},{\"k\":\"n\",\"v\":\"40\"},{\"k\":\"n\",\"v\":\"188\"},{\"k\":\"n\",\"v\":\"50\"},{\"k\":\"n\",\"v\":\"60\"},{\"k\":\"n\",\"v\":\"161\"},{\"k\":\"n\",\"v\":\"125\"},{\"k\":\"n\",\"v\":\"203\"},{\"k\":\"n\",\"v\":\"105\"},{\"k\":\"n\",\"v\":\"78\"},{\"k\":\"a\",\"f\":201,\"x\":27},{\"k\":\"a\",\"f\":100,\"x\":283},{\"k\":\"a\",\"f\":29,\"x\":282},{\"k\":\"a\",\"f\":285,\"x\":284},{\"k\":\"a\",\"f\":29,\"x\":281},{\"k\":\"a\",\"f\":287,\"x\":286},{\"k\":\"a\",\"f\":102,\"x\":288},{\"k\":\"a\",\"f\":45,\"x\":289},{\"k\":\"a\",\"f\":250,\"x\":290},{\"k\":\"a\",\"f\":164,\"x\":291},{\"k\":\"a\",\"f\":128,\"x\":292},{\"k\":\"a\",\"f\":29,\"x\":280},{\"k\":\"a\",\"f\":294,\"x\":293},{\"k\":\"a\",\"f\":100,\"x\":295},{\"k\":\"a\",\"f\":29,\"x\":279},{\"k\":\"a\",\"f\":297,\"x\":296},{\"k\":\"a\",\"f\":29,\"x\":278},{\"k\":\"a\",\"f\":299,\"x\":298},{\"k\":\"a\",\"f\":29,\"x\":277},{\"k\":\"a\",\"f\":301,\"x\":300},{\"k\":\"a\",\"f\":29,\"x\":276},{\"k\":\"a\",\"f\":303,\"x\":302},{\"k\":\"a\",\"f\":29,\"x\":275},{\"k\":\"a\",\"f\":305,\"x\":304},{\"k\":\"a\",\"f\":29,\"x\":274},{\"k\":\"a\",\"f\":307,\"x\":306},{\"k\":\"a\",\"f\":29,\"x\":273},{\"k\":\"a\",\"f\":309,\"x\":308},{\"k\":\"a\",\"f\":100,\"x\":310},{\"k\":\"a\",\"f\":29,\"x\":272},{\"k\":\"a\",\"f\":312,\"x\":311},{\"k\":\"a\",\"f\":29,\"x\":271},{\"k\":\"a\",\"f\":314,\"x\":313},{\"k\":\"a\",\"f\":29,\"x\":270},{\"k\":\"a\",\"f\":316,\"x\":315},{\"k\":\"a\",\"f\":29,\"x\":269},{\"k\":\"a\",\"f\":318,\"x\":317},{\"k\":\"a\",\"f\":29,\"x\":268},{\"k\":\"a\",\"f\":320,\"x\":319},{\"k\":\"a\",\"f\":29,\"x\":267},{\"k\":\"a\",\"f\":322,\"x\":321},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjAppendBytes\",\"u\":[]},{\"k\":\"a\",\"f\":324,\"x\":266},{\"k\":\"a\",\"f\":325,\"x\":323},{\"k\":\"a\",\"f\":131,\"x\":226},{\"k\":\"a\",\"f\":327,\"x\":326},{\"k\":\"a\",\"f\":132,\"x\":328},{\"k\":\"n\",\"v\":\"96\"},{\"k\":\"a\",\"f\":80,\"x\":226},{\"k\":\"a\",\"f\":331,\"x\":67},{\"k\":\"a\",\"f\":81,\"x\":332},{\"k\":\"a\",\"f\":333,\"x\":5},{\"k\":\"n\",\"v\":\"201\"},{\"k\":\"n\",\"v\":\"241\"},{\"k\":\"n\",\"v\":\"247\"},{\"k\":\"n\",\"v\":\"123\"},{\"k\":\"n\",\"v\":\"234\"},{\"k\":\"n\",\"v\":\"219\"},{\"k\":\"n\",\"v\":\"103\"},{\"k\":\"n\",\"v\":\"34\"},{\"k\":\"n\",\"v\":\"246\"},{\"k\":\"n\",\"v\":\"46\"},{\"k\":\"n\",\"v\":\"148\"},{\"k\":\"n\",\"v\":\"75\"},{\"k\":\"a\",\"f\":150,\"x\":27},{\"k\":\"a\",\"f\":198,\"x\":347},{\"k\":\"a\",\"f\":35,\"x\":348},{\"k\":\"a\",\"f\":29,\"x\":346},{\"k\":\"a\",\"f\":350,\"x\":349},{\"k\":\"a\",\"f\":242,\"x\":351},{\"k\":\"a\",\"f\":117,\"x\":352},{\"k\":\"a\",\"f\":309,\"x\":353},{\"k\":\"a\",\"f\":29,\"x\":345},{\"k\":\"a\",\"f\":355,\"x\":354},{\"k\":\"a\",\"f\":40,\"x\":356},{\"k\":\"a\",\"f\":153,\"x\":357},{\"k\":\"a\",\"f\":100,\"x\":358},{\"k\":\"a\",\"f\":248,\"x\":359},{\"k\":\"a\",\"f\":29,\"x\":344},{\"k\":\"a\",\"f\":361,\"x\":360},{\"k\":\"a\",\"f\":318,\"x\":362},{\"k\":\"a\",\"f\":39,\"x\":363},{\"k\":\"a\",\"f\":29,\"x\":343},{\"k\":\"a\",\"f\":365,\"x\":364},{\"k\":\"a\",\"f\":29,\"x\":342},{\"k\":\"a\",\"f\":367,\"x\":366},{\"k\":\"a\",\"f\":156,\"x\":368},{\"k\":\"a\",\"f\":29,\"x\":341},{\"k\":\"a\",\"f\":370,\"x\":369},{\"k\":\"a\",\"f\":37,\"x\":371},{\"k\":\"a\",\"f\":29,\"x\":340},{\"k\":\"a\",\"f\":373,\"x\":372},{\"k\":\"a\",\"f\":285,\"x\":374},{\"k\":\"a\",\"f\":109,\"x\":375},{\"k\":\"a\",\"f\":160,\"x\":376},{\"k\":\"a\",\"f\":206,\"x\":377},{\"k\":\"a\",\"f\":29,\"x\":339},{\"k\":\"a\",\"f\":379,\"x\":378},{\"k\":\"a\",\"f\":29,\"x\":338},{\"k\":\"a\",\"f\":381,\"x\":380},{\"k\":\"a\",\"f\":124,\"x\":382},{\"k\":\"a\",\"f\":29,\"x\":337},{\"k\":\"a\",\"f\":384,\"x\":383},{\"k\":\"a\",\"f\":160,\"x\":385},{\"k\":\"a\",\"f\":29,\"x\":336},{\"k\":\"a\",\"f\":387,\"x\":386},{\"k\":\"a\",\"f\":29,\"x\":335},{\"k\":\"a\",\"f\":389,\"x\":388},{\"k\":\"a\",\"f\":49,\"x\":390},{\"k\":\"a\",\"f\":50,\"x\":330},{\"k\":\"a\",\"f\":392,\"x\":334},{\"k\":\"a\",\"f\":393,\"x\":391},{\"k\":\"a\",\"f\":79,\"x\":298},{\"k\":\"a\",\"f\":322,\"x\":27},{\"k\":\"a\",\"f\":235,\"x\":396},{\"k\":\"a\",\"f\":237,\"x\":397},{\"k\":\"a\",\"f\":108,\"x\":398},{\"k\":\"a\",\"f\":240,\"x\":399},{\"k\":\"a\",\"f\":242,\"x\":400},{\"k\":\"a\",\"f\":244,\"x\":401},{\"k\":\"a\",\"f\":75,\"x\":402},{\"k\":\"a\",\"f\":36,\"x\":403},{\"k\":\"a\",\"f\":248,\"x\":404},{\"k\":\"a\",\"f\":250,\"x\":405},{\"k\":\"a\",\"f\":252,\"x\":406},{\"k\":\"a\",\"f\":79,\"x\":407},{\"k\":\"a\",\"f\":299,\"x\":27},{\"k\":\"a\",\"f\":301,\"x\":409},{\"k\":\"a\",\"f\":303,\"x\":410},{\"k\":\"a\",\"f\":305,\"x\":411},{\"k\":\"a\",\"f\":307,\"x\":412},{\"k\":\"a\",\"f\":309,\"x\":413},{\"k\":\"a\",\"f\":100,\"x\":414},{\"k\":\"a\",\"f\":312,\"x\":415},{\"k\":\"a\",\"f\":314,\"x\":416},{\"k\":\"a\",\"f\":316,\"x\":417},{\"k\":\"a\",\"f\":318,\"x\":418},{\"k\":\"a\",\"f\":320,\"x\":419},{\"k\":\"a\",\"f\":79,\"x\":420},{\"k\":\"n\",\"v\":\"97\"},{\"k\":\"n\",\"v\":\"146\"},{\"k\":\"n\",\"v\":\"190\"},{\"k\":\"n\",\"v\":\"232\"},{\"k\":\"n\",\"v\":\"62\"},{\"k\":\"n\",\"v\":\"113\"},{\"k\":\"n\",\"v\":\"253\"},{\"k\":\"n\",\"v\":\"233\"},{\"k\":\"n\",\"v\":\"231\"},{\"k\":\"n\",\"v\":\"235\"},{\"k\":\"n\",\"v\":\"194\"},{\"k\":\"n\",\"v\":\"189\"},{\"k\":\"n\",\"v\":\"150\"},{\"k\":\"n\",\"v\":\"142\"},{\"k\":\"a\",\"f\":29,\"x\":435},{\"k\":\"a\",\"f\":436,\"x\":27},{\"k\":\"a\",\"f\":29,\"x\":434},{\"k\":\"a\",\"f\":438,\"x\":437},{\"k\":\"a\",\"f\":29,\"x\":430},{\"k\":\"a\",\"f\":440,\"x\":439},{\"k\":\"a\",\"f\":367,\"x\":441},{\"k\":\"a\",\"f\":127,\"x\":442},{\"k\":\"a\",\"f\":29,\"x\":433},{\"k\":\"a\",\"f\":444,\"x\":443},{\"k\":\"a\",\"f\":29,\"x\":432},{\"k\":\"a\",\"f\":446,\"x\":445},{\"k\":\"a\",\"f\":202,\"x\":447},{\"k\":\"a\",\"f\":36,\"x\":448},{\"k\":\"a\",\"f\":29,\"x\":431},{\"k\":\"a\",\"f\":450,\"x\":449},{\"k\":\"a\",\"f\":29,\"x\":427},{\"k\":\"a\",\"f\":452,\"x\":451},{\"k\":\"a\",\"f\":78,\"x\":453},{\"k\":\"a\",\"f\":111,\"x\":454},{\"k\":\"a\",\"f\":440,\"x\":455},{\"k\":\"a\",\"f\":29,\"x\":429},{\"k\":\"a\",\"f\":457,\"x\":456},{\"k\":\"a\",\"f\":29,\"x\":428},{\"k\":\"a\",\"f\":459,\"x\":458},{\"k\":\"a\",\"f\":202,\"x\":460},{\"k\":\"a\",\"f\":154,\"x\":461},{\"k\":\"a\",\"f\":200,\"x\":462},{\"k\":\"a\",\"f\":203,\"x\":463},{\"k\":\"a\",\"f\":76,\"x\":464},{\"k\":\"a\",\"f\":452,\"x\":465},{\"k\":\"a\",\"f\":124,\"x\":466},{\"k\":\"a\",\"f\":219,\"x\":467},{\"k\":\"a\",\"f\":29,\"x\":424},{\"k\":\"a\",\"f\":469,\"x\":468},{\"k\":\"a\",\"f\":150,\"x\":470},{\"k\":\"a\",\"f\":110,\"x\":471},{\"k\":\"a\",\"f\":29,\"x\":426},{\"k\":\"a\",\"f\":473,\"x\":472},{\"k\":\"a\",\"f\":29,\"x\":425},{\"k\":\"a\",\"f\":475,\"x\":474},{\"k\":\"a\",\"f\":469,\"x\":476},{\"k\":\"a\",\"f\":126,\"x\":477},{\"k\":\"a\",\"f\":29,\"x\":423},{\"k\":\"a\",\"f\":479,\"x\":478},{\"k\":\"n\",\"v\":\"202\"},{\"k\":\"n\",\"v\":\"223\"},{\"k\":\"n\",\"v\":\"37\"},{\"k\":\"n\",\"v\":\"58\"},{\"k\":\"n\",\"v\":\"86\"},{\"k\":\"n\",\"v\":\"93\"},{\"k\":\"n\",\"v\":\"114\"},{\"k\":\"n\",\"v\":\"121\"},{\"k\":\"n\",\"v\":\"135\"},{\"k\":\"a\",\"f\":107,\"x\":27},{\"k\":\"a\",\"f\":32,\"x\":490},{\"k\":\"a\",\"f\":436,\"x\":491},{\"k\":\"a\",\"f\":29,\"x\":489},{\"k\":\"a\",\"f\":493,\"x\":492},{\"k\":\"a\",\"f\":129,\"x\":494},{\"k\":\"a\",\"f\":29,\"x\":488},{\"k\":\"a\",\"f\":496,\"x\":495},{\"k\":\"a\",\"f\":29,\"x\":487},{\"k\":\"a\",\"f\":498,\"x\":497},{\"k\":\"a\",\"f\":309,\"x\":499},{\"k\":\"a\",\"f\":36,\"x\":500},{\"k\":\"a\",\"f\":29,\"x\":486},{\"k\":\"a\",\"f\":502,\"x\":501},{\"k\":\"a\",\"f\":29,\"x\":485},{\"k\":\"a\",\"f\":504,\"x\":503},{\"k\":\"a\",\"f\":109,\"x\":505},{\"k\":\"a\",\"f\":112,\"x\":506},{\"k\":\"a\",\"f\":37,\"x\":507},{\"k\":\"a\",\"f\":29,\"x\":484},{\"k\":\"a\",\"f\":509,\"x\":508},{\"k\":\"a\",\"f\":113,\"x\":510},{\"k\":\"a\",\"f\":157,\"x\":511},{\"k\":\"a\",\"f\":29,\"x\":483},{\"k\":\"a\",\"f\":513,\"x\":512},{\"k\":\"a\",\"f\":196,\"x\":514},{\"k\":\"a\",\"f\":151,\"x\":515},{\"k\":\"a\",\"f\":101,\"x\":516},{\"k\":\"a\",\"f\":199,\"x\":517},{\"k\":\"a\",\"f\":205,\"x\":518},{\"k\":\"a\",\"f\":45,\"x\":519},{\"k\":\"a\",\"f\":44,\"x\":520},{\"k\":\"a\",\"f\":219,\"x\":521},{\"k\":\"a\",\"f\":159,\"x\":522},{\"k\":\"a\",\"f\":29,\"x\":482},{\"k\":\"a\",\"f\":524,\"x\":523},{\"k\":\"a\",\"f\":312,\"x\":525},{\"k\":\"a\",\"f\":244,\"x\":526},{\"k\":\"a\",\"f\":29,\"x\":481},{\"k\":\"a\",\"f\":528,\"x\":527},{\"k\":\"a\",\"f\":77,\"x\":529},{\"k\":\"a\",\"f\":201,\"x\":530},{\"k\":\"a\",\"f\":100,\"x\":531},{\"k\":\"a\",\"f\":285,\"x\":532},{\"k\":\"a\",\"f\":287,\"x\":533},{\"k\":\"a\",\"f\":102,\"x\":534},{\"k\":\"a\",\"f\":45,\"x\":535},{\"k\":\"a\",\"f\":250,\"x\":536},{\"k\":\"a\",\"f\":164,\"x\":537},{\"k\":\"a\",\"f\":128,\"x\":538},{\"k\":\"a\",\"f\":294,\"x\":539},{\"k\":\"a\",\"f\":100,\"x\":540},{\"k\":\"a\",\"f\":297,\"x\":541},{\"k\":\"a\",\"f\":130,\"x\":542},{\"k\":\"a\",\"f\":131,\"x\":395},{\"k\":\"a\",\"f\":544,\"x\":543},{\"k\":\"n\",\"v\":\"59\"},{\"k\":\"n\",\"v\":\"73\"},{\"k\":\"n\",\"v\":\"80\"},{\"k\":\"n\",\"v\":\"87\"},{\"k\":\"n\",\"v\":\"94\"},{\"k\":\"n\",\"v\":\"101\"},{\"k\":\"n\",\"v\":\"108\"},{\"k\":\"n\",\"v\":\"129\"},{\"k\":\"n\",\"v\":\"136\"},{\"k\":\"n\",\"v\":\"143\"},{\"k\":\"n\",\"v\":\"192\"},{\"k\":\"n\",\"v\":\"199\"},{\"k\":\"n\",\"v\":\"206\"},{\"k\":\"n\",\"v\":\"213\"},{\"k\":\"n\",\"v\":\"220\"},{\"k\":\"a\",\"f\":29,\"x\":560},{\"k\":\"a\",\"f\":561,\"x\":27},{\"k\":\"a\",\"f\":29,\"x\":559},{\"k\":\"a\",\"f\":563,\"x\":562},{\"k\":\"a\",\"f\":29,\"x\":558},{\"k\":\"a\",\"f\":565,\"x\":564},{\"k\":\"a\",\"f\":29,\"x\":557},{\"k\":\"a\",\"f\":567,\"x\":566},{\"k\":\"a\",\"f\":29,\"x\":556},{\"k\":\"a\",\"f\":569,\"x\":568},{\"k\":\"a\",\"f\":41,\"x\":570},{\"k\":\"a\",\"f\":104,\"x\":571},{\"k\":\"a\",\"f\":103,\"x\":572},{\"k\":\"a\",\"f\":33,\"x\":573},{\"k\":\"a\",\"f\":124,\"x\":574},{\"k\":\"a\",\"f\":438,\"x\":575},{\"k\":\"a\",\"f\":29,\"x\":555},{\"k\":\"a\",\"f\":577,\"x\":576},{\"k\":\"a\",\"f\":29,\"x\":554},{\"k\":\"a\",\"f\":579,\"x\":578},{\"k\":\"a\",\"f\":29,\"x\":553},{\"k\":\"a\",\"f\":581,\"x\":580},{\"k\":\"a\",\"f\":161,\"x\":582},{\"k\":\"a\",\"f\":106,\"x\":583},{\"k\":\"a\",\"f\":29,\"x\":552},{\"k\":\"a\",\"f\":585,\"x\":584},{\"k\":\"a\",\"f\":29,\"x\":551},{\"k\":\"a\",\"f\":587,\"x\":586},{\"k\":\"a\",\"f\":29,\"x\":550},{\"k\":\"a\",\"f\":589,\"x\":588},{\"k\":\"a\",\"f\":29,\"x\":549},{\"k\":\"a\",\"f\":591,\"x\":590},{\"k\":\"a\",\"f\":29,\"x\":548},{\"k\":\"a\",\"f\":593,\"x\":592},{\"k\":\"a\",\"f\":29,\"x\":547},{\"k\":\"a\",\"f\":595,\"x\":594},{\"k\":\"a\",\"f\":47,\"x\":596},{\"k\":\"a\",\"f\":29,\"x\":546},{\"k\":\"a\",\"f\":598,\"x\":597},{\"k\":\"a\",\"f\":163,\"x\":599},{\"k\":\"a\",\"f\":105,\"x\":600},{\"k\":\"a\",\"f\":76,\"x\":601},{\"k\":\"a\",\"f\":78,\"x\":602},{\"k\":\"a\",\"f\":197,\"x\":603},{\"k\":\"a\",\"f\":154,\"x\":604},{\"k\":\"a\",\"f\":158,\"x\":605},{\"k\":\"a\",\"f\":204,\"x\":606},{\"k\":\"a\",\"f\":322,\"x\":607},{\"k\":\"a\",\"f\":235,\"x\":608},{\"k\":\"a\",\"f\":237,\"x\":609},{\"k\":\"a\",\"f\":108,\"x\":610},{\"k\":\"a\",\"f\":240,\"x\":611},{\"k\":\"a\",\"f\":242,\"x\":612},{\"k\":\"a\",\"f\":244,\"x\":613},{\"k\":\"a\",\"f\":75,\"x\":614},{\"k\":\"a\",\"f\":36,\"x\":615},{\"k\":\"a\",\"f\":248,\"x\":616},{\"k\":\"a\",\"f\":250,\"x\":617},{\"k\":\"a\",\"f\":252,\"x\":618},{\"k\":\"a\",\"f\":130,\"x\":619},{\"k\":\"a\",\"f\":131,\"x\":408},{\"k\":\"a\",\"f\":621,\"x\":620},{\"k\":\"n\",\"v\":\"248\"},{\"k\":\"n\",\"v\":\"48\"},{\"k\":\"n\",\"v\":\"69\"},{\"k\":\"n\",\"v\":\"83\"},{\"k\":\"n\",\"v\":\"104\"},{\"k\":\"n\",\"v\":\"132\"},{\"k\":\"n\",\"v\":\"139\"},{\"k\":\"a\",\"f\":305,\"x\":27},{\"k\":\"a\",\"f\":127,\"x\":630},{\"k\":\"a\",\"f\":38,\"x\":631},{\"k\":\"a\",\"f\":237,\"x\":632},{\"k\":\"a\",\"f\":149,\"x\":633},{\"k\":\"a\",\"f\":31,\"x\":634},{\"k\":\"a\",\"f\":479,\"x\":635},{\"k\":\"a\",\"f\":29,\"x\":629},{\"k\":\"a\",\"f\":637,\"x\":636},{\"k\":\"a\",\"f\":29,\"x\":628},{\"k\":\"a\",\"f\":639,\"x\":638},{\"k\":\"a\",\"f\":297,\"x\":640},{\"k\":\"a\",\"f\":155,\"x\":641},{\"k\":\"a\",\"f\":42,\"x\":642},{\"k\":\"a\",\"f\":29,\"x\":627},{\"k\":\"a\",\"f\":644,\"x\":643},{\"k\":\"a\",\"f\":29,\"x\":422},{\"k\":\"a\",\"f\":646,\"x\":645},{\"k\":\"a\",\"f\":214,\"x\":647},{\"k\":\"a\",\"f\":29,\"x\":626},{\"k\":\"a\",\"f\":649,\"x\":648},{\"k\":\"a\",\"f\":34,\"x\":650},{\"k\":\"a\",\"f\":29,\"x\":625},{\"k\":\"a\",\"f\":652,\"x\":651},{\"k\":\"a\",\"f\":473,\"x\":653},{\"k\":\"a\",\"f\":156,\"x\":654},{\"k\":\"a\",\"f\":29,\"x\":624},{\"k\":\"a\",\"f\":656,\"x\":655},{\"k\":\"a\",\"f\":114,\"x\":657},{\"k\":\"a\",\"f\":367,\"x\":658},{\"k\":\"a\",\"f\":30,\"x\":659},{\"k\":\"a\",\"f\":46,\"x\":660},{\"k\":\"a\",\"f\":116,\"x\":661},{\"k\":\"a\",\"f\":152,\"x\":662},{\"k\":\"a\",\"f\":162,\"x\":663},{\"k\":\"a\",\"f\":29,\"x\":623},{\"k\":\"a\",\"f\":665,\"x\":664},{\"k\":\"a\",\"f\":387,\"x\":666},{\"k\":\"a\",\"f\":379,\"x\":667},{\"k\":\"a\",\"f\":48,\"x\":668},{\"k\":\"a\",\"f\":299,\"x\":669},{\"k\":\"a\",\"f\":301,\"x\":670},{\"k\":\"a\",\"f\":303,\"x\":671},{\"k\":\"a\",\"f\":305,\"x\":672},{\"k\":\"a\",\"f\":307,\"x\":673},{\"k\":\"a\",\"f\":309,\"x\":674},{\"k\":\"a\",\"f\":100,\"x\":675},{\"k\":\"a\",\"f\":312,\"x\":676},{\"k\":\"a\",\"f\":314,\"x\":677},{\"k\":\"a\",\"f\":316,\"x\":678},{\"k\":\"a\",\"f\":318,\"x\":679},{\"k\":\"a\",\"f\":320,\"x\":680},{\"k\":\"a\",\"f\":130,\"x\":681},{\"k\":\"a\",\"f\":131,\"x\":421},{\"k\":\"a\",\"f\":683,\"x\":682},{\"k\":\"a\",\"f\":132,\"x\":684},{\"k\":\"a\",\"f\":685,\"x\":2},{\"k\":\"a\",\"f\":132,\"x\":622},{\"k\":\"a\",\"f\":687,\"x\":686},{\"k\":\"a\",\"f\":329,\"x\":688},{\"k\":\"a\",\"f\":132,\"x\":545},{\"k\":\"a\",\"f\":690,\"x\":689},{\"k\":\"a\",\"f\":169,\"x\":691},{\"k\":\"a\",\"f\":692,\"x\":394},{\"k\":\"a\",\"f\":693,\"x\":59},{\"k\":\"a\",\"f\":184,\"x\":694},{\"k\":\"a\",\"f\":695,\"x\":174},{\"k\":\"a\",\"f\":696,\"x\":179},{\"k\":\"a\",\"f\":34,\"x\":27},{\"k\":\"a\",\"f\":652,\"x\":698},{\"k\":\"a\",\"f\":473,\"x\":699},{\"k\":\"a\",\"f\":156,\"x\":700},{\"k\":\"a\",\"f\":656,\"x\":701},{\"k\":\"a\",\"f\":114,\"x\":702},{\"k\":\"a\",\"f\":367,\"x\":703},{\"k\":\"a\",\"f\":30,\"x\":704},{\"k\":\"a\",\"f\":46,\"x\":705},{\"k\":\"a\",\"f\":116,\"x\":706},{\"k\":\"a\",\"f\":152,\"x\":707},{\"k\":\"a\",\"f\":162,\"x\":708},{\"k\":\"a\",\"f\":665,\"x\":709},{\"k\":\"a\",\"f\":387,\"x\":710},{\"k\":\"a\",\"f\":379,\"x\":711},{\"k\":\"a\",\"f\":48,\"x\":712},{\"k\":\"a\",\"f\":561,\"x\":713},{\"k\":\"a\",\"f\":563,\"x\":714},{\"k\":\"a\",\"f\":565,\"x\":715},{\"k\":\"a\",\"f\":567,\"x\":716},{\"k\":\"a\",\"f\":569,\"x\":717},{\"k\":\"a\",\"f\":41,\"x\":718},{\"k\":\"a\",\"f\":104,\"x\":719},{\"k\":\"a\",\"f\":103,\"x\":720},{\"k\":\"a\",\"f\":33,\"x\":721},{\"k\":\"a\",\"f\":124,\"x\":722},{\"k\":\"a\",\"f\":438,\"x\":723},{\"k\":\"a\",\"f\":577,\"x\":724},{\"k\":\"a\",\"f\":579,\"x\":725},{\"k\":\"a\",\"f\":581,\"x\":726},{\"k\":\"a\",\"f\":161,\"x\":727},{\"k\":\"a\",\"f\":106,\"x\":728},{\"k\":\"a\",\"f\":585,\"x\":729},{\"k\":\"a\",\"f\":587,\"x\":730},{\"k\":\"a\",\"f\":589,\"x\":731},{\"k\":\"a\",\"f\":591,\"x\":732},{\"k\":\"a\",\"f\":593,\"x\":733},{\"k\":\"a\",\"f\":595,\"x\":734},{\"k\":\"a\",\"f\":47,\"x\":735},{\"k\":\"a\",\"f\":598,\"x\":736},{\"k\":\"a\",\"f\":163,\"x\":737},{\"k\":\"a\",\"f\":105,\"x\":738},{\"k\":\"a\",\"f\":76,\"x\":739},{\"k\":\"a\",\"f\":78,\"x\":740},{\"k\":\"a\",\"f\":197,\"x\":741},{\"k\":\"a\",\"f\":154,\"x\":742},{\"k\":\"a\",\"f\":158,\"x\":743},{\"k\":\"a\",\"f\":204,\"x\":744},{\"k\":\"a\",\"f\":305,\"x\":530},{\"k\":\"a\",\"f\":127,\"x\":746},{\"k\":\"a\",\"f\":38,\"x\":747},{\"k\":\"a\",\"f\":237,\"x\":748},{\"k\":\"a\",\"f\":149,\"x\":749},{\"k\":\"a\",\"f\":31,\"x\":750},{\"k\":\"a\",\"f\":479,\"x\":751},{\"k\":\"a\",\"f\":637,\"x\":752},{\"k\":\"a\",\"f\":639,\"x\":753},{\"k\":\"a\",\"f\":297,\"x\":754},{\"k\":\"a\",\"f\":155,\"x\":755},{\"k\":\"a\",\"f\":42,\"x\":756},{\"k\":\"a\",\"f\":644,\"x\":757},{\"k\":\"a\",\"f\":646,\"x\":758},{\"k\":\"a\",\"f\":214,\"x\":759},{\"k\":\"a\",\"f\":649,\"x\":760},{\"k\":\"a\",\"f\":324,\"x\":745},{\"k\":\"a\",\"f\":762,\"x\":761},{\"k\":\"a\",\"f\":176,\"x\":763},{\"k\":\"a\",\"f\":185,\"x\":697},{\"k\":\"a\",\"f\":765,\"x\":764},{\"k\":\"a\",\"f\":168,\"x\":188},{\"k\":\"a\",\"f\":767,\"x\":188},{\"k\":\"a\",\"f\":768,\"x\":25},{\"k\":\"a\",\"f\":62,\"x\":178},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjWholeVerified.mk\",\"u\":[]},{\"k\":\"a\",\"f\":34,\"x\":761},{\"k\":\"a\",\"f\":652,\"x\":772},{\"k\":\"a\",\"f\":473,\"x\":773},{\"k\":\"a\",\"f\":156,\"x\":774},{\"k\":\"a\",\"f\":656,\"x\":775},{\"k\":\"a\",\"f\":114,\"x\":776},{\"k\":\"a\",\"f\":367,\"x\":777},{\"k\":\"a\",\"f\":30,\"x\":778},{\"k\":\"a\",\"f\":46,\"x\":779},{\"k\":\"a\",\"f\":116,\"x\":780},{\"k\":\"a\",\"f\":152,\"x\":781},{\"k\":\"a\",\"f\":162,\"x\":782},{\"k\":\"a\",\"f\":665,\"x\":783},{\"k\":\"a\",\"f\":387,\"x\":784},{\"k\":\"a\",\"f\":379,\"x\":785},{\"k\":\"a\",\"f\":48,\"x\":786},{\"k\":\"a\",\"f\":561,\"x\":787},{\"k\":\"a\",\"f\":563,\"x\":788},{\"k\":\"a\",\"f\":565,\"x\":789},{\"k\":\"a\",\"f\":567,\"x\":790},{\"k\":\"a\",\"f\":569,\"x\":791},{\"k\":\"a\",\"f\":41,\"x\":792},{\"k\":\"a\",\"f\":104,\"x\":793},{\"k\":\"a\",\"f\":103,\"x\":794},{\"k\":\"a\",\"f\":33,\"x\":795},{\"k\":\"a\",\"f\":124,\"x\":796},{\"k\":\"a\",\"f\":438,\"x\":797},{\"k\":\"a\",\"f\":577,\"x\":798},{\"k\":\"a\",\"f\":579,\"x\":799},{\"k\":\"a\",\"f\":581,\"x\":800},{\"k\":\"a\",\"f\":161,\"x\":801},{\"k\":\"a\",\"f\":106,\"x\":802},{\"k\":\"a\",\"f\":585,\"x\":803},{\"k\":\"a\",\"f\":587,\"x\":804},{\"k\":\"a\",\"f\":589,\"x\":805},{\"k\":\"a\",\"f\":591,\"x\":806},{\"k\":\"a\",\"f\":593,\"x\":807},{\"k\":\"a\",\"f\":595,\"x\":808},{\"k\":\"a\",\"f\":47,\"x\":809},{\"k\":\"a\",\"f\":598,\"x\":810},{\"k\":\"a\",\"f\":163,\"x\":811},{\"k\":\"a\",\"f\":105,\"x\":812},{\"k\":\"a\",\"f\":76,\"x\":813},{\"k\":\"a\",\"f\":78,\"x\":814},{\"k\":\"a\",\"f\":197,\"x\":815},{\"k\":\"a\",\"f\":154,\"x\":816},{\"k\":\"a\",\"f\":158,\"x\":817},{\"k\":\"a\",\"f\":204,\"x\":818},{\"k\":\"a\",\"f\":771,\"x\":819},{\"k\":\"c\",\"n\":\"LexLeanR4.R4.ObjectTypes.ObjVersion.mk\",\"u\":[]},{\"k\":\"a\",\"f\":821,\"x\":480},{\"k\":\"a\",\"f\":820,\"x\":822},{\"k\":\"a\",\"f\":823,\"x\":769},{\"k\":\"a\",\"f\":770,\"x\":824},{\"k\":\"a\",\"f\":184,\"x\":165},{\"k\":\"a\",\"f\":826,\"x\":174},{\"k\":\"a\",\"f\":827,\"x\":179},{\"k\":\"l\",\"n\":\"whole\",\"b\":\"e\",\"t\":180,\"v\":828},{\"k\":\"a\",\"f\":66,\"x\":26},{\"k\":\"a\",\"f\":830,\"x\":3},{\"k\":\"c\",\"n\":\"congrArg\",\"u\":[{\"k\":\"s\",\"a\":{\"k\":\"z\"}},{\"k\":\"s\",\"a\":{\"k\":\"z\"}}]},{\"k\":\"a\",\"f\":832,\"x\":180},{\"k\":\"a\",\"f\":833,\"x\":181},{\"k\":\"a\",\"f\":834,\"x\":694},{\"k\":\"a\",\"f\":835,\"x\":825},{\"k\":\"a\",\"f\":836,\"x\":829},{\"k\":\"a\",\"f\":837,\"x\":831}]"
+    )
+] (
+  "{\"declarations\":[{\"name\":\"LexLeanR4.ObjectReadControls.objProtocolWholeBytes\",\"levels\":[],\"kind\":\"theorem\",\"transparency\":\"semireducible\",\"policy\":{\"kind\":\"none\"},\"type\":766,\"value\":838,\"class\":false,\"generated\":false}],\"imports\":[\"Init\",\"LexLeanR4.R4.ObjectTypes\",\"LexLeanR4.R4.ObjectCodec\",\"LexLeanR4.R4.ObjectRead\",\"LexLeanR4.R4.Object\",\"LexLeanR4.ObjectWholeComposedResult\"],\"order\":[0],\"proof_nodes\":[838],\"spec\":\"lexlean/core-module/1\"}"
+  ))

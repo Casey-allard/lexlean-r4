@@ -1,0 +1,8 @@
+total 84
+drwx------ 6 root root  4096 Oct 24 11:04 .
+drwxr-xr-x 3 root root  4096 Oct 24 11:04 ..
+drwxr-xr-x 3 root root  4096 Oct 24 11:04 coverage
+drwxr-xr-x 2 root root  4096 Oct 24 11:04 lexicons
+-rw-r--r-- 1 root root 57894 Oct 24 11:04 manifest.json
+drwxr-xr-x 3 root root  4096 Oct 24 11:04 maps
+drwxr-xr-x 3 root root  4096 Oct 24 11:04 modules

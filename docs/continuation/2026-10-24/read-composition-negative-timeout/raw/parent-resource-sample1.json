@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-24T11:05:54.142874+00:00",
+  "hostAvailableBytes": 24116162560,
+  "kind": "sample not peak measurement",
+  "commands": {
+    "stats": {
+      "args": [
+        "docker",
+        "stats",
+        "--no-stream",
+        "--format",
+        "{{json .}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "status": 0,
+      "stdout": "{\"BlockIO\":\"16.5MB / 13.6MB\",\"CPUPerc\":\"114.37%\",\"Container\":\"cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf\",\"ID\":\"cbd8cf8ac724\",\"MemPerc\":\"10.57%\",\"MemUsage\":\"433MiB / 4GiB\",\"Name\":\"lexlean-r4-current-sdk\",\"NetIO\":\"0B / 0B\",\"PIDs\":\"16\"}\n",
+      "stderr": ""
+    },
+    "memory": {
+      "args": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    "process": {
+      "args": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,pcpu,rss,args"
+      ],
+      "status": 0,
+      "stdout": "    PID COMMAND         %CPU   RSS COMMAND\n      1 sh               0.0  1576 /bin/sh -c sleep infinity\n      7 sleep            0.0  1620 sleep infinity\n    119 lexlean          8.5 230868 lexlean --diagnostic-format json verify tests/lexlean/ObjectReadControls.lex.tex\n    229 lake             2.1 106432 /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env lean -R /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src -o /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/oleans/LexLeanR4/HashWireDirect09Controls.olean /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src/LexLeanR4/HashWireDirect09Controls.lean\n    234 lean            97.2 407184 lean -R /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src -o /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/oleans/LexLeanR4/HashWireDirect09Controls.olean /tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified/.staging-jePC0O/lean-src/LexLeanR4/HashWireDirect09Controls.lean\n    245 ps              50.0  3668 ps -eo pid,comm,pcpu,rss,args\n",
+      "stderr": ""
+    }
+  }
+}

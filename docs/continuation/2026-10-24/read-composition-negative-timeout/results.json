@@ -1,0 +1,32 @@
+{
+  "status": "DEPENDENCY_TIMEOUT_INTENDED_NEGATIVE_NOT_REACHED",
+  "officialCheck": {
+    "status": 0,
+    "modules": 47
+  },
+  "officialVerify": {
+    "status": 4,
+    "code": "LLS8002",
+    "module": "HashWireDirect09Controls",
+    "configuredChildMs": 300000,
+    "observedChildMs": 300008,
+    "wholeVerifyMs": 363154,
+    "artifacts": []
+  },
+  "launcher": "Parent observed exec74960 exit0; confirms launcher/postcapture completion only, not verifier success",
+  "sourceInputs": 51,
+  "postconditions": "All source/lock/tools/epoch/idle/storage guards passed; all six memory.events zero; postcapture-errors empty",
+  "emission": "Four changed/target module emissions retained and reviewed; failed Hash09 emitted text unavailable at postfailure read. No hot-subterm or semantic-falsity claim.",
+  "next": {
+    "ordinal26-negative": "UNACCEPTED_NOT_REACHED",
+    "ordinal26-positive": "NOT_RUN",
+    "read33-positive": "NOT_RUN"
+  },
+  "acceptedObjectControls": 331,
+  "requiredObjectControls": 403,
+  "nativeAcceptance": false,
+  "productionAcceptance": false,
+  "failureReviewSha256": "9ef4aca3c30e0a31148d9c8c20a4621d627b0b941a6683e2a946a7dcb615b445",
+  "rawFiles": 84,
+  "scope": "Finite actual failed diagnostic; genuine development lock is not production binding"
+}

@@ -1,0 +1,164 @@
+{
+  "schema": "lexlean-r4-independent-retained-build-recovery-review/v1",
+  "reviewedAt": "2026-10-24T11:27:32.532955+00:00",
+  "verdict": "PASS_RETAINED_BUILD_RECOVERY_AND_BOUNDED_INVESTIGATION_NO_REPAIR_AUTHORIZATION",
+  "reviewer": "construction_second_state_code_review",
+  "scope": "Independent host-only inspection and rehash of actual read receipts, recovered bytes, build identity/input bindings, prior accepted artifact emissions and frozen Phase1 source investigation. No SDK/compiler/VM calls or regeneration.",
+  "investigation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-dependency-investigation.json",
+    "bytes": 20213,
+    "sha256": "7f2b7f8f7db28d3e211e1fc8d012dfe2eec242973e5fb8a77e0e22172eece2b5",
+    "pinnedExistingFilesRehashed": 23,
+    "temporalScope": "Frozen investigation precedes the completed recovery comparison. Its currentHash09EmittedBytesCaptured=false and UNTESTED hypotheses are historical observations, superseded for current recovery status by this separate report; do not rewrite the frozen investigation."
+  },
+  "recovery": {
+    "currentBuildId": "598d7a2571df13cec0c33c3761e7baba955a9aa3a8fa2f1247d3d102f60f3531",
+    "currentSourceId": "277bcdd0bc40ae42216758211f3764984a2c3a38dc8c48ff02dc2b2d7f238fa7",
+    "currentSemanticId": "805413655a59b05d66b06239321c314c7bed81626d5bcc419ee1a4e443ced311",
+    "manifestBytes": 57894,
+    "manifestSha256": "0e5746294e1d6272e5ba75c314775af3d2232de64aa8dd41bee0bc27d11de178",
+    "hash09Bytes": 1706,
+    "hash09Sha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336",
+    "actualReadEvidence": "Dated successful find/cat/listing/sha256sum receipts address the existing failed stage .lexlean/build/<build_id>, not a newly invoked render. module.stdout and manifest.stdout reproduce captured sizes/hashes. Recorded commands perform only reads. This review did not regenerate or replay anything.",
+    "sixModuleRows": [
+      {
+        "modulePath": "modules/LexLeanR4/HashWireDirect09Controls.lean",
+        "currentBytes": 1706,
+        "currentSha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336",
+        "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/HashWireDirect09Controls.lean",
+        "priorBytes": 1706,
+        "priorSha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336",
+        "byteHashIdentity": true
+      },
+      {
+        "modulePath": "modules/LexLeanR4/R4/Hash.lean",
+        "currentBytes": 191175,
+        "currentSha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b",
+        "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/Hash.lean",
+        "priorBytes": 191175,
+        "priorSha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b",
+        "byteHashIdentity": true
+      },
+      {
+        "modulePath": "modules/LexLeanR4/R4/HashNat.lean",
+        "currentBytes": 31334,
+        "currentSha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000",
+        "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/HashNat.lean",
+        "priorBytes": 31334,
+        "priorSha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000",
+        "byteHashIdentity": true
+      },
+      {
+        "modulePath": "modules/LexLeanR4/R4/HashNatCore.lean",
+        "currentBytes": 95917,
+        "currentSha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377",
+        "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/HashNatCore.lean",
+        "priorBytes": 95917,
+        "priorSha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377",
+        "byteHashIdentity": true
+      },
+      {
+        "modulePath": "modules/LexLeanR4/R4/HashWire.lean",
+        "currentBytes": 3926,
+        "currentSha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b",
+        "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/HashWire.lean",
+        "priorBytes": 3926,
+        "priorSha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b",
+        "byteHashIdentity": true
+      },
+      {
+        "modulePath": "modules/LexLeanR4/R4/Words.lean",
+        "currentBytes": 51343,
+        "currentSha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6",
+        "priorArtifactPath": "/tmp/r4-hash-wire-restoration-vm5-successor-20261023/evidence/positive/HashWireDirect09Controls/verify/verifiedbundle/modules/LexLeanR4/R4/Words.lean",
+        "priorBytes": 51343,
+        "priorSha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6",
+        "byteHashIdentity": true
+      }
+    ]
+  },
+  "independentChecks": [
+    "All 51 current input files independently rehashed against expected-inputs; both recorded pre/post guest source hash lists match that same map exactly.",
+    "Current captured build manifest contains 47 source entries plus project-config, lock and three embedded lexicons. All 47 source hashes/lengths and config match the exact input map. Lock entry equals actual successful lock-bytes stdout; its three workspace_file hashes match the remaining staged metadata inputs, and its package tree hashes match the embedded lexicons.",
+    "Captured build source_id, semantic_id and complete 47-module selection equal actual successful official source-check result. Build ID in the capture paths matches manifest build_id. Compiler semantics/toolchain match genuine lock.",
+    "Captured current guest sha256sum covers exactly the six required Lean module paths. All six equal current manifest output hashes and lengths and independently read prior accepted artifact output bytes/prior manifest entries. Hash09 current bytes are additionally captured and compared byte-for-byte with prior artifact. For five dependencies current equality is supported by actual captured guest hashes plus manifest, not a claim that five additional current byte copies were downloaded.",
+    "All six original LexLean source hashes/lengths match the prior accepted build manifest. Current and prior configuration bytes become identical after replacing only the entrypoints array; whole closure, selected root and whole build/source/semantic/lock identities still differ.",
+    "All four recorded executable hashes match prior compiler receipt and attested Lean/Lake/checker hashes. This is binary identity, not equivalence of scheduling/cache/load or runtime environment.",
+    "Source independently establishes one Hash09 theorem, wireDirect09, reflexivity proof and empty declared axioms. It already existed in prior Read33 inputs; the whole-digest contextual lift actually applies it. It is neither a newly added dependency nor an unused sibling eligible for pruning.",
+    "Rehashed actual prior verify process/stdout, checked exit0 and elapsed time 39628ms. Current recorded failure remains exit4 child timeout observed300008ms under300000ms limit, whole363154ms. No intended ordinal26 rejection or current accepted proof artifact exists."
+  ],
+  "interpretation": {
+    "emissionDrift": "The recovered six module emissions match the historical accepted emissions; emitted-byte drift of this compared six-module group is not supported. This does not establish equality of every file/environment in the full 47-module run.",
+    "timing": "39.628 seconds is the prior whole verify duration; 300.008 seconds is the current failing child duration. These are distinct scopes and epochs, not a controlled benchmark or a measured slowdown factor.",
+    "environment": "Different closure, resource epochs, scheduling, cache/page state and host contention were not controlled. Zero OOM counters do not establish absence of pressure. No particular environmental cause or hot reduction subterm is inferred.",
+    "sourceDecision": "No source fix, trusted replacement digest, omitted required theorem, limit increase, equivalent retry or positive-phase execution is justified by these findings. Build-only fallback is unnecessary for obtaining the now-recovered emissions and has not been executed."
+  },
+  "historicalCorrection": {
+    "temporaryPathAbsence": "The prior ENOENT record correctly describes the cleaned temporary verification .staging path. It does not establish absence of the separate content-addressed build output.",
+    "preservation": "Preserve original raw84 inventory, frozen failure review, original 92-file delivery manifest/report and preimages. Supersede current blanket unavailability wording through a newly reviewed delivery version, not alteration of old records.",
+    "rawCount": "The historical 84-file inventory already includes hash09-emitted-after.json; the later build recovery is a separate evidence set."
+  },
+  "acceptanceLimits": {
+    "currentIntendedNegative": "NOT_REACHED",
+    "focusedPositive": "NOT_RUN",
+    "read33Positive": "NOT_RUN",
+    "acceptedObjectControls": "331/403 unchanged",
+    "newNativeReplay": false,
+    "newProofAcceptance": false,
+    "productionAcceptance": false,
+    "delivery": "This is source/evidence review only; final version2 delivery requires its own exact-byte review."
+  },
+  "findings": [],
+  "evidencePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/find.json",
+      "bytes": 647,
+      "sha256": "0f19a9261354bf07daff27885186d447eb28ddc325c3fec5b9d01f11cbcbec1b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/listing.json",
+      "bytes": 523,
+      "sha256": "abff07ce023639a75e5bdec0c3b220ad369ecf8c79d2dd3b11de7888b59f7f23"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/listing.stdout",
+      "bytes": 353,
+      "sha256": "56a2b0898920326cb863e85220ea4de90b0025975d93d0217416789ccada409e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/manifest-capture.json",
+      "bytes": 529,
+      "sha256": "298ae2f67c29fc17756b1324078352da279fd2dea7e368eaa5990ea2b84e70a0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/manifest.stdout",
+      "bytes": 57894,
+      "sha256": "0e5746294e1d6272e5ba75c314775af3d2232de64aa8dd41bee0bc27d11de178"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/module.json",
+      "bytes": 562,
+      "sha256": "8b41f6a2a134ce073dc67427e11c6f82dc7f7f6940d69b9f2d0388334438b2ec"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/module.stdout",
+      "bytes": 1706,
+      "sha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/six-module-comparison.json",
+      "bytes": 3583,
+      "sha256": "e9555385d54f6f23b1de98ddefb8901f9ebd4c6657f1800de28cb361dcef91a6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/six-module-current-hashes.json",
+      "bytes": 2873,
+      "sha256": "bf2d1968a252236c1f1cc903b6b109cebe971bd6ab4644f797961c4f3a81993a"
+    }
+  ],
+  "storage": {
+    "hostAvailableBytes": 24934223872,
+    "requiredReserveBytes": 10737418240,
+    "allocation": "This report only, below16KiB; no fixtures/builds/source edits."
+  }
+}
