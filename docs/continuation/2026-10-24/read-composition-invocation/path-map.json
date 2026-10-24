@@ -1,0 +1,248 @@
+{
+  "schema": "lexlean-r4-read-composition-invocation-path-map/v1",
+  "retained": [
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/README.md",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/null-preparation/README.md",
+      "bytes": 1795,
+      "sha256": "2dc496387c335bae74cc96fc58a89099d7b090f74d49645956ed01caf9ee00f5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/changes.diff",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/null-preparation/changes.diff",
+      "bytes": 6810,
+      "sha256": "d43083f5fa9ecb6ace62f9663f7199c95b9653fb3ca94561a45cbb7d692ad6a7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/invocation-delta.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/null-preparation/invocation-delta.json",
+      "bytes": 2816,
+      "sha256": "542a1402d0c8c46f3fc594108c05fa9f1568305118e0839e0a2d1f5432cc54de"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/invoke-read-composed.mjs",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/null-preparation/invoke-read-composed.mjs",
+      "bytes": 8984,
+      "sha256": "d685257c9a1ffe84bc55ada6cbe59d1799a5f8453f1fd83d2bdc202afc840548"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/static-validation.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/null-preparation/static-validation.json",
+      "bytes": 1178,
+      "sha256": "c51c75861120eb2a1711d3543c679acd618f9cc6e935f8f1808e3a2c56356cc8"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/manifest.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/null-preparation/manifest.json",
+      "bytes": 3960,
+      "sha256": "5c71dbae01cc452da131f935fef5af89ae61a6f795d2f1dd599157028c8bf39b"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/README.md",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/bound-invocation/README.md",
+      "bytes": 1673,
+      "sha256": "fcccd828e62f21e78bccd2d0a95280bb007d475968dc63f549f3689d790f6bbe"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/changes.diff",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/bound-invocation/changes.diff",
+      "bytes": 3757,
+      "sha256": "301282667152ba3996e5627ffee441c6845c7c4a9858ba1c26115d7b41a0b8a5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/epoch-binding.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/bound-invocation/epoch-binding.json",
+      "bytes": 3498,
+      "sha256": "f4141eea21f5536205eb30bf9fedb45fb99f7e7d5b298c9ea719d82c22b7f1f1"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invoke-read-composed.mjs",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/bound-invocation/invoke-read-composed.mjs",
+      "bytes": 11250,
+      "sha256": "850877aff69521c4f59858c4cea5976c16cce01e9df9e1a4c2dde4771a55fddf"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/static-validation.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/bound-invocation/static-validation.json",
+      "bytes": 2158,
+      "sha256": "62474767bb682850f677daa9ff49c9acea0682b26f35c02661a6d9a0494ccf29"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/manifest.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/bound-invocation/manifest.json",
+      "bytes": 5122,
+      "sha256": "48be4e0fc2412f7b8c819fce5d037bf34f7590bdcddc2106f43042ffd64e18ee"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation-code-review.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/reviews/null-invocation-code-review.json",
+      "bytes": 5167,
+      "sha256": "8e091122895db815dcd68a02401cdb9709b0cc8085470f1f90fde40f44928ff6"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation-code-review.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/reviews/bound-invocation-code-review.json",
+      "bytes": 4232,
+      "sha256": "5e4e936bae87eac55437705861a213591050237b771c7846ab46a4c2cb303120"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/resource-plan-review.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/reviews/resource-plan-review.json",
+      "bytes": 9051,
+      "sha256": "c10dfcdc538d53307057c53a0dca222d89be6240cda912d006505619983927ac"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/pre-restart-resource-review.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/reviews/pre-restart-resource-review.json",
+      "bytes": 1703,
+      "sha256": "d687e22e6470de05867c271f8916103ea89adc10e11dd7a1e81a5a4ea2701a5c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/fresh-epoch-review.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/fresh-epoch-review.json",
+      "bytes": 8154,
+      "sha256": "b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/before.json",
+      "bytes": 12854,
+      "sha256": "bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-budget.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart-budget.json",
+      "bytes": 136,
+      "sha256": "e3bf6c904b6adcaf47991318e0d4d41f096d79a6edcd3cfb4977cff7375adf4a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-idle-before.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart-idle-before.json",
+      "bytes": 472,
+      "sha256": "b56ece4f802baf49f84a7891c5708fd8f0a260f48383f678b5437b2873c82154"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-before.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart-inspect-before.json",
+      "bytes": 8787,
+      "sha256": "8882ad9b4e9b04e2e60f58a1dd5c2910ba3157df6f95f09d08c9f28662ec722a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-memory-before.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart-memory-before.json",
+      "bytes": 368,
+      "sha256": "6176e46bccf6440e54ad7ab7f293bbfd0ce9e942dedaabc299591b7571917340"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-guest-before.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart-guest-before.json",
+      "bytes": 418,
+      "sha256": "93839779086ac110eebc7c78b7436bbd3cb2d5c20266f662e8f1999254206356"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart.json",
+      "bytes": 329,
+      "sha256": "e2b8c44c10468ae0aca35b61dd625b38f7819671dc0e96ae519a836fe8207c35"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-after.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/restart-inspect-after.json",
+      "bytes": 482,
+      "sha256": "c581fffefc596b43009aef64a971eda6f9363e3f8cc0d7b698676000d2f3fa73"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/after.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/after.json",
+      "bytes": 12852,
+      "sha256": "424c91533535df7d199b7591ae7ddfbdf25eec9c811d22b9f5d0efe905b1900d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/storage-followup.json",
+      "path": "docs/continuation/2026-10-24/read-composition-invocation/resource/storage-followup.json",
+      "bytes": 1202,
+      "sha256": "973794d670448f92a67ce37f27168194fa72bfce6519f2df176dbf6486ce6e92"
+    }
+  ],
+  "existingRepositoryReferences": [
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/manifest.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/manifest.json",
+      "bytes": 28727,
+      "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/source-bindings.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/source-bindings.json",
+      "bytes": 71638,
+      "sha256": "05990c4e189a7ea21838e80594913ef7e5b6fe65c595776e8cf7b3e096c7cb68"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/source-audit.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/source-audit.json",
+      "bytes": 87549,
+      "sha256": "45ddb75955043f737a20f5a74ed021e53618ce0e418aae4270e7895363625083"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/preservation.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/preservation.json",
+      "bytes": 8573,
+      "sha256": "c4a0cbefc2fcd060e4c4fd5e7f9f88350da88fcf29fcde685ae6a06dfa0c2916"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 21034,
+      "sha256": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 22735,
+      "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 21348,
+      "sha256": "83e2a9ea9ec84e02a4ffacf2cf851746b035495365118659761112cb6d21d5f9"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/evidence/source-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-semantic-boundary-successor-proposal.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/evidence/ordinal26-semantic-boundary-successor-proposal.json",
+      "bytes": 13676,
+      "sha256": "323165e4abadb9817351906876cb3ae96275da70139cc0f35d9b52241e4f1f36"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-semantic-boundary-successor-spec-review.json",
+      "path": "tests/fixtures/object-read-composed-dependencies/evidence/ordinal26-semantic-boundary-successor-spec-review.json",
+      "bytes": 6162,
+      "sha256": "65f69e3fa932cca644b46cd3399435265a72ff7da92713a3980be33b13925a2c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+      "bytes": 7984,
+      "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation-code-review.json",
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/reviews/invocation-code-review.json",
+      "bytes": 8561,
+      "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+    },
+    {
+      "path": "tests/fixtures/object-read-composed-dependencies/portable-bindings.json",
+      "bytes": 100717,
+      "sha256": "2e44cbab261bc36f8d61ea72b5c196ef7aa6b94644a89875335c2ace4cac5334",
+      "purpose": "Existing exact51input stage maps and94source-authority aliases; no closure duplicated"
+    }
+  ],
+  "boundary": "Original absolute paths remain byte-identical historical evidence. Direct mappings resolve this checkpoint and its source preparation only; actual SDK/compiler/VM and future output bundles are not provided. Scripts are inert provenance on other hosts and need reviewed environment-specific invocation, not blind execution."
+}

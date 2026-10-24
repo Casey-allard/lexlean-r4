@@ -1,0 +1,133 @@
+{
+  "schema": "lexlean-r4-read-composed-resource-plan-review/v1",
+  "at": "2026-10-24T10:50:30.413856+00:00",
+  "reviewer": "/root/construction_second_state_code_review",
+  "verdict": "PASS_CONDITIONAL_RESOURCE_PLAN_ONLY_NO_RESTART_PERFORMED",
+  "request": "Parent-proposed preservation and restart of only the existing idle container for source-changed Read composition candidate; fresh captures and independent epoch review before invocation.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation-code-review.json",
+      "bytes": 8561,
+      "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+      "bytes": 7984,
+      "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "e875ae94879f06fdc2fe72c5b1c406cd04755270afc87575306da8579e608125"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "c60ba34f98d592b0c616efa025777c1a7133d800407cc8511403774f1d9d0b3e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "ee7994e69bae5b0907e989ae39008ced253dafab9874c45d6402c8a54939ab86"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/memory-after.json",
+      "bytes": 356,
+      "sha256": "1be83fbb08c9f0e3b254063b8a26b0a3c71c1f259517b6f67bf284ceed831e51"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "af00962f99d8710451cc73eeebc3afb190581ec4c8a15882a5bf18f8b81268bb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "afbc86c052a62f65e34988ecc75e49606e137cdc168ad6b72c60692a7a170969"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "38ae5cc55af041e8023d937f0d918f182812fb240f84af3a5e71e632a758f117"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/host-after.json",
+      "bytes": 142,
+      "sha256": "ba4194661e8dec53a401d468b07312580d97088f425713be7024817213c0f536"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/ordinal26-negative/result.json",
+      "bytes": 888,
+      "sha256": "e922ef6c69db2c2f2a721fb1bb1193e4e476fc31e1ecea81f84459adb1ea474f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-negative-failure-review.json",
+      "bytes": 13685,
+      "sha256": "86505cb7e602cf92ce41828bcf3c7921aa32e6df3b1bba51eb0490e54a448bc4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/successor-epoch-review.json",
+      "bytes": 17633,
+      "sha256": "826c1797dc686deb363864e355b529cf7f8b0e691cd431bcda7ae51d9435bd92"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    }
+  ],
+  "historicalFacts": {
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "startedAt": "2026-10-24T05:31:03.102794321Z",
+    "guestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "config": "4294967296 bytes memory,2000000000 NanoCpus,network none,mounts[]",
+    "failedPhase": "ordinal26-negative dependency timed out in ObjectAdmittedRangeResult before intended negative",
+    "eventsAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 178,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "interpretation": "max178 violates current strict-zero eligibility; no OOM kill observed. Historical post-idle/tools/epoch receipts are recorded facts, not current readiness. Restart cannot upgrade the failed run or erase its counters."
+  },
+  "findings": [],
+  "requiredPreRestart": [
+    "Use a fresh owned evidence directory; preserve old failure/result/raw memory and epoch records byte-identically. Record explicit transition lineage from oldStartedAt to newStartedAt.",
+    "Fresh read-only capture must confirm exact existing container ID/image, running state/configuration, guest boot identity, four tool hashes, absence of concurrent SDK/compiler work and actual compiler-idle. Do not interrupt a healthy job or affect another container/process.",
+    "Record fresh host and guest free/allocated space plus paging/swap observations. Require host free >=21474836480 bytes with explicit10737418240-byte peak allowance and10737418240-byte emergency reserve; guest free >=11811160064 bytes. If any condition fails, do not restart/launch.",
+    "Preserve current observed nonzero memory.events and all historical resource identities. If fresh observations differ from pinned historical facts, record and independently classify before acting; never silently replace expected values."
+  ],
+  "permittedAction": "Only after preconditions pass, parent may restart the same existing idle container. Keep same container ID/image,5GiB VM,4GiB container,2CPU,networknone,mounts[],installed compiler and guest disk. No replacement/rebuild,VM restart,source mutation,limit change,process killing or broad cache cleanup.",
+  "requiredPostRestart": [
+    "Capture actual restart command receipt/status/timestamps; do not synthesize or preassign newStartedAt/restartCount.",
+    "Capture new container identity/config/running state and fresh StartedAt,restartCount,guest boot,four tool hashes and all six memory.events. NewStartedAt must represent a new epoch; same guest boot and exact installed artifacts/configuration are expected because only container restart is scoped.",
+    "Bracket new epoch evidence with initial inspect/boot/memory and final inspect/boot/memory observations around tool/idle/storage checks, or explicitly state narrower intervals. Require stable identity and all-zero events within this new capture.",
+    "Record fresh host/guest free and allocated space and paging allowance again. Restart is not proof that enough capacity remains. Retain at least10GiB reserve; native phase must independently meet20GiB host/11GiB guest pre gates and10GiB host/guest post gates.",
+    "Independent actual epoch review required before freezing a source-bound executable invocation. Null epoch in author preparation must remain blocked until exact reviewed raw facts are bound. Preserve earlier rejected and accepted epoch captures."
+  ],
+  "invocationBoundary": [
+    "This plan approves only the conditional resource action, not any SDK dispatch. Prior invocation hardcodes oldStartedAt and must not execute after restart.",
+    "Exact revised invocation needs separate independent CODE review binding accepted three-file source candidate manifest8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37 and all51 inputs/47 modules, unchanged config/300000ms timeout and resource limits.",
+    "Three changed proof modules mean proposed next work is not an equivalent retry of the timed-out source. Their semantic conversion,cost,axiom and kernel outcomes remainNOT_RUN.",
+    "Parent retains strict sequential acceptance: intended ordinal26-negative review,focusedpositive review,mandatory full33positive review. Launcher status alone never supplies verify or artifact acceptance.",
+    "Keep old and new event counters in separate epochs. No subtraction across restart, reset-for-success narrative, historical strict-zero waiver, limits relaxation or failure deletion."
+  ],
+  "storageObservation": {
+    "availableHostBytes": 23431544832,
+    "guestFresh": "NOT_OBSERVED_BY_REVIEWER",
+    "nativeAuthorization": "NONE; future actual measurements and all predicates required",
+    "reportCapBytes": 12288
+  },
+  "reviewActions": {
+    "SDK": 0,
+    "Docker": 0,
+    "VM": 0,
+    "restart": 0,
+    "repoEdits": 0,
+    "reportWrites": 1
+  },
+  "acceptance": "Plan only. Current failed phase remainsunaccepted; no native candidate proof or control acceptance.331/403 unchanged."
+}

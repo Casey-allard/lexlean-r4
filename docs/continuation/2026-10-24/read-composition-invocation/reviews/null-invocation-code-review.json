@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-read-composed-invocation-code-review/v1",
+  "at": "2026-10-24T10:51:15.091130+00:00",
+  "reviewer": "/root/construction_source_delivery_security",
+  "status": "PASS_STATIC_PREPARATION_ONLY_FRESH_EPOCH_NULL_NATIVE_NOT_RUN",
+  "findings": [],
+  "pin": {
+    "manifest": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/manifest.json",
+    "bytes": 3960,
+    "sha256": "5c71dbae01cc452da131f935fef5af89ae61a6f795d2f1dd599157028c8bf39b",
+    "runner": {
+      "bytes": 8984,
+      "sha256": "d685257c9a1ffe84bc55ada6cbe59d1799a5f8453f1fd83d2bdc202afc840548"
+    },
+    "sourceManifestSha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+  },
+  "independentChecks": {
+    "custody": "All5 invocation payloads and8 dependencies rehashed. All19 source candidate payloads and94 dependencies rehashed;153 actual input references checked,34 preservation pins and frozen Read manifest unchanged.",
+    "exactDiff": "Regenerated full unified diff in memory; all hunk lines exactly match changes.diff. Actual delta is candidate/stage paths, null fresh epoch guard and expected-start expression, manifest/payload/review binding and51input47module adapter. No hidden operational-body change.",
+    "unchangedBodies": "Entire official lock/check/verify/artifact-copy through catch/finally suffix is byte-identical with predecessor. Entire launch host/allocated/swap/epoch/idle/memory/guest/tools/stage/copy/source-before block is byte-identical. Recorder/storage/zero-memory and idle/capacity/tools/source functions are byte-identical. Only epoch expected StartedAt changes to the future binding field; restart0/4GiB/2CPU/networknone/mounts[] remains exact.",
+    "nullBlock": "By direct source-order inspection the literal-null check throws before fs.mkdirSync(out), environment construction, helper definitions, try/finally and every process call. Only builtin imports and pure path/argv operations precede it. Runner was neither imported nor evaluated. No output phase directory currently exists.",
+    "phaseAdapter": "mode matches source bindings; exactly one of three phase arguments allowed. Actual trusted pinned maps each contain51 unique confined destinations and47 distinct selected names. SourceKind roots resolve to candidate, repo or predecessor Read as specified; every selected input hash matches. No runtime replacement/negative rewrite observed.",
+    "officialFlow": "Genuine official lock command and success/status guard retained, then actual check guard then mandatory verify. Raw verify status/JSON captured independently of launcher status. Copy requires success0 and exact .lexlean/verified/64hex path. No fabricated lock/result or author-script evaluation.",
+    "postconditions": "Finally retains separately attempted source/lock/tools/epoch/memory/idle/guest/host guards and aggregate errors; synchronous execution has no detached job. All-zero memory gate unchanged. Empty or failed verify JSON cannot become an accepted artifact.",
+    "limits": "Config still300000ms; exact4GiB/2CPU limits and all tool identities unchanged. Host20GiB pre with10GiBpeak+10GiBreserve,guest11GiBpre andhost/guest10GiBpost unchanged. No native allocation/counter/epoch claim follows from this review."
+  },
+  "phases": [
+    {
+      "phase": "ordinal26-negative",
+      "inputCount": 51,
+      "selectedModules": 47,
+      "configSha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "phase": "ordinal26-positive",
+      "inputCount": 51,
+      "selectedModules": 47,
+      "configSha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "phase": "read33-positive",
+      "inputCount": 51,
+      "selectedModules": 47,
+      "configSha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    }
+  ],
+  "boundaries": [
+    "This packet cannot dispatch: freshEpochBinding is null. Independently reviewed live epoch capture and separately frozen/reviewed bound successor remain required; do not mutate this frozen preparation.",
+    "The future successor must bind the captured StartedAt and provenance without changing remaining guards; old max178 epoch is inadmissible. This review grants no reset/restart or execution authority.",
+    "Runner is one-phase collection, not an acceptance oracle. Parent must require intended-negative independent review before focused positive, then positive artifact review before mandatory full33.",
+    "Inherited verify failure can yield launcher0; actual verify status, diagnostic identity and artifact/postconditions determine classification. No passing launcher or source review means native acceptance.",
+    "Controlled launch environment and current source/tool/idle/epoch/storage gates remain required. No concurrent compiler work is authorized."
+  ],
+  "actions": {
+    "runnerImportsOrExecutions": 0,
+    "SDKCalls": 0,
+    "VMCalls": 0,
+    "repositoryWrites": 0,
+    "fixtureWrites": 0,
+    "reportWrites": 1
+  },
+  "storage": {
+    "availableBytes": 22645796864,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 16384
+  }
+}

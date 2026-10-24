@@ -1,0 +1,96 @@
+{
+  "schema": "lexlean-r4-read-composed-invocation-manifest/v1",
+  "status": "FROZEN_PREPARATION_ONLY_FRESH_EPOCH_NULL_ALL_NATIVE_NOT_RUN",
+  "payloads": [
+    {
+      "path": "README.md",
+      "bytes": 1795,
+      "sha256": "2dc496387c335bae74cc96fc58a89099d7b090f74d49645956ed01caf9ee00f5"
+    },
+    {
+      "path": "changes.diff",
+      "bytes": 6810,
+      "sha256": "d43083f5fa9ecb6ace62f9663f7199c95b9653fb3ca94561a45cbb7d692ad6a7"
+    },
+    {
+      "path": "invocation-delta.json",
+      "bytes": 2816,
+      "sha256": "542a1402d0c8c46f3fc594108c05fa9f1568305118e0839e0a2d1f5432cc54de"
+    },
+    {
+      "path": "invoke-read-composed.mjs",
+      "bytes": 8984,
+      "sha256": "d685257c9a1ffe84bc55ada6cbe59d1799a5f8453f1fd83d2bdc202afc840548"
+    },
+    {
+      "path": "static-validation.json",
+      "bytes": 1178,
+      "sha256": "c51c75861120eb2a1711d3543c679acd618f9cc6e935f8f1808e3a2c56356cc8"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+      "bytes": 7984,
+      "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation-code-review.json",
+      "bytes": 8561,
+      "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/manifest.json",
+      "bytes": 28727,
+      "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/source-bindings.json",
+      "bytes": 71638,
+      "sha256": "05990c4e189a7ea21838e80594913ef7e5b6fe65c595776e8cf7b3e096c7cb68"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-semantic-boundary-successor-proposal.json",
+      "bytes": 13676,
+      "sha256": "323165e4abadb9817351906876cb3ae96275da70139cc0f35d9b52241e4f1f36"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-semantic-boundary-successor-spec-review.json",
+      "bytes": 6162,
+      "sha256": "65f69e3fa932cca644b46cd3399435265a72ff7da92713a3980be33b13925a2c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/preservation.json",
+      "bytes": 8573,
+      "sha256": "c4a0cbefc2fcd060e4c4fd5e7f9f88350da88fcf29fcde685ae6a06dfa0c2916"
+    }
+  ],
+  "freshEpochBinding": null,
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies/manifest.json",
+    "bytes": 28727,
+    "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+  },
+  "sourceCode": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-code-review.json",
+    "bytes": 9222,
+    "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+  },
+  "phaseSequence": [
+    "ordinal26-negative -> independent intended-negative review",
+    "ordinal26-positive -> independent actual artifact review",
+    "read33-positive -> independent all33 artifact/axiom/kernel review"
+  ],
+  "proposedCall": {
+    "executable": "node",
+    "script": "<separately frozen and reviewed successor>/invoke-read-composed.mjs",
+    "argument": "ordinal26-negative",
+    "status": "NOT_AUTHORIZED_BY_THIS_PACKET"
+  },
+  "preservation": "Current17/snapshot17/frozenRead/sourcecandidate rehashed unchanged"
+}

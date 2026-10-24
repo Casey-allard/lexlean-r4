@@ -1,0 +1,15 @@
+{
+  "args": [
+    "docker",
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "ps",
+    "-eo",
+    "pid,comm,args"
+  ],
+  "started": "2026-10-24T10:51:11.011728+00:00",
+  "ended": "2026-10-24T10:51:15.819371+00:00",
+  "status": 0,
+  "stdout": "    PID COMMAND         COMMAND\n      1 sh              /bin/sh -c sleep infinity\n      7 sleep           sleep infinity\n  24011 ps              ps -eo pid,comm,args\n",
+  "stderr": ""
+}

@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-24T10:52:53.885447+00:00",
+  "availableBytes": 20843180032,
+  "scope": "up to12 recently modified top-level temp directories, read only; allocation is not measured growth or ownership attribution",
+  "rows": [
+    {
+      "path": "/private/tmp/deepseek-ver3150",
+      "mtime": 1792839059.4870996,
+      "status": 0,
+      "stdout": "524808\t/private/tmp/deepseek-ver3150\n",
+      "stderr": ""
+    },
+    {
+      "path": "/private/tmp/antigravity-legal-unit10",
+      "mtime": 1792838976.167375,
+      "status": 0,
+      "stdout": "269160\t/private/tmp/antigravity-legal-unit10\n",
+      "stderr": ""
+    },
+    {
+      "path": "/private/tmp/claude-501",
+      "mtime": 1792838951.8380334,
+      "status": 0,
+      "stdout": "627504\t/private/tmp/claude-501\n",
+      "stderr": ""
+    },
+    {
+      "path": "/private/tmp/deepseek-render8",
+      "mtime": 1792838636.0563908,
+      "status": 0,
+      "stdout": "753944\t/private/tmp/deepseek-render8\n",
+      "stderr": ""
+    },
+    {
+      "path": "/private/tmp/antigravity-53-saved",
+      "mtime": 1792838235.0121775,
+      "status": 0,
+      "stdout": "244\t/private/tmp/antigravity-53-saved\n",
+      "stderr": ""
+    }
+  ]
+}

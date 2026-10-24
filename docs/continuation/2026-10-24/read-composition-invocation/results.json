@@ -1,0 +1,36 @@
+{
+  "schema": "lexlean-r4-read-composition-invocation-checkpoint-status/v1",
+  "status": "REVIEWED_INVOCATION_SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "boundCodeReview": {
+    "path": "reviews/bound-invocation-code-review.json",
+    "bytes": 4232,
+    "sha256": "5e4e936bae87eac55437705861a213591050237b771c7846ab46a4c2cb303120"
+  },
+  "resourceSnapshot": {
+    "startedAt": "2026-10-24T10:51:37.465092641Z",
+    "review": "resource/fresh-epoch-review.json",
+    "meaning": "Accepted actual restart/new snapshot only, not live readiness or proof acceptance",
+    "oldStartedAt": "2026-10-24T05:31:03.102794321Z",
+    "oldMax178Preserved": true
+  },
+  "phases": {
+    "ordinal26-negative": "NOT_RUN",
+    "ordinal26-positive": "NOT_RUN",
+    "read33-positive": "NOT_RUN"
+  },
+  "currentStorage": {
+    "at": "2026-10-24T10:59:15.675Z",
+    "availableBytes": "19574321152",
+    "hostNativeFloorBytes": "21474836480",
+    "meetsHostNativeFloor": false,
+    "sourceOnlyBudgetBytes": 524288,
+    "sourceOnlyReserveBytes": "10737418240",
+    "parentLatestReported": "Approximately18.43GiB; native hold. This report separately records fresh host statfs without any guest or process calls.",
+    "scope": "Host free-space observation only; not source/SDK/guest/epoch readiness"
+  },
+  "required": "Fresh host20GiB/guest11GiB pre,10GiBpost,exact source/tools/epoch/all-zero/idle and no overlap. Parent enforces negative review then focused review then full33 review.",
+  "objectAcceptedControls": 331,
+  "objectRequiredControls": 403,
+  "proofAcceptance": "NONE_FROM_THIS_CHECKPOINT",
+  "productionAcceptance": false
+}

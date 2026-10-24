@@ -1,0 +1,41 @@
+{
+  "schema": "lexlean-r4-read-composed-invocation-static-validation/v1",
+  "status": "STATIC_ONLY_NO_RUNNER_EVALUATION",
+  "syntax": {
+    "command": [
+      "env",
+      "-u",
+      "NODE_OPTIONS",
+      "-u",
+      "NODE_PATH",
+      "node",
+      "--check",
+      "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/invoke-read-composed.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "nullGate": "Source order checked before fs.mkdirSync(out), save and all process calls; script not imported/evaluated",
+  "hashChecks": {
+    "sourcePayloads": 19,
+    "sourceAuthorities": 94,
+    "phaseInputs": 153,
+    "phases": 3,
+    "uniqueInputsPerPhase": 51,
+    "selectedPerPhase": 47,
+    "current17Snapshot17AndFrozenRead": "UNCHANGED"
+  },
+  "phaseNames": [
+    "ordinal26-negative",
+    "ordinal26-positive",
+    "read33-positive"
+  ],
+  "allNative": "NOT_RUN",
+  "resourceObservation": {
+    "freeBytes": "23701708800",
+    "reserveBytes": "10737418240",
+    "budgetBytes": 1048576
+  },
+  "processActions": "Only host node --check syntax parsing and diff; no runner evaluation or SDK/VM/container calls"
+}

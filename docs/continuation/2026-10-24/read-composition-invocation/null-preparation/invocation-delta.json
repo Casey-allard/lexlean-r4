@@ -1,0 +1,43 @@
+{
+  "schema": "lexlean-r4-read-composed-one-phase-invocation-delta/v1",
+  "status": "PREPARATION_ONLY_ALL_NATIVE_NOT_RUN",
+  "base": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation/invoke-read33.mjs",
+    "bytes": 7984,
+    "sha256": "19ba158631bf34385ef112cb7d4da39cabafe9f3411b444ce7c2b54207c8e91d"
+  },
+  "baseReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/invocation-code-review.json",
+    "bytes": 8561,
+    "sha256": "a2784f2d5fee56377e1a298b585310ea08388bcbb99ea5983496cad2c3175fb5"
+  },
+  "candidate": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/invoke-read-composed.mjs",
+    "bytes": 8984,
+    "sha256": "d685257c9a1ffe84bc55ada6cbe59d1799a5f8453f1fd83d2bdc202afc840548"
+  },
+  "changes": [
+    "One-off comment; candidateRoot points to exact sibling frozen source and previousReadRoot remains explicit for unchanged sources",
+    "Null freshEpochBinding throws before output creation or any process; future separately frozen/reviewed successor must supply captured StartedAt; invariant restart/memory/CPU/network/mount suffix unchanged",
+    "New exclusive host invocation directory and guest /tmp/r4-object-read-composed-${phase}-owned-20261024 stage names",
+    "Exact new manifest pin; payloads key; additional94 authority byte hashes and exact source CODE report hash",
+    "Bindings mode key and51-input/47-selected census; only three reviewed sourceKind root categories",
+    "Original three phase names, entrypoint and original control files/config remain unchanged"
+  ],
+  "unchangedChecks": {
+    "processRecorderToolsMemoryIdleStorage": "Byte-identical excluding sole epoch expected-start binding expression",
+    "officialLockCheckVerifyArtifactCapture": "Exact byte equality with predecessor",
+    "finallyPostguards": "Exact byte equality; independently attempts source/lock/tools/epoch/memory/idle/guest/host after errors",
+    "resourceSuffix": "restart0/4GiB/2CPU/networknone/mounts[] unchanged",
+    "limits": "300000ms config;20GiB host pre including10peak+10reserve;guest11GiB pre;host/guest10GiB post"
+  },
+  "freshEpochBinding": null,
+  "oldEpoch": "2026-10-24T05:31:03.102794321Z has max178 and is inadmissible; no reset/restart/waiver authorized",
+  "lineage": "changes.diff is exact full unified diff; no generic framework or phase loop",
+  "boundaries": [
+    "Single phase only; script does not prove preceding phase acceptance",
+    "Verify status may differ from launcher status; classify real diagnostics and artifacts",
+    "Inherited unexpected preparation failures after binding may run diagnostic finally postcaptures",
+    "No executable live-binding or author-script import supplied"
+  ]
+}

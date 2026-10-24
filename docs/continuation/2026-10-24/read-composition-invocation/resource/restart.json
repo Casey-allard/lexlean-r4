@@ -1,0 +1,12 @@
+{
+  "args": [
+    "docker",
+    "restart",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+  ],
+  "started": "2026-10-24T10:51:18.030099+00:00",
+  "ended": "2026-10-24T10:51:39.689018+00:00",
+  "status": 0,
+  "stdout": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf\n",
+  "stderr": ""
+}
