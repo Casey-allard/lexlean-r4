@@ -1,0 +1,37 @@
+{
+  "schema": "lexlean-r4-final-child-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/manifest.json",
+    "bytes": 2199,
+    "sha256": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b"
+  },
+  "files": [
+    {
+      "path": "invoke-final-child.mjs",
+      "bytes": 7735,
+      "sha256": "6cc6e0acfd54f6aac66b09aa983306cd4e92702e4e70dbd7bc621c99894490a7"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2489,
+      "sha256": "78803322c384d604d87845709dc33a829a193b2547925354f89080c126d259d2"
+    }
+  ],
+  "phaseSelectors": [
+    "final-child-false",
+    "final-child-positive"
+  ],
+  "commands": [
+    "node invoke-final-child.mjs final-child-false",
+    "Only after independent intended-negative acceptance and fresh parent gates: node invoke-final-child.mjs final-child-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectReadCompleteParent.lex.tex",
+  "inputCounts": [
+    29,
+    29
+  ],
+  "stagePattern": "/tmp/r4-object-read-final-child-${phase}-owned-20261023",
+  "preserved": "Exact existing epoch/container/tools/source/lock/idle/zero events and independent postcapture. Host20GiB launch with10GiB peak plus10GiB reserve; guest11GiB before/10GiB after;300000ms child,4GiB,2CPU. One selected phase; fresh exclusive stage/output. Artifact capture unchanged.",
+  "boundary": "Both new theorems required. No actual sourcecheck or proof run; no automatic second phase or limits change."
+}

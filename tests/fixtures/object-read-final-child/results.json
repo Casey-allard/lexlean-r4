@@ -1,0 +1,153 @@
+{
+  "schema": "lexlean-r4-final-child-results/v1",
+  "status": "PASS_LOCAL_FINAL_CHILD_AND_COMPLETE_ORIGINAL_PARENT_VISITOR",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 2199,
+    "sha256": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 29737,
+    "sha256": "d5f7f0efa903235c2a0c9e12958bc11dc5e7a1ea7f3b9f6c32b16dff6ca85fb0"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 6861,
+      "sha256": "6702cb04e7712e3bcefaeb48288a0acc8f1c72365f8ec7a7eb9ec92b106e1f8e"
+    },
+    "negative": {
+      "path": "evidence/negative/negative-native-review.json",
+      "bytes": 12862,
+      "sha256": "7d6450c98a192c28f3ce0612d4a82cc3c039d01c94af82341aada37b90ae914c"
+    },
+    "positive": {
+      "path": "evidence/positive/positive-native-review.json",
+      "bytes": 8986,
+      "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b"
+    }
+  },
+  "negative": {
+    "status": "ACCEPTED_INTENDED_NEGATIVE",
+    "checkModules": 25,
+    "verifyExit": 1,
+    "verifyElapsedMs": 15004,
+    "soleChange": "Expected final-child wireBytes 184 to 185",
+    "lock": {
+      "path": "evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5"
+    },
+    "custody": {
+      "path": "negative-custody.json",
+      "bytes": 13270,
+      "sha256": "4f5098e35538df74bc573f4fc58ab8d5ef1e4524ad92d8bda8699a3a52d54aff"
+    }
+  },
+  "positive": {
+    "phase": "final-child-positive",
+    "checkExit": 0,
+    "checkModules": 25,
+    "verifyExit": 0,
+    "success": true,
+    "diagnostics": [],
+    "verifyElapsedMs": 212087,
+    "attestationId": "952ad3ce0fa4f7f3ecbbb56bd606169bddf01e37f0469ba7e94b41d64f87fb82",
+    "buildId": "6eece657027a64748e14e513fa0f98a988f645bbb3d6c2f9b250d39705cc968f",
+    "sourceId": "91c9d71e1e68f7da1eff612ef44006c42d2b40117fe91d3382415c9081c827e1",
+    "semanticId": "b4b97a93fe5a0a565e859dab1cc1c967c9b0d7b0df56b558aa141a0795d06f81",
+    "stage": "/tmp/r4-object-read-final-child-final-child-positive-owned-20261023",
+    "lockSha256": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5",
+    "lock": {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5"
+    },
+    "artifactAudit": {
+      "files": 255,
+      "sortedCensusSha256": "a6b2654ba23659b21ae59450c5c721387f3ad5be69a328e80adf52ba60f131e2",
+      "censusEncoding": "SHA256(JSON.stringify(ordinal-path-sorted array of {path,bytes,sha256})); every retained regular file hashed, no symlinks, exact expected set.",
+      "buildOutputs": 125,
+      "oleans": 25,
+      "declarations": 822,
+      "processes": 76,
+      "kernelReplays": 25,
+      "allExpectedFilesPresentNoExtras": true,
+      "manifestLengthHashMatchesAttestation": true,
+      "allBuildOutputOleanLengthsHashesMatch": true,
+      "allProcessCopiesDeepEqualAttestation": true,
+      "allProcessExitCodesZero": true,
+      "allStdoutStderrHashesMatch": true,
+      "allProcessExecutableHashesMatchKnownTools": true,
+      "kernelReplayModuleSetExactlyBuildModules": true,
+      "allDeclarationsObservedAxioms": [],
+      "allDeclarationsPolicy": {
+        "kind": "none",
+        "axioms": []
+      },
+      "allDeclarationsResult": "ok",
+      "combinedAndPerProcessAuditNamesExactlyAttestedDeclarations": true,
+      "sourceConfigLockAndLakeWorkspaceInputsBound": true,
+      "embeddedLexiconLimit": "Official lock/build identity retained; unbundled embedded bytes not independently extracted."
+    },
+    "proofInspection": {
+      "finalChild": "Actual emitted objFinalChildState proves full original ObjVisitNode scale0 atbase64,derived child identity parentpayload offset24,S139,original backend,length96,range/limits/collect,equals Except.okS184. Proof rfl; complete authentication/decode/hash/state operations remain in call.",
+      "completeOriginalParent": "Actual emitted objCompleteParentWalk preserves original ObjVisitNode scale1/rootID/base0/emptyinitialstate/originalfourentrybackend/logicalLength96/range0..96/originallimits/collecttrue,equals full Except.okS184. RHS contains no pending visitor calls. Proof exact ObjectReadSecondChildContinuation.objSecondChildContinuation.",
+      "S184": "Exact96bytes in traversal order;visits4;wireBytes184;sortedseen IDs[third125...,parent128...,first204...,second229...].",
+      "exactSourceLiteralSequenceChecks": {
+        "finalChildListNatLiterals": 524,
+        "completeParentListNatLiterals": 388,
+        "allMatch": true
+      },
+      "actualParentVisitorCallsLeft": 1,
+      "remainingVisitorCallsRight": 0,
+      "bothNewDeclarationsObservedEmptyAxiomsAndKernelReplayed": true,
+      "noSorryOrAdmitInNewEmissions": true,
+      "conversion": "Actual kernel acceptance establishes preceding checkedoffset(32,32),finalchild-success and completeparent result definitional conversion for this concrete original input. Imported finalchild theorem is checked dependency/control, not an applied rewrite/cache or performance optimization."
+    },
+    "receiptAudit": {
+      "rawCommandReceipts": 51,
+      "allCommandsExitZeroSignalsNullNoErrors": true,
+      "actualSourceCheckAndVerifyJSONAgree": true,
+      "lockCheckVerifyOrderingAndMandatoryCompleteParentRootExact": true,
+      "successfulArtifactCopyPathTimingExact": true,
+      "actualInputs": 29,
+      "allInputsCopiesAndHostHashesMatchFrozenPositive": true,
+      "all29BeforeAfterSourcePathsHashesExact": true,
+      "genuineLockConfigWorkspaceSemanticsAfterHashMatch": true,
+      "allFrozenPayloadsDependenciesRehashed": true,
+      "fourToolsBeforeAfterAndAttestationMatch": true,
+      "epochBeforeAfter": "2026-10-23T20:22:35.225704499Z 0 4294967296 2000000000 none []",
+      "memoryBeforeAfter": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "idleBeforeAfter": true,
+      "independentPostcapturesAfterVerify": true,
+      "postcaptureErrors": [],
+      "hostBeforeAvailableBytes": "36111323136",
+      "hostAfterAvailableBytes": "36028264448",
+      "host20GiBPre10GiBPostPass": true,
+      "guestBeforeAvailableKiB": "53042620",
+      "guestAfterAvailableKiB": "53029460",
+      "guest11GiBPre10GiBPostPass": true
+    }
+  },
+  "census": {
+    "reviewerArrayDigest": "a6b2654ba23659b21ae59450c5c721387f3ad5be69a328e80adf52ba60f131e2",
+    "portableEnvelope": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 49501,
+      "sha256": "bb6695cebaf554087bad5f9dccf99d651c004f42891013a8de66f89d03e58c0f"
+    },
+    "distinction": "The reviewer ordinal-array digest equals the recomputed array digest. The portable envelope file SHA identifies different serialized bytes."
+  },
+  "accepted": "Exact final authenticated childS139→S184 and full original parent visitor equality to Result.okS184, with no child call remaining in that equation. Mandatory connected consumer accepted, not merely a helper.",
+  "limitations": "This completes only the concrete parent visitor equation. Root traversal/planning wrappers, actual rangefinish/output/statistics wrapper, manifest admission/version, whole96-bytehash comparison, ObjWholeRead/originalobjProtocolWholeBytes/allRead33 and fullObject257/Hash/PrismPM/Pages remain open. No general allinputs theorem, benchmark/cache/avoided-work claim. Historical intended184→185 negative remains separate; launcher0 is not acceptance.",
+  "history": "Frozen candidate/source-bindings preparation-time NOT_RUN records are unchanged. Current RESULTS.md/results.json report actual independently reviewed outcomes. No authoring failure occurred in this candidate. Earlier failures remain in their original fixtures."
+}

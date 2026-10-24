@@ -1,0 +1,14 @@
+{
+  "schema": "lexlean-r4-next-proposal-history-custody/v1",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/next-read-step-proposal-review-pending.json",
+    "bytes": 11317,
+    "sha256": "f9ca767364a25101b5ae1b51b4055461aceaf1d3d89092bb6ef1eaa74f8a0e33"
+  },
+  "destination": {
+    "path": "evidence/next-read-step-proposal-review-pending.json",
+    "bytes": 11317,
+    "sha256": "f9ca767364a25101b5ae1b51b4055461aceaf1d3d89092bb6ef1eaa74f8a0e33"
+  },
+  "boundary": "Historical null prerequisite remains unchanged; current accepted prerequisite is bound by the separately frozen proposal."
+}

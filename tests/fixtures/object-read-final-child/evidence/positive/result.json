@@ -1,0 +1,46 @@
+{
+  "phase": "final-child-positive",
+  "stage": "/tmp/r4-object-read-final-child-final-child-positive-owned-20261023",
+  "verifyStatus": 0,
+  "result": {
+    "artifacts": [
+      ".lexlean/verified/952ad3ce0fa4f7f3ecbbb56bd606169bddf01e37f0469ba7e94b41d64f87fb82"
+    ],
+    "attestation_id": "952ad3ce0fa4f7f3ecbbb56bd606169bddf01e37f0469ba7e94b41d64f87fb82",
+    "build_id": "6eece657027a64748e14e513fa0f98a988f645bbb3d6c2f9b250d39705cc968f",
+    "command": "verify",
+    "diagnostics": [],
+    "exit_code": 0,
+    "modules": [
+      "ObjectReadCompleteParent",
+      "ObjectReadFinalChildState",
+      "ObjectReadFirstChildContinuation",
+      "ObjectReadFirstChildState",
+      "ObjectReadParent49",
+      "ObjectReadParent49AccountingState",
+      "ObjectReadParent49AuthenticatedFetch",
+      "ObjectReadParent49ConcreteChildEntry",
+      "ObjectReadParent49FetchContext",
+      "ObjectReadParent49FetchTransport",
+      "ObjectReadParent49VisitContext",
+      "ObjectReadParent49VisitTransition",
+      "ObjectReadParent49VisitTransport",
+      "ObjectReadSecondChildContinuation",
+      "ObjectReadSecondChildState",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "semantic_id": "b4b97a93fe5a0a565e859dab1cc1c967c9b0d7b0df56b558aa141a0795d06f81",
+    "source_id": "91c9d71e1e68f7da1eff612ef44006c42d2b40117fe91d3382415c9081c827e1",
+    "spec": "lexlean/command-result/1",
+    "success": true
+  }
+}

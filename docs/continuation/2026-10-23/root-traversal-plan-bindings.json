@@ -1,0 +1,81 @@
+{
+  "schema": "lexlean-r4-plan-portable-bindings/v1",
+  "base": "19d59f84b788f1df420f9871f978f75b4ae1f673",
+  "status": "INDEPENDENT_SPEC_ACCEPTED_DESIGN_ONLY_NATIVE_NOT_RUN",
+  "aliases": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace",
+      "repositoryPath": "tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/manifest.json",
+      "bytes": 2199,
+      "sha256": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b",
+      "repositoryPath": "tests/fixtures/object-read-final-child/candidate/manifest.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/candidate-invocation-code-review.json",
+      "bytes": 6861,
+      "sha256": "6702cb04e7712e3bcefaeb48288a0acc8f1c72365f8ec7a7eb9ec92b106e1f8e",
+      "repositoryPath": "tests/fixtures/object-read-final-child/evidence/candidate-invocation-code-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/negative-native-review.json",
+      "bytes": 12862,
+      "sha256": "7d6450c98a192c28f3ce0612d4a82cc3c039d01c94af82341aada37b90ae914c",
+      "repositoryPath": "tests/fixtures/object-read-final-child/evidence/negative/negative-native-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/positive-native-review.json",
+      "bytes": 8986,
+      "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b",
+      "repositoryPath": "tests/fixtures/object-read-final-child/evidence/positive/positive-native-review.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+      "repositoryPath": "src/R4/ObjectRead.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+      "repositoryPath": "src/R4/Object.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+      "repositoryPath": "src/R4/ObjectCodec.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+      "repositoryPath": "src/R4/ObjectTypes.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
+      "repositoryPath": "tests/lexlean/ObjectReadControls.lex.tex"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/next-read-step-proposal-review-pending.json",
+      "bytes": 11317,
+      "sha256": "f9ca767364a25101b5ae1b51b4055461aceaf1d3d89092bb6ef1eaa74f8a0e33",
+      "repositoryPath": "tests/fixtures/object-read-final-child/evidence/next-read-step-proposal-review-pending.json"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/next-read-step-proposal.json",
+      "bytes": 12053,
+      "sha256": "dbb2b220dddd02e12ca223ccb331c0e731964a88264d3cbed1eeec16acb4bf39",
+      "repositoryPath": "docs/continuation/2026-10-23/next-root-traversal-proposal.json"
+    }
+  ],
+  "history": "The exact pending-prerequisite proposal remains preserved. Binding the accepted complete-parent review changed no proposed statement or proof semantics.",
+  "boundary": "Actual singleton-root consumer candidate and native tests remain NOT_RUN. Source and native result acceptance require their own subsequent reviews."
+}

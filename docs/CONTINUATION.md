@@ -24,8 +24,9 @@ independent reviewers; no external lab or another session owns this work.
 | Connected parent authenticated fetch | Actual `ObjAuthenticatedFetch` with the original four-entry backend, parent ID and scale1 equals the full expected record. Wrong-base proof rejected; positive artifact independently audited with809 empty-axiom declarations and14 kernel replays. Local fetch equation only; zero original Read33 controls discharged. | [Fetch results](../tests/fixtures/object-read-parent49-fetch/RESULTS.md). Original source-admission failure and exact two-field repair are preserved separately. |
 | Parent visitor transition | Actual original `ObjVisitNode` equals its complete continuation with the certified parent record substituted. Wrong-base proof rejected; positive independently audited:814 empty-axiom declarations and17 kernel replays. All three child calls remain; no final walked state or Read33 acceptance. | [Visitor results](../tests/fixtures/object-read-parent49-visit/RESULTS.md). |
 | Concrete parent accounting and child entry | Actual parent state is empty output, one visit, 49 wire bytes and the original parent ID in seen. The full original visitor equals its three-child continuation with this state; false expected wire 50 is rejected. Independent audit: 816 empty-axiom declarations, 19 kernel replays. | [Accounting results](../tests/fixtures/object-read-parent49-accounting/RESULTS.md). At that checkpoint, child results remained open; see the later child rows. The completed walk remains open. |
-| First actual child visit and parent continuation | The original first leaf authenticates and returns its 32-byte payload, two visits, 94 wire bytes and the sorted parent/child seen IDs. False expected wire 95 is rejected. The original parent visitor equals the continuation with both later child calls retained. Independent audit: 818 empty-axiom declarations and 21 kernel replays. | [First-child results](../tests/fixtures/object-read-first-child/RESULTS.md). At that checkpoint, two later child results remained open; see the second-child row for current progress. The completed walk and original Read33 remain open. |
-| Second actual child visit and parent continuation | Authenticated 64-byte output, three visits, 139 wire bytes and sorted parent/first/second IDs; false expected wire count 140 rejected. Mandatory original parent retains final third-child call. Independent audit: 820 empty-axiom declarations, 23 kernel replays, 204,491 ms. | [Second-child results](../tests/fixtures/object-read-second-child/RESULTS.md). Final-child design only; the complete walk, whole-data hash and Read33 remain open. |
+| First actual child visit and parent continuation | The original first leaf authenticates and returns its 32-byte payload, two visits, 94 wire bytes and the sorted parent/child seen IDs. False expected wire 95 is rejected. The original parent visitor equals the continuation with both later child calls retained. Independent audit: 818 empty-axiom declarations and 21 kernel replays. | [First-child results](../tests/fixtures/object-read-first-child/RESULTS.md). At that checkpoint, two later child results remained open; see the complete-parent row for current progress. Original Read33 remains open. |
+| Second actual child visit and parent continuation | Authenticated 64-byte output, three visits, 139 wire bytes and sorted parent/first/second IDs; false expected wire count 140 rejected. Mandatory original parent retains final third-child call. Independent audit: 820 empty-axiom declarations, 23 kernel replays, 204,491 ms. | [Second-child results](../tests/fixtures/object-read-second-child/RESULTS.md). At that checkpoint, the final third-child result remained open; see the complete-parent row. Whole-data hashing and Read33 remain open. |
+| Complete original parent visitor | Final authenticated child returns S184: 96 original output bytes, four visits, 184 wire bytes and sorted third/parent/first/second IDs. False expected wire count 185 is rejected. The full original parent equation returns Result.ok S184 with no child call remaining. Independent audit: 822 empty-axiom declarations, 25 kernel replays, 212,087 ms. | [Final-child results](../tests/fixtures/object-read-final-child/RESULTS.md). Root traversal is the next accepted design only; range finish, manifest/version, whole-data hashing and Read33 remain open. |
 | Whole Object257 digest | Original reflexivity proof timed out at 300 seconds; the 900-second experiment exhausted the 4 GiB container. No accepted whole257 result. | [300s result](continuation/2026-10-23/evidence/original257-timeout300.json), [OOM review](continuation/2026-10-23/evidence/original257-timeout900-review.json). Do not repeat equivalent limit increases. |
 | Final partial leaf and reuse | Actual leaf certificate, direct Apply, parent context and inventory-staging transport verified, with intended negative controls. | [Finite source fixture](../tests/fixtures/object257-leaf-transport/README.md), [results](../tests/fixtures/object257-leaf-transport/results.json) |
 | Terminal fold transition | Actual `ObjFoldAtoms [[0]] frontier inventory limits` transition verified for arbitrary incoming state. Certified leaf staging, depth-38 carry, same leaf ID, root scale 0, errors and empty-tail fold are retained. | Commit `0e3544a85454276394f58344dfc93772dcd4c444`; [native review](../tests/fixtures/object257-leaf-transport/evidence/terminal-fold-native-review.json): 769 empty-axiom declarations, 11 kernel replays, positive 23,010 ms; wrong-base negative rejected. |
@@ -77,8 +78,9 @@ Seven original draft files now have intentional integration changes; ten remain
 unchanged, and all seventeen original snapshots remain preserved. This counts
 source integration, not seven completed component obligations. Only Store20 is
 accepted as a complete canonical control root in this sequence. Bounded connected
-Read proofs now establish the first two child states; the final child is the next
-reviewed design. All33 Read declarations and their eventual integration remain mandatory.
+Read proofs now establish all three child states and the complete original parent
+visitor equation. The root-traversal wrapper is the next reviewed design only.
+All 33 Read declarations and their eventual integration remain mandatory.
 The [source investigation](continuation/2026-10-23/object-read-integration/timeout-investigation.json)
 and [independent specification review](continuation/2026-10-23/object-read-integration/timeout-investigation-spec-review.json)
 select only the first diagnostic: isolate exact ordinal26, `objProtocolWholeBytes`,
@@ -96,9 +98,9 @@ The source investigation follows the actual authenticated-record, range-walk,
 manifest-version and whole-data hashing chain. The parent49 decode certificate
 now passes as recorded above. The authenticated-fetch and original parent visitor
 transition also pass. Concrete parent accounting and entry into the original
-three-child continuation now pass as well. The first and second authenticated
-child results and their connected original-parent continuations now pass; the
-final child result, manifest-version and whole-data hashing remain open.
+three-child continuation now pass as well. All three authenticated child results
+and the complete original parent visitor now pass. Root traversal, range finish,
+manifest-version computation and whole-data hashing remain open.
 
 1. **Verified checkpoint: first state connected to the original atomized fold core.**
    The [two-atom continuation](../tests/fixtures/object257-nonempty-continuation-canonical/RESULTS.md)
@@ -392,15 +394,25 @@ original 64 output bytes, three visits, 139 wire bytes and sorted parent/first/s
 seen IDs. The mandatory unchanged original parent retains the final third-child call,
 checked offset and errors. Direct Apply establishes actual definitional conversion;
 no child certificate rewrite, cache or efficiency claim follows.
-The [final-child proposal](continuation/2026-10-23/next-final-child-proposal.json)
-and [independent SPEC](continuation/2026-10-23/next-final-child-spec-review.json)
-are accepted DESIGN ONLY, with candidate and native tests NOT_RUN. Prepare the
-exact third call from S139 to proposed S184 and mandatory complete original parent
-Result.ok S184. Preserve original authentication/backend/limits/errors; intended
-negative changes only expected wire count 184→185. Sorted seen must place third ID before
-parent/first/second, while output retains traversal order. [Portable bindings](continuation/2026-10-23/final-child-plan-bindings.json)
-resolve all source/review/history pins. Complete actual proof and independent
-artifact audit before any completed-walk claim; root wrapping, manifest-version,
-range finishing, whole 96-byte hashing and original Read33 remain open.
+The [final-child checkpoint](../tests/fixtures/object-read-final-child/RESULTS.md)
+now passes the final authenticated child S139 → S184 and the full original parent
+visitor returning Result.ok S184. The intended expected wire count 184→185 negative
+is rejected in 15,004 ms; positive verification took 212,087 ms. Independent audit
+checked 255 artifact files, 125 outputs, 822 empty-axiom declarations, 76 successful
+processes and 25 kernel replays. All 29 inputs and operational postguards passed.
+The actual 96 bytes retain traversal order; the seen IDs are sorted as third,
+parent, first and second. No child visitor remains on the equation's right side.
+Direct Apply establishes actual definitional conversion, not a certificate rewrite,
+cache or efficiency claim.
+
+The [root-traversal proposal](continuation/2026-10-23/next-root-traversal-proposal.json)
+and [independent SPEC](continuation/2026-10-23/next-root-traversal-spec-review.json)
+are accepted DESIGN ONLY; candidate and native tests remain NOT_RUN. The next
+minimal obligation is the exact original ObjVisitRoots call returning Result.ok
+S184, with expected wire count 184→185 as its sole negative mutation.
+[Portable bindings](continuation/2026-10-23/root-traversal-plan-bindings.json) resolve
+its source, review and preserved pending-history pins. Actual planner and root-wrapper
+acceptance, range finishing, manifest admission/version, whole 96-byte hashing and
+original Read33 remain open.
 Keep the ten remaining drafts in the completion sequence and use fresh resource
 gates before further native work.

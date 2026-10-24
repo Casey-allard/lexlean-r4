@@ -1,0 +1,107 @@
+{
+  "schema": "lexlean-r4-next-product-spec-review/v1",
+  "status": "PASS_BOUNDED_ROOT_TRAVERSAL_DESIGN_ONLY",
+  "reviewer": "/root/orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/next-read-step-proposal.json",
+    "bytes": 12053,
+    "sha256": "dbb2b220dddd02e12ca223ccb331c0e731964a88264d3cbed1eeec16acb4bf39"
+  },
+  "scope": "Independent source/specification review of one actual original singleton-root traversal consumer. No candidate or native proof was created or executed.",
+  "findings": [],
+  "checkedSourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    }
+  ],
+  "acceptedPrerequisite": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/positive-native-review.json",
+    "bytes": 8986,
+    "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b"
+  },
+  "checks": [
+    {
+      "name": "Exact source custody",
+      "result": "PASS",
+      "details": "Rehashed all 12 path/byte/SHA256 pin occurrences in the proposal, including accepted complete-parent source and native review, manifest, prior source review, negative review and preserved pending-prerequisite proposal."
+    },
+    {
+      "name": "Original ordinal26 extraction",
+      "result": "PASS",
+      "details": "Independently parsed actual ObjectReadControls declaration25 (ordinal26), objProtocolWholeBytes. Its statement canonical SHA256 matches ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d. Extracted actual backend, manifest and limits from the original ObjWholeRead arguments. Extracted whole-range record from ObjWholeAdmitted.body.scrutinee.arguments[2], preserving the actual manifest.length projection. Extracted ObjRangeAdmitted.body.else_value.else_value.else_value.branches[1].body.scrutinee. Substituted only manifest/view/limits/range and externally qualified only ObjVisitRoots and initial ObjWalkState record type. All ten proposal canonical pins match independent reconstruction."
+    },
+    {
+      "name": "Production wrapper semantics",
+      "result": "PASS_SOURCE_ONLY",
+      "details": "Original manifest length96 and singleton scale1 root with parent ID are retained. ObjVisitRoots List.cons branch invokes ObjVisitNode with root scale/id, base, complete initial state, original backend, projected length, range, limits and collect=true. Successful visitor is followed by actual ObjSpan scale1 (table entry96), ObjCheckedOffset(0,96) and recursive call on List.nil, returning Result.ok of the passed state. All production Result.error branches and checked arithmetic remain unchanged. This is the real traversal occurrence after the planner success branch, not a replacement identity helper."
+    },
+    {
+      "name": "Expected state and falsifiable negative",
+      "result": "PASS_DESIGN",
+      "details": "Expected right side is copied exactly from accepted objCompleteParentWalk.statement.right: Result.ok S184, output96/visits4/wire184 with sorted seen IDs. The proposed negative is independently reconstructed by changing only its expected wireBytes numeral184 to185. LHS, proof, output, visits, seen, types and runtime stay identical. Verification timeout/OOM/admission failure would not satisfy the intended semantic negative."
+    },
+    {
+      "name": "Supported proof and inference boundary",
+      "result": "PASS_DESIGN",
+      "details": "The parameterless theorem reference uses the same actual supported apply shape as the accepted complete-parent proof: arguments[], type_arguments[], explicit imported module/name. Empty axioms and complete Result typing must be retained. Direct Apply to objCompleteParentWalk is a falsifiable definitional-conversion experiment: wrapper reduction may force recomputation of the full visitor before matching. Parent theorem reference is not an explicit rewrite, evaluator cache or trusted state axiom. Neither success nor lower cost is assumed."
+    },
+    {
+      "name": "Integration and resource scope",
+      "result": "PASS_DESIGN",
+      "details": "Only one theorem module in two variants and entrypoint-only config adaptation are proposed. Derive complete input census from retained predecessor; do not omit prior proofs. Preserve original runtime and manifest/digest bytes, language/compiler/tool identities, 300000ms Lean child,4GiB/2CPU and existing source/epoch/lock/idle/storage/postcapture gates. Independent candidate CODE review and fresh operational admission precede sequential official negative then positive and independent artifact audit."
+    }
+  ],
+  "canonicalReconstruction": {
+    "productionCall": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+    "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+    "consumerLeft": "50ef94f4ec4d8ea0c7ab070343bb70390936f64fabd0dad84893060eec5057a0",
+    "expectedRight": "3041154148e9e90760c994ac709ecb310ff4a8e68f8ba382ce8fc10313c8d3e7",
+    "positiveStatement": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+    "negativeStatement": "4c55af58c8f6d34f0f1d258c2a892cc494961b5e45b53d8384e874ef1180e427",
+    "directApply": "e66a52ad916e00a7c0b1852f9e13a3ea16222ec61de28f3119ba6d850f31ab59"
+  },
+  "requiredImplementationChecks": [
+    "Exact current proposal/source pins, positive/negative single-leaf AST diff, complete closure/config census and empty axioms must pass independent source review.",
+    "The actual roots consumer, not merely imported complete-parent theorem or source admission, must be verified and independently audited.",
+    "Preserve all failed outcomes; do not retry with increased limits or silently broaden proof constructs when conversion fails."
+  ],
+  "remainingObligations": [
+    "Outer bounds/returnedBytes checks and ObjPlanRoots success are not discharged merely by the inner ObjVisitRoots equation.",
+    "Original manifest admission and backend key validation remain open.",
+    "ObjRangeFinish, exact returned length and actual ObjManifestVersion remain open.",
+    "Whole96 ObjHashBytes and original manifest digest comparison remain open.",
+    "Original ordinal26 full ObjWholeRead/projection, all Read33 controls and full Object/Hash/model/PrismPM/Pages acceptance remain open."
+  ],
+  "testStatus": "All proposed structural and native tests NOT_RUN. Review reconstructed ASTs and inspected production definitions only; no kernel execution or new proof acceptance.",
+  "mutations": "Only this external review report; no repository, candidate, SDK, VM or other-lab changes."
+}

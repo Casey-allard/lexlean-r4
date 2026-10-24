@@ -1,0 +1,59 @@
+{
+  "schema": "lexlean-r4-final-child-manifest/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "negative/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+      "bytes": 36529,
+      "sha256": "fefb2a588b64300706a5abced576f9f1f036aae8bfaa9ccd252dba4bfbbe3828"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+      "bytes": 36529,
+      "sha256": "55aba13d8efdf27155339791bfa40f3d9cd1103e7915d353668c718d0f14e804"
+    },
+    {
+      "path": "common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    },
+    {
+      "path": "lexlean.toml",
+      "bytes": 688,
+      "sha256": "af7a2ee15b23c64c965e04484fb128b76702c2104a0c01dd0e84ecaa76e5c8c1"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 22874,
+      "sha256": "9de0a4440444dd2f6bdf38335efb1e9419eabe9eaa5085c4b2bc25394c51d91a"
+    },
+    {
+      "path": "structural-audit.json",
+      "bytes": 5521,
+      "sha256": "665cb900e9442a69215573bca445e86a01c6b831bab983b30e3e33dd1fa2f1be"
+    },
+    {
+      "path": "README.md",
+      "bytes": 596,
+      "sha256": "894a1b70ecad337a7ad7bc77006f10ba642f2453871d85213e4558e3224e8206"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-final-child-proposal.json",
+      "bytes": 13924,
+      "sha256": "daaed71c19a50f806096674c6cf477eee3eb24e853b37844689b9a5fb2f9bb2e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-final-child-spec-review.json",
+      "bytes": 9464,
+      "sha256": "97b5b445288717429d82be8f8ecfb9fb14cab6f38f8d2faff9cc0b61a2fabbdc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/evidence/positive/positive-native-review.json",
+      "bytes": 8835,
+      "sha256": "badb2d9bf1cea162fd4b7de091e014927000cc773375d614bec4bf771dba0567"
+    }
+  ],
+  "boundary": "Independent exact source/invocation CODE review and fresh resource admission precede native execution."
+}

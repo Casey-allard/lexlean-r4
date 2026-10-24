@@ -1,0 +1,195 @@
+{
+  "schema": "lexlean-r4/conditional-next-product-proposal/1",
+  "status": "DESIGN_ONLY_REVIEW_PENDING",
+  "task": "Original protocol96 singleton-root traversal wrapper",
+  "nativeTests": "NOT_RUN",
+  "prerequisite": {
+    "completeParentCandidate": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    },
+    "candidateManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/manifest.json",
+      "bytes": 2199,
+      "sha256": "ac47aa03cf4e4522df9754b9f5402eb5b26f49df86be1c0937eccc45f639c77b"
+    },
+    "sourceInvocationReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/candidate-invocation-code-review.json",
+      "bytes": 6861,
+      "sha256": "6702cb04e7712e3bcefaeb48288a0acc8f1c72365f8ec7a7eb9ec92b106e1f8e"
+    },
+    "negativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/negative-native-review.json",
+      "bytes": 12862,
+      "sha256": "7d6450c98a192c28f3ce0612d4a82cc3c039d01c94af82341aada37b90ae914c"
+    },
+    "positiveNativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/positive-native-review.json",
+      "bytes": 8986,
+      "sha256": "2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b"
+    },
+    "positiveAttestation": "952ad3ce0fa4f7f3ecbbb56bd606169bddf01e37f0469ba7e94b41d64f87fb82",
+    "state": "The actual complete-parent positive result is independently accepted locally. This new root-wrapper proposal still requires independent SPEC review and all its tests remain NOT_RUN."
+  },
+  "objective": "Prove the exact ObjVisitRoots occurrence used by the original protocol96 nonempty range read returns the complete S184 state, after the complete original parent visitor proof is independently accepted.",
+  "selection": {
+    "whySmallest": "One actual production consumer theorem connects the completed parent visitor to the singleton root-list wrapper. It checks the existing root span, checked offset, and empty-root continuation without claiming manifest admission, version hashing, or whole-object hashing.",
+    "equation": "ObjVisitRoots(manifest96.roots, 0, emptyWalk, originalBackend, manifest96.length, {start=0, stop=manifest96.length}, originalLimits, true) = Result.ok S184",
+    "proof": {
+      "arguments": [],
+      "kind": "apply",
+      "theorem": {
+        "module": "ObjectReadCompleteParent",
+        "name": "objCompleteParentWalk"
+      },
+      "type_arguments": []
+    },
+    "variants": "One logical theorem module with positive and negative source variants. The negative changes only expected wireBytes from 184 to 185; proof, actual production left side, output, visits, seen IDs, imports and empty axioms remain identical.",
+    "notSelected": "Do not jump directly to ObjRangeFinish or ObjWholeRead: range finish actually computes ObjManifestVersion, and whole read actually computes ObjHashBytes and compares the original manifest digest. Neither obligation is discharged by the visitor proof."
+  },
+  "exactExtraction": {
+    "control": {
+      "ordinal": 26,
+      "name": "objProtocolWholeBytes",
+      "statementSha256": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d"
+    },
+    "originalView": "ObjectReadControls.declarations[25].statement.left.scrutinee.arguments[0]",
+    "manifest": "ObjectReadControls.declarations[25].statement.left.scrutinee.arguments[1]",
+    "limits": "ObjectReadControls.declarations[25].statement.left.scrutinee.arguments[2]",
+    "range": "ObjWholeAdmitted body: unique call to ObjRangeAdmitted, arguments[2]; substitute manifest with the exact original manifest AST, retaining the length projection.",
+    "call": "ObjRangeAdmitted.body.else_value.else_value.else_value.branches[1].body.scrutinee",
+    "substitutions": {
+      "manifest": "exact original manifest AST",
+      "view": "exact original four-entry backend AST",
+      "limits": "exact original limits AST",
+      "range": "exact concretely substituted whole-range record"
+    },
+    "externalQualificationOnly": [
+      "Set the extracted local ObjVisitRoots function.module to R4.ObjectRead.",
+      "Set the extracted initial ObjWalkState record type.module to R4.ObjectRead."
+    ],
+    "right": "Exact ObjectReadCompleteParent.objCompleteParentWalk.statement.right, including output96, visits4, wire184, and sorted seen IDs [third,parent,first,second].",
+    "canonicalPins": {
+      "productionCall": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+      "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+      "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+      "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+      "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+      "consumerLeft": "50ef94f4ec4d8ea0c7ab070343bb70390936f64fabd0dad84893060eec5057a0",
+      "expectedRight": "3041154148e9e90760c994ac709ecb310ff4a8e68f8ba382ce8fc10313c8d3e7",
+      "positiveStatement": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+      "negativeStatement": "4c55af58c8f6d34f0f1d258c2a892cc494961b5e45b53d8384e874ef1180e427",
+      "directApply": "e66a52ad916e00a7c0b1852f9e13a3ea16222ec61de28f3119ba6d850f31ab59"
+    }
+  },
+  "productionConnection": {
+    "originalOrder": [
+      "ObjWholeRead admits the original manifest with ObjAdmitManifest and validates backend keys.",
+      "ObjWholeAdmitted calls ObjRangeAdmitted with start0 and stop manifest.length.",
+      "ObjRangeAdmitted validates bounds and returnedBytes, then invokes ObjPlanRoots.",
+      "The proposed theorem addresses exactly the subsequent ObjVisitRoots call.",
+      "ObjRangeFinish verifies returned byte length and computes the actual manifest version.",
+      "ObjWholeAdmitted hashes the returned96 bytes and compares the exact original digest.",
+      "The original ordinal26 then projects bytes from the actual Result."
+    ],
+    "wrapperReduction": [
+      "The exact original roots projection evaluates to one scale1 parent root.",
+      "ObjVisitRoots calls the exact original parent visitor, with projected manifest length/range endpoints definitionally equal to the existing literal96 inputs.",
+      "On successful parent result, ObjSpan on scale1 and ObjCheckedOffset from base0 determine stop96.",
+      "The empty remaining root list returns the passed complete state. All existing error branches remain in production definitions."
+    ],
+    "unproved": "These are source-derived reduction obligations, not an accepted new proof. The direct Apply can still fail conversion or exceed the unchanged compiler limit."
+  },
+  "supportedProof": {
+    "constructor": "apply",
+    "precedent": {
+      "arguments": [],
+      "kind": "apply",
+      "theorem": {
+        "module": "ObjectReadSecondChildContinuation",
+        "name": "objSecondChildContinuation"
+      },
+      "type_arguments": []
+    },
+    "emptyAxioms": [],
+    "noNewRuntime": "No runtime definition, source bytes, expected digest, language feature, compiler resource limit, or model acceptance is changed.",
+    "noCaching": "The accepted parent theorem is an explicit checked theorem reference. Apply is not a rewrite or cache; matching may recompute the original visitor. No cost reduction is established.",
+    "fallback": "If the minimal direct Apply is rejected or times out, preserve the exact outcome and investigate it before designing any transport. No automatic larger limit, symbolic generalization, or proof-constructor expansion is authorized."
+  },
+  "proposedTests": [
+    {
+      "phase": "roots-false",
+      "expected": "Official source check succeeds. Actual verification of the root-wrapper theorem rejects the wrong expected wire185 equation, ideally LLV7002 type mismatch. Timeout/OOM/admission failure is not the intended semantic negative.",
+      "status": "NOT_RUN"
+    },
+    {
+      "phase": "roots-positive",
+      "expected": "Official source check and verification succeed for exact Result.ok S184, followed by independent artifact/kernel/empty-axiom and source/resource audit.",
+      "status": "NOT_RUN"
+    },
+    {
+      "phase": "structural",
+      "expected": "Compare exact extraction paths, qualified-only local references, all source closure identities, positive/negative single-leaf diff, canonical semantic JSON, and original manifest/digest/backend identities before native execution.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "delivery": {
+    "candidate": "Not authored. After prerequisite and independent SPEC acceptance, one theorem module/two source variants plus a root-only config adaptation can reuse the existing complete-parent source closure by repository-relative pins.",
+    "count": "Derive the exact stage census from the frozen predecessor, excluding its old config and adding this theorem plus new config; do not guess or silently omit dependencies.",
+    "native": "Parent only, one phase at a time, unchanged 300000ms Lean child / 4GiB / 2CPU and all exact source, tools, epoch, lock, storage, idle and independent postcapture guards.",
+    "locks": "Generated only by the official compiler later; none is manufactured here."
+  },
+  "remaining": [
+    "ObjPlanRoots and outer range validation connection",
+    "Original manifest admission and backend key validation",
+    "ObjRangeFinish with actual ObjManifestVersion and exact complete Result",
+    "Whole96-byte ObjHashBytes plus original digest comparison",
+    "Original ordinal26 complete ObjWholeRead projected-bytes theorem",
+    "All Read33 controls and remaining full component/model/PrismPM/Pages acceptance"
+  ],
+  "sources": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    }
+  ],
+  "resourceObservation": {
+    "hostAvailableBytes": "35415068672",
+    "minimumHostReserveBytes": "10737418240",
+    "newProposalLimitBytes": 20480,
+    "noNativeOrRepositoryChanges": true
+  },
+  "pendingPrerequisiteHistory": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-final-child/next-read-step-proposal-review-pending.json",
+    "bytes": 11317,
+    "sha256": "f9ca767364a25101b5ae1b51b4055461aceaf1d3d89092bb6ef1eaa74f8a0e33",
+    "semanticChanges": "None; only actual prerequisite bindings and this history pointer are added."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "lexlean-r4-delivery-security-review/v1",
+  "status": "PASS_BOUNDED_EXACT_STAGED_DELIVERY_SECURITY",
+  "reviewer": "/root/orchestration_design_review",
+  "independence": "Reviewer authored the earlier final-child and next-root-traversal SPEC reviews. This is a separate source/evidence delivery security audit; independent CODE delivery review remains required for the functional and authoring-overlap gate.",
+  "base": "19d59f84b788f1df420f9871f978f75b4ae1f673",
+  "branch": "codex/object-final-child-proof",
+  "manifest": {
+    "path": "tests/fixtures/object-read-final-child/delivery-manifest.json",
+    "bytes": 18812,
+    "sha256": "1cedf361a86c9296a275bbef2809ab82782ca5a4aa338d014386ff8e5f40ffa7"
+  },
+  "scope": {
+    "stagedFiles": 89,
+    "payloadFiles": 88,
+    "payloadBytes": 577428
+  },
+  "findings": [],
+  "checks": [
+    {
+      "name": "Exact staged census and identity",
+      "result": "PASS",
+      "details": "All88 payloads plus manifest exactly match staged paths; each staged byte equals working copy and declared hash/length. Payloads are mode100644, UTF8 round-trip and NUL-free; git diff --cached --check passes. Five paths outside fixture are two plan documents and three portable next-step plan/binding records. No runtime, canonical control, operational CI or production lock changes."
+    },
+    {
+      "name": "Bounded security and path inspection",
+      "result": "PASS_BOUNDED",
+      "details": "Manifest paths are relative without parent escapes. No binaries, private-key headers, common GitHub credential patterns or AWS access-key identifiers detected. Relative Markdown links resolve. This bounded scan/source review is not a blanket security or secret-free certification."
+    },
+    {
+      "name": "Archived one-off invocation",
+      "result": "PASS",
+      "details": "Compared complete invocation against prior reviewed second-child script. Changes are description, phase/stage names, exact candidate manifest identity, input count27→29 and entrypoint ObjectReadCompleteParent. Resource/tool/epoch/lock/source/idle checks and independent postcapture logic unchanged. No network acquisition, installed SDK substitute, credential handling, production binding fabrication or gate weakening added. Script is inert historical evidence, not invoked by this review or installed in runtime/CI."
+    },
+    {
+      "name": "Portable identities and preservation",
+      "result": "PASS",
+      "details": "Twelve root-traversal aliases rehashed against portable and original bytes; both29-input phase maps resolve. Canonical full33, six merged sources, ten other drafts and seventeen original pending snapshots match their pins. All166 current custody/result pin occurrences resolve and rehash. Frozen preparation-time NOT_RUN records remain distinct from additive actual outcomes."
+    },
+    {
+      "name": "Actual result integrity",
+      "result": "PASS_READ_ONLY_RETAINED_EVIDENCE",
+      "details": "Rehashed255 local artifact files; exact array digest a6b2654ba23659b21ae59450c5c721387f3ad5be69a328e80adf52ba60f131e2 matches portable census. Actual attestation952ad3ce0fa4f7f3ecbbb56bd606169bddf01e37f0469ba7e94b41d64f87fb82 contains822 declarations with observed[], policy none/axioms[] and result ok, and76 processes with exit_code0. Raw negative check0/verify1 carries LLV7002; positive check0/verify0 has no diagnostics. Both postcapture error arrays empty. Both development locks are byte-identical to official lock-bytes stdout and SHA5fd3e7d2f8fcfc3e6bcd8aa750bd2d1d3c79103ebe13c6896d33e4da5028b4c5. Separate accepted native audit2382f75838e0f394b8a3859195201c29eb7137f9c2e6437cb769e9cf4afdd65b establishes full operational/kernel review; no SDK/kernel rerun here."
+    },
+    {
+      "name": "Control and acceptance boundary",
+      "result": "PASS",
+      "details": "Whole semantic AST comparison differs only expected wireBytes184→185 at declarations/0/statement/right/arguments/0/fields/2/value/value. Positive claims are limited to final child and complete original parent visitor Result.okS184, with no remaining child call on RHS. No certificate rewrite/cache or efficiency claim. Root-traversal proposal/SPEC explicitly DESIGN ONLY and all new tests NOT_RUN; root wrapper/planner, range finishing, manifest admission/version, whole96 hash/digest, original Read33 and full Object/Hash/PrismPM/Pages remain open."
+    }
+  ],
+  "limitations": [
+    "Full compiled artifact remains local and censused; selected text and derived attestation summary are portable. Summary explicitly identifies that it is not the full attestation. No claim all binary/raw data is in Git.",
+    "Own SPEC authorship disclosed; independent CODE review required. Native claims here are checked against retained bytes, not a new execution or current resource authorization.",
+    "An initial read-only audit expected an artifactRoot field from the prior census schema; this envelope uses sourceArtifact. Corrected reader then rehashed all255 files successfully. No source or evidence defect was inferred."
+  ],
+  "storage": {
+    "hostAvailableKiB": 37238764,
+    "observation": "Fresh read-only audit observation; no compute authorization inferred.",
+    "nativeOrBuildStarted": false
+  },
+  "mutations": "Only this external review report. Repository/index/frozen sources/SDK/VM/other-lab files unchanged."
+}
