@@ -1,0 +1,13 @@
+{
+  "schema": "lexlean-r4-contextual-finish-code-review-custody/v1",
+  "status": "SOURCE_INVOCATION_CODE_PASS_NATIVE_OUTCOMES_NOT_CLAIMED",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/candidate-invocation-code-review.json",
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/candidate-invocation-code-review.json",
+      "bytes": 6467,
+      "sha256": "de8322472edd926cc994a4e4ca99d7b6913b4cbc2f2986a5fb8cc63e9fd6353e"
+    }
+  ],
+  "boundary": "No active native outputs inspected or copied. Source review only; all native outcome claims await actual independent audits."
+}

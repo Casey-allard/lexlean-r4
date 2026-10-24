@@ -1,0 +1,215 @@
+{
+  "schema": "lexlean-r4-contextual-finish-negative-custody/v1",
+  "status": "ACCEPTED_INTENDED_FULL_CONSUMER_WRONG_STAT_NEGATIVE_ONLY",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/check.json",
+        "bytes": 976,
+        "sha256": "6804679782d543f7464e96ec001c18102d4022e883f671afb59e21c87e4cd274"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/check.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/verify.json",
+        "bytes": 4160,
+        "sha256": "8f0bb10b117ab29846546d65a713678bbc2d49254e6cee833fa68e3a1b8732e8"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/verify.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/result.json",
+        "bytes": 4024,
+        "sha256": "258aa89ead5df91d866c7880bfc4f38efb3101660615bdb4ec1d56c8c9fc2599"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/result.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/expected-inputs.json",
+        "bytes": 6545,
+        "sha256": "bc4b27b900fcd3e75d07dabce2725bff7e1e882cd9b3f497414e7385a8cb0a9f"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/expected-inputs.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/source-before.json",
+        "bytes": 5163,
+        "sha256": "c0be3ff8355cc3a36e56db67bb949e4b64aa4175ca231b38bc447e95f162cfe6"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/source-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/source-after.json",
+        "bytes": 5163,
+        "sha256": "b917270675630014276cb32cb29cb69c10c60b2a245969188200523a602fcea8"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/source-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/lock.json",
+        "bytes": 548,
+        "sha256": "1bcf5f84abe9fe962d58b654b511e8f49182288f7c5a8a19cb1befcf2bf4ea28"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/lock.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/lock-bytes.json",
+        "bytes": 2064,
+        "sha256": "73897c365e1d5d3bb39ca80f01fe1664d3844fea7aff96b4a628c9e365e17eb4"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/lock-bytes.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/lock-after.json",
+        "bytes": 507,
+        "sha256": "c43d76215ae937c6bf443e845d2f398341c2c60634e8bf0e84325005952a2df0"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/lock-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "c774512c4d8b7ab2ce36250d3dc685b493e2f9db93e2cac8eb7ef860a8863a98"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/tools-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/tools-after.json",
+        "bytes": 1005,
+        "sha256": "15c39bf2e0ac0bdfeaa5c342ea68076f942677a1da262f693db1e865cd8a9dfc"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/tools-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "37a40d47594f6c23fed4644db6988ffcf3aa95eb8bfc848c075544f0cf11258f"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/epoch-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "0eef3bbc67fad4223fc2a8a7a2194e65c67e86447fca59c06931eedcab73a93e"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/epoch-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "2f4decbf996a1bca074968a4449bb88dde36266b48e56ef6221db96e87d465bd"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/memory-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "c60773ebe9d3322cd4ec6abfd8f68bc2b9271f868c2ba6f1b1bcdc33eca96942"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/memory-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "50eaf6b7b49c022d22a73653cc44c33282910b7cb2420e66681b99cf03cfaf1a"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/idle-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "bec1adf4ee363d7c3e06c2ae58ae3d53fb33caef4d8c751930c08449f8461724"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/idle-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/host-before.json",
+        "bytes": 152,
+        "sha256": "1eddd7cecffdc0eb0807b4232548f7c5d29edaf4073aaa7a42cb6c78c85aea29"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/host-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/host-after.json",
+        "bytes": 142,
+        "sha256": "db2bbe524f838388111f374798b386d1e51ffc25417072993320253e3aa9cfb4"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/host-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "d6073e7c50fd66c21552bf898b3d08fe13023c25edff96631aca579ab5ba4240"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/guest-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "b425948bdce8e768a45f06252a96b74db42aa30616b1ca1735ec262dec0d769e"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/guest-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/postcapture-errors.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/negative-native-review.json",
+        "bytes": 11220,
+        "sha256": "f3eb6da7202597ffde8d43b495519ac735f4f71d4947fdd837bddcf6665dabe0"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/negative-native-review.json"
+    }
+  ],
+  "derivedLock": {
+    "sourceReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-false/lock-bytes.json",
+      "bytes": 2064,
+      "sha256": "73897c365e1d5d3bb39ca80f01fe1664d3844fea7aff96b4a628c9e365e17eb4"
+    },
+    "operation": "Exact captured stdout bytes",
+    "destination": "tests/fixtures/object-contextual-range-finish/evidence/negative/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83"
+  },
+  "outcome": {
+    "inputs": 18,
+    "suppliedSourceFiles": 14,
+    "selectedAdmittedModules": 12,
+    "checkExit": 0,
+    "verifyExit": 1,
+    "diagnostic": "LLV7002",
+    "classification": "Actual full consumer expectedwire185 mismatch with accepted shared context/transport dependencies",
+    "aggregateVerifyElapsedMs": 62057,
+    "artifact": null,
+    "positive": "NOT_INSPECTED_OR_CLAIMED"
+  },
+  "omissions": "All original raw receipts preserved locally. Per-input staging copies, directory/allocation/swap receipts omitted from portable selection; independent review retains complete census.",
+  "boundary": "No active positive outputs read/copied. Frozen source and preparation records unchanged. Native negative acceptance is separate from positive finish result."
+}

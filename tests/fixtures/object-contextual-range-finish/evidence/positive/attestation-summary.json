@@ -1,0 +1,39 @@
+{
+  "schema": "lexlean-r4-derived-attestation-summary/v1",
+  "derived": true,
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/artifact/attestation.json",
+    "bytes": 163943,
+    "sha256": "578c69fd72daf56e368666b30e2cafc741bbe451362942841b4bb113f74a0a9d"
+  },
+  "actualOutcome": {
+    "attestationId": "06cb293e78e1cadd07b7140caae4e52f67e8b991e8dbb591862fa4c5deab0b60",
+    "buildId": "e7e9d914c10fda49211f5c864776e08ac8fd748619b6d53c6847a2a97adc11b2",
+    "sourceId": "9ae35841825924c9e9680506c149f8559524a3f8c410732b8f9db0cd5b4edf0d",
+    "semanticId": "070998cbfe16cdc2aa4733298e324c1a2e9c20cc0102f95fcd43a835d99e2f58",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T02:08:45.640Z",
+    "verifyEnded": "2026-10-24T02:09:35.285Z",
+    "aggregateVerifyElapsedMs": 49645,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "equation": "Original ObjRangeFinish(S184, originalManifest96, originalWholeRange, originalLimits)=Result.ok complete ObjRangeVerified: original96bytes, exactversion, originalrange, emptyremainder, visits4/distinct4/wire184."
+  },
+  "counts": {
+    "inputs": 18,
+    "suppliedSourceModules": 14,
+    "admittedModules": 12,
+    "rawCommandReceipts": 40,
+    "artifactFiles": 125,
+    "buildOutputs": 60,
+    "oleans": 12,
+    "emptyAxiomDeclarations": 776,
+    "successfulProcesses": 37,
+    "kernelReplays": 12,
+    "auditProcesses": 12,
+    "theoremStatementListNatLiterals": 404
+  },
+  "boundary": "Derived from exact independent review; full attestation and compiled artifact remain local, not duplicated."
+}

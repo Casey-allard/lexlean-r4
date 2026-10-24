@@ -1,0 +1,51 @@
+{
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-concrete-range-finish/evidence/invoke-concrete-range-finish.mjs",
+    "bytes": 7722,
+    "sha256": "73b0861c8b6530d17f28a4fec67e7b2805fba569f41c04463112f3655fd4c049"
+  },
+  "substitutions": [
+    {
+      "from": "// One-off official-compiler invocation for one actual concrete range-finish Result; no Read33 acceptance.",
+      "to": "// One-off official-compiler invocation for one actual contextual range-finish Result; no Read33 acceptance.",
+      "count": 1
+    },
+    {
+      "from": "['finish-false','finish-positive']",
+      "to": "['contextual-false','contextual-positive']",
+      "count": 1
+    },
+    {
+      "from": "select exactly one concrete range-finish phase",
+      "to": "select exactly one contextual range-finish phase",
+      "count": 1
+    },
+    {
+      "from": "/tmp/r4-object-concrete-range-finish-${phase}-owned-20261023",
+      "to": "/tmp/r4-object-contextual-range-finish-${phase}-owned-20261023",
+      "count": 1
+    },
+    {
+      "from": "e110c68f06126dcdd61e285f8267682a3a0ead5a36aef139d167a14c632fb550",
+      "to": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486",
+      "count": 1
+    },
+    {
+      "from": "phase==='finish-false'",
+      "to": "phase==='contextual-false'",
+      "count": 1
+    },
+    {
+      "from": "inputs.length!==15||new Set(inputs.map(x=>x.destination)).size!==15",
+      "to": "inputs.length!==18||new Set(inputs.map(x=>x.destination)).size!==18",
+      "count": 1
+    },
+    {
+      "from": "tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "to": "tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+      "count": 1
+    }
+  ],
+  "unchanged": "All other guard, source/lock, tool/epoch/storage/idle/memory and independent postcapture bytes unchanged.",
+  "native": "NOT_RUN"
+}

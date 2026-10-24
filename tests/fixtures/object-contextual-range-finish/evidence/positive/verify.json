@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-contextual-range-finish-contextual-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "verify",
+    "tests/lexlean/ObjectContextualRangeFinish.lex.tex"
+  ],
+  "started": "2026-10-24T02:08:45.640Z",
+  "ended": "2026-10-24T02:09:35.285Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[\".lexlean/verified/06cb293e78e1cadd07b7140caae4e52f67e8b991e8dbb591862fa4c5deab0b60\"],\"attestation_id\":\"06cb293e78e1cadd07b7140caae4e52f67e8b991e8dbb591862fa4c5deab0b60\",\"build_id\":\"e7e9d914c10fda49211f5c864776e08ac8fd748619b6d53c6847a2a97adc11b2\",\"command\":\"verify\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectContextualFinishContext\",\"ObjectContextualFinishTransport\",\"ObjectContextualRangeFinish\",\"ObjectManifestVersion\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"070998cbfe16cdc2aa4733298e324c1a2e9c20cc0102f95fcd43a835d99e2f58\",\"source_id\":\"9ae35841825924c9e9680506c149f8559524a3f8c410732b8f9db0cd5b4edf0d\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

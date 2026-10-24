@@ -1,0 +1,56 @@
+{
+  "schema": "lexlean-r4-contextual-finish-invocation/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/manifest.json",
+    "bytes": 4531,
+    "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+  },
+  "files": [
+    {
+      "path": "invoke-contextual-range-finish.mjs",
+      "bytes": 7742,
+      "sha256": "808ae6ea278ecd74be052fa92d82c16d94c9a8a7bdbf20e487db3a12d276dc36"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 1876,
+      "sha256": "036a6fc1c3f89d35d5671a70b1ae4a002e4d21f8d3b202cf4af91a9286209e3f"
+    }
+  ],
+  "selectors": [
+    "contextual-false",
+    "contextual-positive"
+  ],
+  "commands": [
+    "node invoke-contextual-range-finish.mjs contextual-false",
+    "After independent intended-negative review and fresh gates: node invoke-contextual-range-finish.mjs contextual-positive"
+  ],
+  "mandatoryTarget": "tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+  "inputsPerPhase": 18,
+  "selection": {
+    "suppliedSourceFiles": 14,
+    "expectedReachableModules": 12,
+    "selected": [
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [
+      "R4.Object",
+      "R4.ObjectStore"
+    ],
+    "boundary": "Source reachability only; official check must establish actual admission."
+  },
+  "stagePattern": "/tmp/r4-object-contextual-range-finish-${phase}-owned-20261023",
+  "boundary": "No native dispatch. Shared positive dependencies must pass; negative acceptance requires actual consumer wrong-stat rejection, not dependency failure."
+}

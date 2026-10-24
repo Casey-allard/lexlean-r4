@@ -1,0 +1,456 @@
+{
+  "schema": "lexlean-r4-contextual-finish-delivery-manifest/v1",
+  "status": "FROZEN_PENDING_EXACT_DELIVERY_CODE_AND_SECURITY_REVIEW",
+  "baseCommit": "5deb28ac2d89b3f4e30dbe4bea3ddf0b1a777676",
+  "scope": "Actual complete original contextual ObjRangeFinish Result and intended full-consumer negative, exact selected evidence and complete artifact census. Next successful admitted-range consumer is source design only; no native test or general component acceptance.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 43704,
+      "sha256": "51f87cc688fda260478c6fe56ba56d5d41fc0f91e969d8341041f09b49e1f578"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/admitted-range-result-plan-bindings.json",
+      "bytes": 7770,
+      "sha256": "a5514929c2bce5c074b04c9bf8044f593f52bb2a4b0c4858a10d0f8f5ac96f4d"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-admitted-range-result-proposal.json",
+      "bytes": 9485,
+      "sha256": "28a5bcc14f4c60c0993cb1302217574222eacfd24447c4142580122b18e27dc7"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-admitted-range-result-spec-review.json",
+      "bytes": 5066,
+      "sha256": "575ddf73f747cd28fcb822a3f444f438f0be07246bf8f78f55925601494c4e01"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 33088,
+      "sha256": "43379fff90579b6d9fbcdf94288d27f284f6b5de0fb9de40dda32411a6b0e508"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/README.md",
+      "bytes": 946,
+      "sha256": "5569b667f7361d68c134ccbb3adc2c0e4d4e2aa622a24a6cfa3c56bb46f5029c"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/RESULTS.md",
+      "bytes": 2707,
+      "sha256": "59df832b80a6236d7a66c69b17de1f863c92485f0b78de921384892123a2727d"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/README.md",
+      "bytes": 706,
+      "sha256": "6b226b4b24e404630342e69ba4892a46131fccec7c2dca5a2660ff10a54ae8ef"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/candidate.json",
+      "bytes": 15641,
+      "sha256": "2aa6533761a8d74177ef3c90a64d928abe827bf3e46be641e6a8b04fbe85f522"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishContext.lex.tex",
+      "bytes": 62202,
+      "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+      "bytes": 1110,
+      "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/lexlean.toml",
+      "bytes": 691,
+      "sha256": "93630436eaa82f38c5e3d282f527c83051b1a5eaf0a341b8a37a9d43e8055c8c"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/manifest.json",
+      "bytes": 4531,
+      "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/negative/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+      "bytes": 29808,
+      "sha256": "2e25a2c7295788c90360a5ee739794740cf9b97dec9780779f73904bfe00e30d"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+      "bytes": 29808,
+      "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/structural-audit.json",
+      "bytes": 8286,
+      "sha256": "8dddbb60f2ac6d43f43d3e88541e3a3202676addd68c4d439a92a8f65471da83"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/bound-proposal-preparation-observation.json",
+      "bytes": 398,
+      "sha256": "218828d3287c0039df1a2edd39e6dc938676b00b48e16f9483e00cb53bba7972"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/candidate-invocation-code-review.json",
+      "bytes": 6467,
+      "sha256": "de8322472edd926cc994a4e4ca99d7b6913b4cbc2f2986a5fb8cc63e9fd6353e"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/invocation-diff.json",
+      "bytes": 1876,
+      "sha256": "036a6fc1c3f89d35d5671a70b1ae4a002e4d21f8d3b202cf4af91a9286209e3f"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/invocation-manifest.json",
+      "bytes": 1948,
+      "sha256": "30cb0e5b97ee7128f2c764061c9b345313d5e7118f3e0ee38f0a36e746d9a3ab"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/invoke-contextual-range-finish.mjs",
+      "bytes": 7742,
+      "sha256": "808ae6ea278ecd74be052fa92d82c16d94c9a8a7bdbf20e487db3a12d276dc36"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/check.json",
+      "bytes": 976,
+      "sha256": "6804679782d543f7464e96ec001c18102d4022e883f671afb59e21c87e4cd274"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "0eef3bbc67fad4223fc2a8a7a2194e65c67e86447fca59c06931eedcab73a93e"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "37a40d47594f6c23fed4644db6988ffcf3aa95eb8bfc848c075544f0cf11258f"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/expected-inputs.json",
+      "bytes": 6545,
+      "sha256": "bc4b27b900fcd3e75d07dabce2725bff7e1e882cd9b3f497414e7385a8cb0a9f"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "b425948bdce8e768a45f06252a96b74db42aa30616b1ca1735ec262dec0d769e"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "d6073e7c50fd66c21552bf898b3d08fe13023c25edff96631aca579ab5ba4240"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "db2bbe524f838388111f374798b386d1e51ffc25417072993320253e3aa9cfb4"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "1eddd7cecffdc0eb0807b4232548f7c5d29edaf4073aaa7a42cb6c78c85aea29"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "bec1adf4ee363d7c3e06c2ae58ae3d53fb33caef4d8c751930c08449f8461724"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "50eaf6b7b49c022d22a73653cc44c33282910b7cb2420e66681b99cf03cfaf1a"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/lock-after.json",
+      "bytes": 507,
+      "sha256": "c43d76215ae937c6bf443e845d2f398341c2c60634e8bf0e84325005952a2df0"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/lock-bytes.json",
+      "bytes": 2064,
+      "sha256": "73897c365e1d5d3bb39ca80f01fe1664d3844fea7aff96b4a628c9e365e17eb4"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/lock.json",
+      "bytes": 548,
+      "sha256": "1bcf5f84abe9fe962d58b654b511e8f49182288f7c5a8a19cb1befcf2bf4ea28"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "c60773ebe9d3322cd4ec6abfd8f68bc2b9271f868c2ba6f1b1bcdc33eca96942"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "2f4decbf996a1bca074968a4449bb88dde36266b48e56ef6221db96e87d465bd"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/negative-native-review.json",
+      "bytes": 11220,
+      "sha256": "f3eb6da7202597ffde8d43b495519ac735f4f71d4947fdd837bddcf6665dabe0"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/result.json",
+      "bytes": 4024,
+      "sha256": "258aa89ead5df91d866c7880bfc4f38efb3101660615bdb4ec1d56c8c9fc2599"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/source-after.json",
+      "bytes": 5163,
+      "sha256": "b917270675630014276cb32cb29cb69c10c60b2a245969188200523a602fcea8"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/source-before.json",
+      "bytes": 5163,
+      "sha256": "c0be3ff8355cc3a36e56db67bb949e4b64aa4175ca231b38bc447e95f162cfe6"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "15c39bf2e0ac0bdfeaa5c342ea68076f942677a1da262f693db1e865cd8a9dfc"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "c774512c4d8b7ab2ce36250d3dc685b493e2f9db93e2cac8eb7ef860a8863a98"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/negative/verify.json",
+      "bytes": 4160,
+      "sha256": "8f0bb10b117ab29846546d65a713678bbc2d49254e6cee833fa68e3a1b8732e8"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/next-range-result-investigation-conditional.json",
+      "bytes": 7971,
+      "sha256": "e56e5c898a2122d43ad62930b2c3824e2244f87de21b832f73b49e1a4b3312a1"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/next-range-result-spec-review-conditional.json",
+      "bytes": 4414,
+      "sha256": "dcc72f507717196eec4bf8352c5c86364c02e361d204c92e371bc8bbf07afe73"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive-artifact-census.json",
+      "bytes": 23688,
+      "sha256": "117f514a414992f507388960e8646a2d85d950c4fab25c256d5d83c8e6d70ed7"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/ObjectContextualFinishContext.lean",
+      "bytes": 12823,
+      "sha256": "1afdaabb12ab60ec8555eb52acd195fa5bb38b7e0f6d5c3ad87bf2e1611e4493"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/ObjectContextualFinishTransport.lean",
+      "bytes": 697,
+      "sha256": "e6db81cce8edf9be7951a3de159b877606d57bb63971d5207e718104c0affc77"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/ObjectContextualRangeFinish.lean",
+      "bytes": 6170,
+      "sha256": "b09f44d7ba34cc9f438a30ac8d87b980968441e5906ad53b16194f71385d5478"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/attestation-summary.json",
+      "bytes": 1702,
+      "sha256": "05cc757188c970e5c6c846ba62af09a07a7953392cbba3a1095d229fdb09d8f9"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/audit-output.txt",
+      "bytes": 53862,
+      "sha256": "4828d9e0f093083be2e8148151f6131d38f33eb3fb45b0003cc3582a1aee7330"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/build-manifest.json",
+      "bytes": 14725,
+      "sha256": "f38763454b6a570adc3ea22e4cc80c67f9f7898fb523aa8586939908d375aef2"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/check.json",
+      "bytes": 979,
+      "sha256": "7c6f0b6f12588b31747cf03f00d0ad508b6d5a2f44b87f9d573579d087d1a725"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "88642daba724d05bc773834042959c668a19c64a7a554e571052da604948141b"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "39d258855ebdd96bb040c76af74a026b1e7408973fe3a46fd4b362d9ade15fa2"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/expected-inputs.json",
+      "bytes": 6545,
+      "sha256": "9d9a43723a6a69a9ad9c46ae09a2b94638a9ad64ac49dec5a55d35a718d47f6b"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "595fff541d9e4541cd70a29f58003c3be0ab9376a704ad64f8e871d29356a3fa"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "9331441be6cc2bd0f89f8597a40772bc787f2af763f51b00b3e6b1dccd491abf"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "cfcd97e9575b4bc865ca5c82ca208cd23718b6a73c7fc1a24d1cdb74a1b7a3ce"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "4e35c68205496d78ee3f0799fd32455693de3301df2762006bf8a8d0f18960bb"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "ae1e0c2492a6faf606a15951e2a990ae68ff4fb46195f843cbb447b159dfe83e"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "f2e5c4fb36c161870f615025d102011d51df5643eedcd6b08b3b0df48833ae32"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/lock-after.json",
+      "bytes": 513,
+      "sha256": "75b15f0f74709ec48ffb97ff3918c619b22f31d14631ba6c1e6a3e3749434166"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/lock-bytes.json",
+      "bytes": 2067,
+      "sha256": "798111fb90fbb0fd8599cbd89ce90969d28ac75a69aba69c9a13faf62e082532"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/lock.json",
+      "bytes": 551,
+      "sha256": "f14c1dd6fa81212bb3fa257545b0bc0311a2a1b4a1a31f71c8337192d440e21a"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "86877751e6ac0eb8deb76e1f32acad3c0c909fa1d856d3013e32358a287043fa"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "45803886f74a409adf4ef35785811f539fd626f230ad9334a9bcb4d9e3733b5e"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/positive-native-review.json",
+      "bytes": 6648,
+      "sha256": "875811629dd2bbb4c495a7d64b39704c2d42662d9fc59c83a3ae091e56ef994f"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/result.json",
+      "bytes": 1098,
+      "sha256": "4a4358174de858c8e88a8ff9bc920e06291e2e0af075da3c9861d761c77cfb99"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/source-after.json",
+      "bytes": 5271,
+      "sha256": "6242e1f006537ff5db8a7ac216bfd3253aae45830e4f742a5e4cebeee50546d1"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/source-before.json",
+      "bytes": 5271,
+      "sha256": "7331d8963f78a7f1b7426ef6fa7b7e3b5987fea7de6bac65ee7c47c9589647e2"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "a44a37aea2938372fb667575abc51d3d31f5b5de66b85f089d90f1ce0aeb2369"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "a1e52eabd4e5e21ca217ebdd0ac8920e90cf0c2e6d7346f2da9a40644b9c02df"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/positive/verify.json",
+      "bytes": 1294,
+      "sha256": "84d6ac02bec33eea0c91cab85d16baa82625be78e44c7d7a7ad54b426819c853"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/readiness.json",
+      "bytes": 1864,
+      "sha256": "ee613ad5399f50294476cc27f38297ae6250d8c6a8da80ae9f62a9f356d56640"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/evidence/source-code-review-custody.json",
+      "bytes": 693,
+      "sha256": "23a7c7ba3c30d81c99e3d563565f9239ba562f298fd49a130a123116fe7fe771"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/negative-custody.json",
+      "bytes": 10803,
+      "sha256": "3b2f2cfb0590bee42842eec74660016ed1a6b71ca9bcce8e887093ec7df0b0b7"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/positive-accepted-custody.json",
+      "bytes": 5652,
+      "sha256": "b6426a1c178153e482eaecbb31f6c5affe3d59438e4c7db437cea21446dc64b6"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/positive-raw-custody.json",
+      "bytes": 9921,
+      "sha256": "abfdc3b6780ce0e6700528de15aaa33c1bd844c1a345ce7a04355f5503667cc9"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/results.json",
+      "bytes": 5533,
+      "sha256": "575d58e83b542241eeb6585fb4bbeb1aa470d8380cf4c193d677f69150803ec9"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/source-bindings.json",
+      "bytes": 20952,
+      "sha256": "9c36d5dddb2c5b9ccb24b95c1fab6a482c4f3c526ef180e131b249f64a508166"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/source-custody.json",
+      "bytes": 5502,
+      "sha256": "0040ac804c43f5fbe0ac7319d63584fe095b26a2d7024fef31a6da4bec888bfa"
+    }
+  ],
+  "verification": {
+    "exactPinChecks": 228,
+    "custodyCopies": 69,
+    "phaseInputMappings": 36,
+    "unchangedCurrentPins": 17,
+    "originalSnapshots": 17,
+    "planAliases": 13,
+    "sourceManifest": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486",
+    "positiveReview": "875811629dd2bbb4c495a7d64b39704c2d42662d9fc59c83a3ae091e56ef994f",
+    "negativeReview": "f3eb6da7202597ffde8d43b495519ac735f4f71d4947fdd837bddcf6665dabe0"
+  },
+  "budget": {
+    "limitAllocatedBytes": 1048576,
+    "payloadAllocatedBytes": 794624,
+    "reservedManifestBytes": 32768,
+    "scopeIncludes": "Entire new fixture, three new plan files, both complete modified documents and this manifest; no transient filesystem copies created."
+  },
+  "boundary": "Original source preparation NOT_RUN, null plans and pending raw custody remain immutable history. Accepted full finish does not prove successful admitted-range composition or whole read; prior direct timeout remains failed. Full binary artifacts excluded and pinned by complete census; no production locks invented."
+}

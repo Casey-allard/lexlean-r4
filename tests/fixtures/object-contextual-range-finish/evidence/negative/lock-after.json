@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-contextual-range-finish-contextual-false-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-24T02:07:31.963Z",
+  "ended": "2026-10-24T02:07:32.032Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83  /tmp/r4-object-contextual-range-finish-contextual-false-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

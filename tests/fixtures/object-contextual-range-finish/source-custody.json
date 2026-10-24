@@ -1,0 +1,111 @@
+{
+  "schema": "lexlean-r4-contextual-finish-source-custody/v1",
+  "status": "EXACT_PREPARATION_BYTES_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/common/tests/lexlean/ObjectContextualFinishContext.lex.tex",
+        "bytes": 62202,
+        "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishContext.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+        "bytes": 1110,
+        "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/negative/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+        "bytes": 29808,
+        "sha256": "2e25a2c7295788c90360a5ee739794740cf9b97dec9780779f73904bfe00e30d"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/negative/tests/lexlean/ObjectContextualRangeFinish.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+        "bytes": 29808,
+        "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/lexlean.toml",
+        "bytes": 691,
+        "sha256": "93630436eaa82f38c5e3d282f527c83051b1a5eaf0a341b8a37a9d43e8055c8c"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/lexlean.toml"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/candidate.json",
+        "bytes": 15641,
+        "sha256": "2aa6533761a8d74177ef3c90a64d928abe827bf3e46be641e6a8b04fbe85f522"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/candidate.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/structural-audit.json",
+        "bytes": 8286,
+        "sha256": "8dddbb60f2ac6d43f43d3e88541e3a3202676addd68c4d439a92a8f65471da83"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/structural-audit.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/README.md",
+        "bytes": 706,
+        "sha256": "6b226b4b24e404630342e69ba4892a46131fccec7c2dca5a2660ff10a54ae8ef"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/README.md"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/manifest.json",
+        "bytes": 4531,
+        "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/candidate/manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/invoke-contextual-range-finish.mjs",
+        "bytes": 7742,
+        "sha256": "808ae6ea278ecd74be052fa92d82c16d94c9a8a7bdbf20e487db3a12d276dc36"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/invoke-contextual-range-finish.mjs"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/invocation-diff.json",
+        "bytes": 1876,
+        "sha256": "036a6fc1c3f89d35d5671a70b1ae4a002e4d21f8d3b202cf4af91a9286209e3f"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/invocation-diff.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/invocation-manifest.json",
+        "bytes": 1948,
+        "sha256": "30cb0e5b97ee7128f2c764061c9b345313d5e7118f3e0ee38f0a36e746d9a3ab"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/invocation-manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/readiness.json",
+        "bytes": 1864,
+        "sha256": "ee613ad5399f50294476cc27f38297ae6250d8c6a8da80ae9f62a9f356d56640"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/readiness.json"
+    }
+  ],
+  "excludedMutableReadme": "README.md"
+}
