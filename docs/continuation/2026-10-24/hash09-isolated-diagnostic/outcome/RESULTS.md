@@ -1,0 +1,13 @@
+# Isolated Hash09: actual local verification accepted
+
+The one selected-root diagnostic passed official source admission and verification with all six modules. The compiler produced attestation `f53cdeab192fa629e197c140b444eed975c28b1091e4d5534d2adc8c742d214f` in 238,674 ms overall. Exact completed root-child duration is unknown: normalized child records omit timing. Process samples are observations, not completion timings or peak measurements.
+
+Independent [native review](native-review.json) audited the actual 65-file artifact, 30 generated-output hashes, 531 empty-axiom declarations, 19 successful processes and six recorded kernel replays. All 51 unchanged inputs, genuine development lock, tools, resource epoch, zero memory-event counters, idle state and post-reserves passed; postcapture errors are empty. Host availability after the phase was 24,017,113,088 bytes and guest availability was 52,734,328 KiB. The unchanged 300,000 ms child limit and 4 GiB/two-CPU container were retained.
+
+All six actual emitted sources and all six compiled outputs, including the root, match the historical accepted artifact. The earlier live [dependency comparison](olean-comparison.json) covered five dependencies; the final native review adds the completed root. Neither comparison reconstructs the erased compiled dependencies of the failed larger Read run.
+
+This result proves that the selected Hash09 context completed in this attempt. It does not prove why the earlier 47-module Read selection timed out, establish a controlled timing effect, repair source, accept Read33, or authorize an automatic full Read retry. The earlier intended ordinal26 negative remains NOT_REACHED and its positive phases remain NOT_RUN. Object remains 331/403; the nine pending drafts and full PrismPM/production/Pages obligations remain open.
+
+The [preparation capsule](../README.md) retains its historical no-outcome labels unchanged; this separate outcome records the later run. [path-map.json](path-map.json) binds 80 raw records, 22 selected actual artifact texts and two independent reviews to exact local originals. The genuine development lock is preserved separately from its raw receipt; it is not a production PrismPM binding. The full 65-file proof bundle, including six binary oleans, remains locally retained. Its complete audit is recorded, but this text-only checkpoint does not claim to embed the binary bundle or replay it on fresh main. The original 51 source inputs remain in existing repository bindings rather than duplicated here.
+
+Next: review a narrowly selected changed product dependency before any further native execution. No new source change or follow-on launch is included in this result.

@@ -1,0 +1,35 @@
+{
+  "hostAvailableBytes": 24254914560,
+  "raw": {
+    "processes": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,ppid,etime,pcpu,rss,comm,args"
+      ],
+      "started": "2026-10-24T11:39:47.680233+00:00",
+      "ended": "2026-10-24T11:39:49.570457+00:00",
+      "status": 0,
+      "stdout": "    PID    PPID     ELAPSED %CPU   RSS COMMAND         COMMAND\n      1       0       48:59  0.0  1576 sh              /bin/sh -c sleep infinity\n      7       1       48:58  0.0  1620 sleep           sleep infinity\n    440       0       02:45  3.6 140336 lexlean        lexlean --diagnostic-format json verify tests/lexlean/HashWireDirect09Controls.lex.tex\n    537     440       02:16  0.0 106436 lake           /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env lean -R /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src -o /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/HashWireDirect09Controls.olean /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src/LexLeanR4/HashWireDirect09Controls.lean\n    542     537       02:16 96.3 1518904 lean          lean -R /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src -o /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/HashWireDirect09Controls.olean /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src/LexLeanR4/HashWireDirect09Controls.lean\n    567       0       00:00 83.6  3672 ps              ps -eo pid,ppid,etime,pcpu,rss,comm,args\n",
+      "stderr": ""
+    },
+    "memory": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T11:39:49.570554+00:00",
+      "ended": "2026-10-24T11:39:51.618844+00:00",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    }
+  },
+  "limit": "Sample only, not peak measurement."
+}

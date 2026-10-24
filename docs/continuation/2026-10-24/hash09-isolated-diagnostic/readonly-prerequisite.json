@@ -1,0 +1,20 @@
+{
+  "scope": "R1 bounded read-only exact owned failed verification directory; no regeneration or compiler invocation",
+  "startedAt": "2026-10-24T11:32:45.347647+00:00",
+  "endedAt": "2026-10-24T11:32:47.223710+00:00",
+  "argv": [
+    "docker",
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "find",
+    "/tmp/r4-object-read-composed-ordinal26-negative-owned-20261024/.lexlean/verified",
+    "-maxdepth",
+    "4",
+    "-type",
+    "f"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "",
+  "limit": "Only this directory inspected; absence cannot recover failed child environment or dependency oleans."
+}

@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/lexlean.lock"
+  ],
+  "started": "2026-10-24T11:41:07.569Z",
+  "ended": "2026-10-24T11:41:07.689Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88  /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/lexlean.lock\n",
+  "stderr": ""
+}

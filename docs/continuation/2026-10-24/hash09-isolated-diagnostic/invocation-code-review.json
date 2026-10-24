@@ -1,0 +1,64 @@
+{
+  "schema": "lexlean-r4-independent-isolated-invocation-code-review/v1",
+  "reviewedAt": "2026-10-24T11:36:21.844176+00:00",
+  "verdict": "PASS_STATIC_INVOCATION_CODE_FRESH_PARENT_GATES_REQUIRED",
+  "reviewer": "construction_second_state_code_review",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/manifest.json",
+    "bytes": 3931,
+    "sha256": "450a7c8ca12341ce0717d174a3a17c629f5434a358c8211874aff329e432ad42"
+  },
+  "script": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/invoke-hash09-isolated.mjs",
+    "bytes": 12796,
+    "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a"
+  },
+  "basis": {
+    "baseRunnerSha256": "850877aff69521c4f59858c4cea5976c16cce01e9df9e1a4c2dde4771a55fddf",
+    "diagnosticSPEC": "902fafa029772f56b8ae69d65bb0bffc88b13833b8dabdbd14e8bd606267e76a",
+    "recoveryReview": "1dde1b7671ecf1b1618e6be648ba0cd7f067327df03a764886245104649e7bda",
+    "actualR1": "70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf"
+  },
+  "checks": [
+    "Rehashed all six payloads and ten direct pins, existing candidate19payloads/94dependencies, all51selected inputs and ten retained resource-epoch/review pins.",
+    "Independently applied all ten exact substitutions to base and reversed them to reconstruct base byte-for-byte. Reviewed all changed lines and entire script; finally postcondition suffix unchanged.",
+    "Static node --check exited0; no script evaluation/import, Docker, SDK, VM or native invocation.",
+    "Actual historical successful Hash09 official verify response modules match the six exact unprefixed expected module identifiers. New check sorts actual modules and compares full list: missing, extra, duplicate or prefixed identifiers reject before verify. Expected list is already sorted.",
+    "The old47-module source binding remains input authority only; literal sourcePhase ordinal26-negative preserves all51files/current configuration. The explicit check and verify target is only HashWireDirect09Controls.lex.tex. No source/control pruning or old compiled artifact injection.",
+    "Fixed host evidence mkdir without recursive creation rejects reuse before any subprocess; guest stage mkdir is also exclusive. All actual pinned destination paths are relative, unique and free of parent traversal. Local source paths resolve only within the existing approved roots.",
+    "Exactly one verify callsite, no retry loop or continuation. Strict single phase argument excludes all Read modes. Same300000ms source-bound configuration and four tool hashes retained.",
+    "Official lock is generated in fresh stage, exact bytes retained and post-hashed. Check exit/success and exactsixmodules must pass before verify. Verify raw status/JSON is retained even on failure; successful result requires safe fixed-format artifact path before copy.",
+    "Finally independently attempts source, lock, tools, epoch, memory, idle, guest and host checks after command failure; every failing postcheck is accumulated. No cleanup deletes failed evidence or native stage.",
+    "R1 actual receipt status0/empty stdout records bounded failed verification-tree absence, not reconstruction of environment/oleans. The recovery/diagnostic/R1 authority pins are checked before expensive work."
+  ],
+  "gates": {
+    "freshEpochStartedAt": "2026-10-24T10:51:37.465092641Z",
+    "hostPreGiB": 20,
+    "estimatedPeakGiB": 10,
+    "hostReserveGiB": 10,
+    "guestPreGiB": 11,
+    "guestPostGiB": 10,
+    "containerMemoryBytes": 4294967296,
+    "nanoCPUs": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "memoryEvents": "All reported counters must be zero pre/post; no reset or waiver.",
+    "limits": "Source-bound300000ms remains unchanged. Existing idle/container/tool/source checks retained.",
+    "maximumVerifyCalls": 1,
+    "automaticReadContinuation": false
+  },
+  "limits": [
+    "This is static invocation review, not fresh operational eligibility or native authorization. Parent must check fresh storage/idle/source/tools/epoch and enforce the one-attempt rule without deleting or renaming the fixed evidence directory.",
+    "Launcher exit0 can accompany verifier failure; inspect actual verify.status and JSON. No prior Read phase acceptance is inferred from this isolated diagnostic.",
+    "Live epoch/tool checks occur at execution. Pinned historical resource snapshot is provenance, not current capacity or an enduring filesystem guarantee.",
+    "On any success, actual artifact/source/lock/declaration/empty-axiom/kernel and postcondition audit remains mandatory. No isolated result accepts Read33 or production.",
+    "Scope is minimal adaptation of the previously reviewed one-off recipe; no generic framework or source repair is introduced."
+  ],
+  "findings": [],
+  "nativeStatus": "NOT_RUN_BY_REVIEWER",
+  "resource": {
+    "hostAvailableBytes": 24302260224,
+    "reviewReserveBytes": 10737418240,
+    "newAllocation": "Only this bounded external report."
+  }
+}

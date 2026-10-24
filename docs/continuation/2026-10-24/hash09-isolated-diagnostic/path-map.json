@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4/historical-invocation-capsule-paths/1",
+  "retainedFiles": [
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/README.md",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/README.md",
+      "bytes": 2868,
+      "sha256": "35a4fae61bbcf7afcd15b60546d7326ecda542d68ce64311b72ea767672292a8"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/changes.diff",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/changes.diff",
+      "bytes": 8435,
+      "sha256": "532a2f19717ecde387c173cf07096b579548f87ae5fa42ffcbd9c6319b116098"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/changes.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/changes.json",
+      "bytes": 5443,
+      "sha256": "d05b988b54dcc5fd6c883bb0f6019cf689bde36a19406b4aaa2ebfa0a3530a5a"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/host-prerequisite-inspection.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/host-prerequisite-inspection.json",
+      "bytes": 2165,
+      "sha256": "456ec572e30ef4643f4d2bb1400cf8425f1f35db361c91bded29360ccb664b0b"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/invoke-hash09-isolated.mjs",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/invoke-hash09-isolated.mjs",
+      "bytes": 12796,
+      "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/static-validation.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/static-validation.json",
+      "bytes": 1200,
+      "sha256": "2c22a8b2374dd119fbe4fcde20cb800e888711a1ffdcef6b6954a72be2ce4d3a"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/manifest.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/preparation/manifest.json",
+      "bytes": 3931,
+      "sha256": "450a7c8ca12341ce0717d174a3a17c629f5434a358c8211874aff329e432ad42"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invocation-code-review.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/invocation-code-review.json",
+      "bytes": 5158,
+      "sha256": "6b1b8948378060c63a7b2598547955e799c935cbcd80ed0d089b6831ca2df1ac"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-readonly-prerequisite.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/readonly-prerequisite.json",
+      "bytes": 644,
+      "sha256": "70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf"
+    },
+    {
+      "originalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash09-isolated-preflight.json",
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/parent-preflight.json",
+      "bytes": 3744,
+      "sha256": "b20cd323ed730a755e9ab3951c6cb8ce49b8eae2a20af617c4351f7a1434b1a4"
+    }
+  ],
+  "existingRepositoryReferences": [
+    {
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-emission-recovery/diagnostic-proposal.json",
+      "role": "Accepted one-selection diagnostic plan",
+      "bytes": 11948,
+      "sha256": "fac761d6e60d6deeb10022df600bebadce720e204349f030d2b3cec95529f9a1"
+    },
+    {
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-emission-recovery/diagnostic-spec-review.json",
+      "role": "Independent bounded diagnostic SPEC",
+      "bytes": 8475,
+      "sha256": "902fafa029772f56b8ae69d65bb0bffc88b13833b8dabdbd14e8bd606267e76a"
+    },
+    {
+      "repositoryPath": "docs/continuation/2026-10-24/hash09-emission-recovery/recovery-review.json",
+      "role": "Actual emitted-source recovery review",
+      "bytes": 12422,
+      "sha256": "1dde1b7671ecf1b1618e6be648ba0cd7f067327df03a764886245104649e7bda"
+    },
+    {
+      "repositoryPath": "tests/fixtures/object-read-composed-dependencies/README.md",
+      "role": "Previously committed source candidate and portability boundaries",
+      "bytes": 2152,
+      "sha256": "c0817629b9b3389f24d2026f8ae3ebdc1d6581cb538ef9305c2e5d560d9e7ac0"
+    },
+    {
+      "repositoryPath": "tests/fixtures/object-read-composed-dependencies/portable-bindings.json",
+      "role": "Existing source bindings and authority portability map",
+      "bytes": 100717,
+      "sha256": "2e44cbab261bc36f8d61ea72b5c196ef7aa6b94644a89875335c2ace4cac5334"
+    }
+  ],
+  "boundary": "Maps exact original bytes to repository records; not an executable path rewrite. The inherited candidate/epoch absolute dependencies remain historical; use existing candidate bindings and independently reviewed current invocation before any execution."
+}

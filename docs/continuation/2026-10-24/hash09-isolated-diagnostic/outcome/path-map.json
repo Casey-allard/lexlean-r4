@@ -1,0 +1,636 @@
+{
+  "status": "EXACT_CLOSED_RUN_TEXT_COPIES_INDEPENDENT_NATIVE_REVIEW_PASS",
+  "files": [
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/allocated-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/allocated-before.json",
+      "bytes": 459,
+      "sha256": "31185698f34c16aabf1ccf3ca666274e027d3284ecaf9c91b027ee6b2cc53dfa"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact-copy.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/artifact-copy.json",
+      "bytes": 551,
+      "sha256": "45b2a1117f7e5d130c7e56b637af5864d48af9668801e5b8a8fb6ada6da17af9"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/check.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/check.json",
+      "bytes": 864,
+      "sha256": "a1d4bc6d5ca0c5ec5cd4ae60906044c002d9eb35983ab04c9657024dcb9c611a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-0.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-0.json",
+      "bytes": 451,
+      "sha256": "b39e9ffbcfac89ebb21b8c48f81daeb99da5dca030c8b0ca27a5a3780768f811"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-1.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-1.json",
+      "bytes": 441,
+      "sha256": "48074a3f275d5bf6f3db8b7369ea8ae568279a8cfb6da7f64b1cd3f46ca46842"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-10.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-10.json",
+      "bytes": 417,
+      "sha256": "2afb58c0a8a1dd03c7e1d3c13081d383955358324e8bd27e1dc1faf3086983ca"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-11.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-11.json",
+      "bytes": 419,
+      "sha256": "50be82cadcaa56f244f682304ff2f38435830ab481cc58339490ea83219a5ab8"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-12.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-12.json",
+      "bytes": 419,
+      "sha256": "a527331e997988fc56f389238d886d59e1bf414eb16518ef90bf1f201f2c067c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-13.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-13.json",
+      "bytes": 455,
+      "sha256": "ea627d8b87802a7c8a5d85ccfd2ba000b15562d0c8e73161fcf076c643c4bad0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-14.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-14.json",
+      "bytes": 492,
+      "sha256": "748182a7dc92e352c7c5c71a9743593209e687d014f4bcc6bd1ca52d82a9321d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-15.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-15.json",
+      "bytes": 494,
+      "sha256": "adec3a84b4267c08d4c11e32867b34758d69f73813f4ae352b92aeedea797ddd"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-16.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-16.json",
+      "bytes": 532,
+      "sha256": "ed8b288323106d1400d33e46ec96eb900ab8da66f98f05a143180a5d139c9540"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-17.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-17.json",
+      "bytes": 536,
+      "sha256": "c232912acfbe94cc10c2db7dbb9a9d9b94fa77408e269d9c92f362b707fbd6ce"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-18.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-18.json",
+      "bytes": 530,
+      "sha256": "1544b1e0f047c0478cb341741885cb1bf6fe56a39cd719337d77987255d86df5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-19.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-19.json",
+      "bytes": 511,
+      "sha256": "502090d35f76b3f4ece49014de430aa46f7075a62f055a3dee8024c5f353c0c4"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-2.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-2.json",
+      "bytes": 443,
+      "sha256": "6e13b1a454d8d25bbe8400156a4ea771f7a9bcc3dd616b6680f68f53c9237282"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-20.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-20.json",
+      "bytes": 515,
+      "sha256": "376a4d2c52ca8f3c9c7907be34c8b4ccff5f3f398c112feb9c40e1b43cf933ba"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-21.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-21.json",
+      "bytes": 519,
+      "sha256": "cc349fc172b0dd016c65d047e1e590b83897155000ae3430033c86afe33943e1"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-22.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-22.json",
+      "bytes": 533,
+      "sha256": "36ed9a9b6a5a85260d39d27ed3fb0f136ed3ded7bfc380ea2dd1c2915246a911"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-23.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-23.json",
+      "bytes": 539,
+      "sha256": "981b3a506b7a61d324fdf8e260240b9893d23991e631989b29347b5dbb8ebdeb"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-24.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-24.json",
+      "bytes": 491,
+      "sha256": "179560fa4c72cc70e300e417c24ed6326cf5aa2b9ea0443beadf8f0a72b4fd12"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-25.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-25.json",
+      "bytes": 519,
+      "sha256": "07c74b1cd6473b17e37eb87303f1edddc22b078a979d24d2db8d5eaf8c7b73cd"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-26.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-26.json",
+      "bytes": 531,
+      "sha256": "2be709f0268826c7150c18f1c0a8e512594be6f2264f217df639e6b5119270ee"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-27.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-27.json",
+      "bytes": 519,
+      "sha256": "a5bc9d025e7b5c57c09bc2d10236466af864bcffc0e0d47c0b2f5ea0de7f784b"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-28.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-28.json",
+      "bytes": 492,
+      "sha256": "050946c9a68db911a1c2b023d65fea05376bf2e6f910e68bca00ce1e9c520d0e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-29.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-29.json",
+      "bytes": 543,
+      "sha256": "86d0f67e84131a7c22964837f99c5be3d130235f7f2582f94cdacb1dc4476a16"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-3.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-3.json",
+      "bytes": 418,
+      "sha256": "4a1980f5d53946229c0293c5c9004e0221bc90aae10ca7ebaad9adf76d04f265"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-30.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-30.json",
+      "bytes": 542,
+      "sha256": "3401a19c008fa2411bb4926c58ca5f6462f1e278f19bdad8b45a13102f593d5c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-31.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-31.json",
+      "bytes": 547,
+      "sha256": "a0e5b9d802926cb48c114fe961d31aea76c445709f054fb9fddfd1fe19b62d9a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-32.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-32.json",
+      "bytes": 530,
+      "sha256": "170dfd71173de7a039903fe849e9488408c303b0f81003855f585eba6d121a62"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-33.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-33.json",
+      "bytes": 536,
+      "sha256": "ce42449926a050482f94f017a21d9fbb67cd41875993fdf8e41fb4700c1498db"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-34.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-34.json",
+      "bytes": 530,
+      "sha256": "6ee7ccf4aead637b3f13c299821c50042f25381a56a28025b2908209d3f0e964"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-35.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-35.json",
+      "bytes": 536,
+      "sha256": "0f627264266f39710c2d6f672551b3d8cfeed84ad57633a113f628569fc69b1d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-36.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-36.json",
+      "bytes": 536,
+      "sha256": "886abe06bf877de1ab537e0588ffdc6081c836de3a5bc1b4b2468d6efb51ba40"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-37.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-37.json",
+      "bytes": 518,
+      "sha256": "8041bf6744fd5487690df209d02e52c945fdddab8115e4cee8e20de138349eee"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-38.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-38.json",
+      "bytes": 534,
+      "sha256": "94d1814bd5c06b001a50514b24999e94cb9523c534334de889910998d9a1050c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-39.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-39.json",
+      "bytes": 522,
+      "sha256": "6828e250a18685b74c2d12cd799a9b37684ccee5c8c0e7171fa7f44658ea58d7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-4.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-4.json",
+      "bytes": 453,
+      "sha256": "d43bda08dd1e2275ce5778af5557b14c347028695b8bc1579525b273c356adf7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-40.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-40.json",
+      "bytes": 494,
+      "sha256": "60c174c04a08e4f2e832e304e1b2aa6ec13a6b1c2b5fe506d18174fbdb2c1863"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-41.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-41.json",
+      "bytes": 505,
+      "sha256": "d9a5956e695fafe410e57c557fb857fe9717688976b87f0aa9f4d991157edad0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-42.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-42.json",
+      "bytes": 517,
+      "sha256": "52e686748474bf790da54325a324248a537e050742b62e9484b2b015a25cd0be"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-43.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-43.json",
+      "bytes": 521,
+      "sha256": "48f192ebc3e3891dd303222743adeea55eb60328b186a0d7fd41b6e7a5a71aab"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-44.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-44.json",
+      "bytes": 500,
+      "sha256": "0a209a7a184f0b87387a4e34fa90262c9b2f7d5d307576cae7ceb234d11db905"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-45.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-45.json",
+      "bytes": 516,
+      "sha256": "fb56130d56cad7696f0aa4a7429fd1b6061985dc7d6b7dd83eed18d4c4b64cba"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-46.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-46.json",
+      "bytes": 512,
+      "sha256": "0a8d56c243ebff03ae30c0dbd1bb5000e700c18dc9d918ca3bcd1a3a7759f5c1"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-47.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-47.json",
+      "bytes": 527,
+      "sha256": "897aa6253306518bc3ffb0dd33ac98dbbe58c5f4d77ccaf280d35f38bd78db82"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-48.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-48.json",
+      "bytes": 527,
+      "sha256": "580bc9b9dd460dc4d9aca30adcdbedf3593e25b43d7258be4a750c343cf13d9f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-49.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-49.json",
+      "bytes": 531,
+      "sha256": "463eb4f5d834b49c07acfe5090f5db9b5b1de05e420ec5a4d499ff12204fa2d8"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-5.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-5.json",
+      "bytes": 459,
+      "sha256": "fd705ecc9578372fe82bdd80faf7af8cd35425fe1558c00b8940de9a391cbd5c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-50.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-50.json",
+      "bytes": 518,
+      "sha256": "773bc2786faeef391ac727e4808fa6f943f533ff9a243f3821024d22b2981e77"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-6.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-6.json",
+      "bytes": 467,
+      "sha256": "754033dec087951c536a3d43c62d2a12f84e57dbf7fbec2b080f9614ba122608"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-7.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-7.json",
+      "bytes": 461,
+      "sha256": "e35d18d32628ab211e7fce8224edd4af1688a39b8be151f9014ab6fb370972d4"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-8.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-8.json",
+      "bytes": 409,
+      "sha256": "c6feeab2cbe23918884d39d7fe62d2dd231b51b6e0e644ec250b2beaa1bbc2e8"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/copy-9.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/copy-9.json",
+      "bytes": 419,
+      "sha256": "fe3a85e6f416a6fd9080e1b5d8a2beb73dccac3eb62051f01dcf7cd94cfadec3"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/directories.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/directories.json",
+      "bytes": 426,
+      "sha256": "e0b158a4376e820457bfecab870cb9bb40ec32f2ad44fcb86106f830da819a80"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/epoch-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/epoch-after.json",
+      "bytes": 470,
+      "sha256": "abf6bcf71e84a4f4fbcdb51c0300d0fcde6550f86dcba0d136549a31ef34def9"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/epoch-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/epoch-before.json",
+      "bytes": 470,
+      "sha256": "33b92e4857a879f6625bfc9cece9edc5fa05ee67dbbe41218751b674c28023fc"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/expected-inputs.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/expected-inputs.json",
+      "bytes": 27678,
+      "sha256": "18aa3ed3f31de699fa6808ad1a1e9b8d9d4e6a4f83a52b2ff47c02a8d284b265"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/guest-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/guest-after.json",
+      "bytes": 406,
+      "sha256": "e8fa25dadec6ac0683795e80119f516267ab24fd05ab8cb7d2b413c723876bec"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/guest-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/guest-before.json",
+      "bytes": 406,
+      "sha256": "f83b3c191012b052e2e070a78dd7c29348b162be2cb03a897ef02d8e9abdfb10"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/host-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/host-after.json",
+      "bytes": 142,
+      "sha256": "c02054dcd878f73c89fabd571fc3ff14888c5411d2baf45c6f16cff25857f055"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/host-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/host-before.json",
+      "bytes": 152,
+      "sha256": "97e6ce1440eaad32dd9d845732a970857286e76c9032a2684e1c509d5d258f7f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/idle-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/idle-after.json",
+      "bytes": 460,
+      "sha256": "c3925c03fe10aeec144f460aa931508d0cefd5a20be0e8bb7b0b9def2f7c2eea"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/idle-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/idle-before.json",
+      "bytes": 460,
+      "sha256": "03a8ca0197f30b5efc39d97c80424865c83aecb753ff5dab5f3306227ea09023"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/lock-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/lock-after.json",
+      "bytes": 485,
+      "sha256": "271dff311aa5e90adc006800c2f52afbd224d33900433640126f22b30d5af42b"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/lock-bytes.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/lock-bytes.json",
+      "bytes": 2053,
+      "sha256": "91c7e48d425c33159cc071edfd4e77787b2aeae69ba5ca7e879cd82fface1b8a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/lock.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/lock.json",
+      "bytes": 537,
+      "sha256": "16990a883f951dcc89d0d74623daf0148afcc4b3e39020a098c3660e26286ef0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/memory-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/memory-after.json",
+      "bytes": 354,
+      "sha256": "f1c22bfa13d3f675df6d93be50e1fb8466ef9f232667b2762b177b7344e1874b"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/memory-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/memory-before.json",
+      "bytes": 354,
+      "sha256": "1b1759b2bacc57411f8577fbf52f4dc1d955972cd3fcbd023993534850bbb55f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/new-stage.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/new-stage.json",
+      "bytes": 328,
+      "sha256": "c1ebee7aad464afd2adb21cbb6532a7039ee5738738709aa9956d669067cc87d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/parent-live-sample1.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/parent-live-sample1.json",
+      "bytes": 3988,
+      "sha256": "21ffcb7685e8bb4173c92a322309c225f5843865ab3a2b974a391bdd26d0eef5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/parent-live-sample2.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/parent-live-sample2.json",
+      "bytes": 2368,
+      "sha256": "8ec54859b54c92131353ac1510f8a8b5287901c7b66669d1a61ce94c2f43a59a"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/postcapture-errors.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/result.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/result.json",
+      "bytes": 895,
+      "sha256": "7924dbeee5c546b8dee2012eb2ac83afa8105f305ebfcc70d8ab4d3e2f5228d0"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/source-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/source-after.json",
+      "bytes": 14471,
+      "sha256": "e8e524273b7b9c5408660ae50e26dc22709d9ffadbf40dc016065a7d8e7a76ac"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/source-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/source-before.json",
+      "bytes": 14471,
+      "sha256": "6dd6a73ebf62fd39b7526f4284044db6e50a7a2768fd87dbdf137113d8799db1"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/swap-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/swap-before.json",
+      "bytes": 265,
+      "sha256": "49ac9231d97f8fdf145d149d4c7e1472cf4bb8db9350f3e0edc94a0ee64c2b96"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/tools-after.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/tools-after.json",
+      "bytes": 1005,
+      "sha256": "f562b1457eb303a5342f65fe92d29ff182111aace6bdd560efb94dd8dc0400c7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/tools-before.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/tools-before.json",
+      "bytes": 1005,
+      "sha256": "7e7aea7882b073251ee00da4d1ba9fd46c52c7d9dded0fa0ceefaf5fa3f20457"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/verify.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/raw/verify.json",
+      "bytes": 1122,
+      "sha256": "f90fef82dae2e6fe48766169bc407681e9fb5b5098cb1ed4b7935c375426058d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/attestation.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/attestation.json",
+      "bytes": 106971,
+      "sha256": "408d19aad52f568ea9293db8b2c88e700f760fb5faa470a81428a3f5770c95f9"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.HashWireDirect09Controls.process.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.HashWireDirect09Controls.process.json",
+      "bytes": 609,
+      "sha256": "009b91d1dbecab6e67998b10d85b5b8dbcdd75377bab41a1dee584ca1247d62d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.Hash.process.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.Hash.process.json",
+      "bytes": 12229,
+      "sha256": "29e274134a37eb2cb74f01a924773581220dd44f434c6ebd43630c42049b0596"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.HashNat.process.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.HashNat.process.json",
+      "bytes": 3320,
+      "sha256": "04a78366ced25d09dcd91b3ddc4a7791978b4678ee5de3c6a6743311c6e07e3f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.HashNatCore.process.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.HashNatCore.process.json",
+      "bytes": 13310,
+      "sha256": "7fd33f4c576087fea8cefa5f8a6b56c7a677f4ebd55239a783609552c418b764"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.HashWire.process.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.HashWire.process.json",
+      "bytes": 1039,
+      "sha256": "755e1917b6938d634db13e8e5789bc74cdf926c960b76a90fb07017d343f1973"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.Words.process.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/LexLeanAudit.A2b432e6acfe8810bc6d7abeab0396823.LexLeanR4.R4.Words.process.json",
+      "bytes": 8801,
+      "sha256": "2c803767d8bac6df5e8c7076c1a0845664a7e70cf97c273234e503015cdd7a0e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/audit/output.txt",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/audit/output.txt",
+      "bytes": 35749,
+      "sha256": "32ff1b23c4f3d9446a58ea66d2767b8ca95ccca47cb939f1030878c1ed2e1289"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/build-manifest.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/build-manifest.json",
+      "bytes": 7688,
+      "sha256": "0ad1bf826edb941db1b033363e3a29f0ee278fdbc7ffa99fdcc4fc2cd1c7c14c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/modules/LexLeanR4/HashWireDirect09Controls.lean",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/modules/LexLeanR4/HashWireDirect09Controls.lean",
+      "bytes": 1706,
+      "sha256": "2769250d50b5b78991d3f7fdee3023250a4b4218a1737c25126be3fd8f750336"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/lean/LexLeanR4.HashWireDirect09Controls.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/lean/LexLeanR4.HashWireDirect09Controls.json",
+      "bytes": 528,
+      "sha256": "3e15e1fab16aae8d7cf5bf863f7e41c7e70d6f042a853ca722123cb36a36dc12"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/lean/LexLeanR4.R4.Hash.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/lean/LexLeanR4.R4.Hash.json",
+      "bytes": 477,
+      "sha256": "017aab9af7a159a6c20ba5c9d92c8d75e686e096a1ff19352ef5bb72bde7b421"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/lean/LexLeanR4.R4.HashNat.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/lean/LexLeanR4.R4.HashNat.json",
+      "bytes": 486,
+      "sha256": "009fff91727e2bf92de44e6821e12f8e3c1322dff6e15879e445c7d7c6284ab1"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/lean/LexLeanR4.R4.HashNatCore.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/lean/LexLeanR4.R4.HashNatCore.json",
+      "bytes": 498,
+      "sha256": "f196aabb95b51439a1c52c010742cc3da0f1c72a677d657b0edd5a988871ff38"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/lean/LexLeanR4.R4.HashWire.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/lean/LexLeanR4.R4.HashWire.json",
+      "bytes": 489,
+      "sha256": "eabb12be288c87daaae62fdab3a8c9741dffab78b4801073c1388ea9b065dda7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/lean/LexLeanR4.R4.Words.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/lean/LexLeanR4.R4.Words.json",
+      "bytes": 480,
+      "sha256": "8eb43c37e10c8c6557797c50e2d28ba6665367abfcbb9f2dd600eb07ba83c13f"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/leanchecker/LexLeanR4.HashWireDirect09Controls.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/leanchecker/LexLeanR4.HashWireDirect09Controls.json",
+      "bytes": 445,
+      "sha256": "201abf94b1216a1117d7672da3e0eadbc33a3d08e836d53b60b1ab8d642d3c60"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/leanchecker/LexLeanR4.R4.Hash.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/leanchecker/LexLeanR4.R4.Hash.json",
+      "bytes": 411,
+      "sha256": "65d005266230a37d5441800c80ce704b800ca927d01e0159f07d0337ecb88ad2"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/leanchecker/LexLeanR4.R4.HashNat.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/leanchecker/LexLeanR4.R4.HashNat.json",
+      "bytes": 417,
+      "sha256": "3b8ac9cbbb932cdc4ea4aa177f647f03b454566d33ca1f04838b107495cbd29c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/leanchecker/LexLeanR4.R4.HashNatCore.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/leanchecker/LexLeanR4.R4.HashNatCore.json",
+      "bytes": 425,
+      "sha256": "9f315e820271b7efba44dec5891411bcb3892dec9a0f2012c651faa05f841e8d"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/leanchecker/LexLeanR4.R4.HashWire.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/leanchecker/LexLeanR4.R4.HashWire.json",
+      "bytes": 419,
+      "sha256": "9a7a64dde311f9a103e52e90f73e41717d1731c6f362d2770d12d39688131d02"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/artifact/process/leanchecker/LexLeanR4.R4.Words.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/artifact-text/process/leanchecker/LexLeanR4.R4.Words.json",
+      "bytes": 413,
+      "sha256": "e888e24025dec9e2587c4028988ede5b65f760c2b194510f9ca60da5b6c2446c"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-olean-comparison.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/olean-comparison.json",
+      "bytes": 6210,
+      "sha256": "cb3c7e34bcda3abaf3eba3f332b0918ef12f9485f84519a33096a4adb28ad504"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-native-review.json",
+      "path": "docs/continuation/2026-10-24/hash09-isolated-diagnostic/outcome/native-review.json",
+      "bytes": 12103,
+      "sha256": "fcb7a83e971366edf00cad7b7b6e94591abd7fe1e301e5a4828218f1d2a1446a"
+    }
+  ],
+  "lock": {
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/hash09-isolated/lock-bytes.json",
+    "field": "stdout",
+    "bytes": 1597,
+    "sha256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+  },
+  "artifactBoundary": "Full65-file binary bundle retained locally; selected22 actual artifact texts copied. No binary oleans committed or fresh-main replay claimed."
+}

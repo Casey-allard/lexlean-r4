@@ -1,0 +1,35 @@
+{
+  "status": "PASS_HOST_STATIC_ONLY_NATIVE_NOT_RUN",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/invoke-hash09-isolated.mjs",
+    "bytes": 12796,
+    "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a"
+  },
+  "syntax": {
+    "command": "node --check (parse only; top-level not imported/executed)",
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "recordedEdits": 10,
+  "reverseExactEditsReconstructsBase": true,
+  "finallySuffixByteIdentical": true,
+  "verifyCallSites": 1,
+  "candidatePayloadsRehashed": 19,
+  "candidateDependenciesRehashed": 94,
+  "phaseInputsRehashed": 51,
+  "diagnosticSelectedModules": [
+    "HashWireDirect09Controls",
+    "R4.Hash",
+    "R4.HashNat",
+    "R4.HashNatCore",
+    "R4.HashWire",
+    "R4.Words"
+  ],
+  "parentLiveRead": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-readonly-prerequisite.json",
+    "bytes": 644,
+    "sha256": "70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf"
+  },
+  "noNativeCommandsExecuted": true
+}

@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex"
+  ],
+  "started": "2026-10-24T11:36:59.747Z",
+  "ended": "2026-10-24T11:36:59.791Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

@@ -1,0 +1,106 @@
+{
+  "at": "2026-10-24T11:36:42.494013+00:00",
+  "hostAvailableBytes": 24298819584,
+  "guestAvailableBytes": 54009135104,
+  "peakEstimateBytes": 10737418240,
+  "reserveBytes": 10737418240,
+  "raw": {
+    "inspect": {
+      "argv": [
+        "docker",
+        "inspect",
+        "--format",
+        "{{.Id}} {{.Image}} {{.State.StartedAt}} {{.State.Running}} {{.RestartCount}} {{.HostConfig.Memory}} {{.HostConfig.NanoCpus}} {{.HostConfig.NetworkMode}} {{json .Mounts}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "started": "2026-10-24T11:36:41.552778+00:00",
+      "ended": "2026-10-24T11:36:41.740897+00:00",
+      "status": 0,
+      "stdout": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 2026-10-24T10:51:37.465092641Z true 0 4294967296 2000000000 none []\n",
+      "stderr": ""
+    },
+    "boot": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "started": "2026-10-24T11:36:41.741001+00:00",
+      "ended": "2026-10-24T11:36:42.096287+00:00",
+      "status": 0,
+      "stdout": "44f408ba-d166-4157-93b8-d311639e4a0f\n",
+      "stderr": ""
+    },
+    "idle": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,args"
+      ],
+      "started": "2026-10-24T11:36:42.096325+00:00",
+      "ended": "2026-10-24T11:36:42.200910+00:00",
+      "status": 0,
+      "stdout": "    PID COMMAND         COMMAND\n      1 sh              /bin/sh -c sleep infinity\n      7 sleep           sleep infinity\n    361 ps              ps -eo pid,comm,args\n",
+      "stderr": ""
+    },
+    "memory": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T11:36:42.201143+00:00",
+      "ended": "2026-10-24T11:36:42.328966+00:00",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    "guest": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "df",
+        "-Pk",
+        "/tmp"
+      ],
+      "started": "2026-10-24T11:36:42.329020+00:00",
+      "ended": "2026-10-24T11:36:42.472979+00:00",
+      "status": 0,
+      "stdout": "Filesystem     1024-blocks     Used Available Capacity Mounted on\noverlay           82249372 25715004  52743296      33% /\n",
+      "stderr": ""
+    },
+    "allocated": {
+      "argv": [
+        "du",
+        "-k",
+        "/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk",
+        "/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk"
+      ],
+      "started": "2026-10-24T11:36:42.473027+00:00",
+      "ended": "2026-10-24T11:36:42.482973+00:00",
+      "status": 0,
+      "stdout": "26204232\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469956\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+      "stderr": ""
+    },
+    "swap": {
+      "argv": [
+        "sysctl",
+        "vm.swapusage"
+      ],
+      "started": "2026-10-24T11:36:42.483037+00:00",
+      "ended": "2026-10-24T11:36:42.493821+00:00",
+      "status": 0,
+      "stdout": "vm.swapusage: total = 14336.00M  used = 12917.12M  free = 1418.88M  (encrypted)\n",
+      "stderr": ""
+    }
+  },
+  "status": "PARENT_RESOURCE_PREFLIGHT_PASS_NOT_INVOCATION_ACCEPTANCE"
+}

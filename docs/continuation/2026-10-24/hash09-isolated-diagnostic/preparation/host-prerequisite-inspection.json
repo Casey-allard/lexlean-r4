@@ -1,0 +1,35 @@
+{
+  "schema": "lexlean-r4/hash09-host-custody-prerequisite/1",
+  "status": "HOST_READ_ONLY_COMPLETE_GUEST_RETENTION_UNKNOWN",
+  "at": "2026-10-24T11:33:08.124Z",
+  "failedEvidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative",
+  "localSubdirectories": [
+    "parent-emitted"
+  ],
+  "localOleanFiles": [],
+  "facts": [
+    "Only parent-emitted is a local subdirectory in the failed receipt directory; no local artifact/process-tree/olean custody was found there.",
+    "Retained actual build recovery contains six emission hashes/manifest and Hash09 text, not failed compiled oleans.",
+    "Parent resource sample contains actual child argv/RSS/CPU but not full child cwd/allowlisted LEAN_PATH or dependency olean hashes.",
+    "Historical accepted attestation has normalized successful process records, compiled oleans and three Lake workspace hashes; exact source proposal already compares them."
+  ],
+  "limitation": "Host-only inspection does not establish live guest failed-stage absence. Parent must perform only the bounded guest retention check or preserve an already-recorded absence before launch. No environment dump, regeneration, SDK/VM call or unrelated search by author.",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/ordinal26-negative/parent-resource-sample1.json",
+      "bytes": 2626,
+      "sha256": "702f68b691b1af5a5c71e70a544620f154dcd1d818891b4688ca9ad2d9b661b5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/six-module-comparison.json",
+      "bytes": 3583,
+      "sha256": "e9555385d54f6f23b1de98ddefb8901f9ebd4c6657f1800de28cb361dcef91a6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery/listing.json",
+      "bytes": 523,
+      "sha256": "abff07ce023639a75e5bdec0c3b220ad369ecf8c79d2dd3b11de7888b59f7f23"
+    }
+  ],
+  "availableHostBytes": "24664698880"
+}

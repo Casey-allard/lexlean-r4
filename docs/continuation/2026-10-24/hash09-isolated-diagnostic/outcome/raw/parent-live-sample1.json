@@ -1,0 +1,59 @@
+{
+  "hostAvailableBytes": 25377857536,
+  "raw": {
+    "processes": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,ppid,etime,pcpu,rss,comm,args"
+      ],
+      "started": "2026-10-24T11:38:03.169747+00:00",
+      "ended": "2026-10-24T11:38:04.119851+00:00",
+      "status": 0,
+      "stdout": "    PID    PPID     ELAPSED %CPU   RSS COMMAND         COMMAND\n      1       0       47:11  0.0  1576 sh              /bin/sh -c sleep infinity\n      7       1       47:10  0.0  1620 sleep           sleep infinity\n    440       0       00:57  4.4 140336 lexlean        lexlean --diagnostic-format json verify tests/lexlean/HashWireDirect09Controls.lex.tex\n    537     440       00:28  0.2 106436 lake           /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env lean -R /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src -o /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/HashWireDirect09Controls.olean /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src/LexLeanR4/HashWireDirect09Controls.lean\n    542     537       00:28 97.0 822000 lean           lean -R /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src -o /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/HashWireDirect09Controls.olean /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/lean-src/LexLeanR4/HashWireDirect09Controls.lean\n    548       0       00:00 85.7  3672 ps              ps -eo pid,ppid,etime,pcpu,rss,comm,args\n",
+      "stderr": ""
+    },
+    "memory": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T11:38:04.119947+00:00",
+      "ended": "2026-10-24T11:38:04.324483+00:00",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    "oleans": {
+      "argv": [
+        "docker",
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "find",
+        "/tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified",
+        "-maxdepth",
+        "6",
+        "-type",
+        "f",
+        "-name",
+        "*.olean",
+        "-exec",
+        "sha256sum",
+        "{}",
+        "+"
+      ],
+      "started": "2026-10-24T11:38:04.324527+00:00",
+      "ended": "2026-10-24T11:38:04.490122+00:00",
+      "status": 0,
+      "stdout": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4  /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/HashWire.olean\ne07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b  /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/Words.olean\n76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894  /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/HashNatCore.olean\n39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0  /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/HashNat.olean\nf8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d  /tmp/r4-object-read-composed-hash09-isolated-owned-20261024/.lexlean/verified/.staging-keUH9p/oleans/LexLeanR4/R4/Hash.olean\n",
+      "stderr": ""
+    }
+  },
+  "limit": "Asynchronous live sample, not peak measurement; optional custody does not authorize rerun."
+}
