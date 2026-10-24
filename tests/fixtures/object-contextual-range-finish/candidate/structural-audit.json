@@ -1,0 +1,308 @@
+{
+  "schema": "lexlean-r4-contextual-finish-source-audit/v1",
+  "status": "STRUCTURAL_PASS_NATIVE_NOT_RUN",
+  "positiveStatementSha256": "e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4",
+  "negativeStatementSha256": "9cbc34fbf69ba2c9b3d576c8de9ec5d49656ac32ce31dd5e88d65d6c10cd5d51",
+  "completeOldStatementsPreserved": true,
+  "negativeDiff": [
+    {
+      "path": "statement.right.arguments[0].fields[4].value.fields[2].value.value",
+      "positive": "184",
+      "negative": "185"
+    }
+  ],
+  "production": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+    "bytes": 87135,
+    "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+  },
+  "instantiatedBodySha256": "a45e4f4147bae1c8b7afa29b89a2523299a2e7d8d95e4761395fe23418157ff1",
+  "contextBodySha256": "5875de5cd19d3bf63bd05a048c5dc9698b3d7fe0b1d5906222c7126db42ba71d",
+  "hole": {
+    "path": "body.then_value.scrutinee",
+    "count": 1,
+    "originalVersionCallSha256": "a6e4c2d2856335da7a6000cd1c9d6332b4e4558d1bf5d8835ae2b2a561cec9c7",
+    "parameter": "versionResult"
+  },
+  "qualificationChanges": [
+    {
+      "path": [
+        "then_value",
+        "branches",
+        "1",
+        "body",
+        "arguments",
+        "0",
+        "fields",
+        "3",
+        "value",
+        "function"
+      ],
+      "name": "ObjReadRemainder"
+    },
+    {
+      "path": [
+        "then_value",
+        "branches",
+        "1",
+        "body",
+        "arguments",
+        "0",
+        "fields",
+        "4",
+        "value",
+        "function"
+      ],
+      "name": "ObjWalkStatistics"
+    }
+  ],
+  "roundTripReconstructsExactInstantiatedBody": true,
+  "versionEquationSha256": "6d51de696602b6b07ab7b0e0a3bf84d97ff727fdc96a1055b79764da83f1a626",
+  "family": {
+    "zero": "Exact actual version equation",
+    "succ": "H(actualVersionCall)=H(Result.ok exactVersion)",
+    "nameOnlyLocalReferences": true
+  },
+  "transport": {
+    "proofSha256": "77c0276251f050e5fa7f236b742741d7a151ba279fccaf3a0f72a7b3b9707d45",
+    "zeroApply": "ObjectManifestVersion.objOriginalManifestVersion",
+    "successor": "Cases prior; Congruence both branches",
+    "axioms": []
+  },
+  "mandatoryConsumer": {
+    "proof": {
+      "kind": "apply",
+      "theorem": {
+        "module": "ObjectContextualFinishTransport",
+        "name": "objFinishLifted"
+      },
+      "type_arguments": [],
+      "arguments": [
+        {
+          "kind": "nat",
+          "value": "1"
+        }
+      ]
+    },
+    "oldInputStateWireBytes": "184",
+    "helperOnlyAcceptance": false
+  },
+  "canonicalJSON": true,
+  "configOnlyEntrypoint": true,
+  "graph": [
+    {
+      "name": "R4.Words",
+      "imports": []
+    },
+    {
+      "name": "R4.Hash",
+      "imports": [
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.Words"
+      ]
+    },
+    {
+      "name": "R4.HashNat",
+      "imports": [
+        "R4.Words"
+      ]
+    },
+    {
+      "name": "R4.HashNatCore",
+      "imports": [
+        "R4.HashNat"
+      ]
+    },
+    {
+      "name": "R4.HashWire",
+      "imports": [
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.Words"
+      ]
+    },
+    {
+      "name": "R4.ObjectTypes",
+      "imports": [
+        "R4.Hash"
+      ]
+    },
+    {
+      "name": "R4.ObjectCodec",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.Hash",
+        "R4.HashWire"
+      ]
+    },
+    {
+      "name": "R4.ObjectStore",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ]
+    },
+    {
+      "name": "R4.ObjectRead",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ]
+    },
+    {
+      "name": "R4.Object",
+      "imports": [
+        "R4.ObjectTypes",
+        "R4.ObjectCodec",
+        "R4.ObjectStore",
+        "R4.ObjectRead"
+      ]
+    },
+    {
+      "name": "ObjectManifestVersion",
+      "imports": [
+        "R4.ObjectCodec",
+        "R4.ObjectTypes"
+      ]
+    },
+    {
+      "name": "ObjectContextualFinishContext",
+      "imports": [
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ]
+    },
+    {
+      "name": "ObjectContextualFinishTransport",
+      "imports": [
+        "ObjectContextualFinishContext",
+        "ObjectManifestVersion"
+      ]
+    },
+    {
+      "name": "ObjectContextualRangeFinish",
+      "imports": [
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "ObjectContextualFinishTransport"
+      ]
+    }
+  ],
+  "selection": {
+    "suppliedSourceFiles": 14,
+    "expectedReachableModules": 12,
+    "selected": [
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedButUnselected": [
+      "R4.Object",
+      "R4.ObjectStore"
+    ],
+    "boundary": "Source reachability only; official check must establish actual admission."
+  },
+  "phaseInputs": [
+    18,
+    18
+  ],
+  "preserved": {
+    "tenDrafts": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "sixMergedSources": [
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      }
+    ],
+    "canonicalFull33": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "storage": {
+    "hostAvailableBytes": "33030488064",
+    "reserveBytes": 10737418240,
+    "aggregateLimitBytes": 1048576
+  },
+  "boundary": "All original runtime/source/digest/limits and exact false/positive statements remain. Congruence and actual consumer conversion may still be costly; no cached/hash-avoidance or performance claim."
+}

@@ -1,0 +1,131 @@
+{
+  "schema": "lexlean-r4-contextual-finish-next-range-investigation/v1",
+  "status": "SOURCE_ONLY_ACTUAL_PREREQUISITE_BOUND_PENDING_FINAL_SPEC_NATIVE_NOT_RUN",
+  "prerequisite": {
+    "candidate": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/manifest.json",
+      "bytes": 4531,
+      "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+    },
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+      "bytes": 29808,
+      "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+    },
+    "sourceCodeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/candidate-invocation-code-review.json",
+      "bytes": 6467,
+      "sha256": "de8322472edd926cc994a4e4ca99d7b6913b4cbc2f2986a5fb8cc63e9fd6353e"
+    },
+    "actualFinishResult": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/result.json",
+      "bytes": 1098,
+      "sha256": "4a4358174de858c8e88a8ff9bc920e06291e2e0af075da3c9861d761c77cfb99"
+    },
+    "independentFinishNativeReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/positive-native-review.json",
+      "bytes": 6648,
+      "sha256": "875811629dd2bbb4c495a7d64b39704c2d42662d9fc59c83a3ae091e56ef994f"
+    },
+    "boundary": "Actual full contextual finish independently accepted locally. Next admitted-range consumer remains NOT_RUN and requires final source-design binding review and independent candidate review.",
+    "attestationId": "06cb293e78e1cadd07b7140caae4e52f67e8b991e8dbb591862fa4c5deab0b60"
+  },
+  "lineage": {
+    "previousConditionalInvestigation": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-concrete-range-finish/evidence/next-range-result-investigation-conditional.json",
+      "bytes": 9835,
+      "sha256": "a78afe7ea44a2ed23cc532580f1e70ab9df58c5c617937ce30762127ac0099c5"
+    },
+    "previousConditionalSpec": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-concrete-range-finish/evidence/next-range-result-spec-review-conditional.json",
+      "bytes": 5876,
+      "sha256": "c70f08b9009dfb9a39a7494981407d7ebacb429578275d384fffef35d47326a0"
+    },
+    "failedDirectConfigurationReview": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-concrete-range-finish/evidence/failure/failure-native-review.json",
+      "bytes": 11070,
+      "sha256": "66ef0b91d730c9b512e5aefc16df26ce76240d5ea5a5cc8ffb0e37e545be29ea"
+    },
+    "oldDirectSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-concrete-range-finish/candidate/positive/tests/lexlean/ObjectConcreteRangeFinish.lex.tex",
+      "bytes": 29622,
+      "sha256": "94de59ebdee285f9e250bdb4e266ad344814c4bda1e3c6deea4bb62dad574b1b"
+    },
+    "boundary": "The former direct-finish prerequisite timed out; its source and conditional plan remain immutable and cannot confer acceptance. Current contextual source has the identical theorem statement but a different proof/module and requires actual independent acceptance."
+  },
+  "finding": "The previously conditional admitted-range goal needs no statement change. Its prior Apply reference must be updated from the failed direct-rfl theorem to the eventual independently accepted contextual full consumer. This is an explicit proof/source binding revision requiring review, not a new semantic route or an assertion of composition.",
+  "exactGoal": {
+    "positiveStatementSha256": "282744d2dd1c799641f9c9c1effe3bbed18a0b73b4df1adc2e2fc8235548fe2d",
+    "negativeStatementSha256": "bd892b0af87a9eb32307def62ed3c5c01947336cf3df6e3019f156300fad4bfe",
+    "acceptedRangeSource": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    "middleEqualitySha256": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+    "oldAndNewFinishStatementsEqual": true,
+    "finishStatementSha256": "e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4",
+    "extraction": "LHS remains exact accepted connected-range declaration0.statement.left. RHS remains exact full finish declaration0.statement.right; connected-range RHS and finish LHS are byte-equivalent canonical ASTs.",
+    "preserved": "Original backend, manifest, range, limits, complete96bytes/version/range/emptyremainder/stats4/4/184; sole expectedwire184→185 negative, no actualinput mutation."
+  },
+  "requiredSourceRevision": {
+    "oldReference": {
+      "module": "ObjectConcreteRangeFinish",
+      "name": "objOriginalConcreteRangeFinish"
+    },
+    "newReference": {
+      "module": "ObjectContextualRangeFinish",
+      "name": "objOriginalContextualRangeFinish"
+    },
+    "proposedProof": {
+      "kind": "apply",
+      "theorem": {
+        "module": "ObjectContextualRangeFinish",
+        "name": "objOriginalContextualRangeFinish"
+      },
+      "type_arguments": [],
+      "arguments": []
+    },
+    "imports": "New actual range consumer must import ObjectContextualRangeFinish and all actual source references it uses; pinned positive contextual context/transport/version closure inherited. Do not import the rejected direct-rfl target.",
+    "qualification": "Cross-module theorem reference remains explicitly qualified. New local references, if any, must be name-only.",
+    "nativeStatus": "All new admitted-range candidate/native tests NOT_RUN"
+  },
+  "mechanismAndLimits": {
+    "supported": "Apply is the existing supported exact prior-theorem constructor. The new reference is a full consumer theorem with exactly the old finish statement, not the helper transport.",
+    "conversion": "Actual ObjRangeAdmitted LHS still must become definitionally equal to the full finish theorem LHS. Applying the contextual finish consumer does not automatically use the previously accepted connected-range equality as a rewrite.",
+    "cost": "Conversion may unfold the original guards, planner, visitor and hashing path. No measured performance benefit, cached hash, avoided computation or successful conversion is established. The contextual finish proof timing cannot be transferred.",
+    "explicitTransitivity": "No Eq.trans or Rewrite proof constructor is invented; no supported two-equality composition lemma has been established here. The old mathematical A=B/B=C argument remains a goal description, not an implemented DSL proof.",
+    "resource": "Keep original300000ms child/4GiB2CPU and source/compiler/language/tool/lock/epoch/zeroevent/idle/storage gates. Do not repeat an unchanged timeout or raise limits."
+  },
+  "prospectiveClosure": {
+    "description": "Use the actual positive contextual finish closure and add one actual range consumer; replace entrypoint/config only. Exact source census must be recomputed before authoring.",
+    "predictedInputs": 19,
+    "predictedSuppliedSources": 15,
+    "predictedReachableModules": 13,
+    "notActualAdmission": true
+  },
+  "futureGates": [
+    "First actual contextual full finish pair and independent artifact/kernel/axiom/resource review; helper-only success insufficient.",
+    "Bind actual source/result/review in a fresh successor, preserve this null-bound report, and obtain independent SPEC for the renamed reference and exact unchanged fullrangegoal.",
+    "Then source/AST/import/canonical review and official actual false consumer intended mismatch; dependency failures/timeouts are not intended negative.",
+    "Only after independently accepted negative and fresh gates, positive full consumer plus artifact/emptyaxiom/kernel audit."
+  ],
+  "remaining": "No successful admitted-range Result, outer whole-read admission/wrapping, genuine96byte wholehash/originaldigest comparison, ordinal26/allRead33 or full Object/Hash/PrismPM/Pages acceptance. Ten unfinished drafts remain required.",
+  "actions": "One external read-only source investigation only. No new source candidate, active result access, native/VM/repository edits, or semantic design expansion.",
+  "storage": {
+    "hostAvailableBytes": "30845992960",
+    "reportLimitBytes": 12288,
+    "reserveBytes": 10737418240
+  },
+  "conditionalHistory": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/next-range-result-investigation.json",
+    "bytes": 7971,
+    "sha256": "e56e5c898a2122d43ad62930b2c3824e2244f87de21b832f73b49e1a4b3312a1"
+  },
+  "conditionalSpec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/next-range-result-spec-review-conditional.json",
+    "bytes": 4414,
+    "sha256": "dcc72f507717196eec4bf8352c5c86364c02e361d204c92e371bc8bbf07afe73"
+  },
+  "bindingDelta": "Only prerequisite status, actual result/review/attestation and historical pins added. Exact goal, intended negative, proof reference, conversion uncertainty and semantic plan remain unchanged."
+}

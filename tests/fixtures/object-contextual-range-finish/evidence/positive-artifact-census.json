@@ -1,0 +1,634 @@
+{
+  "schema": "lexlean-r4-native-artifact-file-census/v1",
+  "sourceArtifact": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/artifact",
+  "count": 125,
+  "ordinalArraySha256": "a06f0dc077c74414b92f76994359a4fda01d4ae69b104d4ddbfdcffe4a298bfd",
+  "encoding": "JSON.stringify(ordinal-path-sorted [{path,bytes,sha256}])",
+  "files": [
+    {
+      "path": "attestation.json",
+      "bytes": 163943,
+      "sha256": "578c69fd72daf56e368666b30e2cafc741bbe451362942841b4bb113f74a0a9d"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectContextualFinishContext.lean",
+      "bytes": 193,
+      "sha256": "f6dfcaa8b736d655c2632e32160cd7886d0d8fbcea3ae0baa3da2ed3d9bd33ed"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectContextualFinishContext.process.json",
+      "bytes": 715,
+      "sha256": "a829625a9d69cc724a9ead14c593700803dac4514b3874cfeddf06923bc2a02f"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectContextualFinishTransport.lean",
+      "bytes": 128,
+      "sha256": "9396fa7d8d943a299e1f8c92e1e1f30a438a436e8c075b595ba5daa683cda18d"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectContextualFinishTransport.process.json",
+      "bytes": 633,
+      "sha256": "ad86ec06ff83ede29b57db5571d38d2cc2528a139dc7d32d7f2d2e65f2055661"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectContextualRangeFinish.lean",
+      "bytes": 137,
+      "sha256": "6b7fddc0d4eab18c074d32354e6caa7d4dee220f9c8adb81597d9dde5ec1aa01"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectContextualRangeFinish.process.json",
+      "bytes": 638,
+      "sha256": "e3195e85d29a12be72991f9b2379327e90c42a38fef374978424ba1cd8c1e2ce"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectManifestVersion.lean",
+      "bytes": 119,
+      "sha256": "1c9da828ccb0744e63ecbb7e8c8fe9556f1f1311190cd044ab9fa71c99b01a3e"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.ObjectManifestVersion.process.json",
+      "bytes": 614,
+      "sha256": "fd33d9d8d8ff1a9ec1f777018a1a832723d1f743185db12ece49b1fe7b8cf287"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.Hash.lean",
+      "bytes": 8214,
+      "sha256": "29f60eaf853ae91ebfeb46d501eb6dbffb257cfb187f80d27d55174ca2c32846"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.Hash.process.json",
+      "bytes": 12229,
+      "sha256": "3ed368f9a2322f5b68ec00b0f65e5d6bf3692185710c28af715cc20fe3fccb3e"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.HashNat.lean",
+      "bytes": 2095,
+      "sha256": "701a696c007db2070c0956ef89e4bb35d5078447553ccab1d6a91bbeb3f29e1d"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.HashNat.process.json",
+      "bytes": 3320,
+      "sha256": "5dc6a0a97312bf726255fe3445611b3cadf50a5779525b8e00cfda73963ca003"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.HashNatCore.lean",
+      "bytes": 9649,
+      "sha256": "dd53ba0ac597483cad9f1052af7f9307ba8953d0c7607a963a051ea3a0678cc6"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.HashNatCore.process.json",
+      "bytes": 13310,
+      "sha256": "63db7f16b8a75cacd273a8a10f2f151fee5c2af6a72fe11d76c3a3c320de0837"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.HashWire.lean",
+      "bytes": 440,
+      "sha256": "562760e2d3844cfc0088f68aa153732a7f6fe6e6b9218c9156b301f54beed4a0"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.HashWire.process.json",
+      "bytes": 1039,
+      "sha256": "ccf3847627be9c632b451b5297edeeac78ba16aa1d9580ef836c864f2202610f"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.ObjectCodec.lean",
+      "bytes": 5799,
+      "sha256": "bd39af31780fc875be5d377115fc016eb16e9577987612ce5b8b5d154cbf3922"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.ObjectCodec.process.json",
+      "bytes": 8168,
+      "sha256": "b22defee189dcdc5f684a67fec8406b6915a6acfcb973d0f6d387a2c4506c652"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.ObjectRead.lean",
+      "bytes": 1760,
+      "sha256": "f87fdcd30aae271ce02a297fecc72cf995544047ecd4dcaacff8e6c5887f3986"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.ObjectRead.process.json",
+      "bytes": 2836,
+      "sha256": "e895b25d553678c1bf835c9886645ebfa2297e04a5fa3d11eed6eadddffeaa95"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.ObjectTypes.lean",
+      "bytes": 5953,
+      "sha256": "5c83a0d720ae9ef3f9aa48a708debe3ef1672b348c5d65560606b5acbe133109"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.ObjectTypes.process.json",
+      "bytes": 8493,
+      "sha256": "ed6398cdaa003fb0e8def51f4fc07861bcda7125dfd269375b1ed23f8f649662"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.Words.lean",
+      "bytes": 5906,
+      "sha256": "ea2e25090559464a3e2a0db3b6f9523b64a5bdd006765eb74577a25f4947ee92"
+    },
+    {
+      "path": "audit/LexLeanAudit.A070998cbfe16cdc2aa4733298e324c1a.LexLeanR4.R4.Words.process.json",
+      "bytes": 8801,
+      "sha256": "88d26f9e722bfb762bb6f94459e48f818f45fe3404c204c9ca79f0bb74e30598"
+    },
+    {
+      "path": "audit/output.txt",
+      "bytes": 53862,
+      "sha256": "4828d9e0f093083be2e8148151f6131d38f33eb3fb45b0003cc3582a1aee7330"
+    },
+    {
+      "path": "build-manifest.json",
+      "bytes": 14725,
+      "sha256": "f38763454b6a570adc3ea22e4cc80c67f9f7898fb523aa8586939908d375aef2"
+    },
+    {
+      "path": "coverage/LexLeanR4/ObjectContextualFinishContext.coverage.json",
+      "bytes": 15325,
+      "sha256": "39f71402db5c3f09915506851cf036279943b3921c1fa018efb500261e8585df"
+    },
+    {
+      "path": "coverage/LexLeanR4/ObjectContextualFinishTransport.coverage.json",
+      "bytes": 12770,
+      "sha256": "f6e8376d42a37ca166b29871c8fdba9fb9ba96bba13c524fd7100ec0288ce185"
+    },
+    {
+      "path": "coverage/LexLeanR4/ObjectContextualRangeFinish.coverage.json",
+      "bytes": 14360,
+      "sha256": "986d6c0b9ceb100d22d796331415ec1ad5d9f52d6bf0958df27d5f6da9101834"
+    },
+    {
+      "path": "coverage/LexLeanR4/ObjectManifestVersion.coverage.json",
+      "bytes": 13168,
+      "sha256": "573e06572c6875c6ed3aa8980a9923f8e8c348d807b345d333502b65c7a87e5e"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/Hash.coverage.json",
+      "bytes": 63324,
+      "sha256": "3bbda9baed672cd694b28cdc7d3063b48d7b4f52e9bf19535cc5a64c9e0aa8f6"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/HashNat.coverage.json",
+      "bytes": 21526,
+      "sha256": "74c9af4380510faf1497e1432b4ccdab2e159a93644a2dc276d512ef6cabdd99"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/HashNatCore.coverage.json",
+      "bytes": 56270,
+      "sha256": "b676ef62f1baab1a31c77830a2774abdc1b86042a66743bd61a1714cf72e841d"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/HashWire.coverage.json",
+      "bytes": 16026,
+      "sha256": "8e639fb7e50b00af3e3888f3ff1b93d80d5f8a9a450a96650714edd0dd2528ca"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/ObjectCodec.coverage.json",
+      "bytes": 40175,
+      "sha256": "1e9cae8813b002fddfa34f8bcd46a9fe670d1e57c5d4a499602f6c810ed42b15"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/ObjectRead.coverage.json",
+      "bytes": 20657,
+      "sha256": "025f2fbc0d29a66aeacae5ba8bc74dec0e42b55e1be64f16a5cd82269983e1ee"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/ObjectTypes.coverage.json",
+      "bytes": 40201,
+      "sha256": "f5ac7ccd7eaf7c97b8562ec547bf82ac646d316752e769e869f41d0a1f6687e6"
+    },
+    {
+      "path": "coverage/LexLeanR4/R4/Words.coverage.json",
+      "bytes": 43925,
+      "sha256": "dc7d05617ba97128f4091876dd32dfec84ba37a602f1b84439065a9785f48ed9"
+    },
+    {
+      "path": "lexicons/ObjectContextualFinishContext.closure.json",
+      "bytes": 10627,
+      "sha256": "1d6f052dda665eb6ee8feb92cd7ff295eae6bb227ec70b96e3555812b846b195"
+    },
+    {
+      "path": "lexicons/ObjectContextualFinishTransport.closure.json",
+      "bytes": 10629,
+      "sha256": "3b61aede89ed91e162c4ef466816f5f9564667d9074fc521dee83ed471ccf736"
+    },
+    {
+      "path": "lexicons/ObjectContextualRangeFinish.closure.json",
+      "bytes": 10625,
+      "sha256": "e7e8260813a1a0addb0be552bcc65fd484a09154f6cf7915ba0f49dde3196c88"
+    },
+    {
+      "path": "lexicons/ObjectManifestVersion.closure.json",
+      "bytes": 10619,
+      "sha256": "d1a4dfbf702ecd6383afec5c148d32bd00bb063d2724ff194b96d988cc5c31eb"
+    },
+    {
+      "path": "lexicons/R4.Hash.closure.json",
+      "bytes": 10605,
+      "sha256": "c51b353d2d7f083d83b7ad728237ed172780088f9d4890f36f52b490cb605464"
+    },
+    {
+      "path": "lexicons/R4.HashNat.closure.json",
+      "bytes": 10608,
+      "sha256": "08c675a13d196e10288fd6427e3ea38870216e3d69fd01b282deb3a19bacf988"
+    },
+    {
+      "path": "lexicons/R4.HashNatCore.closure.json",
+      "bytes": 10612,
+      "sha256": "01a5b8e8f945f9feb03e053aefe548d5b42454efd35ca80a86f85e1e74da3220"
+    },
+    {
+      "path": "lexicons/R4.HashWire.closure.json",
+      "bytes": 10609,
+      "sha256": "6905321bc891fd4b2fb05673099f0a9e08e1ad0bf8ab94446e39a4b290ce44bd"
+    },
+    {
+      "path": "lexicons/R4.ObjectCodec.closure.json",
+      "bytes": 10612,
+      "sha256": "0bf7a1843cbcaeb058c5b653adebee3e341b3c8e1aae45ab605b3394d1dbb563"
+    },
+    {
+      "path": "lexicons/R4.ObjectRead.closure.json",
+      "bytes": 10611,
+      "sha256": "39fecd40d474b34e623c97ab8acca960cd814f39dc1a2ead2782c77bef35f8e0"
+    },
+    {
+      "path": "lexicons/R4.ObjectTypes.closure.json",
+      "bytes": 10612,
+      "sha256": "79ee785a39e50e8206c49cda0ea50d329127bab61b7fe1231d6140c3f5c14a6a"
+    },
+    {
+      "path": "lexicons/R4.Words.closure.json",
+      "bytes": 10606,
+      "sha256": "d4945717158680d50eb2c6b0b78f4f11b15cc322ef8bfe24c69fdfad2eaae787"
+    },
+    {
+      "path": "maps/LexLeanR4/ObjectContextualFinishContext.map.json",
+      "bytes": 1801,
+      "sha256": "d97f0da6d1031087828d5964532d9ca5c45f96d885a5f90c297f2a4b4b2cd527"
+    },
+    {
+      "path": "maps/LexLeanR4/ObjectContextualFinishTransport.map.json",
+      "bytes": 1465,
+      "sha256": "553a082bd6e99c2feceee080bded29ec2ebb5243a88c57b14153adb5e30784ee"
+    },
+    {
+      "path": "maps/LexLeanR4/ObjectContextualRangeFinish.map.json",
+      "bytes": 1461,
+      "sha256": "9a24701649e9df5deed428b9a967affbeeb4d159738c44b532d80743af4e3532"
+    },
+    {
+      "path": "maps/LexLeanR4/ObjectManifestVersion.map.json",
+      "bytes": 1431,
+      "sha256": "2e2ebae2c8a7f40ca32908b2fac2b0eb9b496a92353ff793da2f04e3bd9b5164"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/Hash.map.json",
+      "bytes": 64125,
+      "sha256": "a12e4f2eb973a534ebf44498ade1740ccbec32799f9467b2299c8f650645ebd6"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/HashNat.map.json",
+      "bytes": 14186,
+      "sha256": "199c9491137762ccb2b173237ec8eaba4028a1f66ac4377019e5af16fa39b1ad"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/HashNatCore.map.json",
+      "bytes": 57166,
+      "sha256": "0339a8aeed6c91693573aac510d3362e0d0eb76d3dfac00d6b6583afc9567e93"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/HashWire.map.json",
+      "bytes": 3307,
+      "sha256": "81d12167b4e2fcd4bced1890d8a894ff04b5fab83822604b8e28f529154d64dd"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/ObjectCodec.map.json",
+      "bytes": 34231,
+      "sha256": "2d4e96aa0ddd6bd9062a1e1e5d59631e0c97ab389afc4da9316b30ca3b7fa16e"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/ObjectRead.map.json",
+      "bytes": 11524,
+      "sha256": "9afb03eda4ae3bd7df3ab0ca9827466e13e02d335e8b717c6e6cf8b6cb8526e3"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/ObjectTypes.map.json",
+      "bytes": 36975,
+      "sha256": "6d172a94796bb01d866b910c0f558279741e6c9e9c38201d8d250ac296ae2a35"
+    },
+    {
+      "path": "maps/LexLeanR4/R4/Words.map.json",
+      "bytes": 43705,
+      "sha256": "421d45de66eef72cba930b5206331353c361bdcc7b8dee0d7ebd0ce65697dcc0"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectContextualFinishContext.lean",
+      "bytes": 12823,
+      "sha256": "1afdaabb12ab60ec8555eb52acd195fa5bb38b7e0f6d5c3ad87bf2e1611e4493"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectContextualFinishContext.tex",
+      "bytes": 13047,
+      "sha256": "b9e836d51c90786b00641e521045f6aae3930460c64782036184fdd7a4448d4b"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectContextualFinishTransport.lean",
+      "bytes": 697,
+      "sha256": "e6db81cce8edf9be7951a3de159b877606d57bb63971d5207e718104c0affc77"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectContextualFinishTransport.tex",
+      "bytes": 416,
+      "sha256": "511fc884cf868d73338609fd8b93baf82fd283b73754afab648d168ec6f1968e"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectContextualRangeFinish.lean",
+      "bytes": 6170,
+      "sha256": "b09f44d7ba34cc9f438a30ac8d87b980968441e5906ad53b16194f71385d5478"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectContextualRangeFinish.tex",
+      "bytes": 6014,
+      "sha256": "c36714dfa309543eec0b0076de146eb9cc43b1a63095572206e119f8c43373c9"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectManifestVersion.lean",
+      "bytes": 1667,
+      "sha256": "5a4a4c9466c823bf8f91ff3dc7f74f7469b160678ff5535105bb18040533c4d4"
+    },
+    {
+      "path": "modules/LexLeanR4/ObjectManifestVersion.tex",
+      "bytes": 1608,
+      "sha256": "622fccdf43778136fdee68302cb5388e7cae4c01bc3e5b9dbd03af8253d88221"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Hash.lean",
+      "bytes": 191175,
+      "sha256": "545e9740c6ca93183a00c09b403c0629e4bfb2dd3f30b9178071d51c393c3d5b"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Hash.tex",
+      "bytes": 228602,
+      "sha256": "356633293cc0413835b6ee5948b44d75a383bef0c9ccc977e0ce3b8af2b72d6d"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNat.lean",
+      "bytes": 31334,
+      "sha256": "fc36c3a54f647bcb81e018d3f446c432ee504a78d30a7374975ddc2b746f0000"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNat.tex",
+      "bytes": 24923,
+      "sha256": "1531f5b653d38cd5c2e30ce89389142bfe45a886592aca0c69a9db09535451c2"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNatCore.lean",
+      "bytes": 95917,
+      "sha256": "5cae5ffd095d872dee5715983a7b58d524b584554488fc7f866c67aa61a9c377"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashNatCore.tex",
+      "bytes": 114315,
+      "sha256": "0c87a37696f2f71ccf1303209878f5e685cc00fa5c254d40f706c5b932f21ff9"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashWire.lean",
+      "bytes": 3926,
+      "sha256": "a023308cf9b98bab65984e139a03e6f45b2d20aec6e7c2122686a75c9f4ebd4b"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/HashWire.tex",
+      "bytes": 4979,
+      "sha256": "e86620ee84caf0018d62c6e23af4a91d0450165a6e08c41d7f304a453342cac8"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectCodec.lean",
+      "bytes": 32220,
+      "sha256": "cd2a8228d5b124d690bb6961ea709339e17f070cba371b27c286ce3f9400a78c"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectCodec.tex",
+      "bytes": 50391,
+      "sha256": "2f84998672233f9327d63c34d5a804014dfb3c650e5f426157f5bcd79a3392a2"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectRead.lean",
+      "bytes": 24436,
+      "sha256": "9333789c72b972842ae48d851e3f2986e60d15ffa222a8486e740fabe398413a"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectRead.tex",
+      "bytes": 29419,
+      "sha256": "0e901c860268c6755a244421cfd9d726fed14d6dca8729ae84afd6c25d71d85b"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectTypes.lean",
+      "bytes": 24191,
+      "sha256": "9fc38ba3adb44f0329782c5e477a1ff7b4211bdabb08892f7a3702e4edd94aa2"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/ObjectTypes.tex",
+      "bytes": 43264,
+      "sha256": "8fb094db832cdacfaaf3f61235be9fa4d9b0b94d0eae895f31685e3f01a17fcd"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Words.lean",
+      "bytes": 51343,
+      "sha256": "303aea3e5a40129b1f9560059e32a80772d3fe244b3165c07c9672ea131cf0d6"
+    },
+    {
+      "path": "modules/LexLeanR4/R4/Words.tex",
+      "bytes": 74890,
+      "sha256": "75bebff2e36d7a20b457159c1cd29e6e7d40976e74751849059a4a6f11cbc91e"
+    },
+    {
+      "path": "oleans/LexLeanR4/ObjectContextualFinishContext.olean",
+      "bytes": 53840,
+      "sha256": "07077c07cd663f13ec401e9d84eff66eb3e06c95aa79e8af59c57eb54ddda8b4"
+    },
+    {
+      "path": "oleans/LexLeanR4/ObjectContextualFinishTransport.olean",
+      "bytes": 3576,
+      "sha256": "6efd5f5eed2f8fadbfb738b4c7b1de5e2d63b2043f9c95603446163b4deeed3c"
+    },
+    {
+      "path": "oleans/LexLeanR4/ObjectContextualRangeFinish.olean",
+      "bytes": 43640,
+      "sha256": "3d094f710b248b83f2f64f2390561b3392b20c63b8764bfa4baf2c7820f5292a"
+    },
+    {
+      "path": "oleans/LexLeanR4/ObjectManifestVersion.olean",
+      "bytes": 21256,
+      "sha256": "d6051cd6b80a04d4f8926711140cb1a4951917ad99e6a3b6d6aa65715f6f1c21"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/Hash.olean",
+      "bytes": 739088,
+      "sha256": "f8312823a9da43452e20ff108ad411e7368729855b47ff26395e7f0d3bd9d29d"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/HashNat.olean",
+      "bytes": 647768,
+      "sha256": "39d2b491c0155cf1b1529dbc5c9a38080cf2a85fe8e1f9725ec19e4d1d1489d0"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/HashNatCore.olean",
+      "bytes": 956944,
+      "sha256": "76c6a539e4d222ec475cb535b98cc33edafc7d03aea470f6c46ea51958a05894"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/HashWire.olean",
+      "bytes": 27464,
+      "sha256": "4a03eebae9e134730b4a6a2c5a16a12f567f001ea61eca5a32e40502ebd94dc4"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/ObjectCodec.olean",
+      "bytes": 228600,
+      "sha256": "4900d0e3839cbc71ebb63f3947f0b702b078cf3972cbe562c5c3233e74cf691a"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/ObjectRead.olean",
+      "bytes": 308864,
+      "sha256": "0fd25e182d113f3401b80516ed4e3f22bb81763ed73bacef0e4ef7de1cbc3e49"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/ObjectTypes.olean",
+      "bytes": 673608,
+      "sha256": "3c5c117885a2e1cf1bcccb98aff2c9ad7e3ba8d760e5faccb5d9ac0ff353b958"
+    },
+    {
+      "path": "oleans/LexLeanR4/R4/Words.olean",
+      "bytes": 441064,
+      "sha256": "e07fddaaf307d780053401cf08f12ff3ebcc8440a78fff0894a6bff96a187d0b"
+    },
+    {
+      "path": "probe/LexLeanProbe.P070998cbfe16cdc2aa4733298e324c1a.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120"
+    },
+    {
+      "path": "probe/process.json",
+      "bytes": 460,
+      "sha256": "fc643ff4251210eb97915f43225644754a5470ce9c134d9965a1f7b8b5d75431"
+    },
+    {
+      "path": "process/lean/LexLeanR4.ObjectContextualFinishContext.json",
+      "bytes": 543,
+      "sha256": "12519fc893e743ee46054c470e6f83611325e134ef53c12dc11995d005dd125d"
+    },
+    {
+      "path": "process/lean/LexLeanR4.ObjectContextualFinishTransport.json",
+      "bytes": 549,
+      "sha256": "85880284d197d9448ed9c515dc5c371d27d4ca9e31cda3a8699c71e48f1fe6b2"
+    },
+    {
+      "path": "process/lean/LexLeanR4.ObjectContextualRangeFinish.json",
+      "bytes": 537,
+      "sha256": "9793e2dc10d04a41524a8df2f71c05af70a02bcc825da744f22734b9433b2e83"
+    },
+    {
+      "path": "process/lean/LexLeanR4.ObjectManifestVersion.json",
+      "bytes": 519,
+      "sha256": "74a10fbae5eca989c20ee943e0d7c322ee2e1a76d1e9bbcff7a0470b628b0fb3"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.Hash.json",
+      "bytes": 477,
+      "sha256": "017aab9af7a159a6c20ba5c9d92c8d75e686e096a1ff19352ef5bb72bde7b421"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.HashNat.json",
+      "bytes": 486,
+      "sha256": "009fff91727e2bf92de44e6821e12f8e3c1322dff6e15879e445c7d7c6284ab1"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.HashNatCore.json",
+      "bytes": 498,
+      "sha256": "f196aabb95b51439a1c52c010742cc3da0f1c72a677d657b0edd5a988871ff38"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.HashWire.json",
+      "bytes": 489,
+      "sha256": "eabb12be288c87daaae62fdab3a8c9741dffab78b4801073c1388ea9b065dda7"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.ObjectCodec.json",
+      "bytes": 498,
+      "sha256": "223db181a15e02a1ddfd555e748a5eef9684061a44b3114674172dca3d242357"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.ObjectRead.json",
+      "bytes": 495,
+      "sha256": "c265f5f14d32645f8c0e9046c7cc948ea214ecc05b87cf3d5b0171cd7f72b466"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.ObjectTypes.json",
+      "bytes": 498,
+      "sha256": "5bf1d31ef13a6b624f84eb8804dd64acca9e413e08d49aa1d9452bbdcd6e747e"
+    },
+    {
+      "path": "process/lean/LexLeanR4.R4.Words.json",
+      "bytes": 480,
+      "sha256": "8eb43c37e10c8c6557797c50e2d28ba6665367abfcbb9f2dd600eb07ba83c13f"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.ObjectContextualFinishContext.json",
+      "bytes": 455,
+      "sha256": "93c59e4f2fd8d08b9d88fe34e2911ae82355cb70a7436829f71107309646f17c"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.ObjectContextualFinishTransport.json",
+      "bytes": 459,
+      "sha256": "e4131bc749c56dbc06cd2b98701160a78fda2f3515f6e82f68dfdbe6064941a4"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.ObjectContextualRangeFinish.json",
+      "bytes": 451,
+      "sha256": "dd92eef24895e95b9580a58e76c1215f9a0f6040da5b0864f8768b10d2cf76a0"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.ObjectManifestVersion.json",
+      "bytes": 439,
+      "sha256": "d071c2629bff4566b0823660e784887796b8e100e1aaeb2c97ac6abfcd637a68"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.Hash.json",
+      "bytes": 411,
+      "sha256": "65d005266230a37d5441800c80ce704b800ca927d01e0159f07d0337ecb88ad2"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.HashNat.json",
+      "bytes": 417,
+      "sha256": "3b8ac9cbbb932cdc4ea4aa177f647f03b454566d33ca1f04838b107495cbd29c"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.HashNatCore.json",
+      "bytes": 425,
+      "sha256": "9f315e820271b7efba44dec5891411bcb3892dec9a0f2012c651faa05f841e8d"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.HashWire.json",
+      "bytes": 419,
+      "sha256": "9a7a64dde311f9a103e52e90f73e41717d1731c6f362d2770d12d39688131d02"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.ObjectCodec.json",
+      "bytes": 425,
+      "sha256": "5af2ed763cbf940df2ef00a94a725c3a8cf4fcb57e3a3dfae44341e850a95f67"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.ObjectRead.json",
+      "bytes": 423,
+      "sha256": "56182cf942d725fbb517df26b777b75c5d66f3070112524820431234efbfe346"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.ObjectTypes.json",
+      "bytes": 425,
+      "sha256": "f02bbc74631061676acc96d07ba20096a7ad6f00ab8dcf5925e4fd66478dbcde"
+    },
+    {
+      "path": "process/leanchecker/LexLeanR4.R4.Words.json",
+      "bytes": 413,
+      "sha256": "e888e24025dec9e2587c4028988ede5b65f760c2b194510f9ca60da5b6c2446c"
+    }
+  ]
+}

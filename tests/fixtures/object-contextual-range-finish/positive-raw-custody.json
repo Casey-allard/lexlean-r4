@@ -1,0 +1,194 @@
+{
+  "schema": "lexlean-r4-contextual-finish-positive-raw-custody/v1",
+  "status": "CLOSED_POSITIVE_RAW_PRESERVED_INDEPENDENT_REVIEW_PENDING",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/check.json",
+        "bytes": 979,
+        "sha256": "7c6f0b6f12588b31747cf03f00d0ad508b6d5a2f44b87f9d573579d087d1a725"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/check.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/verify.json",
+        "bytes": 1294,
+        "sha256": "84d6ac02bec33eea0c91cab85d16baa82625be78e44c7d7a7ad54b426819c853"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/verify.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/result.json",
+        "bytes": 1098,
+        "sha256": "4a4358174de858c8e88a8ff9bc920e06291e2e0af075da3c9861d761c77cfb99"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/result.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/expected-inputs.json",
+        "bytes": 6545,
+        "sha256": "9d9a43723a6a69a9ad9c46ae09a2b94638a9ad64ac49dec5a55d35a718d47f6b"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/expected-inputs.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/source-before.json",
+        "bytes": 5271,
+        "sha256": "7331d8963f78a7f1b7426ef6fa7b7e3b5987fea7de6bac65ee7c47c9589647e2"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/source-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/source-after.json",
+        "bytes": 5271,
+        "sha256": "6242e1f006537ff5db8a7ac216bfd3253aae45830e4f742a5e4cebeee50546d1"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/source-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/lock.json",
+        "bytes": 551,
+        "sha256": "f14c1dd6fa81212bb3fa257545b0bc0311a2a1b4a1a31f71c8337192d440e21a"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/lock.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/lock-bytes.json",
+        "bytes": 2067,
+        "sha256": "798111fb90fbb0fd8599cbd89ce90969d28ac75a69aba69c9a13faf62e082532"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/lock-bytes.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/lock-after.json",
+        "bytes": 513,
+        "sha256": "75b15f0f74709ec48ffb97ff3918c619b22f31d14631ba6c1e6a3e3749434166"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/lock-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/tools-before.json",
+        "bytes": 1005,
+        "sha256": "a1e52eabd4e5e21ca217ebdd0ac8920e90cf0c2e6d7346f2da9a40644b9c02df"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/tools-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/tools-after.json",
+        "bytes": 1005,
+        "sha256": "a44a37aea2938372fb667575abc51d3d31f5b5de66b85f089d90f1ce0aeb2369"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/tools-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/epoch-before.json",
+        "bytes": 470,
+        "sha256": "39d258855ebdd96bb040c76af74a026b1e7408973fe3a46fd4b362d9ade15fa2"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/epoch-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/epoch-after.json",
+        "bytes": 470,
+        "sha256": "88642daba724d05bc773834042959c668a19c64a7a554e571052da604948141b"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/epoch-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/memory-before.json",
+        "bytes": 354,
+        "sha256": "45803886f74a409adf4ef35785811f539fd626f230ad9334a9bcb4d9e3733b5e"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/memory-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/memory-after.json",
+        "bytes": 354,
+        "sha256": "86877751e6ac0eb8deb76e1f32acad3c0c909fa1d856d3013e32358a287043fa"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/memory-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/idle-before.json",
+        "bytes": 460,
+        "sha256": "f2e5c4fb36c161870f615025d102011d51df5643eedcd6b08b3b0df48833ae32"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/idle-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/idle-after.json",
+        "bytes": 460,
+        "sha256": "ae1e0c2492a6faf606a15951e2a990ae68ff4fb46195f843cbb447b159dfe83e"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/idle-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/host-before.json",
+        "bytes": 152,
+        "sha256": "4e35c68205496d78ee3f0799fd32455693de3301df2762006bf8a8d0f18960bb"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/host-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/host-after.json",
+        "bytes": 142,
+        "sha256": "cfcd97e9575b4bc865ca5c82ca208cd23718b6a73c7fc1a24d1cdb74a1b7a3ce"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/host-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/guest-before.json",
+        "bytes": 406,
+        "sha256": "9331441be6cc2bd0f89f8597a40772bc787f2af763f51b00b3e6b1dccd491abf"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/guest-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/guest-after.json",
+        "bytes": 406,
+        "sha256": "595fff541d9e4541cd70a29f58003c3be0ab9376a704ad64f8e871d29356a3fa"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/guest-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/postcapture-errors.json"
+    }
+  ],
+  "derivedLock": {
+    "sourceReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/contextual-positive/lock-bytes.json",
+      "bytes": 2067,
+      "sha256": "798111fb90fbb0fd8599cbd89ce90969d28ac75a69aba69c9a13faf62e082532"
+    },
+    "operation": "Exact captured stdout bytes",
+    "destination": "tests/fixtures/object-contextual-range-finish/evidence/positive/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83"
+  },
+  "boundary": "Closed raw observations only; positive native acceptance and full artifact audit remain pending. This pending record remains immutable; later review binding must be additive. No compiler execution or source changes."
+}

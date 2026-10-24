@@ -1,0 +1,140 @@
+{
+  "schema": "lexlean-r4-contextual-finish-results/v1",
+  "status": "PASS_ACTUAL_SPECIFIC_COMPLETE_CONCRETE_FINISH_ONLY",
+  "sourceManifest": {
+    "path": "candidate/manifest.json",
+    "bytes": 4531,
+    "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+  },
+  "sourceBindings": {
+    "path": "source-bindings.json",
+    "bytes": 20952,
+    "sha256": "9c36d5dddb2c5b9ccb24b95c1fab6a482c4f3c526ef180e131b249f64a508166"
+  },
+  "reviews": {
+    "source": {
+      "path": "evidence/candidate-invocation-code-review.json",
+      "bytes": 6467,
+      "sha256": "de8322472edd926cc994a4e4ca99d7b6913b4cbc2f2986a5fb8cc63e9fd6353e"
+    },
+    "negative": {
+      "path": "evidence/negative/negative-native-review.json",
+      "bytes": 11220,
+      "sha256": "f3eb6da7202597ffde8d43b495519ac735f4f71d4947fdd837bddcf6665dabe0"
+    },
+    "positive": {
+      "path": "evidence/positive/positive-native-review.json",
+      "bytes": 6648,
+      "sha256": "875811629dd2bbb4c495a7d64b39704c2d42662d9fc59c83a3ae091e56ef994f"
+    }
+  },
+  "negative": {
+    "status": "ACCEPTED_FULL_CONSUMER_WRONG_WIRE_NEGATIVE",
+    "inputs": 18,
+    "suppliedSourceFiles": 14,
+    "selectedModules": 12,
+    "checkExit": 0,
+    "verifyExit": 1,
+    "diagnostic": "LLV7002",
+    "aggregateVerifyElapsedMs": 62057,
+    "finalModuleElapsedMs": null,
+    "artifact": null,
+    "custody": {
+      "path": "negative-custody.json",
+      "bytes": 10803,
+      "sha256": "3b2f2cfb0590bee42842eec74660016ed1a6b71ca9bcce8e887093ec7df0b0b7"
+    },
+    "lock": {
+      "path": "evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83"
+    }
+  },
+  "positive": {
+    "attestationId": "06cb293e78e1cadd07b7140caae4e52f67e8b991e8dbb591862fa4c5deab0b60",
+    "buildId": "e7e9d914c10fda49211f5c864776e08ac8fd748619b6d53c6847a2a97adc11b2",
+    "sourceId": "9ae35841825924c9e9680506c149f8559524a3f8c410732b8f9db0cd5b4edf0d",
+    "semanticId": "070998cbfe16cdc2aa4733298e324c1a2e9c20cc0102f95fcd43a835d99e2f58",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T02:08:45.640Z",
+    "verifyEnded": "2026-10-24T02:09:35.285Z",
+    "aggregateVerifyElapsedMs": 49645,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": [],
+    "equation": "Original ObjRangeFinish(S184, originalManifest96, originalWholeRange, originalLimits)=Result.ok complete ObjRangeVerified: original96bytes, exactversion, originalrange, emptyremainder, visits4/distinct4/wire184.",
+    "counts": {
+      "inputs": 18,
+      "suppliedSourceModules": 14,
+      "admittedModules": 12,
+      "rawCommandReceipts": 40,
+      "artifactFiles": 125,
+      "buildOutputs": 60,
+      "oleans": 12,
+      "emptyAxiomDeclarations": 776,
+      "successfulProcesses": 37,
+      "kernelReplays": 12,
+      "auditProcesses": 12,
+      "theoremStatementListNatLiterals": 404
+    },
+    "selection": {
+      "suppliedButUnselected": [
+        "R4.Object",
+        "R4.ObjectStore"
+      ],
+      "actualModules": [
+        "ObjectContextualFinishContext",
+        "ObjectContextualFinishTransport",
+        "ObjectContextualRangeFinish",
+        "ObjectManifestVersion",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.HashNatCore",
+        "R4.HashWire",
+        "R4.ObjectCodec",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.Words"
+      ]
+    },
+    "resources": {
+      "hostBeforeBytes": "31915352064",
+      "hostAfterBytes": "35844608000",
+      "guestBeforeKiB": "52971036",
+      "guestAfterKiB": "52960588",
+      "reviewTimeHostAvailableBytes": 35864465408
+    },
+    "lock": {
+      "path": "evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "7a810c77384cf999a1a5488804f6a3a8554f1f7309ba033478731d1d41282b83"
+    },
+    "rawPendingCustody": {
+      "path": "positive-raw-custody.json",
+      "bytes": 9921,
+      "sha256": "abfdc3b6780ce0e6700528de15aaa33c1bd844c1a345ce7a04355f5503667cc9"
+    },
+    "acceptedCustody": {
+      "path": "positive-accepted-custody.json",
+      "bytes": 5652,
+      "sha256": "b6426a1c178153e482eaecbb31f6c5affe3d59438e4c7db437cea21446dc64b6"
+    }
+  },
+  "artifactCensus": {
+    "reviewerOrdinalArraySha256": "a06f0dc077c74414b92f76994359a4fda01d4ae69b104d4ddbfdcffe4a298bfd",
+    "portableEnvelope": {
+      "path": "evidence/positive-artifact-census.json",
+      "bytes": 23688,
+      "sha256": "117f514a414992f507388960e8646a2d85d950c4fab25c256d5d83c8e6d70ed7"
+    },
+    "distinction": "Digest of compact sorted array differs from JSON envelope file SHA."
+  },
+  "limitations": [
+    "Actual specific concrete finish only. Does not itself establish composition with admitted-range equation, outer admission, whole96 data hash/digest, ordinal26/allRead33/fullObject/Hash/PrismPM/Pages.",
+    "Prior direct-rfl timeout remains unaccepted; this distinct source/transport result does not retroactively accept it.",
+    "No target-only timing, cachedproof/hashavoidance or general efficiency claim from aggregate49645ms.",
+    "Embedded compiler-owned input bytes not separately recovered; their manifest identities retained. Actual kernel/process evidence independently audited, no new native replay."
+  ],
+  "history": "Candidate README/source preparation NOT_RUN and pending raw custody remain byte-exact. Current results reflect actual independent acceptance only for this contextual full finish. Prior direct-rfl timeout and conditional next-plan null records remain preserved."
+}

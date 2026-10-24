@@ -1,0 +1,82 @@
+{
+  "schema": "lexlean-r4-contextual-finish-candidate-invocation-code-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_READY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T02:06:10.176Z",
+  "findings": [],
+  "pins": {
+    "manifest": {
+      "bytes": 4531,
+      "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+    },
+    "invocationManifest": {
+      "bytes": 1948,
+      "sha256": "30cb0e5b97ee7128f2c764061c9b345313d5e7118f3e0ee38f0a36e746d9a3ab"
+    },
+    "runner": {
+      "bytes": 7742,
+      "sha256": "808ae6ea278ecd74be052fa92d82c16d94c9a8a7bdbf20e487db3a12d276dc36"
+    },
+    "context": {
+      "bytes": 62202,
+      "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+    },
+    "transport": {
+      "bytes": 1110,
+      "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+    },
+    "negativeConsumer": {
+      "bytes": 29808,
+      "sha256": "2e25a2c7295788c90360a5ee739794740cf9b97dec9780779f73904bfe00e30d"
+    },
+    "positiveConsumer": {
+      "bytes": 29808,
+      "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+    },
+    "config": {
+      "bytes": 691,
+      "sha256": "93630436eaa82f38c5e3d282f527c83051b1a5eaf0a341b8a37a9d43e8055c8c"
+    },
+    "proposal": "22d42e9c9d0ec4ef9f6308d62fefa711927a95b260ce669356e140744d0ae11c",
+    "spec": "88eeb4ae9eb16353d0741319bf32ea382ac8db573805feff192c40d917b10d81"
+  },
+  "checks": {
+    "custody": "Eight frozen source payloads, eleven dependencies, invocation supplement payloads and exact predecessor runner rehashed; both18-input phase maps match files and unique destination census.",
+    "canonical": "All four new semantic-module/2 documents use canonical JSON. Three logical modules; one full consumer variant per phase. No same-module qualified references found.",
+    "contextReconstruction": "Independently substituted all four original actual ObjRangeFinish arguments into production body; hash a45e4f4147bae1c8b7afa29b89a2523299a2e7d8d95e4761395fe23418157ff1. Actual then_value.scrutinee equals independently accepted version theorem LHS. Replace only that scrutinee with versionResult and qualify exactly ObjReadRemainder/ObjWalkStatistics to R4.ObjectRead; resulting body deep-equals candidate H with hash5875de5cd19d3bf63bd05a048c5dc9698b3d7fe0b1d5906222c7126db42ba71d. Restoring call and undoing those two qualifications exactly reconstructs original instantiated body.",
+    "contextTypes": "H has one Result ObjVersion ObjError parameter and original Result ObjRangeVerified ObjError return type. Real length guard, integrity error, version-error propagation, output/range/remainder/statistics remain unchanged.",
+    "family": "Nat-valued count indexes Prop: zero is exact accepted version equality, successor is H(actualVersionCall)=H(Result.ok exactVersion). Local context function references are bare; external references are qualified. Constructor branches are Nat.zero[] and Nat.succ[prior].",
+    "transport": "One empty-axiom theorem, count:Nat, statement qualified ObjFinishGoal(count). Induction count, zero Apply ObjectManifestVersion.objOriginalManifestVersion; successor Cases prior with Congruence in both cases. After replacing the predecessor zero Apply target, proof AST exactly equals previously accepted connected-range transport structure. Proof hash77c0276251f050e5fa7f236b742741d7a151ba279fccaf3a0f72a7b3b9707d45.",
+    "consumers": "Positive statement deep-equals frozen original complete finish statement e106cca35e8932d8404ed5807d6117e881a5ec8a5d80d6340753e1d9d42a7bf4; negative deep-equals9cbc34fbf69ba2c9b3d576c8de9ec5d49656ac32ce31dd5e88d65d6c10cd5d51. Entire semantic modules equal after reverting sole expected stats.visitedRecordBytes185→184. Actual S184 input and common context/transport/version theorem remain unchanged. Both full consumer proofs Apply qualified objFinishLifted atNat1, empty axioms, no parameters.",
+    "closure": {
+      "inputsPerPhase": 18,
+      "suppliedSourceFiles": 14,
+      "staticReachableModules": 12,
+      "unselected": [
+        "R4.Object",
+        "R4.ObjectStore"
+      ],
+      "boundary": "Independently traversed all supplied import declarations; actual compiler admission NOT_RUN."
+    },
+    "invocation": "Exact eight documented literal substitutions applied to pinned predecessor reproduce complete runner bytes. Changes only description/selectors/fresh stage prefix/manifest pin/phase selection/18-input census/full consumer root. Resource, tool, epoch, source, lock, idle, zero-event and independent postcapture guards unchanged. Config differs only entrypoint;300000ms child,4GiB2CPU unchanged. Explicit single phase, mandatory ObjectContextualRangeFinish verify; no helper-only executor.",
+    "preservation": "Ten drafts, six canonical sources, full Read33 and all17 original snapshots rehashed unchanged."
+  },
+  "nativeSequence": [
+    "Parent fresh source/tool/epoch/idle/storage gates before official negative.",
+    "Intended negative requires actual full consumer mismatch for expected185; dependency admission/transport/timeout/OOM failure is not intended rejection. Independently audit before advancing.",
+    "Only accepted negative plus fresh gates permits positive; require real full consumer artifact, empty observed axioms, successful kernel/process replays and all postconditions."
+  ],
+  "limitations": [
+    "Static source/invocation readiness only; no actual admission, rejection, helper proof or concrete finish accepted.",
+    "H(actualVersion)=H(expectedVersion) must definitionally convert to original full consumer. This remains an actual compiler obligation; supported proof shapes alone do not establish it.",
+    "No cached proof, hash avoidance, cost improvement or exact timeout-subterm diagnosis. Congruence and consumer/kernel conversion may still be expensive.",
+    "Original direct-rfl timeout and both source variants preserved. No equivalent retry or changed limit; this is separately reviewed proof representation.",
+    "No admitted-range composition, outer admission, whole96 hash/digest, original ordinal26/Read33/fullObject/Hash/PrismPM/Pages acceptance."
+  ],
+  "storage": {
+    "hostAvailableBytes": 31286697984,
+    "reportLimitBytes": 20480,
+    "largeWork": false
+  },
+  "mutations": "Only this bounded external report; no native/SDK/VM/repository/index/frozen/other-lab changes."
+}

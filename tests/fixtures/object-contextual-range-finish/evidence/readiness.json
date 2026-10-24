@@ -1,0 +1,44 @@
+{
+  "schema": "lexlean-r4-contextual-finish-readiness/v1",
+  "status": "SOURCE_ONLY_READY_FOR_INDEPENDENT_CODE_NATIVE_NOT_RUN",
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/manifest.json",
+    "bytes": 4531,
+    "sha256": "fb887fd6c08843bf1fe47dd9eda6e444081e5a3fd60340b60e871edc59947486"
+  },
+  "invocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/invocation-manifest.json",
+    "bytes": 1948,
+    "sha256": "30cb0e5b97ee7128f2c764061c9b345313d5e7118f3e0ee38f0a36e746d9a3ab"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/invoke-contextual-range-finish.mjs",
+    "bytes": 7742,
+    "sha256": "808ae6ea278ecd74be052fa92d82c16d94c9a8a7bdbf20e487db3a12d276dc36"
+  },
+  "parseOnly": {
+    "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-contextual-range-finish/invoke-contextual-range-finish.mjs",
+    "exitCode": 0,
+    "runnerExecuted": false
+  },
+  "checks": {
+    "inputMappings": 36,
+    "currentPreservationPins": 17,
+    "originalSnapshots": 17,
+    "authorityAliases": 17,
+    "gzipDecodedAuthorities": 2,
+    "sourceSupplied": 14,
+    "expectedReachable": 12,
+    "canonicalJSON": true,
+    "contextOneHoleRoundTrip": true,
+    "fullFalsePositiveStatementsUnchanged": true,
+    "onlyExpectedStat184to185": true
+  },
+  "preparationFailures": [],
+  "storage": {
+    "hostAvailableBytes": "33048592384",
+    "reserveBytes": 10737418240,
+    "aggregateLimitBytes": 1048576
+  },
+  "boundary": "All actual checks/proofs/axiom audits for this candidate NOT_RUN. Reachability prediction is not compiler admission. No limit change or retry of failed rfl source."
+}

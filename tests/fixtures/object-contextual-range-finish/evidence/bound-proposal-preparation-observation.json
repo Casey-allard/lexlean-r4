@@ -1,0 +1,9 @@
+{
+  "status": "READ_ONLY_PATH_LOOKUP_FAILURE_CORRECTED_BEFORE_OUTPUT",
+  "attempt1": {
+    "operation": "Read conditional review under assumed next-range-result-spec-review.json",
+    "error": "ENOENT",
+    "writesBeforeFailure": []
+  },
+  "correction": "Directory listing located actual next-range-result-spec-review-conditional.json; exact pinned review used. No source/native result changed."
+}
