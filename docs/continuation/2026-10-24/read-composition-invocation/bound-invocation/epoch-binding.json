@@ -1,0 +1,72 @@
+{
+  "schema": "lexlean-r4-read-composed-actual-epoch-binding/v1",
+  "status": "REVIEWED_SNAPSHOT_ONLY_ALL_NATIVE_NOT_RUN",
+  "startedAt": "2026-10-24T10:51:37.465092641Z",
+  "review": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/fresh-epoch-review.json",
+    "bytes": 8154,
+    "sha256": "b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"
+  },
+  "rawPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json",
+      "bytes": 12854,
+      "sha256": "bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-budget.json",
+      "bytes": 136,
+      "sha256": "e3bf6c904b6adcaf47991318e0d4d41f096d79a6edcd3cfb4977cff7375adf4a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-idle-before.json",
+      "bytes": 472,
+      "sha256": "b56ece4f802baf49f84a7891c5708fd8f0a260f48383f678b5437b2873c82154"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-before.json",
+      "bytes": 8787,
+      "sha256": "8882ad9b4e9b04e2e60f58a1dd5c2910ba3157df6f95f09d08c9f28662ec722a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-memory-before.json",
+      "bytes": 368,
+      "sha256": "6176e46bccf6440e54ad7ab7f293bbfd0ce9e942dedaabc299591b7571917340"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-guest-before.json",
+      "bytes": 418,
+      "sha256": "93839779086ac110eebc7c78b7436bbd3cb2d5c20266f662e8f1999254206356"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart.json",
+      "bytes": 329,
+      "sha256": "e2b8c44c10468ae0aca35b61dd625b38f7819671dc0e96ae519a836fe8207c35"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-after.json",
+      "bytes": 482,
+      "sha256": "c581fffefc596b43009aef64a971eda6f9363e3f8cc0d7b698676000d2f3fa73"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/after.json",
+      "bytes": 12852,
+      "sha256": "424c91533535df7d199b7591ae7ddfbdf25eec9c811d22b9f5d0efe905b1900d"
+    }
+  ],
+  "oldEpoch": {
+    "startedAt": "2026-10-24T05:31:03.102794321Z",
+    "restartCount": 0,
+    "memoryEvents": {
+      "low": 0,
+      "high": 0,
+      "max": 178,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "status": "Preserved failed-run epoch; remains ineligible for original strict-zero runner. No retrospective acceptance."
+  },
+  "limits": "Original4GiB/2CPU/300000ms,strict-zero live checks,host20GiB/guest11GiB pre and10GiBpost unchanged",
+  "resourceReviewLimitations": "After capture starts with full inspect,then ps,memory,boot,guest,tools,allocated,swap. No final second inspect/boot/memory triple exists. This accepts recorded snapshots, not a continuous whole-capture bracket or persistence guarantee. Reviewed resource plan expressly allowed narrower interval reporting."
+}

@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-24T10:59:15.675Z",
+  "availableBytes": "19574321152",
+  "hostNativeFloorBytes": "21474836480",
+  "meetsHostNativeFloor": false,
+  "sourceOnlyBudgetBytes": 524288,
+  "sourceOnlyReserveBytes": "10737418240",
+  "parentLatestReported": "Approximately18.43GiB; native hold. This report separately records fresh host statfs without any guest or process calls.",
+  "scope": "Host free-space observation only; not source/SDK/guest/epoch readiness"
+}

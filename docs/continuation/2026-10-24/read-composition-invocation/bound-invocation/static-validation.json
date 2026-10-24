@@ -1,0 +1,45 @@
+{
+  "schema": "lexlean-r4-read-bound-invocation-validation/v1",
+  "status": "SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "syntax": {
+    "command": [
+      "env",
+      "-u",
+      "NODE_OPTIONS",
+      "-u",
+      "NODE_PATH",
+      "node",
+      "--check",
+      "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invoke-read-composed.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "exactDelta": "Only first comment, two binding header comments and null -> pinned epoch literal. Entire suffix from null-gate through all guards, source/loading/copy/official lock/check/verify/artifact and finally byte-identical.",
+  "rawChecks": {
+    "newStartedAt": "2026-10-24T10:51:37.465092641Z",
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sameBoot": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "sameHostConfig": true,
+    "sameTools": true,
+    "observedAfterMemory": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "oldMax178Preserved": true,
+    "scope": "Read and hash existing recorded receipts only; no live re-observation or continuous-interval claim"
+  },
+  "preservation": {
+    "sourcePayloads": 19,
+    "authorityPins": 94,
+    "current17Snapshot17FrozenRead": "UNCHANGED"
+  },
+  "reviewerSnapshotLimit": "After capture starts with full inspect,then ps,memory,boot,guest,tools,allocated,swap. No final second inspect/boot/memory triple exists. This accepts recorded snapshots, not a continuous whole-capture bracket or persistence guarantee. Reviewed resource plan expressly allowed narrower interval reporting.",
+  "authorInspectionFault": "First host-only raw-shape inspection incorrectly treated commands object as array and raised TypeError before writes; corrected Object.entries inspection. This was not runner/native execution.",
+  "storage": {
+    "freeBytes": "19946889216",
+    "nativeFloorBytes": "21474836480",
+    "meetsNativeFloor": false,
+    "hostAuthoringReserveBytes": "10737418240",
+    "budgetBytes": 1048576
+  },
+  "execution": "NOT_RUN; no materialization, SDK, Docker, VM or repository actions"
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "lexlean-r4-read-resource-pre-restart-review/v1",
+  "at": "2026-10-24T10:51:08.096009+00:00",
+  "verdict": "PASS_RECORDED_PRE_RESTART_SNAPSHOT_ONLY",
+  "reviewer": "/root/construction_second_state_code_review",
+  "capture": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json",
+    "bytes": 12854,
+    "sha256": "bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"
+  },
+  "plan": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/resource-plan-review.json",
+    "sha256": "c10dfcdc538d53307057c53a0dca222d89be6240cda912d006505619983927ac"
+  },
+  "checks": [
+    "Eight sequential successful raw command records, empty stderr, valid ordered intervals.",
+    "Exact prior container/image/config/boot/tools and actual idle snapshot; max178 preserved, other memory counters0.",
+    "Host23673151488B minus10GiB peak leaves12935733248B, exceeding10GiB reserve. Guest52750344KiB exceeds11GiB. Actual VM allocated-space and14GiB swap-allocation observation retained."
+  ],
+  "limits": [
+    "This is a bounded snapshot, not a continuously bracketed epoch capture or future readiness guarantee. Refresh conditions if delayed or state changes.",
+    "Only existing idle container restart under reviewed conditional plan; no VM/compiler/limits replacement.",
+    "Postrestart new epoch capture, independent review and exact invocation review remain mandatory before any SDK phase. No native acceptance or historical counter reset claim."
+  ],
+  "actions": {
+    "Docker": 0,
+    "SDK": 0,
+    "restart": 0,
+    "repoEdits": 0,
+    "reportWrites": 1
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "lexlean-r4-read-composed-bound-invocation-code-review/v1",
+  "at": "2026-10-24T10:57:33.053453+00:00",
+  "reviewer": "/root/construction_source_delivery_security",
+  "status": "PASS_BOUND_SOURCE_ONLY_NO_DISPATCH_AUTHORITY",
+  "findings": [],
+  "pins": {
+    "manifest": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/manifest.json",
+    "bytes": 5122,
+    "sha256": "48be4e0fc2412f7b8c819fce5d037bf34f7590bdcddc2106f43042ffd64e18ee",
+    "runnerBytes": 11250,
+    "runnerSha256": "850877aff69521c4f59858c4cea5976c16cce01e9df9e1a4c2dde4771a55fddf",
+    "preparationManifestSha256": "5c71dbae01cc452da131f935fef5af89ae61a6f795d2f1dd599157028c8bf39b",
+    "preparationCodeSha256": "8e091122895db815dcd68a02401cdb9709b0cc8085470f1f90fde40f44928ff6",
+    "resourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/fresh-epoch-review.json",
+      "bytes": 8154,
+      "sha256": "b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"
+    },
+    "sourceManifestSha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+  },
+  "checks": {
+    "custody": "All5 bound payloads and15 dependency references directly rehashed; all9 raw epoch pins and exact independent review rehashed. All19 source payloads,94 dependencies and153 phase inputs rehashed unchanged. Three phases remain51inputs/47distinctmodules.",
+    "exactDelta": "Regenerated unified diff equals changes.diff hunks. Removing comment lines and the single freshEpochBinding declaration makes complete old/new scripts identical. Entire suffix starting at retained null check is byte-identical, including all source/tool/resource gates, official lock/check/verify/artifact behavior and catch/finally.",
+    "actualBinding": "Literal StartedAt2026-10-24T10:51:37.465092641Z matches independent review, actual postrestart full inspect and manifest. All rawPins equal independently reviewed9-record list. Actual inspect shows same container/restart0/4GiB/2CPU/networknone/mounts[]. Postcapture memory records allzero; pre-restart max178 remains preserved. This is a snapshot distinction, not continuous counter comparison.",
+    "noFalseFreshness": "Header/README explicitly distinguish reviewed snapshot from present readiness. Runner checks actual StartedAt/config, tools, idle, zero memory, source and budgets before staging/SDK. No recorded storage value substitutes for fresh host() or capacity(). Only startedAt is consumed operationally; review/rawPins are provenance and must remain exact under parent launch custody checks.",
+    "preservedPhaseAuthority": "Single explicit phase only. No automatic phase progression or acceptance oracle added. Intended negative review must precede focused positive; independently accepted focused artifact must precede mandatory full33. Verify failure can still yield launcher0; actual diagnostics/postconditions control classification.",
+    "limits": "Unchanged300000ms,4GiB,2CPU,host20GiBpre(10peak+10reserve),guest11GiBpre,host/guest10GiBpost. Null predecessor is unchanged. Bound successor was not imported/evaluated; no phase output directory exists."
+  },
+  "storage": {
+    "availableBytesAtReview": 19785703424,
+    "reserveBytes": 10737418240,
+    "nativeFloorBytes": 21474836480,
+    "meetsNativeFloorAtReview": false,
+    "interpretation": "Observation only. Parent-reported18.5GiB hold is not lifted by source review or transient recovery; fresh launch gates including peak budget remain mandatory."
+  },
+  "requiredBeforeDispatch": [
+    "Parent must verify exact script/manifest/source/review/raw pins and freshly capture required source/tools/epoch/boot/idle/strict-zero/storage predicates with no concurrent compiler job.",
+    "Do not dispatch below20GiB host budget, below11GiB guest, or on any failed prerequisite. Preserve old failed epoch and all negatives.",
+    "All3 native phases remain NOT_RUN. No proof, performance, fullRead/fullObject or production acceptance follows."
+  ],
+  "actions": {
+    "runnerExecutionOrImport": 0,
+    "SDKCalls": 0,
+    "VMCalls": 0,
+    "repositoryWrites": 0,
+    "fixtureWrites": 0,
+    "reportWrites": 1
+  }
+}

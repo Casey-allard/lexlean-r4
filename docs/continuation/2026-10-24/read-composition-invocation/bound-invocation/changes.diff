@@ -1,0 +1,21 @@
+--- /Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-invocation/invoke-read-composed.mjs	2026-10-24 06:48:00
++++ /Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/invoke-read-composed.mjs	2026-10-24 06:54:41
+@@ -1,4 +1,4 @@
+-// One-off composed-dependency Read33 phase. Frozen preparation only: fresh epoch binding is absent.
++// One-off composed-dependency Read33 phase. Bound to reviewed epoch snapshot; fresh launch gates remain mandatory.
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import crypto from 'node:crypto';
+@@ -9,9 +9,9 @@
+ const manifestPath=path.join(candidateRoot,'manifest.json');
+ const phase=process.argv[2];
+ if(process.argv.length!==3||!['ordinal26-negative','ordinal26-positive','read33-positive'].includes(phase))throw Error('select exactly one reviewed Read33 phase');
+-// A separately captured and independently reviewed successor must supply this binding.
+-// The null gate deliberately precedes output directory creation and every process call.
+-const freshEpochBinding=null;
++// Binding below records the actual reviewed restart snapshot; it does not assert present storage or readiness.
++// The retained null gate precedes output creation; all original live resource guards remain unchanged.
++const freshEpochBinding={"startedAt":"2026-10-24T10:51:37.465092641Z","review":{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/fresh-epoch-review.json","bytes":8154,"sha256":"b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"},"rawPins":[{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json","bytes":12854,"sha256":"bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-budget.json","bytes":136,"sha256":"e3bf6c904b6adcaf47991318e0d4d41f096d79a6edcd3cfb4977cff7375adf4a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-idle-before.json","bytes":472,"sha256":"b56ece4f802baf49f84a7891c5708fd8f0a260f48383f678b5437b2873c82154"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-before.json","bytes":8787,"sha256":"8882ad9b4e9b04e2e60f58a1dd5c2910ba3157df6f95f09d08c9f28662ec722a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-memory-before.json","bytes":368,"sha256":"6176e46bccf6440e54ad7ab7f293bbfd0ce9e942dedaabc299591b7571917340"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-guest-before.json","bytes":418,"sha256":"93839779086ac110eebc7c78b7436bbd3cb2d5c20266f662e8f1999254206356"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart.json","bytes":329,"sha256":"e2b8c44c10468ae0aca35b61dd625b38f7819671dc0e96ae519a836fe8207c35"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-after.json","bytes":482,"sha256":"c581fffefc596b43009aef64a971eda6f9363e3f8cc0d7b698676000d2f3fa73"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/after.json","bytes":12852,"sha256":"424c91533535df7d199b7591ae7ddfbdf25eec9c811d22b9f5d0efe905b1900d"}]};
+ if(freshEpochBinding===null)throw Error('NO_REVIEWED_FRESH_EPOCH: preparation only; no output or process invocation');
+ const out=path.join(import.meta.dirname,phase);
+ fs.mkdirSync(out);

@@ -1,0 +1,151 @@
+{
+  "schema": "lexlean-r4-read-composition-fresh-epoch-review/v1",
+  "at": "2026-10-24T10:53:28.373025+00:00",
+  "reviewer": "/root/construction_second_state_code_review",
+  "verdict": "PASS_ACTUAL_RESTART_AND_NEW_EPOCH_SNAPSHOT_ONLY",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json",
+      "bytes": 12854,
+      "sha256": "bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-budget.json",
+      "bytes": 136,
+      "sha256": "e3bf6c904b6adcaf47991318e0d4d41f096d79a6edcd3cfb4977cff7375adf4a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-idle-before.json",
+      "bytes": 472,
+      "sha256": "b56ece4f802baf49f84a7891c5708fd8f0a260f48383f678b5437b2873c82154"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-before.json",
+      "bytes": 8787,
+      "sha256": "8882ad9b4e9b04e2e60f58a1dd5c2910ba3157df6f95f09d08c9f28662ec722a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-memory-before.json",
+      "bytes": 368,
+      "sha256": "6176e46bccf6440e54ad7ab7f293bbfd0ce9e942dedaabc299591b7571917340"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-guest-before.json",
+      "bytes": 418,
+      "sha256": "93839779086ac110eebc7c78b7436bbd3cb2d5c20266f662e8f1999254206356"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart.json",
+      "bytes": 329,
+      "sha256": "e2b8c44c10468ae0aca35b61dd625b38f7819671dc0e96ae519a836fe8207c35"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-after.json",
+      "bytes": 482,
+      "sha256": "c581fffefc596b43009aef64a971eda6f9363e3f8cc0d7b698676000d2f3fa73"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/after.json",
+      "bytes": 12852,
+      "sha256": "424c91533535df7d199b7591ae7ddfbdf25eec9c811d22b9f5d0efe905b1900d"
+    }
+  ],
+  "findings": [],
+  "reviewedAction": {
+    "command": [
+      "docker",
+      "restart",
+      "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+    ],
+    "status": 0,
+    "started": "2026-10-24T10:51:18.030099+00:00",
+    "ended": "2026-10-24T10:51:39.689018+00:00",
+    "scope": "Only same existing idle container restarted. No VM/compiler replacement or native proof job is present in these receipts."
+  },
+  "epochs": {
+    "old": {
+      "startedAt": "2026-10-24T05:31:03.102794321Z",
+      "restartCount": 0,
+      "memoryEvents": {
+        "low": 0,
+        "high": 0,
+        "max": 178,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "status": "Preserved failed-run epoch; remains ineligible for original strict-zero runner. No retrospective acceptance."
+    },
+    "new": {
+      "startedAt": "2026-10-24T10:51:37.465092641Z",
+      "restartCount": 0,
+      "guestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+      "memoryEvents": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "status": "Actual new identity/resource snapshot only; future readiness must be freshly checked."
+    },
+    "interpretation": "Distinct StartedAt values separate resource epochs even though manual restartCount remains0. Counters are not compared as continuous or subtracted; old max178 is not erased or waived."
+  },
+  "identity": {
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "hostConfigExactOldNewEqual": true,
+    "containerConfigExactOldNewEqual": true,
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "networkMode": "none",
+    "mounts": [],
+    "bootExactOldNewEqual": true,
+    "toolsExactOldNewEqual": true,
+    "toolRows": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5  /usr/local/bin/lexlean",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lean",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de  /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/leanchecker"
+    ],
+    "vm": "Same guest boot and disk allocations observed. No separate VM configuration query here;5GiB VM setting remains inherited, not newly measured."
+  },
+  "checks": {
+    "commands": "22 raw subprocess receipts independently checked status0,empty stderr,valid sequential nonoverlapping intervals. NewStartedAt falls inside actual restart interval.",
+    "idle": "Both initial and immediately-pre-restart ps show only init sh,sleep and observation ps; same bounded idle state in after capture.",
+    "captureLimit": "After capture starts with full inspect,then ps,memory,boot,guest,tools,allocated,swap. No final second inspect/boot/memory triple exists. This accepts recorded snapshots, not a continuous whole-capture bracket or persistence guarantee. Reviewed resource plan expressly allowed narrower interval reporting.",
+    "source": "No source/native verification performed. Accepted source manifest and source CODE remain separate prerequisites, not inferred from resource success.",
+    "rawCustody": "All9 actual input JSON files hashed. Old memory/identity records remain intact; unchanged before.json SHA matches independently reviewed preflight."
+  },
+  "storage": {
+    "beforeAvailableBytes": 23673151488,
+    "immediatePreRestartBytes": 22707847168,
+    "afterAvailableBytes": 21610962944,
+    "peakEstimateBytes": 10737418240,
+    "reserveBytes": 10737418240,
+    "afterRemainingAfterEstimateBytes": 10873544704,
+    "guestAvailableKiB": 52750344,
+    "allocatedBeforeAfter": "26199336\t/Users/casey.allard/.colima/_lima/_disks/colima-lexlean-r4/datadisk\n1469860\t/Users/casey.allard/.colima/_lima/colima-lexlean-r4/disk\n",
+    "swapBefore": "vm.swapusage: total = 14336.00M  used = 12834.38M  free = 1501.62M  (encrypted)",
+    "swapAfter": "vm.swapusage: total = 14336.00M  used = 12754.38M  free = 1581.62M  (encrypted)",
+    "reviewerFreshHostAvailableBytes": 20753362944,
+    "freshHostMeets20GiBFloor": false,
+    "note": "Recorded before/immediate/after samples each met20GiB host and11GiB guest. After margin was narrow. Latest host free is not authorization and may fall below floor; parent must enforce fresh source-bound launch checks. VM allocation unchanged; no attribution of free-space churn to this container is established."
+  },
+  "requiredBeforeSDK": [
+    "Bind only exact recorded new epoch facts and review hash in separately frozen source-bound successor; original null preparation remains blocked.",
+    "Independent exact bound-invocation review, fresh tools/source/idle/container/boot/all-zero memory and storage checks. No job overlap.",
+    "Host >=20GiB with10GiBpeak+10GiBreserve and guest>=11GiB at launch; host/guest>=10GiB afterward. Stop if predicates fail; no borrowing prior sample.",
+    "Unchanged300000ms child,4GiB,2CPU. No equivalent unchanged-source timeout retry or historical gate waiver.",
+    "Parent enforces intended negative review then focused positive then full33 review. No native acceptance from restart or source checkpoint."
+  ],
+  "actions": {
+    "Docker": 0,
+    "SDK": 0,
+    "VM": 0,
+    "repoEdits": 0,
+    "reportWrites": 1
+  },
+  "acceptance": "New resource snapshot only. All new proof phases NOT_RUN;331/403 unchanged."
+}
