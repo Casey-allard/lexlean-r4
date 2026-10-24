@@ -1,0 +1,80 @@
+{
+  "schema": "lexlean-r4-codec-one-off-invocation-delta/v1",
+  "status": "SOURCE_ONLY_PENDING_INDEPENDENT_CODE_AND_FRESH_LAUNCH_GATES",
+  "predecessor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-native-format/invoke-whole-native-format.mjs",
+    "bytes": 7733,
+    "sha256": "ae7bd90aa4571e084b8fc3ac347af52895fda91ba2bb83b407525b0493c2fbc7"
+  },
+  "successor": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/invoke-codec.mjs",
+    "bytes": 7779,
+    "sha256": "61d3a8522969e795488196ab9ebf39eb56e4a411bee41f457076e47ab0fb7b22"
+  },
+  "replacements": [
+    {
+      "before": "// One-off official installed-format singleton composition of the original WholeRead full Result; invocation CODE and fresh launch gates required; no Read33 acceptance.",
+      "after": "// One-off canonical Codec311 metadata migration: legacy admission check only, then separately selected complete positive root; independent CODE and fresh launch gates required.",
+      "occurrences": 1
+    },
+    {
+      "before": "['format-false','format-positive']",
+      "after": "['codec-legacy','codec-positive']",
+      "occurrences": 1
+    },
+    {
+      "before": "select exactly one native-format phase",
+      "after": "select exactly one Codec311 phase",
+      "occurrences": 1
+    },
+    {
+      "before": "/tmp/r4-object-whole-native-format-${phase}-owned-20261024",
+      "after": "/tmp/r4-object-codec-integration-${phase}-owned-20261024",
+      "occurrences": 1
+    },
+    {
+      "before": "2e0400b34cf02d3e05ea3571ba9caa74d492294951aa7450e4da725a09fb3ed9",
+      "after": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206",
+      "occurrences": 1
+    },
+    {
+      "before": "candidate.phases.find(x=>x.phase===phase)",
+      "after": "candidate.phases.find(x=>x.name===phase)",
+      "occurrences": 1
+    },
+    {
+      "before": "inputs=selected.inputs.map(x=>{if(!['repository','candidate'].includes(x.base))throw Error('input base');return {...x,path:path.resolve(x.base==='repository'?repo:import.meta.dirname,x.path)};});",
+      "after": "inputs=selected.inputs.map(x=>({...x,path:x.source}));",
+      "occurrences": 1
+    },
+    {
+      "before": "if(inputs.length!==32||new Set(inputs.map(x=>x.destination)).size!==32)",
+      "after": "if(inputs.length!==15||new Set(inputs.map(x=>x.destination)).size!==15)",
+      "occurrences": 1
+    },
+    {
+      "before": "  {\n   if(checked.status!==0",
+      "after": "  if(phase==='codec-legacy')save('result',{phase,stage,classification:'source-admission-only',lockStatus:lockResult.status,checkStatus:checked.status,result:checkParsed,verify:'NOT_RUN'});\n  else{\n   if(checked.status!==0",
+      "occurrences": 1
+    },
+    {
+      "before": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "after": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "occurrences": 1
+    }
+  ],
+  "manifest": {
+    "bytes": 1404,
+    "sha256": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206"
+  },
+  "phaseContract": {
+    "codec-legacy": "Official lock/check only. Preserve actual first diagnostic; no verify even if check unexpectedly succeeds. Lock failure remains failure, never assumed intended negative.",
+    "codec-positive": "Official lock/check then full ObjectCodecControls verification; no subset."
+  },
+  "preserved": "Same recorder, tool identities before/after, epoch2026-10-24T05:31:03.102794321Z,4GiB2CPU,20GiB host launch/10GiB reserve,11/10GiB guest gates, source/lock/idle/zeroevents and independent finally captures. Source manifest/candidate/readback checks retained.",
+  "native": "NOT_RUN",
+  "storage": {
+    "availableBytes": 27822477312,
+    "reserveBytes": 10737418240
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "schema": "lexlean-r4-codec-docs-only-successor/v1",
+  "at": "2026-10-24T06:50:36.433Z",
+  "status": "FROZEN_DOCS_ONLY_CORRECTION_PENDING_REVIEW",
+  "rootCause": "Long checkpoint history retained present-tense counts from earlier integration stages. Blanket historical note did not qualify preceding current table or explicit remain/now clauses. Only current count/status prose corrected; no source/native/evidence defect.",
+  "oldManifest": {
+    "bytes": 9665,
+    "sha256": "8a96e55ac4cde8578241ea266e369db6db3cc82eb11922949825c94e46b5ec04",
+    "archiveMember": "docs/continuation/2026-10-24/object-codec-integration/delivery-manifest.json"
+  },
+  "archive": {
+    "path": "evidence/delivery-correction/rejected-delivery.json.gz",
+    "compressed": {
+      "bytes": 46474,
+      "sha256": "782a78ea09b4b1a1fd8ab2dd183785d178d190a6ed4ed925beaf92712ba95688"
+    },
+    "decoded": {
+      "bytes": 162403,
+      "sha256": "f3d7a23c3c1b69fc507f737a4d6ef26a8f5daf194ffac32f0c527a8f8e7bdf4b"
+    },
+    "members": [
+      {
+        "path": "docs/continuation/2026-10-24/object-codec-integration/delivery-manifest.json",
+        "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-24/object-codec-integration/delivery-manifest.json",
+        "bytes": 9665,
+        "sha256": "8a96e55ac4cde8578241ea266e369db6db3cc82eb11922949825c94e46b5ec04"
+      },
+      {
+        "path": "docs/CONTINUATION.md",
+        "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/CONTINUATION.md",
+        "bytes": 69633,
+        "sha256": "71f19696f6bef561f9db30063c2b966105541eadb8d78778fdfb2234ebbb34ed"
+      },
+      {
+        "path": "docs/plans/2026-10-21-lexlean-r4.md",
+        "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-21-lexlean-r4.md",
+        "bytes": 53866,
+        "sha256": "77461677562111881b8c903378b43c36ae081ae7549352e065d929dacaa0e9b2"
+      },
+      {
+        "path": "delivery-code-review.json",
+        "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/delivery-code-review.json",
+        "bytes": 15710,
+        "sha256": "b4456901be9b20853940488624a1768413b40b6a0fe4bb641d00a22a6dabe9ba"
+      },
+      {
+        "path": "delivery-security-review.json",
+        "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/delivery-security-review.json",
+        "bytes": 9129,
+        "sha256": "3a0fac9a1b88796ceb20336edcf3b04a82ed7cc49231a6a4d8e4789e858f2394"
+      }
+    ]
+  },
+  "edits": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "| Object implementation | Five canonical modules reconciled to the reviewed development runtime;20 of403 Object controls independently verified through the existing Store root. Component integration and qualification remain incomplete. | [Store integration results](continuation/2026-10-23/object-store-integration/RESULTS.md), [original draft snapshot](continuation/2026-10-23/pending-manifest.json). The other383 Object controls,20 separate Blake3 controls and required semantic negatives remain open. |",
+      "after": "| Object implementation | Five canonical modules reconciled to the reviewed development runtime; 331 of 403 Object controls independently verified through Store20 and Codec311 in pinned development closures. Component integration and qualification remain incomplete. | [Store results](continuation/2026-10-23/object-store-integration/RESULTS.md), [Codec results](continuation/2026-10-24/object-codec-integration/RESULTS.md), [original snapshot](continuation/2026-10-23/pending-manifest.json). Read33 and Construction39 account for the remaining 72 Object controls; 20 separate Blake3 controls and required semantic negatives remain open. |"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "Seven original draft files now have intentional integration changes; ten remain\nunchanged, and all seventeen original snapshots remain preserved. This counts\nsource integration, not seven completed component obligations. Only Store20 is\naccepted as a complete canonical control root in this sequence.",
+      "after": "At the Read migration checkpoint, seven original draft files had intentional\nintegration changes and ten remained unchanged. After Codec integration, eight\nhave intentional changes and nine remain unfinished; all seventeen original\nsnapshots remain preserved. This counts source integration, not completed component\nobligations. Store20 and Codec311 now have accepted complete canonical roots in\ntheir pinned development closures."
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "Six source files from that package are now reconciled and delivered: the five\nObject modules and Store controls. This does not close their component-level\nobligations. The other eleven drafts remain unchanged; model registration,",
+      "after": "At the Store checkpoint, six source files from that package were reconciled and\ndelivered: the five Object modules and Store controls; eleven drafts then remained\nunchanged. Read metadata and Codec integration now bring the intentional changes\nto eight, leaving nine unfinished drafts. Component-level obligations, model registration,"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": "Continue with the remaining control roots; the other383 Object controls,20",
+      "after": "Continue with the remaining Read33 and Construction39 roots: 72 Object controls, 20"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": "hashing and digest comparison. The later outer-shell checkpoint establishes admission/backend conversion; the complete outer Result and all original\nRead33 controls remain open. Preserve prior failures and all ten unfinished drafts.",
+      "after": "hashing and digest comparison. The later outer-shell checkpoint establishes admission/backend conversion; subsequent installed-format native composition proves the exact local whole-read full Result. Canonical ordinal 26 and all original\nRead33 controls remain open. Preserve prior failures and all nine unfinished drafts."
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "ten remaining drafts",
+      "after": "nine remaining drafts",
+      "occurrences": 2,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "ten drafts and full integration remain required.",
+      "after": "nine drafts and full integration remain required.",
+      "occurrences": 1,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "Ten unfinished drafts",
+      "after": "Nine unfinished drafts",
+      "occurrences": 1,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": "ten unfinished drafts",
+      "after": "nine unfinished drafts",
+      "occurrences": 3,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": "ten remaining drafts",
+      "after": "nine remaining drafts",
+      "occurrences": 2,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": "ten drafts and full integration remain required.",
+      "after": "nine drafts and full integration remain required.",
+      "occurrences": 1,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": "Ten unfinished drafts",
+      "after": "Nine unfinished drafts",
+      "occurrences": 1,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": "ten unfinished drafts",
+      "after": "nine unfinished drafts",
+      "occurrences": 3,
+      "classification": "Current pending obligation count only; original historical count paragraphs preserved with explicit time qualifier."
+    }
+  ],
+  "unchangedNonDocPayloads": [
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/README.md",
+      "bytes": 914,
+      "sha256": "e9edb23219cea8dbbec779021104f28f864186819f6418c1b85291e48f7ac944"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/RESULTS.md",
+      "bytes": 2684,
+      "sha256": "151770262bbf2ad8532a3dc7b581aa7fb037e58605aaac01c5c91aa71756509e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/accepted-review-binding.json",
+      "bytes": 2202,
+      "sha256": "86fed1a8f7d33a67ed40e3ae2143bc6e47076ca938a34cd4fc75975bde5d548d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-legacy/raw-receipts.json.gz",
+      "bytes": 6677,
+      "sha256": "f9235eb5f595853fcfef6b93990a52c62b8348034a2760d2e126b0755784ec54"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/artifact-census.json.gz",
+      "bytes": 4786,
+      "sha256": "8e2bac2bff575109cb528d7aa95924c0b391e19840312909330476769f76b535"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/artifact-text.json.gz",
+      "bytes": 24909,
+      "sha256": "5ccb03efb0d4c770144c84329bb31a10837841ea71d05c67cd78241a68cabd22"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/independent-artifact-census.json",
+      "bytes": 33647,
+      "sha256": "81ca074556eb51f915ed7f0eea6ed88c748d7f404a35e92f759090c5fb2444c9"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/codec-positive/raw-receipts.json.gz",
+      "bytes": 6919,
+      "sha256": "20c49d8508defaec6982b487214f599f2a4d9ea0f16f453ead31732c0af591b8"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/custody.json",
+      "bytes": 21564,
+      "sha256": "5a22ead483ad3a253e5eb4a5687c334650ebb35efb3559589075aafff21b2f0c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/delivery-budget.json",
+      "bytes": 853,
+      "sha256": "2af2d31982201a509df7ce85f28a290c34db102a20b55b1cd159176bc17f2fc6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/history/README-before-acceptance.md",
+      "bytes": 780,
+      "sha256": "dbc85189a141f44e501829a5f3f5f5b11593f8dc3a22ce50fc7871044d6b16c1"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/evidence/parent-artifact-check.json",
+      "bytes": 536,
+      "sha256": "77ea049500ab3cdf1b88c25daabbaa1cd2408542af7f91ebb32c10496263121f"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/phases/codec-legacy/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "9d0ad7a779f8b627fb2ee6ab17dbfd65ee05229594fcdcf00b0b18ec7a296be2"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/phases/codec-positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "9d0ad7a779f8b627fb2ee6ab17dbfd65ee05229594fcdcf00b0b18ec7a296be2"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/results.json",
+      "bytes": 4381,
+      "sha256": "4967dee3cacc9e30a73485341cdef7552c7815c5a9d2f4bc252beb5fc0d05d14"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/reviews/legacy-native-review.json",
+      "bytes": 11114,
+      "sha256": "bc89a2ba78edbce8df4d7eb0ab0a53cc29fc1fb694120c3cf6b81b4d6d5b3fdf"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/reviews/positive-native-review.json",
+      "bytes": 14573,
+      "sha256": "978ca6527d912fadb9baeda3c673432621a1a2fbf329625ba5489e43dcf7a57d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/reviews/source-invocation-code-review.json",
+      "bytes": 6972,
+      "sha256": "589dac4b771f109f3be2d32077b168d0f4a117adedb2c2f6021273b498904bf3"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source-bindings.json",
+      "bytes": 9012,
+      "sha256": "b66e05da46f679de6581d29e3bc2bfa02ad20e93e40fa0e86e3985e7abaf1941"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/README.md",
+      "bytes": 794,
+      "sha256": "0a9356e0705141024316f031f952c5dc6a5e3e5f0dd517d3802d982862b45df0"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/candidate.json",
+      "bytes": 15874,
+      "sha256": "0abe6dce1c1f9cf2f517e358d24a06b85f7915045742ae0d8a32916314c10813"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/control-migration.json",
+      "bytes": 4919,
+      "sha256": "a1f7502d6907a2ee0adda0721606890aa2588701ede7507a2946dd3d7dcde2fe"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/invocation-diff.json",
+      "bytes": 3790,
+      "sha256": "c1f236431fcb959cb582d60bbb9665e42a50fd9d42d2ce40791134e5181dbc86"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/invocation-manifest.json",
+      "bytes": 571,
+      "sha256": "03f692439d019e935e89118c4034db39c46a5a743ccca07fc6fbec3ca0573efd"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/invoke-codec.mjs",
+      "bytes": 7779,
+      "sha256": "61d3a8522969e795488196ab9ebf39eb56e4a411bee41f457076e47ab0fb7b22"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/lexlean.toml",
+      "bytes": 683,
+      "sha256": "75fe214291d8e778105bb01cc8750cc8d2649b3af6d081e395ade6fd95fafd98"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/manifest.json",
+      "bytes": 1404,
+      "sha256": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-codec-integration/source/prewrite.json",
+      "bytes": 8115,
+      "sha256": "b98b1b87c9264ab1ee3d09ffb81e2e4b9ac76dc8e570525be4112e705c71ed96"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    }
+  ],
+  "docs": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "before": {
+        "path": "docs/CONTINUATION.md",
+        "bytes": 69633,
+        "sha256": "71f19696f6bef561f9db30063c2b966105541eadb8d78778fdfb2234ebbb34ed"
+      },
+      "after": {
+        "bytes": 70009,
+        "sha256": "85e3a592b5df9b13c9affe8265a65cf2c29876ce4ae1e92dfd7f49f3f3fb7f5f"
+      }
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "before": {
+        "path": "docs/plans/2026-10-21-lexlean-r4.md",
+        "bytes": 53866,
+        "sha256": "77461677562111881b8c903378b43c36ae081ae7549352e065d929dacaa0e9b2"
+      },
+      "after": {
+        "bytes": 53972,
+        "sha256": "9b8cfa67516aca87e3b447912790165cba9e264006e82c8ab52e10775fedc91f"
+      }
+    }
+  ],
+  "boundary": "All original29non-docpayloads remain exact, including canonicalCodec source/results/custodies. Historical failures unchanged. No compiler run, new design, limits change or production acceptance.",
+  "storage": {
+    "availableBytes": 25668775936,
+    "reserveBytes": 10737418240,
+    "prospectiveDeliveryCapBytes": 2097152
+  }
+}

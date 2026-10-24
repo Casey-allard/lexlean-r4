@@ -1,0 +1,45 @@
+{
+  "schema": "lexlean-r4-codec-accepted-review-binding/v1",
+  "at": "2026-10-24T06:44:02.119Z",
+  "copies": [
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/positive-native-review.json",
+      "path": "reviews/positive-native-review.json",
+      "bytes": 14573,
+      "sha256": "978ca6527d912fadb9baeda3c673432621a1a2fbf329625ba5489e43dcf7a57d"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/positive-artifact-census.json",
+      "path": "evidence/codec-positive/independent-artifact-census.json",
+      "bytes": 33647,
+      "sha256": "81ca074556eb51f915ed7f0eea6ed88c748d7f404a35e92f759090c5fb2444c9"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/parent-artifact-check.json",
+      "path": "evidence/parent-artifact-check.json",
+      "bytes": 536,
+      "sha256": "77ea049500ab3cdf1b88c25daabbaa1cd2408542af7f91ebb32c10496263121f"
+    },
+    {
+      "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/delivery-budget.json",
+      "path": "evidence/delivery-budget.json",
+      "bytes": 853,
+      "sha256": "2af2d31982201a509df7ce85f28a290c34db102a20b55b1cd159176bc17f2fc6"
+    }
+  ],
+  "priorCustody": {
+    "bytes": 21564,
+    "sha256": "5a22ead483ad3a253e5eb4a5687c334650ebb35efb3559589075aafff21b2f0c"
+  },
+  "oldReadme": {
+    "path": "evidence/history/README-before-acceptance.md",
+    "bytes": 780,
+    "sha256": "dbc85189a141f44e501829a5f3f5f5b11593f8dc3a22ce50fc7871044d6b16c1"
+  },
+  "censusRelation": "Existing compressed author records exactly equal the independently audited85-file array; preserve both original author envelope and full independent census with311names. Arraydigest and envelopefileSHA differ.",
+  "budget": {
+    "bytes": 853,
+    "sha256": "2af2d31982201a509df7ce85f28a290c34db102a20b55b1cd159176bc17f2fc6"
+  },
+  "boundary": "Acceptance is entire canonical Codec311 in pinned development closure only; earlier compatibility failure and other historical failures remain unchanged."
+}

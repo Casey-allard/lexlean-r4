@@ -1,0 +1,378 @@
+{
+  "spec": "lexlean-r4-independent-native-review/1",
+  "status": "PASS_CANONICAL_CODEC311_IN_PINNED_DEVELOPMENT_CLOSURE",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "scope": "Closed actual codec-positive evidence and every artifact, no SDK calls or replay. Reviewer previously reviewed source/invocation and legacy; independent of author/runner.",
+  "at": "2026-10-24T06:41:25.812Z",
+  "identities": {
+    "attestation_id": "729216534e08bfb6b1fb2bc89ee2d98114732935fa9280bbd68793451a89d9e5",
+    "build_id": "080ec29a221f79fbc0dd7a660e92d1df6c25fd93b3b666bedaeee232aefdc0ed",
+    "source_id": "ca373964be1b94cfb77924cfd91ad20264fc05c85ef8e72ce329d29e29148db5",
+    "semantic_id": "dee55348cb3bde5608059bd817cbeba22ea4f3ee644386e36ffff30e16db0744"
+  },
+  "pins": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    },
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/manifest.json",
+      "bytes": 1404,
+      "sha256": "a333f1b325ea49b1aca00f45312ca17faa11dfe6a4f27dacda8ad5b74ef07206"
+    },
+    "candidate": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/candidate.json",
+      "bytes": 15874,
+      "sha256": "0abe6dce1c1f9cf2f517e358d24a06b85f7915045742ae0d8a32916314c10813"
+    },
+    "runner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/invoke-codec.mjs",
+      "bytes": 7779,
+      "sha256": "61d3a8522969e795488196ab9ebf39eb56e4a411bee41f457076e47ab0fb7b22"
+    },
+    "sourceReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/source-invocation-code-review.json",
+      "bytes": 6972,
+      "sha256": "589dac4b771f109f3be2d32077b168d0f4a117adedb2c2f6021273b498904bf3"
+    },
+    "legacyReview": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/legacy-native-review.json",
+      "bytes": 11114,
+      "sha256": "bc89a2ba78edbce8df4d7eb0ab0a53cc29fc1fb694120c3cf6b81b4d6d5b3fdf"
+    },
+    "attestation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/codec-positive/artifact/attestation.json",
+      "bytes": 214805,
+      "sha256": "92f3de038def34a4cac89bd39752476effd2a379936915bfeeac8caf5ad95d1c"
+    },
+    "buildManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/codec-positive/artifact/build-manifest.json",
+      "bytes": 9839,
+      "sha256": "a32dc5f612d2de54b3838385ee7e87cf3e6e2dbc599e470cd2acedcf9ec71fe2"
+    },
+    "emittedTarget": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-codec-integration/codec-positive/artifact/modules/LexLeanR4/ObjectCodecControls.lean",
+      "bytes": 109985,
+      "sha256": "a623c2203b5b4f2fb456bec34dc1a4a54fd7f69f57cf39ad82c06ce3c900b626"
+    }
+  },
+  "outcome": {
+    "launcher": "Parent reports closed launcher0; independently actual verify status0/success true/exit_code0",
+    "checkModules": [
+      "ObjectCodecControls",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "verifyModules": [
+      "ObjectCodecControls",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T06:36:06.852Z",
+    "verifyEnded": "2026-10-24T06:37:25.554Z",
+    "aggregateVerifyMilliseconds": 78702,
+    "phaseAccepted": true
+  },
+  "targetCensus": {
+    "canonicalDeclarations": 311,
+    "uniqueNames": 311,
+    "exactAllNamesMatched": true,
+    "wholeDeclarationsSha256": "4667a431d063b4521af1be1b9f9db4da5ad47f90daab8920a2bdc4581cfdb1c9",
+    "namesSha256": "5d82738160b7c4a805f9b7c68574748e321f5c89650f7f52afd3880c7d5b0ca7",
+    "namesStored": "positive-artifact-census.json targetNames",
+    "allSourcePoliciesEmpty": true,
+    "allObservedPoliciesNoneAndAxiomsEmpty": true,
+    "all311ActualSourceMapSpansReparsedEqual": true,
+    "all311EmittedPublicTheoremsReflexivity": true,
+    "statementAudit": "All 311 source declaration spans match actual compiler map; actual emitted names and rfl proof blocks exhaust target module, kernel replay and axiom audit cover all. No subset selection."
+  },
+  "artifact": {
+    "censusFile": "positive-artifact-census.json",
+    "censusBytes": 33647,
+    "censusSha256": "81ca074556eb51f915ed7f0eea6ed88c748d7f404a35e92f759090c5fb2444c9",
+    "files": 85,
+    "totalBytes": 6556843,
+    "filesArraySha256": "80ba537475af127620855781363d87e7729d1df34111eb0ddc5b7cf943b5d954",
+    "buildOutputsRehashed": 40,
+    "observedDeclarations": 1050,
+    "targetDeclarations": 311,
+    "importedDeclarations": 739,
+    "allObservedAxiomsEmpty": true,
+    "oleansRehashed": 8,
+    "processRecordsRehashed": 25,
+    "kernelReplays": 8,
+    "auditProcesses": 8,
+    "processExitCodesAllZero": true,
+    "stdoutStderrHashesAllMatch": true,
+    "actualProcessFilesMatchAttestationExactly": true
+  },
+  "inputs": {
+    "supplied": 15,
+    "suppliedSourceModules": 11,
+    "selectedSourceModules": 8,
+    "allCopiesStatusZero": true,
+    "allPinnedCurrentSourceBytesAndPrePostGuestHashesMatch": true,
+    "lockBytes": 1597,
+    "lockSha256": "9d0ad7a779f8b627fb2ee6ab17dbfd65ee05229594fcdcf00b0b18ec7a296be2",
+    "genuineLockCommandStatus": 0,
+    "lockUnchangedAfter": true,
+    "lockType": "Actual generated development lock; not production PrismPM binding"
+  },
+  "resources": {
+    "epoch": "2026-10-24T05:31:03.102794321Z 0 4294967296 2000000000 none []",
+    "tools": {
+      "lexlean": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "lean": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "lake": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "leanchecker": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    },
+    "allMemoryEventsZeroBeforeAndAfter": true,
+    "postcaptureErrors": [],
+    "idleBeforeAfter": true,
+    "hostBeforeAvailableBytes": "28950634496",
+    "hostBeforePeakEstimateBytes": "10737418240",
+    "hostAfterAvailableBytes": "27415154688",
+    "guestBeforeAvailableKiB": 52854316,
+    "guestAfterAvailableKiB": 52843160,
+    "hostGuestReserveGatesPass": true,
+    "observationBoundary": "Discrete pre/post resource observations; no continuous peak-memory or storage-highwater claim.",
+    "reviewFreeBytes": 26869653504
+  },
+  "rawClosure": {
+    "files": 42,
+    "commands": 37,
+    "encoding": "SHA256 over UTF8 JSON.stringify(records), no trailing newline; ordinal path order, keys path/bytes/sha256",
+    "sha256": "1927fc30c118f2c298af8e6ae7e308095b6d1d71761c594423c1f6031f81c6c0",
+    "records": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 459,
+        "sha256": "3090f123385f2209fd08e1084979ddfb0998d5159ed645e6426084f5f7b0e2c0"
+      },
+      {
+        "path": "artifact-copy.json",
+        "bytes": 518,
+        "sha256": "d8fcfa933964e9ca559c4e6c5e010b43dbae5c60a69c22f26fda04c99abb1554"
+      },
+      {
+        "path": "check.json",
+        "bytes": 846,
+        "sha256": "24e50edfa1205aad4d974e5148196b8d668fcb9b4e67c32553ffb713bd19b73f"
+      },
+      {
+        "path": "copy-0.json",
+        "bytes": 458,
+        "sha256": "7b959855f528986ec85cc8c2f2cbcb1ecddf177d7eff9650288b158d1304aa50"
+      },
+      {
+        "path": "copy-1.json",
+        "bytes": 456,
+        "sha256": "8aaa0c6d28cc68a488733ec7a448ff76f839d1eba6885a0b1a87e5ba359097af"
+      },
+      {
+        "path": "copy-10.json",
+        "bytes": 444,
+        "sha256": "03ba49a2df89de44a2f91188fdc938ca57b08bfff14f36b469e2f68ee397a30f"
+      },
+      {
+        "path": "copy-11.json",
+        "bytes": 454,
+        "sha256": "8ef790f5609e46712f6dfe7aa6b71fc5adacfea22b18a56b159a1210e6e10d62"
+      },
+      {
+        "path": "copy-12.json",
+        "bytes": 446,
+        "sha256": "bf5bb0609186f3fd215e91870bd714c6f8cc48bf215191cfe792af8dbf27f75d"
+      },
+      {
+        "path": "copy-13.json",
+        "bytes": 452,
+        "sha256": "8072ff6243be9d5ee9b6bf5713d189102ad05c7ce9aa0fc9899f2f31b1958b97"
+      },
+      {
+        "path": "copy-14.json",
+        "bytes": 437,
+        "sha256": "c6b6c6c5637fb2a3e73b097eab34c441e477bb2cebf511e0e1a690e32f6b2e9f"
+      },
+      {
+        "path": "copy-2.json",
+        "bytes": 462,
+        "sha256": "b6a59f1c9cdf2869a015b9eec1a61f0d3c982157542659db67b17d2661026a17"
+      },
+      {
+        "path": "copy-3.json",
+        "bytes": 470,
+        "sha256": "10da2977199aa3f5a0be8f7455e099e05d9b3387abf22c5f69cf776889f7ea33"
+      },
+      {
+        "path": "copy-4.json",
+        "bytes": 464,
+        "sha256": "eb36cf85da6f025a6e19a41d1d9cbff0023a24c1a7efbe5721e26819930df82c"
+      },
+      {
+        "path": "copy-5.json",
+        "bytes": 422,
+        "sha256": "0574f7ba88b3396aec8fdf3123a4cb0d251db7e2e3914b63926af0e03cccca3e"
+      },
+      {
+        "path": "copy-6.json",
+        "bytes": 422,
+        "sha256": "2d60241ae18fe46c4e87bbe6ebf89cd035d561d21cd49107e0bdb8b067dad0f4"
+      },
+      {
+        "path": "copy-7.json",
+        "bytes": 422,
+        "sha256": "b2af38ea773762bd3f1a441cbb2c4123c5a795478ab19e95cda799c74d4c62c0"
+      },
+      {
+        "path": "copy-8.json",
+        "bytes": 420,
+        "sha256": "53f180cce31b95c4dc7b07215f0258ec1c77cdd90b924442b4700f5bf0995870"
+      },
+      {
+        "path": "copy-9.json",
+        "bytes": 412,
+        "sha256": "00f200ab927366e39b1f1d6b331ae5e58d1a2ffeb1f47eb59017343f988683e2"
+      },
+      {
+        "path": "directories.json",
+        "bytes": 432,
+        "sha256": "40d2c4441685139f0502d88f14237965a94848764758fccf0a6bb678d72cb5c0"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "545041625d600fa6037c7e9fa7fd20c6464bd24518e11e43ca42141cc1ac9178"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "bc7791b334d90d8d5f7bc2a3a5cc840c852d32421e0f37473fb5bb6efef23a62"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 6618,
+        "sha256": "a318345dd8d2e4fb359c23c57b4bb448b5ada0b7075f3e5ce283abe4c3f1c192"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "82107c750aa71b0e58d256ec81cbbda51682cdd50155dd2ef03f30f48a8816c9"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "cca4f0924b66d7cd54c4d4aed8d98af67e0e4948e11f3e9957548b5f28c95d73"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "1d9e80eff77836c1e67b6dedb233b6e21b6d0e03011d02c2a9793876ebb11c92"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "843edac09a387a23638b184267907194bdfa77b195a13d3c97707c275218ed98"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "9072b4e9c0cd9c0152f772e8c8f8c610ccd84c5c7dc6f9dca162eabe56aa5fd3"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "f240f0f6443267fe973f3bd469d6d557e4b4ea0cda55d66ac575cd50cee51218"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 491,
+        "sha256": "099a046ad50a5f3debfda8a2e935fcdde8e519a65f0367d1cfaa724de7f71a70"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2056,
+        "sha256": "9c74e18419ab6295cdbb9515eb2894b5df2bc5cc64973758b88c18c44daee829"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 540,
+        "sha256": "08bb67d230c3c5e44923a63508ba2adcd36089b465d4460272db72cd432918b5"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 354,
+        "sha256": "91056df5bed954c0e821a02643fd38690aeab67ea30aa8d60d1f50c59529ee24"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "5c93646e832a02003a6a59cce119fc88587583b1be418b412312ddbca93f9e32"
+      },
+      {
+        "path": "new-stage.json",
+        "bytes": 331,
+        "sha256": "83a0da701f15dc1f7a788cab522c4629a03aabcaa2a8afbd1d2f5a3c22d39afe"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "result.json",
+        "bytes": 940,
+        "sha256": "064ce98f24eb9f38a52fcdbc1992481b0eb75ede1e4a0c2433a22c3acd96e0db"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 3959,
+        "sha256": "af806a4e8bcf25a1bb7750d6776b720b01d86287905a1933592d4ef54b0724c6"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 3959,
+        "sha256": "769f10701f7460eff9766171efb85263c7eb5b9f5c7fc9e13b7dc915f6bfe69d"
+      },
+      {
+        "path": "swap-before.json",
+        "bytes": 264,
+        "sha256": "52b04b60bdc5072604b381fec6ac99ccfc84ed0205dc7c32d77ce1849ea4c394"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "269ff8c6df9433d37292ea1d339a2e923a6b01bcd32613b57965da26de5059d3"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "05523c7f0ec4bedfcfd0bfeb68383efc10c8fe37c3cc1113df84944c1c6a52d6"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 1153,
+        "sha256": "0baaa64b546461432ca2f70de20bb59b542dadb01202962b6877abbf4b98769a"
+      }
+    ]
+  },
+  "limitations": [
+    "Accepts all 311 unchanged canonical ObjectCodecControls theorem bodies after three metadata migrations against the exact pinned development Hash/Words closure. Canonical full Hash qualification and production locks remain open.",
+    "Legacy result remains the first bool-version compatibility negative only; it is not a semantic negative and does not independently isolate all three migrations.",
+    "No Read33/original ordinal26, remaining Object controls, full Object, model/scenario, PrismPM integration or Pages/production acceptance.",
+    "No new compiler replay by reviewer; this is independent evidence and artifact audit of the actual closed run."
+  ],
+  "findings": []
+}

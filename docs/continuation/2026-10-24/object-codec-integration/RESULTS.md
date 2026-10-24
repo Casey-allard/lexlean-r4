@@ -1,0 +1,13 @@
+# Canonical Codec311 accepted in the pinned development closure
+
+**PASS_CANONICAL_CODEC311_IN_PINNED_DEVELOPMENT_CLOSURE.** After exactly three metadata changes, the complete existing canonical root verified with all **311 original declaration ASTs**, names, source-map spans and emitted reflexivity proofs preserved. No subset was selected.
+
+The positive phase passed source check and verification for eight selected modules from 11 supplied source modules and 15 total inputs. Verification took **78,702 ms aggregate**. Independent audit checked 85 artifact files, 40 build outputs, 1,050 empty-axiom declarations (311 target controls and 739 imported declarations), 25 successful processes, eight oleans and eight kernel replays. Source, genuine development lock, exact tools/epoch, idle, zero memory events and storage gates all passed. See [results.json](results.json) and the [independent review](reviews/positive-native-review.json).
+
+The immutable legacy control passed lock generation and failed source admission with LLR3001: its bool glossary 1.1.0 does not match locked 1.2.0. Check took 2,943 ms and verify was not run. This is the first compatibility negative, not a semantic defect test or three individually observed failures.
+
+Codec311 plus the separately accepted Store20 gives **331 of 403 existing Object controls with local root verification**. The remaining 72 are Read33 and Construction39. This does not establish full Object integration, production Hash qualification or production PrismPM acceptance. Canonical ordinal26/Read33 still requires a supported semantic/native proof connection; Construction39 retains exact known failed whole257 obligations. Do not retry those unchanged under larger limits. Any checked proof dependency/remedy requires separate review. Nine of the original 17 drafts remain unfinished after this Codec source delivery; all 17 original snapshots and 16 other current pins remain unchanged. Required semantic negatives/restoration, model/scenario integration and Pages remain open.
+
+Preparation NOT_RUN and packaging pending-review records remain historical. The earlier whole-read/resource failures remain preserved. The parent’s in-memory parser extraction error was corrected without writes or native effects and is retained separately. Timing is aggregate and resource observations are samples, not measured peaks or general efficiency.
+
+Lossless archives retain exact UTF-8 receipts and selected artifact text. Full compiled artifacts remain external and completely hash-censused; no binaries are committed. Attestation ID, serialized attestation SHA, census array digest and compressed archive SHA are distinct identities.
