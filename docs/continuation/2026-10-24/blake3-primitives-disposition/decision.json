@@ -1,0 +1,407 @@
+{
+  "schema": "lexlean-r4-blake3-representation-disposition/1",
+  "status": "REJECTED_REPRESENTATION_ARCHIVAL_DECISION_PHYSICAL_DISPOSITION_PENDING",
+  "scope": "Existing design section9 supersedes the conditional UInt representation. Preserve its20 failed experimental controls as historical evidence; they are not additional required public UInt APIs. No passed control or completed draft is claimed by this decision.",
+  "authority": {
+    "design": {
+      "path": "docs/specs/blake3-design.md",
+      "sha256": "6c2d390bcdeb3d875e33bd386d2923d571806b3ab64da7ed0cdf689e8088c1c3",
+      "sections": [
+        "2: native UInt preference is expressly conditional on none-axiom success; Boolean fallback permitted.",
+        "9, lines420\u2013482: independently reviewed and parent-approved Nat arithmetic explicitly supersedes that preference, retaining all32-bit/counter/byte admission, rotations, compression/chunk/tree/ROOT, all35 published messages and application migration/replay requirements."
+      ]
+    },
+    "currentRequirement": "model/ids.toml R4-15 requires complete unkeyed BLAKE3-256 over admitted finite sequences and incremental updates. features/suites/r4-blake3.feature requires35 immutable answers, exact representation/no added axioms, complete blocks/chunks/tree/counters/ROOT, exact errors and semantic defect rejection. Neither names Blake3Primitives/checked32 API.",
+    "boundedReferenceCheck": "Read-only search src/, model/, features/ and lexlean.toml found no Blake3Primitives, Blake3PrimitiveControls, blake3CheckedAdd32 or checked32Sum reference. The active draft test imports the missing module, but is not an entrypoint or dependency in that searched active runtime/model scope. This is bounded source evidence, not global absence.",
+    "algorithmClosure": "Decoded and rehashed retained Blake3Nat91df7049..., Blake3Core64242d1e... and Blake3a940ced4.... Core imports Nat; Blake3 imports Core and Nat; no Primitives import. These archives are existing implementation source, not proof of complete application integration."
+  },
+  "originalSource": {
+    "active": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+    "snapshot": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+    "bytes": 9762,
+    "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931",
+    "declarationArraySha256": "b77ea73c0de9540a9966182e4a0c16a743435eac5b0a8f16a201627383cdbbe2",
+    "wrapperArchive": {
+      "path": "docs/continuation/earlier-history-2026-10-23/files/70b93936b8b801cd653585ed7f29ed469f234ebaaac5454205fd7e7c59bc6344.txt.gz",
+      "bytes": 576,
+      "sha256": "95467b849ec14954863d767559bd09fc266071719ff026b546e9a442df8a448a"
+    },
+    "wrapperDecoded": {
+      "bytes": 4999,
+      "sha256": "70b93936b8b801cd653585ed7f29ed469f234ebaaac5454205fd7e7c59bc6344"
+    },
+    "reconstruction": "Parsed actual semanticdata for original test and archived wrapper; compared every ordinal/name/call/literal/expected value, typed constructor argument, parameter arity/type, wrapper primitive operation/result and empty axioms. All20 have no parameters and reflexivity proofs. No reinterpretation as Nat propositions.",
+    "goals": [
+      {
+        "name": "checked32Sum",
+        "call": "blake3CheckedAdd32",
+        "args": [
+          "1",
+          "2"
+        ],
+        "expected": "Option.some(3)"
+      },
+      {
+        "name": "checked32Overflow",
+        "call": "blake3CheckedAdd32",
+        "args": [
+          "4294967295",
+          "1"
+        ],
+        "expected": "Option.none()"
+      },
+      {
+        "name": "checked64Sum",
+        "call": "blake3CheckedAdd64",
+        "args": [
+          "4294967295",
+          "4294967295"
+        ],
+        "expected": "Option.some(8589934590)"
+      },
+      {
+        "name": "checked64Overflow",
+        "call": "blake3CheckedAdd64",
+        "args": [
+          "18446744073709551615",
+          "1"
+        ],
+        "expected": "Option.none()"
+      },
+      {
+        "name": "widen32Maximum",
+        "call": "blake3Widen32",
+        "args": [
+          "4294967295"
+        ],
+        "expected": "Option.some(4294967295)"
+      },
+      {
+        "name": "narrow32Maximum",
+        "call": "blake3Narrow32",
+        "args": [
+          "4294967295"
+        ],
+        "expected": "Option.some(4294967295)"
+      },
+      {
+        "name": "narrow32Reject",
+        "call": "blake3Narrow32",
+        "args": [
+          "4294967296"
+        ],
+        "expected": "Option.none()"
+      },
+      {
+        "name": "xor32Literal",
+        "call": "blake3Xor32",
+        "args": [
+          "2863311530",
+          "1431655765"
+        ],
+        "expected": "4294967295"
+      },
+      {
+        "name": "and64Mask",
+        "call": "blake3And64",
+        "args": [
+          "8589934590",
+          "4294967295"
+        ],
+        "expected": "4294967294"
+      },
+      {
+        "name": "or32Literal",
+        "call": "blake3Or32",
+        "args": [
+          "65535",
+          "4294901760"
+        ],
+        "expected": "4294967295"
+      },
+      {
+        "name": "shift32LeftCarry",
+        "call": "blake3ShiftLeft32",
+        "args": [
+          "2147483648",
+          "1"
+        ],
+        "expected": "Option.some(0)"
+      },
+      {
+        "name": "shift32Right",
+        "call": "blake3ShiftRight32",
+        "args": [
+          "2147483648",
+          "31"
+        ],
+        "expected": "Option.some(1)"
+      },
+      {
+        "name": "shift32Zero",
+        "call": "blake3ShiftRight32",
+        "args": [
+          "4294967295",
+          "0"
+        ],
+        "expected": "Option.some(4294967295)"
+      },
+      {
+        "name": "shift32Invalid",
+        "call": "blake3ShiftRight32",
+        "args": [
+          "1",
+          "32"
+        ],
+        "expected": "Option.none()"
+      },
+      {
+        "name": "subtract32NoBorrow",
+        "call": "blake3Subtract32",
+        "args": [
+          "4294967295",
+          "4294967294"
+        ],
+        "expected": "Option.some(1)"
+      },
+      {
+        "name": "subtract32Borrow",
+        "call": "blake3Subtract32",
+        "args": [
+          "0",
+          "1"
+        ],
+        "expected": "Option.none()"
+      },
+      {
+        "name": "byteLength",
+        "call": "blake3ByteLength",
+        "args": [
+          "0x0001feff"
+        ],
+        "expected": "4"
+      },
+      {
+        "name": "byteAt",
+        "call": "blake3ByteAt",
+        "args": [
+          "0x0001feff",
+          "3"
+        ],
+        "expected": "Option.some(255)"
+      },
+      {
+        "name": "byteAtReject",
+        "call": "blake3ByteAt",
+        "args": [
+          "0x0001feff",
+          "4"
+        ],
+        "expected": "Option.none()"
+      },
+      {
+        "name": "byteSlice",
+        "call": "blake3ByteSlice",
+        "args": [
+          "0x0001feff",
+          "1",
+          "2"
+        ],
+        "expected": "Option.some(0x01fe)"
+      }
+    ],
+    "definitions": [
+      {
+        "name": "blake3CheckedAdd32",
+        "type": "uint32 -> uint32 -> Option uint32",
+        "operation": "checked_add"
+      },
+      {
+        "name": "blake3CheckedAdd64",
+        "type": "uint64 -> uint64 -> Option uint64",
+        "operation": "checked_add"
+      },
+      {
+        "name": "blake3Widen32",
+        "type": "uint32 -> Option uint64",
+        "operation": "checked_convert"
+      },
+      {
+        "name": "blake3Narrow32",
+        "type": "uint64 -> Option uint32",
+        "operation": "checked_convert"
+      },
+      {
+        "name": "blake3Xor32",
+        "type": "uint32 -> uint32 -> uint32",
+        "operation": "bit_xor"
+      },
+      {
+        "name": "blake3And64",
+        "type": "uint64 -> uint64 -> uint64",
+        "operation": "bit_and"
+      },
+      {
+        "name": "blake3Or32",
+        "type": "uint32 -> uint32 -> uint32",
+        "operation": "bit_or"
+      },
+      {
+        "name": "blake3ShiftLeft32",
+        "type": "uint32 -> uint32 -> Option uint32",
+        "operation": "shift_left"
+      },
+      {
+        "name": "blake3ShiftRight32",
+        "type": "uint32 -> uint32 -> Option uint32",
+        "operation": "shift_right"
+      },
+      {
+        "name": "blake3Subtract32",
+        "type": "uint32 -> uint32 -> Option uint32",
+        "operation": "checked_subtract"
+      },
+      {
+        "name": "blake3ByteLength",
+        "type": "bytes -> nat",
+        "operation": "length"
+      },
+      {
+        "name": "blake3ByteAt",
+        "type": "bytes -> nat -> Option uint8",
+        "operation": "index"
+      },
+      {
+        "name": "blake3ByteSlice",
+        "type": "bytes -> nat -> nat -> Option bytes",
+        "operation": "slice"
+      }
+    ]
+  },
+  "evidenceAliases": [
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/investigation.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/blake3-primitives-investigation.json",
+      "bytes": 17214,
+      "sha256": "06274fa8e0da474bcc433ebb553ed277ba3f1f02b7b6fa1a4551bfa681cea536"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/spec-review.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/blake3-primitives-disposition-spec-review.json",
+      "bytes": 18186,
+      "sha256": "eb1ec264d10259b07ff2d41ded9dc9064630612a2da7f8e2a7af116da280d126"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/01-primitive-red.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-evidence-20261021/primitive-red.json",
+      "bytes": 463,
+      "sha256": "9e1cbbd038a22a99e1303924693e0a9ce526497d6f81dc39ca5e414ce907f60c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/02-primitive-all-result.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-evidence-20261021/primitive-all-result.json",
+      "bytes": 2598,
+      "sha256": "91044026ca145a24b8eddfead26c01b3414d2a08661ba3e0ccd68ca1c3bc25a4"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/03-primitive-words-result.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-evidence-20261021/primitive-words-result.json",
+      "bytes": 488,
+      "sha256": "5f2d6db03ae8111827d015915c074dd6d097ad54309a6156015d96c81ab41f39"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/04-Fixed_checked32Sum-result.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/dependency-diagnostics/fixedword-diagnostic-results/tmp/Fixed_checked32Sum-result.json",
+      "bytes": 489,
+      "sha256": "4e8e28a330292270348fde3ae627ea51af49b5765b186080ead3a59d5ae81d50"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/05-Fixed_shift32Invalid-result.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/dependency-diagnostics/fixedword-diagnostic-results/tmp/Fixed_shift32Invalid-result.json",
+      "bytes": 491,
+      "sha256": "b79c0f88a0b17aea59b16fa1bceda64c9d5553c7bb1a608664374fa83677223d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/06-r4-blake3-nat-verify.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/r4-blake3-nat-verify.json",
+      "bytes": 569,
+      "sha256": "b6533b6a5e71f26b70e1592990c91491d41c9d85d7f9d0c7cc4feff3f8dfbc77"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/07-independent-review.json",
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/r4-blake3-nat-attestation-20261021/independent-review.json",
+      "bytes": 979,
+      "sha256": "10768152be03d267ef961c85ee418c148713ce8155494f64786863591f0c3cdb"
+    }
+  ],
+  "pendingDraftPins": [
+    {
+      "path": "model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    }
+  ],
+  "timing": {
+    "timing": "Only after the reviewed Read33 phase sequence and audits close, and parent separately authorizes/reviews the concrete preservation commit. Current Read33 source-bindings pins this active file among16preserved current files; it is absent from all phase input lists. Do not break that frozen preservation context now.",
+    "paths": "Keep the existing original20 snapshot and committed wrapper/failure aliases as immutable canonical archive evidence; add decision.json plus a custody/mapping record under docs/continuation/2026-10-24/blake3-primitives-disposition/. Extra duplicate runtime sources are unnecessary. The active tests/lexlean/Blake3PrimitiveControls.lex.tex can then leave active roots only after byte equality and completeness of those archival destinations are verified.",
+    "acceptance": [
+      "All20 exact names/goals/proofs and13wrapperdefinitions preserved byte-exactly, along with unique failure/setup history and authoritative source/version links.",
+      "No live runtime/model/scenario/config references require the retired API at disposition time; independently repeat bounded reference census.",
+      "Record archival disposition as resolved historical experiment, never20passed or subtraction from403Object controls. Preserve BLAKE3 full algorithm/standard/negative/noaxiom/production requirements.",
+      "Any later Read33 run after active-path removal must use a separately reviewed preservation-context successor pointing at the archived bytes; original frozen packet remains immutable.",
+      "Atomic conventional preservation commit, exact staged review, normal user-authorized delivery; no unrelated file movement or deletion."
+    ]
+  },
+  "stillRequired": [
+    "All403Object controls including Read33 and Construction39",
+    "Complete unkeyed BLAKE3, all35 published vectors, incremental/error semantics, semantic negatives and restoration",
+    "Application/tokenizer identity and complete model integration",
+    "Genuine production PrismPM/template binding, full just vv and generated Pages"
+  ],
+  "separation": "Historical Nat125 does not prove these20 typed UInt/ByteArray propositions. HashWire SHA256/BLAKE2b restoration is not BLAKE3 qualification.",
+  "nativeTestsThisCheckpoint": "NOT_RUN",
+  "acceptedObjectControls": 331,
+  "totalObjectControls": 403,
+  "pendingDrafts": 9,
+  "physicalMoves": []
+}

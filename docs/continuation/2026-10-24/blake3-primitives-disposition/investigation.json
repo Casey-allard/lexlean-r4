@@ -1,0 +1,450 @@
+{
+ "schema": "lexlean-r4-blake3-primitives-investigation/v1",
+ "status": "READ_ONLY_REQUIRES_INDEPENDENT_DISPOSITION_REVIEW",
+ "at": "2026-10-24T08:22:47.382Z",
+ "finding": "The exact missing module exists in committed preserved source. It is a failed fixed-word representation experiment, not an independently modeled required UInt API. Recommend explicit reviewed archival disposition rather than constructing an unused API to make historical diagnostics green. No disposition or requirement waiver is performed here.",
+ "authority": {
+  "claim": "R4-15 requires complete pure LexLean unkeyed BLAKE3-256, admitted finite bytes/incremental updates, all block/chunk/tree/ROOT and error semantics. Model/scenario names no Blake3Primitives or checked32 API.",
+  "design": "docs/specs/blake3-design.md section2 makes UInt32/64 preferred only if empty-axiom controls succeed and explicitly allows exact Boolean fallback. docs/BLAKE3.md documents the subsequent pure Nat implementation.",
+  "currentConflict": "Continuation still lists these20 controls as required. Independently reviewed disposition must explicitly resolve that claim, not silently discard it. Complete BLAKE3, tokenizer identity, original published vectors and production binding remain required."
+ },
+ "recovery": {
+  "canonicalAbsent": true,
+  "historicalPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-dev-20261021/src/R4/Blake3Primitives.lex.tex",
+  "archive": {
+   "path": "docs/continuation/earlier-history-2026-10-23/files/70b93936b8b801cd653585ed7f29ed469f234ebaaac5454205fd7e7c59bc6344.txt.gz",
+   "bytes": 576,
+   "sha256": "95467b849ec14954863d767559bd09fc266071719ff026b546e9a442df8a448a"
+  },
+  "decodedBytes": 4999,
+  "decodedSha256": "70b93936b8b801cd653585ed7f29ed469f234ebaaac5454205fd7e7c59bc6344",
+  "search": "Read all278 product_lexlean_source entries in committed earlier-history inventory in memory. Found exact full wrapper, word-only subset and isolated failed definitions. No accepted second exact API established within this bounded scope; not global absence.",
+  "algorithmArchives": [
+   {
+    "archive": {
+     "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+     "bytes": 1568,
+     "sha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79"
+    },
+    "decodedSha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+   },
+   {
+    "archive": {
+     "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+     "bytes": 2935,
+     "sha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45"
+    },
+    "decodedSha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+   },
+   {
+    "archive": {
+     "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+     "bytes": 4047,
+     "sha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f"
+    },
+    "decodedSha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+   }
+  ],
+  "imports": "Retained Blake3Core imports Blake3Nat; Blake3 imports Blake3Core and Blake3Nat. None imports Blake3Primitives."
+ },
+ "requiredDefinitions": [
+  {
+   "name": "blake3CheckedAdd32",
+   "type": "uint32 -> uint32 -> Option uint32",
+   "operation": "checked_add"
+  },
+  {
+   "name": "blake3CheckedAdd64",
+   "type": "uint64 -> uint64 -> Option uint64",
+   "operation": "checked_add"
+  },
+  {
+   "name": "blake3Widen32",
+   "type": "uint32 -> Option uint64",
+   "operation": "checked_convert"
+  },
+  {
+   "name": "blake3Narrow32",
+   "type": "uint64 -> Option uint32",
+   "operation": "checked_convert"
+  },
+  {
+   "name": "blake3Xor32",
+   "type": "uint32 -> uint32 -> uint32",
+   "operation": "bit_xor"
+  },
+  {
+   "name": "blake3And64",
+   "type": "uint64 -> uint64 -> uint64",
+   "operation": "bit_and"
+  },
+  {
+   "name": "blake3Or32",
+   "type": "uint32 -> uint32 -> uint32",
+   "operation": "bit_or"
+  },
+  {
+   "name": "blake3ShiftLeft32",
+   "type": "uint32 -> uint32 -> Option uint32",
+   "operation": "shift_left"
+  },
+  {
+   "name": "blake3ShiftRight32",
+   "type": "uint32 -> uint32 -> Option uint32",
+   "operation": "shift_right"
+  },
+  {
+   "name": "blake3Subtract32",
+   "type": "uint32 -> uint32 -> Option uint32",
+   "operation": "checked_subtract"
+  },
+  {
+   "name": "blake3ByteLength",
+   "type": "bytes -> nat",
+   "operation": "length"
+  },
+  {
+   "name": "blake3ByteAt",
+   "type": "bytes -> nat -> Option uint8",
+   "operation": "index"
+  },
+  {
+   "name": "blake3ByteSlice",
+   "type": "bytes -> nat -> nat -> Option bytes",
+   "operation": "slice"
+  }
+ ],
+ "original20": [
+  {
+   "name": "checked32Sum",
+   "call": "blake3CheckedAdd32",
+   "args": [
+    "1",
+    "2"
+   ],
+   "expected": "Option.some(3)"
+  },
+  {
+   "name": "checked32Overflow",
+   "call": "blake3CheckedAdd32",
+   "args": [
+    "4294967295",
+    "1"
+   ],
+   "expected": "Option.none()"
+  },
+  {
+   "name": "checked64Sum",
+   "call": "blake3CheckedAdd64",
+   "args": [
+    "4294967295",
+    "4294967295"
+   ],
+   "expected": "Option.some(8589934590)"
+  },
+  {
+   "name": "checked64Overflow",
+   "call": "blake3CheckedAdd64",
+   "args": [
+    "18446744073709551615",
+    "1"
+   ],
+   "expected": "Option.none()"
+  },
+  {
+   "name": "widen32Maximum",
+   "call": "blake3Widen32",
+   "args": [
+    "4294967295"
+   ],
+   "expected": "Option.some(4294967295)"
+  },
+  {
+   "name": "narrow32Maximum",
+   "call": "blake3Narrow32",
+   "args": [
+    "4294967295"
+   ],
+   "expected": "Option.some(4294967295)"
+  },
+  {
+   "name": "narrow32Reject",
+   "call": "blake3Narrow32",
+   "args": [
+    "4294967296"
+   ],
+   "expected": "Option.none()"
+  },
+  {
+   "name": "xor32Literal",
+   "call": "blake3Xor32",
+   "args": [
+    "2863311530",
+    "1431655765"
+   ],
+   "expected": "4294967295"
+  },
+  {
+   "name": "and64Mask",
+   "call": "blake3And64",
+   "args": [
+    "8589934590",
+    "4294967295"
+   ],
+   "expected": "4294967294"
+  },
+  {
+   "name": "or32Literal",
+   "call": "blake3Or32",
+   "args": [
+    "65535",
+    "4294901760"
+   ],
+   "expected": "4294967295"
+  },
+  {
+   "name": "shift32LeftCarry",
+   "call": "blake3ShiftLeft32",
+   "args": [
+    "2147483648",
+    "1"
+   ],
+   "expected": "Option.some(0)"
+  },
+  {
+   "name": "shift32Right",
+   "call": "blake3ShiftRight32",
+   "args": [
+    "2147483648",
+    "31"
+   ],
+   "expected": "Option.some(1)"
+  },
+  {
+   "name": "shift32Zero",
+   "call": "blake3ShiftRight32",
+   "args": [
+    "4294967295",
+    "0"
+   ],
+   "expected": "Option.some(4294967295)"
+  },
+  {
+   "name": "shift32Invalid",
+   "call": "blake3ShiftRight32",
+   "args": [
+    "1",
+    "32"
+   ],
+   "expected": "Option.none()"
+  },
+  {
+   "name": "subtract32NoBorrow",
+   "call": "blake3Subtract32",
+   "args": [
+    "4294967295",
+    "4294967294"
+   ],
+   "expected": "Option.some(1)"
+  },
+  {
+   "name": "subtract32Borrow",
+   "call": "blake3Subtract32",
+   "args": [
+    "0",
+    "1"
+   ],
+   "expected": "Option.none()"
+  },
+  {
+   "name": "byteLength",
+   "call": "blake3ByteLength",
+   "args": [
+    "0x0001feff"
+   ],
+   "expected": "4"
+  },
+  {
+   "name": "byteAt",
+   "call": "blake3ByteAt",
+   "args": [
+    "0x0001feff",
+    "3"
+   ],
+   "expected": "Option.some(255)"
+  },
+  {
+   "name": "byteAtReject",
+   "call": "blake3ByteAt",
+   "args": [
+    "0x0001feff",
+    "4"
+   ],
+   "expected": "Option.none()"
+  },
+  {
+   "name": "byteSlice",
+   "call": "blake3ByteSlice",
+   "args": [
+    "0x0001feff",
+    "1",
+    "2"
+   ],
+   "expected": "Option.some(0x01fe)"
+  }
+ ],
+ "preservedGoals": {
+  "wholeDeclarationArraySha256": "b77ea73c0de9540a9966182e4a0c16a743435eac5b0a8f16a201627383cdbbe2",
+  "proofs": "All20 reflexivity, empty axioms. Preserve all exact names/propositions in historical source even if retired. No Nat reinterpretation of UInt goals."
+ },
+ "actualEvidence": {
+  "missing": "primitive-red.json: exit1 LLR3005 missing module; historical admission RED, not semantic defect.",
+  "full20": "primitive-all-result.json: exit1 LLV7002 byteAt, byteAtReject and byteSlice. No artifact. Other elaboration does not imply acceptance.",
+  "words": "primitive-words-result.json: LLV7005 first audited checked32Sum with Quot.sound and propext. No accepted fixed-word attestation.",
+  "isolation": "Read actual Fixed_checked32Sum and Fixed_shift32Invalid: LLV7005 names each definition itself. Changing theorem proof cannot remove a definition dependency. Docs report16 isolated failures; only these two representative receipts were reread here.",
+  "nat": {
+   "verifyExit": 0,
+   "attestationId": "360c1eafeaef9ff7eaa9074641962b22a86d524aff46ba1bec0ebd9e1499907e",
+   "controls": 125,
+   "reviewEmptyAxiomDeclarations": 143,
+   "reviewKernelReplays": 2,
+   "reviewNonLexiconInputs": 4,
+   "boundary": "Retained command and independent review inspected, not fresh exhaustive bundle audit/replay. These Nat controls do not discharge the20 UInt/ByteArray propositions."
+  },
+  "fullAlgorithm": "Docs record255/272 and18/35 vectors, with remaining vector/mutation/restoration/full integration gates. This investigation does not freshly audit that entire census."
+ },
+ "mechanics": {
+  "HashNatReusable": [
+   "hashNatRawAdd(modulus,left,right):Nat",
+   "hashNatRawXor(bits,left,right):Nat",
+   "hashNatRawAnd(bits,left,right):Nat",
+   "hashNatRawOr(bits,left,right):Nat",
+   "hashNatRawShiftRight(value,amount):Nat",
+   "hashNatRawShiftLeft(bits,value,amount):Nat"
+  ],
+  "typedMismatch": "HashNat uses Nat/List Nat/Result or Boolean word structures. Original controls use UInt32/64/8, ByteArray and Option. Checked addition rejects overflow instead of wrapping; shift count>=32 rejects but left-shift carry wraps; subtract rejects borrow. No type or error weakening permitted.",
+  "hashSeparation": "HashWire SHA-256/BLAKE2b-96 are not BLAKE3. Arithmetic reuse does not supply BLAKE3 identity."
+ },
+ "minimumNextTask": {
+  "preferred": "Independent bounded source/model disposition review: retain the failed20 experiment and source/receipts exactly, explicitly resolve pending-draft obligation, and use the existing exact Nat BLAKE3 closure for subsequent actual integration. No new algorithm implementation is needed to recover those sources. Inventory existing proof evidence and select actual missing full-algorithm obligations before any compiler job.",
+  "meaningfulFutureNegative": "Proposed NOT_RUN: in a separately owned/reviewed Nat candidate replace b3NatAddRaw modulo reduction with unbounded addition; unchanged existing Blake3NatControls.add_carry must reject. Restore exact source and verify full125 primitive root plus every definition/theorem axiom audit. Missing-module RED does not replace this semantic control.",
+  "ifUIntAPIIsRequired": "Require separate explicit representation design. All13 types and20 names/propositions remain unchanged. A prospective core-module/1 pure adapter can use sourced UInt/BitVec/Nat conversion and genuine ByteArray operations instead of generic Fixed, but complete none-axiom dependency closure and interoperability are unestablished. Captured Prelude establishes UInt32.toNat/ofNatLT only; no full adapter construction is justified yet. Exact old wrapper restoration is known insufficient.",
+  "conditional20Negative": "If API retained: full20 negative changes only checked32Sum expected some3 to some4; remaining19 unchanged. Require kernel mismatch, then restored full20 and all definition/theorem empty-axiom audits. Admission/resource/axiom failure is not intended negative. NOT_RUN."
+ },
+ "sequencing": {
+  "frozenRead33": "Current Read33 frozen source-bindings preserves this active test among16 other current pins. It is not a Read33 phase input. Do not move/remove/edit it during pending Read33 execution.",
+  "deliverNow": "Can publish exact archival evidence and reviewed disposition decision without physical move. Existing committed snapshot docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex already preserves all20 goals. That alone does not finish physical draft disposition.",
+  "finalDisposition": "After reviewed Read33 phases and audits close, a separately approved preservation commit can retain that exact snapshot plus wrapper/failure aliases under an archival record, then remove active untracked tests/lexlean/Blake3PrimitiveControls.lex.tex. No unique deletion; classify draft resolved by archival disposition, never passed. Do not execute this plan without explicit review/parent authority.",
+  "laterReadReuse": "Any subsequent Read33 execution after removal requires a reviewed successor preservation-context map binding the archived alias. No phase input/proof changes needed, but old frozen packet remains immutable and cannot silently waive missing original pin.",
+  "currentCount": "Nine pending drafts remain nine here; no source/disposition work performed."
+ },
+ "pins": [
+  {
+   "path": "docs/BLAKE3.md",
+   "bytes": 18232,
+   "sha256": "3209df04f02764ad8b4cd96219b80a32035439f24df79f23ae105df6240f6992"
+  },
+  {
+   "path": "docs/specs/blake3-design.md",
+   "bytes": 34033,
+   "sha256": "6c2d390bcdeb3d875e33bd386d2923d571806b3ab64da7ed0cdf689e8088c1c3"
+  },
+  {
+   "path": "model/ids.toml",
+   "bytes": 9974,
+   "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+  },
+  {
+   "path": "features/suites/r4-blake3.feature",
+   "bytes": 827,
+   "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+  },
+  {
+   "path": "lexlean.toml",
+   "bytes": 4584,
+   "sha256": "572bbd3606d49b9d44788ff483ed9249695428727cbb872b898ed388608e46d4"
+  },
+  {
+   "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+   "bytes": 9762,
+   "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+  },
+  {
+   "path": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+   "bytes": 9762,
+   "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+  },
+  {
+   "path": "docs/continuation/earlier-history-2026-10-23/inventory.json",
+   "bytes": 948565,
+   "sha256": "f61521d5f86eeed77854742c335a09dc2059ebcdcdc87c08cd1c5d73176aefad"
+  },
+  {
+   "path": "tests/fixtures/hash-wire/project/src/R4/HashNat.lex.tex",
+   "bytes": 64465,
+   "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+  },
+  {
+   "path": "tests/fixtures/hash-wire/project/src/R4/HashNatCore.lex.tex",
+   "bytes": 339156,
+   "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+  },
+  {
+   "path": "tests/fixtures/hash-wire/project/src/R4/HashWire.lex.tex",
+   "bytes": 11612,
+   "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+  }
+ ],
+ "rawReceipts": [
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-evidence-20261021/primitive-red.json",
+   "bytes": 463,
+   "sha256": "9e1cbbd038a22a99e1303924693e0a9ce526497d6f81dc39ca5e414ce907f60c"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-evidence-20261021/primitive-all-result.json",
+   "bytes": 2598,
+   "sha256": "91044026ca145a24b8eddfead26c01b3414d2a08661ba3e0ccd68ca1c3bc25a4"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/lexlean-r4-blake3-evidence-20261021/primitive-words-result.json",
+   "bytes": 488,
+   "sha256": "5f2d6db03ae8111827d015915c074dd6d097ad54309a6156015d96c81ab41f39"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/dependency-diagnostics/fixedword-diagnostic-results/tmp/Fixed_checked32Sum-result.json",
+   "bytes": 489,
+   "sha256": "4e8e28a330292270348fde3ae627ea51af49b5765b186080ead3a59d5ae81d50"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/dependency-diagnostics/fixedword-diagnostic-results/tmp/Fixed_shift32Invalid-result.json",
+   "bytes": 491,
+   "sha256": "b79c0f88a0b17aea59b16fa1bceda64c9d5553c7bb1a608664374fa83677223d"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/r4-blake3-nat-verify.json",
+   "bytes": 569,
+   "sha256": "b6533b6a5e71f26b70e1592990c91491d41c9d85d7f9d0c7cc4feff3f8dfbc77"
+  },
+  {
+   "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-21/blake3-codebook/tmp/r4-blake3-nat-attestation-20261021/independent-review.json",
+   "bytes": 979,
+   "sha256": "10768152be03d267ef961c85ee418c148713ce8155494f64786863591f0c3cdb"
+  }
+ ],
+ "preservation": {
+  "current17Pins": "PASS",
+  "original17Snapshots": "PASS",
+  "repoWrites": 0,
+  "nativeCalls": 0,
+  "restoration": "70584 remains sole native job, untouched",
+  "allFutureTests": "NOT_RUN"
+ },
+ "budget": {
+  "capBytes": 20480,
+  "hostFreeBytes": 23028617216,
+  "reserveBytes": 10737418240,
+  "temporaryFiles": 0,
+  "prewriteHistory": "Two in-memory formatted drafts measured25875 and22457bytes and failed cap assertions before any write. This shorter report is the only materialized output. Author accounting events, not native failures."
+ }
+}
