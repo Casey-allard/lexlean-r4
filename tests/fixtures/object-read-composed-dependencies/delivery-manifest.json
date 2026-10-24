@@ -1,0 +1,174 @@
+{
+  "schema": "lexlean-r4-read-composed-dependencies-portable-delivery/v1",
+  "status": "SOURCE_CODE_ACCEPTED_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "candidate/author-source.mjs",
+      "bytes": 29006,
+      "sha256": "72c0a6d8951db0fa278590668cb7b0f5223f1cc4ea7c4f3dfece35f10f0f4fbe"
+    },
+    {
+      "path": "candidate/budget.json",
+      "bytes": 1725,
+      "sha256": "a3a3b00164c61f0e0fc229b5236f2ef9aea3c2f5ef5721c595a502a1e8023c53"
+    },
+    {
+      "path": "candidate/manifest.json",
+      "bytes": 28727,
+      "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+    },
+    {
+      "path": "candidate/predecessor-probe-attempt2.stderr",
+      "bytes": 85110,
+      "sha256": "807f70f2f48d764cc1069d70298e2f998bb6ada07b76c757ea896590134da4a9"
+    },
+    {
+      "path": "candidate/predecessor-probe-attempt2.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "candidate/predecessor-probe-attempt3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "candidate/predecessor-probe-attempt3.stdout",
+      "bytes": 492,
+      "sha256": "690949ef8253e04928abda99dc0a005e1c7616ad1622860661691aec30629822"
+    },
+    {
+      "path": "candidate/predecessor-probe.stderr",
+      "bytes": 880,
+      "sha256": "98ffce6fc67c8d236b99eb3a383c5cc7dc4e2625ee54330805190ca3f2d1b55c"
+    },
+    {
+      "path": "candidate/predecessor-probe.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "candidate/predecessor-translator-probe-attempt2.mjs",
+      "bytes": 12339,
+      "sha256": "8c4da4d2de0a33b2bb6c41ede26c91f69670ac55245ecf6745aeffdab50720bc"
+    },
+    {
+      "path": "candidate/predecessor-translator-probe-attempt3.mjs",
+      "bytes": 12257,
+      "sha256": "829ce56b171858d2bbd197683c3c2dd8f94bea3f9094a581b52d97048de5b3c6"
+    },
+    {
+      "path": "candidate/predecessor-translator-probe.mjs",
+      "bytes": 9676,
+      "sha256": "9f4d84fc1e9aeafdee446e1d55267f6612236000cde5b600e095feb1697f7258"
+    },
+    {
+      "path": "candidate/preservation.json",
+      "bytes": 8573,
+      "sha256": "c4a0cbefc2fcd060e4c4fd5e7f9f88350da88fcf29fcde685ae6a06dfa0c2916"
+    },
+    {
+      "path": "candidate/README.md",
+      "bytes": 1635,
+      "sha256": "aafaccd0c86a3a32f939f6d3c67df988073981ee18206b0be2e9969533dcfbd6"
+    },
+    {
+      "path": "candidate/source-audit.json",
+      "bytes": 87549,
+      "sha256": "45ddb75955043f737a20f5a74ed021e53618ce0e418aae4270e7895363625083"
+    },
+    {
+      "path": "candidate/source-bindings.json",
+      "bytes": 71638,
+      "sha256": "05990c4e189a7ea21838e80594913ef7e5b6fe65c595776e8cf7b3e096c7cb68"
+    },
+    {
+      "path": "candidate/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 21034,
+      "sha256": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f"
+    },
+    {
+      "path": "candidate/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 21348,
+      "sha256": "83e2a9ea9ec84e02a4ffacf2cf851746b035495365118659761112cb6d21d5f9"
+    },
+    {
+      "path": "candidate/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 22735,
+      "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+    },
+    {
+      "path": "candidate/typed-mapping.json.gz",
+      "bytes": 157191,
+      "sha256": "1d8ce52001bf2628ac71375a91d5a010308e635c5c0faa8aeab4283899694ce0"
+    },
+    {
+      "path": "evidence/ordinal26-dependency-repair-spec-review.json",
+      "bytes": 5354,
+      "sha256": "5f987f4f04de4e47c400f963ef3439e7c019df6cdf3fbd6673ef94b86e6804c4"
+    },
+    {
+      "path": "evidence/ordinal26-negative-dependency-investigation.json",
+      "bytes": 23459,
+      "sha256": "ae1149464cfd18050123c1a92f74d93918ca17063f386ee220d1ec55795600b3"
+    },
+    {
+      "path": "evidence/ordinal26-semantic-boundary-successor-proposal.json",
+      "bytes": 13676,
+      "sha256": "323165e4abadb9817351906876cb3ae96275da70139cc0f35d9b52241e4f1f36"
+    },
+    {
+      "path": "evidence/ordinal26-semantic-boundary-successor-spec-review.json",
+      "bytes": 6162,
+      "sha256": "65f69e3fa932cca644b46cd3399435265a72ff7da92713a3980be33b13925a2c"
+    },
+    {
+      "path": "evidence/source-code-review.json",
+      "bytes": 9222,
+      "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+    },
+    {
+      "path": "portable-bindings.json",
+      "bytes": 100717,
+      "sha256": "2e44cbab261bc36f8d61ea72b5c196ef7aa6b94644a89875335c2ace4cac5334"
+    },
+    {
+      "path": "preservation-check.json",
+      "bytes": 8478,
+      "sha256": "afca3a860e3796a436b841bbb499a52951a5a7cdbe4695bf2032db8b31e82349"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2152,
+      "sha256": "c0817629b9b3389f24d2026f8ae3ebdc1d6581cb538ef9305c2e5d560d9e7ac0"
+    },
+    {
+      "path": "results.json",
+      "bytes": 862,
+      "sha256": "f2dabd8c2ec85f5c5fa7ace3b761ab62ed3f7bdb5aabdbd85e44d8ee5b414693"
+    }
+  ],
+  "originalCandidateManifest": {
+    "bytes": 28727,
+    "sha256": "8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37"
+  },
+  "sourceCodeReview": {
+    "path": "evidence/source-code-review.json",
+    "bytes": 9222,
+    "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+  },
+  "portableBinding": "portable-bindings.json",
+  "checks": {
+    "allPayloadsHashed": true,
+    "all94AuthorityAliasesDecodedAndHashed": true,
+    "all3x51InputsHashed": true,
+    "current17Snapshot17AndFrozenReadUnchanged": true
+  },
+  "resource": {
+    "preManifestAllocatedBytes": 811008,
+    "reserveBytes": 10737418240,
+    "capBytes": 1048576,
+    "freeBytes": "20836827136"
+  },
+  "scope": "Only this source fixture; exact candidate bytes retained; no native results, runner, lock or production promotion"
+}

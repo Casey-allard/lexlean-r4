@@ -1,0 +1,69 @@
+{
+  "schema": "lexlean-r4-ordinal26-dependency-repair-spec-review/v1",
+  "at": "2026-10-24T10:14:27.356018+00:00",
+  "reviewer": "/root/construction_second_state_code_review",
+  "verdict": "REJECTED_AS_COMPLETE_READ_DEPENDENCY_REPAIR_SPEC",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/ordinal26-negative-dependency-investigation.json",
+    "bytes": 23459,
+    "sha256": "ae1149464cfd18050123c1a92f74d93918ca17063f386ee220d1ec55795600b3"
+  },
+  "scope": "Source-only review of Phase1 investigation and proposedone-module replacement. No candidate or SDK execution. Mathematical endpoint composition validates, but selected downstreamsemantic consumer cannot use proposednative replacement in installedinterface.",
+  "checks": {
+    "pins": "All21investigationpins and19addeddependencybytes rehashed.",
+    "endpoints": "Independently parsedthreeactualsemanticdeclarations anddeepcompared A=connectedLeft,connectedRight=finishLeft,finishRight=C. OriginalA=Cstatement andA/B/C hashes matchproposal. ExistingApply consumes B=C only; A-to-B conversion is real sourceobligation.",
+    "closure": "Independently traversedcurrent33input graph union19additional sources, with proposedconnected import.48reachable modules/52inputs consistent. All19newdependencies are actualexistingtext, notnewproofchain; union acceptance/cost unknown.",
+    "constructor": "StandardEq.trans composition is mathematicallywelltyped for equality of same Resulttype. Nativeordinarycore/1 can importsemanticproofconstants; exactDAG/type/universe/sourceCODE andkernelchecks stillrequired. No semantictransitivitytag exists fromthisproposal.",
+    "negative": "Keepingordinal26wrongproof unchanged is meaningful onlyifall dependenciesadmitandverifyfirst. Currenttimeoutwasnotthatnegative. Requiredfocusednegative,focusedpositiveandfull33 remain mandatory.",
+    "resources": "Phase1 honestlydistinguishes currenttimeout/maxevents fromOOMorsemanticfalse; missingfailedemission/per-subtermtiming prevents attribution. Added19dependencies riskrecomputation/moretimeandmemory. No efficiencyclaim justified.",
+    "preservation": "No proposedruntime/limit/33goal changes. No currentfile/SDK modificationsbyreviewer."
+  },
+  "findings": [
+    {
+      "id": "S1-NATIVE-TO-SEMANTIC-DOWNSTREAM",
+      "severity": "blocking specification gap",
+      "consumer": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-read-continuation/candidate/positive/tests/lexlean/ObjectWholeReadTransport.lex.tex",
+        "bytes": 1318,
+        "sha256": "d9303e3fcc9de3b12397ef8af96be9c768ad079b6608ce6933c94acd2cb07443",
+        "schema": "lexlean/semantic-module/2",
+        "calls": [
+          {
+            "arguments": [],
+            "kind": "apply",
+            "theorem": {
+              "module": "ObjectAdmittedRangeResult",
+              "name": "objOriginalAdmittedRangeResult"
+            },
+            "type_arguments": []
+          }
+        ]
+      },
+      "officialSource": {
+        "revision": "0865df4e540ca643b090a29e9df6d319d6906da6",
+        "archive": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/additional-official-source.json.gz",
+        "archiveSha256": "2543952e66e0a341f78726582197d02396a2d377bf9a7537b5e285623a91ff88",
+        "path": "crates/lexlean/src/link.rs",
+        "bytes": 72648,
+        "sha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd",
+        "lines": "679-687,692-698"
+      },
+      "observation": "Selected ObjectWholeReadTransport is semantic-module/2, imports ObjectAdmittedRangeResult and uses its objOriginalAdmittedRangeResult in semantic Apply. Proposedreplacement makes that provider ordinarynativecore-module/1. Installedlink.rs constructs imported_semantic onlyfrommodule.document.semantic, excludingnativeproviders; SemanticModule::parse receives thisfiltered environment. Therefore retaining allother modules unchanged doesnotestablish supporteddownstreamproofresolution. Failure wouldoccur beforeintendedwrongproof, violatingproposalnegativegate.",
+      "required": "Reviseproposalwith exactsupportedrepresentation path for everyaffecteddownstreamconsumer, or choose a semantic-compatible repair. A focusednative A=C diagnosticmay be separatelyproposed aslocalproofonly,butcannotbe presented ascomplete Readdependencyrepair. Do not silently expand representation migration or claim absentinterop nowworks. Exactaffectedgraph/endpoints/negativepositivefull33gates needrenewedSPEC beforeimplementation."
+    }
+  ],
+  "requiredNext": [
+    "PreserveoriginalPhase1 report andthisrejection; no candidateauthoring under rejectedone-modulescope.",
+    "Author minimalrevised plan resolvingnative-to-semantic edge explicitly; re-evaluateclosure,cost,originalgoals andphases.",
+    "Any localnativeA=Cexperiment mustbe labeled localonly andretain mandatoryReadintegrationopen.",
+    "Keep currentmax178epochineligible understrictzero; no restart/reset/limitswaiver fromreview."
+  ],
+  "nativeTests": "ALL_NEW_NOT_RUN",
+  "acceptance": "331/403unchanged; no Readnegativeorpositive/fullObject acceptance.",
+  "storage": {
+    "availableBytes": 23075151872,
+    "reserveBytes": 10737418240,
+    "reportCapBytes": 20480,
+    "copies": 0
+  }
+}

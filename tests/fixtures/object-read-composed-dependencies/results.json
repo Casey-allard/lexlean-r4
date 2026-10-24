@@ -1,0 +1,20 @@
+{
+  "schema": "lexlean-r4-read-composed-dependencies-source-status/v1",
+  "status": "SOURCE_CODE_ACCEPTED_NATIVE_NOT_RUN",
+  "native": {
+    "ordinal26-negative": "NOT_RUN",
+    "ordinal26-positive": "NOT_RUN",
+    "read33-positive": "NOT_RUN"
+  },
+  "controlsAcceptedUnchanged": 331,
+  "controlsRequired": 403,
+  "sourceReview": "SPEC and independent candidate CODE accepted for source only; no native acceptance",
+  "hostChecks": "Frozen19payload94dependency hashes and153phaseinput references rehashed; no official compiler execution",
+  "historicalCompatibility": "Attempt3 original translator rejects if; attempts1/2 setup faults preserved separately",
+  "production": "NOT_ACCEPTED",
+  "codeReview": {
+    "path": "evidence/source-code-review.json",
+    "bytes": 9222,
+    "sha256": "8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901"
+  }
+}

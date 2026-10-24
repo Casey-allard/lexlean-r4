@@ -1,0 +1,62 @@
+{
+  "capBytes": 1048576,
+  "emergencyReserveBytes": "10737418240",
+  "observations": [
+    {
+      "label": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "freeBytes": "19744890880",
+      "allocatedBytes": 167936,
+      "reservedAdditionalBytes": 32768
+    },
+    {
+      "label": "tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "freeBytes": "19744735232",
+      "allocatedBytes": 192512,
+      "reservedAdditionalBytes": 32768
+    },
+    {
+      "label": "tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "freeBytes": "19744706560",
+      "allocatedBytes": 217088,
+      "reservedAdditionalBytes": 32768
+    },
+    {
+      "label": "typed-mapping.json.gz",
+      "freeBytes": "19744215040",
+      "allocatedBytes": 241664,
+      "reservedAdditionalBytes": 167936
+    },
+    {
+      "label": "source-bindings.json",
+      "freeBytes": "19744047104",
+      "allocatedBytes": 401408,
+      "reservedAdditionalBytes": 81920
+    },
+    {
+      "label": "source-audit.json",
+      "freeBytes": "19743973376",
+      "allocatedBytes": 475136,
+      "reservedAdditionalBytes": 98304
+    },
+    {
+      "label": "preservation.json",
+      "freeBytes": "19743825920",
+      "allocatedBytes": 565248,
+      "reservedAdditionalBytes": 20480
+    },
+    {
+      "label": "README.md",
+      "freeBytes": "19743797248",
+      "allocatedBytes": 577536,
+      "reservedAdditionalBytes": 12288
+    },
+    {
+      "label": "final-before-manifest",
+      "freeBytes": "19743780864",
+      "allocatedBytes": 581632,
+      "reservedAdditionalBytes": 65536
+    }
+  ],
+  "scope": "All candidate source, probes, setup failure logs, metadata and outputs; no temporary closure copies",
+  "nativeLaunch": "NOT_AUTHORIZED"
+}
