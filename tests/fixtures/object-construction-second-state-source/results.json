@@ -1,0 +1,44 @@
+{
+  "schema": "lexlean-r4-second-state-source-checkpoint/v1",
+  "status": "REVIEWED_SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "scope": "Second original atom state and mandatory original257 core A=E consumer; unproved candidate.",
+  "sourceReviews": {
+    "spec": "tests/fixtures/object-construction-second-state-source/evidence/candidate-spec-review.json",
+    "code": "tests/fixtures/object-construction-second-state-source/evidence/candidate-code-review.json"
+  },
+  "nativePhases": [
+    {
+      "name": "second-prefix-false",
+      "admission": "NOT_RUN",
+      "intendedNegative": "NOT_RUN"
+    },
+    {
+      "name": "second-prefix-positive",
+      "admission": "NOT_RUN",
+      "verification": "NOT_RUN",
+      "axiomInventory": "NOT_RUN",
+      "kernelReplays": "NOT_RUN"
+    }
+  ],
+  "acceptedObjectControls": 331,
+  "totalObjectControls": 403,
+  "canonicalConstruction39": "UNCHANGED_UNACCEPTED",
+  "read33Priority": "Must retain next-native priority after current restoration job closes and is independently audited.",
+  "negative": "Only expected second inventory ID76->77; frontier76 and original257 A=E unchanged. No observed RED or GREEN.",
+  "limits": {
+    "childTimeoutMs": 300000,
+    "containerMemoryBytes": 4294967296,
+    "cpu": 2,
+    "axioms": []
+  },
+  "productionLock": "ABSENT_NOT_MANUFACTURED",
+  "runner": "NONE",
+  "claimsNotMade": [
+    "full257 digest",
+    "fullObject acceptance",
+    "production PrismPM binding",
+    "Pages",
+    "speed or cache improvement"
+  ],
+  "remaining": "193bytes/seven atoms and subsequent carry/staging/finalization plus all39 projections remain."
+}

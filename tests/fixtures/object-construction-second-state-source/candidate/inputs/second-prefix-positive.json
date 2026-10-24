@@ -1,0 +1,191 @@
+[
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalContext.lex.tex",
+    "bytes": 11554,
+    "sha256": "0cc7dd0ecb021eba7a863f884ec9bce2525037a066d9baeb251555b05bd3ee4c",
+    "destination": "tests/lexlean/Object257TerminalContext.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/tests/lexlean/Object257TerminalContext.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+    "bytes": 782463,
+    "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+    "destination": "src/R4/Hash.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+    "bytes": 64465,
+    "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+    "destination": "src/R4/HashNat.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+    "bytes": 339156,
+    "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+    "destination": "src/R4/HashNatCore.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+    "destination": "src/R4/HashWire.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex",
+    "bytes": 14317,
+    "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+    "destination": "src/R4/Object.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Object.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex",
+    "bytes": 111511,
+    "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+    "destination": "src/R4/ObjectCodec.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectCodec.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex",
+    "bytes": 87135,
+    "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+    "destination": "src/R4/ObjectRead.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectRead.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex",
+    "bytes": 66645,
+    "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+    "destination": "src/R4/ObjectStore.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectStore.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex",
+    "bytes": 83627,
+    "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+    "destination": "src/R4/ObjectTypes.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/ObjectTypes.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+    "bytes": 240864,
+    "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+    "destination": "src/R4/Words.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+    "bytes": 58,
+    "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88",
+    "destination": "lakefile.toml",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lakefile.toml"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+    "bytes": 146,
+    "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b",
+    "destination": "lake-manifest.json",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lake-manifest.json"
+  },
+  {
+    "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+    "bytes": 25,
+    "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+    "destination": "lean-toolchain",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-leaf-transport/project/lean-toolchain"
+  },
+  {
+    "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+    "bytes": 5627,
+    "sha256": "490eec8b45719c4fabae9bf36e3fe7f9674d71968ca45c07b8cf2e782d048444",
+    "destination": "tests/lexlean/Object257FirstAtomLeaf.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomLeaf.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomGoal.lex.tex",
+    "bytes": 12546,
+    "sha256": "a681588324b3c4f629775768ddad58a6bceaef3e2199239bc090bebaa0243911",
+    "destination": "tests/lexlean/Object257FirstAtomGoal.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomGoal.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+    "bytes": 8730,
+    "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa",
+    "destination": "tests/lexlean/Object257FirstAtomState.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex",
+    "bytes": 29787,
+    "sha256": "2cedfadd3850194f8447f178117ad6af51e9b093f956682652081a6be8ffa5d5",
+    "destination": "tests/lexlean/Object257SymbolicContext.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLiftFalseBase.lex.tex",
+    "bytes": 1464,
+    "sha256": "5bf9b3bdf617da87369c841fbec7a2c4fda54cb9fee9e3ade116ee268d9bdadc",
+    "destination": "tests/lexlean/Object257SymbolicLiftFalseBase.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLiftFalseBase.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLift.lex.tex",
+    "bytes": 1483,
+    "sha256": "6569deeb633478d591ca2ea3305d669e61328db8374f27444c1544998ff7abc1",
+    "destination": "tests/lexlean/Object257SymbolicLift.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLift.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicGenericConsumer.lex.tex",
+    "bytes": 32937,
+    "sha256": "7b8c2cc2d1527781f78e64d38fa38fe9e4484405a332a8833b4679124ce66c2a",
+    "destination": "tests/lexlean/Object257SymbolicGenericConsumer.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicGenericConsumer.lex.tex"
+  },
+  {
+    "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+    "bytes": 38431,
+    "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97",
+    "destination": "tests/lexlean/Object257SymbolicConsumer.lex.tex",
+    "source": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex"
+  },
+  {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/shared/tests/lexlean/Object257SecondContext.lex.tex",
+    "bytes": 33496,
+    "sha256": "5c5e694c570b74291793ab985507619f85fbf16c6078d51475c8fb89fe50e54b",
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/shared/tests/lexlean/Object257SecondContext.lex.tex",
+    "destination": "tests/lexlean/Object257SecondContext.lex.tex"
+  },
+  {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/shared/tests/lexlean/Object257SecondTransport.lex.tex",
+    "bytes": 69329,
+    "sha256": "26d2fccdb95d3f7aaa5d6672f831908e1b00a5c64f38c07ec4598e8c760a2b6c",
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/shared/tests/lexlean/Object257SecondTransport.lex.tex",
+    "destination": "tests/lexlean/Object257SecondTransport.lex.tex"
+  },
+  {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/shared/tests/lexlean/Object257SecondPrefixConsumer.lex.tex",
+    "bytes": 22683,
+    "sha256": "3fcf1f013b52dc9ceb93bde4d4d06d3ddd685350e4ff97420f10ad59c3ea8d12",
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/shared/tests/lexlean/Object257SecondPrefixConsumer.lex.tex",
+    "destination": "tests/lexlean/Object257SecondPrefixConsumer.lex.tex"
+  },
+  {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/positive/tests/lexlean/Object257SecondState.lex.tex",
+    "bytes": 15793,
+    "sha256": "738fe95a45eae9ed5e887c9efb737a36c733235c1e7356cff98ee119a2a0fcfa",
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/positive/tests/lexlean/Object257SecondState.lex.tex",
+    "destination": "tests/lexlean/Object257SecondState.lex.tex"
+  },
+  {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/lexlean.toml",
+    "bytes": 693,
+    "sha256": "8c816ccde5029f980fb5f50e9a1db1b7573ef588c39f5b9c4bff74497cf0472f",
+    "source": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-candidate/lexlean.toml",
+    "destination": "lexlean.toml"
+  }
+]

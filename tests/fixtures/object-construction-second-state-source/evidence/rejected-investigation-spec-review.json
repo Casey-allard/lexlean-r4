@@ -1,0 +1,72 @@
+{
+  "schema": "lexlean-r4-construction39-next-source-spec-review/v1",
+  "at": "2026-10-24T08:40:34.384Z",
+  "status": "CHANGES_REQUIRED_EXACT_PROOF_PLAN_BEFORE_IMPLEMENTATION",
+  "independence": "Non-author of investigation. Read actual original controls/runtime and previously accepted source/review plus raw failure records; independent AST/hash checks. No new candidate/native execution.",
+  "investigation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-next-source-investigation.json",
+    "bytes": 22501,
+    "sha256": "7c33855ada2ae698dd637dd108c3026caaf655f958a4764ae6691d6df7a237bd"
+  },
+  "authorityAddendum": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-next-source-investigation-authority-binding.json",
+    "bytes": 1029,
+    "sha256": "3eb843093ed3468a11d77c88ba7a3ceecceb6d1503f7611f7dedf0e29caa5ec1",
+    "currentBase": "e9ec3578df0a618fb65890076e351cded689473a"
+  },
+  "findings": [
+    {
+      "id": "S1",
+      "priority": "P1",
+      "location": "next.proof and importBoundary",
+      "problem": "Proof composition remains undecided: use semantic pattern, then native Eq.trans only if semantic composition is insufficient. That is an implementation-time representation decision rather than an exact approved proof. No theorem term links accepted first-prefix equality to the proposed second-prefix equality and mandatory original257 consumer.",
+      "requiredRepair": "Freeze one representation now for this bounded step. If semantic, give exact supported constructor tree for equality composition with concrete theorem references and arguments, derived from pinned installed support. If native, explicitly select supported core-module/1 Eq.trans with exact equality type/endpoints hFirst/hSecond, module imports, universe/type arguments and theorem declaration; separately distinguish this local certificate from any future canonical39 representation migration. Remove optional fallback language. No invented semantic Rewrite/Eq.trans."
+    },
+    {
+      "id": "S2",
+      "priority": "P1",
+      "location": "next.stateTheorem, mandatoryOriginalConsumer, proof and sourceGate",
+      "problem": "No exact Result context, Nat-family definition, zero/successor proof branches, theorem signatures or original-consumer Apply/conversion are specified. The closed singleton Fold[B] equality is meaningful but does not by itself specify a proof for the same transition with a nonempty symbolic tail: nested match reassociation and body conversion must be actual reviewed terms.",
+      "requiredRepair": "Pin actual production successor AST with one typed hole and exact qualification; give context on Result ObjCarryState (or explicitly chosen production intermediate), every original error branch, constant inputs/limits and remaining tail, plus a replacement/roundtrip check. Freeze the Nat iterator/family and exact Induction/Cases/Congruence/Apply tree, base theorem and successor argument; identify exact retained source examples. Pin I/R225/R193 expressions, S1/S2, original L and mandatory consumer statement. Expose any match-association conversion as NOT_RUN and mandatory native consumer gate, not a host equality assertion."
+    },
+    {
+      "id": "S3",
+      "priority": "P1",
+      "location": "next.negative",
+      "problem": "Inventory76→77 with frontier76 is a sensible expected-state corruption, but the proposal allows rejection at mandatory consumer OR unspecified dependency. It does not identify which declaration changes, which proof uses it, or how the unchanged original consumer remains connected to that altered certificate.",
+      "requiredRepair": "Choose exact negative source location/declaration and sole literal mutation. Specify expected rejection site and whether it is dependency-level; retain the same mandatory original257 consumer target in both phases. State complete positive sequence and stop conditions. A dependency rejection establishes only that dependency negative; positive must verify both actual second state and mandatory original257 continuation. No parser/import/timeout/OOM/axiom failure may count as intended negative."
+    }
+  ],
+  "verifiedFacts": {
+    "goals": "Rehashed canonical/snapshot345063B4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87. Exact39 declaration arraycd096012a6a3411c078158e47e089ea4d444d8216a8833ac26a5d92e66bf62d3; all39 ordinal/name/statement hashes match report, all reflexivity/empty axioms. Digest/roots/distinct across11sizes plus95/97boundary and repeatedconstruction remain required.",
+    "runtime": "All10 runtime and18 additional report pins plus control/snapshot rehashed. Inspected actual ObjFoldAtoms in ObjectStore: leaf creation -> staging -> carry38 -> recursive tail, preserving each Result.error. ObjCarryTriples with two roots returns state without parent; ObjStageRecord retains duplicate equality, integrity failure, record-count/bytes guards and sorted insertion.",
+    "firstPrefix": "Actual retained symbolic-concrete review84d59c87... status PASS_EXACT_ORIGINAL_ATOMIZED_FIRST_STATE_CONTINUATION_BRIDGE only. Its source84f3fc... uses actual ObjFoldAtoms(ObjAtomize I)[][]L and accepted first-state RHS, via Apply obj257GenericAtomizedCoreBridge. First-state reviewc18c2dc... accepts only first32-byte concrete state. No subsequent state/full257 acceptance.",
+    "sourceDerivation": "Independently decoded original257 input AST:257bytes with decodedSHA54acfbfedc4d8da40f76f275e1a98f10af8ef1fb9fb39e5a67a00aabcbe6597c; second atom exactly32..63 and remainder193bytes. S1 actual expected firstrecord/root63,164,31,162,68,35,68,195,38,116,35,81. Proposed S2 carries samefirstrecord then secondrecord sorted inventory and newest-first second/first frontier. This follows conditional control flow and expectedID ordering, not a computed/certified second hash.",
+    "expectedSecondLeaf": "Existing objFoldRoots64 RHS second ID exactly76,254,45,127,71,229,82,192,146,148,90,57. It is an expected literal from an unproved original control, NOT authority proving leaf hash. Real ObjMakeLeaf/staging/carry must establish it. No trusted host hash or oracle.",
+    "failureHistory": "Read actual300s receipt: verify4 LLS8002 configured300000 observed300016; noartifact. Read900s receipt:137 emptystdout; retained independent review recordsOOM. Neither is semantic falsity/acceptance. No equivalent repeat or increase approved. Other255/256costs unknown; roots/distinct share reduction risk but no individual failure inferred.",
+    "scope": "Meaningful next step is second actual originalatom and a mandatory original257 continuation consuming that progress. It is not a13certificate expansion or full39 proof. Metadata migration changes are prospective only and cannot fix known whole257 proof reduction.",
+    "authority": "Addendum preserves originalinvestigation starting19aa7ce7 and binds current documentation-only mergee9ec3578df0a618fb65890076e351cded689473a. Report doc pins match current bytes; no investigation semantics rewritten."
+  },
+  "minimumSuccessor": {
+    "scope": "A separately frozen narrow proof-plan successor resolving S1–S3, not a new framework or full39 expansion. Preserve this investigation and rejection. Existing source/data goals/limits unchanged.",
+    "requiredBindings": [
+      "Original39control source and perstatement identities; actualruntime and accepted first-prefix input/proof identity.",
+      "Exact next leaf/state and fulloriginalconsumer endpoints, Resultcontext roundtrip and supported constructor terms or explicit native composition.",
+      "Exact negative mutation/dependency/target/diagnostic boundaries and fullpositive artifact/declaration/axiom/kernel requirements.",
+      "Fixed300000ms/4GiB/2CPU/noneaxioms; cost unknown, no efficiency claim. Read33 priority after sole restoration terminal and fresh operational eligibility."
+    ],
+    "notPermission": "No candidate authoring or implementation approval from current generic plan; once exact successor SPEC passes, source construction and independent CODE review remain required before native dispatch."
+  },
+  "acceptanceBoundaries": [
+    "Construction39 remains unaccepted; total331/403 unchanged,72Read33+Construction39 open. Source/proof preservation is not acceptance.",
+    "Read96 accepted payload differs from construction bytes; no reuse by length/name. Investigation reports3+7i payload and inspected source pin differs; no cross-payload certificate authority.",
+    "After secondstate remaining193bytes/sevenatoms, all latercarry/staging/inventory/frontier/manifest/digest/admission and original39projections remain required. Root64 expectedID and13distinct/scale2 expectations untrusted until proof.",
+    "No native experiment/VM/restart/source edits or hidden acceptance waiver. Restoration70584 remains untouched and Read33 retains nextnative priority."
+  ],
+  "storage": {
+    "availableBytesBeforeReport": "24780136448",
+    "reserveBytes": "10737418240",
+    "reportCapBytes": 24576
+  },
+  "operations": "Read-only file/AST/hash/source/rawreceipt review. Only this external report written; no SDK/compiler/container/process/repo/candidate changes."
+}

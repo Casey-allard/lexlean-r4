@@ -1,0 +1,766 @@
+{
+ "schema": "lexlean-r4-construction39-investigation/v1",
+ "status": "SOURCE_ONLY_ALL_NEW_TESTS_NOT_RUN_REQUIRES_SPEC",
+ "at": "2026-10-24T08:37:05.017Z",
+ "base": "19aa7ce7ff62a0ec984aeca06258509ecdf53280",
+ "canonical": {
+  "path": "tests/lexlean/ObjectControls.lex.tex",
+  "bytes": 345063,
+  "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+ },
+ "snapshot": {
+  "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex",
+  "bytes": 345063,
+  "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+ },
+ "declarationsSha256": "cd096012a6a3411c078158e47e089ea4d444d8216a8833ac26a5d92e66bf62d3",
+ "goals": [
+  {
+   "ordinal": 1,
+   "name": "objFoldDigest0",
+   "statementSha256": "261090527eb7e4b1b4c2417dd33695109e50f57fbd3c3ade8c3ad49113c368ca",
+   "inputBytes": 0
+  },
+  {
+   "ordinal": 2,
+   "name": "objFoldRoots0",
+   "statementSha256": "8695079e766722e2307a46557010e6c5f145672984d8fcb71ac9f1b8032b0af3",
+   "inputBytes": 0
+  },
+  {
+   "ordinal": 3,
+   "name": "objFoldDistinct0",
+   "statementSha256": "da9abdd3249a0ddfaa535e20ca262abfd22a60d8608be5a49cb33bf78cc9a6b6",
+   "inputBytes": 0
+  },
+  {
+   "ordinal": 4,
+   "name": "objFoldDigest1",
+   "statementSha256": "394ebfbd067d0ba524b1cc0d52a9405a2fdc50d32036ddc4ef4e9e030755c471",
+   "inputBytes": 1
+  },
+  {
+   "ordinal": 5,
+   "name": "objFoldRoots1",
+   "statementSha256": "c2aa6199f753ebadf5998719643e0ee41870f364fbb87cf9810fafdad6f4e4a6",
+   "inputBytes": 1
+  },
+  {
+   "ordinal": 6,
+   "name": "objFoldDistinct1",
+   "statementSha256": "81191d211363df1f5ad0d9113fd17e80d281a4a89a6e96fbcbe90ab2c077bd52",
+   "inputBytes": 1
+  },
+  {
+   "ordinal": 7,
+   "name": "objFoldDigest31",
+   "statementSha256": "11efff8ba064f170da3d6d054db7086c271044fb1db92836e93a64d291c9810f",
+   "inputBytes": 31
+  },
+  {
+   "ordinal": 8,
+   "name": "objFoldRoots31",
+   "statementSha256": "0aeed0c2b2db6f8ae56992356c643ce1009805f847b9d687505bf31bacedb8f5",
+   "inputBytes": 31
+  },
+  {
+   "ordinal": 9,
+   "name": "objFoldDistinct31",
+   "statementSha256": "9cf8035752e7a9311e8a392589b18311a38a0dde58f260db06d250b98786a2b5",
+   "inputBytes": 31
+  },
+  {
+   "ordinal": 10,
+   "name": "objFoldDigest32",
+   "statementSha256": "1a7662d824397eba4f24272249231fbd35d25f86f6875b1e6018200f2f98767a",
+   "inputBytes": 32
+  },
+  {
+   "ordinal": 11,
+   "name": "objFoldRoots32",
+   "statementSha256": "c79944806ed2ff0f63353549691c85748b88858b02b6419069441b8bb17301af",
+   "inputBytes": 32
+  },
+  {
+   "ordinal": 12,
+   "name": "objFoldDistinct32",
+   "statementSha256": "e7d8d31c0f6011e191607f5f73e11199b785fb69984b1d9ce8a11718cde7a362",
+   "inputBytes": 32
+  },
+  {
+   "ordinal": 13,
+   "name": "objFoldDigest33",
+   "statementSha256": "d37287ee8b149effce164c611927996a5b397dc9e894b6b11e894d7ae0a37e5e",
+   "inputBytes": 33
+  },
+  {
+   "ordinal": 14,
+   "name": "objFoldRoots33",
+   "statementSha256": "ab90607087a9d3cef3db40235e449421294b7b91ea702fdf3ced70ebcb4e6981",
+   "inputBytes": 33
+  },
+  {
+   "ordinal": 15,
+   "name": "objFoldDistinct33",
+   "statementSha256": "d8e8eabf9b90c1d97962ff5eef0dd4479fa3276af6c58d988ad9d2bba9ed1a71",
+   "inputBytes": 33
+  },
+  {
+   "ordinal": 16,
+   "name": "objFoldDigest64",
+   "statementSha256": "e9be03a5c4e9c46fe84f6dd1e65c4930c61d95f35007d4bee2e951980fb3e68c",
+   "inputBytes": 64
+  },
+  {
+   "ordinal": 17,
+   "name": "objFoldRoots64",
+   "statementSha256": "35d6af4fe8ffa7eb1b78ac26f1660f357021e7120a289f1eae62e6bbee2afe02",
+   "inputBytes": 64
+  },
+  {
+   "ordinal": 18,
+   "name": "objFoldDistinct64",
+   "statementSha256": "2b1c777151d00031c9d96b745f120bd59ce63aa269c728a81458c5db9b20f411",
+   "inputBytes": 64
+  },
+  {
+   "ordinal": 19,
+   "name": "objFoldDigest65",
+   "statementSha256": "e2e9c059c2a02321fc3578b372adab55e50ba8e18b6961634aade0d594afe80a",
+   "inputBytes": 65
+  },
+  {
+   "ordinal": 20,
+   "name": "objFoldRoots65",
+   "statementSha256": "f33fa8c612162f788f64a93cfc0bbe779a48b07436c4d985cc609ecdeeed2b42",
+   "inputBytes": 65
+  },
+  {
+   "ordinal": 21,
+   "name": "objFoldDistinct65",
+   "statementSha256": "4a04c509ca4b9be234cfc59eea4d2d1a90f5f8977ff76994499dc6190955e381",
+   "inputBytes": 65
+  },
+  {
+   "ordinal": 22,
+   "name": "objFoldDigest96",
+   "statementSha256": "fef9078a48e45c662e3a950f802b3247ec9c6d722950fc2841afe7067efb3ba2",
+   "inputBytes": 96
+  },
+  {
+   "ordinal": 23,
+   "name": "objFoldRoots96",
+   "statementSha256": "6faf1b01329acaab9746d34ad59dd0c8ab65f60f64d971d0d7276a4508ce8b77",
+   "inputBytes": 96
+  },
+  {
+   "ordinal": 24,
+   "name": "objFoldDistinct96",
+   "statementSha256": "a27fbac84caae5f092dcdd6287c7a2eae58f19745cb7fd3024f71f96cfc549a7",
+   "inputBytes": 96
+  },
+  {
+   "ordinal": 25,
+   "name": "objFoldDigest255",
+   "statementSha256": "ce615b1eff5c18b7ef32042ee2e19684ce0818672a596a2153512b289b91fee2",
+   "inputBytes": 255
+  },
+  {
+   "ordinal": 26,
+   "name": "objFoldRoots255",
+   "statementSha256": "9bffe457ede7c9ca1f8d279b9cc8947f404fef65fcea25f622dd3bda00818760",
+   "inputBytes": 255
+  },
+  {
+   "ordinal": 27,
+   "name": "objFoldDistinct255",
+   "statementSha256": "de8ce7accd443b45834e2cfbf7b1bf559669e49c6e30a75f560a0ea0abaadde0",
+   "inputBytes": 255
+  },
+  {
+   "ordinal": 28,
+   "name": "objFoldDigest256",
+   "statementSha256": "9626db51087091278db0a3ae44dbf73b2c4b6712b663b874cb1646ad59f22533",
+   "inputBytes": 256
+  },
+  {
+   "ordinal": 29,
+   "name": "objFoldRoots256",
+   "statementSha256": "10193ccede00cffd1ca2c354edfbc2b51bb0b0511ced6491d5584c737844c9c3",
+   "inputBytes": 256
+  },
+  {
+   "ordinal": 30,
+   "name": "objFoldDistinct256",
+   "statementSha256": "9d52a3c4a5b064d805169287e639e3e885490950f3507471bff0f01af77c404f",
+   "inputBytes": 256
+  },
+  {
+   "ordinal": 31,
+   "name": "objFoldDigest257",
+   "statementSha256": "b3f409d065aa26ba0152f8e7ebd0a82222327e6a7728f7078ca449d70f9d16a3",
+   "inputBytes": 257
+  },
+  {
+   "ordinal": 32,
+   "name": "objFoldRoots257",
+   "statementSha256": "cc077de7a8b39a7b709b8b827820930f5af8c419e31d429bb16f80b5f4474e93",
+   "inputBytes": 257
+  },
+  {
+   "ordinal": 33,
+   "name": "objFoldDistinct257",
+   "statementSha256": "c4a73e90c75904a0478c526dc02c1f647cf7437679d46bde2611ca73ce0342b9",
+   "inputBytes": 257
+  },
+  {
+   "ordinal": 34,
+   "name": "objFoldBoundaryScales95",
+   "statementSha256": "c476c73043e2257dab0b71e6e2bbc6ccab0f69604d15424a0981696845f2d4d1",
+   "inputBytes": 95
+  },
+  {
+   "ordinal": 35,
+   "name": "objFoldBoundaryDistinct95",
+   "statementSha256": "1dfa20e9fb1f923670fb78a3401b3fa66ec1e5ce99055ffe504d982ec16338bc",
+   "inputBytes": 95
+  },
+  {
+   "ordinal": 36,
+   "name": "objFoldBoundaryScales97",
+   "statementSha256": "ab7e4b8d5c8c3c17618a24c5ea3318667a2e793b3dd2ccb5b9dc469899ceec0a",
+   "inputBytes": 97
+  },
+  {
+   "ordinal": 37,
+   "name": "objFoldBoundaryDistinct97",
+   "statementSha256": "2c8c2205fea2f4d8a7271c9823bcbec25a343d6b69163a7e01f5b55859a9ef91",
+   "inputBytes": 97
+  },
+  {
+   "ordinal": 38,
+   "name": "objRepeatedConstructionOccurrences",
+   "statementSha256": "408c5a1d8be8be4290b38f98fd79967e949ab146456a1b7e65fffe04dd71ec21",
+   "inputBytes": 64
+  },
+  {
+   "ordinal": 39,
+   "name": "objRepeatedConstructionDistinct",
+   "statementSha256": "ea82753d583b406f11d7bf6abe6f5e42ca653bd1aa4928baabbfe720b55c6f0b",
+   "inputBytes": 64
+  }
+ ],
+ "goalCensus": "All39 are reflexivity/emptyaxioms with actual error-preserving ObjFold projection. Eleven sizes0,1,31,32,33,64,65,96,255,256,257 have digest.bytes, rootIDs and newRecords controls; four95/97 boundary scales/count goals plus two repeated-construction goals. Complete propositions and expected literals remain in pinned canonical source, identified individually above.",
+ "dependencyCensus": {
+  "directImports": [
+   "R4.ObjectTypes",
+   "R4.ObjectCodec",
+   "R4.Object"
+  ],
+  "runtime": [
+   {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+    "bytes": 240864,
+    "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37",
+    "imports": [],
+    "declarations": 128
+   },
+   {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+    "bytes": 782463,
+    "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c",
+    "imports": [
+     "R4.HashNat",
+     "R4.HashNatCore",
+     "R4.Words"
+    ],
+    "declarations": 187
+   },
+   {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+    "bytes": 64465,
+    "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93",
+    "imports": [
+     "R4.Words"
+    ],
+    "declarations": 40
+   },
+   {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+    "bytes": 339156,
+    "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833",
+    "imports": [
+     "R4.HashNat"
+    ],
+    "declarations": 168
+   },
+   {
+    "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+    "bytes": 11612,
+    "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4",
+    "imports": [
+     "R4.Hash",
+     "R4.HashNat",
+     "R4.HashNatCore",
+     "R4.Words"
+    ],
+    "declarations": 7
+   },
+   {
+    "path": "src/R4/ObjectTypes.lex.tex",
+    "bytes": 83627,
+    "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740",
+    "imports": [
+     "R4.Hash"
+    ],
+    "declarations": 109
+   },
+   {
+    "path": "src/R4/ObjectCodec.lex.tex",
+    "bytes": 111511,
+    "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd",
+    "imports": [
+     "R4.ObjectTypes",
+     "R4.Hash",
+     "R4.HashWire"
+    ],
+    "declarations": 100
+   },
+   {
+    "path": "src/R4/ObjectStore.lex.tex",
+    "bytes": 66645,
+    "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61",
+    "imports": [
+     "R4.ObjectTypes",
+     "R4.ObjectCodec"
+    ],
+    "declarations": 24
+   },
+   {
+    "path": "src/R4/ObjectRead.lex.tex",
+    "bytes": 87135,
+    "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7",
+    "imports": [
+     "R4.ObjectTypes",
+     "R4.ObjectCodec"
+    ],
+    "declarations": 32
+   },
+   {
+    "path": "src/R4/Object.lex.tex",
+    "bytes": 14317,
+    "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76",
+    "imports": [
+     "R4.ObjectTypes",
+     "R4.ObjectCodec",
+     "R4.ObjectStore",
+     "R4.ObjectRead"
+    ],
+    "declarations": 8
+   }
+  ],
+  "rootPlusRuntime": 11,
+  "prospectiveTotalInputs": 15,
+  "note": "10 existing runtime sources + root + three Lake/toolchain metadata + config. All5 canonical Object modules byte-identical to accepted leaf-transport fixture. Static source census only; no config/lock/runner created."
+ },
+ "failure": {
+  "exactOriginal257Statement": "b3f409d065aa26ba0152f8e7ebd0a82222327e6a7728f7078ca449d70f9d16a3",
+  "matchesFailedOriginal": true,
+  "actual300": "Configured300000ms/observed300016ms target timeout; no theorem acceptance.",
+  "actual900": "Extended900-second experiment actualexit137 cgroupOOM; no acceptance. No equivalent retry or limit increase.",
+  "sharedOperands": "objFoldRoots257/objFoldDistinct257 call same full ObjFold as digest257. Their separate failures are NOT established; shared reduction risk only.255/256 costs unknown.",
+  "otherHistory": "Original atomized negative timed out; split helper succeeded but required concreteconsumer OOM failed. Later symbolic exactconsumer passed first-state prefix only."
+ },
+ "accepted": {
+  "firstLeafAndState": "Actual first32 leaf and singleton state accepted; state48659ms/769emptyaxioms/12replays. Wrong expected inventory ID64 vs63 rejected. Exact S1 below derives from accepted statement.",
+  "terminal": "Final partial leaf[0], staging and terminal fold transport accepted; arbitrary incoming state, depth38 carry/errors/emptytail retained. Does not supply intervening states.",
+  "nonempty": "Two-atom continuation accepted; no second concrete state.",
+  "symbolicConcrete": [
+   {
+    "attestationId": "832dd881dc1bf60e913333ea49bdb1bbce223d06e958458a67380cf8632a063c",
+    "review": {
+     "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete-review.json",
+     "bytes": 45720,
+     "sha256": "84d59c87e60805512ada9868060f04843e46a93750de97984a6db0032ace90f6"
+    },
+    "wallMs": 25240
+   }
+  ],
+  "exactBoundary": "FoldAtoms(Atomize I []0)[][]L = FoldAtoms(Atomize R225 []0)S1.frontier S1.inventory L. First atom only; no full257 digest.",
+  "inspection": "Retained source/results/review read, no new native execution or exhaustive artifact reaudit."
+ },
+ "migration": {
+  "threeLiterals": [
+   "bool1.1->1.2",
+   "nat1.1->1.2",
+   "semantic-module/1->/2"
+  ],
+  "prospectiveSha256": "c377df81491d4658aa34537cd2ee726be7eeca0a6bce58dc282d847e3f73427d",
+  "bytes": 345063,
+  "all39ASTsIdentical": true,
+  "status": "NOT_WRITTEN_NOT_RUN",
+  "meaning": "Compatibility migration is distinct from proof decomposition. Retain original admission-negative if reviewed; do not run full39 unchanged reflexivity and call it a new strategy."
+ },
+ "next": {
+  "objective": "Actual second original atom state plus mandatory original257 fold-core continuation; not blind13certificate expansion.",
+  "I": {
+   "bytes": 257,
+   "decodedSha256": "54acfbfedc4d8da40f76f275e1a98f10af8ef1fb9fb39e5a67a00aabcbe6597c",
+   "expressionSha256": "26af1534387a4c980b3142824b56abdee3235a2159e68fddeac69b55bd53ad94"
+  },
+  "B": [
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61,
+   62,
+   63
+  ],
+  "expectedLeaf": {
+   "id": [
+    76,
+    254,
+    45,
+    127,
+    71,
+    229,
+    82,
+    192,
+    146,
+    148,
+    90,
+    57
+   ],
+   "scale": 0,
+   "payload": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ],
+   "source": "Existing objFoldRoots64 RHS second root, untrusted until actual proof"
+  },
+  "expectedS2": {
+   "inventory": [
+    {
+     "id": {
+      "bytes": [
+       63,
+       164,
+       31,
+       162,
+       68,
+       35,
+       68,
+       195,
+       38,
+       116,
+       35,
+       81
+      ]
+     },
+     "scale": 0,
+     "payload": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+     ]
+    },
+    {
+     "id": {
+      "bytes": [
+       76,
+       254,
+       45,
+       127,
+       71,
+       229,
+       82,
+       192,
+       146,
+       148,
+       90,
+       57
+      ]
+     },
+     "scale": 0,
+     "payload": [
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+     ]
+    }
+   ],
+   "frontier": [
+    {
+     "id": {
+      "bytes": [
+       76,
+       254,
+       45,
+       127,
+       71,
+       229,
+       82,
+       192,
+       146,
+       148,
+       90,
+       57
+      ]
+     },
+     "scale": 0
+    },
+    {
+     "id": {
+      "bytes": [
+       63,
+       164,
+       31,
+       162,
+       68,
+       35,
+       68,
+       195,
+       38,
+       116,
+       35,
+       81
+      ]
+     },
+     "scale": 0
+    }
+   ]
+  },
+  "derivation": "S1 has one scale0 root. New second leaf prepends; ObjCarryTriples38 sees only two roots and returns without parent. Inventory sorted A,B because63<76; frontier newest-first B,A. Actual staging equality/dedup/budget checks and errors remain.",
+  "stateTheorem": "ObjFoldAtoms [B] S1.frontier S1.inventory L = Result.ok S2, computing real leaf hash/staging/carry.",
+  "mandatoryOriginalConsumer": "ObjFoldAtoms(ObjAtomize I []0)[][]L = ObjFoldAtoms(ObjAtomize R193 []0)S2.frontier S2.inventory L. R193 is original suffix after64 bytes with exact bounded append representation. Retain all remaining atoms/errors; helper-only success insufficient.",
+  "proof": "Use existing semantic Result-context/Nat-family/Induction/Cases/Congruence/Apply pattern for second transition with remaining tail symbolic. Compose accepted first-prefix and second-prefix equalities using ordinary native core-module/1 Eq.trans only if semantic composition is insufficient, under explicit representation review. No invented semantic Eq.trans/Rewrite constructor or assumed cheap conversion.",
+  "negative": "Only second expected inventory ID first byte76->77; frontier retains76 and all actual inputs fixed. Require intended kernel rejection at mandatory consumer or explicitly reported dependency rejection, then complete positive. Admission/resource/axiom failure is not intended negative. NOT_RUN.",
+  "noReadReuse": "Actual retained Read96 child wires have3+7i modulo256 payloads, not construction32..63. Source comparison differs; no reuse by name/length.",
+  "sourceGate": "Exact constructor/type/universe/import/occurrence mapping and independent SPEC/CODE required before candidate/native; no candidate authored here."
+ },
+ "importBoundary": "Existing prefix sources are semantic/2, usable by semantic proofs. Installed0865 excludes native theorem imports from semantic proof environment. If native Eq.trans composition is selected, future canonical39 requires separately reviewed ordinary native declarations preserving every qualified name/proposition, analogous to Read33. Metadata-only migration is not that permission.",
+ "remaining": "After second atom remain193 bytes/seven atoms, future triple carries, complete inventory/frontier reversal, actual digest/manifest/version/finish, admission shell and all39 error-preserving projections.257 expected13 distinct records and one scale2root are not established full-fold results. Full403 unchanged:331 accepted,72 Read33+Construction39 open. Nine drafts and all Hash/model/production/Pages obligations remain.",
+ "limits": "Keep emptyaxioms/300000ms/4GiB2CPU. Cost unknown. No trusted intermediate hash, host substitute, cached conversion or efficiency claim. Wait for sole70584 to close and fresh eligibility; report author issues separately.",
+ "pins": [
+  {
+   "path": "docs/continuation/2026-10-23/original257/ObjectNatDigest257Controls.lex.tex",
+   "bytes": 20194,
+   "sha256": "5a3e63d99c5644752f731a4a2f6f9a40947964097426898cbd627b4b2ef462f6"
+  },
+  {
+   "path": "tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+   "bytes": 8730,
+   "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+  },
+  {
+   "path": "tests/fixtures/object257-symbolic-continuation/results.json",
+   "bytes": 14031,
+   "sha256": "5c90df586fa050c4c874fb7d5167a3209eae3759979791b3c055e38a60f4cdd5"
+  },
+  {
+   "path": "tests/fixtures/object257-first-atom/results.json",
+   "bytes": 32722,
+   "sha256": "4ea13e0d0211793e9200c6f3337cf67a0c057a54cf8192ac82ad9bcef4299c74"
+  },
+  {
+   "path": "tests/fixtures/object257-nonempty-continuation-canonical/results.json",
+   "bytes": 3957,
+   "sha256": "ef7b4f1fe16c225c5fbf5eb26695c1bc4d6676e887f35b1180f8bc7ea8eff6a8"
+  },
+  {
+   "path": "tests/fixtures/object257-leaf-transport/results.json",
+   "bytes": 5311,
+   "sha256": "17eb2933736a65665563ef8ef95474caf6ce8d3ec6e4c08c2762db2634377a5b"
+  },
+  {
+   "path": "tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+   "bytes": 38431,
+   "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+  },
+  {
+   "path": "tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete-review.json",
+   "bytes": 45720,
+   "sha256": "84d59c87e60805512ada9868060f04843e46a93750de97984a6db0032ace90f6"
+  },
+  {
+   "path": "tests/fixtures/object257-first-atom/evidence/state-native-review.json",
+   "bytes": 29949,
+   "sha256": "c18c2dc1399a10dc64f5b96186abaf06bb28497f3d67e7a9cd92f9a9343e3efb"
+  },
+  {
+   "path": "docs/continuation/2026-10-23/evidence/original257-timeout300.json",
+   "bytes": 991,
+   "sha256": "1c2197aba01fd04447994a1ed30f6faf77f465f0ac091b13c20e9ed244d8ee5f"
+  },
+  {
+   "path": "docs/continuation/2026-10-23/evidence/original257-timeout300-review.json",
+   "bytes": 6952,
+   "sha256": "4a84407f4cd5a27130de0b2d39f0cbe2c186f332065cfd84edb390c89f04c5f8"
+  },
+  {
+   "path": "docs/continuation/2026-10-23/evidence/original257-timeout900.json",
+   "bytes": 435,
+   "sha256": "e85f48b0a4a2ffbce98523f5c88f223365ef4e8475d5cd2f44cc02c787aaf37f"
+  },
+  {
+   "path": "docs/continuation/2026-10-23/evidence/original257-timeout900-review.json",
+   "bytes": 8995,
+   "sha256": "478e51183a958aa5a53da714799d6eb19509a43680b6c3c39a29514ffe2b57b1"
+  },
+  {
+   "path": "tests/fixtures/object257-atomized-core/RESULTS.md",
+   "bytes": 2188,
+   "sha256": "b43b5d8e1d9402e8f8b968c0c37c53acc5815e8e1c5e1761b052864f87838839"
+  },
+  {
+   "path": "tests/fixtures/object257-atomized-split/RESULTS.md",
+   "bytes": 2682,
+   "sha256": "b540ba3f59255292835a66a6060e9e108eee173beafc46c0cd23cae9bb19234b"
+  },
+  {
+   "path": "tests/fixtures/object-read-second-child/candidate/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+   "bytes": 31018,
+   "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+  },
+  {
+   "path": "docs/CONTINUATION.md",
+   "bytes": 73027,
+   "sha256": "266fdf28ca7cc32fcc2ef7af7900529ed1607c5918f02cb2aeb75a99f95b106c"
+  },
+  {
+   "path": "docs/plans/2026-10-21-lexlean-r4.md",
+   "bytes": 56582,
+   "sha256": "2166b8ccb5bd6db8c20f8d6dc33cbef74faf42c04080a306577cb4b3cb563117"
+  }
+ ],
+ "preservation": {
+  "all17CurrentPins": "PASS",
+  "all17Snapshots": "PASS",
+  "repoWrites": 0,
+  "nativeCalls": 0
+ },
+ "budget": {
+  "maxBytes": 24576,
+  "hostFreeBytes": 24812257280,
+  "reserveBytes": 10737418240,
+  "newTemporaryFiles": 0
+ },
+ "authorHistory": [
+  "Read-only inspector initially chose declaration0 rather than named first-state theorem; corrected, no writes/native effect.",
+  "In-memory report drafts30667 and24604bytes exceeded cap and were not written. This is the only materialized report."
+ ]
+}

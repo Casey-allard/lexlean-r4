@@ -1,0 +1,250 @@
+{
+  "schema": "lexlean-r4-construction-second-state-proof-plan/v1",
+  "status": "SOURCE_DESIGN_ONLY_NOT_RUN_PENDING_INDEPENDENT_SPEC",
+  "at": "2026-10-24T08:49:04.755Z",
+  "lineage": {
+    "investigation": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-next-source-investigation.json",
+      "bytes": 22501,
+      "sha256": "7c33855ada2ae698dd637dd108c3026caaf655f958a4764ae6691d6df7a237bd"
+    },
+    "authority": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-next-source-investigation-authority-binding.json",
+      "bytes": 1029,
+      "sha256": "3eb843093ed3468a11d77c88ba7a3ceecceb6d1503f7611f7dedf0e29caa5ec1"
+    },
+    "rejection": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-next-source-spec-review.json",
+      "bytes": 9201,
+      "sha256": "5511136068dd5c70f86c2f15d6adebfa37c403cd3fa42ef8aed4a552075105fd"
+    }
+  },
+  "representation": {
+    "fixed": "Semantic-module/2 state/context/transport, native core-module/1 ordinary final theorem with Eq.trans. No optional fallback.",
+    "scope": "Second original atom and mandatory original257 core continuation only; canonical39 migration not part of this step.",
+    "nativeDeclaration": {
+      "name": "LexLeanR4.Object257SecondPrefixConsumer.obj257OriginalSecondPrefix",
+      "kind": "theorem",
+      "levels": [],
+      "policy": {
+        "kind": "none"
+      },
+      "class": false,
+      "generated": false,
+      "transparency": "semireducible"
+    },
+    "imports": {
+      "Object257SecondState": [
+        "R4.ObjectTypes",
+        "R4.ObjectStore"
+      ],
+      "Object257SecondContext": [
+        "R4.ObjectTypes",
+        "R4.ObjectStore"
+      ],
+      "Object257SecondTransport": [
+        "R4.ObjectTypes",
+        "R4.ObjectStore",
+        "Object257SecondState",
+        "Object257SecondContext"
+      ],
+      "Object257SecondPrefixConsumer": [
+        "Init",
+        "LexLeanR4.R4.ObjectTypes",
+        "LexLeanR4.R4.ObjectStore",
+        "LexLeanR4.Object257SymbolicConsumer",
+        "LexLeanR4.Object257SecondTransport"
+      ]
+    },
+    "exactNativeTerm": "@Eq.trans.{1} (Except.{0,0} LexLeanR4.R4.ObjectTypes.ObjError LexLeanR4.R4.ObjectStore.ObjCarryState) A M E LexLeanR4.Object257SymbolicConsumer.obj257OriginalAtomizedCoreBridge LexLeanR4.Object257SecondTransport.obj257SecondOriginalSuffix",
+    "constantEvidence": "Accepted native core module nodes0 and774..788 establish Except error-first/success-second, levels0,0; Type0 is Sort1 so Eq/Eq.trans level1; apply alpha,A,M,E,hFirst,hSecond in that order. Both proof constants closed, no universe parameters.",
+    "localRefs": "K in family and preceding generic/lift in same semantic module are name-only. Cross-module state/context references qualified. Native constants use emitted LexLeanR4 namespace."
+  },
+  "astPayload": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-construction-second-state-proof-plan-ast.json.gz",
+    "compressedBytes": 6328,
+    "compressedSha256": "1ee1f7342530225b3caf94b9d89bd7ba95145ffaa0d5d005baa71dedccd28b38",
+    "decodedBytes": 291299,
+    "decodedSha256": "7fae8be82427fc628a15b7891023291c6c870c7435ffbca8997da4b515e8c79c",
+    "encoding": "Inert gzip of canonical sorted-key UTF8 JSON; memory roundtrip exact. planHole/endpoint references descriptive only, not proposed compiler tags."
+  },
+  "hashConvention": "Subtree SHA256 over compact recursively sorted-key JSON, without trailing newline.",
+  "identities": {
+    "I": "26af1534387a4c980b3142824b56abdee3235a2159e68fddeac69b55bd53ad94",
+    "R225": "01aad028049904f98d2e115a1cd9b85c48370590f30059623231f9adfc084fb4",
+    "R193": "962d358dd7951e07bd4ce17f665d4d596288e61a70b14da447608917636e39e5",
+    "B": "11f0dde0a12645aadc66a2d5bd4e85892ac2d7a8c8189b86a9bcbc253b23fe82",
+    "L": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "S1": "07537501d8f4c84f91ed9c7c12307da927ccb658952429b61adc5326bae9eb8c",
+    "S2": "1561c34d06e50422b5b42ed87ba86b20ad4d2c69935f9e46365bef0421e56644",
+    "F": "30c023767e0e2714d947059bc747abea052cbfaac840a6481269ecbdc155baff",
+    "A": "dabbf09277b6043ff441eac90c98f61394b794448034897e7083a6234f710c62",
+    "M": "6dff8fbdaf3f9a4502e437c0a934490a29d957e9baf4279cbf445782f828fe7b",
+    "E": "9466dcf3feb8665f03a0216fb467be33f76bc547b5d230ca7322d1961799f4c4",
+    "T": "43068d605ee91de16ddcea0911bf55f872fc1e463761ca23bc474c2780852c30",
+    "statePositive": "3fda65d49fd3dd08fde869b1d525144e09b6895afede9a02895321d6ccba8579",
+    "stateNegative": "cfd4f670015fd7ffc4ca57536a902810b01f748d3380444802d9cc822246ebe2",
+    "K": "3de4f1f6a40c28ee6c60e565726508aef0400dcd4e7fba47001330055aae15c6",
+    "P": "2597f99d166b17d61cb6d5cbaf67c563bfd5c845180a0bfe88dc948870617b0e",
+    "lift": "32073f6c97ee82c8d6d4aefdd9b28d4df083ed11c3886935e3c44b3946648370",
+    "generic": "119fe7ac061689708ba5e7fe816d0b9b743661e37d34f0d33f138310dc34b7fc",
+    "suffix": "286bc8e77f349b48f1fd91d8dca62e5d61e5e231a0718ab109ffa8595807c2f3",
+    "production": "6160be98aadf0a7fa8400d74f5a119967763c80829cfd73bcc193f79f2d37267"
+  },
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicConsumer.lex.tex",
+      "bytes": 38431,
+      "sha256": "84f3fc9370169c23f05579de59e8f437d36247a7690e28e199d5742a90f6cd97"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-first-atom/project/tests/lexlean/Object257FirstAtomState.lex.tex",
+      "bytes": 8730,
+      "sha256": "485c2f078ddc5a6219b879de6e4231cd1e30e514027eb81e594b07229aaeaefa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicContext.lex.tex",
+      "bytes": 29787,
+      "sha256": "2cedfadd3850194f8447f178117ad6af51e9b093f956682652081a6be8ffa5d5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/project/tests/lexlean/Object257SymbolicLift.lex.tex",
+      "bytes": 1483,
+      "sha256": "6569deeb633478d591ca2ea3305d669e61328db8374f27444c1544998ff7abc1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/candidate/positive-core-module.json",
+      "bytes": 20943,
+      "sha256": "2f840aa47604f62202d100a8f2713a5983ae70e9f8b7a6eee45d286f9f3e2917"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/results.json",
+      "bytes": 5330,
+      "sha256": "ea73dfb86a5116324d9af7adf67b01f8ba8ec8551ab7691624c7a800878cddae"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object257-symbolic-continuation/evidence/symbolic-concrete-review.json",
+      "bytes": 45720,
+      "sha256": "84d59c87e60805512ada9868060f04843e46a93750de97984a6db0032ace90f6"
+    }
+  ],
+  "original39": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    "declarationsSha256": "cd096012a6a3411c078158e47e089ea4d444d8216a8833ac26a5d92e66bf62d3",
+    "all39NamesGoalsUnchanged": true,
+    "ordinal31Statement": "b3f409d065aa26ba0152f8e7ebd0a82222327e6a7728f7078ca449d70f9d16a3"
+  },
+  "roundtrip": {
+    "firstPrefixLeftExact": true,
+    "firstPrefixRightExact": true,
+    "I257DecodedSha256": "54acfbfedc4d8da40f76f275e1a98f10af8ef1fb9fb39e5a67a00aabcbe6597c",
+    "R225Bytes": 225,
+    "R193Bytes": 193,
+    "R193Derivation": "Copy R225 root; replace arguments[0] Append(B,C) by its arguments[1] C. All remaining original leaves/Append subtrees preserved; no host atomization or hash.",
+    "R193EqualsOriginalSuffix": true,
+    "expectedSecondID": [
+      76,
+      254,
+      45,
+      127,
+      71,
+      229,
+      82,
+      192,
+      146,
+      148,
+      90,
+      57
+    ],
+    "expectedIDAuthority": "Original objFoldRoots64 expected literal only, not certified hash authority. New rfl must compute real MakeLeaf/stage/carry.",
+    "productionSubstitution": {
+      "head": "B",
+      "tail": "tailAtoms",
+      "frontier": "S1.frontier",
+      "inventory": "S1.inventory",
+      "limits": "L"
+    },
+    "qualification": "Local ObjCarryState/MakeLeaf/StageRecord/CarryTriples/FoldAtoms qualified R4.ObjectStore; existing cross-module references unchanged.",
+    "productionTailHoleCount": 1,
+    "productionTailReconstruction": true,
+    "KResultHoleCount": 1,
+    "KReconstruction": true,
+    "errorBranches": "All MakeLeaf, StageRecord, CarryTriples error branches preserved exactly in qualified successor. K forwards error failure and folds actual tail with carried frontier/inventory.",
+    "notAnASTClaim": "K(tail,F) is not asserted syntactically identical to the production successor. Nested match reassociation, FoldAtoms[] identity, and R225 atomization are mandatory kernel conversion obligations at generic and suffix consumers."
+  },
+  "proofPlan": {
+    "state": "Object257SecondState.obj257SecondAtomState : F=Result.ok S2 by reflexivity, axioms[]. F=actual FoldAtoms[B] S1.frontier S1.inventory L.",
+    "K": "Obj257SecondContinuation tail item := match item with error failure => error failure | ok carried => FoldAtoms tail carried.frontier carried.inventory L.",
+    "P": "Obj257SecondGoal tail 0 := F=ok S2. Obj257SecondGoal tail (succ prior) := K tail F=K tail(ok S2). Prior deliberately unused, matching retained accepted family; no invented iterator.",
+    "lift": "obj257SecondLifted tail count: P tail count. Induction count: zero Apply qualified state theorem; succ prior ih, Cases prior: zero Congruence; succ earlier Congruence. Exact constructors/arguments in payload.",
+    "generic": "obj257SecondGenericPrefix tail: FoldAtoms(B::tail)S1.frontier S1.inventory L = FoldAtoms tail S2.frontier S2.inventory L. Apply local obj257SecondLifted tail 1. Mandatory nested-match conversion NOT_RUN.",
+    "suffix": "obj257SecondOriginalSuffix: M=E. Apply local obj257SecondGenericPrefix (ObjAtomize R193 []0). Mandatory concrete atomization conversion NOT_RUN.",
+    "final": "Native ordinary obj257OriginalSecondPrefix: A=E, exact Eq.trans alpha A M E hFirst hSecond. A is byte-identical original257 core input. Final root selected both phases; helper-only success insufficient."
+  },
+  "negative": {
+    "module": "Object257SecondState",
+    "declaration": "obj257SecondAtomState",
+    "exactDiff": [
+      {
+        "path": "/statement/right/arguments/0/fields/0/value/tail/head/fields/0/value/fields/0/value/head/value",
+        "before": "76",
+        "after": "77"
+      }
+    ],
+    "soleLiteral": "Expected S2.inventory[1].id.bytes[0]76->77; frontier stays76, F/input/all other declarations and actual final consumer A=E unchanged.",
+    "expectedRejection": "Dependency-level Object257SecondState.obj257SecondAtomState reflexivity type mismatch. Negative does not establish final-consumer verification.",
+    "dependency": "Final native imports SecondTransport; its zero-base Apply imports corrupted SecondState. Source graph selects unchanged final consumer.",
+    "notAccepted": "Admission/import/timeout/OOM/process/resource/axiom failures are not intended semantic negatives. Unexpected negative success blocks progression."
+  },
+  "phases": [
+    {
+      "name": "second-prefix-false",
+      "target": "Object257SecondPrefixConsumer",
+      "required": "Official source admission then exact state-dependency negative, independent audit before positive."
+    },
+    {
+      "name": "second-prefix-positive",
+      "target": "Object257SecondPrefixConsumer",
+      "required": "Verify actual second state, lift, generic, concrete suffix and native mandatory original257 consumer; observed empty axioms, all kernel replays and operational gates. Stop on any failed conversion; no automatic alternate representation or limit change."
+    }
+  ],
+  "limits": {
+    "timeoutMs": 300000,
+    "memoryBytes": 4294967296,
+    "cpu": 2,
+    "axioms": [],
+    "native": "ALL_NOT_RUN",
+    "priority": "Read33 next-native priority after sole restoration70584 terminal and fresh eligibility; no execution authority."
+  },
+  "remaining": "193bytes/seven atoms, later carries/staging/inventory/frontier/FoldFinish/digest/manifest/admission and all39 original projections remain.331/403 unchanged. No cache, speed or cost claim.",
+  "preservation": {
+    "all17CurrentPins": "PASS",
+    "all17Snapshots": "PASS",
+    "repoWrites": 0,
+    "nativeCalls": 0
+  },
+  "budget": {
+    "availableBytesBeforeWrite": "21841068032",
+    "reserveBytes": 10737418240,
+    "aggregateCapBytes": 262144,
+    "temporaryDiskCopies": 0
+  },
+  "authorHistory": [
+    "Read-only inspector syntax typo and incorrect candidate.json path corrected without writes/native actions.",
+    "An initial uncompressed exact AST in-memory payload exceeded the conservative prewrite threshold; nothing was written. Exact payload now gzip in memory, losslessly verified, no evidence truncated."
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "capBytes": 1048576,
+  "reserveBytes": "10737418240",
+  "observations": [
+    {
+      "phase": "initial",
+      "freeBytes": "24209170432",
+      "allocatedBefore": 20480,
+      "reservedAdditional": 0
+    },
+    {
+      "phase": "write negative/tests/lexlean/Object257SecondState.lex.tex",
+      "freeBytes": "24209170432",
+      "allocatedBefore": 20480,
+      "reservedAdditional": 16384
+    },
+    {
+      "phase": "write positive/tests/lexlean/Object257SecondState.lex.tex",
+      "freeBytes": "24209141760",
+      "allocatedBefore": 36864,
+      "reservedAdditional": 16384
+    },
+    {
+      "phase": "write shared/tests/lexlean/Object257SecondContext.lex.tex",
+      "freeBytes": "24209125376",
+      "allocatedBefore": 53248,
+      "reservedAdditional": 36864
+    },
+    {
+      "phase": "write shared/tests/lexlean/Object257SecondTransport.lex.tex",
+      "freeBytes": "24209080320",
+      "allocatedBefore": 90112,
+      "reservedAdditional": 69632
+    },
+    {
+      "phase": "write shared/tests/lexlean/Object257SecondPrefixConsumer.lex.tex",
+      "freeBytes": "24209006592",
+      "allocatedBefore": 159744,
+      "reservedAdditional": 24576
+    },
+    {
+      "phase": "write native-core-module.json",
+      "freeBytes": "24208982016",
+      "allocatedBefore": 184320,
+      "reservedAdditional": 24576
+    },
+    {
+      "phase": "write typed-endpoint-mapping.json.gz",
+      "freeBytes": "24208957440",
+      "allocatedBefore": 208896,
+      "reservedAdditional": 81920
+    },
+    {
+      "phase": "write semantic-correspondence.json",
+      "freeBytes": "24208875520",
+      "allocatedBefore": 290816,
+      "reservedAdditional": 4096
+    },
+    {
+      "phase": "write negative-diff.json",
+      "freeBytes": "24208871424",
+      "allocatedBefore": 294912,
+      "reservedAdditional": 4096
+    },
+    {
+      "phase": "write lexlean.toml",
+      "freeBytes": "24208850944",
+      "allocatedBefore": 299008,
+      "reservedAdditional": 4096
+    },
+    {
+      "phase": "write inputs/second-prefix-false.json",
+      "freeBytes": "24208846848",
+      "allocatedBefore": 303104,
+      "reservedAdditional": 12288
+    },
+    {
+      "phase": "write inputs/second-prefix-positive.json",
+      "freeBytes": "24208834560",
+      "allocatedBefore": 315392,
+      "reservedAdditional": 12288
+    },
+    {
+      "phase": "write source-audit.json",
+      "freeBytes": "24208830464",
+      "allocatedBefore": 327680,
+      "reservedAdditional": 4096
+    },
+    {
+      "phase": "write preservation.json",
+      "freeBytes": "24208809984",
+      "allocatedBefore": 331776,
+      "reservedAdditional": 8192
+    },
+    {
+      "phase": "write README.md",
+      "freeBytes": "24208801792",
+      "allocatedBefore": 339968,
+      "reservedAdditional": 4096
+    }
+  ],
+  "allocatedBeforeFinalRecords": 344064,
+  "temporaryDiskCopies": 0,
+  "compressionInMemory": true,
+  "nativeCalls": 0,
+  "qualification": "Write reservations are conservative rounded file sizes with current allocated census; directories and final manifest are separately covered by remaining cap. Not a cross-process filesystem guarantee."
+}

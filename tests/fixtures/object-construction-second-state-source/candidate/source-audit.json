@@ -1,0 +1,111 @@
+{
+  "schema": "lexlean-r4-second-prefix-source-audit/v1",
+  "status": "HOST_STRUCTURAL_ONLY_NOT_NATIVE_PROOF",
+  "graphs": [
+    {
+      "phase": "second-prefix-false",
+      "suppliedInputs": 27,
+      "suppliedModules": 23,
+      "reachableModules": [
+        "Object257SecondPrefixConsumer",
+        "R4.ObjectTypes",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.Words",
+        "R4.HashNatCore",
+        "R4.ObjectStore",
+        "R4.ObjectCodec",
+        "R4.HashWire",
+        "Object257SymbolicConsumer",
+        "Object257FirstAtomState",
+        "Object257FirstAtomLeaf",
+        "Object257FirstAtomGoal",
+        "Object257TerminalContext",
+        "Object257SymbolicContext",
+        "Object257SymbolicGenericConsumer",
+        "Object257SymbolicLift",
+        "Object257SecondTransport",
+        "Object257SecondState",
+        "Object257SecondContext"
+      ],
+      "unreachableSuppliedModules": [
+        "R4.Object",
+        "R4.ObjectRead",
+        "Object257SymbolicLiftFalseBase"
+      ],
+      "target": "Object257SecondPrefixConsumer",
+      "nativeOutcome": "NOT_RUN"
+    },
+    {
+      "phase": "second-prefix-positive",
+      "suppliedInputs": 27,
+      "suppliedModules": 23,
+      "reachableModules": [
+        "Object257SecondPrefixConsumer",
+        "R4.ObjectTypes",
+        "R4.Hash",
+        "R4.HashNat",
+        "R4.Words",
+        "R4.HashNatCore",
+        "R4.ObjectStore",
+        "R4.ObjectCodec",
+        "R4.HashWire",
+        "Object257SymbolicConsumer",
+        "Object257FirstAtomState",
+        "Object257FirstAtomLeaf",
+        "Object257FirstAtomGoal",
+        "Object257TerminalContext",
+        "Object257SymbolicContext",
+        "Object257SymbolicGenericConsumer",
+        "Object257SymbolicLift",
+        "Object257SecondTransport",
+        "Object257SecondState",
+        "Object257SecondContext"
+      ],
+      "unreachableSuppliedModules": [
+        "R4.Object",
+        "R4.ObjectRead",
+        "Object257SymbolicLiftFalseBase"
+      ],
+      "target": "Object257SecondPrefixConsumer",
+      "nativeOutcome": "NOT_RUN"
+    }
+  ],
+  "nativeNodeCount": 899,
+  "endpointMappingCount": 1794,
+  "endpoints": {
+    "A": 810,
+    "M": 848,
+    "E": 880
+  },
+  "nativeDeclaration": {
+    "name": "LexLeanR4.Object257SecondPrefixConsumer.obj257OriginalSecondPrefix",
+    "kind": "theorem",
+    "levels": [],
+    "policy": {
+      "kind": "none"
+    },
+    "class": false,
+    "generated": false,
+    "transparency": "semireducible",
+    "type": 889,
+    "value": 898
+  },
+  "limits": {
+    "timeoutMs": 300000,
+    "memoryBytes": 4294967296,
+    "cpu": 2,
+    "axioms": [],
+    "native": "ALL_NOT_RUN",
+    "priority": "Read33 next-native priority after sole restoration70584 terminal and fresh eligibility; no execution authority."
+  },
+  "configChange": "Only entrypoint symbolic consumer -> second prefix consumer",
+  "noLock": true,
+  "semanticASTsExact": true,
+  "negativeExact": true,
+  "actualConsumer": "A=E with Eq.trans alpha A M E hFirst hSecond",
+  "remaining": "193bytes/seven atoms, later carries/staging/inventory/frontier/FoldFinish/digest/manifest/admission and all39 original projections remain.331/403 unchanged. No cache, speed or cost claim.",
+  "inspectorHistory": [
+    "Read-only initial signature inspector used an overbroad regular expression and failed JSON parsing; corrected to exact single semanticdata line before construction. No source written by that failed inspector."
+  ]
+}

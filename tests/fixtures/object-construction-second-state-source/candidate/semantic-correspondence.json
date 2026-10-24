@@ -1,0 +1,33 @@
+[
+  {
+    "file": "negative/tests/lexlean/Object257SecondState.lex.tex",
+    "pointers": [
+      "/declarations/stateNegative"
+    ],
+    "declarationsSha256": "336c98a7beff2a9048e2f0d16c47817ab80ab3183b0ecef702fd04d97a53b6db"
+  },
+  {
+    "file": "positive/tests/lexlean/Object257SecondState.lex.tex",
+    "pointers": [
+      "/declarations/statePositive"
+    ],
+    "declarationsSha256": "7a229e4ff04c5a9333bf6eda965f5eaabc423fc1f0cdab405f62aea37eb705d8"
+  },
+  {
+    "file": "shared/tests/lexlean/Object257SecondContext.lex.tex",
+    "pointers": [
+      "/context/definition",
+      "/context/family"
+    ],
+    "declarationsSha256": "391c3657aa6fb6b29ba5532e97f0a2e828cbadb97fe36396c7021f512181a529"
+  },
+  {
+    "file": "shared/tests/lexlean/Object257SecondTransport.lex.tex",
+    "pointers": [
+      "/declarations/lift",
+      "/declarations/generic",
+      "/declarations/suffix"
+    ],
+    "declarationsSha256": "baeccbb54d492d6792106ec71c499afa5e37654163dbf2bc1f5e367a51962623"
+  }
+]

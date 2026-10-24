@@ -1,0 +1,10 @@
+{
+  "freeBytesBefore": "22438805504",
+  "freeBytesAfter": "22438223872",
+  "capAdditionalAllocatedBytes": 1048576,
+  "roundedFilesBeforeFinalMetadata": 552960,
+  "manifestReserveBytes": 65536,
+  "temporaryDiskCopies": 0,
+  "sharedClosuresCopied": 0,
+  "originalCandidatePreserved": true
+}
