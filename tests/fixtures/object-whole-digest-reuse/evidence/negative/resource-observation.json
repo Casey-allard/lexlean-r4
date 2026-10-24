@@ -1,0 +1,46 @@
+{
+  "classification": "DISCRETE_OBSERVATION_NOT_PEAK",
+  "observations": [
+    {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,etime,rss,args"
+      ],
+      "started": "2026-10-24T03:32:00.987Z",
+      "ended": "2026-10-24T03:32:01.398Z",
+      "status": 0,
+      "stdout": "    PID COMMAND             ELAPSED   RSS COMMAND\n      1 sh                    08:25  1544 /bin/sh -c sleep infinity\n      7 sleep                 08:24  1564 sleep infinity\n    305 ps                    00:00  3612 ps -eo pid,comm,etime,rss,args\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "stats",
+        "--no-stream",
+        "--format",
+        "{{.MemUsage}} {{.CPUPerc}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "started": "2026-10-24T03:32:01.398Z",
+      "ended": "2026-10-24T03:32:02.537Z",
+      "status": 0,
+      "stdout": "266.1MiB / 4GiB 0.00%\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "started": "2026-10-24T03:32:02.537Z",
+      "ended": "2026-10-24T03:32:02.745Z",
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    }
+  ]
+}

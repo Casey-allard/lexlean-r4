@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-invocation/v1",
+  "status": "FROZEN_NOT_EXECUTED_EPOCH_REVIEW_PENDING",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+    "bytes": 2080,
+    "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate-code-review.json",
+    "bytes": 5984,
+    "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+  },
+  "files": [
+    {
+      "path": "invoke-whole-digest-reuse.mjs",
+      "bytes": 7668,
+      "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 3190,
+      "sha256": "87b14eec41925717af204b0f1ab55bfed94f49b0a887562fb25128ac8503e9c9"
+    }
+  ],
+  "epochCapture": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/epoch/summary.json",
+    "bytes": 260,
+    "sha256": "10807cd0cadb824f4abee9c68669bd4b9412af4709dc80236a60f4eedcdfad65"
+  },
+  "epochAcceptedReview": null,
+  "selectors": [
+    "digest-false",
+    "digest-positive"
+  ],
+  "commands": [
+    "After independent epoch and invocation acceptance: node invoke-whole-digest-reuse.mjs digest-false",
+    "After intended-negative review and fresh gates: node invoke-whole-digest-reuse.mjs digest-positive"
+  ],
+  "mandatoryTarget": "tests/lexlean/ObjectWholeDigest.lex.tex",
+  "inputsPerPhase": 18,
+  "selection": {
+    "suppliedSourceModules": 14,
+    "staticReachableModules": [
+      "HashWireDirect09Controls",
+      "ObjectWholeDigest",
+      "ObjectWholeDigestContext",
+      "ObjectWholeDigestTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "staticReachableCount": 11,
+    "actualCheckSelection": "NOT_RUN"
+  },
+  "stagePattern": "/tmp/r4-object-whole-digest-reuse-${phase}-owned-20261023",
+  "validation": {
+    "command": "node --check invoke-whole-digest-reuse.mjs",
+    "exitCode": 0,
+    "scope": "Syntax only; runner not imported or executed."
+  },
+  "boundary": "Both phases select exact projected ObjHashBytes fullResult consumer. Source CODE passed; native negative/positive NOT_RUN. Epoch captured zero but independent acceptance pending. No old locks or binaries transplanted."
+}

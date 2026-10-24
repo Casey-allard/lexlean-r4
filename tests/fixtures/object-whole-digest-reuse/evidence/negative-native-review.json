@@ -1,0 +1,337 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-negative-native-review/v1",
+  "status": "PASS_INTENDED_FULL_CONSUMER_NEGATIVE_ONLY",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T03:33:13.709Z",
+  "identities": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+      "bytes": 2080,
+      "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate-code-review.json",
+      "bytes": 5984,
+      "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-manifest.json",
+      "bytes": 2565,
+      "sha256": "92574e1b56158e0cea0fd4a54c4e7291401f35f220abb9756be3fc40cd98f2af"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invoke-whole-digest-reuse.mjs",
+      "bytes": 7668,
+      "sha256": "334f0d6a1eab4603f156a15ef65d9967994825a4c11b88774e687e36c3cd871a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-code-review.json",
+      "bytes": 5260,
+      "sha256": "b470219ac19ea0d3d796579bafbecffd8ea535019dccb1dd05f24676a5bfb684"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/epoch-review.json",
+      "bytes": 7677,
+      "sha256": "074cf5f61f522b68832beae02959b34f359383939cd4926b589a1ce6046c749e"
+    }
+  ],
+  "actual": {
+    "phase": "digest-false",
+    "stage": "/tmp/r4-object-whole-digest-reuse-digest-false-owned-20261023",
+    "launcher": "Parent reported0; actual compiler verify exit1 independently inspected.",
+    "checkExit": 0,
+    "selectedModules": [
+      "HashWireDirect09Controls",
+      "ObjectWholeDigest",
+      "ObjectWholeDigestContext",
+      "ObjectWholeDigestTransport",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.ObjectCodec",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "suppliedSourceModules": 14,
+    "inputs": 18,
+    "sourceId": "c52fe02721e3de4c8e93e34cc241a57fde5e2fe6c9866a101ed3d07770cd9a61",
+    "semanticId": "f06b2f686010d7ba031f5eb37084f03d9de12844858c496811680c5a8557e213",
+    "verifyExit": 1,
+    "diagnostic": "LLV7002",
+    "target": "tests/lexlean/ObjectWholeDigest.lex.tex",
+    "generatedLocation": "generated location: $STAGING/lean-src/LexLeanR4/ObjectWholeDigest.lean:13:2",
+    "started": "2026-10-24T03:29:53.775Z",
+    "ended": "2026-10-24T03:31:49.212Z",
+    "aggregateVerifyElapsedMs": 115437,
+    "artifactCount": 0,
+    "classification": "Full ObjectWholeDigest consumer Apply1 was rejected with a type mismatch between the lifted goal and the expected projected ObjHashBytes fullResult whose first expected digest byte is202. This is an intended negative, not source-admission failure, timeout or OOM."
+  },
+  "sourceDifference": [
+    {
+      "path": "declarations.0.statement.right.arguments.0.fields.0.value.head.value",
+      "positive": "201",
+      "negative": "202"
+    }
+  ],
+  "checks": {
+    "sourceCustody": "All18 mappings agree with frozen candidate; current source bytes/sizes, copy source/destination argv, guest pre/post hash lines match exactly. Positive and negative complete semantic modules differ at only expected digest201→202.",
+    "lock": {
+      "bytes": 1597,
+      "sha256": "58d169336b82627002f9b7913b742477c2f9ee78a580c6c37eb95b22da6b58e9",
+      "description": "Recorded official fresh lock command succeeded; retained UTF8 lock binds current config and three workspace files, language1.2/compiler semantics/Lean4.32.1. Post-run lock hash unchanged; this is a development lock, not production SDK binding."
+    },
+    "tools": "All four before/after executable hashes match fixed reviewed identities.",
+    "epoch": "Both records equal reviewed start2026-10-24T03:23:35.957043396Z/restart0/4GiB/2CPU/networknone/mounts[]. Distinct from preserved historical nonzero epoch.",
+    "memory": "All six before/after counters zero; no recorded OOM or kill. Idle-before/after show no compiler.",
+    "commands": "39 top-level command receipts inspected: all exit0/null signal except intended verify1. Sourcecheck admits11 modules. Postcapture-errors empty; all seven command postchecks begin after verify ends.",
+    "resources": "Three supplementary observations occur after verification completed: ps has no compiler, stats266.1MiB/4GiB and0.00%CPU, memory events zero. These are post-run observations only, not active samples or peak measurements."
+  },
+  "storage": {
+    "hostBeforeBytes": "28461883392",
+    "hostAfterBytes": "29531938816",
+    "guestBeforeAvailableKiB": "52937064",
+    "guestAfterAvailableKiB": "52933352",
+    "freshReviewHostAvailableBytes": "28965261312",
+    "planning": "Host20GiB pre/10GiB post and guest11GiB pre/10GiB post passed. No continuous high-water or performance claim."
+  },
+  "rawClosure": {
+    "files": 45,
+    "bytes": 42073,
+    "sha256": "498c1028048cf9fab842641a4cbe139c238702818d83f8613e774444d9fd51c2",
+    "encoding": "JSON.stringify(filename-ordinal-sorted records of path,bytes,sha256)",
+    "records": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 459,
+        "sha256": "9b46b8da70a50b6a3be34565e4f4ef2e342a0053adc00d750595c20bd54c91e0"
+      },
+      {
+        "path": "check.json",
+        "bytes": 932,
+        "sha256": "4c225c8eae3391e5becc03a13435a9cad5c67253ff37e2720d094951725e4ae4"
+      },
+      {
+        "path": "copy-0.json",
+        "bytes": 457,
+        "sha256": "e4d7b8643015021356f9e01b91505cf8db85695d66d0e28c035fe6a2d702636b"
+      },
+      {
+        "path": "copy-1.json",
+        "bytes": 455,
+        "sha256": "a0586935cd7007e0f15fcb6050773269b5bd164eedd5fd1f8bde825409dd3a03"
+      },
+      {
+        "path": "copy-10.json",
+        "bytes": 443,
+        "sha256": "23088212c6269b9d9814cb722b279d444a55b575463bcc84f07f4e25413a425f"
+      },
+      {
+        "path": "copy-11.json",
+        "bytes": 453,
+        "sha256": "c7c314e6b076bda18c5c0acd107569ecec1b6b7852caad2d1b49f0d04e10df47"
+      },
+      {
+        "path": "copy-12.json",
+        "bytes": 445,
+        "sha256": "76e84023efc72a63ddd058792f217d00dcea1ad9f3a8bb47b53b9723f6a8866c"
+      },
+      {
+        "path": "copy-13.json",
+        "bytes": 494,
+        "sha256": "f288257a1322951b7f555904f39a739489910283ff784209e85b6b2dcdf45ca5"
+      },
+      {
+        "path": "copy-14.json",
+        "bytes": 512,
+        "sha256": "2489b404f7d960918b3c16cf1461d056362bf845ffd6e56f584281e8ddb2ee6b"
+      },
+      {
+        "path": "copy-15.json",
+        "bytes": 516,
+        "sha256": "e848ce4f46377545d8eafc3e978d5331abd1d6948f175cb776cbaf8de2e024bb"
+      },
+      {
+        "path": "copy-16.json",
+        "bytes": 500,
+        "sha256": "cc80b25bce489a893dc6654d0e2474ac4f25eb617087c57b05ae4526572b29fa"
+      },
+      {
+        "path": "copy-17.json",
+        "bytes": 437,
+        "sha256": "87aa0a0d03a5911124f0ab192e4509d7202a6a8fc2df2193687e6d172418e45a"
+      },
+      {
+        "path": "copy-2.json",
+        "bytes": 461,
+        "sha256": "5826106fe8a9ea9f336f30b1ce05b119bc721c025e394b8068fd223e74884254"
+      },
+      {
+        "path": "copy-3.json",
+        "bytes": 469,
+        "sha256": "fa27210059b7d886889221ed70bd524af20dbb093edb16bae676a6f9f2b041d2"
+      },
+      {
+        "path": "copy-4.json",
+        "bytes": 463,
+        "sha256": "7d8a552a846b79be158048f68d579abfc3633ccab1940b8d2e7e919efdfdad4b"
+      },
+      {
+        "path": "copy-5.json",
+        "bytes": 421,
+        "sha256": "280f0fc76f317101bf3cf1a820f8bbe4b30f65eb32a20c0f4ca52c45c0b747d6"
+      },
+      {
+        "path": "copy-6.json",
+        "bytes": 421,
+        "sha256": "0ba2a18ce1288d0264c180d5195e4c5d3c01f81bfa7e647cd44b9139efe34faa"
+      },
+      {
+        "path": "copy-7.json",
+        "bytes": 421,
+        "sha256": "814d117d19d71e69abecc63d1931fc0636ee67c24de3bfb103b4b74b9d1aa64c"
+      },
+      {
+        "path": "copy-8.json",
+        "bytes": 419,
+        "sha256": "a820dd3bb7714c9ef29c9d34e7acb7f0ab75c72b69b4a34eb7c3ee0c91110c24"
+      },
+      {
+        "path": "copy-9.json",
+        "bytes": 411,
+        "sha256": "9e67eb65062041399a561a8f5aa1e9b111da4ace4c43877c3ba930558641e0b4"
+      },
+      {
+        "path": "directories.json",
+        "bytes": 430,
+        "sha256": "3fd22ce733579717560c0e9c07e58502e3df2d41322483d394101961ec99197d"
+      },
+      {
+        "path": "epoch-after.json",
+        "bytes": 470,
+        "sha256": "f74c6968586c9ea7947e303411591c408ab4952b3e9a074854d711668134722e"
+      },
+      {
+        "path": "epoch-before.json",
+        "bytes": 470,
+        "sha256": "2c4601936b5d75b2951bddf7f0e059137217da58e39834b27dc27996ea49a8bd"
+      },
+      {
+        "path": "expected-inputs.json",
+        "bytes": 6338,
+        "sha256": "9a73c4ee3406f720ab10e89b2fe9b0d8c5e05315537e11ad0f7e7411cddc1109"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 406,
+        "sha256": "b7a5d2d4ee5f3c95f4b6fca24b30f2d865fb981755069ac325781dfaa2667bd2"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 406,
+        "sha256": "ca8fd1b92a03249863dfacdcf8c179cf1619b95a81d260b33aa7af17b49eaa59"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 142,
+        "sha256": "5e58bf25d87e3df13e5222bc6b68829af219bdebfd06bfd1c27c773bf9965142"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 152,
+        "sha256": "b5b65bf828ae22ebf058057090d7ed84c0fd1f408206d65e3bdff965d63e6204"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 460,
+        "sha256": "dfa3b4d0e74ae1d2363888b7304c10236f779fd3f5f43708f3acdb60edc96c53"
+      },
+      {
+        "path": "idle-before.json",
+        "bytes": 460,
+        "sha256": "68ee15663cbf56d3a81cb92497a25d1dc4382c1afc02340d405b419c8c857b78"
+      },
+      {
+        "path": "lock-after.json",
+        "bytes": 489,
+        "sha256": "071af3bab4711dd362e8f3c4eba5e3ea072022b3e47eb793d682041e8bdc0536"
+      },
+      {
+        "path": "lock-bytes.json",
+        "bytes": 2055,
+        "sha256": "5d84c30a8134e2dbdb39c948150facbf615bd9c7a8b2d8a2f45dcbaa30f1cfa0"
+      },
+      {
+        "path": "lock.json",
+        "bytes": 539,
+        "sha256": "ca9ea81543ab00cfeedd2a9edee3e268c305c335f5f9dd31d7846f7d39c4ff6e"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 354,
+        "sha256": "67e02212c4a22e46629cba10bb67f43bf014d27d8186a7a7dae07ef72adebe74"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 354,
+        "sha256": "ddb3528dbcb92be189beb7ab440de86a4f9076ba74dcfee2e63edfe783214b85"
+      },
+      {
+        "path": "new-stage.json",
+        "bytes": 330,
+        "sha256": "71f5addb7ffabbb30760b7a73445d7b382aca2896c46faa1e72863f75c7e377f"
+      },
+      {
+        "path": "postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "resource-observation.json",
+        "bytes": 1440,
+        "sha256": "569d98df0ffc8de20d6e47f092d15f65ff003138c38a9846ccae7f53d33ac060"
+      },
+      {
+        "path": "result.json",
+        "bytes": 2597,
+        "sha256": "67425eea4c759f135a8a6acb7de07947347013a5daebafb2a6c796f7ad4696c9"
+      },
+      {
+        "path": "source-after.json",
+        "bytes": 4805,
+        "sha256": "867a7f9d35a8998e6e0e678c0ffdc376eadb58b5b3122b02abc12a8644d101eb"
+      },
+      {
+        "path": "source-before.json",
+        "bytes": 4805,
+        "sha256": "b511819d71764ccdee495be039f67c63fbd1783b2eb25882af2e9edc9d1bb040"
+      },
+      {
+        "path": "swap-before.json",
+        "bytes": 265,
+        "sha256": "75938d725f27d71b4e8567fa9d82671ef78dd54fa4b5b672ebea7e6f7e76a23b"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1005,
+        "sha256": "d1072e8117d9285211e06f5e4f06ab6f85a6a97771501115b10954eb05836129"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1005,
+        "sha256": "9fbbc6b56564cdc03ea3e1a56413578082f0725f65663a5999de11ab3294fdb3"
+      },
+      {
+        "path": "verify.json",
+        "bytes": 2704,
+        "sha256": "8ed6a986a15562ee74254925965e5140ea1004e71615a8a22d4ebcde8bc3f706"
+      }
+    ]
+  },
+  "limitations": [
+    "Negative diagnostic prints lifted goal versus projected consumer; rejection alone does not establish positive definitional conversion or prove that every other aspect of conversion succeeds. Positive remains separately required.",
+    "No positive artifact, kernel replay or accepted whole-digest theorem exists for this negative phase. No whole-read, Read33, full Hash/PrismPM/Pages acceptance.",
+    "No SDK, Docker, native replay, repository/source/index changes performed by reviewer. Only this new external review report written."
+  ],
+  "findings": []
+}

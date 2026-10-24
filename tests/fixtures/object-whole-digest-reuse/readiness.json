@@ -1,0 +1,27 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-readiness/v1",
+  "status": "SOURCE_CODE_REVIEWED_NATIVE_BLOCKED",
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+    "bytes": 2080,
+    "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+  },
+  "sourceCodeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate-code-review.json",
+    "bytes": 5984,
+    "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+  },
+  "officialPhases": [
+    "digest-false",
+    "digest-positive"
+  ],
+  "inputCountEach": 18,
+  "suppliedSources": 14,
+  "staticReachable": 11,
+  "actualCheck": "NOT_RUN",
+  "actualVerify": "NOT_RUN",
+  "currentResourceEpoch": "BLOCKED_NONZERO_MEMORY_EVENTS",
+  "freshReviewedResourceEpoch": null,
+  "invocation": "PLAN_ONLY_NOT_FROZEN",
+  "scope": "Exact projected ObjHashBytes wrapper, not whole-read bridge or full Read33."
+}

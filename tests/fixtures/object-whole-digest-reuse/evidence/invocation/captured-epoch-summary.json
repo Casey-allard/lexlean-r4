@@ -1,0 +1,10 @@
+{
+  "status": "CAPTURED_PENDING_INDEPENDENT_REVIEW",
+  "newEpoch": "2026-10-24T03:23:35.957043396Z",
+  "sameBoot": true,
+  "sameConfiguration": true,
+  "sameTools": true,
+  "failedStagePinsUnchanged": true,
+  "memoryEventsZero": true,
+  "noSDKInvoked": true
+}

@@ -1,0 +1,265 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-negative-raw-custody/v1",
+  "status": "CLOSED_NEGATIVE_RAW_PRESERVED_INDEPENDENT_NATIVE_REVIEW_PENDING",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/check.json",
+        "bytes": 932,
+        "sha256": "4c225c8eae3391e5becc03a13435a9cad5c67253ff37e2720d094951725e4ae4"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/check.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/verify.json",
+        "bytes": 2704,
+        "sha256": "8ed6a986a15562ee74254925965e5140ea1004e71615a8a22d4ebcde8bc3f706"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/verify.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/result.json",
+        "bytes": 2597,
+        "sha256": "67425eea4c759f135a8a6acb7de07947347013a5daebafb2a6c796f7ad4696c9"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/result.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/expected-inputs.json",
+        "bytes": 6338,
+        "sha256": "9a73c4ee3406f720ab10e89b2fe9b0d8c5e05315537e11ad0f7e7411cddc1109"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/expected-inputs.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/source-before.json",
+        "bytes": 4805,
+        "sha256": "b511819d71764ccdee495be039f67c63fbd1783b2eb25882af2e9edc9d1bb040"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/source-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/source-after.json",
+        "bytes": 4805,
+        "sha256": "867a7f9d35a8998e6e0e678c0ffdc376eadb58b5b3122b02abc12a8644d101eb"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/source-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/lock.json",
+        "bytes": 539,
+        "sha256": "ca9ea81543ab00cfeedd2a9edee3e268c305c335f5f9dd31d7846f7d39c4ff6e"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/lock.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/lock-bytes.json",
+        "bytes": 2055,
+        "sha256": "5d84c30a8134e2dbdb39c948150facbf615bd9c7a8b2d8a2f45dcbaa30f1cfa0"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/lock-bytes.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/lock-after.json",
+        "bytes": 489,
+        "sha256": "071af3bab4711dd362e8f3c4eba5e3ea072022b3e47eb793d682041e8bdc0536"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/lock-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "9fbbc6b56564cdc03ea3e1a56413578082f0725f65663a5999de11ab3294fdb3"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/tools-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/tools-after.json",
+        "bytes": 1005,
+        "sha256": "d1072e8117d9285211e06f5e4f06ab6f85a6a97771501115b10954eb05836129"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/tools-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "2c4601936b5d75b2951bddf7f0e059137217da58e39834b27dc27996ea49a8bd"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/epoch-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "f74c6968586c9ea7947e303411591c408ab4952b3e9a074854d711668134722e"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/epoch-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "ddb3528dbcb92be189beb7ab440de86a4f9076ba74dcfee2e63edfe783214b85"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/memory-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "67e02212c4a22e46629cba10bb67f43bf014d27d8186a7a7dae07ef72adebe74"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/memory-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "68ee15663cbf56d3a81cb92497a25d1dc4382c1afc02340d405b419c8c857b78"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/idle-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "dfa3b4d0e74ae1d2363888b7304c10236f779fd3f5f43708f3acdb60edc96c53"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/idle-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/host-before.json",
+        "bytes": 152,
+        "sha256": "b5b65bf828ae22ebf058057090d7ed84c0fd1f408206d65e3bdff965d63e6204"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/host-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/host-after.json",
+        "bytes": 142,
+        "sha256": "5e58bf25d87e3df13e5222bc6b68829af219bdebfd06bfd1c27c773bf9965142"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/host-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "ca8fd1b92a03249863dfacdcf8c179cf1619b95a81d260b33aa7af17b49eaa59"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/guest-before.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "b7a5d2d4ee5f3c95f4b6fca24b30f2d865fb981755069ac325781dfaa2667bd2"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/guest-after.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/postcapture-errors.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/resource-observation.json",
+        "bytes": 1440,
+        "sha256": "569d98df0ffc8de20d6e47f092d15f65ff003138c38a9846ccae7f53d33ac060"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/negative/resource-observation.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/epoch-review.json",
+        "bytes": 7677,
+        "sha256": "074cf5f61f522b68832beae02959b34f359383939cd4926b589a1ce6046c749e"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/epoch-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/invocation-code-review.json",
+        "bytes": 5260,
+        "sha256": "b470219ac19ea0d3d796579bafbecffd8ea535019dccb1dd05f24676a5bfb684"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/invocation-code-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/resource-proposal-review.json",
+        "bytes": 5078,
+        "sha256": "b58c093309559a05eaa32f078686dd6011a9d24b2e184e6694498921fc1ce6d3"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/resource-proposal-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/resource-epoch-proposal.json",
+        "bytes": 4176,
+        "sha256": "a8abdef0be0a8f9faacb06ae2d116b4fa687b63a6987e4c4a622073fa846949f"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/resource-epoch-proposal.json"
+    }
+  ],
+  "existingSourceCodeCopy": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/evidence/candidate-code-review.json",
+    "bytes": 5984,
+    "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+  },
+  "derivedLock": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/digest-false/lock-bytes.json",
+      "bytes": 2055,
+      "sha256": "5d84c30a8134e2dbdb39c948150facbf615bd9c7a8b2d8a2f45dcbaa30f1cfa0"
+    },
+    "destination": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "58d169336b82627002f9b7913b742477c2f9ee78a580c6c37eb95b22da6b58e9"
+    },
+    "method": "Exact UTF-8 stdout of successful official development-lock command; no regeneration."
+  },
+  "observedOnly": {
+    "suppliedInputs": 18,
+    "suppliedSourceModules": 14,
+    "selectedAdmittedModules": 11,
+    "checkExit": 0,
+    "verifyExit": 1,
+    "diagnostics": [
+      "LLV7002"
+    ],
+    "target": "ObjectWholeDigest",
+    "aggregateVerifyElapsedMs": 115437,
+    "artifacts": [],
+    "postcaptureErrors": [],
+    "acceptedNegativeReview": null,
+    "positive": "NOT_RUN_AT_PRESERVATION"
+  },
+  "resourceBoundary": "resource-observation.json was taken AFTER verification ended; ps shows no compiler job. It is a post-run discrete observation, not an active runtime measurement, peak or efficiency result.",
+  "history": "Source manifest/preparation/readiness and earlier custody remain immutable. Actual epoch and invocation review copies are additive. Native negative acceptance pending; no positive proof established.",
+  "omitted": "Per-input copies, allocation/swap/stage records remain local. No binaries or full attestation copied.",
+  "storage": {
+    "hostAvailableKiB": 28836764,
+    "aggregateBeforeBytes": 421888,
+    "estimatedAdditionalBytes": 159744,
+    "aggregateLimitBytes": 1048576
+  }
+}

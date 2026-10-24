@@ -1,0 +1,156 @@
+{
+  "schema": "lexlean-r4-digest-reuse-resource-epoch-review/v1",
+  "status": "PASS_ACTUAL_SEPARATE_EPOCH_CAPTURE_NATIVE_AWAITS_INVOCATION_REVIEW",
+  "reviewer": "/root/orchestration_design_review",
+  "proposalSha256": "a8abdef0be0a8f9faacb06ae2d116b4fa687b63a6987e4c4a622073fa846949f",
+  "proposalReviewSha256": "b58c093309559a05eaa32f078686dd6011a9d24b2e184e6694498921fc1ce6d3",
+  "candidateManifestSha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd",
+  "capture": {
+    "directory": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/epoch",
+    "files": 19,
+    "bytes": 10647,
+    "arraySha256": "2b696508581859202f0d14f4fc9ccc7dd75851f3d6b4064a864e8c4346664e39",
+    "encoding": "JSON.stringify(filename-sorted records)",
+    "records": [
+      {
+        "path": "allocated-before.json",
+        "bytes": 474,
+        "sha256": "c4213bde1673469ef069fe88411e4a70735087c08e251a0c738d13d6f82b312c"
+      },
+      {
+        "path": "boot-after.json",
+        "bytes": 355,
+        "sha256": "bd2a86b1179d857049fd3605cf590e75bc52383248393c9486a3cfeba434128a"
+      },
+      {
+        "path": "boot-before.json",
+        "bytes": 355,
+        "sha256": "0f6084e422980511c6d7f2ded08b7889892fafcc0982860258cf815b0ba03817"
+      },
+      {
+        "path": "failed-stages-after.json",
+        "bytes": 1372,
+        "sha256": "806ed88eaf03c1e98382ab3c73dd5854a77827779c07dce92c2613fc69995611"
+      },
+      {
+        "path": "failed-stages-before.json",
+        "bytes": 1372,
+        "sha256": "32e0faab2c59249c0986ced8748f463a3bef17219ee0662c3eafd08e89e4a5f5"
+      },
+      {
+        "path": "guest-after.json",
+        "bytes": 425,
+        "sha256": "7026486a8612738c5dee9fd1b56f4f1ab323f7ad82535940a8af7c924e9e02ee"
+      },
+      {
+        "path": "guest-before.json",
+        "bytes": 425,
+        "sha256": "c14a71281026f4d83db947eaed7bc76ec8c1396628c5656adf03cc122cc373be"
+      },
+      {
+        "path": "host-after.json",
+        "bytes": 146,
+        "sha256": "9722272142f7a5e91a3877f9c652da44b6ed24f74cc2b6ad77085e0bd5213acb"
+      },
+      {
+        "path": "host-before.json",
+        "bytes": 146,
+        "sha256": "5fd968ff1c1d983305c042ed14d431e92da627ea308cc9a3ed3cbe309399aeb8"
+      },
+      {
+        "path": "idle-after.json",
+        "bytes": 479,
+        "sha256": "ab38796df4c039efc985f64c5bbc7568bcdc186377b82ec2925c1ad7b2d57a0d"
+      },
+      {
+        "path": "idle-immediate-before.json",
+        "bytes": 479,
+        "sha256": "4aa2823b33bbb45ac7b48dd3190842a9b5f18483468f17773fe782ae56962615"
+      },
+      {
+        "path": "inspect-after.json",
+        "bytes": 572,
+        "sha256": "02d7d9f7651eaeada8a0ad4bb6645da1d4efef42df327b693c1a42cc2f23abc1"
+      },
+      {
+        "path": "inspect-before.json",
+        "bytes": 572,
+        "sha256": "06cbc578221229043768b5b7951dbd4d05e7ba415d55e2e18e6e700f260c7e96"
+      },
+      {
+        "path": "memory-after.json",
+        "bytes": 373,
+        "sha256": "3ab5aa5fab2d51d38467c5c314190f266e2503dd5ba8ef539d3f679baa7ebaf2"
+      },
+      {
+        "path": "memory-before.json",
+        "bytes": 378,
+        "sha256": "8bc0e7c3a848ad40b69d3b7e54d5d83b6ab0ac000b560f14ee92f45ea627cb6d"
+      },
+      {
+        "path": "restart.json",
+        "bytes": 416,
+        "sha256": "f2a8dd17eeb55f2619cdc32beff6117f5b1b6a10b86be70494506f49abc8399e"
+      },
+      {
+        "path": "summary.json",
+        "bytes": 260,
+        "sha256": "10807cd0cadb824f4abee9c68669bd4b9412af4709dc80236a60f4eedcdfad65"
+      },
+      {
+        "path": "tools-after.json",
+        "bytes": 1024,
+        "sha256": "65254e11e30b3d1613e6624dc96279d4c48ab5a4f35c8318de1dcfae1acf78f6"
+      },
+      {
+        "path": "tools-before.json",
+        "bytes": 1024,
+        "sha256": "481162a7b096c278ec3e3532c7ec1a66d4fe667ae920e4b9a9a485969c0ebec1"
+      }
+    ]
+  },
+  "epoch": {
+    "container": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "before": "2026-10-23T20:22:35.225704499Z",
+    "after": "2026-10-24T03:23:35.957043396Z",
+    "restartCountBefore": 0,
+    "restartCountAfter": 0,
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "memoryBytes": 4294967296,
+    "cpuNano": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "bootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "interpretation": "Same exact owned container/image/config and guest boot; only container start epoch changed. Manual restart need not increment RestartCount. Guest VM was not restarted by these recorded commands."
+  },
+  "checks": {
+    "commandReceipts": 16,
+    "commands": "All16 command receipts exit0 with null signal and ordered nonoverlapping intervals. Idle-immediate-before ended03:23:03.446Z; restart began03:23:03.447Z. Only shell/sleep/observer ps shown before/after, no compiler process. Restart used docker restart --time30 on exactly the owned container; deprecation message is informational. New StartedAt lies inside successful restart interval.",
+    "tools": "Before/after sha256sum outputs byte-identical; exact installed compiler107e0232...,Lean79fb1d26...,Lake8229bc30...,leanchecker8bc50bb9... agree with reviewed fixed identities. No compilation or SDK invocation appears in captured argv.",
+    "failedStages": "All four recorded source/lock hashes unchanged before/after: both failed stages retain consumer06d6670bf424233f95ef64a2fc2d567d95f69e55ab41ae300b210a1bc4126f4e and development lock1866c2903723806a6d3632788d893044f71174c7130463ef859e71852a9524b8. This is four-pin preservation evidence, not a recursive census of every stage file.",
+    "memory": "Old max450159/oom0/kill0 preserved. All six new memory.events values are zero in new epoch. No claim of continuous counters across restart, no reset of historical failure or proof acceptance.",
+    "summary": "CAPTURED_PENDING_INDEPENDENT_REVIEW summary remains untouched; actual underlying captures, not flags alone, support this separate review."
+  },
+  "storage": {
+    "beforeAvailableBytes": "26410389504",
+    "afterAvailableBytes": "26402648064",
+    "peakAdditionalEstimateBytes": "10737418240",
+    "reserveBytes": "10737418240",
+    "afterHeadroomBeyondEstimateAndReserveBytes": "4927811584",
+    "hostDropBytes": "7741440",
+    "guestBeforeAndAfterAvailableKiB": 52937064,
+    "allocatedBeforeKiB": {
+      "dataDisk": 25980072,
+      "vmDisk": 1469580
+    },
+    "assessment": "Host both sides exceeds20GiB planning gate; observed decline7741440bytes is below2GiB. Guest both sides exceeds11GiB pre/10GiB post. Planning estimate is not continuous peak measurement; recheck before expensive phases. No post-restart allocated-file audit was captured, so none is claimed."
+  },
+  "boundaries": [
+    "Fresh resource epoch accepted only for the distinct standalone ObjHashBytes reuse candidate, not a failed whole-read retry.",
+    "No SDK execution until independently reviewed invocation binds this exact new start and unchanged configuration/tools/source/limits. Refresh idle/storage/zero-event gates immediately before native phases; this report is a point-in-time record.",
+    "Do not alter or compare old/new counters as a single run. Original whole timeout/resource failure remains unaccepted and all prior failed evidence remains preserved.",
+    "No proof acceptance, caching/performance claim, production lock or model/PrismPM/Pages promotion."
+  ],
+  "findings": [],
+  "execution": "Read-only retained receipt and identity inspection; reviewer ran no Docker/SDK/native/restart commands, made no repository changes and copied no artifacts. Only this external report written."
+}

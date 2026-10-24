@@ -1,0 +1,115 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-source-custody/v1",
+  "status": "EXACT_SOURCE_AND_REVIEW_COPIES_NO_NATIVE_RESULTS",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/negative/tests/lexlean/ObjectWholeDigest.lex.tex",
+        "bytes": 14941,
+        "sha256": "55321a82d47560ea2600265b51926e48dbb9089378bb82eedf80de63f012cf74"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/negative/tests/lexlean/ObjectWholeDigest.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/positive/tests/lexlean/ObjectWholeDigest.lex.tex",
+        "bytes": 14941,
+        "sha256": "5f431772e03c4d883468b414a8dd6dc7d7dd30797e0704cbf8cee9c0ff976f04"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/positive/tests/lexlean/ObjectWholeDigest.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/common/tests/lexlean/ObjectWholeDigestContext.lex.tex",
+        "bytes": 18360,
+        "sha256": "305d028f9214f7d0165c3a27fdb15598a19ebc28515447a3fe4335acc2d6b64d"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestContext.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+        "bytes": 1097,
+        "sha256": "76347126056bad1caf162686d652892d641d2c40d126ab9c4a7c30b436230567"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/lexlean.toml",
+        "bytes": 681,
+        "sha256": "e725566f93bee6d9dc62389a09fcab18a053cf603f8b30e402122dc2ea214324"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/lexlean.toml"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate.json",
+        "bytes": 14432,
+        "sha256": "512d0b4af618775eda9f4e9248ec65385b112d6c2208efdc493f56484fa2f822"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/candidate.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/structural-audit.json",
+        "bytes": 6444,
+        "sha256": "124470054e4246931a0146d52e2c1277c7f3c84523b9ef1f605fd7eb7d43fc1c"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/structural-audit.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/README.md",
+        "bytes": 879,
+        "sha256": "67a52e0ce4a3865b7a90ec27ac667ba0e525af2767bb5bcf49718761cd1273ea"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/README.md"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/manifest.json",
+        "bytes": 2080,
+        "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/candidate/manifest.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/candidate-code-review.json",
+        "bytes": 5984,
+        "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/candidate-code-review.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/next-whole-digest-reuse-successor.json",
+        "bytes": 13342,
+        "sha256": "7ff3a57eb5320b8fecc71d8fb15a6ac09ce4bb8f93120607a9443b08941c1674"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/next-whole-digest-reuse-successor.json"
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-read-continuation/next-whole-digest-reuse-spec-review.json",
+        "bytes": 8093,
+        "sha256": "174fc94b6973ad4db7db428b692e1b18b68e5eb8df1bbf9a16906c5fd95435e8"
+      },
+      "destination": "tests/fixtures/object-whole-digest-reuse/evidence/next-whole-digest-reuse-spec-review.json"
+    }
+  ],
+  "companionFiles": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/source-bindings.json",
+      "bytes": 14707,
+      "sha256": "32325707f5dfd0258c610f7435e461307fcaf5a2b9dd390b8812574d39bff126"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-digest-reuse/readiness.json",
+      "bytes": 1058,
+      "sha256": "80b06ca122164073693e76eeb76a36558a158a9a36345c5bb19911265462f2a8"
+    }
+  ],
+  "excludedMutableFile": "README.md"
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "lexlean-r4-digest-reuse-resource-proposal-review/v1",
+  "status": "PASS_NARROW_IDLE_CONTAINER_RESTART_PLAN_ONLY_NO_SDK_AUTHORITY",
+  "reviewer": "/root/orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/resource-epoch-proposal.json",
+    "bytes": 4176,
+    "sha256": "a8abdef0be0a8f9faacb06ae2d116b4fa687b63a6987e4c4a622073fa846949f"
+  },
+  "sourceScope": {
+    "manifest": {
+      "bytes": 2080,
+      "sha256": "1ebd378cf3e9c55c900f049184b38fa55e05528e431ceb0c338824122c77b9bd"
+    },
+    "independentCodeReview": {
+      "bytes": 5984,
+      "sha256": "34414add6e3ae2315e88fdc72f4104c3674fd8ea3915cb269fa87b7a433383b3"
+    },
+    "review": "Exact byte pins verified; CODE status is source-ready with no invocation/native authority. New standalone genuine ObjHashBytes projected96-byte wrapper proof reuses exact Direct09 source. This has a smaller distinct statement/closure than the failed whole-read continuation and is not an equivalent retry or limit increase."
+  },
+  "observedPrestate": {
+    "container": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "startedAt": "2026-10-23T20:22:35.225704499Z",
+    "restartCount": 0,
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "memoryLimitBytes": 4294967296,
+    "cpuNano": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "guestBootId": "44f408ba-d166-4157-93b8-d311639e4a0f",
+    "idle": "Retained successful ps capture shows only container shell/sleep and observer ps; no compiler/Lean/Lake/checker.",
+    "memory": "Retained events max450159, oom0, oom_kill0; this epoch fails the unchanged zero-event gate. Closed failure audit ea2915a9f0742bf2887b01606e1c127aa3f5a4b5cbd801f0e6b3e232dd656bfd remains authoritative failed-run evidence.",
+    "receiptBoundary": "All seven retained observations succeeded and their intervals are ordered. These are observations at proposal time, not a perpetual idle/storage guarantee."
+  },
+  "storage": {
+    "proposalAvailableBytes": "26597580800",
+    "peakIncrementEstimateBytes": "10737418240",
+    "reserveBytes": "10737418240",
+    "estimatePlusReserveHeadroomBytes": "5122744320",
+    "independentHostAvailableKiB": 25893380,
+    "guestAvailableKiB": 52937064,
+    "assessment": "Proposal availability exceeds20GiB by5122744320bytes. Independent read-only host df remains above20GiB. Guest available about50.48GiB exceeds11GiB pre/10GiB post. Allocated VM disks and14GiB swap observations are retained. TenGiB incremental allowance is a planning estimate, not peak proof or permission to exceed unchanged gates. Refresh immediately before mutation and after restart; no expensive work on unexplained reserve violation."
+  },
+  "permittedAction": "Parent may restart only the specified owned idle container, after a final immediate idle check, to establish a separately recorded resource epoch for this distinct candidate. Keep existing VM, disks, container writable filesystem/failed stages, image, installed compiler/toolchain,4GiB/2CPU,networknone,mounts[]. Do not recreate/delete/prune the container, modify other labs, clear counters manually or discard historical receipts.",
+  "mandatoryAfterRestart": [
+    "Capture exact restart invocation and result, then inspect same container ID/image/config and a new StartedAt. Retain observed RestartCount without assuming a manual restart must increment it.",
+    "Capture guest boot identity; container-only restart should leave the existing VM/guest boot unchanged. Any unexpected identity/config difference blocks further work pending review.",
+    "Rehash installed compiler, Lean, Lake and leanchecker against fixed accepted hashes; capture idle, all memory.events fields zero, host/guest availability and allocated storage.",
+    "Preserve all failed stages and evidence. Old and new memory counters belong to different epochs; never subtract or compare them as a continuous clean run. Old nonzero state remains failed.",
+    "Independent fresh-epoch review and independent invocation review are required before any SDK/check/lock/verify command. Pin the new epoch into a separately frozen invocation; do not silently mutate a previously reviewed execution identity.",
+    "Retain existing source/lock/tool/epoch/idle/zeroevent/storage/postcapture and300000ms child limits for both later phases. A subsequent failure must stop under those gates."
+  ],
+  "authorityBoundary": "This is permission for the narrow reviewed restart-and-capture action within ongoing authorized implementation, not a waiver of zero-event policy and not acceptance of current or historical proofs. No whole-read retry, native computation, counter-history erasure, spending/resource-limit increase or new compiler build is authorized here.",
+  "findings": [],
+  "execution": "Reviewer read files and sampled host df only; no Docker/SDK/native/container/VM action, no repository edits or artifact copies. This small external report is the sole write."
+}

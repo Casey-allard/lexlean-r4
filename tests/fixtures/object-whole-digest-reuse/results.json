@@ -1,0 +1,65 @@
+{
+  "schema": "lexlean-r4-whole-digest-reuse-results/v1",
+  "status": "PASS_LOCAL_PROJECTED_WHOLE_DIGEST_RESULT_ONLY",
+  "positive": {
+    "attestationId": "821ecde74dcb6ac3b9eb3dd9ffefc02bef5d05a81aa355c582b207e6cc0cd68f",
+    "checkExit": 0,
+    "verifyExit": 0,
+    "aggregateVerifyElapsedMs": 113189,
+    "inputs": 18,
+    "suppliedSources": 14,
+    "selectedAndVerifiedModules": 11,
+    "artifactFiles": 115,
+    "outputs": 55,
+    "oleans": 11,
+    "emptyAxiomDeclarations": 744,
+    "successfulProcesses": 34,
+    "kernelReplays": 11,
+    "postcaptureErrors": [],
+    "memoryEvents": "all zero"
+  },
+  "negative": {
+    "reviewSha256": "c3127bd99bd0b6dd580f8689d3872de193ffe0e1d6889d690fb2720bf07b9ade",
+    "portableReview": "evidence/negative-native-review.json",
+    "checkExit": 0,
+    "selectedAdmittedModules": 11,
+    "verifyExit": 1,
+    "diagnostic": "LLV7002",
+    "aggregateVerifyElapsedMs": 115437,
+    "scope": "Actual mandatory wrapper expected first digest byte202 rejected; correct byte201 positive separately verified.",
+    "artifacts": [],
+    "postcaptureErrors": []
+  },
+  "acceptanceCustody": {
+    "review": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/positive-native-review.json",
+        "bytes": 14213,
+        "sha256": "3591fd26419d7b484ceda45c3b37017c55c4f0041af85d8ba24266bad58c6771"
+      },
+      "destination": "evidence/positive/positive-native-review.json"
+    },
+    "independentCensus": {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-whole-digest-reuse/positive-artifact-census.json",
+        "bytes": 21509,
+        "sha256": "27103ad56627cf726c4db6f70b3f26074914ddaf2410c94bea31f10dc9d241cc"
+      },
+      "destination": "evidence/positive/independent-artifact-census.json.gz",
+      "compressedBytes": 6123,
+      "compressedSha256": "76030c010a28aceeac12eb56073f61d53ad96fd030e3fb9dbbca44340c6c7656",
+      "decodedBytes": 21509,
+      "decodedSha256": "27103ad56627cf726c4db6f70b3f26074914ddaf2410c94bea31f10dc9d241cc",
+      "method": "Lossless gzip of original UTF-8 JSON; exact roundtrip verified in memory."
+    }
+  },
+  "boundaries": {
+    "scope": "Actual projected96 ObjHashBytes fullResult accepted through genuine Direct09 source and production branches with exact append/projection conversion and empty axioms.",
+    "notEstablished": "Failed whole continuation, complete successful ObjWholeRead, ordinal26/Read33, ten drafts, fullObject/Hash/PrismPM/Pages remain open.",
+    "history": "Earlier preparation NOT_RUN and raw-custody pending records remain unchanged. Current outcomes are results.json and RESULTS.md.",
+    "resource": "Negative resource sample is post-run, not active or peak. No speedup/cache/causal-performance claim.",
+    "census": "Independent compressed census and prior author census preserve different JSON serialization identities. Neither file hash equals an array digest by implication.",
+    "evidence": "Full binary bundle local. Gzip attestation/census are inert textual evidence, not binaries or production locks."
+  },
+  "preparationCorrection": "Initial census expected-hash transcription included a65th character from adjacent byte count. Assertion failed before any writes; corrected to actual64-character hash, independently pinned original census unchanged."
+}

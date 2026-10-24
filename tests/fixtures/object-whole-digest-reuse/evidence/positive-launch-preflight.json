@@ -1,0 +1,7 @@
+{
+  "at": "2026-10-24T03:34:04.921Z",
+  "status": "PARENT_EXACT_INPUT_RECHECK_PASS",
+  "review": "c3127bd99bd0b6dd580f8689d3872de193ffe0e1d6889d690fb2720bf07b9ade",
+  "rawFiles": 45,
+  "priorPreparationFailure": "Parent first read-only helper assumed rawCensus.records from older report schema; actual report uses rawClosure.records/sha256. TypeError with set-e stopped before runner or phase creation. Inspected schema, corrected only read path, rehashed all45 actual records and closure. Not a compiler result."
+}
