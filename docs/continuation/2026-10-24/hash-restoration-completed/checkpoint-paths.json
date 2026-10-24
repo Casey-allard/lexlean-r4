@@ -1,0 +1,19 @@
+[
+  "docs/continuation/2026-10-24/hash-restoration-completed/RESULTS.md",
+  "docs/continuation/2026-10-24/hash-restoration-completed/archives/actual-command-text.json.gz",
+  "docs/continuation/2026-10-24/hash-restoration-completed/checkpoint-paths.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/custody.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/delivery-manifest.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-completed-roots-preaudit.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-final-restoration-review.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-assessment.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-spec-review.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/restoration-audit.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/runner-process.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stderr",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stdout",
+  "docs/continuation/2026-10-24/hash-restoration-completed/records/summary.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/results.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/root-origin-rows.json",
+  "docs/continuation/2026-10-24/hash-restoration-completed/source-bindings.json"
+]

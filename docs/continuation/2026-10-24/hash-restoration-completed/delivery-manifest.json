@@ -1,0 +1,182 @@
+{
+  "schema": "lexlean-r4-completed-restoration-delivery/v1",
+  "status": "PREPARED_PENDING_EXACT_DELIVERY_REVIEW",
+  "files": [
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/archives/actual-command-text.json.gz",
+      "bytes": 408505,
+      "sha256": "4bfc4d5053ee84dd1bbf71a1ed642282bca3b8d1879f2c35709757429a850ae1"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/summary.json",
+      "bytes": 43837,
+      "sha256": "ceb61fd572b6fc75f49d1542b41ff3b505fca59f5cd7d265b0267ef9a3a53aa6"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/restoration-audit.json",
+      "bytes": 41006,
+      "sha256": "6f960de8b165836e7ff3c57ecae34ff45876f86072e186688f15cdc0404b64a7"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner-process.json",
+      "bytes": 803,
+      "sha256": "203841484651feb15c74b6d86a1aee635004a0cd97a3dfc1e381a3b08833af16"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stdout",
+      "bytes": 6470,
+      "sha256": "9019b80783fb87539ea748a125655c70d186e3edfd5e1f5a8220d4fdaf665ba5"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-final-restoration-review.json",
+      "bytes": 17582,
+      "sha256": "c23e29a2dc2daed4cd700e9903d1ebf90f002090cab50aa8e81d347d46c60651"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-completed-roots-preaudit.json",
+      "bytes": 36858,
+      "sha256": "fa905803d1973df374601e5dc93d459da66ecf82b900b5d72f17792b56983b96"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-assessment.json",
+      "bytes": 22186,
+      "sha256": "a6c882d94dc1f11fd83b60493d3006804c8057929ada53e3930a2ca53ead5f80"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-spec-review.json",
+      "bytes": 6861,
+      "sha256": "88cd8574b49835c2f476487ae766f8f1f0bfa143754138353bdbccefaf22e1dd"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/root-origin-rows.json",
+      "bytes": 56690,
+      "sha256": "4fb4888e04d77592748e1970e97241e4fe6c116f32b834c79172f5fb02a6d63e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/source-bindings.json",
+      "bytes": 30911,
+      "sha256": "3119be6377003c421953b791a4a781f7b443903107b462909717c1695a1886b8"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/results.json",
+      "bytes": 3728,
+      "sha256": "220db4ffc3b7bb3b7247665cbc50cc4fb226f2f69c4d8e8fca3947e723801527"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/RESULTS.md",
+      "bytes": 3168,
+      "sha256": "5c52cd2390437ca1640360a8e921b8ee3611e2fe7e000d660acee9beec436aa3"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/custody.json",
+      "bytes": 35120,
+      "sha256": "da9088d62abddcd7590487459ebf1c539065be6b7c7de7677ce840f647364a2e"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/checkpoint-paths.json",
+      "bytes": 1543,
+      "sha256": "5b0cf032f161a417d8564e0437e29a4044d4953dde8d956e887173be36b7eea3"
+    }
+  ],
+  "archive": {
+    "path": "docs/continuation/2026-10-24/hash-restoration-completed/archives/actual-command-text.json.gz",
+    "bytes": 408505,
+    "sha256": "4bfc4d5053ee84dd1bbf71a1ed642282bca3b8d1879f2c35709757429a850ae1",
+    "decodedBytes": 4251506,
+    "decodedSha256": "c089dddd178cb905129048257e3fb8e4f15878192823c1f81f6c0a96ec567c16",
+    "members": 4601,
+    "uniqueTextContents": 1759,
+    "rawMemberBytes": 5476451,
+    "encoding": "JSON files rows bind exact absolute original paths, UTF8 bytes and SHA256; contents indexed bySHA256. Every original can be reconstructed losslessly. Gzip deterministic mtime0; no binary artifacts.",
+    "scope": "All files under current native evidence except verifiedbundle subtrees, plus all launch-immediate files. Includes62individualauditrows,78rootrestorationaudit,baseline/retainedaudits,allper-rootpre/postrawguards and finalguards."
+  },
+  "predecessorPins": [
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/custody.json",
+      "bytes": 43125,
+      "sha256": "d199e057886484f106bc32dfe0007c3ad47d7a16b1bc1aee3d59d40bbbb9d492"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/source-bindings.json",
+      "bytes": 181874,
+      "sha256": "8ce8efefde345942927fb93e521b6d6d85b0fc28c7041fa9f5bb22e97d099a87"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/results.json",
+      "bytes": 7254,
+      "sha256": "d8e1e1a334934c11ed3b811bebafee63fa99a019f8d258e9a1cff43750beac17"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/review-binding.json",
+      "bytes": 2949,
+      "sha256": "63842cc66cce0925fc6ce7b05698644238ba83adf55e63f4aefda5ca6974916b"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/hash-restoration-recovery/delivery-manifest.json",
+      "bytes": 8481,
+      "sha256": "ca6a5411ff76fe8304475b3f18ea92db8739d429d4e3080901a2f009cf29b5e2"
+    }
+  ],
+  "scope": "Completed actual restoration78/636 only; mutation2/7 and product integration remain incomplete. No binaries/SDK implementation/productionlock.",
+  "exactCopies": [
+    {
+      "original": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/summary.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/summary.json",
+      "bytes": 43837,
+      "sha256": "ceb61fd572b6fc75f49d1542b41ff3b505fca59f5cd7d265b0267ef9a3a53aa6"
+    },
+    {
+      "original": "/tmp/r4-hash-wire-restoration-live-epoch-20261024/evidence/restoration-audit.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/restoration-audit.json",
+      "bytes": 41006,
+      "sha256": "6f960de8b165836e7ff3c57ecae34ff45876f86072e186688f15cdc0404b64a7"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner-process.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner-process.json",
+      "bytes": 803,
+      "sha256": "203841484651feb15c74b6d86a1aee635004a0cd97a3dfc1e381a3b08833af16"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner.stdout",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stdout",
+      "bytes": 6470,
+      "sha256": "9019b80783fb87539ea748a125655c70d186e3edfd5e1f5a8220d4fdaf665ba5"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner.stderr",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/runner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-final-restoration-review.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-final-restoration-review.json",
+      "bytes": 17582,
+      "sha256": "c23e29a2dc2daed4cd700e9903d1ebf90f002090cab50aa8e81d347d46c60651"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-completed-roots-preaudit.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-completed-roots-preaudit.json",
+      "bytes": 36858,
+      "sha256": "fa905803d1973df374601e5dc93d459da66ecf82b900b5d72f17792b56983b96"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-assessment.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-assessment.json",
+      "bytes": 22186,
+      "sha256": "a6c882d94dc1f11fd83b60493d3006804c8057929ada53e3930a2ca53ead5f80"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-spec-review.json",
+      "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-spec-review.json",
+      "bytes": 6861,
+      "sha256": "88cd8574b49835c2f476487ae766f8f1f0bfa143754138353bdbccefaf22e1dd"
+    }
+  ]
+}

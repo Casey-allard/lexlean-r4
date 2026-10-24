@@ -1,0 +1,57 @@
+{
+  "schema": "lexlean-r4-seven-drafts-source-assessment-review/v1",
+  "at": "2026-10-24T09:34:44.705201+00:00",
+  "reviewer": "/root/construction_source_delivery_security",
+  "verdict": "PASS_SOURCE_PLANNING_WITH_EXPLICIT_INTEGRATION_PREREQUISITE",
+  "assessment": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/pending-model-scenario-completion-assessment.json",
+    "bytes": 22186,
+    "sha256": "a6c882d94dc1f11fd83b60493d3006804c8057929ada53e3930a2ca53ead5f80"
+  },
+  "base": "a45a8167883bbb88809b9808b274e3d55635e6de",
+  "scope": "Independent source planning review only. No authority to edit pinned sources before Read preservation dependency closes; no draft completion, native qualification or build promotion.",
+  "checks": {
+    "custody": "All7 current files and original7 snapshots rehashed equal assessment; all16 reference pins rehashed. Current Git HEAD a45a8167883bbb88809b9808b274e3d55635e6de. Committed model blob bytes separately compared to assessment base pins.",
+    "semanticModelDelta": "Independently parsed every simple JSON-compatible TOML assignment in array tables, preserving decoded values. IDs19->22 add only R4-15,R4-13,R4-19; authorities22->25 add BLAKE3-UNKEYED-VECTORS,UOR-CONTENT-OBJECTS,UOR-TARGET-FREE-WRITER; ledger22->25 adds corresponding3some-true claims. Every existing record and preamble unchanged. Snapshot ID and two authorities/two claims moved to end; no lost Snapshot behavior.",
+    "registration": "Actual build.rs requires19 existing entrypoints and lacks R4-13/15/19. Immediate conformance test-source suffix scan found none. Actual default LexLean88 roots omit Object,Blake3,Prediction component control roots; ObjectiveControls is unrelated. Generated CONFORMANCE lacks all3 IDs. BDD honesty source requires ID/scenario/test consistency, not arbitrary Gherkin prose acceptance.",
+    "object": "Actual4 control AST declaration counts311+20+33+39=403; representations semantic/2,semantic/2,core/1,semantic/1 respectively.331/403 are documented existing receipts, not freshly replayed by this reviewer. Read33,all39Construction,sixsemantic defects/restoration,Hash qualification and full integration remain. Objectdoc original397 passage is explicitly superseded by403 at its later repair section; no count repair invented. Argument-free semantic Apply aggregate proposal is historical and must be reconciled with actual reviewed mixed-representation source.",
+    "blake3": "Retained docs state255/272 and18/35published outputs;17known answers,nine semantic mutants,restoration and mandatory integration still pending. Nat125 primitives and HashWireSHA256/BLAKE2b do not establish full BLAKE3; rejected UInt20 is archival history,not accepted controls. Counts are source observations only.",
+    "prediction": "Docs retain31finite controls/seven semantic mutants and separate shared-selection boundary proof; explicitly open scoring success,target lookup,ranking nonemptiness/completeness/minimum,general safe loss and full supervised refinement. Full scenario and build statement cannot be promoted using partial lemmas.",
+    "authorityAndGeneration": "Imported some-true rows cite matching named authorities and retain limitations; upstream bytes were not downloaded/revalidated. AGENTS R1 and justfile require CONFORMANCE generated via just model-write. No editing generated claims independently and no bypass of immutable production SDK/template/full just vv."
+  },
+  "findings": [
+    {
+      "id": "INTEGRATION-NATIVE-RECEIPT",
+      "severity": "required prerequisite before implementation",
+      "source": "crates/conformance/tests/support/mod.rs:14-23,97-129",
+      "observation": "Existing shared verify_controls unconditionally extracts semanticdata and expects semantic declaration kind/axioms. validate_receipt_language only admits semantic-module/1 and semantic-module/2. It currently cannot consume the canonical Read33 core-module/1 source by merely wiring that root. The assessment recognizes mixed representation but does not spell out this concrete gate incompatibility.",
+      "requiredDisposition": "When native Read results are accepted, independently design/review the minimal source-bound native receipt adapter or narrow extension of the existing verifier. Preserve exact33/original403 goal mapping, declaration inclusion, empty observed axioms, complete module/replay/process/source/config/lock identities and production-evidence separation. Demonstrate fail-closed malformed/wrong-source/omitted-declaration cases. Do not relabel core source as semantic, route solely from receipt claims, weaken existing semantic checks, or introduce a generic harness."
+    }
+  ],
+  "minimumSequence": [
+    "Keep all7fullrequirements and original9drafts/snapshots/frozenReadpins unchanged now; no blanket staging.",
+    "Complete queuedRead33 actual negative/focusedpositive/full33 and independent artifacts; then required originalConstruction39 and Object semantic defects/restoration/Hash obligations.",
+    "Review narrow mixed-source receipt integration including the concrete shared-verifier incompatibility above; register mandatory Rust gate and complete exact officialroot mapping. Rust verifies receipts,not replacement Object behavior.",
+    "Integrate only deliberate model additions while preserving current-main unrelated row content/order; keep full scenario scope. Regenerate CONFORMANCE only through just model-write and run scoped model/BDD gates; full production just vv remains separate required acceptance under genuine binding.",
+    "Update Objectdoc with dated current status and exact source/results, retain historical397->403 correction and failures/pins. BLAKE3 and Prediction still require their own full obligations and proper gates before corresponding build promotion."
+  ],
+  "blockingProductObligations": [
+    "Read33 and Construction39 are not yet accepted.",
+    "Object semantic mutation/restoration and integration remain incomplete.",
+    "BLAKE3 remaining17vectors/ninemutants/restoration/full272integration unresolved.",
+    "Prediction general admitted-domain refinement/loss safety and mandatory integration unresolved.",
+    "Production binding/full just vv/Pages not established."
+  ],
+  "limitations": [
+    "No model/doc/source edits, model-write, tests, fixture materialization, compiler/SDK/VM/process operations or live job interactions.",
+    "Only source planning guidance; no new native authority or inference from historical counts to current artifact acceptance.",
+    "The assessment can be retained with this explicit prerequisite; implementation must not treat existing semantic-only receipt helper as already core-compatible."
+  ],
+  "storage": {
+    "initialFreeBytes": 21468381184,
+    "beforeReportFreeBytes": 22053257216,
+    "reserveBytes": 10737418240,
+    "copies": 0,
+    "reportCapBytes": 16384
+  }
+}

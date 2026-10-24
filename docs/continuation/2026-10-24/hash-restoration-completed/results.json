@@ -1,0 +1,75 @@
+{
+  "schema": "lexlean-r4-completed-restoration-checkpoint/v1",
+  "status": "PASS_RESTORATION_ONLY_INDEPENDENTLY_AUDITED",
+  "terminal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/launch-immediate/runner-process.json",
+    "bytes": 803,
+    "sha256": "203841484651feb15c74b6d86a1aee635004a0cd97a3dfc1e381a3b08833af16"
+  },
+  "independentReview": {
+    "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/hash-restoration-recovery/independent-final-restoration-review.json",
+    "path": "docs/continuation/2026-10-24/hash-restoration-completed/records/independent-final-restoration-review.json",
+    "bytes": 17582,
+    "sha256": "c23e29a2dc2daed4cd700e9903d1ebf90f002090cab50aa8e81d347d46c60651"
+  },
+  "roots": 78,
+  "controls": 636,
+  "retainedRoots": 16,
+  "freshRoots": 62,
+  "fourBaselineIdentitiesEqual": true,
+  "identities": {
+    "plan": "373a5dc4a4d8e8f6beab3b473595f09e662634d298678137c8561861a90b3e04",
+    "runner": "4b86a80418ed468c5cc191179655565e26be2c44c20e7f92f1c4fdcba37797b1",
+    "auditor": "5794e827a728075dd144d8cc12b47222b96376d0d993a3dbcbffa01a014055f1",
+    "guards": "5d34378d292257c69430117e5c77c93fef61f98c2288a2e7394cca5a944a528b",
+    "manifest": "58e35f035f419721ac5f3f72785107d06712659450202273bec305cc57428fa4",
+    "summary": "ceb61fd572b6fc75f49d1542b41ff3b505fca59f5cd7d265b0267ef9a3a53aa6",
+    "restorationAudit": "6f960de8b165836e7ff3c57ecae34ff45876f86072e186688f15cdc0404b64a7",
+    "baselineAudit": "d385e9ebc1f719c9b8e6a7d5e514d95802a7b12c840f870cd5023d7054cd4c1f",
+    "retainedAudit": "87d7d746faf17dbb09619944abdd42f10cfc54b82c9188afe044e5f699d3cfeb"
+  },
+  "counts": {
+    "roots": 78,
+    "controls": 636,
+    "retained": 16,
+    "fresh": 62,
+    "declarationAuditsAcross78": 41976,
+    "kernelReplaysAcross78": 468,
+    "outputFilesAcross78": 2340,
+    "bundleFilesAcross78": 5070,
+    "directNewFive": {
+      "roots": 5,
+      "declarations": 2655,
+      "replays": 30,
+      "processes": 95,
+      "outputs": 150,
+      "oleans": 30
+    },
+    "priorFreshDirect": {
+      "roots": 57,
+      "emptyAxiomDeclarations": 30825,
+      "kernelReplays": 342,
+      "successfulProcesses": 1083,
+      "outputFiles": 1710,
+      "outputBytes": 74341659,
+      "oleanFiles": 342
+    }
+  },
+  "memoryPolicy": "Unchanged stable OOM/oom_kill/optional oom_group_kill predicate. All six final counters were observed zero, but zero max is not an acceptance predicate upgrade.",
+  "freshness": "Only62remaining roots were reverified in this execution.16retained historical bundles were reaudited, not recompiled.41976declarationaudits/468replays/2340outputs/5070bundlefiles span the78audited bundles, not78freshreplays.",
+  "overallMutationStatus": "INCOMPLETE",
+  "acceptedMutations": 2,
+  "expectedMutations": 7,
+  "expectedWitnessOccurrences": 10,
+  "componentAccepted": false,
+  "objectAccepted": false,
+  "integrationAccepted": false,
+  "productionAccepted": false,
+  "objectControlsAccepted": 331,
+  "objectControlsTotal": 403,
+  "Read33": "All official new native phases NOT_RUN at this checkpoint; next native priority, requires freshgates.",
+  "Construction": "Second-prefix source/invocation preparation only; original39unaccepted.",
+  "nineDrafts": "Preserved and incomplete; supplemental seven-draft assessment is planning only.",
+  "priorFailureHistory": "docs/continuation/2026-10-24/hash-restoration-recovery/RESULTS.md",
+  "portability": "Actual raw process/guard/audit text and reviews are portable. Generated/compiled bundles remain external; portability does not imply replayable proof artifacts on another host. Preserve external unique artifacts or recover them exactly before any audit that requires them."
+}
