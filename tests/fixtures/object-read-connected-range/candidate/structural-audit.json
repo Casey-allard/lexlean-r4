@@ -1,0 +1,191 @@
+{
+  "schema": "lexlean-r4-connected-range-structural-audit/v1",
+  "status": "SOURCE_STRUCTURE_PASS_NATIVE_NOT_RUN",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-connected-range-proposal.json",
+    "bytes": 15044,
+    "sha256": "9e9ea32f6e5aabef6d854c2977b554fbadb40f4a5f7d424ae7a9e2b6fe17f6fa"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-23/next-connected-range-spec-review.json",
+    "bytes": 7779,
+    "sha256": "1a716232d6aea2d091a2ec37ad6d806463f8014665266863e8a879101be3f0ae"
+  },
+  "actualASTHashes": {
+    "originalControlStatement": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+    "pendingRootEquation": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+    "productionRootOccurrence": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+    "completeRangeLeft": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "realRangeFinishRight": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+    "proposedStatement": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613",
+    "singleHoleContext": "f4bdb92e12338f844d53a69e6bca4afb2b1c77c52b56ded0ecad6837ec8ec2d1"
+  },
+  "allElevenSpecASTPinsMatch": true,
+  "singleHoleCount": 1,
+  "reconstructedBodySha256": "07ac3372eeacc1e220a3bfe3fcdd3b6a90145569cc36402812e76128f99d8c42",
+  "qualifiedOriginalBodySha256": "07ac3372eeacc1e220a3bfe3fcdd3b6a90145569cc36402812e76128f99d8c42",
+  "contextSubstitutionRestoresProduction": true,
+  "negativeTheoremReferenceDiff": [
+    {
+      "path": [
+        "declarations",
+        "1",
+        "proof",
+        "branches",
+        "0",
+        "proof",
+        "theorem",
+        "module"
+      ],
+      "positive": "ObjectReadRootTraversal",
+      "negative": null
+    },
+    {
+      "path": [
+        "declarations",
+        "1",
+        "proof",
+        "branches",
+        "0",
+        "proof",
+        "theorem",
+        "name"
+      ],
+      "positive": "objOriginalRootTraversal",
+      "negative": "objConnectedRangeUnrelatedZero"
+    }
+  ],
+  "negativeChangesOnlyZeroApplyTarget": true,
+  "unrelatedZeroDeclarationIdentical": true,
+  "mandatoryConsumerIdentical": true,
+  "consumerProof": {
+    "arguments": [
+      {
+        "kind": "nat",
+        "value": "1"
+      }
+    ],
+    "kind": "apply",
+    "theorem": {
+      "module": "ObjectReadConnectedRangeTransport",
+      "name": "objConnectedRangeLifted"
+    },
+    "type_arguments": []
+  },
+  "threeLogicalModulesFourSourceVariants": true,
+  "emptyAxioms": true,
+  "canonicalJSONByteValidated": true,
+  "sharedInputs": 29,
+  "totalInputs": 33,
+  "expectedSourceModules": 29,
+  "productionChanges": [],
+  "configOnlyEntrypoint": true,
+  "proofPrecedents": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    }
+  ],
+  "preserved": {
+    "tenDrafts": [
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+        "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      },
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      }
+    ],
+    "sixMergedSources": [
+      {
+        "path": "src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "src/R4/ObjectStore.lex.tex",
+        "bytes": 66645,
+        "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+      },
+      {
+        "path": "src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "src/R4/Object.lex.tex",
+        "bytes": 14317,
+        "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+      },
+      {
+        "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+        "bytes": 120318,
+        "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+      }
+    ],
+    "canonicalFull33": {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c"
+    }
+  },
+  "storage": {
+    "hostAvailableBytes": "32765308928",
+    "aggregateAllocationLimitBytes": 1048576,
+    "reserveBytes": "10737418240"
+  },
+  "native": "NOT_RUN; no conversion or semantic negative accepted."
+}

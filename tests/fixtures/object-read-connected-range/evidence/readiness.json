@@ -1,0 +1,34 @@
+{
+  "schema": "lexlean-r4-connected-range-readiness/v1",
+  "status": "FROZEN_SOURCE_ONLY_READY_FOR_INDEPENDENT_CODE_REVIEW",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/manifest.json",
+    "bytes": 2848,
+    "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+  },
+  "invocationManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invocation-manifest.json",
+    "bytes": 1477,
+    "sha256": "c07b4dc0148b0072fd2ffd5d18d07da402c4644e391e493897d54d11eda2bcd2"
+  },
+  "runner": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invoke-connected-range.mjs",
+    "bytes": 7707,
+    "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+  },
+  "parseOnly": {
+    "command": "node --check /Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invoke-connected-range.mjs",
+    "exitCode": 0,
+    "nativeInvocation": false
+  },
+  "inputCounts": [
+    33,
+    33
+  ],
+  "sourceModules": 29,
+  "allInputPinsAndImportClosureRechecked": true,
+  "negative": "Only zero-branch Apply target differs. Full consumer selected; intended negative can stop at transport before consumer. Neither admission nor timeout is intended semantic rejection.",
+  "nativeTests": "NOT_RUN",
+  "preparationFailures": [],
+  "noRuntimeOrDraftChanges": true
+}

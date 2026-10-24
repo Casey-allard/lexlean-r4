@@ -1,0 +1,168 @@
+{
+  "schema": "lexlean-r4-connected-range-source-preservation/v1",
+  "status": "SOURCE_ONLY_NATIVE_NOT_RUN",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/README.md",
+        "bytes": 546,
+        "sha256": "eebe9c64f090f3d0a2eaeaa9b9e31aabdf009d81c63c7d93422b38bcd02401e5"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/README.md",
+        "bytes": 546,
+        "sha256": "eebe9c64f090f3d0a2eaeaa9b9e31aabdf009d81c63c7d93422b38bcd02401e5"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/candidate.json",
+        "bytes": 26021,
+        "sha256": "763961a99f033ba4063cfa7c5998d7b802736c0e382823087e9733904e02b4ac"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/candidate.json",
+        "bytes": 26021,
+        "sha256": "763961a99f033ba4063cfa7c5998d7b802736c0e382823087e9733904e02b4ac"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "bytes": 40403,
+        "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "bytes": 40403,
+        "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+        "bytes": 128694,
+        "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+        "bytes": 128694,
+        "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invocation-diff.json",
+        "bytes": 2404,
+        "sha256": "3c5dd2d07d691e3d989dc16438ec432313bd9adccafdb21e9010c4ea075f2f4b"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/evidence/invocation-diff.json",
+        "bytes": 2404,
+        "sha256": "3c5dd2d07d691e3d989dc16438ec432313bd9adccafdb21e9010c4ea075f2f4b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invocation-manifest.json",
+        "bytes": 1477,
+        "sha256": "c07b4dc0148b0072fd2ffd5d18d07da402c4644e391e493897d54d11eda2bcd2"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/evidence/invocation-manifest.json",
+        "bytes": 1477,
+        "sha256": "c07b4dc0148b0072fd2ffd5d18d07da402c4644e391e493897d54d11eda2bcd2"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/invoke-connected-range.mjs",
+        "bytes": 7707,
+        "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/evidence/invoke-connected-range.mjs",
+        "bytes": 7707,
+        "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/lexlean.toml",
+        "bytes": 688,
+        "sha256": "6625d737a9049c10b69e96268217e9d3364cf31d21c857c28ecbfa49294019e0"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/lexlean.toml",
+        "bytes": 688,
+        "sha256": "6625d737a9049c10b69e96268217e9d3364cf31d21c857c28ecbfa49294019e0"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/manifest.json",
+        "bytes": 2848,
+        "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/manifest.json",
+        "bytes": 2848,
+        "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/negative/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+        "bytes": 1318,
+        "sha256": "e09b21788c6cb755d4bd04893bd0526beb6adae675e9b181a694ac5dcc62bab7"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/negative/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+        "bytes": 1318,
+        "sha256": "e09b21788c6cb755d4bd04893bd0526beb6adae675e9b181a694ac5dcc62bab7"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+        "bytes": 1347,
+        "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+        "bytes": 1347,
+        "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/readiness.json",
+        "bytes": 1540,
+        "sha256": "990aee42843a064fb5637d2bd896969a970168e393d9ecabbcc74bbc5c3aa37b"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/evidence/readiness.json",
+        "bytes": 1540,
+        "sha256": "990aee42843a064fb5637d2bd896969a970168e393d9ecabbcc74bbc5c3aa37b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/structural-audit.json",
+        "bytes": 7163,
+        "sha256": "cab7ccaac6d0a741b19e614a1d73bea96410ab639952ee434ea74c41fe785c56"
+      },
+      "destination": {
+        "path": "tests/fixtures/object-read-connected-range/candidate/structural-audit.json",
+        "bytes": 7163,
+        "sha256": "cab7ccaac6d0a741b19e614a1d73bea96410ab639952ee434ea74c41fe785c56"
+      }
+    }
+  ],
+  "sourceBindings": {
+    "path": "tests/fixtures/object-read-connected-range/source-bindings.json",
+    "bytes": 29730,
+    "sha256": "48f629b74d2cd64368c99f73ee1d87de0ca4c65b829dca81ab860fb78e35d527"
+  },
+  "boundary": "Exact source and invocation preservation only; no generated locks or native acceptance."
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "lexlean-r4-conditional-next-plan-preservation/v1",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/next-range-finish-investigation.json",
+        "bytes": 11217,
+        "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+      },
+      "destination": {
+        "path": "docs/continuation/2026-10-23/next-manifest-version-proposal.json",
+        "bytes": 11217,
+        "sha256": "1ad38c13dc2454fe34dcad8ec9c882aa01fc9988f9f71de758adb5bd83c944a0"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/next-range-finish-spec-review.json",
+        "bytes": 5722,
+        "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+      },
+      "destination": {
+        "path": "docs/continuation/2026-10-23/next-manifest-version-spec-review.json",
+        "bytes": 5722,
+        "sha256": "420cdd05f171b2e082f57171522dcc53e8c9ee86d47e177f4f21b0195c86cfe1"
+      }
+    }
+  ],
+  "boundary": "Byte-exact original conditional records. No current acceptance is inferred from historical null bindings; additive prerequisite record is separate."
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4-connected-range-invocation-supplement/v1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/manifest.json",
+    "bytes": 2848,
+    "sha256": "e8cadab5107df3c9dd5f511bb64923f8d5ae4e99ea38c0c84542304a2679ef1e"
+  },
+  "files": [
+    {
+      "path": "invoke-connected-range.mjs",
+      "bytes": 7707,
+      "sha256": "a93ea9a918c0e5d4941460ac944bfa670690feb429dd9ebd39357f8c94987bd6"
+    },
+    {
+      "path": "invocation-diff.json",
+      "bytes": 2404,
+      "sha256": "3c5dd2d07d691e3d989dc16438ec432313bd9adccafdb21e9010c4ea075f2f4b"
+    }
+  ],
+  "phaseSelectors": [
+    "range-false",
+    "range-positive"
+  ],
+  "commands": [
+    "node invoke-connected-range.mjs range-false",
+    "Only after intended-negative review and fresh parent admission: node invoke-connected-range.mjs range-positive"
+  ],
+  "mandatoryVerifyRoot": "tests/lexlean/ObjectReadConnectedRange.lex.tex",
+  "inputCounts": [
+    33,
+    33
+  ],
+  "expectedSourceModules": 29,
+  "stagePattern": "/tmp/r4-object-read-connected-range-${phase}-owned-20261023",
+  "preserved": "All prior operational guards/postcapture and300000ms/4GiB/2CPU unchanged outside eight exact literal substitutions.",
+  "boundary": "Negative may stop at wrong-base dependency before consumer elaboration; actual positive consumer is mandatory. No invocation executed."
+}

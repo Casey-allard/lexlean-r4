@@ -1,0 +1,290 @@
+{
+  "schema": "lexlean-r4-connected-range-negative-raw-custody/v1",
+  "status": "CLOSED_RAW_NEGATIVE_INDEPENDENT_REVIEW_PENDING",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/check.json",
+        "bytes": 1524,
+        "sha256": "76a0644012c67aeaea53811f180db1f757977d1d877b839bc05cf62bde22c3ca"
+      },
+      "destination": {
+        "path": "evidence/negative/check.json",
+        "bytes": 1524,
+        "sha256": "76a0644012c67aeaea53811f180db1f757977d1d877b839bc05cf62bde22c3ca"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/epoch-after.json",
+        "bytes": 470,
+        "sha256": "6e848631928259c17b7d9a683f9740df6b4a20102f299b9c82ffaf6150ca701c"
+      },
+      "destination": {
+        "path": "evidence/negative/epoch-after.json",
+        "bytes": 470,
+        "sha256": "6e848631928259c17b7d9a683f9740df6b4a20102f299b9c82ffaf6150ca701c"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/epoch-before.json",
+        "bytes": 470,
+        "sha256": "c21ff80eecd2a92bd55ac6c880c7b0bfd3d2abfb426564b8fdc1dd7bc76bb1d0"
+      },
+      "destination": {
+        "path": "evidence/negative/epoch-before.json",
+        "bytes": 470,
+        "sha256": "c21ff80eecd2a92bd55ac6c880c7b0bfd3d2abfb426564b8fdc1dd7bc76bb1d0"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/expected-inputs.json",
+        "bytes": 12244,
+        "sha256": "86e13059948324558de79f1754e3327eaf7e41a837f9611c11ea3e91f26c74fd"
+      },
+      "destination": {
+        "path": "evidence/negative/expected-inputs.json",
+        "bytes": 12244,
+        "sha256": "86e13059948324558de79f1754e3327eaf7e41a837f9611c11ea3e91f26c74fd"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/guest-after.json",
+        "bytes": 406,
+        "sha256": "b0d409c5e800b5b4d4e2307514c2b6492fab757c4646942ad257a3264b7c51d7"
+      },
+      "destination": {
+        "path": "evidence/negative/guest-after.json",
+        "bytes": 406,
+        "sha256": "b0d409c5e800b5b4d4e2307514c2b6492fab757c4646942ad257a3264b7c51d7"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/guest-before.json",
+        "bytes": 406,
+        "sha256": "05d06d619cc1d5cb4439f69cc161a8fcb6cd2df0b792815cc4407395202c3d20"
+      },
+      "destination": {
+        "path": "evidence/negative/guest-before.json",
+        "bytes": 406,
+        "sha256": "05d06d619cc1d5cb4439f69cc161a8fcb6cd2df0b792815cc4407395202c3d20"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/host-after.json",
+        "bytes": 142,
+        "sha256": "18cccbd015b559b816c7c7648f1866aee05891dbc4ee39ae01b15c0751928ba8"
+      },
+      "destination": {
+        "path": "evidence/negative/host-after.json",
+        "bytes": 142,
+        "sha256": "18cccbd015b559b816c7c7648f1866aee05891dbc4ee39ae01b15c0751928ba8"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/host-before.json",
+        "bytes": 152,
+        "sha256": "d978c3417831a973ee5e72f18555ee336e44b001328d500310da84516f16cbaf"
+      },
+      "destination": {
+        "path": "evidence/negative/host-before.json",
+        "bytes": 152,
+        "sha256": "d978c3417831a973ee5e72f18555ee336e44b001328d500310da84516f16cbaf"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/idle-after.json",
+        "bytes": 460,
+        "sha256": "8a07e7fa124beed9447176e5a0e8b4197392f9f597d708d3e14e00cd59597ba1"
+      },
+      "destination": {
+        "path": "evidence/negative/idle-after.json",
+        "bytes": 460,
+        "sha256": "8a07e7fa124beed9447176e5a0e8b4197392f9f597d708d3e14e00cd59597ba1"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/idle-before.json",
+        "bytes": 460,
+        "sha256": "2d1b3889adcf8cbdf87b5578b2b185cbf50e293a0b97aa6f9691106ab13e499b"
+      },
+      "destination": {
+        "path": "evidence/negative/idle-before.json",
+        "bytes": 460,
+        "sha256": "2d1b3889adcf8cbdf87b5578b2b185cbf50e293a0b97aa6f9691106ab13e499b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/lock-after.json",
+        "bytes": 491,
+        "sha256": "71d003356a7eb18a50da0d279bf15f89eace3269a035576397ad47daebe7fefd"
+      },
+      "destination": {
+        "path": "evidence/negative/lock-after.json",
+        "bytes": 491,
+        "sha256": "71d003356a7eb18a50da0d279bf15f89eace3269a035576397ad47daebe7fefd"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/lock-bytes.json",
+        "bytes": 2056,
+        "sha256": "ec5a5c1411769a24ca3bbec294e41f16bcdfb649ecbf4e075e69a58d67e0f69b"
+      },
+      "destination": {
+        "path": "evidence/negative/lock-bytes.json",
+        "bytes": 2056,
+        "sha256": "ec5a5c1411769a24ca3bbec294e41f16bcdfb649ecbf4e075e69a58d67e0f69b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/lock.json",
+        "bytes": 540,
+        "sha256": "9265b0b830c7593183707c53a1d7349fcfe478ff351dbf8b32aba4cff5781bdb"
+      },
+      "destination": {
+        "path": "evidence/negative/lock.json",
+        "bytes": 540,
+        "sha256": "9265b0b830c7593183707c53a1d7349fcfe478ff351dbf8b32aba4cff5781bdb"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/memory-after.json",
+        "bytes": 354,
+        "sha256": "555ce1fca5ac2b45f9c065e1b1153ab6117c7893e9a127c9392b9b338aeeea34"
+      },
+      "destination": {
+        "path": "evidence/negative/memory-after.json",
+        "bytes": 354,
+        "sha256": "555ce1fca5ac2b45f9c065e1b1153ab6117c7893e9a127c9392b9b338aeeea34"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/memory-before.json",
+        "bytes": 354,
+        "sha256": "6bbcc70d3ab5bfc9983d57acdd149efdb8d2b8cd691bde6f22f679bf27eacfad"
+      },
+      "destination": {
+        "path": "evidence/negative/memory-before.json",
+        "bytes": 354,
+        "sha256": "6bbcc70d3ab5bfc9983d57acdd149efdb8d2b8cd691bde6f22f679bf27eacfad"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "destination": {
+        "path": "evidence/negative/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/source-after.json",
+        "bytes": 9461,
+        "sha256": "6f43d00c15669d2ba508dde26c1f9a6bd59254f4db77c6d7dc5c0edfa0b10b0b"
+      },
+      "destination": {
+        "path": "evidence/negative/source-after.json",
+        "bytes": 9461,
+        "sha256": "6f43d00c15669d2ba508dde26c1f9a6bd59254f4db77c6d7dc5c0edfa0b10b0b"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/source-before.json",
+        "bytes": 9461,
+        "sha256": "bcaa163e111e6aa7dcfe2a9a06d74e22c0971c27ede85d97a8d2f500acd67c81"
+      },
+      "destination": {
+        "path": "evidence/negative/source-before.json",
+        "bytes": 9461,
+        "sha256": "bcaa163e111e6aa7dcfe2a9a06d74e22c0971c27ede85d97a8d2f500acd67c81"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/tools-after.json",
+        "bytes": 1005,
+        "sha256": "d2c65a0d2d12e2b6f4d80c6a8cb66cd524da85fc180e276f93473a44422de79d"
+      },
+      "destination": {
+        "path": "evidence/negative/tools-after.json",
+        "bytes": 1005,
+        "sha256": "d2c65a0d2d12e2b6f4d80c6a8cb66cd524da85fc180e276f93473a44422de79d"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/tools-before.json",
+        "bytes": 1005,
+        "sha256": "1f4b17a8f257c22ba55de5e9317520ad11b4a130cdeb91bc7c0ce1d32c8ed0bc"
+      },
+      "destination": {
+        "path": "evidence/negative/tools-before.json",
+        "bytes": 1005,
+        "sha256": "1f4b17a8f257c22ba55de5e9317520ad11b4a130cdeb91bc7c0ce1d32c8ed0bc"
+      }
+    },
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false/verify.json",
+        "bytes": 1278,
+        "sha256": "d3cce67a33cadfa6bb38b75e71f97f04c6beac4773c84b72e75d63047ef32e38"
+      },
+      "destination": {
+        "path": "evidence/negative/verify.json",
+        "bytes": 1278,
+        "sha256": "d3cce67a33cadfa6bb38b75e71f97f04c6beac4773c84b72e75d63047ef32e38"
+      }
+    }
+  ],
+  "derivedLock": {
+    "path": "evidence/negative/lexlean.lock",
+    "bytes": 1597,
+    "sha256": "7fd236115fa5fcae480fb901274fa526d3ee60f8d4e53f59bddca733cc52036f",
+    "derivation": "Exact completed official lock-bytes stdout"
+  },
+  "observed": {
+    "sourcecheckModules": 29,
+    "verifyExit": 1,
+    "diagnostic": "LLV7002 wrong unrelated0=0 base in transport dependency",
+    "aggregateVerifyElapsedMs": 403160,
+    "consumerSelectedButDependencyRejectsFirst": true,
+    "positive": "NOT_RUN",
+    "postcaptureErrors": []
+  },
+  "omissions": {
+    "reason": "Bounded selected raw preservation; all omitted original receipts remain intact locally.",
+    "localPhase": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-connected-range/range-false",
+    "names": [
+      "allocated-before.json",
+      "directories.json",
+      "new-stage.json",
+      "swap-before.json",
+      "result.json"
+    ],
+    "perInputCopyReceipts": "All remain local; exact33-input map plus before/after source receipts are copied."
+  },
+  "boundary": "This is raw custody only, not independent intended-negative acceptance. No reviewer report copied while pending. No positive result exists in this record.",
+  "storage": {
+    "hostAvailableBytes": "34453663744",
+    "additionalAllocatedByteCap": 131072
+  }
+}
