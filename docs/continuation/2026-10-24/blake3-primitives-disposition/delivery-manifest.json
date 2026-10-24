@@ -1,0 +1,119 @@
+{
+  "schema": "lexlean-r4-exact-delivery/1",
+  "base": "19aa7ce7ff62a0ec984aeca06258509ecdf53280",
+  "scope": "Documentation and exact historical evidence only; no active source movement or acceptance promotion",
+  "files": [
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/README.md",
+      "bytes": 1273,
+      "sha256": "23d40f05c458ae2b115a64269d45d8a4b9e28316c44faef705f4f8acc3710955"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/decision.json",
+      "bytes": 16008,
+      "sha256": "898bd2c7cb1117c4867824501b830b8c83c4d4a97dca8d9334998e03ca95185f"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/investigation.json",
+      "bytes": 17214,
+      "sha256": "06274fa8e0da474bcc433ebb553ed277ba3f1f02b7b6fa1a4551bfa681cea536"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/01-primitive-red.json",
+      "bytes": 463,
+      "sha256": "9e1cbbd038a22a99e1303924693e0a9ce526497d6f81dc39ca5e414ce907f60c"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/02-primitive-all-result.json",
+      "bytes": 2598,
+      "sha256": "91044026ca145a24b8eddfead26c01b3414d2a08661ba3e0ccd68ca1c3bc25a4"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/03-primitive-words-result.json",
+      "bytes": 488,
+      "sha256": "5f2d6db03ae8111827d015915c074dd6d097ad54309a6156015d96c81ab41f39"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/04-Fixed_checked32Sum-result.json",
+      "bytes": 489,
+      "sha256": "4e8e28a330292270348fde3ae627ea51af49b5765b186080ead3a59d5ae81d50"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/05-Fixed_shift32Invalid-result.json",
+      "bytes": 491,
+      "sha256": "b79c0f88a0b17aea59b16fa1bceda64c9d5553c7bb1a608664374fa83677223d"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/06-r4-blake3-nat-verify.json",
+      "bytes": 569,
+      "sha256": "b6533b6a5e71f26b70e1592990c91491d41c9d85d7f9d0c7cc4feff3f8dfbc77"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/receipts/07-independent-review.json",
+      "bytes": 979,
+      "sha256": "10768152be03d267ef961c85ee418c148713ce8155494f64786863591f0c3cdb"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/blake3-primitives-disposition/spec-review.json",
+      "bytes": 18186,
+      "sha256": "eb1ec264d10259b07ff2d41ded9dc9064630612a2da7f8e2a7af116da280d126"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 73027,
+      "sha256": "266fdf28ca7cc32fcc2ef7af7900529ed1607c5918f02cb2aeb75a99f95b106c"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 56582,
+      "sha256": "2166b8ccb5bd6db8c20f8d6dc33cbef74faf42c04080a306577cb4b3cb563117"
+    }
+  ],
+  "preservedDrafts": [
+    {
+      "path": "model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    }
+  ]
+}
