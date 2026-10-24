@@ -1,0 +1,18 @@
+{
+  "status": "DEPENDENCY_TIMEOUT_INTENDED_NEGATIVE_NOT_REACHED",
+  "sourceAdmissionModules": 34,
+  "inputCount": 51,
+  "officialVerifyStatus": 4,
+  "diagnostic": "LLS8002",
+  "dependency": "ObjectReadParent49ConcreteChildEntry",
+  "childConfiguredMs": 300000,
+  "childObservedMs": 300016,
+  "wholeVerifyMs": 1036542,
+  "positive": "NOT_RUN",
+  "artifacts": [],
+  "memoryEventsAllZero": true,
+  "postcaptureErrors": [],
+  "failureReviewSha256": "5b5a74645efac9a66f04058600775c97b70459f758d2a35563e8b5376cf80490",
+  "acceptedObjectControls": 331,
+  "totalObjectControls": 403
+}

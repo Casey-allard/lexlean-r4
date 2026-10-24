@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-24T12:35:57.060Z",
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "find",
+    "/tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean",
+    "-type",
+    "f",
+    "(",
+    "-name",
+    "*.olean",
+    "-o",
+    "-name",
+    "*process*",
+    ")",
+    "-print"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "",
+  "scope": "Read-only search confined to the failed fresh stage .lexlean tree; no replay or cache changes. No output means no matching retained file in this tree at observation, not global absence."
+}

@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-24T12:13:11.908Z",
+  "hostAvailableBytes": "24095739904",
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sh",
+    "-c",
+    "ps -eo pid,etime,rss,comm,args; cat /sys/fs/cgroup/memory.events; cat /sys/fs/cgroup/memory.current"
+  ],
+  "status": 0,
+  "stdout": "    PID     ELAPSED   RSS COMMAND         COMMAND\n      1    01:22:53  1576 sh              /bin/sh -c sleep infinity\n      7    01:22:53  1620 sleep           sleep infinity\n    827       01:45 229888 lexlean        lexlean --diagnostic-format json verify tests/lexlean/ObjectAdmittedRangeResult.lex.tex\n    949       01:07 106436 lake           /usr/local/elan/toolchains/leanprover--lean4---v4.32.1/bin/lake env lean -R /tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/verified/.staging-36hplc/lean-src -o /tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/verified/.staging-36hplc/oleans/LexLeanR4/ObjectManifestVersion.olean /tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/verified/.staging-36hplc/lean-src/LexLeanR4/ObjectManifestVersion.lean\n    954       01:07 924260 lean           lean -R /tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/verified/.staging-36hplc/lean-src -o /tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/verified/.staging-36hplc/oleans/LexLeanR4/ObjectManifestVersion.olean /tmp/r4-object-read-admitted-trans-negative-owned-20261024/.lexlean/verified/.staging-36hplc/lean-src/LexLeanR4/ObjectManifestVersion.lean\n    960       00:00  1576 sh              sh -c ps -eo pid,etime,rss,comm,args; cat /sys/fs/cgroup/memory.events; cat /sys/fs/cgroup/memory.current\n    967       00:00  3648 ps              ps -eo pid,etime,rss,comm,args\nlow 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n1293504512\n",
+  "stderr": "",
+  "note": "Discrete read-only sample, not peak or completed outcome"
+}

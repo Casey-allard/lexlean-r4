@@ -1,0 +1,155 @@
+{
+  "schema": "lexlean-r4/child-entry-phase1-independent-spec-review/1",
+  "createdAt": "2026-10-24T12:40:02.253309+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "verdict": "PASS_PHASE1_EVIDENCE_AND_BOUNDED_SOURCE_INVESTIGATION_ONLY_REMEDY_NOT_APPROVED",
+  "investigation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-investigation.json",
+    "bytes": 24340,
+    "sha256": "d55483bc069814e98873e438dd3d7c43c4c42e0121d48518caf67b066b8fe91c"
+  },
+  "disposition": {
+    "facts": "Validated with the precise custody and timing boundaries below.",
+    "proposedRepair": "NOT_SPEC_COMPLETE_NOT_IMPLEMENTATION_OR_EXECUTION_AUTHORITY",
+    "smallestNextTask": "One bounded source-only end-to-end route specification: author exact error-preserving K with capture-safe state substitution; establish both conversion endpoints; provide either actually supported semantic composition preserving all consumers, or the complete minimal native representation cut through affected consumers to an existing native boundary. Stop and return concrete unsupported/conversion findings if the route cannot be specified. Do not launch or expand isolated helpers first."
+  },
+  "evidenceChecks": {
+    "allInvestigationPinsRehashed": 22,
+    "currentInputFilesRehashed": 51,
+    "prior19SourceInputsMatchCurrentActualBuildManifest": true,
+    "all19PriorActualEmittedFilesRehashedAgainstCurrentManifest": true,
+    "twoRecoveredActualCurrentEmissionsByteEqualPrior": true,
+    "actualRecoveryCatReceiptStatusZeroAndStdoutEqualsFiles": true,
+    "actualRecoveredBuildManifestReceiptStatusZeroAndStdoutEqualsFile": true,
+    "currentBuildSourceAndSemanticIdsMatchActualCheck": true,
+    "priorAttestationRootDeclarationAndSuccessfulLeanProcessFound": true,
+    "priorWholeVerifyStatusZeroDurationMs": 136745,
+    "priorRootChildTiming": "UNKNOWN; process record has no elapsed field",
+    "currentChildDeadlineMs": 300000,
+    "currentObservedChildTimeoutMs": 300016,
+    "currentWholeVerifyMs": 1036542,
+    "configurationDelta": "Only default entrypoint differs; current CLI overrides it. Independently compared parsed TOML after substituting entrypoints. All limits/toolchain preserved.",
+    "tools": "Current four tool hashes match accepted tool identities; prior artifact toolchain contains identical Lean/Lake/checker hashes and retained source/tool review binds compiler."
+  },
+  "custodyLimits": [
+    "All19 current emission identities are present in recovered build manifest; only two current .lean files were directly recaptured and compared byte-for-byte. This is not a direct recapture of all19 current files.",
+    "Source/emission/tool/limit equality is not equality of whole build/source/lock identities or current compiled dependency bytes, process environment, scheduling or paging.",
+    "Prior136745ms is whole19-module verification; current300016ms is the reported failing child observation. They are not comparable exact per-child timings and do not establish an environment or selected-project-size cause."
+  ],
+  "followupCompiledSearch": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/failed-stage-compiled-search.json",
+    "bytes": 595,
+    "sha256": "e5e46a93f8f30f6f7d5d3d5d37cb1cebbc685ca1b13c68e41504a51ba2f34bf9",
+    "observation": "Actual retained find receipt exit0 with empty stdout/stderr, confined to failed stage .lexlean tree at2026-10-24T12:35:57.060Z. No matching .olean or *process* file remained there at that observation. No global absence or regenerated missing comparison claimed.",
+    "effect": "The preferred retained compiled-identity discriminator is unavailable within that observed tree. This does not justify retry, limit increase or a presumed source fix."
+  },
+  "sourceAnalysis": {
+    "originalGoal": "A=C unchanged. ChildEntry semantic proof is Apply of actual VisitTransition A=B. Independently parsed both statements; left sides exactly equal; right sides differ.",
+    "existingAccounting": "Actual accounting theorem has proof reflexivity and establishes M=Result.ok S49. M matches ObjMarkVisit followed by ObjAccountRecord(counted, originalParentRecord). Limits belong to ObjMarkVisit; actual ObjAccountRecord call has two arguments, not an additional limits argument.",
+    "uniqueStatePath": "C /branches/1/body/scrutinee/arguments/3 is the first ObjVisitNode state and is exactly the payload of accounting Result.ok S49. Three ordered child visits, original offsets/error branches and all other arguments must remain unchanged.",
+    "KSCSourceShape": "An in-memory fresh-variable replacement at precisely that unique path and capture-safe substitution back with S49 reproduces C exactly. This supports a small K design; no K source file, typechecking, definitional-conversion proof or compiler execution was produced.",
+    "BKMUnresolved": "B is ObjParent49VisitContext(ok originalParentRecord), which still contains leading span/checked-offset/Boolean guards, fetched-result match, marking/accounting and subsequent span/child processing. Equality to K(M) requires explicit guard normalization and match/continuation conversion evidence. It does not follow from the unique state occurrence or hAccounting alone. Cost may simply move into this conversion.",
+    "conditionalMath": "If B is definitionally K(M) and K(S) is definitionally C, congrArg K hAccounting proves B=C and Eq.trans hTransition yields A=C. Without those endpoints the proposed proof is not established."
+  },
+  "officialSupport": {
+    "native": {
+      "source": "Retained installed Prelude.lean.stdout",
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+      "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9",
+      "lines": "397 Eq.trans;424 congrArg",
+      "assessment": "Actual standard signatures support nondependent equality composition and congruence at explicitly correct universes/types. They do not discharge the endpoint conversions."
+    },
+    "interop": {
+      "archive": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/additional-official-source.json.gz",
+      "entry": "crates/lexlean/src/link.rs",
+      "entrySha256": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd",
+      "lines": "679-698",
+      "assessment": "Independently inspected installed revision source: imported_semantic is built only from module.document.semantic and supplied to SemanticModule::parse. An ordinary native ChildEntry does not supply semantic theorem metadata to a downstream semantic Apply."
+    },
+    "semanticGrammarBoundary": "No new semantic transitivity/rewrite constructor is approved here. Standard Prelude proof constants or ordinary backend Proof::Have/Rewrite support cannot be treated as semantic-module/2 JSON constructor support. A semantic-compatible route must cite the actual semantic parser/emitter and demonstrate its complete construction; this review does not claim all possible semantic composition impossible."
+  },
+  "downstreamBoundary": {
+    "directConsumer": "ObjectReadFirstChildContinuation is semantic-module/2, imports ChildEntry and directly Applies objParent49ConcreteChildEntry. One-file native replacement with that consumer unchanged is unsupported.",
+    "transitiveDependentsInCurrent51": [
+      "ObjectReadFirstChildContinuation",
+      "ObjectReadSecondChildContinuation",
+      "ObjectReadRootTraversal",
+      "ObjectReadCompleteParent",
+      "ObjectReadConnectedRangeTransport",
+      "ObjectReadConnectedRange",
+      "ObjectAdmittedRangeResult",
+      "ObjectWholeInnerContinuation",
+      "ObjectWholeComposedResult",
+      "ObjectReadControls"
+    ],
+    "assessment": "Independently traversed actual envelope imports. This is an affected-graph census, not an approved conversion list. Any native route must enumerate every retained semantic-to-native edge and include all required representation changes/removal of truly unused imports, preserving exact original statements. Do not stop at first helper or silently migrate the entire graph."
+  },
+  "requiredSourceSpecification": [
+    "Provide typed K AST, exact binder mapping and equality of every unchanged subtree, preserving all original error branches and runtime definitions.",
+    "Make B=def K(M) and K(S)=def C explicit obligations, with source-level derivation separating fixed guard simplification from potentially expensive definition reduction; no host-computed intermediate certificate.",
+    "Resolve full semantic/native consumer compatibility using installed supported grammar. Obtain renewed independent SPEC on that complete bounded route before candidate implementation.",
+    "If a concrete candidate becomes approved, use one meaningful wrong accounting-premise control changing no statement/runtime; require intended type mismatch rather than malformed-node/setup/dependency/timeout failure.",
+    "Require exact original ChildEntry consumer proof, artifact/empty-axiom/kernel review and original admitted negative/positive followed by remaining inner/original ordinal26/focused/full33 gates. Helper-only success is insufficient.",
+    "Keep source/tool/epoch/storage limits and negative failures preserved; no same-source retry or raised300s limit inferred."
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "unresolved remedy obligation",
+      "description": "Neither full B=def K(M) nor an implemented/typechecked K(S)=def C has been established. The report appropriately labels them hypothetical; no remedy acceptance."
+    },
+    {
+      "id": "R2",
+      "severity": "blocking one-file replacement boundary",
+      "description": "Direct semantic FirstChildContinuation cannot be left unchanged when replacing its theorem provider with ordinary native core. Require complete supported semantic route or renewed minimal-cut specification."
+    }
+  ],
+  "preservedStatus": {
+    "failure": "DEPENDENCY_TIMEOUT",
+    "intendedNegative": "NOT_REACHED",
+    "admittedPositive": "NOT_RUN",
+    "repairCandidate": "NONE",
+    "allProposedNativePhases": "NOT_RUN",
+    "ObjectAcceptedControls": "331/403_UNCHANGED",
+    "productionPrismPMAndPages": "OPEN"
+  },
+  "recoveryCustody": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/ObjectReadParent49ConcreteChildEntry.lean",
+      "bytes": 15933,
+      "sha256": "1a5faaa26d471d92db9f4dfdc3d2aa300639d6b4adf5c6cd44ea4071103f93cd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/ObjectReadParent49ConcreteChildEntry.lean.receipt.json",
+      "bytes": 16353,
+      "sha256": "bdc2638b5199f68d8af1ec86fc876d47a8413a69e20f33193dd69c97e22f6889"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/ObjectReadParent49VisitTransition.lean",
+      "bytes": 4604,
+      "sha256": "e4b72587390e3c30f6fffa6c238ce2616c33f4960fac4937b8844109de0f6c8b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/ObjectReadParent49VisitTransition.lean.receipt.json",
+      "bytes": 5020,
+      "sha256": "8e75d25db6a79d9b9673bc0f7c589bb9a19488f1fea0f0fcb9c1aad97fb21382"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/inventory.json",
+      "bytes": 1175,
+      "sha256": "ef89af3be41a325f54d9c23ba29111a0fa480b7921de867b35803852980a7b79"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/manifest.json",
+      "bytes": 42132,
+      "sha256": "df74ebc896ef5413fad3171dd5b2da3749d3e9ba71593756fb66048b399b2a05"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/emitted-recovery/manifest.json.receipt.json",
+      "bytes": 45938,
+      "sha256": "371e6d85874ef86cdfcfcf235ccd436afa28a67c6259d6a5dae6af8964148107"
+    }
+  ],
+  "activity": "Read-only hashing, retained source/receipt inspection and in-memory AST/config comparisons. No SDK/compiler/VM/repository changes.",
+  "hostAvailableBytes": 24040128512
+}

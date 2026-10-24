@@ -1,0 +1,67 @@
+--- /Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/invoke-hash09-isolated.mjs	2026-10-24 07:34:03
++++ /Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/invoke-admitted-product.mjs	2026-10-24 08:06:50
+@@ -1,24 +1,23 @@
+-// One-off isolated Hash09 selection diagnostic. Preparation only until independent invocation CODE and fresh live gates pass.
++// One-off admitted product proof phase. Preparation only until independent invocation CODE and fresh live gates pass.
+ import fs from 'node:fs';
+ import path from 'node:path';
+ import crypto from 'node:crypto';
+ import {spawnSync} from 'node:child_process';
+ const repo='/Users/casey.allard/lexlean-r4-worktrees/model-port';
+-const candidateRoot=path.resolve(import.meta.dirname,'../../object-read-composed-dependencies');
+-const previousReadRoot=path.resolve(import.meta.dirname,'../../object-read-native-controls');
++const candidateRoot=path.join(repo,'tests/fixtures/object-read-admitted-product-proof');
+ const manifestPath=path.join(candidateRoot,'manifest.json');
+ const phase=process.argv[2];
+-if(process.argv.length!==3||phase!=='hash09-isolated')throw Error('select only hash09-isolated; one attempt, no automatic Read continuation');
+-const sourcePhase='ordinal26-negative';
+-const target='tests/lexlean/HashWireDirect09Controls.lex.tex';
+-const expectedSelectedModules=['HashWireDirect09Controls','R4.Hash','R4.HashNat','R4.HashNatCore','R4.HashWire','R4.Words'];
++if(process.argv.length!==3||!['admitted-trans-negative','admitted-trans-positive'].includes(phase))throw Error('select exactly one reviewed admitted product phase; no automatic progression');
++const sourcePhase=phase;
++const target='tests/lexlean/ObjectAdmittedRangeResult.lex.tex';
++const expectedSelectedModules=["ObjectAdmittedRangeResult","ObjectContextualFinishContext","ObjectContextualFinishTransport","ObjectContextualRangeFinish","ObjectManifestVersion","ObjectReadCompleteParent","ObjectReadConnectedRange","ObjectReadConnectedRangeContext","ObjectReadConnectedRangeTransport","ObjectReadFinalChildState","ObjectReadFirstChildContinuation","ObjectReadFirstChildState","ObjectReadParent49","ObjectReadParent49AccountingState","ObjectReadParent49AuthenticatedFetch","ObjectReadParent49ConcreteChildEntry","ObjectReadParent49FetchContext","ObjectReadParent49FetchTransport","ObjectReadParent49VisitContext","ObjectReadParent49VisitTransition","ObjectReadParent49VisitTransport","ObjectReadRootTraversal","ObjectReadSecondChildContinuation","ObjectReadSecondChildState","R4.Hash","R4.HashNat","R4.HashNatCore","R4.HashWire","R4.Object","R4.ObjectCodec","R4.ObjectRead","R4.ObjectStore","R4.ObjectTypes","R4.Words"];
+ // Binding below records the actual reviewed restart snapshot; it does not assert present storage or readiness.
+ // The retained null gate precedes output creation; all original live resource guards remain unchanged.
+ const freshEpochBinding={"startedAt":"2026-10-24T10:51:37.465092641Z","review":{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/fresh-epoch-review.json","bytes":8154,"sha256":"b36356bb38fc43247ac3e4150e0ed248775cdcea370913c909cf9ae82d4fdb97"},"rawPins":[{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/before.json","bytes":12854,"sha256":"bbecde94ddc8f86aee4d9be1ecc970f9e9ac13ce7c1e98084e7b8f56afacac2a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-budget.json","bytes":136,"sha256":"e3bf6c904b6adcaf47991318e0d4d41f096d79a6edcd3cfb4977cff7375adf4a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-idle-before.json","bytes":472,"sha256":"b56ece4f802baf49f84a7891c5708fd8f0a260f48383f678b5437b2873c82154"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-before.json","bytes":8787,"sha256":"8882ad9b4e9b04e2e60f58a1dd5c2910ba3157df6f95f09d08c9f28662ec722a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-memory-before.json","bytes":368,"sha256":"6176e46bccf6440e54ad7ab7f293bbfd0ce9e942dedaabc299591b7571917340"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-guest-before.json","bytes":418,"sha256":"93839779086ac110eebc7c78b7436bbd3cb2d5c20266f662e8f1999254206356"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart.json","bytes":329,"sha256":"e2b8c44c10468ae0aca35b61dd625b38f7819671dc0e96ae519a836fe8207c35"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/restart-inspect-after.json","bytes":482,"sha256":"c581fffefc596b43009aef64a971eda6f9363e3f8cc0d7b698676000d2f3fa73"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-resource/after.json","bytes":12852,"sha256":"424c91533535df7d199b7591ae7ddfbdf25eec9c811d22b9f5d0efe905b1900d"}]};
+ if(freshEpochBinding===null)throw Error('NO_REVIEWED_FRESH_EPOCH: preparation only; no output or process invocation');
+ const out=path.join(import.meta.dirname,phase);
+ fs.mkdirSync(out);
+-const stage=`/tmp/r4-object-read-composed-${phase}-owned-20261024`;
++const stage=`/tmp/r4-object-read-${phase}-owned-20261024`;
+ const cid='cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf';
+ const env={...process.env,DOCKER_CONFIG:'/tmp/lexlean-r4-docker-config-20261021',DOCKER_HOST:'unix:///Users/casey.allard/.colima/lexlean-r4/docker.sock'};
+ const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+@@ -48,17 +47,16 @@
+ function sources(name){const r=guest(name,['sha256sum',...inputs.map(x=>stage+'/'+x.destination)]);const lines=r.stdout.trim().split('\n');if(lines.length!==inputs.length||lines.some((l,i)=>l.slice(0,64)!==inputs[i].sha256))throw Error('source mismatch');}
+ try{
+  const manifestBytes=fs.readFileSync(manifestPath);
+- if(hash(manifestBytes)!=='8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37')throw Error('manifest drift');
++ if(hash(manifestBytes)!=='c42c707a0757e63f01cf9ea9ca5f56a6dd89248b62b38dedf7c2a026a8152617')throw Error('manifest drift');
+  const manifest=JSON.parse(manifestBytes);
+  for(const x of manifest.payloads){const b=fs.readFileSync(path.join(candidateRoot,x.path));if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('candidate drift '+x.path);}
+- for(const x of manifest.dependencies){const b=fs.readFileSync(x.path);if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('authority drift '+x.path);}
+- const sourceReview=fs.readFileSync(path.resolve(import.meta.dirname,'../../object-read-composed-dependencies-code-review.json'));
+- if(hash(sourceReview)!=='8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901')throw Error('source CODE review drift');
+- for(const authority of [{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-proposal.json","bytes":11948,"sha256":"fac761d6e60d6deeb10022df600bebadce720e204349f030d2b3cec95529f9a1"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-spec-review.json","bytes":8475,"sha256":"902fafa029772f56b8ae69d65bb0bffc88b13833b8dabdbd14e8bd606267e76a"},{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery-review.json","bytes":12422,"sha256":"1dde1b7671ecf1b1618e6be648ba0cd7f067327df03a764886245104649e7bda"} ,{"path":"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-readonly-prerequisite.json","bytes":644,"sha256":"70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf"}]){const bytes=fs.readFileSync(authority.path);if(bytes.length!==authority.bytes||hash(bytes)!==authority.sha256)throw Error('diagnostic authority drift '+authority.path);}
++ for(const x of manifest.dependencies){const b=fs.readFileSync(path.resolve(repo,x.path));if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('authority drift '+x.path);}
++ const sourceReview=fs.readFileSync(path.resolve(import.meta.dirname,'../object-read-admitted-product-proof-code-review.json'));
++ if(hash(sourceReview)!=='28dc9bb8c3f539a0f7a3b09f19a07256798e8e0b8899193a03356abf707364e5')throw Error('source CODE review drift');
+  const bindings=JSON.parse(fs.readFileSync(path.join(candidateRoot,'source-bindings.json')));
+  const selected=bindings.phases.find(x=>x.mode===sourcePhase);
+- if(!selected||selected.entrypoint!=='tests/lexlean/ObjectReadControls.lex.tex'||selected.inputCount!==51||selected.selectedCount!==47||selected.selectedModules.length!==47)throw Error('phase binding');
+- inputs=selected.inputs.map(x=>{const roots=x.sourceKind==='new-three-file-candidate'?[candidateRoot]:x.sourceKind==='accepted-shared-source-reference'?[repo]:x.sourceKind==='unchanged-pinned-reference'?[repo,previousReadRoot]:[];const inputPath=path.resolve(x.source);if(!roots.some(r=>inputPath.startsWith(r+path.sep)))throw Error('input root/kind');return {...x,path:inputPath};});
++ if(!selected||selected.entrypoint!==target||selected.inputCount!==51||selected.selectedCount!==34||JSON.stringify(selected.selectedModules)!==JSON.stringify(expectedSelectedModules))throw Error('phase binding');
++ inputs=selected.inputs.map(x=>{const inputPath=path.resolve(repo,x.path);if(!inputPath.startsWith(repo+path.sep))throw Error('input repository root');return {...x,path:inputPath};});
+  if(inputs.length!==51||new Set(inputs.map(x=>x.destination)).size!==51)throw Error('input census');
+  for(const x of inputs){const b=fs.readFileSync(path.resolve(repo,x.path));if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('input drift '+x.path);}
+  host('host-before',true);
+@@ -78,7 +76,7 @@
+   const checked=cli('check',['check',target],false);const checkParsed=JSON.parse(checked.stdout||'null');
+   {
+    if(checked.status!==0||checkParsed?.success!==true)throw Error('check result');
+-   if(!Array.isArray(checkParsed.modules)||JSON.stringify([...checkParsed.modules].sort())!==JSON.stringify(expectedSelectedModules))throw Error('isolated selected closure mismatch');
++   if(!Array.isArray(checkParsed.modules)||JSON.stringify([...checkParsed.modules].sort())!==JSON.stringify(expectedSelectedModules))throw Error('admitted selected closure mismatch');
+    const result=cli('verify',['verify',target],false);const parsed=JSON.parse(result.stdout||'null');
+    save('result',{phase,stage,verifyStatus:result.status,result:parsed});
+    if(result.status===0&&parsed?.success===true){const artifact=parsed.artifacts?.[0];if(!/^\.lexlean\/verified\/[a-f0-9]{64}$/.test(artifact))throw Error('artifact path');docker('artifact-copy',['cp',cid+':'+stage+'/'+artifact,path.join(out,'artifact')]);}

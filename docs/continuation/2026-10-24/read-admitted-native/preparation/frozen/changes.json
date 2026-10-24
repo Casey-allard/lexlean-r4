@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4/admitted-product-invocation-diff/1",
+  "base": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-isolated-preparation/invoke-hash09-isolated.mjs",
+    "bytes": 12796,
+    "sha256": "2ba63d3a2c58f766cbed3af5c950a285c916a2a5062b5e44da1efdf9a3e9df8a"
+  },
+  "edits": [
+    {
+      "old": "// One-off isolated Hash09 selection diagnostic. Preparation only until independent invocation CODE and fresh live gates pass.",
+      "new": "// One-off admitted product proof phase. Preparation only until independent invocation CODE and fresh live gates pass.",
+      "reason": "Product phase only; no automatic later proof or fullRead continuation."
+    },
+    {
+      "old": "const candidateRoot=path.resolve(import.meta.dirname,'../../object-read-composed-dependencies');",
+      "new": "const candidateRoot=path.join(repo,'tests/fixtures/object-read-admitted-product-proof');",
+      "reason": "Use frozen repository source candidate."
+    },
+    {
+      "old": "const previousReadRoot=path.resolve(import.meta.dirname,'../../object-read-native-controls');\n",
+      "new": "",
+      "reason": "All51 candidate bindings now resolve through repository-relative paths."
+    },
+    {
+      "old": "if(process.argv.length!==3||phase!=='hash09-isolated')throw Error('select only hash09-isolated; one attempt, no automatic Read continuation');",
+      "new": "if(process.argv.length!==3||!['admitted-trans-negative','admitted-trans-positive'].includes(phase))throw Error('select exactly one reviewed admitted product phase; no automatic progression');",
+      "reason": "Only approved negative/positive mode, one command invocation each."
+    },
+    {
+      "old": "const sourcePhase='ordinal26-negative';",
+      "new": "const sourcePhase=phase;",
+      "reason": "Use corresponding frozen phase map."
+    },
+    {
+      "old": "const target='tests/lexlean/HashWireDirect09Controls.lex.tex';",
+      "new": "const target='tests/lexlean/ObjectAdmittedRangeResult.lex.tex';",
+      "reason": "Explicit product target; default configuration still points to Read."
+    },
+    {
+      "old": "const expectedSelectedModules=['HashWireDirect09Controls','R4.Hash','R4.HashNat','R4.HashNatCore','R4.HashWire','R4.Words'];",
+      "new": "const expectedSelectedModules=[\"ObjectAdmittedRangeResult\",\"ObjectContextualFinishContext\",\"ObjectContextualFinishTransport\",\"ObjectContextualRangeFinish\",\"ObjectManifestVersion\",\"ObjectReadCompleteParent\",\"ObjectReadConnectedRange\",\"ObjectReadConnectedRangeContext\",\"ObjectReadConnectedRangeTransport\",\"ObjectReadFinalChildState\",\"ObjectReadFirstChildContinuation\",\"ObjectReadFirstChildState\",\"ObjectReadParent49\",\"ObjectReadParent49AccountingState\",\"ObjectReadParent49AuthenticatedFetch\",\"ObjectReadParent49ConcreteChildEntry\",\"ObjectReadParent49FetchContext\",\"ObjectReadParent49FetchTransport\",\"ObjectReadParent49VisitContext\",\"ObjectReadParent49VisitTransition\",\"ObjectReadParent49VisitTransport\",\"ObjectReadRootTraversal\",\"ObjectReadSecondChildContinuation\",\"ObjectReadSecondChildState\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"];",
+      "reason": "Exact34-module selected closure in both maps."
+    },
+    {
+      "old": "const stage=`/tmp/r4-object-read-composed-${phase}-owned-20261024`;",
+      "new": "const stage=`/tmp/r4-object-read-${phase}-owned-20261024`;",
+      "reason": "Fresh owned phase-specific stages distinct from all prior attempts."
+    },
+    {
+      "old": "'8f9236f59450f3f599e064027d618f0dde0aba6441c97e4328832232843e2a37'",
+      "new": "'c42c707a0757e63f01cf9ea9ca5f56a6dd89248b62b38dedf7c2a026a8152617'",
+      "reason": "Pin exact reviewed source candidate manifest."
+    },
+    {
+      "old": "for(const x of manifest.dependencies){const b=fs.readFileSync(x.path);if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('authority drift '+x.path);}",
+      "new": "for(const x of manifest.dependencies){const b=fs.readFileSync(path.resolve(repo,x.path));if(b.length!==x.bytes||hash(b)!==x.sha256)throw Error('authority drift '+x.path);}",
+      "reason": "Candidate dependency paths are repository-relative; all existing hash checks retained."
+    },
+    {
+      "old": "path.resolve(import.meta.dirname,'../../object-read-composed-dependencies-code-review.json')",
+      "new": "path.resolve(import.meta.dirname,'../object-read-admitted-product-proof-code-review.json')",
+      "reason": "Exact current source CODE report."
+    },
+    {
+      "old": "'8b5ce44970ca5c4efae759cf93cb6b41bc50455489c04a18f1ed6f4d22649901'",
+      "new": "'28dc9bb8c3f539a0f7a3b09f19a07256798e8e0b8899193a03356abf707364e5'",
+      "reason": "Pin actual accepted candidate CODE."
+    },
+    {
+      "old": " for(const authority of [{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-proposal.json\",\"bytes\":11948,\"sha256\":\"fac761d6e60d6deeb10022df600bebadce720e204349f030d2b3cec95529f9a1\"},{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-context-diagnostic-spec-review.json\",\"bytes\":8475,\"sha256\":\"902fafa029772f56b8ae69d65bb0bffc88b13833b8dabdbd14e8bd606267e76a\"},{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-build-recovery-review.json\",\"bytes\":12422,\"sha256\":\"1dde1b7671ecf1b1618e6be648ba0cd7f067327df03a764886245104649e7bda\"} ,{\"path\":\"/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-composed-dependencies-bound-invocation/hash09-readonly-prerequisite.json\",\"bytes\":644,\"sha256\":\"70ece8f37e3d0eee827d977d13b05f1b5bb03401fdf3081a635f7ad99c5ec7bf\"}]){const bytes=fs.readFileSync(authority.path);if(bytes.length!==authority.bytes||hash(bytes)!==authority.sha256)throw Error('diagnostic authority drift '+authority.path);}\n",
+      "new": "",
+      "reason": "Old Hash09 diagnostic plan/recovery authorities do not govern this product phase; current proposal/SPEC are byte-pinned candidate payloads and source CODE is pinned separately."
+    },
+    {
+      "old": "if(!selected||selected.entrypoint!=='tests/lexlean/ObjectReadControls.lex.tex'||selected.inputCount!==51||selected.selectedCount!==47||selected.selectedModules.length!==47)throw Error('phase binding');",
+      "new": "if(!selected||selected.entrypoint!==target||selected.inputCount!==51||selected.selectedCount!==34||JSON.stringify(selected.selectedModules)!==JSON.stringify(expectedSelectedModules))throw Error('phase binding');",
+      "reason": "Require actual candidate34module phase binding, not predecessor47-root authority."
+    },
+    {
+      "old": " inputs=selected.inputs.map(x=>{const roots=x.sourceKind==='new-three-file-candidate'?[candidateRoot]:x.sourceKind==='accepted-shared-source-reference'?[repo]:x.sourceKind==='unchanged-pinned-reference'?[repo,previousReadRoot]:[];const inputPath=path.resolve(x.source);if(!roots.some(r=>inputPath.startsWith(r+path.sep)))throw Error('input root/kind');return {...x,path:inputPath};});",
+      "new": " inputs=selected.inputs.map(x=>{const inputPath=path.resolve(repo,x.path);if(!inputPath.startsWith(repo+path.sep))throw Error('input repository root');return {...x,path:inputPath};});",
+      "reason": "Resolve exactly51 reviewed portable source paths, reject escape from repository."
+    },
+    {
+      "old": "throw Error('isolated selected closure mismatch');",
+      "new": "throw Error('admitted selected closure mismatch');",
+      "reason": "Diagnostic label only; strict actual check census unchanged."
+    }
+  ],
+  "preserved": [
+    "Complete freshEpochBinding literal and source guard functions",
+    "host/guest budgets, strictzero events, epoch and idle checks",
+    "tool hashes and source/config/lock pre/post checks",
+    "single official verify call with explicit target and no retries",
+    "finally independent guard sequence byte-identical"
+  ],
+  "sourceOnly": true
+}

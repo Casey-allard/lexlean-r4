@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-24T12:11:02.261Z",
+  "phase": "admitted-trans-negative",
+  "hostAvailableBytes": "21966712832",
+  "estimatedAdditionalBytes": "10737418240",
+  "reserveBytes": "10737418240",
+  "invocationManifestSha256": "791913f750fb30cbb711dce331de1b9995fbf1e8dd7b06abaf1fd5667e2afc22",
+  "reviewSha256": "a03602de9a701478f6c89ca240ad5805a4eaf7cbdf0d531ddfb60e62574c4473",
+  "raw": {
+    "identity": {
+      "args": [
+        "inspect",
+        "--format",
+        "{{.Image}} {{.State.StartedAt}} {{.RestartCount}}",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf"
+      ],
+      "status": 0,
+      "stdout": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6 2026-10-24T10:51:37.465092641Z 0\n",
+      "stderr": ""
+    },
+    "boot": {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/proc/sys/kernel/random/boot_id"
+      ],
+      "status": 0,
+      "stdout": "44f408ba-d166-4157-93b8-d311639e4a0f\n",
+      "stderr": ""
+    },
+    "idle": {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "ps",
+        "-eo",
+        "pid,comm,args"
+      ],
+      "status": 0,
+      "stdout": "    PID COMMAND         COMMAND\n      1 sh              /bin/sh -c sleep infinity\n      7 sleep           sleep infinity\n    750 ps              ps -eo pid,comm,args\n",
+      "stderr": ""
+    },
+    "memory": {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "cat",
+        "/sys/fs/cgroup/memory.events"
+      ],
+      "status": 0,
+      "stdout": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+      "stderr": ""
+    },
+    "guest": {
+      "args": [
+        "exec",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+        "df",
+        "-Pk",
+        "/tmp"
+      ],
+      "status": 0,
+      "stdout": "Filesystem     1024-blocks     Used Available Capacity Mounted on\noverlay           82249372 25723972  52734328      33% /\n",
+      "stderr": ""
+    }
+  }
+}

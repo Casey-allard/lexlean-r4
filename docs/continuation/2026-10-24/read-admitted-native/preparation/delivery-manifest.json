@@ -1,0 +1,56 @@
+{
+  "schema": "lexlean-r4/invocation-preparation-delivery/1",
+  "status": "HISTORICAL_PREPARATION_ONLY_NO_NATIVE_OUTCOME",
+  "payloads": [
+    {
+      "path": "copy-custody.json",
+      "bytes": 3239,
+      "sha256": "93b1fb6d7c5d22aa9ab3534e66778593f679cbfe84a37ca46f65d65fb412f3f1"
+    },
+    {
+      "path": "frozen/changes.diff",
+      "bytes": 11131,
+      "sha256": "f576741470d12e0381cd7fbfe2817a5f294e90436efd392824cd834b5ae489ed"
+    },
+    {
+      "path": "frozen/changes.json",
+      "bytes": 8195,
+      "sha256": "fb3be9d1d23eb7ed4930cc90da266db38ec4b4b4149b82e2093f0549cc7629f4"
+    },
+    {
+      "path": "frozen/invoke-admitted-product.mjs",
+      "bytes": 12193,
+      "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b"
+    },
+    {
+      "path": "frozen/manifest.json",
+      "bytes": 5778,
+      "sha256": "791913f750fb30cbb711dce331de1b9995fbf1e8dd7b06abaf1fd5667e2afc22"
+    },
+    {
+      "path": "frozen/README.md",
+      "bytes": 3241,
+      "sha256": "fc1fa166578b53d2c69fbdf3066698ec1852c5f5bef5608e9e04e1cc27c15394"
+    },
+    {
+      "path": "frozen/static-validation.json",
+      "bytes": 1280,
+      "sha256": "c2edc0b0113c676ebf7c214159b9f01f1d07add702339713d0d17725fe3b829f"
+    },
+    {
+      "path": "invocation-code-review.json",
+      "bytes": 6401,
+      "sha256": "a03602de9a701478f6c89ca240ad5805a4eaf7cbdf0d531ddfb60e62574c4473"
+    },
+    {
+      "path": "negative-parent-preflight.json",
+      "bytes": 2169,
+      "sha256": "9ad1d99080ecee93f685868e5382f655a2729bc312b537a28a1a625371f8ec52"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2168,
+      "sha256": "f86c872909af3b5090f8351c5a1e6f410c62a44ddbb828575090227333609e6a"
+    }
+  ]
+}

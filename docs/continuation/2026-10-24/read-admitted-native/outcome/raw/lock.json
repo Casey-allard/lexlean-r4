@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-admitted-trans-negative-owned-20261024",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "lock"
+  ],
+  "started": "2026-10-24T12:11:18.293Z",
+  "ended": "2026-10-24T12:11:18.551Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"lock\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[],\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}
