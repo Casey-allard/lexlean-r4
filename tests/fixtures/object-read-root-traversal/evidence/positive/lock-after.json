@@ -1,0 +1,14 @@
+{
+  "args": [
+    "exec",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "sha256sum",
+    "/tmp/r4-object-read-root-traversal-roots-positive-owned-20261023/lexlean.lock"
+  ],
+  "started": "2026-10-24T00:41:09.818Z",
+  "ended": "2026-10-24T00:41:09.906Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "939c5a5f62cbbece34479be7b671fb978fa975c79581e89824976efda5780524  /tmp/r4-object-read-root-traversal-roots-positive-owned-20261023/lexlean.lock\n",
+  "stderr": ""
+}

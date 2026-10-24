@@ -1,0 +1,18 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-root-traversal-roots-positive-owned-20261023",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check"
+  ],
+  "started": "2026-10-24T00:34:06.895Z",
+  "ended": "2026-10-24T00:34:08.167Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadCompleteParent\",\"ObjectReadFinalChildState\",\"ObjectReadFirstChildContinuation\",\"ObjectReadFirstChildState\",\"ObjectReadParent49\",\"ObjectReadParent49AccountingState\",\"ObjectReadParent49AuthenticatedFetch\",\"ObjectReadParent49ConcreteChildEntry\",\"ObjectReadParent49FetchContext\",\"ObjectReadParent49FetchTransport\",\"ObjectReadParent49VisitContext\",\"ObjectReadParent49VisitTransition\",\"ObjectReadParent49VisitTransport\",\"ObjectReadRootTraversal\",\"ObjectReadSecondChildContinuation\",\"ObjectReadSecondChildState\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"825a80c9d7ddaaf0c06c7ae678dee528dd7f0a5ded0c044eca6068049200912b\",\"source_id\":\"62fc54ca18afe0c16a9b631fc143151820df9359caadc2fa448a2806d7a9f3de\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

@@ -1,0 +1,428 @@
+{
+  "schema": "lexlean-r4-root-traversal-delivery/v1",
+  "base": "19599c9b628e739169f965b6a2c3a889ce2c37da",
+  "scope": "Actual original root traversal accepted locally with paired intended negative; next connected-range proposal and SPEC are design only, tests NOT_RUN. No concrete range result/version/hash/Read33 acceptance.",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 38219,
+      "sha256": "6da6542dd24e288e006e3de9277097fd0fb5dda3cae6fdd2219a916ddbebdab2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/connected-range-plan-bindings.json",
+      "bytes": 5031,
+      "sha256": "c437b21945080a2b18687413717e76b96f2bf49f190543d7b75da5afad5da4cc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-connected-range-proposal.json",
+      "bytes": 15044,
+      "sha256": "9e9ea32f6e5aabef6d854c2977b554fbadb40f4a5f7d424ae7a9e2b6fe17f6fa"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/next-connected-range-spec-review.json",
+      "bytes": 7779,
+      "sha256": "1a716232d6aea2d091a2ec37ad6d806463f8014665266863e8a879101be3f0ae"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 30317,
+      "sha256": "afec1888e30de2bcd07a3d3d9f2169296a6618e27084080ce28fb76fc22d74f0"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/README.md",
+      "bytes": 846,
+      "sha256": "2001e36ab3aa4a2a554c526adcf514ea0883a96105f8fdb4432a5db346b02782"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/RESULTS.md",
+      "bytes": 2292,
+      "sha256": "98d9db2d43e4e190a3c3422e9ba33026196c285c6e12300d910ea26c1b2a10df"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/README.md",
+      "bytes": 505,
+      "sha256": "8fdc6fe707a2150005eeb39b5e5a7f463064a7e758f134ab6a2dbf9dc3e2ebf5"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/candidate.json",
+      "bytes": 23935,
+      "sha256": "d1d9fc50395339f14fbee78db1596143f41a3556194687cc9cd2d1f7e7c3c9a1"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/lexlean.toml",
+      "bytes": 687,
+      "sha256": "952771ea17a260a1129db2c50f2b35af4b6e11fe51e4c26337373501e470dd03"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/manifest.json",
+      "bytes": 2433,
+      "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/negative/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "b0620593ef6bd98065f9c4fed25515bd1bec360ef14af0eb9f52211c0b25f551"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/structural-audit.json",
+      "bytes": 7430,
+      "sha256": "9f329c8e03550b1144d560615bf4ef0aef6e15a7566f303e4d7be32166e08968"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/code-review-custody.json",
+      "bytes": 992,
+      "sha256": "70f4d94d235648f8b19296809aaa0e38e4ba91d69f8a7842609a8e335b4141e4"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/candidate-invocation-code-review.json",
+      "bytes": 7973,
+      "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/invocation-diff.json",
+      "bytes": 2420,
+      "sha256": "f132a226d309576f38eb9bb63ae8beca9af9c7ab79ce0bc01dd054f089baf85d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/invocation-manifest.json",
+      "bytes": 1541,
+      "sha256": "b64d76e5ca3ece2907ce53df34d39529e49a5451e7929e788efca1d62a18447f"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/invoke-root-traversal.mjs",
+      "bytes": 7702,
+      "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/allocated-before.json",
+      "bytes": 459,
+      "sha256": "774bd0b5fb4443364c6e1096c3dcf7d1d182981cd51a64f6e3a1fc123512af15"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/check.json",
+      "bytes": 1420,
+      "sha256": "965bc29de9928cf07bcc35a708c3c89cc6dbf8cbe73646448cf0a3bf9895ea02"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "fd9d2f2d8321cf9d7663525db9c9da562e28e2e2982c53de804938a06414cb5d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "c6a8b0606192cc8da121de7214b088fbab3d7dba648431953717b58d48dea465"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/expected-inputs.json",
+      "bytes": 11088,
+      "sha256": "4a75633b384e891085d0fe5babb064ee39c4f2e0897bb45ab42e7c468dbfc0bc"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "af6dfb1f6e451eafd17dcb030df379cf1de5bdfbe44b920294e1bb83b6e60ad8"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "acd3190bd31b056f365f79d6518df8fc64bee555790413ca99c5a0544dff112d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/host-after.json",
+      "bytes": 142,
+      "sha256": "46a197987fb65683a2168b932a53631b78dd274c32db1748949496bdabc48d67"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/host-before.json",
+      "bytes": 152,
+      "sha256": "7ca9f26187f8e341761b79110b74f6d1666ff7e90ac27b233f8d6d65ca7cba7f"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "571799f3d074522236acd63e0bc8e37d2f2b319552b2ecbada925b4f757a03b6"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "ebe4b004608d40784fad1e867985ee93459f8fda9b311be58576bd7f8631e97c"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "939c5a5f62cbbece34479be7b671fb978fa975c79581e89824976efda5780524"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/lock-after.json",
+      "bytes": 489,
+      "sha256": "2c961bd0df1b1e4b5bc47477416dc3be8c3f9b5b5ee101b7653650a71135fbb7"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/lock-bytes.json",
+      "bytes": 2055,
+      "sha256": "e6ee1cc3318ffa1ab5e49358eb02d0505011ea801767c9cb30e4622f4c1aeb6f"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/lock.json",
+      "bytes": 539,
+      "sha256": "b6c61f56ebe9040237da846f4773066b445367e2cf8ba4b16d2ac4c03575ead7"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "b9bb1df57ccca215d7bda8d49d426a16a85f8cc7d93305c3da49302260bbba72"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "54bb6d1275b3dbe1ee16221eb214677695b9ccf9c249bcc6582751d9ddbddb63"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/negative-native-review.json",
+      "bytes": 15464,
+      "sha256": "088ee8e36646f3d2b63803ad4e1a2d7029e5cb772e68d17a076491e1251ce200"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/result.json",
+      "bytes": 7293,
+      "sha256": "a7ce8464316d84d34949e18e1afdd2312f664abe1d3a47d865765833ff2b3c9a"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/source-after.json",
+      "bytes": 8487,
+      "sha256": "114ce1c2415908925a24499ce2fd2037a8daa402064d3aded37f82fe009a695b"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/source-before.json",
+      "bytes": 8487,
+      "sha256": "4e8dd5acc733525fb3795dbd4a985ae7d6ebe1762e8615880132ac2ada3f1ee1"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/swap-before.json",
+      "bytes": 264,
+      "sha256": "edd60d4a9827fea17913d2f27bd10f383bd1a2332d8eb09d200b6f03a5b28f74"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "3f80be9dbdee75d56080433db6d39e71b3f66773041c8d525bff85c4bfb88703"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "b28fe11fb13d0f2b285cf3632e651e11fd9f13d47b5fae8941027df4da9499bb"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/negative/verify.json",
+      "bytes": 7472,
+      "sha256": "41bb9e941b2ef99b2c267f7b6cf30617e974be4c7d97e739232fba63d47d3ec0"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/next-read-step-investigation.json",
+      "bytes": 13412,
+      "sha256": "3b38ba51285c332a19576ca0f0b19dabb4e03e88e621803cb861fc7968b8e71b"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive-artifact-census.json",
+      "bytes": 51305,
+      "sha256": "3808ae97084ae1ae0b296a32b531fd99a2b37a78a47889712249e2b2c694627b"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/allocated-before.json",
+      "bytes": 459,
+      "sha256": "0d3a5380b990f41e839c0789163d4ac9de3227d675620f0f227b5d1d7de0c161"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/artifact-copy.json",
+      "bytes": 522,
+      "sha256": "b43fe5648b09e98dda6fc2b9a9a766fc73310f9d1adc67e4f68b0b5b87132a0e"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/artifact/attestation-summary.json",
+      "bytes": 1714,
+      "sha256": "c6f89b3fa87b9da123eb4508bfc407892c2aa87a89935eb94f7c853beae6650b"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/artifact/build-manifest.json",
+      "bytes": 32139,
+      "sha256": "8fab7cd8bd9c1fb428a90f88e4fe856895f0cd806415530cb1c83f44fdc3acfd"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/artifact/modules/LexLeanR4/ObjectReadRootTraversal.lean",
+      "bytes": 7584,
+      "sha256": "cdd49ab71481fc3f61501fc8983a1480b8c596ecbb92450369582b6ef1a2f6c0"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/check.json",
+      "bytes": 1423,
+      "sha256": "eb02d116634c48728d01ba096b7cee0751a663f12dc97db5455ffd8e08d6192a"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "bdef8ceb0c35894463a7340f951355615324c9a4900f5c92ab99f24599749c2d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "db2c16102be07ea6a67ef1f03e7f122ee29ce041c40309594fb9fd37cf6f1ab9"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/expected-inputs.json",
+      "bytes": 11088,
+      "sha256": "8e42426a624b3cb3096faf39cb78ad4980fc970333431b0dee104aba1409845e"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "c64c02ef4c0210e24ae55ae3716da980cb1d2136446db4e0400fa197c31b6188"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "d30603e9e78f79720a1a0ce3ba116ebb46fd2f94daba69cd4440a740ee5ffb3e"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/host-after.json",
+      "bytes": 142,
+      "sha256": "ac77c92aee226b52f714bed975b9289e625e13f46b8f9ebbd19620cebabe599c"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/host-before.json",
+      "bytes": 152,
+      "sha256": "6b29501c44811942d95f248881a5b5adf99e17d73aa1ec0f95d8f379d7dd293b"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "c314120c90776e1fb01737b959f847d552e47827d69b66ed2b17dbf9b49aa3c3"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "685be1d0cdab884cddde49a2a6693746a25b26891cfd6122e7a81049317577ec"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/lexlean.lock",
+      "bytes": 1597,
+      "sha256": "939c5a5f62cbbece34479be7b671fb978fa975c79581e89824976efda5780524"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/lock-after.json",
+      "bytes": 495,
+      "sha256": "68c0933efb9d1377218c6961f1bd8d612bdc8e47b5952f56b0d3eca227e8594d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/lock-bytes.json",
+      "bytes": 2058,
+      "sha256": "4cb94e1fb5f4ab28a92a8f7df8ff8a7787cabc0351e8220db283ed8b71431895"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/lock.json",
+      "bytes": 542,
+      "sha256": "e4ef77bf3c65162c39f69f8bd24ae472717818f736fcc2f9a99997816a93bf23"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/memory-after.json",
+      "bytes": 354,
+      "sha256": "087f13c3c8eca21cb20f27f17f28a53f9dfab73d3ed6e84635a48817e6d5e9d8"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "07788236f4e02c0e803feab79498ae4ea152772617b8a26eda06b1798c09bccb"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/positive-native-review.json",
+      "bytes": 6844,
+      "sha256": "efe4f4280a776b7653d81b529adf80a46b98aecf773bcca4310f68ffb66abe3c"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/result.json",
+      "bytes": 1607,
+      "sha256": "60b07757f456b385ef8a4a3c867d94f74b79c2d57cadcc68ebfef1f500feca04"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/source-after.json",
+      "bytes": 8667,
+      "sha256": "87a4ee6d0301ea59bd2fa8182f501b01919401af0aa7f50dfe6aa3c7aac5dbba"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/source-before.json",
+      "bytes": 8667,
+      "sha256": "c19c058e1ab210bf2ff9372e48abe7ac4aae84cf6d0914928cd727001a7bfebc"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/swap-before.json",
+      "bytes": 265,
+      "sha256": "8fbbaf9816a225e425bec198f3b76d80a71f9cd3eb4be2faff54d03e9d6c0245"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "d9bd2ef58dd4ee0d5a369b0200848e15e2346e15ffb528cb82b603a4b55eb2b3"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "71e73a1c2f5311b379476063ea4a30a73437d83eff324a6386037e29ede491f0"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/positive/verify.json",
+      "bytes": 1734,
+      "sha256": "7149fba8b52eac3c6ce409b9da70b893bdfbb93bfa022da611ab57301914b2f1"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/evidence/readiness.json",
+      "bytes": 1495,
+      "sha256": "bff78e83fc58bbfb74cc78e8a7e124b8d360776afb3b3f0c6c14a55e36a7c537"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/negative-custody.json",
+      "bytes": 13304,
+      "sha256": "808709d33cf1aaa9e9e0591ab4bec813c595c9da32c3d7868f07c5b419116a8d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/next-investigation-history-custody.json",
+      "bytes": 670,
+      "sha256": "bcc5cfdfe6d73e0446b7cc04a9d93e6e8b35e7541a9aa656e4f19c6551fb866d"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/positive-custody.json",
+      "bytes": 15726,
+      "sha256": "d4745bd9f5c5ab6f8150eecd131d2a1de09c2b9041cf2af41db10fd64ccb9f03"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/results.json",
+      "bytes": 4968,
+      "sha256": "3cc74ecdf2658d8933c34ff3ec48d8e2a45c41f5b3a6382c2b6720e612b67356"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/source-bindings.json",
+      "bytes": 27416,
+      "sha256": "857d9021a17c42ac7d4d0612d4f36d47f9595c12ecd1471e2bad209a046e1acf"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/source-preservation-custody.json",
+      "bytes": 6213,
+      "sha256": "42951b005ed822a78356db8e966b5590856ffcd382dc3b2cdd0c1d3e3e713526"
+    }
+  ],
+  "excluded": "Manifest excludes itself. Full compiled bundle is retained locally and enumerated by the portable census; binaries and unrelated work excluded."
+}

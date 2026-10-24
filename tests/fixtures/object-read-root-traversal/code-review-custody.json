@@ -1,0 +1,23 @@
+{
+  "schema": "lexlean-r4-root-traversal-code-review-custody/v1",
+  "status": "SOURCE_AND_INVOCATION_CODE_REVIEW_ACCEPTED_NATIVE_OUTCOMES_NOT_YET_ACCEPTED",
+  "copies": [
+    {
+      "source": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/candidate-invocation-code-review.json",
+        "bytes": 7973,
+        "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+      },
+      "destination": {
+        "path": "evidence/candidate-invocation-code-review.json",
+        "bytes": 7973,
+        "sha256": "35c321dc49569ac9b0bfbc689ba3e24b3567bc9d3f3e46272c78b60f00d40ca0"
+      }
+    }
+  ],
+  "boundary": "Exact frozen source/invocation review only. No running native output was inspected or copied; actual root-wrapper proof and intended-negative outcomes remain unaccepted in this record.",
+  "storage": {
+    "hostAvailableBytes": "32215302144",
+    "maximumAdditionalAllocationBytes": 16384
+  }
+}

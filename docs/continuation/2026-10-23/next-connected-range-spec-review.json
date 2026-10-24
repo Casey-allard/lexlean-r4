@@ -1,0 +1,72 @@
+{
+  "schema": "lexlean-r4-connected-range-spec-review/v1",
+  "status": "PASS_BOUNDED_CONNECTED_RANGE_DESIGN_ONLY",
+  "reviewer": "/root/orchestration_design_review",
+  "proposal": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/next-read-step-proposal.json",
+    "bytes": 15044,
+    "sha256": "9e9ea32f6e5aabef6d854c2977b554fbadb40f4a5f7d424ae7a9e2b6fe17f6fa"
+  },
+  "findings": [],
+  "scope": "One actual ObjRangeAdmitted-to-ObjRangeFinish equation retaining genuine finishing/version computation; supported small contextual transport and mandatory production consumer. No candidate, SDK, native execution or repository edits.",
+  "prerequisite": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive-native-review.json",
+    "bytes": 6844,
+    "sha256": "efe4f4280a776b7653d81b529adf80a46b98aecf773bcca4310f68ffb66abe3c"
+  },
+  "checks": [
+    {
+      "name": "Source and retained prerequisite pins",
+      "result": "PASS",
+      "details": "All13 path/byte/hash occurrences rehashed, including actual root source/native review and preserved null-review investigation. All10 named source declaration canonical SHA256 pins match independently parsed source. Root attestation binding0ae0d1959a69577114be7b279ca4b751911340e9969bd2d8e1bc8f236e81ff79 is retained; it is a prerequisite, not acceptance of the new equation."
+    },
+    {
+      "name": "Original control and exact production equation",
+      "result": "PASS",
+      "details": "Reconstructed original ordinal26 objProtocolWholeBytes view/manifest/limits from its ObjWholeRead call. Derived wholeRange from actual ObjWholeAdmitted, retaining manifest.length projection. Derived complete LHS from that exact ObjRangeAdmitted call, with only external local-reference qualification. Derived RHS from actual successful walked branch, substituting exact accepted root theorem S184 into actual ObjRangeFinish. All11 canonical pins, including the single-hole context, match independently."
+    },
+    {
+      "name": "Single-hole context and typing",
+      "result": "PASS_DESIGN",
+      "details": "K is the concretely instantiated entire ObjRangeAdmitted body with exactly its nonempty branch root-call scrutinee replaced by walkResult. The replacement is outside the nested walked binder; inserted rootResult is closed, so no capture occurs. Replacing that hole with the qualified actual root LHS restores the concrete production body, modulo external qualification only. K accepts Result R4.ObjectRead.ObjWalkState R4.ObjectTypes.ObjError and returns Result R4.ObjectTypes.ObjRangeVerified R4.ObjectTypes.ObjError. Actual invalidRange, returnedBytes, empty-range, planner/error and walked/error branches remain present; ObjRangeFinish and ObjPlanRoots calls retain production semantics."
+    },
+    {
+      "name": "Supported induction/congruence transport",
+      "result": "PASS_DESIGN",
+      "details": "Read exact accepted ObjectReadParent49FetchTransport precedent. It uses Nat induction, zero Apply, successor Cases prior and Congruence in both cases, with empty axiom policies. P0 is the exact root equation; Psucc is the new contextual equality. In prior=0, the induction hypothesis supplies the root equality to congruence; in successor case the induction hypothesis already supplies the same contextual equality. This is a supported falsifiable shape, not assumed native acceptance. Mandatory actual range consumer must Apply the lift at Nat1 and establish definitional conversion through actual outer guards/planner."
+    },
+    {
+      "name": "Meaningful negative and required actual consumer",
+      "result": "PASS_DESIGN",
+      "details": "Both variants retain the same unrelated0=0 reflexivity theorem and actual consumer. Change only zero-branch Apply target to that theorem in the negative. Intended rejection is a real proof mismatch at the wrong base, with successful source admission and full consumer selected as verify target. A negative may stop at that dependency before elaborating the consumer; do not claim it positively verifies the consumer. Positive helper-only acceptance cannot discharge the required actual ObjRangeAdmitted equation."
+    },
+    {
+      "name": "Planner and hashing boundary",
+      "result": "PASS_DESIGN",
+      "details": "Actual ObjPlanAtWidth uses Nat.succ of quotient difference; widths96 and32 give source-derived1 and3 for full[0,96), with actual checked accumulation and original budget. These are explanatory expectations, never substituted trusted planned4. RHS is still actual ObjRangeFinish, including output-length validation, ObjManifestVersion, ObjEncodeManifest and genuine ObjHashBytes; no guessed version or trusted digest is introduced. Equality may hold without providing a concrete successful range result. Manifest admission/backend-key validation, concrete finish/version, whole96 hashing/digest comparison, original ordinal26/Read33 and full integration remain unproved."
+    }
+  ],
+  "canonicalReconstruction": {
+    "originalControlStatement": "ec7b9a0c3581f17e4f01d41c3869f9b58f46f437f497d3c2dfd87e412c687e1d",
+    "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+    "pendingRootEquation": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+    "productionRootOccurrence": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+    "completeRangeLeft": "3ee475883b2d8ebd5217fae43fe9827f48390063eccc866b2798191d6413abfc",
+    "realRangeFinishRight": "47a39e1a24e24afd1ed711565ec37e3d36793cc3509b9c77859aa41c5999b79c",
+    "proposedStatement": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613",
+    "singleHoleContext": "f4bdb92e12338f844d53a69e6bca4afb2b1c77c52b56ded0ecad6837ec8ec2d1"
+  },
+  "implementationConditions": [
+    "Preserve complete production AST, original backend/manifest/digest/limits, exact empty axiom policies, typed errors and explicit module qualification; same-module theorem references must use accepted name-only form.",
+    "Source CODE review must check exact one-hole replacement/substitution restoration, every import and dependency, complete phase census/configuration and the single Apply-target negative diff.",
+    "Derive exact supported Prop-family and proof JSON from retained precedent. Nat1 is the actual index supplied to the mandatory complete consumer; neither identity-only contextual helper nor imported theorem counts as new consumer acceptance.",
+    "Keep original300000ms child/4GiB/2CPU and source/tool/epoch/idle/lock/storage/postcapture gates. Fresh resource admission and actual sequential negative/positive followed by independent artifact audit remain mandatory.",
+    "No automatic larger timeout, equivalent retry, Simplify/propext insertion, symbolic expansion, trusted intermediate hashes or cache/efficiency claim. Preserve actual failures and classify before changing scope."
+  ],
+  "testStatus": "All proposed new structural/native tests NOT_RUN. This review reconstructed source ASTs only, did not execute a proof or establish operational launch authority.",
+  "authorshipBoundary": "Independent review of the authors proposal. Earlier reviewer involvement in prerequisite SPEC does not replace the separate actual native audit or future independent candidate CODE review.",
+  "mutations": "Only this external report. Repository, candidate, SDK, VM, native outputs and other labs unchanged."
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "lexlean-r4-next-investigation-history/v1",
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/next-read-step-investigation.json",
+    "bytes": 13412,
+    "sha256": "3b38ba51285c332a19576ca0f0b19dabb4e03e88e621803cb861fc7968b8e71b"
+  },
+  "destination": {
+    "path": "evidence/next-read-step-investigation.json",
+    "bytes": 13412,
+    "sha256": "3b38ba51285c332a19576ca0f0b19dabb4e03e88e621803cb861fc7968b8e71b"
+  },
+  "boundary": "The original null-root-review investigation remains byte-identical; separately bound proposal and SPEC do not establish native range acceptance."
+}

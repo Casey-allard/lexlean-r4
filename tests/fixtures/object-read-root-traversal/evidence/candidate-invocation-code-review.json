@@ -1,0 +1,106 @@
+{
+  "schema": "lexlean-r4-root-traversal-candidate-code-review/v1",
+  "status": "PASS_SOURCE_AND_INVOCATION_ONLY_NATIVE_NOT_RUN",
+  "reviewer": "/root/orchestration_implementation_code_review",
+  "reviewedAt": "2026-10-24T00:23:03.659Z",
+  "reviewedHead": "19599c9b628e739169f965b6a2c3a889ce2c37da",
+  "pins": {
+    "manifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/manifest.json",
+      "bytes": 2433,
+      "sha256": "dbef83709604197613e67a7c4f15047547b548a0781dfa8e2ba1ae69f5800c6d"
+    },
+    "invocationManifest": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invocation-manifest.json",
+      "bytes": 1541,
+      "sha256": "b64d76e5ca3ece2907ce53df34d39529e49a5451e7929e788efca1d62a18447f"
+    },
+    "runner": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/invoke-root-traversal.mjs",
+      "bytes": 7702,
+      "sha256": "d21c2c4c339d708929a1f86bd9fb16163590e6eb6ed495acb61e690cc7eda8ab"
+    },
+    "positive": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+    },
+    "negative": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/negative/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "b0620593ef6bd98065f9c4fed25515bd1bec360ef14af0eb9f52211c0b25f551"
+    },
+    "config": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/lexlean.toml",
+      "bytes": 687,
+      "sha256": "952771ea17a260a1129db2c50f2b35af4b6e11fe51e4c26337373501e470dd03"
+    }
+  },
+  "findings": [],
+  "checks": [
+    {
+      "name": "Frozen identities and complete input closure",
+      "result": "PASS",
+      "detail": "Rehashed all six candidate payloads, five absolute dependencies, both invocation payloads and candidate-manifest link. Independently rehashed all 60 phase input occurrences; each phase has 30 distinct destinations and 26 distinct semantic modules. All declared imports resolve within each closure. New module external references are imported, with no self-qualified local references."
+    },
+    {
+      "name": "Independent original production reconstruction",
+      "result": "PASS",
+      "detail": "Parsed actual canonical Read33 ordinal26 objProtocolWholeBytes and confirmed its statement pin. Extracted original four-entry backend, manifest and limits from the actual ObjWholeRead call. Located the sole ObjRangeAdmitted call in ObjWholeAdmitted and substituted original manifest into its range argument without reducing the length projection. Extracted the real ObjVisitRoots occurrence in ObjRangeAdmitted planner-success branch. Substituted only manifest/view/limits/range and externally qualified only ObjVisitRoots and initial ObjWalkState. Reconstructed positive equation exactly using the accepted complete-parent right side. All ten AST digests independently match both structural audit and accepted SPEC."
+    },
+    {
+      "name": "Actual wrapper and proof meaning",
+      "result": "PASS_SOURCE_ONLY",
+      "detail": "Read production ObjVisitRoots List.cons and List.nil cases. The original singleton root invokes full ObjVisitNode, retains error branches, then real ObjSpan, checked base+width and tail recursion. Expected Result.ok S184 retains output96, visits4, wire184 and sorted seen IDs. The single new theorem uses empty axioms/parameters and exact direct Apply of ObjectReadCompleteParent.objCompleteParentWalk with empty arguments/type_arguments. Kernel conversion through wrapper projections, span, offset and nil recursion remains an actual future experiment; no cached-state/rewrite or performance claim is justified."
+    },
+    {
+      "name": "Exact negative and canonical representation",
+      "result": "PASS",
+      "detail": "Both entire semantic JSON blocks equal recursively key-sorted serialization and use the actual lexlean/semantic-module/2 schema. Deep whole-module comparison after changing only expected right.arguments[0].fields[2].value.value from184 to185 equals the negative module exactly; statement left, complete proof and every other AST field are unchanged. Both phases verify the actual root traversal consumer."
+    },
+    {
+      "name": "Configuration and invocation",
+      "result": "PASS",
+      "detail": "Config equals accepted final-child config after only entrypoint replacement. Rehashed predecessor runner and its review, applied all eight declared single-occurrence literal substitutions, and obtained exact successor bytes. Existing 300000ms child limit, 4GiB/2CPU epoch, tool hashes before/after, idle, zero memory events, host20GiB pre/10GiB reserve with10GiB peak estimate, guest11/10GiB, source/lock checks, independent postcaptures and artifact capture are unchanged. New output directory and stage are exclusive; one phase per invocation. node --check exited0 without executing/importing the runner. Launcher status and artifact capture do not establish semantic acceptance."
+    },
+    {
+      "name": "Source preservation",
+      "result": "PASS",
+      "detail": "Rehashed all ten remaining drafts, six integrated source pins, canonical full Read33 and all17 original immutable source snapshots. No repository, frozen source, index, VM, SDK or other-lab changes made."
+    }
+  ],
+  "canonicalASTHashes": {
+    "productionCall": "b2387a66b457f94ebb24239d6063c98137fb05a5756262553a30cce09743d548",
+    "originalManifest": "f09c305f36202baf6a227a44993ee8f781411fbf8c460f2c9934363afa88cf52",
+    "originalBackend": "548ce8929dcb8d1abc5925e1a1640bffb4ce3248f561eafbfbdd28804145a0f4",
+    "originalLimits": "ad45c7ae815ed4e3eced9559cc7a1ebdbb9923dc19f0fd3536d7dde0fa17ac82",
+    "wholeRange": "e78fbd8ba63f60ff5f0ae1bba5e87216bb085f63e6ad84912b59a710fb315b6f",
+    "consumerLeft": "50ef94f4ec4d8ea0c7ab070343bb70390936f64fabd0dad84893060eec5057a0",
+    "expectedRight": "3041154148e9e90760c994ac709ecb310ff4a8e68f8ba382ce8fc10313c8d3e7",
+    "positiveStatement": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+    "negativeStatement": "4c55af58c8f6d34f0f1d258c2a892cc494961b5e45b53d8384e874ef1180e427",
+    "directApply": "e66a52ad916e00a7c0b1852f9e13a3ea16222ec61de28f3119ba6d850f31ab59"
+  },
+  "reviewInstrumentation": {
+    "initialReadOnlyProbe": "A reviewer assertion used the wrong remembered schema spelling lexlean.semantic/2 after all AST reconstruction assertions had passed. Actual source correctly uses lexlean/semantic-module/2; corrected assertion and both complete closure/import checks passed. No candidate defect or mutation; original tool error is retained in this session.",
+    "execution": "Read-only Node JSON/byte checks, production source inspection and node --check only; no native/compiler calls."
+  },
+  "acceptanceBoundary": {
+    "native": "NOT_RUN",
+    "sequence": "Only source readiness accepted. Parent must refresh operational gates, run actual negative first, independently classify intended185 mismatch, then run actual positive and independently audit the complete artifact.",
+    "stillOpen": [
+      "Actual wrapper definitional conversion and runtime cost",
+      "Outer range bounds/returnedBytes/planner admission",
+      "Original manifest/backend admission",
+      "ObjRangeFinish and manifest version",
+      "Whole96 hash and original manifest digest",
+      "Original ordinal26 and all Read33 controls",
+      "Full Object/Hash/model/PrismPM/Pages integration"
+    ]
+  },
+  "storage": {
+    "availableBytes": "32990793728",
+    "additionalWrite": "This report only, below15KiB",
+    "reserveBytes": "10737418240"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "lexlean-r4-derived-attestation-summary/v1",
+  "derived": true,
+  "notFullAttestation": true,
+  "source": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/roots-positive/artifact/attestation.json",
+    "bytes": 196974,
+    "sha256": "de3b81c57d0519487e788ffec1e1b0ed8f2c21097460141c13b4602685955766"
+  },
+  "actualOutcome": {
+    "attestationId": "0ae0d1959a69577114be7b279ca4b751911340e9969bd2d8e1bc8f236e81ff79",
+    "buildId": "f13d0787814406ceab49ac14cee046f0f4c17d1d3f240445919349341e821d19",
+    "sourceId": "62fc54ca18afe0c16a9b631fc143151820df9359caadc2fa448a2806d7a9f3de",
+    "semanticId": "825a80c9d7ddaaf0c06c7ae678dee528dd7f0a5ded0c044eca6068049200912b",
+    "verifyExit": 0,
+    "checkExit": 0,
+    "diagnostics": [],
+    "verifyStarted": "2026-10-24T00:34:08.167Z",
+    "verifyEnded": "2026-10-24T00:41:09.237Z",
+    "aggregateVerifyElapsedMs": 421070,
+    "finalModuleElapsedMs": null,
+    "postcaptureErrors": []
+  },
+  "counts": {
+    "inputs": 30,
+    "admittedModules": 26,
+    "rawCommandReceipts": 52,
+    "artifactFiles": 265,
+    "buildOutputs": 130,
+    "oleans": 26,
+    "emptyAxiomDeclarations": 823,
+    "successfulProcesses": 79,
+    "kernelReplays": 26,
+    "auditProcesses": 26,
+    "rootStatementListNatLiterals": 508
+  },
+  "independentReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-23/product-resumption/object-read-root-traversal/positive-native-review.json",
+    "bytes": 6844,
+    "sha256": "efe4f4280a776b7653d81b529adf80a46b98aecf773bcca4310f68ffb66abe3c"
+  },
+  "fullBundle": "Retained locally and exactly enumerated by the portable census; binaries excluded from Git."
+}
