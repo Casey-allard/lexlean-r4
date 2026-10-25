@@ -1,0 +1,169 @@
+{
+  "status": "HOST_STRUCTURAL_ONLY_NATIVE_NOT_RUN",
+  "plan": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation-v2.json",
+    "bytes": 35866,
+    "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review-v2.json",
+    "bytes": 15010,
+    "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+  },
+  "reportCopies": [
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface.json",
+        "bytes": 15389,
+        "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+      },
+      "copied": {
+        "path": "tests/fixtures/object-read-child-certificate-native/evidence/object-read-child-entry-composition-interface.json",
+        "bytes": 15389,
+        "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface-spec-review.json",
+        "bytes": 9935,
+        "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+      },
+      "copied": {
+        "path": "tests/fixtures/object-read-child-certificate-native/evidence/object-read-child-entry-composition-interface-spec-review.json",
+        "bytes": 9935,
+        "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation.json",
+        "bytes": 32375,
+        "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+      },
+      "copied": {
+        "path": "tests/fixtures/object-read-child-certificate-native/evidence/object-read-child-entry-certificate-derivation.json",
+        "bytes": 32375,
+        "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review.json",
+        "bytes": 16336,
+        "sha256": "ad61fabc508e058f491df74e63e601a0f2b9be75b14bf187a30bbb597f40bb89"
+      },
+      "copied": {
+        "path": "tests/fixtures/object-read-child-certificate-native/evidence/object-read-child-entry-certificate-spec-review.json",
+        "bytes": 16336,
+        "sha256": "ad61fabc508e058f491df74e63e601a0f2b9be75b14bf187a30bbb597f40bb89"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation-v2.json",
+        "bytes": 35866,
+        "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+      },
+      "copied": {
+        "path": "tests/fixtures/object-read-child-certificate-native/evidence/object-read-child-entry-certificate-derivation-v2.json",
+        "bytes": 35866,
+        "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+      }
+    },
+    {
+      "original": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review-v2.json",
+        "bytes": 15010,
+        "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+      },
+      "copied": {
+        "path": "tests/fixtures/object-read-child-certificate-native/evidence/object-read-child-entry-certificate-spec-review-v2.json",
+        "bytes": 15010,
+        "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+      }
+    }
+  ],
+  "translator": {
+    "path": "tests/fixtures/object-read-composed-dependencies/candidate/author-source.mjs",
+    "bytes": 29006,
+    "sha256": "72c0a6d8951db0fa278590668cb7b0f5223f1cc4ea7c4f3dfece35f10f0f4fbe"
+  },
+  "engineSlice": {
+    "begin": 3992,
+    "end": 12207,
+    "bytes": 8215,
+    "sha256": "bfcbbb22274a8a3e6b2529ac88772e1c031ee58b1bbdc9ba533ac4b0c7160a4c"
+  },
+  "independentDecode": "Actual source typed view compared to separately decoded native DAG for every preserved theorem side and inlineKbody.",
+  "moduleChecks": [
+    {
+      "module": "ObjectReadParent49ConcreteChildEntry",
+      "statementSha256": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789",
+      "nodeCount": 701,
+      "backwardDAG": true,
+      "closedBinders": true,
+      "canonicalJSON": true,
+      "policy": "none"
+    },
+    {
+      "module": "ObjectReadFirstChildContinuation",
+      "statementSha256": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3",
+      "nodeCount": 632,
+      "backwardDAG": true,
+      "closedBinders": true,
+      "canonicalJSON": true,
+      "policy": "none"
+    },
+    {
+      "module": "ObjectReadSecondChildContinuation",
+      "statementSha256": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1",
+      "nodeCount": 642,
+      "backwardDAG": true,
+      "closedBinders": true,
+      "canonicalJSON": true,
+      "policy": "none"
+    },
+    {
+      "module": "ObjectReadCompleteParent",
+      "statementSha256": "c9a2a2784ccd675bdd29b3293f3be49d0d861cc339d72fe9a0ecd1b9201374a9",
+      "nodeCount": 635,
+      "backwardDAG": true,
+      "closedBinders": true,
+      "canonicalJSON": true,
+      "policy": "none"
+    },
+    {
+      "module": "ObjectReadRootTraversal",
+      "statementSha256": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+      "nodeCount": 714,
+      "backwardDAG": true,
+      "closedBinders": true,
+      "canonicalJSON": true,
+      "policy": "none"
+    },
+    {
+      "module": "ObjectReadConnectedRange",
+      "statementSha256": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613",
+      "nodeCount": 734,
+      "backwardDAG": true,
+      "closedBinders": true,
+      "canonicalJSON": true,
+      "policy": "none"
+    }
+  ],
+  "K": {
+    "decodedBytes": 62288,
+    "decodedSha256": "c6406f585ab43b32ab81a84f6535bde4e2de6274379852f78a5ad494974f9f37",
+    "inlineLambda": true,
+    "noNewModule": true
+  },
+  "negativeAppendedNodes": 7,
+  "negativeActual": "NOT_RUN",
+  "mapping": {
+    "path": "typed-mapping.json.gz",
+    "decodedBytes": 4586992,
+    "decodedSha256": "c4a16a6ff2c04767d90b5eeaa0c1fd495a52870ee6c878528db78ffd21412658"
+  },
+  "unresolved": "Actual compiler source admission, intended negatives, fullconsumer proof, emptyaxiom/kernel and measuredcost; no timing or production acceptance follows."
+}

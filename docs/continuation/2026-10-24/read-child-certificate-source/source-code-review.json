@@ -1,0 +1,306 @@
+{
+  "schema": "lexlean-r4-independent-completed-source-code-review/v1",
+  "createdAt": "2026-10-24T13:20:11.205813+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "verdict": "PASS_SOURCE_CODE_ONLY_ALL_NATIVE_NOT_RUN",
+  "subject": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/manifest.json",
+    "bytes": 23956,
+    "sha256": "abee135319c2ad9d4299a5dce83fe049da148be9716ccb65ae9c42e60c7de60b"
+  },
+  "spec": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review-v2.json",
+    "bytes": 15010,
+    "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+  },
+  "findings": [],
+  "executionAuthorized": false,
+  "reviewMethod": [
+    "Read actual seven new native sources and authoring script as inert text; did not execute/import author code.",
+    "Rehashed all22 payloads and90 dependencies twice at review boundaries; exact manifest remains unchanged.",
+    "Independently parsed original semantic source declarations and rebuilt typed expression fingerprints in memory, including binder environments, constructor types, record field order, projections, calls and Result elimination. Separately decoded actual compact native DAG nodes into the same structural fingerprint; compared every original theorem type and exact expected proof body. This reviewer code was distinct from the retained author translator/decoder.",
+    "Verified core envelope/import agreement, canonical sorted compact JSON, backward DAG references, closed bound variables, theorem name/policy/levels, isolated negative and actual phase dependency graph.",
+    "Inspected installed Prelude source and retained official parser/core validation source. No official compiler invocation or native typing/evaluation was performed."
+  ],
+  "custody": {
+    "payloadCount": 22,
+    "dependencyCount": 90,
+    "payloadInventory": [
+      {
+        "path": "author-source.mjs",
+        "bytes": 20981,
+        "sha256": "37cd15ac6173a68afdd85b134ece956114f5a53cc13eb846f685800a27037f68"
+      },
+      {
+        "path": "budget.json",
+        "bytes": 709,
+        "sha256": "cea0548ca870e3fcdeb0fb3814117dc48be02b2f1319e037021e338b3e18578b"
+      },
+      {
+        "path": "evidence/object-read-child-entry-certificate-derivation-v2.json",
+        "bytes": 35866,
+        "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+      },
+      {
+        "path": "evidence/object-read-child-entry-certificate-derivation.json",
+        "bytes": 32375,
+        "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+      },
+      {
+        "path": "evidence/object-read-child-entry-certificate-spec-review-v2.json",
+        "bytes": 15010,
+        "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+      },
+      {
+        "path": "evidence/object-read-child-entry-certificate-spec-review.json",
+        "bytes": 16336,
+        "sha256": "ad61fabc508e058f491df74e63e601a0f2b9be75b14bf187a30bbb597f40bb89"
+      },
+      {
+        "path": "evidence/object-read-child-entry-composition-interface-spec-review.json",
+        "bytes": 9935,
+        "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+      },
+      {
+        "path": "evidence/object-read-child-entry-composition-interface.json",
+        "bytes": 15389,
+        "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+      },
+      {
+        "path": "negative/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 19573,
+        "sha256": "ac452429f66d6541e82411f5710f3c7bd3ca72b5f212cec3be07b18049aef25b"
+      },
+      {
+        "path": "negative-diff.json",
+        "bytes": 1516,
+        "sha256": "c2810288a015a7ce3e48e09d44be62226f5b91535dea1249e2c4b8aa3fc339bf"
+      },
+      {
+        "path": "positive/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+        "bytes": 16728,
+        "sha256": "bd905f34a9b72241c61036a4b333b3075095ddbb2cbca9b08bbe60b7b2ab3282"
+      },
+      {
+        "path": "positive/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "bytes": 19723,
+        "sha256": "83bfdd542288009d05b3f6a0dffa05c371d5d0e4916fe3fd6f3879035af8e842"
+      },
+      {
+        "path": "positive/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "bytes": 17041,
+        "sha256": "344af0d3466349f555f8c59e7fc741564e2117c1cc5b09ce90071bfe4c6bb9ed"
+      },
+      {
+        "path": "positive/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 19370,
+        "sha256": "41133d141e1061c86c2929a5e89a2dcba2ce4d8433866bab4cb2db4613a29bb4"
+      },
+      {
+        "path": "positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 18892,
+        "sha256": "8dea71bf23be6caf0d7ded7da0728fc6650a2dae485c2297df256037a2bad25c"
+      },
+      {
+        "path": "positive/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+        "bytes": 17244,
+        "sha256": "863fc6df0ea0967c3c62785f45f01383345957aeb4b4d82241f0e8e5b6981e0b"
+      },
+      {
+        "path": "preservation.json",
+        "bytes": 8028,
+        "sha256": "f50984271b84b179e5cb737729bbb9f16db3c6dc450e32517ed42ecaedc0420a"
+      },
+      {
+        "path": "README.md",
+        "bytes": 1853,
+        "sha256": "52336d532c4ebebf5092c4ca10a9023ceeee73707fb8709ddc9e98a81116b3b7"
+      },
+      {
+        "path": "results.json",
+        "bytes": 503,
+        "sha256": "db7fc527da165d42b08d7fb58688ed55fe4554d917c1059abfba77916ac6d665"
+      },
+      {
+        "path": "source-bindings.json",
+        "bytes": 53145,
+        "sha256": "d088c5b956e88ef3016f0a2711e5bc7867a4ec7d8f1ac0ed0b6c15499ed4e153"
+      },
+      {
+        "path": "source-checks.json",
+        "bytes": 6683,
+        "sha256": "9ee1f9e706ecd964b7971e017b99d3230e62d1bbebea77dd5a5f5a9045cf276e"
+      },
+      {
+        "path": "typed-mapping.json.gz",
+        "bytes": 598571,
+        "sha256": "87170b89fc4dab97a7db2de7c7ce2361e7afbb1c4bd2b7933d414bd53f0397c2"
+      }
+    ],
+    "dependenciesHashBoundBy": "Exact manifest above; all90 current bytes matched entries.",
+    "preservation": {
+      "pending9": 9,
+      "current17": 17,
+      "snapshot17": 17,
+      "result": "All43 current preservation paths rehashed against candidate preservation.json; unchanged.",
+      "manifest": {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/preservation.json",
+        "bytes": 8028,
+        "sha256": "f50984271b84b179e5cb737729bbb9f16db3c6dc450e32517ed42ecaedc0420a"
+      }
+    },
+    "phaseInputs": {
+      "count": 150,
+      "uniquePerPhase": 50,
+      "result": "All three exact maps rehashed; each50 unique destinations."
+    }
+  },
+  "sourceCorrespondence": {
+    "fingerprintDefinition": "SHA256 over compact JSON tuple encoding of expression kind/constant name+integer universe levels/application child fingerprints/lambda explicit binder type+body/projection owner+index/variables/numerals. Binder names are intentionally irrelevant; source binder indices are independently derived from lexical environments. Fingerprints are structural source correspondence checks, not kernel certificates.",
+    "modules": [
+      {
+        "module": "ObjectReadParent49ConcreteChildEntry",
+        "nodeCount": 701,
+        "originalGoalFingerprint": "d879e7dfc8eb1be3e295696df31e5f124f4a857d3c5179cc9c47fa6452b2fc7b",
+        "exactProofFingerprint": "79e61ce2bf10db27a40fcd83c4c05ed0dde338cef0c2a432bd55196c118a03ba",
+        "comparison": "PASS"
+      },
+      {
+        "module": "ObjectReadFirstChildContinuation",
+        "nodeCount": 632,
+        "originalGoalFingerprint": "12fbf42d5d8074efe556f3c32c4ab147c9011397fbed3e393fb92465366a5e01",
+        "exactProofFingerprint": "e28177f68128a4eda606e8ad4150e0c7175569fc1a994e8221bb76d8f50862a7",
+        "comparison": "PASS"
+      },
+      {
+        "module": "ObjectReadSecondChildContinuation",
+        "nodeCount": 642,
+        "originalGoalFingerprint": "1a3ad3f407deedabe5dd7f93f32a1a5ca2f10d7404b277087995a04fc18f3d85",
+        "exactProofFingerprint": "018fd6663cc4236d1014ebb360bc7f98db2fd738b459bf0beac8b6b510e75ffc",
+        "comparison": "PASS"
+      },
+      {
+        "module": "ObjectReadCompleteParent",
+        "nodeCount": 635,
+        "originalGoalFingerprint": "4eefafeee95caa397490f016945a2744ac1acc0590dfc942c457a262ad73946a",
+        "exactProofFingerprint": "1146c6868b89070f0db1b463f309d07bef46e5ee907318f5cfadb6ed77f1abdf",
+        "comparison": "PASS"
+      },
+      {
+        "module": "ObjectReadRootTraversal",
+        "nodeCount": 714,
+        "originalGoalFingerprint": "607f87e3219c6b4e32eae7985e27678bf7212a4a49f85664cd018095649bdf70",
+        "exactProofFingerprint": "2b3008f6f166c80ec68eeabc39dad2505e7145d11ddd25a6e7e3c4c6319c262e",
+        "comparison": "PASS"
+      },
+      {
+        "module": "ObjectReadConnectedRange",
+        "nodeCount": 734,
+        "originalGoalFingerprint": "81542ca693ad397240d8ebacfb9c225044e6662d9254ddd6da41e0e1b2aa6f75",
+        "exactProofFingerprint": "a16789af37281ec82574bd8009d58e11b3669cd334fe7581021c773321290455",
+        "comparison": "PASS"
+      }
+    ],
+    "positiveScope": "Exactly six source replacements versus original positive51-input map, plus omission of preserved now-unused ConnectedRangeTransport. Every other50-map source/config/metadata input retains prior bytes. Original selected declaration statements were independently reconstructed; no production definition or expected digest was changed.",
+    "childProof": "Eq.trans.{1} W A B C hTransition (congrArg.{1,1} W W M S inlineK hAccounting). Actual DAG fingerprint equals this complete expression; the accounting certificate is an explicit premise here.",
+    "inlineK": "Exact frozen decodedK source is translated into a closed lambda over W=Except ObjError ObjWalkState. Error branch preserves original error; success branch uses its bound state at the one specified original continuation location. Nested Result matches retain correct environments and original branch bodies. No host-computed state/hash/plan value replaces runtime expression.",
+    "fourPredecessors": "First/Second/Complete/Root declaration values are precisely their original predecessor theorem constants. State-certificate substitutions remain source derivation/provenance only; no new rewrite terms or cached evaluations supplied. All original conversions remain actual checker obligations.",
+    "connected": "Exact congrArg.{1,1} W (Except ObjError ObjRangeVerified) root.left root.right unchanged ObjConnectedRangeContext rootTraversalConstant. Connected theorem proposition is unchanged. Only Connected imports replace old Transport with Context and Root; original semantic transport file remains preserved."
+  },
+  "typingAndFormat": {
+    "ordinarySchema": "lexlean/core-module/1 with exactly one theorem declaration per source, no synthetic axioms, empty levels, policy none, class/generated false, semireducible transparency. All imports unique and envelope names match core imports plus Init.",
+    "universes": "Nat/Bool/record types inhabit Type0. List/Except type constructors and constructors use level0; Eq/Eq.trans/Eq.refl use Sort level1; congrArg uses1,1. Result match uses Except.casesOn at motive level1 and parameter levels0,0; motive is explicit nondependent result-type lambda and branches are typed error/ok lambdas. Structural construction is consistent with installed inductive declaration and standard eliminator shape; exact recursor/type conversion still requires the official compiler.",
+    "binders": "Independently verified all free-variable indices closed at declaration roots and correct lexical source-derived branch indices. Constant motive result types contain no captured source variable. Every DAG edge is strictly backward.",
+    "sourceAuthorities": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+        "bytes": 233421,
+        "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/installed-0865-parser-ir.json.gz",
+        "bytes": 15093,
+        "sha256": "f0ce6ecce7c7b16ca8ae09a4a8aeaf2116690ceed483244af3662dcd87effc4e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/additional-official-source.json.gz",
+        "bytes": 33422,
+        "sha256": "2543952e66e0a341f78726582197d02396a2d377bf9a7537b5e285623a91ff88"
+      }
+    ],
+    "authorityObservations": [
+      "Installed Prelude Eq.trans line397 and congrArg line424 define the actual equality composition/congruence constants; Except declaration lines4000-4004 has error then ok with Type parameters.",
+      "Retained official ir/core.rs validates exact schema/canonical syntax, backward references and proof_nodes in-range/strictly increasing. It does not require proof_nodes to equal declaration.value.",
+      "The previous accepted ordinary format establishes schema provenance only; it does not transfer native acceptance to these new terms."
+    ],
+    "proofNodesBoundary": "Positive proof_nodes contains positive value. Negative intentionally preserves it and changes declaration.value to the appended bad expression. This is permitted by inspected core validation; the retained positive node is not an alternative declaration proof and cannot make the bad declaration accepted."
+  },
+  "negative": {
+    "source": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/negative/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 19573,
+      "sha256": "ac452429f66d6541e82411f5710f3c7bd3ca72b5f212cec3be07b18049aef25b"
+    },
+    "positive": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/positive/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 19370,
+      "sha256": "41133d141e1061c86c2929a5e89a2dcba2ce4d8433866bab4cb2db4613a29bb4"
+    },
+    "exactDelta": "All701 positive nodes preserved, append7 nodes for Eq.refl.{1} Nat0 then application as the existing congrArg accounting premise, then final trans application. Only declaration.value changes; statement/type/imports/policy/proof_nodes unchanged.",
+    "meaning": "The supplied equality proof is Nat0=0 where M=S in W is required. It is a well-formed expression with an intentionally wrong premise, not a malformed node/census failure. Expected native type rejection remains NOT_RUN.",
+    "independentCheck": "Reconstructed the complete bad proof fingerprint and compared actual appended DAG; reverting seven nodes and declaration.value reproduces entire positive core JSON exactly."
+  },
+  "phaseIsolation": {
+    "order": [
+      "child-accounting-negative",
+      "original-admitted-negative",
+      "complete-admitted-positive"
+    ],
+    "selectedCounts": [
+      19,
+      33,
+      33
+    ],
+    "selectedInputCounts": [
+      50,
+      50,
+      50
+    ],
+    "checks": [
+      "Child phase differs from complete positive at ChildEntry only; original admitted source is positive and unselected.",
+      "Admitted-negative phase differs from complete positive at original reviewed admitted wrong-trans source only; Child/chain are positive. Its source row matches the earlier frozen negative exactly.",
+      "All selected semantic imports resolve to semantic modules; no semantic-to-new-native boundary is left in these selected closures.",
+      "HashWireDirect09Controls is not selected by any phase. Existing focused wrong Read input is byte-preserved but unselected; no second selected defect.",
+      "Selection must be explicitly bound in the later invocation since unchanged default config does not itself authorize these entries."
+    ],
+    "runtimeAndLimits": "Original config remains pinned unchanged, including300000ms. No lock/runner/executor is manufactured or supplied by this candidate."
+  },
+  "budget": {
+    "authorCapBytes": 1048576,
+    "reportedFinalAllocatedBytes": 1011712,
+    "interpretation": "Bounded source candidate allocation report is retained; no claim of independently measured continuous historical high-water. Review created no fixture copies or scratch files.",
+    "budgetPin": {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/budget.json",
+      "bytes": 709,
+      "sha256": "cea0548ca870e3fcdeb0fb3814117dc48be02b2f1319e037021e338b3e18578b"
+    },
+    "reviewHostAvailableBytes": 21184786432,
+    "reviewRequiredReserveBytes": 10737418240,
+    "reviewReportCapBytes": 24576
+  },
+  "remainingMandatoryGates": [
+    "Independent exact invocation review and fresh parent-owned resource/tool/epoch/idle/source/lock/storage guards before execution.",
+    "Actual Child intended negative with independent classification, then original admitted intended negative with independent classification, then complete admitted positive. Stop unexpected dependency/setup/timeout/resource failure; do not treat it as intended negative or raise limits automatically.",
+    "Official source admission, actual native conversions, empty axiom sets, all actual artifact identities and kernel replay audit. Host structural/type-view equality is not proof/kernel typing.",
+    "Full actual admitted consumer remains required; retained predecessor constants may recompute expensive terms. No efficiency or root-cause conclusion follows.",
+    "Remaining inner/originalordinal26/focused/full33 Read and product integration gates remain independent.331/403 and nine pending drafts are unchanged."
+  ],
+  "preservationBoundary": {
+    "onlyWrite": "This external review report",
+    "repositoryWrites": false,
+    "sdkCompilerVmCalls": false,
+    "nativeOutcome": "NOT_RUN",
+    "productionAcceptance": false,
+    "earlierFailuresAndRejectedPlan": "Preserved unchanged"
+  }
+}

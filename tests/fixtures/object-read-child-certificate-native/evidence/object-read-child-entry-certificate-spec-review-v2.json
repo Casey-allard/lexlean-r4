@@ -1,0 +1,250 @@
+{
+  "schema": "lexlean-r4-independent-source-spec-successor-review/v1",
+  "createdAt": "2026-10-24T13:07:52.935808+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "subject": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation-v2.json",
+    "bytes": 35866,
+    "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+  },
+  "verdict": "PASS_BOUNDED_CANDIDATE_AUTHORING_ONLY",
+  "candidateAuthoringAuthorized": true,
+  "nativeExecutionAuthorized": false,
+  "priorReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review.json",
+    "bytes": 16336,
+    "sha256": "ad61fabc508e058f491df74e63e601a0f2b9be75b14bf187a30bbb597f40bb89"
+  },
+  "originalDerivation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation.json",
+    "bytes": 32375,
+    "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+  },
+  "reviewMethod": "Independent exact JSON delta review, source/dependency byte rehash and unchanged source-derived correspondence comparison against the prior full source SPEC. No source author scripts, SDK, compiler, VM or runtime evaluation.",
+  "findingClosure": [
+    {
+      "id": "R1",
+      "status": "CLOSED",
+      "evidence": "futureMinimalSequence now orders Child accounting negative, original admitted negative with repaired Child/chain positives, complete admitted positive, then separately gated remaining Read. testOrdering explicitly requires independent actual classification before advancing, one defect per negative, no redundant prior full-root positive and stop on unexpected failure."
+    },
+    {
+      "id": "R2",
+      "status": "CLOSED",
+      "evidence": "chainLimitation, all four retainedChainConversions proofTermProvenanceBoundary fields and four predecessor proof descriptions explicitly distinguish retained state certificate provenance from actual theorem reuse. Exact predecessor constants still require definitional conversion, may perform expensive computation and imply no measured reduction."
+    }
+  ],
+  "deltaAssessment": {
+    "onlyChanges": "Schema/status/date and successor lineage; R1 reorders existing two phase objects and clarifies gating; R2 adds provenance/cost boundaries. No K AST, endpoint, original statement, source binding, runtime declaration, import graph, input census or proof strategy changed.",
+    "unchangedCanonicalSectionSha256": {
+      "authority": "d1042e65a2b243808211d925960609212bc48bd773e1d6074030e9848c113ba3",
+      "scope": "94265f65beb7e243f5e9e8a674883958eeb2b01b2e4fdc5d1de86b38792a3ca8",
+      "K": "07d892659855c240e16357a00bd10efa981cf8e44ee3809ec0c96d45691ad582",
+      "childEndpoints": "32be798a67e9b3d98ea8745ecf207e2f62aaef90617aa3efc9440fb933996f74",
+      "connectedEndpoints": "aa46cf1967a5fadae57da2afed4b197e7cda8650a4097d9350ebc8a8c56e3567",
+      "runtimeReductionPins": "c5014a7f5b8d4781726feb0a4a34bfc19953af7614739e4b0e84f1f289fd633f",
+      "graph": "30f373787968e469d9a13df0711e7ba465ff01090435e34647bf7e829859b263",
+      "limitations": "2ca7930e52b8e0eb52b420ff07d9ee7dab4f00b039d199617d6e2a3795effd9c",
+      "pins": "9391a0772d46ec9a8f3c132d85f3e395387582736661482c31f743a6adbb3f43"
+    },
+    "allFourOriginalChainCorrespondencesUnchanged": true,
+    "allSixOriginalSourceStatementsAndImportCutsUnchanged": true,
+    "rehashCount": 26,
+    "rehashResult": "PASS",
+    "rehashPins": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface.json",
+        "bytes": 15389,
+        "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-investigation.json",
+        "bytes": 24340,
+        "sha256": "d55483bc069814e98873e438dd3d7c43c4c42e0121d48518caf67b066b8fe91c"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+        "bytes": 36221,
+        "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/candidate/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+        "bytes": 6731,
+        "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+        "bytes": 21599,
+        "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+        "bytes": 97645,
+        "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/candidate/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+        "bytes": 25500,
+        "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/candidate/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+        "bytes": 31018,
+        "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/candidate/positive/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+        "bytes": 36529,
+        "sha256": "55aba13d8efdf27155339791bfa40f3d9cd1103e7915d353668c718d0f14e804"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+        "bytes": 128694,
+        "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+        "bytes": 87135,
+        "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+        "bytes": 83627,
+        "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+        "bytes": 111511,
+        "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/results.json",
+        "bytes": 8193,
+        "sha256": "647da63d4a07f39ac787aaebbf16faaa0b4ea9a976342019297c46509ee7e15b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/results.json",
+        "bytes": 7952,
+        "sha256": "e69c2c316c5b1dfea166ff7adc13b64cf90de7bf18d20a054ebabe4deb0325ba"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/results.json",
+        "bytes": 7933,
+        "sha256": "578003c26d78aac99ca986f3146742c94867dbac431655191e753aff08017272"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-root-traversal/results.json",
+        "bytes": 4968,
+        "sha256": "3cc74ecdf2658d8933c34ff3ec48d8e2a45c41f5b3a6382c2b6720e612b67356"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/results.json",
+        "bytes": 5483,
+        "sha256": "c789a93c06abcad7cedf99fc0b2c2a0e52d7bca571cdc730a1a859fea0207d9b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+        "bytes": 233421,
+        "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+        "bytes": 22735,
+        "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 80485,
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "bytes": 62699,
+        "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/candidate/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+        "bytes": 44871,
+        "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+        "bytes": 27835,
+        "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 37090,
+        "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "bytes": 40403,
+        "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+      }
+    ],
+    "originalAndRejectedReviewPreserved": true
+  },
+  "approvedBoundedAuthoringScope": [
+    "Six native theorem representations only: ChildEntry, FirstChildContinuation, SecondChildContinuation, CompleteParent, RootTraversal and ConnectedRange; exact original names and propositions preserved.",
+    "Inline K : Except ObjError ObjWalkState -> Except ObjError ObjWalkState in ChildEntry, with preserved error branch and exact state substitution. No new production helper or runtime change.",
+    "Child proof composes original VisitTransition and accounting equality with Eq.trans and congrArg. Native explicit motive/types/universes/backward DAG references must be checked on the completed candidate.",
+    "Four retained chain proofs remain exact predecessor constants; source correspondences and prior accepted Reflexivity provenance are not new rewrites, cached values or performance evidence.",
+    "ConnectedRange uses congrArg of the unchanged context on RootTraversal; remove only now-unused semantic ConnectedRangeTransport from selection, preserving its original file and history.",
+    "Expected selected census33/modules and50 stage inputs; exact completed candidate phase maps and imports require independent CODE review.",
+    "Preserve actual production definitions/digest, empty-axiom requirement,300s limits, current pending drafts and all frozen failures. No Simplify/new axiom/trusted intermediate runtime value."
+  ],
+  "mandatoryNextSequence": [
+    {
+      "phase": 1,
+      "name": "candidate-source-code-review",
+      "obligation": "Freeze exact candidate and obtain independent source CODE including native type/universe/DAG mapping, all preserved statements/runtime and single-defect maps. No native authority from this SPEC."
+    },
+    {
+      "phase": 2,
+      "name": "invocation-and-resource-review",
+      "obligation": "Separately reviewed exact invocation and fresh parent-owned source/tool/epoch/idle/storage gates before any native phase."
+    },
+    {
+      "phase": 3,
+      "name": "child-accounting-negative",
+      "obligation": "Only Child accounting premise is wrong Nat0=0; other sources positive. Must reach intended native type failure. Setup, dependency timeout, resource failure or malformed node is not the semantic negative. Independently classify before advancing."
+    },
+    {
+      "phase": 4,
+      "name": "original-admitted-negative",
+      "obligation": "All repaired Child/chain positives; only original admitted wrong-trans defect. Independently confirm actual intended mismatch before positive."
+    },
+    {
+      "phase": 5,
+      "name": "complete-admitted-positive",
+      "obligation": "Exact corrected source, selected full consumer chain; require official verify success and independently audited artifact identities, empty axioms and kernel replays. Helper success is insufficient."
+    },
+    {
+      "phase": 6,
+      "name": "remaining-Read-qualification",
+      "obligation": "Separately reviewed inner/original ordinal26 negative/focused positive/full33 maps and gates. No transfer of this source approval to acceptance."
+    }
+  ],
+  "unresolvedNativeObligations": [
+    "Exact native lowering/constructor universe/Except motive validation on completed candidate.",
+    "Actual conversions B=K(M),K(S)=C, retained chain conversion and both ConnectedRange endpoints under the official compiler.",
+    "Whether the proposed proof reduces cost; predecessor conversion may still recompute expensive terms. Prior timeout root cause remains unresolved.",
+    "All new native outcomes, artifacts, axiom sets and kernel replays remain NOT_RUN."
+  ],
+  "preservationAndClaims": {
+    "repositoryEdits": false,
+    "frozenPacketEdits": false,
+    "nativeCalls": false,
+    "onlyWrite": "This external successor review",
+    "priorRejectionRetained": true,
+    "objectAcceptedControls": "331/403 unchanged",
+    "pendingDrafts": "Nine not modified or promoted",
+    "readPriorNegative": "Prior dependency timeout remains NOT_REACHED; no later semantic result inferred",
+    "productionAcceptance": false
+  },
+  "storage": {
+    "hostAvailableBytes": 23942758400,
+    "minimumReserveBytes": 10737418240,
+    "reportMaxBytes": 24576
+  }
+}

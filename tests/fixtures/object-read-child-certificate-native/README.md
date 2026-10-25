@@ -1,0 +1,9 @@
+# Child accounting certificate — source candidate
+
+All native phases are **NOT_RUN**. This candidate preserves six exact original theorem propositions while expressing their proofs in installed ordinary core-module/1. ChildEntry explicitly composes the accepted visit transition with congruence of its existing accounting certificate through inline K. Four retained chain proofs contain only predecessor constants: state certificates are derivation provenance, not new rewrite terms, cached results or cost reductions. ConnectedRange uses the unchanged semantic context directly. No runtime, expected digest, axiom policy or300000ms limit changes.
+
+The source maps retain50 inputs by reference and select19 modules for Childnegative and33 for admitted roots. Obsolete ConnectedRangeTransport remains preserved in its original fixture, omitted only from these stages. No SDK/runner/lock is supplied. The author script is inert one-off source provenance and must not be rerun inside this frozen fixture. Its extracted typed lowering is a pinned historical source-authoring function, not an installed compiler substitute.
+
+Required sequence after independent source CODE/invocation reviews and fresh gates: intended Child-accounting negative; independent classification; original admitted negative with every Child/chain positive; independent classification; complete admitted positive and actual artifacts/emptyaxioms/kernel audit. Stop unexpected failure. Existing Readnegative is unselected in these roots and gains no result. Remaining inner/originalordinal26/focused/full33 remain mandatory;331/403 unchanged.
+
+Original derivation and rejecting SPEC are preserved alongside correctedv2 and acceptedSPEC. Static canonical/DAG/type-view checks are not official compiler results or performance evidence. Native exact conversion may still be expensive.

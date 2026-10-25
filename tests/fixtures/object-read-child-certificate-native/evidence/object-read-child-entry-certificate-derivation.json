@@ -1,0 +1,578 @@
+{
+  "schema": "lexlean-r4/child-entry-certificate-source-derivation/1",
+  "status": "SOURCE_DERIVATION_ONLY_REQUIRES_RENEWED_SPEC_NO_CANDIDATE_OR_NATIVE_AUTHORITY",
+  "createdAt": "2026-10-24T12:58:20.995Z",
+  "authority": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface-spec-review.json",
+    "bytes": 9935,
+    "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+  },
+  "scope": "Exact ChildEntry certificate-use route and six-native compatibility cut. Runtime, all original propositions/digests, emptyaxioms,300000ms/4GiB2CPU unchanged. No SDK/VM/sourcecandidate/repo edits.",
+  "K": {
+    "notation": "Typed source derivation AST only, not installed/emitted module. Native candidate would use this function as inline lambda in proof, not add semantic module or runtime definition.",
+    "type": "Except ObjError ObjWalkState -> Except ObjError ObjWalkState; both source/result types inhabit Type (Sort1).",
+    "encoding": "gzip+base64 of canonical JSON with lexicographically sorted object keys; no trailing newline",
+    "decodedBytes": 62288,
+    "decodedSha256": "c6406f585ab43b32ab81a84f6535bde4e2de6274379852f78a5ad494974f9f37",
+    "gzipBytes": 2019,
+    "gzipSha256": "200ed164d734bc69d3371595bdeb87b7c4bb14729329830bebfa042f3a0931dd",
+    "gzipBase64": "H4sIAAAAAAAAE+1c227iSBD9Fz+jETb3vCWjjBRptbNKVpuHVTRy7CbxxtioaTJCEf++bcMEm4ubHMeMgZOH0ZB0uS9Vp1yX5rxZj7E/sy7erEfpRt6zmFgX/+oPQeQLmfzf8oRUwTDwXCW+uUE4lcJ6aLxLufJpOhKRWoi9aDHrwnp1pdWwInck9Ict8nP9AC+OJkpOPRXL5DnLwbdiMg3VFyGl/vW88euB2cENS83G4kd+4uynh3ex5KG+FhiJ0aNIpxnF/jRMJ2p/+f74n/DUrXD91WL17+7d8OVO6dVa83mjzJP/1suc5B59vdjW/GG+3/6T+bdrYrHAjB52aW+IqGxIPZXS03MQ+veBr56poXpqyB0qIb8FcqKooXpqaCK0kH/lTujlaqqhFEN3qZqoonqqSD0HcgNDW089cpWe+NUNp8lDm9b6Rt6sYSDCZOTYnYVxegJL0bGMk8WvxJdj82KBbxjwOFPp5t/HPCfnfLFjhbbTX9N2omZtLWbJXhuVtB1Q0ml2UMlWD5QcDEDBFrrLQRM+WFhyAJtBEz0fp1mwWhGKBDJrwqvhkR42z/2sXITUvlT6S3e1r4f4M/bFjZ88s7HC0sRztVwGS9uPwMoJrYC9HwSdJgokx4Eh2IItpUhrxXiAsVvCxFDU27C/sGEkdfHFonbQtWHTg3XSQg/IaaMW1IERZnfhA0KP1oaNtg2Duo/qpINO2YXXCtus7cAeCFam02wd/MWKhwH4C8XpwCdko1qx4WiwB7sg2BAKMP3xWGfXT8kY6HYhtIiBdrjgNIUcTiNPBXG0Z2L3Nanj3fh6j4GaZc/BDUMrM1cuZV3lXLtGZBPnZMyv8z9E1kRPQk9yCp6kiqzpZyDF3lCCwwBCkBCsIQQNZRY8B8ZrZnCmViL5QYHiwIUJvMLntH8DUNDaIJw1wceKlnvgOhGc/qJqhLXYQV1PF3Z2qOH0UMvpo5YzwF+WeHES9sw2XErFCz147wWupdpt1IDsNux7OgUm9HnJ76dlwe7P60jJWVLVN2yX/Tn259ifq0+mme+0F5/L4Z02AUlAVgZItpgttpjNWWAlLeZSMVzDMDNb1GxRW2xRV6dMVrXNEDv3qna5LP3B1DHeDPcvx2MR+VdprpxZVdowPqkEn6EZQ7MKQzM4tKpngl9JK5kQJATrCMFiZcLmA5ev4JwI3SJ8NqgF4NkbWrrqoMjqollfD7WcPmo5fbiSCHvXJp7Zwt4DTxIcuCcHlzjsFmo/dht2PXAmbndgz9yFbagH2xCcu9l92IYGsA3B9XqnCVeebPh+kPOpTamz6iWzIMqCaA0LoueUaRKBRGD9EGhQCZz4wVmx04ZX24Zx0kFxAkfScBAE+x9UlbAmYUXCesTViEbQXdSp91DL6aOWA9+UGcAJGFxctW34XYCXAOH+qw3fXrJbcBLfhl1PB07iS7yCYBvCb871YRsqerkfZaKZWfRnUittm/l9/7u+RzxIDHdrSjtRrsyM3B2A53haVDw2yiRzlj/m6Elk5s6vPU6lrtaT8l1o6PXSQDm7kcWi9pBupj/bhPebvtuzm/1+UhzLP0FNZST2fMb2LbwGk0B9ZAclVfJHMErmy9raYxyHq6mUnArgS+v/JPtIUsWN+wcGCrH4Jbepkau8Z/3kiSenKoiEWAfg+7JzX27P8Pbt+v57hh4T+lK+8F6E/304nAi1scfKNrmZSJMgbTN+4X3vSqLYE7rvXY+qGQnStr3YeD+D9zNY6mWp99hKvbx9Xt0LhbfPTVMeotxSNv03EqQlkTuSiwEEaXtkiBl6fhKk0ZPQk9QjayJBGiF4thA0lFlIkGbKDkmQVlgbhLMm+FjRcg8J0nYLkiCtkhIjCdKMkiRIO6pL7ezPGd0M+3Nn258jQRoBSUDuI8kWM1vMJEhji5otaraoWdX+MMTOvapNgjQSpDE0O8LQDA6t6pngV9JKJgQJwTpCsFiZsPnA5Ss4J0K3SIK0AsMhQVqRkZMgzeSxSJBm8nckSDO93EmQdlSpJguiLIhatSuInlOmSQQSgfVDoEElJEgzKAWOweHACxUkQVqBGkmQViBIgjQTmEmQVll5lQRpJEhbD8BJkEaCtN9DkDY/JHnY8k9kRiMzWnFKwIvehQd7Mhe961EuIzPatjcaL2bwYgZrvKzxHluNl9fOq3uh8Nq5acpD1FnK5v1GZrRmlcRoeyeGQqpgGHiuEndK/2ORFo1uhG6kHikTadEIwbOFoKHGQlo0U2pIWrTCwiCcMsHHitZ6SIu2W5C0aJXUF0mLZpQkLdpRXWVnc87oZticO9vmHGnRCEgCch9J9pfZXyYtGvvT7E+zP82q9ochdu5VbdKikRaNodkRhmZwaFXPBL+SVjIhSAjWEYLFyoTNBy5fwTkRukXSohUYDmnRioyctGgmj0VaNJO/Iy2a6eVOWrSjSjVZEGVB1KpdQfScMk0ikAisHwINKiEtmkEpcAwOB16oIGnRCtRIWrQCQdKimcBMWrTKyqukRSMt2noATlo00qKdOi2acdVf9fq83LLvxm5UyYqXf8t9Dd/1vHgaKeHfROOpynoAXwyDKEgXnl3dX67Um24PLodKyMuFdBA96TFjV+pR+reLE9k+wcoyhJSLjXymK7tOH5rZhUyPR4/RB1Rqrg3runfDlyVzwcL5L6c6ua39DzZKHJVQ8wAA",
+    "mapping": {
+      "sourceC": {
+        "destination": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 80485,
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+      },
+      "sourcePointer": "/declarations/0/statement/right",
+      "changedPointer": "/branches/1/body/scrutinee/arguments/3",
+      "originalSubtreeSha256": "8d2b1342cf324189f6fb76a5cfdaa15667d41b4d9f323b99e67c968f3ebb3c37",
+      "replacement": {
+        "kind": "var",
+        "name": "certificateState"
+      },
+      "newNames": [
+        "accountedInput",
+        "certificateState",
+        "certificateFailure"
+      ],
+      "freshAgainstAllCVariablesAndBinders": true,
+      "changes": "One state subtree replaced. New outer Result error/ok eliminator preserves error constructor/type. All C child identities/views/limits/later state binders/error paths unchanged; no capture.",
+      "KOkIota": "Substitute S49 for certificateState in okbranch; exact original C AST recovered."
+    }
+  },
+  "childEndpoints": {
+    "A": "6da3f00a4ad9272b32ea084b8bf6ccef95f98965b90226464ba1468e2ac2d7f1",
+    "B": "868e7da9f6474295168bc0d70b512ddcadb086480574a52490c5ddcccfde416d",
+    "M": "aafe9726aefd538ab00b93bdef2ecc46c446b90d75cb847c61309629b269e30c",
+    "S": "aead345d9afcf982c6c04664f800c1872729ce5f70f1677cffe7b9f91305d1fb",
+    "C": "be5beda90590b2418c856767aac68ff4dff646dc960e5a38bed4b7006160aa5d",
+    "checks": {
+      "AExact": true,
+      "markCallExact": true,
+      "countedBinderExact": true,
+      "accountCallAfterRecordSubstitutionExact": true,
+      "continuationAfterRecordStateSubstitutionExact": true,
+      "KOkS49ExactC": true
+    },
+    "derivationBToKM": [
+      "Unfold original ObjParent49VisitContext at item=Result.ok originalParentRecord.",
+      "ObjSpan(Nat.succ0):0+1<=37, table index1 returns Result.ok96. ObjCheckedOffset(0,96) returns Result.ok96 since96<=18446744073709551615.",
+      "Overlap guard (stop96<=range.start0)||(range.stop96<=base0) is false; take original else branch.",
+      "Shared MarkVisit(initial empty state, limits.visits1000000): test1000000<succ0 is false, yielding Result.ok counted where counted has output[],visits1,wireBytes0,seen[]. This is source arithmetic/record projection only, no AccountRecord or hash reduction.",
+      "Eliminate same known ok MarkVisit in BOTH B and M. Eliminate fetched Result.ok originalParentRecord in B. Both now expose EXACT same opaque ObjAccountRecord(counted,originalParentRecord), confirmed by AST mapping before counted substitution.",
+      "B is match AccountRecord(counted,R) with error failure=>error failure | ok marked=>original continuation(marked). K(M) is identical after K delta/beta and shared MarkVisit iota. Actual continuation(decoded=R,marked=certificateState) equals K okbranch byte-for-byte as structural AST.",
+      "No general monad-associativity/neutral match commuting lemma assumed: reducing only this concrete shared MarkVisit removes the nested-match obstruction. Do not reduce AccountRecord or any child/hash function for this endpoint."
+    ],
+    "derivationKSToC": [
+      "K(Result.ok S49) beta/iota selects okbranch.",
+      "Single capture-safe substitution certificateState:=S49 restores exact original C AST. No production definition reduction required."
+    ],
+    "nativeProofTypes": {
+      "W": "Except.{0,0} ObjError ObjWalkState : Sort1",
+      "hTransition": "Eq W A B",
+      "hAccounting": "Eq W M S",
+      "congruence": "congrArg.{1,1} W W M S K hAccounting : Eq W (K M) (K S)",
+      "composition": "Eq.trans.{1} W A B C hTransition (congruence), relying only on above B=defK(M) and K(S)=defC",
+      "KLowering": "Ordinary native lambda/bvar/application and Except.casesOn with explicit motive returning W; use installed accepted typed lowering, not invented semantic tactic. Exact native DAG/motive universe indices require later candidate CODE. No new declaration or module necessary."
+    },
+    "nativeStatus": "NOT_RUN; static endpoint derivation is not kernel acceptance or measured cost."
+  },
+  "retainedChainConversions": [
+    {
+      "provider": "ObjectReadParent49ConcreteChildEntry",
+      "consumer": "ObjectReadFirstChildContinuation",
+      "state": "ObjectReadFirstChildState",
+      "steps": [
+        "Provider RHS outer ObjSpan0 selects32.",
+        "First child call AST equals existing state theorem.left. Existing accepted Reflexivity theorem gives Result.ok firststate.",
+        "Substitute afterFirst; preserve following checked-offset and remaining two-child AST."
+      ],
+      "commonNormalizedSha256": "58e995064d6ad1f68c8ef750441cc612be4583f76b03c377ef7b6541be3203d2",
+      "originalUnchangedSide": "left",
+      "originalSideExact": true,
+      "staticMappedNormalizedSidesEqual": true,
+      "stateStatementSha256": "d804652d8199fe479c1ef276744eea0b8119ad3c8ff2655bc6ca64661d0c1e13",
+      "stateProof": {
+        "kind": "reflexivity"
+      }
+    },
+    {
+      "provider": "ObjectReadFirstChildContinuation",
+      "consumer": "ObjectReadSecondChildContinuation",
+      "state": "ObjectReadSecondChildState",
+      "steps": [
+        "ObjCheckedOffset(0,32) selects ok32.",
+        "After secondBase substitution and literal record projection, second child call equals existing second-state theorem.left. Existing accepted Reflexivity theorem gives Result.ok secondstate.",
+        "Substitute afterSecond, leaving exact third offset/visit continuation."
+      ],
+      "commonNormalizedSha256": "833d1840243bf861fe5ee44a024460b68bc73feee168c35528ae35e0b7c1ae0d",
+      "originalUnchangedSide": "left",
+      "originalSideExact": true,
+      "staticMappedNormalizedSidesEqual": true,
+      "stateStatementSha256": "be8253d4d406ac798fdb6c63536620206bb5d1508f04f0698908f271435d52f5",
+      "stateProof": {
+        "kind": "reflexivity"
+      }
+    },
+    {
+      "provider": "ObjectReadSecondChildContinuation",
+      "consumer": "ObjectReadCompleteParent",
+      "state": "ObjectReadFinalChildState",
+      "steps": [
+        "ObjCheckedOffset(32,32) selects ok64.",
+        "Third child call after substitution equals existing final-state theorem.left. Accepted Reflexivity theorem gives exact original complete-state Result.ok."
+      ],
+      "commonNormalizedSha256": "3041154148e9e90760c994ac709ecb310ff4a8e68f8ba382ce8fc10313c8d3e7",
+      "originalUnchangedSide": "left",
+      "originalSideExact": true,
+      "staticMappedNormalizedSidesEqual": true,
+      "stateStatementSha256": "f139aa022a7ea2ad5105dc5e235ed79a3a8684b363db7ff6be983e4c3f5c6f23",
+      "stateProof": {
+        "kind": "reflexivity"
+      }
+    },
+    {
+      "provider": "ObjectReadCompleteParent",
+      "consumer": "ObjectReadRootTraversal",
+      "state": null,
+      "steps": [
+        "Unfold production ObjVisitRoots for original singleton root list; its first ObjVisitNode call after root field projections equals CompleteParent.left.",
+        "The accepted CompleteParent result is original Result.ok finalstate. After ok iota, span1=96, checkedOffset0,96=ok96; recurse on empty root tail and obtain original Result.ok finalstate.",
+        "This is concrete reduction correspondence using already accepted complete theorem; do not assume match identity is definitionally equal for arbitrary neutralResult."
+      ],
+      "commonNormalizedSha256": "3041154148e9e90760c994ac709ecb310ff4a8e68f8ba382ce8fc10313c8d3e7",
+      "originalUnchangedSide": "right",
+      "originalSideExact": true,
+      "staticMappedNormalizedSidesEqual": true
+    }
+  ],
+  "chainLimitation": "Existing state theorems are actual accepted Reflexivity certificates. In-memory correspondence replaces each certified left by its certified right and performs fixed literal projection/Span/offset/Result iota; each normalized result matches original next statement. This is a source dependency derivation, not execution of hashes/visitor or a new Lean proof. The retained native constant bodies still require original concrete definitional conversions at kernel checking and may remain expensive. No new efficiency claim or proof acceptance.",
+  "connectedEndpoints": {
+    "left": {
+      "productionDefinition": {
+        "module": "R4.ObjectRead",
+        "name": "ObjRangeAdmitted",
+        "astSha256": "2ec51dfd32cb123b90157a00c1568641c6346d8976ce1e4688af55780c8aba5c"
+      },
+      "operation": "Qualify same-module runtime references; substitute exact original connected.left arguments for view,manifest,range,limits in original ObjRangeAdmitted body. Substitute original root.left for walkResult in unchanged ObjConnectedRangeContext body.",
+      "fullExpandedASTExactlyEqual": true,
+      "commonAstSha256": "07ac3372eeacc1e220a3bfe3fcdd3b6a90145569cc36402812e76128f99d8c42",
+      "boundary": "No runtime execution, planner evaluation, hash or root proof needed for this left AST equality."
+    },
+    "right": {
+      "operation": "Context applied to original root.right=Result.ok finalWalkState. Fixed valid fullrange guard and finite planner reduce to success; then Result.ok walked iota yields original connected.right ObjRangeFinish.",
+      "fixedValues": [
+        "manifest.length96,range.start0,range.stop96,limits.returnedBytes16777216",
+        "invalidRange checks96<0 and96<96 false; requested count ObjSubtract64(96,0)=96;16777216<96 false;0==96 false",
+        "singleton root scale1/id originalParent; span1=96, checkedOffset0+96=96, overlap0<96&&0<96 true",
+        "PlanAtWidth(0,96,96)=succ((95 div96)-(0 div96))=1; PlanAdd(0,1)=ok1",
+        "PlanAtWidth(0,96,32)=succ((95 div32)-(0 div32))=3; PlanAdd(1,3)=ok4; recursivelevel0/empty roots gives Result.ok4",
+        "Both additions<=u64max and visits1000000. planned binder unused by continuation; root ok result selects walked branch."
+      ],
+      "arithmeticBoundary": "These equations are source-backed finite arithmetic reductions through unchanged ObjPlanRoots/Levels/AtWidth/Add and ObjSubtract64/ObjDivide64. No fresh execution or independent native validation is claimed; no arithmetic result is introduced as trusted source constant or theorem premise. Native proof keeps original context and planner expressions.",
+      "afterSelectedGuardPlanAndWalkBranchesMappedToOriginalRight": true,
+      "commonNormalizedAstSha256": "d1eea00d0d76ac6425470e31383072a8b31316a130d7b29068e1bd8588d1fd72"
+    },
+    "nativeProof": "congrArg.{1,1} W (Except ObjError ObjRangeVerified) root.left root.right unchangedContext rootTraversalCertificate. Type/domain/codomain explicit; original connected proposition retained.",
+    "nativeStatus": "NOT_RUN"
+  },
+  "runtimeReductionPins": [
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjMarkVisit",
+      "astSha256": "7e66b0214a6a4913fab167d09047836540e6366ed8589e123e34826c4b15e1fa"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjCheckedOffset",
+      "astSha256": "0a60e22e8fdddae9bb0f39b370b8a5e31c872221b84a4b69cdce37942fc9122c"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjVisitRoots",
+      "astSha256": "438b17c9e3cdfc402466435d38b9f2111d9e3b4728cf68644378ea670e7e799b"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjRangeAdmitted",
+      "astSha256": "2ec51dfd32cb123b90157a00c1568641c6346d8976ce1e4688af55780c8aba5c"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjPlanRoots",
+      "astSha256": "56861ad4daca36e38be55b1a3c0343e127cab8b94aabaa4379f3f7bb1ee436a7"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjPlanLevels",
+      "astSha256": "3717c180f4e4d8ac7e9ff3aea74f0f920df77002263b693128dd2cc9b9645a06"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjPlanAtWidth",
+      "astSha256": "5662276d0df3c4b73714c8f602104fd2eebc03c9e52618aac2070dded283d958"
+    },
+    {
+      "module": "R4.ObjectRead",
+      "name": "ObjPlanAdd",
+      "astSha256": "289b6546992278d1c2e537ecd9be65a1ea69e5f4e653ae2deba75cf42adb8ede"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjSpan",
+      "astSha256": "03d7b08ee06c23720b5b26feea7b3a59f2e1f8f09fd59a15a78b09f13d34baed"
+    },
+    {
+      "module": "R4.ObjectCodec",
+      "name": "ObjSpanTableAt",
+      "astSha256": "4d97d71bcad67c03b2ecb843e74bd897ad1d783bad4489dbb74b7d10737593f7"
+    },
+    {
+      "module": "R4.ObjectTypes",
+      "name": "ObjSubtract64",
+      "astSha256": "e1d33edf8b7ef60144d94885f0184140d33f8461678576b1da50a0f868ef4d0a"
+    },
+    {
+      "module": "R4.ObjectTypes",
+      "name": "ObjDivide64",
+      "astSha256": "f47a38e0a11a225334a551facc4f5aa634e9d52f6973686722104f1db33aafb2"
+    }
+  ],
+  "sixNativeRoute": [
+    {
+      "module": "ObjectReadParent49ConcreteChildEntry",
+      "source": {
+        "destination": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "bytes": 80485,
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+      },
+      "originalStatementSha256": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789",
+      "originalTheorem": "objParent49ConcreteChildEntry",
+      "importsBefore": [
+        "ObjectReadParent49AccountingState",
+        "ObjectReadParent49VisitTransition",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "importsAfter": [
+        "ObjectReadParent49AccountingState",
+        "ObjectReadParent49VisitTransition",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "proof": "Eq.trans hTransition (congrArg K hAccounting)"
+    },
+    {
+      "module": "ObjectReadFirstChildContinuation",
+      "source": {
+        "destination": "tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "path": "tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "bytes": 62699,
+        "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+      },
+      "originalStatementSha256": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3",
+      "originalTheorem": "objFirstChildContinuation",
+      "importsBefore": [
+        "ObjectReadFirstChildState",
+        "ObjectReadParent49ConcreteChildEntry",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "importsAfter": [
+        "ObjectReadFirstChildState",
+        "ObjectReadParent49ConcreteChildEntry",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "proof": "Exact previous theorem constant ObjectReadParent49ConcreteChildEntry.objParent49ConcreteChildEntry"
+    },
+    {
+      "module": "ObjectReadSecondChildContinuation",
+      "source": {
+        "destination": "tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+        "path": "tests/fixtures/object-read-second-child/candidate/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+        "bytes": 44871,
+        "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e"
+      },
+      "originalStatementSha256": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1",
+      "originalTheorem": "objSecondChildContinuation",
+      "importsBefore": [
+        "ObjectReadSecondChildState",
+        "ObjectReadFirstChildContinuation",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "importsAfter": [
+        "ObjectReadSecondChildState",
+        "ObjectReadFirstChildContinuation",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "proof": "Exact previous theorem constant ObjectReadFirstChildContinuation.objFirstChildContinuation"
+    },
+    {
+      "module": "ObjectReadCompleteParent",
+      "source": {
+        "destination": "tests/lexlean/ObjectReadCompleteParent.lex.tex",
+        "path": "tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+        "bytes": 27835,
+        "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+      },
+      "originalStatementSha256": "c9a2a2784ccd675bdd29b3293f3be49d0d861cc339d72fe9a0ecd1b9201374a9",
+      "originalTheorem": "objCompleteParentWalk",
+      "importsBefore": [
+        "ObjectReadFinalChildState",
+        "ObjectReadSecondChildContinuation",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "importsAfter": [
+        "ObjectReadFinalChildState",
+        "ObjectReadSecondChildContinuation",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "proof": "Exact previous theorem constant ObjectReadSecondChildContinuation.objSecondChildContinuation"
+    },
+    {
+      "module": "ObjectReadRootTraversal",
+      "source": {
+        "destination": "tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "path": "tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "bytes": 37090,
+        "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+      },
+      "originalStatementSha256": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af",
+      "originalTheorem": "objOriginalRootTraversal",
+      "importsBefore": [
+        "ObjectReadCompleteParent",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "importsAfter": [
+        "ObjectReadCompleteParent",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "proof": "Exact previous theorem constant ObjectReadCompleteParent.objCompleteParentWalk"
+    },
+    {
+      "module": "ObjectReadConnectedRange",
+      "source": {
+        "destination": "tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "bytes": 40403,
+        "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+      },
+      "originalStatementSha256": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613",
+      "originalTheorem": "objOriginalConnectedRange",
+      "importsBefore": [
+        "ObjectReadConnectedRangeTransport",
+        "R4.ObjectRead",
+        "R4.ObjectTypes",
+        "R4.ObjectCodec"
+      ],
+      "importsAfter": [
+        "ObjectReadConnectedRangeContext",
+        "ObjectReadRootTraversal",
+        "R4.ObjectCodec",
+        "R4.ObjectRead",
+        "R4.ObjectTypes"
+      ],
+      "proof": "congrArg ObjConnectedRangeContext objOriginalRootTraversal"
+    }
+  ],
+  "graph": {
+    "stageInputs": 50,
+    "selectedModules": 33,
+    "KPlacement": "Inline lambda in ChildEntry; no extra module/helper declaration.",
+    "selected": [
+      "ObjectAdmittedRangeResult",
+      "ObjectContextualFinishContext",
+      "ObjectContextualFinishTransport",
+      "ObjectContextualRangeFinish",
+      "ObjectManifestVersion",
+      "ObjectReadCompleteParent",
+      "ObjectReadConnectedRange",
+      "ObjectReadConnectedRangeContext",
+      "ObjectReadFinalChildState",
+      "ObjectReadFirstChildContinuation",
+      "ObjectReadFirstChildState",
+      "ObjectReadParent49",
+      "ObjectReadParent49AccountingState",
+      "ObjectReadParent49AuthenticatedFetch",
+      "ObjectReadParent49ConcreteChildEntry",
+      "ObjectReadParent49FetchContext",
+      "ObjectReadParent49FetchTransport",
+      "ObjectReadParent49VisitContext",
+      "ObjectReadParent49VisitTransition",
+      "ObjectReadParent49VisitTransport",
+      "ObjectReadRootTraversal",
+      "ObjectReadSecondChildContinuation",
+      "ObjectReadSecondChildState",
+      "R4.Hash",
+      "R4.HashNat",
+      "R4.HashNatCore",
+      "R4.HashWire",
+      "R4.Object",
+      "R4.ObjectCodec",
+      "R4.ObjectRead",
+      "R4.ObjectStore",
+      "R4.ObjectTypes",
+      "R4.Words"
+    ],
+    "omittedOnly": "ObjectReadConnectedRangeTransport stageinput, now unused; preserve original file and historical evidence.",
+    "remainingSemanticToNewNativeEdges": [],
+    "alreadyNativeBoundary": "ObjectAdmittedRangeResult unchanged positive/negative originals selected only according to phase; downstream Whole/Read interfaces preserved."
+  },
+  "futureMinimalSequence": [
+    {
+      "phase": "child-accounting-negative",
+      "inputs": "Exact six changed native source mapping with wrong accounting premise ONLY in ChildEntry; downstream admitted file must be originalPOSITIVE (or unselected positive), never currently wrong-admitted source.",
+      "root": "ObjectReadParent49ConcreteChildEntry",
+      "expected": "Actual LLV type mismatch from Nat0=0 passed as accounting premise M=S; same ChildEntry statement. Dependency timeout/setup/error is NOT intendednegative.",
+      "status": "NOT_RUN"
+    },
+    {
+      "phase": "complete-admitted-positive-with-child-certificate",
+      "inputs": "Exact reviewed correctedChild plus all six native positives and original positiveAdmitted, no defects.",
+      "root": "ObjectAdmittedRangeResult",
+      "expected": "Mandatory actual selected33 consumerchain and positive admitted theorem, emptyaxioms/allartifact/kernelreview. RootChildhelper alone insufficient.",
+      "status": "NOT_RUN"
+    },
+    {
+      "phase": "original-admitted-negative",
+      "inputs": "All repairedChild/chain positive; ONLY existing reviewed wrong-transAdmitted negative.",
+      "root": "ObjectAdmittedRangeResult",
+      "expected": "Actual intended unrelated0=0 mismatch at admitted trans proof; no selected wrongChild.",
+      "status": "NOT_RUN"
+    },
+    {
+      "phase": "remainingReadQualification",
+      "inputs": "Positive admitted then separately reviewed inner/originalordinal26 negative/focusedpositive/full33 maps.",
+      "expected": "All original gates remain; no completed331/403 promotion from source derivation.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "testOrdering": "Independent SPEC beforecandidate; independent exact sourceCODE and invocation review beforeparentresourcegatedlaunch. Review intendedwrongChild beforepositive. Positive full admitted stage also validates retained chain; original admittedwrongtrans and fullRead gates remain separately required. Stop/classify firstunexpectedfailure; never raise300s/equivalentretry.",
+  "limitations": [
+    "Exact source mappings and previous accepted certificate/proposition provenance do not establish new native DAG admission, emptyaxioms, kernel success or timing.",
+    "Nativebody conversion may move rather than reduce cost; prior timeout cause remains unresolved.",
+    "No Simplify/propext/newaxiom/trustedhash/runtime substitution, borrowed compiledartifact or genericframework.",
+    "First in-memory mapping check session73193 completed; it was host JSON/AST correspondence only, no compiler."
+  ],
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface.json",
+      "bytes": 15389,
+      "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-investigation.json",
+      "bytes": 24340,
+      "sha256": "d55483bc069814e98873e438dd3d7c43c4c42e0121d48518caf67b066b8fe91c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+      "bytes": 36221,
+      "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/candidate/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+      "bytes": 6731,
+      "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "bytes": 21599,
+      "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "bytes": 97645,
+      "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/candidate/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      "bytes": 25500,
+      "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/candidate/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+      "bytes": 31018,
+      "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/candidate/positive/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+      "bytes": 36529,
+      "sha256": "55aba13d8efdf27155339791bfa40f3d9cd1103e7915d353668c718d0f14e804"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "bytes": 128694,
+      "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/results.json",
+      "bytes": 8193,
+      "sha256": "647da63d4a07f39ac787aaebbf16faaa0b4ea9a976342019297c46509ee7e15b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/results.json",
+      "bytes": 7952,
+      "sha256": "e69c2c316c5b1dfea166ff7adc13b64cf90de7bf18d20a054ebabe4deb0325ba"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/results.json",
+      "bytes": 7933,
+      "sha256": "578003c26d78aac99ca986f3146742c94867dbac431655191e753aff08017272"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-root-traversal/results.json",
+      "bytes": 4968,
+      "sha256": "3cc74ecdf2658d8933c34ff3ec48d8e2a45c41f5b3a6382c2b6720e612b67356"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/results.json",
+      "bytes": 5483,
+      "sha256": "c789a93c06abcad7cedf99fc0b2c2a0e52d7bca571cdc730a1a859fea0207d9b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+      "bytes": 233421,
+      "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 22735,
+      "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+    }
+  ]
+}

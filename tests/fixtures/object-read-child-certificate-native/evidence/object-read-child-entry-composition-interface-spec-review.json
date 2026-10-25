@@ -1,0 +1,118 @@
+{
+  "schema": "lexlean-r4/child-entry-interface-independent-spec-review/1",
+  "createdAt": "2026-10-24T12:49:30.278834+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "verdict": "PASS_BOUNDED_SOURCE_DERIVATION_SPEC_ONLY_NO_CANDIDATE_OR_NATIVE_AUTHORITY",
+  "report": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface.json",
+    "bytes": 15389,
+    "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+  },
+  "scope": "Review actual semantic grammar/import behavior and conditional native compatibility cut. Accept only the next bounded end-to-end source derivation, not a proved remedy, source candidate or execution plan.",
+  "validatedPins": {
+    "report": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4",
+    "priorPhase1Spec": "bffa90dff11487fd51ff47a8ddea60992a9c3e60648a6c9aad30dedacf5fdcd2",
+    "semanticIR": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf",
+    "semanticBackend": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e",
+    "linkEntry": "693f357ac17397a760ffae12a32af06ca49db8556f1f4af19c4700ac8ea0e1bd",
+    "all4ReportPinsAndPriorSpecRehashed": true,
+    "bothPortableGzipAuthoritiesDecodeByteExactlyToRetainedSource": true,
+    "all51CurrentInputMapsRehashed": true,
+    "allAffectedSourcesImportsAndStatementHashesVerified": true
+  },
+  "semanticFindings": [
+    {
+      "source": "semantic-ir.rs609-657",
+      "assessment": "The actual closed SemanticProof enum has Reflexivity, Decide, LinearArithmetic, Simplify, Constructor, Cases, Induction, Congruence, BooleanReflection and Apply. No direct transitivity/Have/Rewrite variant exists in this semantic grammar. This fact is not a proof of semantic composition impossibility."
+    },
+    {
+      "source": "semantic-ir.rs7814-7871,8476-8491,8985-9010; semantic-backend.rs1236-1255",
+      "assessment": "Apply resolves exactly one existing semantic proof_rules member with explicit argument arity/types, then emits exact theorem arguments. Merely naming Prelude Eq.trans/congrArg does not register it as a semantic theorem. No implicit two-proof composition interface is established."
+    },
+    {
+      "source": "semantic-ir.rs7873-7903; semantic-backend.rs1131-1138",
+      "assessment": "Simplify explicitly accepts theorem proof_rules and local Prop hypotheses as well as definitions/selected builtin bridges. Refs must be nonempty, strictly sorted and unique; emission is simp only [refs]. Thus theorem-rewriting is grammar-supported. An exact permitted empty-axiom construction and its cost are unproved. Existing no-Simplify scope is not waived; this review neither authorizes that tactic nor asserts the hypothetical exact proof necessarily introduces propext."
+    },
+    {
+      "source": "semantic-ir.rs8053-8165; semantic-backend.rs1147-1183",
+      "assessment": "Cases/Induction require a named local whose type is Nat/List/document inductive; Prop and builtin Result do not satisfy that elimination path. Congruence emits congr1 without explicit proof-premise field. Existing Nat-family transport can carry a base equality but does not automatically prove the proposed two-certificate composition."
+    },
+    {
+      "source": "installed link.rs679-698",
+      "assessment": "Only document.semantic populates imported_semantic. A new native ChildEntry cannot be left as the provider for an unchanged semantic FirstChildContinuation Apply. Ordinary native proof terms may reference emitted semantic declarations; the direction matters."
+    }
+  ],
+  "conditionalCut": {
+    "representationChanges": [
+      "ObjectReadParent49ConcreteChildEntry",
+      "ObjectReadFirstChildContinuation",
+      "ObjectReadSecondChildContinuation",
+      "ObjectReadCompleteParent",
+      "ObjectReadRootTraversal",
+      "ObjectReadConnectedRange"
+    ],
+    "preserveSemanticDefinitions": [
+      "R4 runtime modules",
+      "ObjectReadConnectedRangeContext",
+      "Original state and context definitions"
+    ],
+    "transportDisposition": "Preserve original ObjectReadConnectedRangeTransport source/history. Rewire ConnectedRange to direct RootTraversal plus unchanged ConnectedRangeContext, thereby making the old transport unselected. Do not delete unique source.",
+    "graphChecks": "Independently rebuilt envelope graph from actual51 inputs. Original admitted closure34. Hypothetical six-native marking and exact ConnectedRange import substitution yields33 selected, removing only ObjectReadConnectedRangeTransport; no selected remaining semantic consumer imports one of the six new native providers. Existing native Admitted is the downstream stop boundary.",
+    "inputCounts": "50inputs/33selected only if unused transport input is omitted and K remains local. Keeping unselected source input retains51. Separate K module adds one input and selected module. These are construction-conditional counts; no candidate or actual compiler census exists.",
+    "minimality": "Six is a compatibility cut for this retained linear chain with direct ConnectedRange congruence, not a theorem of global mathematical minimality or justification to port a wider graph."
+  },
+  "requiredConversionLedger": [
+    {
+      "endpoint": "ChildEntry B versus K(M)",
+      "status": "UNPROVED",
+      "obligation": "Give typed error-preserving K and full source derivation through original span/offset/Boolean guards, fetched-record match, marking/accounting and continuation association. Do not assume source equality or that moving conversion reduces cost."
+    },
+    {
+      "endpoint": "ChildEntry K(S) versus C",
+      "status": "SOURCE_SHAPE_AVAILABLE_NATIVE_UNPROVED",
+      "obligation": "Capture-safe replacement of the unique first child state by K bound state, then Result.ok iota substitution must reproduce exact original C, including every later state binder/error/offset. Provide exact AST correspondence and types."
+    },
+    {
+      "endpoint": "FirstChildContinuation from ChildEntry",
+      "status": "CONVERSION_STILL_REQUIRED",
+      "obligation": "Original left AST equal, right AST differs. Preserve exact first-child theorem and provider constant; copying native Apply does not prove its RHS conversion or cost."
+    },
+    {
+      "endpoint": "SecondChildContinuation from FirstChildContinuation",
+      "status": "CONVERSION_STILL_REQUIRED",
+      "obligation": "Original left AST equal, right AST differs. Preserve exact second-child theorem and conversion boundary."
+    },
+    {
+      "endpoint": "CompleteParent from SecondChildContinuation",
+      "status": "CONVERSION_STILL_REQUIRED",
+      "obligation": "Original left AST equal, right AST differs. Preserve exact complete-parent theorem and conversion boundary."
+    },
+    {
+      "endpoint": "RootTraversal from CompleteParent",
+      "status": "CONVERSION_STILL_REQUIRED",
+      "obligation": "Original right AST equal, left AST differs. Derive unchanged root traversal left conversion explicitly."
+    },
+    {
+      "endpoint": "ConnectedRange congrArg context applied to RootTraversal",
+      "status": "BOTH_ENDPOINTS_REQUIRED",
+      "obligation": "Prove unchanged ObjRangeAdmitted left converts to ObjConnectedRangeContext(root.left), and context(root.right) converts to unchanged ObjRangeFinish right. Existing semantic Nat transport acceptance is provenance, not a new native proof or timing result."
+    }
+  ],
+  "permittedNextSourceTask": {
+    "deliverable": "One bounded typed derivation report binding exact K AST, endpoint correspondence, all six original statement hashes/import changes and supported native term/type/universe plan. Include every conversion in the ledger and the complete resulting selected graph. No file-per-helper expansion or executable candidate yet.",
+    "scope": "Choose the conditional six-native route for source derivation under current permitted constructors; any alternative semantic construction requires separate exact parser-backed specification and resolution of the existing Simplify boundary.",
+    "stopCondition": "Return a concrete failed correspondence, unsupported interface or irreducible unresolved obligation instead of inventing constructors, changing runtime/propositions, supplying trusted intermediate hashes or broadening the graph.",
+    "reviewGate": "Renew independent SPEC on the completed derivation before candidate implementation. Candidate SOURCE CODE, invocation and native result reviews remain later distinct gates."
+  },
+  "futureControlObligations": [
+    "One intended wrong accounting-premise control with unchanged statement/runtime; malformed source, dependency timeout or setup failure cannot satisfy it.",
+    "Avoid two selected defects: existing wrong admitted source in current51 map must remain unselected during a ChildEntry negative, or be replaced by the exact accepted-positive admitted source if included downstream; define exact phase maps.",
+    "Positive must prove original ChildEntry and the complete required downstream consumer chain; an isolated K helper is insufficient. Preserve exact statements, empty axioms and actual artifact/kernel audits.",
+    "Original admitted wrong-trans negative/positive, inner conversion, original ordinal26 negative/focused positive/full33 remain required; this source derivation changes no331/403 status.",
+    "No automatic retry, larger limit, native launch or current epoch/storage waiver is provided."
+  ],
+  "findings": [],
+  "unresolved": "All actual endpoint conversions, native costs, candidate admission, intended rejection and positive artifact/axiom/kernel results remain NOT_RUN. Prior timeout classification and Phase1 SPEC remain valid and unchanged.",
+  "activity": "Read-only source/archival-byte inspection, hashing and in-memory graph/AST comparisons. No SDK/VM/compiler calls, candidate authoring or repo/frozen-source edits.",
+  "hostAvailableBytes": 22883790848
+}
