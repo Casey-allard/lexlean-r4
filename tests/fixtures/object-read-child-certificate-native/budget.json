@@ -1,0 +1,27 @@
+{
+  "capBytes": 1048576,
+  "reserveBytes": "10737418240",
+  "observations": [
+    {
+      "label": "before-source",
+      "freeBytes": "23204757504",
+      "allocatedBytes": 24576,
+      "reservedBytes": 0
+    },
+    {
+      "label": "before-materializing-source-text",
+      "freeBytes": "23204753408",
+      "allocatedBytes": 24576,
+      "reservedBytes": 1024000
+    },
+    {
+      "label": "before-final-metadata",
+      "freeBytes": "23203778560",
+      "allocatedBytes": 983040,
+      "reservedBytes": 65536
+    }
+  ],
+  "projectedBytes": 1048576,
+  "scope": "All fixture files including source-authoring script/logs; no copiedsharedclosure/temporarymaterialization/nativework",
+  "native": "NOT_RUN"
+}

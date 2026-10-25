@@ -1,0 +1,65 @@
+{
+  "schema": "lexlean-r4/wrong-accounting-proof-difference/1",
+  "positive": {
+    "path": "tests/fixtures/object-read-child-certificate-native/positive/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+    "bytes": 19370,
+    "sha256": "41133d141e1061c86c2929a5e89a2dcba2ce4d8433866bab4cb2db4613a29bb4"
+  },
+  "negative": {
+    "path": "tests/fixtures/object-read-child-certificate-native/negative/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+    "bytes": 19573,
+    "sha256": "ac452429f66d6541e82411f5710f3c7bd3ca72b5f212cec3be07b18049aef25b"
+  },
+  "oldNodeCount": 701,
+  "appendedNodes": [
+    {
+      "k": "c",
+      "n": "Eq.refl",
+      "u": [
+        {
+          "a": {
+            "k": "z"
+          },
+          "k": "s"
+        }
+      ]
+    },
+    {
+      "k": "c",
+      "n": "Nat",
+      "u": []
+    },
+    {
+      "f": 701,
+      "k": "a",
+      "x": 702
+    },
+    {
+      "k": "n",
+      "v": "0"
+    },
+    {
+      "f": 703,
+      "k": "a",
+      "x": 704
+    },
+    {
+      "f": 697,
+      "k": "a",
+      "x": 705
+    },
+    {
+      "f": 662,
+      "k": "a",
+      "x": 706
+    }
+  ],
+  "change": {
+    "declaration": 0,
+    "field": "value",
+    "before": 700,
+    "after": 707
+  },
+  "unchanged": "Every original node/import/statement type/policy/proof_nodes retained; only declaration proof value changes to appended proof tree.",
+  "intended": "Nat0=0 replaces accounting M=S as congrArg premise; no statement/runtime change. Actual official rejection NOT_RUN."
+}

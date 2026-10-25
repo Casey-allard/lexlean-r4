@@ -1,0 +1,22 @@
+{
+  "status": "FROZEN_SOURCE_CANDIDATE_PENDING_CODE_ALL_NATIVE_NOT_RUN",
+  "phases": [
+    {
+      "mode": "child-accounting-negative",
+      "status": "NOT_RUN"
+    },
+    {
+      "mode": "original-admitted-negative",
+      "status": "NOT_RUN"
+    },
+    {
+      "mode": "complete-admitted-positive",
+      "status": "NOT_RUN"
+    }
+  ],
+  "acceptedControls": "331/403 unchanged",
+  "production": "NOT_ACCEPTED",
+  "proofCost": "UNMEASURED",
+  "intendedNegatives": "NOT_RUN",
+  "fullRead": "NOT_RUN"
+}

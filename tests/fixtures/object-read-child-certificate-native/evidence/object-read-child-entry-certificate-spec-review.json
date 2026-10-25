@@ -1,0 +1,218 @@
+{
+  "schema": "lexlean-r4-independent-source-spec-review/v1",
+  "createdAt": "2026-10-24T13:05:51.342111+00:00",
+  "reviewer": "construction_second_state_code_review",
+  "reviewType": "Independent source-only specification review; no candidate or native execution",
+  "subject": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation.json",
+    "bytes": 32375,
+    "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+  },
+  "verdict": "CHANGES_REQUIRED_SEQUENCE_AND_PROVENANCE_CLARITY",
+  "candidateAuthoringAuthorized": false,
+  "nativeExecutionAuthorized": false,
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "blocking",
+      "location": "futureMinimalSequence[1:3] and testOrdering",
+      "finding": "The proposal runs the complete admitted positive before the existing admitted wrong-trans negative. The accepted admitted sequence gates that positive on independent classification of its intended negative. The new Child negative does not replace the original admitted negative.",
+      "requiredCorrection": "Freeze a successor with child-accounting-negative, then original-admitted-negative using all repaired Child and chain positives, then complete-admitted-positive, then separately gated remaining Read qualification. Each phase has one defect at most; inspect and independently classify each actual result before advancing. Stop on unexpected setup/dependency/resource failure. Do not add a redundant earlier full-root positive or relax the old gate."
+    },
+    {
+      "id": "R2",
+      "severity": "clarification_required",
+      "location": "retainedChainConversions, chainLimitation and sixNativeRoute proof descriptions",
+      "finding": "The retained First/Second/Complete/Root proofs are exact predecessor theorem constants. The cited accepted Reflexivity state certificates establish source/proof provenance for the proposed definitional correspondences; those certificates are not explicitly applied in the new proof terms. The new representation still asks the checker to perform conversion, potentially including expensive computation.",
+      "requiredCorrection": "State explicitly that mapped state substitutions are a source derivation justified by retained Reflexivity provenance, not newly supplied rewrite proofs, cached results, or measured cost reduction. Preserve this distinction in candidate claims and require actual final consumer verification."
+    }
+  ],
+  "sourceAssessment": {
+    "disposition": "The specified inline K and compatible six-native cut are sufficiently concrete for a bounded candidate after R1/R2 correction; no additional source-design blocker found in reviewed correspondences. This is not proof admission or acceptance.",
+    "authority": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface-spec-review.json",
+      "bytes": 9935,
+      "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+    },
+    "pinChecks": {
+      "count": 20,
+      "result": "PASS",
+      "pins": [
+        {
+          "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface.json",
+          "bytes": 15389,
+          "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-investigation.json",
+          "bytes": 24340,
+          "sha256": "d55483bc069814e98873e438dd3d7c43c4c42e0121d48518caf67b066b8fe91c"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+          "bytes": 36221,
+          "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-accounting/candidate/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+          "bytes": 6731,
+          "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+          "bytes": 21599,
+          "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+          "bytes": 97645,
+          "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/candidate/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+          "bytes": 25500,
+          "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/candidate/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+          "bytes": 31018,
+          "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/candidate/positive/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+          "bytes": 36529,
+          "sha256": "55aba13d8efdf27155339791bfa40f3d9cd1103e7915d353668c718d0f14e804"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+          "bytes": 128694,
+          "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectRead.lex.tex",
+          "bytes": 87135,
+          "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectTypes.lex.tex",
+          "bytes": 83627,
+          "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/src/R4/ObjectCodec.lex.tex",
+          "bytes": 111511,
+          "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-first-child/results.json",
+          "bytes": 8193,
+          "sha256": "647da63d4a07f39ac787aaebbf16faaa0b4ea9a976342019297c46509ee7e15b"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-second-child/results.json",
+          "bytes": 7952,
+          "sha256": "e69c2c316c5b1dfea166ff7adc13b64cf90de7bf18d20a054ebabe4deb0325ba"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-final-child/results.json",
+          "bytes": 7933,
+          "sha256": "578003c26d78aac99ca986f3146742c94867dbac431655191e753aff08017272"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-root-traversal/results.json",
+          "bytes": 4968,
+          "sha256": "3cc74ecdf2658d8933c34ff3ec48d8e2a45c41f5b3a6382c2b6720e612b67356"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-connected-range/results.json",
+          "bytes": 5483,
+          "sha256": "c789a93c06abcad7cedf99fc0b2c2a0e52d7bca571cdc730a1a859fea0207d9b"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-native-controls/installed-lean-source/Prelude.lean.stdout",
+          "bytes": 233421,
+          "sha256": "44f86ebbb9ab743a05c6ebe2c674aadbf2c822bee874f1b16d7e6c8d56318dc9"
+        },
+        {
+          "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+          "bytes": 22735,
+          "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+        }
+      ]
+    },
+    "K": {
+      "decodedBytes": 62288,
+      "decodedSha256": "c6406f585ab43b32ab81a84f6535bde4e2de6274379852f78a5ad494974f9f37",
+      "gzipBytes": 2019,
+      "gzipSha256": "200ed164d734bc69d3371595bdeb87b7c4bb14729329830bebfa042f3a0931dd",
+      "checks": [
+        "Embedded gzip/base64 decodes to canonical sorted-key JSON with the declared bytes and hash.",
+        "K is a derivation AST to lower as an inline native lambda, not a new production declaration. Domain and codomain are W = Except ObjError ObjWalkState.",
+        "Error branch preserves the same error. The ok branch differs from original ChildEntry C only at the recorded state subtree, replaced by the fresh certificateState variable.",
+        "Substituting accepted AccountingState.right state into that ok branch reproduces the original C exactly.",
+        "The context and accounting statement expose identical ObjMarkVisit and opaque ObjAccountRecord calls after fixed guards and fetched-record iota; their remaining successful continuation maps exactly to the K ok branch. No AccountRecord/hash computation or neutral-result match associativity was assumed."
+      ]
+    },
+    "childEndpoints": [
+      "A equals exact VisitTransition.left. B is its unchanged right with the original successful parent fetch. M/S are exact AccountingState.left/right. C is exact original ChildEntry.right. All declared endpoint hashes were checked.",
+      "Fixed guard path uses span1=96, checked offset0+96, false nonoverlap guards, and one successful MarkVisit under visits1000000. These are source-backed finite reductions, not fresh native execution.",
+      "congrArg K hAccounting yields K(M)=K(S); Eq.trans composes it with A=B only through the specified definitional endpoints B=K(M) and K(S)=C. Native elaboration/conversion remains NOT_RUN."
+    ],
+    "retainedChain": {
+      "checks": [
+        "All six original statement hashes checked against actual selected sources.",
+        "Independently selected Span0 success with32, substituted branch binders, and compared the first child call to the actual FirstChildState.left after literal record projection: exact. Substituting its retained ok-state right gives exact FirstChildContinuation.right after the same projection normalization.",
+        "Selected checked-offset0+32 and substituted secondBase; second child call matches actual SecondChildState.left after projection. Its retained ok-state substitution gives exact SecondChildContinuation.right.",
+        "Selected checked-offset32+32 and substituted thirdBase; final child call matches actual FinalChildState.left after projection. Its right equals exact CompleteParent.right.",
+        "CompleteParent.right equals RootTraversal.right exactly. Original singleton ObjVisitRoots unfolds through the same complete call, then fixed span1/offset and empty tail. No arbitrary neutral-result identity was assumed."
+      ],
+      "normalizationBoundary": "Independent bounded binder/projection correspondence checks were used. Their first two serialization hashes differ from the author stronger normalization because fewer subexpressions were reduced; structural equality of both sides under the same normalization passed. Do not claim independent reproduction of every author normalized hash. An earlier in-memory reviewer over-expansion attempt recursed into neutral recursive branches and raised RecursionError; it was discarded, created no files, and is not a candidate/native failure."
+    },
+    "connectedEndpoints": {
+      "left": "Independently qualified same-module runtime references and substituted original connected arguments into ObjRangeAdmitted.body. The full AST equals unchanged context with root.left substituted; common hash07ac3372eeacc1e220a3bfe3fcdd3b6a90145569cc36402812e76128f99d8c42.",
+      "right": "Source-inspected fixed full-range guards and planner path: length96/start0/stop96, returnedBytes16777216, singleton scale1 root, visits1000000. Width96 contributes1 and width32 contributes3; successful plan result is discarded and ok walked branch reaches original RangeFinish. These equations are a source derivation through actual finite arithmetic definitions. Native exact conversion and cost are unmeasured; no host arithmetic value may replace production expressions.",
+      "status": "SOURCE_DERIVATION_ONLY_NATIVE_NOT_RUN"
+    },
+    "nativeTerms": {
+      "route": "Eq.trans.{1} on W and congrArg.{1,1} between Type0 domains/codomains are supported installed Prelude constants. W and RangeVerified result inhabit Sort1. Inline lambda and Except elimination require explicit types/motive and correct backward DAG references at source CODE review.",
+      "limits": "This report does not approve an unconstructed DAG, quantify actual nodes, certify motive universe lowering, or assert empty axioms/kernel acceptance. No invented semantic proof constructor is required. Existing semantic Simplify can reference theorem rules, but no Simplify permission or axiom claim is introduced."
+    },
+    "graph": {
+      "stageInputs": 50,
+      "selectedModules": 33,
+      "changedRepresentations": 6,
+      "runtimeChanges": 0,
+      "inlineKNewModules": 0,
+      "omittedStageInput": "ObjectReadConnectedRangeTransport only; original remains preserved",
+      "boundary": "Six theorem modules become native, Connected imports unchanged Context plus Root. Existing native Admitted consumes Connected. Selected semantic-to-new-native edges absent in the proposed cut; downstream Whole/Read and their separate gates remain. Exact candidate maps/import envelopes must be independently rechecked."
+    }
+  },
+  "requiredCandidateChecks": [
+    "Preserve all six exact theorem names/statements and original production definitions/digests/runtime/configuration and300s child limit.",
+    "Build only the six specified native theorem representations and inline K; exact source/DAG mapping and type/universe validation before any launch.",
+    "Negative Child changes only accounting premise to Nat0=0, while admitted is positive/unselected. Original admitted negative changes only its existing wrong-trans premise with all Child/chain positive.",
+    "Require separately reviewed invocation and fresh storage/epoch/tool/idle gates; this source report grants no resource or native authority.",
+    "Actual intended negatives, full admitted positive artifacts/empty axioms/kernel replays, and later original ordinal26/focused positive/full33 remain mandatory. Helper success alone is insufficient."
+  ],
+  "preservation": {
+    "writes": "Only this external review report",
+    "repoEdits": false,
+    "sdkVmCompilerInvocations": false,
+    "runtimeOrLimitsChanged": false,
+    "productionAcceptance": false,
+    "sourceNativeStatus": "NOT_RUN",
+    "existingReadIntendedNegative": "NOT_REACHED in prior failed attempt; not upgraded here",
+    "objectAcceptedControls": "331/403 unchanged",
+    "pendingDrafts": "Nine unchanged by this review"
+  },
+  "storage": {
+    "hostAvailableBytes": 23658749952,
+    "minimumReserveBytes": 10737418240,
+    "plannedReportMaxBytes": 24576
+  },
+  "limitations": [
+    "This is a source specification review, not an official compiler check, new theorem result, kernel replay, resource measurement or efficiency demonstration.",
+    "Old timeout cause remains unresolved; unchanged predecessor constants can trigger substantial definitional evaluation.",
+    "The original frozen derivation and all earlier failures remain intact. A corrected successor must bind the ordering and provenance clarifications before candidate authoring."
+  ]
+}

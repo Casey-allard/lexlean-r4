@@ -1,0 +1,586 @@
+{
+  "schema": "lexlean-r4/child-certificate-native-candidate/1",
+  "status": "FROZEN_SOURCE_ONLY_PENDING_CODE_ALL_NATIVE_NOT_RUN",
+  "payloads": [
+    {
+      "path": "author-source.mjs",
+      "bytes": 20981,
+      "sha256": "37cd15ac6173a68afdd85b134ece956114f5a53cc13eb846f685800a27037f68"
+    },
+    {
+      "path": "budget.json",
+      "bytes": 709,
+      "sha256": "cea0548ca870e3fcdeb0fb3814117dc48be02b2f1319e037021e338b3e18578b"
+    },
+    {
+      "path": "evidence/object-read-child-entry-certificate-derivation-v2.json",
+      "bytes": 35866,
+      "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+    },
+    {
+      "path": "evidence/object-read-child-entry-certificate-derivation.json",
+      "bytes": 32375,
+      "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+    },
+    {
+      "path": "evidence/object-read-child-entry-certificate-spec-review-v2.json",
+      "bytes": 15010,
+      "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+    },
+    {
+      "path": "evidence/object-read-child-entry-certificate-spec-review.json",
+      "bytes": 16336,
+      "sha256": "ad61fabc508e058f491df74e63e601a0f2b9be75b14bf187a30bbb597f40bb89"
+    },
+    {
+      "path": "evidence/object-read-child-entry-composition-interface-spec-review.json",
+      "bytes": 9935,
+      "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+    },
+    {
+      "path": "evidence/object-read-child-entry-composition-interface.json",
+      "bytes": 15389,
+      "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+    },
+    {
+      "path": "negative/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 19573,
+      "sha256": "ac452429f66d6541e82411f5710f3c7bd3ca72b5f212cec3be07b18049aef25b"
+    },
+    {
+      "path": "negative-diff.json",
+      "bytes": 1516,
+      "sha256": "c2810288a015a7ce3e48e09d44be62226f5b91535dea1249e2c4b8aa3fc339bf"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 16728,
+      "sha256": "bd905f34a9b72241c61036a4b333b3075095ddbb2cbca9b08bbe60b7b2ab3282"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 19723,
+      "sha256": "83bfdd542288009d05b3f6a0dffa05c371d5d0e4916fe3fd6f3879035af8e842"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "bytes": 17041,
+      "sha256": "344af0d3466349f555f8c59e7fc741564e2117c1cc5b09ce90071bfe4c6bb9ed"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 19370,
+      "sha256": "41133d141e1061c86c2929a5e89a2dcba2ce4d8433866bab4cb2db4613a29bb4"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 18892,
+      "sha256": "8dea71bf23be6caf0d7ded7da0728fc6650a2dae485c2297df256037a2bad25c"
+    },
+    {
+      "path": "positive/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+      "bytes": 17244,
+      "sha256": "863fc6df0ea0967c3c62785f45f01383345957aeb4b4d82241f0e8e5b6981e0b"
+    },
+    {
+      "path": "preservation.json",
+      "bytes": 8028,
+      "sha256": "f50984271b84b179e5cb737729bbb9f16db3c6dc450e32517ed42ecaedc0420a"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1853,
+      "sha256": "52336d532c4ebebf5092c4ca10a9023ceeee73707fb8709ddc9e98a81116b3b7"
+    },
+    {
+      "path": "results.json",
+      "bytes": 503,
+      "sha256": "db7fc527da165d42b08d7fb58688ed55fe4554d917c1059abfba77916ac6d665"
+    },
+    {
+      "path": "source-bindings.json",
+      "bytes": 53145,
+      "sha256": "d088c5b956e88ef3016f0a2711e5bc7867a4ec7d8f1ac0ed0b6c15499ed4e153"
+    },
+    {
+      "path": "source-checks.json",
+      "bytes": 6683,
+      "sha256": "9ee1f9e706ecd964b7971e017b99d3230e62d1bbebea77dd5a5f5a9045cf276e"
+    },
+    {
+      "path": "typed-mapping.json.gz",
+      "bytes": 598571,
+      "sha256": "87170b89fc4dab97a7db2de7c7ce2361e7afbb1c4bd2b7933d414bd53f0397c2"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation-v2.json",
+      "bytes": 35866,
+      "sha256": "4b17787bc81f902cebdc627f76c4ee86c3ed6b60dd4f1333966cfdd59651bdc4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review-v2.json",
+      "bytes": 15010,
+      "sha256": "765c1b7ade8f160d472d9f977d1f6f4514b4e13f56c9f0a3ed74f97197a49123"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface.json",
+      "bytes": 15389,
+      "sha256": "e622d6aea6c2760b7131a2cf57c5c379dd21928bf1fdd8480a9f85dc0acb33f4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-composition-interface-spec-review.json",
+      "bytes": 9935,
+      "sha256": "8ead5f036941d2c932268e53f246585559c3d57599092649d7cb52535d8e19e1"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-derivation.json",
+      "bytes": 32375,
+      "sha256": "3039a02e1d4a1a9c2759dcf84e38bd6f576eb1ec3cbf18e29b909052439cbfcc"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-child-entry-certificate-spec-review.json",
+      "bytes": 16336,
+      "sha256": "ad61fabc508e058f491df74e63e601a0f2b9be75b14bf187a30bbb597f40bb89"
+    },
+    {
+      "path": "tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+      "bytes": 36221,
+      "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Hash.lex.tex",
+      "bytes": 782463,
+      "sha256": "0e475f41c6dbe1f7cbf8aa747de64db3910efae3d220ad48025fb5f1a2062c8c"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNat.lex.tex",
+      "bytes": 64465,
+      "sha256": "91de8672ef6d927870d42c3e66a2e1ecf97c7f5c3b37aeeb3e60d822cd871a93"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashNatCore.lex.tex",
+      "bytes": 339156,
+      "sha256": "177b5763234ef689cc936df07721d915338fc25a45b42f8125884842108eb833"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/HashWire.lex.tex",
+      "bytes": 11612,
+      "sha256": "c1bd88d9a72b111735e9b4a2efeff47d187b14ce60227e033ace959ac4a03eb4"
+    },
+    {
+      "path": "src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "f2ece9599ae63c301d124ffb2f51b47c59538483efaa6dd36f16b00c399e2a76"
+    },
+    {
+      "path": "src/R4/ObjectCodec.lex.tex",
+      "bytes": 111511,
+      "sha256": "66ffca5523f2ab6f9382c61fa4eb0c63d3b45e232019fc0146240a336ca8cdbd"
+    },
+    {
+      "path": "src/R4/ObjectRead.lex.tex",
+      "bytes": 87135,
+      "sha256": "30610bf511fa7354c76b5fe2655d7356235508a10127609b40bf1999f96257a7"
+    },
+    {
+      "path": "src/R4/ObjectStore.lex.tex",
+      "bytes": 66645,
+      "sha256": "37063c3ec6b6b709b042539e9f3d34aef683e52f084888b756c22ad48a6b9a61"
+    },
+    {
+      "path": "src/R4/ObjectTypes.lex.tex",
+      "bytes": 83627,
+      "sha256": "02ab380fb1bcb2cb6f0e267843028a88038f17d374b1d65b7b09f0dc1505b740"
+    },
+    {
+      "path": "tests/fixtures/object257-leaf-transport/project/src/R4/Words.lex.tex",
+      "bytes": 240864,
+      "sha256": "d2ded0d2bee37b764a413b3c684643a4016f635d276bcdf3bc64282f03d4ff37"
+    },
+    {
+      "path": "tests/fixtures/hash-wire/project/tests/lexlean/HashWireDirect09Controls.lex.tex",
+      "bytes": 8523,
+      "sha256": "7259af92d3ea18fcc7e9ba6be872403aced633f8cf92c92d2282f750b832615e"
+    },
+    {
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "bytes": 21034,
+      "sha256": "e5a84ae3a0e3a96056ee8284030ede6650067bdd636b902302ba62576404ec5f"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishContext.lex.tex",
+      "bytes": 62202,
+      "sha256": "bc4c7c3c84433f9b551d4adcb06c7c56b0b8d0d91be51188f1283ea64d23386c"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/common/tests/lexlean/ObjectContextualFinishTransport.lex.tex",
+      "bytes": 1110,
+      "sha256": "3d4a4200cb075813b39790f1e7085f53ab98424852d03a96a6b2bdc3be809405"
+    },
+    {
+      "path": "tests/fixtures/object-contextual-range-finish/candidate/positive/tests/lexlean/ObjectContextualRangeFinish.lex.tex",
+      "bytes": 29808,
+      "sha256": "1b66a3cb474b0e808eff71bfcac6066db751c781bc50ccae294c2ad4d5e116bb"
+    },
+    {
+      "path": "tests/fixtures/object-manifest-version/candidate/positive/tests/lexlean/ObjectManifestVersion.lex.tex",
+      "bytes": 6635,
+      "sha256": "f8a1f83f5ea4335a8490024423de52dfbdf5bbaaf8e4a2954de767a8b0aebf23"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+      "bytes": 27835,
+      "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+      "bytes": 40403,
+      "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRangeContext.lex.tex",
+      "bytes": 128694,
+      "sha256": "df564e4ac623e910d7014dc4692d60678bee63a80b8ee75d52c23cd2c44aaf20"
+    },
+    {
+      "path": "tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+      "bytes": 1347,
+      "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737"
+    },
+    {
+      "path": "docs/continuation/2026-10-24/object-read-native-controls/candidate/focused-negative/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 45768,
+      "sha256": "f110de1fd5d6bb789acb4dd9f1f5c55aa8051363770e71012dca4c503d935de6"
+    },
+    {
+      "path": "tests/fixtures/object-read-final-child/candidate/positive/tests/lexlean/ObjectReadFinalChildState.lex.tex",
+      "bytes": 36529,
+      "sha256": "55aba13d8efdf27155339791bfa40f3d9cd1103e7915d353668c718d0f14e804"
+    },
+    {
+      "path": "tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+      "bytes": 62699,
+      "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c"
+    },
+    {
+      "path": "tests/fixtures/object-read-first-child/candidate/positive/tests/lexlean/ObjectReadFirstChildState.lex.tex",
+      "bytes": 25500,
+      "sha256": "8d4fd1225417074a19f7588f5e24ee3e2aec0ef6fc35d5223a9bad26afe48f31"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49/positive/tests/lexlean/ObjectReadParent49.lex.tex",
+      "bytes": 7116,
+      "sha256": "01331be3266454c15a738d3a431a6becf4d6165356784a89d1f0968b8733508e"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-accounting/candidate/positive/tests/lexlean/ObjectReadParent49AccountingState.lex.tex",
+      "bytes": 6731,
+      "sha256": "4461bd8aa0e09b8a301199aacf0da33cba488398e33e953a5397a81250401397"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+      "bytes": 20373,
+      "sha256": "72857ce8fddaef5e0a61f15464d6f5cc6f57b58a72347cc5902d98e963429f35"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "bytes": 80485,
+      "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49FetchContext.lex.tex",
+      "bytes": 17128,
+      "sha256": "ca19b7c5c2b88a94a8f966c1417c678b8f0a4c6d75c10eaf717d042ad0bc52ba"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-fetch/corrected/positive/tests/lexlean/ObjectReadParent49FetchTransport.lex.tex",
+      "bytes": 1324,
+      "sha256": "cb9f740544ac8d20bb027dfff056966af0278798b6782844527bf393351d5178"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitContext.lex.tex",
+      "bytes": 97645,
+      "sha256": "9beafd1e6ab334cfa43d331f1b2be6012b337df915b2138ef51388975c6fb70a"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-visit/candidate/common/tests/lexlean/ObjectReadParent49VisitTransition.lex.tex",
+      "bytes": 21599,
+      "sha256": "3f7f822141d711af82fc3c33fcc3082723a2682376c4d0ee143decf9d3979b5e"
+    },
+    {
+      "path": "tests/fixtures/object-read-parent49-visit/candidate/positive/tests/lexlean/ObjectReadParent49VisitTransport.lex.tex",
+      "bytes": 1372,
+      "sha256": "bb8d061a61a67354dbbc8c88d4ef8b45c1aeb5c78b52d539c0edcb2d720cefd1"
+    },
+    {
+      "path": "tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+      "bytes": 37090,
+      "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844"
+    },
+    {
+      "path": "tests/fixtures/object-read-second-child/candidate/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+      "bytes": 44871,
+      "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e"
+    },
+    {
+      "path": "tests/fixtures/object-read-second-child/candidate/positive/tests/lexlean/ObjectReadSecondChildState.lex.tex",
+      "bytes": 31018,
+      "sha256": "6aaff0b508637643617dbc9cac97bb26413e3b601c11405cfd3f48f796c0c230"
+    },
+    {
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeComposedResult.lex.tex",
+      "bytes": 21348,
+      "sha256": "83e2a9ea9ec84e02a4ffacf2cf851746b035495365118659761112cb6d21d5f9"
+    },
+    {
+      "path": "tests/fixtures/object-whole-digest-reuse/candidate/positive/tests/lexlean/ObjectWholeDigest.lex.tex",
+      "bytes": 14941,
+      "sha256": "5f431772e03c4d883468b414a8dd6dc7d7dd30797e0704cbf8cee9c0ff976f04"
+    },
+    {
+      "path": "tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestContext.lex.tex",
+      "bytes": 18360,
+      "sha256": "305d028f9214f7d0165c3a27fdb15598a19ebc28515447a3fe4335acc2d6b64d"
+    },
+    {
+      "path": "tests/fixtures/object-whole-digest-reuse/candidate/common/tests/lexlean/ObjectWholeDigestTransport.lex.tex",
+      "bytes": 1097,
+      "sha256": "76347126056bad1caf162686d652892d641d2c40d126ab9c4a7c30b436230567"
+    },
+    {
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/tests/lexlean/ObjectWholeInnerContinuation.lex.tex",
+      "bytes": 22735,
+      "sha256": "c07d6df44668b56daa5378b8368a1705b60b5a05ba9b3579a3ad6d1fd5c5b4bf"
+    },
+    {
+      "path": "tests/fixtures/object-whole-outer-shell/candidate/common/tests/lexlean/ObjectWholeOuterConsumer.lex.tex",
+      "bytes": 58020,
+      "sha256": "0a3c52f001716b891cb2b0fcdbea8878e5155cb6cd77d77e77683b4cfe2cbaf1"
+    },
+    {
+      "path": "tests/fixtures/object-whole-outer-shell/candidate/positive/tests/lexlean/ObjectWholeOuterShell.lex.tex",
+      "bytes": 21790,
+      "sha256": "c89c587558b038856b0d3c291cb0ef27e75eeeffc4cac2ae5d7c989df26b1fd2"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeContext.lex.tex",
+      "bytes": 70774,
+      "sha256": "6829ae43d70133e00c054fcdb6e044ec351c0b6c37ddc79ff170a2657e4c0bfb"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/positive/tests/lexlean/ObjectWholePostrangeResult.lex.tex",
+      "bytes": 61795,
+      "sha256": "d4a24375994e31a559b1e7bd8ef6e122905cb66c279a37f0ce542b2219b0a4eb"
+    },
+    {
+      "path": "tests/fixtures/object-whole-postrange-result/candidate/common/tests/lexlean/ObjectWholePostrangeTransport.lex.tex",
+      "bytes": 1108,
+      "sha256": "5813d8ca99cc92233f0dd938d5c93c73cfe9a8aa8eee3d1ef37f3683495fc5de"
+    },
+    {
+      "path": "tests/fixtures/object-whole-read-continuation/candidate/common/tests/lexlean/ObjectWholeReadContext.lex.tex",
+      "bytes": 77000,
+      "sha256": "c8c33588feaad1e283e314c37b3c6110f946627d608e5e43decfd82ea5935900"
+    },
+    {
+      "path": "tests/fixtures/object-read-admitted-product-proof/preservation.json",
+      "bytes": 8322,
+      "sha256": "135e009b41566e152414a51c1ceee3a809bca81e108c8dc0d602c59e55b966b2"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending-manifest.json",
+      "bytes": 5064,
+      "sha256": "4fb0db6bdf4a8c2e9362bb73388554eef6f1335a6c2012023b3e8f7fb71e0980"
+    },
+    {
+      "path": "docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/src/R4/Object.lex.tex",
+      "bytes": 14317,
+      "sha256": "c42f2e3dfcdc92356204ab99bb5916768e112e7fcee607058610a59fa4badc4b"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectCodec.lex.tex",
+      "bytes": 111631,
+      "sha256": "e0adc921e19bdde22e816e94c3e9643986f95d3fd260da4d9b61b2cef8035950"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectRead.lex.tex",
+      "bytes": 86326,
+      "sha256": "3f4d9ff8e2614459053c119c2b9230a2d007e7d482a787e136d1ae69090a8328"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectStore.lex.tex",
+      "bytes": 66585,
+      "sha256": "e6dd71f943f75623d1007b3655a8cf65c50fae864df2854cbf16071874922221"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/src/R4/ObjectTypes.lex.tex",
+      "bytes": 83582,
+      "sha256": "85979678a7c8ca98693d107532d382e61cf04b9e46ca09d64054ca8db5e3f3c1"
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    },
+    {
+      "path": "tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "17ca6e3d679909c9c00e19f887c0eee7e3ec18058aa5c050a1ee8e54e176f865"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectCodecControls.lex.tex",
+      "bytes": 544911,
+      "sha256": "abe3d673513d7e376ff42bb90b5c56bb517b45f6c3df62b1a2cdde59de678131"
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "path": "tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 52458,
+      "sha256": "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectReadControls.lex.tex",
+      "bytes": 330157,
+      "sha256": "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e"
+    },
+    {
+      "path": "tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectStoreControls.lex.tex",
+      "bytes": 120318,
+      "sha256": "8e004b57191f7f0a7566f8b6e27c3c6f104a9bc8975d25a6d1a2c2e19ff0c993"
+    },
+    {
+      "path": "model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "path": "model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "path": "model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "docs/continuation/2026-10-23/pending/model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    },
+    {
+      "path": "tests/fixtures/object-read-composed-dependencies/candidate/author-source.mjs",
+      "bytes": 29006,
+      "sha256": "72c0a6d8951db0fa278590668cb7b0f5223f1cc4ea7c4f3dfece35f10f0f4fbe"
+    }
+  ],
+  "sourceCount": 7,
+  "changedPositiveModules": 6,
+  "stageInputCount": 50,
+  "phaseCensus": [
+    {
+      "mode": "child-accounting-negative",
+      "selected": 19
+    },
+    {
+      "mode": "original-admitted-negative",
+      "selected": 33
+    },
+    {
+      "mode": "complete-admitted-positive",
+      "selected": 33
+    }
+  ],
+  "authorLogBoundary": "Host invocation stdout/stderr are outside manifest while being written; parent may retain them separately. No native results."
+}

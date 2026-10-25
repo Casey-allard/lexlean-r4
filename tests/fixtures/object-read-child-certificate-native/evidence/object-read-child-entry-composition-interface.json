@@ -1,0 +1,269 @@
+{
+  "schema": "lexlean-r4/child-entry-composition-interface/1",
+  "status": "SOURCE_INTERFACE_ONLY_NO_CANDIDATE_OR_EXECUTION_AUTHORITY",
+  "createdAt": "2026-10-24T12:43:12.995Z",
+  "priorSPEC": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-child-entry-spec-review.json",
+    "bytes": 12514,
+    "sha256": "bffa90dff11487fd51ff47a8ddea60992a9c3e60648a6c9aad30dedacf5fdcd2"
+  },
+  "officialSemanticAuthorities": [
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/previous-sdk/r4-0865-semantic-backend.rs",
+      "archive": "docs/continuation/earlier-history-2026-10-23/files/d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e.txt.gz",
+      "archiveBytes": 31891,
+      "archiveSha256": "de5f8a14e9c75c58ad97040c92f021e89be12acf41803b13d23cd2b921461027",
+      "encoding": "gzip UTF8 exact bytes",
+      "bytes": 162725,
+      "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e"
+    },
+    {
+      "original": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/previous-sdk/r4-0865-semantic-ir.rs",
+      "archive": "docs/continuation/earlier-history-2026-10-23/files/e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf.txt.gz",
+      "archiveBytes": 62544,
+      "archiveSha256": "050a8ab36aa6de3e6c0973afdb4947e72ae628c3b2ee27ce2b2a8bbb9ec5c9e5",
+      "encoding": "gzip UTF8 exact bytes",
+      "bytes": 353541,
+      "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf"
+    }
+  ],
+  "supportedBehavior": [
+    {
+      "source": "semantic-ir.rs609-657",
+      "finding": "Closed SemanticProof enum: Reflexivity,Decide,LinearArithmetic,Simplify,Constructor,Cases,Induction,Congruence,BooleanReflection,Apply. No direct transitivity/substitution/Have/Rewrite variant; absence alone does not imply composition impossible."
+    },
+    {
+      "source": "semantic-ir.rs7814-7871,8476-8491,8985-9010;semantic-backend.rs1236-1255",
+      "finding": "Apply resolves exactly one imported/local semantic theorem in proof_rules, checks explicit type/term arity and types, then emits exact theorem arguments. Prelude Eq.trans/congrArg are not registered merely by naming them. No two-subproof slots."
+    },
+    {
+      "source": "semantic-ir.rs8053-8165;semantic-backend.rs1147-1183",
+      "finding": "Cases/Induction require existing local of Nat,List,or document inductive. Prop/Result are rejected as elimination scrutinees. Induction adds Prop-typed branch IH; Cases does not inject an arbitrary theorem. Congruence emits congr1 and has no explicit premise field. Accepted Nat-family transport propagates one base equality through a context, not automatically two independent certificates."
+    },
+    {
+      "source": "semantic-ir.rs7873-7903;semantic-backend.rs1131-1138",
+      "finding": "IMPORTANT: Simplify definitions accepts theorem proof_rules and localProp hypotheses, not only definitions; sorted unique nonempty refs emit simp only [refs]. This IS a grammar-supported multiple-equality rewrite route preserving semantic consumers.",
+      "limit": "Not proven usable under emptyaxioms: previous product plans exclude Simplify/propext. Do not silently waive that restriction, claim this exact proof necessarily uses propext, or claim only native composition exists. No such candidate/test is authorized."
+    },
+    {
+      "source": "semantic-backend.rs1110-1130",
+      "finding": "LinearArithmetic emits intros, optional subst_vars/simp, all_goals omega; no source-backed reason to use it for this Except-valued theorem or replace proposition."
+    },
+    {
+      "source": "installed link.rs679-698 (priorSPEC officialSupport.interop)",
+      "finding": "Only document.semantic enters imported_semantic for SemanticModule::parse. Native proof cannot serve downstream semantic Apply proof_rules. Native core can reference imported emitted semantic theorem/definition."
+    }
+  ],
+  "semanticConclusion": {
+    "established": "No currently approved empty-axiom direct Apply/Cases/Induction/Congruence construction combining both certificates was found. Direct Eq.trans naming through Apply is unsupported by resolver.",
+    "notEstablished": "General impossibility of semantic composition. Simplify explicitly supports theorem rewriting, but permitted empty-axiom exact construction is NOT_RUN and existing no-Simplify boundary remains.",
+    "conditionalDiagnostic": "Only if independently authorized after resolving that boundary, canonical Simplify naming existing transition, context definition and accounting theorem could test certificate rewriting on unchanged A=C. Necessary normalization definitions/axioms/cost unknown; this report does not propose execution."
+  },
+  "exactProofObligations": {
+    "A": "Original ChildEntry.left, exactly VisitTransition.left.",
+    "B": "VisitTransition.right = ObjParent49VisitContext(Result.ok originalParentRecord).",
+    "M": "Existing AccountingState.left: exact MarkVisit/AccountRecord expression.",
+    "S": "Existing AccountingState.right: Result.ok S49.",
+    "C": "Original ChildEntry.right: exact three-child continuation.",
+    "K": "Error-preserving function on Result ObjWalkState ObjError: error e->error e; ok s->C replacing only first child starting-state S49 with capture-safe s. Preserve all later afterFirst/afterSecond binders/errors/offsets.",
+    "conditionalNativeProof": "Eq.trans hTransition (congrArg K hAccounting). Requires B=defK(M) and K(S)=defC. These endpoint conversions remain unproved; no trusted intermediatehash/hostcomputed premise.",
+    "negative": "Wrong accounting premise Nat0=0 with exact original statement/runtime; intended type rejection before positive. Dependency timeout/setup failure is not negative acceptance."
+  },
+  "actualSelectedGraph": {
+    "inputs": 51,
+    "selectedModules": 34,
+    "affected": [
+      {
+        "module": "ObjectReadParent49ConcreteChildEntry",
+        "path": "tests/fixtures/object-read-parent49-accounting/candidate/common/tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+        "sha256": "989aeb9a596323e9c535694c770bcd0c45506328bdcce5642b047d0ed3413e05",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadParent49AccountingState",
+          "ObjectReadParent49VisitTransition",
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "R4.ObjectCodec"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objParent49ConcreteChildEntry",
+            "sha256": "1c0d1ed389c252ca8d777fc3383b1024c7f4987a54ca366bbfd06b4706a1b789"
+          }
+        ]
+      },
+      {
+        "module": "ObjectReadFirstChildContinuation",
+        "path": "tests/fixtures/object-read-first-child/candidate/common/tests/lexlean/ObjectReadFirstChildContinuation.lex.tex",
+        "sha256": "fd63d17d60b234f76c752d9cc826bdd0e4b34b8940dc4461f983855ae304f74c",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadFirstChildState",
+          "ObjectReadParent49ConcreteChildEntry",
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "R4.ObjectCodec"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objFirstChildContinuation",
+            "sha256": "4631db4e5483d52dd47eadb4a5c2e20c307d1f5412c08b5058d0de1a08d536b3"
+          }
+        ]
+      },
+      {
+        "module": "ObjectReadSecondChildContinuation",
+        "path": "tests/fixtures/object-read-second-child/candidate/common/tests/lexlean/ObjectReadSecondChildContinuation.lex.tex",
+        "sha256": "84e07b682188434d95c27bda14b28dacc3acc56e07c120b23e246461afe1315e",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadSecondChildState",
+          "ObjectReadFirstChildContinuation",
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "R4.ObjectCodec"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objSecondChildContinuation",
+            "sha256": "51bf0406db4436bd7a943b7e55516dc27a8b43385799f583e83cd163ca700ed1"
+          }
+        ]
+      },
+      {
+        "module": "ObjectReadCompleteParent",
+        "path": "tests/fixtures/object-read-final-child/candidate/common/tests/lexlean/ObjectReadCompleteParent.lex.tex",
+        "sha256": "9c7bdbd76788af3f8541ce2d2063f4d547e3a5dd905aceed8a69b10c7b608ace",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadFinalChildState",
+          "ObjectReadSecondChildContinuation",
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "R4.ObjectCodec"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objCompleteParentWalk",
+            "sha256": "c9a2a2784ccd675bdd29b3293f3be49d0d861cc339d72fe9a0ecd1b9201374a9"
+          }
+        ]
+      },
+      {
+        "module": "ObjectReadRootTraversal",
+        "path": "tests/fixtures/object-read-root-traversal/candidate/positive/tests/lexlean/ObjectReadRootTraversal.lex.tex",
+        "sha256": "d8a0cd07913eec76f1aae09a0c8c97c8e09264aedebc2fb25dc6d34e5d09a844",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadCompleteParent",
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "R4.ObjectCodec"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objOriginalRootTraversal",
+            "sha256": "c4d72452979c3dea1e0c4fd9a46bc000b14b3a4432bb7923cde380af8fa653af"
+          }
+        ]
+      },
+      {
+        "module": "ObjectReadConnectedRangeTransport",
+        "path": "tests/fixtures/object-read-connected-range/candidate/positive/tests/lexlean/ObjectReadConnectedRangeTransport.lex.tex",
+        "sha256": "e7d8042253599c976b2a5781a11645bec800190b85bbf9bdbd81ad8ce7e15737",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadConnectedRangeContext",
+          "ObjectReadRootTraversal"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objConnectedRangeUnrelatedZero",
+            "sha256": "282d12053307c60b349f5fd4edad3ecf08341655f58b06087c42cfa1f40b199e"
+          },
+          {
+            "name": "objConnectedRangeLifted",
+            "sha256": "ed1a84a563141db0a6f9f95e33100d53216b1aa30586dc3243193301056e91b1"
+          }
+        ]
+      },
+      {
+        "module": "ObjectReadConnectedRange",
+        "path": "tests/fixtures/object-read-connected-range/candidate/common/tests/lexlean/ObjectReadConnectedRange.lex.tex",
+        "sha256": "6820851838224fec461ba58d3265153114380ff9e2b4de6b0436435885cec6b5",
+        "format": "semantic-module/2",
+        "imports": [
+          "ObjectReadConnectedRangeTransport",
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "R4.ObjectCodec"
+        ],
+        "theoremStatements": [
+          {
+            "name": "objOriginalConnectedRange",
+            "sha256": "9d10a89cabc13e5da624bf813b754c9985243a52e0e324da6202cd1d46ca3613"
+          }
+        ]
+      },
+      {
+        "module": "ObjectAdmittedRangeResult",
+        "path": "tests/fixtures/object-read-admitted-product-proof/negative/tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+        "sha256": "7e93202da3bdef668ae8c3b1084effd9516d1152aeecf5c07fcf15bf2cc1cb64",
+        "format": "core-module/1",
+        "imports": [
+          "R4.ObjectRead",
+          "R4.ObjectTypes",
+          "ObjectReadConnectedRange",
+          "ObjectContextualRangeFinish"
+        ],
+        "theoremStatements": []
+      }
+    ]
+  },
+  "minimumConditionalNativeCut": {
+    "scope": "Minimum representation cut retaining this existing linear theorem chain and replacing transport by direct congruence; not globally minimal among all mathematically possible proofs.",
+    "replaceSix": [
+      "ObjectReadParent49ConcreteChildEntry",
+      "ObjectReadFirstChildContinuation",
+      "ObjectReadSecondChildContinuation",
+      "ObjectReadCompleteParent",
+      "ObjectReadRootTraversal",
+      "ObjectReadConnectedRange"
+    ],
+    "preserveStatements": "All exact original theorem statements must remain, including first/second/finalchild continuation propositions, root traversal, connected range. State/runtime/context definitions remain semantic.",
+    "chain": "First directly Applies ChildEntry; Second directly Applies First; Complete directly Applies Second; Root directly Applies Complete. Native representation of each is needed once priorprovider becomes native. Copying exact statement/application does not establish cost improvement or conversion success.",
+    "lastBoundary": "ConnectedRange currently Applies semantic ConnectedRangeTransport at1. Proposed native congrArg unchanged ObjConnectedRangeContext applied to RootTraversal bypasses transport; replace transport import with directcontext import. Context definitions unchanged; oldtransport preserved as unselected historical source. Existing native ObjectAdmittedRangeResult consumes ConnectedRange, so migration stops beforeAdmitted/Whole/Read.",
+    "lastConversion": "ConnectedRange actualleft is ObjRangeAdmitted, not syntactically context(root.left). Exact defeq mapping to context applied root theorem must be independently derived; prior Nattransport acceptance does not prove newnativecost.",
+    "counts": "If K is local nativehelper in ChildEntry, omit unusedTransportstageinput gives50inputs/33selected. A separate newKmodule addsoneinput/oneselected. Exact candidate does not exist, so these are explicit construction-conditional counts, not frozen stagecensus."
+  },
+  "nextStep": "Obtain independent review of permitted route, then exact typed K AST/capture-safe mapping and both conversion derivations beforeimplementation. Native route additionally needs six exact statements/importcut. No blindwholegraph port, unchanged runtime/digest/300s/emptyaxioms. Actual admittednegative,positive,inner and full33 remain required; controls331/403 unchanged.",
+  "nativeStatus": "ALL_PROPOSED_PHASES_NOT_RUN",
+  "activity": {
+    "reportOnly": true,
+    "repoEdits": 0,
+    "SDK_VM_calls": 0,
+    "serializationNote": "Initial pretty serialization21278B exceeded16KiB guard in memory beforefilewrite; final excludes redundant proofbodies."
+  },
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-admitted-product-proof/source-bindings.json",
+      "bytes": 36221,
+      "sha256": "f8f312d381ca5e83ed3c59badc5db14e4d3d70cc8e3bd7244f2e466074d8edd9"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/previous-sdk/r4-0865-semantic-ir.rs",
+      "bytes": 353541,
+      "sha256": "e273dcc28a3d1b426bb97bef43cb426e2ccb7cbd205aab2a3b4ccf38c5623fbf"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-22/prediction/insertion-bool-cases-preparation/authority/previous-sdk/r4-0865-semantic-backend.rs",
+      "bytes": 162725,
+      "sha256": "d747f2819115fa4fb31b4c9c6e77ba0b0b26705d93a7f75ada209ca27f76295e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-whole-native-format/evidence/installed-source/additional-official-source.json.gz",
+      "bytes": 33422,
+      "sha256": "2543952e66e0a341f78726582197d02396a2d377bf9a7537b5e285623a91ff88"
+    }
+  ]
+}
