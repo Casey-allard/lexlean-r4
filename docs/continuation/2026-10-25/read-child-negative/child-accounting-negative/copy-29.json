@@ -1,0 +1,13 @@
+{
+  "args": [
+    "cp",
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-parent49-fetch/corrected/common/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-read-child-accounting-negative-owned-20261025/tests/lexlean/ObjectReadParent49AuthenticatedFetch.lex.tex"
+  ],
+  "started": "2026-10-25T23:34:04.322Z",
+  "ended": "2026-10-25T23:34:04.350Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": ""
+}

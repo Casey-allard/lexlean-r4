@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-25T23:32:12.982Z",
+  "vmStartSession": 5192,
+  "vmStartCommand": [
+    "colima",
+    "start",
+    "--profile",
+    "lexlean-r4"
+  ],
+  "vmStartExitCode": 0,
+  "outputRetention": "Tool display was truncated; no full startup transcript claimed. Subsequent independent container raw captures retained.",
+  "observedWarnings": [
+    "Previously configured VM mount /tmp/lexlean-r4-template-20261021 absent",
+    "Port53 forwarding bind already in use"
+  ],
+  "scope": "Existing VM and container reused; no compiler launch; no cleanup of unrelated files or processes"
+}

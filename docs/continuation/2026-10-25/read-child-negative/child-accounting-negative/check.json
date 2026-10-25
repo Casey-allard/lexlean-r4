@@ -1,0 +1,19 @@
+{
+  "args": [
+    "exec",
+    "-w",
+    "/tmp/r4-object-read-child-accounting-negative-owned-20261025",
+    "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "lexlean",
+    "--diagnostic-format",
+    "json",
+    "check",
+    "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex"
+  ],
+  "started": "2026-10-25T23:34:05.373Z",
+  "ended": "2026-10-25T23:34:06.448Z",
+  "status": 0,
+  "signal": null,
+  "stdout": "{\"artifacts\":[],\"command\":\"check\",\"diagnostics\":[],\"exit_code\":0,\"modules\":[\"ObjectReadParent49\",\"ObjectReadParent49AccountingState\",\"ObjectReadParent49AuthenticatedFetch\",\"ObjectReadParent49ConcreteChildEntry\",\"ObjectReadParent49FetchContext\",\"ObjectReadParent49FetchTransport\",\"ObjectReadParent49VisitContext\",\"ObjectReadParent49VisitTransition\",\"ObjectReadParent49VisitTransport\",\"R4.Hash\",\"R4.HashNat\",\"R4.HashNatCore\",\"R4.HashWire\",\"R4.Object\",\"R4.ObjectCodec\",\"R4.ObjectRead\",\"R4.ObjectStore\",\"R4.ObjectTypes\",\"R4.Words\"],\"semantic_id\":\"5579fcd1a57d79535f0664c59ad0c1719723ea531b3a3e33dd16db280549d39f\",\"source_id\":\"3da8784c7290217a25932e8d408f00d23bba960f4955e9b27675462759229ad5\",\"spec\":\"lexlean/command-result/1\",\"success\":true}\n",
+  "stderr": ""
+}

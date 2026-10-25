@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-25T23:30:49.596Z",
+  "preparationSHA256": "f1464c1d75824d00ec2c39584115a715aeeae366a595499a28db38a6946ceee6",
+  "observations": [
+    {
+      "mode": "child-accounting-negative",
+      "target": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex",
+      "selected": 19,
+      "status": "PASS"
+    },
+    {
+      "mode": "original-admitted-negative",
+      "target": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "selected": 33,
+      "status": "PASS"
+    },
+    {
+      "mode": "complete-admitted-positive",
+      "target": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+      "selected": 33,
+      "status": "PASS"
+    },
+    {
+      "args": [],
+      "status": "REJECTED_EXPECTED"
+    },
+    {
+      "args": [
+        "bad"
+      ],
+      "status": "REJECTED_EXPECTED"
+    },
+    {
+      "args": [
+        "child-accounting-negative",
+        "extra"
+      ],
+      "status": "REJECTED_EXPECTED"
+    }
+  ],
+  "limits": "Host phase constants only; no compiler or proof acceptance"
+}

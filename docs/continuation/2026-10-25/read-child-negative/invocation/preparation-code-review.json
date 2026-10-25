@@ -1,0 +1,81 @@
+{
+  "schema": "lexlean-r4/child-certificate-preparation-code-review/1",
+  "at": "2026-10-25T23:33:10.945698+00:00",
+  "reviewer": "child_delivery_code",
+  "verdict": "PASS_NULL_EPOCH_PREPARATION_ONLY",
+  "findings": [],
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/invoke-child-certificate-preparation.mjs",
+      "bytes": 10606,
+      "sha256": "f1464c1d75824d00ec2c39584115a715aeeae366a595499a28db38a6946ceee6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/invoke-admitted-product.mjs",
+      "bytes": 12193,
+      "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/manifest.json",
+      "bytes": 23956,
+      "sha256": "abee135319c2ad9d4299a5dce83fe049da148be9716ccb65ae9c42e60c7de60b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/source-bindings.json",
+      "bytes": 53145,
+      "sha256": "d088c5b956e88ef3016f0a2711e5bc7867a4ec7d8f1ac0ed0b6c15499ed4e153"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/selection-checks.json",
+      "bytes": 1027,
+      "sha256": "bdca9109143c995780eb28f30bd929ef9f07e7b5f171874e89bd995c50238efa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/null-gate-checks.json",
+      "bytes": 2720,
+      "sha256": "66676d5f025f78bf885654e03ef5f801974f991e34adcfbc11042b7fa4d2298a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-24/read-child-certificate-source/source-code-review.json",
+      "bytes": 18319,
+      "sha256": "d196ca032fb3d7117e3e68dda5f65aa1b06f913ec650a522f36cf56e472e2b3a"
+    }
+  ],
+  "freshReadOnlyChecks": {
+    "payloads": 22,
+    "dependencies": 90,
+    "phaseInputs": 150,
+    "phaseMaps": [
+      {
+        "phase": "child-accounting-negative",
+        "selectedModules": 19,
+        "inputs": 50,
+        "target": "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex"
+      },
+      {
+        "phase": "original-admitted-negative",
+        "selectedModules": 33,
+        "inputs": 50,
+        "target": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex"
+      },
+      {
+        "phase": "complete-admitted-positive",
+        "selectedModules": 33,
+        "inputs": 50,
+        "target": "tests/lexlean/ObjectAdmittedRangeResult.lex.tex"
+      }
+    ],
+    "allGuardCommandPostcaptureFunctions": "BYTE_IDENTICAL_TO_PRIOR",
+    "nullGate": "before output creation or process call",
+    "selectedInputDestinations": "unique, relative, no parent traversal"
+  },
+  "scope": "Exact small adaptation of phase names/maps, candidate/source review pins, input census50 and stage date. Reviewed full source and complete diff. No proof, runtime, policy, limits or command function changes.",
+  "retainedHostEvidence": "Selection report has three selected maps and three invalid-argument rejections; null-gate report has actual three exit1 NO_REVIEWED_FRESH_EPOCH receipts and no output directory. Reviewer inspected evidence and source; did not rerun the script.",
+  "limitations": [
+    "All native phases NOT_RUN. Null epoch deliberately blocks execution.",
+    "Final bound successor needs separate exact invocation review and fresh live resource checks.",
+    "Raw epoch pins are provenance metadata; unchanged epoch function uses StartedAt/config and separate live memory/tools/idle/storage gates.",
+    "Launcher success is not theorem acceptance; actual result and postcapture receipts require independent review for each phase."
+  ],
+  "mutations": "Only this external review JSON; no repo/index/source/native operations."
+}

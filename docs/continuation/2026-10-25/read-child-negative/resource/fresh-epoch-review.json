@@ -1,0 +1,128 @@
+{
+  "schema": "lexlean-r4/fresh-resource-epoch-code-review/1",
+  "createdAt": "2026-10-25T23:31:27.760Z",
+  "reviewer": "child_delivery_code",
+  "verdict": "PASS_CAPTURED_NEW_RESOURCE_EPOCH_ONLY",
+  "findings": [],
+  "rawPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/host-preflight.json",
+      "bytes": 870,
+      "sha256": "2c801dd79e9ace0be236f8c5aae93d06262c5830ea0f10cd506005a828b82402"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/container-before.json",
+      "bytes": 7651,
+      "sha256": "0bfccb5811d4faf91071b58fdc94ba1ef48b8c4a251dc3483e339c62504db52c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/container-start.stdout",
+      "bytes": 65,
+      "sha256": "c22ab385f7d2c0342506f3dbb01379474ca3f1e13e30e47236af618ce9abff3f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/inspect-after.json",
+      "bytes": 8774,
+      "sha256": "470f780bcfe68617f2f156421fa4e1470b54b5c27b4cc9a0094e5413ea6468df"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/boot.json",
+      "bytes": 336,
+      "sha256": "39b29fd5d7bf23357b60826fec31f3cc6b9ca7296f9416527b3d0a81cb7e4c22"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/memory.json",
+      "bytes": 354,
+      "sha256": "1f70f3da82b1c907cc410af2afe2a8dee970c0db64b469c83b5cf7122dfd93bd"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/idle.json",
+      "bytes": 460,
+      "sha256": "31314339c900fec17bdeb8d242f2af724ff32381f0b212f106f347ee1e946802"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/guest.json",
+      "bytes": 406,
+      "sha256": "5e1b3d04a10887bf67ba2acb3debcd6a8ce5cfcfa7c65c176ada52ebcf24f3c6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/tools.json",
+      "bytes": 1005,
+      "sha256": "440417ede8b3ba3edcc3e854187da20c15a229314ff2d5401f32c6bec4f2edd0"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/host-after.json",
+      "bytes": 147,
+      "sha256": "5d41f19ed866094449502b5a654f277850c225f13b428079870c1c626077eac8"
+    }
+  ],
+  "priorInvocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-24/object-read-admitted-product-invocation/invoke-admitted-product.mjs",
+    "bytes": 12193,
+    "sha256": "72fef3657aaf58c0eff15cbe0877977a10e95966217128a4903e87c5e7ff597b",
+    "purpose": "Identity and resource-gate reference only; not re-executed or authorized for new candidate"
+  },
+  "identity": {
+    "containerId": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "createdAt": "2026-10-21T07:45:24.299856471Z",
+    "startedAt": "2026-10-25T23:29:57.087744357Z",
+    "guestBootId": "c719c273-40c8-4b98-920a-1d1053f67237",
+    "restartCount": 0,
+    "memoryBytes": 4294967296,
+    "nanoCpus": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "toolHashes": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ]
+  },
+  "freshChecks": [
+    "Actual before/after snapshots have identical container id, image, creation timestamp, HostConfig, Config and mounts; observed existing exited container became running.",
+    "New StartedAt precedes every ordered capture; every typed command receipt has status0, signalnull, no stderr/error and ordered start/end.",
+    "Observed container protection and resource limits unchanged:4GiB/2CPU/networknone/no mounts/no-new-privileges/capdropALL/notprivileged.",
+    "Six memory.events counters allzero in new snapshot; observed ps contains only pid1sh, pid7sleep and reviewer capture ps.",
+    "Exact installed LexLean/Lean/Lake/leanchecker hashes equal prior approved invocation constants.",
+    "Host preflight budget and postcapture retain10GiB reserve after10GiB additional estimate; guest free exceeds11GiB.",
+    "All10 raw evidence files rehashed after review."
+  ],
+  "storage": {
+    "hostPreFreeBytes": "49643995136",
+    "hostPostFreeBytes": "49226379264",
+    "hostObservedDecreaseBytes": "417615872",
+    "estimatedPeakAdditionalBytes": "10737418240",
+    "reserveBytes": "10737418240",
+    "hostPlanningFloorBytes": "21474836480",
+    "guestFreeKiB": "52728028",
+    "preObservedAllocatedKiB": {
+      "vmDataDisk": 26217336,
+      "vmDisk": 1470228
+    },
+    "preSwapAllocatedMiB": 9216
+  },
+  "epochBoundary": {
+    "priorStartedAt": "2026-10-24T10:51:37.465092641Z",
+    "newStartedAt": "2026-10-25T23:29:57.087744357Z",
+    "newGuestBootId": "c719c273-40c8-4b98-920a-1d1053f67237",
+    "priorExitCode": 255,
+    "continuousCounterComparison": false,
+    "oldEvidencePreserved": "Prior raw failures and nonzero epochs are historical; this review neither resets nor reinterprets them."
+  },
+  "limitations": [
+    "Snapshot acceptance only; no assertion that process/memory/storage state remains unchanged after capture.",
+    "container-start.stdout alone does not record command exit status; successful running state is established by the later actual status0 inspect. Parent reported VM start session5192 exit0, but that session receipt is not among these raw files and is not independently audited here.",
+    "Preflight records VM stopped and disk allocation; postcapture does not measure peak paging or continuous allocation.10GiB is a planning estimate, not a measured maximum.",
+    "Existing exited container code255 does not establish its historical exit cause; no cause is inferred.",
+    "No source candidate, invocation guard, development lock, source admission, theorem result, kernel replay or production acceptance is established by this resource review."
+  ],
+  "mandatoryBeforeExecution": [
+    "Independent exact invocation review binding the new epoch/raw pins and the reviewed source candidate.",
+    "Fresh exact tool/source/epoch/idle/allzero-memory/host20GiB budget/guest11GiB checks immediately before the single phase; independent postchecks with10GiB reserves.",
+    "Preserve no-overlap and intended-negative sequence; unexpected resource/setup/proof failure stops progression."
+  ],
+  "nativePhases": "ALL_NOT_RUN",
+  "reviewMutations": "Only this external fresh-epoch-review.json; no SDK/process/VM/repo/source changes."
+}
