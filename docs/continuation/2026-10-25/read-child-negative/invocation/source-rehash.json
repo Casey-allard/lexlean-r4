@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-25T23:31:43.503Z",
+  "manifest": "abee135319c2ad9d4299a5dce83fe049da148be9716ccb65ae9c42e60c7de60b",
+  "payloads": 22,
+  "dependencies": 90,
+  "phaseInputs": [
+    {
+      "mode": "child-accounting-negative",
+      "count": 50
+    },
+    {
+      "mode": "original-admitted-negative",
+      "count": 50
+    },
+    {
+      "mode": "complete-admitted-positive",
+      "count": 50
+    }
+  ],
+  "status": "PASS",
+  "native": "NOT_RUN"
+}

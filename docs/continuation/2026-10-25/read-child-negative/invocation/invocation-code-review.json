@@ -1,0 +1,98 @@
+{
+  "schema": "lexlean-r4/child-certificate-invocation-code-review/1",
+  "at": "2026-10-25T23:33:32.026693+00:00",
+  "reviewer": "child_delivery_code",
+  "verdict": "PASS_EXACT_INVOCATION_FIRST_CHILD_NEGATIVE_ONLY_AFTER_FRESH_GUARDS",
+  "findings": [],
+  "subject": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/invoke-child-certificate.mjs",
+    "bytes": 12797,
+    "sha256": "3cc48e7aef25481a08f64bb9e2ea2f2b6b32a2e48109659b0322efd90d099b27"
+  },
+  "preparation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/invoke-child-certificate-preparation.mjs",
+    "bytes": 10606,
+    "sha256": "f1464c1d75824d00ec2c39584115a715aeeae366a595499a28db38a6946ceee6"
+  },
+  "preparationReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/preparation-code-review.json",
+    "bytes": 3955,
+    "sha256": "4f3844ede305ba3df2f67787cfc4006669b85a9c29f6df0859708ae29868d1d7"
+  },
+  "freshEpochBinding": {
+    "startedAt": "2026-10-25T23:29:57.087744357Z",
+    "review": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/fresh-epoch-review.json",
+      "bytes": 6863,
+      "sha256": "1ae05555de0b1f218aa72dcd0f732604719bc5bbbb47e98f0787ea6a631a0705"
+    },
+    "rawPins": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/host-preflight.json",
+        "bytes": 870,
+        "sha256": "2c801dd79e9ace0be236f8c5aae93d06262c5830ea0f10cd506005a828b82402"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/container-before.json",
+        "bytes": 7651,
+        "sha256": "0bfccb5811d4faf91071b58fdc94ba1ef48b8c4a251dc3483e339c62504db52c"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/container-start.stdout",
+        "bytes": 65,
+        "sha256": "c22ab385f7d2c0342506f3dbb01379474ca3f1e13e30e47236af618ce9abff3f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/inspect-after.json",
+        "bytes": 8774,
+        "sha256": "470f780bcfe68617f2f156421fa4e1470b54b5c27b4cc9a0094e5413ea6468df"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/boot.json",
+        "bytes": 336,
+        "sha256": "39b29fd5d7bf23357b60826fec31f3cc6b9ca7296f9416527b3d0a81cb7e4c22"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/memory.json",
+        "bytes": 354,
+        "sha256": "1f70f3da82b1c907cc410af2afe2a8dee970c0db64b469c83b5cf7122dfd93bd"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/idle.json",
+        "bytes": 460,
+        "sha256": "31314339c900fec17bdeb8d242f2af724ff32381f0b212f106f347ee1e946802"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/guest.json",
+        "bytes": 406,
+        "sha256": "5e1b3d04a10887bf67ba2acb3debcd6a8ce5cfcfa7c65c176ada52ebcf24f3c6"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/tools.json",
+        "bytes": 1005,
+        "sha256": "440417ede8b3ba3edcc3e854187da20c15a229314ff2d5401f32c6bec4f2edd0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-resource/host-after.json",
+        "bytes": 147,
+        "sha256": "5d41f19ed866094449502b5a654f277850c225f13b428079870c1c626077eac8"
+      }
+    ]
+  },
+  "checks": [
+    "Exact final file differs from reviewed preparation only in freshEpochBinding assignment.",
+    "New epoch startedAt/review and all10 raw pins byte-exact rehashed at review; resource review PASS matches same pins.",
+    "All baseline guard, command, source, lock, artifact and independent postcapture functions unchanged byte-for-byte, as established in preparation review.",
+    "Candidate manifest/source review links22payloads90dependencies and150 phase input rows remain exact; selected maps19/33/33 with50 unique bounded repository input paths per phase.",
+    "Three explicit phase arguments only, no automatic phase progression. Selected own stage date20261025 and exclusive output mkdir/new guest mkdir prevent silent stage reuse.",
+    "Source check must match exact selected module closure; verify output and independent postcapture errors are preserved; successful launcher status is not proof acceptance."
+  ],
+  "acceptanceLimits": [
+    "Only child-accounting-negative is next authorized phase after fresh live resource/source/tool/epoch/idle/allzero guards.",
+    "Original-admitted-negative and complete-admitted-positive require actual preceding result/postcondition classification and independent review; no automatic continuation.",
+    "Raw epoch pins are preparation/review-time metadata checks. Unchanged runtime functions check live StartedAt/config/tools/source/memory/idle/storage but do not rehash historical raw pins; no perpetual custody claim.",
+    "Native phases remain ALL_NOT_RUN at review. No kernel, theorem, product, production binding or Pages acceptance follows from this review.",
+    "Unexpected setup/resource/proof failure must stop progression; existing limits remain unchanged."
+  ],
+  "mutations": "Only this external invocation-code-review.json; no SDK/compiler/VM or repository/source/index changes."
+}
