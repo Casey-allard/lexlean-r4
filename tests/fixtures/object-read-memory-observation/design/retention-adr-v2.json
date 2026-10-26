@@ -1,0 +1,143 @@
+{
+ "schema": "lexlean-r4/retention-refinement-adr/1",
+ "created_at": "2026-10-26T01:52:34.914978+00:00",
+ "author": "retention_architect",
+ "status": "SOURCE_ONLY_RECOMMENDATION_REQUIRES_INDEPENDENT_SPEC_CODE",
+ "authority": {
+  "base": "a218201c01472e8553fc27a8072b8b3432cd3f4b",
+  "branch": "codex/admitted-memory-retention",
+  "verified_roster": "4e5d2791f522e3ca",
+  "architect": "active",
+  "sources": {
+   "design/contract.json": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6",
+   "design/placement-adr.json": "f770346d7a479852eafe1e97a5eccfe465cab0c606afdfdc14f036673ae0d7a4",
+   "design/implementation-spec-review.json": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953",
+   "observe.py": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b",
+   "JOURNAL.md": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+  },
+  "plan_path": "docs/plans/2026-10-26-admitted-memory-observation.md",
+  "plan_sha256": "83ecb0fac1ef7b5f56d4354c39e5c82cd4f456b9f970f3789d3d85f8e4d2749c"
+ },
+ "decision": {
+  "limits": {
+   "samples": 786432,
+   "identities": 196608,
+   "markers": 57344,
+   "terminal": 8192,
+   "total": 1048576
+  },
+  "fixed_slots": {
+   "request": 512,
+   "request_temp": 512,
+   "ack": 512,
+   "ack_temp": 512,
+   "container_root": 4096,
+   "host_root": 4096,
+   "retrieval_receipt": 16384,
+   "guest_terminal": 4096,
+   "host_terminal": 4096
+  },
+  "arithmetic": {
+   "fixed_markers": 26624,
+   "journal_markers": 30720,
+   "maximum_header": 8192,
+   "journal_markers_after_max_header": 22528,
+   "maximum_journal_bytes": 1013760
+  },
+  "change": "Initial Journal marker reservation2048 becomes26624. Terminal8192 stays protected. Other pools and existing append/sync behavior unchanged. Journal cannot borrow fixed slots, even unwritten. Header/gaps share30720; no additional gap allowance.",
+  "ownership": "Reserve all fixed slots at ledger creation. New root/receipt/terminal files are direct exclusive one attempt, no publication temp, replacement, retry/new-name fallback or refund after failure. Existing four512-byte control/temp slots keep their protocol. Host tests use one ledger for both terminals. Actual cross-process disjoint role/path mapping remains pre-run work; no shared Python object or dynamic lease service.",
+  "copies": "No duplicate observation journal, embedded copy or extra retrieval output file. Container root, retained host root and base64 receipt are separately counted. Later exports require explicit accounting. Root cap includes all headers/raw bytes. Partial host root may retain captured prefix but cannot validate a complete root observation.",
+  "physical": "1MiB limits logical encoded bytes, not physical peak. Ten files: journal,4control/temp,2roots,receipt,2terminals. Hypothetical4096-byte blocks yield maximum1064960 data bytes before metadata. Actual host/guest allocation, buffers and temporary copies require separate peak budget."
+ },
+ "encoding": {
+  "format": "Exact arrays below, compact UTF-8 JSON plus LF, ensure_ascii=True, separators comma/colon, allow_nan=False. Validate bounded types/arity/length before serialization; enforce final encoded cap before writing.",
+  "guards": "Only exact built-in types; reject subclasses/hooks, floats, dictionaries, extra fields, arbitrary nesting, path/argv/exception strings. Bool is not integer. Root depth1. New records only: existing full sample/identity schema is deferred.",
+  "U": "Canonical decimal string 0 or [1-9][0-9]*, <=20ASCII characters and <=18446744073709551615. Null only where stated; unknown is never zero.",
+  "hex": "nonce and binding exactly64lowercase hex characters. Binding is a reference, not a live-epoch attestation.",
+  "process": "[state,exitCode,signal]. state not_run/running/exited/signaled/unknown. exited requires exact int0..255 and null signal; signaled null exitCode and exact int1..64; others both null. Process status is independent of observation validity."
+ },
+ "retrieval": {
+  "array": [
+   "r",
+   1,
+   "nonce",
+   "binding",
+   "hostStartU_or_null",
+   "hostEndU_or_null",
+   "process",
+   "stdoutCompleteBool",
+   "stderrCompleteBool",
+   "stdoutBase64",
+   "stderrBase64",
+   "reason"
+  ],
+  "caps": {
+   "encoded_including_LF": 16384,
+   "raw_stdout": 4096,
+   "raw_stderr": 4096,
+   "base64_each": 5464,
+   "depth": 3,
+   "tree_nodes": 32
+  },
+  "validation": "Times both U or both null; known end>=start, host domain only. Input streams exact immutable bytes; serializer generates base64. Completeness exact bool. reason predicates: none requires exited0/bothcomplete; signaled requires signaled process; exit_nonzero requires exited nonzero; truncated_stdout requires flags(false,true), truncated_stderr(true,false), truncated_both(false,false); spawn_error requires process not_run/unknown; read_error requires at least one incomplete; unknown permits otherwise unknown/multiple-cause records. This is the complete reason enum. Incomplete forbids none. Process failure may coexist with complete capture. Reject contradictions before I/O.",
+  "adaptation": "Do not use unchanged broad20MiB command capture. Later minimal capture must retain bounded prefixes plus independent status/completeness in these slots, no extra raw/JSON file. Cap+1 truncation detection and all transient buffers/copies need peak accounting. Truncated prefix never validates root. This slice only serializes supplied captures, with no subprocess.",
+  "reason_priority": "Among actually observed causes choose truncation(both/side), spawn_error, read_error, signaled, exit_nonzero, unknown, in that order; none only absent failure. Never infer truncation from incomplete flags. Serializer checks local predicates; later capture supplies cause provenance/priority."
+ },
+ "terminal": {
+  "array": [
+   "t",
+   1,
+   "role",
+   "nonce",
+   "binding",
+   "finalState",
+   "reason",
+   "prefix",
+   "journalSync",
+   "coverage",
+   "detailedGaps",
+   "reserved",
+   "remaining",
+   "observerProcess",
+   "sdkProcess"
+  ],
+  "caps": {
+   "encoded_including_LF": 4096,
+   "depth": 3,
+   "tree_nodes": 64
+  },
+  "enums": "role guest/host. finalState ended/stopped/unobserved. reason ended/quota_stop/parse_error/read_error/io_failure/clock_error/ownership_changed/namespace_unknown/unsupported_subtree/marker_timeout/parent_missing/interrupted/unknown. unobserved uses unknown. ended describes lifecycle only, not complete coverage or SDK/resource qualification.",
+  "prefix": "[reportedWriteOffset,completeOffset,completeRows,syncedOffset,offsetCertain]. Numeric entries U or null, last bool or null. Known offsets synced<=complete<=reported<=1013760; completeRows<=completeOffset, completeOffset zero iff completeRows zero when both known. Uncertain extent retains reported progress and false certainty. No snapshot uses nulls; known empty uses zeros. Host may report only independently parsed/ACK-bound prefix, not unseen guest writes/syncs.",
+  "journalSync": "not_attempted/reported/failed/unknown. reported needs known syncedOffset; failed retains previously known synced prefix or null. Refers to PRIOR JOURNAL, not terminal own future fsync.",
+  "coverage": "[missingIntervalCount,firstMissingGuestUs,lastMissingGuestUs,unknownIdentityCount], each U or null. Known first<=last. detailedGaps retained/incomplete/unknown. Exact intervals remain journal, bounded terminal only summarizes. Missing clock/identity evidence remains unknown.",
+  "quotas": "reserved is null without a trusted snapshot; remaining then generated null. Otherwise reserved is four exact ints [samples,identities,markers,terminal] in ranges[0..786432,0..196608,26624..57344,8192] from an actual trusted snapshot; remaining is generated as limits minus reserved, never supplied independently. Reject partially null vectors. Bounds/initial policy cannot replace exact facts. Fixed policy caps remain known. Reservations include unwritten slots, not physical extent.",
+  "processes": "observerProcess and sdkProcess are separate process tuples. Guest observer only running/unknown, not its own future exit. Host can record observed exit/signal. Guest SDK not_run/running/unknown unless separately validated actual outcome supplied. Serializer cannot establish supplied fact provenance; composer/pre-run must.",
+  "claims": "No acceptance field and no raw exception messages. Bounded reason does not replace preserved original exception in caller-visible failure."
+ },
+ "writer": [
+  "One small role-bound one-attempt writer, trusted caller-owned initially empty exclusive unbuffered stream, trusted synchronous sync callback returning None. No path opening, discovery, launcher or observer entry point.",
+  "Latch attempt before validation/I/O. Slot already reserved. Any validation/write/sync failure consumes attempt/reservation without refund; other role remains independently attemptable.",
+  "Validate, serialize bounded fields, check cap, write. Positive exact-int short writes advance reported prefix. Invalid counts/exceptions stop with original cause; actual extent can be uncertain. Complete only after every byte; synchronized only after callback returns None. No later publication step.",
+  "Immutable terminal cannot certify its own future fsync. Its journalSync describes preceding journal. Own write/sync result is caller-visible and may be recorded by other reserved terminal if actually observed. Both writers failing leaves no guaranteed durable failure record; no third file or retroactive rewrite.",
+  "Callers attempt both role terminals independently and preserve original errors. Sync API success is not a power-loss guarantee. No generic leasing, ledger service or process framework."
+ ],
+ "tests_NOT_RUN": [
+  "Predecessor RED for new marker reservation. Exact aggregate1048576/journal1013760/header remainder22528; each slot boundary and one-byte-over; no borrowing, double ownership, refund or retry.",
+  "Retrieval worst4096/4096 raw produces5464/5464base64 within16384. Reject4097 before write; wrong types/subclasses/bool-as-int/U/arity/depth/nodes/status/completeness/time contradictions; verify no extra capture files.",
+  "Terminal worst bounded schema fits4096. Reject quota/offset contradictions, free exception/path, floats/NaN, excess fields. Preserve null versus known zero, false values, original cause; remaining always derived; no self-fsync claim.",
+  "Guest failure then host attempt and reverse on same ledger, total8192 protected. Validation failure, exception, zero/invalid count, short write, ENOSPC, interruption, sync failure consume one attempt and preserve prefix/cause/other-role availability.",
+  "Existing Journal regressions unchanged except explicit marker allocation. Full sample/identity schemas, ancestry1/4/8/64, actual paths/ownership/runner and bounded capture integration remain future composer/pre-run, not established by this slice.",
+  "Repair RED/GREEN: absent quota snapshot gives null reserved/remaining; known empty/filled gives exact vectors; reject partial-null/caller remaining. Reject exited0+signaled/exit_nonzero, complete+truncated/wrong side; keep nonzero+complete. Exercise observed cause priority without inferring cause from flags."
+ ],
+ "risks": "Arithmetic is adequate for logical retention if exclusive fixed roles and bounded retrieval hold. Post-encoding cap alone does not bound memory. Journal marker exhaustion is intentional even if fixed slots unused. Exact gaps may be incomplete and cannot be reconstructed as observed. Physical peak and cross-process ownership remain unproved.",
+ "boundary": "Source-only ADR, no functions implemented or tests run. Independent SPEC then CODE design review before parent TDD. No SDK/VM/compiler/native/install/repository/index change. Old max6325 remains unaccepted. No launch/epoch/resource/proof authority; no new components beyond fixed accounting and typed records/writers.",
+ "revision": 2,
+ "lineage": {
+  "original_sha256": "90c4a67ed89f39410e9f9a453a5870a312f6d666649aae7179cd5baa1ce3cdba",
+  "spec_review_sha256": "d79366c4be249486c39e3a09bf35d4ed53d57b1f781ca0cd2f1998c615e9960a",
+  "repairs": [
+   "RETENTION-SPEC-01",
+   "RETENTION-SPEC-02"
+  ]
+ }
+}

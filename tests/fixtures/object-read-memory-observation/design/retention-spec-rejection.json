@@ -1,0 +1,91 @@
+{
+  "schema": "lexlean-r4/retention-refinement-spec-review/1",
+  "at": "2026-10-26T01:51:41.735675+00:00",
+  "reviewer": "journal_head_code",
+  "role": "Internal independent code-reviewer performing SPEC review only",
+  "verdict": "REVISE_TWO_SCHEMA_GAPS_BEFORE_IMPLEMENTATION",
+  "subject": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/retention-refinement-adr.json",
+    "bytes": 11066,
+    "sha256": "90c4a67ed89f39410e9f9a453a5870a312f6d666649aae7179cd5baa1ce3cdba",
+    "base": "a218201c01472e8553fc27a8072b8b3432cd3f4b",
+    "branch": "codex/admitted-memory-retention"
+  },
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS 7 agents/7 skills",
+    "checkAgentCodeReviewer": "PASS",
+    "INITAndProfileRead": true,
+    "fileClaims": "Empty table, no conflict"
+  },
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/design/contract.json",
+      "bytes": 24222,
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/design/placement-adr.json",
+      "bytes": 14197,
+      "sha256": "f770346d7a479852eafe1e97a5eccfe465cab0c606afdfdc14f036673ae0d7a4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/design/implementation-spec-review.json",
+      "bytes": 11850,
+      "sha256": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 9277,
+      "sha256": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/JOURNAL.md",
+      "bytes": 3110,
+      "sha256": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-26-admitted-memory-observation.md",
+      "bytes": 5902,
+      "sha256": "83ecb0fac1ef7b5f56d4354c39e5c82cd4f456b9f970f3789d3d85f8e4d2749c"
+    }
+  ],
+  "findings": [
+    {
+      "id": "RETENTION-SPEC-01",
+      "severity": "P2",
+      "location": "terminal.quotas and terminal.prefix",
+      "title": "Represent unknown host quota snapshot explicitly",
+      "issue": "Prefix allows absence of a snapshot through nulls, but quotas mandate four exact reserved integers and generated numeric remaining. If the guest dies before a trusted ledger snapshot, the host cannot know sample/identity/marker reservations. Partial journal bytes do not recover a fully reserved failed row. Fixed policy reservations are known, but substituting initial values or full limits as the actual reserved vector invents a fact.",
+      "requiredChange": "Allow reserved=null as whole-vector unknown and generate remaining=null in that case. Keep fixed policy slots and pool limits independently known. An exact vector must refer to an actual trusted reservation snapshot; upper bounds require explicit bound typing and cannot silently replace exact values.",
+      "tests": "NOT_RUN: host unobserved/partial-write failure with no ledger snapshot produces null reserved/remaining; exact known-empty and known-filled snapshots retain numeric values; reject independently supplied remaining."
+    },
+    {
+      "id": "RETENTION-SPEC-02",
+      "severity": "P2",
+      "location": "retrieval.validation reason enum consistency",
+      "title": "Define consistency predicates for named retrieval failure reasons",
+      "issue": "Only none and generic incomplete are constrained. As written, [exited,0,null] with both completeness flags true can carry signaled or truncated_both while satisfying every stated validation predicate. Named reasons then contradict the same receipt process/capture fields, undermining the typed diagnostic record.",
+      "requiredChange": "Define minimum consistency rules: signaled requires signaled process; exit_nonzero requires exited nonzero code; truncated_stdout/stderr/both require their corresponding incomplete flag pattern. Define reasonable minimum conditions for spawn_error/read_error/unknown without requiring the serializer to establish external provenance. Preserve process outcome independence from capture completeness and use an explicit documented priority if several failures coexist.",
+      "tests": "NOT_RUN: reject exited0+signaled, exited0+exit_nonzero, complete capture+truncated reason and mismatched truncated-side flags; retain nonzero process with complete capture and consistent reason."
+    }
+  ],
+  "soundParts": [
+    "Fixed markers: 4*512 + 2*4096 + 16384 = 26624. Marker journal remainder 57344-26624=30720, after maximum header22528.",
+    "Maximum journal: 786432+196608+30720=1013760. Journal plus fixed markers26624 plus terminals8192 exactly1048576.",
+    "Hypothetical 4096-byte rounding across stated ten files gives1064960 before metadata; correctly distinguished from logical cap and runtime memory.",
+    "Base64 maximum for4096 raw bytes is4*ceil(4096/3)=5464 each; two streams plus fixed bounded fields fit16384 by schema-level arithmetic. Actual serializer boundary tests remain NOT_RUN.",
+    "Two disjoint4096 terminal slots and no retries/refunds preserve failure budget without enlarging cap. One role failure does not prevent attempting the other.",
+    "U64 strings, explicit nulls, separate observer/SDK tuples, host/guest clock separation, no self-fsync certificate and no acceptance field are appropriate.",
+    "Trusted caller-owned unbuffered stream boundary and positive exact-int short-write protocol match current partial journal.",
+    "Full sample/identity schema, actual path/role ownership, root join/capture integration and live proof gates remain explicitly outside this minimal slice."
+  ],
+  "scope": [
+    "Read frozen ADR, exact plan, contract/placement/SPEC, current JOURNAL and journal implementation.",
+    "No implementation, executable schema probe, test run, capture, filesystem fixture or materialization performed. All proposed new tests NOT_RUN.",
+    "Only source-level fixed arithmetic and declarative schema compatibility assessed; no memory allocation, durability or worst-case serializer runtime measurement.",
+    "No SDK/VM/compiler/native/install/repository/index changes. Original max6325 remains unaccepted.",
+    "Preserve original ADR and this rejection; repair via a minimal separately pinned successor, then sequential CODE design review before TDD."
+  ],
+  "writes": "Only this exclusive external report, at most12288 bytes."
+}

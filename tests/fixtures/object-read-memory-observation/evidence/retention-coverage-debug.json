@@ -1,0 +1,33 @@
+{
+ "schema": "lexlean-r4/retention-coverage-debug/1",
+ "at": "2026-10-26T02:03:23.789455+00:00",
+ "role": "internal debugger Phase1 only",
+ "roster": "4e5d2791f522e3ca verify/check Agent debugger PASS; INIT/profile read",
+ "verdict": "INSTRUMENT_ROOT_CAUSE_REPRODUCED_NO_PRODUCT_FAILURE_OR_COVERAGE_ACCEPTANCE",
+ "pins": {
+  "source": "93ad7b0dd3a38d0a2456ad3a9d025e91541843a2de2c1134ca89e8385295b56a",
+  "tests": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2",
+  "original_failure_sha256": "a14651fa8fa356afca9a9620d1bb6fe9e16bc232698f965f4aef1b5325920f62",
+  "python": "/opt/homebrew/bin/python3 3.15.0",
+  "stdlib_trace_sha256": "914775ca3a1ddc86c3bbdeadeb0389d553c8d672517a8555fb70c494722e7839",
+  "stdlib_dis_sha256": "bfcd5b49946afdc19b8c2c18ed093af2076e6f3f6c1fb65b5d999830d6ff1af2"
+ },
+ "observed": {
+  "source_lines": 446,
+  "raw_trace_executable_keys": 358,
+  "positive_source_line_keys": 356,
+  "excluded_non_source_keys": [
+   "None",
+   "0"
+  ],
+  "reproduction": "sorted(set(trace._find_executable_linenos(actual_filename))) raises TypeError: comparison of NoneType and int. No test-suite execution needed to reproduce.",
+  "initial_probe": "Unqualified python3 resolved system3.9.6 and did not reproduce (356 integer keys). Repeated bounded probe with exact Homebrew3.15.0 reproduced. Do not conflate interpreters.",
+  "minimal_source": "def f():\n    try: return 1\n    except ValueError: return 2\n",
+  "minimal_dis": "In3.15 function offsets8 and38 have lineNone; module offset0 has line0. With added f() call, observed runtime line events were[1,4,2].",
+  "actual_examples": "row_pool offset624 PUSH_EXC_INFO; Journal.append offset702 PUSH_EXC_INFO; generator RESUME/CALL_INTRINSIC_1 and annotation COPY_FREE_VARS: positions allNone. These are bytecode positions without a source line."
+ },
+ "cause": "3.15 dis.findlinestarts explicitly documents None for offsets without a source line and yields code.co_lines() entries including None. trace._find_lines_from_code lines335-337 inserts every such lineno except docstring lines; it does not exclude None. Mixed None/int keys then reach caller sorting. Line0 is also a synthetic module position, outside source lines1..446. Neither None nor0 is an executable source-line number. This is coverage-instrument compatibility, not failure of observe.py.",
+ "proposed_metric": "Keep raw key census and explicit exclusions. Define eligible={n from raw executable keys where type(n) is int and1<=n<=source_line_count}; reject/report any unexpected excluded key beyond observed None/0 instead of hiding it. Collect actual-file line hits during initialization and suite, validate positive integer bounds, report unexpected hits separately; covered=eligible intersect hits, missed=eligible minus hits. Sort only validated integers. Report numerator/denominator and misses, interpreter/source/test pins, exclusions, suite outcome, and instrumentation status. Label this trace-derived positive source-line coverage, not branch/path coverage or full correctness. No percentage/result from the failed attempt is accepted.",
+ "scope": "Only read-only source/stdlib inspection, compile/disassembly and tiny in-memory trace probes; no source/test edits, fixtures, suite/mutant reruns, SDK/VM/native launches or index changes. Parent must perform its separately retained corrected instrument run. Deferred annotation/code-object lines may still enter this stdlib-derived denominator: no claim this proves all branches or proves every line independently reachable. Original35PASS is parent evidence, not rerun here.",
+ "writes": "Only this exclusive report <=4096bytes. Original failure preserved."
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "lexlean-r4/retention-source-code-review/1",
+  "at": "2026-10-26T02:04:00.878255+00:00",
+  "reviewer": "journal_head_code",
+  "role": "Independent internal code-reviewer, source review before delivery",
+  "verdict": "APPROVE_BOUNDED_RETENTION_SOURCE_ONLY",
+  "findings": [],
+  "base": "a218201c01472e8553fc27a8072b8b3432cd3f4b",
+  "branch": "codex/admitted-memory-retention",
+  "sourcePins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 18269,
+      "sha256": "93ad7b0dd3a38d0a2456ad3a9d025e91541843a2de2c1134ca89e8385295b56a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 34150,
+      "sha256": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2"
+    }
+  ],
+  "contextPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/design/contract.json",
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/design/placement-adr.json",
+      "sha256": "f770346d7a479852eafe1e97a5eccfe465cab0c606afdfdc14f036673ae0d7a4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/design/implementation-spec-review.json",
+      "sha256": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/retention-refinement-adr-v2.json",
+      "sha256": "c4a30722b91c11d6e4444f839c683e561d784662d03deeb5015f8404e2234fc5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/retention-refinement-v2-review.json",
+      "sha256": "3dcf86ccb89546b56fff74792394d1f6392f5e3ca490fbcf77d285a8ff97d2aa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-26-admitted-memory-observation.md",
+      "sha256": "83ecb0fac1ef7b5f56d4354c39e5c82cd4f456b9f970f3789d3d85f8e4d2749c"
+    }
+  ],
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS 7 agents/7 skills",
+    "checkAgentCodeReviewer": "PASS",
+    "INITAndProfileRead": "Read in current reviewer session, retained context",
+    "fileClaims": "Empty table; no conflicting claim"
+  },
+  "reviewedScope": [
+    "Current exact source/test diff against base and surrounding implementation; inherited contract/placement/SPEC/plan and accepted v2 refinement.",
+    "Fixed reservation arithmetic, bounded typed terminal/retrieval encoders, one-attempt fixed-slot writes, unknown snapshots, partial IO, sync outcomes, state snapshots and caller provenance limits."
+  ],
+  "freshVerification": {
+    "runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "command": "/opt/homebrew/bin/python3 -B -m unittest discover -s tests/fixtures/object-read-memory-observation -v",
+    "tests": 35,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "elapsedSeconds": 0.015,
+    "exitCode": 0,
+    "independentProbes": [
+      "Simultaneously filled all journal pools using a counting sink: completeOffset1013760 and total reserved1048576; separate fixed slots sum34816. No disk payload.",
+      "SystemExit from trusted sync on each of five writable slots preserves original exception identity, complete true, synced false and known extent. Every second attempt rejects before further IO/sync.",
+      "Exact built-in validation rejects six additional subclass cases across nonce, prefix list, quota int, process exit int, decimal string and captured bytes."
+    ]
+  },
+  "assessment": [
+    "New fixed marker26624 reservation correctly removes root copies/retrieval capacity from journal availability while protecting terminal8192 and preserving full-row precharge/no refund.",
+    "Typed shape/length/enum/u64/hex guards bound accepted serialization inputs before JSON/base64 work. Exact built-in guards reject hooks and bool-as-int. Fixed record shapes inherently bound nesting and node counts.",
+    "Terminal quota snapshots preserve unknown as null/null, derive remaining from exact valid reservations, and never accept independently supplied remaining. Unknown versus known zero and observer versus SDK outcomes are distinct.",
+    "Retrieval generates bounded base64 from immutable4096-byte captures and validates local reason/process/completeness/time relationships. It does not infer observed causes or enforce provenance/priority integration.",
+    "Role-specific methods latch attempt before payload validation and encoding. Positive exact-int short writes preserve reported prefix; invalid counts/exceptions retain unknown actual extent. Sync success only follows None return. Other roles remain separately attemptable.",
+    "Failed writes and syncs retain original exceptions. Complete output before sync failure remains complete but unsynchronized; retries cannot overwrite or append a second record.",
+    "Root bytes are bounded opaque retention, not root validation. Caller-owned exclusive stream, one-retention-instance lifecycle, nonreentrant use and cross-process roles remain trust assumptions. Private state is not a hostile-caller boundary.",
+    "No paths, process scans/launches, SDK calls, resource reset, live observer or acceptance field introduced. No actionable defect found above review confidence threshold within this scope."
+  ],
+  "evidence": {
+    "record16": "16-fault-regressions.json.gz status0 pins match current source/tests; compressed SHA25625d84642a4119a872e93db80b5b7b9ad3bf261f44bc3e1717ea7cb9bd2c803a5.",
+    "failedRecord02": "02-fixed-reservation-green.json.gz retained status1, stale baseline classified by retention-reservation-debug.json; filename is not a GREEN claim.",
+    "coverage": "17-coverage-instrument-failure.json explicitly retained instrumentation failure. This review accepts no coverage metric and performs no fresh coverage/mutation scoring.",
+    "historicalLimit": "Current35 tests and independent probes reproduced. Historical suite and reviewer records are not proof of complete command history."
+  },
+  "reviewerInspectionFailure": "An initial evidence-display loop incorrectly tried gzip decoding the plain JSON17 record and raised BadGzipFile. Corrected suffix-aware read succeeded; no source/output mutation or product failure involved.",
+  "preservation": {
+    "ninePendingDraftHashesMatch": true,
+    "pendingNine": [
+      {
+        "path": "model/authorities.toml",
+        "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+      },
+      {
+        "path": "model/ids.toml",
+        "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+      },
+      {
+        "path": "model/ledger.toml",
+        "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+      },
+      {
+        "path": "docs/OBJECT.md",
+        "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+      },
+      {
+        "path": "features/suites/r4-blake3.feature",
+        "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+      },
+      {
+        "path": "features/suites/r4-object.feature",
+        "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+      },
+      {
+        "path": "features/suites/r4-prediction.feature",
+        "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+      },
+      {
+        "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+        "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+      },
+      {
+        "path": "tests/lexlean/ObjectControls.lex.tex",
+        "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+      }
+    ],
+    "sourceAndTestPinsRecheckedAtEnd": true,
+    "writes": "Only this exclusive external report; no repo/index/SDK/VM/native/install/frozen evidence edits."
+  },
+  "limits": [
+    "Source review only; exact delivery manifest/head review and documentation consistency remain later delivery work.",
+    "No full observer, root binding, controls replacement, cross-process path enforcement, cause-priority integration or launch authority.",
+    "No SDK/VM/native, guestPython3.12, real shared-filesystem durability/power-loss, peak RSS or whole-run capture qualification.",
+    "Bounded serializer tests do not establish provenance of supplied process/quota/prefix facts.",
+    "Original resource failure max6325 remains UNACCEPTED; no Read33, product, production or Pages promotion."
+  ]
+}

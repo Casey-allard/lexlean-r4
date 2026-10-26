@@ -2,6 +2,8 @@
 
 The later [journal checkpoint](JOURNAL-RESULTS.md) extends these tests while
 preserving the parser results below.
+The [fixed retention checkpoint](RETENTION-RESULTS.md) records the current
+35-test source, review lineage and retained failures.
 
 The seven parser/read functions in `observe.py` passed the 16 host unittest
 methods in `test_observe.py`. This accepts bounded parsing on the tested inputs;

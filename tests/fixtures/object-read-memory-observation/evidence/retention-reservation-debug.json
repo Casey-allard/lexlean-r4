@@ -1,0 +1,38 @@
+{
+  "schema": "lexlean-r4/retention-reservation-debug/1",
+  "at": "2026-10-26T01:55:55.120850+00:00",
+  "role": "Independent eligible debugger, Phase1 root cause",
+  "roster": "4e5d2791f522e3ca verify and check Agent debugger PASS; debugger profile read",
+  "verdict": "STALE_TEST_BASELINE_CONFIRMED",
+  "pins": [
+    {
+      "name": "01-fixed-reservation-red.json.gz",
+      "sha256": "ab5ad7ee51c1f731f4a660046eb0f69b5bd2fe7bde970aabe038345b612504c6",
+      "status": 1
+    },
+    {
+      "name": "02-fixed-reservation-green.json.gz",
+      "sha256": "7f02f5d5588744e93318c5d8ab086f3e71db05cf22e77877c99a2dc6035e6d74",
+      "status": 1
+    }
+  ],
+  "sourceSha256": "cc7fa9e1b5b5d531ec9a7b9d9fb4d35ea9e484a0a7f729f32fed7f03e9e1a46b",
+  "testSha256": "1b9b65a0dc1fbc218db78764157b12c23edb637b5934bfdc5380e059f83194cd",
+  "evidence": [
+    "Actual production diff is only Journal initial markers2048 ->26624, matching approved v2 fixed-slot arithmetic.",
+    "Test diff updates exact-fill marker capacity55296 ->30720 and fixed baseline2048 ->26624 in that test, but leaves test_all_row_kinds baseline at2048 (line199).",
+    "Record01 is intended RED: marker exact-fill/overflow fails against old2048 implementation. Record02 has status1 despite green in filename: exact-fill now passes, sole failure is stale all-row-kinds baseline.",
+    "Fresh isolated unittest reproduces failure at line206 in0.001s: actual markers26624 versus expected2048; samples16384/identities0/terminal8192 match.",
+    "Mismatch occurs after first sample row before any marker row: append is not mischarging markers; initial expected vector is stale."
+  ],
+  "classification": "Test expectation maintenance after approved reservation change; no product defect established by this failure.",
+  "minimalRepair": "Update only all-row-kinds expected initial marker value2048 ->26624, then rerun existing suite and preserve new result separately. Keep the failed02 immutable and do not call it GREEN.",
+  "reproduction": {
+    "command": "/opt/homebrew/bin/python3 -B -m unittest -v test_observe.JournalTests.test_all_row_kinds_charge_their_encoded_bytes_to_the_same_shared_pools",
+    "tests": 1,
+    "failures": 1,
+    "exitCode": 1
+  },
+  "limits": "No repairs, new implementation, native/SDK/VM or index changes. Single in-memory fixture test only; full repaired suite NOT_RUN. max6325 remains unaccepted.",
+  "write": "Only this exclusive report."
+}

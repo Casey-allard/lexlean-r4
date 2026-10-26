@@ -1,6 +1,7 @@
 """Host-only tests for the one-off admitted-range diagnostic reader."""
 
 import io
+import json
 import unittest
 
 import observe
@@ -196,7 +197,7 @@ class ProcessTests(unittest.TestCase):
 class JournalTests(unittest.TestCase):
     def test_all_row_kinds_charge_their_encoded_bytes_to_the_same_shared_pools(self):
         journal = observe.Journal(io.BytesIO(), lambda: None)
-        totals = {"samples": 0, "identities": 0, "markers": 2048, "terminal": 8192}
+        totals = {"samples": 0, "identities": 0, "markers": 26624, "terminal": 8192}
         for tag, pool, size in (("s", "samples", 16384), ("m", "samples", 32768),
                                 ("i", "identities", 8192), ("e", "identities", 8192),
                                 ("h", "markers", 8192), ("b", "markers", 8192),
@@ -256,7 +257,7 @@ class JournalTests(unittest.TestCase):
                 return len(value)
         for pool, tag, cap, rowcap in (("samples", "s", 786432, 16384),
                                       ("identities", "i", 196608, 8192),
-                                      ("markers", "b", 55296, 8192)):
+                                      ("markers", "b", 30720, 8192)):
             for overflow in (False, True):
                 with self.subTest(pool=pool, overflow=overflow):
                     stream = CountingStream()
@@ -273,7 +274,7 @@ class JournalTests(unittest.TestCase):
                         self.assertTrue(journal.stopped)
                         self.assertEqual(stream.size, before)
                     self.assertEqual(journal.reserved["terminal"], 8192)
-                    self.assertEqual(journal.reserved[pool], before + (2048 if pool == "markers" else 0))
+                    self.assertEqual(journal.reserved[pool], before + (26624 if pool == "markers" else 0))
                     self.assertEqual(journal.complete_offset, before)
                     self.assertLessEqual(sum(journal.reserved.values()), 1048576)
 
@@ -411,6 +412,256 @@ class JournalTests(unittest.TestCase):
         self.assertEqual(sync_calls, ["sync"])
         self.assertEqual(journal.synced_offset, len(row))
         self.assertFalse(stream.closed)
+
+
+class RetentionTests(unittest.TestCase):
+    def test_terminal_failures_consume_only_their_role_and_preserve_original_cause(self):
+        for failed_role, other_role in (("guest", "host"), ("host", "guest")):
+            for failure in (ValueError("invalid"), OSError("sync"), KeyboardInterrupt(), False, 0):
+                retention = observe.Retention()
+                sink = io.BytesIO()
+                fields = self.terminal_fields()
+                invalid = type(failure) is ValueError
+                if invalid:
+                    fields["prefix"] = []
+                def sync():
+                    if isinstance(failure, BaseException):
+                        raise failure
+                    return failure
+                expected = observe.ObservationError if invalid or not isinstance(failure, BaseException) else type(failure)
+                with self.assertRaises(expected) as raised:
+                    retention.write_terminal(failed_role, sink, sync, **fields)
+                if not invalid and isinstance(failure, BaseException):
+                    self.assertIs(raised.exception, failure)
+                state = retention.state(failed_role + "_terminal")
+                self.assertTrue(state["attempted"])
+                self.assertEqual(state["complete"], not invalid)
+                self.assertTrue(state["extent_known"])
+                self.assertFalse(state["synced"])
+                with self.assertRaises(observe.ObservationError):
+                    retention.write_terminal(failed_role, sink, lambda: None, **self.terminal_fields())
+                other = io.BytesIO()
+                retention.write_terminal(other_role, other, lambda: None, **self.terminal_fields())
+                self.assertTrue(retention.state(other_role + "_terminal")["synced"])
+                self.assertEqual(json.loads(other.getvalue())[8], "unknown")
+                self.assertLessEqual(len(sink.getvalue()) + len(other.getvalue()), 8192)
+
+    def test_snapshots_and_boundaries_do_not_grant_extra_slots(self):
+        retention = observe.Retention()
+        for slot in ("request", "ack", "other", [], True):
+            with self.assertRaises(observe.ObservationError):
+                retention.state(slot)
+        for role in ("third", True, []):
+            with self.assertRaises(observe.ObservationError):
+                retention.write_terminal(role, io.BytesIO(), lambda: None, **self.terminal_fields())
+        snapshot = retention.state("host_terminal")
+        snapshot["attempted"] = True
+        self.assertFalse(retention.state("host_terminal")["attempted"])
+        for role in ("host", "container"):
+            retention.write_root(role, b"x" * 4096, io.BytesIO(), lambda: None)
+        fields = dict(self.terminal_fields(), final_state="stopped", reason="io_failure",
+                      prefix=["1013760", "1013759", "99999", "99998", False],
+                      journal_sync="failed", detailed_gaps="incomplete",
+                      coverage=["18446744073709551615"] * 4,
+                      reserved=[786432, 196608, 57344, 8192],
+                      observer_process=["signaled", None, 64], sdk_process=["exited", 255, None])
+        row = observe.encode_terminal("host", **fields)
+        self.assertLessEqual(len(row), 4096)
+        self.assertEqual(json.loads(row)[12], [0, 0, 0, 0])
+        self.assertEqual(json.loads(row)[7][-1], False)
+
+    def test_partial_writes_preserve_reported_prefix_and_never_retry_failed_slot(self):
+        for outcome in ("short", 0, -1, True, None, 1.5, "1", 99999,
+                        OSError("synthetic ENOSPC"), KeyboardInterrupt()):
+            with self.subTest(outcome=repr(outcome)):
+                class Stream(io.BytesIO):
+                    calls = 0
+                    def write(self, data):
+                        self.calls += 1
+                        if self.calls == 1 or outcome == "short":
+                            return super().write(data[:2])
+                        if isinstance(outcome, BaseException):
+                            super().write(data[:1])
+                            raise outcome
+                        return outcome
+                retention = observe.Retention()
+                stream = Stream()
+                if outcome == "short":
+                    retention.write_root("host", b"abcdef", stream, lambda: None)
+                    self.assertEqual(stream.getvalue(), b"abcdef")
+                    self.assertTrue(retention.state("host_root")["synced"])
+                else:
+                    expected = type(outcome) if isinstance(outcome, BaseException) else observe.ObservationError
+                    with self.assertRaises(expected) as raised:
+                        retention.write_root("host", b"abcdef", stream, lambda: None)
+                    if isinstance(outcome, BaseException):
+                        self.assertIs(raised.exception, outcome)
+                    self.assertEqual(retention.state("host_root"), dict(attempted=True,
+                                     written=2, complete=False, synced=False, extent_known=False))
+                before = stream.calls
+                with self.assertRaises(observe.ObservationError):
+                    retention.write_root("host", b"retry", stream, lambda: None)
+                self.assertEqual(stream.calls, before)
+                retention.write_root("container", b"other", io.BytesIO(), lambda: None)
+
+    def test_fixed_slot_writes_are_bounded_independent_and_single_attempt(self):
+        retention = observe.Retention()
+        self.assertEqual(retention.slots, dict(request=512, request_temp=512,
+                         ack=512, ack_temp=512, container_root=4096,
+                         host_root=4096, retrieval_receipt=16384,
+                         guest_terminal=4096, host_terminal=4096))
+        snapshot = retention.slots
+        snapshot["host_root"] = 99999
+        self.assertEqual(retention.slots["host_root"], 4096)
+        stream = io.BytesIO()
+        syncs = []
+        retention.write_root("container", b"a" * 4096, stream, lambda: syncs.append(1))
+        self.assertEqual(stream.getvalue(), b"a" * 4096)
+        self.assertEqual(retention.state("container_root"), dict(attempted=True,
+                         written=4096, complete=True, synced=True, extent_known=True))
+        with self.assertRaises(observe.ObservationError):
+            retention.write_root("container", b"b", stream, lambda: syncs.append(2))
+        self.assertEqual(syncs, [1])
+        for role in ("guest", "host"):
+            sink = io.BytesIO()
+            retention.write_terminal(role, sink, lambda: None, **self.terminal_fields())
+            self.assertEqual(json.loads(sink.getvalue())[2], role)
+            self.assertTrue(retention.state(role + "_terminal")["synced"])
+        sink = io.BytesIO()
+        retention.write_retrieval(sink, lambda: None, **self.retrieval_fields())
+        self.assertTrue(retention.state("retrieval_receipt")["complete"])
+        untouched = io.BytesIO()
+        with self.assertRaises(observe.ObservationError):
+            retention.write_root("host", b"a" * 4097, untouched, lambda: None)
+        with self.assertRaises(observe.ObservationError):
+            retention.write_root("host", b"a", untouched, lambda: None)
+        self.assertEqual(untouched.getvalue(), b"")
+        self.assertFalse(retention.state("host_root")["complete"])
+
+    @staticmethod
+    def retrieval_fields():
+        return dict(nonce="a" * 64, binding="b" * 64, start="0", end="1",
+                    process=["exited", 0, None], stdout=b"x" * 4096,
+                    stderr=b"y" * 4096, stdout_complete=True,
+                    stderr_complete=True, reason="none")
+
+    def test_retrieval_keeps_bounded_captures_and_independent_failure_status(self):
+        fields = self.retrieval_fields()
+        result = json.loads(observe.encode_retrieval(**fields))
+        self.assertEqual(result[:2], ["r", 1])
+        self.assertEqual([len(result[9]), len(result[10])], [5464, 5464])
+        self.assertLessEqual(len(observe.encode_retrieval(**fields)), 16384)
+        fields.update(process=["exited", 3, None], reason="exit_nonzero")
+        self.assertEqual(json.loads(observe.encode_retrieval(**fields))[6:9],
+                         [["exited", 3, None], True, True])
+        fields.update(start=None, end=None, process=["unknown", None, None],
+                      stdout_complete=False, stderr_complete=False, reason="unknown")
+        self.assertEqual(json.loads(observe.encode_retrieval(**fields))[4:6], [None, None])
+
+    def test_retrieval_rejects_reason_status_capture_and_time_contradictions(self):
+        bad = (dict(reason="signaled"), dict(reason="exit_nonzero"),
+               dict(reason="truncated_stdout"), dict(reason="truncated_stderr"),
+               dict(reason="truncated_both"), dict(reason="read_error"),
+               dict(reason="spawn_error"), dict(reason="anything"),
+               dict(stdout_complete=False), dict(stderr_complete=1),
+               dict(stdout=b"a" * 4097), dict(stderr=b"a" * 4097),
+               dict(stdout=bytearray(b"x")), dict(stderr=None),
+               dict(process=["signaled", None, 65]), dict(nonce="short"),
+               dict(start=None), dict(start="2", end="1"), dict(end="01"))
+        for changes in bad:
+            with self.subTest(changes=str(changes)[:80]), self.assertRaises(observe.ObservationError):
+                observe.encode_retrieval(**dict(self.retrieval_fields(), **changes))
+        good = (dict(reason="signaled", process=["signaled", None, 9]),
+                dict(reason="truncated_stdout", stdout_complete=False),
+                dict(reason="truncated_stderr", stderr_complete=False),
+                dict(reason="truncated_both", stdout_complete=False, stderr_complete=False),
+                dict(reason="spawn_error", process=["not_run", None, None]),
+                dict(reason="read_error", stdout_complete=False))
+        for changes in good:
+            self.assertLessEqual(len(observe.encode_retrieval(
+                **dict(self.retrieval_fields(), **changes))), 16384)
+
+    def test_oversized_decimal_is_rejected_before_allocating_an_encoded_copy(self):
+        import tracemalloc
+        fields = dict(self.terminal_fields(), coverage=["9" * 131072, None, None, None])
+        tracemalloc.start()
+        try:
+            with self.assertRaises(observe.ObservationError):
+                observe.encode_terminal("host", **fields)
+            self.assertLess(tracemalloc.get_traced_memory()[1], 65536)
+        finally:
+            tracemalloc.stop()
+
+    @staticmethod
+    def terminal_fields():
+        return dict(nonce="a" * 64, binding="b" * 64,
+                    final_state="unobserved", reason="unknown",
+                    prefix=[None] * 5, journal_sync="unknown",
+                    coverage=[None] * 4, detailed_gaps="unknown", reserved=None,
+                    observer_process=["unknown", None, None],
+                    sdk_process=["unknown", None, None])
+
+    def test_terminal_unknown_snapshot_is_not_known_zero_or_sdk_failure(self):
+        fields = self.terminal_fields()
+        row = observe.encode_terminal("host", **fields)
+        result = json.loads(row)
+        self.assertEqual(result[:3], ["t", 1, "host"])
+        self.assertEqual(result[7], [None] * 5)
+        self.assertEqual(result[11:13], [None, None])
+        self.assertEqual(result[14], ["unknown", None, None])
+        fields.update(final_state="ended", reason="ended",
+                      prefix=["0", "0", "0", "0", True],
+                      journal_sync="not_attempted",
+                      coverage=["0", None, None, "0"],
+                      detailed_gaps="retained", reserved=[0, 0, 26624, 8192],
+                      sdk_process=["exited", 0, None])
+        result = json.loads(observe.encode_terminal("host", **fields))
+        self.assertEqual(result[7], ["0", "0", "0", "0", True])
+        self.assertEqual(result[12], [786432, 196608, 30720, 0])
+        self.assertEqual(result[14], ["exited", 0, None])
+        self.assertLessEqual(len(row), 4096)
+
+    def test_terminal_rejects_contradictions_and_unbounded_or_hooked_values(self):
+        class Str(str):
+            pass
+        bad = (("nonce", "a" * 65), ("nonce", "A" * 64),
+               ("binding", Str("b" * 64)), ("reason", "/private/path"),
+               ("final_state", "accepted"), ("detailed_gaps", "all good"),
+               ("prefix", ["00", None, None, None, None]),
+               ("prefix", ["0", "1", "0", "0", True]),
+               ("prefix", ["8", "0", "1", "0", True]),
+               ("prefix", ["8", "1", "0", "0", True]),
+               ("prefix", ["8", "1", "1", "2", False]),
+               ("prefix", ["1013761", None, None, None, False]),
+               ("prefix", [None, None, None, None, 0]),
+               ("prefix", {"offset": 0}), ("prefix", [[[]]] * 5),
+               ("coverage", ["1", "9", "8", None]),
+               ("coverage", ["18446744073709551616", None, None, None]),
+               ("coverage", [float("nan"), None, None, None]),
+               ("reserved", [0, None, 26624, 8192]),
+               ("reserved", [True, 0, 26624, 8192]),
+               ("reserved", [0, 0, 26623, 8192]),
+               ("reserved", [0, 0, 57345, 8192]),
+               ("reserved", [0, 0, 26624, 8191]),
+               ("reserved", [0] * 10000),
+               ("observer_process", ["exited", True, None]),
+               ("sdk_process", ["exited", 256, None]),
+               ("sdk_process", ["signaled", None, 0]),
+               ("sdk_process", ["running", 0, None]),
+               ("journal_sync", "reported"))
+        for key, value in bad:
+            fields = self.terminal_fields()
+            fields[key] = value
+            with self.subTest(key=key, value=repr(value)[:80]), self.assertRaises(
+                    observe.ObservationError):
+                observe.encode_terminal("host", **fields)
+        with self.assertRaises(observe.ObservationError):
+            observe.encode_terminal("host", **dict(self.terminal_fields(), reason="ended"))
+        with self.assertRaises(observe.ObservationError):
+            observe.encode_terminal("guest", **dict(self.terminal_fields(),
+                                    observer_process=["exited", 0, None]))
+        with self.assertRaises(TypeError):
+            observe.encode_terminal("host", **dict(self.terminal_fields(), remaining=[0]*4))
 
 
 if __name__ == "__main__":

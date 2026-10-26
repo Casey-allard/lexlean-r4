@@ -1,0 +1,18 @@
+{
+  "scope": "Fixed retention host source only, liveEpoch remains null, SDK NOT_RUN",
+  "source": {
+    "path": "observe.py",
+    "sha256": "2e83f9d63494e5ebec608920c96b1d21f1ad1f50eeae53784538cae08c036362"
+  },
+  "tests": {
+    "path": "test_observe.py",
+    "sha256": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2"
+  },
+  "archive": {
+    "path": "evidence/retention-tdd.jsonl.gz",
+    "records": 22,
+    "bytes": 23728,
+    "sha256": "20d46e341635f33ac4aed69e37385898fda51bc51d6bb0b799bd485059cfb6b1"
+  },
+  "designSHA": "c4a30722b91c11d6e4444f839c683e561d784662d03deeb5015f8404e2234fc5"
+}
