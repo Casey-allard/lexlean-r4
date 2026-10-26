@@ -1,0 +1,11 @@
+# Admitted-range memory diagnostic: reviewed design only
+
+The actual 33-module admitted-range compiler artifact is kernel-verified, but its run remains unaccepted because the unchanged strict memory gate recorded max=6325. The [preserved outcome](../read-admitted-resource-outcome/README.md) contains the actual result and Phase 1 investigation. No Read control or production claim is promoted here.
+
+The [proposal](positive-memory-diagnostic-proposal.json) and [independent SPEC review](positive-memory-diagnostic-spec-review.json) select one bounded observation of that exact proof path to locate the pressure interval. They approve source design only. No observer implementation, native run, restart, reset or new resource epoch is approved by this checkpoint. All proposed diagnostic tests are NOT_RUN. The old failed epoch, artifact, source, limits and evidence remain preserved.
+
+Before implementation or execution, concretize the five review requirements: confined PID ownership and race handling; a common guest clock and acknowledged phase boundaries; bounded retained bytes and transient memory; durable partial capture without interrupting a healthy compiler; and separately reviewed fresh-epoch admission with absolute-zero counters immediately before verification. The proposed observation cap is 1 MiB. Runtime availability alone does not establish feasibility or authorize installation.
+
+Any eventual diagnostic is informational, not an equivalent-limit qualification retry. Non-recurrence does not accept the old run; incomplete observations do not identify a cause. No automatic second run, relaxed counters, changed timeout, trusted digest, SDK substitute or generic framework is permitted. The next product step must follow the observed evidence and preserve the original LexLean goals.
+
+The JSON files are exact historical copies with absolute provenance paths. Their original outcome dependencies are preserved in the sibling outcome checkpoint; active source inputs remain in the repository fixtures. This documentation does not claim those external paths exist on another machine or supply an executable invocation. Later capability observations are separate evidence, not retroactive additions to this frozen review.
