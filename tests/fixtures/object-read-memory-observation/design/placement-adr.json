@@ -1,0 +1,131 @@
+{
+  "schema": "lexlean-r4/diagnostic-placement-adr/1",
+  "at": "2026-10-26T00:34:51.462Z",
+  "author": "diagnostic_placement_architect",
+  "role": "Internal architect; bounded source-only decision",
+  "status": "RECOMMENDED_DIRECTION_REQUIRES_TOP_SESSION_SPEC_CODE_AND_PRERUN",
+  "title": "One outside-cgroup observer, shared journal and retrospective exec identity",
+  "roster": {
+    "verifiedAtStart": "edb0572701bb8a1b:6agents5skills; architect active",
+    "parentReportedLater": "4e5d2791f522e3ca:7agents7skills; architect remains active",
+    "instructionsRead": [
+      "INIT.md",
+      ".claude/agents/architect.md",
+      "AGENTS.md"
+    ],
+    "profileSHA256": "43167dfad133d3f5f39cfc86852f4bc21d71371e0a05488501d80619be4445b5"
+  },
+  "pins": [
+    {
+      "path": "positive-memory-diagnostic-proposal.json",
+      "bytes": 12126,
+      "sha256": "39d210aefd177d8903c3dcbf497e1212ce78c1643dfb3d6d39bf680b02a7ea5d"
+    },
+    {
+      "path": "positive-memory-diagnostic-spec-review.json",
+      "bytes": 16460,
+      "sha256": "debc2e6cfec7c486e2ab6e742cf511c55f827e521fd7db8d57666cdd909fb152"
+    },
+    {
+      "path": "memory-observation-contract.json",
+      "bytes": 24222,
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6"
+    },
+    {
+      "path": "observer-ownership-capability-20261026.json",
+      "bytes": 3701,
+      "sha256": "a34a9883e0c0141715a4fbc33866d46cc3cf596a5b70c80e07ef5940509a0eda"
+    },
+    {
+      "path": "observer-placement-capability-20261026.json",
+      "bytes": 10049,
+      "sha256": "c1a0d7bb59c44b463ba7c9b45f9efd4920851c1e570cffc717a73af27070df6a"
+    },
+    {
+      "path": "observer-shared-path-capability-20261026.json",
+      "bytes": 1582,
+      "sha256": "c432f1d49f1b2903b0edb267a619b48133d618a70b193da3ebec2211fdd732e7"
+    },
+    {
+      "path": "observer-capability-summary-20261026.json",
+      "bytes": 1538,
+      "sha256": "06bca4fea5b41d77938e12cb258909cffcb35a5a02af9da8591f2fa7c2362cca"
+    },
+    {
+      "path": "observer-runtime-capability-20261026.json",
+      "bytes": 1625,
+      "sha256": "e226d696372f6882db0cd1f422f4a4de689d17da36add2fa537c43ec11427c59"
+    },
+    {
+      "path": "invoke-child-certificate.mjs",
+      "bytes": 12797,
+      "sha256": "3cc48e7aef25481a08f64bb9e2ea2f2b6b32a2e48109659b0322efd90d099b27"
+    }
+  ],
+  "context": [
+    "Actual pure LexLean ObjectAdmittedRangeResult child-certificate proof produced a kernel-verified artifact but max rose0→6325. Old run remains UNACCEPTED; no Read control or product acceptance follows from this diagnostic.",
+    "Existing Node launcher uses spawnSync for long commands. Event-loop stdout draining cannot be assumed while check/verify runs. Existing shared-worktrees33-byte host→guest→host challenge passed; it does not establish atomic rename, fsync or observer operation.",
+    "Guestroot/tmp about7.4GiB, container artifact volume about50GiB and shared host volume about43GiB are distinct. Target namespace symlink read failed; NSpid/status/stat/cgroup reads were available in retained examples.",
+    "Actual metadata receipt reports guest /usr/bin/python3.12 v3.12.3 SHA6242e0e8650d7dbdebbc25e08bf4c9359ddaf65f54fcae0e57fa99395fa5357a; CLOCK_BOOTTIME7 read succeeded as uid501 outside target cgroup. Its13568KiB maxrss is only that metadata command, not observer cost.",
+    "Contract arithmetic gives611428B sample use for synthetic4-PID/264s,886196B for8PIDs. The1MiB total cannot guarantee full coverage. New identity fields/root-marker copies need rebudgeting."
+  ],
+  "decision": {
+    "chosen": "Recommend one existing Python3 standard-library guest process outside target cgroup, writing directly to a bounded journal in a new owned directory on the already shared worktrees mount. Retain existing host Node spawnSync/Docker CLI capture and independent postguards; add small synchronous boundary calls and only one sh marker+exec adaptation to the verify command.",
+    "flow": "host boundary request -> shared control -> guest sample/journal/fsync/ACK -> host existing synchronous command; journal writes continue independently of host event loop. Verify return -> immediate sampled ACK -> root-marker retrieval/artifact copy -> original independent postguards.",
+    "language": "Rust remains preferred generally and LexLean remains the only product implementation. A usable guest Rust toolchain/binary is not established; introducing a compiler/cross-build solely for this diagnostic adds tooling/storage/ABI work forbidden by its scope. Existing Python stdlib supplies bounded binary IO, integer arithmetic, guest clock, fsync and rename without per-sample helper processes. This is a diagnostic-only recommendation, not Python application code, an SDK/PrismPM fallback or a new service. Revalidate the pinned existing runtime before use; do not install/fall back silently.",
+    "envelope": "One observer file and focused tests; one narrow existing invocation adaptation; one inline sh wrapper. No daemon, Docker API/event subsystem, generic runner, tracing framework or third-party package.",
+    "retainedContract": "Keep fixed cgroup/33-module scope, finite read/object limits, sparse compact journal, explicit gaps/unknowns,1MiB total,100ms target cadence,5s slow samples and strict absolute-zero guards. No omitted unknown keys or overwritten trace to manufacture coverage."
+  },
+  "rootBinding": {
+    "choice": "Parent-proposed marker+exec is the smallest defensible source direction, conditional on the tests below. It avoids async executor or Docker event/API machinery. A pre-exec marker is not itself successful-exec evidence.",
+    "marker": "A new exclusive0600 marker, <=4096B, in an owned container location outside all50 source inputs and selected project source tree records version, fresh nonce, own $$ and raw /proc/$$/stat. Use a shell builtin read aimed at /proc/$$/stat, not cat /proc/self. Preserve raw bytes. No overwrite or reused marker/root; exact path must be fixed by the reviewed invocation.",
+    "launch": "After successful marker setup and required immediate all-zero admission, exec exact original lexlean argv with unchanged cwd/env/stdout/stderr. No backgrounding, extra subshell, retries or timeout wrapper. Preserve all original guards. Marker/zero-read/exec order requires explicit review; do not claim atomic read-and-exec or ignore a newly nonzero sample.",
+    "retrieval": "After synchronous verify returns, obtain immediate return sample/ACK before marker retrieval or artifact copy. Then retrieve bounded marker using existing Docker read/copy path with its own boundary/status/bytes. Nonce mismatch, stale/duplicate/overlong/missing marker, changed epoch or failed retrieval blocks binding. No live root discovery is required to let the healthy compiler finish.",
+    "schemaRefinement": "Add a bounded raw NSpid vector to each identity alongside guestPID/startticks/membership/observed parent. Missing or unvalidated namespace data remains unknown. Version the schema and include new fields, container marker, host copy and retrieval receipts in the unchanged total quota; existing dictionary arithmetic is not automatically sufficient.",
+    "exactJoin": "Require unchanged guestboot/container epoch/cgroup; exclusive valid nonce marker; marker innerPID equal to the observed NSpid inner coordinate under independently exercised namespace mapping; exact marker/observer starttick equality; stable double-read PID/start/membership; exactly one matching observed incarnation. Retrospectively bind only actually observed incarnation-bound ancestor edges. An exited/unseen/ambiguous parent or identity stays owned_unattributed. No broad /proc scan or unrelated parent argv read.",
+    "execDistinction": "A pre-exec marker only names the shell incarnation. Successful replacement additionally needs actual successful SDK outcome/artifact or an observed lexlean argv transition on that bound incarnation. Wrapper setup/exec failure is an instrument failure, not a semantic negative. Root ancestry supports observed overlap, never sole allocation causality. Matching argv/time alone is insufficient.",
+    "validation": "A separately authorized harmless wrapper fixture must test unchanged PID/start through exec, cross-namespace NSpid/start mapping and its failure cases, exact marker custody, unchanged stdout/stderr, failed exec and no source-input effects. No such wrapper test ran here. If it fails or any field is unavailable, retain owned_unattributed and do not claim SPEC-01 discharged. No automatic broader subsystem or diagnostic launch."
+  },
+  "ioAndBounds": {
+    "path": "Use the existing shared mount and a fresh0700 owned directory/0600 files, no symlink components. Independently check host/guest paths,UID/mode/mount and nonce exchange; never equate host and guest dev/inode numbers. Preserve old capability directories/evidence.",
+    "boundaries": "Use one guest CLOCK_BOOTTIME domain and nonce/monotone-sequence requests/ACKs. Contract<=2s host wait remains bounded; preverify required ACK failure blocks launch. During/after verification, observer failure marks insufficient coverage but never interrupts healthy compiler. Return sample precedes extra Docker retrieval/copy. Host and guest monotonic clocks are not directly comparable.",
+    "persistence": "Journal is the evidence channel. Concrete launch must bound or discard auxiliary stdout/stderr rather than retain an unbounded fallback. Test partial writes, exclusive creation, same-directory atomic replacement and fsync/error handling; fsync completion is an observed API result, not proof of power-loss durability over virtiofs/APFS. Preserve complete prefix and reserved guest/host terminal statuses.",
+    "totalQuota": "Count all journal/dictionaries/control temps/terminals plus the new container marker, its host copy and retrieval observation receipt within1MiB. Reserve added marker costs before sampling; separately account filesystem allocation rounding. No ring buffer, compression shortcut, budget increase or cadence reduction by default.",
+    "transientMemory": "Contract190465B arena arithmetic is not a Python object/RSS proof. Bound input reads and current identity state; never keep full trace/all argv in heap. Account strings,base64,JSON and write copies; test transient allocation. Metadata maxrss is not observer-overhead evidence. Outside-cgroup placement does not remove shared VM/cache contention.",
+    "capFailure": "On quota/read/object limit stop observation only, retain typed truncation, complete prefix and terminal reserve. No signal/suspend/reprioritization/timeout extension of compiler; no automatic second diagnostic. Missing attribution can make result insufficient."
+  },
+  "alternatives": [
+    {
+      "option": "New guest Rust binary/toolchain",
+      "decision": "Not selected: unavailable deployable binary/toolchain plus no-new-install/build constraint. Revisit only if bounded existing-runtime method demonstrably fails, via a new scoped decision."
+    },
+    {
+      "option": "Bash-only sampler",
+      "decision": "Not selected: precise clocks,binary argv,JSON,fsync and atomic IO need helpers or substantial parser complexity. Tiny one-time sh marker wrapper is a different bounded role."
+    },
+    {
+      "option": "Host Node stdout event collector",
+      "decision": "Rejected with spawnSync: draining would stall; sharedjournal avoids async executor rewrite."
+    },
+    {
+      "option": "Docker event/API root attribution",
+      "decision": "Not selected before small marker test; substantially broader stream/executor/custody change."
+    },
+    {
+      "option": "argv/time matching root",
+      "decision": "Insufficient ancestry proof; may label candidate or owned_unattributed only."
+    }
+  ],
+  "testsAllNotRun": [
+    "Bounded parser/serializer negatives: stat comm delimiters, oversized/truncated files, unknown event keys,u64 strings,missing RSS,PID reuse/membership changes,parent loss,NSpid changes,unknown argv,subtree appearance.",
+    "Root-join negatives: wrong nonce/epoch/innerPID/startticks,ambiguous matches,missing marker,failed exec,pre-exec-only marker and missing ancestor. Reject attribution or retain unknown.",
+    "Budget cases1/4/8/64 synthetic PIDs with actual argv templates plus new identity fields/marker copies; exact-limit/one-byte overflow,partial final write,terminal-reserve protection and Python transient allocation accounting.",
+    "Tiny owned filesystem tests: collision/symlink,partial IO,rename/fsync failure,stale nonce/sequence,ACK timeout/host disconnect,control-copy quota. No compiler needed.",
+    "Separately authorized harmless marker+exec placement test for actual NSpid/starttick correspondence and stdout/stderr isolation; no SDK proof and no old-epoch reset.",
+    "Compare exact original/adapted invocation:50inputs,33selectedmodules,tools/env/cwd/argv/300000ms limit and independent postguards; no second verification or fallback. Fresh CODE and resource/pre-run review remain mandatory."
+  ],
+  "nextStep": "Top session can seek renewed SPEC acceptance of the small root-marker/schema refinement and authorize bounded tests-first preparation under required Python/general/security review roles. Implement reader and join against retained/synthetic filesystem data first. Independent CODE, finite placement/overhead checks and separately authorized fresh-epoch/pre-run decision must precede the one informational diagnostic. Interpret its evidence before any source fix.",
+  "limitations": "Source ADR only: no implemented code approval, observer/SDK/native run, restart/reset/new epoch, privilege/config/runtime installation, proof/source change, counter waiver, control promotion or production acceptance. Full LexLean/PrismPM/Pages goal unchanged. Oldmax6325 remains unaccepted.",
+  "authoringRecord": "Initial report serialization was16826B and failed the16KiB guard BEFORE creating any output. This shortened report is a new serialization, not an altered frozen report. No product/runtime failure was involved.",
+  "mutations": "Only this external diagnostic-placement-adr.json. No repository/index/source/VM/process/config or prior evidence changed."
+}

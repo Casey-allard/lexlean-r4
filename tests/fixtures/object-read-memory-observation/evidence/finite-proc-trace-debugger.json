@@ -1,0 +1,74 @@
+{
+  "schema": "lexlean-r4/trace-report-debugger-phase1/1",
+  "at": "2026-10-26T00:54:54.120517+00:00",
+  "reviewer": "observer_python_review acting as eligible debugger",
+  "roster": "4e5d2791f522e3ca",
+  "eligibility": "verify and check Agent debugger PASS; debugger profile read before investigation",
+  "verdict": "REPORT_ONLY_ROOT_CAUSE_REPRODUCED_MINIMAL_NORMALIZATION_RECOMMENDED",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 5848,
+      "sha256": "ec319b4808228dae4ad4dca71cf01a526aca4b5bb6da2fc16c5ac86dc06f507e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/finite-proc-trace-attempt1-failure.json",
+      "bytes": 498,
+      "sha256": "f3c1a37174c8bc5c7e92332d7a11f4398872a05afcf4cee4b262fae3d6191326"
+    },
+    {
+      "path": "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/trace.py",
+      "bytes": 29631,
+      "sha256": "914775ca3a1ddc86c3bbdeadeb0389d553c8d672517a8555fb70c494722e7839"
+    },
+    {
+      "path": "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/dis.py",
+      "bytes": 46297,
+      "sha256": "bfcd5b49946afdc19b8c2c18ed093af2076e6f3f6c1fb65b5d999830d6ff1af2"
+    }
+  ],
+  "runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "originalFailure": {
+    "status": "REPORT_GENERATION_FAILED",
+    "actualCoverageReportWritten": false,
+    "allocationProbesRun": false,
+    "prior16TestGreen": "separate evidence, not inferred from failed report"
+  },
+  "reproduction": {
+    "actualSourceFindExecutableKeysContainNone": true,
+    "actualSourceContainsZeroPseudoLine": true,
+    "sortError": "TypeError(\"'<' not supported between instances of 'NoneType' and 'int'\")",
+    "minimalSource": "def f(xs):\n    return tuple(x for x in xs)\n",
+    "minimalKeys": [
+      0,
+      1,
+      2,
+      null
+    ]
+  },
+  "rootCause": [
+    "Python3.15 dis.findlinestarts explicitly yields (offset,None) for bytecode without a source line; its implementation delegates to code.co_lines and documents None as valid.",
+    "trace._find_lines_from_code stores every dis.findlinestarts lineno not identified as a docstring. It does not exclude None or module pseudo-line0.",
+    "The parent report treated all keys from private trace._find_executable_linenos as sortable source-line integers. set difference leaves None, then sorting None and int raises TypeError.",
+    "On the actual source the None entries originate in three generator-expression code objects at RESUME and CALL_INTRINSIC_1 instructions; they do not identify source lines. Line0 is a module pseudo-line and is not a positive source line."
+  ],
+  "inspectedStdlibFunctions": {
+    "dis.findlinestarts": "def findlinestarts(code):\n    \"\"\"Find the offsets in a byte code which are start of lines in the source.\n\n    Generate pairs (offset, lineno)\n    lineno will be an integer or None the offset does not have a source line.\n    \"\"\"\n\n    lastline = False # None is a valid line number\n    for start, end, line in code.co_lines():\n        if line is not lastline:\n            lastline = line\n            yield start, line\n    return\n",
+    "trace._find_lines_from_code": "def _find_lines_from_code(code, strs):\n    \"\"\"Return dict where keys are lines in the line number table.\"\"\"\n    linenos = {}\n\n    for _, lineno in dis.findlinestarts(code):\n        if lineno not in strs:\n            linenos[lineno] = 1\n\n    return linenos\n"
+  },
+  "minimalCorrection": {
+    "scope": "Only parent reporting code in a new exclusive attempt; no observe.py/test_observe.py or runtime modifications.",
+    "algorithm": [
+      "Validate raw denominator keys are either None or integer0..sourceLineCount; unexpected types/ranges raise instead of silently disappearing.",
+      "Retain raw keys and explicit excluded non-source sentinels None and0 in report metadata. Denominator is only exact int values1..sourceLineCount.",
+      "Validate and normalize observed hit keys using same source-line domain; compute hit intersection and uncovered difference against normalized denominator, then sort.",
+      "Freshly rerun tests under trace, retain actual outcome and exact source/runtime/command pins, and write a new report. No coverage follows from this failed attempt."
+    ],
+    "inMemoryNormalizationProbe": "PASS: normalized actual source key set equals original minus exactly None and0 and is sortable; no coverage numerator or percentage computed.",
+    "coverageLimit": "Measured stdlib trace source-line coverage only with denominator convention disclosed. Branch coverage unavailable; Python3.15 host tracing is not guest3.12 behavior or observer overhead qualification."
+  },
+  "constraints": [
+    "No package installation, SDK, VM, observer deployment, production-source edit or previous report overwrite.",
+    "Original failed record preserved byte-exact. No fresh actual target coverage or allocation measurement claimed by this report."
+  ]
+}

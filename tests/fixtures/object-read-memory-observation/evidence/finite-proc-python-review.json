@@ -1,0 +1,198 @@
+{
+  "schema": "lexlean-r4/finite-proc-python-review/1",
+  "at": "2026-10-26T00:53:23.280788+00:00",
+  "reviewer": "observer_python_review",
+  "role": "python-reviewer",
+  "roster": "4e5d2791f522e3ca",
+  "rosterVerifyAndEligibility": "PASS",
+  "verdict": "APPROVE_PARTIAL_BOUNDED_STREAM_AND_PROC_PARSERS_ONLY",
+  "findings": [],
+  "subjectPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 5848,
+      "sha256": "ec319b4808228dae4ad4dca71cf01a526aca4b5bb6da2fc16c5ac86dc06f507e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 9202,
+      "sha256": "48d1b0a2bd93e74258c0879b8d7796109c4a52bc0d0f9673872aab85d59c9b97"
+    }
+  ],
+  "freshTest": {
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_observe"
+    ],
+    "cwd": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "test_counter_keeps_decimal_identity (test_observe.CounterTests.test_counter_keeps_decimal_identity) ... ok\ntest_counter_rejects_noncanonical_and_out_of_range_values (test_observe.CounterTests.test_counter_rejects_noncanonical_and_out_of_range_values) ... ok\ntest_events_preserve_all_valid_unknown_keys (test_observe.CounterTests.test_events_preserve_all_valid_unknown_keys) ... ok\ntest_events_reject_incomplete_duplicate_or_unbounded_records (test_observe.CounterTests.test_events_reject_incomplete_duplicate_or_unbounded_records) ... ok\ntest_census_preserves_kernel_order_without_scanning_other_processes (test_observe.ProcessTests.test_census_preserves_kernel_order_without_scanning_other_processes) ... ok\ntest_census_rejects_partial_duplicate_invalid_or_over_capacity (test_observe.ProcessTests.test_census_rejects_partial_duplicate_invalid_or_over_capacity) ... ok\ntest_membership_preserves_exact_unified_path (test_observe.ProcessTests.test_membership_preserves_exact_unified_path) ... ok\ntest_membership_rejects_nonunified_partial_or_ambiguous_path (test_observe.ProcessTests.test_membership_rejects_nonunified_partial_or_ambiguous_path) ... ok\ntest_stat_identity_uses_documented_positions_after_comm (test_observe.ProcessTests.test_stat_identity_uses_documented_positions_after_comm) ... ok\ntest_stat_rejects_incomplete_oversized_or_invalid_identity (test_observe.ProcessTests.test_stat_rejects_incomplete_oversized_or_invalid_identity) ... ok\ntest_status_preserves_identity_namespace_and_kib_units (test_observe.ProcessTests.test_status_preserves_identity_namespace_and_kib_units) ... ok\ntest_status_rejects_bad_required_fields_units_duplicates_and_vectors (test_observe.ProcessTests.test_status_rejects_bad_required_fields_units_duplicates_and_vectors) ... ok\ntest_bad_cap_rejects_before_read (test_observe.ReadTests.test_bad_cap_rejects_before_read) ... ok\ntest_failed_or_invalid_reads_never_become_empty_success (test_observe.ReadTests.test_failed_or_invalid_reads_never_become_empty_success) ... ok\ntest_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream (test_observe.ReadTests.test_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream) ... ok\ntest_short_reads_continue_to_eof_and_overflow_is_not_truncated (test_observe.ReadTests.test_short_reads_continue_to_eof_and_overflow_is_not_truncated) ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 0.001s\n\nOK\n"
+  },
+  "additionalInMemoryProbes": [
+    "one-byte short reads reject overflow after exactly cap+1 bytes at cap=1",
+    "one-byte short reads reject overflow after exactly cap+1 bytes at cap=4",
+    "one-byte short reads reject overflow after exactly cap+1 bytes at cap=64",
+    "one-byte short reads reject overflow after exactly cap+1 bytes at cap=16384",
+    "read failure after nonempty prefix propagates exact exception",
+    "exact maximum 64 namespace coordinates accepted without deduplication",
+    "selected status duplicate/overflow rejects b'NSpid: 1594\\nNSpid: 1594\\n'",
+    "selected status duplicate/overflow rejects b'VmHWM: 1 kB\\nVmHWM: 2 kB\\n'",
+    "selected status duplicate/overflow rejects b'PPid: 0\\n'",
+    "selected status duplicate/overflow rejects b'VmRSS: 18446744073709551616 kB\\n'",
+    "membership returned byte-exact without normalization or filesystem use b'0::/a/../b\\n'",
+    "membership returned byte-exact without normalization or filesystem use b'0::/a//b\\n'",
+    "membership returned byte-exact without normalization or filesystem use b'0::/non-ascii-\\xff\\n'",
+    "stat delimiter/start integer exact for synthetic comm b''",
+    "stat delimiter/start integer exact for synthetic comm b') '",
+    "stat delimiter/start integer exact for synthetic comm b' ( ) \\n () ) '",
+    "stat delimiter/start integer exact for synthetic comm b'\\xff\\xfe'"
+  ],
+  "retainedTDD": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/09-finite-read-api-RED.json",
+      "bytes": 5942,
+      "sha256": "d563545ffa5945f0653150d4e0b99c08848c89f513f21b9a94cef8a023e96949",
+      "step": "09-finite-read-api-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/10-finite-read-api-GREEN.json",
+      "bytes": 5404,
+      "sha256": "ce3367092029d9537bcc4d7d1763e79aa4165c80cd4c12b4a2f6390e74a66a0e",
+      "step": "10-finite-read-api-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/11-finite-read-bounds-RED.json",
+      "bytes": 18184,
+      "sha256": "3ba713fe658b5eb370edd42ddf822a435cab228c6626800d053ffe99eb322e96",
+      "step": "11-finite-read-bounds-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/12-finite-read-bounds-GREEN.json",
+      "bytes": 8512,
+      "sha256": "3ed719b9cded6af93266d9d319fa5ebe7d48d41d8121628dc27f37185362caf6",
+      "step": "12-finite-read-bounds-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/13-census-api-RED.json",
+      "bytes": 9723,
+      "sha256": "4c587be68da6e606becbbc1e22ed2a6c828e0d6cb6af0c1f19d6274e5cc3bc81",
+      "step": "13-census-api-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/14-census-api-GREEN.json",
+      "bytes": 9148,
+      "sha256": "90e1dcfcfe35f7deeedc6fe4fc317560cce8540a6a718ffd6a5011c6be9f6c90",
+      "step": "14-census-api-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/15-census-bounds-RED.json",
+      "bytes": 17725,
+      "sha256": "af4c7f44b319ede399d04069e32338f4d35cc69445f7dcd66337e63bebcda0f4",
+      "step": "15-census-bounds-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/16-census-bounds-GREEN.json",
+      "bytes": 10433,
+      "sha256": "aab1d03d6526e0470c39534dcf450539ba0a68bd0fecc6482e4142a75bffe345",
+      "step": "16-census-bounds-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/17-stat-api-RED.json",
+      "bytes": 14787,
+      "sha256": "b53a6589affdc4ddec62fba0140e85cb05cc2526488240946839c88f4284d374",
+      "step": "17-stat-api-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/18-stat-api-GREEN.json",
+      "bytes": 11532,
+      "sha256": "b0e4f2bbaf6346189c0ffae883b7e1611fbeca847605eec44004de8cd40913ea",
+      "step": "18-stat-api-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/19-stat-bounds-RED.json",
+      "bytes": 23740,
+      "sha256": "d308dbb434abf85c0b59e18dd6cc8c3de647191279f32ac49aad147307256a4d",
+      "step": "19-stat-bounds-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/20-stat-bounds-GREEN.json",
+      "bytes": 13374,
+      "sha256": "d410dca7a1d800fc267b39049035dd6d9e5610b2285db704c939bd163bff46b2",
+      "step": "20-stat-bounds-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/21-status-membership-api-RED.json",
+      "bytes": 15875,
+      "sha256": "44d6caf8821540775b0d5729d14b8bf136cfc54c32c666eed0a25c569e8bce09",
+      "step": "21-status-membership-api-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/22-status-membership-api-GREEN.json",
+      "bytes": 15230,
+      "sha256": "30c45722e227d2a4594da740da3b47cacf7760efec0048ec7c164eab12ea485e",
+      "step": "22-status-membership-api-GREEN",
+      "status": 0
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/23-status-membership-bounds-RED.json",
+      "bytes": 44766,
+      "sha256": "45c9edca2bdab5f72175b735810c13aadcc342fead5c6568e283fdd5ab344a3b",
+      "step": "23-status-membership-bounds-RED",
+      "status": 1
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-host-tests/24-status-membership-bounds-GREEN.json",
+      "bytes": 18651,
+      "sha256": "dd146c6a8eef95ba3afb0f07d11b3d71a37090b9fdc3c51ecb625fca2c5d97cb",
+      "step": "24-status-membership-bounds-GREEN",
+      "status": 0
+    }
+  ],
+  "tddLimit": "Historical 09-24 records read and hash-pinned, not replayed against historical source. Current 16 tests independently rerun; API RED and bounds RED are distinguished by retained steps.",
+  "assessment": [
+    "Read cap is validated before stream interaction; short reads continue until EOF with at most cap+1 consumed bytes; over-return/non-byte result rejects; caller ownership is preserved and original IO failures propagate. A blocking or lying custom stream is outside this helper guarantee.",
+    "Census is positive canonical u64, no duplicates, at most64 entries; ordering retained. This parser performs no ownership check or process scan.",
+    "Stat parses only selected identity fields using outer delimiters, requiring enough fields through start ticks; comm may contain arbitrary bytes or parentheses. It does not validate all unused stat fields.",
+    "Status rejects duplicate selected fields and invalid units/values, bounds namespace vector, preserves unknown memory as None; exact identities still need later double-read/race checks.",
+    "Membership is raw v2 path bytes, deliberately not normalized, traversed, or opened. Exact comparison and confined path operations remain caller obligations.",
+    "Functions remain small, annotated, free of dynamic evaluation or exception swallowing, and compatible in syntax with the intended Python3.12. No actual guest Python rerun claimed."
+  ],
+  "staticTools": {
+    "ruff": null,
+    "mypy": null,
+    "pylint": null,
+    "black": null,
+    "bandit": null
+  },
+  "limits": [
+    "Static tools unavailable on PATH and not installed. No coverage or whole observer memory guarantee.",
+    "Pure/stream helper inputs only; no path-opening, PID ownership, journal, live observer, SDK/proof acceptance or deployment authority.",
+    "Python temporary memory and full system budget remain a separate obligation, despite bounded individual byte strings.",
+    "Original max6325 run remains unaccepted."
+  ],
+  "storage": {
+    "hostAvailableBytesBeforeTests": 44949876736,
+    "newReportMaxBytes": 16384,
+    "additionalAllocationCapBytes": 32768
+  },
+  "sourceUnchangedAfterTests": true,
+  "writes": "Only new exclusive finite-proc-python-review.json; no repo or prior evidence modifications."
+}

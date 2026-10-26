@@ -1,0 +1,36 @@
+{
+  "schema": "lexlean-r4-diagnostic-source-preparation/1",
+  "purpose": "Host-only finite parsing for one admitted-range memory diagnostic; no product or native acceptance",
+  "liveEpoch": null,
+  "sourcePreparationOnly": true,
+  "reviewedDesign": [
+    {
+      "path": "design/contract.json",
+      "bytes": 24222,
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6"
+    },
+    {
+      "path": "design/placement-adr.json",
+      "bytes": 14197,
+      "sha256": "f770346d7a479852eafe1e97a5eccfe465cab0c606afdfdc14f036673ae0d7a4"
+    },
+    {
+      "path": "design/implementation-spec-review.json",
+      "bytes": 11850,
+      "sha256": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953"
+    }
+  ],
+  "originalProposal": "../../../docs/continuation/2026-10-25/read-admitted-memory-diagnostic/README.md",
+  "missing": [
+    "owned path opening and race validation",
+    "journal quota and durability protocol",
+    "observer composition and null-epoch execution gate",
+    "marker/exec binding and invocation adaptation",
+    "fresh resource pre-run review"
+  ],
+  "limits": {
+    "hostPreparationAllAdditionalBytes": 1048576,
+    "runtimeObservationAllAdditionalBytes": 1048576
+  },
+  "nativeStatus": "NOT_RUN"
+}
