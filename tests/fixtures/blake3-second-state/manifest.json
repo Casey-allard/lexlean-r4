@@ -1,0 +1,106 @@
+{
+  "schema": "lexlean-r4/blake3-second-state-source-manifest/1",
+  "status": "FROZEN_SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2515,
+      "sha256": "1aa097aaf6428266913101e1d64ae4c879c093f049ebad875a1b1c3b00dc7be2"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 37114,
+      "sha256": "4d080b0b49baf8de23edf9a5c1201829a968ad85d622e27a3b932f1f091fc28b"
+    },
+    {
+      "path": "derivation.json",
+      "bytes": 2187,
+      "sha256": "e471ef322d28a42483eadcf3ab237f19429a2b92cc8991faff67af7b480c062a"
+    },
+    {
+      "path": "derive-expected.py",
+      "bytes": 4051,
+      "sha256": "e35efd049cfb7094760007fdaeec5ecee85fdfbd69bb821cd80a30738e303b77"
+    },
+    {
+      "path": "phases/generic/lexlean.toml",
+      "bytes": 688,
+      "sha256": "d4a6a50b9f7a7bd31b6b69c13285534af30b91161b03f9da9342eb11e2981373"
+    },
+    {
+      "path": "phases/lift-negative/lexlean.toml",
+      "bytes": 685,
+      "sha256": "a4c6229b75608c88f7f4cb9b8993b04ceca7b828e182eee759ed344f0f5a5eed"
+    },
+    {
+      "path": "phases/lift-negative/tests/lexlean/Blake3SecondStateLift.lex.tex",
+      "bytes": 1838,
+      "sha256": "fae4af637b25c5f6d2773c48530ec69287782b06bac71b68818fd48e0e489216"
+    },
+    {
+      "path": "phases/lift-positive/lexlean.toml",
+      "bytes": 685,
+      "sha256": "a4c6229b75608c88f7f4cb9b8993b04ceca7b828e182eee759ed344f0f5a5eed"
+    },
+    {
+      "path": "phases/original/lexlean.toml",
+      "bytes": 689,
+      "sha256": "0f91f97c97b44450583c0ed632600b46d8918f64f020293583c41cae4c7087e5"
+    },
+    {
+      "path": "phases/state-negative/lexlean.toml",
+      "bytes": 681,
+      "sha256": "978172cea30083d296fed6b698e19ef775c48e1351090efe8c5775c1268092a7"
+    },
+    {
+      "path": "phases/state-negative/tests/lexlean/Blake3SecondState.lex.tex",
+      "bytes": 10403,
+      "sha256": "dcb762e270e7fec5da3d17be0d0654ec2ba559a6104a75145e68241c9fee64bc"
+    },
+    {
+      "path": "phases/state-positive/lexlean.toml",
+      "bytes": 681,
+      "sha256": "978172cea30083d296fed6b698e19ef775c48e1351090efe8c5775c1268092a7"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondState.lex.tex",
+      "bytes": 10403,
+      "sha256": "f48c4d8abf0fa8d3b41327519eb03bcd2e23c8542022c9bb07cbc6b3a37a3b8a"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateContext.lex.tex",
+      "bytes": 24718,
+      "sha256": "8076fe40c56bb79e701fb01af9a0d5df727b781a670ed4483e69bc39dcefba48"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateGeneric.lex.tex",
+      "bytes": 11776,
+      "sha256": "b375fa063915a4ea3f0fc09c36f06dfb35b8a4b5c67c70c7e438030272900f82"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateLift.lex.tex",
+      "bytes": 1872,
+      "sha256": "7bb3ca8bad88a1cfb5dbdc40e8bdc48c8d201326061aa61129a742942bf5e1ed"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateOriginal.lex.tex",
+      "bytes": 44531,
+      "sha256": "27e8d76f2f3c6ede1c94a1d546e66cf8029c0537637a25220f8a439c01a46a0f"
+    },
+    {
+      "path": "proposal.json",
+      "bytes": 10976,
+      "sha256": "57f604f8469aa47e7ba061ec80ab3f34917c360a75cc5898b2e5c00ddb71655a"
+    },
+    {
+      "path": "source-checks.json",
+      "bytes": 8589,
+      "sha256": "00e647261c6cc460c6fc88487b1ac6688b9105a171bee63e494b7b3841ec6b7a"
+    },
+    {
+      "path": "spec-review.json",
+      "bytes": 10436,
+      "sha256": "f5f1f365a107c26e4c693e8338cbd66bf0bb887a5e38cfe429862beca0766e52"
+    }
+  ]
+}

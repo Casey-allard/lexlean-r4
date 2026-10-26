@@ -1,0 +1,123 @@
+{
+  "schema": "lexlean-r4/blake3-second-state-results/1",
+  "status": "SOURCE_ADMITTED_CLASSIFIED_CHILD_TIMEOUT_NO_INTENDED_NEGATIVE",
+  "sourceManifestSha256": "b6b62eaeaa2f73c058ed7ceb28572620de9bd08afaad374831a7b8f59e9dc592",
+  "sourceStatusNote": "Frozen manifest/README retain preparation-time NOT_RUN status. This supplemental record supplies later actual outcome without changing those21 frozen files.",
+  "phase": "state-negative",
+  "actual": {
+    "checkStatus": 0,
+    "checkModules": [
+      "Blake3Case19FirstState",
+      "Blake3SecondState",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "sourceId": "e7e34f062ab56827b27f5529d9cbc7183e42bdab480cc43fd0a950c186268bc4",
+    "semanticId": "5652915c9c203d74cdf63186fbd800b90bde0d960e0c751c419880266e079f00",
+    "verifyStatus": 4,
+    "diagnostic": {
+      "causes": [],
+      "code": "LLS8002",
+      "help": [],
+      "labels": [],
+      "message": "child_timeout_ms exceeded by `lean` in phase LexLeanR4.Blake3SecondState: configured 300000, observed 300022 ms",
+      "notes": [],
+      "primary": {
+        "byte_end": 0,
+        "byte_start": 0,
+        "column_end": 1,
+        "column_start": 1,
+        "line_end": 1,
+        "line_start": 1,
+        "path": "lexlean.toml"
+      },
+      "severity": "error",
+      "spec": "lexlean/diagnostic/1"
+    },
+    "configuredChildLimitMs": 300000,
+    "observedChildMs": 300022,
+    "outerVerifyDurationMs": 369333,
+    "launcherExitReportedByParent": 1,
+    "interpretation": "Configured child timeout, not intended wrong-c0 rfl rejection, false theorem, accepted negative, observed cgroup OOM, efficiency or product acceptance. The runner faithfully rejected the unclassified verification failure.",
+    "artifact": null
+  },
+  "failureAudit": {
+    "alias": "evidence/blake3-second-state-invocation/state-negative-attempt1/failure-review.json",
+    "sha256": "ab549a5e8a5b17969394f5ee721768115a6145198485f3ec36253840c7e45197",
+    "verdict": "AUDITED_CHILD_TIMEOUT_NO_INTENDED_NEGATIVE_NO_CONTINUATION_AUTHORITY",
+    "boundary": "Independent local audit of65 command receipts and original214-file inventory; no fresh native replay."
+  },
+  "diagnosis": {
+    "alias": "evidence/blake3-second-state-invocation/timeout-phase1.json",
+    "sha256": "25d38f618c71b3a75768b85d131caa25e3bdb1d74174d2992a0251a31a49fe17",
+    "status": "PHASE1_COMPLETE_NO_REPAIR_OR_NATIVE_AUTHORITY",
+    "finding": "Actual emitted full-state theorem is a single rfl over first compression plus second packed64 update. Semantic trace identifies seven rounds/56 mixes/22432bit XOR calls, not measured reduction cost or a proven culprit subterm. No repair authority."
+  },
+  "postconditions": {
+    "nineIndependentGuards": "PASS",
+    "sourceInputs": 10,
+    "lockSha256": "36fc62df92b986724861b4fda20c58e6ce933fe483b823e43bc1155a2e2e9be0",
+    "memory": "All six pre/post counters zero; no observed OOM or max event. Samples are not continuous resource high-water measurements.",
+    "epoch": {
+      "Id": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+      "Image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+      "StartedAt": "2026-10-26T20:22:36.749456407Z",
+      "Running": true,
+      "RestartCount": 0,
+      "Memory": 4294967296,
+      "NanoCpus": 2000000000,
+      "NetworkMode": "none",
+      "Mounts": []
+    },
+    "hostPostAvailableBytes": 30854561792,
+    "artifactPostAvailableBytes": 53946449920,
+    "sourceLockToolsBootIdle": "Unchanged/audited; no automatic restart or equivalent retry."
+  },
+  "laterPhases": {
+    "state-positive": "NOT_RUN",
+    "lift-negative": "NOT_RUN",
+    "lift-positive": "NOT_RUN",
+    "generic": "NOT_RUN",
+    "original": "NOT_RUN"
+  },
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "sha256": "34bee3314e8b9826b1a161ed8287d6a805e8de43665842eaf727c15e184ce81d",
+    "bytes": 199683,
+    "uniqueMembers": 153,
+    "aliases": 536,
+    "uncompressedBytes": 848292,
+    "verifiedEveryMemberAndAlias": true,
+    "aliasConvention": "Portable source/evidence/delivery aliases and exact original absolute paths both bind the same content hash. Absolute paths are historical identities, not required live locations."
+  },
+  "artifactInventory": "artifact-inventory.json",
+  "sourceAndInvocationEvidence": "Complete source CODE/Python/security and invocation CODE/security/resource reviews, actual33-case memory tests, predecessor RED and planted guard failure are inside the archive. These are source/host checks, not accepted LexLean proof results.",
+  "nextStep": "Independently specify ONE actual first-round16-word literal certificate, its named false companion, and mandatory production compression consumer through remaining six rounds. All new tests NOT_RUN; no implementation/native authority from diagnosis. Preserve full S128 and original2048 obligations; no blind round/block expansion or raised limits.",
+  "prediction": {
+    "proposalAlias": "evidence/prediction-next-product-proposal.json",
+    "proposalSha256": "9d836362bb46f622105e653a0a238a331c96d4dbfe61b26739f3f5ee08bc42a5",
+    "specAlias": "evidence/prediction-next-product-spec-review.json",
+    "specSha256": "8171b59b749a1591b1031a0f8efd13694cea49539f6319be4a4c2b958b9d57ba",
+    "status": "Accepted bounded source plan only. Concrete Cases/Apply route for actual insertion and mandatory rankTokens head consumer avoids unexecuted Simplify. Official Bool Cases capability remains required for selected route, not a claim all constructive alternatives are impossible; no qualified new binary/native result. Full R4-19 obligations preserved."
+  },
+  "unchangedCounts": {
+    "publishedVectors": "18/35",
+    "controls": "255/272",
+    "Object": "331/403"
+  },
+  "remainingScope": "Seven pending drafts, Read33/Construction39/whole257, Hash restoration/mutations, serving/durable memory/learning, genuine PrismPM production binding and generated Pages remain required. Development lock is not a production lock.",
+  "protectedTen": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  }
+}

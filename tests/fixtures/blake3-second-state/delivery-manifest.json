@@ -1,0 +1,166 @@
+{
+  "schema": "lexlean-r4/second-state-delivery-manifest/1",
+  "scope": "Reviewed source and classified timeout only; no semantic negative, second-state proof or count increase. Seven drafts and three issue66 files excluded.",
+  "sourceManifestUnchanged": true,
+  "sourceManifestSha256": "b6b62eaeaa2f73c058ed7ceb28572620de9bd08afaad374831a7b8f59e9dc592",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 97278,
+      "sha256": "238f0bc98e54445e60d68651cfd15bad4f79cc00979b400035f4681d564d2024"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 77743,
+      "sha256": "24be88c7994106159918424251c4ff265e0148bcaadd687ab1921cc85003e6a8"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/README.md",
+      "bytes": 2515,
+      "sha256": "1aa097aaf6428266913101e1d64ae4c879c093f049ebad875a1b1c3b00dc7be2"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/RESULTS.md",
+      "bytes": 3958,
+      "sha256": "20689faf1fd7a4fc6b1632f7f72c2f59176a3c15246d17bf3a2e51a7410b6a50"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/artifact-inventory.json",
+      "bytes": 1265,
+      "sha256": "34449fbadf3fade580e70b0e72cec96645586c16fa028f57e875eec89bd6fbb6"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/candidate.json",
+      "bytes": 37114,
+      "sha256": "4d080b0b49baf8de23edf9a5c1201829a968ad85d622e27a3b932f1f091fc28b"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/derivation.json",
+      "bytes": 2187,
+      "sha256": "e471ef322d28a42483eadcf3ab237f19429a2b92cc8991faff67af7b480c062a"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/derive-expected.py",
+      "bytes": 4051,
+      "sha256": "e35efd049cfb7094760007fdaeec5ecee85fdfbd69bb821cd80a30738e303b77"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/evidence.jsonl.gz",
+      "bytes": 199683,
+      "sha256": "34bee3314e8b9826b1a161ed8287d6a805e8de43665842eaf727c15e184ce81d"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/manifest.json",
+      "bytes": 3517,
+      "sha256": "b6b62eaeaa2f73c058ed7ceb28572620de9bd08afaad374831a7b8f59e9dc592"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/generic/lexlean.toml",
+      "bytes": 688,
+      "sha256": "d4a6a50b9f7a7bd31b6b69c13285534af30b91161b03f9da9342eb11e2981373"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/lift-negative/lexlean.toml",
+      "bytes": 685,
+      "sha256": "a4c6229b75608c88f7f4cb9b8993b04ceca7b828e182eee759ed344f0f5a5eed"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/lift-negative/tests/lexlean/Blake3SecondStateLift.lex.tex",
+      "bytes": 1838,
+      "sha256": "fae4af637b25c5f6d2773c48530ec69287782b06bac71b68818fd48e0e489216"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/lift-positive/lexlean.toml",
+      "bytes": 685,
+      "sha256": "a4c6229b75608c88f7f4cb9b8993b04ceca7b828e182eee759ed344f0f5a5eed"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/original/lexlean.toml",
+      "bytes": 689,
+      "sha256": "0f91f97c97b44450583c0ed632600b46d8918f64f020293583c41cae4c7087e5"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/state-negative/lexlean.toml",
+      "bytes": 681,
+      "sha256": "978172cea30083d296fed6b698e19ef775c48e1351090efe8c5775c1268092a7"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/state-negative/tests/lexlean/Blake3SecondState.lex.tex",
+      "bytes": 10403,
+      "sha256": "dcb762e270e7fec5da3d17be0d0654ec2ba559a6104a75145e68241c9fee64bc"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/phases/state-positive/lexlean.toml",
+      "bytes": 681,
+      "sha256": "978172cea30083d296fed6b698e19ef775c48e1351090efe8c5775c1268092a7"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/project/tests/lexlean/Blake3SecondState.lex.tex",
+      "bytes": 10403,
+      "sha256": "f48c4d8abf0fa8d3b41327519eb03bcd2e23c8542022c9bb07cbc6b3a37a3b8a"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/project/tests/lexlean/Blake3SecondStateContext.lex.tex",
+      "bytes": 24718,
+      "sha256": "8076fe40c56bb79e701fb01af9a0d5df727b781a670ed4483e69bc39dcefba48"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/project/tests/lexlean/Blake3SecondStateGeneric.lex.tex",
+      "bytes": 11776,
+      "sha256": "b375fa063915a4ea3f0fc09c36f06dfb35b8a4b5c67c70c7e438030272900f82"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/project/tests/lexlean/Blake3SecondStateLift.lex.tex",
+      "bytes": 1872,
+      "sha256": "7bb3ca8bad88a1cfb5dbdc40e8bdc48c8d201326061aa61129a742942bf5e1ed"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/project/tests/lexlean/Blake3SecondStateOriginal.lex.tex",
+      "bytes": 44531,
+      "sha256": "27e8d76f2f3c6ede1c94a1d546e66cf8029c0537637a25220f8a439c01a46a0f"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/proposal.json",
+      "bytes": 10976,
+      "sha256": "57f604f8469aa47e7ba061ec80ab3f34917c360a75cc5898b2e5c00ddb71655a"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/results.json",
+      "bytes": 7233,
+      "sha256": "55363784412cb9192ff338a34f39463b4ec098c9eaaa1f87f742e8dfb70bba0f"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/source-checks.json",
+      "bytes": 8589,
+      "sha256": "00e647261c6cc460c6fc88487b1ac6688b9105a171bee63e494b7b3841ec6b7a"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-state/spec-review.json",
+      "bytes": 10436,
+      "sha256": "f5f1f365a107c26e4c693e8338cbd66bf0bb887a5e38cfe429862beca0766e52"
+    }
+  ],
+  "preserved": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  },
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "sha256": "34bee3314e8b9826b1a161ed8287d6a805e8de43665842eaf727c15e184ce81d",
+    "bytes": 199683,
+    "uniqueMembers": 153,
+    "aliases": 536,
+    "uncompressedBytes": 848292,
+    "verifiedEveryMemberAndAlias": true,
+    "aliasConvention": "Portable source/evidence/delivery aliases and exact original absolute paths both bind the same content hash. Absolute paths are historical identities, not required live locations."
+  },
+  "lateReviewBoundary": "Exact delivery/pipeline reviews occur after this freeze; their retained reports and PR comments do not rewrite this archive."
+}

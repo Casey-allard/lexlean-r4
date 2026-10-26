@@ -1,0 +1,11 @@
+\begin{lexlean}{Blake3SecondStateLift}
+\useglossary{lexlean.std.bool@1.2.0}
+\useglossary{lexlean.std.nat@1.2.0}
+\importmodule{Blake3SecondState}
+\importmodule{Blake3SecondStateContext}
+\importmodule{R4.Blake3Input}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"unrelated_zero","parameters":[],"proof":{"kind":"reflexivity"},"statement":{"kind":"eq","left":{"kind":"nat","value":"0"},"right":{"kind":"nat","value":"0"}}},{"axioms":[],"kind":"theorem","name":"second_state_lift","parameters":[{"name":"r0","type":{"arguments":[],"kind":"named","member":{"module":"R4.Blake3Input","name":"B3LiteralInput"}}},{"name":"r1","type":{"arguments":[],"kind":"named","member":{"module":"R4.Blake3Input","name":"B3LiteralInput"}}},{"name":"r2","type":{"arguments":[],"kind":"named","member":{"module":"R4.Blake3Input","name":"B3LiteralInput"}}},{"name":"r3","type":{"arguments":[],"kind":"named","member":{"module":"R4.Blake3Input","name":"B3LiteralInput"}}},{"name":"count","type":{"kind":"nat"}}],"proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"arguments":[],"kind":"apply","theorem":{"name":"unrelated_zero"},"type_arguments":[]}},{"binders":["prior","ih"],"constructor":"succ","proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"kind":"congruence"}},{"binders":["earlier"],"constructor":"succ","proof":{"kind":"congruence"}}],"kind":"cases","scrutinee":"prior"}}],"generalizing":[],"kind":"induction","scrutinee":"count"},"statement":{"arguments":[{"kind":"var","name":"r0"},{"kind":"var","name":"r1"},{"kind":"var","name":"r2"},{"kind":"var","name":"r3"},{"kind":"var","name":"count"}],"function":{"module":"Blake3SecondStateContext","name":"B3SecondStateGoal"},"kind":"call"}}],"spec":"lexlean/semantic-module/2"}}
+\end{semanticmodule}
+\end{lexlean}

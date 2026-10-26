@@ -1,0 +1,97 @@
+{
+  "schema": "lexlean-r4/blake3-second-state-independent-spec-review/1",
+  "at": "2026-10-26T22:18:12.371709+00:00",
+  "reviewer": "first_state_invocation_author, independent of proposal author; architect and limited debugger Phase1 roles",
+  "verdict": "PASS_BOUNDED_SOURCE_IMPLEMENTATION_SPEC_WITH_EXPLICIT_NATIVE_STOP_GATES",
+  "proposalSha256": "57f604f8469aa47e7ba061ec80ab3f34917c360a75cc5898b2e5c00ddb71655a",
+  "scope": "One actual first-compression/second64 full-state certificate, intended wrong-literal negative, four error-preserving sibling lift, real K5-to-K4 consumer and mandatory exact original-tree production consumer. All new native phases NOT_RUN. This authorizes source preparation only, not execution or theorem acceptance.",
+  "eligibility": {
+    "freshCommands": [
+      "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3 scripts/roster.py verify",
+      "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3 scripts/roster.py check Agent architect",
+      "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3 scripts/roster.py check Agent debugger"
+    ],
+    "cwd": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+    "result": "All exit0; logical roster4e5d2791f522e3ca,7agents7skills, architect/debugger active."
+  },
+  "sourceEvidence": {
+    "pins": "All six proposal pins and all four decoded runtime hashes independently rechecked against retained bytes. Runtime read from committed hash-named gzip text; no source rewrite.",
+    "firstState": "Accepted base right is Result.ok(S64); S64 is right.arguments[0], exactly seven fields chain/chunkCounter/blocksCompressed/buffer/totalBytes/budget/cvStack. Keep all seven, and use no double wrap.",
+    "nextInput": "Previous original consumer proof arguments independently decoded: sibling lengths64,128,256,512,1024; first sibling is exact packed64 bytes64..127. Remaining four ASTs must be reused byte/canonical-AST exactly, preserving constructor association.",
+    "runtime": "Read actual F packed=>Update(current,UnpackBytes), concat error/ok branches, Update validation/length/bytes gates, BeforeByte, FeedBytes and AppendByte. FeedBytes calls BeforeByte before append; nil returns current. S64 buffer length64 and blocksCompressed0 choose non-final compression with counter0,length64,StartFlag1. Then buffer cleared, blocksCompressed1;64 bytes appended means total128,buffer64..127 with no second compression on terminal nil. Budgetmaxu64,chunkCounter0,cvStack[] unchanged.",
+    "compression": "Read pinned Core InitialRaw/Rounds/CompressRaw/FirstEight and Nat arithmetic bodies. Seven rounds, message permutation, feedforward and first-eight extraction remain real production definitions. No ROOT/CHUNK_END flag is used here.",
+    "oldControl": "Independently decoded/hashed b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d. compress_empty_full_published_xof_block is b3CoreCompress(IV,zeroWords,0,0,11), Reflexivity, emptyaxioms. It cannot Apply to message0..63,length64,flags1; source inspection is not a fresh native acceptance claim."
+  },
+  "independentExpectedDataCheck": {
+    "method": "A fresh in-memory evaluator interpreted the pinned Nat/Core semantic ASTs directly: nat,var,record,project,let,add,beq,if,call,primitive and Nat.zero/succ match. Definition arity asserted on each call. No external BLAKE3 library, no production code mutation and no kernel/native invocation.",
+    "input": "IV from actual Core body; little-endian words independently constructed from bytes0..63 and compared against all16 proposal words; counter0,length64,flags1.",
+    "definitionCalls": 19065,
+    "primitiveArities": {
+      "multiply": 2,
+      "subtract": 2,
+      "quotient": 3,
+      "remainder": 3
+    },
+    "computedFirstEight": [
+      2637638143,
+      1475484891,
+      2874806141,
+      1318024014,
+      2976708255,
+      2290928732,
+      756909228,
+      544155143
+    ],
+    "comparison": "Exact equality with all eight proposed expected words. Nat subtract saturates at0; observed quotient/remainder denominators positive.",
+    "boundary": "Independent authoring-data consistency only. The interpreter is not a trusted proof, a replacement for official LexLean, or acceptance of the full state. Actual F(Q,S64)=ok(fully literal S128) must be kernel checked with empty axioms. Author must retain exact bounded derivation recipe/inputs/output before source freeze for portable review."
+  },
+  "proofContract": {
+    "statePair": "Same theorem/LHS/proof/imports/config in both phases. Positive RHS literal B3CoreCV c0..c7 plus literal remaining six state fields. Sole negative delta c0=2637638143 to2637638144. Reflexivity; no supplied equation assumption or compression-expression RHS. Source check must pass before intended rfl rejection counts.",
+    "lift": "Supported previously compiled Nat family: Goal0 is state equality; Goal(succ n) is K4(F(Q,S64))=K4(okS128). Induction zero Apply new state certificate; successor Cases prior with Congruence in both branches. unrelated_zero:0=0 in both sources, sole negative delta zero Apply target. Exact generated proof/source inspection required.",
+    "generic": "K5(Q,r0,r1,r2,r3,okS64)=K4(r0,r1,r2,r3,okS128), Apply new lift at1. Existing K5 unchanged. Kernel must accept nested-match definitional conversion; helper-only acceptance insufficient.",
+    "original": "F(exact original2048tree,I)=K4(exact remaining four siblings,okS128), Apply new generic at exact four sibling ASTs. Prior bridge is a demonstrated route, not implicit transitivity. New actual original consumer remains mandatory and may recompute first leaf/compression during conversion. No premise that prior theorem forces elaboration to be cheap.",
+    "admissionChecks": "Every externally qualified member has direct import including R4.Blake3Core for CV/state literals. Same-module calls omit module key, never null/self-import. Local declarations precede use; inventory must flag self-qualified references rather than subtracting current module. Canonical semantic JSON, sole negative AST diffs and exact original tree/state/sibling pins checked."
+  },
+  "requiredPhaseOrder": [
+    "state-negative: actual source admission then intended LLV7002 rfl mismatch, independent diagnostic/postcondition review",
+    "state-positive: actual full literal state verify0, independent complete artifact/kernel/emptyaxiom review",
+    "lift-negative: actual source admission then unrelated_zero vs exact Goal0 mismatch, independent review",
+    "lift-positive: verify0 and artifact review, helper-only",
+    "generic: actual K5-to-K4 consumer verify0 and independent artifact review",
+    "original: exact original production F-tree consumer verify0 and independent artifact review; only then bounded connected checkpoint"
+  ],
+  "stopConditions": [
+    "Any source admission failure is NOT_RUN verification, never semantic negative. Preserve and diagnose before a distinct successor.",
+    "Negative success or wrong diagnostic, timeout/OOM/nonzero memory events, stale source/tool/lock/epoch, capture failure or missing artifact stops progression. No automatic repeat or increased limits.",
+    "Literal-state rfl, nested-match conversion and original consumer resource cost remain unproved. Do not discard mandatory original consumer or substitute helper success.",
+    "Select one phase at a time only after source CODE and exact invocation/resource reviews; independently audit result before separate next selection. No blind32certificate expansion."
+  ],
+  "resources": {
+    "unchanged": "Existing4GiB container/2CPU/300000ms child limit; no limit change. Fresh source/tools/idle/boot/exact absolute-zero epoch and no overlapping compiler jobs.",
+    "storage": "Fresh host20GiB floor,10GiB inclusive peak estimate covering paging/receipts/artifact retention plus10GiB reserve. Artifact volume11GiB pre/10GiB post; VM root/shared host/artifact distinguished. Current snapshot or this report does not authorize a launch.",
+    "implementation": "Separate prospective bounded source/invocation budget needed; no framework or runtime regeneration."
+  },
+  "instrumentHistoryPhase1": {
+    "classification": "Proposal lists two prior in-memory instrument failures and two sizeguard rejections. They are not proof negatives and cannot be retrospectively described as having followed a pre-repair debugger review.",
+    "parse": "Actual source begins TeX lexlean header and stores JSON only inside semanticdata. Selecting the delimited semantic payload successfully parsed all reviewed sources. Parsing the outer TeX as JSON would fail; exact initial ephemeral command/stack is not retained, so this is source-grounded cause consistency, not complete reproduction of that original command.",
+    "arity": "Fresh source inspection and independent evaluator observed multiply/subtract2args and quotient/remainder3args. Uniform3argument unpacking cannot handle the production multiply/subtract nodes. Independent evaluator with explicit operation dispatch produced the listed exact CV. This supports the stated cause but does not authenticate the unretained original evaluator or its claimed historical empty-control sanity run.",
+    "retentionRequirement": "Keep original instrumentHistory verbatim in portable proposal; record unavailable ephemeral commands/trace as unavailable. Retain the next exact derivation recipe and result before source freeze. Do not manufacture historical logs or claim prior protocol compliance.",
+    "sizeGuard": "16135/13518B proposed drafts are author-reported prewrite sizeguard events; no files/commands retained for independent replay. Treat as instrument history only."
+  },
+  "notClaimed": [
+    "new native result",
+    "final published2048 digest or vector/control count increase",
+    "compression efficiency or OOM remedy",
+    "whole Object or remaining drafts complete",
+    "production PrismPM binding/Pages acceptance"
+  ],
+  "soleWrite": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-spec-review.json",
+  "budget": {
+    "proposalPlusReviewHandoffCap": 32768,
+    "reviewAllocatedCap": 12288,
+    "proposalAllocated": 12288,
+    "freshHostAvailableBytes": 32374284288,
+    "reserveBytes": 10737418240
+  },
+  "method": "Read-only local source/JSON/AST/hash interpretation and fresh roster checks; sole review write. No VM/SDK/compiler/native/testchild/Git/repository edit; current delivered continuation packet untouched."
+}

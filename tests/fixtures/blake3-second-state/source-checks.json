@@ -1,0 +1,237 @@
+{
+  "schema": "lexlean-r4/blake3-second-state-source-checks/1",
+  "status": "PASS_SOURCE_STRUCTURE_ONLY_ALL_NATIVE_NOT_RUN",
+  "proofTexts": [
+    {
+      "path": "phases/lift-negative/tests/lexlean/Blake3SecondStateLift.lex.tex",
+      "bytes": 1838,
+      "sha256": "fae4af637b25c5f6d2773c48530ec69287782b06bac71b68818fd48e0e489216",
+      "semanticSha256": "3387ec87d73633238a9d23ee0af2b68798c0521cfef78da5b0083db86a93a9c0",
+      "module": "Blake3SecondStateLift",
+      "directImports": [
+        "Blake3SecondState",
+        "Blake3SecondStateContext",
+        "R4.Blake3Input"
+      ]
+    },
+    {
+      "path": "phases/state-negative/tests/lexlean/Blake3SecondState.lex.tex",
+      "bytes": 10403,
+      "sha256": "dcb762e270e7fec5da3d17be0d0654ec2ba559a6104a75145e68241c9fee64bc",
+      "semanticSha256": "972685265b4b4fd27a168344dcef47bbf1285ebd289097adbbe58db9d3720eea",
+      "module": "Blake3SecondState",
+      "directImports": [
+        "Blake3Case19FirstState",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Input"
+      ]
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondState.lex.tex",
+      "bytes": 10403,
+      "sha256": "f48c4d8abf0fa8d3b41327519eb03bcd2e23c8542022c9bb07cbc6b3a37a3b8a",
+      "semanticSha256": "946c27353aaf34312a49dc00d6f6b101d62014e81accdc2c66ba170b01336c58",
+      "module": "Blake3SecondState",
+      "directImports": [
+        "Blake3Case19FirstState",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Input"
+      ]
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateContext.lex.tex",
+      "bytes": 24718,
+      "sha256": "8076fe40c56bb79e701fb01af9a0d5df727b781a670ed4483e69bc39dcefba48",
+      "semanticSha256": "05dee910deac540c3c537048747f1993ed5bdedf36f089000b08aac3c32646ed",
+      "module": "Blake3SecondStateContext",
+      "directImports": [
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Input"
+      ]
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateGeneric.lex.tex",
+      "bytes": 11776,
+      "sha256": "b375fa063915a4ea3f0fc09c36f06dfb35b8a4b5c67c70c7e438030272900f82",
+      "semanticSha256": "a5c343cd30fa3d4d2704dd99fc0d5f574ac6363e78a583f91e29acf026906127",
+      "module": "Blake3SecondStateGeneric",
+      "directImports": [
+        "Blake3FirstStateContext",
+        "Blake3SecondStateContext",
+        "Blake3SecondStateLift",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Input"
+      ]
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateLift.lex.tex",
+      "bytes": 1872,
+      "sha256": "7bb3ca8bad88a1cfb5dbdc40e8bdc48c8d201326061aa61129a742942bf5e1ed",
+      "semanticSha256": "ca6fc5c87fe4bad053b8e81cc5c8f2d35bbd7df34242bd4fe172ec1a3238e4d1",
+      "module": "Blake3SecondStateLift",
+      "directImports": [
+        "Blake3SecondState",
+        "Blake3SecondStateContext",
+        "R4.Blake3Input"
+      ]
+    },
+    {
+      "path": "project/tests/lexlean/Blake3SecondStateOriginal.lex.tex",
+      "bytes": 44531,
+      "sha256": "27e8d76f2f3c6ede1c94a1d546e66cf8029c0537637a25220f8a439c01a46a0f",
+      "semanticSha256": "699ea1432c20e1b41bc424d288c709fcd8356aa08b8bbf21b01a75760e6900ca",
+      "module": "Blake3SecondStateOriginal",
+      "directImports": [
+        "Blake3SecondStateContext",
+        "Blake3SecondStateGeneric",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Input"
+      ]
+    }
+  ],
+  "checks": [
+    "All seven semantic JSON bodies canonical",
+    "All external module references directly imported; no same-module qualification",
+    "Local function/theorem references resolve to earlier declarations",
+    "Exact seven-field fully literal S128 and production F(Q,S64) source",
+    "State negative sole expected chain.c0+1 delta",
+    "Lift negative sole zero Apply target delta; unrelated_zero shared",
+    "Four nested matches preserve errors; K5 generic consumer and exact original F-tree left",
+    "Exact remaining four sibling ASTs and unchanged runtime/shared/base pins",
+    "All six configs preserve child_timeout_ms300000 and remaining limits",
+    "Derivation exact recipe retained, matches planned CV but is not kernel proof"
+  ],
+  "tdd": {
+    "predecessor": "Absent-source FileNotFoundError expected before authoring; source preparation test, not compiler negative",
+    "green": "All structural checks pass after authoring",
+    "plant": "Positive expected c0 changed2637638143 to2637638144; checker rejected exact CV assertion; mutant source/log preserved; original bytes restored and checks pass",
+    "nativeNegatives": "NOT_RUN; neither host check counts as intended LexLean rfl/Apply rejection"
+  },
+  "evidence": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/01-source-red.txt",
+      "bytes": 1309,
+      "sha256": "70d4363d9c44d117afb3e9ec744ed784e14f5b74f576bac019ee573b86bb9262"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/02-source-green.txt",
+      "bytes": 368,
+      "sha256": "6f1975dc4e2af2118d14793a9bc57b2ea1f28dd32c930b272288b6e12028d59b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/03-planted-source-red.txt",
+      "bytes": 341,
+      "sha256": "2c2fc9ca2323978eead0133af9bed637228b3801d37a9a7d9c96c1496e072af8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/04-restored-source-green.txt",
+      "bytes": 368,
+      "sha256": "6f1975dc4e2af2118d14793a9bc57b2ea1f28dd32c930b272288b6e12028d59b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/baseline.json",
+      "bytes": 1902,
+      "sha256": "54167931a9dc2bd9c9fb0b045843ae46b50768dcc8eec252131239254f3c1585"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/check-source.py",
+      "bytes": 4889,
+      "sha256": "0f8a1bacec2888374cabe3b42ded5bffd0448c6c87dd40c8e6efbf12b4a1534c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-source/state-c0-mutant.lex.tex",
+      "bytes": 10403,
+      "sha256": "dcb762e270e7fec5da3d17be0d0654ec2ba559a6104a75145e68241c9fee64bc"
+    }
+  ],
+  "moduleClosure": {
+    "state-negative": [
+      "Blake3Case19FirstState",
+      "Blake3SecondState",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "state-positive": [
+      "Blake3Case19FirstState",
+      "Blake3SecondState",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "lift-negative": [
+      "Blake3Case19FirstState",
+      "Blake3SecondState",
+      "Blake3SecondStateContext",
+      "Blake3SecondStateLift",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "lift-positive": [
+      "Blake3Case19FirstState",
+      "Blake3SecondState",
+      "Blake3SecondStateContext",
+      "Blake3SecondStateLift",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "generic": [
+      "Blake3Case19FirstState",
+      "Blake3FirstStateContext",
+      "Blake3SecondState",
+      "Blake3SecondStateContext",
+      "Blake3SecondStateGeneric",
+      "Blake3SecondStateLift",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "original": [
+      "Blake3Case19FirstState",
+      "Blake3FirstStateContext",
+      "Blake3SecondState",
+      "Blake3SecondStateContext",
+      "Blake3SecondStateGeneric",
+      "Blake3SecondStateLift",
+      "Blake3SecondStateOriginal",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ]
+  },
+  "selectedInputCounts": {
+    "state-negative": 10,
+    "state-positive": 10,
+    "lift-negative": 12,
+    "lift-positive": 12,
+    "generic": 14,
+    "original": 15
+  },
+  "decodedBytes": {
+    "state-negative": 164742,
+    "state-positive": 164742,
+    "lift-negative": 191302,
+    "lift-positive": 191336,
+    "generic": 219298,
+    "original": 263830
+  },
+  "derivation": {
+    "recipeSha256": "e35efd049cfb7094760007fdaeec5ecee85fdfbd69bb821cd80a30738e303b77",
+    "outputSha256": "e471ef322d28a42483eadcf3ab237f19429a2b92cc8991faff67af7b480c062a",
+    "status": "UNTRUSTED_EXPECTED_DATA_CONSISTENCY_ONLY"
+  },
+  "limits": "Official source admission, compiler theorem success, empty-axiom and kernel artifact acceptance not established by structural checks."
+}
