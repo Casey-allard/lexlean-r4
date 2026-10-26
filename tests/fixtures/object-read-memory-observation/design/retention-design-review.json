@@ -1,0 +1,90 @@
+{
+  "schema": "lexlean-r4/retention-refinement-v2-sequential-review/1",
+  "at": "2026-10-26T01:54:02.076001+00:00",
+  "reviewer": "journal_head_code",
+  "role": "Independent internal code-reviewer; distinct from ADR author and future implementer",
+  "verdict": "PASS_SOURCE_DESIGN_FOR_BOUNDED_TDD_ONLY",
+  "base": "a218201c01472e8553fc27a8072b8b3432cd3f4b",
+  "branch": "codex/admitted-memory-retention",
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/retention-refinement-adr.json",
+      "bytes": 11066,
+      "sha256": "90c4a67ed89f39410e9f9a453a5870a312f6d666649aae7179cd5baa1ce3cdba"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/retention-refinement-spec-review.json",
+      "bytes": 6842,
+      "sha256": "d79366c4be249486c39e3a09bf35d4ed53d57b1f781ca0cd2f1998c615e9960a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/retention-refinement-adr-v2.json",
+      "bytes": 12162,
+      "sha256": "c4a30722b91c11d6e4444f839c683e561d784662d03deeb5015f8404e2234fc5"
+    }
+  ],
+  "sourcePins": {
+    "design/contract.json": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6",
+    "design/placement-adr.json": "f770346d7a479852eafe1e97a5eccfe465cab0c606afdfdc14f036673ae0d7a4",
+    "design/implementation-spec-review.json": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953",
+    "observe.py": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b",
+    "JOURNAL.md": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+  },
+  "planPin": {
+    "path": "docs/plans/2026-10-26-admitted-memory-observation.md",
+    "sha256": "83ecb0fac1ef7b5f56d4354c39e5c82cd4f456b9f970f3789d3d85f8e4d2749c"
+  },
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS 7 agents/7 skills",
+    "checkAgentCodeReviewer": "PASS",
+    "profileAndINIT": "Read during original SPEC review; applicable retained context",
+    "fileClaims": "Empty table, no conflicts"
+  },
+  "sequentialReviews": [
+    {
+      "order": 1,
+      "kind": "Renewed SPEC",
+      "verdict": "PASS_MINIMAL_V2_REPAIRS",
+      "findings": [],
+      "evidence": [
+        "Original ADR and frozen rejection hashes reverified unchanged; v2 lineage exactly cites both.",
+        "Structural JSON comparison shows only terminal.quotas, retrieval.validation, added retrieval.reason_priority, appended repair test, and revision/time/lineage metadata changes. Pool limits, fixed slots, writer protocol and scope remain identical.",
+        "RETENTION-SPEC-01 closed: missing trusted snapshot is whole-vector null; remaining generated null; exact known vector and fixed policy caps remain distinct; partially null vectors forbidden.",
+        "RETENTION-SPEC-02 closed: explicit signaled/nonzero/truncated-side predicates reject the contradictory receipts identified in rejection. read_error/spawn_error have minimum predicates; unknown preserves unknown/multiple-cause records.",
+        "Reason priority is among actually observed causes, never inferred from flags. Capture provenance and priority integration remain later work; this minimal serializer implements local predicates only.",
+        "Fixed marker26624, journal marker30720, header remainder22528, maximum journal1013760 and total1048576 arithmetic remains valid. Physical data rounding is conditional and separately labeled."
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "CODE design implementability against existing observe.py",
+      "verdict": "PASS_BOUNDED_IMPLEMENTABILITY_FOR_FIRST_RED_TEST",
+      "findings": [],
+      "evidence": [
+        "Completed after SPEC repair acceptance; reread current journal implementation and reverified all inherited source/plan pins.",
+        "Current Journal reserves fixed markers on construction, charges complete row before IO, and returns a copied reservation snapshot. Raising protected marker baseline from2048 to26624 fits this existing mechanism without changing pool caps or append semantics.",
+        "A small fixed-slot owner can track one attempt per terminal/retrieval role without dynamic allocation, leases, path discovery or a cross-process shared-object requirement. Concrete cross-process disjoint role/path enforcement remains later integration.",
+        "Fixed arrays, exact built-in type checks, u64 strings, bounded bytes/enums and local relational predicates are implementable with existing standard library. Check shapes and raw caps before JSON/base64 creation, then encoded cap before writer IO.",
+        "Terminal quotas can be generated from a copied known snapshot or explicit unknown. Derived remaining never needs caller input and does not imply a live remote state.",
+        "Existing positive exact-int short-write and trusted sync callback semantics are directly reusable in a small one-attempt fixed-slot writer. Attempt must latch before validation; failure preserves cause and consumes the slot without affecting the other role.",
+        "Terminal journalSync and caller-visible own write/sync result are separate; no terminal rewrite or self-certified future fsync is needed.",
+        "Existing Journal row_pool remains envelope-only and need not accept new terminal/retrieval tags: fixed records occupy separately reserved slots. No executable observer, launcher or SDK adaptation is required for this slice."
+      ]
+    }
+  ],
+  "requiredImplementationEvidence_NOT_RUN": [
+    "First intended RED for protected marker26624 and maximum journal1013760; unchanged total1048576 and exact/overflow boundary cases.",
+    "Typed retrieval and terminal schema valid/negative cases including both repaired relationships; bounded worst-case encoding; quotas unknown versus known-empty, bool/int distinctions and original errors.",
+    "Same-ledger independent role attempts, duplicate attempt rejection, validation failure, short/invalid writes, partial ENOSPC/interruption and failed sync, with no refund/retry and untouched other role.",
+    "Existing parser/journal regression suite and independent actual-source CODE/Python/security review after implementation; design pass is not implementation acceptance."
+  ],
+  "limits": [
+    "All new tests NOT_RUN; no executable validation, serializer materialization, benchmark or memory measurement performed.",
+    "No repository/index/source/frozen-evidence changes; only this exclusive review report.",
+    "No SDK/VM/compiler/native/install/epoch/reset/retry authority.",
+    "Logical encoded arithmetic does not prove physical peak, Python RSS, shared-filesystem durability, real capture completeness, cross-process ownership or whole-run retention.",
+    "Full sample/identity schema, process ancestry, actual capture/paths, clock/ACK, invocation and pre-run obligations remain outside this minimal source slice.",
+    "Original max6325 remains UNACCEPTED; no Read33/product/Pages acceptance."
+  ]
+}

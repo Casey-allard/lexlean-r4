@@ -1,0 +1,133 @@
+{
+  "schema": "lexlean-r4/retention-source-python-review/1",
+  "at": "2026-10-26T02:06:18.282499+00:00",
+  "reviewer": "retention_python",
+  "role": "python-reviewer",
+  "verdict": "REQUEST_NARROW_PUBLIC_SIGNATURE_ANNOTATIONS",
+  "scope": "Partial host-only fixed retention accounting, typed terminal/retrieval encoding and one-attempt writers; not observer completion or native proof acceptance.",
+  "pins": {
+    "base": "a218201c01472e8553fc27a8072b8b3432cd3f4b",
+    "observe.py": "93ad7b0dd3a38d0a2456ad3a9d025e91541843a2de2c1134ca89e8385295b56a",
+    "test_observe.py": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2",
+    "designV2": "c4a30722b91c11d6e4444f839c683e561d784662d03deeb5015f8404e2234fc5",
+    "designReview": "3dcf86ccb89546b56fff74792394d1f6392f5e3ca490fbcf77d285a8ff97d2aa"
+  },
+  "eligibility": {
+    "roster": "4e5d2791f522e3ca",
+    "verify": "PASS",
+    "Agent python-reviewer": "PASS",
+    "INIT": "read",
+    "profile": ".claude/agents/python-reviewer.md",
+    "fileClaims": "empty; no conflict"
+  },
+  "findings": [
+    {
+      "id": "PY-RETENTION-01",
+      "severity": "HIGH",
+      "kind": "explicit active language-review policy, not observed behavior failure",
+      "file": "tests/fixtures/object-read-memory-observation/observe.py",
+      "lines": [
+        315,
+        345,
+        400,
+        403,
+        412,
+        418,
+        422
+      ],
+      "issue": "New public encoder inputs and Retention public signatures omit annotations. The active Python reviewer profile explicitly classifies public functions without annotations HIGH, unlike the established typed Journal API. Runtime validation is otherwise present; this is not a counterexample to the accepted bounded behavior.",
+      "repair": "Add narrowly scoped signatures only: object for deliberately unvalidated record fields/role/raw values, existing BinaryIO for streams and Callable[[], None] for trusted synchronization, bytes/None returns and precise snapshot return dictionaries. Include **fields: object and constructor return None where applicable. Do not add Any, dataclasses, type coercions or runtime behavior. Rerun scoped tests on exact changed source and renew this finding review."
+    }
+  ],
+  "actualVerification": {
+    "runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_observe"
+    ],
+    "cwd": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation",
+    "status": 0,
+    "testsRun": 35,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsedSeconds": 0.023,
+    "sourceAndTestsAfterProbes": "same exact hashes",
+    "syntaxCompilation": "AST parse and compile both files PASS, no bytecode files",
+    "functionsOver50Lines": [],
+    "staticTools": {
+      "ruff": "NOT_AVAILABLE_NOT_RUN",
+      "mypy": "NOT_AVAILABLE_NOT_RUN",
+      "pylint": "NOT_AVAILABLE_NOT_RUN",
+      "black": "NOT_AVAILABLE_NOT_RUN",
+      "bandit": "NOT_AVAILABLE_NOT_RUN"
+    },
+    "installedPackages": false
+  },
+  "independentProbes": [
+    {
+      "name": "hostile_exact_type_rejection",
+      "cases": 5,
+      "result": "PASS",
+      "detail": "Hostile str/list/int subclasses rejected without invoking overloaded methods."
+    },
+    {
+      "name": "retrieval_reason_process_completeness_matrix",
+      "cases": 216,
+      "result": "PASS",
+      "detail": "Six valid process states x nine reasons x four completeness combinations matched independent local-predicate expectations; no provenance or cause-priority claim."
+    },
+    {
+      "name": "binary_capture_roundtrip",
+      "result": "PASS",
+      "detail": "Every possible byte repeated to4096 bytes per stream round-tripped via base64; encoded receipt11119 bytes within16384."
+    },
+    {
+      "name": "encoded_snapshot_alias_isolation",
+      "result": "PASS",
+      "detail": "Mutating caller prefix/quota lists after encoding cannot mutate retained bytes; remaining is generated correctly."
+    },
+    {
+      "name": "validation_fail_stop_role_independence",
+      "result": "PASS",
+      "detail": "Invalid guest nonce consumes guest attempt without write; retry rejects while host terminal remains attemptable."
+    },
+    {
+      "name": "unreported_write_and_original_interrupt",
+      "result": "PASS",
+      "detail": "Stream writes3 bytes then raises original SystemExit9; exact exception retained, reported prefix0 and uncertain extent, complete/synced false."
+    }
+  ],
+  "reasonedChecks": [
+    "Exact built-in checks are intentional security/schema requirements; replacing them with isinstance would admit subclasses/hooks and is not recommended despite general Python idiom guidance.",
+    "Record fields are bounded before JSON/base64 allocation: arrays have fixed arity, raw captures4096 each, canonical decimal strings20 chars, hex identities64 chars, fixed enums and quota ranges. Dictionary/raw exception/path input is rejected.",
+    "Writer claims before field validation, preserves fixed reservations and does not refund or retry after partial/validation/sync failure; each role remains independent. Original BaseException propagates; partial write extent is explicitly uncertain.",
+    "Complete bytes and reported synchronization are distinct. Terminal journalSync describes prior journal and does not certify its own future write/sync. No acceptance field or source/resource promotion is emitted.",
+    "Explicit keyword-only schema parameters are acceptable for this exact bounded record; no dataclass/API architecture refactor is requested. Each implementation/test function is at most50 lines.",
+    "No filesystem opening, subprocess execution, network, external package installation, secret access, source-input modification or application fallback added in this slice."
+  ],
+  "evidenceScope": {
+    "currentParent35TestRecord": "retention-host-tests/16-fault-regressions.json.gz",
+    "oldExpectedConstantFailure": "02-fixed-reservation-green.json.gz remains failed despite filename; independently investigated in retention-reservation-debug.json",
+    "coverageInstrumentFailure": "17-coverage-instrument-failure.json preserved; not a product-test result",
+    "correctedParentCoverage": "18-planted-coverage-corrected.json.gz inspected, matching source/test hashes, positive-source-line352/356=98.8764%; None/0 excluded as non-source keys per separate debugger. Branch coverage NOT_MEASURED. This reviewer did not rerun coverage or claim line metric as branches."
+  },
+  "preservation": {
+    "pending9": "all9 hashes rechecked against admitted-journal-fresh-main-verification.json PASS",
+    "sourceAndTest": "unchanged by reviewer",
+    "index": "empty; unchanged",
+    "reviewOutput": "exclusive new report only",
+    "diskFixtureMaterialization": "none; probes in memory",
+    "otherLabs": "untouched"
+  },
+  "limitations": [
+    "Trusted initially empty exclusive unbuffered streams and trusted synchronous callbacks; no concurrent/reentrant use. Caller opens/enforces roles and paths later.",
+    "This source does not establish cross-process ownership, underlying physical retention peak or power-loss durability. Existing source docs are being updated by parent and were not frozen for this source-only verdict.",
+    "Cause provenance/priority, full sample/identity schema, common clocks, ancestry/ACK binding, observation composition and invocation remain unimplemented future obligations.",
+    "Existing guest Python3.12 did not run this source. No SDK/compiler/VM/native action. Original memory.events.max=6325 remains resource-unaccepted."
+  ]
+}

@@ -1,7 +1,7 @@
 # Bounded journal primitive (host tests only)
 
 This change implements the append/synchronization core of plan step 3. It is not
-an executable observer, full observation-schema validator, terminal writer or ACK
+an executable observer, full observation-schema validator or ACK
 issuer. The resource-failed admitted proof remains unaccepted. No SDK run is
 performed by these tests.
 
@@ -19,14 +19,14 @@ future composer's obligations. JSON escaping and multibyte text consume their
 actual encoded length. Boundary/gap rows use a conservative 8192-byte cap.
 
 The fixed pools remain samples 786432 bytes, identities 196608, markers 57344 and
-terminal 8192. The entire terminal pool and 2048 marker bytes for control/temp
+terminal 8192. The entire terminal pool and 26624 marker bytes for fixed retained
 capacity are reserved at construction. No journal row can spend them. Each row's
 full length is reserved before writing, with no loan from another pool, no refund
 following a partial failure and no ring overwrite. `reserved` returns a snapshot.
-This is **not yet the refined whole-lifecycle ledger**: root markers, container and
-host copies, retrieval receipts and simultaneous replacement temporaries still
-need exact encoding and shared reservation accounting before live composition.
-The terminal writer must later enforce its combined guest/host 8192-byte budget.
+The [fixed retention records](RETENTION.md) account for the root marker, host
+copy, bounded retrieval receipt, control/temp capacity and both terminal slots.
+Actual path/role ownership, control replacement and bounded process capture still
+require integration before live composition.
 
 Short writes continue only after a positive integer count no greater than the
 remaining row. Invalid counts or exceptions stop the journal; exceptions propagate

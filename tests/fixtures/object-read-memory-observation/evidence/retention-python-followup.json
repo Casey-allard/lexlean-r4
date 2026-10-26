@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4/retention-source-python-followup/1",
+  "at": "2026-10-26T02:08:36.857207+00:00",
+  "reviewer": "retention_python",
+  "verdict": "PASS_PARTIAL_HOST_RETENTION_SOURCE_ONLY",
+  "scope": "Resolve only PY-RETENTION-01 and rerun actual tests; prior behavioral review remains bounded to its original scope.",
+  "eligibility": {
+    "roster": "4e5d2791f522e3ca",
+    "verify": "PASS",
+    "Agent python-reviewer": "PASS",
+    "Skill verification-before-completion": "PASS"
+  },
+  "pins": {
+    "source": "2e83f9d63494e5ebec608920c96b1d21f1ad1f50eeae53784538cae08c036362",
+    "tests": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2",
+    "priorSource": "93ad7b0dd3a38d0a2456ad3a9d025e91541843a2de2c1134ca89e8385295b56a",
+    "priorReview": "ebaed6c64b3ad22644a14f595306810a4e06fb14ff343ef0fb148d3e7ab0574a",
+    "designV2": "c4a30722b91c11d6e4444f839c683e561d784662d03deeb5015f8404e2234fc5"
+  },
+  "resolved": [
+    {
+      "id": "PY-RETENTION-01",
+      "status": "RESOLVED",
+      "evidence": "Both public encoders annotate all input fields as object and return bytes. Retention constructor/slots/state/write_root/write_retrieval/write_terminal now specify returns; raw values remain object, streams BinaryIO, synchronization Callable[[], None], kwargs object. No Any/coercions/dataclass or behavior refactor."
+    }
+  ],
+  "independentDiffCheck": {
+    "signatureReplacements": 8,
+    "reverseReconstruction": "Exact inverse of only eight signature changes reconstituted prior source SHA93ad7b0dd3a38d0a2456ad3a9d025e91541843a2de2c1134ca89e8385295b56a. No prior-source file materialized.",
+    "annotationStrippedAST": "PASS: ast.dump without positional metadata and with argument/return annotations removed is exactly equal. This establishes body/default/decorator/import identity, not absence of annotation metadata changes.",
+    "testsByteIdentical": true
+  },
+  "freshVerification": {
+    "runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "argv": [
+      "/opt/homebrew/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_observe"
+    ],
+    "cwd": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation",
+    "exit": 0,
+    "tests": 35,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsedSeconds": 0.017,
+    "staticTypeChecker": "NOT_RUN; no installed checker and no package installed"
+  },
+  "findings": [],
+  "preservation": {
+    "priorRequestReport": "unchanged and retained",
+    "pending9": "all exact hashes PASS",
+    "reviewerSourceOrIndexEdits": false,
+    "newDiskPayload": "this exclusive report only; under6KiB",
+    "native": "NOT_RUN"
+  },
+  "limitations": [
+    "Trusted initially empty exclusive unbuffered streams and trusted synchronous callbacks; no concurrent/reentrant use. Actual path/role ownership and physical retention remain future checks.",
+    "This follow-up does not establish full sample/identity validation, ancestry, clocks/ACK, observer composition, capture cause priority, SDK execution or resource acceptance.",
+    "Prior 216-case and other independent behavioral probes were not rerun here; actual 35-test suite was rerun on annotated source. Annotation-only identity supports the prior bounded reasoning.",
+    "Coverage is not newly measured in this review; parent corrected positive-source-line metric is separate from unavailable branch coverage.",
+    "Original memory.events.max=6325 outcome remains unaccepted; no VM/compiler action or production claim."
+  ]
+}

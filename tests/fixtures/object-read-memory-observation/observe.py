@@ -1,5 +1,6 @@
 """One-off admitted-range diagnostic parsing; no live observer entrypoint yet."""
 
+import base64
 import json
 from typing import BinaryIO, Callable
 
@@ -182,7 +183,7 @@ class Journal:
         self.synced_offset = 0
         self.stopped = False
         self.offset_certain = True
-        self._reserved = {"samples": 0, "identities": 0, "markers": 2048,
+        self._reserved = {"samples": 0, "identities": 0, "markers": 26624,
                           "terminal": 8192}
 
     @property
@@ -226,3 +227,227 @@ class Journal:
             self.stopped = True
             raise
         self.synced_offset = self.complete_offset
+
+
+def _choice(value, choices):
+    if type(value) is not str or value not in choices:
+        raise ObservationError("record_enum")
+    return value
+
+
+def _array(value, length):
+    if type(value) is not list or len(value) != length:
+        raise ObservationError("record_shape")
+    return value.copy()
+
+
+def _decimal(value):
+    if value is None:
+        return None
+    if type(value) is not str or not 1 <= len(value) <= 20 or not value.isascii():
+        raise ObservationError("record_decimal")
+    return u64(value.encode("ascii"))
+
+
+def _hex64(value):
+    if (type(value) is not str or len(value) != 64
+            or any(c not in "0123456789abcdef" for c in value)):
+        raise ObservationError("record_hex")
+    return value
+
+
+def _process(value):
+    state, code, signal = _array(value, 3)
+    _choice(state, ("not_run", "running", "exited", "signaled", "unknown"))
+    if state == "exited":
+        valid = type(code) is int and 0 <= code <= 255 and signal is None
+    elif state == "signaled":
+        valid = code is None and type(signal) is int and 1 <= signal <= 64
+    else:
+        valid = code is None and signal is None
+    if not valid:
+        raise ObservationError("record_process")
+    return [state, code, signal]
+
+
+def _prefix(value):
+    result = _array(value, 5)
+    result[:4] = [_decimal(v) for v in result[:4]]
+    if result[4] is not None and type(result[4]) is not bool:
+        raise ObservationError("prefix_certainty")
+    written, complete, rows, synced = [None if v is None else int(v) for v in result[:4]]
+    if any(v is not None and v > 1013760 for v in (written, complete, rows, synced)):
+        raise ObservationError("prefix_limit")
+    for low, high in ((synced, complete), (complete, written), (synced, written), (rows, complete)):
+        if low is not None and high is not None and low > high:
+            raise ObservationError("prefix_order")
+    if complete is not None and rows is not None and (complete == 0) != (rows == 0):
+        raise ObservationError("prefix_rows")
+    return result
+
+
+def _coverage(value):
+    result = [_decimal(v) for v in _array(value, 4)]
+    if result[1] is not None and result[2] is not None and int(result[1]) > int(result[2]):
+        raise ObservationError("coverage_order")
+    return result
+
+
+def _quotas(value):
+    if value is None:
+        return None, None
+    result = _array(value, 4)
+    limits = (786432, 196608, 57344, 8192)
+    for number, minimum, maximum in zip(result, (0, 0, 26624, 8192), limits):
+        if type(number) is not int or not minimum <= number <= maximum:
+            raise ObservationError("record_quota")
+    return result, [limit - number for limit, number in zip(limits, result)]
+
+
+def _encoded(row, cap):
+    result = (json.dumps(row, ensure_ascii=True, separators=(",", ":"),
+                         allow_nan=False) + "\n").encode("utf-8")
+    if len(result) > cap:
+        raise ObservationError("record_cap")
+    return result
+
+
+def encode_terminal(role: object, *, nonce: object, binding: object,
+                    final_state: object, reason: object, prefix: object,
+                    journal_sync: object, coverage: object, detailed_gaps: object,
+                    reserved: object, observer_process: object,
+                    sdk_process: object) -> bytes:
+    """Encode a prior observation snapshot, never this terminal's future sync."""
+    _choice(role, ("guest", "host"))
+    _hex64(nonce)
+    _hex64(binding)
+    _choice(final_state, ("ended", "stopped", "unobserved"))
+    _choice(reason, ("ended", "quota_stop", "parse_error", "read_error", "io_failure",
+                     "clock_error", "ownership_changed", "namespace_unknown",
+                     "unsupported_subtree", "marker_timeout", "parent_missing",
+                     "interrupted", "unknown"))
+    if final_state == "unobserved" and reason != "unknown":
+        raise ObservationError("terminal_unobserved")
+    prefix = _prefix(prefix)
+    _choice(journal_sync, ("not_attempted", "reported", "failed", "unknown"))
+    if journal_sync == "reported" and prefix[3] is None:
+        raise ObservationError("terminal_sync_unknown")
+    coverage = _coverage(coverage)
+    _choice(detailed_gaps, ("retained", "incomplete", "unknown"))
+    reserved, remaining = _quotas(reserved)
+    observer_process, sdk_process = _process(observer_process), _process(sdk_process)
+    if role == "guest" and observer_process[0] not in ("running", "unknown"):
+        raise ObservationError("terminal_future_exit")
+    row = ["t", 1, role, nonce, binding, final_state, reason, prefix,
+           journal_sync, coverage, detailed_gaps, reserved, remaining,
+           observer_process, sdk_process]
+    return _encoded(row, 4096)
+
+
+def encode_retrieval(*, nonce: object, binding: object, start: object, end: object,
+                     process: object, stdout: object, stderr: object,
+                     stdout_complete: object, stderr_complete: object,
+                     reason: object) -> bytes:
+    """Encode supplied captures; no process launch or cause inference."""
+    _hex64(nonce)
+    _hex64(binding)
+    start, end = _decimal(start), _decimal(end)
+    if (start is None) != (end is None) or (start is not None and int(start) > int(end)):
+        raise ObservationError("retrieval_time")
+    process = _process(process)
+    for raw in (stdout, stderr):
+        if type(raw) is not bytes or len(raw) > 4096:
+            raise ObservationError("retrieval_capture")
+    if type(stdout_complete) is not bool or type(stderr_complete) is not bool:
+        raise ObservationError("retrieval_completeness")
+    _retrieval_reason(reason, process, stdout_complete, stderr_complete)
+    row = ["r", 1, nonce, binding, start, end, process, stdout_complete,
+           stderr_complete, base64.b64encode(stdout).decode("ascii"),
+           base64.b64encode(stderr).decode("ascii"), reason]
+    return _encoded(row, 16384)
+
+
+def _retrieval_reason(reason, process, out_complete, err_complete):
+    state, code, signal = process
+    predicates = {
+        "none": state == "exited" and code == 0 and out_complete and err_complete,
+        "signaled": state == "signaled",
+        "exit_nonzero": state == "exited" and code != 0,
+        "truncated_stdout": not out_complete and err_complete,
+        "truncated_stderr": out_complete and not err_complete,
+        "truncated_both": not out_complete and not err_complete,
+        "spawn_error": state in ("not_run", "unknown"),
+        "read_error": not out_complete or not err_complete,
+        "unknown": True,
+    }
+    _choice(reason, predicates)
+    if not predicates[reason]:
+        raise ObservationError("retrieval_reason")
+
+
+class Retention:
+    """Fixed one-run slots; caller owns exclusive streams and cross-process roles.
+
+    Controls are reserved but their replacement protocol is not implemented here.
+    No concurrent/reentrant use, path operations or successful root binding implied.
+    """
+
+    def __init__(self) -> None:
+        self._slots = dict(request=512, request_temp=512, ack=512, ack_temp=512,
+                           container_root=4096, host_root=4096, retrieval_receipt=16384,
+                           guest_terminal=4096, host_terminal=4096)
+        self._states = {name: dict(attempted=False, written=0, complete=False,
+                                  synced=False, extent_known=True)
+                        for name in tuple(self._slots)[4:]}
+
+    @property
+    def slots(self) -> dict[str, int]:
+        return self._slots.copy()
+
+    def state(self, slot: object) -> dict[str, int | bool]:
+        _choice(slot, self._states)
+        return self._states[slot].copy()
+
+    def _claim(self, slot):
+        if self._states[slot]["attempted"]:
+            raise ObservationError("slot_already_attempted")
+        self._states[slot]["attempted"] = True
+
+    def write_root(self, role: object, raw: object, stream: BinaryIO,
+                   synchronize: Callable[[], None]) -> None:
+        _choice(role, ("container", "host"))
+        slot = role + "_root"
+        self._claim(slot)
+        self._write(slot, raw, stream, synchronize)
+
+    def write_retrieval(self, stream: BinaryIO, synchronize: Callable[[], None],
+                        **fields: object) -> None:
+        self._claim("retrieval_receipt")
+        self._write("retrieval_receipt", encode_retrieval(**fields), stream, synchronize)
+
+    def write_terminal(self, role: object, stream: BinaryIO,
+                       synchronize: Callable[[], None], **fields: object) -> None:
+        _choice(role, ("guest", "host"))
+        slot = role + "_terminal"
+        self._claim(slot)
+        self._write(slot, encode_terminal(role, **fields), stream, synchronize)
+
+    def _write(self, slot, raw, stream, synchronize):
+        if type(raw) is not bytes or len(raw) > self._slots[slot]:
+            raise ObservationError("slot_payload")
+        state = self._states[slot]
+        remaining = memoryview(raw)
+        try:
+            while remaining:
+                count = stream.write(remaining)
+                if type(count) is not int or not 0 < count <= len(remaining):
+                    raise ObservationError("write_protocol")
+                state["written"] += count
+                remaining = remaining[count:]
+        except BaseException:
+            state["extent_known"] = False
+            raise
+        state["complete"] = True
+        if synchronize() is not None:
+            raise ObservationError("sync_protocol")
+        state["synced"] = True
