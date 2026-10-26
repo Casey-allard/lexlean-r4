@@ -1,0 +1,83 @@
+{
+  "schema": "lexlean-r4/owned-io-code-review/1",
+  "reviewer": "owned_io_code (internal code-reviewer)",
+  "timestamp_utc": "2026-10-26T03:28:48.913894+00:00",
+  "verdict": "APPROVE_SOURCE_ONLY",
+  "base": "39ab408d757a50f99a97d0d688d87ba93f65677c",
+  "branch": "codex/admitted-memory-owned-io",
+  "inputs_sha256": {
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py": "5950e324cdcc642e7c8a72bb4dc9cdb476d234813f5cddb26166de6f230b2920",
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_owned_io.py": "366e66d6b657de84c09199c029464d03885e86b4bf4452584f89191cd302ad57",
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-26-admitted-memory-observation.md": "8f2161331ea7c30452252a49e2fee6dbd6f7ce95a68190722760b5c9472ec458",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/admitted-owned-io-adr.json": "9320f3c47c0cf5fa1708d352bde6923cdafd5737383a589da6c70d33973e6207",
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_identity.py": "5aeec53a69329d78d9b07012cf58b341f7de9da22e35e91e440dfd353953738e"
+  },
+  "routing": {
+    "roster": "4e5d2791f522e3ca",
+    "verify_exit": 0,
+    "check_agent_code_reviewer_exit": 0,
+    "conflicting_file_claims": false,
+    "read": [
+      "INIT.md",
+      ".agent-sync/ROUTING.md",
+      ".claude/agents/code-reviewer.md",
+      "AGENTS.md"
+    ]
+  },
+  "scope": "Current observe.py additions and test_owned_io.py; surrounding parser/identity code and approved plan/ADR read for context. Caller supplies trusted root pins. No native entrypoint or acceptance review.",
+  "runtime": {
+    "executable": "/opt/homebrew/opt/python@3.15/bin/python3.15",
+    "version": "3.15.0",
+    "system": "Darwin"
+  },
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 -B -m unittest -v test_owned_io test_identity",
+      "cwd": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation",
+      "count": 29,
+      "exit": 0,
+      "result": "OK"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 -B - (independent inline unittest fixtures)",
+      "count": 6,
+      "exit": 0,
+      "result": "OK",
+      "cases": [
+        "Nested BaseExceptionGroup containing falsey OSError and KeyboardInterrupt plus EINTR/SystemExit close failures retains primary group and close order; no retries",
+        "Iterator next failure plus iterator close failure both retained",
+        "Actual synthetic PID stat start mutation rejects raced_identity and closes each acquired descriptor while keeping borrowed roots open",
+        "Symlink numeric PID rejected before reading files beneath it",
+        "Non-census and traversal PID values open only cgroup.procs, never a proc PID",
+        "Cleanup-only raw close failure rethrows identical error rather than returning successfully read bytes"
+      ]
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -v test_owned_io test_identity",
+      "exit": 1,
+      "result": "Interpreter selection error before tests: bare python3 resolves Apple Python3.9; pre-existing union annotation import fails. Corrected to existing explicit Python3.15; no installation. Minimum3.11 documented by parent."
+    }
+  ],
+  "findings": [],
+  "assessment": [
+    "No actionable correctness/security regression found in changed code under caller-trusted root-pin contract.",
+    "No-follow component walk, fixed relative filenames, byte caps, FIFO nonblocking type rejection, borrowed roots, close-on-failure ownership and census-only PID selection exercised.",
+    "Rename-replacement fixture establishes that retained fd may read original object while fresh path walk rejects replacement; code does not claim atomic/current pathname identity.",
+    "Existing 64-test evidence23 was inspected; independent review reran only29 focused tests plus6 new ephemeral tests."
+  ],
+  "limits": [
+    "Host Darwin finite synthetic fixtures and fault injection only; no Linux guest, VM, SDK/compiler, live proc scan, cgroup mount or full proof run.",
+    "No evidence of atomic subtree/census snapshots or exclusion of transient ABA/membership movement.",
+    "Expected UID/mode, mount/boot/container epoch custody, current pathname checks at sample boundaries and typed error serialization remain caller/native preflight obligations.",
+    "Approval is source checkpoint only; resource result remains unaccepted and native epoch remains unbound.",
+    "No numeric coverage claim."
+  ],
+  "resource": {
+    "available_bytes_before_report": 40828350464,
+    "required_reserve_bytes": 10737418240,
+    "new_durable_file": "this exclusive report only",
+    "report_max_bytes": 8192,
+    "fixtures": "Ephemeral sequential owned host fixtures; existing per-file cap test peak16385 bytes plus symlinks; independent fixture payload<1024 bytes; no bytecode caches. Report plus peak logical fixture payload<40KiB. Shared1MiB budget preserved."
+  },
+  "mutations": "Only ephemeral owned host fixtures and this exclusive report; no source, index, drafts, VM or compiler modifications."
+}

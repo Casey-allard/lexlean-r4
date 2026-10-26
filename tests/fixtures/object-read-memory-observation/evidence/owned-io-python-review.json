@@ -1,0 +1,70 @@
+{
+  "schema": "lexlean-r4/source-python-review/1",
+  "reviewer": "owned_io_python / python-reviewer",
+  "disposition": "APPROVE_SOURCE_ONLY",
+  "base": "39ab408d757a50f99a97d0d688d87ba93f65677c",
+  "branch": "codex/admitted-memory-owned-io",
+  "scope": "Frozen observe.py owned descriptor additions and new test_owned_io.py; no live entrypoint, SDK, VM or native acceptance.",
+  "identities": {
+    "observe.py": "5950e324cdcc642e7c8a72bb4dc9cdb476d234813f5cddb26166de6f230b2920",
+    "test_owned_io.py": "366e66d6b657de84c09199c029464d03885e86b4bf4452584f89191cd302ad57"
+  },
+  "authority": [
+    "Local roster verify passed 4e5d2791f522e3ca; python-reviewer active.",
+    "Read INIT.md, ROUTING.md, python-reviewer profile, AGENTS.md, source preparation plan, approved owned-I/O ADR.",
+    "Explicit cleanup and exact-type protocol guards are deliberate approved design choices."
+  ],
+  "findings": [],
+  "assessment": [
+    "Directory path validation precedes acquisition; each component is opened relative to its parent using O_DIRECTORY, O_NOFOLLOW and O_CLOEXEC. Exact final fstat pin validation precedes descriptor transfer.",
+    "Allowlisted files use O_NOFOLLOW, O_CLOEXEC and O_NONBLOCK, then fstat regular-file validation before FileIO. closefd=False leaves exactly one raw descriptor owner even if wrapper construction fails.",
+    "Bounded reads request at most cap+1 bytes and reject overflow/non-byte read responses. File caps match the existing process_snapshot protocol; proc st_size is not trusted.",
+    "Cleanup attempts each recorded descriptor once, preserves a single exception object, groups multiple failures in primary-first order, and prevents successful return after cleanup failure. Catching BaseException here preserves KeyboardInterrupt/SystemExit while releasing other owned resources.",
+    "Descendant traversal is streamed and bounded at64 fresh stat calls, with one additional yielded entry for overflow detection. Iterator closure is separate from borrowed directory ownership.",
+    "Owned process acquisition restricts numeric PID to bounded census, opens it relative to pinned proc root, retains stat/start/membership double checks, and closes only its owned PID descriptor."
+  ],
+  "checks": [
+    {
+      "runtime": "host /opt/homebrew/bin/python3.15",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 -B -m unittest discover -s tests/fixtures/object-read-memory-observation -p test_owned_io.py -v",
+      "result": "18 tests PASS in0.034s"
+    },
+    {
+      "runtime": "host /Users/casey.allard/.local/bin/python3.12 Python3.12.14",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Users/casey.allard/.local/bin/python3.12 -B -m unittest discover -s tests/fixtures/object-read-memory-observation -p test_owned_io.py -q",
+      "result": "18 tests PASS in0.032s; not guest execution"
+    },
+    {
+      "kind": "independent memory-only fault probes",
+      "result": [
+        "Exact component flags and relative dir_fd chain PASS",
+        "Composed PID reuse rejects as raced_identity and closes owned PID fd once; borrowed roots untouched PASS",
+        "Sole cleanup failure re-raised by identity, one close attempt PASS",
+        "Iterator __next__ KeyboardInterrupt plus close OSError preserved in order; borrowed fd untouched PASS"
+      ]
+    },
+    {
+      "kind": "unsupported default host runtime",
+      "result": "Initial python3 selected Apple3.9.6. Discovery failed importing observe.py line103: TypeError unsupported operand types for |: types.GenericAlias and NoneType. This predates changed code, is outside declared minimum, and ran no tests or fixtures. Preserved here; subsequent checks selected installed runtimes explicitly."
+    },
+    {
+      "kind": "static tools",
+      "result": "ruff, mypy, pylint and black were not found by command -v; none installed or run."
+    }
+  ],
+  "integration_requirements": [
+    "README still stated Python3.10 at review time. Parent is already documenting Python>=3.11 as required by BaseExceptionGroup. Source approval assumes that planned documentation correction before delivery."
+  ],
+  "limits": [
+    "No full64-test suite rerun by this reviewer; parent-reported full-suite result is separate.",
+    "Tests exercise host macOS filesystems and injected failures, not guest proc/cgroup or live completeness. Required POSIX features remain runtime prerequisites; no fallback was added.",
+    "Pinned descriptors do not establish current pathname, mount identity, epoch or atomic ancestry/membership. Fresh no-follow reacquisition and native custody remain later preflight requirements.",
+    "O_NONBLOCK prevents FIFO-open blocking but is not an IO deadline.",
+    "No source/index/VM/SDK edits, installs, native execution or external reviewers."
+  ],
+  "resources": {
+    "fresh_available_kib": 39871248,
+    "minimum_reserve_gib": 10,
+    "persistent_output": "This report only, <=8KiB; ephemeral owned test files bounded by largest single16385-byte fixture plus small census/proc fixture. No bytecode caches; no probe files."
+  }
+}

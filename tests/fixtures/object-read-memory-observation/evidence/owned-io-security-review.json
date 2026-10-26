@@ -1,0 +1,89 @@
+{
+  "schema": "lexlean-r4/source-security-review/1",
+  "reviewer": "owned_io_security",
+  "status": "PASS_BOUNDED_SOURCE_REVIEW",
+  "timestamp_utc": "2026-10-26T03:28:55.585123+00:00",
+  "base": "39ab408d757a50f99a97d0d688d87ba93f65677c",
+  "branch": "codex/admitted-memory-owned-io",
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS: 7 agents, 7 skills",
+    "security-reviewer": "ACTIVE"
+  },
+  "read": [
+    "INIT.md",
+    ".agent-sync/ROUTING.md",
+    ".claude/agents/security-reviewer.md",
+    "AGENTS.md",
+    "docs/plans/2026-10-26-admitted-memory-observation.md",
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/admitted-owned-io-adr.json"
+  ],
+  "frozen_sha256": {
+    "observe.py": "5950e324cdcc642e7c8a72bb4dc9cdb476d234813f5cddb26166de6f230b2920",
+    "test_owned_io.py": "366e66d6b657de84c09199c029464d03885e86b4bf4452584f89191cd302ad57"
+  },
+  "hash_check": "MATCH before and after tests",
+  "scope": "Descriptor-relative owned diagnostic acquisition only; trusted roots supplied later by independently reviewed launcher. Source-only review, not a live observer acceptance or native launch approval.",
+  "test_runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "tests": [
+    {
+      "kind": "frozen suite",
+      "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 -B -m unittest discover -s tests/fixtures/object-read-memory-observation -p test_owned_io.py -v",
+      "count": 18,
+      "outcome": "PASS",
+      "elapsed_seconds": 0.078
+    },
+    {
+      "kind": "independent tiny owned host path and fault probes",
+      "count": 5,
+      "outcome": "PASS",
+      "cases": [
+        {
+          "case": "Census PID 41 is symlink to sibling directory",
+          "outcome": "NotADirectoryError; no followed PID content"
+        },
+        {
+          "case": "Create cgroup child after process_snapshot and before final census check",
+          "outcome": "ObservationError child_type"
+        },
+        {
+          "case": "Rewrite own synthetic PID stat start from 900 to 901 after first read",
+          "outcome": "ObservationError raced_identity"
+        },
+        {
+          "case": "Inject KeyboardInterrupt during directory iteration and OSError on iterator close",
+          "outcome": "BaseExceptionGroup preserves identical primary and cleanup exceptions in order; close attempted once; borrowed roots remain valid"
+        },
+        {
+          "case": "Rename pinned cgroup and replace original path",
+          "outcome": "Pinned fd reads original bytes; fresh no-follow path walk rejects directory_identity"
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "assessment": [
+    "Absolute directory path validation rejects empty, dot, dotdot and overlong components/paths before opens; single-component O_DIRECTORY|O_NOFOLLOW traversal confines descriptor acquisition.",
+    "Fixed filename allowlist and caps prevent arbitrary-name reads. File O_NONBLOCK permits FIFO type rejection without waiting for a writer; regular-file validation precedes bounded reading.",
+    "Child census streams at most 65 entries, freshly stats only first 64 without following links, and fails on lookup/iteration errors, directories or symlinks.",
+    "Only parsed census PIDs are opened; PID stat identity/start and cgroup membership are double-checked, while attribution remains owned_unattributed.",
+    "Cleanup attempts are ordered and not retried; partial acquisition and combined primary/cleanup failures fail closed. Python >=3.11 is required for approved BaseExceptionGroup handling."
+  ],
+  "limitations": [
+    "Native Linux proc/cgroup filesystems were not exercised. Host fixtures establish helper behavior only.",
+    "Pinned dev/inode/uid/mode does not establish current pathname, mount identity, boot/container epoch or trusted launch ownership. Boundary rewalk and fstat checks remain required in future composition.",
+    "Discrete checks cannot exclude transient rename/ABA, membership transitions or concurrent child creation/removal between observations.",
+    "O_NONBLOCK is FIFO-open protection, not a deadline for arbitrary regular files or filesystems. Mount custody remains a native preflight obligation.",
+    "No live entrypoint, marker/ACK integration, exception-to-bounded-reason serializer, epoch binding or shared-output custody is approved by this review.",
+    "No source/index modifications, native proc sampling, VM/SDK execution, installs, external service changes or process control performed. Nine unrelated drafts preserved."
+  ],
+  "resources": {
+    "fresh_free_bytes_before_report": 40827781120,
+    "reserve_required_bytes": 10737418240,
+    "independent_fixture_peak_payload_upper_bound_bytes": 2048,
+    "report_limit_bytes": 8192,
+    "combined_own_fixture_report_limit_bytes": 40960,
+    "shared_phase_budget_bytes": 1048576,
+    "note": "Synthetic temp fixtures cleaned after checks; only this exclusive review report retained."
+  }
+}
