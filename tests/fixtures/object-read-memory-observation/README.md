@@ -48,10 +48,10 @@ From this directory, with an existing Python 3.10 or newer installation (select
 that interpreter explicitly if `python3` resolves to an older version):
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -v test_observe
+PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 35 tests use synthetic records and in-memory streams. They do not
+The current 46 tests use synthetic records and in-memory streams. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
 selected guest Python 3.12 runtime has not executed this source.
@@ -66,3 +66,8 @@ checks, clock/ACK linkage, observer composition, and separately reviewed invocat
 The 1 MiB observation cap cannot guarantee coverage of the earlier 264-second
 verification. No automatic retry, resource-limit change or acceptance waiver
 is supplied by this directory.
+
+The [finite process and clock helpers](IDENTITY.md) add trusted-reader double-read
+consistency and exact guest-clock arithmetic. They do not establish path ownership,
+parent ancestry, a live clock domain or completed step 4. Control/ACK and live
+composition remain required; standard test discovery includes `test_identity.py`.

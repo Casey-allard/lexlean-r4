@@ -1,0 +1,97 @@
+{
+  "schema": "lexlean-r4/admitted-identity-security-review/1",
+  "at": "2026-10-26T02:43:46.758551+00:00",
+  "reviewer": "identity_security / internal security-reviewer",
+  "verdict": "APPROVE_BOUNDED_SOURCE_CHECKPOINT_ONLY",
+  "base": "4cb97a048f46364dd316de03e8f392dfc6c81951",
+  "scope": "Only 59 added lines in observe.py (process_snapshot, guest_interval, next_tick) and new test_identity.py; inherited parsers examined as dependencies. Partial step4 only; no runtime reader or marker/ACK completion claim.",
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS: 7 agents, 7 skills",
+    "check": "Agent security-reviewer active",
+    "read": [
+      "AGENTS.md",
+      "INIT.md",
+      ".agent-sync/ROUTING.md",
+      ".claude/agents/security-reviewer.md",
+      "docs/plans/2026-10-26-admitted-memory-observation.md",
+      "design/contract.json",
+      "design/implementation-spec-review.json"
+    ]
+  },
+  "pins": {
+    "tests/fixtures/object-read-memory-observation/observe.py": {
+      "bytes": 21706,
+      "sha256": "77371356f9845d2baa4a569ab828a537b3aaf8c7b4ee5d8337599b0b5cea4252"
+    },
+    "tests/fixtures/object-read-memory-observation/test_identity.py": {
+      "bytes": 8484,
+      "sha256": "5aeec53a69329d78d9b07012cf58b341f7de9da22e35e91e440dfd353953738e"
+    },
+    "tests/fixtures/object-read-memory-observation/test_observe.py": {
+      "bytes": 34150,
+      "sha256": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2"
+    },
+    "tests/fixtures/object-read-memory-observation/design/contract.json": {
+      "bytes": 24222,
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6"
+    },
+    "tests/fixtures/object-read-memory-observation/design/implementation-spec-review.json": {
+      "bytes": 11850,
+      "sha256": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953"
+    },
+    "docs/plans/2026-10-26-admitted-memory-observation.md": {
+      "bytes": 6072,
+      "sha256": "8f2161331ea7c30452252a49e2fee6dbd6f7ce95a68190722760b5c9472ec458"
+    }
+  },
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/fixtures/object-read-memory-observation -p 'test*.py' -v",
+      "runtime": "system Python3.9",
+      "result": "IMPORT FAILURE, 2 errors, no test bodies ran",
+      "diagnostic": "Existing observe.py line100 tuple[...] | None annotation unsupported by Python3.9. Not introduced by this diff; not treated as a product test failure or hidden."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 -m unittest discover -s tests/fixtures/object-read-memory-observation -p 'test*.py' -v",
+      "runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+      "result": "PASS",
+      "testsRun": 46,
+      "failures": 0,
+      "errors": 0,
+      "reportedSeconds": 0.016
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 - (inline independent standard-library probes; no script written)",
+      "result": "PASS",
+      "cases": 334,
+      "coverage": [
+        "Exact bytes/str/int subclass rejection; bool/float/string/None clock values",
+        "Malformed, absent, duplicate, zero, noncanonical, path-like, over-count and over-byte census rejection before callback; forged/path-like PID rejection",
+        "Each of 6 callback positions rejects bytes subclasses, memoryview and exact cap+1, stops at failing call",
+        "Maximum4092-byte target matches a4096-byte cgroup record; opaque non-UTF8 cmdline remains exact and unattributed",
+        "Floor-start/ceil-end inequalities over 4 origins including above2^53 and nearu64; nanosecond/microsecond edges",
+        "100ms grid, missed counts, strict future tick, no catchup, nearu64 overflow; maximum legal interval"
+      ]
+    }
+  ],
+  "findings": [],
+  "assessment": [
+    "Untrusted content reaches no eval, shell, pickle, decoding-based classification or filesystem opening. Exact-type guards prevent method-hook subclasses reaching new helper operations.",
+    "Supplied census is bounded to4096B/64 distinct canonical positive u64 PIDs; the selected pid must be present before any callback. Only selected pid and literal stat/cgroup/status/cmdline names with fixed caps cross the callback boundary; no PPID lookup or unrelated argv read.",
+    "Before/after stat checks compare PID, PPID and startticks; both cgroup reads compare exact target bytes; status PID/PPID must agree. Failure raises and emits no snapshot. Tests independently exercise each read error including falsey exceptions and KeyboardInterrupt, preserving original exception identity.",
+    "Snapshot uses exact bounded raw bytes and retains arbitrary cmdline without decoding. RSS/HWM remain decimal KiB or None. Parent start remains None and attribution always owned_unattributed.",
+    "Clocks use exact Python integers, reject bool/subclasses/nonintegers/order errors/u64 overflow, widen quantization outward, and compute next strictly future absolute100ms tick with skipped-slot count. No floating conversion or loop catchup."
+  ],
+  "limits": [
+    "The read callback is trusted to confine paths, prevent symlink traversal, enforce cap+1 finite reads and avoid blocking/unbounded preallocation. The helper only rejects oversized callback results after return; it cannot enforce reader time or memory bounds.",
+    "Caller must establish supplied census ownership, boot/container/cgroup epoch, target confinement, descendant topology and runtime namespace. Opaque target strings are compared rather than normalized or traversed; accepting unusual path bytes gives no filesystem authority.",
+    "Two stat/membership observations do not exclude unobserved ABA, exec changes, transient reparenting or continuous membership changes. Namespace is one bounded status observation; no continuous namespace guarantee. No root/ancestry/module attribution is proven.",
+    "Clock arithmetic does not obtain CLOCK_BOOTTIME or establish a common actual clock domain; caller must do so. No live scheduling, marker/ACK linkage, wall anchoring or filesystem behavior exercised.",
+    "This partial step4 checkpoint does not discharge all mandatoryBeforeCODE design conditions. Runtime identity authority, owned-path acquisition, parent incarnation/root binding, marker/ACK validation, composition, quotas on eventual encoded identities and pre-run tests remain separate.",
+    "Synthetic host tests do not establish guest observer RSS, payload ceiling, capture completeness, full-run retention or a native proof. No branch coverage claim.",
+    "Original max6325 result remains unaccepted; no Read33, product, PrismPM, Pages or resource-epoch acceptance is promoted."
+  ],
+  "mutations": "Only this exclusive external security-review.json; no source, drafts, SDK, VM, native execution, installs or other-lab changes. PYTHONDONTWRITEBYTECODE=1 used for fixture imports. Existing roster commands are read-only.",
+  "sourceStableDuringIndependentProbes": true
+}
