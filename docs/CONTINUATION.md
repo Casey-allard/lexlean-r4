@@ -1,6 +1,6 @@
 # LexLean R4: current working plan and continuation
 
-Updated 2026-10-25. This is the repository entry point for continuing the work
+Updated 2026-10-26. This is the repository entry point for continuing the work
 without the original chat or its temporary directories. The approved scope is
 the [full design](specs/2026-10-21-lexlean-r4-design.md); the detailed phase plan
 is [here](plans/2026-10-21-lexlean-r4.md). The model remains the authority for
@@ -13,6 +13,64 @@ acceptance, a release, or a completed implementation. Use this chat's internal
 independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
+
+The [direct connection checkpoint](../tests/fixtures/object-read-memory-observation/direct-results.json)
+connects all eleven original invocation boundaries, retained-prefix admission,
+fixed marker/retrieval and independent postverify/owned transport cleanup. It
+preserves the original50 inputs,33 modules and semantic SDK arguments behind
+the immutable null epoch. Source and test repairs have independent reviews;
+the final Node pair passed61/61 and independent Python qualification passed279/279.
+One separately reviewed finite EOF-after-exit diagnostic also passed. These are
+host-source results, not an accepted LexLean control or native runtime result.
+
+The [portable manifest](../tests/fixtures/object-read-memory-observation/direct-delivery-manifest.json)
+binds the six scoped files, results and content-deduplicated XZ member archive.
+Every unique rejected source, failure, instrument attempt and review is retained
+with its original aliases; original compressed-container hashes/inventories are
+provenance, not a claim that those gzip byte streams were copied. Historical
+50/51 deadline and44/45 ACK replacement failures remain UNATTRIBUTED; later
+passes do not explain them.
+
+Existing precise raw coverage binds the unchanged production files:338/364 and
+112/135 fully covered physical nonblank/non-comment lines. Branch/function and
+executable-statement metrics remain unmeasured. The old31percent checkpoint below
+is historical; pipeline review must assess the actual generic80percent gate
+against current source and retained raw evidence. It is not automatically waived.
+The source checkpoint may remain draft pending that disposition and exact delivery
+review; the intended path remains reviewed delivery to main, not permanent parking.
+
+Next complete the independently reviewed runtime/invocation obligations: actual
+Colima EOF while Node blocks, parent death, independent guest PID/start/exit and
+namespace mapping, observed postexec argv/root join and sharedFS overhead. Preserve
+max6325, require fresh absolute-zero resource admission, and keep every native gate.
+No compiler retry, epoch reset, production-binding or merge waiver follows.
+The earlier [finite owner checkpoint](../tests/fixtures/object-read-memory-observation/owner-results.json)
+and its portable archive are already in01f5eed; they remain distinct evidence.
+
+Fresh owned-VM metadata found 92 regular cgroup control files, exceeding the
+reader's original 64-entry bound. The [bounded census repair](../tests/fixtures/object-read-memory-observation/entry-bound-results.json)
+raises only that enumeration bound to 256 and retains type, identity and cleanup
+checks. The host suite passes236 tests; the intended old-bound failures and
+corrected mutation evidence are preserved separately from an invalid mutation
+instrument attempt. No observer or compiler was launched. The failed max6325
+epoch remains unchanged; namespace handles, launch ownership and native gates
+are still unresolved. PR65 remains draft under the existing coverage limitation.
+
+The [functional guest entry](../tests/fixtures/object-read-memory-observation/GUEST-ENTRY.md)
+now loads bounded, owned configuration and calls the actual serial reader.
+The final host suite passes235 tests, including23 new tests that exercise all
+eleven boundaries on synthetic filesystem records; eight planted defects reject.
+Independent CODE/Python/security reviews approve this source scope. Actual guest
+execution, host launch ownership and native proof acceptance remain NOT_RUN.
+The preceding JavaScript coverage gap below remains open; PR65 stays draft.
+
+The [invocation source checkpoint](../tests/fixtures/object-read-memory-observation/INVOCATION-PREPARATION.md)
+preserves the exact one-off body behind an immutable null epoch, with inert
+import and five passing host tests. It supplies no live connection or native
+authority. Candidate line coverage is 31%, combined source/tests 67.30%; the
+generic 80% premerge gate remains unmet. This branch checkpoint is not
+merge-ready. Next complete the concrete connection and its reviewed tests
+without executing the historical invocation or relaxing resource gates.
 
 The [owned context and serial reader](../tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md)
 connect actual bounded identity/clock reads, the existing sampler and cadence,

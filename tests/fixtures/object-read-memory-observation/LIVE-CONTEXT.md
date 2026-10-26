@@ -1,5 +1,11 @@
 # Owned context and one serial diagnostic reader
 
+The [finite owner checkpoint](OWNER.md) connects the existing configuration
+adapter to one fixed child and parent-owned lifecycle receipts. The child reserves
+the same two 512-byte slots in `owner-retention/1`; it never writes those files.
+Local finite process tests do not qualify Linux launch identity, Colima transport,
+parent-death cleanup, shared-filesystem overhead or actual compiler invocation.
+
 This checkpoint connects the existing memory sampler, cadence and fixed control
 files to actual owned-file operations and one serial loop. It is host-tested
 diagnostic source for the admitted-range proof's `memory.events.max=6325`

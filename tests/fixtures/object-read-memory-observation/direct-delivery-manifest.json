@@ -1,0 +1,84 @@
+{
+  "schema": "lexlean-r4/direct-delivery-manifest/1",
+  "base": "01f5eed2ee97947bd718b63d47d15566db207404",
+  "scope": "SOURCE_CHECKPOINT_PENDING_PIPELINE_DELIVERY_REVIEW; STAGING_BUDGET_NOT_CLEARED",
+  "files": [
+    {
+      "path": "tests/fixtures/object-read-memory-observation/invocation-preparation.mjs",
+      "bytes": 12754,
+      "sha256": "85132eaa8cdc3e2f3e71774c3327fceca86bbb2c0b5846dfc77273a40c0484e2"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/invocation-connection.mjs",
+      "bytes": 38447,
+      "sha256": "a58b66e2f877fe5c526aaed26c8ce62e02b7af9907afaf21efd8b64840b22362"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs",
+      "bytes": 27056,
+      "sha256": "9cce98b9b7f32c4282b553635dd1fe994e3f5e445ccddeaa8dbd518db2222384"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs",
+      "bytes": 81223,
+      "sha256": "be83f632affb9c868532df138ff49ff9ea40636802656aed0b115fee7fddc150"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/INVOCATION-PREPARATION.md",
+      "bytes": 9969,
+      "sha256": "f1be7f034ee0c61e72e31f8de8f58080a0a2c0803a78a821d330ed696779ef3d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/finite_owner_connection_fixture.py",
+      "bytes": 3715,
+      "sha256": "976c8de9e8736df9a90d4f2775ee6c66ad1d4b5204821726f3f8f45f9ec9501a"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/direct-results.json",
+      "bytes": 6501,
+      "sha256": "64fe6afe189c81422e399a6ce01e80e940c3c9d835f002bfcf27c548ffe81aff"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/direct-evidence.jsonl.xz",
+      "bytes": 309520,
+      "sha256": "8e10a0377adc8c32b7d684ff2cb2780d73827ccce7255a2a6ea67628cda099b6"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 91588,
+      "sha256": "a56d7ce1e8d412a7e75378ec284cd951a9e9b79cd9866754339b46427d2c2fcf"
+    }
+  ],
+  "evidence": {
+    "path": "direct-evidence.jsonl.xz",
+    "bytes": 309520,
+    "sha256": "8e10a0377adc8c32b7d684ff2cb2780d73827ccce7255a2a6ea67628cda099b6",
+    "format": "XZ preset6; JSONL direct-delivery-content/1 header plus content rows",
+    "uniqueContents": 271,
+    "aliases": 703,
+    "semantics": "Every constituent byte/alias retained. Original gzip streams not reproduced; SHA256,size,member inventories/reference metadata are provenance. Original containers remain untouched locally. Absolute aliases are labels, never extraction paths.",
+    "reader": "Standard lzma decode, parse JSONL, base64-decode content and verify bytes/SHA256; resolve exact alias equality. No external path dependency."
+  },
+  "previousPortableAtBase": [
+    "owner-evidence.jsonl.gz",
+    "invocation-preparation-evidence.jsonl.gz",
+    "guest-entry-evidence.jsonl.gz",
+    "entry-bound-evidence.jsonl.gz"
+  ],
+  "preservation": "Previous portable artifacts remain at base Git commit. New direct failure members self-contained; original gzip hashes are provenance, not included streams. Different historical versions remain separate by digest.",
+  "qualification": "Reviewed61Node/279Python and one finite host diagnostic. See results for exact raw/review pins;50/51 and44/45 remainUNATTRIBUTED. Coverage disposition pending.",
+  "proposedStagingAllowlist": [
+    "tests/fixtures/object-read-memory-observation/invocation-preparation.mjs",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs",
+    "tests/fixtures/object-read-memory-observation/INVOCATION-PREPARATION.md",
+    "tests/fixtures/object-read-memory-observation/finite_owner_connection_fixture.py",
+    "tests/fixtures/object-read-memory-observation/direct-results.json",
+    "tests/fixtures/object-read-memory-observation/direct-evidence.jsonl.xz",
+    "docs/CONTINUATION.md",
+    "tests/fixtures/object-read-memory-observation/direct-delivery-manifest.json"
+  ],
+  "stagingAuthority": "NOT_AUTHORIZED: actual full index.lock exceeds old reserve; parent must clear allocation before any Git write.",
+  "excluded": "Nine pending drafts/model/template/native state. No broad git add."
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "lexlean-r4/invocation-source-preparation/1",
+  "status": "SOURCE_REVIEWED_NOT_MERGE_READY",
+  "base": "3609163c677731d7047a97b657cf68ca8511693d",
+  "sources": {
+    "invocation-preparation.mjs": "ced352d1eba3a88d0867b6f636369e83e62b0b918bad6884751b44f55852eaff",
+    "test_invocation_preparation.mjs": "a872802e111df3f9467cb20857a768d640f447699e020b6e8c498f193c82beaf",
+    "design/original-invocation.json": "71ea4e06f185f38c7dfbee3e2da4cb2a07dcee3d6752f502dec43dc3f72ef739"
+  },
+  "evidence": {
+    "path": "invocation-preparation-evidence.jsonl.gz",
+    "sha256": "0e01fc53bf7a09d996835c6f367c5e03ec7940aca332cda473633dfb2333bc0e",
+    "members": 12,
+    "compressedBytes": 17423,
+    "jsonlBytes": 58975
+  },
+  "tests": {
+    "intendedRed": {
+      "pass": 2,
+      "fail": 3,
+      "reason": "missing candidate"
+    },
+    "finalGreen": {
+      "pass": 5,
+      "fail": 0,
+      "skip": 0
+    },
+    "instrumentFailures": [
+      "vacuous original mutation",
+      "Node loader read intercepted before candidate evaluation"
+    ],
+    "syntaxChecks": "PASS",
+    "plantedTextDefects": 7,
+    "candidateRuntimeCoverage": {
+      "linePercent": 31.0,
+      "branchPercent": 66.67,
+      "functionPercent": 6.67
+    },
+    "includingTestsLinePercent": 67.3,
+    "generic80PercentGate": "NOT_MET"
+  },
+  "reviews": {
+    "code": "178d61c7694dd0066e1e246cc197533124aa50f31ddfeeb2cbca0fea192ad4a2",
+    "security": "42e66fbb867b2b09dce453cfb2bfaf938451fc2e5c8d753e2ae11688bda29a34",
+    "scope": "NEXT1_SOURCE_ONLY",
+    "codeReviewReportDeviation": "Initial8379-byte serialization exceeded8192-byte report cap by187 before shortening to8131; aggregate phase cap not exceeded."
+  },
+  "native": "NOT_RUN",
+  "epoch": null,
+  "objectControls": 331,
+  "productAcceptance": false,
+  "mergeReady": false,
+  "next": "Minimal concrete guest configuration/launch adapter design and review; unresolved runtime custody and resource admission remain mandatory. No non-null substitution for coverage."
+}

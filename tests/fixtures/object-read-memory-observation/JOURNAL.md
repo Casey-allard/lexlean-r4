@@ -19,12 +19,15 @@ future composer's obligations. JSON escaping and multibyte text consume their
 actual encoded length. Boundary/gap rows use a conservative 8192-byte cap.
 
 The fixed pools remain samples 786432 bytes, identities 196608, markers 57344 and
-terminal 8192. The entire terminal pool and 26624 marker bytes for fixed retained
+terminal 8192. The entire terminal pool and 27648 marker bytes for fixed retained
 capacity are reserved at construction. No journal row can spend them. Each row's
 full length is reserved before writing, with no loan from another pool, no refund
 following a partial failure and no ring overwrite. `reserved` returns a snapshot.
 The [fixed retention records](RETENTION.md) account for the root marker, host
-copy, bounded retrieval receipt, control/temp capacity and both terminal slots.
+copy, bounded retrieval receipt, control/temp capacity, both terminal slots and
+two owner lifecycle receipts. The `owner-retention/1` profile leaves 29696 marker
+journal bytes and a maximum 1012736-byte journal prefix. Historical artifacts
+retain their predecessor source/profile; active validators require this profile.
 Actual path/role ownership, control replacement and bounded process capture still
 require integration before live composition.
 

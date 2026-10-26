@@ -5,6 +5,7 @@ import io
 import json
 import os
 import stat
+import uuid
 from typing import BinaryIO, Callable
 
 
@@ -360,13 +361,13 @@ def read_observation_file(directory: int, expected: tuple[int, int, int, int],
 
 def check_no_descendants(directory: int,
                          expected: tuple[int, int, int, int]) -> None:
-    """Inspect at most 64 immediate entries; not an atomic absence guarantee."""
+    """Inspect at most 256 immediate entries; not an atomic absence guarantee."""
     _check_directory(directory, expected)
     entries = os.scandir(directory)
     errors = []
     try:
         for count, entry in enumerate(entries, 1):
-            if count > 64:
+            if count > 256:
                 raise ObservationError("child_count")
             item = os.stat(entry.name, dir_fd=directory, follow_symlinks=False)
             if stat.S_ISDIR(item.st_mode) or stat.S_ISLNK(item.st_mode):
@@ -461,7 +462,7 @@ class Journal:
         self.synced_offset = 0
         self.stopped = False
         self.offset_certain = True
-        self._reserved = {"samples": 0, "identities": 0, "markers": 26624,
+        self._reserved = {"samples": 0, "identities": 0, "markers": 27648,
                           "terminal": 8192}
 
     @property
@@ -554,7 +555,7 @@ def _prefix(value):
     if result[4] is not None and type(result[4]) is not bool:
         raise ObservationError("prefix_certainty")
     written, complete, rows, synced = [None if v is None else int(v) for v in result[:4]]
-    if any(v is not None and v > 1013760 for v in (written, complete, rows, synced)):
+    if any(v is not None and v > 1012736 for v in (written, complete, rows, synced)):
         raise ObservationError("prefix_limit")
     for low, high in ((synced, complete), (complete, written), (synced, written), (rows, complete)):
         if low is not None and high is not None and low > high:
@@ -576,7 +577,7 @@ def _quotas(value):
         return None, None
     result = _array(value, 4)
     limits = (786432, 196608, 57344, 8192)
-    for number, minimum, maximum in zip(result, (0, 0, 26624, 8192), limits):
+    for number, minimum, maximum in zip(result, (0, 0, 27648, 8192), limits):
         if type(number) is not int or not minimum <= number <= maximum:
             raise ObservationError("record_quota")
     return result, [limit - number for limit, number in zip(limits, result)]
@@ -663,6 +664,63 @@ def _retrieval_reason(reason, process, out_complete, err_complete):
         raise ObservationError("retrieval_reason")
 
 
+def _owner_identity(pid, start, optional=False):
+    if _decimal(pid) in (None, '0') or (_decimal(start) is None and not optional):
+        raise ObservationError('owner_identity')
+    return [pid, start]
+
+
+def encode_owner_launch(nonce, digest, parent, child, boot):
+    _hex64(nonce); _hex64(digest)
+    parent = _owner_identity(*_array(parent, 2))
+    child = _owner_identity(*_array(child, 2))
+    try:
+        if type(boot) is not str or str(uuid.UUID(boot)) != boot:
+            raise ValueError('boot')
+    except (ValueError, TypeError, AttributeError) as error:
+        raise ObservationError('owner_boot') from error
+    return _encoded(['ol', 1, nonce, digest, parent, child, boot], 512)
+
+
+def encode_owner_exit(nonce, digest, pid, start, process, reason):
+    _hex64(nonce); _hex64(digest)
+    process = _process(process)
+    state = process[0]
+    allowed = {'not_run': ('not_started', 'fork_failed'),
+               'exited': ('natural', 'host_eof', 'owner_error'),
+               'signaled': ('natural', 'host_eof', 'owner_error'),
+               'unknown': ('lost_custody', 'reap_timeout', 'owner_error')}
+    if state not in allowed:
+        raise ObservationError('owner_state')
+    _choice(reason, allowed[state])
+    if state == 'not_run':
+        if pid is not None or start is not None:
+            raise ObservationError('owner_not_run')
+    else:
+        _owner_identity(pid, start, optional=True)
+    return _encoded(['oe', 1, nonce, digest, pid, start, process, reason], 512)
+
+
+def decode_owner(raw):
+    if type(raw) is not bytes or not 1 <= len(raw) <= 512:
+        raise ObservationError('owner_wire_size')
+    try:
+        row = json.loads(raw)
+        if type(row) is not list or len(row) < 2 or type(row[1]) is not int or row[1] != 1:
+            raise ObservationError('owner_wire_shape')
+        if row[0] == 'ol' and len(row) == 7:
+            encoded = encode_owner_launch(*row[2:])
+        elif row[0] == 'oe' and len(row) == 8:
+            encoded = encode_owner_exit(*row[2:])
+        else:
+            raise ObservationError('owner_wire_shape')
+        if encoded != raw:
+            raise ObservationError('owner_wire_canonical')
+        return row
+    except (ValueError, TypeError, UnicodeError, RecursionError) as error:
+        raise ObservationError('owner_wire') from error
+
+
 class Retention:
     """Fixed one-run slots; caller owns exclusive streams and cross-process roles.
 
@@ -673,7 +731,8 @@ class Retention:
     def __init__(self) -> None:
         self._slots = dict(request=512, request_temp=512, ack=512, ack_temp=512,
                            container_root=4096, host_root=4096, retrieval_receipt=16384,
-                           guest_terminal=4096, host_terminal=4096)
+                           guest_terminal=4096, host_terminal=4096,
+                           observer_launch=512, observer_exit=512)
         self._states = {name: dict(attempted=False, written=0, complete=False,
                                   synced=False, extent_known=True)
                         for name in tuple(self._slots)[4:]}
@@ -696,6 +755,15 @@ class Retention:
         _choice(role, ("container", "host"))
         slot = role + "_root"
         self._claim(slot)
+        self._write(slot, raw, stream, synchronize)
+
+    def write_owner(self, role, raw, stream, synchronize):
+        _choice(role, ('launch', 'exit'))
+        slot = 'observer_' + role
+        self._claim(slot)
+        row = decode_owner(raw)
+        if row[0] != ('ol' if role == 'launch' else 'oe'):
+            raise ObservationError('owner_slot_role')
         self._write(slot, raw, stream, synchronize)
 
     def write_retrieval(self, stream: BinaryIO, synchronize: Callable[[], None],

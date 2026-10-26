@@ -35,7 +35,7 @@ canonical compact ASCII JSON arrays followed by one LF, at most 512 bytes:
 Nonce and binding are 64 lowercase hexadecimal characters. The binding is intended
 to identify the retained invocation identity tuple; matching a supplied string
 alone does not validate that identity. Sample sequence is a positive integer.
-Offsets are canonical decimal strings, positive and at most 1013760, with synced
+Offsets are canonical decimal strings, positive and at most 1012736, with synced
 equal to complete. Each of eleven sequences has exactly one label, from
 `staging-before` through `postguard-complete`, fixed by `LABELS`.
 

@@ -1,5 +1,9 @@
 # Invocation-root content linkage
 
+The active h3 validator requires `quotaProfile: owner-retention/1` and limits the
+journal prefix to 1012736 bytes. Legacy artifacts retain their predecessor source
+and profile; they are not silently accepted as current owner observations.
+
 `root_linkage.join_invocation_root` connects the retained root marker, retrieval
 receipt, before/after-verify request and ACK copies, and the version-3 sample
 journal. It performs no IO and grants no execution authority. Its only positive

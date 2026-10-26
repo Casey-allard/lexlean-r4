@@ -1,0 +1,107 @@
+{
+  "schema": "lexlean-r4/owner-delivery-manifest/1",
+  "base": "e704673f7719ff343860997268c5fd2ee3db185c",
+  "scope": "COMMIT_PUSH_DRAFT_ONLY_NOT_MERGE_READY",
+  "files": [
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observer_owner.py",
+      "bytes": 15897,
+      "sha256": "a0e6d5cd2c45600f034aea083dbeaec7361519708b68d4debb99cd31c2e725bc"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observer_owner.py",
+      "bytes": 35766,
+      "sha256": "eafae1868d754dace1959e1e6c0701670e1b71c4650645197f8752d393330cb2"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_owner_bootstrap.py",
+      "bytes": 3521,
+      "sha256": "aa16cc8dca9f0d7aa7e428638b58a282b1a4c4ca582fff3a4a5bc4660fe80f20"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_owner_receipts.py",
+      "bytes": 6598,
+      "sha256": "aecb24caa533fe3b304411963081f926caa3911bef063f32608d8e13ed0c0b5d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 32926,
+      "sha256": "341fdc5f4def127af11954b2cbfb0251932923b06eb6e227fc9a132553eb0e13"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/boundary.py",
+      "bytes": 26535,
+      "sha256": "b457b8e290158a45766ddec34a2518e8215a1c9fed35e31b1353bd7e5b76dddf"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/root_linkage.py",
+      "bytes": 13151,
+      "sha256": "1d7a248399b720225d4d61de0443d465f10bbf664a948d093eb449a461a9766d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 34215,
+      "sha256": "bb39c8950b31a758f6d34a2473c8796aa3a75af9ce6abe5ed0483d47eae52f28"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_boundary.py",
+      "bytes": 12457,
+      "sha256": "3bc06f77a5ac67910d7f976b1a0f3c1542c8a96b310a9f8104e5614de706a29a"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_root_linkage.py",
+      "bytes": 10639,
+      "sha256": "f41db3b64dac3552310446ef5e12ac77875bc3da3042580528e6137bb5c964cb"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/JOURNAL.md",
+      "bytes": 3299,
+      "sha256": "214ee363fbd90ea099b5e0c2017ed911177a64631e5dc451adc1667c3ba2c785"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/RETENTION.md",
+      "bytes": 4287,
+      "sha256": "e0fa18ad3bc2472f459ee87188645f5f8a0e7fb6326bc831fbf88dd9f947c1da"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/BOUNDARIES.md",
+      "bytes": 5359,
+      "sha256": "477c587246deb39c4fe5d7c455a76bebf5f5f2b81c7fd6572b8b1e2b7dc2ef71"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/ROOT-LINKAGE.md",
+      "bytes": 4391,
+      "sha256": "720bbd3ba15f3960820a56074c42f9083c004279107a7c01779e37dcf8a1106f"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md",
+      "bytes": 3861,
+      "sha256": "d3b3ae49f332998eab8aa5a52ab858a2cb435325a15d6139739a73a919dc2e92"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/OWNER.md",
+      "bytes": 6371,
+      "sha256": "33d1c8e51e720ecccef575d7a60f8ee007efa929f7d74f29daa4f9a4528af294"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/owner-results.json",
+      "bytes": 6397,
+      "sha256": "bf509bf867b9e7d66a4751f38f5932bea1bd5fdf5e0fbc18ffedfeef7f0eeecf"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/owner-evidence.jsonl.gz",
+      "bytes": 256021,
+      "sha256": "db3d0a34360601b58e5c537c7654c5fc63a77c77f7a17b48990aedda65a6e97a"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 90425,
+      "sha256": "ccc3425b2ca5fd0506a6e194d2718d8d23b9d1b48628f6e2246b42153bf1c63d"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 72731,
+      "sha256": "258348173b720575f5d19a19521d509593c524abff8fab028dbcf06a548862c6"
+    }
+  ]
+}

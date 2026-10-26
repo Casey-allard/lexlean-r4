@@ -1,0 +1,49 @@
+{
+  "schema": "lexlean-r4/guest-entry-host-results/1",
+  "status": "HOST_SOURCE_REVIEWED_NATIVE_NOT_RUN",
+  "base": "c814c322dab9dcba76a259a164f0fa99108bfb48",
+  "source": {
+    "observer_entry.py": "ab6f4c8ef96e297dce0b8a3acd24ddae6d3833cfc2ef393347d583e5340b5d1e",
+    "test_observer_entry.py": "2b5fa96bb2d766dfbf0f6ad2119624dd2dd2f170b5ce0c4c12d80553cfbc67d7"
+  },
+  "final": {
+    "tests": 235,
+    "success": true,
+    "failures": 0,
+    "errors": 0,
+    "sourceSha256": "ab6f4c8ef96e297dce0b8a3acd24ddae6d3833cfc2ef393347d583e5340b5d1e",
+    "testSha256": "2b5fa96bb2d766dfbf0f6ad2119624dd2dd2f170b5ce0c4c12d80553cfbc67d7",
+    "coverage": {
+      "executable": 143,
+      "hit": 138,
+      "percent": 96.5,
+      "missing": [
+        39,
+        42,
+        74,
+        102,
+        181
+      ],
+      "branch": "NOT_MEASURED",
+      "scope": "Python stdlib trace of exact source including import and owned synthetic filesystem tests"
+    },
+    "native": "NOT_RUN"
+  },
+  "plantedDefects": 8,
+  "reviews": {
+    "code-review": "c724fd6fbdbece419d1026e1cd8d7f3163539ca5bbc231739e21eebe53f8899e",
+    "python-review": "881e6995c9446d2a5fe43d6281cdba78e79baa39745b7fff77d69e5de73daaba",
+    "security-review": "d1aef2e150b4b55615b76f93580bfe20b8d5c2c3948df06e518bdf544927c871"
+  },
+  "archive": {
+    "path": "guest-entry-evidence.jsonl.gz",
+    "members": 22,
+    "compressedBytes": 28674,
+    "jsonlBytes": 144817,
+    "sha256": "ea4bc930d208516ef45ca1dcd4da72389b026ea523f860fdec1356672e7b575d"
+  },
+  "originalHostEpoch": null,
+  "native": "NOT_RUN",
+  "mergeReady": false,
+  "unresolved": "Original hostJS coverage and actual invocation/namespace/exec/lifecycle/sharedFS/overhead/resource gates. No Object control accepted."
+}
