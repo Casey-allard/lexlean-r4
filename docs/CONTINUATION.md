@@ -12,6 +12,30 @@ only in a long-lived branch or local handoff. Merge does not mean production
 acceptance, a release, or a completed implementation. Use this chat's internal
 independent reviewers; no external lab or another session owns this work.
 
+## Draft completion sequence, 2026-10-26
+
+The blanket hold of all nine remaining drafts behind Read33 is removed. The
+[explicit preservation successor](continuation/2026-10-26/draft-disposition/preservation-context.json)
+binds historical Object documentation and the superseded UInt/ByteArray primitive
+experiment to their already committed exact snapshots. Neither is a compiler
+input to the three frozen child-certificate phases; all 150 phase input bindings
+were rehashed unchanged. Future invocation review must explicitly adopt this
+preservation context; the old frozen records remain historical and immutable.
+
+Finish the current [Object documentation](OBJECT.md) and the reviewed obsolete
+primitive disposition independently of Read33. Finish each remaining component's
+model/scenario records when that component's actual proof and integration gates
+pass; BLAKE3 and Prediction work are not administratively blocked by Read33.
+Keep all full claims intact. Archiving an obsolete experiment is not proving its
+20 propositions, and documentation completion is not Object completion.
+
+PR65 was merged at `bcba8fab64ed8b4b020f82fe9339ff01b1a425e4` as a reviewed
+development checkpoint. References below to its draft/coverage holds describe
+earlier checkpoints. The source-line gate was independently reviewed for the
+final source; native runtime qualification and production acceptance remain open.
+The concrete next diagnostic repair is [issue66](https://github.com/Casey-allard/lexlean-r4/issues/66),
+which acquires actual launch identity after spawning the owned observer.
+
 ## Latest bounded diagnostic preparation
 
 The [direct connection checkpoint](../tests/fixtures/object-read-memory-observation/direct-results.json)
