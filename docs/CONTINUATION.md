@@ -14,6 +14,17 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Draft completion sequence, 2026-10-26
 
+PR67 merged the maintained Object documentation and the reviewed obsolete
+primitive disposition. Seven original draft files remain; their source snapshots
+stay preserved. The next independent BLAKE3 step has now reached the official
+compiler: [original case19](../tests/fixtures/blake3-case19/RESULTS.md) passed
+five-module source admission but verification failed with `LLV7002` and observed
+container OOM/OOM-kill events. Independent outcome review accepted that failure
+classification, not the theorem. BLAKE3 remains 18/35 published vectors and 255/272
+controls; no automatic retry or larger limit is authorized. Preserve the failed
+stage and nonzero epoch while investigating a concrete supported proof change.
+Read33 is not a blanket prerequisite for independent BLAKE3 or Prediction work.
+
 The blanket hold of all nine remaining drafts behind Read33 is removed. The
 [explicit preservation successor](continuation/2026-10-26/draft-disposition/preservation-context.json)
 binds historical Object documentation and the superseded UInt/ByteArray primitive

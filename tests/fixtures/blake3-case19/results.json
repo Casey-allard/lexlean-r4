@@ -1,0 +1,227 @@
+{
+  "schema": "lexlean-r4/blake3-case19-results/1",
+  "status": "FAILED_ORIGINAL_CASE19_WITH_OBSERVED_OOM_NO_PROOF_ACCEPTANCE",
+  "sourceManifestSha256": "6d4ad68a75dde47dd56b0eff87aecf4c9f732062d517d945ea0bea3df9073929",
+  "invocationSha256": "150ca66d68b0aafd3a187b96a08b8a28401b591098211180f121c52238c27f32",
+  "sourceAndLock": {
+    "inputs": 9,
+    "inputBytes": 164967,
+    "expectedModules": [
+      "Blake3Case19",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "sourceHashRounds": 4,
+    "sourceChecks": [
+      "source-before-lock",
+      "source-before-check",
+      "source-before-verify",
+      "source-after"
+    ],
+    "allStageHashLinesMatchAcceptedInputPins": true,
+    "allRecoveredInputsMatchAcceptedSourcePacket": true,
+    "generatedLockSha256": "edabce6baaf572e30341b2eae31a98bcfcd0b06a33311130ccdcc77581195bd0",
+    "lockHashChecks": 3,
+    "lockChecks": [
+      "lock-before-check",
+      "lock-before-verify",
+      "lock-after"
+    ],
+    "lockConfigSha256": "a23b1a161e774a01f5b94363593325e8330eb20b017af12122c695be7612327e",
+    "officialLock": "lock command returned success; retained lock bytes match lock-bytes capture and three guest hashes. TOML project config and3workspace pins match recovered files. No historical lock reused.",
+    "checkSourceId": "defa80641c82d40e88fe835e0787071e1830e575758ad97d960a5a4c7e98e6d0",
+    "checkSemanticId": "dbddd7b31a19a80f7f2c899459ac7ff4d61b2177896cf966714bb68a81d8fa10",
+    "sourceAdmission": "Official check passed exact5module closure with empty diagnostics; this is source admission, not theorem verification."
+  },
+  "compilerCommands": {
+    "lock": {
+      "status": 0,
+      "started": "2026-10-26T19:54:00.379Z",
+      "ended": "2026-10-26T19:54:00.442Z",
+      "elapsedMs": 63,
+      "stdoutBytes": 127,
+      "stderrBytes": 0
+    },
+    "check": {
+      "status": 0,
+      "started": "2026-10-26T19:54:01.053Z",
+      "ended": "2026-10-26T19:54:01.270Z",
+      "elapsedMs": 217,
+      "stdoutBytes": 362,
+      "stderrBytes": 0
+    },
+    "verify": {
+      "status": 1,
+      "started": "2026-10-26T19:54:01.802Z",
+      "ended": "2026-10-26T19:56:26.345Z",
+      "elapsedMs": 144543,
+      "stdoutBytes": 417,
+      "stderrBytes": 0
+    }
+  },
+  "classification": {
+    "observed": "Official verify returned exit1/successfalse with one LLV7002 diagnostic, empty rejection detail, zero returned artifacts and zero returned modules. Container memory counters changed from all six zero before verify to max12602,oom1,oom_kill1 after.",
+    "interpretation": "Resource-associated failed verification of this exact configuration. An OOM event and OOM kill occurred in the observed container interval; this cannot be classified as a falsified theorem or intended semantic negative.",
+    "notEstablished": [
+      "Exact killed PID or which subprocess received the kill.",
+      "A detailed Lean rejection reason or exact causal chain from OOM to LLV7002.",
+      "Falsehood of published_unkeyed_2048 or incorrectness of BLAKE3.",
+      "Measured peak memory, continuous storage reserve or complete census of guest intermediate files."
+    ],
+    "retry": "No automatic retry, larger limit, epoch reset or alternate proof authorized. Preserve this original failure and classify any proposed remedy under separate review."
+  },
+  "postguards": {
+    "attempted": 9,
+    "passed": 8,
+    "failed": 1,
+    "status": {
+      "source-after": "PASS",
+      "lock-after": "PASS",
+      "tools-after": "PASS",
+      "epoch-after": "PASS",
+      "boot-after": "PASS",
+      "memory-after": "FAIL_NONZERO_MAX_OOM_OOMKILL",
+      "idle-after": "PASS",
+      "artifact-after": "PASS",
+      "host-after": "PASS"
+    },
+    "execution": "All8external postguard commands returned0 with complete retained raw files; memory read command itself passed but its actual counter predicate failed. Host scalar guard captured and passed."
+  },
+  "resourceIdentity": {
+    "epoch": "2026-10-26T19:39:04.363090024Z",
+    "container": "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf",
+    "image": "sha256:716370f20b6b01948700a16380668f5328b854e3764188916fc8802ef27ca7c6",
+    "memoryBytes": 4294967296,
+    "nanoCPUs": 2000000000,
+    "network": "none",
+    "mounts": [],
+    "restartCount": 0,
+    "boot": "c719c273-40c8-4b98-920a-1d1053f67237",
+    "identityToolIdleRounds": 5,
+    "idleRows": [
+      [
+        "5646",
+        "sh",
+        "/bin/sh -c sleep infinity"
+      ],
+      [
+        "5660",
+        "sleep",
+        "sleep infinity"
+      ]
+    ],
+    "toolHashesAllMatchAcceptedFour": true,
+    "memoryBefore": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memoryAfter": {
+      "low": 0,
+      "high": 0,
+      "max": 12602,
+      "oom": 1,
+      "oom_kill": 1,
+      "oom_group_kill": 0
+    },
+    "memoryQualification": "Pre-stage/pre-lock/pre-check/pre-verify all absolute zero. Final zero predicate failed; current captured epoch is no longer qualified by that zero predicate."
+  },
+  "acceptance": {
+    "newAcceptedProofs": 0,
+    "case19": "UNACCEPTED",
+    "historicalPublishedVectors": "18/35 unchanged",
+    "historicalControls": "255/272 unchanged",
+    "kernelAxiomArtifactAcceptance": "NOT_ESTABLISHED; no successful verified artifact to audit",
+    "productAcceptance": false
+  },
+  "capture": {
+    "externalCommandReceipts": 64,
+    "rawOutputFiles": 128,
+    "retainedNativeFiles": 210,
+    "allCaptureFailureEntries": 0,
+    "returnedArtifacts": 0,
+    "localArtifactCopied": false,
+    "guestIntermediateCensus": "NOT_PERFORMED"
+  },
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "sha256": "3ec9ed4e4a4c27f188e11211fc90dfa47b745e9bbfa1aa43c1b8bf55ebb92967",
+    "bytes": 132221,
+    "decodedBytes": 540784,
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "sourceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-case19",
+    "memberCount": 157,
+    "aliasCount": 263,
+    "logicalAliasBytes": 392092,
+    "uniqueBytes": 381490,
+    "format": "First line header; each subsequent member has sha256, bytes, exact relative aliases, base64 data. Scripts are historical evidence only, not execution authority."
+  },
+  "reviews": [
+    {
+      "alias": "source-code-review.json",
+      "sha256": "78f235633d10a324436b7deb09e3b729b2267556ea9478a2f1ec887c1d1969d1",
+      "bytes": 7575,
+      "verdict": "PASS_EXACT_CASE19_SOURCE_PREPARATION"
+    },
+    {
+      "alias": "resource-plan-review.json",
+      "sha256": "2f02b48e3b0377418e4564fd8f1a9d314ac4db8e8346732e365c3f7172101d08",
+      "bytes": 6871,
+      "verdict": "PASS_CONDITIONAL_METADATA_AND_ONE_IDLE_CONTAINER_RESTART_ONLY"
+    },
+    {
+      "alias": "resource-outcome-review.json",
+      "sha256": "185f094105596eb5b041cfff261bdee2533393b4f8747f8a2e0e4b0927fe46fe",
+      "bytes": 10938,
+      "verdict": "PASS_CAPTURED_RESOURCE_EPOCH; COMPILER_INVOCATION_REVIEW_STILL_REQUIRED"
+    },
+    {
+      "alias": "invocation-code-review.json",
+      "sha256": "5a634c6f9efdf0a087e4fa9704863088f8ca292462c239171ec0e85594719acb",
+      "bytes": 6504,
+      "verdict": "CHANGES_REQUIRED_COMMAND_RETURN_CUSTODY"
+    },
+    {
+      "alias": "invocation-security-review.json",
+      "sha256": "3cb8ea3bf29749a70b7c03564f031e748a9bbffefa82e5c10921f2f8a5348306",
+      "bytes": 6380,
+      "verdict": "CHANGES_REQUIRED_RECEIPT_INTEGRITY_BEFORE_LAUNCH"
+    },
+    {
+      "alias": "invocation-v3-code-review.json",
+      "sha256": "cdbb41977af018740b394869c26a7770f7fad9760b88030e851424a35f66c26c",
+      "bytes": 6097,
+      "verdict": "PASS_EXACT_ONE_OFF_INVOCATION_CODE_REVIEW"
+    },
+    {
+      "alias": "invocation-v3-security-review.json",
+      "sha256": "13d31b0ae4c48756505c75593be4a6114f41f0f4c3bfbad0f5e2e7d509846756",
+      "bytes": 5785,
+      "verdict": "PASS_EXACT_ONE_OFF_INVOCATION_SECURITY_SUBJECT_TO_FRESH_RUNTIME_GATES"
+    },
+    {
+      "alias": "native-outcome-review.json",
+      "sha256": "e26f650ca644ebdc7c1f11e8a838450713c1340a4ee12b64cf45f35a58a675cb",
+      "bytes": 11193,
+      "verdict": "FAILED_ORIGINAL_CASE19_VERIFICATION_WITH_OBSERVED_OOM; NO_PROOF_ACCEPTANCE"
+    },
+    {
+      "alias": "failure-investigation.json",
+      "sha256": "5792b0479542572a7588cd53f374c8e87b4016e3affc9316e74643cda7f01f67",
+      "bytes": 11162,
+      "verdict": "RESOURCE_FAILURE; original2048 theorem UNACCEPTED. Recommend one exact first-state and connected symbolic-feed experiment; implementation and all new native tests NOT_RUN."
+    }
+  ],
+  "next": {
+    "status": "PROPOSAL_PENDING_INDEPENDENT_SPEC",
+    "alias": "failure-investigation.json",
+    "sha256": "5792b0479542572a7588cd53f374c8e87b4016e3affc9316e74643cda7f01f67",
+    "summary": "One exact first64-byte state and connected symbolic original-tree continuation. No candidate/native results, no OOM hotspot or efficiency established, no whole digest proof. Runtime, exact input/tree/expected digest/empty axioms/limits preserved."
+  },
+  "preservation": "Original failed stage and nonzero epoch remain preserved. No automatic retry, raised limits, reset or manufactured lock. Seven original drafts and frozen issue66 files excluded from this delivery."
+}
