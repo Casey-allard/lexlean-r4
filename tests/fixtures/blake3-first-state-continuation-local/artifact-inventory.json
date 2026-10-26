@@ -1,0 +1,2046 @@
+{
+  "schema": "lexlean-r4/continuation-artifact-inventory/1",
+  "scope": "Actual retained artifact copies; no fresh compiler or kernel replay by packaging. Binary files remain local and are excluded from Git.",
+  "files": [
+    {
+      "phase": "lift-positive",
+      "path": "attestation.json",
+      "bytes": 31242,
+      "sha256": "0b38c5b3e704aadc1346e73430f20109fd9b847db9292f18dcae82a952f2429d",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/attestation.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3Case19FirstState.lean",
+      "bytes": 113,
+      "sha256": "5cada4b8e53859e07cad8fc885318c08bb450e9fe94cdaa949c7158f5a3157c8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3Case19FirstState.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3Case19FirstState.process.json",
+      "bytes": 609,
+      "sha256": "a01e860316b2f1681ee1b9ae471e0f3972bd3a0d75e880f06e502c37d86d835a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3Case19FirstState.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateContext.lean",
+      "bytes": 186,
+      "sha256": "6d4a8127bad34cadbe993c890b9fae16cd8c64d28debf2dd55fa01502bab8225",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateContext.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateContext.process.json",
+      "bytes": 702,
+      "sha256": "90d3508580027a2110fd1ca520d96547ec56651692c53dc787eed599e287b266",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateContext.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateLift.lean",
+      "bytes": 167,
+      "sha256": "9088bd69f7f1a9b24239e43ccb7ac87941670613a5dacf251ae53b65a020c552",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateLift.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateLift.process.json",
+      "bytes": 680,
+      "sha256": "330f69ba63a31736e5745b4271a70c202319180e40385655142ee0adb1999e7e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.Blake3FirstStateLift.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3.lean",
+      "bytes": 2100,
+      "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3.process.json",
+      "bytes": 3343,
+      "sha256": "1aefd5cfd99bf1e10a2a002fe8c9540269fa7a8da74441035a5e0e0ceb28eb28",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Core.lean",
+      "bytes": 1190,
+      "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Core.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Core.process.json",
+      "bytes": 2076,
+      "sha256": "7ba561f6f9ea7034084485be742fbf9f334f6b451ba8920af97f4229febffb7b",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Core.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Input.lean",
+      "bytes": 635,
+      "sha256": "644861a03a2ecf3e97447cb2ffea7d80fbeba4e639eb7c51624b1ce44bda4f1a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Input.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Input.process.json",
+      "bytes": 1294,
+      "sha256": "64fae82f15cb9b1911726dcc9f1d87a89e5eba56694898bf7ba9cc32f286ac45",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Input.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Nat.lean",
+      "bytes": 959,
+      "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Nat.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Nat.process.json",
+      "bytes": 1768,
+      "sha256": "5a1e2f5f6079e400e38b21c0466efd91eb5d0bc02b094e7d0ee3814a554078bd",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/LexLeanAudit.A9bb749c72cf00534e6ac5a9371eb4439.LexLeanR4.R4.Blake3Nat.process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "audit/output.txt",
+      "bytes": 6790,
+      "sha256": "f321c6a63962d0857d55d30932b7c29c336b3e6498d38a4217d8e4132d5a0962",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/audit/output.txt"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "build-manifest.json",
+      "bytes": 9058,
+      "sha256": "8cf21dae070a4433fa43fb3bba4b67c4c0a5cd7c2f4b15d01e6fe5695b71afeb",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/build-manifest.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/Blake3Case19FirstState.coverage.json",
+      "bytes": 16021,
+      "sha256": "0790cf5ea308ababf6889d32f1f00e31574893a6848b068c4eae7743b08787b6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/Blake3Case19FirstState.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/Blake3FirstStateContext.coverage.json",
+      "bytes": 17475,
+      "sha256": "05fa3c819940451ad7ca472b22463517a3cb253a2db71d3ae0d407886bc58452",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateContext.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/Blake3FirstStateLift.coverage.json",
+      "bytes": 16656,
+      "sha256": "4caabeecb5730b66e0f4e5b34fc09915ed452439baca8712a41c64bc0b5eb4c5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateLift.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "bytes": 23556,
+      "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "bytes": 17502,
+      "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Core.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/R4/Blake3Input.coverage.json",
+      "bytes": 15624,
+      "sha256": "f6832b94734d631aa4bf912aa5763cca9e2eb006d74a5d5857ca1c2e57f37e30",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Input.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "bytes": 14922,
+      "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Nat.coverage.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/Blake3Case19FirstState.closure.json",
+      "bytes": 10620,
+      "sha256": "2a0ba346d441fdbf0386295461bc89e5cfdc4f2f4d94a3a6cbfe6603fa23714a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/Blake3Case19FirstState.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/Blake3FirstStateContext.closure.json",
+      "bytes": 10621,
+      "sha256": "bed59c3d7917ce894f4a66133c8d4e6094abc05618deb6ba1611bf2fd75ff20a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/Blake3FirstStateContext.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/Blake3FirstStateLift.closure.json",
+      "bytes": 10618,
+      "sha256": "b0f54baab543c0f6842c2647bbeba0a42cca188220027c597a0224452e6cd2e9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/Blake3FirstStateLift.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/R4.Blake3.closure.json",
+      "bytes": 10607,
+      "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/R4.Blake3.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/R4.Blake3Core.closure.json",
+      "bytes": 10611,
+      "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/R4.Blake3Core.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/R4.Blake3Input.closure.json",
+      "bytes": 10612,
+      "sha256": "ea78932529bb23b21e0e46658bce98f5f86976f27a148683dc2723a95d052e68",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/R4.Blake3Input.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "lexicons/R4.Blake3Nat.closure.json",
+      "bytes": 10610,
+      "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/lexicons/R4.Blake3Nat.closure.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/Blake3Case19FirstState.map.json",
+      "bytes": 1435,
+      "sha256": "e4f994807cf615dbe983761bbb29a208053fa75b8972e0084ee66565d8d5c4df",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/Blake3Case19FirstState.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/Blake3FirstStateContext.map.json",
+      "bytes": 1763,
+      "sha256": "2e66505526c49fc387d01464384ce089fa57b201bd4752d844ee1541bae86f6b",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateContext.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/Blake3FirstStateLift.map.json",
+      "bytes": 1734,
+      "sha256": "609aa95bb5645f34c3d3b5464d4f8abc34c5f9368c5d7da66b7c34fc88b24174",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateLift.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/R4/Blake3.map.json",
+      "bytes": 14490,
+      "sha256": "4cc0f084f27dade4761cb88e2174964f7d470655c6e1bc49fa32a465e9ebad64",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/R4/Blake3Core.map.json",
+      "bytes": 8268,
+      "sha256": "1fd81f68d1cf3b2b258cb59b2bd8a9b8d7948d0eb191377189d982f048c3f401",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3Core.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/R4/Blake3Input.map.json",
+      "bytes": 4311,
+      "sha256": "f06caddbf189ca45092824f31232fbbee89abdb4d1ee2b3eb82145feb28a1cd1",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3Input.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "bytes": 6901,
+      "sha256": "a2f244aa11a15dc064cfc8ad7aab1c952b9cc91e7af1ad50c33b7d64d19244f5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3Nat.map.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/Blake3Case19FirstState.lean",
+      "bytes": 1503,
+      "sha256": "2e0acab0c711ce9dd2d4a127f3c23ffb87387f6f1d6d8ddf056e38550a518846",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/Blake3Case19FirstState.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/Blake3Case19FirstState.tex",
+      "bytes": 1401,
+      "sha256": "c57e257c29ae60364a2f82441aa3bb3c7bb2a16ff5663190931c367d8acf0558",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/Blake3Case19FirstState.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/Blake3FirstStateContext.lean",
+      "bytes": 4122,
+      "sha256": "ca417922d23ec3b34d3eddfce57e821504114ab27a36da1aa3f2d156f34b52a6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateContext.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/Blake3FirstStateContext.tex",
+      "bytes": 4216,
+      "sha256": "a7e14eb4b7abd4a3d3ed2eed5c1189632469d218f63523b8b3cc26b9891c5cc6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateContext.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/Blake3FirstStateLift.lean",
+      "bytes": 1047,
+      "sha256": "9ebf04136b8f5292804f63716a7d8b4dfc5affc3d60486321bf482513b2f8a97",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateLift.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/Blake3FirstStateLift.tex",
+      "bytes": 839,
+      "sha256": "605b23950bd22098ccc6a909290646a9b9e7c8f2e20428016a9202a5c36ebbd4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateLift.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3.lean",
+      "bytes": 30120,
+      "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3.tex",
+      "bytes": 24378,
+      "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3Core.lean",
+      "bytes": 26512,
+      "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3Core.tex",
+      "bytes": 17451,
+      "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3Input.lean",
+      "bytes": 17991,
+      "sha256": "ce5e857493945f63c6923dac97d4d96f865ca7612b98b468b8d7d16afc953895",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Input.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3Input.tex",
+      "bytes": 6151,
+      "sha256": "41fa0fbce85dd9d235fdc9fd890ef68ad0e27443c6632c09b826e76fedee894e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Input.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3Nat.lean",
+      "bytes": 18123,
+      "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "modules/LexLeanR4/R4/Blake3Nat.tex",
+      "bytes": 7827,
+      "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.tex"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/Blake3Case19FirstState.olean",
+      "bytes": 20192,
+      "sha256": "bcf79a6c7b873a32ca0814ed11a1746fbddbe70b1cf71dbb5bc73d5f3372b759",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/Blake3Case19FirstState.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/Blake3FirstStateContext.olean",
+      "bytes": 34912,
+      "sha256": "5930a84cd5e1820bdad1c082e762708d66adf328ca2e68777add1b8a2f84010d",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateContext.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/Blake3FirstStateLift.olean",
+      "bytes": 6056,
+      "sha256": "ac35a088dbd7b5addebcf7751c0a243cda3e3320682bb2ab7c54208ec8b9826e",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateLift.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3Input.olean",
+      "bytes": 526280,
+      "sha256": "0c24539d4482beb715c9adf47374b8b916a691744b7a5527828802c8a4dbe732",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Input.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "probe/LexLeanProbe.P9bb749c72cf00534e6ac5a9371eb4439.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/probe/LexLeanProbe.P9bb749c72cf00534e6ac5a9371eb4439.lean"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "probe/process.json",
+      "bytes": 460,
+      "sha256": "92811822a2c42a201f909deb273ed77d1945bff2d27f06b0ed3bdb6acf707a6e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/probe/process.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.Blake3Case19FirstState.json",
+      "bytes": 522,
+      "sha256": "827bd6a2de6876624b4cb04495253774cef9be1001e5a3d7d27c2d90ce6910e0",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.Blake3Case19FirstState.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateContext.json",
+      "bytes": 525,
+      "sha256": "47f477b77e41e0781e97fb2ef874652254a0ba9fd87ee4b772fee9fd92317879",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateContext.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateLift.json",
+      "bytes": 516,
+      "sha256": "b6503ec83997d50197a2dbc7fdd1995df95d3b019c1c15fe1050368faa7817f3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateLift.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.R4.Blake3.json",
+      "bytes": 483,
+      "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 495,
+      "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Core.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.R4.Blake3Input.json",
+      "bytes": 498,
+      "sha256": "ebdc40f1782fd72127ed1d6bd354bdd8b3267703de95c15bfa793dd4479be4f9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Input.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 492,
+      "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Nat.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.Blake3Case19FirstState.json",
+      "bytes": 441,
+      "sha256": "e4f7506e3ee520be4842e697c91037219e36cc434f1cf56448dd119d92ca5395",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3Case19FirstState.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateContext.json",
+      "bytes": 443,
+      "sha256": "33adf3cbc0b4dd8c6492e02d12a24cf378d967433c76540c4098f528c534ef4f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateContext.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateLift.json",
+      "bytes": 437,
+      "sha256": "67e2535ab698f0bbd223643cede1fb10cc04f2e5ac65abae3f744ee9a2da107f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateLift.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "bytes": 415,
+      "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 423,
+      "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Core.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Input.json",
+      "bytes": 425,
+      "sha256": "05fa2f3beb0d2615f18d75e1881faae35fc2baf837da9e4d5672976c5b91aab1",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Input.json"
+    },
+    {
+      "phase": "lift-positive",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 421,
+      "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Nat.json"
+    },
+    {
+      "phase": "generic",
+      "path": "attestation.json",
+      "bytes": 33097,
+      "sha256": "e2735f01650fa08ca9bdce3e2830d2abb4d81788297b92e23246958958642b2e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/attestation.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3Case19FirstState.lean",
+      "bytes": 113,
+      "sha256": "5cada4b8e53859e07cad8fc885318c08bb450e9fe94cdaa949c7158f5a3157c8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3Case19FirstState.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3Case19FirstState.process.json",
+      "bytes": 609,
+      "sha256": "6e07e12aca7b1d77c29d7c46fef9c608115fab1b74f4ab02f54e9b00de8b36b9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3Case19FirstState.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateContext.lean",
+      "bytes": 186,
+      "sha256": "6d4a8127bad34cadbe993c890b9fae16cd8c64d28debf2dd55fa01502bab8225",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateContext.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateContext.process.json",
+      "bytes": 702,
+      "sha256": "e3bab7dee7ea7832f2957096e4f32d54dbedec2fec3b6298060d5abbb05341a9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateContext.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateGeneric.lean",
+      "bytes": 116,
+      "sha256": "9b41d8203b4914ae2a9b8e208a716c9c59fc4a30e5bfdf28ea6096917d4f9b86",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateGeneric.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateGeneric.process.json",
+      "bytes": 613,
+      "sha256": "b42e29574043d3e06ee85f0b5f49e50cf0812ef1e1f17d4e7b9bc9a04e9dfd17",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateGeneric.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateLift.lean",
+      "bytes": 167,
+      "sha256": "9088bd69f7f1a9b24239e43ccb7ac87941670613a5dacf251ae53b65a020c552",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateLift.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateLift.process.json",
+      "bytes": 680,
+      "sha256": "7ea3fe44874d9d31f0868606c7253a9e874ae03304b1f0155e58ce254e5ccd06",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.Blake3FirstStateLift.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3.lean",
+      "bytes": 2100,
+      "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3.process.json",
+      "bytes": 3343,
+      "sha256": "e5b1524cafe69f16e2892e634c9177c48028c0808ef3bab45326e3509728fc7a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Core.lean",
+      "bytes": 1190,
+      "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Core.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Core.process.json",
+      "bytes": 2076,
+      "sha256": "4232ca8b8c96a5c6053867a8cbaac476ce4978a50679cef3953e24eb04b08bc6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Core.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Input.lean",
+      "bytes": 635,
+      "sha256": "644861a03a2ecf3e97447cb2ffea7d80fbeba4e639eb7c51624b1ce44bda4f1a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Input.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Input.process.json",
+      "bytes": 1294,
+      "sha256": "5594f6681fc62fe345de8f226199e45a897fd1e2225b91a08e50957cb3d64575",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Input.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Nat.lean",
+      "bytes": 959,
+      "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Nat.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Nat.process.json",
+      "bytes": 1768,
+      "sha256": "e6545179abb6a834c783bcf76c4396d963848bd78e52629825c580a339879a67",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/LexLeanAudit.Acb454b412c60276267cebb0622716daf.LexLeanR4.R4.Blake3Nat.process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "audit/output.txt",
+      "bytes": 6876,
+      "sha256": "d37248bce1e82e13b500bfb3da45bebce550652d87d60b09a4c6b70e7b26f21a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/audit/output.txt"
+    },
+    {
+      "phase": "generic",
+      "path": "build-manifest.json",
+      "bytes": 10260,
+      "sha256": "0b588a43848b381b59f68587a1a58342d6b053298a78fd86f5b105c6293b896c",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/build-manifest.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/Blake3Case19FirstState.coverage.json",
+      "bytes": 16021,
+      "sha256": "0790cf5ea308ababf6889d32f1f00e31574893a6848b068c4eae7743b08787b6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/Blake3Case19FirstState.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/Blake3FirstStateContext.coverage.json",
+      "bytes": 17475,
+      "sha256": "05fa3c819940451ad7ca472b22463517a3cb253a2db71d3ae0d407886bc58452",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateContext.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/Blake3FirstStateGeneric.coverage.json",
+      "bytes": 19347,
+      "sha256": "fef9a39b01195b831630f9f29692eba0f8044262ed0134da633e8222c312eb3f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateGeneric.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/Blake3FirstStateLift.coverage.json",
+      "bytes": 16656,
+      "sha256": "4caabeecb5730b66e0f4e5b34fc09915ed452439baca8712a41c64bc0b5eb4c5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateLift.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "bytes": 23556,
+      "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/R4/Blake3.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "bytes": 17502,
+      "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Core.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/R4/Blake3Input.coverage.json",
+      "bytes": 15624,
+      "sha256": "f6832b94734d631aa4bf912aa5763cca9e2eb006d74a5d5857ca1c2e57f37e30",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Input.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "bytes": 14922,
+      "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Nat.coverage.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/Blake3Case19FirstState.closure.json",
+      "bytes": 10620,
+      "sha256": "2a0ba346d441fdbf0386295461bc89e5cfdc4f2f4d94a3a6cbfe6603fa23714a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/Blake3Case19FirstState.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/Blake3FirstStateContext.closure.json",
+      "bytes": 10621,
+      "sha256": "bed59c3d7917ce894f4a66133c8d4e6094abc05618deb6ba1611bf2fd75ff20a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/Blake3FirstStateContext.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/Blake3FirstStateGeneric.closure.json",
+      "bytes": 10621,
+      "sha256": "b6a8fe1a6c9fe2b7fc70154e12430b8f0f115feb37150575a105657dce2d4a8e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/Blake3FirstStateGeneric.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/Blake3FirstStateLift.closure.json",
+      "bytes": 10618,
+      "sha256": "b0f54baab543c0f6842c2647bbeba0a42cca188220027c597a0224452e6cd2e9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/Blake3FirstStateLift.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/R4.Blake3.closure.json",
+      "bytes": 10607,
+      "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/R4.Blake3.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/R4.Blake3Core.closure.json",
+      "bytes": 10611,
+      "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/R4.Blake3Core.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/R4.Blake3Input.closure.json",
+      "bytes": 10612,
+      "sha256": "ea78932529bb23b21e0e46658bce98f5f86976f27a148683dc2723a95d052e68",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/R4.Blake3Input.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "lexicons/R4.Blake3Nat.closure.json",
+      "bytes": 10610,
+      "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/lexicons/R4.Blake3Nat.closure.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/Blake3Case19FirstState.map.json",
+      "bytes": 1435,
+      "sha256": "30591d4c0cf1d4cba8fad1d9f25de0d0eb9836a8807b7fe69ac19e90b38d440b",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/Blake3Case19FirstState.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/Blake3FirstStateContext.map.json",
+      "bytes": 1763,
+      "sha256": "2759e05c74075ad9c642d6d53bafc164c5c97a8e429fbf09523cf002c26691f0",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateContext.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/Blake3FirstStateGeneric.map.json",
+      "bytes": 1439,
+      "sha256": "4baca319cc7c7d08bfa29943b5b620cb799582312aed5b536cc593f5a1f74cda",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateGeneric.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/Blake3FirstStateLift.map.json",
+      "bytes": 1734,
+      "sha256": "7453977796530d734b11157f9e242df02726524e18da29f469b212cdf66e3748",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateLift.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/R4/Blake3.map.json",
+      "bytes": 14490,
+      "sha256": "1b4953beacaab32b14dfe5506754b54bcfbb8c13b0ea6217a9a26e5d8c26f3c9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/R4/Blake3.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/R4/Blake3Core.map.json",
+      "bytes": 8268,
+      "sha256": "adbd14ebaa068e1cca1567764aeb39ec3161d05344f6bd2d1b042a4b8717411d",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/R4/Blake3Core.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/R4/Blake3Input.map.json",
+      "bytes": 4311,
+      "sha256": "5ca9b262d225bf42d7a07c5255934a9cd58443e21196f5c03858fabe6c502e35",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/R4/Blake3Input.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "bytes": 6901,
+      "sha256": "b1f807040c61fd0350a720e9c11ec96b337af08bec94be2b32310deb4f742b9a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/maps/LexLeanR4/R4/Blake3Nat.map.json"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3Case19FirstState.lean",
+      "bytes": 1503,
+      "sha256": "2e0acab0c711ce9dd2d4a127f3c23ffb87387f6f1d6d8ddf056e38550a518846",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3Case19FirstState.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3Case19FirstState.tex",
+      "bytes": 1401,
+      "sha256": "c57e257c29ae60364a2f82441aa3bb3c7bb2a16ff5663190931c367d8acf0558",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3Case19FirstState.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3FirstStateContext.lean",
+      "bytes": 4122,
+      "sha256": "ca417922d23ec3b34d3eddfce57e821504114ab27a36da1aa3f2d156f34b52a6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateContext.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3FirstStateContext.tex",
+      "bytes": 4216,
+      "sha256": "a7e14eb4b7abd4a3d3ed2eed5c1189632469d218f63523b8b3cc26b9891c5cc6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateContext.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3FirstStateGeneric.lean",
+      "bytes": 2316,
+      "sha256": "40024c0e6abcc88229bb1fc70690637bff4d2b69ed415fba460af9d4960dcc6f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateGeneric.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3FirstStateGeneric.tex",
+      "bytes": 2029,
+      "sha256": "7448215820d2db7b24f0f9145c0affe0033d173e3a7fc5bd340da849ceca3a9b",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateGeneric.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3FirstStateLift.lean",
+      "bytes": 1047,
+      "sha256": "9ebf04136b8f5292804f63716a7d8b4dfc5affc3d60486321bf482513b2f8a97",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateLift.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/Blake3FirstStateLift.tex",
+      "bytes": 839,
+      "sha256": "605b23950bd22098ccc6a909290646a9b9e7c8f2e20428016a9202a5c36ebbd4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateLift.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3.lean",
+      "bytes": 30120,
+      "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3.tex",
+      "bytes": 24378,
+      "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3Core.lean",
+      "bytes": 26512,
+      "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3Core.tex",
+      "bytes": 17451,
+      "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3Input.lean",
+      "bytes": 17991,
+      "sha256": "ce5e857493945f63c6923dac97d4d96f865ca7612b98b468b8d7d16afc953895",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3Input.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3Input.tex",
+      "bytes": 6151,
+      "sha256": "41fa0fbce85dd9d235fdc9fd890ef68ad0e27443c6632c09b826e76fedee894e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3Input.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3Nat.lean",
+      "bytes": 18123,
+      "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "modules/LexLeanR4/R4/Blake3Nat.tex",
+      "bytes": 7827,
+      "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.tex"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/Blake3Case19FirstState.olean",
+      "bytes": 20192,
+      "sha256": "bcf79a6c7b873a32ca0814ed11a1746fbddbe70b1cf71dbb5bc73d5f3372b759",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/Blake3Case19FirstState.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/Blake3FirstStateContext.olean",
+      "bytes": 34912,
+      "sha256": "5930a84cd5e1820bdad1c082e762708d66adf328ca2e68777add1b8a2f84010d",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateContext.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/Blake3FirstStateGeneric.olean",
+      "bytes": 22304,
+      "sha256": "4c5ee0fb18738bf47b34c3eb88605ae36d3ddf1c59c65a7929e799b1d6d9bda3",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateGeneric.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/Blake3FirstStateLift.olean",
+      "bytes": 6056,
+      "sha256": "ac35a088dbd7b5addebcf7751c0a243cda3e3320682bb2ab7c54208ec8b9826e",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateLift.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/R4/Blake3Input.olean",
+      "bytes": 526280,
+      "sha256": "0c24539d4482beb715c9adf47374b8b916a691744b7a5527828802c8a4dbe732",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Input.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean"
+    },
+    {
+      "phase": "generic",
+      "path": "probe/LexLeanProbe.Pcb454b412c60276267cebb0622716daf.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/probe/LexLeanProbe.Pcb454b412c60276267cebb0622716daf.lean"
+    },
+    {
+      "phase": "generic",
+      "path": "probe/process.json",
+      "bytes": 460,
+      "sha256": "952e6d6f258e7dddeb60a751b630878f89ad1f4bc2b3208d654230a2a2ac164d",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/probe/process.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.Blake3Case19FirstState.json",
+      "bytes": 522,
+      "sha256": "827bd6a2de6876624b4cb04495253774cef9be1001e5a3d7d27c2d90ce6910e0",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.Blake3Case19FirstState.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateContext.json",
+      "bytes": 525,
+      "sha256": "47f477b77e41e0781e97fb2ef874652254a0ba9fd87ee4b772fee9fd92317879",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateContext.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateGeneric.json",
+      "bytes": 525,
+      "sha256": "c45538c50848ae56d891fcdd4fd3482fac277e3bf8aac14928f849660658d1a6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateGeneric.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateLift.json",
+      "bytes": 516,
+      "sha256": "b6503ec83997d50197a2dbc7fdd1995df95d3b019c1c15fe1050368faa7817f3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateLift.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.R4.Blake3.json",
+      "bytes": 483,
+      "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 495,
+      "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Core.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.R4.Blake3Input.json",
+      "bytes": 498,
+      "sha256": "ebdc40f1782fd72127ed1d6bd354bdd8b3267703de95c15bfa793dd4479be4f9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Input.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 492,
+      "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Nat.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.Blake3Case19FirstState.json",
+      "bytes": 441,
+      "sha256": "e4f7506e3ee520be4842e697c91037219e36cc434f1cf56448dd119d92ca5395",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3Case19FirstState.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateContext.json",
+      "bytes": 443,
+      "sha256": "33adf3cbc0b4dd8c6492e02d12a24cf378d967433c76540c4098f528c534ef4f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateContext.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateGeneric.json",
+      "bytes": 443,
+      "sha256": "6b2cc38c3dee2a0f8f4c2b6aa1930b95c83bd1a873caba77c8790576728304c4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateGeneric.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateLift.json",
+      "bytes": 437,
+      "sha256": "67e2535ab698f0bbd223643cede1fb10cc04f2e5ac65abae3f744ee9a2da107f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateLift.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "bytes": 415,
+      "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 423,
+      "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Core.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Input.json",
+      "bytes": 425,
+      "sha256": "05fa2f3beb0d2615f18d75e1881faae35fc2baf837da9e4d5672976c5b91aab1",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Input.json"
+    },
+    {
+      "phase": "generic",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 421,
+      "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Nat.json"
+    },
+    {
+      "phase": "original",
+      "path": "attestation.json",
+      "bytes": 34973,
+      "sha256": "63e7acfa9948f7342c8d6a0d1fcf0d441fe770ad080ad4c14c919ddf95431b1b",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/attestation.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3Case19FirstState.lean",
+      "bytes": 113,
+      "sha256": "5cada4b8e53859e07cad8fc885318c08bb450e9fe94cdaa949c7158f5a3157c8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3Case19FirstState.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3Case19FirstState.process.json",
+      "bytes": 609,
+      "sha256": "8a1688fa531176a998455b2b9e14a8f11a33a0c88694d27b4cc1132b5e47c1f3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3Case19FirstState.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateContext.lean",
+      "bytes": 186,
+      "sha256": "6d4a8127bad34cadbe993c890b9fae16cd8c64d28debf2dd55fa01502bab8225",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateContext.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateContext.process.json",
+      "bytes": 702,
+      "sha256": "ff2c21b97305725be5ad36d187acd4557ee64a7abf0a392a8eb693ebb9a004cd",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateContext.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateGeneric.lean",
+      "bytes": 116,
+      "sha256": "9b41d8203b4914ae2a9b8e208a716c9c59fc4a30e5bfdf28ea6096917d4f9b86",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateGeneric.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateGeneric.process.json",
+      "bytes": 613,
+      "sha256": "095bb88c30f44af538b44fb00b91cf8c955f38a3ac66c36a8d6dec8b9c196ed3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateGeneric.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateLift.lean",
+      "bytes": 167,
+      "sha256": "9088bd69f7f1a9b24239e43ccb7ac87941670613a5dacf251ae53b65a020c552",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateLift.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateLift.process.json",
+      "bytes": 680,
+      "sha256": "3455e166872566ccbb0e202cf51eae85e8f6d408ea63225ee25e8c36126242f4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateLift.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateOriginal.lean",
+      "bytes": 124,
+      "sha256": "079ae0619e5f2fb2f6a041d25bb2c675de362ae9d1fac4b95c9ae891c8aa827f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateOriginal.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateOriginal.process.json",
+      "bytes": 622,
+      "sha256": "9eecb9e9457e8534025445600152c663efa84196c6e39e44933ea33d5c97a4e6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.Blake3FirstStateOriginal.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3.lean",
+      "bytes": 2100,
+      "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3.process.json",
+      "bytes": 3343,
+      "sha256": "47ff80772e69d360bd0bfce4cb7e209f4136206da51ddf70e7be457e8b370b76",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Core.lean",
+      "bytes": 1190,
+      "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Core.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Core.process.json",
+      "bytes": 2076,
+      "sha256": "233552b9af50c2f965eaf19391eb0184af41cfbbaa1d17f904db2e18eebfc0f5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Core.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Input.lean",
+      "bytes": 635,
+      "sha256": "644861a03a2ecf3e97447cb2ffea7d80fbeba4e639eb7c51624b1ce44bda4f1a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Input.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Input.process.json",
+      "bytes": 1294,
+      "sha256": "7a5f41f2352e332ec033a17010ea7037885abd994a55711f3a36cd60cc51f886",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Input.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Nat.lean",
+      "bytes": 959,
+      "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Nat.lean"
+    },
+    {
+      "phase": "original",
+      "path": "audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Nat.process.json",
+      "bytes": 1768,
+      "sha256": "31acaa29f9b44e6dc6ede48755037233321764a226b98e885cc5c370e84045a9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/LexLeanAudit.A3f44225006dc07350a0b71be1a93caae.LexLeanR4.R4.Blake3Nat.process.json"
+    },
+    {
+      "phase": "original",
+      "path": "audit/output.txt",
+      "bytes": 6969,
+      "sha256": "4ce4eee3c3b89b42470013a07bab201b4e042e08a70942094a2a271bf1fb3b95",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/audit/output.txt"
+    },
+    {
+      "phase": "original",
+      "path": "build-manifest.json",
+      "bytes": 11475,
+      "sha256": "a543f334bc7df08ee54cb8b645340ce9473d48b9e496fe7e41e983aa5c64a521",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/build-manifest.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/Blake3Case19FirstState.coverage.json",
+      "bytes": 16021,
+      "sha256": "0790cf5ea308ababf6889d32f1f00e31574893a6848b068c4eae7743b08787b6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/Blake3Case19FirstState.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/Blake3FirstStateContext.coverage.json",
+      "bytes": 17475,
+      "sha256": "05fa3c819940451ad7ca472b22463517a3cb253a2db71d3ae0d407886bc58452",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateContext.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/Blake3FirstStateGeneric.coverage.json",
+      "bytes": 19347,
+      "sha256": "fef9a39b01195b831630f9f29692eba0f8044262ed0134da633e8222c312eb3f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateGeneric.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/Blake3FirstStateLift.coverage.json",
+      "bytes": 16656,
+      "sha256": "4caabeecb5730b66e0f4e5b34fc09915ed452439baca8712a41c64bc0b5eb4c5",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateLift.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/Blake3FirstStateOriginal.coverage.json",
+      "bytes": 20562,
+      "sha256": "23478955d76ef327de417d84ba15141946c30f7db73c9b203f89be5bb372332a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/Blake3FirstStateOriginal.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "bytes": 23556,
+      "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/R4/Blake3.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "bytes": 17502,
+      "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Core.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/R4/Blake3Input.coverage.json",
+      "bytes": 15624,
+      "sha256": "f6832b94734d631aa4bf912aa5763cca9e2eb006d74a5d5857ca1c2e57f37e30",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Input.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "bytes": 14922,
+      "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Nat.coverage.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/Blake3Case19FirstState.closure.json",
+      "bytes": 10620,
+      "sha256": "2a0ba346d441fdbf0386295461bc89e5cfdc4f2f4d94a3a6cbfe6603fa23714a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/Blake3Case19FirstState.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/Blake3FirstStateContext.closure.json",
+      "bytes": 10621,
+      "sha256": "bed59c3d7917ce894f4a66133c8d4e6094abc05618deb6ba1611bf2fd75ff20a",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/Blake3FirstStateContext.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/Blake3FirstStateGeneric.closure.json",
+      "bytes": 10621,
+      "sha256": "b6a8fe1a6c9fe2b7fc70154e12430b8f0f115feb37150575a105657dce2d4a8e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/Blake3FirstStateGeneric.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/Blake3FirstStateLift.closure.json",
+      "bytes": 10618,
+      "sha256": "b0f54baab543c0f6842c2647bbeba0a42cca188220027c597a0224452e6cd2e9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/Blake3FirstStateLift.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/Blake3FirstStateOriginal.closure.json",
+      "bytes": 10622,
+      "sha256": "fa815953df2b14237e8305005771e49fb35dc1581d9bc7b451597a4cdcef61d1",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/Blake3FirstStateOriginal.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/R4.Blake3.closure.json",
+      "bytes": 10607,
+      "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/R4.Blake3.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/R4.Blake3Core.closure.json",
+      "bytes": 10611,
+      "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/R4.Blake3Core.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/R4.Blake3Input.closure.json",
+      "bytes": 10612,
+      "sha256": "ea78932529bb23b21e0e46658bce98f5f86976f27a148683dc2723a95d052e68",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/R4.Blake3Input.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "lexicons/R4.Blake3Nat.closure.json",
+      "bytes": 10610,
+      "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/lexicons/R4.Blake3Nat.closure.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/Blake3Case19FirstState.map.json",
+      "bytes": 1435,
+      "sha256": "ced4d4e7c9138e14ac3722eaf03c676e2836d7744adde163d7d091bcc916c9f2",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/Blake3Case19FirstState.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/Blake3FirstStateContext.map.json",
+      "bytes": 1763,
+      "sha256": "a3649bfc357eb055d7b65073cd7936ec366139ddcad513679aec3cc0b2e5a1b8",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateContext.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/Blake3FirstStateGeneric.map.json",
+      "bytes": 1439,
+      "sha256": "47954614e9498fa8fc58268da0dcaf7de94631b082b3a1f778a7cb9b20c5d1e4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateGeneric.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/Blake3FirstStateLift.map.json",
+      "bytes": 1734,
+      "sha256": "3cf0975079aed2c99f9dfd33ba0acaee1d28fd6753a8e8ef249ea0f468e23951",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateLift.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/Blake3FirstStateOriginal.map.json",
+      "bytes": 1455,
+      "sha256": "4b21151107c63a7e678a96b2eab9269755c4e141a9e3dfc7ffc21a127bd96249",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/Blake3FirstStateOriginal.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/R4/Blake3.map.json",
+      "bytes": 14490,
+      "sha256": "4f6d9df4f28ffc146d919493ac762cde16db720dd526f410404a4de98e0868cb",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/R4/Blake3.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/R4/Blake3Core.map.json",
+      "bytes": 8268,
+      "sha256": "9ea9b16ebbbc0c8ce41fd3860b5e6ea4294be819d17572eb26bf8a192e909afc",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/R4/Blake3Core.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/R4/Blake3Input.map.json",
+      "bytes": 4311,
+      "sha256": "c999cd59f3eb4e2dba349fa659bba5aa8b8bee248afe4c831e04724962932b93",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/R4/Blake3Input.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "bytes": 6901,
+      "sha256": "740f4465a32094e6eca69b711790bacb15f2638b30ba884952c53b797df0bd83",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/maps/LexLeanR4/R4/Blake3Nat.map.json"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3Case19FirstState.lean",
+      "bytes": 1503,
+      "sha256": "2e0acab0c711ce9dd2d4a127f3c23ffb87387f6f1d6d8ddf056e38550a518846",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3Case19FirstState.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3Case19FirstState.tex",
+      "bytes": 1401,
+      "sha256": "c57e257c29ae60364a2f82441aa3bb3c7bb2a16ff5663190931c367d8acf0558",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3Case19FirstState.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateContext.lean",
+      "bytes": 4122,
+      "sha256": "ca417922d23ec3b34d3eddfce57e821504114ab27a36da1aa3f2d156f34b52a6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateContext.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateContext.tex",
+      "bytes": 4216,
+      "sha256": "a7e14eb4b7abd4a3d3ed2eed5c1189632469d218f63523b8b3cc26b9891c5cc6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateContext.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateGeneric.lean",
+      "bytes": 2316,
+      "sha256": "40024c0e6abcc88229bb1fc70690637bff4d2b69ed415fba460af9d4960dcc6f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateGeneric.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateGeneric.tex",
+      "bytes": 2029,
+      "sha256": "7448215820d2db7b24f0f9145c0affe0033d173e3a7fc5bd340da849ceca3a9b",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateGeneric.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateLift.lean",
+      "bytes": 1047,
+      "sha256": "9ebf04136b8f5292804f63716a7d8b4dfc5affc3d60486321bf482513b2f8a97",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateLift.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateLift.tex",
+      "bytes": 839,
+      "sha256": "605b23950bd22098ccc6a909290646a9b9e7c8f2e20428016a9202a5c36ebbd4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateLift.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateOriginal.lean",
+      "bytes": 25521,
+      "sha256": "8561bbf0932262cc23bbc36c887bedf85c564717b1d2f0c6063d6238323aab09",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateOriginal.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/Blake3FirstStateOriginal.tex",
+      "bytes": 17353,
+      "sha256": "59004849aea5040d2a989f78404c7fb616922cbd13e2b84e1b76397bde47877c",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/Blake3FirstStateOriginal.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3.lean",
+      "bytes": 30120,
+      "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3.tex",
+      "bytes": 24378,
+      "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3Core.lean",
+      "bytes": 26512,
+      "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3Core.tex",
+      "bytes": 17451,
+      "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3Input.lean",
+      "bytes": 17991,
+      "sha256": "ce5e857493945f63c6923dac97d4d96f865ca7612b98b468b8d7d16afc953895",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3Input.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3Input.tex",
+      "bytes": 6151,
+      "sha256": "41fa0fbce85dd9d235fdc9fd890ef68ad0e27443c6632c09b826e76fedee894e",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3Input.tex"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3Nat.lean",
+      "bytes": 18123,
+      "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.lean"
+    },
+    {
+      "phase": "original",
+      "path": "modules/LexLeanR4/R4/Blake3Nat.tex",
+      "bytes": 7827,
+      "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.tex"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/Blake3Case19FirstState.olean",
+      "bytes": 20192,
+      "sha256": "bcf79a6c7b873a32ca0814ed11a1746fbddbe70b1cf71dbb5bc73d5f3372b759",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/Blake3Case19FirstState.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/Blake3FirstStateContext.olean",
+      "bytes": 34912,
+      "sha256": "5930a84cd5e1820bdad1c082e762708d66adf328ca2e68777add1b8a2f84010d",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateContext.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/Blake3FirstStateGeneric.olean",
+      "bytes": 22304,
+      "sha256": "4c5ee0fb18738bf47b34c3eb88605ae36d3ddf1c59c65a7929e799b1d6d9bda3",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateGeneric.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/Blake3FirstStateLift.olean",
+      "bytes": 6056,
+      "sha256": "ac35a088dbd7b5addebcf7751c0a243cda3e3320682bb2ab7c54208ec8b9826e",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateLift.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/Blake3FirstStateOriginal.olean",
+      "bytes": 31560,
+      "sha256": "fa17521b06b1727c7159196e48930118dcb37e2dc200d35de222a533c6b1720e",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/Blake3FirstStateOriginal.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/R4/Blake3Input.olean",
+      "bytes": 526280,
+      "sha256": "0c24539d4482beb715c9adf47374b8b916a691744b7a5527828802c8a4dbe732",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Input.olean"
+    },
+    {
+      "phase": "original",
+      "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "retention": "LOCAL_BINARY_NOT_INCLUDED",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean"
+    },
+    {
+      "phase": "original",
+      "path": "probe/LexLeanProbe.P3f44225006dc07350a0b71be1a93caae.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/probe/LexLeanProbe.P3f44225006dc07350a0b71be1a93caae.lean"
+    },
+    {
+      "phase": "original",
+      "path": "probe/process.json",
+      "bytes": 460,
+      "sha256": "848afe32159ae593d11e97f0f317aed46a08fad23893486cb4b8dc65e37afe12",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/probe/process.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.Blake3Case19FirstState.json",
+      "bytes": 522,
+      "sha256": "827bd6a2de6876624b4cb04495253774cef9be1001e5a3d7d27c2d90ce6910e0",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.Blake3Case19FirstState.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateContext.json",
+      "bytes": 525,
+      "sha256": "47f477b77e41e0781e97fb2ef874652254a0ba9fd87ee4b772fee9fd92317879",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateContext.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateGeneric.json",
+      "bytes": 525,
+      "sha256": "c45538c50848ae56d891fcdd4fd3482fac277e3bf8aac14928f849660658d1a6",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateGeneric.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateLift.json",
+      "bytes": 516,
+      "sha256": "b6503ec83997d50197a2dbc7fdd1995df95d3b019c1c15fe1050368faa7817f3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateLift.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.Blake3FirstStateOriginal.json",
+      "bytes": 528,
+      "sha256": "57bc0ba24a4a6320443821ed3c2671c98cd0ad9c334f8e43872040e169c37830",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstStateOriginal.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.R4.Blake3.json",
+      "bytes": 483,
+      "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 495,
+      "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Core.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.R4.Blake3Input.json",
+      "bytes": 498,
+      "sha256": "ebdc40f1782fd72127ed1d6bd354bdd8b3267703de95c15bfa793dd4479be4f9",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Input.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 492,
+      "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Nat.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.Blake3Case19FirstState.json",
+      "bytes": 441,
+      "sha256": "e4f7506e3ee520be4842e697c91037219e36cc434f1cf56448dd119d92ca5395",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3Case19FirstState.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateContext.json",
+      "bytes": 443,
+      "sha256": "33adf3cbc0b4dd8c6492e02d12a24cf378d967433c76540c4098f528c534ef4f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateContext.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateGeneric.json",
+      "bytes": 443,
+      "sha256": "6b2cc38c3dee2a0f8f4c2b6aa1930b95c83bd1a873caba77c8790576728304c4",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateGeneric.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateLift.json",
+      "bytes": 437,
+      "sha256": "67e2535ab698f0bbd223643cede1fb10cc04f2e5ac65abae3f744ee9a2da107f",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateLift.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.Blake3FirstStateOriginal.json",
+      "bytes": 445,
+      "sha256": "f2512951c31b73467a825bc9e30ffd15b0cf7e263177500e055f35a8c0a1b866",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstStateOriginal.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "bytes": 415,
+      "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 423,
+      "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Core.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Input.json",
+      "bytes": 425,
+      "sha256": "05fa2f3beb0d2615f18d75e1881faae35fc2baf837da9e4d5672976c5b91aab1",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Input.json"
+    },
+    {
+      "phase": "original",
+      "path": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 421,
+      "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720",
+      "retention": "EXACT_TEXT_IN_EVIDENCE_ARCHIVE",
+      "archiveAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Nat.json"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "schema": "lexlean-r4/blake3-first-state-continuation-results/1",
+  "status": "ACCEPTED_BOUNDED_RAW_FEED_CONTINUATION_ONLY",
+  "sourceManifestSha256": "955dbf0282bc2c36055fab86775db204470695740a9d805678a42b35e2a0ddba",
+  "sourceStatusNote": "Frozen source manifest/README retain original preparation-time NOT_RUN status. This separate record supplies subsequent independently audited actual outcomes.",
+  "phases": {
+    "lift-negative": {
+      "reviewAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-negative-attempt1/negative-review.json",
+      "reviewSha256": "7c746251be2591c4dd2cdd018315adcf6728c0afdd1dd2b0a7d9df1427e25637",
+      "verdict": "PASS_ACTUAL_SOURCE_ADMISSION_AND_INTENDED_UNRELATED_ZERO_NEGATIVE_WITH_POSTCONDITIONS",
+      "verifyDurationMs": 11508,
+      "checkStatus": 0,
+      "verifyStatus": 1,
+      "classification": "INTENDED_UNRELATED_ZERO_BASE_APPLY_TYPE_MISMATCH",
+      "artifact": null
+    },
+    "lift-positive": {
+      "reviewAlias": "evidence/blake3-first-state-continuation-local-invocation/lift-positive-attempt1/positive-review.json",
+      "reviewSha256": "72b956e3633afd9e5d3f217cab65612e0e03685436808a76fefed4d7900db7d4",
+      "verdict": "PASS_ACTUAL_PARAMETERIZED_HELPER_ONLY_AND_POSTCONDITIONS",
+      "verifyDurationMs": 21307,
+      "identities": {
+        "attestation_id": "85244e61b59b68a101cc9930c9eb946c1b2b03365041409cb9c3207563305fd7",
+        "build_id": "9032ccaaabcb12ae7b73e4b53b60fbe2046088660d4bf78bda7197855a5cd21e",
+        "source_id": "3f6e18c21f2b497b33fbc706e303d035b50b7199c50cb941554b6566ad5af46d",
+        "semantic_id": "9bb749c72cf00534e6ac5a9371eb4439f33e24ba6c4f02a4849c01d7ed5ad849"
+      },
+      "artifactAudit": {
+        "files": 75,
+        "buildOutputFiles": 35,
+        "oleanFiles": 7,
+        "successfulProcessRecords": 22,
+        "kernelReplays": 7,
+        "uniqueEmptyAxiomDeclarations": 96,
+        "actualCopyDuBytes": 3239936,
+        "attestationFileSha256": "0b38c5b3e704aadc1346e73430f20109fd9b847db9292f18dcae82a952f2429d",
+        "buildManifestFileSha256": "8cf21dae070a4433fa43fb3bba4b67c4c0a5cd7c2f4b15d01e6fe5695b71afeb",
+        "inventorySha256": "2285cf12ef59b6fa346a83605e80251a3659d05ff8c76ae34084428328232cbc",
+        "inventoryEncoding": "Compactsorted-keyJSON of exact {path,bytes,sha256} rows withartifact/ prefix,lexicographicpath order",
+        "checks": "Every35buildmanifest output byte length/hash verified;7attestedolean byte lengths/hashes verified; all22processrecords equalattestationrecords andexit0 withstdout/stderr hashes/toolpins.7leanchecker modules exactlyselectedclosure. Everyactualartifactfile accountedfor bybuildoutputs/oleans/process/audit/probe/attestation/manifest; no extra/unaccounted files.",
+        "axioms": "All96uniqueattested declarations policy none/axioms[]/observed[]/resultok. Actualauditoutput exactly96emptyaxiomlines; auditprocessstdout combined equals those lines. Includesfirst64base,contextdefinitions,unrelatedzero,first_state_lift andruntimeclosure.",
+        "generatedProof": "ExactemittedLift inspected: zeroexactacceptedfirst64 theorem; successorcasesprior and2congr1 branches. No sorry/axiom. Actualsource/map/coverage outputs hashbound bymanifest.",
+        "identityBoundary": "Attestation/build/source/semantic IDs checked consistently acrossofficialverify,check,attestation/buildmanifest; actualmanifestbytehash linkedbyattestation. No claimofrederiving compiler-specificIDalgorithm orfreshkernelrerun."
+      }
+    },
+    "generic": {
+      "reviewAlias": "evidence/blake3-first-state-continuation-local-invocation/generic-attempt1/generic-review.json",
+      "reviewSha256": "0710f2bffd702ca37cd0f09a37515e43fc05fa674e90eafcd44f773b97c8c5cd",
+      "verdict": "PASS_ACTUAL_GENERIC_PRODUCTION_FEED_CONSUMER_AND_POSTCONDITIONS",
+      "verifyDurationMs": 19680,
+      "identities": {
+        "attestation_id": "9d33d0d25c1d40f6b3e082e1782d5edb1a21a9b7955c6f3076477ae757aaeedb",
+        "build_id": "2a8f840e198c97c208987d2042c3df54792ea08f0c794bfc00497b822265df3b",
+        "source_id": "c0b8c124b2f8b6ecac71f6cc3ed317d6728f13ff0167466991b07f9c53642337",
+        "semantic_id": "cb454b412c60276267cebb0622716dafd3d41e036897111fd79074a373bc9ee3"
+      },
+      "artifactAudit": {
+        "files": 85,
+        "buildOutputs": 40,
+        "oleans": 8,
+        "successfulProcessRecords": 25,
+        "kernelReplays": 8,
+        "uniqueEmptyAxiomDeclarations": 97,
+        "copyDuBytes": 3330048,
+        "attestationFileSha256": "e2735f01650fa08ca9bdce3e2830d2abb4d81788297b92e23246958958642b2e",
+        "buildManifestSha256": "0b588a43848b381b59f68587a1a58342d6b053298a78fd86f5b105c6293b896c",
+        "inventorySha256": "5b8ffb6381eb58e67bd6e9343a6e197af3be22fd27490f60a2ea4b72c7981e5c",
+        "checks": "Allmanifestoutputbyte lengths/hashes and8oleanpins verified.25successfulrawprocessrecords exactlyequalattestationrecords, stdout/stderr hashes andtoolpins verified.8leancheckerreplays exactlyselectedclosure.97uniqueattestednone/emptyaxiom declarations matchactual97auditlines andcombinedauditprocessstdout. Everyartifactfile accountedfor; no unboundextras.",
+        "identityBoundary": "Officialverify/check/attestation/buildsource-semantic-build IDs agree; attestationbindsactualmanifestbytes. Compiler-specificIDalgorithms not independentlyrederived; nofreshkernelrerun."
+      }
+    },
+    "original": {
+      "reviewAlias": "evidence/blake3-first-state-continuation-local-invocation/original-attempt1/original-review.json",
+      "reviewSha256": "e437b5f3697832d02209d28258a836ded260f463e6d6b77eafd10c6f86de7cad",
+      "verdict": "PASS_ACTUAL_ORIGINAL_TREE_RAW_FEED_CONTINUATION_AND_POSTCONDITIONS",
+      "verifyDurationMs": 35094,
+      "identities": {
+        "attestation_id": "45f47fcbfdfb043c3d191b81be2877907c59e3dfd14c8cda0418fc36310a0e3d",
+        "build_id": "51c293c6937cc88b8755b3ce41d5ac15bb570c01228d81d166fa48e60912e166",
+        "source_id": "c3ea8d03f350b3dd2172c6e5006d34ace3fcedb6e31e84e4b40170ffd677c37b",
+        "semantic_id": "3f44225006dc07350a0b71be1a93caaeb150adda3916c2ff14c03f51c1bdd0be"
+      },
+      "artifactAudit": {
+        "files": 95,
+        "buildOutputs": 45,
+        "oleans": 9,
+        "successfulProcessRecords": 28,
+        "kernelReplays": 9,
+        "uniqueEmptyAxiomDeclarations": 98,
+        "copyDuBytes": 3469312,
+        "attestationFileSha256": "63e7acfa9948f7342c8d6a0d1fcf0d441fe770ad080ad4c14c919ddf95431b1b",
+        "buildManifestSha256": "a543f334bc7df08ee54cb8b645340ce9473d48b9e496fe7e41e983aa5c64a521",
+        "inventorySha256": "466353f81d324bdc5ab57a083704552f0b173555bb8aaee38d6f61462b886e41",
+        "checks": "All45manifestoutputbyte lengths/hashes and9oleanpins verified.28successfulrawprocessrecords exactlyequalattestationrecords, stdout/stderr hashes/toolpins verified.9leancheckerreplays exactlyselectedclosure.98uniqueattestednone/emptyaxiom declarations matchactual98auditlines andcombinedauditprocessstdout. Everyartifactfile accountedfor, no extra/unaccounted files.",
+        "identityBoundary": "Officialverify/check/attestation/buildsource-semantic-build IDs consistent; attestationbindsactualmanifestbytes. Noindependent compilerIDalgorithm derivation orfreshkernelrerunclaim."
+      }
+    }
+  },
+  "preservedSourceAdmissionFailures": [
+    {
+      "sourceVersion": "blake3-first-state-continuation",
+      "check": "FAILED_SOURCE_ADMISSION",
+      "verify": "NOT_RUN",
+      "reason": "LLT4001 direct R4.Blake3Core import missing",
+      "reviewAlias": "evidence/blake3-first-state-continuation-invocation/lift-negative-attempt1/failure-review.json",
+      "reviewSha256": "1857890e9daededd656cfcbec1eb424620efb487e946fdebdf40fb5307da65ef",
+      "verdict": "ACCEPT_CLASSIFIED_SOURCE_ADMISSION_FAILURE_AND_POSTCONDITIONS_ONLY"
+    },
+    {
+      "sourceVersion": "blake3-first-state-continuation-imports",
+      "check": "FAILED_SOURCE_ADMISSION",
+      "verify": "NOT_RUN",
+      "reason": "LLT4001 same-module qualification rejected",
+      "reviewAlias": "evidence/blake3-first-state-continuation-imports-invocation/lift-negative-attempt1/failure-review.json",
+      "reviewSha256": "b2e9af80d74bf5e003d18daa55f42bfc5a4e0f3d69af2c2564a2844f17f9ce9f",
+      "verdict": "ACCEPT_CLASSIFIED_SECOND_SOURCE_ADMISSION_FAILURE_AND_POSTCONDITIONS_ONLY"
+    }
+  ],
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "sha256": "17ecdd312d65aac2ce332996b70f58251b80c99d3d2c9b7df5922387578582b8",
+    "bytes": 503841,
+    "uniqueMembers": 728,
+    "aliases": 1608,
+    "uncompressedBytes": 2874938,
+    "verifiedEveryMemberAndAlias": true
+  },
+  "artifactFiles": 255,
+  "localBinaryFiles": 24,
+  "localBinaryBytes": 7570744,
+  "claimsNotPromoted": [
+    "published original2048 digest",
+    "vector or control count increase",
+    "efficiency or OOM remedy",
+    "full Object acceptance",
+    "production PrismPM binding or Pages"
+  ],
+  "unchangedCounts": {
+    "publishedVectors": "18/35",
+    "controls": "255/272",
+    "Object": "331/403"
+  },
+  "proofBoundary": "Exact original balanced2048-tree raw feed is equal to the error-preserving five-sibling continuation from the accepted first64 full state. This does not evaluate the remaining compression-bearing feed or prove outer validation, length, finalization, ROOT or digest encoding.",
+  "nextStep": "Source-backed investigation and independent SPEC for first compression and second packed64 full-state certificate from accepted S64, a falsifiable negative, then connection through four remaining siblings. An unevaluated compression expression is not a literal-state/compression proof; no new native authority.",
+  "productionBoundary": "Genuine development locks retained; production prismpm.lock/just vv/Pages remain required. No runtime/digest/timeout changes or trusted CV added.",
+  "preservedDraftsAndIssue66": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  },
+  "resourceBoundary": "All nine postguards and six absolute-zero memory counters passed at recorded snapshots for final phases. Point observations are not continuous resource/peak measurements. Old OOM failure retained in prior case19 checkpoint."
+}

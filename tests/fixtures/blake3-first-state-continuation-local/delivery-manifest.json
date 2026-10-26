@@ -1,0 +1,115 @@
+{
+  "schema": "lexlean-r4/blake3-continuation-delivery-manifest/1",
+  "scope": "Accepted bounded original-tree raw-feed continuation; no final digest/count increase/full component acceptance. Seven drafts and three issue66 files excluded.",
+  "sourceManifestUnchanged": true,
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 95933,
+      "sha256": "4d5176b7ded7d46d4b512c1c7ccfa179aa9a5d71e30e81b19793a56be3a00d79"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 76395,
+      "sha256": "14c240f5de988dc503752da97f2a90932c80b634956e2a03154e31215816626b"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/README.md",
+      "bytes": 1462,
+      "sha256": "b0ac454273daf9c17f8872434416cbb3d2c1eba68abfc07095901542626567ae"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/RESULTS.md",
+      "bytes": 5163,
+      "sha256": "fb3ab85ba1f787225430a7b4540c4742facba27d86ff716da0f8334730a9be22"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/artifact-inventory.json",
+      "bytes": 110702,
+      "sha256": "1ad4063644cd3e78384a62bfbeff501b3f469b8766a88a8cd6f42b22f7e2adf4"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/candidate.json",
+      "bytes": 16582,
+      "sha256": "42901d8ac1ce814718ee4a8232fe1ec18b8f0a67b75c13da61180c6a38de727f"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/evidence.jsonl.gz",
+      "bytes": 503841,
+      "sha256": "17ecdd312d65aac2ce332996b70f58251b80c99d3d2c9b7df5922387578582b8"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/manifest.json",
+      "bytes": 5878,
+      "sha256": "955dbf0282bc2c36055fab86775db204470695740a9d805678a42b35e2a0ddba"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/phases/generic/lexlean.toml",
+      "bytes": 687,
+      "sha256": "d8f432269ea7233043508811b18eeb5c6485d22dff4623f88b47618b730068c5"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/phases/lift-negative/lexlean.toml",
+      "bytes": 684,
+      "sha256": "041bc42d401b60026b1bf1f335956fc34d2326353600e5d43c5dd2055d92afaf"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/phases/lift-negative/tests/lexlean/Blake3FirstStateLift.lex.tex",
+      "bytes": 2004,
+      "sha256": "ab497e38fc4adf422eb070a5ab18b8b6ec04ec5d73ff99ab815c730ef127d49c"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/phases/lift-positive/lexlean.toml",
+      "bytes": 684,
+      "sha256": "041bc42d401b60026b1bf1f335956fc34d2326353600e5d43c5dd2055d92afaf"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/phases/original/lexlean.toml",
+      "bytes": 688,
+      "sha256": "54ee640d356505beda1e125137972d2982c51bd12e3ec3de5e64904e4013c8d3"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/project/tests/lexlean/Blake3FirstStateContext.lex.tex",
+      "bytes": 16183,
+      "sha256": "d93a24be82325172bcaf4c90b5e43acfa82d0070e4f8247a74a69000f7e65b7b"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/project/tests/lexlean/Blake3FirstStateGeneric.lex.tex",
+      "bytes": 7518,
+      "sha256": "08f7341f2555b08af4c6609c839448df255d160638ea5ab2f9c1311325a0a074"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/project/tests/lexlean/Blake3FirstStateLift.lex.tex",
+      "bytes": 2042,
+      "sha256": "c498fede57739cc2702de4f00cee1a171b913539b8d198e61a03d0480c72fdfd"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/project/tests/lexlean/Blake3FirstStateOriginal.lex.tex",
+      "bytes": 44735,
+      "sha256": "d512b41c8f8843ab04cc8218939a844342c20fc8a2a1304c43bcf89fabbbe15c"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/results.json",
+      "bytes": 11290,
+      "sha256": "3b0900e410698b028cd11afc92b58ff5e24b6f12ae7c2c353eb4250409c25b8f"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state-continuation-local/source-checks.json",
+      "bytes": 6341,
+      "sha256": "f1382cf4b6f508e1f52b22803208832199d1f55cd7db518fb340d2cd5598f469"
+    }
+  ],
+  "excludedSourceVersions": "Both rejected frozen source fixtures are retained exactly inside evidence.jsonl.gz; they are not additional delivery paths.",
+  "preserved": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  }
+}

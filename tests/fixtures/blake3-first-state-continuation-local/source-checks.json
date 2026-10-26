@@ -1,0 +1,181 @@
+{
+  "status": "SOURCE_STRUCTURE_ONLY_NATIVE_NOT_RUN",
+  "canonicalSemanticJSON": true,
+  "runtimeAndAcceptedBasePinsUnchanged": true,
+  "allSevenBaseFieldsAndAlreadyWrappedOkS": true,
+  "fiveFreshBinderMatchesPreserveErrors": true,
+  "originalTreeReconstruction": true,
+  "fiveSiblingHashesMatchProposal": true,
+  "negativeOnlyApplyReferenceChanged": true,
+  "actualGenericFeedLeftSide": {
+    "module": "R4.Blake3Input",
+    "name": "blake3FeedLiteralRaw"
+  },
+  "actualOriginalFeedTreeLeftSideSha256": "9a7d83e37e1b3c15c54079ff65c2580e03276c8f36c50242f8b1c8af98583618",
+  "allLimitsUnchanged": true,
+  "exactClosureModuleCounts": [
+    7,
+    7,
+    8,
+    9
+  ],
+  "exactStageInputCounts": [
+    11,
+    11,
+    12,
+    13
+  ],
+  "nativeTests": "ALL_NOT_RUN; no structural check is a compiler or semantic negative",
+  "declarations": {
+    "project/tests/lexlean/Blake3FirstStateContext.lex.tex": [
+      "B3FirstStateContinuation",
+      "B3FirstStateGoal"
+    ],
+    "project/tests/lexlean/Blake3FirstStateLift.lex.tex": [
+      "unrelated_zero",
+      "first_state_lift"
+    ],
+    "phases/lift-negative/tests/lexlean/Blake3FirstStateLift.lex.tex": [
+      "unrelated_zero",
+      "first_state_lift"
+    ],
+    "project/tests/lexlean/Blake3FirstStateGeneric.lex.tex": [
+      "first_state_generic"
+    ],
+    "project/tests/lexlean/Blake3FirstStateOriginal.lex.tex": [
+      "first_state_original_tree"
+    ]
+  },
+  "repair": {
+    "status": "FROZEN_SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+    "predecessorManifestSha256": "2e93dc7d2f94315ff712d148562c9d0309dac5b0c6609de8b4118093e9465c44",
+    "diagnosis": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-imports-invocation/lift-negative-attempt1/phase1-self-reference.json",
+      "sha256": "b2df9176ee984403cafe20c65445a24675fcd506581aadb2ea5ef89fe489c5b4"
+    },
+    "onlyAstDelta": [
+      {
+        "path": [
+          "declarations",
+          1,
+          "body",
+          "branches",
+          1,
+          "body",
+          "left",
+          "function",
+          "module"
+        ],
+        "before": "Blake3FirstStateContext",
+        "after": "KEY_ABSENT"
+      },
+      {
+        "path": [
+          "declarations",
+          1,
+          "body",
+          "branches",
+          1,
+          "body",
+          "right",
+          "function",
+          "module"
+        ],
+        "before": "Blake3FirstStateContext",
+        "after": "KEY_ABSENT"
+      }
+    ],
+    "allOtherAstNodesAndFourProofTextsUnchanged": true,
+    "importsConfigsSharedRuntimeBaseLimitsUnchanged": true,
+    "inventoryRows": [
+      {
+        "path": "phases/lift-negative/tests/lexlean/Blake3FirstStateLift.lex.tex",
+        "oldSha256": "ab497e38fc4adf422eb070a5ab18b8b6ec04ec5d73ff99ab815c730ef127d49c",
+        "newSha256": "ab497e38fc4adf422eb070a5ab18b8b6ec04ec5d73ff99ab815c730ef127d49c",
+        "semanticSha256": "0a1f2627f366048ba37f0da071d598d03076bc24f4878c054cc7f034b030cac0",
+        "selfQualifiedCount": 0,
+        "externalReferencesMissingImports": [],
+        "localEarlierDeclarationRefs": [
+          "unrelated_zero"
+        ],
+        "byteDelta": 0
+      },
+      {
+        "path": "project/tests/lexlean/Blake3FirstStateContext.lex.tex",
+        "oldSha256": "f18e422cc606d841809c57a85f407ffe7854b32a63c1af2c55e31edf58c52264",
+        "newSha256": "d93a24be82325172bcaf4c90b5e43acfa82d0070e4f8247a74a69000f7e65b7b",
+        "semanticSha256": "98b02b4e2c9b23ba65ce14af1fa8d40d5b083afdfed08c6d03c6e4633cda90a5",
+        "selfQualifiedCount": 0,
+        "externalReferencesMissingImports": [],
+        "localEarlierDeclarationRefs": [
+          "B3FirstStateContinuation",
+          "B3FirstStateContinuation"
+        ],
+        "byteDelta": -70
+      },
+      {
+        "path": "project/tests/lexlean/Blake3FirstStateGeneric.lex.tex",
+        "oldSha256": "08f7341f2555b08af4c6609c839448df255d160638ea5ab2f9c1311325a0a074",
+        "newSha256": "08f7341f2555b08af4c6609c839448df255d160638ea5ab2f9c1311325a0a074",
+        "semanticSha256": "114bb037411b554d7e874209e39f0b595009e7a1f2558a39b2e00e74cc1db296",
+        "selfQualifiedCount": 0,
+        "externalReferencesMissingImports": [],
+        "localEarlierDeclarationRefs": [],
+        "byteDelta": 0
+      },
+      {
+        "path": "project/tests/lexlean/Blake3FirstStateLift.lex.tex",
+        "oldSha256": "c498fede57739cc2702de4f00cee1a171b913539b8d198e61a03d0480c72fdfd",
+        "newSha256": "c498fede57739cc2702de4f00cee1a171b913539b8d198e61a03d0480c72fdfd",
+        "semanticSha256": "8ad3e4af9791d1dec52429c32bd58605a2f97aa428c06cf3265c4395640b897b",
+        "selfQualifiedCount": 0,
+        "externalReferencesMissingImports": [],
+        "localEarlierDeclarationRefs": [],
+        "byteDelta": 0
+      },
+      {
+        "path": "project/tests/lexlean/Blake3FirstStateOriginal.lex.tex",
+        "oldSha256": "d512b41c8f8843ab04cc8218939a844342c20fc8a2a1304c43bcf89fabbbe15c",
+        "newSha256": "d512b41c8f8843ab04cc8218939a844342c20fc8a2a1304c43bcf89fabbbe15c",
+        "semanticSha256": "3e6ca809d3d90300eefc41b7fefc5d60644bf5d53f70dab1e0a56e4bea61511c",
+        "selfQualifiedCount": 0,
+        "externalReferencesMissingImports": [],
+        "localEarlierDeclarationRefs": [],
+        "byteDelta": 0
+      }
+    ],
+    "phaseRows": [
+      {
+        "phase": "lift-negative",
+        "moduleCount": 7,
+        "inputCount": 11,
+        "decodedBytes": 172529,
+        "recoveryAllocatedEstimate": 200704
+      },
+      {
+        "phase": "lift-positive",
+        "moduleCount": 7,
+        "inputCount": 11,
+        "decodedBytes": 172567,
+        "recoveryAllocatedEstimate": 200704
+      },
+      {
+        "phase": "generic",
+        "moduleCount": 8,
+        "inputCount": 12,
+        "decodedBytes": 180088,
+        "recoveryAllocatedEstimate": 208896
+      },
+      {
+        "phase": "original",
+        "moduleCount": 9,
+        "inputCount": 13,
+        "decodedBytes": 224824,
+        "recoveryAllocatedEstimate": 253952
+      }
+    ],
+    "predecessorSelfReferenceCount": 2,
+    "successorSelfReferenceCount": 0,
+    "reviewMiss": "Predecessor source reviews subtracted currentmodule from qualifiedreferences and missed unavailable selfreference. Sourceinventory is not officialadmission/proof. Actualcheck must pass before intendednegative."
+  }
+}
