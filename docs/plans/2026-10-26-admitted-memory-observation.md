@@ -61,7 +61,10 @@ preparation. Do not create a build target, install packages or run the SDK.
    admission. The [forced sample checkpoint](../../tests/fixtures/object-read-memory-observation/SAMPLES.md)
    connects actual ordinary/slow acquisition, dictionaries, concrete identity,
    counter history and ACK arguments. The [owned parent connection](../../tests/fixtures/object-read-memory-observation/FAMILY.md)
-   now retains nested raw evidence. Invocation-root linkage, live preflight,
+   now retains nested raw evidence. The [root content connection](../../tests/fixtures/object-read-memory-observation/ROOT-LINKAGE.md)
+   checks marker/retrieval/ACK and actual h3 records with exact argv; it supplies
+   conditional root observation only, leaving descendants unattributed. Actual
+   wrapper/namespace/receipt custody, sample-local ancestry, live preflight,
    periodic scheduling and fixed-slot publication remain mandatory before step 5
    can execute.
 5. **Same source and focused test files:** compose the one-off reader. Direct bounded shared-file

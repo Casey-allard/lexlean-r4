@@ -51,13 +51,13 @@ that interpreter explicitly if `python3` resolves to an older version):
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 116 tests use synthetic records, in-memory streams and tiny owned
+The current 133 tests use synthetic records, in-memory streams and tiny owned
 host filesystem fixtures. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
 selected guest Python 3.12 runtime has not executed this source.
 
-[Current owned-parent results](evidence/FAMILY-RESULTS.md) record the116-test
+[Earlier owned-parent results](evidence/FAMILY-RESULTS.md) record the116-test
 checkpoint and independent source reviews. [Historical sample-composition results](evidence/SAMPLE-RESULTS.md) record the 104-test
 checkpoint and its source reviews. [Earlier parser evidence](evidence/RESULTS.md)
 retains that earlier checkpoint's RED/GREEN history and coverage.
@@ -104,3 +104,10 @@ coverage, safe channel publication and native invocation remain open.
 The [owned parent connection](FAMILY.md) now retains nested same-read parent
 evidence in version-3 sample identities, with ordinary parent loss distinguished
 from fatal cleanup failure. It supplies no invocation-root attribution.
+
+The [root content connection](ROOT-LINKAGE.md) adds bounded marker, retrieval,
+ACK and actual h3 record matching, with exact pinned LexLean argv. Its result is
+conditional observation only: namespace mapping and live custody remain external
+obligations, all descendants remain unattributed, and no invocation can run yet.
+The [current results](root-linkage-results.json) preserve the 133-test checkpoint,
+separate planted defects, instrument failures and independent source reviews.
