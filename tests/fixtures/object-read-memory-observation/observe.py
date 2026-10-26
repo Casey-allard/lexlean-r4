@@ -360,13 +360,13 @@ def read_observation_file(directory: int, expected: tuple[int, int, int, int],
 
 def check_no_descendants(directory: int,
                          expected: tuple[int, int, int, int]) -> None:
-    """Inspect at most 64 immediate entries; not an atomic absence guarantee."""
+    """Inspect at most 256 immediate entries; not an atomic absence guarantee."""
     _check_directory(directory, expected)
     entries = os.scandir(directory)
     errors = []
     try:
         for count, entry in enumerate(entries, 1):
-            if count > 64:
+            if count > 256:
                 raise ObservationError("child_count")
             item = os.stat(entry.name, dir_fd=directory, follow_symlinks=False)
             if stat.S_ISDIR(item.st_mode) or stat.S_ISLNK(item.st_mode):

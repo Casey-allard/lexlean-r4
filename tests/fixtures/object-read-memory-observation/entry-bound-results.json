@@ -1,0 +1,148 @@
+{
+  "schema": "lexlean-r4/cgroup-entry-bound-results/1",
+  "status": "HOST_SOURCE_REPAIR_ONLY",
+  "base": "48c12556c181a5731733872e5693d13c3d1bd1ca",
+  "problem": "Owned VM cgroup contains92 regular files; original64 total-entry bound rejects before observer can run.",
+  "metadata": {
+    "oldCensus": {
+      "sampled": 65,
+      "innerComplete": false,
+      "guestExit": 65,
+      "transportExit": 1,
+      "notTopologyProof": true
+    },
+    "expandedCensus": {
+      "count": 92,
+      "complete": true,
+      "allRegular": true,
+      "pin": [
+        30,
+        5049,
+        0,
+        16877
+      ],
+      "errors": []
+    },
+    "epoch": "2026-10-25T23:29:57.087744357Z",
+    "memoryEvents": {
+      "low": 0,
+      "high": 0,
+      "max": 6325,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "originalBookends": "Byte equal; sequential observations only. Expanded Docker identity unchanged; no new full ContextSpec claim.",
+    "namespace": "Later separate readlink pid/mnt/cgroup commands returned1; handles unknown; outside independent33-receipt outcome review.",
+    "volumesKiB": {
+      "vmRootAvailable": 7802852,
+      "artifactAvailable": 52701204,
+      "hostAvailableAtCapture": 36956432
+    },
+    "operations": "Read-only metadata including one owned dockerexec df, separately labeled perturbation; no observer or SDK."
+  },
+  "repair": {
+    "files": [
+      "observe.py",
+      "test_owned_io.py"
+    ],
+    "delta": "Only immediate enumeration guard/docstring64 to256; allentry freshnofollowstat, prohibitedtypes, identity, cleanup preserved. Other caps/resource gates unchanged."
+  },
+  "tests": {
+    "oldRed": {
+      "tests": 18,
+      "failures": 1,
+      "errors": 1,
+      "cause": "old64 guard at65;64 actualstats versus256 expected"
+    },
+    "finalGreen": {
+      "tests": 236,
+      "failures": 0,
+      "errors": 0
+    },
+    "independentPython": {
+      "tests": 19,
+      "cleanupProbes": 2,
+      "passed": true
+    },
+    "correctedMutants": 5,
+    "invalidMutantAttempt": "entry-bound-mutants.json copied globals bypassed mocks; excluded. Phase1 and full correctedbody/edit/hash/diagnostics preserved.",
+    "coverage": {
+      "tests": 236,
+      "failures": 0,
+      "errors": 0,
+      "sourceSha256": "873318c35d6a962c54ac92a3755a054284dedbe0d8a9953351df583f6c90aaf5",
+      "line": {
+        "hit": 503,
+        "total": 592,
+        "percent": 84.96621621621621
+      },
+      "functionLines361to381": {
+        "hit": [
+          364,
+          365,
+          366,
+          367,
+          368,
+          369,
+          370,
+          371,
+          372,
+          373,
+          374,
+          375,
+          376,
+          377,
+          378,
+          379,
+          380,
+          381
+        ],
+        "total": [
+          361,
+          362,
+          364,
+          365,
+          366,
+          367,
+          368,
+          369,
+          370,
+          371,
+          372,
+          373,
+          374,
+          375,
+          376,
+          377,
+          378,
+          379,
+          380,
+          381
+        ]
+      },
+      "branch": "NOT_MEASURED"
+    }
+  },
+  "reviews": {
+    "outcome-review.json": "f987272f6b19385f075e4bcfeb94381ea62ac963e1f9172465e05f8269bcff5c",
+    "entry-bound-code-review.json": "26c146fa5e57c603b311b45bbd437f3735a5f8639ba9c391ac8d59b69d5f3607",
+    "entry-bound-code-addendum.json": "0d10ec8e315141f5b90e0d21486a20414f0f964d32074ead180150b8208697a0",
+    "entry-bound-python-review.json": "22cf001cd0a26dd35c14427b5522ee4a9a703c2c18e80b32ed21ea2ac759969f",
+    "entry-bound-security-review.json": "9b65d49528776a9ce0447991872b2200d8d15efc578b935b65acc557192aa7c8"
+  },
+  "archive": {
+    "path": "entry-bound-evidence.jsonl.gz",
+    "members": 52,
+    "bytes": 42051,
+    "sha256": "f7d7361aa9755d8b766f358044a233ac63f029fd11cc4b32803623e2917c7c0b",
+    "jsonlBytes": 164854
+  },
+  "remaining": [
+    "Actualguestcontext/observerexecution NOT_RUN",
+    "Independent launchPID/start/exit,controlabort,sharedFS/overhead,integrationreview",
+    "Freshzeroepochandnativeacceptance NOT_ESTABLISHED",
+    "Nodecoverage31percent remains unmet;PR65draft only",
+    "Object331/403 and remaining fullPrismPM/Pages scope unchanged"
+  ]
+}

@@ -28,12 +28,20 @@ and after reading. The unbuffered wrapper does not own the raw descriptor;
 wrapper and descriptor cleanup are separate, explicit attempts.
 
 `check_no_descendants(fd, pin)` borrows the cgroup descriptor and iterates at
-most 64 immediate entries plus one overflow probe. Each accepted entry uses a
+most 256 immediate entries plus one overflow probe. Each accepted entry uses a
 fresh no-follow `stat` relative to the owned descriptor. A directory, symlink,
 lookup failure or overflow rejects. It does not recurse, sort, materialize a
 directory listing or trust cached `DirEntry` type information. Its iterator is
 closed independently, including after failure. The borrowed descriptor stays
 open.
+
+The original 64-entry limit rejected the owned VM's ordinary cgroup control
+files. A separately reviewed, bounded metadata census on 2026-10-26 exhausted
+92 entries, all regular files, with matching directory pins. The
+[entry-bound results](entry-bound-results.json) preserve that measurement, the
+original incomplete census and the tests-first repair. This changes only the
+directory enumeration bound; PID, event, retention and proof resource limits
+are unchanged. The observer itself has not yet run in the guest.
 
 `owned_process_snapshot(cgroup, proc, pid, target)` accepts each borrowed root
 as `(fd, pin)`. It checks the cgroup's immediate children, acquires its bounded

@@ -14,6 +14,15 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
+Fresh owned-VM metadata found 92 regular cgroup control files, exceeding the
+reader's original 64-entry bound. The [bounded census repair](../tests/fixtures/object-read-memory-observation/entry-bound-results.json)
+raises only that enumeration bound to 256 and retains type, identity and cleanup
+checks. The host suite passes236 tests; the intended old-bound failures and
+corrected mutation evidence are preserved separately from an invalid mutation
+instrument attempt. No observer or compiler was launched. The failed max6325
+epoch remains unchanged; namespace handles, launch ownership and native gates
+are still unresolved. PR65 remains draft under the existing coverage limitation.
+
 The [functional guest entry](../tests/fixtures/object-read-memory-observation/GUEST-ENTRY.md)
 now loads bounded, owned configuration and calls the actual serial reader.
 The final host suite passes235 tests, including23 new tests that exercise all

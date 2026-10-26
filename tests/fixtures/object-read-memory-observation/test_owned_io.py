@@ -231,15 +231,16 @@ class OwnedIOTests(unittest.TestCase):
         fd = observe.open_pinned_directory(str(self.owned), expected)
         try:
             self.assertIsNone(observe.check_no_descendants(fd, expected))
-            for number in range(64):
+            for number in range(256):
                 (self.owned / str(number)).touch()
-            self.assertIsNone(observe.check_no_descendants(fd, expected))
+                if number + 1 in (64, 65, 92, 256):
+                    self.assertIsNone(observe.check_no_descendants(fd, expected))
             extra = self.owned / 'extra'
             extra.touch()
             with self.assertRaisesRegex(observe.ObservationError, 'child_count'):
                 observe.check_no_descendants(fd, expected)
             extra.unlink()
-            for number in range(64):
+            for number in range(256):
                 (self.owned / str(number)).unlink()
             extra.mkdir()
             with self.assertRaisesRegex(observe.ObservationError, 'child_type'):
@@ -424,14 +425,47 @@ class OwnedIOTests(unittest.TestCase):
         finally:
             os.close(fd)
 
-    def test_entry_stat_is_fresh_and_overflow_never_stats_65th_entry(self):
+    def test_last_admitted_entry_still_rejects_directories_and_symlinks(self):
+        expected = pin(self.owned)
+        fd = observe.open_pinned_directory(str(self.owned), expected)
+        try:
+            for bad_mode in (0o040700, 0o120777):
+                with self.subTest(mode=bad_mode):
+                    calls, closed = [], []
+
+                    class Entries:
+                        def __iter__(self):
+                            for number in range(256):
+                                yield types.SimpleNamespace(name=str(number))
+
+                        def close(self):
+                            closed.append(True)
+
+                    def lookup(name, **kwargs):
+                        calls.append(name)
+                        self.assertEqual(kwargs, {'dir_fd': fd, 'follow_symlinks': False})
+                        mode = bad_mode if name == '255' else 0o100600
+                        return types.SimpleNamespace(st_mode=mode)
+
+                    proxy = types.SimpleNamespace(**vars(os))
+                    proxy.scandir, proxy.stat = lambda _: Entries(), lookup
+                    with mock.patch.object(observe, 'os', proxy):
+                        with self.assertRaisesRegex(observe.ObservationError, 'child_type'):
+                            observe.check_no_descendants(fd, expected)
+                    self.assertEqual(len(calls), 256)
+                    self.assertEqual(closed, [True])
+            os.fstat(fd)
+        finally:
+            os.close(fd)
+
+    def test_entry_stat_is_fresh_and_overflow_never_stats_257th_entry(self):
         expected = pin(self.owned)
         fd = observe.open_pinned_directory(str(self.owned), expected)
         looked_up, yielded, closed = [], [], []
 
         class Entries:
             def __iter__(self):
-                for number in range(100):
+                for number in range(300):
                     yielded.append(number)
                     yield types.SimpleNamespace(name=str(number))
 
@@ -449,8 +483,8 @@ class OwnedIOTests(unittest.TestCase):
             with mock.patch.object(observe, 'os', proxy):
                 with self.assertRaisesRegex(observe.ObservationError, 'child_count'):
                     observe.check_no_descendants(fd, expected)
-            self.assertEqual(len(looked_up), 64)
-            self.assertEqual(len(yielded), 65)
+            self.assertEqual(len(looked_up), 256)
+            self.assertEqual(len(yielded), 257)
             self.assertEqual(closed, [True])
             os.fstat(fd)
         finally:
