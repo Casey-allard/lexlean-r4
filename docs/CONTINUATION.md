@@ -1,6 +1,6 @@
 # LexLean R4: current working plan and continuation
 
-Updated 2026-10-25. This is the repository entry point for continuing the work
+Updated 2026-10-26. This is the repository entry point for continuing the work
 without the original chat or its temporary directories. The approved scope is
 the [full design](specs/2026-10-21-lexlean-r4-design.md); the detailed phase plan
 is [here](plans/2026-10-21-lexlean-r4.md). The model remains the authority for
@@ -14,22 +14,38 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
-The [finite owner checkpoint](../tests/fixtures/object-read-memory-observation/owner-results.json)
-connects the configuration reader to exclusive launch/exit receipts, fixed
-isolated bootstrap and owned fork/GO/wait cleanup. Independent CODE, Python and
-security reviews accepted this host-source scope after two rejected candidates
-were repaired. A fresh independent run passed 279 tests. The final owner has
-263/285 executable lines covered; bootstrap has 63/64. Branch coverage remains
-unmeasured. The [portable evidence archive](../tests/fixtures/object-read-memory-observation/owner-evidence.jsonl.gz)
-preserves exact sources, failures, tests and reviews; its original paths are
-historical labels, not extraction instructions.
+The [direct connection checkpoint](../tests/fixtures/object-read-memory-observation/direct-results.json)
+connects all eleven original invocation boundaries, retained-prefix admission,
+fixed marker/retrieval and independent postverify/owned transport cleanup. It
+preserves the original50 inputs,33 modules and semantic SDK arguments behind
+the immutable null epoch. Source and test repairs have independent reviews;
+the final Node pair passed61/61 and independent Python qualification passed279/279.
+One separately reviewed finite EOF-after-exit diagnostic also passed. These are
+host-source results, not an accepted LexLean control or native runtime result.
 
-This adds no accepted LexLean control or native runtime result. PR65 remains
-draft under the existing Node coverage limitation and immutable null epoch.
-Next complete the concrete host connection and independently owned actual
-guest launch/exit, including blocked-loop EOF behavior and parent-death
-semantics, before invocation/resource review. Keep the max6325 failure and all
-native gates; no compiler retry or production-binding waiver follows.
+The [portable manifest](../tests/fixtures/object-read-memory-observation/direct-delivery-manifest.json)
+binds the six scoped files, results and content-deduplicated XZ member archive.
+Every unique rejected source, failure, instrument attempt and review is retained
+with its original aliases; original compressed-container hashes/inventories are
+provenance, not a claim that those gzip byte streams were copied. Historical
+50/51 deadline and44/45 ACK replacement failures remain UNATTRIBUTED; later
+passes do not explain them.
+
+Existing precise raw coverage binds the unchanged production files:338/364 and
+112/135 fully covered physical nonblank/non-comment lines. Branch/function and
+executable-statement metrics remain unmeasured. The old31percent checkpoint below
+is historical; pipeline review must assess the actual generic80percent gate
+against current source and retained raw evidence. It is not automatically waived.
+The source checkpoint may remain draft pending that disposition and exact delivery
+review; the intended path remains reviewed delivery to main, not permanent parking.
+
+Next complete the independently reviewed runtime/invocation obligations: actual
+Colima EOF while Node blocks, parent death, independent guest PID/start/exit and
+namespace mapping, observed postexec argv/root join and sharedFS overhead. Preserve
+max6325, require fresh absolute-zero resource admission, and keep every native gate.
+No compiler retry, epoch reset, production-binding or merge waiver follows.
+The earlier [finite owner checkpoint](../tests/fixtures/object-read-memory-observation/owner-results.json)
+and its portable archive are already in01f5eed; they remain distinct evidence.
 
 Fresh owned-VM metadata found 92 regular cgroup control files, exceeding the
 reader's original 64-entry bound. The [bounded census repair](../tests/fixtures/object-read-memory-observation/entry-bound-results.json)

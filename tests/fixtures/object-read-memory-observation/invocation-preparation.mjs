@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {spawnSync} from 'node:child_process';
+import {openConnection} from './invocation-connection.mjs';
 const repo='/Users/casey.allard/lexlean-r4-worktrees/model-port';
 const candidateRoot=path.join(repo,'tests/fixtures/object-read-child-certificate-native');
 const manifestPath=path.join(candidateRoot,'manifest.json');
@@ -19,11 +20,14 @@ const cid='cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf';
 const env={...process.env,DOCKER_CONFIG:'/tmp/lexlean-r4-docker-config-20261021',DOCKER_HOST:'unix:///Users/casey.allard/.colima/lexlean-r4/docker.sock'};
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const save=(name,value)=>fs.writeFileSync(path.join(out,name+'.json'),JSON.stringify(value,null,2)+'\n',{flag:'wx'});
-function command(name,exe,args,required=true){
+function returned(exe,args){
  const started=new Date().toISOString();
  const r=spawnSync(exe,args,{env,encoding:'utf8',maxBuffer:20*1024*1024});
- const value={args,started,ended:new Date().toISOString(),status:r.status,signal:r.signal,stdout:r.stdout,stderr:r.stderr,error:r.error?.message};
- save(name,value);if(required&&(r.error||r.status!==0))throw Error(name+' failed');return value;
+ return {args,started,ended:new Date().toISOString(),status:r.status,signal:r.signal,stdout:r.stdout,stderr:r.stderr,error:r.error?.message};
+}
+function command(name,exe,args,required=true){
+ const value=returned(exe,args);
+ save(name,value);if(required&&(value.error||value.status!==0))throw Error(name+' failed');return value;
 }
 const docker=(name,args,required=true)=>command(name,'docker',args,required);
 const guest=(name,args,required=true)=>docker(name,['exec',cid,...args],required);
@@ -42,7 +46,19 @@ function toolsIdentity(name){
 }
 let inputs=[],lockHash;
 function sources(name){const r=guest(name,['sha256sum',...inputs.map(x=>stage+'/'+x.destination)]);const lines=r.stdout.trim().split('\n');if(lines.length!==inputs.length||lines.some((l,i)=>l.slice(0,64)!==inputs[i].sha256))throw Error('source mismatch');}
-function runOriginal(){
+function errorMessages(error){
+ const seen=new Set(),pending=[error],messages=[];
+ for(const item of pending){if(seen.has(item))continue;seen.add(item);messages.push(String(item));if(item instanceof AggregateError)for(const inner of item.errors)pending.push(inner);}
+ return messages;
+}
+async function runOriginal(connection){
+ const observationErrors=[],completionErrors=[];let completed=0,returnedTuple=null;
+ const checkpoint=(sequence,required=true)=>{
+  if(connection.failed){if(required)throw Error('observation stopped');return;}
+  try{connection.boundary(sequence);completed=sequence;}
+  catch(error){observationErrors.push({sequence,error:String(error)});if(required)throw error;}
+ };
+try{
 try{
  const manifestBytes=fs.readFileSync(manifestPath);
  if(hash(manifestBytes)!=='abee135319c2ad9d4299a5dce83fe049da148be9716ccb65ae9c42e60c7de60b')throw Error('manifest drift');
@@ -63,38 +79,62 @@ try{
  epoch('epoch-before');idle('idle-before');zeroMemory('memory-before');capacity('guest-before',true);
  toolsIdentity('tools-before');
  save('expected-inputs',inputs);
+ checkpoint(1);
  guest('new-stage',['mkdir',stage]);guest('directories',['mkdir','-p',stage+'/src/R4',stage+'/tests/lexlean']);
  for(let i=0;i<inputs.length;i++)docker('copy-'+i,['cp',path.resolve(repo,inputs[i].path),cid+':'+stage+'/'+inputs[i].destination]);
  sources('source-before');
- const cli=(name,args,required=true)=>docker(name,['exec','-w',stage,cid,'lexlean','--diagnostic-format','json',...args],required);
+ checkpoint(2);
+ const cli=(name,args,required=true)=>{const value=returned('docker',name==='verify'?connection.verifyArguments(stage):['exec','-w',stage,cid,'lexlean','--diagnostic-format','json',...args]);returnedTuple={name,value};return value;};
+ checkpoint(3);
  const lockResult=cli('lock',['lock'],false);
+ checkpoint(4);save('lock',lockResult);
  const lockParsed=JSON.parse(lockResult.stdout||'null');
  if(lockResult.status===0&&lockParsed?.success===true){
   const lock=guest('lock-bytes',['cat',stage+'/lexlean.lock']);lockHash=hash(Buffer.from(lock.stdout));
-  const checked=cli('check',['check',target],false);const checkParsed=JSON.parse(checked.stdout||'null');
+  checkpoint(5);
+  const checked=cli('check',['check',target],false);checkpoint(6);save('check',checked);const checkParsed=JSON.parse(checked.stdout||'null');
   {
    if(checked.status!==0||checkParsed?.success!==true)throw Error('check result');
    if(!Array.isArray(checkParsed.modules)||JSON.stringify([...checkParsed.modules].sort())!==JSON.stringify(expectedSelectedModules))throw Error('admitted selected closure mismatch');
-   const result=cli('verify',['verify',target],false);const parsed=JSON.parse(result.stdout||'null');
-   save('result',{phase,stage,verifyStatus:result.status,result:parsed});
-   if(result.status===0&&parsed?.success===true){const artifact=parsed.artifacts?.[0];if(!/^\.lexlean\/verified\/[a-f0-9]{64}$/.test(artifact))throw Error('artifact path');docker('artifact-copy',['cp',cid+':'+stage+'/'+artifact,path.join(out,'artifact')]);}
+   checkpoint(7);
+   const result=cli('verify',['verify',target],false);checkpoint(8,false);
+   checkpoint(9,false);
+   try{
+   const failures=[];
+   const attempt=async fn=>{try{return await fn();}catch(error){failures.push(error);}};
+   await attempt(()=>save('verify',result));
+   await attempt(()=>connection.retainRoot());
+   let parsed;
+   await attempt(()=>{parsed=JSON.parse(result.stdout||'null');});
+   await attempt(()=>save('result',{phase,stage,verifyStatus:result.status,result:parsed}));
+   await attempt(()=>{if(result.status===0&&parsed?.success===true){const artifact=parsed.artifacts?.[0];if(!/^\.lexlean\/verified\/[a-f0-9]{64}$/.test(artifact))throw Error('artifact path');docker('artifact-copy',['cp',cid+':'+stage+'/'+artifact,path.join(out,'artifact')]);}});
+   if(failures.length)throw new AggregateError(failures,'postverify_obligations');
+   }finally{checkpoint(10,false);}
   }
  }else{
   save('result',{phase,stage,classification:'lock-stage-result',lockStatus:lockResult.status,result:lockParsed,check:'NOT_RUN',verify:'NOT_RUN'});
   throw Error('lock result');
  }
 
-}catch(e){save('failure',{message:String(e),stack:e?.stack});process.exitCode=1;}
+}catch(e){save('failure',{message:String(e),stack:e?.stack,returned:returnedTuple,errors:errorMessages(e)});process.exitCode=1;}
 finally{
  const errors=[];
  for(const [name,fn] of [['source-after',()=>inputs.length&&sources('source-after')],['lock-after',()=>{if(lockHash){const r=guest('lock-after',['sha256sum',stage+'/lexlean.lock']);if(r.stdout.slice(0,64)!==lockHash)throw Error('lock drift');}}],['tools-after',()=>toolsIdentity('tools-after')],['epoch-after',()=>epoch('epoch-after')],['memory-after',()=>zeroMemory('memory-after')],['idle-after',()=>idle('idle-after')],['guest-after',()=>capacity('guest-after',false)],['host-after',()=>host('host-after',false)]]){try{fn();}catch(e){errors.push({name,error:String(e)});}}
- save('postcapture-errors',errors);if(errors.length)process.exitCode=1;
+ if(completed===10)checkpoint(11,false);
+ try{save('postcapture-errors',errors);}catch(error){completionErrors.push(error);}if(errors.length)process.exitCode=1;
 }
+}catch(error){completionErrors.unshift(error);
+}finally{
+ try{await connection.close();}catch(error){completionErrors.push(error);observationErrors.push({cleanup:String(error)});}
+ if(observationErrors.length){process.exitCode=1;try{save('observation-errors',observationErrors);}catch(error){completionErrors.push(error);}}
+}
+ if(completionErrors.length===1)throw completionErrors[0];
+ if(completionErrors.length>1)throw new AggregateError(completionErrors,'invocation_completion');
 }
 
 export function main(argv){
  if(!Array.isArray(argv)||argv.length!==1||argv[0]!==phase)throw Error('select exactly complete-admitted-positive; preparation only');
  if(freshEpochBinding===null)throw Error('NO_REVIEWED_FRESH_EPOCH: preparation only; no output or process invocation');
  fs.mkdirSync(out);
- runOriginal();
+ return openConnection().then(connection=>runOriginal(connection));
 }
