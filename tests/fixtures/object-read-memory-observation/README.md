@@ -51,19 +51,21 @@ that interpreter explicitly if `python3` resolves to an older version):
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 84 tests use synthetic records, in-memory streams and tiny owned
+The current 104 tests use synthetic records, in-memory streams and tiny owned
 host filesystem fixtures. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
 selected guest Python 3.12 runtime has not executed this source.
 
-[Verification evidence](evidence/RESULTS.md) includes the actual RED/GREEN
-history, independent partial-source reviews and measured host line coverage.
+[Current sample-composition results](evidence/SAMPLE-RESULTS.md) record the 104-test
+checkpoint and its source reviews. [Earlier parser evidence](evidence/RESULTS.md)
+retains that earlier checkpoint's RED/GREEN history and coverage.
 
 The implementation sequence remains in the
 [working plan](../../../docs/plans/2026-10-26-admitted-memory-observation.md):
-ownership/race
-checks, clock/ACK linkage, observer composition, and separately reviewed invocation preparation are still required.
+live ownership and parent/root linkage, periodic scheduling, safe control
+publication, observer composition and separately reviewed invocation preparation
+are still required.
 The 1 MiB observation cap cannot guarantee coverage of the earlier 264-second
 verification. No automatic retry, resource-limit change or acceptance waiver
 is supplied by this directory.
@@ -82,13 +84,13 @@ compiler. Python 3.11 is required for `BaseExceptionGroup`, which retains primar
 and cleanup failures without masking either. Existing host 3.15 and guest 3.12
 need no installation; the guest has not run this code.
 
-The [parent and boundary helpers](BOUNDARIES.md) add a nested parent observation,
+The earlier [parent and byte-only boundary helpers](BOUNDARIES.md) add a nested parent observation,
 finite request/ACK codecs, host-clock wire correlation and synchronized journal
 copies. `boundary.py` is a non-executable fixture-local module; it does not add a
-second observer process. These helpers do not validate an ACK's underlying sample,
+second observer process. Those earlier helpers do not validate an ACK's underlying sample,
 establish invocation ancestry, publish control files or authorize a compiler run.
 Those composition obligations remain open. Independent code, Python and security reviews approve only these bounded helpers;
-all three independently reran the 84 host tests. See [results](evidence/BOUNDARY-RESULTS.md).
+all three independently reran the then-current 84 host tests. See [earlier results](evidence/BOUNDARY-RESULTS.md).
 
 The [forced sample composition](SAMPLES.md) now connects actual owned ordinary
 and slow reads to retained ACK arguments inside one operation. Historical
