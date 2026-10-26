@@ -43,7 +43,8 @@ preparation. Do not create a build target, install packages or run the SDK.
    pools, partial-write accounting, terminal reserve and synchronization records.
    Retain complete prefixes; no ring overwrite. Fault tests cover short writes,
    quota exhaustion and failed synchronization. Dependency: step 2. Risk: medium.
-4. **`observe.py`, `test_identity.py`, `test_owned_io.py` (with existing test discovery):** test and implement owned-cgroup census and double-read
+4. **`observe.py`, `boundary.py`, `test_identity.py`, `test_owned_io.py`,
+   `test_family.py`, `test_boundary.py` (with existing test discovery):** test and implement owned-cgroup census and double-read
    identity checks, common guest-clock samples, missed ticks and marker/ACK
    validation. Processes without proven invocation ancestry remain explicitly
    unattributed. Use captured records only as fixtures, never invented measured
@@ -53,6 +54,12 @@ preparation. Do not create a build target, install packages or run the SDK.
    filesystem fixtures use the second focused file; the descriptor acquisition
    decision is preserved in `OWNED-IO.md`. Compound cleanup errors use Python
    3.11 `BaseExceptionGroup`, supported by the existing host/guest runtimes.
+   The reviewed control-layout refinement puts pure codecs, host wire correlation
+   and retained request/ACK copies in an imported `boundary.py` to keep source
+   files bounded. It adds no observer process. Nested parent consistency is not
+   root attribution; wire correlation and journal copies are not semantic ACK
+   admission. Actual sample/dictionary/identity validation and fixed-slot
+   publication remain mandatory before step 5 can execute.
 5. **Same source and focused test files:** compose the one-off reader. Direct bounded shared-file
    retention must not depend on the host event loop draining stdout during
    `spawnSync`. Stop observation only on failure/cap; never signal or extend a

@@ -1,6 +1,6 @@
 # Admitted-range memory diagnostic source preparation
 
-This directory currently contains **partial host-tested parsing, journal and owned-file helpers** for
+This directory currently contains **partial host-tested parsing, journal, owned-file and boundary helpers** for
 the one diagnostic described in the [reviewed plan](../../../docs/continuation/2026-10-25/read-admitted-memory-diagnostic/README.md).
 There is no live observer entry point or compiler invocation here. The LexLean
 artifact's resource outcome remains unaccepted because `memory.events.max`
@@ -51,7 +51,7 @@ that interpreter explicitly if `python3` resolves to an older version):
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 64 tests use synthetic records, in-memory streams and tiny owned
+The current 84 tests use synthetic records, in-memory streams and tiny owned
 host filesystem fixtures. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
@@ -81,3 +81,11 @@ container, scans unrelated processes, creates an observation output or runs a
 compiler. Python 3.11 is required for `BaseExceptionGroup`, which retains primary
 and cleanup failures without masking either. Existing host 3.15 and guest 3.12
 need no installation; the guest has not run this code.
+
+The [parent and boundary helpers](BOUNDARIES.md) add a nested parent observation,
+finite request/ACK codecs, host-clock wire correlation and synchronized journal
+copies. `boundary.py` is a non-executable fixture-local module; it does not add a
+second observer process. These helpers do not validate an ACK's underlying sample,
+establish invocation ancestry, publish control files or authorize a compiler run.
+Those composition obligations remain open. Independent code, Python and security reviews approve only these bounded helpers;
+all three independently reran the 84 host tests. See [results](evidence/BOUNDARY-RESULTS.md).
