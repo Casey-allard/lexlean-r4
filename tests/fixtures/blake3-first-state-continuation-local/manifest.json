@@ -1,0 +1,145 @@
+{
+  "schema": "lexlean-r4/blake3-first-state-continuation-local-manifest/1",
+  "status": "FROZEN_SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1462,
+      "sha256": "b0ac454273daf9c17f8872434416cbb3d2c1eba68abfc07095901542626567ae"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 16582,
+      "sha256": "42901d8ac1ce814718ee4a8232fe1ec18b8f0a67b75c13da61180c6a38de727f"
+    },
+    {
+      "path": "phases/generic/lexlean.toml",
+      "bytes": 687,
+      "sha256": "d8f432269ea7233043508811b18eeb5c6485d22dff4623f88b47618b730068c5"
+    },
+    {
+      "path": "phases/lift-negative/lexlean.toml",
+      "bytes": 684,
+      "sha256": "041bc42d401b60026b1bf1f335956fc34d2326353600e5d43c5dd2055d92afaf"
+    },
+    {
+      "path": "phases/lift-negative/tests/lexlean/Blake3FirstStateLift.lex.tex",
+      "bytes": 2004,
+      "sha256": "ab497e38fc4adf422eb070a5ab18b8b6ec04ec5d73ff99ab815c730ef127d49c"
+    },
+    {
+      "path": "phases/lift-positive/lexlean.toml",
+      "bytes": 684,
+      "sha256": "041bc42d401b60026b1bf1f335956fc34d2326353600e5d43c5dd2055d92afaf"
+    },
+    {
+      "path": "phases/original/lexlean.toml",
+      "bytes": 688,
+      "sha256": "54ee640d356505beda1e125137972d2982c51bd12e3ec3de5e64904e4013c8d3"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3FirstStateContext.lex.tex",
+      "bytes": 16183,
+      "sha256": "d93a24be82325172bcaf4c90b5e43acfa82d0070e4f8247a74a69000f7e65b7b"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3FirstStateGeneric.lex.tex",
+      "bytes": 7518,
+      "sha256": "08f7341f2555b08af4c6609c839448df255d160638ea5ab2f9c1311325a0a074"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3FirstStateLift.lex.tex",
+      "bytes": 2042,
+      "sha256": "c498fede57739cc2702de4f00cee1a171b913539b8d198e61a03d0480c72fdfd"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3FirstStateOriginal.lex.tex",
+      "bytes": 44735,
+      "sha256": "d512b41c8f8843ab04cc8218939a844342c20fc8a2a1304c43bcf89fabbbe15c"
+    },
+    {
+      "path": "source-checks.json",
+      "bytes": 6341,
+      "sha256": "f1382cf4b6f508e1f52b22803208832199d1f55cd7db518fb340d2cd5598f469"
+    }
+  ],
+  "sharedInputs": [
+    {
+      "destination": "src/R4/Blake3Nat.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+      "archiveSha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79",
+      "bytes": 16987,
+      "sha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+    },
+    {
+      "destination": "src/R4/Blake3Core.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+      "archiveSha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45",
+      "bytes": 53109,
+      "sha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+    },
+    {
+      "destination": "src/R4/Blake3.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+      "archiveSha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f",
+      "bytes": 62621,
+      "sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+    },
+    {
+      "destination": "src/R4/Blake3Input.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/00eab31ab88f170f242076e8bb791e65d9f9e7fc3d00776883f484cbae227198.txt.gz",
+      "archiveSha256": "b250fc8e13e137d5cbf0f76e908e0d109400a00ddce0e28fcedc8f990f341eec",
+      "bytes": 15070,
+      "sha256": "00eab31ab88f170f242076e8bb791e65d9f9e7fc3d00776883f484cbae227198"
+    },
+    {
+      "destination": "lakefile.toml",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "destination": "lake-manifest.json",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "destination": "lean-toolchain",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "destination": "tests/lexlean/Blake3Case19FirstState.lex.tex",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-first-state/project/tests/lexlean/Blake3Case19FirstState.lex.tex",
+      "bytes": 5642,
+      "sha256": "807321ec854a0a7eeaef4a010e5a44f003cb0dcdbe7273d93019ac46ec59f8aa"
+    }
+  ],
+  "authority": {
+    "proposal": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation/proposal.json",
+      "sha256": "1a976d9696a3b35facdbdb806890ecb3dbcb8d9bd4d121e16b238ca358a3d7a7"
+    },
+    "spec": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation/spec-review.json",
+      "sha256": "66429fe80ed8ec29f5cb714169897797bc2139e39e74d93e5e18ad93eddca827"
+    }
+  },
+  "repairAuthority": {
+    "predecessorManifestSha256": "2e93dc7d2f94315ff712d148562c9d0309dac5b0c6609de8b4118093e9465c44",
+    "diagnosis": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-state-continuation-imports-invocation/lift-negative-attempt1/phase1-self-reference.json",
+      "sha256": "b2df9176ee984403cafe20c65445a24675fcd506581aadb2ea5ef89fe489c5b4"
+    }
+  }
+}
