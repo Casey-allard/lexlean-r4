@@ -1,0 +1,45 @@
+{
+  "schema": "lexlean-r4/blake3-case19-source-manifest/1",
+  "files": [
+    {
+      "path": "tests/fixtures/blake3-case19/README.md",
+      "bytes": 1249,
+      "sha256": "9a7b28d70038b6b5beddc6b0afa5d8d665ba4dfedb86976c49bb1cdee14f4ba8"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/candidate.json",
+      "bytes": 4871,
+      "sha256": "b122543b6fda510500592c536b4d3361b6943356946cec20579e8a557776b194"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/investigation.json",
+      "bytes": 12144,
+      "sha256": "44339603db12b963d902f02111a1cbae337c44bac7ec25fe0719b3f55f6f15f5"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lexlean.toml",
+      "bytes": 676,
+      "sha256": "a23b1a161e774a01f5b94363593325e8330eb20b017af12122c695be7612327e"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/tests/lexlean/Blake3Case19.lex.tex",
+      "bytes": 16275,
+      "sha256": "eb2d400dfd0ff71ca002892b2ef1c95f7bd29667ec4245553167f4d631d41a2c"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schema": "lexlean-r4/blake3-case19-delivery-manifest/1",
+  "scope": "Exact original source plus classified native failure, no proof acceptance. Excludes pending drafts/issue66 source.",
+  "sourceManifestUnchanged": true,
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 93964,
+      "sha256": "3dd81e4dd7eacd9283f44a99285aa2e20bb5b3d80a9c7984077ecd7963fefb4f"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 74420,
+      "sha256": "2b2a0468a515cb51c1b80423271fd6082b2f283ccc61720cf8608222390d06c1"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/README.md",
+      "bytes": 1249,
+      "sha256": "9a7b28d70038b6b5beddc6b0afa5d8d665ba4dfedb86976c49bb1cdee14f4ba8"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/RESULTS.md",
+      "bytes": 3760,
+      "sha256": "fd8ec564771c0ae008ed34b0f024a81eb10df9163989d730411e65be32c16795"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/candidate.json",
+      "bytes": 4871,
+      "sha256": "b122543b6fda510500592c536b4d3361b6943356946cec20579e8a557776b194"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/evidence.jsonl.gz",
+      "bytes": 132221,
+      "sha256": "3ec9ed4e4a4c27f188e11211fc90dfa47b745e9bbfa1aa43c1b8bf55ebb92967"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/investigation.json",
+      "bytes": 12144,
+      "sha256": "44339603db12b963d902f02111a1cbae337c44bac7ec25fe0719b3f55f6f15f5"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/manifest.json",
+      "bytes": 1558,
+      "sha256": "6d4ad68a75dde47dd56b0eff87aecf4c9f732062d517d945ea0bea3df9073929"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/lexlean.toml",
+      "bytes": 676,
+      "sha256": "a23b1a161e774a01f5b94363593325e8330eb20b017af12122c695be7612327e"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/project/tests/lexlean/Blake3Case19.lex.tex",
+      "bytes": 16275,
+      "sha256": "eb2d400dfd0ff71ca002892b2ef1c95f7bd29667ec4245553167f4d631d41a2c"
+    },
+    {
+      "path": "tests/fixtures/blake3-case19/results.json",
+      "bytes": 9249,
+      "sha256": "b8c686170e4cdb7ba1554218782f8b02552a6e226e021b1ce1807ddbabc136d0"
+    }
+  ],
+  "archiveVerified": {
+    "members": 157,
+    "aliases": 263,
+    "allBytesRehashed": true,
+    "sha256": "3ec9ed4e4a4c27f188e11211fc90dfa47b745e9bbfa1aa43c1b8bf55ebb92967"
+  },
+  "sourceDependencies": "Four runtime gzip dependencies remain exact committed paths and hashes in candidate.json; recovered exact copies also retained under native evidence aliases.",
+  "nextProposal": "failure-investigation.json preserved with independent SPEC pending; no implementation or native authority.",
+  "budget": {
+    "sourceArchivePacketCap": 524288,
+    "forecastAllocatedBytes": 393216,
+    "continuousHighWater": "NOT_MEASURED"
+  }
+}
