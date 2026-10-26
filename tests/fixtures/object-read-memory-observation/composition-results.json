@@ -1,0 +1,92 @@
+{
+  "schema": "lexlean-r4/observer-composition-host-results/v1",
+  "status": "HOST_DIAGNOSTIC_COMPOSITION_ONLY",
+  "base": "995d8ce758ac8364b9745ac6935dd1a77adb62d5",
+  "source": {
+    "ancestry.py": "51785836e13c3356e015b96f65805030185307371b69db97614498c381456903",
+    "test_ancestry.py": "8bf42cea7a3fe1a5d6c3ad37c86d973d5f5735254c590cd1f98294409689761e",
+    "control_slots.py": "dfa6ef3ea8c12c60c5b37e48bb944f819bfa387afe2302c8b8ca2cf3cac1d79a",
+    "test_control_slots.py": "85ed92f350f485c04c98d800bd78dec6700add7aa5eba7b291083672b0a1ca41",
+    "cadence.py": "aefa62d3c242f53013299ab362b2895c9c9e7ed6fc2e72c09307952542823c46",
+    "test_cadence.py": "da78e1134c4ceda40ed0603c924c4424986e0e5641d855a9a466adcbe112abcd",
+    "boundary.py": "488aef5c7c9474f23b4d292c6153c7b43b06d2610ddaa435951a61c3c6f91390"
+  },
+  "tests": {
+    "baseline": 133,
+    "final": 175,
+    "ancestry": 13,
+    "control_slots": 12,
+    "cadence": 17,
+    "exit": 0,
+    "reentry_predecessor_actual_assertion_failures": 5,
+    "initial_cadence_errors": {
+      "implementation_shadowed_method": 3,
+      "test_memoryview_instrument": 2
+    },
+    "coverage": {
+      "scope": "stdlib trace line coverage, synthetic host tests only",
+      "tests": 175,
+      "success": true,
+      "files": {
+        "ancestry.py": {
+          "sha256": "51785836e13c3356e015b96f65805030185307371b69db97614498c381456903",
+          "hit": 104,
+          "executable": 120,
+          "percent": 86.67,
+          "branch": "NOT_MEASURED"
+        },
+        "control_slots.py": {
+          "sha256": "dfa6ef3ea8c12c60c5b37e48bb944f819bfa387afe2302c8b8ca2cf3cac1d79a",
+          "hit": 115,
+          "executable": 130,
+          "percent": 88.46,
+          "branch": "NOT_MEASURED"
+        },
+        "cadence.py": {
+          "sha256": "aefa62d3c242f53013299ab362b2895c9c9e7ed6fc2e72c09307952542823c46",
+          "hit": 85,
+          "executable": 94,
+          "percent": 90.43,
+          "branch": "NOT_MEASURED"
+        },
+        "boundary.py": {
+          "sha256": "488aef5c7c9474f23b4d292c6153c7b43b06d2610ddaa435951a61c3c6f91390",
+          "hit": 510,
+          "executable": 546,
+          "percent": 93.41,
+          "branch": "NOT_MEASURED"
+        }
+      },
+      "build": "all fixture Python source compiled in memory; no package/build artifacts",
+      "output": "...............................................................................................................................................................................\n----------------------------------------------------------------------\nRan 175 tests in 2.464s\n\nOK\n"
+    }
+  },
+  "reviews": {
+    "code-review-final.json": "f7e1f9bfafda76ff4296e6449ff71882014499befad56d64949ece3528e0b6ac",
+    "composition-python-review-final.json": "07db547060f712e01e9c24550120b77009654ddd99cabad696b624a4cff32839",
+    "composition-security-review-final.json": "949c50463cd03cd3e4e91e94bad96453cabedd74d3375127872f383c08584985"
+  },
+  "archive": {
+    "path": "evidence/composition-history.jsonl.gz",
+    "sha256": "35dfdad99fcb4149b9be516d01545a779f10685a9f7efb9a9756898935ac2f5d",
+    "records": 33,
+    "jsonl_bytes": 122740,
+    "member_text_bytes": 114034
+  },
+  "native": "NOT_RUN",
+  "live_epoch": null,
+  "remaining": [
+    "live identity/clock preflight",
+    "one serial reader and terminal composition",
+    "marker/exec and namespace/host receipt custody",
+    "shared filesystem and observer overhead checks",
+    "one independently reviewed diagnostic invocation and resource epoch",
+    "Read33/Construction39, pending drafts, genuine PrismPM/template binding and generated Pages"
+  ],
+  "storage": {
+    "additional_cap_bytes": 1048576,
+    "available_bytes": 36702470144,
+    "cleanup": "TemporaryDirectory test fixtures removed; no builds, new caches or VM activity; unique evidence archived losslessly"
+  },
+  "pending9_unchanged": true
+}

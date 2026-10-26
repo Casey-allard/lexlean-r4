@@ -1,0 +1,67 @@
+{
+  "schema": "lexlean-r4/observer-composition-delivery/v1",
+  "base": "995d8ce758ac8364b9745ac6935dd1a77adb62d5",
+  "files": [
+    {
+      "path": "tests/fixtures/object-read-memory-observation/ancestry.py",
+      "bytes": 6613,
+      "sha256": "51785836e13c3356e015b96f65805030185307371b69db97614498c381456903"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_ancestry.py",
+      "bytes": 7147,
+      "sha256": "8bf42cea7a3fe1a5d6c3ad37c86d973d5f5735254c590cd1f98294409689761e"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/control_slots.py",
+      "bytes": 5571,
+      "sha256": "dfa6ef3ea8c12c60c5b37e48bb944f819bfa387afe2302c8b8ca2cf3cac1d79a"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_control_slots.py",
+      "bytes": 7664,
+      "sha256": "85ed92f350f485c04c98d800bd78dec6700add7aa5eba7b291083672b0a1ca41"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/cadence.py",
+      "bytes": 4264,
+      "sha256": "aefa62d3c242f53013299ab362b2895c9c9e7ed6fc2e72c09307952542823c46"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_cadence.py",
+      "bytes": 9800,
+      "sha256": "da78e1134c4ceda40ed0603c924c4424986e0e5641d855a9a466adcbe112abcd"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/boundary.py",
+      "bytes": 26498,
+      "sha256": "488aef5c7c9474f23b4d292c6153c7b43b06d2610ddaa435951a61c3c6f91390"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/COMPOSITION.md",
+      "bytes": 4542,
+      "sha256": "8be4a075cd6651dc54563d80336e3be7036c4634c54eb492c9d8cf3cafca96d3"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/composition-results.json",
+      "bytes": 3905,
+      "sha256": "9b1886d52f0f65c0c79e215966db92775922fa6cdd479db0db4d6e633eab77ca"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/evidence/composition-history.jsonl.gz",
+      "bytes": 27698,
+      "sha256": "35dfdad99fcb4149b9be516d01545a779f10685a9f7efb9a9756898935ac2f5d"
+    },
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 87665,
+      "sha256": "42eac01c0f54ff4e303a506834042561a9dca32fa9f528a8b736251cacfab20e"
+    },
+    {
+      "path": "docs/plans/2026-10-26-admitted-memory-observation.md",
+      "bytes": 7663,
+      "sha256": "c41c86ebba525dccddfef5748049fb2c5be7eeb02e6828086ba79b7926618517"
+    }
+  ],
+  "scope": "host diagnostic source and evidence only; native NOT_RUN"
+}

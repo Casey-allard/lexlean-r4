@@ -63,10 +63,10 @@ preparation. Do not create a build target, install packages or run the SDK.
    counter history and ACK arguments. The [owned parent connection](../../tests/fixtures/object-read-memory-observation/FAMILY.md)
    now retains nested raw evidence. The [root content connection](../../tests/fixtures/object-read-memory-observation/ROOT-LINKAGE.md)
    checks marker/retrieval/ACK and actual h3 records with exact argv; it supplies
-   conditional root observation only, leaving descendants unattributed. Actual
-   wrapper/namespace/receipt custody, sample-local ancestry, live preflight,
-   periodic scheduling and fixed-slot publication remain mandatory before step 5
-   can execute.
+   conditional root observation only. The [composition connection](../../tests/fixtures/object-read-memory-observation/COMPOSITION.md)
+   adds sample-local descendant checks, periodic/forced scheduling and fixed-slot
+   publication. Actual wrapper/namespace/receipt custody and live preflight remain
+   mandatory before step5 can execute; the new scheduler has no live entry point.
 5. **Same source and focused test files:** compose the one-off reader. Direct bounded shared-file
    retention must not depend on the host event loop draining stdout during
    `spawnSync`. Stop observation only on failure/cap; never signal or extend a
