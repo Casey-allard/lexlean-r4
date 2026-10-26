@@ -185,6 +185,42 @@ def process_snapshot(census: bytes, pid: str, target: bytes,
             "attribution": "owned_unattributed"}
 
 
+def process_family_snapshot(
+        census: bytes, pid: str, target: bytes,
+        read: Callable[[str, str, int], bytes]
+) -> tuple[dict[str, object], dict[str, object] | None, Exception | None]:
+    """Nest one owned parent read inside the child's checks; never infer ancestry."""
+    parent = None
+    parent_pid = None
+    parent_failure = None
+    members = parse_procs(census)
+
+    def nested(child_pid: str, name: str, cap: int) -> bytes:
+        nonlocal parent, parent_pid, parent_failure
+        data = read(child_pid, name, cap)
+        if type(data) is not bytes or len(data) > cap:
+            raise ObservationError("proc_read_protocol")
+        if name == "stat" and parent_pid is None:
+            parent_pid = parse_stat(data)[1]
+        if name == "cmdline" and parent_pid in members and parent_pid != pid:
+            try:
+                parent = process_snapshot(census, parent_pid, target, read)
+            except (OSError, ObservationError) as error:
+                parent_failure = error
+        return data
+
+    try:
+        child = process_snapshot(census, pid, target, nested)
+    except BaseException as error:
+        if parent_failure is not None:
+            raise BaseExceptionGroup("family_observation_failures",
+                                     [parent_failure, error])
+        raise
+    if parent is not None:
+        child["parent_start"] = parent["start"]
+    return child, parent, parent_failure
+
+
 def guest_interval(origin_ns: int, start_ns: int, end_ns: int) -> tuple[str, str]:
     """Widen one guest BOOTTIME interval; caller must establish the clock domain."""
     if (any(type(n) is not int for n in (origin_ns, start_ns, end_ns))

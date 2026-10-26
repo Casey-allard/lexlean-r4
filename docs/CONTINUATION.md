@@ -12,6 +12,19 @@ only in a long-lived branch or local handoff. Merge does not mean production
 acceptance, a release, or a completed implementation. Use this chat's internal
 independent reviewers; no external lab or another session owns this work.
 
+## Latest bounded diagnostic preparation
+
+The [parent/boundary helper results](../tests/fixtures/object-read-memory-observation/evidence/BOUNDARY-RESULTS.md)
+add nested parent observations, finite host wire correlation and synchronized
+request/ACK journal copies for the one max=6325 investigation. All 84 host tests
+passed independently in CODE, Python and security review, with five separately
+planted defects rejected. These are partial diagnostic helpers, not a native
+observer or additional LexLean controls. ACK sample/dictionary admission, current
+root/epoch checks, fixed-slot publication and the final reader/invocation remain
+required before any diagnostic launch. No epoch reset or SDK run occurred.
+The nine pending drafts, 331/403 Object count, Read33/Construction39 and full
+PrismPM/Pages obligations remain open. The source design stays epoch-null.
+
 ## What is implemented and what is proved
 
 | Area | Recorded state | Repository evidence / next obligation |
