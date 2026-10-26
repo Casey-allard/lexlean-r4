@@ -1,0 +1,66 @@
+{
+  "schema": "lexlean-r4/root-linkage-host-results/v1",
+  "status": "HOST_CONTENT_LINKAGE_ONLY",
+  "base": "a11c001a5d021d326d31a236a544ea0092fe41ec",
+  "source": {
+    "root_linkage.py": "4c9045983aed800818b0edd2ba4d47ff4db21ccb47640374028a4cd72ba99c9e",
+    "test_root_linkage.py": "eac83ca0a95166a82739e1b178b1e339b2480dd9c7c887e84567f7e77861116b"
+  },
+  "tests": {
+    "baseline": 116,
+    "final": 133,
+    "root_tests": 17,
+    "exit": 0,
+    "missing_capability_assertions": 12,
+    "setup_errors": 11,
+    "strict_input_red": "1 assertion failure and4 errors, then2 assertion failures and5 errors after added namespace/boundary regressions; original outputs retained",
+    "planted_faults": 6,
+    "planted_assertion_failures": 6,
+    "planted_errors": 0,
+    "coverage": {
+      "hit": 220,
+      "executable": 249,
+      "branch": "NOT_MEASURED"
+    }
+  },
+  "reviews": {
+    "code-review.json": {
+      "sha256": "414ed6ac40facd770f2823234dba36fa35f9d27625f755fdbad917653d71fb6d",
+      "report": "code-review.json"
+    },
+    "python-review.json": {
+      "sha256": "03a918cdafb3031ef5ac7dc07422d71880a72bd01f766cfda20434744d37f22e",
+      "report": "python-review.json"
+    },
+    "security-review.json": {
+      "sha256": "28f856ca2f0387ed38ffe05e9dcf3a636ea27ae043162c57def05cfee00482f8",
+      "report": "security-review.json"
+    }
+  },
+  "archive": {
+    "path": "evidence/root-linkage-history.jsonl.gz",
+    "sha256": "3973f44152670a934c9fe2718bf79d59920480aa63ff66069ca601833d27be51",
+    "records": 17,
+    "jsonl_bytes": 84611,
+    "member_text_bytes": 79744
+  },
+  "native": "NOT_RUN",
+  "live_epoch": null,
+  "descendants": "owned_unattributed",
+  "remaining": [
+    "actual wrapper and namespace mapping",
+    "host ACK receipt and exclusive capture custody",
+    "sample-local ancestry",
+    "live preflight",
+    "periodic scheduler",
+    "fixed-slot publication",
+    "one separately reviewed diagnostic and original resource acceptance",
+    "full LexLean/PrismPM/Pages scope"
+  ],
+  "storage": {
+    "additional_budget_bytes": 1048576,
+    "reserve_bytes": 10737418240,
+    "free_bytes": 38041526272,
+    "runtime_memory": "NOT_MEASURED"
+  }
+}

@@ -14,15 +14,16 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
-The [owned parent connection](../tests/fixtures/object-read-memory-observation/FAMILY.md)
-composes the existing nested parent check with actual bounded filesystem reads
-and version-3 sample identity evidence. The current host suite has116 tests;
-source review and exact delivery records accompany this checkpoint. It distinguishes
-ordinary parent loss from fatal descriptor cleanup and keeps all attribution
-`owned_unattributed`. This is diagnostic-only preparation for the actual max6325
-resource failure, not a LexLean control or executable native observer.
+The [root content connection](../tests/fixtures/object-read-memory-observation/ROOT-LINKAGE.md)
+joins a bounded marker and retrieval receipt to the actual version-3 sampler
+records, exact request/ACK copies and pinned compiler argv. The host suite has133
+tests. Its matched-observation result remains conditional on actual wrapper,
+namespace and host receipt custody; descendants stay `owned_unattributed`.
+The earlier [owned parent connection](../tests/fixtures/object-read-memory-observation/FAMILY.md)
+is preserved. This is diagnostic-only preparation for the actual max6325 resource
+failure, not a LexLean control or executable native observer.
 
-Next: retrospective invocation-root linkage with real marker/exec identity,
+Next: actual marker/exec and namespace custody, sample-local ancestry,
 live identity/clock preflight, bounded periodic scheduling, safe fixed-slot
 publication, then the separately reviewed one-off invocation and resource gates.
 No epoch reset or SDK run occurred. The nine pending drafts,331/403 Object count,
