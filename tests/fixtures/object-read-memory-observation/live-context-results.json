@@ -1,0 +1,112 @@
+{
+  "schema": "lexlean-r4/owned-observer-host-results/v1",
+  "status": "HOST_DIAGNOSTIC_SOURCE_ONLY",
+  "base": "d9bfda202a7df441464c3d580950e44bf28d6b11",
+  "source": {
+    "live_context.py": "df74150b428a0ad72f3ec4ac1a3638dacd786fc1e4220adc9c69bcfd77508a55",
+    "test_live_context.py": "04bbf4515d4ea62c8ea6c0670f6a53d10a5a98c30f13c8d3dadf7890ec0c09d9",
+    "observer_session.py": "eb84e076c2809003406bdc9665aa12a7d6482c335b4c67914f3e9b0736b669c5",
+    "test_observer_session.py": "d402654e5bfd6e20754cedbc7e95e8c9efff8556684793e0f3f5fda5d601664c"
+  },
+  "tests": {
+    "baseline": 175,
+    "final": 212,
+    "context": 19,
+    "session": 18,
+    "exit": 0,
+    "coverage": {
+      "scope": "stdlib trace line coverage including discovery/import; positive exact-int source lines; synthetic host tests",
+      "tests": 212,
+      "success": true,
+      "files": {
+        "live_context.py": {
+          "sha256": "df74150b428a0ad72f3ec4ac1a3638dacd786fc1e4220adc9c69bcfd77508a55",
+          "hit": 182,
+          "executable": 189,
+          "percent": 96.3,
+          "branch": "NOT_MEASURED",
+          "missing": [
+            39,
+            43,
+            47,
+            53,
+            57,
+            147,
+            210
+          ],
+          "excluded_non_source_keys": [
+            0,
+            null
+          ]
+        },
+        "observer_session.py": {
+          "sha256": "eb84e076c2809003406bdc9665aa12a7d6482c335b4c67914f3e9b0736b669c5",
+          "hit": 169,
+          "executable": 181,
+          "percent": 93.37,
+          "branch": "NOT_MEASURED",
+          "missing": [
+            24,
+            46,
+            81,
+            88,
+            135,
+            154,
+            162,
+            163,
+            164,
+            196,
+            197,
+            207
+          ],
+          "excluded_non_source_keys": [
+            0,
+            null
+          ]
+        }
+      },
+      "build": "all fixture Python compiled in memory; no artifacts",
+      "output": "....................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 212 tests in 3.043s\n\nOK\n",
+      "prior_instrument": "coverage.json omitted discovery/import; failed followup sorted None metadata; both preserved"
+    },
+    "planted_defects": {
+      "count": 2,
+      "intended_assertion_failures": 2,
+      "execution_errors": 0
+    },
+    "preserved_failures": [
+      "census before init acquisition/reopen: two actual assertion failures, repaired",
+      "terminal reentry false-success: actual assertion failure, repaired",
+      "shared FileIO test failed too early: instrument gap, corrected after independent review and Phase1",
+      "coverage omitted imports then followup sorting None failed: preserved instruments; final traces actual discovery/import and excludes only non-source0/None"
+    ]
+  },
+  "reviews": {
+    "composed-code-review-final.json": "3a6f3565a38034ca4badb65d00e85d42227ab089ffdbcdc66ad44a13b5b1d4a3",
+    "composed-python-review-final.json": "d35e1ad4fef6312c0e7185d6084edbd274b6adf565e462333881c73776568e25",
+    "composed-security-review-final.json": "6b6a6ac53f27f29da98f48a4921f9f042ba7c7a33f1a99e5875e24bbba13bb20"
+  },
+  "archive": {
+    "path": "evidence/live-context-history.jsonl.gz",
+    "sha256": "3f9ac4ddf405aee8cd298e420b8494f1b16d3b142f2a5911fab30ffa72b53baf",
+    "records": 39,
+    "jsonl_bytes": 105752,
+    "member_text_bytes": 96788
+  },
+  "native": "NOT_RUN",
+  "live_epoch": null,
+  "remaining": [
+    "actual guest namespace/mount/Docker capture and wrapper/exec custody",
+    "narrow existing one-off invocation adaptation",
+    "shared filesystem and observer overhead checks",
+    "independent invocation and fresh-resource review before diagnostic",
+    "Read33/Construction39, nine pending drafts, full PrismPM/template binding and Pages"
+  ],
+  "storage": {
+    "additional_cap_bytes": 1048576,
+    "available_bytes": 39095390208,
+    "cleanup": "TemporaryDirectory fixtures cleaned; no build cache, package or VM changes; unique evidence archived losslessly",
+    "peak": "continuous high-water not measured"
+  },
+  "pending9_unchanged": true
+}

@@ -2,7 +2,7 @@
 
 This directory currently contains **partial host-tested parsing, journal, owned-file and boundary helpers** for
 the one diagnostic described in the [reviewed plan](../../../docs/continuation/2026-10-25/read-admitted-memory-diagnostic/README.md).
-There is no live observer entry point or compiler invocation here. The LexLean
+The [owned reader](LIVE-CONTEXT.md) is an imported function; no live launch adapter or compiler invocation exists here. The LexLean
 artifact's resource outcome remains unaccepted because `memory.events.max`
 increased to 6325. Parsing tests do not change that result or accept Read33.
 
@@ -51,7 +51,7 @@ that interpreter explicitly if `python3` resolves to an older version):
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 133 tests use synthetic records, in-memory streams and tiny owned
+The merged [composition checkpoint](COMPOSITION.md) records 175 tests using synthetic records, in-memory streams and tiny owned
 host filesystem fixtures. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
@@ -64,9 +64,11 @@ retains that earlier checkpoint's RED/GREEN history and coverage.
 
 The implementation sequence remains in the
 [working plan](../../../docs/plans/2026-10-26-admitted-memory-observation.md):
-live ownership and invocation-root linkage, periodic scheduling, safe control
-publication, observer composition and separately reviewed invocation preparation
-are still required.
+The [owned context and reader](LIVE-CONTEXT.md) now implement host-tested preflight
+and serial composition. Actual guest namespace/mount and invocation-root custody,
+overhead and separately reviewed invocation preparation are still required. Sample-local
+ancestry, periodic scheduling and owned control publication now have the bounded
+host implementation and limitations recorded in that composition checkpoint.
 The 1 MiB observation cap cannot guarantee coverage of the earlier 264-second
 verification. No automatic retry, resource-limit change or acceptance waiver
 is supplied by this directory.
