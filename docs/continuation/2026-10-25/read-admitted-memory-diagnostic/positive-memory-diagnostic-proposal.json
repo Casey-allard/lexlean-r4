@@ -1,0 +1,143 @@
+{
+  "schema": "lexlean-r4/child-positive-memory-diagnostic-proposal/1",
+  "createdAt": "2026-10-25T23:57:46.382Z",
+  "author": "child_resource_debugger",
+  "status": "SOURCE_ONLY_PLAN_NO_EXECUTABLE_AUTHORITY",
+  "rationale": "The actual ObjectAdmittedRangeResult child-certificate closure returned official verify0/artifact, but max rose0→6325 and strict resource acceptance failed. Its100 process receipts lack time/PID/memory evidence. Localizing the actual proof-path resource cost is necessary before proposing a justified remedy for pure LexLean UOR-R4. Full PrismPM and Pages remain unfinished. This is one observability experiment, NOT a qualification rerun, equivalent-limit success retry, benchmark or generic harness.",
+  "question": "In what bounded intervals does max increase, and which owned compile/checker/audit/probe processes are observed across those intervals?",
+  "whyBoundaryOnlyInsufficient": "Immediately-before/after-verify samples can separate verification from surrounding work but cannot distinguish phases inside264.017s. Boundary samples and bounded process correlation must occur in the SAME single diagnostic; no pilot positive or automatic repeat.",
+  "target": {
+    "sourceId": "dd8e8d9ebaffc73df7d3a25688085cf8df2d5e1a8133b202be908d5f8f152bf4",
+    "semanticId": "b2f51bc038ecc772f22a92154218e4396ae752f09e01239128b0397051b8f456",
+    "priorArtifactId": "bbcaadebdf50fc99490203fc74c9fa0614dacf18e1d5cf72078dfd41580b4169",
+    "priorBuildId": "11ecaf3015306b1fe7d6cc8f7755c7b2123fc1632acd44b3d20ca9332d64b407",
+    "inputs": "All50 pinned expected-input destination/hash/length entries unchanged; same33-module closure and generated development-lock bytes/hash.",
+    "command": "lexlean --diagnostic-format json verify tests/lexlean/ObjectAdmittedRangeResult.lex.tex",
+    "compilerHash": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+    "toolHashes": {
+      "lake": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "lean": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "leanchecker": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    },
+    "limits": "Unchanged4GiB container,2CPU,5GiB VM, network none, no mounts.",
+    "timeout": "Pinned limits.child_timeout_ms=300000 is a per-child timeout, not evidence of a300s whole-verify limit. Preserve it; add no outer kill timer, extension or observer cancellation.",
+    "acceptance": "All original identity/storage/epoch/idle guards and strict absolute-all-zero memory.events pre/post gates remain intact. Diagnostic deltas never substitute for acceptance."
+  },
+  "preconditions": [
+    "No implementation or execution is authorized here. A later one-off reader implementation requires independent source/pre-run review and explicit top-session authority.",
+    "Independent reviewer must inspect exact source/tools, observation code/buffers/quotas, ownership filters, clock semantics, placement/overhead, fresh reserves and full launch/postcapture order. Approval is diagnostic only.",
+    "Separately authorized fresh resource epoch with six absolute counters0 is required. Current nonzero epoch cannot pass existing precheck. This proposal grants no restart/reset/epoch-preparation authority. Preserve old epoch identity, artifacts, receipts and failure history; retain separate new epoch evidence.",
+    "Remeasure original host/guest storage reserve gates. Require exclusive target-container ownership and recorded absence of concurrent SDK/compiler work. Any overlap, drift or failed preflight blocks launch. Never inspect other labs.",
+    "Reviewer must verify available read-only cgroup/process interfaces and observer bounds before launch. Prefer one reader outside measured cgroup only if already authorized access permits without VM/config/SDK changes. Do not assume availability. If inside, record observer PID/start-time/RSS and acknowledge pressure as a confound; never subtract it from acceptance.",
+    "At most ONE official positive verification. No blind rerun, pilot positive, automatic fallback, repeat or qualification promotion."
+  ],
+  "capture": {
+    "clock": "Bracket each batch with monotonic start/end and one wall-clock anchor. Reads are non-atomic; record missed ticks with no catch-up bursts.",
+    "cadence": "Target100ms: full keyed memory.events, memory.current, memory.swap.current and memory.peak if supported. Every5s and at launcher boundaries: full keyed memory.stat, memory.pressure and memory.events.local if available. Preserve unknown keys; mark unsupported files. Never reset peaks or counters. Apply existing output quotas, recording any incomplete read.",
+    "processes": "Each tick records live owned lexlean/lean/leanchecker PID+start-time ticks, PPID, argv class/module, VmRSS and VmHWM. Verify target-cgroup membership and diagnostic invocation ancestry; include observer explicitly. Missing/exited/raced PIDs are gaps. No environment reads or other-container/lab processes.",
+    "reader": "One bounded observer uses direct /proc/cgroup reads; no new docker/ps/helper per sample. Store bounded argv identity once per PID+start-time, with compact identity references on samples. Overlong argv becomes incomplete/unknown. This is a product-specific one-off, not reusable infrastructure.",
+    "classes": {
+      "compile": "lean argv with generated lean-src/LexLeanR4 path and -o generated olean.",
+      "checker": "leanchecker argv with LexLeanR4 module.",
+      "audit": "lean argv with audit/LexLeanAudit.<semantic-prefix>.<module>.lean.",
+      "probe": "lean argv with probe/LexLeanProbe.<semantic-prefix>.lean.",
+      "unknown": "outer orchestration, vanished/unrecognized process or unresolved overlap; never force classification."
+    },
+    "boundaries": [
+      "Before/after staging/lock/check, and immediately before verify.",
+      "Verify start/return; immediate resource sample on return BEFORE artifact-copy.",
+      "Artifact-copy start/end if ordinary workflow retains it; immediate post-copy sample.",
+      "All original source/lock/tool/epoch/memory/idle/storage postguards."
+    ],
+    "copyLimit": "Copy markers distinguish intervals only. Do NOT assume Docker artifact-copy memory is charged to target cgroup or caused old max increment.",
+    "preserve": "Retain official stdout/stderr/results/artifact/process/kernel receipts unchanged and add observations in a NEW owned root. Rehash source/tool identities before and after. Never edit old evidence.",
+    "output": {
+      "maxBytes": 1048576,
+      "scope": "Total NEW observation trace, identity dictionary, markers and summary. Normal compiler receipts/artifact remain separately retained: prior artifact8399075bytes cannot fit a1MiB cap on all official output.",
+      "quotaKiB": {
+        "sampleRows": 768,
+        "identities": 192,
+        "markersAndGaps": 56,
+        "terminalSummary": 8
+      },
+      "behavior": "Fixed bounded buffers, no overwrite/ring loss. On any quota exhaustion stop ONLY observation, preserve bytes and emit trace_truncated/coverage bounds using reserved summary. Let healthy compiler and original postguards finish. No unobserved attribution."
+    }
+  },
+  "inferenceRules": [
+    "Positive max delta localizes events only between consecutive read bounds, not an exact instant. Correlate all observed process identities across that interval.",
+    "A sole stable process across samples supports overlap, not sole allocation causality. Shared cache/background activity and observer overhead remain possible.",
+    "Identity changes, overlapping workers, short-lived missed PIDs, read races, missed ticks or trace cap mean ambiguous interval. No culprit inferred from longest duration, source size, file mtimes or assumed tool order.",
+    "VmHWM is per-process historical RSS; available memory.peak is cgroup/epoch high water. Neither yields a timed continuous peak curve. Do not sum process peaks.",
+    "Same sources/tools/limits do not imply same cache/memory/stage history. Preserve epoch and warm-state differences; old-versus-new is not a controlled allocation comparison.",
+    "memory.events is hierarchical. max records attempted boundary exceedance; reclaim may avert OOM. RSS alone does not account for cgroup charges. Full keyed memory.stat supplies anon/file/kernel context without assigning a culprit. Optional local counters distinguish scope only."
+  ],
+  "findingsAndUnlocks": [
+    {
+      "finding": "Increment brackets identifiable compilation module.",
+      "unlock": "Static review of that actual generated proof/source/import/serialization cost; separately formulate a falsifiable hypothesis. No immediate source fix."
+    },
+    {
+      "finding": "Increment overlaps identifiable checker/audit module.",
+      "unlock": "Inspect corresponding retained olean/audit source/import closure and tool path. No replacement SDK, skipped audit or omitted module."
+    },
+    {
+      "finding": "max0 immediately after verify, later increase.",
+      "unlock": "Falsifies verify-only attribution for this diagnostic. Review surrounding processes/cgroup activity; does not prove Docker-copy charging."
+    },
+    {
+      "finding": "First increment before verification.",
+      "unlock": "Investigate observed earlier interval; do not blame verification for first increment. Existing gates still govern launch and result."
+    },
+    {
+      "finding": "No increment recurs.",
+      "unlock": "Only non-reproduction in observed new state. Original failure remains; no qualification/control promotion or automatic second run."
+    },
+    {
+      "finding": "Ambiguous overlap, observer pressure, gaps or output cap.",
+      "unlock": "Insufficient attribution. Preserve evidence. Another diagnostic requires a new concrete proposal/review, not continuation by default."
+    }
+  ],
+  "healthyCompiler": "Observer exhaustion/failure or observed max increments must NOT interrupt healthy compiler. Preserve existing SDK300000ms child timeout and behavior; add no signals, suspension, reprioritization, kill timer or extension. Complete non-interfering capture/postguards and report resource failure separately.",
+  "prohibitions": [
+    "No native invocation now",
+    "No reader implementation now",
+    "No restart/reset/epoch creation",
+    "No source/proof/SDK edits",
+    "No limit/timeout changes",
+    "No counter waiver/delta acceptance",
+    "No generic framework",
+    "No production/full-PrismPM/Pages/control promotion"
+  ],
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/positive-memory-phase1.json",
+      "bytes": 31061,
+      "sha256": "e0e32ccde916815102f46f588e48943df1252a04e1a5a94d4c5cd222bf102f4a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/invoke-child-certificate.mjs",
+      "bytes": 12797,
+      "sha256": "3cc48e7aef25481a08f64bb9e2ea2f2b6b32a2e48109659b0322efd90d099b27"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/complete-admitted-positive/expected-inputs.json",
+      "bytes": 16746,
+      "sha256": "d313223eb61790d4794ef8527e8bd36eab0331f68e19aa02895316701c9f8c82"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/complete-admitted-positive/artifact/attestation.json",
+      "bytes": 210745,
+      "sha256": "e5a30a2385b8e1325f0d106e2e43c2a2f5e4e1f7674d071a2f852ad2a0a41deb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/continuation/2026-10-24/object-read-native-controls/candidate/lexlean.toml",
+      "bytes": 682,
+      "sha256": "3fa23d5c10954af89e50a1bed666f20e465aad7433e32b8300ea5a2dbe025fa7"
+    }
+  ],
+  "reference": {
+    "url": "https://docs.kernel.org/admin-guide/cgroup-v2.html",
+    "provenance": "Parent independently checked primary documentation; supplied memory.events semantics and memory.stat context. This agent made no network call.",
+    "use": "Counter interpretation only, never allocation attribution."
+  }
+}

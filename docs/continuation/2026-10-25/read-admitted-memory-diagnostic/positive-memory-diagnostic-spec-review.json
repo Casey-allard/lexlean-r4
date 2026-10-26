@@ -1,0 +1,110 @@
+{
+  "schema": "lexlean-r4/positive-memory-diagnostic-spec-review/1",
+  "reviewer": "memory_diagnostic_spec",
+  "role": "Independent internal code-reviewer; SPEC/pre-run design review only",
+  "verdict": "APPROVE_SOURCE_DESIGN_ONLY_WITH_MANDATORY_CODE_AND_PRERUN_REQUIREMENTS",
+  "approvalScope": "The product-specific question and bounded observational method are justified. This approves the source design for later concretization only. It is not implementation approval, an executable pre-run approval, permission to invoke the SDK, permission to restart/reset/create a resource epoch, or acceptance of any product claim.",
+  "roster": {
+    "root": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+    "id": "f809eb3d4ada5630",
+    "verify": "python3 scripts/roster.py verify: Validated logical roster f809eb3d4ada5630: 5 agents, 5 skills",
+    "eligibility": "python3 scripts/roster.py check Agent code-reviewer: Active in A Team roster",
+    "instructionsRead": [".claude/agents/code-reviewer.md", "INIT.md", "AGENTS.md", ".agent-sync/ROUTING.md"],
+    "claims": "ROUTING.md has an empty File Claims table. Existing unrelated worktree modifications were observed and not reviewed or changed. Requested review concerns external proposal/evidence only."
+  },
+  "productBlocker": {
+    "goal": "Pure LexLean UOR-R4 with full PrismPM and generated Pages product; neither full product nor full acceptance is established here.",
+    "specificPath": "The actual ObjectAdmittedRangeResult entrypoint incorporates the positive concrete child-certificate proof in its 33-module closure. The existing run produced official successful compiler/kernel/axiom evidence but failed the unchanged strict resource boundary. The retained process receipts lack the time/PID/memory observations needed to distinguish compilation, checking, audit, probe and enclosing activity.",
+    "necessity": "A bounded observation of this exact proof path can localize a pressure interval enough to direct static review of actual generated proof/import/serialization costs. This is useful prerequisite evidence for a falsifiable resource remedy; it does not itself implement PrismPM, Pages or a language-model capability.",
+    "whyNotSuccessRetry": "The proposal has explicit informational outcomes for recurrence, non-recurrence, ambiguous overlap and truncation; all preserve the old failure and forbid acceptance/control promotion or automatic repeat. Its value is additional observations. An invocation lacking those reviewed observations, or one whose purpose is obtaining a zero-counter success, would not satisfy this approval.",
+    "minimalScope": "One observation run only after separate CODE and epoch/pre-run decisions. No pilot positive, generic monitor framework, SDK substitution, host proof substitute, new tool installation, source alteration or external lab work."
+  },
+  "evidenceAssessment": {
+    "proposalSHA256": "39d210aefd177d8903c3dcbf497e1212ce78c1643dfb3d6d39bf680b02a7ea5d",
+    "phase1SHA256": "e0e32ccde916815102f46f588e48943df1252a04e1a5a94d4c5cd222bf102f4a",
+    "positiveArtifactReviewSHA256": "ba2609a01e44355fd9a0d639fd093790bcdc0a8ffd72d0a3bec21fa9b4e9afe6",
+    "proposalPinsRehashed": "All five proposal pins match stated byte lengths and SHA256 values.",
+    "actualInputs": "Independently rehashed all 50 expected-input files at their exact recorded paths; lengths and hashes match. Inspected the concrete child and admitted-range proof representations and sampled retained actual process argv forms to assess the proposed classification.",
+    "officialVerify": "Raw retained verify.json records status 0, success true, 33 modules, no diagnostics and one artifact. Wall interval is 264017 ms. No new verification was performed.",
+    "artifact": "Retained attestation contains 100 process records, all exit_code 0, and 832 declaration records. The separately pinned actual-artifact review establishes 33 kernel replay receipts and 832 successful empty-axiom declaration observations; this review does not repeat its entire artifact audit or replay Lean.",
+    "strictResource": "Raw before receipt has low/high/max/oom/oom_kill/oom_group_kill all 0; raw after has max 6325 and other five 0. Launcher zeroMemory rejects any nonzero value and records memory-after failure. Overall remains UNACCEPTED. Allocation culprit and event timing remain unknown.",
+    "limits": "Pinned lexlean.toml has child_timeout_ms=300000 and max_child_output_bytes=16777216. The 300000 ms bound is per child, not a whole-verify deadline. Launcher preserves 4294967296-byte container memory, 2000000000 NanoCpus, network none and no mounts. The 5GiB VM is supplied context, not independently live remeasured by this review.",
+    "sourceIdentity": "dd8e8d9ebaffc73df7d3a25688085cf8df2d5e1a8133b202be908d5f8f152bf4",
+    "semanticIdentity": "b2f51bc038ecc772f22a92154218e4396ae752f09e01239128b0397051b8f456",
+    "artifactIdentity": "bbcaadebdf50fc99490203fc74c9fa0614dacf18e1d5cf72078dfd41580b4169",
+    "buildIdentity": "11ecaf3015306b1fe7d6cc8f7755c7b2123fc1632acd44b3d20ca9332d64b407",
+    "developmentLockSHA256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88"
+  },
+  "findings": [
+    {
+      "id": "SPEC-01",
+      "severity": "required-before-CODE-approval",
+      "topic": "Ownership and PID discovery must be executable, race-aware and bounded",
+      "evidence": "Proposal requires membership and invocation ancestry but has no reader or discovery algorithm. The capability receipt shows only /proc/1594/status prefix for the owned shell, not compiler process discovery or ancestry access.",
+      "minimalRepair": "Specify the owned container identity, guest boot identity, cgroup path/inode, namespace mapping and invocation root PID plus start-time. Enumerate only the owned cgroup subtree through bounded cgroup.procs reads, or demonstrate an equally confined method; never scan other lab process argv. Handle descendant cgroups or explicitly detect and mark them unsupported. Validate cgroup membership and stat start-time before and after identity/status reads; associate ancestry by PID plus start-time rather than PID alone. If parent disappears before validation, retain an unknown/gap rather than infer ancestry. Record owned-but-unattributed activity so it cannot silently masquerade as exclusive invocation activity. Define finite PID, subtree, argv and per-file read limits. No helpers per sample. No new privileges or changes to VM configuration."
+    },
+    {
+      "id": "SPEC-02",
+      "severity": "required-before-CODE-approval",
+      "topic": "Clock and launcher-boundary ordering require one explicit protocol",
+      "evidence": "Proposal provides monotonic brackets and one wall anchor. Existing launcher runs on macOS while an outside-container observer would run in the guest; these monotonic domains cannot be compared directly. Existing launcher uses synchronous child execution and has no boundary channel.",
+      "minimalRepair": "Use one guest monotonic domain for sample bounds and observer-received boundary markers, or retain a bounded synchronization handshake that expresses uncertainty. Record clock name/unit and guest boot/namespace identity. Bracket each actual read batch; define delta interval conservatively from the preceding read's earliest bound through the next read's latest bound. Do not compare host and guest monotonic numbers directly. Obtain the return-boundary sample before artifact-copy begins, with an explicit bounded acknowledgement or an explicit missing-boundary record. Any observer failure must not indefinitely block launcher completion, compiler stdout/stderr draining or postguards. Missed ticks create gaps without catch-up bursts."
+    },
+    {
+      "id": "SPEC-03",
+      "severity": "required-before-CODE-approval",
+      "topic": "Byte quotas bound retained data but do not yet demonstrate coverage or memory bounds",
+      "evidence": "768KiB sample rows / approximately 2641 ticks from the old 264.017s run permits only about 298 bytes per tick before any slow memory.stat records. The specified full keyed fields, multiple process rows and slow records have no encoded schema or allocation budget yet. The 300s child limit does not cap total diagnostic duration.",
+      "minimalRepair": "Provide the exact compact schema and a static byte-budget calculation using retained process identities and representative keyed data, counting all new observation files, markers, dictionaries and summary. Define which quota owns slow memory.stat/pressure/local events and unknown keys. Bound input bytes, partial records, dictionary count and transient allocations before reading/serializing; a disk cap alone is insufficient. State the minimum useful expected observation horizon and the consequence of earlier truncation. No claimed guarantee of observing the entire run. Preserve all complete rows, reserve terminal/coverage bytes outside sample exhaustion, and never overwrite old evidence or ring-buffer away early events."
+    },
+    {
+      "id": "SPEC-04",
+      "severity": "required-before-CODE-approval",
+      "topic": "Partial capture and failure isolation need concrete behavior",
+      "evidence": "The proposal correctly stops only observation at quota exhaustion, but a reader crash, malformed read, permissions loss, broken pipe, full filesystem or parent disconnect could prevent its promised terminal summary or interfere with the launcher unless explicitly handled.",
+      "minimalRepair": "Use bounded incremental retention rather than keeping the sole trace in memory until exit. Reserve a launcher-owned terminal status path for observer exit/failure and last durable bounds when the observer cannot write. Distinguish unsupported optional files, transient vanished PIDs, incomplete reads, counter parse errors, missed ticks and output truncation. Never convert missing readings into zero or reuse stale process identity. Required evidence or ownership failure before verify blocks launch; a loss during verify marks coverage insufficient while healthy compiler and original postguards continue. No signals, suspension, reprioritization, extended timeout or whole-run timer."
+    },
+    {
+      "id": "SPEC-05",
+      "severity": "required-before-pre-run-approval",
+      "topic": "Fresh epoch and immediate verify admission remain separate authority",
+      "evidence": "Existing epoch is nonzero and old launcher pins StartedAt=2026-10-25T23:29:57.087744357Z. This proposal explicitly grants no restart/reset/new-epoch authority. The original zeroMemory precheck occurs before staging, lock and check, so a later observation of an increment must not be ignored as permission to start verify.",
+      "minimalRepair": "Retain the old epoch and failure untouched. Any future fresh epoch needs its own explicit decision, exact identity binding and live zero counters plus original storage/idle/source/tool gates. A nonzero or incomplete mandatory counter reading immediately before verify blocks the single verify launch, even if an earlier precheck was zero. Preserve all keyed counter values, including future keys; strict acceptance never becomes delta-based. Compare epoch/cgroup identity before and after; identity change, reset/decrease or missing epoch makes evidence inadmissible. Remeasure 20GiB host and 11GiB guest pre-reserves, 10GiB post-reserves, configured VM/container limits and absence of concurrent owned SDK work. No stale snapshot or this SPEC approval substitutes for these checks."
+    }
+  ],
+  "capabilities": {
+    "retainedReceipt": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-capability-read.json",
+      "bytes": 435,
+      "sha256": "0fe35c92361e9c1325f1a4ef616b9482e95a33e86a97733dc29adebf69ddf9b2",
+      "establishes": "One successful nonroot uid501 guest observation returned owned memory.events with max6325 and the first few status fields of PID1594 named sh.",
+      "doesNotEstablish": "Exact command, cgroup path/inode, proc namespace mapping, process start-time/cmdline/cgroup/ancestry readability, mandatory memory.current/swap readability, optional counters, monotonic API, bounded serialization, observer placement/overhead, delivery channel or full monitor feasibility."
+    },
+    "parentReportedOnly": "First read-only tool probe reportedly found python3/bash/awk and did not return node/rustc/cargo; its stdout is not retained in this receipt. This review neither reran it nor treats it as proof of an installed observer implementation.",
+    "missingBeforeRun": [
+      "Exact approved reader source and identity; no existing monitor implementation was supplied.",
+      "Pinned runtime path/version and demonstrated required read-only interfaces in the chosen already-authorized placement.",
+      "Readability and bounds for PID start-time, argv, membership, ancestry and owned cgroup discovery.",
+      "Common-clock boundary protocol and nonblocking failure isolation.",
+      "Static output/transient-memory budget and reserved failure/terminal capture.",
+      "Fresh live resource epoch and unchanged all-zero admission, independently reviewed."
+    ],
+    "languageDecision": "None selected or installed. Availability of a runtime is not permission to implement in it or to change the SDK/VM. A later concrete implementation must stay within the project and top-session authority."
+  },
+  "inferenceAssessment": {
+    "approved": "Counter deltas bracket attempted memory-limit crossings; observed process identities support temporal overlap only. Zero oom does not erase max. RSS/HWM, cgroup peaks and memory.stat do not independently identify allocation causality. Cache state, observer overhead and unseen short-lived processes remain confounds.",
+    "correctionForImplementation": "Do not encode assumed tool order. Actual retained probe argv includes LexLeanProbe.P<semantic-prefix> and audit argv includes LexLeanAudit.A<semantic-prefix>; classify actual bounded argv against exact retained forms and pinned closure, not a loose basename guess. Ambiguous/unrecognized argv remains unknown.",
+    "allowedFindings": [
+      "During identified compile/checker/audit/probe interval: directs static inspection of that exact retained generated module/import/tool path; no immediate remedy asserted.",
+      "Zero after verify then later increment: falsifies verify-only attribution in the new diagnostic only; does not establish Docker-copy charging.",
+      "Increment before verify: records earlier activity and prevents verify if mandatory immediate admission is nonzero.",
+      "No increment: non-reproduction in the new observed state only; old failure, product and control status remain unchanged.",
+      "Overlap, observer confound, missing identity, cap or partial data: insufficient attribution. No second run by default."
+    ],
+    "primaryReference": "https://docs.kernel.org/admin-guide/cgroup-v2.html",
+    "referenceUse": "Independently consulted memory.events, memory.peak, memory.stat and hierarchy descriptions. Hierarchical events are the default; record mount semantics because memory_localevents can change that scope. Read files only; do not reset peak or counters."
+  },
+  "minimalNextStep": "The top session may separately authorize a one-off concrete observer design/implementation within this scope. Its CODE review must discharge SPEC-01 through SPEC-04 and bind every input/tool/output contract; a separate resource/pre-run decision must discharge SPEC-05. This report does not perform or authorize those actions. If the capabilities cannot be demonstrated without SDK/VM/config changes, report the limitation and return for a revised product-specific design rather than install tooling or retry verification.",
+  "preservation": "Only this new external JSON report was written. No repository/index/source/proof/SDK/VM changes, native execution, benchmark, process signals, restart, epoch reset, cleanup or other-lab process inspection. Existing delivery branch and nonzero epoch were not modified.",
+  "reviewLimitations": "Static review and retained-evidence checks only. No monitor source exists to approve; no live observer performance, resource overhead or capture completeness is established. An initial guessed candidate path did not exist; corrected paths were read from expected-inputs.json and all 50 exact inputs were then rehashed. No conclusion relies on the failed path lookup."
+}
