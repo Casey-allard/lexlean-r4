@@ -1,0 +1,465 @@
+{
+  "schema": "lexlean-r4/admitted-negative-native-review/1",
+  "at": "2026-10-25T23:41:55.259076+00:00",
+  "reviewer": "child_delivery_code",
+  "verdict": "PASS_INTENDED_ORIGINAL_ADMITTED_NEGATIVE_ONLY",
+  "findings": [],
+  "classification": "Official original admitted declaration rejects sole wrong Eq.trans premise0=0; no unexpected setup/timeout/OOM classification.",
+  "native": {
+    "phase": "original-admitted-negative",
+    "verifyStatus": 1,
+    "diagnosticCode": "LLV7002",
+    "diagnosticMessageSHA256": "6b2462e64bf13cce1ade3d1f4ae549d1e5d53b04c70b515a2b678190aee74983",
+    "observedVerifyWallMs": 184265,
+    "artifactCount": 0,
+    "sourceCheckModules": 33,
+    "sourceId": "b66b9695adf4cd1fc894d0746efe9a900a3ab4b5693cec0f08c565096f08f0ce",
+    "semanticId": "959d7678c4ccfa3c7ba71a4bbee230052d83418545b4c8c5f6561c7b8b05acc9"
+  },
+  "rawEvidence": {
+    "fileCount": 76,
+    "logicalBytes": 109212,
+    "pins": [
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/allocated-before.json",
+        "bytes": 459,
+        "sha256": "89dfd4fd35a2744cec2354f27f130d908ca851a929ca7d18fe84793cd7e6bea0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/check.json",
+        "bytes": 1698,
+        "sha256": "b4aad038343303d8214a3d41211c9688b4328ca914feaa1650549ec777a444c0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-0.json",
+        "bytes": 453,
+        "sha256": "ceba800a16541a5e573a8b1ab592b6b19b5240e3c69551e59c2db524dbb753c1"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-1.json",
+        "bytes": 443,
+        "sha256": "18a65e4933ac60cc5131f5f84401cb22823c64647113ad7f3f31887f13afc446"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-10.json",
+        "bytes": 419,
+        "sha256": "4c6a158faeec5cb0a96eff00e4d123f1adf538a875c6487e733b6fd06936a41d"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-11.json",
+        "bytes": 421,
+        "sha256": "1d518974b3933ca6ec3f7b3b1de337ac38481d24a7572d98f16a7c574eb7bb50"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-12.json",
+        "bytes": 421,
+        "sha256": "7109587e777f896ca20aa455f2d253108d4bceadc5e6c451960d87e8ca5a05d0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-13.json",
+        "bytes": 457,
+        "sha256": "53216ff3c6aebc3093939833959680063b974c2e70cbed87cb7e6361325b399b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-14.json",
+        "bytes": 494,
+        "sha256": "c1f9774de1b5754e2cdeb1a1dabdbe119ff7e5cd00dd1066ae7524437ea43d5a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-15.json",
+        "bytes": 522,
+        "sha256": "6ea1ea7cd4d4372b50cb01ea45eb982e7999a5c7030df88257142dcd0600fa80"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-16.json",
+        "bytes": 534,
+        "sha256": "c89e80a24c4b2c23fddc3422e74adb695641bb6bd5051ff66165cabaa34a6499"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-17.json",
+        "bytes": 538,
+        "sha256": "6cbc86e4b1b7f188b45c089a884919252315700bca726a99863b38b341ec0a27"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-18.json",
+        "bytes": 532,
+        "sha256": "acc646b60fe8b38d2eb1b73c74dc1cac39e7d541cbffa4712ab142951f6828bd"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-19.json",
+        "bytes": 513,
+        "sha256": "a290de0f01298483c6363570600d7b616af89405d6cedb671c8e17bf2c7ba6e4"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-2.json",
+        "bytes": 445,
+        "sha256": "53e82dd68d551773dc68144c409369260d82fab5b54f450ea42539de86230977"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-20.json",
+        "bytes": 522,
+        "sha256": "0d7d8deb336c5d48a1292c968d7512aa85c06fe4f1414d739cfbd3dfe2b944ba"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-21.json",
+        "bytes": 522,
+        "sha256": "979cbd42a16e575204c5727082de0a74e8138b4d5304cc70b9007497c5783ec6"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-22.json",
+        "bytes": 535,
+        "sha256": "aab4094792766874ef9c8fd233372f62c84ce49add288c4efe088edfa2fe3745"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-23.json",
+        "bytes": 533,
+        "sha256": "e961e64fed8a0903ed19b07af53e13d5dd5aeea24cecfff25d7482e7212d9310"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-24.json",
+        "bytes": 521,
+        "sha256": "cb690307e5789712cb826645cdd1d32d84ad27f495b63860cd0362833b358478"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-25.json",
+        "bytes": 538,
+        "sha256": "f641b8b8c653018fffcff6e292439f1f5bc83aa347fda3d3220c96817d48b7a8"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-26.json",
+        "bytes": 521,
+        "sha256": "6317e01de558b0930cb9cc198d58997ebbb6ee7f3cbc33803d17c21b4f698307"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-27.json",
+        "bytes": 494,
+        "sha256": "33943cdc9c2abd855e9ae5697d27d1bf97529c3c2ac759114d6b6a81caa0c584"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-28.json",
+        "bytes": 545,
+        "sha256": "5653ac3498adb1c2439bf373d2fd8a88a00b42c5d272421bc77cff16e0147910"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-29.json",
+        "bytes": 544,
+        "sha256": "fd96e7d7b6c44f39a36ae34d9d850bb615550d6cf9f29f225b92038346a4cb9f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-3.json",
+        "bytes": 460,
+        "sha256": "07b5360b7546c4522ea436ea998af471c7e7bb4f06fc371fbaa9341071c7a748"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-30.json",
+        "bytes": 546,
+        "sha256": "832e562ecbca68ffb34d901dfa02850135c74bd46dfc4c4a0a99accce9772257"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-31.json",
+        "bytes": 532,
+        "sha256": "79bea40a2f33a4ee5a4aec86f1d3d526e8a067aa98f1bab248a1b87c449618a9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-32.json",
+        "bytes": 538,
+        "sha256": "011d4c49fecc881d4d02567880f8d888d32494bbba7340ba0e9233d94733e5c9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-33.json",
+        "bytes": 532,
+        "sha256": "573018df0a88f0aef52381daa549c8d58c77a4ddab55aa380ba0f612e7dabbda"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-34.json",
+        "bytes": 538,
+        "sha256": "e57ae1c7ee9789758c4a6e8a876e0e9f06d0eb37930a35731718ec01829b3a3e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-35.json",
+        "bytes": 538,
+        "sha256": "43e9ea1460001ff782d4893cb3b8d8028ec1bed81981ac0f3126ba90961925df"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-36.json",
+        "bytes": 520,
+        "sha256": "e36a3d33a9da6bb599e04c3c96424b74a6de255f5130e2b1c8f35b2b2c1b66c9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-37.json",
+        "bytes": 540,
+        "sha256": "4548d8aab6cd741d71fe643c99f31b4db405ef6e523ceef8c32777f95618ee28"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-38.json",
+        "bytes": 524,
+        "sha256": "fade4dbffd3dd51608215629088879115b511391bb547d3c3ba5c80e8e5e0199"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-39.json",
+        "bytes": 522,
+        "sha256": "81d2816e84b40cc88e86cc4024f21b0650ea5b5cbffa0c293b2e894808d081a9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-4.json",
+        "bytes": 455,
+        "sha256": "05d4b9b4672f82ec087c5f47bb987b17465d411c57dad1f67763d85f8ce21d06"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-40.json",
+        "bytes": 507,
+        "sha256": "3f066267160e7c7faf135906e5bf079285c45b075ea9d2c38ca6a45a35869c6e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-41.json",
+        "bytes": 519,
+        "sha256": "756f44aa874c34bc9933c7d3ac018796d027d55ab1d9c4933c41704b5215748b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-42.json",
+        "bytes": 523,
+        "sha256": "79ba1f88b703258e409b17a462d0b2ddf7efcb9e38fed76300154b9f12d8b2b7"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-43.json",
+        "bytes": 528,
+        "sha256": "98ffdaae0ff552806338c60f3b984f6737a2bc9d1e0394956932fa3607d03745"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-44.json",
+        "bytes": 518,
+        "sha256": "a74a281343da0e9c41c361ad24c97cc3ad822586e54e7cc5c53e0017b9e2ed63"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-45.json",
+        "bytes": 514,
+        "sha256": "fd132e40995a827e3415c48de6fc5a32aae299ad831ccdce0ecc599b03542008"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-46.json",
+        "bytes": 529,
+        "sha256": "771df898cd6c8b577804d8b7856d604cfd925a9648726e262017b70474f57a6a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-47.json",
+        "bytes": 529,
+        "sha256": "d80919c1548c3f639eac296e88ee2160bfcb6f48bff10cd9f32eb7a3a001f7c2"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-48.json",
+        "bytes": 533,
+        "sha256": "57d2499f0dfccc02feb221711ccb6f16ca58e462eb9e5feee3af733e459eafe1"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-49.json",
+        "bytes": 520,
+        "sha256": "a9ab67d063ce8cbde6c9199a11bdbf8c4989737b21bbf1b0f53198d3fcaf0a2f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-5.json",
+        "bytes": 461,
+        "sha256": "3a4edf47e3a245790fff3d16b029f5a3c8a879bf5d8fcb02143152279a1b450b"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-6.json",
+        "bytes": 469,
+        "sha256": "b51ae7a5938893746ad45003fb9f359c2cef16f802949fe249c04f80a8c42f4f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-7.json",
+        "bytes": 463,
+        "sha256": "f2de77e243cd18e66ce51b617d4b43592318c8ffee9c0344d4b4b0ec7cfc67e0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-8.json",
+        "bytes": 411,
+        "sha256": "42c8720e363b26259dd972a9b696a5325947ca55c1a0751ca51a63d930a4d26e"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/copy-9.json",
+        "bytes": 421,
+        "sha256": "b5750345bed41091138746d70e30a9521893833ee91652018db926ca02487c8f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/directories.json",
+        "bytes": 430,
+        "sha256": "9c4e1d0ef95cc9e7c59a524f1b77ba6cee72521fabb5aca251f230de4fd9872a"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/epoch-after.json",
+        "bytes": 470,
+        "sha256": "07ec44d95d61040e99eedc6e61257d12c600cecc46def0447d084aa184230ff9"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/epoch-before.json",
+        "bytes": 470,
+        "sha256": "1b9097236dfcc6d8d6ce8492788a9a91f9aa01b86ac8475f092b50ccf6ba0dae"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/expected-inputs.json",
+        "bytes": 16746,
+        "sha256": "500351dc4a8e411132cc35c8a5b994233f1bc2694e147057251a17c273e797db"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/guest-after.json",
+        "bytes": 406,
+        "sha256": "c76034ba9875b1fe9dc272d04ef6a1f1545cb39cf2929134a7b0876f206c2639"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/guest-before.json",
+        "bytes": 406,
+        "sha256": "2d54634dfb1dd4d3848103e9fb96cdc1147b54a1016514c0a06d7c69aef1d843"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/host-after.json",
+        "bytes": 142,
+        "sha256": "7b350502fc34b4882162f888636e1f33e5cbd70b8389952637aefabe3198256f"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/host-before.json",
+        "bytes": 152,
+        "sha256": "208fc48334865f2e33c3cfe0cf4d8d7bdb8981130157bb51ec2d318b19cbf778"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/idle-after.json",
+        "bytes": 460,
+        "sha256": "5ddba086ab2137baf69d6ce234f37028b7f1b7b86f1d99b4297e22c3f95463cf"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/idle-before.json",
+        "bytes": 460,
+        "sha256": "067dee735c39f3a28041144695a852b6a4182c1db90c680decfd35b1402545ed"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/lock-after.json",
+        "bytes": 489,
+        "sha256": "a1cb41895dca3257d6a2ca54963d8b9cfc3ae6b291bc7c744610788031d20996"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/lock-bytes.json",
+        "bytes": 2055,
+        "sha256": "8c318d71d88497c3bc30c5c4541e1596aac6520fede124e903fa2b4503639dca"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/lock.json",
+        "bytes": 539,
+        "sha256": "9c3cb35ada41bb2d0969a7b7d993aa56fc4b73d5d8e25290a8e242c310874080"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/memory-after.json",
+        "bytes": 354,
+        "sha256": "2efea780742cdd0cbcbca1e5991f5ac009f4f8a4e1c7b9877778d9b2a1205abf"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/memory-before.json",
+        "bytes": 354,
+        "sha256": "a35f6daf0183468632fb24f2667e248e728dfdcab41a06ea7096d078dff328a7"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/new-stage.json",
+        "bytes": 330,
+        "sha256": "00ffca4475878435bef63eb7b9b8e788263774e56a14fab07f59994258abaacd"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/postcapture-errors.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/result.json",
+        "bytes": 13180,
+        "sha256": "7a82162123062e9dfed0ef96d7893ca5ba20df250f3b08f3202f6c6979881fc0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/source-after.json",
+        "bytes": 14365,
+        "sha256": "c4b58222652eb65521ff13221ac33dd1685f03384d42d41635e91e9c3bbf02d0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/source-before.json",
+        "bytes": 14365,
+        "sha256": "973abe63671a85228868164d689562a277b69570c425672fc01f3ee4569adbe1"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/swap-before.json",
+        "bytes": 264,
+        "sha256": "5afce206b081453652de98df4384346962013174bb96cd720c8160cac81002ce"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/tools-after.json",
+        "bytes": 1005,
+        "sha256": "df2e292cf05077132035f4dac81b1f535523cd5a9d50b986122acdbee36977e0"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/tools-before.json",
+        "bytes": 1005,
+        "sha256": "deb51ff01cf5320a0573388f5ad32bd605a7ced05a19aaed1b7dcb96b16d74c4"
+      },
+      {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/original-admitted-negative/verify.json",
+        "bytes": 13448,
+        "sha256": "caa10009d6bdf30376f6bbab2b001e7604e015ab878fd951d32f71925e7dbdcd"
+      }
+    ]
+  },
+  "invocation": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/invoke-child-certificate.mjs",
+    "bytes": 12797,
+    "sha256": "3cc48e7aef25481a08f64bb9e2ea2f2b6b32a2e48109659b0322efd90d099b27"
+  },
+  "invocationReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/invocation-code-review.json",
+    "bytes": 5596,
+    "sha256": "617f11817c0a57e8d4c44410960d8fcc14a4478823e3b7e45b3364b66d4c08cc"
+  },
+  "precedingChildNegativeReview": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/child-negative-review.json",
+    "bytes": 24234,
+    "sha256": "f0ec2d7016401a2463df8916e23a48c5c038156c40e6f83c6f6136a4d15aecac"
+  },
+  "candidateManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/manifest.json",
+    "bytes": 23956,
+    "sha256": "abee135319c2ad9d4299a5dce83fe049da148be9716ccb65ae9c42e60c7de60b"
+  },
+  "checks": {
+    "payloads": 22,
+    "dependencies": 90,
+    "exactSourceInputsPrePost": 50,
+    "copyReceipts": 50,
+    "commandReceipts": 71,
+    "successfulCommandReceipts": 70,
+    "orderedNonoverlappingReceipts": true,
+    "developmentLockSHA256": "651458c134f6d25bb5075e90fc1946c7ef7a226fcc50ae6094739f533b911a88",
+    "lock": "Compiler-generated status0/success, config and workspace bindings exact, post lock hash unchanged.",
+    "negativeIsolation": "Compared all50 phase input maps to complete-positive: only original admitted module differs. All Child/chain sources are exact positive inputs. Original792 core nodes retained, six appended, only declaration.value791\u2192797; reverting yields full positive core object.",
+    "epoch": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+    "memory": "All six counters zero before/after",
+    "tools": [
+      "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+      "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+      "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+    ],
+    "idle": "No compiler process in recorded before/after snapshots",
+    "postcaptureErrors": []
+  },
+  "storage": {
+    "before": {
+      "hostFreeBytes": "47545602048",
+      "guestFreeKiB": 52722732
+    },
+    "after": {
+      "hostFreeBytes": "47518736384",
+      "guestFreeKiB": 52716536
+    }
+  },
+  "limitations": [
+    "Official verify1 is expected rejection; launcher0 only denotes capture completion.",
+    "Positive Child/chain source identity and later declaration rejection do not substitute for a complete positive artifact or audited kernel bundle.",
+    "complete-admitted-positive remains NOT_RUN at this review; requires fresh guards and separate actual artifact/axiom/kernel review.",
+    "Storage/memory/process receipts are snapshots, not continuous/peak measurements.",
+    "No production acceptance or controls-count promotion follows."
+  ],
+  "mutations": "Only external admitted-negative-review.json; no native/compiler/VM/repo/source/index changes."
+}

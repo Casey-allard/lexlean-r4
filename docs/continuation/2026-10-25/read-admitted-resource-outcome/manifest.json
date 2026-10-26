@@ -1,0 +1,53 @@
+{
+  "schema": "lexlean-r4/portable-outcome-archive/1",
+  "at": "2026-10-25T23:54:37.535Z",
+  "overallAcceptance": "UNACCEPTED_MEMORY_EVENT_GATE",
+  "firstNegativeOnMain": "docs/continuation/2026-10-25/read-child-negative",
+  "archiveFiles": [
+    {
+      "path": "raw-receipts.json.gz",
+      "bytes": 30347,
+      "sha256": "3d2bd5521eb87b7b74bad90220349bf3b2e7809d8476eca19d027d78c6f8b9a5",
+      "decodedBytes": 230505,
+      "decodedSha256": "c844617823f3e6258ab9de3f920dfdc1e1d9fd1091531fb98fe039676a8ccb0a",
+      "fileCount": 153
+    },
+    {
+      "path": "artifact-text.json.gz",
+      "bytes": 268199,
+      "sha256": "350992d44db461f375ef5c1fc8823dd3f58ba8e43dac82e94c234b37b6d164df",
+      "decodedBytes": 3769428,
+      "decodedSha256": "003b32486d4bb2fbead4d1cfd55d53f98c87e127ab05027aa1f6ac779e1fe2b9",
+      "fileCount": 302
+    }
+  ],
+  "reviewFiles": [
+    {
+      "path": "admitted-negative-review.json",
+      "bytes": 24221,
+      "sha256": "035aa9e82a117321065ea97ff5c9db4049f0fc847d70829df5c252ccd14460f2"
+    },
+    {
+      "path": "positive-artifact-review.json",
+      "bytes": 132355,
+      "sha256": "ba2609a01e44355fd9a0d639fd093790bcdc0a8ffd72d0a3bec21fa9b4e9afe6"
+    },
+    {
+      "path": "positive-memory-phase1.json",
+      "bytes": 31061,
+      "sha256": "e0e32ccde916815102f46f588e48943df1252a04e1a5a94d4c5cd222bf102f4a"
+    }
+  ],
+  "excludedOleans": {
+    "count": 33,
+    "bytes": 5013880,
+    "preservedExternalAt": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/complete-admitted-positive/artifact",
+    "inventory": "artifact-text.json.gz excludedOleans field"
+  },
+  "budget": {
+    "preFreeBytes": "48682377216",
+    "additionalLogicalPayloadBytes": 486183,
+    "additionalAllocationLimitBytes": 1048576,
+    "noDiskTemporaryCopies": true
+  }
+}
