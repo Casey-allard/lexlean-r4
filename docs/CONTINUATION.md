@@ -14,6 +14,18 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Draft completion sequence, 2026-10-26
 
+**2026-10-26 first64 BLAKE3 checkpoint:** The [actual first-state pair](../tests/fixtures/blake3-first-state/RESULTS.md)
+now has independently accepted wrong65 rejection and exact64 full-state proof,
+including92 empty-axiom declarations and5 kernel replays. This is the original
+first packed leaf's seven-field state, with no compression yet. Counts remain
+18/35 vectors and255/272 controls; it is not the original2048 digest or an OOM
+remedy. Next implement the five symbolic right-sibling continuation, its unrelated
+base-Apply negative, and mandatory generic-feed and exact-original-tree consumers.
+Keep final validation/finalization/ROOT/digest obligations intact. The portable
+archive also contains `pending-model-reconciliation.json`, naming the seven
+remaining drafts' concrete component/model/test obligations; Prediction is
+independent of Read33. No full claim is promoted by this checkpoint.
+
 PR67 merged the maintained Object documentation and the reviewed obsolete
 primitive disposition. Seven original draft files remain; their source snapshots
 stay preserved. The next independent BLAKE3 step has now reached the official

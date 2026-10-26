@@ -1,0 +1,72 @@
+{
+  "schema": "lexlean-r4/blake3-first-state-delivery-manifest/1",
+  "scope": "Accepted local first64 state/negative pair and exact evidence; no whole2048 or full component acceptance. Seven drafts/three issue66 files excluded.",
+  "sourceManifestUnchanged": true,
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 94867,
+      "sha256": "39b35b5a452cfeae96c8c0e8a2d2510641daa1cce1afd74d4d82e8b8e38a981b"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 75326,
+      "sha256": "16e44eacab40ef18995cf58cc4accdaa6f392a5b0a265eb0d54f79e8c251b7e4"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/README.md",
+      "bytes": 2422,
+      "sha256": "3ee41c5c810641c1d2ba39d74ec6bc344042d3870afb7dae2bbba96fd77de845"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/RESULTS.md",
+      "bytes": 4362,
+      "sha256": "3bca559c31d2060dc23c83103d428410f34fbee970a52570c310707da754dc6b"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/artifact-inventory.json",
+      "bytes": 18593,
+      "sha256": "0e4cab124a998ccfe8b50c190c8bef76b103a3b78cb65bf36b9feac87730a9ac"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/candidate.json",
+      "bytes": 6728,
+      "sha256": "ce97181a27c84808ea392f00ec2c3dbfac12048bfc5559b9d494cb60ef2e6f1f"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/evidence.jsonl.gz",
+      "bytes": 302502,
+      "sha256": "68c77c0fcc2815255ff8a26d08b5ce326017c2e8353326dc3354ca974319cf07"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/manifest.json",
+      "bytes": 4253,
+      "sha256": "576b79c8b2bc7a9e680093b503e4f6d64d14ab877f41bd76bd29bc7e93bac784"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/phases/negative/lexlean.toml",
+      "bytes": 691,
+      "sha256": "308fdd5e2c86238cf541f83f3aeb8f4b3f832375aa0d281cc6f25baa773bcfbe"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/phases/positive/lexlean.toml",
+      "bytes": 686,
+      "sha256": "db78b082e6d62df4e7f901786387695d4492a67996ca6b3db602510668e9f87d"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/project/tests/lexlean/Blake3Case19FirstState.lex.tex",
+      "bytes": 5642,
+      "sha256": "807321ec854a0a7eeaef4a010e5a44f003cb0dcdbe7273d93019ac46ec59f8aa"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/project/tests/lexlean/Blake3Case19FirstStateFalse.lex.tex",
+      "bytes": 5647,
+      "sha256": "ab60d68e3731125c50895c5d17deb301f735e66520afbbfc49da0844c36d7a74"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-state/results.json",
+      "bytes": 11873,
+      "sha256": "f37430ee88af71e981f37476f97a773b0dd5a971af8b88b8eb5a1a8486c5e972"
+    }
+  ]
+}
