@@ -14,6 +14,14 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
+The [functional guest entry](../tests/fixtures/object-read-memory-observation/GUEST-ENTRY.md)
+now loads bounded, owned configuration and calls the actual serial reader.
+The final host suite passes235 tests, including23 new tests that exercise all
+eleven boundaries on synthetic filesystem records; eight planted defects reject.
+Independent CODE/Python/security reviews approve this source scope. Actual guest
+execution, host launch ownership and native proof acceptance remain NOT_RUN.
+The preceding JavaScript coverage gap below remains open; PR65 stays draft.
+
 The [invocation source checkpoint](../tests/fixtures/object-read-memory-observation/INVOCATION-PREPARATION.md)
 preserves the exact one-off body behind an immutable null epoch, with inert
 import and five passing host tests. It supplies no live connection or native

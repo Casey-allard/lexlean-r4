@@ -1,0 +1,42 @@
+{
+  "schema": "lexlean-r4/source-checkpoint-delivery/1",
+  "base": "c814c322dab9dcba76a259a164f0fa99108bfb48",
+  "status": "HOST_SOURCE_ONLY_DRAFT",
+  "payloads": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 88557,
+      "sha256": "34e8324fd3b95c79ba61ca7db303b68bedfda57e8b548f3fd70e81e09e725e58"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 71289,
+      "sha256": "7acaeddd1d5c073b87d02ea60e01c965b0c9a123ebfe6643c2f013bb4726b2a3"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observer_entry.py",
+      "bytes": 6189,
+      "sha256": "ab6f4c8ef96e297dce0b8a3acd24ddae6d3833cfc2ef393347d583e5340b5d1e"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observer_entry.py",
+      "bytes": 17048,
+      "sha256": "2b5fa96bb2d766dfbf0f6ad2119624dd2dd2f170b5ce0c4c12d80553cfbc67d7"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/GUEST-ENTRY.md",
+      "bytes": 3898,
+      "sha256": "9606c8e90ffa25aa1fdc1b15d0055155f6fa0e0e5d797d779bd553968865d75d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/guest-entry-results.json",
+      "bytes": 1738,
+      "sha256": "49d0bfb4ea6f58aa708585c90915efe3dc968f220ebae510008898bf48df61e2"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/guest-entry-evidence.jsonl.gz",
+      "bytes": 28674,
+      "sha256": "ea4bc930d208516ef45ca1dcd4da72389b026ea523f860fdec1356672e7b575d"
+    }
+  ]
+}
