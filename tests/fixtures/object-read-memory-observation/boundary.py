@@ -312,6 +312,7 @@ class SampleBoundary:
         self.ever_nonzero = False
         self.busy, self.header_written = False, False
         self.last_end = self.origin
+        self.last_clock = self.origin
         self.started, self.ended, self.attempt = None, None, None
         self.field = 'context'
         self.seal = self._signature()
@@ -365,8 +366,9 @@ class SampleBoundary:
         self.field = 'clock'
         value = self.clock()
         self._journal_guard()
-        if type(value) is not int or not self.last_end <= value < 2**64:
+        if type(value) is not int or not max(self.last_end, self.last_clock) <= value < 2**64:
             raise ObservationError('sample_clock')
+        self.last_clock = value
         return value
 
     def _header(self):
@@ -380,12 +382,14 @@ class SampleBoundary:
                        'maxPids': 64, 'maxIdentities': 1024, 'maxKeysets': 32}], 8192)
         self.header_written = True
 
-    def _memory(self):
+    def _memory(self, slow=True):
         events = observe.parse_events(self._read('memory.events'))
         numbers = [_numeric_line(self._read(name)) for name in
                    ('memory.current', 'memory.swap.current')]
         peak = self._optional('memory.peak')
         numbers.append(None if peak is None else _numeric_line(peak))
+        if not slow:
+            return events, numbers, None, None, (int(peak is None), None)
         stat = _slow_stat(self._read('memory.stat'))
         pressure = self._optional('memory.pressure')
         self.field = 'memory.pressure'
@@ -407,15 +411,20 @@ class SampleBoundary:
             self._identity_guard()
             return None
 
-    def _history(self, events, local):
-        for previous, current in ((self.previous_events, events), (self.previous_local, local)):
+    def _history(self, events, local, local_observed=True):
+        pairs = [(self.previous_events, events)]
+        if local_observed:
+            pairs.append((self.previous_local, local))
+        for previous, current in pairs:
             if previous is not None and (current is None or any(
                     key not in current or int(current[key]) < int(value)
                     for key, value in previous.items())):
                 raise ObservationError('sample_event_continuity')
         self.ever_nonzero |= any(value != '0' for value in events.values())
         self.ever_nonzero |= local is not None and any(value != '0' for value in local.values())
-        self.previous_events, self.previous_local = events, local
+        self.previous_events = events
+        if local_observed:
+            self.previous_local = local
         if self.sequence == 7 and self.ever_nonzero:
             raise ObservationError('sample_nonzero_preverify')
 
@@ -455,14 +464,31 @@ class SampleBoundary:
         self.live = live
         return rows
 
-    def _capture(self):
+    def _schedule_count(self, schedule):
+        if schedule is None:
+            return 0, None
+        due, pending, periodic = schedule
+        if (type(due) is not int or not self.origin <= due < 2**64
+                or (due-self.origin) % 100000000 or type(pending) is not int
+                or not 0 <= pending < 2**53 or type(periodic) is not bool
+                or (periodic and self.started < due)):
+            raise ObservationError('sample_schedule')
+        crossed = 0 if self.ended < due else 1+(self.ended-due)//100000000
+        missed = pending+crossed-int(periodic)
+        future = due+crossed*100000000
+        if not 0 <= missed < 2**53 or future >= 2**64:
+            raise ObservationError('sample_schedule_overflow')
+        return missed, future
+
+    def _capture(self, schedule=None, slow_due_ns=None):
         self._identity_guard()
         self.started = self._time()
+        slow = slow_due_ns is None or self.started >= slow_due_ns
         if not self.header_written:
             self._header()
         observe.check_no_descendants(*self.cgroup)
         census = self._read('cgroup.procs')
-        events, numbers, slow, local, flags = self._memory()
+        events, numbers, slow_values, local, flags = self._memory(slow)
         self._dictionary(events)
         processes = self._processes(census)
         if set(observe.parse_procs(self._read('cgroup.procs'))) != set(observe.parse_procs(census)):
@@ -471,14 +497,16 @@ class SampleBoundary:
         self._identity_guard()
         self.ended = self._time()
         interval = observe.guest_interval(self.origin, self.started, self.ended)
+        missed, future = self._schedule_count(schedule)
         self.sample += 1
         self._append(['s', self.sample, *interval, self.keyset,
                       [events[key] for key in self.keys], *numbers,
-                      processes, 0, flags[0]], 16384)
-        self._append(['m', self.sample, *interval, *slow, flags[1]], 32768)
-        self._history(events, local)
+                      processes, missed, flags[0]], 16384)
+        if slow:
+            self._append(['m', self.sample, *interval, *slow_values, flags[1]], 32768)
+        self._history(events, local, local_observed=slow)
         self._identity_guard()
-        return interval
+        return interval, future, slow
 
     def _failure(self, error):
         self.failed = True
@@ -501,7 +529,7 @@ class SampleBoundary:
         finally:
             self.journal.stopped = True
 
-    def capture_boundary(self, request):
+    def capture_boundary(self, request, *, due_ns=None, pending_misses=0):
         if self.busy:
             self.failed = True
             self.journal.stopped = True
@@ -513,7 +541,8 @@ class SampleBoundary:
             nonce, sequence, _ = decode_request(request)
             if (nonce, sequence) != (self.nonce, self.sequence):
                 raise ObservationError('sample_request')
-            interval = self._capture()
+            schedule = None if due_ns is None else (due_ns, pending_misses, False)
+            interval, future, slow = self._capture(schedule)
             ack = retain_ack_copy(self.journal, request, self.sample, interval[0], self.binding)
             self._owner_guard()
             if self.failed:
@@ -521,9 +550,77 @@ class SampleBoundary:
             self.seal = self._signature()
             self.sequence += 1
             self.last_end = self.ended
-            return ack
+            if schedule is None:
+                return ack
+            return self._completion(future, slow, ack)
         except BaseException as error:
             self._failure(error)
+            raise
+        finally:
+            self.busy = False
+
+    def _completion(self, future, slow, ack=None):
+        finished = self._time()
+        self._journal_guard()
+        return {'ack': ack, 'next_due': future, 'started_ns': self.started,
+                'read_end_ns': self.ended, 'finished_ns': finished, 'slow': slow}
+
+    def capture_periodic(self, due_ns, pending_misses, slow_due_ns):
+        if self.busy:
+            self.failed = True
+            self.journal.stopped = True
+            raise ObservationError('sample_reentrant')
+        self.busy = True
+        self.started, self.ended, self.attempt = None, None, self.sample+1
+        try:
+            self._journal_guard()
+            if (type(slow_due_ns) is not int or not self.origin <= slow_due_ns < 2**64
+                    or (slow_due_ns-self.origin) % 5000000000):
+                raise ObservationError('sample_slow_schedule')
+            _, future, slow = self._capture((due_ns, pending_misses, True), slow_due_ns)
+            self.last_end = self.ended
+            return self._completion(future, slow)
+        except BaseException as error:
+            self._failure(error)
+            raise
+        finally:
+            self.busy = False
+
+    def synchronize_owned(self):
+        if self.busy:
+            self.failed = True
+            self.journal.stopped = True
+            raise ObservationError('sample_reentrant')
+        self.busy = True
+        try:
+            self._journal_guard()
+            before = self._signature()
+            self.journal.sync()
+            self._owner_guard()
+            if self._signature() != (*before[:3], before[2], *before[4:]):
+                raise ObservationError('sample_sync_mutation')
+            self.seal = self._signature()
+            return self._time()
+        except BaseException as error:
+            self._failure(error)
+            raise
+        finally:
+            self.busy = False
+
+    def now(self):
+        if self.busy:
+            self.failed = True
+            self.journal.stopped = True
+            raise ObservationError('sample_reentrant')
+        self.busy = True
+        try:
+            self._journal_guard()
+            value = self._time()
+            self._journal_guard()
+            return value
+        except BaseException:
+            self.failed = True
+            self.journal.stopped = True
             raise
         finally:
             self.busy = False
