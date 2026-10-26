@@ -44,7 +44,7 @@ preparation. Do not create a build target, install packages or run the SDK.
    Retain complete prefixes; no ring overwrite. Fault tests cover short writes,
    quota exhaustion and failed synchronization. Dependency: step 2. Risk: medium.
 4. **`observe.py`, `boundary.py`, `test_identity.py`, `test_owned_io.py`,
-   `test_family.py`, `test_boundary.py` (with existing test discovery):** test and implement owned-cgroup census and double-read
+   `test_family.py`, `test_boundary.py`, `test_sample.py` (with existing test discovery):** test and implement owned-cgroup census and double-read
    identity checks, common guest-clock samples, missed ticks and marker/ACK
    validation. Processes without proven invocation ancestry remain explicitly
    unattributed. Use captured records only as fixtures, never invented measured
@@ -58,8 +58,11 @@ preparation. Do not create a build target, install packages or run the SDK.
    and retained request/ACK copies in an imported `boundary.py` to keep source
    files bounded. It adds no observer process. Nested parent consistency is not
    root attribution; wire correlation and journal copies are not semantic ACK
-   admission. Actual sample/dictionary/identity validation and fixed-slot
-   publication remain mandatory before step 5 can execute.
+   admission. The [forced sample checkpoint](../../tests/fixtures/object-read-memory-observation/SAMPLES.md)
+   connects actual ordinary/slow acquisition, dictionaries, concrete identity,
+   counter history and ACK arguments. Owned parent/root linkage, live preflight,
+   periodic scheduling and fixed-slot publication remain mandatory before step 5
+   can execute.
 5. **Same source and focused test files:** compose the one-off reader. Direct bounded shared-file
    retention must not depend on the host event loop draining stdout during
    `spawnSync`. Stop observation only on failure/cap; never signal or extend a
