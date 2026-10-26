@@ -43,12 +43,13 @@ preparation. Do not create a build target, install packages or run the SDK.
    pools, partial-write accounting, terminal reserve and synchronization records.
    Retain complete prefixes; no ring overwrite. Fault tests cover short writes,
    quota exhaustion and failed synchronization. Dependency: step 2. Risk: medium.
-4. **Same two files:** test and implement owned-cgroup census and double-read
+4. **`observe.py`, `test_identity.py` (with existing test discovery):** test and implement owned-cgroup census and double-read
    identity checks, common guest-clock samples, missed ticks and marker/ACK
    validation. Processes without proven invocation ancestry remain explicitly
    unattributed. Use captured records only as fixtures, never invented measured
    process histories. Dependency: steps 2–3. Risk: high; races and coverage gaps
-   must remain visible.
+   must remain visible. The separate focused test file keeps the original
+   668-line test suite unchanged and below the review file-size limit.
 5. **Same two files:** compose the one-off reader. Direct bounded shared-file
    retention must not depend on the host event loop draining stdout during
    `spawnSync`. Stop observation only on failure/cap; never signal or extend a

@@ -145,6 +145,65 @@ def parse_membership(raw: bytes) -> bytes:
     return raw[3:-1]
 
 
+def process_snapshot(census: bytes, pid: str, target: bytes,
+                     read: Callable[[str, str, int], bytes]) -> dict[str, object]:
+    """Sample one census PID through a trusted bounded reader, without attribution.
+
+    Caller owns census acquisition, path confinement and epoch validation. The
+    reader receives only this PID and fixed proc filenames, and must enforce the
+    supplied cap. This consistency check cannot exclude unobserved ABA changes.
+    """
+    def raw(name: str, cap: int) -> bytes:
+        data = read(pid, name, cap)
+        if type(data) is not bytes or len(data) > cap:
+            raise ObservationError("proc_read_protocol")
+        return data
+
+    if (type(census) is not bytes or type(pid) is not str
+            or type(target) is not bytes or not 1 <= len(target) <= 4092
+            or not target.startswith(b"/")
+            or any(c in target for c in (b"\x00", b"\n", b"\r"))):
+        raise ObservationError("invalid_process_request")
+    if pid not in parse_procs(census):
+        raise ObservationError("pid_not_in_census")
+    before = parse_stat(raw("stat", 4096))
+    membership = parse_membership(raw("cgroup", 4096))
+    if before[0] != pid or membership != target:
+        raise ObservationError("initial_identity")
+    fields = parse_status(raw("status", 8192))
+    cmdline = raw("cmdline", 4096)
+    after = parse_stat(raw("stat", 4096))
+    membership = parse_membership(raw("cgroup", 4096))
+    if before != after or fields[:2] != before[:2] or membership != target:
+        raise ObservationError("raced_identity")
+    return {"pid": pid, "ppid": before[1], "start": before[2],
+            "namespace": fields[2], "rss_kib": fields[3], "hwm_kib": fields[4],
+            "cmdline": cmdline, "parent_start": None,
+            "attribution": "owned_unattributed"}
+
+
+def guest_interval(origin_ns: int, start_ns: int, end_ns: int) -> tuple[str, str]:
+    """Widen one guest BOOTTIME interval; caller must establish the clock domain."""
+    if (any(type(n) is not int for n in (origin_ns, start_ns, end_ns))
+            or not 0 <= origin_ns <= start_ns <= end_ns < 2**64):
+        raise ObservationError("clock_interval")
+    return (str((start_ns - origin_ns) // 1000),
+            str((end_ns - origin_ns + 999) // 1000))
+
+
+def next_tick(origin_ns: int, due_ns: int, finished_ns: int) -> tuple[int, int]:
+    """Advance the absolute 100ms schedule; caller samples once, never catches up."""
+    if (any(type(n) is not int for n in (origin_ns, due_ns, finished_ns))
+            or not 0 <= origin_ns <= due_ns <= finished_ns < 2**64
+            or (due_ns - origin_ns) % 100000000):
+        raise ObservationError("clock_schedule")
+    missed = (finished_ns - due_ns) // 100000000
+    future = due_ns + (missed + 1) * 100000000
+    if future >= 2**64:
+        raise ObservationError("clock_schedule_overflow")
+    return future, missed
+
+
 def row_pool(row: bytes) -> str:
     """Validate only JSONL envelope/tag/size; full observation schema is separate."""
     caps = {"s": 16384, "m": 32768, "i": 8192, "e": 8192,

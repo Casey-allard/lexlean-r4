@@ -1,0 +1,117 @@
+{
+  "schema": "lexlean-r4/coverage-debugger-phase1/v1",
+  "recorded_at": "2026-10-26T02:46:16.304910+00:00",
+  "scope": "Phase 1 instrument investigation only; no source/test repair, fixture generation, native run, SDK change, installation, delegation, or acceptance claim.",
+  "role": {
+    "name": "debugger",
+    "roster_verify": "PASS: 4e5d2791f522e3ca, 7 agents, 7 skills",
+    "roster_check": "PASS: Agent debugger active",
+    "instructions_read": [
+      "AGENTS.md",
+      "INIT.md",
+      ".claude/agents/debugger.md"
+    ]
+  },
+  "failure_record": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/admitted-identity/17-coverage-instrument-failure.json",
+  "failure_record_preserved": true,
+  "runtime": {
+    "executable": "/opt/homebrew/opt/python@3.15/bin/python3.15",
+    "invocation": "/opt/homebrew/bin/python3 -B",
+    "version": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "trace_path": "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/trace.py"
+  },
+  "frozen_sha256": {
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py": "77371356f9845d2baa4a569ab828a537b3aaf8c7b4ee5d8337599b0b5cea4252",
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_identity.py": "5aeec53a69329d78d9b07012cf58b341f7de9da22e35e91e440dfd353953738e"
+  },
+  "recent_changes_checked": {
+    "observe_unstaged_diff": "59 insertions; no debugger edits",
+    "recent_observe_commits": [
+      "70405e3",
+      "8511d60",
+      "e4af1fc"
+    ]
+  },
+  "reproduction": {
+    "operation": "raw=set(trace._find_executable_linenos(str(observe_path))); positive={n for n in raw if type(n) is int and n>0}; sorted(raw-positive)",
+    "repeated_errors": [
+      {
+        "repetition": 1,
+        "type": "TypeError",
+        "message": "'<' not supported between instances of 'NoneType' and 'int'"
+      },
+      {
+        "repetition": 2,
+        "type": "TypeError",
+        "message": "'<' not supported between instances of 'NoneType' and 'int'"
+      }
+    ],
+    "raw_key_count": 410,
+    "positive_exact_int_count": 408,
+    "excluded_keys": [
+      {
+        "value": null,
+        "type": "NoneType",
+        "meaning": "bytecode without source line"
+      },
+      {
+        "value": 0,
+        "type": "int",
+        "meaning": "module entry bytecode; outside one-based source lines"
+      }
+    ],
+    "positive_line_range": [
+      3,
+      512
+    ],
+    "module_zero_example": [
+      [
+        0,
+        4,
+        0
+      ]
+    ],
+    "none_example": {
+      "code_name": "Retention",
+      "first_source_line": 447,
+      "co_lines_examples": [
+        [
+          0,
+          2,
+          null
+        ]
+      ]
+    }
+  },
+  "cause": {
+    "classification": "coverage instrument incompatibility with admitted raw line-table values; no product defect demonstrated",
+    "dataflow": [
+      "code.co_lines() includes line 0 and None",
+      "dis.findlinestarts preserves these values and explicitly documents None",
+      "trace._find_lines_from_code adds every value not in docstring exclusions",
+      "trace._find_executable_linenos returns 410 keys including None and 0",
+      "covered was normalized but executable was not; uncovered therefore retained incomparable None and int keys",
+      "sorted(executable-covered) raises TypeError"
+    ],
+    "local_source_evidence": {
+      "dis.findlinestarts": "Docstring: lineno will be an integer or None the offset does not have a source line. Implementation iterates code.co_lines and yields line.",
+      "trace._find_lines_from_code": "for _, lineno in dis.findlinestarts(code): if lineno not in strs: linenos[lineno] = 1"
+    }
+  },
+  "minimal_measurement_recipe": [
+    "Keep the failed record and pre-existing planted-defect report immutable. Use a separately named corrected measurement record.",
+    "Check the frozen observer and test_identity hashes before and after measurement. Retain Python executable/version, exact source path, suite identities, discovery count, testsRun, failures, errors, skips, expected failures and unexpected successes.",
+    "Set raw_executable=set(trace._find_executable_linenos(str(observe_path))). Record all excluded keys with their type and reason. Permit exclusions only when line is None or (type(line) is int and line == 0). Fail the measurement for any other value that is not an exact positive int.",
+    "Set executable={line for line in raw_executable if type(line) is int and line > 0}. For this frozen source/runtime require raw count 410, excluded None and 0, positive denominator 408. Do not exclude any positive source line.",
+    "Use trace.Trace(count=True, trace=False). Retain the existing exact 46-test selection and require all 46 executed with zero omissions/failures. Count only actual results.counts entries for the exact observer filename and positive execution count. Apply the same explicit None/0 validation to line keys, then covered={line for (filename,line),count in counts.items() if filename==str(observe_path) and type(line) is int and line>0 and count>0}.",
+    "Report sorted(covered-executable) separately; never add these lines to the numerator. Compute hit=covered & executable, missing=sorted(executable-covered), numerator=len(hit), denominator=len(executable). Record the complete missing-line list and exact ratio.",
+    "State whether observe was imported before tracing: such a run measures test-execution line coverage only and can leave import/class/function definition lines uncovered. Do not silently drop them or relabel the result as branch coverage or full product acceptance."
+  ],
+  "boundaries": {
+    "coverage_percent": "NOT_MEASURED_BY_DEBUGGER",
+    "46_test_suite": "NOT_RERUN_BY_DEBUGGER; parent reported earlier run; reproduction did not require tests",
+    "mutants": "Existing 16-planted-defects.json not changed; no independent mutant validation in this task",
+    "normalization": "RECOMMENDATION_ONLY; parent may run separate corrected measurement",
+    "source_and_tests_unchanged": true
+  }
+}

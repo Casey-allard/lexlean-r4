@@ -1,0 +1,115 @@
+{
+  "schema": "bounded-code-review/v1",
+  "reviewer": "code-reviewer",
+  "at": "2026-10-26T02:43:24.670550+00:00",
+  "verdict": "APPROVE_BOUNDED_SOURCE_ONLY",
+  "scope": {
+    "base": "4cb97a048f46364dd316de03e8f392dfc6c81951",
+    "branch": "codex/admitted-memory-identity",
+    "change": "59 added lines in observe.py and new test_identity.py; unrelated nine drafts excluded",
+    "functions": [
+      "process_snapshot",
+      "guest_interval",
+      "next_tick"
+    ]
+  },
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS: 7 agents/7 skills",
+    "check": "Agent code-reviewer active",
+    "file_claims": "Empty table; no conflicting claim",
+    "read": [
+      "AGENTS.md",
+      "INIT.md",
+      ".agent-sync/ROUTING.md",
+      ".claude/agents/code-reviewer.md",
+      "docs/plans/2026-10-26-admitted-memory-observation.md step 4",
+      "design/contract.json ownership and clock sections"
+    ]
+  },
+  "pins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 21706,
+      "sha256": "77371356f9845d2baa4a569ab828a537b3aaf8c7b4ee5d8337599b0b5cea4252"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_identity.py",
+      "bytes": 8484,
+      "sha256": "5aeec53a69329d78d9b07012cf58b341f7de9da22e35e91e440dfd353953738e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 34150,
+      "sha256": "833075e12209a9eed4db3e6b8e61d6f877e886712759fa041cc7358654e189d2"
+    }
+  ],
+  "tests": {
+    "interpreter": "/opt/homebrew/opt/python@3.15/bin/python3.15",
+    "version": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /opt/homebrew/bin/python3.15 -B -m unittest discover -s tests/fixtures/object-read-memory-observation -p test*.py -v",
+    "observed": "46 tests PASS; fresh independent rerun 46 tests PASS",
+    "rerun_output": "..............................................\n----------------------------------------------------------------------\nRan 46 tests in 0.029s\n\nOK\n",
+    "initial_runtime_mismatch": "Default python3 is Apple Python 3.9; discovery produced 2 import errors at existing observe.py:100 PEP604 annotation. Explicit existing Python3.15 resolves this; no package/runtime installation."
+  },
+  "adversarial_probes": [
+    {
+      "name": "exact reader caps and protocol failure ordering",
+      "cases": 18,
+      "result": "PASS",
+      "detail": "One-byte-over at each read rejects immediately; memoryview and bool reject without subsequent reads."
+    },
+    {
+      "name": "census/path-shaped PID rejection",
+      "cases": 10,
+      "result": "PASS",
+      "detail": "Invalid census and nonmember PID strings invoke no reader."
+    },
+    {
+      "name": "membership path boundary",
+      "cases": 2,
+      "result": "PASS",
+      "detail": "4092-byte exact path accepted through 4096-byte membership; 4093-byte request rejected before reading."
+    },
+    {
+      "name": "missing namespace and memory remain unknown",
+      "cases": 1,
+      "result": "PASS",
+      "detail": "Unknown fields remain None; no fabricated parent or invocation attribution."
+    },
+    {
+      "name": "compound failure precedence",
+      "cases": 1,
+      "result": "PASS",
+      "detail": "Initial stat mismatch plus failing first membership read propagates original reader error; no snapshot returned. Error precedence follows read order."
+    },
+    {
+      "name": "guest interval conservative integer enclosure",
+      "cases": 179,
+      "result": "PASS",
+      "detail": "Floor/ceil are enclosing and tight to less than 1000ns without float conversion, including u64 edge."
+    },
+    {
+      "name": "absolute schedule and overflow invariants",
+      "cases": 222,
+      "result": "PASS",
+      "detail": "Future is first strictly later origin-grid tick; missed count exact; 4 overflows fail closed."
+    }
+  ],
+  "actionable_findings": [],
+  "review": {
+    "identity": "Validates census membership before proc callback, fixed six reads and caps, double PID/PPID/start and cgroup equality, status identity crosscheck; retains exact immutable cmdline bytes and unknown parent.",
+    "races": "Observed PID/start/PPID/membership drift rejects; unobserved ABA, exec with unchanged start, changing mutable memory and cgroup replacement are not excluded. Function expressly requires trusted bounded reader and caller epoch/path validation.",
+    "failure_order": "Read/protocol/parser exceptions stop at failing call. Initial identity comparison follows first stat/cgroup pair. Final status/identity comparison follows all six reads. Simultaneous error precedence follows read order; no partial result escapes.",
+    "bounds": "Maximum six successful reads total 28672 bytes, plus census <=4096 and target <=4092. Returned cap check cannot bound a malicious callback allocation; callback trusted contract is explicit.",
+    "clock": "Exact Python integers; bool/subclasses rejected through exact-type check. guest_interval widens relative microseconds; next_tick advances strictly beyond finished and rejects u64 overflow. Caller establishes one guest BOOTTIME domain."
+  },
+  "limitations": [
+    "Host synthetic source checks only; selected guest Python3.12 not executed.",
+    "No SDK/VM/native execution, filesystem reader, actual proc scan, clock sampling, marker/ACK or live identity qualification performed.",
+    "These are partial step4 primitives; common-domain acquisition, unknown/gap encoding, parent/root binding, reader confinement and orchestration remain later obligations.",
+    "No measured concurrency history, coverage metric, atomic snapshot, absence of ABA, invocation ancestry or causal memory attribution claimed.",
+    "Old actual memory.events.max=6325 remains unaccepted; full pure LexLean/PrismPM/Pages acceptance remains open."
+  ],
+  "preservation": "No source edits, packages installed, or unrelated drafts altered. Only this exclusively created report persisted; bytecode disabled for test/probe runs."
+}
