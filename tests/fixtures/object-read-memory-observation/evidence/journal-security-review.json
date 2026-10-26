@@ -1,0 +1,81 @@
+{
+  "schema": "lexlean-r4/observer-journal-security-review/1",
+  "at": "2026-10-26T01:22:30.344928+00:00",
+  "reviewer": "observer_security_review",
+  "role": "independent internal security-reviewer",
+  "roster": "4e5d2791f522e3ca verify/security-reviewer check passed; profile read",
+  "verdict": "PASS_PARTIAL_HOST_JOURNAL_PRIMITIVE_ONLY",
+  "findings": [],
+  "manifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-journal-host-tests/source-manifest.json",
+    "sha256": "9e99f9faacdcfbad3e5d8f13332267f75b086cf1b7803a924b6abcb8a0c96bc7",
+    "files": [
+      {
+        "path": "tests/fixtures/object-read-memory-observation/observe.py",
+        "bytes": 9277,
+        "sha256": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b"
+      },
+      {
+        "path": "tests/fixtures/object-read-memory-observation/test_observe.py",
+        "bytes": 19658,
+        "sha256": "7ac370aa834225b3cf539086279a84b8bc2637a65cb3e807ea1b015e94dd21ed"
+      },
+      {
+        "path": "tests/fixtures/object-read-memory-observation/JOURNAL.md",
+        "bytes": 3110,
+        "sha256": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+      }
+    ]
+  },
+  "assessment": [
+    "Envelope input bytes bounded32768 before JSONparse; UTF8/singleLF/array/tag/per-tagencodedcap enforced. Full numeric/field/depth semantics are deliberately outside this partial helper.",
+    "Fullrow reserved in independent fixedpool beforewrite; terminal8192/control2048 cannot be spent byappend, failedrownotrefunded. Exact whole-lifecycle marker/copy/retrieval ledger remains absent.",
+    "Only valid reported positive shortwritecounts advance written_offset. Anywritefailure stops, preserves originalcause and marks trueenduncertain. Incomplete suffix cannotadvance completeprefix.",
+    "Sync advances bound onlyafter trusted callback returnsNone; failurestops and retainspriorbound. NoACK/durability guarantee is implemented.",
+    "No pathopening/process/network/credential/environment access added. Callerowns emptyexclusiveunbufferedstream and trustedsynchronouscallback; concurrent/reentrant use unsupported. Publicmutable state is trustedinternalstate, not a hostilecaller boundary.",
+    "Maximuminput size bounds parsepayload but does not establish PythonRSS, recursion cost, composed runtime memory or guestoverhead. Fullschema/depth/objectaccounting must precede livecomposition."
+  ],
+  "additionalProbeGroups": [
+    "Combined exact pool fill:1048576reserved incl8192terminal+2048control;1038336written; overflow stops before IO.",
+    "Mutating reserved snapshot does not refund internal pool.",
+    "Seven tags exact encoded cap accepted and cap+1 rejected.",
+    "Infinity/-Infinity/NaN literals and trailingNUL reject before IO.",
+    "Write KeyboardInterrupt/SystemExit preserve exact cause, charge fullrow, stop without retry and mark uncertain offset.",
+    "Scope probes: exponent1e9999 and valid2000-level nested JSON accepted as envelope-only records. Future schema/object-depth/composed allocation constraints remain required; no validity or memory safety of full observation implied."
+  ],
+  "tests": {
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_observe"
+    ],
+    "exitCode": 0,
+    "tests": 26,
+    "stdout": "",
+    "stderr": "test_counter_keeps_decimal_identity (test_observe.CounterTests.test_counter_keeps_decimal_identity) ... ok\ntest_counter_rejects_noncanonical_and_out_of_range_values (test_observe.CounterTests.test_counter_rejects_noncanonical_and_out_of_range_values) ... ok\ntest_events_preserve_all_valid_unknown_keys (test_observe.CounterTests.test_events_preserve_all_valid_unknown_keys) ... ok\ntest_events_reject_incomplete_duplicate_or_unbounded_records (test_observe.CounterTests.test_events_reject_incomplete_duplicate_or_unbounded_records) ... ok\ntest_all_row_kinds_charge_their_encoded_bytes_to_the_same_shared_pools (test_observe.JournalTests.test_all_row_kinds_charge_their_encoded_bytes_to_the_same_shared_pools) ... ok\ntest_complete_row_is_written_once_and_sync_tracks_prefix (test_observe.JournalTests.test_complete_row_is_written_once_and_sync_tracks_prefix) ... ok\ntest_encoded_escape_and_multibyte_lengths_are_charged_not_character_counts (test_observe.JournalTests.test_encoded_escape_and_multibyte_lengths_are_charged_not_character_counts) ... ok\ntest_fixed_pools_allow_exact_fill_and_reject_one_byte_over_before_write (test_observe.JournalTests.test_fixed_pools_allow_exact_fill_and_reject_one_byte_over_before_write) ... ok\ntest_invalid_write_counts_stop_on_first_call_without_claiming_a_row (test_observe.JournalTests.test_invalid_write_counts_stop_on_first_call_without_claiming_a_row) ... ok\ntest_partial_exception_preserves_prefix_and_prevents_further_io (test_observe.JournalTests.test_partial_exception_preserves_prefix_and_prevents_further_io) ... ok\ntest_partial_write_charges_full_reservation_and_tracks_only_reported_bytes (test_observe.JournalTests.test_partial_write_charges_full_reservation_and_tracks_only_reported_bytes) ... ok\ntest_row_envelope_rejects_before_io_and_preserves_terminal_capacity (test_observe.JournalTests.test_row_envelope_rejects_before_io_and_preserves_terminal_capacity) ... ok\ntest_short_writes_continue_without_duplicate_or_missing_bytes (test_observe.JournalTests.test_short_writes_continue_without_duplicate_or_missing_bytes) ... ok\ntest_sync_failure_keeps_prior_sync_bound_and_stops_without_retry (test_observe.JournalTests.test_sync_failure_keeps_prior_sync_bound_and_stops_without_retry) ... ok\ntest_census_preserves_kernel_order_without_scanning_other_processes (test_observe.ProcessTests.test_census_preserves_kernel_order_without_scanning_other_processes) ... ok\ntest_census_rejects_partial_duplicate_invalid_or_over_capacity (test_observe.ProcessTests.test_census_rejects_partial_duplicate_invalid_or_over_capacity) ... ok\ntest_membership_preserves_exact_unified_path (test_observe.ProcessTests.test_membership_preserves_exact_unified_path) ... ok\ntest_membership_rejects_nonunified_partial_or_ambiguous_path (test_observe.ProcessTests.test_membership_rejects_nonunified_partial_or_ambiguous_path) ... ok\ntest_stat_identity_uses_documented_positions_after_comm (test_observe.ProcessTests.test_stat_identity_uses_documented_positions_after_comm) ... ok\ntest_stat_rejects_incomplete_oversized_or_invalid_identity (test_observe.ProcessTests.test_stat_rejects_incomplete_oversized_or_invalid_identity) ... ok\ntest_status_preserves_identity_namespace_and_kib_units (test_observe.ProcessTests.test_status_preserves_identity_namespace_and_kib_units) ... ok\ntest_status_rejects_bad_required_fields_units_duplicates_and_vectors (test_observe.ProcessTests.test_status_rejects_bad_required_fields_units_duplicates_and_vectors) ... ok\ntest_bad_cap_rejects_before_read (test_observe.ReadTests.test_bad_cap_rejects_before_read) ... ok\ntest_failed_or_invalid_reads_never_become_empty_success (test_observe.ReadTests.test_failed_or_invalid_reads_never_become_empty_success) ... ok\ntest_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream (test_observe.ReadTests.test_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream) ... ok\ntest_short_reads_continue_to_eof_and_overflow_is_not_truncated (test_observe.ReadTests.test_short_reads_continue_to_eof_and_overflow_is_not_truncated) ... ok\n\n----------------------------------------------------------------------\nRan 26 tests in 0.006s\n\nOK\n"
+  },
+  "reviewerInspectionFailures": [
+    {
+      "failure": "Initialsed relativepath repeatedfixtureprefix whilecwdalreadyfixture, No such file",
+      "effect": "Read-onlydisplayfailure; independent26test suitepassed in samecall; correcteddisplayonly."
+    },
+    {
+      "failure": "Initialadditionalprobe expectedvalid2000nestedJSON tore ject and hit AssertionError invalid/deep input accepted",
+      "classification": "Reviewerassumption exceeded documented envelope-onlyscope; reportnotwritten, codeunchanged. Freshprobe recordsactualacceptance and explicit laterdepth/schema/memory obligations."
+    }
+  ],
+  "limits": [
+    "Partialjournalprimitive only: no fullstep3, observer, ownership, PIDancestry, clock/ACK, terminalwriter, rootmarkerbinding, nativeauthority or productacceptance.",
+    "Oldmax6325outcome remains unaccepted.",
+    "No sharedfilesystem or guesttests, no packageinstallation or historicalevidenceoverwrite."
+  ],
+  "storage": {
+    "freeKiBBeforeReview": 45976420,
+    "newReportCapBytes": 12288,
+    "payloadPersistence": "in-memoryorconstant-spacecountingstreams only"
+  },
+  "mutations": "Onlyexclusive external observer-journal-security-review.json; repo/index/SDK/VM/unrelatedfiles/processes unchanged."
+}
