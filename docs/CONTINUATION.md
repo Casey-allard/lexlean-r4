@@ -14,16 +14,21 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
-The [parent/boundary helper results](../tests/fixtures/object-read-memory-observation/evidence/BOUNDARY-RESULTS.md)
-add nested parent observations, finite host wire correlation and synchronized
-request/ACK journal copies for the one max=6325 investigation. All 84 host tests
-passed independently in CODE, Python and security review, with five separately
-planted defects rejected. These are partial diagnostic helpers, not a native
-observer or additional LexLean controls. ACK sample/dictionary admission, current
-root/epoch checks, fixed-slot publication and the final reader/invocation remain
-required before any diagnostic launch. No epoch reset or SDK run occurred.
-The nine pending drafts, 331/403 Object count, Read33/Construction39 and full
-PrismPM/Pages obligations remain open. The source design stays epoch-null.
+The [owned parent connection](../tests/fixtures/object-read-memory-observation/FAMILY.md)
+composes the existing nested parent check with actual bounded filesystem reads
+and version-3 sample identity evidence. The current host suite has116 tests;
+source review and exact delivery records accompany this checkpoint. It distinguishes
+ordinary parent loss from fatal descriptor cleanup and keeps all attribution
+`owned_unattributed`. This is diagnostic-only preparation for the actual max6325
+resource failure, not a LexLean control or executable native observer.
+
+Next: retrospective invocation-root linkage with real marker/exec identity,
+live identity/clock preflight, bounded periodic scheduling, safe fixed-slot
+publication, then the separately reviewed one-off invocation and resource gates.
+No epoch reset or SDK run occurred. The nine pending drafts,331/403 Object count,
+Read33/Construction39 and full PrismPM/Pages obligations remain open. The source
+design stays epoch-null. Existing failures and prior checkpoint results remain
+preserved below and in their original portable fixtures.
 
 ## What is implemented and what is proved
 

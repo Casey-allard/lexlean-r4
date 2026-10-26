@@ -27,7 +27,7 @@ The separate ACK-copy row is also synchronized before return.
 
 ## Retained rows
 
-Version 2 header and the following compact JSON-array rows use the existing
+Version 3 header and the following compact JSON-array rows use the existing
 journal pools and 1 MiB cap. Integers from kernel counters remain canonical decimal
 strings. Times are exact relative microseconds, start rounded down and end up.
 
@@ -37,7 +37,8 @@ strings. Times are exact relative microseconds, start rounded down and end up.
   is retained; a changed set gets a new ID. At most 32 sets are admitted.
 - `i`: increasing identity ID, PID/start/parent fields, explicit
   `owned_unattributed` role, null root binding, base64 command bytes, optional
-  namespace coordinates, base64 membership and both actual raw stat reads.
+  namespace coordinates, base64 membership and both actual raw stat reads,
+  followed by the nested parent evidence described in [FAMILY.md](FAMILY.md).
   Those raw records are captured by the same reads used for validation. At most
   1024 identities and 64 current PID cache entries are admitted.
 - `s`: sample sequence, time interval, dictionary ID and matching event values,
@@ -82,8 +83,7 @@ power-loss durability.
 
 ## Remaining product blocker
 
-Before the one informational native diagnostic: compose owned parent observation
-and retrospective invocation-root linkage; bind live identity/clock acquisition;
+Before the one informational native diagnostic: complete retrospective invocation-root linkage; bind live identity/clock acquisition;
 implement bounded periodic scheduling and safe fixed-slot control publication;
 review the narrow invocation, observer overhead and fresh resource epoch. Keep
 all original compiler/axiom/time/resource limits and postguards. This checkpoint

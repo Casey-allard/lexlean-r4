@@ -319,8 +319,9 @@ _OBSERVATION_CAPS = {"cgroup.procs": 4096, "stat": 4096, "status": 8192,
 
 
 def _close_file(fd: int, stream: BinaryIO | None,
-                primary: BaseException | None = None) -> None:
+                primary: BaseException | None = None, *, cleanup_fatal: bool = False) -> None:
     errors = [] if primary is None else [primary]
+    initial = len(errors)
     if stream is not None:
         try:
             stream.close()
@@ -330,11 +331,13 @@ def _close_file(fd: int, stream: BinaryIO | None,
         os.close(fd)
     except BaseException as error:
         errors.append(error)
+    if cleanup_fatal and len(errors) > initial:
+        raise BaseExceptionGroup("diagnostic_file_cleanup", errors)
     _raise_io_errors(errors)
 
 
 def read_observation_file(directory: int, expected: tuple[int, int, int, int],
-                          name: str) -> bytes:
+                          name: str, *, cleanup_fatal: bool = False) -> bytes:
     """Read a fixed observation file; never close the caller's directory fd."""
     if type(name) is not str or name not in _OBSERVATION_CAPS:
         raise ObservationError("observation_file_name")
@@ -350,8 +353,8 @@ def read_observation_file(directory: int, expected: tuple[int, int, int, int],
         data = read_bounded(stream, cap)
         _check_directory(directory, expected)
     except BaseException as error:
-        _close_file(fd, stream, error)
-    _close_file(fd, stream)
+        _close_file(fd, stream, error, cleanup_fatal=cleanup_fatal)
+    _close_file(fd, stream, cleanup_fatal=cleanup_fatal)
     return data
 
 

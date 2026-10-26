@@ -51,19 +51,20 @@ that interpreter explicitly if `python3` resolves to an older version):
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 104 tests use synthetic records, in-memory streams and tiny owned
+The current 116 tests use synthetic records, in-memory streams and tiny owned
 host filesystem fixtures. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
 selected guest Python 3.12 runtime has not executed this source.
 
-[Current sample-composition results](evidence/SAMPLE-RESULTS.md) record the 104-test
+[Current owned-parent results](evidence/FAMILY-RESULTS.md) record the116-test
+checkpoint and independent source reviews. [Historical sample-composition results](evidence/SAMPLE-RESULTS.md) record the 104-test
 checkpoint and its source reviews. [Earlier parser evidence](evidence/RESULTS.md)
 retains that earlier checkpoint's RED/GREEN history and coverage.
 
 The implementation sequence remains in the
 [working plan](../../../docs/plans/2026-10-26-admitted-memory-observation.md):
-live ownership and parent/root linkage, periodic scheduling, safe control
+live ownership and invocation-root linkage, periodic scheduling, safe control
 publication, observer composition and separately reviewed invocation preparation
 are still required.
 The 1 MiB observation cap cannot guarantee coverage of the earlier 264-second
@@ -99,3 +100,7 @@ retain such observations. Missing mandatory evidence, changed identity/census,
 partial writes and failed synchronization block every boundary ACK in the fixtures.
 The earlier wire helper remains byte-only. Root linkage, live preflight, periodic
 coverage, safe channel publication and native invocation remain open.
+
+The [owned parent connection](FAMILY.md) now retains nested same-read parent
+evidence in version-3 sample identities, with ordinary parent loss distinguished
+from fatal cleanup failure. It supplies no invocation-root attribution.
