@@ -66,8 +66,11 @@ preparation. Do not create a build target, install packages or run the SDK.
    conditional root observation only. The [composition connection](../../tests/fixtures/object-read-memory-observation/COMPOSITION.md)
    adds sample-local descendant checks, periodic/forced scheduling and fixed-slot
    publication. Actual wrapper/namespace/receipt custody and live preflight remain
-   mandatory before step5 can execute; the new scheduler has no live entry point.
-5. **Same source and focused test files:** compose the one-off reader. Direct bounded shared-file
+   mandatory before live step5 execution; the scheduler itself has no launch entry point.
+5. **`live_context.py`, `observer_session.py` and their focused test files:** compose
+   the one-off reader. The [owned reader checkpoint](../../tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md)
+   supplies host-tested concrete composition; actual guest execution and custody
+   remain separate. Direct bounded shared-file
    retention must not depend on the host event loop draining stdout during
    `spawnSync`. Stop observation only on failure/cap; never signal or extend a
    healthy compiler. Null epoch and invalid configuration must reject before

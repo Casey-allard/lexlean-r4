@@ -1,0 +1,57 @@
+{
+  "schema": "lexlean-r4/owned-observer-delivery/v1",
+  "base": "d9bfda202a7df441464c3d580950e44bf28d6b11",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 87435,
+      "sha256": "269b12eb657f5744e9cfe3e42b3713c5d9b40de6b92438aa090f545684b6c3e4"
+    },
+    {
+      "path": "docs/plans/2026-10-26-admitted-memory-observation.md",
+      "bytes": 7909,
+      "sha256": "cc931f08cce007f77aa8e324fbeb544050db0773251a08ec812d3a328a2f364d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/live_context.py",
+      "bytes": 7977,
+      "sha256": "df74150b428a0ad72f3ec4ac1a3638dacd786fc1e4220adc9c69bcfd77508a55"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_live_context.py",
+      "bytes": 10570,
+      "sha256": "04bbf4515d4ea62c8ea6c0670f6a53d10a5a98c30f13c8d3dadf7890ec0c09d9"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observer_session.py",
+      "bytes": 8169,
+      "sha256": "eb84e076c2809003406bdc9665aa12a7d6482c335b4c67914f3e9b0736b669c5"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observer_session.py",
+      "bytes": 14761,
+      "sha256": "d402654e5bfd6e20754cedbc7e95e8c9efff8556684793e0f3f5fda5d601664c"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/README.md",
+      "bytes": 7458,
+      "sha256": "4fa05590dc21407a61d198197072ed106cc2196c2ae4027122ded4e81066003d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md",
+      "bytes": 3457,
+      "sha256": "9dccf90327cc8a285751312153024c94da5669a390a64495bec98348c96c4221"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/live-context-results.json",
+      "bytes": 4338,
+      "sha256": "11eaff0314387a63b7be9a019627fb103d4b61082361693fde19e78a6ec91cdd"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/evidence/live-context-history.jsonl.gz",
+      "bytes": 29076,
+      "sha256": "3f9ac4ddf405aee8cd298e420b8494f1b16d3b142f2a5911fab30ffa72b53baf"
+    }
+  ],
+  "scope": "bounded host diagnostic source only; no SDK/native acceptance"
+}

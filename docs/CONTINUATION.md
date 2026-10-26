@@ -14,29 +14,27 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
-The [composition checkpoint](../tests/fixtures/object-read-memory-observation/COMPOSITION.md)
-adds sample-local ancestry, owned fixed-slot publication and an absolute periodic
-schedule to the actual sampler. Host tests and reviews are diagnostic preparation;
-live preflight and executable observer/invocation binding remain absent.
-The exact source passes175 host tests and renewed internal CODE/Python/security
-review; earlier rejected source and failure evidence remain preserved.
-The [root content connection](../tests/fixtures/object-read-memory-observation/ROOT-LINKAGE.md)
-joins a bounded marker and retrieval receipt to the actual version-3 sampler
-records, exact request/ACK copies and pinned compiler argv. Its matched-observation
-result remains conditional on actual wrapper, namespace and host receipt custody.
-The added ancestry reader attributes descendants only through consistent edges
-within a single sample; unknown or ambiguous ancestry stays `owned_unattributed`.
-The earlier [owned parent connection](../tests/fixtures/object-read-memory-observation/FAMILY.md)
-is preserved. This is diagnostic-only preparation for the actual max6325 resource
-failure, not a LexLean control or executable native observer.
+The [owned context and serial reader](../tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md)
+connect actual bounded identity/clock reads, the existing sampler and cadence,
+fixed control slots and exclusive output files. Host tests exercise owned
+synthetic filesystem records, all eleven boundaries and independent cleanup.
+Actual guest execution, selected mount/namespace and Docker capture custody,
+marker/exec linkage, shared-filesystem behavior and observer overhead remain
+unmeasured. This is diagnostic source for the actual max6325 resource failure;
+it accepts no additional LexLean control.
 
-Next: live identity/clock preflight and one serial reader/control-loop connection,
-then actual marker/exec and namespace custody and the separately reviewed one-off
-invocation and resource gates. The schedule does not launch a process or sleep.
-No epoch reset or SDK run occurred. The nine pending drafts,331/403 Object count,
-Read33/Construction39 and full PrismPM/Pages obligations remain open. The source
-design stays epoch-null. Existing failures and prior checkpoint results remain
-preserved below and in their original portable fixtures.
+The [preceding composition checkpoint](../tests/fixtures/object-read-memory-observation/COMPOSITION.md)
+retains its 175-test result. The [new results](../tests/fixtures/object-read-memory-observation/live-context-results.json)
+record the current tests, reviews and failures separately. Root-content and
+sample-local ancestry remain conditional observations; unknown ancestry stays
+`owned_unattributed`. The reader owns no compiler and cannot signal one.
+
+Next: narrowly adapt the existing one-off invocation to the reviewed reader,
+marker/exec and namespace/host receipt custody, with the live epoch still null.
+Then require independent invocation and fresh resource review before any native
+phase. No epoch reset or SDK run occurred in this source checkpoint. The nine
+pending drafts,331/403 Object count, Read33/Construction39 and full PrismPM/Pages
+obligations remain open. No production lock or acceptance waiver is supplied.
 
 ## What is implemented and what is proved
 
