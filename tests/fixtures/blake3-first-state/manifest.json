@@ -1,0 +1,105 @@
+{
+  "schema": "lexlean-r4/blake3-first-state-source-manifest/1",
+  "status": "FROZEN_SOURCE_ONLY_NATIVE_NOT_RUN",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2422,
+      "sha256": "3ee41c5c810641c1d2ba39d74ec6bc344042d3870afb7dae2bbba96fd77de845"
+    },
+    {
+      "path": "candidate.json",
+      "bytes": 6728,
+      "sha256": "ce97181a27c84808ea392f00ec2c3dbfac12048bfc5559b9d494cb60ef2e6f1f"
+    },
+    {
+      "path": "phases/negative/lexlean.toml",
+      "bytes": 691,
+      "sha256": "308fdd5e2c86238cf541f83f3aeb8f4b3f832375aa0d281cc6f25baa773bcfbe"
+    },
+    {
+      "path": "phases/positive/lexlean.toml",
+      "bytes": 686,
+      "sha256": "db78b082e6d62df4e7f901786387695d4492a67996ca6b3db602510668e9f87d"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3Case19FirstState.lex.tex",
+      "bytes": 5642,
+      "sha256": "807321ec854a0a7eeaef4a010e5a44f003cb0dcdbe7273d93019ac46ec59f8aa"
+    },
+    {
+      "path": "project/tests/lexlean/Blake3Case19FirstStateFalse.lex.tex",
+      "bytes": 5647,
+      "sha256": "ab60d68e3731125c50895c5d17deb301f735e66520afbbfc49da0844c36d7a74"
+    }
+  ],
+  "sharedInputs": [
+    {
+      "destination": "src/R4/Blake3Nat.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+      "archiveSha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79",
+      "bytes": 16987,
+      "sha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+    },
+    {
+      "destination": "src/R4/Blake3Core.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+      "archiveSha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45",
+      "bytes": 53109,
+      "sha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+    },
+    {
+      "destination": "src/R4/Blake3.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+      "archiveSha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f",
+      "bytes": 62621,
+      "sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+    },
+    {
+      "destination": "src/R4/Blake3Input.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/00eab31ab88f170f242076e8bb791e65d9f9e7fc3d00776883f484cbae227198.txt.gz",
+      "archiveSha256": "b250fc8e13e137d5cbf0f76e908e0d109400a00ddce0e28fcedc8f990f341eec",
+      "bytes": 15070,
+      "sha256": "00eab31ab88f170f242076e8bb791e65d9f9e7fc3d00776883f484cbae227198"
+    },
+    {
+      "destination": "lakefile.toml",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "destination": "lake-manifest.json",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "destination": "lean-toolchain",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    }
+  ],
+  "authority": {
+    "proposal": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-case19/failure-investigation.json",
+      "sha256": "5792b0479542572a7588cd53f374c8e87b4016e3affc9316e74643cda7f01f67"
+    },
+    "spec": {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-case19/failure-decomposition-spec-review.json",
+      "sha256": "319864b3a9a2ca4ec6589e8bbc49b2b63371a820894b089868459aac7950576b"
+    },
+    "sharedCandidate": {
+      "path": "tests/fixtures/blake3-case19/candidate.json",
+      "sha256": "b122543b6fda510500592c536b4d3361b6943356946cec20579e8a557776b194"
+    }
+  }
+}

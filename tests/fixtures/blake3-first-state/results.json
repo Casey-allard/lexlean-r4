@@ -1,0 +1,222 @@
+{
+  "schema": "lexlean-r4/blake3-first-state-results/1",
+  "status": "ACCEPTED_LOCAL_FIRST64_FULL_STATE_ONLY",
+  "sourceManifestSha256": "576b79c8b2bc7a9e680093b503e4f6d64d14ab877f41bd76bd29bc7e93bac784",
+  "invocationSha256": "6af5e976675eacc2f26c2322d4c265bbbee531b2832d4ce9c0f595d81a0c9042",
+  "negative": {
+    "officialVerifyStatus": 1,
+    "classification": "INTENDED_WRONG65_RFL_REJECTION",
+    "elapsedMs": 12281,
+    "independentReviewSha256": "d4440c217bf753464a82c4c1873e6a82af74f86921fd687db4e63fc66ddad734",
+    "archiveReviewAlias": "negative-outcome-review.json",
+    "artifacts": []
+  },
+  "positive": {
+    "officialVerifyStatus": 0,
+    "launcher": "Parent reports CLOSED exec85550 launcher0; officialverify and artifact independentlyinspected below.",
+    "spawnReturned": true,
+    "signal": null,
+    "error": null,
+    "captureFailures": [],
+    "started": "2026-10-26T20:41:37.408Z",
+    "ended": "2026-10-26T20:42:08.362Z",
+    "elapsedMs": 30954,
+    "diagnostics": [],
+    "outcomeErrors": [],
+    "attestationId": "3ef21cc30dd1fe63d2cd7610e08a07c4f78dbb4557b9225daf056e99ba32ac00",
+    "buildId": "1f5cc0805338e5cef91c7ebe9c6a8f4e35dc898616707e7424b090dec61e7650",
+    "sourceId": "b4646f4e4979d5f85d0aad142ebd729c5b981bf409a0ad57da1922154c2742a2",
+    "semanticId": "8a9d999dd361ccbe10d4de15af9e81b8f681e42c8b8883d01b84c20bf6ccd7cc",
+    "status": "verified",
+    "schema": "lexlean/attestation/2",
+    "independentReviewSha256": "a8e1cf019cfaaedd888ab68a748717de8b4e27a8725536427a84954e77405d81",
+    "archiveReviewAlias": "positive-outcome-review.json"
+  },
+  "firstState": {
+    "theorem": "LexLeanR4.Blake3Case19FirstState.first64_full_state",
+    "sourceSha256": "807321ec854a0a7eeaef4a010e5a44f003cb0dcdbe7273d93019ac46ec59f8aa",
+    "proof": "reflexivity/rfl; axioms[]",
+    "originalLeaf": "Actualsource AST packedleaf equals firstpackedleaf of retained originalBlake3Case19 theorem. Actual initializer remains blake3Init18446744073709551615; generatedLean inspected and contains sameexpression.",
+    "fields": {
+      "chain": "actual R4.Blake3Core.b3CoreIV",
+      "chunkCounter": 0,
+      "blocksCompressed": 0,
+      "buffer": "exactNatlist0through63",
+      "totalBytes": 64,
+      "budget": "18446744073709551615",
+      "cvStack": []
+    },
+    "negativeLink": "negative-outcome-review.json SHA d4440c217bf753464a82c4c1873e6a82af74f86921fd687db4e63fc66ddad734 accepted actualwrong65 rfl rejection. Pair semanticAST sole64→65difference independentlychecked there; source/runtime/limits unchanged."
+  },
+  "artifactAudit": {
+    "files": 55,
+    "logicalBytes": 2844261,
+    "allocatedBytes": 2977792,
+    "manifestInputs": 10,
+    "manifestInputKinds": "3embeddedlexicons+lock+config+5sources. This is distinct from9stagedinputs;3Lake/toolchain files are additionally bound in attestation/lock workspace records.",
+    "manifestOutputs": 25,
+    "modules": 5,
+    "compiledModules": 5,
+    "oleans": 5,
+    "kernelReplays": 5,
+    "axiomAuditProcesses": 5,
+    "probeProcesses": 1,
+    "totalProcessRecords": 16,
+    "declarationAuditRows": 92,
+    "sourceDeclarations": 92,
+    "uniqueDeclarationNames": 92,
+    "nonePolicyRows": 92,
+    "emptyObservedAxiomRows": 92,
+    "auditOutputLines": 92,
+    "allProcessExitCodesZero": true,
+    "checks": [
+      "Attestation/build/source/semantic identities equal officialverify; source/semantic equal preceding successfulcheck. Buildmanifest byte_length/SHA match attestation.",
+      "Every25generatedoutput byte_length/hash recomputed; all5olean byte_length/hash recomputed. Exact55file set accounted bymanifestoutputs,oleanrows,probe/audit/compilation/kernelprocessfiles,attestation/buildmanifest andauditoutput; no missing/unexpectedfiles.",
+      "Everyretained16processJSON equals its attestationrow; allstdout/stderr hashes recomputed, expectedLean/leanchecker executablehashes checked. One kernelreplay per exactselectedmodule.",
+      "All92source declarations present in unique92auditnames; allresultok/policynone/observed[]; exact92textauditlines agree. Targettheorem first64_full_state present.",
+      "All5sourcemaps bind exactsource/semantic IDs. Source/config/lock inputs hash actualrecoveredbytes;embeddedlexicons match genuine lockpackage treehashes;attestationworkspace hashes match3metadatafiles."
+    ],
+    "processStderrBoundary": "Outercommandstderr empty; retained internalLean/process output commonly newline. Toolchain leanchecker versionprobe text contains historical identityprobe exception; actualfivekernelreplay processrows eachstatus0. Versiontext is not a failed theoremreplay.",
+    "inventoryDigestSha256": "746c0fbafd5d94ac75cfdf8451c35e2aa6effb77b38e617ddd7ed5cdef08d398",
+    "inventoryDigestDefinition": "sha256 UTF8compactsortkeys JSONarray, relativepaths sorted, eachrow path/bytes/sha256; no extra inventoryfilewritten."
+  },
+  "sourceCustody": {
+    "runnerBeforeAfterSha256": "6af5e976675eacc2f26c2322d4c265bbbee531b2832d4ce9c0f595d81a0c9042",
+    "manifest": "576b79c8b2bc7a9e680093b503e4f6d64d14ab877f41bd76bd29bc7e93bac784",
+    "stagedInputs": 9,
+    "decodedInputBytes": 154344,
+    "sourceModules": [
+      "Blake3Case19FirstState",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Input",
+      "R4.Blake3Nat"
+    ],
+    "lockSha256": "0658dd347e667605e9be3a3465deb92ab73b251888f965cbe5f7ce82611ca92b",
+    "configSha256": "db78b082e6d62df4e7f901786387695d4492a67996ca6b3db602510668e9f87d",
+    "checks": "All9recoveredinputs equal frozenphase/referencebytes;4gzip compressed/decoded pins verified. Exactsource-before-lock/check/verify/after outputmatchesnineinventory. Officiallockstatus0; retainedlock equals capturedbytes; precheck/preverify/postlockhashes stable. Configretains300000ms childtimeout. Source/lock/compiler semantics and toolchain agree with artifact. No substitutedruntime or trustedCV."
+  },
+  "postconditions": {
+    "commandReceipts": 66,
+    "allStatusZero": true,
+    "allSpawnReturned": true,
+    "allSignalErrorNull": true,
+    "allCaptureFailuresEmpty": true,
+    "allOuterStderrEmpty": true,
+    "allRawStdoutPresent": true,
+    "nineGuards": [
+      "source-after",
+      "lock-after",
+      "tools-after",
+      "epoch-after",
+      "boot-after",
+      "memory-after",
+      "idle-after",
+      "artifact-after",
+      "host-after"
+    ],
+    "ninePassed": true,
+    "guardReceiptSha256": {
+      "source-after": "951a8f670583000c51e83dcb1f7b4b326ea219249bfc75b9be5de38278eec183",
+      "lock-after": "c1842c3d535d9db72a1174e9afdb492095f7c5b9927b985427d9f3d620f6a8d5",
+      "tools-after": "9b4ca3187f30fffc249596219de2bd09e252c9b9b423ef18883433e1a8ce7d55",
+      "epoch-after": "159ca710040f41e73ef07eb7a77cf57e6d701aadc6ff53f084959544d45ddf1a",
+      "boot-after": "de70dd46c8705817dd3c4ef2bed29a9c61beef901a9fb729e91432c2f9056fd5",
+      "memory-after": "0a9a88d77ec3ee3e958501676b9a733e272f779606dda5d2e066486d85e2ede8",
+      "idle-after": "9fa4ceea2dc0195788e1acd56f070dfec2875621afbb65839d4aa283987b96c2",
+      "artifact-after": "61c3f654ba27194d96274631d55c2c16a3ba86207d6573a35f74109942694a80",
+      "host-after": "198e8b233347f26758749d15805d18b9198fe2a931b849fcce567ab445476e6e"
+    },
+    "epoch": "All4preflights+post match2026-10-26T20:22:36.749456407Z exactreviewedCID/image/config4GiB2CPU/networknone/mounts[]/RestartCount0.",
+    "boot": "c719c273-40c8-4b98-920a-1d1053f67237 stable",
+    "tools": "All4preflight/post exactLexLean/Lean/Lake/leanchecker hashes match reviewedpins and artifactexecutables.",
+    "idle": "Exactsh/sleep pair onallpreflights;postequalsimmediatepreverify.",
+    "memory": "All4preflight+post exactsixkeys low/high/max/oom/oom_kill/oom_group_kill all0.",
+    "artifactCopy": "Actualartifactsize command2984KiB=3055616bytes; boundedcopycommandstatus0; retained55files independentlyaudited. Guestdu includes allocation/directories and is distinct from hostsumfileallocated2977792."
+  },
+  "storage": {
+    "hostAvailableBytes": {
+      "preparation": 28056932352,
+      "beforeStage": 28056735744,
+      "beforeLock": 28025614336,
+      "beforeCheck": 27963826176,
+      "beforeVerify": 27957186560,
+      "artifactCopy": 29638758400,
+      "after": 29622325248
+    },
+    "minimumHostSampleBytes": 27957186560,
+    "minimumHostAfter10GiBEstimate": 17219768320,
+    "hostReserveBytes": 10737418240,
+    "artifactAvailableBytes": {
+      "beforeStage": 53964701696,
+      "beforeLock": 53964500992,
+      "beforeCheck": 53964492800,
+      "beforeVerify": 53964492800,
+      "after": 53960994816
+    },
+    "artifactPreFloor": 11811160064,
+    "artifactPostFloor": 10737418240,
+    "vmRootAvailableBytes": 7990120448,
+    "dataDiskAllocatedBytes": 26816524288,
+    "rootDiskAllocatedBytes": 1513164800,
+    "swapBeforeVerify": "total17408.00M used16474.94M free933.06M",
+    "interpretation": "Sampledhoststatfs arithmetic verified and allfloors passed. SeparateVMroot recorded;notartifactcapacity. Peak10GiB remainsestimate, notmeasurement. No2GiBdeclinewithinthisphase retainedsamples; no continuousreserve/idle/zero claim."
+  },
+  "limits": [
+    "No compression occurs at thisfirstcut: blocksCompressed0, buffer64bytes, unchangedIV.",
+    "No connected symbolic5right-subtree continuation, unrelated0=0 transportnegative or mandatory exactoriginal-tree consumer has been proved by this artifact.",
+    "No original2048byte finaldigest, validation/finalization/ROOT/encoding acceptance, OOMrepair or efficiency result.",
+    "Historical18/35vectors and255/272controlcounts do not increase. No product/fulljustvv/productionSDK acceptance."
+  ],
+  "unchangedCounts": {
+    "blake3Vectors": "18/35",
+    "blake3Controls": "255/272",
+    "Object": "331/403"
+  },
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "sha256": "68c77c0fcc2815255ff8a26d08b5ce326017c2e8353326dc3354ca974319cf07",
+    "bytes": 302502,
+    "uncompressedBytes": 1273515,
+    "uniqueMembers": 306,
+    "aliases": 540,
+    "binaryExclusions": [
+      {
+        "path": "invocation-envelope-rejection.jsonl.gz",
+        "bytes": 27256,
+        "sha256": "e942e09f386a75d8b8b46682f9427553fe2ebb867accb1ead031376d6fcc6fe5"
+      },
+      {
+        "path": "positive-attempt1/artifact/oleans/LexLeanR4/Blake3Case19FirstState.olean",
+        "bytes": 20192,
+        "sha256": "bcf79a6c7b873a32ca0814ed11a1746fbddbe70b1cf71dbb5bc73d5f3372b759"
+      },
+      {
+        "path": "positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean",
+        "bytes": 738152,
+        "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6"
+      },
+      {
+        "path": "positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean",
+        "bytes": 624640,
+        "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404"
+      },
+      {
+        "path": "positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Input.olean",
+        "bytes": 526280,
+        "sha256": "0c24539d4482beb715c9adf47374b8b916a691744b7a5527828802c8a4dbe732"
+      },
+      {
+        "path": "positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean",
+        "bytes": 547960,
+        "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5"
+      }
+    ],
+    "decodedRejectionMembersPreserved": 11
+  },
+  "frozenHistory": "README/candidate/manifest retain original source-only NOT_RUN state. This separate results record supersedes outcome status without editing frozen source. V1 invocation rejection/instrument controls and v2 repair remain exact evidence.",
+  "next": "Five symbolic right-sibling continuation with unrelated0=0 negative, supported transport, mandatory actual generic feed consumer and exact original balanced-tree consumer. Final validation/length/finalization/ROOT/digest remain open.",
+  "modelDraftObligationsAlias": "pending-model-reconciliation.json",
+  "productionAcceptance": false,
+  "newNativeAuthority": false
+}
