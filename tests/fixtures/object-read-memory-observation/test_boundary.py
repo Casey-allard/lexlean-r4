@@ -61,12 +61,12 @@ class WireTests(unittest.TestCase):
     def test_all_labels_fit_slots_with_maximal_wire_numbers(self):
         for sequence, label in enumerate(boundary.LABELS, 1):
             request = boundary.encode_request('f' * 64, sequence)
-            ack = boundary.encode_ack(request, 1013760, '1013760', 'f' * 64)
+            ack = boundary.encode_ack(request, 1012736, '1012736', 'f' * 64)
             self.assertLessEqual(len(request), 512)
             self.assertLessEqual(len(ack), 512)
             self.assertEqual(boundary.decode_request(request)[2], label)
             self.assertEqual(boundary.decode_ack(ack)[3:6],
-                             (1013760, '1013760', '1013760'))
+                             (1012736, '1012736', '1012736'))
 
 
 class BoundaryWireTests(unittest.TestCase):

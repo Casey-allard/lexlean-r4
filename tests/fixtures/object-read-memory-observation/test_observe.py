@@ -197,7 +197,7 @@ class ProcessTests(unittest.TestCase):
 class JournalTests(unittest.TestCase):
     def test_all_row_kinds_charge_their_encoded_bytes_to_the_same_shared_pools(self):
         journal = observe.Journal(io.BytesIO(), lambda: None)
-        totals = {"samples": 0, "identities": 0, "markers": 26624, "terminal": 8192}
+        totals = {"samples": 0, "identities": 0, "markers": 27648, "terminal": 8192}
         for tag, pool, size in (("s", "samples", 16384), ("m", "samples", 32768),
                                 ("i", "identities", 8192), ("e", "identities", 8192),
                                 ("h", "markers", 8192), ("b", "markers", 8192),
@@ -257,7 +257,7 @@ class JournalTests(unittest.TestCase):
                 return len(value)
         for pool, tag, cap, rowcap in (("samples", "s", 786432, 16384),
                                       ("identities", "i", 196608, 8192),
-                                      ("markers", "b", 30720, 8192)):
+                                      ("markers", "b", 29696, 8192)):
             for overflow in (False, True):
                 with self.subTest(pool=pool, overflow=overflow):
                     stream = CountingStream()
@@ -274,7 +274,7 @@ class JournalTests(unittest.TestCase):
                         self.assertTrue(journal.stopped)
                         self.assertEqual(stream.size, before)
                     self.assertEqual(journal.reserved["terminal"], 8192)
-                    self.assertEqual(journal.reserved[pool], before + (26624 if pool == "markers" else 0))
+                    self.assertEqual(journal.reserved[pool], before + (27648 if pool == "markers" else 0))
                     self.assertEqual(journal.complete_offset, before)
                     self.assertLessEqual(sum(journal.reserved.values()), 1048576)
 
@@ -460,7 +460,7 @@ class RetentionTests(unittest.TestCase):
         for role in ("host", "container"):
             retention.write_root(role, b"x" * 4096, io.BytesIO(), lambda: None)
         fields = dict(self.terminal_fields(), final_state="stopped", reason="io_failure",
-                      prefix=["1013760", "1013759", "99999", "99998", False],
+                      prefix=["1012736", "1012735", "99999", "99998", False],
                       journal_sync="failed", detailed_gaps="incomplete",
                       coverage=["18446744073709551615"] * 4,
                       reserved=[786432, 196608, 57344, 8192],
@@ -509,7 +509,8 @@ class RetentionTests(unittest.TestCase):
         self.assertEqual(retention.slots, dict(request=512, request_temp=512,
                          ack=512, ack_temp=512, container_root=4096,
                          host_root=4096, retrieval_receipt=16384,
-                         guest_terminal=4096, host_terminal=4096))
+                         guest_terminal=4096, host_terminal=4096,
+                         observer_launch=512, observer_exit=512))
         snapshot = retention.slots
         snapshot["host_root"] = 99999
         self.assertEqual(retention.slots["host_root"], 4096)
@@ -613,11 +614,11 @@ class RetentionTests(unittest.TestCase):
                       prefix=["0", "0", "0", "0", True],
                       journal_sync="not_attempted",
                       coverage=["0", None, None, "0"],
-                      detailed_gaps="retained", reserved=[0, 0, 26624, 8192],
+                      detailed_gaps="retained", reserved=[0, 0, 27648, 8192],
                       sdk_process=["exited", 0, None])
         result = json.loads(observe.encode_terminal("host", **fields))
         self.assertEqual(result[7], ["0", "0", "0", "0", True])
-        self.assertEqual(result[12], [786432, 196608, 30720, 0])
+        self.assertEqual(result[12], [786432, 196608, 29696, 0])
         self.assertEqual(result[14], ["exited", 0, None])
         self.assertLessEqual(len(row), 4096)
 
@@ -638,11 +639,11 @@ class RetentionTests(unittest.TestCase):
                ("coverage", ["1", "9", "8", None]),
                ("coverage", ["18446744073709551616", None, None, None]),
                ("coverage", [float("nan"), None, None, None]),
-               ("reserved", [0, None, 26624, 8192]),
-               ("reserved", [True, 0, 26624, 8192]),
-               ("reserved", [0, 0, 26623, 8192]),
+               ("reserved", [0, None, 27648, 8192]),
+               ("reserved", [True, 0, 27648, 8192]),
+               ("reserved", [0, 0, 27647, 8192]),
                ("reserved", [0, 0, 57345, 8192]),
-               ("reserved", [0, 0, 26624, 8191]),
+               ("reserved", [0, 0, 27648, 8191]),
                ("reserved", [0] * 10000),
                ("observer_process", ["exited", True, None]),
                ("sdk_process", ["exited", 256, None]),

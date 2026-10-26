@@ -14,6 +14,23 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
+The [finite owner checkpoint](../tests/fixtures/object-read-memory-observation/owner-results.json)
+connects the configuration reader to exclusive launch/exit receipts, fixed
+isolated bootstrap and owned fork/GO/wait cleanup. Independent CODE, Python and
+security reviews accepted this host-source scope after two rejected candidates
+were repaired. A fresh independent run passed 279 tests. The final owner has
+263/285 executable lines covered; bootstrap has 63/64. Branch coverage remains
+unmeasured. The [portable evidence archive](../tests/fixtures/object-read-memory-observation/owner-evidence.jsonl.gz)
+preserves exact sources, failures, tests and reviews; its original paths are
+historical labels, not extraction instructions.
+
+This adds no accepted LexLean control or native runtime result. PR65 remains
+draft under the existing Node coverage limitation and immutable null epoch.
+Next complete the concrete host connection and independently owned actual
+guest launch/exit, including blocked-loop EOF behavior and parent-death
+semantics, before invocation/resource review. Keep the max6325 failure and all
+native gates; no compiler retry or production-binding waiver follows.
+
 Fresh owned-VM metadata found 92 regular cgroup control files, exceeding the
 reader's original 64-entry bound. The [bounded census repair](../tests/fixtures/object-read-memory-observation/entry-bound-results.json)
 raises only that enumeration bound to 256 and retains type, identity and cleanup

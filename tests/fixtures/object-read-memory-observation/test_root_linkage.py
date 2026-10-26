@@ -151,7 +151,7 @@ class RootLinkageTests(unittest.TestCase):
         context = dataclasses.replace(self.context, identity=tuple(identity))
         context.validate()
         row = ['h', 3, context.nonce, identity[3], list(identity[:3]), cg,
-               list(identity[5]), '0', 'relative_us', {}]
+               list(identity[5]), '0', 'relative_us', {'quotaProfile': 'owner-retention/1'}]
         root._header(row, context)
         cg[1] = False
         with self.assertRaises(observe.ObservationError):

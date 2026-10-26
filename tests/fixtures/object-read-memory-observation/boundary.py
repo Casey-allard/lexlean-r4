@@ -56,9 +56,9 @@ def _request_fields(nonce: str, sequence: int, label: str) -> tuple[str, int, st
 
 def _ack_fields(sample: int, complete: str, synced: str,
                 binding: str) -> tuple[int, str, str, str]:
-    _number(sample, 1013760)
+    _number(sample, 1012736)
     _decimal(complete)
-    if complete is None or not 1 <= int(complete) <= 1013760:
+    if complete is None or not 1 <= int(complete) <= 1012736:
         raise ObservationError('control_offset')
     if type(synced) is not str or synced != complete:
         raise ObservationError('control_sync')
@@ -158,7 +158,7 @@ def retain_ack_copy(journal: Journal, request: bytes, sample: int,
         raise ObservationError('boundary_journal')
     try:
         _, sequence, label = decode_request(request)
-        _number(sample, 1013760)
+        _number(sample, 1012736)
         if _decimal(received_us) is None:
             raise ObservationError('boundary_clock')
         _hex64(binding)
@@ -375,7 +375,7 @@ class SampleBoundary:
         cid, image, started, boot, cg, observer = self.identity
         self._append(['h', 3, self.nonce, boot, [cid, image, started], cg,
                       observer, str(self.origin), 'relative_us',
-                      {'pidFlags': {'rssAbsent': 1, 'hwmAbsent': 2,
+                      {'quotaProfile': 'owner-retention/1', 'pidFlags': {'rssAbsent': 1, 'hwmAbsent': 2,
                                     'namespaceAbsent': 4, 'parentUnknown': 8},
                        'sampleFlags': {'peakUnsupported': 1},
                        'slowFlags': {'pressureUnsupported': 1, 'localUnsupported': 2},

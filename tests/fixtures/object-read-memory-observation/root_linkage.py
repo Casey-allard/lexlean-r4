@@ -128,7 +128,7 @@ def _controls(values, context, binding):
 
 
 def _rows(journal):
-    if type(journal) is not bytes or not 1 <= len(journal) <= 1013760:
+    if type(journal) is not bytes or not 1 <= len(journal) <= 1012736:
         raise ObservationError('root_journal_size')
     caps = {'h': 8192, 'e': 8192, 'i': 8192, 's': 16384, 'm': 32768, 'g': 8192, 'b': 8192}
     offset = 0
@@ -148,7 +148,8 @@ def _header(row, context):
     cid, image, started, boot, cg, observer = context.identity
     expected = ['h', 3, context.nonce, boot, [cid, image, started], list(cg), list(observer)]
     if (len(row) != 10 or observe._encoded(row[:7], 8192) != observe._encoded(expected, 8192)
-            or row[8] != 'relative_us' or type(row[9]) is not dict):
+            or row[8] != 'relative_us' or type(row[9]) is not dict
+            or row[9].get('quotaProfile') != 'owner-retention/1'):
         raise ObservationError('root_header_identity')
     _decimal(row[7])
 

@@ -1,0 +1,152 @@
+{
+  "schema": "lexlean-r4/finite-owner-checkpoint/1",
+  "status": "INDEPENDENT_HOST_SOURCE_REVIEW_ACCEPTED_NOT_NATIVE",
+  "source_base": "e704673f7719ff343860997268c5fd2ee3db185c",
+  "scope": "Fixed observer child ownership, isolated bootstrap, bounded receipts and shared retention quotas; diagnostic infrastructure only.",
+  "final_freeze_sha256": "cfe1ad935973ec68617a11e66ff6953872faf62884b3df39bcf5959f9adc1a71",
+  "source": [
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observer_owner.py",
+      "bytes": 15897,
+      "sha256": "a0e6d5cd2c45600f034aea083dbeaec7361519708b68d4debb99cd31c2e725bc"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observer_owner.py",
+      "bytes": 35766,
+      "sha256": "eafae1868d754dace1959e1e6c0701670e1b71c4650645197f8752d393330cb2"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_owner_bootstrap.py",
+      "bytes": 3521,
+      "sha256": "aa16cc8dca9f0d7aa7e428638b58a282b1a4c4ca582fff3a4a5bc4660fe80f20"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_owner_receipts.py",
+      "bytes": 6598,
+      "sha256": "aecb24caa533fe3b304411963081f926caa3911bef063f32608d8e13ed0c0b5d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 32926,
+      "sha256": "341fdc5f4def127af11954b2cbfb0251932923b06eb6e227fc9a132553eb0e13"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/boundary.py",
+      "bytes": 26535,
+      "sha256": "b457b8e290158a45766ddec34a2518e8215a1c9fed35e31b1353bd7e5b76dddf"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/root_linkage.py",
+      "bytes": 13151,
+      "sha256": "1d7a248399b720225d4d61de0443d465f10bbf664a948d093eb449a461a9766d"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 34215,
+      "sha256": "bb39c8950b31a758f6d34a2473c8796aa3a75af9ce6abe5ed0483d47eae52f28"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_boundary.py",
+      "bytes": 12457,
+      "sha256": "3bc06f77a5ac67910d7f976b1a0f3c1542c8a96b310a9f8104e5614de706a29a"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_root_linkage.py",
+      "bytes": 10639,
+      "sha256": "f41db3b64dac3552310446ef5e12ac77875bc3da3042580528e6137bb5c964cb"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/JOURNAL.md",
+      "bytes": 3299,
+      "sha256": "214ee363fbd90ea099b5e0c2017ed911177a64631e5dc451adc1667c3ba2c785"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/RETENTION.md",
+      "bytes": 4287,
+      "sha256": "e0fa18ad3bc2472f459ee87188645f5f8a0e7fb6326bc831fbf88dd9f947c1da"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/BOUNDARIES.md",
+      "bytes": 5359,
+      "sha256": "477c587246deb39c4fe5d7c455a76bebf5f5f2b81c7fd6572b8b1e2b7dc2ef71"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/ROOT-LINKAGE.md",
+      "bytes": 4391,
+      "sha256": "720bbd3ba15f3960820a56074c42f9083c004279107a7c01779e37dcf8a1106f"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md",
+      "bytes": 3861,
+      "sha256": "d3b3ae49f332998eab8aa5a52ab858a2cb435325a15d6139739a73a919dc2e92"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/OWNER.md",
+      "bytes": 6371,
+      "sha256": "33d1c8e51e720ecccef575d7a60f8ee007efa929f7d74f29daa4f9a4528af294"
+    }
+  ],
+  "tests": {
+    "author_traced_and_untraced": 279,
+    "independent_python": 279,
+    "independent_seconds": 5.196,
+    "exit": 0,
+    "final_phase_new_mock_controls": 7,
+    "final_phase_mutants_rejected": 2,
+    "earlier_mutants": "8 original owner and7 interruption defects retained separately; not a cumulative final-source rerun"
+  },
+  "coverage": {
+    "owner_lines": [
+      263,
+      285
+    ],
+    "bootstrap_lines": [
+      63,
+      64
+    ],
+    "branch": "NOT_MEASURED",
+    "original_node_candidate_line_percent": 31,
+    "original_node_combined_line_percent": 67.3,
+    "merge_gate": "NOT_MET"
+  },
+  "reviews": {
+    "code-review.json": {
+      "sha256": "2746d2331f405047b4d565cd421281418f5042ee31487f999597254653ccbf65",
+      "archive_path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/admitted-owner-final-wait-repair/code-review.json"
+    },
+    "python-review.json": {
+      "sha256": "f89acd23feda47272feae4b931ae325b130c7eadaf688f45662f6d8df4774bd0",
+      "archive_path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/admitted-owner-final-wait-repair/python-review.json"
+    },
+    "security-review.json": {
+      "sha256": "015845a59d0a07dc8ab8ddf4c1eb85a204509beaf304171e9a518982589098ef",
+      "archive_path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/admitted-owner-final-wait-repair/security-review.json"
+    },
+    "python-review-test.txt": {
+      "sha256": "81daa07c8882ee27ded49d81cbdd0fb4497c5f684138e805e3307b7f5c467919",
+      "archive_path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/admitted-owner-final-wait-repair/python-review-test.txt"
+    }
+  },
+  "evidence": {
+    "file": "owner-evidence.jsonl.gz",
+    "bytes": 256021,
+    "sha256": "db3d0a34360601b58e5c537c7654c5fc63a77c77f7a17b48990aedda65a6e97a",
+    "members": 215,
+    "format": "gzip JSONL; each row carries original path, bytes, sha256 and base64. Paths are historical labels, not extraction instructions. Multiple versions are distinguished by sha256."
+  },
+  "preserved_failures": [
+    "original ambiguous-wait signaling, known-owned cleanup abandonment and kill interruption",
+    "later KILL-phase polling abandonment",
+    "baseline/test-placement/patch/coverage instrument errors, classified separately"
+  ],
+  "not_established": [
+    "actual Linux owner/observer launch and proc custody",
+    "Node/Colima EOF propagation while synchronous work blocks",
+    "parent-death guarantees",
+    "shared filesystem durability and overhead",
+    "fresh absolute-zero resource epoch",
+    "native LexLean proof or new Object control acceptance",
+    "production PrismPM binding, just vv, browser or Pages acceptance"
+  ],
+  "constraints": "Node epoch remains null; original max6325 resource failure is preserved. No VM, SDK or compiler invocation in this checkpoint."
+}
