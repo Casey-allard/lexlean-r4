@@ -1,0 +1,47 @@
+{
+  "schema": "lexlean-r4/source-checkpoint-delivery/1",
+  "base": "3609163c677731d7047a97b657cf68ca8511693d",
+  "status": "SOURCE_ONLY_DRAFT_NOT_MERGE_READY",
+  "payloads": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 87994,
+      "sha256": "486c2c48bf42c8a67ded9cd939c43faecdd056b7c6832b2e1432cfd6094be67b"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 70701,
+      "sha256": "f869e400475df8662fe435b5a70f34ba66d3fdc325af225d72cfcea2d6f1b265"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/invocation-preparation.mjs",
+      "bytes": 10571,
+      "sha256": "ced352d1eba3a88d0867b6f636369e83e62b0b918bad6884751b44f55852eaff"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs",
+      "bytes": 5756,
+      "sha256": "a872802e111df3f9467cb20857a768d640f447699e020b6e8c498f193c82beaf"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/design/original-invocation.json",
+      "bytes": 13421,
+      "sha256": "71ea4e06f185f38c7dfbee3e2da4cb2a07dcee3d6752f502dec43dc3f72ef739"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/INVOCATION-PREPARATION.md",
+      "bytes": 3091,
+      "sha256": "a99b6ab6f630da0707942caf3bd25f88d0d08ac6512682282d95e8cb06be6a91"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/invocation-preparation-results.json",
+      "bytes": 2007,
+      "sha256": "b33732b809cd0da3d4df2ec756895a700ff048b7127d6c8aa7add6b6c0489388"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/invocation-preparation-evidence.jsonl.gz",
+      "bytes": 17423,
+      "sha256": "0e01fc53bf7a09d996835c6f367c5e03ec7940aca332cda473633dfb2333bc0e"
+    }
+  ]
+}

@@ -14,6 +14,14 @@ independent reviewers; no external lab or another session owns this work.
 
 ## Latest bounded diagnostic preparation
 
+The [invocation source checkpoint](../tests/fixtures/object-read-memory-observation/INVOCATION-PREPARATION.md)
+preserves the exact one-off body behind an immutable null epoch, with inert
+import and five passing host tests. It supplies no live connection or native
+authority. Candidate line coverage is 31%, combined source/tests 67.30%; the
+generic 80% premerge gate remains unmet. This branch checkpoint is not
+merge-ready. Next complete the concrete connection and its reviewed tests
+without executing the historical invocation or relaxing resource gates.
+
 The [owned context and serial reader](../tests/fixtures/object-read-memory-observation/LIVE-CONTEXT.md)
 connect actual bounded identity/clock reads, the existing sampler and cadence,
 fixed control slots and exclusive output files. Host tests exercise owned
