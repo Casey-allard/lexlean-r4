@@ -1,0 +1,112 @@
+{
+  "schema": "lexlean-r4/preservation-context-successor/1",
+  "status": "REVIEWED_SOURCE_DISPOSITION_CONTEXT_ONLY",
+  "purpose": "Resolve two preservation-only draft holds without altering compiler source, statements, artifacts or model claims.",
+  "predecessor": {
+    "path": "docs/continuation/2026-10-24/object-read-native-controls/portable-bindings.json",
+    "sha256": "50ad208b4cd998720e7e3d8c55a65508dea7d2380db8eb20b5dece393c4d813e",
+    "field": "preservedCurrent16",
+    "immutable": true
+  },
+  "nativeSourceBindings": {
+    "path": "tests/fixtures/object-read-child-certificate-native/source-bindings.json",
+    "sha256": "d088c5b956e88ef3016f0a2711e5bc7867a4ec7d8f1ac0ed0b6c15499ed4e153",
+    "phases": [
+      {
+        "mode": "child-accounting-negative",
+        "inputCount": 50,
+        "inputArraySha256": "620b4f18e3b8c341d759c274a59d2d1e1d51f5014ee18181f9c5712a19544ca1",
+        "draftPathsInInputs": []
+      },
+      {
+        "mode": "original-admitted-negative",
+        "inputCount": 50,
+        "inputArraySha256": "875ccf5807f47964c6ae8e303c4c1eadec06dd867cb14936f62d5144c8173a5f",
+        "draftPathsInInputs": []
+      },
+      {
+        "mode": "complete-admitted-positive",
+        "inputCount": 50,
+        "inputArraySha256": "4fd65b20a326d1afe4ab532875d19153fa64d76955ab7ff29ac390601cb218f4",
+        "draftPathsInInputs": []
+      }
+    ]
+  },
+  "redirectedHistoricalPreservation": [
+    {
+      "activePath": "docs/OBJECT.md",
+      "archivePath": "docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad"
+    },
+    {
+      "activePath": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "archivePath": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931"
+    }
+  ],
+  "unchangedPendingDrafts": [
+    {
+      "activePath": "features/suites/r4-blake3.feature",
+      "archivePath": "docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79"
+    },
+    {
+      "activePath": "features/suites/r4-object.feature",
+      "archivePath": "docs/continuation/2026-10-23/pending/features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc"
+    },
+    {
+      "activePath": "features/suites/r4-prediction.feature",
+      "archivePath": "docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6"
+    },
+    {
+      "activePath": "tests/lexlean/ObjectControls.lex.tex",
+      "archivePath": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    },
+    {
+      "activePath": "model/authorities.toml",
+      "archivePath": "docs/continuation/2026-10-23/pending/model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058"
+    },
+    {
+      "activePath": "model/ids.toml",
+      "archivePath": "docs/continuation/2026-10-23/pending/model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a"
+    },
+    {
+      "activePath": "model/ledger.toml",
+      "archivePath": "docs/continuation/2026-10-23/pending/model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35"
+    }
+  ],
+  "rules": [
+    "The predecessor remains immutable historical evidence; do not rewrite it or report its old active-path census as current.",
+    "For these two historical preservation checks only, require the exact archive bytes and hash instead of the mutable or retired active path. No compiler input lookup is redirected.",
+    "All other runtime, control, input, lock, tool, epoch, artifact, axiom and kernel checks remain required.",
+    "A future invocation must explicitly cite and independently review this successor context; this record alone grants no execution authority.",
+    "Other draft paths remain pinned until their own scoped completion is reviewed."
+  ],
+  "completionMeaning": {
+    "docs/OBJECT.md": "Current documented implementation and proof boundary, not completed Object capability.",
+    "tests/lexlean/Blake3PrimitiveControls.lex.tex": "Disposition of superseded failed experiment, not acceptance of its twenty propositions or completion of BLAKE3."
+  },
+  "nativeRuns": "NOT_RUN",
+  "acceptedObjectControls": 331,
+  "totalObjectControls": 403,
+  "independentDecision": {
+    "path": "docs/continuation/2026-10-26/draft-disposition/resequence-review.json",
+    "sha256": "0c0384f3d6427072818508df18cf9a13de1aeb7672d8ee301bf75a369f30f019",
+    "reviewedCandidateSha256": "d9b344e36c9b2c49b90600760b78d79644fd3a8d07f1d2fb90e3fc856b33a4e6"
+  }
+}

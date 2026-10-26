@@ -1,0 +1,205 @@
+{
+  "schema": "lexlean-r4/pending-draft-completion-resequence/1",
+  "at": "2026-10-26T19:03:13.963946+00:00",
+  "reviewer": "runtime_identity_spec_review, independent internal architect",
+  "verdict": "PASS_RESEQUENCE_FOR_PARENT_DECISION",
+  "base": "bcba8fab64ed8b4b020f82fe9339ff01b1a425e4",
+  "decision": "Remove blanket all-nine wait-for-Read33 scheduling. Historical preservation is not a compiler import dependency. Finish documentation and obsolete-file disposition now; advance independent real BLAKE3/Prediction source proofs while Read diagnostic repair proceeds. Parent owns sequencing decision and edits; full component requirements unchanged.",
+  "scope": "Read-only source decision review; no tests/imported child/VM/SDK/compiler/native or production acceptance. No draft edits.",
+  "budget": {
+    "aggregate_cap": 32768,
+    "report_reservation": 16384,
+    "parent_review_reservation": 8192,
+    "handoff_reservation": 8192,
+    "free_before_write": 31293652992,
+    "reserve": 10737418240,
+    "allocation_units": "bytes",
+    "prior_prewrite_attempt": "17007-byte indented serialization rejected by size assertion before file creation; no write and no budget overrun; concise report follows"
+  },
+  "nine_drafts": [
+    {
+      "path": "model/authorities.toml",
+      "bytes": 17623,
+      "sha256": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+      "archived_alias": "docs/continuation/2026-10-23/pending/model/authorities.toml",
+      "archive_equal": true,
+      "next_action": "Imported authority additions are registration-coupled to their realized_by IDs, not dependent on Read33. Reconcile BLAKE3-UNKEYED-VECTORS/R4-15, UOR-CONTENT-OBJECTS/R4-13 and UOR-TARGET-FREE-WRITER/R4-19 as coherent component-sized changes. Verify pinned authority evidence; preserve existing Snapshot content/order. Imported authority does not establish local implementation."
+    },
+    {
+      "path": "model/ids.toml",
+      "bytes": 9974,
+      "sha256": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+      "archived_alias": "docs/continuation/2026-10-23/pending/model/ids.toml",
+      "archive_equal": true,
+      "next_action": "Keep full R4-15/R4-13/R4-19 build requirements. Prepare mandatory conformance tests/root mappings now; finish each component registration when its own complete proof and receipt gates pass, independently of other components. Read33 applies only to R4-13."
+    },
+    {
+      "path": "model/ledger.toml",
+      "bytes": 8230,
+      "sha256": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+      "archived_alias": "docs/continuation/2026-10-23/pending/model/ledger.toml",
+      "archive_equal": true,
+      "next_action": "Reconcile AUTH-BLAKE3-UNKEYED, AUTH-CONTENT-OBJECTS and AUTH-TARGET-FREE-WRITER with their authority/ID links component-by-component. Retain some-true imported-contract meaning and existing claims. Do not copy the whole draft over main or treat contracts as local proof."
+    },
+    {
+      "path": "docs/OBJECT.md",
+      "bytes": 22747,
+      "sha256": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad",
+      "archived_alias": "docs/continuation/2026-10-23/pending/docs/OBJECT.md",
+      "archive_equal": true,
+      "next_action": "CAN FINISH NOW after reviewed preservation successor: publish dated current331/403 Codec311+Store20 status, Read33/Construction39/whole257 still open, exact current proof/failure references and mixed core/semantic receipt integration requirement. Retain Oct21 narrative as history. This completes documentation, not Object acceptance."
+    },
+    {
+      "path": "features/suites/r4-blake3.feature",
+      "bytes": 827,
+      "sha256": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+      "archived_alias": "docs/continuation/2026-10-23/pending/features/suites/r4-blake3.feature",
+      "archive_equal": true,
+      "next_action": "No Read dependency. Keep all35 official outputs, full block/chunk/tree/ROOT/error behavior, admitted representation and semantic mutants. Prepare R4-15 conformance registration while advancing original remaining vectors. Complete with full BLAKE3 evidence; do not weaken the scenario to representative cases."
+    },
+    {
+      "path": "features/suites/r4-object.feature",
+      "bytes": 993,
+      "sha256": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+      "archived_alias": "docs/continuation/2026-10-23/pending/features/suites/r4-object.feature",
+      "archive_equal": true,
+      "next_action": "Genuine Read33+Construction39/full403 proposition and receipt integration dependency. Retain ordered occurrences/dedup, atomic imports, traversal/missing order, range/padding/statistics and whole SHA distinction. Complete R4-13 independently of other component builds."
+    },
+    {
+      "path": "features/suites/r4-prediction.feature",
+      "bytes": 835,
+      "sha256": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+      "archived_alias": "docs/continuation/2026-10-23/pending/features/suites/r4-prediction.feature",
+      "archive_equal": true,
+      "next_action": "No Read dependency. Keep complete identities/global ranking and general target/policy/telemetry projection/lawful arithmetic safety. Prepare R4-19 registration alongside general LexLean proof work;31 finite controls are insufficient."
+    },
+    {
+      "path": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "bytes": 9762,
+      "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931",
+      "archived_alias": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+      "archive_equal": true,
+      "next_action": "CAN FINISH DISPOSITION NOW after preservation successor and targeted active-reference check: verify exact committed20-control snapshot,13-wrapper archive and seven failure/Nat records from approved disposition; remove only redundant active copy. PureNat superseded this failed UInt experiment. Zero new proof passes; not BLAKE3 completion."
+    },
+    {
+      "path": "tests/lexlean/ObjectControls.lex.tex",
+      "bytes": 345063,
+      "sha256": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+      "archived_alias": "docs/continuation/2026-10-23/pending/tests/lexlean/ObjectControls.lex.tex",
+      "archive_equal": true,
+      "next_action": "Genuine39 construction propositions, not obsolete. Reconcile/freeze exact original semantic-module/1 statements and production definitions; prepare smallest outstanding original construction proof/control, retaining connected whole257 obligations. Actual negative/positive artifacts, empty axioms and kernel replay required. Preservation timing does not prohibit independent source preparation."
+    }
+  ],
+  "exact_preservation_successor": {
+    "finding": "Each of the three frozen Read phases has50 inputs and no pending draft among compiler input paths or destinations. Draft dependencies are in preservation.json/manifest and author-source assertions.",
+    "source_bindings": "tests/fixtures/object-read-child-certificate-native/source-bindings.json",
+    "phases": [
+      {
+        "phase": 0,
+        "pending_input_or_destination_intersection": []
+      },
+      {
+        "phase": 1,
+        "pending_input_or_destination_intersection": []
+      },
+      {
+        "phase": 2,
+        "pending_input_or_destination_intersection": []
+      }
+    ],
+    "selected_module_counts": {
+      "child-accounting-negative": 19,
+      "original-admitted-negative": 33,
+      "complete-admitted-positive": 33
+    },
+    "instructions": [
+      "Preserve original frozen preservation.json, manifest.json, author source and prior attempts byte-identically. Create a separate reviewed successor preservation context, not an in-place rewrite.",
+      "Redirect only the two completing historical paths now: docs/OBJECT.md and tests/lexlean/Blake3PrimitiveControls.lex.tex to their committed snapshots with exact bytes/SHA. Other seven active drafts remain pinned until scoped completion. All nine archives were checked; no need to redirect all nine at once.",
+      "Keep current operational input/destination map, all50 input bytes,19/33/33 selected modules, runtime/config/lock/tool/epoch and actual artifact checks unchanged. Historical aliases cannot replace a compiler input.",
+      "Make future invocation explicitly select the reviewed successor. Reject missing/mismatched alias, duplicate logical mapping, path escape and historical/input misclassification; no implicit fallback. Minimal source-bound preservation-context consumer change only, not a framework.",
+      "After exact review, finish Object docs and execute already approved primitive disposition. Verify archived20 propositions,13 wrappers/seven records and no active references before removing redundant active primitive copy. Do not delete unique evidence."
+    ],
+    "old_decision": "Earlier assessment/SPEC timing hold remains dated historical evidence, explicitly superseded by parent scheduling decision; proof and artifact validation requirements survive."
+  },
+  "independent_proof_tracks": {
+    "BLAKE3": {
+      "current": "255/272 retained controls;18/35 original published outputs. Nine staged semantic mutants unrun. SHA256/BLAKE2b restoration is separate.",
+      "next": "Locate/freeze exact original published case19,2048-byte input, from retained source/vector inventory after checking whether an actual prior attempt exists. Recover archived approved pureNat closure byte-exact, review exact source and bounded official negative/positive invocation. No new hash algorithm, supplied digest/intermediate or equivalent failed-run retry. Source preparation can start now independent of Read33.",
+      "remaining_lengths": [
+        2048,
+        2049,
+        3072,
+        3073,
+        4096,
+        4097,
+        5120,
+        5121,
+        6144,
+        6145,
+        7168,
+        7169,
+        8192,
+        8193,
+        16384,
+        31744,
+        102400
+      ],
+      "required_mutants": [
+        "dropped ROOT",
+        "nonzero ROOT output counter",
+        "padded block length",
+        "extra empty chunk",
+        "block-based chunk counter",
+        "parent CV substitution",
+        "reversed children",
+        "wrong permutation",
+        "big-endian words"
+      ],
+      "portable_nat_closure": {
+        "archive_pattern": "docs/continuation/earlier-history-2026-10-23/files/<sha256>.txt.gz",
+        "independently_decoded_and_rehashed": {
+          "Blake3Nat.lex.tex": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b",
+          "Blake3Core.lex.tex": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0",
+          "Blake3.lex.tex": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e",
+          "Blake3Input.lex.tex": "00eab31ab88f170f242076e8bb791e65d9f9e7fc3d00776883f484cbae227198"
+        }
+      },
+      "limit": "This review has not selected or run case19. Full remaining vectors/mutants and272 integration still required."
+    },
+    "Prediction": {
+      "current": "31 finite controls/seven mutants+restoration; general length projection, ranked boundary, receipt factorization and shared occupied-cell selection remain open.",
+      "next": "Prepare actual supported general LexLean theorem connecting Admission.scoreBook traversal to consecutive vocabulary identities and successful bounded target lookup, using original Admission/Prediction definitions. Separate success under admitted carrier/root conditions from consequences conditional on scoreBook success. Continue ranked nonemptiness/global minimum, lawful score/loss bounds, and universal target/policy/telemetry projection. Review exact proposition/constructors and falsifying control; no axiom, finite-only substitute or invented constructor.",
+      "independence": "Prediction imports Admission/Carrier/Types; ObjectRead/BLAKE3 completion is not a prerequisite. Source work proceeds now; actual compiler jobs serialize under fresh resource review."
+    }
+  },
+  "genuine_acceptance_gates": [
+    "Object331/403 accepted Codec311+Store20; Read33 and Construction39 including whole257 remain required. Local continuation/whole-read proof is not full admitted Object acceptance.",
+    "Read core-module/1 requires a narrow source-bound receipt adapter alongside semantic-module verification. Preserve exact403/33 statement mapping, actual artifacts, axioms/replays/process/source/config/lock checks; never relabel core as semantic.",
+    "Full component registration requires coherent authorities/IDs/ledger/scenario, required Rust conformance wrapper and root/config mapping. Existing missing required gates and semantic-only receipt language are real integration blockers; work can be partitioned by component. Generate CONFORMANCE.md with just model-write only after coherent registration; generation is not proof.",
+    "Genuine production PrismPM/template binding, lock, just vv and Pages remain open. No fabricated lock, reduced build claim or waiver.",
+    "Actual native phase still requires reviewed fresh idle/tools/source/absolute-zero epoch, fresh host/guest/allocated storage plus peak reserve and single compiler slot. Failed max6325 epoch is not zero. These gates do not prohibit bounded source preparation."
+  ],
+  "concrete_order": [
+    "Parent records corrected sequencing now.",
+    "Coordinate minimal reviewed preservation-context successor, finish current Object documentation and obsolete primitive disposition, deliver atomic reviewed commit/PR. Two draft tasks can close now without proof claims.",
+    "Prepare exact original BLAKE3 next vector and Prediction general source theorem independently while connection-only author continues Read repair. Serialize official native runs after required resource review.",
+    "Complete actual Read33 and Construction39; keep all original propositions, failed attempts and fullObject requirements.",
+    "Finish each component model/scenario registration when its own complete proof/integration gates pass. Do not wait on unrelated components and do not count archive/source registration as proof."
+  ],
+  "reference_hashes": {
+    "docs/CONTINUATION.md": "a56d7ce1e8d412a7e75378ec284cd951a9e9b79cd9866754339b46427d2c2fcf",
+    "docs/PREDICTION.md": "0e809c06d81cbd38782f01cb8409304f0f1fb63819512299579bd656fa40c4ab",
+    "docs/BLAKE3.md": "3209df04f02764ad8b4cd96219b80a32035439f24df79f23ae105df6240f6992",
+    "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-assessment.json": "a6c882d94dc1f11fd83b60493d3006804c8057929ada53e3930a2ca53ead5f80",
+    "docs/continuation/2026-10-24/hash-restoration-completed/records/pending-model-scenario-completion-spec-review.json": "88cd8574b49835c2f476487ae766f8f1f0bfa143754138353bdbccefaf22e1dd",
+    "docs/continuation/2026-10-24/blake3-primitives-disposition/decision.json": "898bd2c7cb1117c4867824501b830b8c83c4d4a97dca8d9334998e03ca95185f",
+    "tests/fixtures/object-read-child-certificate-native/source-bindings.json": "d088c5b956e88ef3016f0a2711e5bc7867a4ec7d8f1ac0ed0b6c15499ed4e153",
+    "tests/fixtures/object-read-child-certificate-native/preservation.json": "f50984271b84b179e5cb737729bbb9f16db3c6dc450e32517ed42ecaedc0420a"
+  },
+  "parent_concrete_map_review": {
+    "path": "docs/continuation/2026-10-26/draft-disposition/preservation-context.json",
+    "sha256": "d9b344e36c9b2c49b90600760b78d79644fd3a8d07f1d2fb90e3fc856b33a4e6",
+    "verdict": "PASS_SOURCE_DISPOSITION_CONTEXT_ONLY",
+    "checks": "Read exact map; rehashed predecessor and source-bindings, all nine active/archive pairs. Both redirected paths are genuine predecessor preservedCurrent16 entries. Two-only redirection is narrower than general successor guidance; other seven remain pinned. Explicit future invocation review required; no compiler input or proof change authorized."
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "lexlean-r4/draft-disposition-result/1",
+  "status": "IMPLEMENTED_PENDING_EXACT_DELIVERY_REVIEW",
+  "completedDraftWork": [
+    "Current Object implementation/status documentation",
+    "Physical disposition of superseded UInt/ByteArray primitive experiment"
+  ],
+  "remainingDrafts": 7,
+  "acceptedObjectControls": 331,
+  "totalObjectControls": 403,
+  "newProofPasses": 0,
+  "nativeRuns": "NOT_RUN",
+  "retiredActivePath": "tests/lexlean/Blake3PrimitiveControls.lex.tex",
+  "archive": {
+    "path": "docs/continuation/2026-10-23/pending/tests/lexlean/Blake3PrimitiveControls.lex.tex",
+    "bytes": 9762,
+    "sha256": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931",
+    "gitTracked": true
+  },
+  "wrapperArchiveVerified": {
+    "path": "docs/continuation/earlier-history-2026-10-23/files/70b93936b8b801cd653585ed7f29ed469f234ebaaac5454205fd7e7c59bc6344.txt.gz",
+    "bytes": 576,
+    "sha256": "95467b849ec14954863d767559bd09fc266071719ff026b546e9a442df8a448a"
+  },
+  "wrapperDecodedVerified": {
+    "bytes": 4999,
+    "sha256": "70b93936b8b801cd653585ed7f29ed469f234ebaaac5454205fd7e7c59bc6344"
+  },
+  "retainedEvidenceAliasesVerified": 9,
+  "boundedActiveReferenceCensus": {
+    "paths": [
+      "src",
+      "model",
+      "features",
+      "lexlean.toml",
+      "crates/conformance/build.rs",
+      "justfile"
+    ],
+    "pattern": "Blake3Primitives|Blake3PrimitiveControls|blake3CheckedAdd32|checked32Sum",
+    "exitCode": 1,
+    "stderr": "",
+    "matches": 0
+  },
+  "priorCensusInstrumentFailure": {
+    "exitCode": 2,
+    "stderr": "rg: build.rs: No such file or directory (os error 2)",
+    "classification": "Missing census path; no no-reference evidence and no write/unlink before failure.",
+    "independentPhase1": "runtime_identity_debugger confirmed root path absent; authorized only correction to crates/conformance/build.rs, complete scope retained."
+  },
+  "changedCompilerInputs": 0,
+  "futureInvocation": "Explicit successor preservation context review required; original frozen records immutable."
+}
