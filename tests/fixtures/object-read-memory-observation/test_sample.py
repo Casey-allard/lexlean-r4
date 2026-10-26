@@ -81,15 +81,15 @@ class SampleTests(unittest.TestCase):
         ack = boundary.decode_ack(sampler.capture_boundary(request))
         rows = [json.loads(line) for line in self.stream.getvalue().splitlines()]
         self.assertEqual([r[0] for r in rows], ['h', 'e', 'i', 's', 'm', 'b', 'b'])
-        self.assertEqual(rows[0][1:4], [2, self.nonce, self.identity[3]])
+        self.assertEqual(rows[0][1:4], [3, self.nonce, self.identity[3]])
         self.assertEqual(rows[1][2], sorted(observe.parse_events(self.events())))
         self.assertEqual(rows[3][5], ['0'] * 7)
         self.assertEqual(rows[3][6:9], ['123', '0', '456'])
         self.assertEqual(rows[4][4:7], [p.read_text() for p in
                          (self.cg/'memory.stat', self.cg/'memory.pressure',
                           self.cg/'memory.events.local')])
-        self.assertEqual(base64.b64decode(rows[2][-2]), (self.proc/'41'/'stat').read_bytes())
-        self.assertEqual(base64.b64decode(rows[2][-1]), (self.proc/'41'/'stat').read_bytes())
+        self.assertEqual(base64.b64decode(rows[2][11]), (self.proc/'41'/'stat').read_bytes())
+        self.assertEqual(base64.b64decode(rows[2][12]), (self.proc/'41'/'stat').read_bytes())
         self.assertEqual(rows[2][6], 'owned_unattributed')
         self.assertEqual(rows[3][9][0][0], rows[2][1])
         self.assertGreaterEqual(self.identity_calls, 3)

@@ -8,6 +8,7 @@ import json
 import uuid
 
 import observe
+import family
 from observe import Journal, ObservationError, _decimal, _encoded, _hex64
 
 
@@ -370,7 +371,7 @@ class SampleBoundary:
 
     def _header(self):
         cid, image, started, boot, cg, observer = self.identity
-        self._append(['h', 2, self.nonce, boot, [cid, image, started], cg,
+        self._append(['h', 3, self.nonce, boot, [cid, image, started], cg,
                       observer, str(self.origin), 'relative_us',
                       {'pidFlags': {'rssAbsent': 1, 'hwmAbsent': 2,
                                     'namespaceAbsent': 4, 'parentUnknown': 8},
@@ -431,12 +432,12 @@ class SampleBoundary:
         self.field = 'process'
         rows, live = [], {}
         for pid in observe.parse_procs(census):
-            value, before, after, membership = observe.owned_process_evidence(
-                self.cgroup, self.proc, pid, self.target)
+            value, before, after, membership, parent = family.identity_evidence(
+                family.owned_family_evidence(self.cgroup, self.proc, pid, self.target))
             raw = lambda data: base64.b64encode(data).decode('ascii')
             fields = [pid, value['start'], value['ppid'], value['parent_start'],
                       'owned_unattributed', None, raw(value['cmdline']),
-                      value['namespace'], raw(membership), raw(before), raw(after)]
+                      value['namespace'], raw(membership), raw(before), raw(after), parent]
             fingerprint = hashlib.sha256(_encoded(fields, 8192)).hexdigest()
             old = self.live.get(pid)
             if old is not None and old[0] == fingerprint:
