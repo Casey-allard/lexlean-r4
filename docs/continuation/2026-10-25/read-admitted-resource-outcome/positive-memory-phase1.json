@@ -1,0 +1,725 @@
+{
+  "schema": "lexlean-r4/child-positive-memory-phase1/1",
+  "createdAt": "2026-10-25T23:51:33.206Z",
+  "reviewer": "child_resource_debugger",
+  "phase": "read-only Phase 1 root-cause investigation",
+  "verdict": "RESOURCE_GATE_FAILURE_CONFIRMED_CAUSAL_ALLOCATION_SITE_UNRESOLVED",
+  "scope": {
+    "evidenceRoot": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation",
+    "repo": "/Users/casey.allard/lexlean-r4-worktrees/model-port",
+    "authorization": "Mandatory internal debugger; local approved roster f809eb3d4ada5630 supplied by parent; debugger profile and INIT.md read. No native invocation authorized.",
+    "parentSuppliedDeliveryContext": "Source checkpoint PR50 on main; first negative PR51 on main f3a3d0e13314bc152571bcfa6ee274063f017ea0. Not independently refreshed over network in this investigation.",
+    "goal": "Pure LexLean UOR-R4 with full PrismPM including Pages; this report does not accept that goal.",
+    "mutations": [
+      "Only this new external report"
+    ],
+    "preserved": [
+      "All prior timeouts and OOM evidence",
+      "Strict all-zero memory.events gate",
+      "4GiB container / 2 CPU / parent-supplied 5GiB VM limits",
+      "Compiler and SDK",
+      "Repository, frozen files and pending nine items",
+      "No production or control-count promotion"
+    ],
+    "networkCalls": 0,
+    "nativeRuns": 0,
+    "restarts": 0,
+    "counterResets": 0
+  },
+  "conclusion": {
+    "immediateFailure": "The launcher zeroMemory postcheck rejects any memory.events value other than literal zero. Recorded memory-after.max=6325 produces Error: nonzero memory events; finally sets process.exitCode=1. This is the sole recorded postcapture error.",
+    "compilerOutcome": "Official verify status0/success and actual retained artifact exist. All100 retained artifact process records have exit_code0. The resource-gate failure does not turn these recorded outcomes into a Lean rejection.",
+    "resourceOutcome": "Strict resource acceptance fails. Pre low/high/max/oom/oom_kill/oom_group_kill are all0; post max6325 with other counters0. No recorded OOM event or OOM kill in this epoch interval, but this is not evidence of no memory pressure.",
+    "rootCauseBoundary": "Known trigger is nonzero cgroup max counter. Allocation source, exact process/module, exact phase, byte peak, event timing, reclaim behavior and reproducibility remain unknown. No fix is justified yet."
+  },
+  "comparison": [
+    {
+      "phase": "child-accounting-negative",
+      "verifyStarted": "2026-10-25T23:34:06.449Z",
+      "verifyEnded": "2026-10-25T23:35:25.682Z",
+      "verifyWallMilliseconds": 79233,
+      "verifyExit": 1,
+      "verifySignal": null,
+      "sourceCheckExit": 0,
+      "selectedModuleCount": 19,
+      "sourceId": "3da8784c7290217a25932e8d408f00d23bba960f4955e9b27675462759229ad5",
+      "semanticId": "5579fcd1a57d79535f0664c59ad0c1719723ea531b3a3e33dd16db280549d39f",
+      "artifactCount": 0,
+      "diagnostics": [
+        {
+          "code": "LLV7002",
+          "firstLine": "Lean rejected `LexLeanR4.ObjectReadParent49ConcreteChildEntry` (error): native core declaration 'LexLeanR4.ObjectReadParent49ConcreteChildEntry.objParent49ConcreteChildEntry':",
+          "messageSHA256": "0334e83de353455d70ed51e818318ae1a0f23e5099169d5427d4d96b2283130a",
+          "messageCharacters": 26632,
+          "notes": [
+            {
+              "message": "generated location: $STAGING/lean-src/LexLeanR4/ObjectReadParent49ConcreteChildEntry.lean:264:0"
+            }
+          ]
+        }
+      ],
+      "memoryBefore": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryAfter": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryReadBefore": {
+        "started": "2026-10-25T23:34:03.090Z",
+        "ended": "2026-10-25T23:34:03.233Z"
+      },
+      "memoryReadAfter": {
+        "started": "2026-10-25T23:35:25.955Z",
+        "ended": "2026-10-25T23:35:25.993Z"
+      },
+      "postcaptureErrors": [],
+      "epochBefore": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+      "epochAfter": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+      "toolHashesBefore": [
+        "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+        "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+      ],
+      "toolsUnchanged": true,
+      "inputCount": 50,
+      "inputsDifferentFromPositive": [
+        "tests/lexlean/ObjectReadParent49ConcreteChildEntry.lex.tex"
+      ],
+      "sourceHashReceiptsMatchExpected": true,
+      "hostFreeBytesBefore": "50087182336",
+      "hostFreeBytesAfter": "48987488256",
+      "guestFreeKiBBefore": 52728028,
+      "guestFreeKiBAfter": 52722732
+    },
+    {
+      "phase": "original-admitted-negative",
+      "verifyStarted": "2026-10-25T23:37:40.518Z",
+      "verifyEnded": "2026-10-25T23:40:44.783Z",
+      "verifyWallMilliseconds": 184265,
+      "verifyExit": 1,
+      "verifySignal": null,
+      "sourceCheckExit": 0,
+      "selectedModuleCount": 33,
+      "sourceId": "b66b9695adf4cd1fc894d0746efe9a900a3ab4b5693cec0f08c565096f08f0ce",
+      "semanticId": "959d7678c4ccfa3c7ba71a4bbee230052d83418545b4c8c5f6561c7b8b05acc9",
+      "artifactCount": 0,
+      "diagnostics": [
+        {
+          "code": "LLV7002",
+          "firstLine": "Lean rejected `LexLeanR4.ObjectAdmittedRangeResult` (error): native core declaration 'LexLeanR4.ObjectAdmittedRangeResult.objOriginalAdmittedRangeResult':",
+          "messageSHA256": "6b2462e64bf13cce1ade3d1f4ae549d1e5d53b04c70b515a2b678190aee74983",
+          "messageCharacters": 12000,
+          "notes": [
+            {
+              "message": "generated location: $STAGING/lean-src/LexLeanR4/ObjectAdmittedRangeResult.lean:263:0"
+            }
+          ]
+        }
+      ],
+      "memoryBefore": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryAfter": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryReadBefore": {
+        "started": "2026-10-25T23:37:37.645Z",
+        "ended": "2026-10-25T23:37:37.695Z"
+      },
+      "memoryReadAfter": {
+        "started": "2026-10-25T23:40:45.003Z",
+        "ended": "2026-10-25T23:40:45.048Z"
+      },
+      "postcaptureErrors": [],
+      "epochBefore": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+      "epochAfter": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+      "toolHashesBefore": [
+        "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+        "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+      ],
+      "toolsUnchanged": true,
+      "inputCount": 50,
+      "inputsDifferentFromPositive": [
+        "tests/lexlean/ObjectAdmittedRangeResult.lex.tex"
+      ],
+      "sourceHashReceiptsMatchExpected": true,
+      "hostFreeBytesBefore": "47545602048",
+      "hostFreeBytesAfter": "47518736384",
+      "guestFreeKiBBefore": 52722732,
+      "guestFreeKiBAfter": 52716536
+    },
+    {
+      "phase": "complete-admitted-positive",
+      "verifyStarted": "2026-10-25T23:42:18.549Z",
+      "verifyEnded": "2026-10-25T23:46:42.566Z",
+      "verifyWallMilliseconds": 264017,
+      "verifyExit": 0,
+      "verifySignal": null,
+      "sourceCheckExit": 0,
+      "selectedModuleCount": 33,
+      "sourceId": "dd8e8d9ebaffc73df7d3a25688085cf8df2d5e1a8133b202be908d5f8f152bf4",
+      "semanticId": "b2f51bc038ecc772f22a92154218e4396ae752f09e01239128b0397051b8f456",
+      "artifactCount": 1,
+      "diagnostics": [],
+      "memoryBefore": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryAfter": {
+        "low": 0,
+        "high": 0,
+        "max": 6325,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memoryReadBefore": {
+        "started": "2026-10-25T23:42:16.004Z",
+        "ended": "2026-10-25T23:42:16.067Z"
+      },
+      "memoryReadAfter": {
+        "started": "2026-10-25T23:46:43.046Z",
+        "ended": "2026-10-25T23:46:43.088Z"
+      },
+      "postcaptureErrors": [
+        {
+          "name": "memory-after",
+          "error": "Error: nonzero memory events"
+        }
+      ],
+      "epochBefore": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+      "epochAfter": "2026-10-25T23:29:57.087744357Z 0 4294967296 2000000000 none []",
+      "toolHashesBefore": [
+        "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+        "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de"
+      ],
+      "toolsUnchanged": true,
+      "inputCount": 50,
+      "inputsDifferentFromPositive": [],
+      "sourceHashReceiptsMatchExpected": true,
+      "hostFreeBytesBefore": "46444486656",
+      "hostFreeBytesAfter": "46762119168",
+      "guestFreeKiBBefore": 52716536,
+      "guestFreeKiBAfter": 52701204
+    }
+  ],
+  "positiveArtifact": {
+    "attestationId": "bbcaadebdf50fc99490203fc74c9fa0614dacf18e1d5cf72078dfd41580b4169",
+    "buildId": "11ecaf3015306b1fe7d6cc8f7755c7b2123fc1632acd44b3d20ca9332d64b407",
+    "sourceId": "dd8e8d9ebaffc73df7d3a25688085cf8df2d5e1a8133b202be908d5f8f152bf4",
+    "semanticId": "b2f51bc038ecc772f22a92154218e4396ae752f09e01239128b0397051b8f456",
+    "status": "verified",
+    "compiler": {
+      "compiler_semantics": "09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86",
+      "executable_sha256": "107e02328a8052d1560d6e8addcfd1c70af6145bbf836650cac32dc044f550e5",
+      "version": "0.3.0"
+    },
+    "host": {
+      "arch": "aarch64",
+      "os": "linux"
+    },
+    "toolchain": {
+      "lake": {
+        "executable_sha256": "8229bc302b0b7d0e7679e28cc2b830c5aec995ffe5714833503360252f1490ba",
+        "version_output": "Lake version 5.0.0-src+f054605 (Lean version 4.32.1)"
+      },
+      "lean": {
+        "executable_sha256": "79fb1d26fa5a39385d59fdc48a711a14b0710ca6480271acce99b4d177cea085",
+        "version_output": "Lean (version 4.32.1, aarch64-unknown-linux-gnu, commit f054605aea4b840552cca2e725580bffd1e1b704, Release)"
+      },
+      "leanchecker": {
+        "executable_sha256": "8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de",
+        "version_output": "leanchecker bin/leanchecker sha256:8bc50bb93c2d510a366b879161ea5f0741e4039b6c43bd55c3b9b8a7b15f13de\nuncaught exception: Could not find any oleans for: LexLeanIdentityProbe\n"
+      }
+    },
+    "buildManifestBindingMatches": true,
+    "moduleCount": 33,
+    "processCount": 100,
+    "processGroups": {
+      "compileLean": 33,
+      "leanchecker": 33,
+      "auditLean": 33,
+      "probeLean": 1
+    },
+    "allProcessExit0": true,
+    "standaloneProcessReceiptCount": 100,
+    "standaloneProcessReceiptsMatchAttestation": true,
+    "processReceiptFields": [
+      "argv",
+      "executable_sha256",
+      "exit_code",
+      "module",
+      "stderr",
+      "stderr_sha256",
+      "stdout",
+      "stdout_sha256",
+      "tool"
+    ],
+    "declarationCount": 832,
+    "allDeclarationResultsOK": true,
+    "allObservedAxiomListsEmpty": true,
+    "limitation": "Metadata/process census only; independent actual artifact/code reviewer owns broader proof/source audit. No re-verification performed.",
+    "fileCount": 335,
+    "logicalBytes": 8399075,
+    "artifactTreeSHA256": "44a47830307b41e294da47e0ffe4d9297c732c667acf4dd88214403e97142786",
+    "artifactTreeHashRecipe": "SHA256 of concatenation, sorted by absolute local file path, of UTF-8 lines <sha256(file bytes)> + two spaces + artifact-relative path + LF. Includes all335 regular files under artifact/ at review time."
+  },
+  "timingAndAttribution": {
+    "positiveSampleEnvelope": "2026-10-25T23:42:16.004Z through 2026-10-25T23:46:43.088Z are memory read command bounds, not precise counter sample instants.",
+    "positiveVerifyInterval": "2026-10-25T23:42:18.549Z through 2026-10-25T23:46:42.566Z",
+    "artifactCopy": {
+      "args": [
+        "cp",
+        "cbd8cf8ac7240f703c9492d11b4a442474cd303adfb147a82648a2e5cb6bcfdf:/tmp/r4-object-read-complete-admitted-positive-owned-20261025/.lexlean/verified/bbcaadebdf50fc99490203fc74c9fa0614dacf18e1d5cf72078dfd41580b4169",
+        "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/complete-admitted-positive/artifact"
+      ],
+      "started": "2026-10-25T23:46:42.567Z",
+      "ended": "2026-10-25T23:46:42.847Z",
+      "status": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "betweenSamples": [
+      "tools identity check",
+      "stage directory creation and50 source copies",
+      "source hashing",
+      "lock and lock-byte read",
+      "source check",
+      "official verify with compilation, probe, kernel replay and audit receipts",
+      "artifact copy",
+      "post source, lock, tool and epoch checks"
+    ],
+    "observedWallDifferenceFromOriginalNegativeMs": 79752,
+    "interpretation": "The positive is79.752s longer than the original admitted negative and reaches success-only artifact production. This does not locate memory events in those extra79.752s or prove success-only auditing caused them. Same epoch and input isolation are useful controls, but retained prior stages/cache, unmeasured starting memory and different termination paths prevent a controlled memory attribution."
+  },
+  "missingInstrumentation": [
+    "No timestamp or monotonic duration for each of100 inner process receipts.",
+    "No PID/PPID or process start-time identity attached to inner receipts.",
+    "No per-process RSS/peak RSS or cgroup memory.current/memory.peak/memory.stat/memory.swap.current/memory.pressure samples.",
+    "No memory.events sample immediately before/after verify, before/after artifact copy, or at inner phase/module boundaries.",
+    "No process or cgroup time series during the invocation; before/after idle snapshots establish only snapshot idleness.",
+    "Negative runs emitted no artifact and have no retained inner process/kernel receipt bundle in these phase directories; rejection diagnostics and outer timing do not expose a full inner execution timeline.",
+    "No measured allocator/reclaim/caching trace; no exact peak, leak, phase culprit or reproducible causal mechanism can be inferred."
+  ],
+  "nextDiagnosticProposal": {
+    "status": "PROPOSAL_ONLY_NOT_IMPLEMENTED_NOT_AUTHORIZED_TO_RUN",
+    "minimumFalsifiableQuestion": "Did the max counter first increase during official verify, or in an enclosing stage such as copy/postcapture? If during verify, which observed live compiler process overlaps the increase?",
+    "scope": "One reviewed diagnostic of this exact positive input, only after the top session separately resolves run admissibility under the unchanged strict zero gate. Current epoch has nonzero max and cannot pass the existing precheck. This report authorizes no restart, reset, alternative epoch, retry or waiver.",
+    "method": [
+      "Add external observations to a separate one-off diagnostic plan, preserving exact source/tool hashes, limits, official command and old evidence. Do not alter SDK or source proofs.",
+      "Record memory.events, memory.current, memory.peak if available, memory.stat and swap counter with timestamp immediately around each launcher boundary, especially before verify, immediately after verify before artifact-copy, and after artifact-copy. Preserve absolute counters; never replace strict acceptance with a delta-based pass.",
+      "For tentative within-verify localization, record a bounded cgroup sample stream and only owned-container process identities/command lines at a fixed documented cadence, correlated to module argument and PID start-time. Avoid external-lab processes and secret-bearing environment. Sampling has overhead and can miss short processes; document both.",
+      "If module attribution remains ambiguous, require a separate minimal boundary-observation design review before any deeper experiment; do not infer a culprit from total runtime or source expression size."
+    ],
+    "falsifiers": [
+      "Counter stays0 at immediately-after-verify but rises after artifact-copy: falsifies verify-only attribution for that diagnostic.",
+      "Counter is already nonzero before verify: falsifies attributing that first increment to verification.",
+      "Counter increases during verify while an identified owned process is observed: supports a bounded overlap only, not sole allocator causality.",
+      "No increment recurs under admissible identical conditions: original event remains real; reproducibility is unresolved, and original failed gate is unchanged."
+    ],
+    "stopRules": "Any unchanged existing resource/identity/preflight gate failure prevents launch. Do not raise limits, restart/reset, rerun this phase or implement instrumentation under this read-only assignment.",
+    "productRelevance": "Localizes resource cost of the actual admitted child-certificate proof path, not a generic harness or replacement product."
+  },
+  "evidencePins": [
+    {
+      "path": "child-accounting-negative/check.json",
+      "bytes": 1262,
+      "sha256": "1fb8c2ac0133bec038df5aab3b70b4f4c2a4a833c6ebecfeedcf6af1a58edbd2"
+    },
+    {
+      "path": "child-accounting-negative/verify.json",
+      "bytes": 28446,
+      "sha256": "719146fcee98fda77da3eb0e0efe8dd3fe15cc0918606f6c4686a5912ad05264"
+    },
+    {
+      "path": "child-accounting-negative/result.json",
+      "bytes": 28011,
+      "sha256": "063e551240c92d1e3b132d3cefbbbf26a96084a819df392a0302bcaf1444e295"
+    },
+    {
+      "path": "child-accounting-negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "f872360ecc55bac9f6cc4cb20b564de1e7134b2998bb1e94978e8c31ea37dbf9"
+    },
+    {
+      "path": "child-accounting-negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "cefb27726b49afcd0fa4e8b8a5f280f4b2020f06586f8446cfc86fbfdd4681b6"
+    },
+    {
+      "path": "child-accounting-negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "48357842d905db8192d6f23cde4a97352548585dd07efc31f5a2d7e7011e51c1"
+    },
+    {
+      "path": "child-accounting-negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "ede5cfc8aa06a66b3ddaabc8c759b07619c0736d914e09a95b9ef4cb1ae8a068"
+    },
+    {
+      "path": "child-accounting-negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "b60ecac91c58bd891587dcb11a904f8874d85650226387a7de1649bef750bc74"
+    },
+    {
+      "path": "child-accounting-negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "62bc2392460bd5a1503c2c4f106fb766dab2393e58eb0495c9b4a02e70600a9b"
+    },
+    {
+      "path": "child-accounting-negative/expected-inputs.json",
+      "bytes": 16746,
+      "sha256": "c7539d52a0145ae72bf5dbacec74d92ff08c74008157d898f02c1372bef10478"
+    },
+    {
+      "path": "child-accounting-negative/source-before.json",
+      "bytes": 14265,
+      "sha256": "7130e646bb681ecb1c2cc97e731471acc99e03d06160ed2ffe2c0ec802efce86"
+    },
+    {
+      "path": "child-accounting-negative/source-after.json",
+      "bytes": 14265,
+      "sha256": "9519e253cb8aedb76e129d8acc3ef3a25587ee863effa56547c6941c4bf9c3f8"
+    },
+    {
+      "path": "child-accounting-negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "child-accounting-negative/host-before.json",
+      "bytes": 152,
+      "sha256": "07b9456d8d490f418376986b504217135b4504645ff85c88f329d763fd5dfd25"
+    },
+    {
+      "path": "child-accounting-negative/host-after.json",
+      "bytes": 142,
+      "sha256": "47cfc484c9e3caa0caa2f81410fa22ba246745024640d42e5306ae7a63e10b15"
+    },
+    {
+      "path": "child-accounting-negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "49b07a934d48f952fd8b35aa431b4e09ef617452c03e4209f80f54db140bce70"
+    },
+    {
+      "path": "child-accounting-negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "7dbf7aad8ee2d23af40d4cc23587993fca59211ee2394a4cbed6324911b7e946"
+    },
+    {
+      "path": "child-accounting-negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "2a6df764d10f9bc7b0a2acdcbdddcbbda0f6e3c3c0142366ed4e5dc18850bfe1"
+    },
+    {
+      "path": "child-accounting-negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "171577c7fbfe384307fff80fced67ab60bbf5e65c0b6567fa854fa521c2957b0"
+    },
+    {
+      "path": "child-accounting-negative/lock-bytes.json",
+      "bytes": 2054,
+      "sha256": "15d117fde91fbf37bc8d44c750879a9bb3268514a8aa80f43b6c22478bd93639"
+    },
+    {
+      "path": "child-accounting-negative/lock-after.json",
+      "bytes": 487,
+      "sha256": "777cc3772133382fbd29b7731fdc1b89f04f19847dc0d838120ca160b365166c"
+    },
+    {
+      "path": "original-admitted-negative/check.json",
+      "bytes": 1698,
+      "sha256": "b4aad038343303d8214a3d41211c9688b4328ca914feaa1650549ec777a444c0"
+    },
+    {
+      "path": "original-admitted-negative/verify.json",
+      "bytes": 13448,
+      "sha256": "caa10009d6bdf30376f6bbab2b001e7604e015ab878fd951d32f71925e7dbdcd"
+    },
+    {
+      "path": "original-admitted-negative/result.json",
+      "bytes": 13180,
+      "sha256": "7a82162123062e9dfed0ef96d7893ca5ba20df250f3b08f3202f6c6979881fc0"
+    },
+    {
+      "path": "original-admitted-negative/memory-before.json",
+      "bytes": 354,
+      "sha256": "a35f6daf0183468632fb24f2667e248e728dfdcab41a06ea7096d078dff328a7"
+    },
+    {
+      "path": "original-admitted-negative/memory-after.json",
+      "bytes": 354,
+      "sha256": "2efea780742cdd0cbcbca1e5991f5ac009f4f8a4e1c7b9877778d9b2a1205abf"
+    },
+    {
+      "path": "original-admitted-negative/epoch-before.json",
+      "bytes": 470,
+      "sha256": "1b9097236dfcc6d8d6ce8492788a9a91f9aa01b86ac8475f092b50ccf6ba0dae"
+    },
+    {
+      "path": "original-admitted-negative/epoch-after.json",
+      "bytes": 470,
+      "sha256": "07ec44d95d61040e99eedc6e61257d12c600cecc46def0447d084aa184230ff9"
+    },
+    {
+      "path": "original-admitted-negative/tools-before.json",
+      "bytes": 1005,
+      "sha256": "deb51ff01cf5320a0573388f5ad32bd605a7ced05a19aaed1b7dcb96b16d74c4"
+    },
+    {
+      "path": "original-admitted-negative/tools-after.json",
+      "bytes": 1005,
+      "sha256": "df2e292cf05077132035f4dac81b1f535523cd5a9d50b986122acdbee36977e0"
+    },
+    {
+      "path": "original-admitted-negative/expected-inputs.json",
+      "bytes": 16746,
+      "sha256": "500351dc4a8e411132cc35c8a5b994233f1bc2694e147057251a17c273e797db"
+    },
+    {
+      "path": "original-admitted-negative/source-before.json",
+      "bytes": 14365,
+      "sha256": "973abe63671a85228868164d689562a277b69570c425672fc01f3ee4569adbe1"
+    },
+    {
+      "path": "original-admitted-negative/source-after.json",
+      "bytes": 14365,
+      "sha256": "c4b58222652eb65521ff13221ac33dd1685f03384d42d41635e91e9c3bbf02d0"
+    },
+    {
+      "path": "original-admitted-negative/postcapture-errors.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "original-admitted-negative/host-before.json",
+      "bytes": 152,
+      "sha256": "208fc48334865f2e33c3cfe0cf4d8d7bdb8981130157bb51ec2d318b19cbf778"
+    },
+    {
+      "path": "original-admitted-negative/host-after.json",
+      "bytes": 142,
+      "sha256": "7b350502fc34b4882162f888636e1f33e5cbd70b8389952637aefabe3198256f"
+    },
+    {
+      "path": "original-admitted-negative/guest-before.json",
+      "bytes": 406,
+      "sha256": "2d54634dfb1dd4d3848103e9fb96cdc1147b54a1016514c0a06d7c69aef1d843"
+    },
+    {
+      "path": "original-admitted-negative/guest-after.json",
+      "bytes": 406,
+      "sha256": "c76034ba9875b1fe9dc272d04ef6a1f1545cb39cf2929134a7b0876f206c2639"
+    },
+    {
+      "path": "original-admitted-negative/idle-before.json",
+      "bytes": 460,
+      "sha256": "067dee735c39f3a28041144695a852b6a4182c1db90c680decfd35b1402545ed"
+    },
+    {
+      "path": "original-admitted-negative/idle-after.json",
+      "bytes": 460,
+      "sha256": "5ddba086ab2137baf69d6ce234f37028b7f1b7b86f1d99b4297e22c3f95463cf"
+    },
+    {
+      "path": "original-admitted-negative/lock-bytes.json",
+      "bytes": 2055,
+      "sha256": "8c318d71d88497c3bc30c5c4541e1596aac6520fede124e903fa2b4503639dca"
+    },
+    {
+      "path": "original-admitted-negative/lock-after.json",
+      "bytes": 489,
+      "sha256": "a1cb41895dca3257d6a2ca54963d8b9cfc3ae6b291bc7c744610788031d20996"
+    },
+    {
+      "path": "complete-admitted-positive/check.json",
+      "bytes": 1698,
+      "sha256": "0da82161d849039c164fc320d2a593e3e9536bdf86e0262f33fdbcf684d88353"
+    },
+    {
+      "path": "complete-admitted-positive/verify.json",
+      "bytes": 1956,
+      "sha256": "af613a427f596457efd938de7865720d8858ad9ee77f993087322a9deecb0820"
+    },
+    {
+      "path": "complete-admitted-positive/result.json",
+      "bytes": 1874,
+      "sha256": "f17e128247b2dc531f73c8b900ac0e11cea7ba3507e02a4df413893d28f8f841"
+    },
+    {
+      "path": "complete-admitted-positive/memory-before.json",
+      "bytes": 354,
+      "sha256": "9ba17f8b2d681ee425684145184359a733424bd7f10543763fab127d5ec45363"
+    },
+    {
+      "path": "complete-admitted-positive/memory-after.json",
+      "bytes": 357,
+      "sha256": "4eeaa99aebf06668daba8ca57cd6d519618e8225a95dbf2388c3bda74b018843"
+    },
+    {
+      "path": "complete-admitted-positive/epoch-before.json",
+      "bytes": 470,
+      "sha256": "ea5b1f193e109f5ada975df6b5b220714e4d98b0b15eb9ab37c61c773f22c4ec"
+    },
+    {
+      "path": "complete-admitted-positive/epoch-after.json",
+      "bytes": 470,
+      "sha256": "f76970f02bed13f86318999b5dbc09d6b58dddfa055548f977943352c5687f61"
+    },
+    {
+      "path": "complete-admitted-positive/tools-before.json",
+      "bytes": 1005,
+      "sha256": "fdff6787d9971d9812a924be069f88ba02cf283332b89c3033ce4f0f757a3a0b"
+    },
+    {
+      "path": "complete-admitted-positive/tools-after.json",
+      "bytes": 1005,
+      "sha256": "10b64114ff2542c4346873ac32fdd75442e6df1b898c7ebb2266a4dd2fc81ed0"
+    },
+    {
+      "path": "complete-admitted-positive/expected-inputs.json",
+      "bytes": 16746,
+      "sha256": "d313223eb61790d4794ef8527e8bd36eab0331f68e19aa02895316701c9f8c82"
+    },
+    {
+      "path": "complete-admitted-positive/source-before.json",
+      "bytes": 14365,
+      "sha256": "19324f65e10f3bc609b9563e0e43f812b20b093aa8829238c8fe1ba0263c831b"
+    },
+    {
+      "path": "complete-admitted-positive/source-after.json",
+      "bytes": 14365,
+      "sha256": "7b8eba696cbfbb994382ebaa25c9c5c6bc2268de5655e7428e1d4237a359f526"
+    },
+    {
+      "path": "complete-admitted-positive/postcapture-errors.json",
+      "bytes": 84,
+      "sha256": "3e93a8feae385380b1271e77e90e1dc20aaa54b9c5b3048cba92c2775604abb0"
+    },
+    {
+      "path": "complete-admitted-positive/host-before.json",
+      "bytes": 152,
+      "sha256": "4e5555f27ba8eb656f7584ab7dd9f9e84984116dd05ff2cc5ada628b6f6e8e33"
+    },
+    {
+      "path": "complete-admitted-positive/host-after.json",
+      "bytes": 142,
+      "sha256": "f352c95ec65d80c5ab71bd82edf340265bbfd75d471b4f3a99132f555dcf4a09"
+    },
+    {
+      "path": "complete-admitted-positive/guest-before.json",
+      "bytes": 406,
+      "sha256": "2b00d968f9bef0f4cccac003d7c776c34a963fab9736f7465defc3fd49ef86bd"
+    },
+    {
+      "path": "complete-admitted-positive/guest-after.json",
+      "bytes": 406,
+      "sha256": "3eeef20ca539b6e70e9dec2e5efa2a9df0d07353465bb87e9e217f19106fdee8"
+    },
+    {
+      "path": "complete-admitted-positive/idle-before.json",
+      "bytes": 460,
+      "sha256": "07bbc966f7f141c994a9ac95cff5294f98445a67110016404672bb0cdd03d407"
+    },
+    {
+      "path": "complete-admitted-positive/idle-after.json",
+      "bytes": 460,
+      "sha256": "9b1b00879170474d106031cbef29151398213523eb68af4ec11594245f843fe4"
+    },
+    {
+      "path": "complete-admitted-positive/lock-bytes.json",
+      "bytes": 2055,
+      "sha256": "d4a329cf4e5e65268a2d237a227d672d2eb44e988be8b27d433788a4fbe484a4"
+    },
+    {
+      "path": "complete-admitted-positive/lock-after.json",
+      "bytes": 489,
+      "sha256": "227a7eb4fdf38a16966a0fd21514b2180946dde1fd99c776fef637a74917fd8e"
+    },
+    {
+      "path": "invoke-child-certificate.mjs",
+      "bytes": 12797,
+      "sha256": "3cc48e7aef25481a08f64bb9e2ea2f2b6b32a2e48109659b0322efd90d099b27"
+    },
+    {
+      "path": "invocation-code-review.json",
+      "bytes": 5596,
+      "sha256": "617f11817c0a57e8d4c44410960d8fcc14a4478823e3b7e45b3364b66d4c08cc"
+    },
+    {
+      "path": "child-negative-review.json",
+      "bytes": 24234,
+      "sha256": "f0ec2d7016401a2463df8916e23a48c5c038156c40e6f83c6f6136a4d15aecac"
+    },
+    {
+      "path": "admitted-negative-review.json",
+      "bytes": 24221,
+      "sha256": "035aa9e82a117321065ea97ff5c9db4049f0fc847d70829df5c252ccd14460f2"
+    },
+    {
+      "path": "complete-admitted-positive/artifact-copy.json",
+      "bytes": 514,
+      "sha256": "b2c5b95f0888ed5c7cfcff91d2456540ad77a2bdc25f7d11ac8547613f164c58"
+    },
+    {
+      "path": "complete-admitted-positive/artifact/attestation.json",
+      "bytes": 210745,
+      "sha256": "e5a30a2385b8e1325f0d106e2e43c2a2f5e4e1f7674d071a2f852ad2a0a41deb"
+    },
+    {
+      "path": "complete-admitted-positive/artifact/build-manifest.json",
+      "bytes": 40834,
+      "sha256": "2f1156937860425ad72d61bda76da1785e7c34722007e7d58ad60704b0ff5ffb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/.claude/agents/debugger.md",
+      "bytes": 3614,
+      "sha256": "5da675a349dbebb446e759f67623a59ec42c4b015fe9145402ca5daaffe04c6f"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/INIT.md",
+      "bytes": 2447,
+      "sha256": "649b6c711581e70956ffcaf0e8f094a8867f42a89320ba712808708426734fe5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/manifest.json",
+      "bytes": 23956,
+      "sha256": "abee135319c2ad9d4299a5dce83fe049da148be9716ccb65ae9c42e60c7de60b"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-child-certificate-native/source-bindings.json",
+      "bytes": 53145,
+      "sha256": "d088c5b956e88ef3016f0a2711e5bc7867a4ec7d8f1ac0ed0b6c15499ed4e153"
+    }
+  ]
+}
