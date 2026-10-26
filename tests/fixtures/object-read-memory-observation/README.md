@@ -1,6 +1,6 @@
 # Admitted-range memory diagnostic source preparation
 
-This directory currently contains **partial host-tested parsing and journal helpers** for
+This directory currently contains **partial host-tested parsing, journal and owned-file helpers** for
 the one diagnostic described in the [reviewed plan](../../../docs/continuation/2026-10-25/read-admitted-memory-diagnostic/README.md).
 There is no live observer entry point or compiler invocation here. The LexLean
 artifact's resource outcome remains unaccepted because `memory.events.max`
@@ -44,14 +44,15 @@ The current parser reads only the supplied bytes; it performs no process scan.
 
 ## Host verification
 
-From this directory, with an existing Python 3.10 or newer installation (select
+From this directory, with an existing Python 3.11 or newer installation (select
 that interpreter explicitly if `python3` resolves to an older version):
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -v
 ```
 
-The current 46 tests use synthetic records and in-memory streams. They do not
+The current 64 tests use synthetic records, in-memory streams and tiny owned
+host filesystem fixtures. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
 selected guest Python 3.12 runtime has not executed this source.
@@ -71,3 +72,12 @@ The [finite process and clock helpers](IDENTITY.md) add trusted-reader double-re
 consistency and exact guest-clock arithmetic. They do not establish path ownership,
 parent ancestry, a live clock domain or completed step 4. Control/ACK and live
 composition remain required; standard test discovery includes `test_identity.py`.
+
+The [owned-file acquisition helpers](OWNED-IO.md) implement bounded no-follow
+directory walks, fixed-name reads, immediate-child checks and one census-listed
+PID snapshot. Their trusted input pins must come from the later launch preflight.
+Standard discovery includes `test_owned_io.py`; no helper discovers a live
+container, scans unrelated processes, creates an observation output or runs a
+compiler. Python 3.11 is required for `BaseExceptionGroup`, which retains primary
+and cleanup failures without masking either. Existing host 3.15 and guest 3.12
+need no installation; the guest has not run this code.

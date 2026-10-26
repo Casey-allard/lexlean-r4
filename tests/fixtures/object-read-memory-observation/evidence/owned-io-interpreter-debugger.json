@@ -1,0 +1,53 @@
+{
+  "schema": "lexlean-r4/owned-io-interpreter-debugger/1",
+  "reviewer": "owned_io_interpreter_debugger / internal debugger",
+  "timestamp_utc": "2026-10-26T03:34:25.474937+00:00",
+  "phase": "Phase1 root-cause investigation only",
+  "classification": "REVIEW_COMMAND_INTERPRETER_SELECTION_FAILURE",
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify_exit": 0,
+    "check_Agent_debugger_exit": 0,
+    "profile_read": ".claude/agents/debugger.md"
+  },
+  "cause": "Bare python3 resolves /usr/bin/python3 and executes Apple CommandLineTools Python3.9.6. Import evaluates the existing tuple[str, ...] | None annotation at observe.py:103; Python3.9 cannot apply this union operation to GenericAlias and NoneType. Failure occurs during module import before test bodies or owned-I/O fixture execution.",
+  "source_history": {
+    "base": "39ab408d757a50f99a97d0d688d87ba93f65677c",
+    "verified": "git show of base observe.py contains the identical parse_status union annotation. Current diff leaves that annotation unchanged; three new imports shift its line number. Base already requires Python>=3.10 for this syntax.",
+    "new_requirement": "Current owned-I/O cleanup introduces BaseExceptionGroup at observe.py:243, requiring Python>=3.11. Current README lines47 and81 explicitly require3.11. This separate new requirement did not cause the observed3.9 import failure.",
+    "observe_sha256": "5950e324cdcc642e7c8a72bb4dc9cdb476d234813f5cddb26166de6f230b2920",
+    "test_owned_io_sha256": "366e66d6b657de84c09199c029464d03885e86b4bf4452584f89191cd302ad57"
+  },
+  "independent_read_only_reproduction": [
+    {
+      "command": "python3 -B -c 'import observe'",
+      "cwd": "tests/fixtures/object-read-memory-observation",
+      "exit": 1,
+      "diagnostic": "observe.py:103 TypeError: unsupported operand type(s) for |: 'types.GenericAlias' and 'NoneType'"
+    },
+    {
+      "command": "python3 -B -c 'import sys; print(sys.executable); print(sys.version); print(tuple[int, ...] | None)'",
+      "exit": 1,
+      "runtime": "/Library/Developer/CommandLineTools/usr/bin/python3,3.9.6",
+      "result": "Same TypeError without importing project code"
+    },
+    {
+      "command": "/opt/homebrew/bin/python3.15 -B -c \"import observe\"",
+      "exit": 0,
+      "runtime": "3.15.0"
+    },
+    {
+      "command": "/Users/casey.allard/.local/bin/python3.12 -B -c \"import observe\"",
+      "exit": 0,
+      "runtime": "3.12.14"
+    }
+  ],
+  "prior_evidence_read": [
+    "source-code-review.json",
+    "source-python-review.json"
+  ],
+  "chronology": "Both reviewed reports already contain their initial bare-python failure and subsequent successful explicit-interpreter checks. This independent investigation happened afterward. It does not retroactively establish a debugger gate before their reruns.",
+  "disposition": "Root cause established; no code fix or compatibility downgrade proposed. Explicit installed supported interpreter resolves import in this investigation. Keep original review failures and their chronology.",
+  "limits": "Import and minimal-expression checks only; no independent unit-suite rerun, live proc access, VM, SDK, installation, native acceptance or external lab review. Prior reviewer test successes remain their own evidence; parent64-test checks were not independently rerun here. No3.10 or3.11 runtime was executed.",
+  "writes": "Only this exclusive report; no source/index edits, probe files or bytecode caches. Tiny expression payloads; report<=4096 bytes."
+}

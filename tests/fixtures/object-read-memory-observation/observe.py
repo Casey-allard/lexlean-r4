@@ -1,7 +1,10 @@
 """One-off admitted-range diagnostic parsing; no live observer entrypoint yet."""
 
 import base64
+import io
 import json
+import os
+import stat
 from typing import BinaryIO, Callable
 
 
@@ -202,6 +205,172 @@ def next_tick(origin_ns: int, due_ns: int, finished_ns: int) -> tuple[int, int]:
     if future >= 2**64:
         raise ObservationError("clock_schedule_overflow")
     return future, missed
+
+
+def _validate_directory_pin(expected: tuple[int, int, int, int]) -> None:
+    if (type(expected) is not tuple or len(expected) != 4
+            or any(type(n) is not int or not 0 <= n < 2**64 for n in expected)
+            or expected[3] > 0xffff or not stat.S_ISDIR(expected[3])):
+        raise ObservationError("directory_pin")
+
+
+def _directory_parts(path: str, expected: tuple[int, int, int, int]) -> list[str]:
+    _validate_directory_pin(expected)
+    if (type(path) is not str or not 1 <= len(path) <= 4096
+            or not path.startswith("/") or "\x00" in path):
+        raise ObservationError("directory_path")
+    if len(os.fsencode(path)) > 4096:
+        raise ObservationError("directory_path")
+    parts = path.split("/")[1:]
+    if len(parts) > 64 or any(p in ("", ".", "..") for p in parts):
+        raise ObservationError("directory_path")
+    return parts
+
+
+def _check_directory(fd: int, expected: tuple[int, int, int, int]) -> None:
+    _validate_directory_pin(expected)
+    if type(fd) is not int or not 0 <= fd <= 0x7fffffff:
+        raise ObservationError("directory_descriptor")
+    item = os.fstat(fd)
+    if (item.st_dev, item.st_ino, item.st_uid, item.st_mode) != expected:
+        raise ObservationError("directory_identity")
+
+
+def _raise_io_errors(errors: list[BaseException]) -> None:
+    if len(errors) == 1:
+        raise errors[0]
+    if errors:
+        raise BaseExceptionGroup("diagnostic_io_failures", errors)
+
+
+def _close_fds(owned: list[int], primary: BaseException | None = None) -> None:
+    errors = [] if primary is None else [primary]
+    while owned:
+        fd = owned.pop()
+        try:
+            os.close(fd)
+        except BaseException as error:
+            errors.append(error)
+    _raise_io_errors(errors)
+
+
+def open_pinned_directory(path: str, expected: tuple[int, int, int, int]) -> int:
+    """Open one directory matching a caller-supplied identity; transfer its fd."""
+    parts = _directory_parts(path, expected)
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    owned = []
+    try:
+        owned.append(os.open("/", flags))
+        for part in parts:
+            owned.append(os.open(part, flags, dir_fd=owned[-1]))
+        _check_directory(owned[-1], expected)
+    except BaseException as error:
+        _close_fds(owned, error)
+    result = owned.pop()
+    try:
+        _close_fds(owned)
+    except BaseException as error:
+        _close_fds([result], error)
+    return result
+
+
+_OBSERVATION_CAPS = {"cgroup.procs": 4096, "stat": 4096, "status": 8192,
+                     "cmdline": 4096, "cgroup": 4096, "memory.events": 4096,
+                     "memory.current": 64, "memory.swap.current": 64,
+                     "memory.peak": 64, "memory.stat": 16384,
+                     "memory.pressure": 4096, "memory.events.local": 4096,
+                     "boot_id": 64}
+
+
+def _close_file(fd: int, stream: BinaryIO | None,
+                primary: BaseException | None = None) -> None:
+    errors = [] if primary is None else [primary]
+    if stream is not None:
+        try:
+            stream.close()
+        except BaseException as error:
+            errors.append(error)
+    try:
+        os.close(fd)
+    except BaseException as error:
+        errors.append(error)
+    _raise_io_errors(errors)
+
+
+def read_observation_file(directory: int, expected: tuple[int, int, int, int],
+                          name: str) -> bytes:
+    """Read a fixed observation file; never close the caller's directory fd."""
+    if type(name) is not str or name not in _OBSERVATION_CAPS:
+        raise ObservationError("observation_file_name")
+    _check_directory(directory, expected)
+    cap = _OBSERVATION_CAPS[name]
+    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                 dir_fd=directory)
+    stream = None
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise ObservationError("observation_file_type")
+        stream = io.FileIO(fd, "rb", closefd=False)
+        data = read_bounded(stream, cap)
+        _check_directory(directory, expected)
+    except BaseException as error:
+        _close_file(fd, stream, error)
+    _close_file(fd, stream)
+    return data
+
+
+def check_no_descendants(directory: int,
+                         expected: tuple[int, int, int, int]) -> None:
+    """Inspect at most 64 immediate entries; not an atomic absence guarantee."""
+    _check_directory(directory, expected)
+    entries = os.scandir(directory)
+    errors = []
+    try:
+        for count, entry in enumerate(entries, 1):
+            if count > 64:
+                raise ObservationError("child_count")
+            item = os.stat(entry.name, dir_fd=directory, follow_symlinks=False)
+            if stat.S_ISDIR(item.st_mode) or stat.S_ISLNK(item.st_mode):
+                raise ObservationError("child_type")
+        _check_directory(directory, expected)
+    except BaseException as error:
+        errors.append(error)
+    try:
+        entries.close()
+    except BaseException as error:
+        errors.append(error)
+    _raise_io_errors(errors)
+
+
+def owned_process_snapshot(
+        cgroup: tuple[int, tuple[int, int, int, int]],
+        proc: tuple[int, tuple[int, int, int, int]],
+        pid: str, target: bytes) -> dict[str, object]:
+    """Read one currently listed PID; borrowed roots and epoch belong to caller."""
+    cfd, cpin = cgroup
+    pfd, ppin = proc
+    check_no_descendants(cfd, cpin)
+    census = read_observation_file(cfd, cpin, "cgroup.procs")
+    if type(pid) is not str or pid not in parse_procs(census):
+        raise ObservationError("pid_not_in_census")
+    _check_directory(pfd, ppin)
+    fd = os.open(pid, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                 dir_fd=pfd)
+    try:
+        item = os.fstat(fd)
+        identity = (item.st_dev, item.st_ino, item.st_uid, item.st_mode)
+
+        def read(_pid: str, name: str, _cap: int) -> bytes:
+            return read_observation_file(fd, identity, name)
+
+        result = process_snapshot(census, pid, target, read)
+        _check_directory(fd, identity)
+        _check_directory(pfd, ppin)
+        check_no_descendants(cfd, cpin)
+    except BaseException as error:
+        _close_fds([fd], error)
+    _close_fds([fd])
+    return result
 
 
 def row_pool(row: bytes) -> str:
