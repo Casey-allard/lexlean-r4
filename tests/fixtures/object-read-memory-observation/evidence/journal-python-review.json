@@ -1,0 +1,174 @@
+{
+  "schema": "lexlean-r4/partial-journal-python-review/1",
+  "at": "2026-10-26T01:24:28.127651+00:00",
+  "reviewer": "journal_python_review",
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS7agents7skills",
+    "pythonReviewer": "active",
+    "debugger": "active for requested coverage Phase1"
+  },
+  "verdict": "APPROVE_PARTIAL_HOST_JOURNAL_PRIMITIVE_ONLY",
+  "findings": [],
+  "pins": [
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 9277,
+      "sha256": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 19658,
+      "sha256": "7ac370aa834225b3cf539086279a84b8bc2637a65cb3e807ea1b015e94dd21ed"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/JOURNAL.md",
+      "bytes": 3110,
+      "sha256": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+    }
+  ],
+  "reviewedContext": [
+    "INIT.md and Python reviewer profile",
+    "docs/plans/2026-10-26-admitted-memory-observation.md",
+    "fixture design implementation-spec-review.json",
+    "scoped git diff and JOURNAL.md"
+  ],
+  "freshVerification": {
+    "runtime": "3.15.0 (main, Oct  9 2026, 11:16:41) [Clang 21.0.0 (clang-2100.3.34.2)]",
+    "command": "/opt/homebrew/bin/python3 -B with stdlib unittest loader test_observe; same26methods as python -B -m unittest -v test_observe",
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "output": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 0.006s\n\nOK\n",
+    "additionalProbeGroups": [
+      "Combined exact pool fill PASS:1038336 logical bytes,1048576 including2048control+8192terminal; next marker rejected before write. Counting stream, no disk fixture.",
+      "Four malformed envelope probes PASS:BOM,Infinity,-Infinity,NUL; typed reject before any writes, prior offset certain, fail-stop.",
+      "Integer-subclass write count rejected; exact built-in int excludes bool and spoofed count subclasses.",
+      "SystemExit write exception propagated by identity; stopped, offset uncertain, whole row charged, no complete row.",
+      "Scope probes: valid JSON exponent1e9999 and4000-deep nested payload accepted by this Python3.15 envelope validator. Numeric semantics/depth/object counts remain future schema obligations; no guest-memory claim."
+    ]
+  },
+  "history": [
+    {
+      "name": "01-journal-api-RED.json.gz",
+      "status": 1,
+      "sha256": "e9576f30978a3089d3fb6b4e38847abacb9d2030780b2993c77b41080db003a2"
+    },
+    {
+      "name": "02-journal-api-GREEN.json.gz",
+      "status": 0,
+      "sha256": "42a26a42af69880133c8bfdaf73839034798696d0d503f19ba4928c7389e4457"
+    },
+    {
+      "name": "03-short-write-RED.json.gz",
+      "status": 1,
+      "sha256": "1ddae4eaffb377f7a127e9a4e5355b07891e30f4b8e47d9fdf24e22b3667374f"
+    },
+    {
+      "name": "04-short-write-GREEN.json.gz",
+      "status": 0,
+      "sha256": "5adb155aa0e8da081b4d7816d16bf3028f202410f294aa1d0c885f53d9878840"
+    },
+    {
+      "name": "05-partial-failure-RED.json.gz",
+      "status": 1,
+      "sha256": "834f3027dd92f70c5e37fed34e7965006179a92356efef80aa796303fe07d7d6"
+    },
+    {
+      "name": "06-partial-failure-GREEN.json.gz",
+      "status": 0,
+      "sha256": "6bb54924e4efbc4ccfdd535b3e0af634b0f2e935e1ff6c374c31c1effa251fb8"
+    },
+    {
+      "name": "07-invalid-write-RED.json.gz",
+      "status": 1,
+      "sha256": "6e218875d9c700b253644b3792b8676d863abe39936bc261ebed1455a91e2409"
+    },
+    {
+      "name": "08-invalid-write-GREEN.json.gz",
+      "status": 0,
+      "sha256": "f8af706e0d90c10a47872796c480053d5bcffc0d475993318f391721142b3c77"
+    },
+    {
+      "name": "09-sync-failure-RED.json.gz",
+      "status": 1,
+      "sha256": "a6355ca3ad56348bdd2c615d1a2cc55dc886d0c15203b13dff48eb2e4926adaf"
+    },
+    {
+      "name": "10-sync-failure-GREEN.json.gz",
+      "status": 0,
+      "sha256": "a8c64c5f3917232843152caf19becec3856a21b0a6dd23eb05b1389e8fbfc917"
+    },
+    {
+      "name": "11-row-envelope-RED.json.gz",
+      "status": 1,
+      "sha256": "d524ee079dbe6c4c8ebcb0a38b31d24f1538a492d4c2938a9eff0172534d023b"
+    },
+    {
+      "name": "12-row-envelope-GREEN.json.gz",
+      "status": 0,
+      "sha256": "bcce98e96fb57d35d69d1dcf22e375d6cf17b625e77607d39559611e9f0eab58"
+    },
+    {
+      "name": "13-pools-RED.json.gz",
+      "status": 1,
+      "sha256": "46490b6de772727003ab97b2ce111ecc4856f7391eb7dbccc4194ca966f524b7"
+    },
+    {
+      "name": "14-pools-GREEN.json.gz",
+      "status": 0,
+      "sha256": "e00e9146d2cdb8af100b4cccd92a2c521fcf4c9554bbc4a248de08b3e3e2c97e"
+    },
+    {
+      "name": "15-journal-regressions.json.gz",
+      "status": 0,
+      "sha256": "cde81e75feb16cedbdd56939cc84a354b9d122360717244ab5c46dab8f795932"
+    },
+    {
+      "name": "16-final-typed-journal.json.gz",
+      "status": 0,
+      "sha256": "b6d89d093716e0c97a98be2666581fa79235b6c48cdc00a8f05780e5cd80bdce"
+    }
+  ],
+  "historyScope": "Decoded and hashed16 retained records; RED statuses1 and GREEN/regression0; final16 source/test snapshots match frozen bytes. Historical runs not reexecuted; current26tests separately reproduced.",
+  "pythonAssessment": [
+    "All new production functions <=26lines, whole file largest38. Public Callable sync annotation explicit.",
+    "Exact-type checks intentionally reject bool/int subclasses and mutable bytearrays; no style-only replacement recommended.",
+    "BaseException catches update fail-stop then rereraise original exception. No swallowed interrupt or caller stream closure.",
+    "Encoded row bytes bounded, but JSON tree/object allocations not guest-qualified; full observation schema remains future work.",
+    "No new package, executable entry point, path/process/network access or unsafe deserialization."
+  ],
+  "staticTools": {
+    "ruff": null,
+    "mypy": null,
+    "pylint": null,
+    "black": null,
+    "bandit": null
+  },
+  "staticToolLimit": "Tools absent, not installed; no typechecker/linter/security-scanner pass claimed.",
+  "reviewerProbeFailure": {
+    "attempt": "First additional-probe command exited1 at line29 with AssertionError: invalid accepted. No report or repository file written.",
+    "rootCause": "Reviewer incorrectly expected4000-deep syntactically valid JSON to be invalid. Isolated probe on actualPython3.15 accepts it; parser only promises envelope/tag/byte cap. BOM/Infinity/-Infinity/NUL separately reject.",
+    "resolution": "Corrected reviewer assertion distinguishes malformed JSON rejection from valid payload depth acceptance. Frozen source unchanged. Full object/depth/memory validation remains mandatory before live composition."
+  },
+  "coveragePhase1": {
+    "input": "observer-journal-host-tests/17-planted-and-coverage.json.gz",
+    "classification": "instrumentation failure, not product failure or zero product coverage",
+    "observed": "Input records0/188. Actual Python3.15 Trace(count=True,trace=False).globaltrace is globaltrace_lt; it reads frame.f_globals.get(__file__) and returns None if absent. Identical three-line types.ModuleType example without __file__ produced no counts; with __file__ produced lines2and3.",
+    "initialInspectionFailure": "inspect.getsource(Trace.globaltrace_count) raised AttributeError because attribute absent inPython3.15. Corrected read-only inspection used actual bound globaltrace/localtrace; no source change.",
+    "recommendation": "Keep17 unchanged. Separate corrected attempt sets module.__file__ equal compile filename, traces initialization+tests with same source/test pins and explicit denominator. No branch-coverage claim."
+  },
+  "preservation": {
+    "repoStatusUnchanged": true,
+    "indexUnchanged": true,
+    "writes": "Only this new exclusive external review JSON; no source/fixture/install/SDK/VM changes.",
+    "uniqueEvidence": "All failure records preserved; no deletion."
+  },
+  "acceptanceLimits": [
+    "Partial host primitive only; plan step3 not fully complete and no runnable observer.",
+    "Caller must enforce empty exclusive unbuffered stream and nonreentrant trusted fsync; no ownership, atomicity or shared-filesystem durability established.",
+    "Semantic schema, identity joins, root/copy/control lifetime reservation ledger, terminal writer and ACK still required.",
+    "No guestPython3.12 replay/RSS/overhead result, live resource epoch or proof acceptance; max6325 resource outcome and Read33 remain unaccepted."
+  ]
+}

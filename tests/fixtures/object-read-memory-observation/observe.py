@@ -1,6 +1,7 @@
 """One-off admitted-range diagnostic parsing; no live observer entrypoint yet."""
 
-from typing import BinaryIO
+import json
+from typing import BinaryIO, Callable
 
 
 class ObservationError(ValueError):
@@ -141,3 +142,87 @@ def parse_membership(raw: bytes) -> bytes:
             or raw.count(b"\n") != 1 or b"\x00" in raw or b"\r" in raw):
         raise ObservationError("invalid_membership")
     return raw[3:-1]
+
+
+def row_pool(row: bytes) -> str:
+    """Validate only JSONL envelope/tag/size; full observation schema is separate."""
+    caps = {"s": 16384, "m": 32768, "i": 8192, "e": 8192,
+            "h": 8192, "b": 8192, "g": 8192}
+    if (type(row) is not bytes or not 1 <= len(row) <= 32768
+            or not row.endswith(b"\n") or row.count(b"\n") != 1 or b"\r" in row):
+        raise ObservationError("row_envelope")
+    def reject_constant(value: str) -> None:
+        raise ObservationError("json_constant")
+    try:
+        value = json.loads(row.decode("utf-8"), parse_constant=reject_constant)
+    except (ValueError, RecursionError) as error:
+        raise ObservationError("row_json") from error
+    if (not isinstance(value, list) or not value or type(value[0]) is not str
+            or value[0] not in caps or len(row) > caps[value[0]]):
+        raise ObservationError("row_tag_or_limit")
+    tag = value[0]
+    return "samples" if tag in ("s", "m") else "identities" if tag in ("i", "e") else "markers"
+
+
+class Journal:
+    """Single-owner append-only journal; no path, terminal writer or ACK issuance.
+
+    Caller supplies an empty exclusive unbuffered stream and a trusted synchronous
+    fsync operation returning None. No concurrent or reentrant use is supported.
+    After an IO failure, written_offset counts only reported bytes; the true end
+    may be unknown. Reserved bytes conservatively include the entire failed row.
+    """
+
+    def __init__(self, stream: BinaryIO, synchronize: Callable[[], None]) -> None:
+        self.stream = stream
+        self.synchronize = synchronize
+        self.written_offset = 0
+        self.complete_offset = 0
+        self.complete_rows = 0
+        self.synced_offset = 0
+        self.stopped = False
+        self.offset_certain = True
+        self._reserved = {"samples": 0, "identities": 0, "markers": 2048,
+                          "terminal": 8192}
+
+    @property
+    def reserved(self) -> dict[str, int]:
+        return self._reserved.copy()
+
+    def append(self, row: bytes) -> None:
+        if self.stopped:
+            raise ObservationError("journal_stopped")
+        try:
+            pool = row_pool(row)
+            limits = {"samples": 786432, "identities": 196608, "markers": 57344}
+            if len(row) > limits[pool] - self._reserved[pool]:
+                raise ObservationError("quota_stop:" + pool)
+            self._reserved[pool] += len(row)
+        except BaseException:
+            self.stopped = True
+            raise
+        remaining = memoryview(row)
+        try:
+            while remaining:
+                count = self.stream.write(remaining)
+                if type(count) is not int or not 0 < count <= len(remaining):
+                    raise ObservationError("write_protocol")
+                self.written_offset += count
+                remaining = remaining[count:]
+        except BaseException:
+            self.stopped = True
+            self.offset_certain = False
+            raise
+        self.complete_offset += len(row)
+        self.complete_rows += 1
+
+    def sync(self) -> None:
+        if self.stopped:
+            raise ObservationError("journal_stopped")
+        try:
+            if self.synchronize() is not None:
+                raise ObservationError("sync_protocol")
+        except BaseException:
+            self.stopped = True
+            raise
+        self.synced_offset = self.complete_offset

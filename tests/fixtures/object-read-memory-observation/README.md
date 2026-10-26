@@ -1,6 +1,6 @@
 # Admitted-range memory diagnostic source preparation
 
-This directory currently contains **partial host-tested parsing helpers** for
+This directory currently contains **partial host-tested parsing and journal helpers** for
 the one diagnostic described in the [reviewed plan](../../../docs/continuation/2026-10-25/read-admitted-memory-diagnostic/README.md).
 There is no live observer entry point or compiler invocation here. The LexLean
 artifact's resource outcome remains unaccepted because `memory.events.max`
@@ -30,6 +30,12 @@ the unfinished observer can execute.
 - Unified cgroup membership remains exact opaque path bytes for comparison.
   Never open or normalize a filesystem path derived from that return value.
 
+The [journal primitive](JOURNAL.md) reserves whole encoded rows before writing,
+handles short writes, preserves the complete prefix after IO errors, and advances
+its synchronized bound only after the trusted callback succeeds. Its fixed pools
+exclude terminal and control capacity from ordinary rows. This is partial plan
+step 3; the full lifecycle encoding/copy ledger and terminal writer remain open.
+
 The stat field layout follows the [Linux manual](https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html).
 Cgroup discovery must respect the [kernel's cgroup v2 interface](https://docs.kernel.org/admin-guide/cgroup-v2.html).
 The current parser reads only the supplied bytes; it performs no process scan.
@@ -43,7 +49,7 @@ that interpreter explicitly if `python3` resolves to an older version):
 PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest -v test_observe
 ```
 
-The current 16 tests use synthetic records and in-memory streams. They do not
+The current 26 tests use synthetic records and in-memory streams. They do not
 exercise a guest observer, shared-filesystem durability, original proof cost,
 the SDK or a new resource epoch. Recorded checks used host Python 3.15; the
 selected guest Python 3.12 runtime has not executed this source.
@@ -53,8 +59,8 @@ history, independent partial-source reviews and measured host line coverage.
 
 The implementation sequence remains in the
 [working plan](../../../docs/plans/2026-10-26-admitted-memory-observation.md):
-ownership/race checks, bounded journal, clock and synchronization, observer
-composition, and separately reviewed invocation preparation are still required.
+the refined lifecycle reservation ledger and terminal writer, ownership/race
+checks, clock/ACK linkage, observer composition, and separately reviewed invocation preparation are still required.
 The 1 MiB observation cap cannot guarantee coverage of the earlier 264-second
 verification. No automatic retry, resource-limit change or acceptance waiver
 is supplied by this directory.

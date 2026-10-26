@@ -1,0 +1,189 @@
+{
+  "schema": "lexlean-r4/observer-journal-code-review/1",
+  "at": "2026-10-26T01:23:15.894136+00:00",
+  "reviewer": "observer_head_code",
+  "verdict": "APPROVE_PARTIAL_HOST_JOURNAL_PRIMITIVE_ONLY",
+  "findings": [],
+  "sourceManifest": {
+    "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-journal-host-tests/source-manifest.json",
+    "sha256": "9e99f9faacdcfbad3e5d8f13332267f75b086cf1b7803a924b6abcb8a0c96bc7",
+    "pins": [
+      {
+        "path": "tests/fixtures/object-read-memory-observation/observe.py",
+        "bytes": 9277,
+        "sha256": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b"
+      },
+      {
+        "path": "tests/fixtures/object-read-memory-observation/test_observe.py",
+        "bytes": 19658,
+        "sha256": "7ac370aa834225b3cf539086279a84b8bc2637a65cb3e807ea1b015e94dd21ed"
+      },
+      {
+        "path": "tests/fixtures/object-read-memory-observation/JOURNAL.md",
+        "bytes": 3110,
+        "sha256": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+      }
+    ]
+  },
+  "governance": {
+    "read": [
+      "AGENTS.md",
+      "INIT.md",
+      ".claude/agents/code-reviewer.md",
+      ".agent-sync/ROUTING.md",
+      "docs/plans/2026-10-26-admitted-memory-observation.md",
+      "design/contract.json",
+      "design/implementation-spec-review.json"
+    ],
+    "roster": "verify4e5d2791f522e3ca7agents7skills PASS; check Agent code-reviewer PASS",
+    "fileClaims": "Empty table; no conflicting claim"
+  },
+  "freshTests": {
+    "runtime": "/opt/homebrew/opt/python@3.15/bin/python3.15",
+    "version": "3.15.0",
+    "bytecodeDisabled": true,
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "output": "..........................\n----------------------------------------------------------------------\nRan 26 tests in 0.006s\n\nOK\n"
+  },
+  "additionalProbes": [
+    "All3 writable pools filled simultaneously using constant-space counting stream:1038336written+10240protected=1048576; synchronized complete prefix; next sample rejects withoutIO.",
+    "One-byte shortwrites preserve exact8192-byte identity row in8192calls.",
+    "KeyboardInterrupt,SystemExit,OSError after unreported3byte suffix propagate exact exceptions; complete/synced prefix preserved; entire failedrow charged; journalstopped and offsetuncertain.",
+    "Infinity,-Infinity and secondJSONdocument reject beforeIO.",
+    "Empty-journal synchronization retains zero prefix and allows subsequent appends.",
+    "Interleaved7tags with escaped newline/multibyteUTF8 charge exactbyte lengths to shared pools.",
+    "1200nestedarrays accepted as syntactically valid bounded JSON; no depth/field-schema acceptance is claimed."
+  ],
+  "retainedTDD": {
+    "records": [
+      {
+        "name": "01-journal-api-RED.json.gz",
+        "sha256": "e9576f30978a3089d3fb6b4e38847abacb9d2030780b2993c77b41080db003a2",
+        "status": 1
+      },
+      {
+        "name": "02-journal-api-GREEN.json.gz",
+        "sha256": "42a26a42af69880133c8bfdaf73839034798696d0d503f19ba4928c7389e4457",
+        "status": 0
+      },
+      {
+        "name": "03-short-write-RED.json.gz",
+        "sha256": "1ddae4eaffb377f7a127e9a4e5355b07891e30f4b8e47d9fdf24e22b3667374f",
+        "status": 1
+      },
+      {
+        "name": "04-short-write-GREEN.json.gz",
+        "sha256": "5adb155aa0e8da081b4d7816d16bf3028f202410f294aa1d0c885f53d9878840",
+        "status": 0
+      },
+      {
+        "name": "05-partial-failure-RED.json.gz",
+        "sha256": "834f3027dd92f70c5e37fed34e7965006179a92356efef80aa796303fe07d7d6",
+        "status": 1
+      },
+      {
+        "name": "06-partial-failure-GREEN.json.gz",
+        "sha256": "6bb54924e4efbc4ccfdd535b3e0af634b0f2e935e1ff6c374c31c1effa251fb8",
+        "status": 0
+      },
+      {
+        "name": "07-invalid-write-RED.json.gz",
+        "sha256": "6e218875d9c700b253644b3792b8676d863abe39936bc261ebed1455a91e2409",
+        "status": 1
+      },
+      {
+        "name": "08-invalid-write-GREEN.json.gz",
+        "sha256": "f8af706e0d90c10a47872796c480053d5bcffc0d475993318f391721142b3c77",
+        "status": 0
+      },
+      {
+        "name": "09-sync-failure-RED.json.gz",
+        "sha256": "a6355ca3ad56348bdd2c615d1a2cc55dc886d0c15203b13dff48eb2e4926adaf",
+        "status": 1
+      },
+      {
+        "name": "10-sync-failure-GREEN.json.gz",
+        "sha256": "a8c64c5f3917232843152caf19becec3856a21b0a6dd23eb05b1389e8fbfc917",
+        "status": 0
+      },
+      {
+        "name": "11-row-envelope-RED.json.gz",
+        "sha256": "d524ee079dbe6c4c8ebcb0a38b31d24f1538a492d4c2938a9eff0172534d023b",
+        "status": 1
+      },
+      {
+        "name": "12-row-envelope-GREEN.json.gz",
+        "sha256": "bcce98e96fb57d35d69d1dcf22e375d6cf17b625e77607d39559611e9f0eab58",
+        "status": 0
+      },
+      {
+        "name": "13-pools-RED.json.gz",
+        "sha256": "46490b6de772727003ab97b2ce111ecc4856f7391eb7dbccc4194ca966f524b7",
+        "status": 1
+      },
+      {
+        "name": "14-pools-GREEN.json.gz",
+        "sha256": "e00e9146d2cdb8af100b4cccd92a2c521fcf4c9554bbc4a248de08b3e3e2c97e",
+        "status": 0
+      },
+      {
+        "name": "15-journal-regressions.json.gz",
+        "sha256": "cde81e75feb16cedbdd56939cc84a354b9d122360717244ab5c46dab8f795932",
+        "status": 0
+      },
+      {
+        "name": "16-final-typed-journal.json.gz",
+        "sha256": "b6d89d093716e0c97a98be2666581fa79235b6c48cdc00a8f05780e5cd80bdce",
+        "status": 0
+      }
+    ],
+    "finalSourceTestSnapshotsMatch": true,
+    "analysis": "01-14 contain7RED/GREEN pairs;15-16 areGREEN regression/typing checks. Initial APIabsence and missing stopped-state errors differ from assertionREDs for shortwrite,invalidcounts,sync,envelope,pools. Historical snapshots inspected, not rerun."
+  },
+  "assessment": [
+    "Each immutable row is validated and fully reserved before write; quotas cannot loan across pools. Terminal8192 and controltemp2048 remain unavailable to journalrows.",
+    "Shortwrites advance only by reported positive integercounts; invalidcounts and IOexceptions stop journal. Full failedrow reservation conservatively covers uncertain physical extent; complete prefix remains distinct.",
+    "sync advances only after callback returnsNone; failure preserves prior bound and prevents later append/sync. No ACK is issued.",
+    "Caller must supply trusted empty/exclusive/unbufferedstream and synchronousfsync. This API does not check ownership,flush buffering,support concurrent/reentrant use or authenticate suppliedcallbacks.",
+    "Envelope/tag/bytecap validation is not fullschema/numeric/sequence validation. NestedJSON allocation/objectbounds and wholeobserverRSS remain unqualified.",
+    "JOURNAL.md accurately limits current checkpoint: no refined lifecyclecopyledger,terminalwriter,ACK or sharedfilesystemdurability. Those omissions do not become acceptance of fullplanstep3."
+  ],
+  "reviewerAttemptFailures": [
+    {
+      "error": "KeyError(status)",
+      "cause": "Report assembly broadglob included newlyadded17-planted-and-coverage.json.gz outside requested01-16.26tests had passed.",
+      "resolution": "Explicit01-16selection; no outputfile had been created."
+    },
+    {
+      "error": "AssertionError(invalid envelope accepted)",
+      "cause": "Reviewer mistakenly expected valid1200nestedarrayJSON to reject. Current contract only promises envelope/tag/bytebound; valid nestedJSON is accepted.",
+      "resolution": "Corrected probe expectation, documented nesting/allocation limit and reran. No implementationbug; no outputfile had been created."
+    }
+  ],
+  "limits": [
+    "Hostsynthetic/countingIO only; no SDK,justvv,VM,native,build,packageinstall or runtime deployment.",
+    "No fullrefinedschema/lifecyclemarker-container-hostcopy-retrievalledger/terminalwriter/clockACK/ownershiprace/composer acceptance.",
+    "No guestPython3.12,sharedfilesystematomicity,powerlossdurability or runtimeRSS qualification.",
+    "Originalresourceoutcome max6325 remains unaccepted; noRead33,release,production or liveauthority."
+  ],
+  "preservation": {
+    "sourcePinsUnchanged": true,
+    "statusUnchanged": true,
+    "indexSHA256Unchanged": "26e0036210a199f0dcd06f8b2163fb42c10786501b74fb3ca8c084d35c4541d7",
+    "pendingNineDraftHashesUnchanged": {
+      "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+      "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+      "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+      "docs/OBJECT.md": "b7d8a0595c322d001ef3c98637f9e1d42da043ec2b05f12484d9fde9fa66baad",
+      "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+      "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+      "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+      "tests/lexlean/Blake3PrimitiveControls.lex.tex": "da4af7c9815682182b1299492efbfef77602ce6e1bee222cdff790330ba59931",
+      "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87"
+    }
+  },
+  "writes": "Exclusive external observer-journal-code-review.json only; no source/index/frozen evidence edits."
+}

@@ -193,5 +193,225 @@ class ProcessTests(unittest.TestCase):
                          ("1594", "1594"))
 
 
+class JournalTests(unittest.TestCase):
+    def test_all_row_kinds_charge_their_encoded_bytes_to_the_same_shared_pools(self):
+        journal = observe.Journal(io.BytesIO(), lambda: None)
+        totals = {"samples": 0, "identities": 0, "markers": 2048, "terminal": 8192}
+        for tag, pool, size in (("s", "samples", 16384), ("m", "samples", 32768),
+                                ("i", "identities", 8192), ("e", "identities", 8192),
+                                ("h", "markers", 8192), ("b", "markers", 8192),
+                                ("g", "markers", 8192)):
+            journal.append(self.sized_row(tag, size))
+            totals[pool] += size
+            self.assertEqual(journal.reserved, totals)
+            invalid = observe.Journal(io.BytesIO(), lambda: None)
+            with self.assertRaises(observe.ObservationError):
+                invalid.append(self.sized_row(tag, size + 1))
+            self.assertEqual(invalid.complete_offset, 0)
+        snapshot = journal.reserved
+        snapshot["samples"] = 0
+        self.assertEqual(journal.reserved, totals)
+
+    def test_encoded_escape_and_multibyte_lengths_are_charged_not_character_counts(self):
+        stream = io.BytesIO()
+        journal = observe.Journal(stream, lambda: None)
+        rows = (b'["i","\\u0000\\u0000"]\n', '["i","é🙂"]\n'.encode())
+        for row in rows:
+            journal.append(row)
+        self.assertEqual(journal.reserved["identities"], sum(map(len, rows)))
+        self.assertEqual(stream.getvalue(), b"".join(rows))
+
+    def test_partial_write_charges_full_reservation_and_tracks_only_reported_bytes(self):
+        failure = OSError("write failed")
+        class PartialStream:
+            calls = 0
+            def write(self, value):
+                self.calls += 1
+                if self.calls == 1:
+                    return 2
+                raise failure
+        journal = observe.Journal(PartialStream(), lambda: None)
+        row = b'["s"]\n'
+        with self.assertRaises(OSError) as caught:
+            journal.append(row)
+        self.assertIs(caught.exception, failure)
+        self.assertEqual(journal.written_offset, 2)
+        self.assertEqual(journal.complete_offset, 0)
+        self.assertEqual(journal.complete_rows, 0)
+        self.assertFalse(journal.offset_certain)
+        self.assertEqual(journal.reserved["samples"], len(row))
+        self.assertEqual(journal.reserved["terminal"], 8192)
+
+    @staticmethod
+    def sized_row(tag, size):
+        prefix = b'["' + tag.encode() + b'","'
+        suffix = b'"]\n'
+        return prefix + b'x' * (size - len(prefix) - len(suffix)) + suffix
+
+    def test_fixed_pools_allow_exact_fill_and_reject_one_byte_over_before_write(self):
+        class CountingStream:
+            size = 0
+            def write(self, value):
+                self.size += len(value)
+                return len(value)
+        for pool, tag, cap, rowcap in (("samples", "s", 786432, 16384),
+                                      ("identities", "i", 196608, 8192),
+                                      ("markers", "b", 55296, 8192)):
+            for overflow in (False, True):
+                with self.subTest(pool=pool, overflow=overflow):
+                    stream = CountingStream()
+                    journal = observe.Journal(stream, lambda: None)
+                    remaining = cap - (9 if overflow else 0)
+                    while remaining:
+                        size = min(rowcap, remaining)
+                        journal.append(self.sized_row(tag, size))
+                        remaining -= size
+                    before = stream.size
+                    if overflow:
+                        with self.assertRaises(observe.ObservationError):
+                            journal.append(self.sized_row(tag, 10))
+                        self.assertTrue(journal.stopped)
+                        self.assertEqual(stream.size, before)
+                    self.assertEqual(journal.reserved["terminal"], 8192)
+                    self.assertEqual(journal.reserved[pool], before + (2048 if pool == "markers" else 0))
+                    self.assertEqual(journal.complete_offset, before)
+                    self.assertLessEqual(sum(journal.reserved.values()), 1048576)
+
+    def test_row_envelope_rejects_before_io_and_preserves_terminal_capacity(self):
+        bad_rows = (b"", None, "x", bytearray(b'["s"]\n'), b'["s"]',
+                    b'["s"]\n["s"]\n', b'{}\n', b'[]\n', b'[1]\n',
+                    b'["unknown"]\n', b'["s",NaN]\n', b'["s",\xff]\n',
+                    b'["s",[}\n', b'["s"]\r\n', b'["s","' + b'x' * 16384 + b'"]\n')
+        for row in bad_rows:
+            with self.subTest(row=repr(row)[:80]):
+                stream = io.BytesIO()
+                journal = observe.Journal(stream, lambda: None)
+                with self.assertRaises(observe.ObservationError):
+                    journal.append(row)
+                self.assertEqual(stream.getvalue(), b"")
+                self.assertEqual(journal.complete_offset, 0)
+                self.assertTrue(journal.stopped)
+                self.assertTrue(journal.offset_certain)
+
+    def test_sync_failure_keeps_prior_sync_bound_and_stops_without_retry(self):
+        for result in (OSError("sync failed"), KeyboardInterrupt(), False, 0, "ok"):
+            with self.subTest(result=result):
+                calls = []
+                def synchronize():
+                    calls.append("sync")
+                    if len(calls) == 1:
+                        return None
+                    if isinstance(result, BaseException):
+                        raise result
+                    return result
+                stream = io.BytesIO()
+                journal = observe.Journal(stream, synchronize)
+                row = b'["s"]\n'
+                journal.append(row)
+                journal.sync()
+                journal.append(row)
+                expected = type(result) if isinstance(result, BaseException) else observe.ObservationError
+                with self.assertRaises(expected) as raised:
+                    journal.sync()
+                if isinstance(result, BaseException):
+                    self.assertIs(raised.exception, result)
+                self.assertEqual(journal.synced_offset, len(row))
+                self.assertEqual(journal.complete_offset, 2 * len(row))
+                self.assertTrue(journal.stopped)
+                self.assertTrue(journal.offset_certain)
+                with self.assertRaises(observe.ObservationError):
+                    journal.sync()
+                with self.assertRaises(observe.ObservationError):
+                    journal.append(row)
+                self.assertEqual(calls, ["sync", "sync"])
+
+    def test_invalid_write_counts_stop_on_first_call_without_claiming_a_row(self):
+        for bad in (0, -1, True, None, 1.5, "1", 999):
+            with self.subTest(count=bad):
+                class InvalidStream:
+                    calls = 0
+                    def write(self, value):
+                        self.calls += 1
+                        if self.calls > 1:
+                            raise AssertionError("invalid write was retried")
+                        return bad
+                stream = InvalidStream()
+                journal = observe.Journal(stream, lambda: None)
+                with self.assertRaises(observe.ObservationError):
+                    journal.append(b'["s"]\n')
+                self.assertEqual(stream.calls, 1)
+                self.assertEqual(journal.complete_offset, 0)
+                self.assertEqual(journal.written_offset, 0)
+                self.assertEqual(journal.complete_rows, 0)
+                self.assertTrue(journal.stopped)
+                self.assertFalse(journal.offset_certain)
+
+    def test_partial_exception_preserves_prefix_and_prevents_further_io(self):
+        failure = OSError("ENOSPC after an uncertain partial write")
+        class FailedStream(io.BytesIO):
+            fail = False
+            calls = 0
+            def write(self, value):
+                self.calls += 1
+                if self.fail:
+                    super().write(value[:2])
+                    raise failure
+                return super().write(value)
+
+        stream = FailedStream()
+        sync_calls = []
+        journal = observe.Journal(stream, lambda: sync_calls.append("sync"))
+        row = b'["s",1,"0","1"]\n'
+        journal.append(row)
+        journal.sync()
+        stream.fail = True
+        with self.assertRaises(OSError) as raised:
+            journal.append(row)
+        self.assertIs(raised.exception, failure)
+        self.assertEqual(stream.getvalue(), row + row[:2])
+        self.assertEqual(journal.complete_offset, len(row))
+        self.assertEqual(journal.synced_offset, len(row))
+        self.assertEqual(journal.complete_rows, 1)
+        self.assertTrue(journal.stopped)
+        self.assertFalse(journal.offset_certain)
+        calls = stream.calls
+        with self.assertRaises(observe.ObservationError):
+            journal.append(row)
+        with self.assertRaises(observe.ObservationError):
+            journal.sync()
+        self.assertEqual(stream.calls, calls)
+        self.assertEqual(sync_calls, ["sync"])
+        self.assertFalse(stream.closed)
+
+    def test_short_writes_continue_without_duplicate_or_missing_bytes(self):
+        class ShortStream(io.BytesIO):
+            def write(self, value):
+                return super().write(value[:3])
+
+        stream = ShortStream()
+        journal = observe.Journal(stream, lambda: None)
+        row = b'["s",1,"0","1"]\n'
+        journal.append(row)
+        self.assertEqual(stream.getvalue(), row)
+        self.assertEqual(journal.written_offset, len(row))
+        self.assertEqual(journal.complete_offset, len(row))
+        self.assertEqual(journal.complete_rows, 1)
+
+    def test_complete_row_is_written_once_and_sync_tracks_prefix(self):
+        stream = io.BytesIO()
+        sync_calls = []
+        journal = observe.Journal(stream, lambda: sync_calls.append("sync"))
+        row = b'["s",1,"0","1"]\n'
+        journal.append(row)
+        self.assertEqual(stream.getvalue(), row)
+        self.assertEqual(journal.complete_offset, len(row))
+        self.assertEqual(journal.complete_rows, 1)
+        self.assertEqual(journal.synced_offset, 0)
+        journal.sync()
+        self.assertEqual(sync_calls, ["sync"])
+        self.assertEqual(journal.synced_offset, len(row))
+        self.assertFalse(stream.closed)
+
+
 if __name__ == "__main__":
     unittest.main()

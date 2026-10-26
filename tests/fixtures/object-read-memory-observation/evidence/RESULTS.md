@@ -1,4 +1,7 @@
-# Partial host reader verification
+# Historical parser checkpoint verification
+
+The later [journal checkpoint](JOURNAL-RESULTS.md) extends these tests while
+preserving the parser results below.
 
 The seven parser/read functions in `observe.py` passed the 16 host unittest
 methods in `test_observe.py`. This accepts bounded parsing on the tested inputs;

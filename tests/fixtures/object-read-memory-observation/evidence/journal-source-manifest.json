@@ -1,0 +1,20 @@
+{
+  "scope": "partial host journal primitive only; no native execution or full step3 acceptance",
+  "files": [
+    {
+      "path": "tests/fixtures/object-read-memory-observation/observe.py",
+      "bytes": 9277,
+      "sha256": "abf04baddad7e91dae38a3fce340b72d787bca7676a3ea373ddced719dea505b"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/test_observe.py",
+      "bytes": 19658,
+      "sha256": "7ac370aa834225b3cf539086279a84b8bc2637a65cb3e807ea1b015e94dd21ed"
+    },
+    {
+      "path": "tests/fixtures/object-read-memory-observation/JOURNAL.md",
+      "bytes": 3110,
+      "sha256": "61ca62ccbe9c23486b2752cad53048153097c8cc75a5d2754d33d241a40a26df"
+    }
+  ]
+}
