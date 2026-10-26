@@ -1,0 +1,320 @@
+{
+  "schema": {
+    "encoding": "UTF8 JSON arrays, compact JSON separators, LF per record. Literal Unicode in raw fields is encoded as base64 where arbitrary bytes are possible. Keys/types fixed by versioned header. No pretty-print overhead in runtime journal.",
+    "header": "[\"h\",version,nonce,boot,containerEpoch,cgroupIdentity,observerIdentity,clockOrigin,clockUnit,limits] ; <=8192B charged markers pool.",
+    "eventDictionary": "[\"e\",keysetId,[ordered full event-key names]] ; charged identities pool. Every s row carries all values for its exact dictionary. Dictionary must precede its first use.",
+    "identity": "[\"i\",id,pidString,startTicksString,ppidString,parentStartTicksOrNull,attributionClass,moduleOrNull,base64RawCmdline] ; exact rawcmdline bytes, bounded by4096; source classification metadata does not replace raw identity evidence.",
+    "sample": "[\"s\",seq,t0usString,t1usString,keysetId,[eventValueStrings],currentStringOrNull,swapStringOrNull,peakStringOrNull,[[identityId,rssKiBStringOrNull,hwmKiBStringOrNull,pidFlags],...],missedTicks,sampleFlags]",
+    "slow": "[\"m\",seq,t0usString,t1usString,rawMemoryStatASCIIOrNull,rawPressureASCIIOrNull,rawEventsLocalASCIIOrNull,flags] ; all keyed raw lines retained including unknown keys within cap.",
+    "boundary": "[\"b\",seq,label,guestReceiveUs,sampleSeq,completeOffset,syncStatus,flags]; ACK carries same nonce/seq/sample/offset, not a claimed atomic snapshot.",
+    "gap": "[\"g\",seq,t0us,t1us,typedReason,boundedContext]; enum reasons distinguish optional_unsupported, vanished, raced, denied, truncated_read, parse_error, missed_tick, quota_stop, namespace_unknown, unsupported_subtree, ownership_changed, marker_timeout and io_failure.",
+    "terminal": "Bounded JSON with finalstate, quota used/remaining, complete prefix offset/seq, sync bound, missing intervals, identity unknowns, observer status and original SDK outcome separately. No success word can override strict resource status."
+  },
+  "at": "2026-10-26T00:25:07.236Z",
+  "author": "memory_protocol_debugger",
+  "role": "Internal eligible debugger, read-only concrete evidence analysis",
+  "status": "PROPOSED_CONCRETIZATION_REQUIRES_FRESH_SPEC_NO_IMPLEMENTATION_OR_RUN_AUTHORITY",
+  "roster": {
+    "id": "f809eb3d4ada5630",
+    "verify": "PASS 5 agents/5 skills",
+    "check": "Agent debugger active",
+    "instructionsRead": [
+      ".claude/agents/debugger.md",
+      "AGENTS.md",
+      "INIT.md"
+    ]
+  },
+  "scope": {
+    "question": "Locate bounded max-counter change intervals during exactly one unchanged admitted-range diagnostic; do not repair the gate or claim a causal allocator.",
+    "source": "Actual 33-module child-certificate closure, original runtime/digest/empty axioms/300000ms per-child limits unchanged.",
+    "preservation": "Current max6325 epoch, prior artifacts and failed results preserved. No SDK, process, source, configuration, repository, monitoring or installation operations performed by this author.",
+    "mutations": "Only this new external report. Inline host arithmetic read retained JSON; it is not observer source or a runtime test."
+  },
+  "evidence": {
+    "pins": [
+      {
+        "path": "positive-memory-phase1.json",
+        "bytes": 31061,
+        "sha256": "e0e32ccde916815102f46f588e48943df1252a04e1a5a94d4c5cd222bf102f4a"
+      },
+      {
+        "path": "positive-memory-diagnostic-proposal.json",
+        "bytes": 12126,
+        "sha256": "39d210aefd177d8903c3dcbf497e1212ce78c1643dfb3d6d39bf680b02a7ea5d"
+      },
+      {
+        "path": "positive-memory-diagnostic-spec-review.json",
+        "bytes": 16460,
+        "sha256": "debc2e6cfec7c486e2ab6e742cf511c55f827e521fd7db8d57666cdd909fb152"
+      },
+      {
+        "path": "capability-addendum.json",
+        "bytes": 7548,
+        "sha256": "924c88d238f7815641af04a0cc5aa1df9fd4b54bae9325d1f144dfaa1ed89c98"
+      },
+      {
+        "path": "observer-full-capability-read.json",
+        "bytes": 2096,
+        "sha256": "3bfb8f46555e2b75d8530c79388c33ae1553500012e754af1b16f54f7c4b285b"
+      },
+      {
+        "path": "observer-ownership-capability-20261026.json",
+        "bytes": 3701,
+        "sha256": "a34a9883e0c0141715a4fbc33866d46cc3cf596a5b70c80e07ef5940509a0eda"
+      },
+      {
+        "path": "observer-placement-capability-20261026.json",
+        "bytes": 10049,
+        "sha256": "c1a0d7bb59c44b463ba7c9b45f9efd4920851c1e570cffc717a73af27070df6a"
+      },
+      {
+        "path": "observer-shared-path-capability-20261026.json",
+        "bytes": 1582,
+        "sha256": "c432f1d49f1b2903b0edb267a619b48133d618a70b193da3ebec2211fdd732e7"
+      },
+      {
+        "path": "complete-admitted-positive/artifact/attestation.json",
+        "bytes": 210745,
+        "sha256": "e5a30a2385b8e1325f0d106e2e43c2a2f5e4e1f7674d071a2f852ad2a0a41deb"
+      }
+    ],
+    "actualCorpus": {
+      "processes": 100,
+      "groups": {
+        "compile": 33,
+        "checker": 33,
+        "audit": 33,
+        "probe": 1
+      },
+      "distinctArgv": 100,
+      "normalizedArgvJSONBytes": 11677,
+      "maximumNormalizedArgvJSONBytes": 187,
+      "maximumModuleBytes": 93,
+      "recordedFields": [
+        "argv",
+        "executable_sha256",
+        "exit_code",
+        "module",
+        "stderr",
+        "stderr_sha256",
+        "stdout",
+        "stdout_sha256",
+        "tool"
+      ],
+      "limitation": "Receipts normalize $STAGING and include env-driver argv. They supply neither live PID/start-time/RSS nor observed concurrency or execution timestamps. Dictionary examples below are size scenarios, not reconstructed process history."
+    },
+    "lateSample": {
+      "statBytes": 974,
+      "statKeys": 56,
+      "pressureBytes": 106,
+      "eventBytes": 56,
+      "eventKeys": [
+        "low",
+        "high",
+        "max",
+        "oom",
+        "oom_kill",
+        "oom_group_kill"
+      ],
+      "limitation": "Late file/cache/current/peak data cannot attribute original max6325 or stand in for the future trace."
+    },
+    "newCapabilities": [
+      "Owned Docker State/top binds running original epoch and guest initPID1594; cgroup dev30/inode5049 and only1594sh/1607sleep observed. Reported observeruid501 is outside target cgroup. These are discrete snapshots, not future exclusive ownership.",
+      "Target namespace readlink individually failed status1; target status read succeeded and records NSpid1594,1. Never turn composite exit0 into every-subcommand success. A target namespace inode was NOT obtained.",
+      "Root/tmp free7802852KiB differs from /var/lib/docker52701204KiB. Do not write a purported11GiB-reserve artifact onto guestroot. Existing worktrees virtiofs mount is writable and backed by host capacity.",
+      "One33-byte hostchallenge→exclusiveguestack→host comparison passed in a new owned0700/0600 directory on that mount. This establishes one IO route, not atomic rename, fsync, complete monitoring, cadence or future resource authorization."
+    ]
+  },
+  "concreteProtocol": {
+    "placement": "Propose one nonroot guest observer outside the measured container, using only existing authorized runtime capabilities; language/runtime still unselected. Its bounded journal and two tiny control files live in a NEW owned sibling directory under the already shared worktrees mount, outside Git and any existing evidence root. No new mount, privilege, daemon or SDK behavior.",
+    "whySharedJournal": "Existing host invocation calls spawnSync for check/verify, so event-loop stdout handlers cannot be assumed to drain. Direct observer file writes via the existing shared mount avoid that dependency. stdout/stderr are not the evidence transport; invocation/observer exit status and reserved shared status own failure records. Do not capture unbounded wrapper output under the1MiB observation budget. Exact process launch/output disposition requires CODE review.",
+    "preflight": "Before any future observer/run: parent and guest bind fresh owned directory real paths, no symlink components, UID/mode and mount identity, exchange fresh bounded nonce, record distinct host/guest dev/inode values without equating them, and test exclusive creation, short-write handling, atomic same-directory marker replacement and synchronization semantics. Existing capability test did not exercise all these. Old capability directory remains preserved. Reserve separately checked on host/shared volume and actual container artifact volume; never substitute guestroot df.",
+    "ownership": {
+      "target": "Pin container ID, image, StartedAt, guestboot, target cgroup path/dev/inode/type and observer cgroup path. Pin own observer PID/start-time. Revalidate boot/cgroup identity at each boundary and target inode/type during batches. Do not follow symlinks or reused paths. No broad /proc argv scan.",
+      "discovery": "Enumerate ONLY exact owned cgroup.procs, max4096 raw bytes and64 distinct positive PID values. Detect immediate child cgroup directories with a bounded directory iterator (max64 entries). This first implementation must reject nonempty descendant-cgroup topology before verify; if it appears during verify, emit unsupported_subtree/coverage-insufficient and stop attribution, never scan outside root or kill compiler.",
+      "pidReads": "For each enumerated PID: read bounded stat and cgroup; require same target membership. Read status/cmdline, then stat+cgroup again. Require PID/start-time unchanged and target membership both times; otherwise record raced/vanished/denied, never reuse stale fields. Correctly parse stat comm parentheses using documented field boundaries; status RSS/HWM retain KiB units. Missing RSS for non-memory tasks is null, not0.",
+      "ancestry": "Store PID+start-time identities, PPID and observed parent start-time if parent is in the owned current census and passes the same double-read. An exited or outside-root parent is unknown; never read unrelated parent argv to fill the gap. Detect reparenting and preserve changing parent edges. Do not infer ancestry from PID alone or from any gap.",
+      "invocationRoot": "A future implementation must bind its actual verify invocation to a guest rootPID+start-time. Retained Docker/container snapshots do not supply that future root. A unique exact-argv new lexlean candidate observed after verify-start may be recorded as candidate_root, but MUST NOT be promoted to proven invocation ancestry by matching argv/time alone. Until a separately reviewed root-binding method is concretized, classify those PIDs owned_unattributed; no process/module-specific conclusion is admissible. This is one remaining concrete CODE/pre-run blocker, not silently solved by this report.",
+      "classification": "Classify only bounded observed argv matching pinned receipt-derived compile/checker/audit/probe forms and known33-module names. Account for normalized $STAGING/env wrappers; exact future live argv correspondence still must be tested. Unknown/unreadable/ambiguous argv remains unknown. No /proc/environ or cross-lab process reads. Seen start-time changes always create a new identity."
+    },
+    "clock": {
+      "domain": "All observer batch and received-boundary timestamps use one guest CLOCK_BOOTTIME domain, recorded in header with guest boot and origin nanoseconds. Encode relative microseconds with start floor/end ceil so quantization widens intervals. Runtime support remains a preflight obligation; no host-monotonic comparison.",
+      "wall": "Header records one bracketed guest wall anchor for human context. Host request/ack times are separately labeled host clocks and never numerically joined to guest time.",
+      "cadence": "Target one batch per100ms absolute guest-clock schedule; if work overruns, advance to next future slot and record missed count, never catch up. Slow snapshot every5s and on accepted boundary. A counter increase is localized only to [previous batch start,current batch end], not a precise event timestamp or sole allocator.",
+      "boundaries": "Before/after staging, lock, check; immediately-before-verify; verify-return-before-copy; copy-start/end; final postguard completion. Each marker uses monotone sequence+nonce+fixed label. Host requests before a phase, guest observes marker, samples, commits acknowledged journal prefix, then publishes ACK. Return boundary request occurs after synchronous verify returns and must be sampled/ACKed before copy begins.",
+      "deadline": "Propose at most2 seconds of host monotonic wait per boundary, finite bounded reads (not new helper per poll), no catch-up or automatic retry. Missing required preverify ACK/zero/identity blocks launch. Missing return ACK marks the desired verify-versus-copy distinction unavailable, then ordinary artifact retention and independent postguards continue after the bound. It must never indefinitely block healthy compiler/output draining.",
+      "preverify": "ACK must bind nonce/seq, valid current identity and complete absolute all-zero keyed events, journal prefix length and sample sequence. ACK never itself authorizes native work: original source/tools/storage/idle gates and separate epoch/pre-run decision remain. Any counter increase in staging/check or incomplete immediate sample blocks verify. No delta-based pass."
+    },
+    "retention": {
+      "journal": "One exclusive0600 append-only UTF8 JSONL journal, complete rows only. Check encoded byte length and relevant quota BEFORE append. Retain short/partial final writes as explicitly incomplete trailing data; never rewrite earlier evidence. Every successful write updates in-memory lastCompleteSeq/offset; periodic synchronization at most1second and mandatory before boundary ACK record last synchronization outcome/bounds. A return from fsync is recorded, not a power-loss durability guarantee for virtiofs/APFS.",
+      "control": "Host marker and guest ACK use separate fixed<=512B files, each with one<=512B same-directory replacement temporary. Four simultaneously existing control/temp files at most2048B. Only control slots are replaced; every consumed marker/ACK and failure is first retained in journal or launcher terminal. Detect stale/nonmonotone/badnonce/overlong/partial control records. No overwrite of journal or old evidence.",
+      "failure": "Before verify, required IO/ownership/counter/clock failure blocks launch. During verify, observation failure stops only attribution/observation, retains complete prefix and marks coverage insufficient; healthy compiler and all original postguards continue. Missing optional peak/local/pressure data is explicit unsupported, notzero. No signals, suspension, reprioritization, timeout extension or whole-run timer.",
+      "terminal": "Reserve two exclusive terminal files, each<=4096B: guest-owned observer terminal and host-owned launcher terminal. Parent records observer exit/signal or unknown/live status, ACK timeout, last complete parsed offset and last known synchronization bound when observer cannot do so. Failure of terminal write is itself reported by caller; no claim that a full filesystem guarantees durable terminal evidence. No unbounded retries or automatic second diagnostic."
+    }
+  },
+  "bounds": {
+    "readOneExtraByte": "Every finite-file bound reads at most cap+1 bytes and rejects/incompletes overflow before parsing; no unbounded readFile or line accumulator.",
+    "files": {
+      "cgroupProcsBytes": 4096,
+      "statBytes": 4096,
+      "statusBytes": 8192,
+      "cmdlineBytes": 4096,
+      "cgroupMembershipBytes": 4096,
+      "memoryEventsBytes": 4096,
+      "memoryCurrentSwapPeakEachBytes": 64,
+      "memoryStatBytes": 16384,
+      "memoryPressureBytes": 4096,
+      "memoryEventsLocalBytes": 4096,
+      "bootIdBytes": 64,
+      "controlBytes": 512
+    },
+    "objects": {
+      "livePIDs": 64,
+      "totalIdentityRecords": 1024,
+      "eventKeysets": 32,
+      "eventKeysPerSet": 64,
+      "keyBytes": 64,
+      "oneEncodedIdentityBytes": 8192,
+      "oneEncodedSampleBytes": 16384,
+      "oneEncodedSlowBytes": 32768
+    },
+    "values": "Unsigned numeric fields are decimal strings matching0|[1-9][0-9]* and<=u64; no float/IEEE754 roundtrip. Monotone seq/index/flags are bounded safe small integers. Unknown valid event keys are preserved in a new dictionary and full value vector; overlong/new malformed keys stop usable coverage, never silently drop. Unsupported numeric readings use null+reason flag.",
+    "transientPayload": "Implementation target: fixed reusable raw-read arena16385B, encoded-row arena32768B plus one32768B write copy, at most65536B compact identity index, livePID/edge state16384B, eventkey state8192B, marker state2048B, parse bookkeeping16384B =190465B payload capacity. This is a proposed explicit arena budget, NOT runtime RSS or proven implementation allocation. A language with object/GC/string copies must independently account for them; no whole-trace/dictionary retention in heap. Observer runtime baseline and IO buffers remain an unmeasured CODE/preflight obligation.",
+    "nonGuarantee": "No source reader exists to enforce these bounds yet. Each needs intended overflow/partial/race negative tests and exact CODE review before execution."
+  },
+  "budget": {
+    "limitBytes": 1048576,
+    "pools": {
+      "samplesIncludingSlow": 786432,
+      "identitiesIncludingEventDictionaries": 196608,
+      "headerMarkersGapsAndControlTemporaries": 57344,
+      "guestAndHostTerminal": 8192
+    },
+    "markersDetail": {
+      "headerMaximum": 8192,
+      "controlAndTemporaryPeak": 2048,
+      "remainingForBoundariesGaps": 47104
+    },
+    "dictionaryScenario": {
+      "templateLines": 100,
+      "encodedBytes": 30701,
+      "maxEncodedLine": 392,
+      "recipe": "For attestation.processes in retained order, encode i row with id=index+1, synthetic pid/ppid2147483647, synthetic start/parentstart18446744073709551615, class matched-receipt-template, actual module, base64(argv.join(NUL)+NUL). This is exact arithmetic on actual templates with explicit synthetic identity placeholders, not actual /proc evidence."
+    },
+    "sampleScenario": {
+      "recipe": "JSON.stringify(array)+LF, sample array shown below; slow array uses exact974B stat,106B pressure and56B events extracted between FILE labels in pinned late capability stdout. Relative timestamps,PID identities,RSS/HWM and concurrency are synthetic size scenarios; current/swap/peak/event values are the retained late sample. No claim they coincide with original verification.",
+      "sampleFourPIDExample": [
+        "s",
+        2641,
+        "264017000",
+        "264017001",
+        1,
+        [
+          "0",
+          "0",
+          "6325",
+          "0",
+          "0",
+          "0"
+        ],
+        "1589542912",
+        "0",
+        "4294967296",
+        [
+          [
+            1,
+            "4194304",
+            "4194304",
+            0
+          ],
+          [
+            2,
+            "4194304",
+            "4194304",
+            0
+          ],
+          [
+            3,
+            "4194304",
+            "4194304",
+            0
+          ],
+          [
+            4,
+            "4194304",
+            "4194304",
+            0
+          ]
+        ],
+        0,
+        0
+      ],
+      "slowEnvelope": [
+        "m",
+        53,
+        "265000000",
+        "265000001",
+        "<exact retained stat>",
+        "<exact retained pressure>",
+        "<exact retained events>",
+        0
+      ],
+      "fastRowsExplanation": "264.017seconds at100ms yields2641 regular ticks includingt0 plus one forced return sample=2642.54 slow rows conservatively includes nominal5s snapshots plus return. Staging/other boundaries and slower longer future execution need additional space; these estimates do not cover unlimited duration.",
+      "scenarios": [
+        {
+          "assumedLivePIDCount": 1,
+          "fastRowBytes": 128,
+          "slowRowBytes": 1244,
+          "fastRows": 2642,
+          "slowRows": 54,
+          "samplePoolBytes": 405352,
+          "samplePoolFits": true,
+          "roughPoolHorizonSeconds": 514
+        },
+        {
+          "assumedLivePIDCount": 4,
+          "fastRowBytes": 206,
+          "slowRowBytes": 1244,
+          "fastRows": 2642,
+          "slowRows": 54,
+          "samplePoolBytes": 611428,
+          "samplePoolFits": true,
+          "roughPoolHorizonSeconds": 340
+        },
+        {
+          "assumedLivePIDCount": 8,
+          "fastRowBytes": 310,
+          "slowRowBytes": 1244,
+          "fastRows": 2642,
+          "slowRows": 54,
+          "samplePoolBytes": 886196,
+          "samplePoolFits": false,
+          "roughPoolHorizonSeconds": 234
+        },
+        {
+          "assumedLivePIDCount": 64,
+          "fastRowBytes": 1821,
+          "slowRowBytes": 1244,
+          "fastRows": 2642,
+          "slowRows": 54,
+          "samplePoolBytes": 4878258,
+          "samplePoolFits": false,
+          "roughPoolHorizonSeconds": 42
+        }
+      ]
+    },
+    "finding": "The unchanged1MiB total and100ms cadence cannot guarantee coverage of the old264.017s verification. Conditional4-PID sample case611428B fits768KiB;8-PID case886196B exceeds it before full old duration.64-PID worst allowed census far exceeds it. No prior live PID count, RSS timeline or concurrency exists to choose the4-PID case as a measured expectation.",
+    "horizon": "Proposed minimum useful target is complete boundary coverage plus event-neighbor samples while within quota; no guaranteed full-run horizon. Conditional constant4-PID/late-field-width arithmetic estimates~340s of sample-pool coverage,8-PID~234s,64-PID~42s. These ignore extra boundaries/changed field widths and are upper planning estimates, not measured retention guarantees.",
+    "exhaustion": "Do NOT lower cadence, increase1MiB, omit owned PIDs/unknownkeys, overwrite samples or skip audits to manufacture coverage. On any pool/object/read cap stop observer only, preserve typed truncation and reserved terminal evidence; resulting attribution may be insufficient. A change to cadence/budget/required contents requires a separate reviewed successor, not automatic adaptation.",
+    "storage": "Shared mount uses host free space, not guestroot. Account journal+all fixed control/temp/terminal files in1MiB logical observation cap and separately calculate filesystem allocation rounded per file; existing normal compiler receipts/artifact are outside this specific observation cap as proposal states. Retain original host10GiB reserve and container artifact11GiBpre/10GiBpost separately."
+  },
+  "remainingDecisions": [
+    "Fresh SPEC must accept/reject this concretization; no mandatory review requirement is declared discharged by author alone.",
+    "Choose an already available implementation/runtime only after language/role requirements; no language/runtime selected or installed here.",
+    "Bind future actual invocation rootPID/start-time without assuming argv uniqueness proves ownership; otherwise process-specific attribution remains unknown.",
+    "Demonstrate shared-file atomic replacement/synchronization/error handling, clock API and finite-buffer implementation in bounded tests before CODE/pre-run acceptance.",
+    "At least one complete ordinary sample and slow sample must be parsed before any future verify, with strict absolutezero counter gate; current epoch cannot satisfy it. Separate fresh-epoch decision still required."
+  ],
+  "progress": "New exact arithmetic falsifies guaranteed264s coverage under arbitrary allowed concurrency; retained data supports only conditional scenarios. Existing spawnSync makes event-loop stdout collection unsafe, while newly observed shared mount gives a concrete alternative requiring tested filesystem semantics. Namespace readlink failure and missing future invocation rootbinding remain explicit rather than fabricated. These findings change the implementation/review obligations, not the accepted Object count.",
+  "authority": "No implementation, observer launch, native run, restart, counter reset, resource limit change, retry, SDK substitute, production binding or acceptance authority. All proposed tests NOT_RUN. Compiler artifact remains independently verified; overall original phase remains UNACCEPTED_MEMORY_EVENT_GATE."
+}

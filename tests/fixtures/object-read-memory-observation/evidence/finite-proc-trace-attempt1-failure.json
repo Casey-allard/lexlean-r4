@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-26T00:53:13.257270+00:00",
+  "status": "REPORT_GENERATION_FAILED",
+  "exception": "TypeError: '<' not supported between instances of 'NoneType' and 'int'",
+  "location": "sorted(executable-hit) while constructing trace report after running suite",
+  "reportWritten": false,
+  "allocationProbesRun": false,
+  "testOutcome": "NOT_REPORTED by this failed command; prior retained 16-test GREEN separate",
+  "sourceChanged": false,
+  "next": "debugger Phase 1 before report repair"
+}

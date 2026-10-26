@@ -1,0 +1,112 @@
+{
+  "schema": "lexlean-r4/memory-observation-implementation-spec-review/1",
+  "at": "2026-10-26T00:39:17.759911+00:00",
+  "reviewer": "child_delivery_code",
+  "role": "Independent internal code-reviewer; fresh SPEC and implementation-plan review only",
+  "roster": {
+    "id": "4e5d2791f522e3ca",
+    "verify": "PASS7agents7skills",
+    "codeReviewer": "eligible",
+    "INIT": "Read including bounded debugger/architect/Python-reviewer and tests-first source-preparation decisions"
+  },
+  "verdict": "APPROVE_BOUNDED_HOST_TDD_SOURCE_PREPARATION_WITH_MANDATORY_CODE_AND_PRERUN_CONDITIONS",
+  "findings": [],
+  "subjectPins": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/memory-observation-contract.json",
+      "bytes": 24222,
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/diagnostic-placement-adr.json",
+      "bytes": 14197,
+      "sha256": "f770346d7a479852eafe1e97a5eccfe465cab0c606afdfdc14f036673ae0d7a4"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/docs/plans/2026-10-26-admitted-memory-observation.md",
+      "bytes": 5902,
+      "sha256": "83ecb0fac1ef7b5f56d4354c39e5c82cd4f456b9f970f3789d3d85f8e4d2749c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/positive-memory-diagnostic-proposal.json",
+      "bytes": 12126,
+      "sha256": "39d210aefd177d8903c3dcbf497e1212ce78c1643dfb3d6d39bf680b02a7ea5d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/positive-memory-diagnostic-spec-review.json",
+      "bytes": 16460,
+      "sha256": "debc2e6cfec7c486e2ab6e742cf511c55f827e521fd7db8d57666cdd909fb152"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-runtime-capability-20261026.json",
+      "bytes": 1625,
+      "sha256": "e226d696372f6882db0cd1f422f4a4de689d17da36add2fa537c43ec11427c59"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/observer-shared-path-capability-20261026.json",
+      "bytes": 1582,
+      "sha256": "c432f1d49f1b2903b0edb267a619b48133d618a70b193da3ebec2211fdd732e7"
+    }
+  ],
+  "evidenceChecks": [
+    "Read complete contract/protocol/bounds/budget, full ADR and current5902-byte plan; all9 contract and9 ADR dependency references rehashed exact.",
+    "Existing guest runtime receipt establishes only one uid501 Python3.12.3 metadata observation, executable hash and CLOCK_BOOTTIME access; it does not measure observer overhead.",
+    "Shared-path receipt establishes one33-byte challenge/ack, distinct host/guest identities and0700/0600 observations, not atomic replacement/fsync or future feasibility.",
+    "Existing pool sum is exactly1048576B; old NSpid-free dictionary/sample arithmetic remains conditional and cannot be reused as final refined-schema budget.",
+    "Plan revised null-config clause permits bounded configuration reads while forbidding observation/output/process activity before validation. No executable reader exists or was tested here."
+  ],
+  "approvedSourceScope": [
+    "Under parent source-preparation authorization, proceed with small tests-first pure parsing/journal/identity/clock-boundary logic and synthetic owned filesystem tests in one fixture directory. No SDK, observer deployment, guest wrapper experiment, resource restart/reset or diagnostic execution is approved.",
+    "One existing Python standard-library guest observer outside target cgroup plus shared bounded journal is a reasonable minimal direction for preserving host spawnSync; no async executor, service, SDK implementation, new package or generic monitor required.",
+    "Retrospective marker+exec is a conditional minimal root-binding direction. The exact wrapper and final invocation require later separate CODE review; no assumed successful exec or inferred ancestry is accepted now.",
+    "Keep all source/config bindings null for live epoch. Adapt invocation only after reader review, as the plan states. Preserve nine pending drafts and old failures."
+  ],
+  "mandatoryBeforeCODE": [
+    {
+      "id": "CODE-OWNERSHIP",
+      "requirement": "Version/refine the identity schema with bounded NSpid and raw stat/argv custody. Read only owned cgroup.procs and its bounded topology, enforce same cgroup/PID/start-time before and after reads, and record parent-start-time only for independently observed matching incarnations. Never fill missing ancestry by PID alone or by reading outside-root parents. Detect reuse, reparenting, namespace ambiguity and unsupported subtrees; retain owned_unattributed/gaps.",
+      "tests": "Intended RED/GREEN for malformed/overlong files, stat comm delimiters, missing fields, duplicate/reusedPID, changing membership/start/PPID/NSpid, vanished parent and descendant cgroup."
+    },
+    {
+      "id": "CODE-EXEC-JOIN",
+      "requirement": "The exclusive nonce marker identifies a shell incarnation, not an executed compiler. Bind innerPID to the correct exercised NSpid coordinate plus exact startticks, unchanged epoch/boot/cgroup and exactly one stable observed incarnation. Successful SDK output can corroborate exec only when tied to this exact fresh invocation, exclusive marker/stage and reviewed no-fallback exec wrapper; an arbitrary prior successful artifact is insufficient. Prefer directly observed lexlean transition when available. Missing/ambiguous root or unobserved ancestor stays unattributed; later success cannot repair a missing process chain.",
+      "tests": "Wrong/stale/duplicate nonce, wrong innerPID/start/epoch, multiple matches, pre-exec-only marker, exec failure, unrelated/stale success, missing ancestor and shell-to-exec continuity fixtures. Actual namespace/exec placement test remains a separately authorized pre-run capability obligation."
+    },
+    {
+      "id": "CODE-QUOTA",
+      "requirement": "Freeze exact refined encoded schema and a tested worst-case reservation ledger before sampling. Reserve added root marker, container bytes, retained host copy, retrieval receipt and any journal duplication/control temporaries from the existing57344B marker pool; do not enlarge1MiB. Count JSON/base64 escaping and concurrent temporary/copy retention, not merely raw marker length. A <=4096B marker can occupy more bytes inside JSON. New NSpid vectors must be bounded and charged identities pool; dictionary/census expansion cannot evade the pool. Exhaustion preserves complete prefix and terminal reserve without ring loss or compiler interruption.",
+      "tests": "Exact-cap/one-byte-over cases for every pool and combined lifecycle; worst escaping; NSpid max length;1/4/8/64 syntheticPID scenarios; partial writes; simultaneous replacement temporaries; retrieval error/status receipts. No guaranteed264-second coverage."
+    },
+    {
+      "id": "CODE-MEMORY",
+      "requirement": "190465B is payload arithmetic, not Python RSS. Bound all reads to cap+1, numeric/key/object counts, live identity index and serialization copies; do not retain entire trace or all rawargv in heap. Account Python object/Unicode/base64/JSON/write copies and baseline separately. Bound observer auxiliary output. Source/fixtures/reports/transient host preparation must also meet separate1MiB cap.",
+      "tests": "Malformed/overlong counters; unknown valid keys retained; u64 boundaries; exact/null handling; oversized rows before append; finite-state saturation and transient-allocation observations. Do not treat host allocations as guest overhead qualification."
+    },
+    {
+      "id": "CODE-BOUNDARY-IO",
+      "requirement": "Use a single guest BOOTTIME domain, floor-start/ceil-end bounds and nonce/monotone ACK/sample/completeOffset linkage. Host2s deadlines are separate clock values. ACK only after journal prefix persistence attempt/result; before-verify missing/invalid evidence blocks launch, return missingACK limits attribution and does not block ordinary retention/postguards indefinitely. Every short/partial write must charge actual bytes and preserve complete prefix; lost fsync/rename/write does not earn a success-shapedACK. Root retrieval/artifact copy must follow attempted return-boundary sample.",
+      "tests": "Clock/race/order negatives, stale/replayedACK, malformed offsets, missed ticks without catch-up, invalid preverify counters, short writes, ENOSPC/fsync/rename failure, symlink/collision, broken channel and parent disappearance; verify healthy compiler is never signaled or timed out by observer."
+    },
+    {
+      "id": "CODE-INVOCATION",
+      "requirement": "Exact later adaptation must preserve all50source inputs,33selected modules, original compiler argv/cwd/env/output capture/per-child300000ms/independent postguards, one verification only and no automatic retry. Wrapper writes marker outside source tree, uses reviewed builtin proc read and direct exec, no helper per sample. Null/invalid configuration permits bounded config read only and must reject before output creation/observation/process launch.",
+      "tests": "Static exact diff and synthetic execution-contract probes; no realSDK. Independent Python/general/security review and retained RED/GREEN/planted-defect evidence before delivery."
+    }
+  ],
+  "mandatoryBeforeNative": [
+    "Separate top-session authority and independent pre-run review for harmless wrapper/placement/IO tests and eventual diagnostic; this report does not approve either native activity or epoch changes.",
+    "Validate already installed runtime exact hash/API, target/observer cgroup separation, confined namespace mapping and wrapper PID/start continuity under actual selected placement. No new installation or silent fallback.",
+    "Demonstrate real sharedpath ownership/modes/mount/no-symlink custody, exclusive creation, bounded atomic replacement/fsync behavior and direct journal independence from host spawnSync. API success is not power-loss durability.",
+    "Measure observer overhead/finite buffer behavior without claiming zero effect on sharedVM/cache. Re-budget if actual encoding/copies exceed bounds via reviewed source change, never cap waiver.",
+    "Separately preserve and review old nonzero epoch, any future fresh boot/container/cgroup identities, all source/tool/idle gates,20GiBhostfloor/10GiBpeak+10GiBreserve/container11GiBpre10GiBpost and host-sharedvolume independently. Absolute complete zero counters immediately beforeverify; no counter reset/delta acceptance.",
+    "One reviewed informational diagnostic only. Incomplete or nonrecurrent observations do not accept the old run or authorize repetition."
+  ],
+  "coverageAssessment": "Parent reports third-party coverage module absent; no installation warranted. Existing stdlib trace can report measured line coverage on defined source/fixtures, with exact command/denominator and exclusions disclosed. Branch coverage is unavailable unless genuinely measured by another approved existing mechanism. Do not translate line percentage to branches or claim80%branch coverage.",
+  "acceptanceLimits": [
+    "Original positive artifact remains compiler/kernel successful but overall UNACCEPTED atmax6325. No Read33/control-count/production/PrismPM/Pages acceptance changes.",
+    "Contract/ADR improvements are design-level; mandatory conditions above are not discharged without concrete source/tests/reviews.",
+    "No root-cause allocation conclusion, whole-run retention guarantee or continuous process-identity guarantee.",
+    "No native calls, script execution, VM/config/source modifications performed by this reviewer."
+  ],
+  "mutations": "Only this new external implementation SPEC report."
+}

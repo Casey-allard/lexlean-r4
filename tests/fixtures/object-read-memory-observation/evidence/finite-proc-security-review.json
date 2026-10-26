@@ -1,0 +1,66 @@
+{
+  "schema": "lexlean-r4/finite-proc-parser-security-review/1",
+  "at": "2026-10-26T00:53:16.391902+00:00",
+  "reviewer": "observer_security_review",
+  "roster": "4e5d2791f522e3ca; verify and security-reviewer check PASS",
+  "verdict": "APPROVE_PARTIAL_FINITE_READ_AND_PROC_PARSING_ONLY",
+  "pins": {
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/observe.py": {
+      "sha256": "ec319b4808228dae4ad4dca71cf01a526aca4b5bb6da2fc16c5ac86dc06f507e",
+      "bytes": 5848
+    },
+    "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/test_observe.py": {
+      "sha256": "48d1b0a2bd93e74258c0879b8d7796109c4a52bc0d0f9673872aab85d59c9b97",
+      "bytes": 9202
+    },
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/memory-observation-contract.json": {
+      "sha256": "7e8b7b859db518b8ce94c45d2b4b9261a95d85615cbf61c6e1ecfd944a459da6",
+      "bytes": 24222
+    },
+    "/Users/casey.allard/lexlean-r4-evidence/2026-10-25/child-certificate-invocation/memory-observation-implementation-spec-review.json": {
+      "sha256": "56d1fbc95f3649e2a07c380fa42942aeb760438f20b8e8e6b6a79222712f0953",
+      "bytes": 11850
+    }
+  },
+  "findings": [],
+  "assessment": [
+    "No path opening, process discovery, environment read, shell execution, network, eval or unsafe deserialization is implemented in this batch.",
+    "Read size cap checked before stream activity; positive short reads consume finite cap+1 budget, invalid stream return rejected, original read exceptions propagate. Stream can block: caller must select the reviewed finite proc-file mechanism; no timeout/liveness guarantee is supplied here.",
+    "Proc census counts/bytes and numeric identities are bounded, duplicate/zero PID rejected; empty census is represented explicitly and is not an ownership or idle verdict.",
+    "Stat parsing extracts selected fields after final comm delimiter; it does not validate every unrelated kernel stat field, nor authenticate bytes against a PID path. Such authentication and before/after identity joins remain future integration obligations.",
+    "Selected status duplicates, malformed units, zero/mismatched namespace head and numeric overflow reject. Missing namespace and memory values remain None. Unknown status fields are ignored intentionally; future raw-byte custody remains mandatory.",
+    "Cgroup path is an exact opaque membership value; never normalize or open it as a caller-provided filesystem path. Exact pinned comparisons and no-symlink filesystem ownership must be implemented/reviewed separately."
+  ],
+  "additionalProbes": [
+    "Maximum-cap stream returning one byte per call terminates at EOF or cap+1 after at most16385calls; no unbounded short-read accumulation.",
+    "OSError after nonempty partial stream is preserved by identity; no partial success or empty substitution.",
+    "Each of the five selected status fields rejects duplicates before a later value can replace the original.",
+    "Namespace/memory overflow and noncanonical quantities reject; exact64namespacecoordinates are retained.",
+    "Synthetic adversarial comm bytes including close-parentheses, fake tail, NUL/newline and nonUTF8 remain comm; final stat delimiter selects exact PID/PPID/startfields.",
+    "Membership preserves traversal-looking/repeated-slash bytes rather than normalizing them. It must only be exact-compared to pinned membership; this parser supplies no permission to open returned paths."
+  ],
+  "tests": {
+    "argv": [
+      "/opt/homebrew/opt/python@3.15/bin/python3.15",
+      "-B",
+      "-m",
+      "unittest",
+      "-v",
+      "test_observe"
+    ],
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": "test_counter_keeps_decimal_identity (test_observe.CounterTests.test_counter_keeps_decimal_identity) ... ok\ntest_counter_rejects_noncanonical_and_out_of_range_values (test_observe.CounterTests.test_counter_rejects_noncanonical_and_out_of_range_values) ... ok\ntest_events_preserve_all_valid_unknown_keys (test_observe.CounterTests.test_events_preserve_all_valid_unknown_keys) ... ok\ntest_events_reject_incomplete_duplicate_or_unbounded_records (test_observe.CounterTests.test_events_reject_incomplete_duplicate_or_unbounded_records) ... ok\ntest_census_preserves_kernel_order_without_scanning_other_processes (test_observe.ProcessTests.test_census_preserves_kernel_order_without_scanning_other_processes) ... ok\ntest_census_rejects_partial_duplicate_invalid_or_over_capacity (test_observe.ProcessTests.test_census_rejects_partial_duplicate_invalid_or_over_capacity) ... ok\ntest_membership_preserves_exact_unified_path (test_observe.ProcessTests.test_membership_preserves_exact_unified_path) ... ok\ntest_membership_rejects_nonunified_partial_or_ambiguous_path (test_observe.ProcessTests.test_membership_rejects_nonunified_partial_or_ambiguous_path) ... ok\ntest_stat_identity_uses_documented_positions_after_comm (test_observe.ProcessTests.test_stat_identity_uses_documented_positions_after_comm) ... ok\ntest_stat_rejects_incomplete_oversized_or_invalid_identity (test_observe.ProcessTests.test_stat_rejects_incomplete_oversized_or_invalid_identity) ... ok\ntest_status_preserves_identity_namespace_and_kib_units (test_observe.ProcessTests.test_status_preserves_identity_namespace_and_kib_units) ... ok\ntest_status_rejects_bad_required_fields_units_duplicates_and_vectors (test_observe.ProcessTests.test_status_rejects_bad_required_fields_units_duplicates_and_vectors) ... ok\ntest_bad_cap_rejects_before_read (test_observe.ReadTests.test_bad_cap_rejects_before_read) ... ok\ntest_failed_or_invalid_reads_never_become_empty_success (test_observe.ReadTests.test_failed_or_invalid_reads_never_become_empty_success) ... ok\ntest_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream (test_observe.ReadTests.test_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream) ... ok\ntest_short_reads_continue_to_eof_and_overflow_is_not_truncated (test_observe.ReadTests.test_short_reads_continue_to_eof_and_overflow_is_not_truncated) ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 0.001s\n\nOK\n"
+  },
+  "acceptanceLimits": [
+    "Partial host reader only; no double-read race check, PID ancestry, target cgroup ownership, journal/quota, clock, configuration or live entrypoint is accepted.",
+    "No native diagnostic, SDK invocation, resource reset or full observer approval. Existing max6325 outcome remains unaccepted.",
+    "Bounds establish finite input-derived object sizes, not Python RSS/highwater or future observer allocation qualification."
+  ],
+  "storage": {
+    "freeKiBBeforeProbes": 43925028,
+    "newReportCapBytes": 16384,
+    "otherNewFiles": 0
+  },
+  "mutations": "Only this exclusive external review report; no repository edits, installation, SDK/VM activity, unrelated process reads or bytecode."
+}

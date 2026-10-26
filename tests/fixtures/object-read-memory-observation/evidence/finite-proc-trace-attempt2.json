@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-26T00:55:18.672577+00:00",
+  "sourceSha256": "ec319b4808228dae4ad4dca71cf01a526aca4b5bb6da2fc16c5ac86dc06f507e",
+  "testsSha256": "48d1b0a2bd93e74258c0879b8d7796109c4a52bc0d0f9673872aab85d59c9b97",
+  "tests": 16,
+  "success": true,
+  "output": "test_counter_keeps_decimal_identity (test_observe.CounterTests.test_counter_keeps_decimal_identity) ... ok\ntest_counter_rejects_noncanonical_and_out_of_range_values (test_observe.CounterTests.test_counter_rejects_noncanonical_and_out_of_range_values) ... ok\ntest_events_preserve_all_valid_unknown_keys (test_observe.CounterTests.test_events_preserve_all_valid_unknown_keys) ... ok\ntest_events_reject_incomplete_duplicate_or_unbounded_records (test_observe.CounterTests.test_events_reject_incomplete_duplicate_or_unbounded_records) ... ok\ntest_census_preserves_kernel_order_without_scanning_other_processes (test_observe.ProcessTests.test_census_preserves_kernel_order_without_scanning_other_processes) ... ok\ntest_census_rejects_partial_duplicate_invalid_or_over_capacity (test_observe.ProcessTests.test_census_rejects_partial_duplicate_invalid_or_over_capacity) ... ok\ntest_membership_preserves_exact_unified_path (test_observe.ProcessTests.test_membership_preserves_exact_unified_path) ... ok\ntest_membership_rejects_nonunified_partial_or_ambiguous_path (test_observe.ProcessTests.test_membership_rejects_nonunified_partial_or_ambiguous_path) ... ok\ntest_stat_identity_uses_documented_positions_after_comm (test_observe.ProcessTests.test_stat_identity_uses_documented_positions_after_comm) ... ok\ntest_stat_rejects_incomplete_oversized_or_invalid_identity (test_observe.ProcessTests.test_stat_rejects_incomplete_oversized_or_invalid_identity) ... ok\ntest_status_preserves_identity_namespace_and_kib_units (test_observe.ProcessTests.test_status_preserves_identity_namespace_and_kib_units) ... ok\ntest_status_rejects_bad_required_fields_units_duplicates_and_vectors (test_observe.ProcessTests.test_status_rejects_bad_required_fields_units_duplicates_and_vectors) ... ok\ntest_bad_cap_rejects_before_read (test_observe.ReadTests.test_bad_cap_rejects_before_read) ... ok\ntest_failed_or_invalid_reads_never_become_empty_success (test_observe.ReadTests.test_failed_or_invalid_reads_never_become_empty_success) ... ok\ntest_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream (test_observe.ReadTests.test_finite_read_keeps_exact_bytes_and_does_not_close_owner_stream) ... ok\ntest_short_reads_continue_to_eof_and_overflow_is_not_truncated (test_observe.ReadTests.test_short_reads_continue_to_eof_and_overflow_is_not_truncated) ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 0.013s\n\nOK\n",
+  "lineCoverage": {
+    "method": "stdlib trace count/compiler-discovered positive source lines; imports/definitions ran before tracing",
+    "excludedNonSourceSentinels": [
+      null,
+      0
+    ],
+    "executed": 106,
+    "executable": 116,
+    "uncovered": [
+      3,
+      6,
+      10,
+      19,
+      44,
+      60,
+      77,
+      97,
+      98,
+      137
+    ]
+  },
+  "branchCoverage": "UNAVAILABLE - no coverage package installed",
+  "allocationProbes": [
+    {
+      "name": "read-cap",
+      "currentBytes": 136,
+      "peakBytes": 49531,
+      "limitation": "synthetic single-call Python allocation only, not guest RSS or composed observer bound"
+    },
+    {
+      "name": "status-many-unknown",
+      "currentBytes": 136,
+      "peakBytes": 148055,
+      "limitation": "synthetic single-call Python allocation only, not guest RSS or composed observer bound"
+    },
+    {
+      "name": "stat-long-tail",
+      "currentBytes": 136,
+      "peakBytes": 24190,
+      "limitation": "synthetic single-call Python allocation only, not guest RSS or composed observer bound"
+    }
+  ]
+}
