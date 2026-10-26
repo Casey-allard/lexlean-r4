@@ -89,3 +89,11 @@ second observer process. These helpers do not validate an ACK's underlying sampl
 establish invocation ancestry, publish control files or authorize a compiler run.
 Those composition obligations remain open. Independent code, Python and security reviews approve only these bounded helpers;
 all three independently reran the 84 host tests. See [results](evidence/BOUNDARY-RESULTS.md).
+
+The [forced sample composition](SAMPLES.md) now connects actual owned ordinary
+and slow reads to retained ACK arguments inside one operation. Historical
+nonzero counters block the sequence-7 pre-verification ACK; earlier sequences
+retain such observations. Missing mandatory evidence, changed identity/census,
+partial writes and failed synchronization block every boundary ACK in the fixtures.
+The earlier wire helper remains byte-only. Root linkage, live preflight, periodic
+coverage, safe channel publication and native invocation remain open.

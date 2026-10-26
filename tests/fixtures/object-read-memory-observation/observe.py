@@ -383,6 +383,11 @@ def owned_process_snapshot(
         proc: tuple[int, tuple[int, int, int, int]],
         pid: str, target: bytes) -> dict[str, object]:
     """Read one currently listed PID; borrowed roots and epoch belong to caller."""
+    return owned_process_evidence(cgroup, proc, pid, target)[0]
+
+
+def owned_process_evidence(cgroup, proc, pid: str, target: bytes) -> tuple:
+    """Retain raw identity bytes from the same bounded snapshot reads."""
     cfd, cpin = cgroup
     pfd, ppin = proc
     check_no_descendants(cfd, cpin)
@@ -395,9 +400,15 @@ def owned_process_snapshot(
     try:
         item = os.fstat(fd)
         identity = (item.st_dev, item.st_ino, item.st_uid, item.st_mode)
+        stats, memberships = [], []
 
         def read(_pid: str, name: str, _cap: int) -> bytes:
-            return read_observation_file(fd, identity, name)
+            raw = read_observation_file(fd, identity, name)
+            if name == "stat":
+                stats.append(raw)
+            if name == "cgroup":
+                memberships.append(raw)
+            return raw
 
         result = process_snapshot(census, pid, target, read)
         _check_directory(fd, identity)
@@ -406,7 +417,7 @@ def owned_process_snapshot(
     except BaseException as error:
         _close_fds([fd], error)
     _close_fds([fd])
-    return result
+    return result, stats[0], stats[1], memberships[0]
 
 
 def row_pool(row: bytes) -> str:

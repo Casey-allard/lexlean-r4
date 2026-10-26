@@ -74,10 +74,17 @@ Actual sample/dictionary validation, root linkage, control-slot publication,
 replacement and later observer composition remain required. No ACK is published
 by this source.
 
-## Current verification boundary
+## Earlier byte-only checkpoint verification
 
-The author observed 84 host tests passing with explicit Python 3.15 after the last
-source change. The tests cover nested read order, unknown and fatal parent errors,
+At the earlier byte-only checkpoint, the author observed 84 host tests passing
+with explicit Python 3.15 for that source version. The tests cover nested read order, unknown and fatal parent errors,
 identity changes, canonical wire rejection, replay and deadlines, exact retained
 copies and failures at both write/sync positions. Independent code, Python and security source reviews passed within this scope;
 see [the retained results](evidence/BOUNDARY-RESULTS.md). No guest run, live process sampling or native proof result is asserted.
+
+The later [forced-sample operation](SAMPLES.md) supplies owned ordinary/slow
+acquisition, dictionary/identity validation and historical counter admission for
+its internally derived retained ACK. The earlier byte-only helpers retain their
+limited contracts. Owned parent/root linkage, live preflight, periodic scheduling,
+safe control publication and invocation remain required. See the later
+[host results](evidence/SAMPLE-RESULTS.md) for the current 104-test source checkpoint.
