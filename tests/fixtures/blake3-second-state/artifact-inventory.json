@@ -1,0 +1,19 @@
+{
+  "schema": "lexlean-r4/second-state-artifact-inventory/1",
+  "acceptedArtifact": null,
+  "officialReturnedArtifacts": [],
+  "localAcceptedArtifactDirectory": false,
+  "binaryFilesCopied": 0,
+  "binaryFilesArchived": 0,
+  "notClaimed": "No census of partial guest build files or proof that no binaries exist in the preserved failed guest stage. The official failure supplied no accepted artifact; no artifact copy was attempted.",
+  "supplementalPartialOutput": {
+    "alias": "evidence/blake3-second-state-invocation/state-negative-attempt1/emitted-Blake3SecondState.lean",
+    "bytes": 2436,
+    "sha256": "36ce53bf17c7e537e141cb416e3c0bd78e1cd943896719ece98f78056efb7011",
+    "captureAlias": "evidence/blake3-second-state-invocation/state-negative-attempt1/emitted-source-capture.json",
+    "captureSha256": "2fe47080785521c9fe1e3781cae4c5074dcba88fef04c87bd828ea1340ef326b",
+    "boundary": "Actual read-only later source capture, after the independent failure auditor original214-file inventory. Not a verified artifact or kernel replay."
+  },
+  "failedGuestStage": "/tmp/r4-blake3-second-state-state-negative-owned-20261026",
+  "preservation": "Failed stage, unique local evidence and any guest partial binaries retained. No cleanup by delivery author."
+}
