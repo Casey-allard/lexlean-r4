@@ -1,0 +1,82 @@
+{
+  "schema": "lexlean-r4/blake3-second-state-timeout-phase1/1",
+  "status": "PHASE1_COMPLETE_NO_REPAIR_OR_NATIVE_AUTHORITY",
+  "actualEvidence": {
+    "check.stdout": "92a3b5b4249a52d31430625b4a83c5f4e19a71abd5ca8bba3fb66599605715a4",
+    "verify.stdout": "63892841f297dc7801477fe9a47784ddb086446a791470e49cf706701fe4554b",
+    "verify.json": "683d21e2530ee487000800813edffad011037db66e7d9df6d8294451bc825f6f",
+    "outcome.json": "4f6caf57b3efd644f0f5d10b6b119f2fa9a20dca826e154620a62dd07bb373a8",
+    "memory-after.stdout": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+    "before-verify-memory.stdout": "28fe05a1d7b8467a03fb54454f7b6a130fab752864d0454f5f6c4a4b6ce307f2",
+    "emitted-Blake3SecondState.lean": "36ce53bf17c7e537e141cb416e3c0bd78e1cd943896719ece98f78056efb7011",
+    "emitted-source-capture.json": "2fe47080785521c9fe1e3781cae4c5074dcba88fef04c87bd828ea1340ef326b",
+    "lexlean.lock": "36fc62df92b986724861b4fda20c58e6ce933fe483b823e43bc1155a2e2e9be0"
+  },
+  "frozenRunnerSha256": "4826d2f74d4e723bd802ae987d3699cf1a533bf8c9796bde36caafdc77533132",
+  "frozenSourceManifestSha256": "b6b62eaeaa2f73c058ed7ceb28572620de9bd08afaad374831a7b8f59e9dc592",
+  "proven": [
+    "Exact source admission passed6modules, no diagnostics; sourcee7e34f062ab56827b27f5529d9cbc7183e42bdab480cc43fd0a950c186268bc4 and semantic5652915c9c203d74cdf63186fbd800b90bde0d960e0c751c419880266e079f00.",
+    "Actual docker verify returned4, signalnull/errornull/captureFailures[], elapsed369333ms. Official LLS8002 names lean phaseLexLeanR4.Blake3SecondState configured300000 observed300022ms. No artifact, no intended LLV7002 wrong-state rejection.",
+    "Actual retained emitted2436-byte theorem is sole second64_full_state, by rfl, full F(packed64bytes64..127,S64) equality to literalS128 with intentionally wrongc0=2637638144. No intermediate lemma application or decomposition; imported first64 theorem is not applied in this proof.",
+    "Before-verify and post memory.events sixcounters are allzero. This excludes observed cgroup max/oom events, not CPU contention, host paging or time spent in any precise reduction subterm. Native outcome preserves UNCLASSIFIED_VERIFY_FAILURE.",
+    "Supplemental emitted-source-capture is a separate later status0 readonly cat, not included in original214file nativeaudit or a compiler rerun."
+  ],
+  "productionTrace": [
+    "Packed constructor feeds blake3Update(S64,UnpackBytes64(payload)). State64 holds full buffer0..63, IVchain,blocksCompressed0,counter0,total64,emptycvStack,maxbudget.",
+    "Update validates state/length/bytes then blake3FeedBytes. BeforeByte occurs before each append. At firstbyte64, fullbuffer64 andblocksCompressed0 take nonfinalblock branch: FirstEight(CompressRaw(IV,BlockWords(buffer0..63),0,64,StartFlag1)), clearbuffer,incrementblocksCompressed.",
+    "Remaining63bytes append after bufferlength<64; nil returns state without secondcompression. Endbuffer64..127,total128,blocksCompressed1; counter/budget/stackunchanged. This is neither root finalization nor chunk-end compression.",
+    "CompressRaw=FeedForward(Rounds(7,InitialRaw(IV,0,64,1),M),IV). Each round has4column+4diagonal MixRaw calls; each MixRaw has4XorRaw, each recursively processes32bits with Nat quotient/remainder. One logical compression therefore56mixes/22432bitXORs before feedforward. This is semantic call count, not measured kernel reduction count or time profile.",
+    "Record projections and nested lets feed repeated arguments into recursive definitions. Potential re-reduction/sharing cost is plausible but not proven without profiling; no exact exponential-cost or culprit-subterm claim. Fullstate rfl also performs input unpack/statevalidation/bufferappend reductions."
+  ],
+  "declarationPinsCanonicalJSON": {
+    "Blake3.blake3BeforeByte": "0b29a24b407b0715a660e82bb8b03ff74a8e2aa47646423c1cd95e597c1467eb",
+    "Blake3.blake3FeedBytes": "976cfc3276e77521e548d6ebb4b16f09418a6d566d94f6268c59a5093db9e64d",
+    "Blake3.blake3Update": "a778df0a33f281d018a23f4bcc5ab34e6eb9e7095e4cf3062cb259dc9c4a514c",
+    "Blake3Core.b3CoreMixRaw": "779d60507200fe80ed83b5c0497e250506146902ed6e686fe71aa3699d33d8c3",
+    "Blake3Core.b3CoreColumns": "1239205676de6de618be151051c0e92174f935f62198ccf75dca2c9d010f70c8",
+    "Blake3Core.b3CoreDiagonals": "1527b08731baea3ee0499c07c45cc0aa27f7c793f4cd07db9d7012ec4e4ded56",
+    "Blake3Core.b3CoreRoundRaw": "9a339f2f0e929f491862357fd242ae2a0351847454db590aff71654617bdd5ab",
+    "Blake3Core.b3CoreRounds": "f14eb193211c38c0143609d905b49693c5dc38059bbc241c2da1d666c20ab142",
+    "Blake3Core.b3CoreCompressRaw": "fcf6dd544634dd3347a0c95cdf793e70049b57fa2ad7d1141efd6edd53a92c50",
+    "Blake3Nat.b3NatXorBits": "77c921ade56ca7745c97bbbb2592bce26c48e3b94b1502d687b43753f0c3db8a",
+    "Blake3Nat.b3NatXorRaw": "c30f24ddbe1a1465e72890b1e3a729287ef92a5dbb0c5f4d89313c0a0d50d83b",
+    "Blake3Input.blake3FeedLiteralRaw": "e3ce5f78e15853cc44a142d5cd962a6a7d0f35127a87cece89d26a0360466b65"
+  },
+  "comparison": {
+    "acceptedFirst64": "F(P,I)=okS64 never compresses because BeforeByte runs before append and input ends just as buffer reaches64. Its success therefore does not bound firstcompression proof cost.",
+    "retainedCoreControlSource": "docs/continuation/earlier-history-2026-10-23/files/b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d.txt.gz",
+    "decodedSha256": "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
+    "sourceInspection": "Actual controls include round_zero, round_rfc7693_appendix_b_first and compress_empty_full_published_xof_block, allrfl. Emptycompression uses zero16message/counter0/blockLength0/flags11. Currentmessage0..63/length64/flags1 differs; no direct Apply reuse. Invalidinput compression controls do not execute sevenrounds. Historical acceptance is not freshly replayed by this task.",
+    "otherRoundFile": "tests/lexlean/HashNatBlakeRoundsControls.lex.tex is BLAKE2bRFC7693, not this BLAKE3 state/wordwidth; no substitute."
+  },
+  "minimumConnectedNextExperiment": {
+    "status": "PROPOSE_FOR_SPEC_NOT_IMPLEMENTED_ALL_NOT_RUN",
+    "target": "ONE exact first-round full16word certificate: b3CoreRoundRaw(S0,M0)=R1literal; S0=b3CoreInitialRaw(b3CoreIV,0,64,1), M0=blake3BlockWords(literalbytes0..63).",
+    "expectedValue": "Derive R1 from pinned production AST as untrusted authoring data, then actual Reflexivity/emptyaxiom proof is decisive. RHS must be all16literalwords, not unevaluatedRoundRaw or a trustedhostCV.",
+    "negative": "Change only one expectedR1 word (s0+1 modulo2^32), retaining statement inputs/config/proof; require actual source admission and named rfl rejection. Timeout is not negative.",
+    "mandatoryConsumer": "In same bounded work item, actual b3CoreCompressRaw(IV,M0,0,64,1) = b3CoreFeedForward(b3CoreRounds(6,R1literal,b3CorePermute(M0)),IV). This must use accepted first-round certificate through fixed remaining-round context, not merely duplicate both sides or claim full literalcompression.",
+    "supportedTransport": "Reuse already actualaccepted Nat-family scheme: zero proposition is round equality; successor is G(RoundRaw(S0,M0))=G(R1), G(s)=FeedForward(Rounds(6,s,Permute(M0)),IV). Induction zeroApplyround; successor Casesprior with Congruence; consumer Applyat1. Current proof-language constructs are demonstrated by accepted BLAKE3/Object continuations. No new Rewrite/Have/Transitivity/Simplify or compiler syntax assumption.",
+    "falsifiableRisk": "Original CompressRaw must definitionally expose one recursionstep; kernel may still unfold remainingrounds or expensivearguments while matching. Native actualconsumer conversion and emptyaxioms must be audited; helper-only success insufficient. One-round rfl may itself timeout: ifso stop/classify before any smaller mix proposal.",
+    "afterSuccess": "Only after roundcertificate+actualconsumer pass may source-backed continuation to next exactround be reviewed. No blind7round/32block expansion. Ultimately exactfullS128 equality and original2048consumer remain required; this partial compression statement does not satisfy those gates.",
+    "alternativesRejected": [
+      "Equivalentpositive/fullstate rfl retry or longerlimits: no changed expensivecomputation and no intendednegative yet.",
+      "Direct emptycompression control reuse: wrongmessage/length/flags.",
+      "Native_decide, host evaluator, external CV or newaxioms as proof: no verified supported emptyaxiom capability established.",
+      "Runtime algorithm/bitoperations replacement merely for proof speed: changes approved productiondefinition and is not authorized."
+    ]
+  },
+  "scopeAndStopRules": [
+    "This is diagnosis/proposal only. ParentindependentSPEC before sourcechange; subsequentCODE/security and freshinvocation/resource review required.",
+    "No currentpositivephase: original state-negative failed resource/time; all latersecondstate phases remainNOT_RUN.",
+    "No repeats, auto progression or limitsincrease. One separatelyselectedphase at a time; independentlyaudit actualoutcome/emptyaxioms/kernelprocesses/source/lock/epoch/sixzero/idle/storage.",
+    "Source/lock/runtime/tree/digest/axioms unchanged. Freshhost20GiBfloor with10GiBinclusivepeak+10reserve andartifact11pre10post; no concurrentSDKjobs."
+  ],
+  "instrumentHistory": [
+    "Read-only lookup initially targeted absentuncompressed repoCore; switched to exact recovered stagedsource. No sourcewritten/proofclaim.",
+    "Broad controlprint was truncated; subsequently extracted relevantnames/statementfunctions separately. No acceptance inferred from truncatedoutput."
+  ],
+  "freshHostFreeBytes": 28046860288,
+  "reportAllocatedCap": 12288,
+  "protectedUnchanged": true,
+  "nativeByReviewer": false
+}

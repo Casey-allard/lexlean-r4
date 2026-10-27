@@ -1,0 +1,78 @@
+{
+  "schema": "lexlean-r4/second-state-round-next-independent-spec-review/1",
+  "verdict": "PASS_BOUNDED_FIRST_ROUND_SOURCE_PROPOSAL_ONLY",
+  "findings": [],
+  "decision": "Approve preparation of one exact first-round literal certificate, its sole wrong-word control, and a mandatory actual CompressRaw consumer through the fixed six-remaining-round context. This is source specification approval only; no implementation or native execution by this reviewer, and no permission to rerun the failed full-state phase.",
+  "pins": {
+    "proposal": "25d38f618c71b3a75768b85d131caa25e3bdb1d74174d2992a0251a31a49fe17",
+    "failedSourceManifest": "b6b62eaeaa2f73c058ed7ceb28572620de9bd08afaad374831a7b8f59e9dc592",
+    "failedRunner": "4826d2f74d4e723bd802ae987d3699cf1a533bf8c9796bde36caafdc77533132",
+    "runtimeCore": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0",
+    "runtimeBlake3": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e",
+    "acceptedPositiveLiftSource": "c498fede57739cc2702de4f00cee1a171b913539b8d198e61a03d0480c72fdfd",
+    "declarations": {
+      "B3CoreState": "9f9456a14e35f50f0b9cced1ab20bb9a58ab68c0b206dd16d1dba9034bb67af3",
+      "b3CoreIV": "1373d48d358bad18096c311a993207c6babdf2ddf73c2d39e10d4abf276b92ec",
+      "b3CoreInitialRaw": "34659a3d366378287c91f2cb681f97d7876ccd9a04a34f11af7d0e2c81697968",
+      "b3CorePermute": "2ba3d5b0427ffb1a19e7ffc48175694a88c5df1faecaa8eab442ca9ecd5b1db4",
+      "b3CoreRounds": "f14eb193211c38c0143609d905b49693c5dc38059bbc241c2da1d666c20ab142",
+      "b3CoreRoundRaw": "9a339f2f0e929f491862357fd242ae2a0351847454db590aff71654617bdd5ab",
+      "b3CoreFeedForward": "949cf13b7a72d740b47ba92d61e63089ea695d2d32cd66610a4bb9ed06575775",
+      "b3CoreCompressRaw": "fcf6dd544634dd3347a0c95cdf793e70049b57fa2ad7d1141efd6edd53a92c50"
+    }
+  },
+  "actualDiagnosisBoundary": "Actual state-negative source check succeeded; verify returned4/LLS8002 with configured300000, observed300022ms and outer369333ms. No intended wrong-c0 semantic rejection or accepted proof. Six cgroup counters remained zero. Emitted theorem was a single full-state rfl without certificate application. The proposed smaller cut changes the proof obligation; no precise timing bottleneck or sharing pathology has been established.",
+  "productionConnection": {
+    "input": "Use the actual first buffered bytes0..63 from accepted S64, not incoming bytes64..127. blake3BeforeByte compresses the old full buffer before appending byte64. Preserve exact IV chain, counter0, blockLength64, flags1 (start only).",
+    "message": "M0 = R4.Blake3.blake3BlockWords(B0), B0 exact typed Nat cons-list0..63 ending typed nil. Actual block-word fields s0..s15 use offsets0,4,...,60; each little-endian word is byte[offset]+256*byte[offset+1]+65536*byte[offset+2]+16777216*byte[offset+3]. Keep the actual BlockWords expression in certificate and consumer statements unless a separately checked equality explicitly connects a replacement.",
+    "initial": "S0 = R4.Blake3Core.b3CoreInitialRaw(R4.Blake3Core.b3CoreIV(),0,64,1). InitialRaw returns B3CoreState: first8 fields from IV; s8..s11 first4 IV constants; s12=counter mod2^32; s13=counter div2^32; s14=64; s15=1.",
+    "round": "Actual RoundRaw(current,message)=Diagonals(Columns(current,message),message). Both parameters and result are B3CoreState, not B3CoreCV.",
+    "permutation": [
+      2,
+      6,
+      3,
+      10,
+      7,
+      0,
+      4,
+      13,
+      1,
+      11,
+      12,
+      5,
+      9,
+      14,
+      15,
+      8
+    ],
+    "recursion": "Rounds(0,s,m)=s; Rounds(Nat.succ(n),s,m)=Rounds(n,RoundRaw(s,m),Permute(m)). CompressRaw(chain,message,counter,blockLength,flags)=FeedForward(Rounds(7,InitialRaw(chain,counter,blockLength,flags),message),chain). Thus exactly one production recursion step exposes RoundRaw(S0,M0) and Permute(M0) under six remaining rounds. Do not use Permute(R1), six permutations or an unpermuted message.",
+    "output": "FeedForward returns all16 B3CoreState words: first8 xor state halves, last8 xor upper half with chain. This proposed consumer is a full16word compression-result equality with residual computation, not final literal CV or final digest."
+  },
+  "actionableInterface": {
+    "names": "Suggested isolated modules Blake3FirstRound, Blake3FirstRoundContext, Blake3FirstRoundLift and Blake3FirstRoundConsumer. These are authoring names, not existing registered product capabilities.",
+    "certificate": "first_round_full_state : b3CoreRoundRaw(S0,M0) = R1literal. Parameters[], axioms[], proof {kind:reflexivity}. R1literal must contain exactly sixteen s0..s15 fields, each decimal Nat less than4294967296; use an actual record {kind:record,type:{module:R4.Blake3Core,name:B3CoreState},fields:[{field:s0,value:{kind:nat,value:<decimal>}},...]} rather than inventing a B3CoreState constructor or passing an eight-word CV.",
+    "literalTrust": "Derive all16 words from pinned production AST as untrusted authoring data. A future reviewed bounded derivation may evaluate the exact RoundRaw definition; retain recipe/input/output hashes. No host calculation, external BLAKE3 library, trusted CV, axiom or nonempty theorem axioms may replace actual kernel proof. This reviewer did not derive or approve numeric R1 values.",
+    "negative": "Copy the positive certificate exactly and change only R1.s0 to (R1.s0+1) modulo4294967296. This always differs within the32bit domain, including wraparound. Statement inputs, remaining15 fields, theorem name, proof, imports/config/limits identical apart from necessary fixture module metadata. Require independent AST delta check. A timeout/blank failure/import/type failure is not the intended named reflexivity rejection.",
+    "context": "Define G(item:B3CoreState):B3CoreState = b3CoreFeedForward(b3CoreRounds(6,item,b3CorePermute(M0)),b3CoreIV()). Define Goal(count:Nat):Prop by match count: zero -> RoundRaw(S0,M0)=R1; succ prior -> G(RoundRaw(S0,M0))=G(R1). Succ body does not recursively apply G prior times.",
+    "lift": "round_lift(count):Goal(count), axioms[]. Reuse the actually accepted proof AST scheme: induction count; zero Apply qualified first_round_full_state with arguments[]/type_arguments[]; succ binders prior,ih then Cases prior; zero and succ branches Congruence, with earlier bound in succ. No Rewrite, Have, Transitivity, Simplify, native_decide or new proof constructor. Cases is on prior Nat, not a fabricated state/equality constructor.",
+    "consumer": "first_round_compress_consumer : b3CoreCompressRaw(b3CoreIV(),M0,0,64,1) = b3CoreFeedForward(b3CoreRounds(6,R1literal,b3CorePermute(M0)),b3CoreIV()). Parameters[],axioms[]; Apply qualified round_lift with Nat1. Actual CompressRaw must be the LHS AST, and exact production argument order must be retained. G(RoundRaw(...))=G(R1) alone is insufficient delivery.",
+    "visibility": "Each wrapper directly imports every external referenced module including R4.Blake3Core and R4.Blake3 when BlockWords occurs. Current-module references omit module keys and resolve earlier local declarations; never self-qualified or module:null. Include exact builtin Nat glossary and canonical semantic JSON used by accepted sources. Compute actual import closure from new frozen sources; do not invent expected counts in this specification."
+  },
+  "boundedAcceptance": {
+    "stages": "Prepare exact negative and positive round certificate sources plus context/lift/actual consumer in one bounded source packet. Separate source/CODE/security review, exact invocation/resource review and parent phase selection precede any native run. First intended wrong-word negative must receive actual diagnostic/resource audit before positive certificate selection; actual consumer success is mandatory after accepted certificate. Helper acceptance alone leaves this experiment incomplete.",
+    "positiveEvidence": "For each selected positive closure audit exact actual source/lock/tool identities, empty-axiom declarations, real successful verification artifact and kernel replays/process results. Consumer must actually Apply the certificate through lift, with exact actual CompressRaw statement and residual6round RHS. No final-value equality or speedup inferred from that partial compression theorem.",
+    "stop": "One selected phase at a time, unchanged configured300000ms and current resource contract. Stop on timeout, OOM/nonzero counters, source/type failure, unexpected negative success, capture/retention/identity/postguard failure. No automatic retry, restart, limit raise, positive full-state retry or speculative7round/32block expansion.",
+    "risk": "One-round rfl may itself time out. Actual consumer matching may still reduce expensive round/state arguments or remaining rounds. Existing Nat/Cases/Congruence syntax and the mathematical definitional connection support this proposal; neither establishes native feasibility or performance.",
+    "remaining": "Even if certificate and actual consumer pass, exact literal S128 with all7 fields, complete compression/FirstEight, outer input/state validation and feed behavior, original2048tree consumer, finalization/ROOT/digest encoding and published digest remain mandatory. Preserve failed second-state source and receipts unchanged. No accepted-count increase, OOM repair or product completion."
+  },
+  "method": "Fresh architect eligibility and roster verify PASS logical4e5d2791f522e3ca. Read-only local pinned semantic AST, emitted-source record and accepted positive lift inspection. Independently rehashed all Phase1 actualEvidence entries and all12 declared canonical-production pins. No native/SDK/VM/compiler/runner/host derivation execution; no repository/source/index modifications. Sole bounded SPEC report.",
+  "preservation": "Rehash proposal, runtime and source manifest/protected10 before final write; preserve prior failure-review214file census as historical. Supplemental emitted-source records are separate evidence already pinned by Phase1.",
+  "at": "2026-10-26T23:31:11.335982+00:00",
+  "budget": {
+    "allocatedCapBytes": 12288,
+    "reservedReviewBytes": 16384,
+    "freshAvailableBeforeWriteBytes": 28938240000,
+    "reserveBytes": 10737418240,
+    "chargedTo": "native failure followup budget"
+  }
+}
