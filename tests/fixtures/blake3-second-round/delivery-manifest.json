@@ -1,0 +1,150 @@
+{
+  "schema": "lexlean-r4/second-round-delivery-manifest/1",
+  "scope": "Acceptedlocaltwo-roundoriginalcompressiondecomposition only; nofull literalcompression/digest/count/productionpromotion.",
+  "sourceManifestUnchanged": true,
+  "sourceManifestSha256": "165faa7b68c888c333f263583b4e8e3238d0d7d779a1a123c2bf6241d752d41d",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 100243,
+      "sha256": "49695d7a60ebe795962423671135f63d478b1c1df491f3e16b3a22e80942cc50"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 80726,
+      "sha256": "ed4c2f1dc01343857f11763dd5b27e8196e7dee85b807088a96e2fa1cccd3b18"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/README.md",
+      "bytes": 2714,
+      "sha256": "9c3f2e0973f29246ad65fb9f0e1d165de762c2a3281c56a0e54123f7613c3cf6"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/RESULTS.md",
+      "bytes": 4409,
+      "sha256": "3cd84a22db21774178ea359b0ca785b45f77b28bd543f4a48113885cf3a3798a"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/artifact-inventory.json",
+      "bytes": 36708,
+      "sha256": "aa3096e94156073c5a91aaef5b57825a0bdbc479a51bb0149638609bb326e92e"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/candidate.json",
+      "bytes": 16709,
+      "sha256": "b7aaf0e6925858e1a4d059616646261f72812736c320ae13da258a2a39c5e514"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/derivation.json",
+      "bytes": 4938,
+      "sha256": "9ad72a57ca91a7f46651bdcbb26736fd48a5c04ef1c272e3407c7cca20e9043b"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/derive-expected.py",
+      "bytes": 4469,
+      "sha256": "57ed872c5b043b5283e2c7a2992d58466db916040301ee9af3b8aaecf257a462"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/evidence.jsonl.gz",
+      "bytes": 376471,
+      "sha256": "9a21c2cbcfb0a35e6bfc612d73f84f1fe614c370cdf238626f963518b5e537b9"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/manifest.json",
+      "bytes": 5974,
+      "sha256": "165faa7b68c888c333f263583b4e8e3238d0d7d779a1a123c2bf6241d752d41d"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/next-product-proposal.json",
+      "bytes": 11337,
+      "sha256": "9d92248fdde4b292d6ee0e19a86dc7b4cbc004d0eb77176cb6b709529339d280"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/next-product-spec-review.json",
+      "bytes": 5734,
+      "sha256": "2f68515334cd5af694e2353602be681f34d86f2dcac59c04b2d3bdd4ac45542a"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/phases/original-consumer/lexlean.toml",
+      "bytes": 689,
+      "sha256": "d5e6ab6763a29f925960e20b9a0e90336c8b415d4c8a60fcc009fa4a03c126c5"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/phases/round2-negative/lexlean.toml",
+      "bytes": 681,
+      "sha256": "2329175f889ba4036ee38244f4dca74261bef4c2d9b7e0f1d62279cfc709df00"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/phases/round2-negative/tests/lexlean/Blake3SecondRound.lex.tex",
+      "bytes": 6528,
+      "sha256": "288e272e577da3ea2311fc7c6f117858142252085069cccac7ad7bccd4f8b5cd"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/phases/round2-positive/lexlean.toml",
+      "bytes": 681,
+      "sha256": "2329175f889ba4036ee38244f4dca74261bef4c2d9b7e0f1d62279cfc709df00"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/project/tests/lexlean/Blake3SecondRound.lex.tex",
+      "bytes": 6528,
+      "sha256": "50ffc8c58159022164064f8439e795ae9509a8cf62122f2f4fb657da5a16b9aa"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/project/tests/lexlean/Blake3SecondRoundConsumer.lex.tex",
+      "bytes": 10100,
+      "sha256": "2a5d9696d3570a2e983792736710fb29142805293190f1e1cc008178b87a5bd5"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/proposal.json",
+      "bytes": 11328,
+      "sha256": "a0bb9cb50736232ef24269ffce68f9a48d42e7e9cd1e8997919949bfc3e523ba"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/results.json",
+      "bytes": 7010,
+      "sha256": "efb9ed98c41b72fa18c5fb08e3ae6588c6d273f9a788179472216fe6eb886871"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/source-checks.json",
+      "bytes": 5328,
+      "sha256": "922cf3201daad92a43a3e01bcbcb687814c6d6cb55b485696b0e6375f3e44c33"
+    },
+    {
+      "path": "tests/fixtures/blake3-second-round/spec-review.json",
+      "bytes": 6659,
+      "sha256": "2d0fdff7d08cabd9f516c5b39181f3205a96a54a616e79d2d1a6232a7b07cc47"
+    }
+  ],
+  "preserved": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  },
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "bytes": 376471,
+    "sha256": "9a21c2cbcfb0a35e6bfc612d73f84f1fe614c370cdf238626f963518b5e537b9",
+    "uncompressedBytes": 1813207,
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "scope": "Second-round source, three actual phase outcomes, independent reviews and all current instruments; accepted two-round original compression decomposition only.",
+    "uniqueMembers": 424,
+    "aliases": 1660,
+    "binaryExclusions": 13,
+    "binaryExcludedBytes": 3965632,
+    "verification": "Every member and original alias decoded/hashed/byte-compared before writing. No new kernel replay."
+  },
+  "lateReviewBoundary": "Exact delivery reviews retained separately afterfreeze; no archive mutation forlate reports.",
+  "preReviewSuccessor": {
+    "predecessorManifestSha256": "8ed41ae67818b1f359b2c31a00559b950113fad8743db7b95df282742b041476",
+    "preservationArchive": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-delivery/successor-baseline.jsonl.gz",
+    "preservationSha256": "227e979e54bcbe54131ee2e4a5311a808793e0e107de9c6f2c223bd7de48e34b",
+    "scope": "Exactapprovednextsourceplan/SPEC publication and current2docparagraph links only; no actualproofscope/source/results/archive changes."
+  }
+}

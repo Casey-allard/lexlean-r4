@@ -1,0 +1,396 @@
+{
+  "schema": "lexlean-r4/blake3-second-round-source-candidate/1",
+  "status": "SOURCE_ONLY_ALL_NATIVE_NOT_RUN",
+  "sharedInputs": [
+    {
+      "destination": "lake-manifest.json",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+      "bytes": 146,
+      "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+    },
+    {
+      "destination": "lakefile.toml",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+      "bytes": 58,
+      "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+    },
+    {
+      "destination": "lean-toolchain",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+      "bytes": 25,
+      "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+    },
+    {
+      "destination": "src/R4/Blake3.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+      "archiveSha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f",
+      "bytes": 62621,
+      "sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+    },
+    {
+      "destination": "src/R4/Blake3Core.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+      "archiveSha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45",
+      "bytes": 53109,
+      "sha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+    },
+    {
+      "destination": "src/R4/Blake3Nat.lex.tex",
+      "encoding": "gzip",
+      "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+      "archiveSha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79",
+      "bytes": 16987,
+      "sha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+    },
+    {
+      "destination": "tests/lexlean/Blake3FirstRound.lex.tex",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRound.lex.tex",
+      "bytes": 5668,
+      "sha256": "de60ee149eab2c0c4dbde514df402562ec54d2fb19350264e9a3b88b9559da07"
+    },
+    {
+      "destination": "tests/lexlean/Blake3FirstRoundContext.lex.tex",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundContext.lex.tex",
+      "bytes": 15813,
+      "sha256": "4c656e9cc7311582c7830f21d9fe884a8943d43b90e0e7fed621e311639d3937"
+    },
+    {
+      "destination": "tests/lexlean/Blake3FirstRoundLift.lex.tex",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundLift.lex.tex",
+      "bytes": 1071,
+      "sha256": "4832b2c6091697703ee046f385f8e4b3bb20b332b9dacd094c0001a39d16bab3"
+    },
+    {
+      "destination": "tests/lexlean/Blake3FirstRoundConsumer.lex.tex",
+      "encoding": "identity",
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundConsumer.lex.tex",
+      "bytes": 9969,
+      "sha256": "0260128940caed304991db46db09d4f54306ea09afaa2e2e27cf75b3126dad01"
+    }
+  ],
+  "phases": [
+    {
+      "name": "round2-negative",
+      "entrypoint": "tests/lexlean/Blake3SecondRound.lex.tex",
+      "source": "phases/round2-negative/tests/lexlean/Blake3SecondRound.lex.tex",
+      "config": "phases/round2-negative/lexlean.toml",
+      "sharedInputs": [
+        {
+          "destination": "lake-manifest.json",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "destination": "lakefile.toml",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "destination": "lean-toolchain",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "destination": "src/R4/Blake3.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+          "archiveSha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f",
+          "bytes": 62621,
+          "sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+        },
+        {
+          "destination": "src/R4/Blake3Core.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+          "archiveSha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45",
+          "bytes": 53109,
+          "sha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+        },
+        {
+          "destination": "src/R4/Blake3Nat.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+          "archiveSha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79",
+          "bytes": 16987,
+          "sha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+        }
+      ],
+      "newStageInputs": [
+        {
+          "path": "phases/round2-negative/tests/lexlean/Blake3SecondRound.lex.tex",
+          "destination": "tests/lexlean/Blake3SecondRound.lex.tex",
+          "bytes": 6528,
+          "sha256": "288e272e577da3ea2311fc7c6f117858142252085069cccac7ad7bccd4f8b5cd"
+        },
+        {
+          "path": "phases/round2-negative/lexlean.toml",
+          "destination": "lexlean.toml",
+          "bytes": 681,
+          "sha256": "2329175f889ba4036ee38244f4dca74261bef4c2d9b7e0f1d62279cfc709df00"
+        }
+      ],
+      "expectedModules": [
+        "Blake3SecondRound",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "stageInputCount": 8,
+      "decodedBytes": 140155,
+      "nativeStatus": "NOT_RUN"
+    },
+    {
+      "name": "round2-positive",
+      "entrypoint": "tests/lexlean/Blake3SecondRound.lex.tex",
+      "source": "project/tests/lexlean/Blake3SecondRound.lex.tex",
+      "config": "phases/round2-positive/lexlean.toml",
+      "sharedInputs": [
+        {
+          "destination": "lake-manifest.json",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "destination": "lakefile.toml",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "destination": "lean-toolchain",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "destination": "src/R4/Blake3.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+          "archiveSha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f",
+          "bytes": 62621,
+          "sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+        },
+        {
+          "destination": "src/R4/Blake3Core.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+          "archiveSha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45",
+          "bytes": 53109,
+          "sha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+        },
+        {
+          "destination": "src/R4/Blake3Nat.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+          "archiveSha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79",
+          "bytes": 16987,
+          "sha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+        }
+      ],
+      "newStageInputs": [
+        {
+          "path": "project/tests/lexlean/Blake3SecondRound.lex.tex",
+          "destination": "tests/lexlean/Blake3SecondRound.lex.tex",
+          "bytes": 6528,
+          "sha256": "50ffc8c58159022164064f8439e795ae9509a8cf62122f2f4fb657da5a16b9aa"
+        },
+        {
+          "path": "phases/round2-positive/lexlean.toml",
+          "destination": "lexlean.toml",
+          "bytes": 681,
+          "sha256": "2329175f889ba4036ee38244f4dca74261bef4c2d9b7e0f1d62279cfc709df00"
+        }
+      ],
+      "expectedModules": [
+        "Blake3SecondRound",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "stageInputCount": 8,
+      "decodedBytes": 140155,
+      "nativeStatus": "NOT_RUN"
+    },
+    {
+      "name": "original-consumer",
+      "entrypoint": "tests/lexlean/Blake3SecondRoundConsumer.lex.tex",
+      "source": "project/tests/lexlean/Blake3SecondRoundConsumer.lex.tex",
+      "config": "phases/original-consumer/lexlean.toml",
+      "sharedInputs": [
+        {
+          "destination": "lake-manifest.json",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lake-manifest.json",
+          "bytes": 146,
+          "sha256": "c30e3dc26928d665d9adfcc60429e251d74e012f4a2214c8d222c30f50c35e8b"
+        },
+        {
+          "destination": "lakefile.toml",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lakefile.toml",
+          "bytes": 58,
+          "sha256": "3f5b929a2d960cd32da6e86df110c895d7e8d5754153eaef6d08d68b0ae3af88"
+        },
+        {
+          "destination": "lean-toolchain",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-case19/project/lean-toolchain",
+          "bytes": 25,
+          "sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af"
+        },
+        {
+          "destination": "src/R4/Blake3.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e.txt.gz",
+          "archiveSha256": "62d2fb0570fb7354d28d1281c5b1843f7f36660bad4315cc0e02c90d4aff108f",
+          "bytes": 62621,
+          "sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e"
+        },
+        {
+          "destination": "src/R4/Blake3Core.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0.txt.gz",
+          "archiveSha256": "2e53cb7c449cc3bc1d9397c7327488f95098becd8059a66e1f28d6a7d7761f45",
+          "bytes": 53109,
+          "sha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0"
+        },
+        {
+          "destination": "src/R4/Blake3Nat.lex.tex",
+          "encoding": "gzip",
+          "path": "docs/continuation/earlier-history-2026-10-23/files/91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b.txt.gz",
+          "archiveSha256": "fb0dee3556947d06bac1baf8641c1db678685f5ea4ecad2989be79ec383cbe79",
+          "bytes": 16987,
+          "sha256": "91df70496689c63732341fad46abd39a3c91f8d756db0665136f789b74e9a68b"
+        },
+        {
+          "destination": "tests/lexlean/Blake3FirstRound.lex.tex",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRound.lex.tex",
+          "bytes": 5668,
+          "sha256": "de60ee149eab2c0c4dbde514df402562ec54d2fb19350264e9a3b88b9559da07"
+        },
+        {
+          "destination": "tests/lexlean/Blake3FirstRoundContext.lex.tex",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundContext.lex.tex",
+          "bytes": 15813,
+          "sha256": "4c656e9cc7311582c7830f21d9fe884a8943d43b90e0e7fed621e311639d3937"
+        },
+        {
+          "destination": "tests/lexlean/Blake3FirstRoundLift.lex.tex",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundLift.lex.tex",
+          "bytes": 1071,
+          "sha256": "4832b2c6091697703ee046f385f8e4b3bb20b332b9dacd094c0001a39d16bab3"
+        },
+        {
+          "destination": "tests/lexlean/Blake3FirstRoundConsumer.lex.tex",
+          "encoding": "identity",
+          "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundConsumer.lex.tex",
+          "bytes": 9969,
+          "sha256": "0260128940caed304991db46db09d4f54306ea09afaa2e2e27cf75b3126dad01"
+        }
+      ],
+      "newStageInputs": [
+        {
+          "path": "project/tests/lexlean/Blake3SecondRound.lex.tex",
+          "destination": "tests/lexlean/Blake3SecondRound.lex.tex",
+          "bytes": 6528,
+          "sha256": "50ffc8c58159022164064f8439e795ae9509a8cf62122f2f4fb657da5a16b9aa"
+        },
+        {
+          "path": "project/tests/lexlean/Blake3SecondRoundConsumer.lex.tex",
+          "destination": "tests/lexlean/Blake3SecondRoundConsumer.lex.tex",
+          "bytes": 10100,
+          "sha256": "2a5d9696d3570a2e983792736710fb29142805293190f1e1cc008178b87a5bd5"
+        },
+        {
+          "path": "phases/original-consumer/lexlean.toml",
+          "destination": "lexlean.toml",
+          "bytes": 689,
+          "sha256": "d5e6ab6763a29f925960e20b9a0e90336c8b415d4c8a60fcc009fa4a03c126c5"
+        }
+      ],
+      "expectedModules": [
+        "Blake3FirstRound",
+        "Blake3FirstRoundConsumer",
+        "Blake3FirstRoundContext",
+        "Blake3FirstRoundLift",
+        "Blake3SecondRound",
+        "Blake3SecondRoundConsumer",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "stageInputCount": 13,
+      "decodedBytes": 182784,
+      "nativeStatus": "NOT_RUN"
+    }
+  ],
+  "expectedModules": {
+    "round2-negative": [
+      "Blake3SecondRound",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Nat"
+    ],
+    "round2-positive": [
+      "Blake3SecondRound",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Nat"
+    ],
+    "original-consumer": [
+      "Blake3FirstRound",
+      "Blake3FirstRoundConsumer",
+      "Blake3FirstRoundContext",
+      "Blake3FirstRoundLift",
+      "Blake3SecondRound",
+      "Blake3SecondRoundConsumer",
+      "R4.Blake3",
+      "R4.Blake3Core",
+      "R4.Blake3Nat"
+    ]
+  },
+  "stageInputCountPerPhase": {
+    "round2-negative": 8,
+    "round2-positive": 8,
+    "original-consumer": 13
+  },
+  "decodedBytesPerPhase": {
+    "round2-negative": 140155,
+    "round2-positive": 140155,
+    "original-consumer": 182784
+  },
+  "declarations": {
+    "Blake3SecondRound": [
+      "second_round_full_state"
+    ],
+    "Blake3SecondRoundConsumer": [
+      "second_round_compress_consumer"
+    ]
+  },
+  "generatedLocks": "NOT_GENERATED; actual official phase lock required.",
+  "derivation": "Pinned production AST host evaluation is untrusted authoring data only.",
+  "nativeAuthority": "NONE; independent source/invocation/resource reviews then parent phase selection.",
+  "claims": "No new proof acceptance, count increase, literal five remaining rounds, S128, original digest, efficiency or OOM remedy.",
+  "consumerBoundary": "Apply accepted first-round consumer; second-round equality is imported but not syntactically used as rewrite/transitivity. Actual definitional conversion and cost remain unproved."
+}
