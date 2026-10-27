@@ -1,0 +1,252 @@
+{
+  "status": "ACCEPTED_LOCAL_THREE_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION",
+  "scope": "Actual RoundRaw(R2,M2)=literalR3 and exact original CompressRaw consumer exposing Rounds4/R3/M3. Four remaining rounds remain unevaluated.",
+  "sourceManifestSha256": "2626906c0c93f879b3d6b2d6424dee3f8b2af0b5421007f5e383ccd6bb82257c",
+  "historicalFreeze": "Source files/candidate/README preserve originalNOT_RUN preparation status; this separate results record supplies subsequent audited outcomes without rewriting frozen history.",
+  "phases": [
+    {
+      "phase": "round3-negative",
+      "independentVerdict": "PASS_INTENDED_LOCAL_WRONG_S0_NEGATIVE",
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-invocation/round3-negative-attempt1/native-review.json",
+        "bytes": 9491,
+        "sha256": "30eaf2a2fe03341dfad566ff4370b74ac6a0344c43e8bd18b4a0a265db8b6613"
+      },
+      "checkModules": [
+        "Blake3ThirdRound",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "verifyExit": 1,
+      "verifyDurationMs": 5736,
+      "attestationId": null,
+      "diagnostics": [
+        {
+          "causes": [],
+          "code": "LLV7002",
+          "help": [],
+          "labels": [],
+          "message": "Lean rejected `LexLeanR4.Blake3ThirdRound` (error): Tactic `rfl` failed: The left-hand side\n  R4.Blake3Core.b3CoreRoundRaw\n    { s0 := 2587482733, s1 := 2170655150, s2 := 3128892401, s3 := 4225434146, s4 := 2643885884, s5 := 587943390,\n      s6 := 1797364980, s7 := 1920862556, s8 := 414023522, s9 := 781254897, s10 := 1466724114, s11 := 2732741581,\n      s12 := 124545839, s13 := 2636366268, s14 := 3074072615, s15 := 3060414175 }\n    (R4.Blake3Core.b3CorePermute\n      (R4.Blake3Core.b3CorePermute\n        (R4.Blake3.blake3BlockWords\n          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,\n            30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, \u22ef])))\nis not definitionally equal to the right-hand side\n  { s0 := 3971108618, s1 := 3704486809, s2 := 3905004968, s3 := 3646585242, s4 := 3590963563, s5 := 4092673614,\n    s6 := 3356125313, s7 := 2691743444, s8 := 2908811241, s9 := 1094672956, s10 := 939053022, s11 := 2414105671,\n    s12 := 1407143655, s13 := 3364135680, s14 := 1761006036, s15 := 1743015998 }\n\u22a2 R4.Blake3Core.b3CoreRoundRaw\n      { s0 := 2587482733, s1 := 2170655150, s2 := 3128892401, s3 := 4225434146, s4 := 2643885884, s5 := 587943390,\n        s6 := 1797364980, s7 := 1920862556, s8 := 414023522, s9 := 781254897, s10 := 1466724114, s11 := 2732741581,\n        s12 := 124545839, s13 := 2636366268, s14 := 3074072615, s15 := 3060414175 }\n      (R4.Blake3Core.b3CorePermute\n        (R4.Blake3Core.b3CorePermute\n          (R4.Blake3.blake3BlockWords\n            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,\n              29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, \u22ef]))) =\n    { s0 := 3971108618, s1 := 3704486809, s2 := 3905004968, s3 := 3646585242, s4 := 3590963563, s5 := 4092673614,\n      s6 := 3356125313, s7 := 2691743444, s8 := 2908811241, s9 := 1094672956, s10 := 939053022, s11 := 2414105671,\n      s12 := 1407143655, s13 := 3364135680, s14 := 1761006036, s15 := 1743015998 }",
+          "notes": [
+            {
+              "message": "generated location: $STAGING/lean-src/LexLeanR4/Blake3ThirdRound.lean:12:2"
+            }
+          ],
+          "primary": {
+            "byte_end": 6550,
+            "byte_start": 231,
+            "column_end": 6351,
+            "column_start": 32,
+            "line_end": 8,
+            "line_start": 8,
+            "path": "tests/lexlean/Blake3ThirdRound.lex.tex"
+          },
+          "severity": "error",
+          "spec": "lexlean/diagnostic/1"
+        }
+      ],
+      "actualArtifact": null,
+      "postGuards": 9,
+      "memoryEvents": "All six absolutezero in retained snapshots; continuous peak not measured."
+    },
+    {
+      "phase": "round3-positive",
+      "independentVerdict": "PASS_ACTUAL_LOCAL_THIRD_ROUND_CERTIFICATE",
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-invocation/round3-positive-attempt1/native-review.json",
+        "bytes": 9348,
+        "sha256": "d7626ff153e95094935d1136ff64bb90c6ed9dbe211a755f14ccfef6e932e339"
+      },
+      "checkModules": [
+        "Blake3ThirdRound",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "verifyExit": 0,
+      "verifyDurationMs": 9190,
+      "attestationId": "6b00725887a27e43958feaba5d2860f0a049d9b30e1eb8cc258e568f53950fa7",
+      "diagnostics": [],
+      "actualArtifact": {
+        "status": "PASS_ACTUAL_LOCAL_THIRD_ROUND_CERTIFICATE",
+        "artifactFiles": 45,
+        "declarations": 82,
+        "kernelReplays": 4,
+        "successfulProcesses": 13,
+        "buildOutputs": 20,
+        "oleanCount": 4,
+        "oleanBytes": 1934392,
+        "artifactBytes": 2256358,
+        "receipts": 65,
+        "attemptFilesBeforeReports": 258,
+        "censusSha256": "76a8717a4d6a352ea460b5221bd5a4955689a2fc149566b824b1862151760ba5",
+        "verifyStarted": "2026-10-27T02:35:04.765Z",
+        "verifyEnded": "2026-10-27T02:35:13.955Z",
+        "verifyDurationMs": 9190,
+        "attestationId": "6b00725887a27e43958feaba5d2860f0a049d9b30e1eb8cc258e568f53950fa7",
+        "buildId": "18d990d9343f963d6ac417c7767766795db3483649f083bc940e4c40189a9031",
+        "sourceId": "4d41df765097d00073f41608d4621d4d0d3c613ca2906bd4a85f78fb29eed67a",
+        "semanticId": "97103fdb05acd19eb0cc5d1aa1cd02e3d80822a63ec5da96fd841da23ce4a761",
+        "lockSha256": "d013283543b368a075db47cb430026f48291744a4291c63b7e8e1653435b1370",
+        "hosts": {
+          "before-stage": 32538460160,
+          "before-lock": 32538144768,
+          "before-check": 32537849856,
+          "before-verify": 32537608192,
+          "after": 31967801344
+        },
+        "artifacts": {
+          "before-stage": 53928136704,
+          "before-lock": 53927952384,
+          "before-check": 53927944192,
+          "before-verify": 53927944192,
+          "after": 53925122048
+        },
+        "pinsUnchanged": true,
+        "rawHashes": {
+          "outcome.json": "3c5599ac01940d3291beeb1c89ca719f4f16035c7b41573e157dc847206ca12f",
+          "verify.json": "2245d973ace7c404333b8ecb25651281cf0dd015db246ae0131dbb3d43937d39",
+          "verify.stdout": "6d01301c8b450f6988ab5591a9679f5f444c449bee4d021f847483efa8048971",
+          "inputs.json": "0ab66fdcb950db71a58238f3b9baf078cbbacd1992ef682e185ef386e6d821e9",
+          "artifact/attestation.json": "4430c32b336a1b94fd8566b2e1596d88732083e93876cb1acc0e47fa3f7c1379",
+          "artifact/build-manifest.json": "c8d05e229ae152340467742a7774c9482501b8d4c99a69444f45611e6bd7f50c",
+          "artifact/modules/LexLeanR4/Blake3ThirdRound.lean": "8d1beaf44fcb3318fa817899147c14e7e38cd9119b069ef187b51a71a6d627ff"
+        }
+      },
+      "postGuards": 9,
+      "memoryEvents": "All six absolutezero in retained snapshots; continuous peak not measured."
+    },
+    {
+      "phase": "original-consumer",
+      "independentVerdict": "PASS_ACTUAL_THREE_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION",
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-invocation/original-consumer-attempt1/native-review.json",
+        "bytes": 9677,
+        "sha256": "ec5e32d8942343ea64d58ffcd1b4eb0ee174f6574bbff8ff0117065e27408762"
+      },
+      "checkModules": [
+        "Blake3FirstRound",
+        "Blake3FirstRoundConsumer",
+        "Blake3FirstRoundContext",
+        "Blake3FirstRoundLift",
+        "Blake3SecondRound",
+        "Blake3SecondRoundConsumer",
+        "Blake3ThirdRound",
+        "Blake3ThirdRoundConsumer",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "verifyExit": 0,
+      "verifyDurationMs": 18010,
+      "attestationId": "d6c5c079d4d2f63fcce742377eda5c8a21c637e76eb91bad84401bd6d453c83f",
+      "diagnostics": [],
+      "actualArtifact": {
+        "status": "PASS_ACTUAL_THREE_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION",
+        "artifactFiles": 115,
+        "declarations": 90,
+        "kernelReplays": 11,
+        "successfulProcesses": 34,
+        "buildOutputs": 55,
+        "oleanCount": 11,
+        "oleanBytes": 2077496,
+        "artifactBytes": 2648560,
+        "receipts": 72,
+        "attemptFilesBeforeReports": 356,
+        "censusSha256": "a356d1c93f60bd371baa9293e73c71007f256a6f9b2f77dce213dc9db4f30036",
+        "verifyStarted": "2026-10-27T02:39:28.433Z",
+        "verifyEnded": "2026-10-27T02:39:46.443Z",
+        "verifyDurationMs": 18010,
+        "attestationId": "d6c5c079d4d2f63fcce742377eda5c8a21c637e76eb91bad84401bd6d453c83f",
+        "buildId": "598ca71a232d8881ce4ee953a493acdc581a0cb100c4d2f0fbd77e6b398d2eb1",
+        "sourceId": "187e688fb1d198b546173ee85ed27f393e847254f6348875bcc06e67aa268d6f",
+        "semanticId": "996c1d440255e827d0bc44ef6b17dcf77b2e8c466478599775d84d0ea95e6141",
+        "lockSha256": "24cd58e352c62dd91671f8845d6a7d5b39f80f38342fac05904dd2053dcdf493",
+        "hosts": {
+          "before-stage": 31571177472,
+          "before-lock": 31517925376,
+          "before-check": 31511375872,
+          "before-verify": 31504838656,
+          "after": 31424135168
+        },
+        "artifacts": {
+          "before-stage": 53925122048,
+          "before-lock": 53924864000,
+          "before-check": 53924855808,
+          "before-verify": 53924855808,
+          "after": 53921144832
+        },
+        "prior9LeanUnchanged": true,
+        "positiveCertificateLeanUnchanged": true,
+        "pinsUnchanged": true,
+        "rawHashes": {
+          "outcome.json": "16ac1621763df3eb3ed851410419e6ffd7ff60b32d8e2feaecd3539b0b567f36",
+          "verify.json": "ff2f933e0f64b6fee634b563a69d33cadfd056c2a6e60bae5926f3285cdc66fb",
+          "verify.stdout": "122eaa8b01d79fcedbdd66af566df5d1a81d42128e49ad5d6714b8ab07805fbe",
+          "inputs.json": "46ceb0b9f0f41286248310b6a159634d82991069b2f0050159b9d5fa263b571c",
+          "artifact/attestation.json": "4f0a656ad4cc63aa249e483b55df6fcb3a0a19743f9b2c7d4ddc0cb5290e7c36",
+          "artifact/build-manifest.json": "6df370697f2933c12ab497bfc42058f8c0a59935916cb0c982831f68320f9992",
+          "artifact/modules/LexLeanR4/Blake3ThirdRoundConsumer.lean": "4ccdb2a5062ebed436ccab5a1f9c365a18648fd4d1e88890ef887b49713e5c44"
+        }
+      },
+      "postGuards": 9,
+      "memoryEvents": "All six absolutezero in retained snapshots; continuous peak not measured."
+    }
+  ],
+  "archive": {
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "scope": "Third-round source, three actual outcomes, independent reviews, current instruments and prior delivery accounting diagnosis. Accepted bounded three-round original compression decomposition only.",
+    "uniqueMembers": 451,
+    "aliases": 1728,
+    "binaryExclusions": 15,
+    "binaryExcludedBytes": 4011888,
+    "path": "evidence.jsonl.gz",
+    "bytes": 446482,
+    "sha256": "a0c7af330df9ea3adbc8fd5a102a20372c089df2bb987916ba263f9420d495f6"
+  },
+  "artifactInventory": {
+    "path": "artifact-inventory.json",
+    "sha256": "09d65e0f02a2c75860a40e5619dee3a9e418d17f842e86b0de7129c4a810181a",
+    "files": 160,
+    "binaryExclusions": 15,
+    "binaryExcludedBytes": 4011888
+  },
+  "preservation": "Original451-member evidence archive contains publication addenda summarizing priorPR73 accounting, but omitted originaldiagnosis/baseline. Independent pipeline rejected that packaging claim. accounting-supplement.jsonl.gz now retains exact missing originals plus rejectedmetadata/pipeline/Phase1/selection; no historical budget waiver or native/source change.",
+  "countsUnchanged": {
+    "blake3Vectors": "18/35",
+    "blake3Controls": "255/272",
+    "objectControls": "331/403",
+    "hashRestoration": "78/78 roots,636controls COMPLETE",
+    "hashMutations": "2/7"
+  },
+  "remainingScope": "Four remaining literal rounds, complete compression/FirstEight/S128/finalization/original2048ROOTdigest, fullHash mutation acceptance, Read33/Construction39/wholeObject257, seven drafts, serving/memory/learning, genuinePrismPMbinding and generatedPages remain required.",
+  "authority": "No automatic fourth-round implementation/native phase, retry, batch, limit increase, efficiency/OOM remedy or count promotion.",
+  "coverage": "Native proof and replay evidence is not global runtime coverage; no generic80% gate waiver.",
+  "deliveryBudget": {
+    "capBytes": 8388608,
+    "selectionSha256": "099b5148b970454ac8e788cf7a9dc4027f6d682d796fce79ffc55783ec081596",
+    "components": {
+      "fourIndexRewritesOrLockCopies": 4456448,
+      "twoArchiveMaterializations": 1048576,
+      "newGitObjectsCommitFetch": 1310720,
+      "twoDocsRewrites": 524288,
+      "freshMainSourceAndDirectories": 262144,
+      "resultsInventoryReviewsHandoff": 262144,
+      "temporaryArchiveCopy": 262144,
+      "headroom": 262144
+    },
+    "baselineBeforeAnyStaging": true
+  },
+  "accountingSupplement": {
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "scope": "Additive accounting preservation repair; originals, rejected pre-repair metadata, pipeline rejection, independent Phase1 and parent selection. Absolute predecessor aliases describe bytes BEFORE metadata replacement. Original451-member archive remains unchanged.",
+    "uniqueMembers": 9,
+    "aliases": 18,
+    "predecessorArchiveSha256": "a0c7af330df9ea3adbc8fd5a102a20372c089df2bb987916ba263f9420d495f6",
+    "predecessorDeliveryManifestSha256": "abb71a3d9683a3950dc33ef61e16800e245abcba0e6e0f34313d32815ebd97a5",
+    "path": "accounting-supplement.jsonl.gz",
+    "bytes": 25156,
+    "sha256": "44dc6e283d7d86f3344a084e3cc9e8464e766959b7feb7d99deea6afdf1ff867"
+  }
+}
