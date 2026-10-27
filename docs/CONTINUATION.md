@@ -1,5 +1,7 @@
 # LexLean R4: current working plan and continuation
 
+**PAUSED at the user’s request (2026-10-27):** The [fifth-round source pause checkpoint](../tests/fixtures/blake3-fifth-round/PAUSED.md) preserves reviewed source and invocation preparation; all three fifth-round native phases are NOT_RUN. The continuation automation is paused for the requested week. Wait for explicit user resume—no automatic restart, native execution or further development. Earlier executing/next-step paragraphs below are historical and do not override this pause. Resume requires fresh source/resource/invocation checks; the last accepted product result is the fourth-round decomposition.
+
 Updated 2026-10-26. This is the repository entry point for continuing the work
 without the original chat or its temporary directories. The approved scope is
 the [full design](specs/2026-10-21-lexlean-r4-design.md); the detailed phase plan
