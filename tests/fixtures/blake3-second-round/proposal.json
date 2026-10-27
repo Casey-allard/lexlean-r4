@@ -1,0 +1,147 @@
+{
+  "schema": "lexlean-r4/blake3-next-connected-round-proposal/1",
+  "status": "PROPOSAL_ONLY_ALL_NEW_NATIVE_NOT_RUN",
+  "createdUtc": "2026-10-27T01:07:13.810635+00:00",
+  "budget": {
+    "taskAllocatedCap": 32768,
+    "proposalAllocatedCap": 12288,
+    "futureIndependentSpecReserve": 12288,
+    "handoffReserve": 8192,
+    "freshHostAvailableBytes": 34220699648,
+    "minimumHostReserveBytes": 10737418240,
+    "writes": "This proposal only; no source, fixtures, VM, SDK, builds or native executions."
+  },
+  "decision": "Certify exactly the second round from the accepted literal first-round state, then require a new original CompressRaw consumer exposing five remaining rounds. Reuse the accepted original first-round consumer directly via Apply, with the new one-round conversion as an explicit falsifiable kernel obligation. Do not preauthorize a six-round reflexivity calculation or six certificates.",
+  "evidence": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-first-round-lexical/manifest.json",
+      "bytes": 2897,
+      "sha256": "15db0ac75c8b74f550b4f18cf21e9b6216f5f637d1de51142be75b9dd866739e"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundConsumer.lex.tex",
+      "bytes": 9969,
+      "sha256": "0260128940caed304991db46db09d4f54306ea09afaa2e2e27cf75b3126dad01"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundLift.lex.tex",
+      "bytes": 1071,
+      "sha256": "4832b2c6091697703ee046f385f8e4b3bb20b332b9dacd094c0001a39d16bab3"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-round-lexical-invocation/consumer-attempt1/native-review.json",
+      "bytes": 8669,
+      "sha256": "031816eade567524e8573cf317d362c76d17bee9788564118cd4e3f901900971"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-first-round-lexical-invocation/consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundConsumer.lean",
+      "bytes": 2189,
+      "sha256": "241e4e1ff8c4bdea337cd39a2d1f904b5d9c0a60f0a5e25b39a442bb00838621"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-26/blake3-second-state-invocation/timeout-phase1.json",
+      "bytes": 9736,
+      "sha256": "25d38f618c71b3a75768b85d131caa25e3bdb1d74174d2992a0251a31a49fe17"
+    }
+  ],
+  "established": {
+    "firstRound": "Actual first_round_full_state verifies all 16 words R1 with empty axioms; wrong-s0 companion rejected.",
+    "connectedConsumer": "Actual accepted first_round_compress_consumer states CompressRaw(IV,M0,0,64,1)=FeedForward(Rounds(6,R1,Permute(M0)),IV), using supported Apply round_lift(1). Review031816eade567524e8573cf317d362c76d17bee9788564118cd4e3f901900971 audited 75 artifact files,86 empty-axiom declarations,7 kernel replays.",
+    "failedPredecessor": "Whole second-state rfl timed out at300022ms with no intended semantic negative and zero memory events. First-round success does not establish remaining-round cost.",
+    "proofConstructors": "Actual emitted first-round lift uses Nat induction, Cases prior, congr 1 and exact accepted theorem. Actual consumer uses exact round_lift(1). No transitivity/rewrite constructor is presumed."
+  },
+  "notation": {
+    "IV": "R4.Blake3Core.b3CoreIV()",
+    "M0": "R4.Blake3.blake3BlockWords(actual literal bytes0..63)",
+    "M1": "R4.Blake3Core.b3CorePermute(M0)",
+    "M2": "R4.Blake3Core.b3CorePermute(M1)",
+    "R1": "Exact record AST from the accepted first-round theorem RHS; all16words byte-pinned, not reconstructed from a prose number list.",
+    "R2": "New full16word literal candidate evaluated from the unchanged production b3CoreRoundRaw(R1,M1) AST during later reviewed source authoring. No value is asserted by this proposal; all16 values and derivation must be frozen before source review."
+  },
+  "productionEquations": [
+    "b3CoreRounds(0,s,m)=s",
+    "b3CoreRounds(succ n,s,m)=b3CoreRounds(n,b3CoreRoundRaw(s,m),b3CorePermute(m))",
+    "b3CoreCompressRaw(chain,m,counter,length,flags)=b3CoreFeedForward(b3CoreRounds(7,b3CoreInitialRaw(chain,counter,length,flags),m),chain)",
+    "For the original S64 full buffer, blake3BeforeByte calls CompressRaw(IV,M0,0,64,1), takes FirstEight for the next chain, increments blocksCompressed and clears the buffer; subsequent FeedBytes appends the second64bytes. Thus this is an internal obligation of exact S128, not an unrelated primitive."
+  ],
+  "exactSourceScope": {
+    "certificate": {
+      "suggestedModule": "Blake3SecondRound",
+      "declaration": "second_round_full_state",
+      "statement": "Eq(R4.Blake3Core.b3CoreRoundRaw(R1,M1),R2)",
+      "proof": "Reflexivity",
+      "axioms": [],
+      "parameters": []
+    },
+    "negative": {
+      "sameModuleSameDeclaration": true,
+      "onlySemanticDifference": "RHS record field s0 is replaced by (R2.s0+1) modulo4294967296; other15fields, LHS, proof, runtime and config unchanged.",
+      "intendedOutcome": "Actual source admission succeeds; verifier rejects that declaration with LLV7002 reflexivity/type mismatch. Timeout, source error or resource failure is not the intended negative."
+    },
+    "originalConsumer": {
+      "suggestedModule": "Blake3SecondRoundConsumer",
+      "declaration": "second_round_compress_consumer",
+      "statement": "Eq(b3CoreCompressRaw(IV,M0,0,64,1), b3CoreFeedForward(b3CoreRounds(5,R2,M2),IV))",
+      "proof": "Apply Blake3FirstRoundConsumer.first_round_compress_consumer with no term or type arguments.",
+      "axioms": [],
+      "mandatory": true,
+      "imports": [
+        "Blake3FirstRoundConsumer",
+        "Blake3SecondRound",
+        "R4.Blake3",
+        "R4.Blake3Core"
+      ],
+      "conversionObligation": "The imported theorem RHS FeedForward(Rounds(6,R1,M1),IV) unfolds one Rounds step to FeedForward(Rounds(5,RoundRaw(R1,M1),M2),IV). Kernel definitional equality must check RoundRaw(R1,M1) against the newly certified literal R2 within that context. This conversion is NOT already established and might unfold outer Rounds/FeedForward and become expensive. Actual mandatory consumer verification decides it.",
+      "reuseBoundary": "Apply reuses the accepted first-round consumer and its first-round certificate/lift closure. The new second-round theorem is imported and independently verified, but this proof does not syntactically invoke its equality as a rewrite. Kernel conversion must establish the new substitution again; do not describe imported evidence as a transitivity proof or claim eliminated recomputation."
+    }
+  },
+  "authoringRequirements": [
+    "Reuse existing fixed pinned-AST derivation mechanism only as untrusted authoring data; record input R1 AST, M1 expression, exact16 output words and pinned production definitions. No host BLAKE library or supplied CV constitutes proof.",
+    "Keep the original M0 bytes, IV, flags1, block length64, counter0, runtime, original2048 association and final expected digest unchanged.",
+    "Copy already admitted Boolean title and explicit bool/nat glossary lines. Directly import every referenced external semantic module; local references omit module field, never self-import. Canonical JSON required.",
+    "Pin the exact accepted original consumer/lift/context/first-round source closure by reference, preserving bytes. No duplicate broad fixture or general framework. Derive exact module/input counts and decoded byte totals from the new bounded candidate before review.",
+    "Only new certificate, intended negative, mandatory original consumer, minimal phase configs and corresponding source/evidence metadata. No further rounds or S128 expansion authorized by this proposal."
+  ],
+  "phaseOrder": [
+    {
+      "phase": "source",
+      "action": "Independent SPEC then source CODE/security and bounded derivation checks; freeze actual literal, source closure and configs; separately review single-phase official invocation and fresh resource budget.",
+      "stop": "Any source/pin/proof-constructor ambiguity before native."
+    },
+    {
+      "phase": "round2-negative",
+      "action": "Official compiler source check and verifier for only wrong-s0 certificate, existing300000ms child limit.",
+      "stop": "Any outcome except admitted intended semantic rejection; preserve full receipts and independently classify before repair."
+    },
+    {
+      "phase": "round2-positive",
+      "action": "After independent negative audit and fresh gates, verify exact full16word positive certificate; independently audit artifact bytes, empty axioms and kernel replays.",
+      "stop": "Timeout, admission failure, unexpected error or nonempty axioms; do not raise limits or run original consumer automatically."
+    },
+    {
+      "phase": "original-consumer",
+      "action": "After positive artifact audit and fresh gates, verify the exact original CompressRaw equality above via Apply accepted original first-round consumer. Independently inspect emitted theorem and all kernel/artifact receipts.",
+      "stop": "If conversion fails or times out, preserve it as the concrete composition/cost blocker. No helper-only acceptance, identical retry, blanket six-round run or speculative remaining certificate batch."
+    }
+  ],
+  "alternatives": [
+    {
+      "option": "One rfl certificate for all remaining6rounds from R1",
+      "assessment": "Algebraically smaller than whole S128 but still contains six nested rounds of recursive Nat arithmetic. Current evidence does not show this removes the timed-out cost boundary. It is not selected as a safe equivalent retry; no timing or peak guarantee is inferred from removing one round."
+    },
+    {
+      "option": "Invent transitivity/rewrite or simplify transport",
+      "assessment": "Not authorized. Current actual supported route is Apply plus definitional equality; no absent-constructor impossibility claim. Simplify with propext or extra axioms is excluded."
+    },
+    {
+      "option": "Generate all remaining6round certificates now",
+      "assessment": "Not selected. First test one connected original consumer; it falsifies whether this decomposition route actually advances the original compression without reproducing the resource failure."
+    }
+  ],
+  "resourceAndAcceptance": {
+    "nativeAuthority": false,
+    "futureNativeRequirements": "Separate fresh exact epoch/tool/source/lock/idle and six absolute-zero memory counters; no overlapping SDK work; host20GiB planning floor, inclusive10GiB peak estimate plus10GiB reserve, actual artifact volume11GiB pre/10GiB post. Preserve distinct guest-root/shared-host/artifact volumes; no restart or limit increase implied.",
+    "costUnknown": "Second-round literal evaluation and mandatory contextual conversion are unmeasured. First-round21434ms and consumer12523ms do not predict next-phase time/memory.",
+    "completion": "Only all three actual outcomes plus independent artifact review establish a two-round original-compression decomposition. Five rounds, feed-forward literal, exact S128, remaining original stream/tree and final digest remain open. No control-count, fullObject, Prediction, production SDK binding or Pages acceptance."
+  }
+}

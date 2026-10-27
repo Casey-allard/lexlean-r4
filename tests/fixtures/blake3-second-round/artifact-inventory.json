@@ -1,0 +1,842 @@
+{
+  "schema": "lexlean-r4/second-round-artifact-inventory/1",
+  "phases": {
+    "round2-positive": {
+      "root": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/round2-positive-attempt1/artifact",
+      "files": [
+        {
+          "path": "attestation.json",
+          "bytes": 23541,
+          "sha256": "d79dc70f1976b830be16e1a212e3a1c205704ead21726f1fc8eb8dde5caef9a9"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.Blake3SecondRound.lean",
+          "bytes": 108,
+          "sha256": "fd894603fa699a22057368ec5869e2dd8373e81406ec4e4dbbfaaab4f5af0041"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.Blake3SecondRound.process.json",
+          "bytes": 599,
+          "sha256": "613cd71c5b518eda18f9490a59d8aaf06f078584c3c5e7528dcf3ada9ec35094"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.R4.Blake3.lean",
+          "bytes": 2100,
+          "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.R4.Blake3.process.json",
+          "bytes": 3343,
+          "sha256": "70d55825a57b532950171931699c94630fc0862a1a08e7dd3246667331b5ad66"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.R4.Blake3Core.lean",
+          "bytes": 1190,
+          "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.R4.Blake3Core.process.json",
+          "bytes": 2076,
+          "sha256": "7d6bd8b286079320b58fcd81d43548a9fb8ec262ab8f5c3acb0f81f818764ab8"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.R4.Blake3Nat.lean",
+          "bytes": 959,
+          "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db"
+        },
+        {
+          "path": "audit/LexLeanAudit.A61435c78c0bd5c2fae7f1221aba70f64.LexLeanR4.R4.Blake3Nat.process.json",
+          "bytes": 1768,
+          "sha256": "1302daf30f84c249a273cdc64fbe66220e4b6aaba157adbe5b4947e084007742"
+        },
+        {
+          "path": "audit/output.txt",
+          "bytes": 5682,
+          "sha256": "b042cd3112d30fc6534c94f454d3cc04ba024138de192b33263d01c2ee897655"
+        },
+        {
+          "path": "build-manifest.json",
+          "bytes": 5540,
+          "sha256": "3d9bb396c0dedd5625336e74a52888fb10c6764903da2ea3d3e84d20f9804fed"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3SecondRound.coverage.json",
+          "bytes": 13712,
+          "sha256": "814d42390dda26450a69aba0daa455dd89c13f6f695752b6aa98801a35ac5bea"
+        },
+        {
+          "path": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+          "bytes": 23556,
+          "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4"
+        },
+        {
+          "path": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+          "bytes": 17502,
+          "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa"
+        },
+        {
+          "path": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+          "bytes": 14922,
+          "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823"
+        },
+        {
+          "path": "lexicons/Blake3SecondRound.closure.json",
+          "bytes": 10615,
+          "sha256": "6de7bdb675a211389feebec4c1fbd209e4d9027d360cf84e39bf29ffd47db4a4"
+        },
+        {
+          "path": "lexicons/R4.Blake3.closure.json",
+          "bytes": 10607,
+          "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153"
+        },
+        {
+          "path": "lexicons/R4.Blake3Core.closure.json",
+          "bytes": 10611,
+          "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7"
+        },
+        {
+          "path": "lexicons/R4.Blake3Nat.closure.json",
+          "bytes": 10610,
+          "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3SecondRound.map.json",
+          "bytes": 1415,
+          "sha256": "d16ff6bcf05a493f3a0adaffe4170acf161917d34b928ba0673ab68dcc14f3a5"
+        },
+        {
+          "path": "maps/LexLeanR4/R4/Blake3.map.json",
+          "bytes": 14490,
+          "sha256": "a317a4b8ac3c8f619d8dfbe2dd5ea7a182b0065a25be782b66f9f2664f26b53a"
+        },
+        {
+          "path": "maps/LexLeanR4/R4/Blake3Core.map.json",
+          "bytes": 8268,
+          "sha256": "2b5ac541e43d916003ac56b37c1b1590f12962326c8db3859cf518d66e52fcf2"
+        },
+        {
+          "path": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+          "bytes": 6901,
+          "sha256": "ce9432ceb21434adc0fecafaba86a10ddff60383ff008b9fb85c2fed17ad8536"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3SecondRound.lean",
+          "bytes": 1677,
+          "sha256": "10bb2933fbcfa956c344d3203fed692c56c9bdb633e0272cb5ca95e6f3ac6088"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3SecondRound.tex",
+          "bytes": 1627,
+          "sha256": "30303d7798043a1551b481ec40c18396b0609e7430f0cb6c26d9c300927ddb76"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3.lean",
+          "bytes": 30120,
+          "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3.tex",
+          "bytes": 24378,
+          "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Core.lean",
+          "bytes": 26512,
+          "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Core.tex",
+          "bytes": 17451,
+          "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Nat.lean",
+          "bytes": 18123,
+          "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Nat.tex",
+          "bytes": 7827,
+          "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3SecondRound.olean",
+          "bytes": 23608,
+          "sha256": "515a8a6eb489b458bfe5d545503acce982a4f3a8e7f080a956cca3df6537080c"
+        },
+        {
+          "path": "oleans/LexLeanR4/R4/Blake3.olean",
+          "bytes": 738152,
+          "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6"
+        },
+        {
+          "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+          "bytes": 624640,
+          "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404"
+        },
+        {
+          "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+          "bytes": 547960,
+          "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5"
+        },
+        {
+          "path": "probe/LexLeanProbe.P61435c78c0bd5c2fae7f1221aba70f64.lean",
+          "bytes": 37,
+          "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120"
+        },
+        {
+          "path": "probe/process.json",
+          "bytes": 460,
+          "sha256": "431484909641014298f97cbf1385a86cf01f1e2f56f40d7b0188d568910918e5"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3SecondRound.json",
+          "bytes": 507,
+          "sha256": "aca46556bfe9a3756519559c59474d5d825cff86503d76610623f6221b530d73"
+        },
+        {
+          "path": "process/lean/LexLeanR4.R4.Blake3.json",
+          "bytes": 483,
+          "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac"
+        },
+        {
+          "path": "process/lean/LexLeanR4.R4.Blake3Core.json",
+          "bytes": 495,
+          "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7"
+        },
+        {
+          "path": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+          "bytes": 492,
+          "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3SecondRound.json",
+          "bytes": 431,
+          "sha256": "ccf6623af97557c776f3e4dcce486d7804618b4f3f9f42e25bdae7d37e0bee79"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+          "bytes": 415,
+          "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+          "bytes": 423,
+          "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+          "bytes": 421,
+          "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720"
+        }
+      ],
+      "inventorySha256": "e108b7ceb2c113696e0f6cb1a1c9ae4b8cfdb00ea0717f29349d44bb2eb4b9a2",
+      "encoding": "Sorted-by-path list of path/bytes/sha256, JSON sort_keys=True compact separators."
+    },
+    "original-consumer": {
+      "root": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact",
+      "files": [
+        {
+          "path": "attestation.json",
+          "bytes": 32992,
+          "sha256": "7e3440270d24891e06bd70e96d0986692d80b7bb2a3438881b0d186f75e52c3a"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRound.lean",
+          "bytes": 105,
+          "sha256": "52b51391e2405697379c724879c7bdda35f49885a5713e4f37bf7e5d67294c60"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRound.process.json",
+          "bytes": 595,
+          "sha256": "e2e6c1f8ffff7f89451b4bcce242b960347e1437aebcc8a8177bde13f6074e98"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRoundConsumer.lean",
+          "bytes": 128,
+          "sha256": "eb497fdb6f9389ee37f25b0fb0093bd0d5eb522f1f15a831681e85fdc49087b1"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRoundConsumer.process.json",
+          "bytes": 626,
+          "sha256": "37804602ab2819c890e6d99cbb17f1152521a72662ea96d88b569daea2dc90b2"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRoundContext.lean",
+          "bytes": 186,
+          "sha256": "4b8f7dccffad73e7281c43f72ebf565893f52306c92164aca9abe074c73da810"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRoundContext.process.json",
+          "bytes": 702,
+          "sha256": "5578f7bb23afd7588497380f57e8ff19e18e174820cbbedf20dba9e7bfdc79cf"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRoundLift.lean",
+          "bytes": 101,
+          "sha256": "706f890a34ed0c301da6f04214761e5233fefd16e7bb3ff6541009905aaa2b28"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3FirstRoundLift.process.json",
+          "bytes": 595,
+          "sha256": "3f0b53169304fb213fc5a6aecedbd9d2ed0ddd88ade167216505b1773d8b3bc4"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3SecondRound.lean",
+          "bytes": 108,
+          "sha256": "fd894603fa699a22057368ec5869e2dd8373e81406ec4e4dbbfaaab4f5af0041"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3SecondRound.process.json",
+          "bytes": 599,
+          "sha256": "ea6acb33f8e0e664790b066be6cc6e73dd316ff83a5cbd94a9b748a88ca3e4a6"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3SecondRoundConsumer.lean",
+          "bytes": 131,
+          "sha256": "e6196bf07656ad0e0a6522ed65febcc74284f975fcd34b9772ac9b78e0cd5828"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.Blake3SecondRoundConsumer.process.json",
+          "bytes": 630,
+          "sha256": "b57ffb8bb92972b9f0e2b67919562405e2f9bfd2ec398a0933c56e4799ab6372"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.R4.Blake3.lean",
+          "bytes": 2100,
+          "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.R4.Blake3.process.json",
+          "bytes": 3343,
+          "sha256": "99170ad323267708a6b78b4053098a07c0143338c627c016cbfd75eb5229de2e"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.R4.Blake3Core.lean",
+          "bytes": 1190,
+          "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.R4.Blake3Core.process.json",
+          "bytes": 2076,
+          "sha256": "47c838447091ca0dc5ccb502325b6e112695e62ef1fe976487dad7a538a2edab"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.R4.Blake3Nat.lean",
+          "bytes": 959,
+          "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db"
+        },
+        {
+          "path": "audit/LexLeanAudit.Ad5b3689197e5cb7fdd87a658d14542dd.LexLeanR4.R4.Blake3Nat.process.json",
+          "bytes": 1768,
+          "sha256": "c0f12a3407066e0fe520dca10294437c7636edce3517c51f8c61da2484dc7587"
+        },
+        {
+          "path": "audit/output.txt",
+          "bytes": 6208,
+          "sha256": "f7079709f6cfcca8bf9d54a207cb644adc3db19d7c3d9a043db116542bc53858"
+        },
+        {
+          "path": "build-manifest.json",
+          "bytes": 11480,
+          "sha256": "fb772bd3bec68a879494c40d28abe4e711f5e0806757f06c1c76b5dba6d51048"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3FirstRound.coverage.json",
+          "bytes": 13635,
+          "sha256": "172f27f1c7c141df99e0b1d2832be3a372d3782b210fe40ae8a5ce395976f60f"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3FirstRoundConsumer.coverage.json",
+          "bytes": 15327,
+          "sha256": "b3c4ad1d8eddf5ff3093017623bac89914bb974137ee1a81f43990d1ea603b62"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3FirstRoundContext.coverage.json",
+          "bytes": 14450,
+          "sha256": "b2e79a4c9d125d3ec9d180f8970354a687f9f0a3075410f89acffb07369c5732"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3FirstRoundLift.coverage.json",
+          "bytes": 13071,
+          "sha256": "7fbccc34f5e162615a824bbbdb63566e2838d898a4b1604053f40259ac6b3e67"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3SecondRound.coverage.json",
+          "bytes": 13712,
+          "sha256": "814d42390dda26450a69aba0daa455dd89c13f6f695752b6aa98801a35ac5bea"
+        },
+        {
+          "path": "coverage/LexLeanR4/Blake3SecondRoundConsumer.coverage.json",
+          "bytes": 16519,
+          "sha256": "e835a10971584108f54936d0f23ae68ff3fbf26ecddd8b74c3ef4068acb49f42"
+        },
+        {
+          "path": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+          "bytes": 23556,
+          "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4"
+        },
+        {
+          "path": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+          "bytes": 17502,
+          "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa"
+        },
+        {
+          "path": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+          "bytes": 14922,
+          "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823"
+        },
+        {
+          "path": "lexicons/Blake3FirstRound.closure.json",
+          "bytes": 10614,
+          "sha256": "bebadd836c08742305cf121d211de7b09112bd5ea444c81f8a155a2bbc4b9c49"
+        },
+        {
+          "path": "lexicons/Blake3FirstRoundConsumer.closure.json",
+          "bytes": 10622,
+          "sha256": "25ecdc2ead0b6eecddbd5f8f5801f85b1e4730d1dc08cbb2b3d527904aa84ae1"
+        },
+        {
+          "path": "lexicons/Blake3FirstRoundContext.closure.json",
+          "bytes": 10621,
+          "sha256": "9382c2246e5121134d8b1dcd07e2775c0cef29228440da8d2b26499aa63d81e5"
+        },
+        {
+          "path": "lexicons/Blake3FirstRoundLift.closure.json",
+          "bytes": 10618,
+          "sha256": "515cc1dcfc71ec66e42c530a64cb38146e8a71f461798e57e2924b9c8d14f3e0"
+        },
+        {
+          "path": "lexicons/Blake3SecondRound.closure.json",
+          "bytes": 10615,
+          "sha256": "6de7bdb675a211389feebec4c1fbd209e4d9027d360cf84e39bf29ffd47db4a4"
+        },
+        {
+          "path": "lexicons/Blake3SecondRoundConsumer.closure.json",
+          "bytes": 10623,
+          "sha256": "61b6e27847b69d5735398119d34f38a95a1704ab1baad0b609bf2888714e8da9"
+        },
+        {
+          "path": "lexicons/R4.Blake3.closure.json",
+          "bytes": 10607,
+          "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153"
+        },
+        {
+          "path": "lexicons/R4.Blake3Core.closure.json",
+          "bytes": 10611,
+          "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7"
+        },
+        {
+          "path": "lexicons/R4.Blake3Nat.closure.json",
+          "bytes": 10610,
+          "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3FirstRound.map.json",
+          "bytes": 1411,
+          "sha256": "d6aa6ecf127c4ac68cc3b976e8ea753d360b980190e338285652011dc1c14b65"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3FirstRoundConsumer.map.json",
+          "bytes": 1443,
+          "sha256": "5c5c3ae48803a9493eee760bbd367430fbe8990adedeb55ec54b8ba9381be599"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3FirstRoundContext.map.json",
+          "bytes": 1763,
+          "sha256": "b85d6947824a119251eafb7880768680036bc51be8faeee4b33ddc80a5a13abe"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3FirstRoundLift.map.json",
+          "bytes": 1419,
+          "sha256": "87c7ddf5fd2ab61b56944b60064a8a76d13fc9726941fdeb3338eaf3e918b5aa"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3SecondRound.map.json",
+          "bytes": 1415,
+          "sha256": "328b8888ebc26623c1a65c3229daa43957946c1360648042e72466eb3e285b95"
+        },
+        {
+          "path": "maps/LexLeanR4/Blake3SecondRoundConsumer.map.json",
+          "bytes": 1453,
+          "sha256": "8cf30516622e04498f7b3f0f9cc4959059e2c1fd3a03f9acc7602f3b0e81bd47"
+        },
+        {
+          "path": "maps/LexLeanR4/R4/Blake3.map.json",
+          "bytes": 14490,
+          "sha256": "3a6ded7205472b54b4c4270df7513763cb6ccb9b8ae02b5392171eb19a19ef41"
+        },
+        {
+          "path": "maps/LexLeanR4/R4/Blake3Core.map.json",
+          "bytes": 8268,
+          "sha256": "d67fe193bf5631766681c308c85e3ed99cd80d91176d82430100ae562ba425c5"
+        },
+        {
+          "path": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+          "bytes": 6901,
+          "sha256": "ecfc0e56c000e6a1e9109c563ddc31e12059a0509efdf10adffb4bfba216dd6e"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRound.lean",
+          "bytes": 1390,
+          "sha256": "f3477440f5402a603a86092b3fd4fe64bd19fe9ecbf9ae16f6d12c7544b7385a"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRound.tex",
+          "bytes": 1340,
+          "sha256": "9b36efdd025201f112267559be2f7f76f0a20ceef0f273526f8129118f7062ef"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRoundConsumer.lean",
+          "bytes": 2189,
+          "sha256": "241e4e1ff8c4bdea337cd39a2d1f904b5d9c0a60f0a5e25b39a442bb00838621"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRoundConsumer.tex",
+          "bytes": 2030,
+          "sha256": "af770cc8c0f6295394d02acf57b83397b54b377dca4acfdb18b980e52af78ca0"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRoundContext.lean",
+          "bytes": 3413,
+          "sha256": "eac26aec73c7a5599a76445c35633a86778bdd5d398a9e77508204498897d6bd"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRoundContext.tex",
+          "bytes": 3593,
+          "sha256": "74f7310798f788a4b2b6050e4f66a9f04d54e3f12b16df7ecc3455771a922275"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRoundLift.lean",
+          "bytes": 647,
+          "sha256": "eb26867fd77982358ea6d61d591367ed9ac16fd3d15e57b116f4fa7de8b54996"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3FirstRoundLift.tex",
+          "bytes": 409,
+          "sha256": "2a78975a53d054636b0080e8104d87499454d25914c0110fc17aeb1689a1f4c8"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3SecondRound.lean",
+          "bytes": 1677,
+          "sha256": "10bb2933fbcfa956c344d3203fed692c56c9bdb633e0272cb5ca95e6f3ac6088"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3SecondRound.tex",
+          "bytes": 1627,
+          "sha256": "30303d7798043a1551b481ec40c18396b0609e7430f0cb6c26d9c300927ddb76"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3SecondRoundConsumer.lean",
+          "bytes": 2301,
+          "sha256": "76fc6457846d799fb67ed7ce60127850f9600206667f6a7ceba4a9b90565484e"
+        },
+        {
+          "path": "modules/LexLeanR4/Blake3SecondRoundConsumer.tex",
+          "bytes": 2075,
+          "sha256": "51912183191477106f92b769a015caba5cdcc125e2fdf38bd6ec7533e708316e"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3.lean",
+          "bytes": 30120,
+          "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3.tex",
+          "bytes": 24378,
+          "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Core.lean",
+          "bytes": 26512,
+          "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Core.tex",
+          "bytes": 17451,
+          "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Nat.lean",
+          "bytes": 18123,
+          "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959"
+        },
+        {
+          "path": "modules/LexLeanR4/R4/Blake3Nat.tex",
+          "bytes": 7827,
+          "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3FirstRound.olean",
+          "bytes": 21368,
+          "sha256": "0e6fdd244ba777f41a4450c3a30015f96ccfccba3906c8f9b7b7f5745c037749"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3FirstRoundConsumer.olean",
+          "bytes": 22152,
+          "sha256": "b8af59a30f69d0fef0a8f3c62d9d5a15b6dad7c40319fa0f7c18f12a21de7eea"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3FirstRoundContext.olean",
+          "bytes": 27448,
+          "sha256": "b0a726e7b28a429c7351bf4406e62b28b41b8e56618986cc87c2dc5cf70f7d19"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3FirstRoundLift.olean",
+          "bytes": 3568,
+          "sha256": "0b4ec42398ed6e8d4579f3de6e1124922bc1e90336ac55ec73a9a551a69bb3a9"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3SecondRound.olean",
+          "bytes": 23608,
+          "sha256": "515a8a6eb489b458bfe5d545503acce982a4f3a8e7f080a956cca3df6537080c"
+        },
+        {
+          "path": "oleans/LexLeanR4/Blake3SecondRoundConsumer.olean",
+          "bytes": 22376,
+          "sha256": "21970f0688bd534de8c53a5c1410ef03f63f3da6ad3840da1d0342dba6200773"
+        },
+        {
+          "path": "oleans/LexLeanR4/R4/Blake3.olean",
+          "bytes": 738152,
+          "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6"
+        },
+        {
+          "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+          "bytes": 624640,
+          "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404"
+        },
+        {
+          "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+          "bytes": 547960,
+          "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5"
+        },
+        {
+          "path": "probe/LexLeanProbe.Pd5b3689197e5cb7fdd87a658d14542dd.lean",
+          "bytes": 37,
+          "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120"
+        },
+        {
+          "path": "probe/process.json",
+          "bytes": 460,
+          "sha256": "e8f1a180c16c123a0e2fcc98a704b891d121a351df0261d1256ca9eceeb9de15"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3FirstRound.json",
+          "bytes": 504,
+          "sha256": "688e52dd4d8ca29bfa7410da97ebb4e39a54df86a9a6a3e3911da249165d852a"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3FirstRoundConsumer.json",
+          "bytes": 528,
+          "sha256": "9784223fb31e2389cab563163dc86e577b9c79aea884bd2c89c6cfe2670153dc"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3FirstRoundContext.json",
+          "bytes": 525,
+          "sha256": "715c8c3612b131522e9f5151dba19a6d39d89946552bf4c5a561181b31e39a0f"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3FirstRoundLift.json",
+          "bytes": 516,
+          "sha256": "318112aa26e1a7bc58b905c116b1de6f71aac16329dad6db64a0f9443a765598"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3SecondRound.json",
+          "bytes": 507,
+          "sha256": "aca46556bfe9a3756519559c59474d5d825cff86503d76610623f6221b530d73"
+        },
+        {
+          "path": "process/lean/LexLeanR4.Blake3SecondRoundConsumer.json",
+          "bytes": 531,
+          "sha256": "30843a28a668ac1bdc138dfefef7e7aa4cd5f0683f46d9c22d3810cf22e8d478"
+        },
+        {
+          "path": "process/lean/LexLeanR4.R4.Blake3.json",
+          "bytes": 483,
+          "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac"
+        },
+        {
+          "path": "process/lean/LexLeanR4.R4.Blake3Core.json",
+          "bytes": 495,
+          "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7"
+        },
+        {
+          "path": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+          "bytes": 492,
+          "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3FirstRound.json",
+          "bytes": 429,
+          "sha256": "0160042f108127872cc00cf084d93527531ae040fdd1cdc2f29f461a43fa1df7"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3FirstRoundConsumer.json",
+          "bytes": 445,
+          "sha256": "9c2993a441502b88fcb25851df06d3f5e92966fa61ee89f5755b0fe228a24d68"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3FirstRoundContext.json",
+          "bytes": 443,
+          "sha256": "d3f4af8188f1ed954a5ca65deb327bdb987d8689a0ccd168f7f0099ffb082674"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3FirstRoundLift.json",
+          "bytes": 437,
+          "sha256": "65c8885e9a3c773c0c2d4a01b2c536176a2a972429e1d720cfa2d6c1e9ab6b34"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3SecondRound.json",
+          "bytes": 431,
+          "sha256": "ccf6623af97557c776f3e4dcce486d7804618b4f3f9f42e25bdae7d37e0bee79"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.Blake3SecondRoundConsumer.json",
+          "bytes": 447,
+          "sha256": "938af3455ba6e67d2f833ce3b66cd3db61b2e0a1f1d4189e6502d549143ba275"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+          "bytes": 415,
+          "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+          "bytes": 423,
+          "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce"
+        },
+        {
+          "path": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+          "bytes": 421,
+          "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720"
+        }
+      ],
+      "inventorySha256": "a92d006d1dbf6ab81a9e4b05a3b973746be4c767dc86afd0429901ec3bbca6a3",
+      "encoding": "Sorted-by-path list of path/bytes/sha256, JSON sort_keys=True compact separators."
+    }
+  },
+  "localOnlyBinaryExclusions": [
+    {
+      "phase": "round2-positive",
+      "path": "oleans/LexLeanR4/Blake3SecondRound.olean",
+      "bytes": 23608,
+      "sha256": "515a8a6eb489b458bfe5d545503acce982a4f3a8e7f080a956cca3df6537080c",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/round2-positive-attempt1/artifact/oleans/LexLeanR4/Blake3SecondRound.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "round2-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/round2-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "round2-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/round2-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "round2-positive",
+      "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/round2-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/Blake3FirstRound.olean",
+      "bytes": 21368,
+      "sha256": "0e6fdd244ba777f41a4450c3a30015f96ccfccba3906c8f9b7b7f5745c037749",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRound.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/Blake3FirstRoundConsumer.olean",
+      "bytes": 22152,
+      "sha256": "b8af59a30f69d0fef0a8f3c62d9d5a15b6dad7c40319fa0f7c18f12a21de7eea",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRoundConsumer.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/Blake3FirstRoundContext.olean",
+      "bytes": 27448,
+      "sha256": "b0a726e7b28a429c7351bf4406e62b28b41b8e56618986cc87c2dc5cf70f7d19",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRoundContext.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/Blake3FirstRoundLift.olean",
+      "bytes": 3568,
+      "sha256": "0b4ec42398ed6e8d4579f3de6e1124922bc1e90336ac55ec73a9a551a69bb3a9",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRoundLift.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/Blake3SecondRound.olean",
+      "bytes": 23608,
+      "sha256": "515a8a6eb489b458bfe5d545503acce982a4f3a8e7f080a956cca3df6537080c",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3SecondRound.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/Blake3SecondRoundConsumer.olean",
+      "bytes": 22376,
+      "sha256": "21970f0688bd534de8c53a5c1410ef03f63f3da6ad3840da1d0342dba6200773",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3SecondRoundConsumer.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    },
+    {
+      "phase": "original-consumer",
+      "path": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "localOnly": true,
+      "reason": "Compiled binary excluded from text archive; local exact bytes inventoried and independently audited."
+    }
+  ],
+  "artifactFiles": 140,
+  "localOnlyBinaryFiles": 13,
+  "localOnlyBinaryBytes": 3965632,
+  "textArchive": "All non-binary artifact text archived; complete binary reconstruction not claimed."
+}
