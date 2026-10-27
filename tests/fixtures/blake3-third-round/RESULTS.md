@@ -1,0 +1,19 @@
+# Actual third-round BLAKE3 checkpoint
+
+Independent reviews accepted the isolated wrong-s0 rejection, the full sixteen-word third-round certificate and the mandatory original compression consumer. The actual consumer proves the unchanged original `CompressRaw(IV,BlockWords([0..63]),0,64,1)` equals `FeedForward(Rounds(4,R3,Permute(Permute(Permute(M0)))),IV)`. Its emitted proof applies the accepted second-round consumer; actual kernel conversion passed. The four remaining rounds are still an expression.
+
+| Phase | Actual verify exit | Recorded ms | Independent outcome |
+|---|---:|---:|---|
+| round3-negative | 1 | 5736 | PASS_INTENDED_LOCAL_WRONG_S0_NEGATIVE |
+| round3-positive | 0 | 9190 | PASS_ACTUAL_LOCAL_THIRD_ROUND_CERTIFICATE |
+| original-consumer | 0 | 18010 | PASS_ACTUAL_THREE_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION |
+
+The positive artifact has45 files,82 empty-axiom declarations,4 kernel replays and13 successful processes. The original consumer has115 files,90 empty-axiom declarations,11 kernel replays and34 successful processes. Its attestation is `d6c5c079d4d2f63fcce742377eda5c8a21c637e76eb91bad84401bd6d453c83f`. All nine independent postguards passed; all six memory counters were zero in the retained snapshots. Continuous peak memory and efficiency were not measured. Genuine official locks and actual command tuples/outputs are retained.
+
+The frozen14 source files deliberately retain their historical NOT_RUN status. [results.json](results.json) records their later audited results; no preparation record was rewritten. Host arithmetic supplied untrusted authoring data, while the actual official certificate and consumer provide the proof evidence. Source checks and25 invocation tests do not establish global runtime coverage.
+
+[evidence.jsonl.gz](evidence.jsonl.gz) is a content-deduplicated JSONL archive with SHA256, byte lengths, exact base64 content, portable aliases and original absolute aliases. Every alias was byte-checked before delivery. It retains source/invocation/native records, all current independent reviews, the reviewer's newline-boundary hash instrument diagnosis, and publication addenda summarizing prior PR73 budget accounting. The original diagnosis and baseline were omitted from that archive; independent pipeline review rejected this packaging omission. [accounting-supplement.jsonl.gz](accounting-supplement.jsonl.gz) now retains both exact originals, the pre-repair RESULTS/results/manifest/final-check, pipeline rejection, independent diagnosis and parent-selected additive repair. The original archive remains byte-identical. Prior source-admission failures, timeout and original resource failure remain in committed predecessor checkpoints. [artifact-inventory.json](artifact-inventory.json) lists160 actual artifact files;15 `.olean` binaries totaling4011888 bytes remain local and are explicitly excluded from this text archive. Portable binary reconstruction is not claimed.
+
+The new delivery budget was selected prospectively before materialization/staging, including both indexes and replacement locks, two archive copies and Git commit/fetch objects. This does not retrospectively repair PR73 accounting. Parent delivery reviews, exact-head review and fresh-main verification remain required.
+
+Counts remain18/35 BLAKE3 vectors,255/272 controls and331/403 Object controls. Hash restoration is COMPLETE at78/78 roots and636 controls; mutation qualification remains2/7 and fullHash acceptance open. Remaining work includes four literal rounds, full compression/FirstEight/S128, finalization and original2048ROOTdigest, Read33/Construction39/wholeObject257, seven pending drafts, serving, durable memory, learning constraints, genuinePrismPMbinding and generatedPages. No final digest, efficiency/OOM remedy, production acceptance or automatic next-round authority follows.

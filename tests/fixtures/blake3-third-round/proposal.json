@@ -1,0 +1,145 @@
+{
+  "schema": "lexlean-r4/blake3-third-round-product-proposal/1",
+  "status": "DESIGN_ONLY_ALL_NEW_NATIVE_NOT_RUN",
+  "createdUtc": "2026-10-27T01:49:11.180941+00:00",
+  "role": "Fresh architect eligibility PASS; source/evidence read-only investigation.",
+  "budget": {
+    "distinctTaskAllocatedCapBytes": 32768,
+    "proposalAllocatedCapBytes": 12288,
+    "futureIndependentSpecReserveBytes": 12288,
+    "handoffReserveBytes": 8192,
+    "freshHostAvailableBytesBeforeWrite": 34264928256,
+    "minimumHostReserveBytes": 10737418240,
+    "writes": "Only this proposal; no source, tests, derivation output, fixtures, native commands, VM or Git mutation."
+  },
+  "decision": "Take exactly one further connected round: certify all16words of RoundRaw(R2,M2), isolate a wrong-s0 negative, and require the actual original CompressRaw consumer exposing fourremainingrounds and three message permutations. Apply the now actually accepted second-round consumer. Do not generate the remaining rounds as a batch.",
+  "establishedEvidence": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-second-round/manifest.json",
+      "bytes": 5974,
+      "sha256": "165faa7b68c888c333f263583b4e8e3238d0d7d779a1a123c2bf6241d752d41d"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-second-round/project/tests/lexlean/Blake3SecondRound.lex.tex",
+      "bytes": 6528,
+      "sha256": "50ffc8c58159022164064f8439e795ae9509a8cf62122f2f4fb657da5a16b9aa"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-second-round/project/tests/lexlean/Blake3SecondRoundConsumer.lex.tex",
+      "bytes": 10100,
+      "sha256": "2a5d9696d3570a2e983792736710fb29142805293190f1e1cc008178b87a5bd5"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/native-review.json",
+      "bytes": 9324,
+      "sha256": "f94dea6c2c3acbcb895c38484b19491134eba9e5ff62e1fe8c19235434a0d13a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-second-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3SecondRoundConsumer.lean",
+      "bytes": 2301,
+      "sha256": "76fc6457846d799fb67ed7ce60127850f9600206667f6a7ceba4a9b90565484e"
+    }
+  ],
+  "acceptedScope": {
+    "actualConsumerReview": "f94dea6c2c3acbcb895c38484b19491134eba9e5ff62e1fe8c19235434a0d13a",
+    "actualConsumer": "CompressRaw(IV,M0,0,64,1)=FeedForward(Rounds(5,literalR2,Permute(Permute(M0))),IV)",
+    "actualProof": "exact LexLeanR4.Blake3FirstRoundConsumer.first_round_compress_consumer",
+    "observations": "Official9modulecheck0/verify0;95artifactfiles,88emptyaxiomdeclarations,9kernelreplays,28successfulprocesses independently audited. SevenpriorclosureLeanfiles and acceptedsecondcertificate unchanged. Actual10821ms wholeverify is an observation, not a futurecostbound.",
+    "limits": "Only two-round originalcompressiondecomposition accepted; five remaining rounds are an expression, not complete compression, S128, digest or efficiency."
+  },
+  "exactInputExtraction": {
+    "source": "tests/fixtures/blake3-second-round/project/tests/lexlean/Blake3SecondRound.lex.tex",
+    "sourceSha256": "50ffc8c58159022164064f8439e795ae9509a8cf62122f2f4fb657da5a16b9aa",
+    "location": "semanticdata.declarations[0].statement.right",
+    "canonicalR2AstSha256": "ad9a8081325698ad3bd75ca71e76bdd1e4943d3c15185eb4da19ad09c8243765",
+    "canonicalEncoding": "UTF8 json.dumps(AST,sort_keys=True,separators=(comma,colon)); no newline.",
+    "crossCheck": "R2 AST equals acceptedsecondconsumer.statement.right.arguments[0].arguments[1] exactly; derive futureinput by copying this AST, not manually entering a prosevector.",
+    "M0": "Exact original BlockWords bytes0..63 AST from acceptedsecondconsumer.statement.left.arguments[1].",
+    "M2": "Copy exact acceptedsecondconsumer RHS Rounds argument2, i.e. Permute(Permute(M0)).",
+    "M3": "Exactly one new outer Permute around M2; no altered message association."
+  },
+  "runtimeEvidence": {
+    "decodedCoreSha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0",
+    "decodedBlake3Sha256": "a940ced45024e3b3c73da5ec373c27a57afd9abdbd0f1e87ff52dbbd0878754e",
+    "inspectedDeclarations": [
+      "b3CoreRounds",
+      "b3CoreCompressRaw",
+      "b3CorePermute",
+      "blake3BeforeByte"
+    ],
+    "equations": [
+      "Rounds(0,s,m)=s",
+      "Rounds(succ n,s,m)=Rounds(n,RoundRaw(s,m),Permute(m))",
+      "CompressRaw(chain,m,counter,length,flags)=FeedForward(Rounds(7,InitialRaw(chain,counter,length,flags),m),chain)",
+      "Thus accepted Rounds(5,R2,M2) unfolds to Rounds(4,RoundRaw(R2,M2),M3)."
+    ],
+    "originalProductConnection": "Original S64 has full64bytebuffer and blocksCompressed0. BeforeByte uses this exact CompressRaw with IV,counter0,length64,flags1, takes FirstEight, increments blocksCompressed and clears buffer. Its literal result is required by original next64 feed/S128 and later original2048 fold/digest. Runtime and final expected digest remain untouched."
+  },
+  "minimalSourceTask": {
+    "certificate": {
+      "module": "Blake3ThirdRound",
+      "declaration": "third_round_full_state",
+      "statement": "Eq(R4.Blake3Core.b3CoreRoundRaw(R2,M2),literalR3)",
+      "proof": "Reflexivity",
+      "axioms": [],
+      "parameters": [],
+      "expectedLiteral": "All16wordR3values must be derived from exactpinned productionAST in laterboundedsourceauthoring, then frozen beforeindependentreview. No R3value is asserted or accepted in this proposal."
+    },
+    "negative": {
+      "onlySemanticDelta": "Change expectedR3.s0 to (R3.s0+1) modulo4294967296. Preserve15otherwords,LHS,proof,config,runtime and emptyaxioms.",
+      "expected": "Actualsourceadmission then LLV7002 rfl/reflexivity mismatch attributable to selectedThirdRound; timeout/blankfailure/OOM/admissionerror not intendednegative."
+    },
+    "mandatoryOriginalConsumer": {
+      "module": "Blake3ThirdRoundConsumer",
+      "declaration": "third_round_compress_consumer",
+      "statement": "Eq(b3CoreCompressRaw(IV,M0,0,64,1),b3CoreFeedForward(b3CoreRounds(4,R3,M3),IV))",
+      "proof": "Apply Blake3SecondRoundConsumer.second_round_compress_consumer, empty arguments and type_arguments.",
+      "imports": [
+        "Blake3SecondRoundConsumer",
+        "Blake3ThirdRound",
+        "R4.Blake3",
+        "R4.Blake3Core"
+      ],
+      "axioms": [],
+      "conversion": "One unfolding of the accepted theorem RHS produces RoundRaw(R2,M2) within remainingRounds4. The newgoal requires conversion to literalR3; the kernel must actually establish it. No new Natlift/helper is required because the accepted originalconsumer already supplies the exact original LHS.",
+      "honestReuse": "Imported third-roundcertificate does not rewrite or supply transitivity. Consumer syntactically applies acceptedsecondconsumer, which reuses its earlier theorem closure; definitionalconversion may recompute the thirdround or unfold remainingRounds/FeedForward. Successfulsecondround conversion provides actual precedent, not a guarantee for thirdround."
+    }
+  },
+  "closureAndAuthoring": [
+    "Reuse acceptedfirst/secondround source closure by exact committedreference; no runtime or broad duplicateclosure. Positive/negative need productionNat/Core/Blake3 plusnewcertificate; consumer imports acceptednine-moduleclosure plusnewcertificate/consumer. Expected modulecounts4/4/11 and inputcounts8/8/15 are planning arithmetic; author must derive/review exactclosure/decodedbytes and pin allinputs beforeinvocation.",
+    "Use admitted Boolean title, explicit bool/nat glossaries, canonicalsemanticJSON; directly import external referencedmodules, omit module on local references. Preserve earlier lexical/linkerfailures and originalsecondstate timeout.",
+    "Narrow existing fixedASTderivation to R2 and M2 and exactlyoneRoundRaw. It may authorcandidate data but never establish proof or use an externalBLAKEimplementation/trustedCV. Freeze all16words and fixedderivation recipe/output.",
+    "Only certificate, its isolatednegative, mandatoryoriginalconsumer, threeconfigs and boundedprovenance; no six/13fixture expansion, generalframework, SDKreplacement, axiom/Simplifypropext or timeoutincrease."
+  ],
+  "falsifiablePhaseOrder": [
+    {
+      "phase": "source",
+      "action": "Independent SPEC of thisproposal, then boundedsourceTDD/derivation checks and exactCODE/securityreview. Freeze source/config/literal/importclosure; separately review onephaseinvocation/resourcebudget.",
+      "stop": "Unresolvedconstructor/import/pin/canonical issue; sourceapproval is notadmission."
+    },
+    {
+      "phase": "round3-negative",
+      "action": "Officialgenuinelock/check/verify once underunchanged300000ms limits. Independent actualaudit of intendednegative/rawstatus/receipts/postguards.",
+      "stop": "Anyotherfailure orunexpectedverification; classify beforefuturework."
+    },
+    {
+      "phase": "round3-positive",
+      "action": "Only after negativeacceptance and freshgates, officialfull16wordcertificate verification and independentartifact/hash/emptyaxiom/kernelreplayaudit.",
+      "stop": "Anyfailure; never inferpositive fromauthoringdata or negative."
+    },
+    {
+      "phase": "original-consumer",
+      "action": "Only after positiveartifactacceptance and freshgates, verify actualoriginalCompressRaw=fourremainingrounds with R3/threePermute and exactApplysecondconsumer. Inspect emittedproof and independentlyaudit artifact/kernel/axioms.",
+      "stop": "Timeout/conversion/resourcefailure stops expansion and gets source-backeddiagnosis. Positivecertificate alone doesnotcomplete thisworkitem."
+    }
+  ],
+  "alternativeAssessment": "A single rfl certificate for allremainingfive rounds would still contain nestedrecursive arithmetic and has no freshcostqualification; the prior monolithicsecondstate timeout remains relevant. Selectedoneround is the minimumincrement with actual originalconsumer precedent and a falsifiable mandatoryconnection. No blanketauthorization to continuefour more rounds follows; next scope depends on these actual outcomes.",
+  "resourceAndAcceptance": {
+    "allNewNative": "NOT_RUN",
+    "nativeAuthority": false,
+    "futureGates": "Separate exact frozeninvocation/independentreview; freshsource/tools/genuinelock/idle/exactresourceepoch/sixabsolutezero, nooverlap, host20GiBfloor with10GiBpeak includingpaging/retention plus10GiBreserve; artifact11GiBpre10GiBpost, guestroot/sharedhost/artifactdistinct. Currentproposalhostreserve alone gives no nativeauthority.",
+    "unknown": "Third-roundliteral and contextualconsumer cost, artifactidentities and sourceadmission unmeasured. No timing/memory/recomputation-elimination guarantee.",
+    "successMeaning": "At most actualthree-roundoriginalcompressiondecomposition. Fourremainingrounds, fullcompressionliteral/FirstEight/S128/original2048finalizationROOT/digest remain required, as do sevenpendingdrafts and fullproduct.",
+    "unchangedCounts": "18/35 publishedvectors,255/272 controls,Object331/403. Hashrestoration78/78 roots636controls completed; mutationqualification2/7, fullHashacceptance stillopen. No productionPrismPMbinding/Pages or countpromotion."
+  }
+}
