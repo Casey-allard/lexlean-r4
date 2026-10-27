@@ -1,0 +1,201 @@
+{
+  "schema": "lexlean-r4/blake3-fourth-round-product-proposal/1",
+  "status": "DESIGN_ONLY_ALL_NEW_NATIVE_NOT_RUN",
+  "decision": "Exactly one fourth-round sixteen-word certificate, sole wrong-s0 companion and mandatory exact original CompressRaw consumer exposing three remaining rounds. No remaining-round batch.",
+  "skill": "Applied writing-plans structure; explicitly requested evidence JSON path replaces default docs path. User authorized continuation; this design still needs independent SPEC and parent selection before source work.",
+  "budget": {
+    "capBytes": 32768,
+    "components": {
+      "baseline": 4096,
+      "proposal": 12288,
+      "futureIndependentSPEC": 8192,
+      "handoff": 4096,
+      "headroom": 4096
+    },
+    "projectionBytes": 32768,
+    "freeHostBytes": 31231324160,
+    "reserveBytes": 10737418240,
+    "scope": "Only new plan evidence; no repository/source/invocation/native/Git changes. Delivery21 remains frozen."
+  },
+  "establishedEvidence": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-third-round/manifest.json",
+      "bytes": 6610,
+      "sha256": "2626906c0c93f879b3d6b2d6424dee3f8b2af0b5421007f5e383ccd6bb82257c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-third-round/project/tests/lexlean/Blake3ThirdRound.lex.tex",
+      "bytes": 6624,
+      "sha256": "1157c1515b8475e86fcc1282b08bab07abb583aa3a4de3bc4f7c41ca28a7322c"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-third-round/project/tests/lexlean/Blake3ThirdRoundConsumer.lex.tex",
+      "bytes": 10194,
+      "sha256": "8e0ecbe2dd04f7df6952a771e2b4ccae0ce643693f19ee7fbce939d43b6a2808"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/blake3-third-round/derive-expected.py",
+      "bytes": 5272,
+      "sha256": "93222fa881b1275c7a0db7c78dec2514ffa71ed1b1b91820063a6e7fe989d33a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-invocation/original-consumer-attempt1/native-review.json",
+      "bytes": 9677,
+      "sha256": "ec5e32d8942343ea64d58ffcd1b4eb0ee174f6574bbff8ff0117065e27408762"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3ThirdRoundConsumer.lean",
+      "bytes": 2343,
+      "sha256": "4ccdb2a5062ebed436ccab5a1f9c365a18648fd4d1e88890ef887b49713e5c44"
+    }
+  ],
+  "acceptedScope": {
+    "consumer": "CompressRaw(IV,M0,0,64,1)=FeedForward(Rounds(4,literalR3,Permute^3(M0)),IV)",
+    "actualProof": "exact LexLeanR4.Blake3SecondRoundConsumer.second_round_compress_consumer",
+    "observations": "Actual check11/verify0,115artifactfiles,90emptyaxiomdeclarations,11kernelreplays,34successfulprocesses,18010ms. Parent FULLREAD accepted independent artifact audit. No fullcompression/S128/digest/cost guarantee."
+  },
+  "exactAstExtraction": {
+    "R3": "Copy accepted third certificate semanticdata.declarations[0].statement.right; must equal accepted third consumer right.arguments[0].arguments[1].",
+    "canonicalR3AstSha256": "f34a2e78ff7c325e32b33c7f4fb5263aa6044830825b0132a9c5d55394861683",
+    "M0": "Exact accepted consumer left.arguments[1]=BlockWords(original0..63).",
+    "M3": "Copy accepted consumer right.arguments[0].arguments[2], independently checked exactly three nested Permute calls around M0.",
+    "M4": "One new outer call {kind:call,function:{module:R4.Blake3Core,name:b3CorePermute},arguments:[M3]}.",
+    "LHS": "Copy accepted consumer statement.left byte-equivalent AST; IV/counter0/length64/flag1 unchanged."
+  },
+  "runtimeEvidence": {
+    "coreDecodedSha256": "64242d1e99d648b420f33ca190f949308a151b1e52eb6a58af559f3d8561c6a0",
+    "inspectedDeclarationAstPins": {
+      "b3CoreRounds": "f14eb193211c38c0143609d905b49693c5dc38059bbc241c2da1d666c20ab142",
+      "b3CoreCompressRaw": "fcf6dd544634dd3347a0c95cdf793e70049b57fa2ad7d1141efd6edd53a92c50",
+      "b3CorePermute": "2ba3d5b0427ffb1a19e7ffc48175694a88c5df1faecaa8eab442ca9ecd5b1db4"
+    },
+    "equations": [
+      "Rounds(0,s,m)=s",
+      "Rounds(succ n,s,m)=Rounds(n,RoundRaw(s,m),Permute(m))",
+      "CompressRaw(chain,m,counter,length,flags)=FeedForward(Rounds(7,InitialRaw(chain,counter,length,flags),m),chain)",
+      "One unfolding of accepted Rounds(4,R3,M3) yields Rounds(3,RoundRaw(R3,M3),M4)."
+    ],
+    "productConnection": "Original S64 BeforeByte must compress buffer0..63 with IV/counter0/64/1, take FirstEight, clear buffer and increment blocksCompressed before next packed64 feed. Literal fullcompression and S128 remain future obligations."
+  },
+  "sourceContract": {
+    "certificate": {
+      "module": "Blake3FourthRound",
+      "declaration": "fourth_round_full_state",
+      "statement": "Eq(R4.Blake3Core.b3CoreRoundRaw(R3,M3),literalR4)",
+      "proof": {
+        "kind": "reflexivity"
+      },
+      "axioms": [],
+      "parameters": [],
+      "imports": [
+        "R4.Blake3Core",
+        "R4.Blake3"
+      ],
+      "literal": "All16 words derived later from pinned productionAST and acceptedR3/M3; recipe/input/output retained and independently checked before freezing. Numeric host output is untrusted authoring data, never proof."
+    },
+    "negative": "Only expectedR4.s0 changes to (s0+1) modulo4294967296. Other15words/LHS/proof/emptyaxioms/config/runtime identical. Actual named LLV7002 rfl/reflexivity mismatch required; admissionerror/timeout/OOM/blankerror never intendednegative.",
+    "consumer": {
+      "module": "Blake3FourthRoundConsumer",
+      "declaration": "fourth_round_compress_consumer",
+      "statement": "Eq(exactOriginalCompressRaw,FeedForward(Rounds(3,literalR4,M4),IV))",
+      "proof": {
+        "kind": "apply",
+        "theorem": {
+          "module": "Blake3ThirdRoundConsumer",
+          "name": "third_round_compress_consumer"
+        },
+        "arguments": [],
+        "type_arguments": []
+      },
+      "axioms": [],
+      "parameters": [],
+      "imports": [
+        "R4.Blake3Core",
+        "R4.Blake3",
+        "Blake3ThirdRoundConsumer",
+        "Blake3FourthRound"
+      ],
+      "limitation": "Importing fourth certificate is not rewriting. Consumer syntactically applies third consumer; official kernel conversion must establish the new literal in context and may recompute/unfold other expressions. No fictional transitivity, efficiency or cost guarantee."
+    },
+    "wrapper": "Admitted Boolean title with explicit bool/nat glossaries; canonical semanticJSON; direct externalimports/localrefs omitmodule; no runtime edits/axioms/Simplify-propext/limit change.",
+    "closure": "Positive/negative Nat/Core/Blake3+FourthRound=4modules each. Consumer prioraccepted11modules+FourthRound+FourthRoundConsumer=13. Proposed phaseinputcounts8/8/17: sixruntime/workspace +certificate/config; consumer14sharedcatalog+two newprooftexts/config. Author must derive exact resolved closure/decodedbytes and pin before invocation."
+  },
+  "implementationSteps": [
+    {
+      "phase": "1-source",
+      "file": "tests/fixtures/blake3-fourth-round/derive-expected.py and derivation.json",
+      "action": "Adapt fixed pinnedAST recipe input to acceptedR3/M3; evaluate exactly one RoundRaw and retain fixed integer cross-check. Each edit hunk under50lines; source prep cap selected separately.",
+      "why": "Author exact16worddata without trustedCV or externalhash shortcut.",
+      "dependencies": [
+        "Independent SPEC and parent source selection"
+      ],
+      "risk": "Medium"
+    },
+    {
+      "phase": "1-source",
+      "file": "tests/fixtures/blake3-fourth-round/project/tests/lexlean/Blake3FourthRound.lex.tex; phases/round4-negative/tests/lexlean/Blake3FourthRound.lex.tex",
+      "action": "Canonical certificate and isolatedwrong-s0 companion from exactASTcopies; generator edits under50lines.",
+      "why": "Falsify literal substitution independently of hostderivation.",
+      "dependencies": [
+        "Frozen exact derivation input/output"
+      ],
+      "risk": "Medium"
+    },
+    {
+      "phase": "1-source",
+      "file": "tests/fixtures/blake3-fourth-round/project/tests/lexlean/Blake3FourthRoundConsumer.lex.tex",
+      "action": "Copy exact originalLHS, replace RHSroundcount4\u21923,stateR3\u2192R4,messageM3\u2192Permute(M3), proofApplythirdconsumer only.",
+      "why": "Mandatory production connection prevents helper-only acceptance.",
+      "dependencies": [
+        "Accepted source contract/certificate"
+      ],
+      "risk": "High"
+    },
+    {
+      "phase": "1-source",
+      "file": "tests/fixtures/blake3-fourth-round/phases/{round4-negative,round4-positive,original-consumer}/lexlean.toml; candidate.json; manifest.json",
+      "action": "Reuse exact300000msconfigs exceptentrypoint; pin shared committedclosure, derivecounts/bytes, sourceTDD and independentCODE/security-Python then freeze.",
+      "why": "Source admission is distinct from proof; preserve exactinputs.",
+      "dependencies": [
+        "Allthreeprooftexts"
+      ],
+      "risk": "Medium"
+    },
+    {
+      "phase": "2-native",
+      "file": "evidence/2026-10-27/blake3-fourth-round-invocation/run-phase.mjs and phaseattempt records",
+      "action": "Narrow existing reviewedone-phase invocation fixedpaths/pins/counts/namednegative only, separatebudget/invocationreviews. Parent individually selects negative thenpositive thenoriginalconsumer after each actualindependentreview.",
+      "why": "Real official outcomes/kernel replay are acceptance; no automatic progression.",
+      "dependencies": [
+        "SourceCODE/securityPASS; prospectivebudget/invocation/resource reviews"
+      ],
+      "risk": "High"
+    },
+    {
+      "phase": "3-delivery",
+      "file": "tests/fixtures/blake3-fourth-round/RESULTS.md/results.json/evidence.jsonl.gz/delivery-manifest.json pluscurrent2plans",
+      "action": "Only after actualaudit, portable exact checkpoint preserving failures and inventories; pre-stagingindex/locks/objects budget; pipeline and independentexactheadreview beforemerge.",
+      "why": "GitHub source of truth with bounded honest scope.",
+      "dependencies": [
+        "All actualoutcomes independentlyclassified; mandatoryconsumerPASS for four-roundclaim"
+      ],
+      "risk": "Medium"
+    }
+  ],
+  "testing": {
+    "sourceTDD": "Existingthirdsource fails expectedfourth-input/roundcount/Apply assertions; successor passes. Check solewrong-s0delta, all16words, exactM3/M4, originalLHS, imports/canonicaljson and configidentity. Intentional missingfourthPermutation mutant must fail thenrestore. Source checks are not nativeproof.",
+    "nativeOrder": [
+      "round4-negative: onegenuinelock/check/verify, intendednamedrflrejection independentlyaudited",
+      "round4-positive: actualfull16wordcertificate,emptyaxioms/kernel/artifactaudit",
+      "original-consumer: originalCompressRaw=threeRemainingRounds withR4/fourPermute,actualApplythirdconsumer kernelconversion and artifactaudit"
+    ],
+    "stop": "Any unexpectedadmission/conversion/timeout/resource/capturefailure stops selectedphase for diagnosis; preservefailedstage. No equivalentfullstate retry/limitincrease. Positivecertificate alone incomplete.",
+    "e2e": "No browser/PagesE2E claim; this exact originalcompressionconsumer is the selected product integration check."
+  },
+  "resources": {
+    "allNewNative": "NOT_RUN",
+    "authority": false,
+    "futureGates": "Freshsource/tools/genuinelock/idle/exactepoch/sixabsolutezero/nooverlap;host20GiBfloor including10GiBpeak(paging+retention) and10GiBreserve;artifact11GiBpre10GiBpost;guestroot/sharedhost/artifactdistinct. ExistingVM/compiler/caches. No higherlimits or uncheckedrestart."
+  },
+  "acceptance": "At most actual four-round originalcompressiondecomposition. Three remaining literalrounds/fullcompression/FirstEight/S128/finalization/ROOT/original2048digest remain required. Counts18/35vectors255/272controlsObject331/403 unchanged;Hashrestoration78/78roots636controls complete, mutations2/7open;sevenpendingdrafts/fullserving-memory-learning/genuinePrismPMbinding/Pages remain."
+}

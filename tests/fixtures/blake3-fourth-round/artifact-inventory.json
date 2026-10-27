@@ -1,0 +1,1449 @@
+{
+  "schema": "lexlean-r4/actual-artifact-inventory/1",
+  "files": [
+    {
+      "phase": "round4-positive",
+      "relativePath": "attestation.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/attestation.json",
+      "bytes": 23541,
+      "sha256": "8261ed4e86fae64b2504c60f01e18c01f633d8e4e10f6e0bf5b7715c7595ab4b",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.Blake3FourthRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.Blake3FourthRound.lean",
+      "bytes": 108,
+      "sha256": "29b3c3048df58b3ff985b654be71d84a6a2855d45c432074f9a2f974b8b67978",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.Blake3FourthRound.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.Blake3FourthRound.process.json",
+      "bytes": 599,
+      "sha256": "cdd14d4fbf2564c43b7c9bb6f5a2d813d2bf7ca4f46489745463eaadacfada6f",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3.lean",
+      "bytes": 2100,
+      "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3.process.json",
+      "bytes": 3343,
+      "sha256": "c4e7f0dc0f36929b2d7524f3596186e406bfbcae2d51b1442e5ada911c88169c",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Core.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Core.lean",
+      "bytes": 1190,
+      "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Core.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Core.process.json",
+      "bytes": 2076,
+      "sha256": "33d4d947826c80fdf0032400a4fc0891ab501b967973698f885d529fd809dcd4",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Nat.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Nat.lean",
+      "bytes": 959,
+      "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Nat.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/LexLeanAudit.A86f0b07b8d96d76f8ff2609f52883f59.LexLeanR4.R4.Blake3Nat.process.json",
+      "bytes": 1768,
+      "sha256": "f876f4bd0d0d85f77b79ffe3ddd82b8b8cabaef3da4ba1adb61d97285f6de105",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "audit/output.txt",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/audit/output.txt",
+      "bytes": 5682,
+      "sha256": "67044cbe597bf6d870d5b24e3fc6acde3b2d324be3b98139cd5b3e3c2cc73cb8",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "build-manifest.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/build-manifest.json",
+      "bytes": 5540,
+      "sha256": "126d10aa295dedc028115d1ea4a985c97d0db51ef38d4581b40d2b5a770ecfa1",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "coverage/LexLeanR4/Blake3FourthRound.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/coverage/LexLeanR4/Blake3FourthRound.coverage.json",
+      "bytes": 13712,
+      "sha256": "1143934e5072d1c06e5deabfc83406ec2fab89b707c1db29ca82257afc34f269",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "bytes": 23556,
+      "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "bytes": 17502,
+      "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "bytes": 14922,
+      "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "lexicons/Blake3FourthRound.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/lexicons/Blake3FourthRound.closure.json",
+      "bytes": 10615,
+      "sha256": "6671751b968f82ad85a7a4598f731be008c5ab008ef1dbe3c3606e5cce197cf5",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "lexicons/R4.Blake3.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/lexicons/R4.Blake3.closure.json",
+      "bytes": 10607,
+      "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "lexicons/R4.Blake3Core.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/lexicons/R4.Blake3Core.closure.json",
+      "bytes": 10611,
+      "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "lexicons/R4.Blake3Nat.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/lexicons/R4.Blake3Nat.closure.json",
+      "bytes": 10610,
+      "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "maps/LexLeanR4/Blake3FourthRound.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/maps/LexLeanR4/Blake3FourthRound.map.json",
+      "bytes": 1415,
+      "sha256": "18eba17aba2b8deac1ea476ccac6af59726c5741c8e99c2cccd95633a7369bfb",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "maps/LexLeanR4/R4/Blake3.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3.map.json",
+      "bytes": 14490,
+      "sha256": "72c89973d0fb027fd35ad40682bc9a72c9b206a09414eb9be489427cfd03d5af",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "maps/LexLeanR4/R4/Blake3Core.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3Core.map.json",
+      "bytes": 8268,
+      "sha256": "37642734414b10602ee2631e90d7f22a47dbacc5101b15ce5eb139d7aad687f2",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "bytes": 6901,
+      "sha256": "2e1b5784b7bbc40a214935562ee9d37008fa5a775f401f0224f6f883fcde3bbc",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/Blake3FourthRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/Blake3FourthRound.lean",
+      "bytes": 1766,
+      "sha256": "836ff949abf1520f235fa4de0290a3e43f774c17677f8993d6982ec3a8284b1a",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/Blake3FourthRound.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/Blake3FourthRound.tex",
+      "bytes": 1716,
+      "sha256": "6cb9ef64b42d898ca046558a8e7b578cc40a5f54edf2e8120e10365a29815851",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/R4/Blake3.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3.lean",
+      "bytes": 30120,
+      "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/R4/Blake3.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3.tex",
+      "bytes": 24378,
+      "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Core.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.lean",
+      "bytes": 26512,
+      "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Core.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.tex",
+      "bytes": 17451,
+      "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Nat.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.lean",
+      "bytes": 18123,
+      "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Nat.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.tex",
+      "bytes": 7827,
+      "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "oleans/LexLeanR4/Blake3FourthRound.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/oleans/LexLeanR4/Blake3FourthRound.olean",
+      "bytes": 23672,
+      "sha256": "8cbd50edba014f7606926b523b86bfa2d9036ae64bd3f51afd7c89714ba53954",
+      "portableText": false
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "oleans/LexLeanR4/R4/Blake3.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "portableText": false
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "portableText": false
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "portableText": false
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "probe/LexLeanProbe.P86f0b07b8d96d76f8ff2609f52883f59.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/probe/LexLeanProbe.P86f0b07b8d96d76f8ff2609f52883f59.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "probe/process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/probe/process.json",
+      "bytes": 460,
+      "sha256": "4a35e2b144321ceadb8120b17f51058b1383ce03d402024f823b0b84deaa538c",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/lean/LexLeanR4.Blake3FourthRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/lean/LexLeanR4.Blake3FourthRound.json",
+      "bytes": 507,
+      "sha256": "d43939997a2ca21bc8e6468958acc8097834f55120ba3596504fc6bfb41c5ae0",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/lean/LexLeanR4.R4.Blake3.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3.json",
+      "bytes": 483,
+      "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/lean/LexLeanR4.R4.Blake3Core.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 495,
+      "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 492,
+      "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FourthRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FourthRound.json",
+      "bytes": 431,
+      "sha256": "d43573512deb2598b28670428b2c318318396cee563d2ee931e299c594a5e108",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "bytes": 415,
+      "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 423,
+      "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce",
+      "portableText": true
+    },
+    {
+      "phase": "round4-positive",
+      "relativePath": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 421,
+      "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "attestation.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/attestation.json",
+      "bytes": 40364,
+      "sha256": "5565475864a4cfbc80b1be19d94ccbbd940552e34f644d7abb221611e6ae7dc3",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRound.lean",
+      "bytes": 105,
+      "sha256": "52b51391e2405697379c724879c7bdda35f49885a5713e4f37bf7e5d67294c60",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRound.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRound.process.json",
+      "bytes": 595,
+      "sha256": "4e1e3d7ff28192a065c68566320aed78434262be8d513bf08d1e8280b40d6802",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundConsumer.lean",
+      "bytes": 128,
+      "sha256": "eb497fdb6f9389ee37f25b0fb0093bd0d5eb522f1f15a831681e85fdc49087b1",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundConsumer.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundConsumer.process.json",
+      "bytes": 626,
+      "sha256": "f111242936641ec8c63c5865981f2c498e902f2473d2f2872e89983ba908b23d",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundContext.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundContext.lean",
+      "bytes": 186,
+      "sha256": "4b8f7dccffad73e7281c43f72ebf565893f52306c92164aca9abe074c73da810",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundContext.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundContext.process.json",
+      "bytes": 702,
+      "sha256": "cfeeaeefe2ec4fa5d49196abd65ab46fdd66c1a323b3da4efcf8baaf5e7ebc0b",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundLift.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundLift.lean",
+      "bytes": 101,
+      "sha256": "706f890a34ed0c301da6f04214761e5233fefd16e7bb3ff6541009905aaa2b28",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundLift.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FirstRoundLift.process.json",
+      "bytes": 595,
+      "sha256": "9fd5dacf4b9e607c0ccb0551f2715b9aefaf306363f7b4000e199a715aada4b6",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRound.lean",
+      "bytes": 108,
+      "sha256": "29b3c3048df58b3ff985b654be71d84a6a2855d45c432074f9a2f974b8b67978",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRound.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRound.process.json",
+      "bytes": 599,
+      "sha256": "e9bd11a98985f66f24272d625afc4d5ad86b53733cd2f72c3b1873580ffa178f",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRoundConsumer.lean",
+      "bytes": 131,
+      "sha256": "e948b5254142d542238fef58d0d08a292366d35d280c1f9cd2692f7ab9ce0fdc",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRoundConsumer.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3FourthRoundConsumer.process.json",
+      "bytes": 630,
+      "sha256": "72125421e58679e083fd25d9b60779c2cfa51cf02730747ed52916a84973610d",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRound.lean",
+      "bytes": 108,
+      "sha256": "fd894603fa699a22057368ec5869e2dd8373e81406ec4e4dbbfaaab4f5af0041",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRound.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRound.process.json",
+      "bytes": 599,
+      "sha256": "4dda90791369c81da65f058aa5c89c15a51e5f8f37043202430d1f0fb51c0b49",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRoundConsumer.lean",
+      "bytes": 131,
+      "sha256": "e6196bf07656ad0e0a6522ed65febcc74284f975fcd34b9772ac9b78e0cd5828",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRoundConsumer.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3SecondRoundConsumer.process.json",
+      "bytes": 630,
+      "sha256": "0ce4cdd6963df0a436ffe426a8850ae2d0e247bb931c6fceb740f630f7c79ef1",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRound.lean",
+      "bytes": 105,
+      "sha256": "cace0933d175245d9f37bd126b67bdc81ea75f3c31f6ef9352b1d36738aba44f",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRound.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRound.process.json",
+      "bytes": 595,
+      "sha256": "e8138968e92b5b64027a8568e30bc57039f8301c4c1eeab1f5e9c8a6ffa93839",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRoundConsumer.lean",
+      "bytes": 128,
+      "sha256": "8726e69f5a1bc4e6463e2c0da6b3cd1134716c3df4f78cc911b0834c4a0715c9",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRoundConsumer.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.Blake3ThirdRoundConsumer.process.json",
+      "bytes": 626,
+      "sha256": "703a19dd4a3c846aafb7fce2031f86b25a85a36d81efcaf682f3ef12113b1c58",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3.lean",
+      "bytes": 2100,
+      "sha256": "600581fb1832f45ce633d17eaa5e9e8625cbb23984608a101a9b69a6748ebdb6",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3.process.json",
+      "bytes": 3343,
+      "sha256": "13442a98cca63b106a1d4be4e8929b7996b97b6c1a9de0599481803b5ed6d94a",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Core.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Core.lean",
+      "bytes": 1190,
+      "sha256": "14a806b8da6f72c5345172789717c957b2a21361a0783c620d832f5bb4b336a5",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Core.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Core.process.json",
+      "bytes": 2076,
+      "sha256": "98f262d62f598791ba556d78e0e81a0b1ab78f21400abd4321933dd1b83e4658",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Nat.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Nat.lean",
+      "bytes": 959,
+      "sha256": "a9788296f3f7c08c7a19d75eebc7f10ea742f49ea8a2c00faf8c1df8358b69db",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Nat.process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/LexLeanAudit.A69ac2f3c19dba209df7207390bb1f991.LexLeanR4.R4.Blake3Nat.process.json",
+      "bytes": 1768,
+      "sha256": "f4fac4c217a3c302c4b4baaaa2eecb072cfe336ee454549b06d6f2439500e033",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "audit/output.txt",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/audit/output.txt",
+      "bytes": 6570,
+      "sha256": "83a368c1db452af9954bee5da1daf227993faccc1efaccc3e1ef0d918e45dc00",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "build-manifest.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/build-manifest.json",
+      "bytes": 16190,
+      "sha256": "7bb9510265ef595015310dd668f873bfb6277c9426ec9149df6829fb87f177e5",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3FirstRound.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3FirstRound.coverage.json",
+      "bytes": 13635,
+      "sha256": "172f27f1c7c141df99e0b1d2832be3a372d3782b210fe40ae8a5ce395976f60f",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3FirstRoundConsumer.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3FirstRoundConsumer.coverage.json",
+      "bytes": 15327,
+      "sha256": "b3c4ad1d8eddf5ff3093017623bac89914bb974137ee1a81f43990d1ea603b62",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3FirstRoundContext.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3FirstRoundContext.coverage.json",
+      "bytes": 14450,
+      "sha256": "b2e79a4c9d125d3ec9d180f8970354a687f9f0a3075410f89acffb07369c5732",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3FirstRoundLift.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3FirstRoundLift.coverage.json",
+      "bytes": 13071,
+      "sha256": "7fbccc34f5e162615a824bbbdb63566e2838d898a4b1604053f40259ac6b3e67",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3FourthRound.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3FourthRound.coverage.json",
+      "bytes": 13712,
+      "sha256": "1143934e5072d1c06e5deabfc83406ec2fab89b707c1db29ca82257afc34f269",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3FourthRoundConsumer.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3FourthRoundConsumer.coverage.json",
+      "bytes": 16519,
+      "sha256": "a3590243b6c114ae2f442cba7e9d3a018c88d0a3a59665da814cd635f746049e",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3SecondRound.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3SecondRound.coverage.json",
+      "bytes": 13712,
+      "sha256": "814d42390dda26450a69aba0daa455dd89c13f6f695752b6aa98801a35ac5bea",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3SecondRoundConsumer.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3SecondRoundConsumer.coverage.json",
+      "bytes": 16519,
+      "sha256": "e835a10971584108f54936d0f23ae68ff3fbf26ecddd8b74c3ef4068acb49f42",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3ThirdRound.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3ThirdRound.coverage.json",
+      "bytes": 13635,
+      "sha256": "ae60ba90658f69ddcc4a9f67231f4339a1950985931bde61c9633b614c08865a",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/Blake3ThirdRoundConsumer.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/Blake3ThirdRoundConsumer.coverage.json",
+      "bytes": 16430,
+      "sha256": "6b1a1cca46b4acf74d5278f135d02ffc891718f70ea45c8e0289dc7a7b8a2185",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/R4/Blake3.coverage.json",
+      "bytes": 23556,
+      "sha256": "cc4c1ad037674475ef819a821de9792f3645bc19f8c0762ae4c671d51013f2d4",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Core.coverage.json",
+      "bytes": 17502,
+      "sha256": "12aafcf16b0ece0d55ba6c77168d3188cf6fdfdbaa1182a72d546215265c0ffa",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/coverage/LexLeanR4/R4/Blake3Nat.coverage.json",
+      "bytes": 14922,
+      "sha256": "2fef136655a9d2243b84ae4aadf15d05e3c7985f64acc1e857a65226b8ee6823",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3FirstRound.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3FirstRound.closure.json",
+      "bytes": 10614,
+      "sha256": "bebadd836c08742305cf121d211de7b09112bd5ea444c81f8a155a2bbc4b9c49",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3FirstRoundConsumer.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3FirstRoundConsumer.closure.json",
+      "bytes": 10622,
+      "sha256": "25ecdc2ead0b6eecddbd5f8f5801f85b1e4730d1dc08cbb2b3d527904aa84ae1",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3FirstRoundContext.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3FirstRoundContext.closure.json",
+      "bytes": 10621,
+      "sha256": "9382c2246e5121134d8b1dcd07e2775c0cef29228440da8d2b26499aa63d81e5",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3FirstRoundLift.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3FirstRoundLift.closure.json",
+      "bytes": 10618,
+      "sha256": "515cc1dcfc71ec66e42c530a64cb38146e8a71f461798e57e2924b9c8d14f3e0",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3FourthRound.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3FourthRound.closure.json",
+      "bytes": 10615,
+      "sha256": "6671751b968f82ad85a7a4598f731be008c5ab008ef1dbe3c3606e5cce197cf5",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3FourthRoundConsumer.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3FourthRoundConsumer.closure.json",
+      "bytes": 10623,
+      "sha256": "bfdfb0378d1351386f7c99b8d26a9d4838d4aa49b0a4a0bcce401321bf3ab447",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3SecondRound.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3SecondRound.closure.json",
+      "bytes": 10615,
+      "sha256": "6de7bdb675a211389feebec4c1fbd209e4d9027d360cf84e39bf29ffd47db4a4",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3SecondRoundConsumer.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3SecondRoundConsumer.closure.json",
+      "bytes": 10623,
+      "sha256": "61b6e27847b69d5735398119d34f38a95a1704ab1baad0b609bf2888714e8da9",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3ThirdRound.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3ThirdRound.closure.json",
+      "bytes": 10614,
+      "sha256": "c5a2e4edf98ac72d01b0bbec41ed8f7b4b1d77cff01240c1a4a42375775a1717",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/Blake3ThirdRoundConsumer.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/Blake3ThirdRoundConsumer.closure.json",
+      "bytes": 10622,
+      "sha256": "a24558cbe2dcdf346600b301daa690e07126597fbfd821ce831a9dc06037079d",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/R4.Blake3.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/R4.Blake3.closure.json",
+      "bytes": 10607,
+      "sha256": "ca7f6f05d0e0f98618aa6241ff9550be46742d2a404a59664f7688213e2dc153",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/R4.Blake3Core.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/R4.Blake3Core.closure.json",
+      "bytes": 10611,
+      "sha256": "95215510507418f1aa69653ce4285c059d134c8cfc1cebba35f933eb7e267fe7",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "lexicons/R4.Blake3Nat.closure.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/lexicons/R4.Blake3Nat.closure.json",
+      "bytes": 10610,
+      "sha256": "8d26432607e7807bb99e9dd980496d74645405969ab9182a1176a1644b9799f8",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3FirstRound.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3FirstRound.map.json",
+      "bytes": 1411,
+      "sha256": "feb20b46fff95b54a41a8f169fb6cea2e7c12574da257e1e602d6f1facfa1813",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3FirstRoundConsumer.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3FirstRoundConsumer.map.json",
+      "bytes": 1443,
+      "sha256": "1602e1df1b48d2b140e80b8df752fbf5c304891251040b471c4fa7d8d307e4ab",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3FirstRoundContext.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3FirstRoundContext.map.json",
+      "bytes": 1763,
+      "sha256": "63f002b6144d98a54fa9393d2771ed9a426b5559c78d2ff54877846dd9f00335",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3FirstRoundLift.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3FirstRoundLift.map.json",
+      "bytes": 1419,
+      "sha256": "c19b9bacb9662ed2b354f3572c266d17dabc3461d9dcb0cd86f1076f9c283fbd",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3FourthRound.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3FourthRound.map.json",
+      "bytes": 1415,
+      "sha256": "71982599e8e97f4f2b03a9cf46f3f9cd34c7032a0d22435bd1cb2cbdd4ec4391",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3FourthRoundConsumer.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3FourthRoundConsumer.map.json",
+      "bytes": 1453,
+      "sha256": "1377e0869c2e05138a91e2e12f563c26b1835c6120fb8d3ec80c646b37e05051",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3SecondRound.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3SecondRound.map.json",
+      "bytes": 1415,
+      "sha256": "558fe68ec2bcebb7b8dedf799754d7231eceaead50bd6af6206395dc0692ce73",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3SecondRoundConsumer.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3SecondRoundConsumer.map.json",
+      "bytes": 1453,
+      "sha256": "b372875691330dcb85fdf596de83e2f5d73b9ff7f15305adf17c1b0d0c4f045c",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3ThirdRound.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3ThirdRound.map.json",
+      "bytes": 1411,
+      "sha256": "d0cfc9a6775dfb739b5a8f722035c1bb3088c7252a9e04273ba2ee46a355129e",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/Blake3ThirdRoundConsumer.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/Blake3ThirdRoundConsumer.map.json",
+      "bytes": 1449,
+      "sha256": "171ac26f749521b196d4840f4769fe520f9bd92df103ccba00ce2f18b8b3de81",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/R4/Blake3.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/R4/Blake3.map.json",
+      "bytes": 14490,
+      "sha256": "6752e3f9e588650f9cd85315b44e7ef737f5a6beeec13aef237b30d35be62536",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/R4/Blake3Core.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/R4/Blake3Core.map.json",
+      "bytes": 8268,
+      "sha256": "f200c383d2bb8c1c02e9b69947a81d1ed3a445c4b63a619df0897f923529bef9",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/maps/LexLeanR4/R4/Blake3Nat.map.json",
+      "bytes": 6901,
+      "sha256": "10759ff0d6cf27b794ece62f19a841618c0fa8f727b6e2f3fbedc4bce29dc6cf",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRound.lean",
+      "bytes": 1390,
+      "sha256": "f3477440f5402a603a86092b3fd4fe64bd19fe9ecbf9ae16f6d12c7544b7385a",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRound.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRound.tex",
+      "bytes": 1340,
+      "sha256": "9b36efdd025201f112267559be2f7f76f0a20ceef0f273526f8129118f7062ef",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundConsumer.lean",
+      "bytes": 2189,
+      "sha256": "241e4e1ff8c4bdea337cd39a2d1f904b5d9c0a60f0a5e25b39a442bb00838621",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRoundConsumer.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundConsumer.tex",
+      "bytes": 2030,
+      "sha256": "af770cc8c0f6295394d02acf57b83397b54b377dca4acfdb18b980e52af78ca0",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRoundContext.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundContext.lean",
+      "bytes": 3413,
+      "sha256": "eac26aec73c7a5599a76445c35633a86778bdd5d398a9e77508204498897d6bd",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRoundContext.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundContext.tex",
+      "bytes": 3593,
+      "sha256": "74f7310798f788a4b2b6050e4f66a9f04d54e3f12b16df7ecc3455771a922275",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRoundLift.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundLift.lean",
+      "bytes": 647,
+      "sha256": "eb26867fd77982358ea6d61d591367ed9ac16fd3d15e57b116f4fa7de8b54996",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FirstRoundLift.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FirstRoundLift.tex",
+      "bytes": 409,
+      "sha256": "2a78975a53d054636b0080e8104d87499454d25914c0110fc17aeb1689a1f4c8",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FourthRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FourthRound.lean",
+      "bytes": 1766,
+      "sha256": "836ff949abf1520f235fa4de0290a3e43f774c17677f8993d6982ec3a8284b1a",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FourthRound.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FourthRound.tex",
+      "bytes": 1716,
+      "sha256": "6cb9ef64b42d898ca046558a8e7b578cc40a5f54edf2e8120e10365a29815851",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FourthRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FourthRoundConsumer.lean",
+      "bytes": 2383,
+      "sha256": "4f0cf4653e2cfe5b39257bea514a649192423117161f0272d9886dbb7ce0fbba",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3FourthRoundConsumer.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3FourthRoundConsumer.tex",
+      "bytes": 2157,
+      "sha256": "aaca90dcfe17f2dd9bb03b3fb22f4378bd4b2801d5ba6321d5ea9fab289542f7",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3SecondRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3SecondRound.lean",
+      "bytes": 1677,
+      "sha256": "10bb2933fbcfa956c344d3203fed692c56c9bdb633e0272cb5ca95e6f3ac6088",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3SecondRound.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3SecondRound.tex",
+      "bytes": 1627,
+      "sha256": "30303d7798043a1551b481ec40c18396b0609e7430f0cb6c26d9c300927ddb76",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3SecondRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3SecondRoundConsumer.lean",
+      "bytes": 2301,
+      "sha256": "76fc6457846d799fb67ed7ce60127850f9600206667f6a7ceba4a9b90565484e",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3SecondRoundConsumer.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3SecondRoundConsumer.tex",
+      "bytes": 2075,
+      "sha256": "51912183191477106f92b769a015caba5cdcc125e2fdf38bd6ec7533e708316e",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3ThirdRound.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3ThirdRound.lean",
+      "bytes": 1721,
+      "sha256": "8d1beaf44fcb3318fa817899147c14e7e38cd9119b069ef187b51a71a6d627ff",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3ThirdRound.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3ThirdRound.tex",
+      "bytes": 1673,
+      "sha256": "86878fa831da09bfcd980984b4b63fc3fa4bdd7be5fe02f0a31c58b13053ef33",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3ThirdRoundConsumer.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3ThirdRoundConsumer.lean",
+      "bytes": 2343,
+      "sha256": "4ccdb2a5062ebed436ccab5a1f9c365a18648fd4d1e88890ef887b49713e5c44",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/Blake3ThirdRoundConsumer.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/Blake3ThirdRoundConsumer.tex",
+      "bytes": 2117,
+      "sha256": "510be404db9c479bf993c8a04d2a37008f05284cdece589a98a6e6bf8c555113",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/R4/Blake3.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/R4/Blake3.lean",
+      "bytes": 30120,
+      "sha256": "cd6d896d6276eb32098a35f7e88fffb33de0b515500fdb6095e8389858ea1b12",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/R4/Blake3.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/R4/Blake3.tex",
+      "bytes": 24378,
+      "sha256": "9da0ef70fbc3a649aa9d19ed2a69c6579e00158d3234405aec33b7b46d73b335",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Core.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.lean",
+      "bytes": 26512,
+      "sha256": "429e1cb6fe20ccf462ecbe179619f852e41af751c165ab5aa93cf783c59a55d2",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Core.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/R4/Blake3Core.tex",
+      "bytes": 17451,
+      "sha256": "e2343b3a8e201133bc4514fae99c2e5fc66b16f1da293e008423d7764eecb12d",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Nat.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.lean",
+      "bytes": 18123,
+      "sha256": "ca70317db8504a37de8ea395059937435ca2b71717da0a640423f27c304ca959",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "modules/LexLeanR4/R4/Blake3Nat.tex",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/modules/LexLeanR4/R4/Blake3Nat.tex",
+      "bytes": 7827,
+      "sha256": "dc5e636141611ccb30a8c524dc841a0549421592fb1de9ffa3d6940a98c9c131",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3FirstRound.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRound.olean",
+      "bytes": 21368,
+      "sha256": "0e6fdd244ba777f41a4450c3a30015f96ccfccba3906c8f9b7b7f5745c037749",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3FirstRoundConsumer.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRoundConsumer.olean",
+      "bytes": 22152,
+      "sha256": "b8af59a30f69d0fef0a8f3c62d9d5a15b6dad7c40319fa0f7c18f12a21de7eea",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3FirstRoundContext.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRoundContext.olean",
+      "bytes": 27448,
+      "sha256": "b0a726e7b28a429c7351bf4406e62b28b41b8e56618986cc87c2dc5cf70f7d19",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3FirstRoundLift.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FirstRoundLift.olean",
+      "bytes": 3568,
+      "sha256": "0b4ec42398ed6e8d4579f3de6e1124922bc1e90336ac55ec73a9a551a69bb3a9",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3FourthRound.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FourthRound.olean",
+      "bytes": 23672,
+      "sha256": "8cbd50edba014f7606926b523b86bfa2d9036ae64bd3f51afd7c89714ba53954",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3FourthRoundConsumer.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3FourthRoundConsumer.olean",
+      "bytes": 22616,
+      "sha256": "239e968c89b8c27661100ca3b1ee2dc0fa5bb2830f8ae30a71ab1700c53e1928",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3SecondRound.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3SecondRound.olean",
+      "bytes": 23608,
+      "sha256": "515a8a6eb489b458bfe5d545503acce982a4f3a8e7f080a956cca3df6537080c",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3SecondRoundConsumer.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3SecondRoundConsumer.olean",
+      "bytes": 22376,
+      "sha256": "21970f0688bd534de8c53a5c1410ef03f63f3da6ad3840da1d0342dba6200773",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3ThirdRound.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3ThirdRound.olean",
+      "bytes": 23640,
+      "sha256": "3a5d79c723b2b42d164e26506c69343b4d7ad3e4ff4a4793ae8e80c08372cec8",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/Blake3ThirdRoundConsumer.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/Blake3ThirdRoundConsumer.olean",
+      "bytes": 22584,
+      "sha256": "d2ed4df9bfb38a4a61f3ae1933cfff038475d740aa34f46fc46b7839b61f587b",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/R4/Blake3.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/R4/Blake3.olean",
+      "bytes": 738152,
+      "sha256": "93fba86d205748bd61cc615f3e3dd22f9b6db06a2b499f04e88cab37d683dbe6",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/R4/Blake3Core.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Core.olean",
+      "bytes": 624640,
+      "sha256": "59c699e19bc21c676fbf2fe4225791c270f1c326e16eb68281da26df56d45404",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/oleans/LexLeanR4/R4/Blake3Nat.olean",
+      "bytes": 547960,
+      "sha256": "dee9911e3ee82a9f366ef1b5fd2498320f52679583397a33cec7b4180d5211e5",
+      "portableText": false
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "probe/LexLeanProbe.P69ac2f3c19dba209df7207390bb1f991.lean",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/probe/LexLeanProbe.P69ac2f3c19dba209df7207390bb1f991.lean",
+      "bytes": 37,
+      "sha256": "baa045edd688674a6fd58980f1b1138724326218646598deae05764ff980c120",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "probe/process.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/probe/process.json",
+      "bytes": 460,
+      "sha256": "5efb943b0dde9494b6a984279063a10956a08e8396b3821774db7d809406159b",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3FirstRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstRound.json",
+      "bytes": 504,
+      "sha256": "688e52dd4d8ca29bfa7410da97ebb4e39a54df86a9a6a3e3911da249165d852a",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3FirstRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstRoundConsumer.json",
+      "bytes": 528,
+      "sha256": "9784223fb31e2389cab563163dc86e577b9c79aea884bd2c89c6cfe2670153dc",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3FirstRoundContext.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstRoundContext.json",
+      "bytes": 525,
+      "sha256": "715c8c3612b131522e9f5151dba19a6d39d89946552bf4c5a561181b31e39a0f",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3FirstRoundLift.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3FirstRoundLift.json",
+      "bytes": 516,
+      "sha256": "318112aa26e1a7bc58b905c116b1de6f71aac16329dad6db64a0f9443a765598",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3FourthRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3FourthRound.json",
+      "bytes": 507,
+      "sha256": "d43939997a2ca21bc8e6468958acc8097834f55120ba3596504fc6bfb41c5ae0",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3FourthRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3FourthRoundConsumer.json",
+      "bytes": 531,
+      "sha256": "d550b62373ed56c277cd8611c7e69f804f11946d965d39fc077aef8f0f9f4aa8",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3SecondRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3SecondRound.json",
+      "bytes": 507,
+      "sha256": "aca46556bfe9a3756519559c59474d5d825cff86503d76610623f6221b530d73",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3SecondRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3SecondRoundConsumer.json",
+      "bytes": 531,
+      "sha256": "30843a28a668ac1bdc138dfefef7e7aa4cd5f0683f46d9c22d3810cf22e8d478",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3ThirdRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3ThirdRound.json",
+      "bytes": 504,
+      "sha256": "90dd879e7cec0ecb68924abd591f508b678cfd8a574ee815834e9fc7ddfda375",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.Blake3ThirdRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.Blake3ThirdRoundConsumer.json",
+      "bytes": 528,
+      "sha256": "1fd653494f5f11cc64f029ae0101c503286c5f35a0a75410d16b52b125c373f7",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.R4.Blake3.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3.json",
+      "bytes": 483,
+      "sha256": "eed5538859ec98d500ba4ae5328752e417e612ad8583c2f6501c073bbc1d56ac",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.R4.Blake3Core.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 495,
+      "sha256": "dee08e3cf87837fb7664973505b3e25749c892d20f718dca72bdba80e81785f7",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/lean/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 492,
+      "sha256": "f900bded513d58ecdf672293e940afa5e7e4cf0d2c3fa12e0c3e35865211ebd3",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FirstRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstRound.json",
+      "bytes": 429,
+      "sha256": "0160042f108127872cc00cf084d93527531ae040fdd1cdc2f29f461a43fa1df7",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FirstRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstRoundConsumer.json",
+      "bytes": 445,
+      "sha256": "9c2993a441502b88fcb25851df06d3f5e92966fa61ee89f5755b0fe228a24d68",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FirstRoundContext.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstRoundContext.json",
+      "bytes": 443,
+      "sha256": "d3f4af8188f1ed954a5ca65deb327bdb987d8689a0ccd168f7f0099ffb082674",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FirstRoundLift.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FirstRoundLift.json",
+      "bytes": 437,
+      "sha256": "65c8885e9a3c773c0c2d4a01b2c536176a2a972429e1d720cfa2d6c1e9ab6b34",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FourthRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FourthRound.json",
+      "bytes": 431,
+      "sha256": "d43573512deb2598b28670428b2c318318396cee563d2ee931e299c594a5e108",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3FourthRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3FourthRoundConsumer.json",
+      "bytes": 447,
+      "sha256": "853fb4afc918b4bcfe7a40ae83c9745910bb8ef628dcd4d5d639ff4e60c3d156",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3SecondRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3SecondRound.json",
+      "bytes": 431,
+      "sha256": "ccf6623af97557c776f3e4dcce486d7804618b4f3f9f42e25bdae7d37e0bee79",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3SecondRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3SecondRoundConsumer.json",
+      "bytes": 447,
+      "sha256": "938af3455ba6e67d2f833ce3b66cd3db61b2e0a1f1d4189e6502d549143ba275",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3ThirdRound.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3ThirdRound.json",
+      "bytes": 429,
+      "sha256": "368ebde7547c8807b02ef511fbbf3fd803e12a73a1fb30a6b04b1d1adf5ef0f5",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.Blake3ThirdRoundConsumer.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.Blake3ThirdRoundConsumer.json",
+      "bytes": 445,
+      "sha256": "6f5f5d3a8145724d2e445bca09d3a6cd9dcb23e89fe0a117faa6ee0ea51c2f44",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3.json",
+      "bytes": 415,
+      "sha256": "406356d0b7da85c8f3ab09efe5a752adc2f2f0d658ce7f1cef42acd5f62f6b58",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Core.json",
+      "bytes": 423,
+      "sha256": "20005b1d6c0379c3bdabdaaefb15cb93c0f8d2c627a8c92de41e7a2d3eb4b9ce",
+      "portableText": true
+    },
+    {
+      "phase": "original-consumer",
+      "relativePath": "process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "localPath": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/artifact/process/leanchecker/LexLeanR4.R4.Blake3Nat.json",
+      "bytes": 421,
+      "sha256": "dd9a286d352a7be355288a0b6fdace7056c683fa46001b04ead6b08feaa97720",
+      "portableText": true
+    }
+  ],
+  "fileCount": 180,
+  "binaryExclusions": 17,
+  "binaryExcludedBytes": 4058208,
+  "limit": "Text-onlyportablearchive;17actualoleanbinaries remainlocal hashinventoried. No portablebinaryreconstruction."
+}

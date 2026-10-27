@@ -1,0 +1,121 @@
+{
+  "schema": "lexlean-r4/fourth-round-delivery-manifest/1",
+  "scope": "Acceptedlocalfour-roundoriginalcompressiondecompositiononly;no fullcompression/digest/count/productionpromotion.",
+  "sourceManifestSha256": "62ebfee0fdc3b047ccd1422839f6b69193db8fe4597a81d5e95fa3a8ea6c50cb",
+  "sourceManifestUnchanged": true,
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 102516,
+      "sha256": "2aaa24182c1938ac489a85a5b0e31898b3a93932c0b70430188380d0be2613c2"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 83005,
+      "sha256": "02c8d8135df13ce4bea98aaf237974648a008e1bba90213e9149c4c63aad9788"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/README.md",
+      "bytes": 2712,
+      "sha256": "1ae38d207a8adf5d97fd887bcc70946d88338321c997b9f9a11d33749c98992f"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/RESULTS.md",
+      "bytes": 3318,
+      "sha256": "443bca80f6827dd34ca411e47543aa1569095dde736a6c5fbf230cd6bc78b12a"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/artifact-inventory.json",
+      "bytes": 81139,
+      "sha256": "b0005a6d4ab94958968abeed250b57c7f35514490c13b0d69d2ae01a6c87663c"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/candidate.json",
+      "bytes": 19577,
+      "sha256": "11ac39c63600571dbaed777fa92dcdb9613732a36358dcb35b5d396fba32e9fc"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/derivation.json",
+      "bytes": 6597,
+      "sha256": "ac091ef2b4afffcb5ddc09ff9e6800abebaa267a75a3bae303ec73b28f8e3e59"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/derive-expected.py",
+      "bytes": 5333,
+      "sha256": "b0ae84dbffefee0bb0a39cd3fb5ae9a5f0fec584677a5ad38e6eec4a6955ddcb"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/evidence.jsonl.gz",
+      "bytes": 466488,
+      "sha256": "10cb06fbe6326041e912b8ea310ce31dbb492a55fdf7c27f38baf18fa4f7afc3"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/manifest.json",
+      "bytes": 7247,
+      "sha256": "62ebfee0fdc3b047ccd1422839f6b69193db8fe4597a81d5e95fa3a8ea6c50cb"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/phases/original-consumer/lexlean.toml",
+      "bytes": 689,
+      "sha256": "8377f970e53203090901da2ea891d74caaac6c70d869007135ede2af60051d89"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/phases/round4-negative/lexlean.toml",
+      "bytes": 681,
+      "sha256": "76999ed35222c8b9dabff88492b2c736901cca94d95382e964fa2a50e12813b2"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/phases/round4-negative/tests/lexlean/Blake3FourthRound.lex.tex",
+      "bytes": 6719,
+      "sha256": "f2486a3078b4b46ef824ac1d6a49f6e7f973e02f3334a0f418a277ccae2648de"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/phases/round4-positive/lexlean.toml",
+      "bytes": 681,
+      "sha256": "76999ed35222c8b9dabff88492b2c736901cca94d95382e964fa2a50e12813b2"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/project/tests/lexlean/Blake3FourthRound.lex.tex",
+      "bytes": 6719,
+      "sha256": "aaf5ab14ed5389a217936ff3766d56f2aa2447d92ae5f656d7f2fe6acdfd5285"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/project/tests/lexlean/Blake3FourthRoundConsumer.lex.tex",
+      "bytes": 10284,
+      "sha256": "7211f24eb5e65d1c1a54dec86696771998e5b01c17aa1358a6b1c7e78e3de1f0"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/proposal.json",
+      "bytes": 12197,
+      "sha256": "8fc0b697f4b988a467e2df34c6e88062ab28e3b0d76d40bd312921964de7e5ce"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/results.json",
+      "bytes": 15814,
+      "sha256": "ca52e37da0cd45b0b1c3bbacd236c94fce15ce0214179551f07011194b60062e"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/source-checks.json",
+      "bytes": 5921,
+      "sha256": "0844909363f6a392812e22905fcb6347f49c8f073ec3ed420a2aa47cfdafd308"
+    },
+    {
+      "path": "tests/fixtures/blake3-fourth-round/spec-review.json",
+      "bytes": 4479,
+      "sha256": "21aeabba1690fd1b15ccea91f02725f1ced158daa8e573d883fbc808c8503a56"
+    }
+  ],
+  "preserved": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  },
+  "budgetSelectionSha256": "b2ee9bec685d48e94732b3339596d5f53f8313470b08ca6bf372a2699dacfdac"
+}
