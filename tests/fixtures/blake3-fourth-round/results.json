@@ -1,0 +1,311 @@
+{
+  "status": "ACCEPTED_LOCAL_FOUR_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION",
+  "scope": "Exact originalCompressRaw equals FeedForward(Rounds(3,literalR4,Permute^4(M0)),IV). Remainingthree rounds stillanexpression; nofullcompression/S128/digest/countpromotion.",
+  "sourceManifestSha256": "62ebfee0fdc3b047ccd1422839f6b69193db8fe4597a81d5e95fa3a8ea6c50cb",
+  "historicalNOT_RUN": "Frozen14preparationfilesremainunchanged; thissupplement records lateractualindependentlyauditedoutcomes.",
+  "phases": [
+    {
+      "phase": "round4-negative",
+      "verdict": "PASS_INTENDED_LOCAL_WRONG_S0_NEGATIVE",
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-negative-attempt1/native-review.json",
+        "bytes": 6789,
+        "sha256": "db6dd39d0e06cbf9bf2867ef8baf4c7405d1a42399d5dc4014774f04607c96a5"
+      },
+      "checkModules": [
+        "Blake3FourthRound",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "verifyExit": 1,
+      "verifyDurationMs": 3638,
+      "attestationId": null,
+      "diagnostics": [
+        {
+          "causes": [],
+          "code": "LLV7002",
+          "help": [],
+          "labels": [],
+          "message": "Lean rejected `LexLeanR4.Blake3FourthRound` (error): Tactic `rfl` failed: The left-hand side\n  R4.Blake3Core.b3CoreRoundRaw\n    { s0 := 3971108617, s1 := 3704486809, s2 := 3905004968, s3 := 3646585242, s4 := 3590963563, s5 := 4092673614,\n      s6 := 3356125313, s7 := 2691743444, s8 := 2908811241, s9 := 1094672956, s10 := 939053022, s11 := 2414105671,\n      s12 := 1407143655, s13 := 3364135680, s14 := 1761006036, s15 := 1743015998 }\n    (R4.Blake3Core.b3CorePermute\n      (R4.Blake3Core.b3CorePermute\n        (R4.Blake3Core.b3CorePermute\n          (R4.Blake3.blake3BlockWords\n            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,\n              29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, \u22ef]))))\nis not definitionally equal to the right-hand side\n  { s0 := 2484768673, s1 := 2883005774, s2 := 2303843664, s3 := 3271677109, s4 := 1566895277, s5 := 2124695088,\n    s6 := 2386723345, s7 := 3604087056, s8 := 51607004, s9 := 2311046626, s10 := 2800481862, s11 := 1336858977,\n    s12 := 3844164907, s13 := 3895974344, s14 := 4250561272, s15 := 2641256961 }\n\u22a2 R4.Blake3Core.b3CoreRoundRaw\n      { s0 := 3971108617, s1 := 3704486809, s2 := 3905004968, s3 := 3646585242, s4 := 3590963563, s5 := 4092673614,\n        s6 := 3356125313, s7 := 2691743444, s8 := 2908811241, s9 := 1094672956, s10 := 939053022, s11 := 2414105671,\n        s12 := 1407143655, s13 := 3364135680, s14 := 1761006036, s15 := 1743015998 }\n      (R4.Blake3Core.b3CorePermute\n        (R4.Blake3Core.b3CorePermute\n          (R4.Blake3Core.b3CorePermute\n            (R4.Blake3.blake3BlockWords\n              [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,\n                29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, \u22ef])))) =\n    { s0 := 2484768673, s1 := 2883005774, s2 := 2303843664, s3 := 3271677109, s4 := 1566895277, s5 := 2124695088,\n      s6 := 2386723345, s7 := 3604087056, s8 := 51607004, s9 := 2311046626, s10 := 2800481862, s11 := 1336858977,\n      s12 := 3844164907, s13 := 3895974344, s14 := 4250561272, s15 := 2641256961 }",
+          "notes": [
+            {
+              "message": "generated location: $STAGING/lean-src/LexLeanR4/Blake3FourthRound.lean:12:2"
+            }
+          ],
+          "primary": {
+            "byte_end": 6645,
+            "byte_start": 232,
+            "column_end": 6445,
+            "column_start": 32,
+            "line_end": 8,
+            "line_start": 8,
+            "path": "tests/lexlean/Blake3FourthRound.lex.tex"
+          },
+          "severity": "error",
+          "spec": "lexlean/diagnostic/1"
+        }
+      ],
+      "observed": {
+        "receipts": 63,
+        "zeroStatus": 62,
+        "verifyStatus": 1,
+        "verifyMs": 3638,
+        "verifyStarted": "2026-10-27T03:35:20.856Z",
+        "verifyEnded": "2026-10-27T03:35:24.494Z",
+        "filesBeforeReview": 206,
+        "censusSha256": "8f479bb78e58fe7b565f38158dccc2b29d995ca641bbefdf7c3277f488b383b8",
+        "inputs": 8,
+        "decodedBytes": 140346,
+        "lockSha256": "635e2da83baaa5388f2fbc0bf57df22ceecbb54d21c299a12c3d25f63154733a",
+        "sourceId": "e344b6314320dc338ec41851bca0cc78d9c68a6758e189f05906f6f7c45608fb",
+        "semanticId": "d37cfbf20246bc60ddd32c5688f48ba560e12f2091bf62719640fc02548b7ac7",
+        "hosts": {
+          "before-stage": 34551685120,
+          "before-lock": 34551341056,
+          "before-check": 34551132160,
+          "before-verify": 34550763520,
+          "after": 34547982336
+        },
+        "artifacts": {
+          "before-stage": 53921144832,
+          "before-lock": 53920960512,
+          "before-check": 53920952320,
+          "before-verify": 53920952320,
+          "after": 53920575488
+        },
+        "allNinePostguards": "PASS",
+        "memory": "Five retained sets of six absolute zero counters",
+        "pinsBeforeAfter": 34,
+        "rawHashes": {
+          "outcome.json": "bf4e6f40058fe1caac349cb363a99bb096957f82464e3cf96c45fabef9177028",
+          "verify.json": "92bcab2b6411a9f64005dc6e16e3506b020b7a7e2da291eb239043080a4613b5",
+          "verify.stdout": "5bfe8b4e4ce80967bdbc5b5c9f5e4605917f74117f243efbad220391a8845563",
+          "check.stdout": "4bd6a024ff76c022d542f6f6932ed5d716781f0ca17c7b9b2cc33752ca07b4f7",
+          "inputs.json": "3efd074587fec4bd62a69c693b5a07a5ea4bcb1dc648c3f1c642ba7737317fde",
+          "lexlean.lock": "635e2da83baaa5388f2fbc0bf57df22ceecbb54d21c299a12c3d25f63154733a"
+        }
+      },
+      "guards": "All9actualpostguards passed;sixabsolutezero snapshots;continuouspeaknotmeasured."
+    },
+    {
+      "phase": "round4-positive",
+      "verdict": "PASS_ACTUAL_LOCAL_FOURTH_ROUND_CERTIFICATE",
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/round4-positive-attempt1/native-review.json",
+        "bytes": 7576,
+        "sha256": "090f6b9e0c9607b28bff79c11fd350c3b8accac0f49cd7a95d6a021dd2273040"
+      },
+      "checkModules": [
+        "Blake3FourthRound",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "verifyExit": 0,
+      "verifyDurationMs": 6415,
+      "attestationId": "98eeedf2c1cd1a27779d662003e7529af3167e1422b542a7d716f224828cf745",
+      "diagnostics": [],
+      "observed": {
+        "status": "PASS_ACTUAL_LOCAL_FOURTH_ROUND_CERTIFICATE",
+        "artifactFiles": 45,
+        "artifactBytes": 2256596,
+        "declarations": 82,
+        "kernelReplays": 4,
+        "successfulProcesses": 13,
+        "buildOutputs": 20,
+        "oleanCount": 4,
+        "oleanBytes": 1934424,
+        "receipts": 65,
+        "attemptFilesBeforeReports": 258,
+        "censusSha256": "dd8afa123a642ddc56a6797ea0bfaddbfe70ab26d2545932449a49ed644c0da3",
+        "verifyDurationMs": 6415,
+        "verifyStarted": "2026-10-27T03:39:31.944Z",
+        "verifyEnded": "2026-10-27T03:39:38.359Z",
+        "attestationId": "98eeedf2c1cd1a27779d662003e7529af3167e1422b542a7d716f224828cf745",
+        "buildId": "653f16c2b5091a4e4a05d3c981902878111b2f727ab27c3efa3b99f8e433f543",
+        "sourceId": "fa15e53caff8e7b12c1af61d2da7e844d1f733281a1a0e4deba17b8afd27b14b",
+        "semanticId": "86f0b07b8d96d76f8ff2609f52883f592fdd8d28da6be8ce2d525a05d89d3cc7",
+        "lockSha256": "635e2da83baaa5388f2fbc0bf57df22ceecbb54d21c299a12c3d25f63154733a",
+        "hosts": {
+          "before-stage": 33520189440,
+          "before-lock": 33519935488,
+          "before-check": 33519128576,
+          "before-verify": 33518972928,
+          "after": 33511841792
+        },
+        "artifacts": {
+          "before-stage": 53920575488,
+          "before-lock": 53920391168,
+          "before-check": 53920382976,
+          "before-verify": 53920382976,
+          "after": 53917560832
+        },
+        "rawHashes": {
+          "outcome.json": "f6be81d762f192a98e62f6f1c4cd7f5ce3c9f7bc9f878818474b87b6c7d85930",
+          "verify.json": "a1cdf7cc2dd566cc01cfbf7e68baceb68269fe44ea02ff8fc9d3c477ae8296b9",
+          "verify.stdout": "de182893fe45d3716df600db7f9b2050294f7751e95fe64ac40826e936a57db4",
+          "inputs.json": "338df50cc8ba73141fe3ea268f29e8ac22fff351172ac1ec7ebc0576422430a3",
+          "artifact/attestation.json": "8261ed4e86fae64b2504c60f01e18c01f633d8e4e10f6e0bf5b7715c7595ab4b",
+          "artifact/build-manifest.json": "126d10aa295dedc028115d1ea4a985c97d0db51ef38d4581b40d2b5a770ecfa1",
+          "artifact/modules/LexLeanR4/Blake3FourthRound.lean": "836ff949abf1520f235fa4de0290a3e43f774c17677f8993d6982ec3a8284b1a"
+        }
+      },
+      "guards": "All9actualpostguards passed;sixabsolutezero snapshots;continuouspeaknotmeasured."
+    },
+    {
+      "phase": "original-consumer",
+      "verdict": "PASS_ACTUAL_FOUR_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION",
+      "review": {
+        "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fourth-round-invocation/original-consumer-attempt1/native-review.json",
+        "bytes": 8246,
+        "sha256": "ccfaa5a1b219f30a2fbba4a04a5f1877923d870c30f2324a2c531a410160d309"
+      },
+      "checkModules": [
+        "Blake3FirstRound",
+        "Blake3FirstRoundConsumer",
+        "Blake3FirstRoundContext",
+        "Blake3FirstRoundLift",
+        "Blake3FourthRound",
+        "Blake3FourthRoundConsumer",
+        "Blake3SecondRound",
+        "Blake3SecondRoundConsumer",
+        "Blake3ThirdRound",
+        "Blake3ThirdRoundConsumer",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Nat"
+      ],
+      "verifyExit": 0,
+      "verifyDurationMs": 35900,
+      "attestationId": "95adc9ed2d8029f5b672c9456a035ed4e06b8ee0c25822caf8e97f52aec01309",
+      "diagnostics": [],
+      "observed": {
+        "status": "PASS_ACTUAL_FOUR_ROUND_ORIGINAL_COMPRESSION_DECOMPOSITION",
+        "artifactFiles": 135,
+        "artifactBytes": 2766837,
+        "declarations": 92,
+        "kernelReplays": 13,
+        "successfulProcesses": 40,
+        "buildOutputs": 65,
+        "oleanCount": 13,
+        "oleanBytes": 2123784,
+        "receipts": 74,
+        "attemptFilesBeforeReports": 384,
+        "censusSha256": "f338f10102d1ad4ca5e8b41589953079033a86e57cf2279b29d54fd79964fa7d",
+        "verifyDurationMs": 35900,
+        "verifyStarted": "2026-10-27T03:43:53.310Z",
+        "verifyEnded": "2026-10-27T03:44:29.210Z",
+        "attestationId": "95adc9ed2d8029f5b672c9456a035ed4e06b8ee0c25822caf8e97f52aec01309",
+        "buildId": "5df3c15a1115088c0b8111bc2d1a09cba61455d38a65aa778310e20849a69bdc",
+        "sourceId": "ef0286ac6ad763a9d6169b4a9ca1962db789a4ee83404cf774c65d6aa257fde7",
+        "semanticId": "69ac2f3c19dba209df7207390bb1f9910bfc50848dce2f2c0a9e5b7fc8ff1666",
+        "lockSha256": "15e8898851ec392d1797e0a8930341028f3d22a17cb59e266739cdeb30755e34",
+        "hosts": {
+          "before-stage": 33497686016,
+          "before-lock": 33497407488,
+          "before-check": 33492373504,
+          "before-verify": 33497075712,
+          "after": 33488384000
+        },
+        "artifacts": {
+          "before-stage": 53917560832,
+          "before-lock": 53917282304,
+          "before-check": 53917274112,
+          "before-verify": 53917274112,
+          "after": 53913305088
+        },
+        "prior11LeanUnchanged": true,
+        "positiveCertificateLeanUnchanged": true,
+        "rawHashes": {
+          "outcome.json": "454c2a99d80d5644083dc61b39e767eb2ef128c68deac0e4e1b3877ee5687df7",
+          "verify.json": "d8177ee04903b4179bcdcc1e4e7139408fdb23a5c6c12d685a6d85952055be87",
+          "verify.stdout": "75e3da85a1eeba99768e7ee8f2687e0ed7c976277b6f41f5a8c976d9a19b0f0d",
+          "inputs.json": "520c11b27d3f7a18a6af224aad8403803287cfa15dff8981e235ea2760d52747",
+          "artifact/attestation.json": "5565475864a4cfbc80b1be19d94ccbbd940552e34f644d7abb221611e6ae7dc3",
+          "artifact/build-manifest.json": "7bb9510265ef595015310dd668f873bfb6277c9426ec9149df6829fb87f177e5",
+          "artifact/modules/LexLeanR4/Blake3FourthRoundConsumer.lean": "4f0cf4653e2cfe5b39257bea514a649192423117161f0272d9886dbb7ce0fbba"
+        }
+      },
+      "guards": "All9actualpostguards passed;sixabsolutezero snapshots;continuouspeaknotmeasured."
+    }
+  ],
+  "archive": {
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "scope": "Fourthroundsource,actualnegativepositiveoriginalconsumer,independentreviews,sourceandinvocationhistory,originalPR74handoffaccountingrecords andprospectivedeliverybudget. Actualfour-rounddecompositiononly.",
+    "uniqueMembers": 481,
+    "aliases": 1786,
+    "binaryExclusions": 17,
+    "binaryExcludedBytes": 4058208,
+    "path": "evidence.jsonl.gz",
+    "bytes": 466488,
+    "sha256": "10cb06fbe6326041e912b8ea310ce31dbb492a55fdf7c27f38baf18fa4f7afc3"
+  },
+  "artifactInventory": {
+    "path": "artifact-inventory.json",
+    "sha256": "b0005a6d4ab94958968abeed250b57c7f35514490c13b0d69d2ae01a6c87663c",
+    "files": 180,
+    "binaryExclusions": 17,
+    "binaryExcludedBytes": 4058208
+  },
+  "originalAccountingRecords": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-handoff-accounting/baseline.json",
+      "bytes": 997,
+      "allocated": 4096,
+      "sha256": "9fc2b4c61369af645b06d4d9d612f800b95b33981c5b708bc305f13a26673ddb"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-handoff-accounting/diagnosis.json",
+      "bytes": 5863,
+      "allocated": 8192,
+      "sha256": "a4693f71380f06082c48fa2e0325ae944dceed0938d6c52744e1d03d9cb8460a"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-third-round-handoff-accounting/publication.json",
+      "bytes": 286,
+      "allocated": 4096,
+      "sha256": "39e277333379750b4c7a2abde1df5bcf5814e065df49923bc0de9c4340a3c69b"
+    }
+  ],
+  "coverage": {
+    "derivation": {
+      "covered": 83,
+      "denominator": 85,
+      "percent": 97.6470588235294,
+      "staticCovered": 82,
+      "staticDenominator": 84,
+      "missedLines": [
+        50,
+        62
+      ],
+      "branch": "NOT_MEASURED"
+    },
+    "scope": "Independent boundedexactderivation83/85physicalexecutablelines97.65%,branchNOT_MEASURED. Archivedrunner is inertreference,evaluatedmemorytestsnotfullscriptcoverage. No genericcoverageorproductiongatewaiver."
+  },
+  "countsUnchanged": {
+    "blake3Vectors": "18/35",
+    "blake3Controls": "255/272",
+    "objectControls": "331/403",
+    "hashRestoration": "78/78roots636controlsCOMPLETE",
+    "hashMutations": "2/7"
+  },
+  "remainingScope": "Three literalrounds/fullcompression/FirstEight/S128/finalization/ROOT/original2048digest,Read33/Construction39/wholeObject257,sevenpendingdrafts,serving/memory/learning,genuinePrismPMbindingandPages.",
+  "limits": "Noefficiency/OOMremedy/continuouspeakclaim; no automaticnextphase/retry/limitincrease. Originalhistoricalfailures remainincommittedpredecessorarchives. PR74handoffaccountingnotretroactivelywaived.",
+  "deliveryBudget": {
+    "capBytes": 12582912,
+    "selectionSha256": "b2ee9bec685d48e94732b3339596d5f53f8313470b08ca6bf372a2699dacfdac",
+    "components": {
+      "fourIndexRewritesAndLocks": 5242880,
+      "twoArchiveMaterializations": 2097152,
+      "newGitObjectsCommitFetch": 2097152,
+      "temporaryArchiveCopies": 1048576,
+      "reportsPublicationCleanupTaskHandoff": 786432,
+      "twoDocsRewrites": 524288,
+      "freshMainSourceMetadataCopies": 524288,
+      "directoryEntries": 131072,
+      "headroom": 131072
+    },
+    "baselineBeforeAnyStaging": true
+  }
+}

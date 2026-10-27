@@ -1,0 +1,56 @@
+{
+  "schema": "lexlean-r4/blake3-fourth-round-spec-review/1",
+  "reviewedAt": "2026-10-27T03:01:53.929289+00:00",
+  "verdict": "PASS_BOUNDED_FOURTH_ROUND_SOURCE_PREPARATION_ONLY",
+  "proposalSha256": "8fc0b697f4b988a467e2df34c6e88062ab28e3b0d76d40bd312921964de7e5ce",
+  "findings": [],
+  "independentChecks": {
+    "sixEstablishedEvidencePins": "PASS before and after",
+    "acceptedR3CanonicalAstSha256": "f34a2e78ff7c325e32b33c7f4fb5263aa6044830825b0132a9c5d55394861683",
+    "R3FullStateFields": 16,
+    "originalBufferBytes": "Exactly integers 0 through 63, in order",
+    "originalCompressParameters": "IV, M0, counter 0, block length 64, flags 1 unchanged",
+    "acceptedRHS": "Rounds(4,R3,Permute^3(M0)) under FeedForward with IV",
+    "productionDeclarationPins": {
+      "b3CoreRounds": "f14eb193211c38c0143609d905b49693c5dc38059bbc241c2da1d666c20ab142",
+      "b3CoreCompressRaw": "fcf6dd544634dd3347a0c95cdf793e70049b57fa2ad7d1141efd6edd53a92c50",
+      "b3CorePermute": "2ba3d5b0427ffb1a19e7ffc48175694a88c5df1faecaa8eab442ca9ecd5b1db4"
+    },
+    "closureDerivation": {
+      "standaloneModules": "Nat/Core/Blake3 plus FourthRound = 4",
+      "standaloneInputs": "3 metadata + 3 runtime + certificate + config = 8",
+      "consumerModules": "Accepted 11 + FourthRound + FourthRoundConsumer = 13",
+      "consumerSharedInputs": "Previous 12 shared + accepted ThirdRound and ThirdRoundConsumer = 14",
+      "consumerInputs": "14 shared + 2 new proof texts + config = 17",
+      "countsAreDesignExpectations": "Exact resolved closure, byte totals and source pins remain mandatory at source freeze"
+    }
+  },
+  "reasoning": [
+    "Pinned production Nat recursion replaces Rounds(4,R3,M3) by Rounds(3,RoundRaw(R3,M3),Permute(M3)). The proposed equality therefore has the correct round count and exactly one additional permutation.",
+    "The proposed 16-word rfl certificate is a supported existing statement/proof form. R4 must be derived from exactly accepted R3/M3, retained as untrusted authoring data, independently checked, then actually verified; no R4 values or proof acceptance are established by this design.",
+    "The sole negative changes expected s0 by one modulo 2^32. All other fields, LHS, proof, imports, runtime, limits and empty axioms must remain equal. A named substantive reflexivity rejection is required; admission failure, timeout, OOM or capture error cannot satisfy this negative.",
+    "The consumer keeps the exact original CompressRaw LHS and applies the actual accepted third consumer using existing Apply syntax. Imported fourth-round equality is not an explicit rewrite: actual kernel conversion must establish the changed literal in context. No conversion timing, efficiency or cost bound follows from this source design.",
+    "Admitted Boolean/glossary wrappers, direct external imports and unqualified local references must be preserved; no invented constructor, trusted CV, runtime change, digest change or additional axiom is proposed."
+  ],
+  "requiredFutureSequence": [
+    "Parent may select only bounded source preparation under its separately selected source budget.",
+    "Freeze source, actual closure and derivation; independently review source and negative isolation, including a missing-fourth-permutation mutant.",
+    "Separately review exact invocation and resources with unchanged 300000ms limit and fresh mandatory gates.",
+    "Parent selects each native phase independently: negative, positive certificate, mandatory original consumer, each followed by actual independent audit. Unexpected outcomes stop for diagnosis and preservation."
+  ],
+  "authority": {
+    "sourcePreparationDesign": "APPROVED",
+    "native": "NOT_AUTHORIZED; all fourth-round native outcomes NOT_RUN",
+    "delivery21": "Unchanged by this review",
+    "scopeIfLaterAllPass": "At most four-round original compression decomposition",
+    "remaining": "Three literal rounds, full compression, FirstEight, S128, finalization, ROOT and original 2048-byte digest remain unresolved. No count promotion or production acceptance.",
+    "currentAcceptedScope": "Three-round original decomposition; four remaining rounds unresolved."
+  },
+  "storage": {
+    "reportAllocatedCapBytes": 8192,
+    "taskCapBytes": 32768,
+    "freshFreeHostBytes": 32813944832,
+    "reserveBytes": 10737418240
+  },
+  "operations": "Read-only local AST/hash inspection and this sole report write; no source materialization, native calls, Git changes or test execution."
+}
