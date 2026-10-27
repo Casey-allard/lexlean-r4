@@ -1,0 +1,172 @@
+{
+  "schema": "lexlean-r4/first-round-delivery-manifest/1",
+  "scope": "Accepted bounded first-round certificate and actual compression decomposition; rejected predecessor retained. No full compression, digest, count or production promotion. Protected10 excluded.",
+  "sourceManifestUnchanged": true,
+  "sourceManifestSha256": "15db0ac75c8b74f550b4f18cf21e9b6216f5f637d1de51142be75b9dd866739e",
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 98754,
+      "sha256": "e846c88f6e023d032c4e765fad0b8d9d601c5a2d706ca25692a5b928b29b3ffd"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 79228,
+      "sha256": "36219ba251c74355cf80e645ed971a9154affb6697776addb907c8c0bce2334c"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/README.md",
+      "bytes": 2884,
+      "sha256": "72411071b68ec9b8ff400c534af8bff26bad6b0bd91e72c056f7636dc190175d"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/RESULTS.md",
+      "bytes": 4181,
+      "sha256": "e8f1f9b9e84738325cccc533da7e22ede6b2fd3187d853d9bc7058e92d34a6df"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/artifact-inventory.json",
+      "bytes": 43865,
+      "sha256": "1dc492a197a3f6cdd310e6a19a9bcd878c1fd03b748774d9deece1ae83689cd0"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/candidate.json",
+      "bytes": 18782,
+      "sha256": "241cde25450241eba66f4944e3472fa8808a94f73bb7df4b8a5fe1bc0b8a824c"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/derivation.json",
+      "bytes": 2305,
+      "sha256": "26fbcc4790df9dcb18381c532209e02ccf9abcb83091384df625fc9fbfad5270"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/derive-expected.py",
+      "bytes": 4176,
+      "sha256": "2c8b931f0e24f0ba06bc3c08d8e7cb55572a9bd3ceedfc87d2991b6f29e1f0ac"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/doc-correction-history.jsonl.gz",
+      "bytes": 95198,
+      "sha256": "7d5c4ce356face0fa39522e811fa28d1371833fd54c2e7ef7e8c6a82dcc381fa"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/evidence.jsonl.gz",
+      "bytes": 513327,
+      "sha256": "ba7770fe2206cc693679b4d7aae32bf7d958ef16263a64cf188c7a8b802b582c"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/manifest.json",
+      "bytes": 2897,
+      "sha256": "15db0ac75c8b74f550b4f18cf21e9b6216f5f637d1de51142be75b9dd866739e"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/next-product-proposal.json",
+      "bytes": 11328,
+      "sha256": "a0bb9cb50736232ef24269ffce68f9a48d42e7e9cd1e8997919949bfc3e523ba"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/next-product-spec-review.json",
+      "bytes": 6659,
+      "sha256": "2d0fdff7d08cabd9f516c5b39181f3205a96a54a616e79d2d1a6232a7b07cc47"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/phases/consumer/lexlean.toml",
+      "bytes": 688,
+      "sha256": "8d013a9ac5b48133b8176de63ece6acc7627d2844d9b61f4159ba2e67149e0de"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/phases/lift-positive/lexlean.toml",
+      "bytes": 684,
+      "sha256": "d658f87062094fde2500de3bd25a513696c4a38fbc603bfaaf9ef59bff6948c5"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/phases/round-negative/lexlean.toml",
+      "bytes": 680,
+      "sha256": "e3d94106bdff4fb2f617d4c683b893f73240feb3f296775149fb6c2ea245ddfd"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/phases/round-negative/tests/lexlean/Blake3FirstRound.lex.tex",
+      "bytes": 5668,
+      "sha256": "2ac52580c4f0f0655b5c08c1dbde2cd3ec08740a6a39e6ffaace569cb367f079"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/phases/round-positive/lexlean.toml",
+      "bytes": 680,
+      "sha256": "e3d94106bdff4fb2f617d4c683b893f73240feb3f296775149fb6c2ea245ddfd"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRound.lex.tex",
+      "bytes": 5668,
+      "sha256": "de60ee149eab2c0c4dbde514df402562ec54d2fb19350264e9a3b88b9559da07"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundConsumer.lex.tex",
+      "bytes": 9969,
+      "sha256": "0260128940caed304991db46db09d4f54306ea09afaa2e2e27cf75b3126dad01"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundContext.lex.tex",
+      "bytes": 15813,
+      "sha256": "4c656e9cc7311582c7830f21d9fe884a8943d43b90e0e7fed621e311639d3937"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/project/tests/lexlean/Blake3FirstRoundLift.lex.tex",
+      "bytes": 1071,
+      "sha256": "4832b2c6091697703ee046f385f8e4b3bb20b332b9dacd094c0001a39d16bab3"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/proposal.json",
+      "bytes": 9736,
+      "sha256": "25d38f618c71b3a75768b85d131caa25e3bdb1d74174d2992a0251a31a49fe17"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/results.json",
+      "bytes": 7557,
+      "sha256": "40f85025640f8ad96b024da354fa8b0f3b694f5a5e245bfe406c7c15d99fd46b"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/source-checks.json",
+      "bytes": 4270,
+      "sha256": "f6ebe7c088cbe97ca76e8217fe4fd3dadddd9b642673e0753e4ae48663c8df37"
+    },
+    {
+      "path": "tests/fixtures/blake3-first-round-lexical/spec-review.json",
+      "bytes": 10258,
+      "sha256": "af0b1b1610796325a467241207fc6c970f087b32c455133ec6f355618a680a52"
+    }
+  ],
+  "preserved": {
+    "model/authorities.toml": "6f0dace08c0fe1cb939448dcdbc42d2dfd1a79e4c8d862728c8f513236130058",
+    "model/ids.toml": "eb589474f0d0446e26e9c245073a84cabe741b43715411cd2d6484802571642a",
+    "model/ledger.toml": "444fa604b33422c62a81fd8914ff6e3b76f0007db367b6800524802df1b9da35",
+    "features/suites/r4-blake3.feature": "aa3a28dde9ff8fc719aa2ee1f850575dc8660338792886a095947c32ced45c79",
+    "features/suites/r4-object.feature": "8bf437e662ca0a903dbcdca9e37688c6d8f2c3fd746c3ab8bdde28236f98fcdc",
+    "features/suites/r4-prediction.feature": "7814c782cb01c947b9292f0d94c006d4c315c6de7246c45aa5d16af2f3e60fc6",
+    "tests/lexlean/ObjectControls.lex.tex": "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+    "tests/fixtures/object-read-memory-observation/invocation-connection.mjs": "2983afe976d6c78fc850745d1f6bb675379df55919db42df8935164b918e2f61",
+    "tests/fixtures/object-read-memory-observation/test_invocation_connection.mjs": "8cf1f4dbc3246bffc5988591d0fba5b6222159313d66d32fb8aa3c7dcfbf9e23",
+    "tests/fixtures/object-read-memory-observation/test_invocation_preparation.mjs": "081e67991d647cfdd98eb25d9308c35e8f80811fa16df59e0d718abbbdacd099"
+  },
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "bytes": 513327,
+    "sha256": "ba7770fe2206cc693679b4d7aae32bf7d958ef16263a64cf188c7a8b802b582c",
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "scope": "Actual first-round certificate and production compression decomposition; rejected lexical predecessor and all instrument histories preserved. No full compression/digest or count promotion.",
+    "uniqueMembers": 605,
+    "aliases": 2604,
+    "binaryExclusions": 17,
+    "binaryExcludedBytes": 5880544,
+    "uncompressedBytes": 2391062,
+    "verification": "Every deduplicated member decoded/hashed and every original alias byte-compared before writing. Packaging recheck, not new compiler replay."
+  },
+  "lateReviewBoundary": "Exact delivery reviews follow this frozen manifest and are retained separately; no archive mutation for late reports.",
+  "correctionHistory": {
+    "path": "doc-correction-history.jsonl.gz",
+    "sha256": "7d5c4ce356face0fa39522e811fa28d1371833fd54c2e7ef7e8c6a82dcc381fa",
+    "bytes": 95198,
+    "members": 8,
+    "predecessorManifestSha256": "b05b3941b62551c5ff6906ffecc7e60d25057e7f818127c359e95000afbc7f26",
+    "change": "Correct restoration status only in results; preserve initial rejected delivery and independent reviews. Exact accepted next-source proposal/SPEC published and linked only from current top paragraphs."
+  }
+}

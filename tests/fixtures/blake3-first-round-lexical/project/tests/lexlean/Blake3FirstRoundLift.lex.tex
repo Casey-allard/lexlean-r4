@@ -1,0 +1,10 @@
+\begin{lexlean}{Blake3FirstRoundLift}
+\useglossary{lexlean.std.bool@1.2.0}
+\useglossary{lexlean.std.nat@1.2.0}
+\importmodule{Blake3FirstRound}
+\importmodule{Blake3FirstRoundContext}
+\title{Boolean}
+\begin{semanticmodule}
+\semanticdata{{"declarations":[{"axioms":[],"kind":"theorem","name":"round_lift","parameters":[{"name":"count","type":{"kind":"nat"}}],"proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"arguments":[],"kind":"apply","theorem":{"module":"Blake3FirstRound","name":"first_round_full_state"},"type_arguments":[]}},{"binders":["prior","ih"],"constructor":"succ","proof":{"branches":[{"binders":[],"constructor":"zero","proof":{"kind":"congruence"}},{"binders":["earlier"],"constructor":"succ","proof":{"kind":"congruence"}}],"kind":"cases","scrutinee":"prior"}}],"generalizing":[],"kind":"induction","scrutinee":"count"},"statement":{"arguments":[{"kind":"var","name":"count"}],"function":{"module":"Blake3FirstRoundContext","name":"B3FirstRoundGoal"},"kind":"call"}}],"spec":"lexlean/semantic-module/2"}}
+\end{semanticmodule}
+\end{lexlean}
