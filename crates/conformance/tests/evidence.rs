@@ -90,8 +90,32 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
         ),
     ];
 
-    for (path, module, digest, modules) in cases {
-        support::verify_controls(path, module, digest, modules)?;
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let next_idx = std::sync::atomic::AtomicUsize::new(0);
+    std::thread::scope(|s| {
+        let workers = 4;
+        for _ in 0..workers {
+            let tx = tx.clone();
+            let next_idx = &next_idx;
+            s.spawn(move || {
+                loop {
+                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    if i >= cases.len() {
+                        break;
+                    }
+                    let (path, module, digest, modules) = cases[i];
+                    if let Err(e) = support::verify_controls(path, module, digest, modules) {
+                        let _ = tx.send(Err(e.to_string()));
+                        return;
+                    }
+                }
+                let _ = tx.send(Ok(()));
+            });
+        }
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
     }
     Ok(())
 }

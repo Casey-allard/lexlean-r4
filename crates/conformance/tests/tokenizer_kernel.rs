@@ -36,18 +36,42 @@ fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {
             "a53867dd2739599c3befd778d0fe0b80d10e956cbccec408e8787c3565992b8e",
         ),
     ];
-    for (path, module, digest) in cases {
-        support::verify_controls(
-            path,
-            module,
-            digest,
-            &[
-                "R4.TokenizerKernel",
-                "R4.TokenizerText",
-                "R4.TokenizerTextUnicode",
-                module,
-            ],
-        )?;
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let next_idx = std::sync::atomic::AtomicUsize::new(0);
+    std::thread::scope(|s| {
+        let workers = 3;
+        for _ in 0..workers {
+            let tx = tx.clone();
+            let next_idx = &next_idx;
+            s.spawn(move || {
+                loop {
+                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    if i >= cases.len() {
+                        break;
+                    }
+                    let (path, module, digest) = cases[i];
+                    if let Err(e) = support::verify_controls(
+                        path,
+                        module,
+                        digest,
+                        &[
+                            "R4.TokenizerKernel",
+                            "R4.TokenizerText",
+                            "R4.TokenizerTextUnicode",
+                            module,
+                        ],
+                    ) {
+                        let _ = tx.send(Err(e.to_string()));
+                        return;
+                    }
+                }
+                let _ = tx.send(Ok(()));
+            });
+        }
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
     }
     Ok(())
 }
