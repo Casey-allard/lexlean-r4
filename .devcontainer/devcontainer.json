@@ -1,6 +1,6 @@
 {
   "name": "UOR PrismPM SDK",
-  "image": "ghcr.io/uor-foundation/prismpm-sdk-candidate@sha256:81e6bc91fffb077608e906cdcdd4047ae45e2d96a5b09382c221387e0b93382b",
+  "image": "ghcr.io/uor-foundation/prismpm-sdk-candidate@sha256:36da25ef924d84899453f24ec0c117a7a220e708037933eb8b499caa7723d99e",
   "containerUser": "root",
   "workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
   "workspaceFolder": "${localWorkspaceFolder}",
