@@ -1,0 +1,103 @@
+{
+  "schema": "lexlean-r4/fifth-round-pause-delivery/1",
+  "scope": "User-requested pause source-only draft checkpoint; all fifth native NOT_RUN.",
+  "sourceManifestSha256": "42a195dacd3e984c70b1f7b718630be74d14a228527d34aae0626d9357d8ce68",
+  "sourceManifestUnchanged": true,
+  "files": [
+    {
+      "path": "docs/CONTINUATION.md",
+      "bytes": 103133,
+      "sha256": "965d8b0d803035f4f315015f879bb97517226fc0c9198c35652dd92ccda6130a"
+    },
+    {
+      "path": "docs/plans/2026-10-21-lexlean-r4.md",
+      "bytes": 83625,
+      "sha256": "50abe443416da0b8be0895751af4ff17a33f52106cc115d0d0fc863bc1efc656"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/PAUSED.md",
+      "bytes": 2824,
+      "sha256": "c53bcf53a1a3e3b2052ac46d876fc1197ce242d4546c5d53072f021ae8731e0e"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/README.md",
+      "bytes": 2518,
+      "sha256": "55064698af54e0371e2856eae5c2fccdf557ac606bcb2b761adc57a6248eed61"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/candidate.json",
+      "bytes": 20974,
+      "sha256": "f66a5230223db2fc06dcc3d7be203850c0e21703be636bd0d796dc6261da553a"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/derivation.json",
+      "bytes": 6957,
+      "sha256": "f599e4fda18b637c3756a6c1008188b8287e3e38fae34bb227b051b700c84816"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/derive-expected.py",
+      "bytes": 5393,
+      "sha256": "359ec0cceb9e888b70671b867a3845803e856ebaa48847b8eef56abce90d8afb"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/evidence.jsonl.gz",
+      "bytes": 90641,
+      "sha256": "e8c635826c4dbf11d3a090fa6709e5fe67acfe4c3b02d5f9852c45b221533644"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/manifest.json",
+      "bytes": 7882,
+      "sha256": "42a195dacd3e984c70b1f7b718630be74d14a228527d34aae0626d9357d8ce68"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/phases/original-consumer/lexlean.toml",
+      "bytes": 688,
+      "sha256": "1bc2e4f9c0729ec8b0e96d3dd4cdbe35e921a982f30cbd70336ae377f59dbb47"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/phases/round5-negative/lexlean.toml",
+      "bytes": 680,
+      "sha256": "957169e31d09778e30ebc316bde6af93e7667ba0a51727f5bbf59af0c49a903a"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/phases/round5-negative/tests/lexlean/Blake3FifthRound.lex.tex",
+      "bytes": 6807,
+      "sha256": "fe1c0a6b0cb913eadf381abd7f88395d3e92671fc5036aeff301e6215aa13577"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/phases/round5-positive/lexlean.toml",
+      "bytes": 680,
+      "sha256": "957169e31d09778e30ebc316bde6af93e7667ba0a51727f5bbf59af0c49a903a"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/project/tests/lexlean/Blake3FifthRound.lex.tex",
+      "bytes": 6807,
+      "sha256": "9000a94860364aaac499d4a7b6a7684c2c7b031ca0ede8c140bcf985eb637a0b"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/project/tests/lexlean/Blake3FifthRoundConsumer.lex.tex",
+      "bytes": 10375,
+      "sha256": "01106e011d80a32fcfaa5dceea3c5e8f3f439cd9e7e19bbaa0e65f426ff706ad"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/proposal.json",
+      "bytes": 12161,
+      "sha256": "d39c7de9344b9aff8f8ffa6f4a49145e437b8d7b268d138a63817bba5594a27f"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/results.json",
+      "bytes": 4451,
+      "sha256": "585c00ac71cfd22edfde237c347e4841cbca489cc6b33e4fcdf5cf7035a0dbad"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/source-checks.json",
+      "bytes": 6122,
+      "sha256": "3d335e33bcf466f73c24e89dbf4b478d48245aa22cfaf4b84c742d35d36e5e1d"
+    },
+    {
+      "path": "tests/fixtures/blake3-fifth-round/spec-review.json",
+      "bytes": 5106,
+      "sha256": "0616e2598a21e31966a1ca9013feff63f4d249a2d0c65acc31f2d74df033fd48"
+    }
+  ]
+}

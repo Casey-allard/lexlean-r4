@@ -1,0 +1,73 @@
+{
+  "status": "PAUSED_AT_USER_REQUEST_SOURCE_ONLY_NO_NATIVE_ACCEPTANCE",
+  "pause": "User requested a good stopping point then pause for approximately one week. Automation was paused by parent. No automatic date-triggered restart; wait for explicit user resume.",
+  "sourceManifestSha256": "42a195dacd3e984c70b1f7b718630be74d14a228527d34aae0626d9357d8ce68",
+  "nativePhases": {
+    "round5-negative": "NOT_RUN",
+    "round5-positive": "NOT_RUN",
+    "original-consumer": "NOT_RUN"
+  },
+  "sourceReview": "Independent CODE and security/Python PASS source only. NumericR5 remains untrusted until actual kernel rfl.",
+  "sourceChecks": {
+    "assertions": 105,
+    "structuralRed": 4,
+    "structuralGreen": 4,
+    "missingFifthPermuteMutant": "REJECTED_STRUCTURALLY",
+    "derivationPhysicalLineCoverage": {
+      "covered": 84,
+      "denominator": 86,
+      "percent": 97.67441860465117,
+      "branch": "NOT_MEASURED"
+    },
+    "scope": "Authoring derivation only; no native/runtime/global coverage claim."
+  },
+  "invocationReview": "CODE and security/resource conditional PASS; user pause supersedes selection authorization. No phase was launched.",
+  "invocationTests": {
+    "independentCases": 25,
+    "passed": 25,
+    "coverage": "NOT_MEASURED"
+  },
+  "reviews": [
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fifth-round-source/code-review.json",
+      "bytes": 7842,
+      "sha256": "e76f304e4a8a41f973f7fa70eb1ca6c2899b20df3e29732783ba8505b04398a8"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fifth-round-source/security-python-review.json",
+      "bytes": 4992,
+      "sha256": "526389914d7d287ab2b4a9bebf56be0bfe48a0931bcc95a06ddf191fa248f5ad"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fifth-round-invocation/invocation-code-review.json",
+      "bytes": 9872,
+      "sha256": "0c6edc4959e539820f8dbaac006a318be82a77426b9db88a92e2482ee2667fd7"
+    },
+    {
+      "path": "/Users/casey.allard/lexlean-r4-evidence/2026-10-27/blake3-fifth-round-invocation/invocation-security-resource-review.json",
+      "bytes": 5351,
+      "sha256": "5dd26bd7e0e841f3a7136d4b416b48bbf8ef80f6fe040c925b5e12718aa4828f"
+    }
+  ],
+  "archive": {
+    "path": "evidence.jsonl.gz",
+    "sha256": "e8c635826c4dbf11d3a090fa6709e5fe67acfe4c3b02d5f9852c45b221533644",
+    "bytes": 90641,
+    "schema": "lexlean-r4/exact-evidence-jsonl/1",
+    "scope": "Fifth-round SOURCE ONLY user-requested pause: exact plan,source,invocation,reviews,instrument history and prospective delivery baseline. No fifth native runs or artifacts.",
+    "uniqueMembers": 38,
+    "aliases": 88,
+    "binaryExclusions": 0,
+    "binaryExcludedBytes": 0
+  },
+  "restartPrerequisites": [
+    "Explicit user resume; do not automatically restart after one week.",
+    "Fetch main and inspect draft checkpoint, current source/manifest and protected files; resolve any upstream changes through fresh review.",
+    "Recover exact pinned invocation/evidence aliases from archive, verify hashes and canonical fixed source paths before executing; do not assume original temporary files exist.",
+    "Refresh exact SDK/tool/container/boot/epoch identity, idle/no overlapping jobs, all six absolute-zero memory counters, host20GiB floor with10GiB peak+10GiB retained reserve, artifact11GiB pre/10GiB post; distinguish artifact/guestroot/sharedhost. Historical epoch is not fresh authority.",
+    "If old container/epoch cannot satisfy gates, separately review a fresh resource epoch preserving old counters/evidence; no automatic restart or counter waiver.",
+    "Parent selects only round5-negative after fresh reviews/gates; independently audit intended rejection before selecting positive; audit positive artifact before mandatory original consumer. Stop unexpected failure; no retry/limit increase/automatic progression."
+  ],
+  "remainingScope": "Last accepted product result is four-round decomposition. Fifth round source/consumer unexecuted; two subsequent rounds/fullcompression/S128/digest remain unaccepted. BLAKE3 counts18/35vectors255/272controls,Object331/403 unchanged. Hashrestoration78/78roots636controls COMPLETE; mutations2/7 and fullHash remain open. Seven drafts,Read33,Construction39,wholeObject257,serving,durablememory,learning,genuinePrismPMbinding/Pages remain required.",
+  "delivery": "Draft source-only pause PR; no merge or proof acceptance implied."
+}
