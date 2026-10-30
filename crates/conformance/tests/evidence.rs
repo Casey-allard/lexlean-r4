@@ -13,79 +13,96 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
         "357cdfc926a220239193b19c6d2fd86beea4e6c0d843926066e6c185e1fdc5d2",
         "reviewed complete upstream mechanism evidence changed"
     );
-    support::verify_controls(
-        "tests/lexlean/EvidenceCatalogControls.lex.tex",
-        "EvidenceCatalogControls",
-        "5ac609e85576334d6502c35f807ad1fd11e04f253925ada0f89ea5ccf46f870f",
-        &["EvidenceCatalogControls", "R4.Evidence"],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/EvidenceCoverageControls.lex.tex",
-        "EvidenceCoverageControls",
-        "1e2c3bb701b27fb15b729ac9b688d5d32d1f728178f46325d4cd6a9bc00bcc12",
-        &[
+    let cases: [(&str, &str, &str, &[&str]); 7] = [
+        (
+            "tests/lexlean/EvidenceCatalogControls.lex.tex",
+            "EvidenceCatalogControls",
+            "5ac609e85576334d6502c35f807ad1fd11e04f253925ada0f89ea5ccf46f870f",
+            &["EvidenceCatalogControls", "R4.Evidence"],
+        ),
+        (
+            "tests/lexlean/EvidenceCoverageControls.lex.tex",
             "EvidenceCoverageControls",
-            "R4.Evidence",
-            "R4.EvidenceCoverage",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/EvidenceCoverageBoundaryControls.lex.tex",
-        "EvidenceCoverageBoundaryControls",
-        "60547b76953030c72e7cc85bab53c381c688a448efaa812365afac60af80c38a",
-        &[
+            "1e2c3bb701b27fb15b729ac9b688d5d32d1f728178f46325d4cd6a9bc00bcc12",
+            &[
+                "EvidenceCoverageControls",
+                "R4.Evidence",
+                "R4.EvidenceCoverage",
+            ],
+        ),
+        (
+            "tests/lexlean/EvidenceCoverageBoundaryControls.lex.tex",
             "EvidenceCoverageBoundaryControls",
-            "R4.Evidence",
-            "R4.EvidenceCoverage",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/EvidenceDescriptionIdentityControls.lex.tex",
-        "EvidenceDescriptionIdentityControls",
-        "d3c652ba9e127441ea2f9887c3a766c8efc58f944dd336a575ec08742b08f3f8",
-        &[
+            "60547b76953030c72e7cc85bab53c381c688a448efaa812365afac60af80c38a",
+            &[
+                "EvidenceCoverageBoundaryControls",
+                "R4.Evidence",
+                "R4.EvidenceCoverage",
+            ],
+        ),
+        (
+            "tests/lexlean/EvidenceDescriptionIdentityControls.lex.tex",
             "EvidenceDescriptionIdentityControls",
-            "R4.Evidence",
-            "R4.EvidenceDescription",
-            "R4.TokenizerText",
-            "R4.TokenizerTextUnicode",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/EvidenceDescriptionRunControls.lex.tex",
-        "EvidenceDescriptionRunControls",
-        "3b3de7cf1a8784805a527f686bb3fc8030ac51d84d23fc61e48464bcdf65e497",
-        &[
+            "d3c652ba9e127441ea2f9887c3a766c8efc58f944dd336a575ec08742b08f3f8",
+            &[
+                "EvidenceDescriptionIdentityControls",
+                "R4.Evidence",
+                "R4.EvidenceDescription",
+                "R4.TokenizerText",
+                "R4.TokenizerTextUnicode",
+            ],
+        ),
+        (
+            "tests/lexlean/EvidenceDescriptionRunControls.lex.tex",
             "EvidenceDescriptionRunControls",
-            "R4.Evidence",
-            "R4.EvidenceDescription",
-            "R4.TokenizerText",
-            "R4.TokenizerTextUnicode",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/EvidenceDescriptionGraphControls.lex.tex",
-        "EvidenceDescriptionGraphControls",
-        "1042a6d9ca1ca0f03faa42602fa88b35f8879c093f52b8890817c69d3023f9f8",
-        &[
+            "3b3de7cf1a8784805a527f686bb3fc8030ac51d84d23fc61e48464bcdf65e497",
+            &[
+                "EvidenceDescriptionRunControls",
+                "R4.Evidence",
+                "R4.EvidenceDescription",
+                "R4.TokenizerText",
+                "R4.TokenizerTextUnicode",
+            ],
+        ),
+        (
+            "tests/lexlean/EvidenceDescriptionGraphControls.lex.tex",
             "EvidenceDescriptionGraphControls",
-            "R4.Evidence",
-            "R4.EvidenceDescription",
-            "R4.TokenizerText",
-            "R4.TokenizerTextUnicode",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/EvidenceDescriptionBoundaryControls.lex.tex",
-        "EvidenceDescriptionBoundaryControls",
-        "a614abcb5b7dd68eace29a7ae1c0e70f525b9107a76b661e872387fd30096f02",
-        &[
+            "1042a6d9ca1ca0f03faa42602fa88b35f8879c093f52b8890817c69d3023f9f8",
+            &[
+                "EvidenceDescriptionGraphControls",
+                "R4.Evidence",
+                "R4.EvidenceDescription",
+                "R4.TokenizerText",
+                "R4.TokenizerTextUnicode",
+            ],
+        ),
+        (
+            "tests/lexlean/EvidenceDescriptionBoundaryControls.lex.tex",
             "EvidenceDescriptionBoundaryControls",
-            "R4.Evidence",
-            "R4.EvidenceDescription",
-            "R4.TokenizerText",
-            "R4.TokenizerTextUnicode",
-        ],
-    )?;
+            "a614abcb5b7dd68eace29a7ae1c0e70f525b9107a76b661e872387fd30096f02",
+            &[
+                "EvidenceDescriptionBoundaryControls",
+                "R4.Evidence",
+                "R4.EvidenceDescription",
+                "R4.TokenizerText",
+                "R4.TokenizerTextUnicode",
+            ],
+        ),
+    ];
+
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    std::thread::scope(|s| {
+        for (path, module, digest, modules) in cases {
+            let tx = tx.clone();
+            s.spawn(move || {
+                let res = support::verify_controls(path, module, digest, modules);
+                let _ = tx.send(res.map_err(|e| e.to_string()));
+            });
+        }
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
+    }
     Ok(())
 }

@@ -128,48 +128,44 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
     // Verify the complete 30-case partition across worker threads to fit within the 45-minute CI budget.
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
     std::thread::scope(|s| {
-        let workers = 10;
-        let chunk_size = groups.len().div_ceil(workers);
-        for chunk in groups.chunks(chunk_size) {
+        for group in groups {
             let tx = tx.clone();
             s.spawn(move || {
-                for group in chunk {
-                    let module = match group["module"].as_str() {
-                        Some(m) => m,
-                        None => {
-                            let _ = tx.send(Err("missing module".to_string()));
-                            return;
-                        }
-                    };
-                    let path = match group["path"].as_str() {
-                        Some(p) => p,
-                        None => {
-                            let _ = tx.send(Err("missing path".to_string()));
-                            return;
-                        }
-                    };
-                    let digest = match group["source_sha256"].as_str() {
-                        Some(d) => d,
-                        None => {
-                            let _ = tx.send(Err("missing digest".to_string()));
-                            return;
-                        }
-                    };
-                    if let Err(e) = support::verify_controls(
-                        path,
-                        module,
-                        digest,
-                        &[
-                            module,
-                            "R4.Hash",
-                            "R4.HashNat",
-                            "R4.HashNatCore",
-                            "R4.Words",
-                        ],
-                    ) {
-                        let _ = tx.send(Err(e.to_string()));
+                let module = match group["module"].as_str() {
+                    Some(m) => m,
+                    None => {
+                        let _ = tx.send(Err("missing module".to_string()));
                         return;
                     }
+                };
+                let path = match group["path"].as_str() {
+                    Some(p) => p,
+                    None => {
+                        let _ = tx.send(Err("missing path".to_string()));
+                        return;
+                    }
+                };
+                let digest = match group["source_sha256"].as_str() {
+                    Some(d) => d,
+                    None => {
+                        let _ = tx.send(Err("missing digest".to_string()));
+                        return;
+                    }
+                };
+                if let Err(e) = support::verify_controls(
+                    path,
+                    module,
+                    digest,
+                    &[
+                        module,
+                        "R4.Hash",
+                        "R4.HashNat",
+                        "R4.HashNatCore",
+                        "R4.Words",
+                    ],
+                ) {
+                    let _ = tx.send(Err(e.to_string()));
+                    return;
                 }
                 let _ = tx.send(Ok(()));
             });
