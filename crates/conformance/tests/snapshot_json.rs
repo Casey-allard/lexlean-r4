@@ -28,59 +28,43 @@ fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(count, 476);
 
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let mut sorted_fixtures = fixtures.clone();
-    sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["controls"].as_u64().unwrap_or(0)));
-    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 4;
-        for _ in 0..workers {
+        for fixture in fixtures {
             let tx = tx.clone();
-            let next_idx = &next_idx;
-            let sorted_fixtures = &sorted_fixtures;
             s.spawn(move || {
-                loop {
-                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                    if i >= sorted_fixtures.len() {
-                        break;
-                    }
-                    let fixture = &sorted_fixtures[i];
-                    let path = match fixture["path"].as_str() {
-                        Some(p) => p,
-                        None => {
-                            let _ = tx.send(Err("missing control path".to_string()));
-                            return;
-                        }
-                    };
-                    let module = match fixture["module"].as_str() {
-                        Some(m) => m,
-                        None => {
-                            let _ = tx.send(Err("missing control module".to_string()));
-                            return;
-                        }
-                    };
-                    let digest = match fixture["sha256"].as_str() {
-                        Some(d) => d,
-                        None => {
-                            let _ = tx.send(Err("missing control digest".to_string()));
-                            return;
-                        }
-                    };
-                    let mut modules = vec![
-                        module,
-                        "R4.Json",
-                        "R4.JsonNumber",
-                        "R4.JsonNumberArithmetic",
-                        "R4.SnapshotJson",
-                        "R4.TokenizerText",
-                        "R4.TokenizerTextUnicode",
-                    ];
-                    modules.sort_unstable();
-                    if let Err(e) = support::verify_controls(path, module, digest, &modules) {
-                        let _ = tx.send(Err(e.to_string()));
+                let path = match fixture["path"].as_str() {
+                    Some(p) => p,
+                    None => {
+                        let _ = tx.send(Err("missing control path".to_string()));
                         return;
                     }
-                }
-                let _ = tx.send(Ok(()));
+                };
+                let module = match fixture["module"].as_str() {
+                    Some(m) => m,
+                    None => {
+                        let _ = tx.send(Err("missing control module".to_string()));
+                        return;
+                    }
+                };
+                let digest = match fixture["sha256"].as_str() {
+                    Some(d) => d,
+                    None => {
+                        let _ = tx.send(Err("missing control digest".to_string()));
+                        return;
+                    }
+                };
+                let mut modules = vec![
+                    module,
+                    "R4.Json",
+                    "R4.JsonNumber",
+                    "R4.JsonNumberArithmetic",
+                    "R4.SnapshotJson",
+                    "R4.TokenizerText",
+                    "R4.TokenizerTextUnicode",
+                ];
+                modules.sort_unstable();
+                let res = support::verify_controls(path, module, digest, &modules);
+                let _ = tx.send(res.map_err(|e| e.to_string()));
             });
         }
     });
