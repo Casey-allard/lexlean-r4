@@ -7,11 +7,13 @@ rust-version.workspace = true
 license.workspace = true
 publish = false
 build = "build.rs"
+autotests = true
 
 [dependencies]
 repo-model = { workspace = true }
 
 [dev-dependencies]
+serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = "=1.0.154"
 sha2 = "=0.11.1"
 
@@ -20,3 +22,4 @@ syn = { version = "=3.0.9", features = ["full", "visit"] }
 
 [lints]
 workspace = true
+

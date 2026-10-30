@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
+  <title>LexLean-R4 Universal Reference Engine</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main>
+    <h1>LexLean-R4 Reference Engine</h1>
+    <form id="application-form" novalidate>
+      <div class="field">
+        <label for="left">Left operand / Occurrence Coordinate</label>
+        <input id="left" name="left" inputmode="numeric" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="operation">Operation</label>
+        <select id="operation" name="operation">
+          <option value="0" data-request="forward" selected>Forward Transition</option>
+          <option value="1" data-request="route">Route Descent</option>
+          <option value="2" data-request="flock">Flock Consensus</option>
+          <option value="3" data-request="verify-receipt">Verify Receipt</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="right">Right operand / Parameter</label>
+        <input id="right" name="right" inputmode="numeric" autocomplete="off" spellcheck="false">
+      </div>
+      <button id="submit" type="submit">Execute</button>
+    </form>
+    <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
