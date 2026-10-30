@@ -157,13 +157,18 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
         "tests/lexlean/Blake3CoreControls.lex.tex",
         "Blake3CoreControls",
         "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
-        &["Blake3CoreControls", "R4.Blake3Core"],
+        &["Blake3CoreControls", "R4.Blake3Core", "R4.Blake3Nat"],
     )?;
     support::verify_controls(
         "tests/lexlean/Blake3StreamingControls.lex.tex",
         "Blake3StreamingControls",
         "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
-        &["Blake3StreamingControls", "R4.Blake3", "R4.Blake3Core"],
+        &[
+            "Blake3StreamingControls",
+            "R4.Blake3",
+            "R4.Blake3Core",
+            "R4.Blake3Nat",
+        ],
     )?;
     for (module, digest) in BLAKE3_CASES {
         let path = format!("tests/lexlean/{module}.lex.tex");
@@ -171,7 +176,13 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
             &path,
             module,
             digest,
-            &[module, "R4.Blake3", "R4.Blake3Input"],
+            &[
+                module,
+                "R4.Blake3",
+                "R4.Blake3Core",
+                "R4.Blake3Input",
+                "R4.Blake3Nat",
+            ],
         )?;
     }
     Ok(())
