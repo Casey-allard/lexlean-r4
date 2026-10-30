@@ -131,7 +131,13 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
             group["path"].as_str().ok_or("missing path")?,
             module,
             group["source_sha256"].as_str().ok_or("missing digest")?,
-            &[module, "R4.Hash", "R4.Words"],
+            &[
+                module,
+                "R4.Hash",
+                "R4.HashNat",
+                "R4.HashNatCore",
+                "R4.Words",
+            ],
         )?;
     }
     Ok(())

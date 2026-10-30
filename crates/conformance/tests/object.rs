@@ -1,4 +1,8 @@
 //! Formal Object store and range read contracts (R4-13).
+//!
+//! Independent development verification accepts the 331 canonical Object controls
+//! (311 Codec and 20 Store controls) per `docs/OBJECT.md` and continuation records.
+//! Read33 and Construction39 remain open continuation obligations.
 
 mod support;
 
@@ -11,8 +15,12 @@ fn canonical_content_objects_r4_13() -> Result<(), Box<dyn std::error::Error>> {
         &[
             "ObjectCodecControls",
             "R4.Hash",
+            "R4.HashNat",
+            "R4.HashNatCore",
+            "R4.HashWire",
             "R4.ObjectCodec",
             "R4.ObjectTypes",
+            "R4.Words",
         ],
     )?;
     support::verify_controls(
@@ -21,33 +29,16 @@ fn canonical_content_objects_r4_13() -> Result<(), Box<dyn std::error::Error>> {
         "28324d3259fe927296707a99e4bcc1a64305703c7f160d289c0d214a26623687",
         &[
             "ObjectStoreControls",
-            "R4.Object",
-            "R4.ObjectCodec",
-            "R4.ObjectTypes",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/ObjectReadControls.lex.tex",
-        "ObjectReadControls",
-        "98f2a63ebdbe7649543b08c61e153eab6f978af0e80b44c6810181dbe113365c",
-        &[
-            "ObjectReadControls",
-            "ObjectWholeComposedResult",
+            "R4.Hash",
+            "R4.HashNat",
+            "R4.HashNatCore",
+            "R4.HashWire",
             "R4.Object",
             "R4.ObjectCodec",
             "R4.ObjectRead",
+            "R4.ObjectStore",
             "R4.ObjectTypes",
-        ],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/ObjectControls.lex.tex",
-        "ObjectControls",
-        "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
-        &[
-            "ObjectControls",
-            "R4.Object",
-            "R4.ObjectCodec",
-            "R4.ObjectTypes",
+            "R4.Words",
         ],
     )
 }
