@@ -30,28 +30,20 @@ fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
     let mut sorted_fixtures = fixtures.clone();
     sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["controls"].as_u64().unwrap_or(0)));
-    let queue = std::sync::Arc::new(std::sync::Mutex::new(sorted_fixtures.into_iter()));
+    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
         let workers = 4;
         for _ in 0..workers {
             let tx = tx.clone();
-            let queue = std::sync::Arc::clone(&queue);
+            let next_idx = &next_idx;
+            let sorted_fixtures = &sorted_fixtures;
             s.spawn(move || {
                 loop {
-                    let fixture = {
-                        let mut lock = match queue.lock() {
-                            Ok(guard) => guard,
-                            Err(_) => {
-                                let _ = tx.send(Err("mutex poisoned".to_string()));
-                                return;
-                            }
-                        };
-                        lock.next()
-                    };
-                    let fixture = match fixture {
-                        Some(f) => f,
-                        None => break,
-                    };
+                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    if i >= sorted_fixtures.len() {
+                        break;
+                    }
+                    let fixture = &sorted_fixtures[i];
                     let path = match fixture["path"].as_str() {
                         Some(p) => p,
                         None => {

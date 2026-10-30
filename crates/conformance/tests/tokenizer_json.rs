@@ -29,28 +29,19 @@ fn complete_tokenizer_json_r4_20() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(count, 399);
 
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let queue = std::sync::Arc::new(std::sync::Mutex::new(fixtures.clone().into_iter()));
+    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 2;
+        let workers = 4;
         for _ in 0..workers {
             let tx = tx.clone();
-            let queue = std::sync::Arc::clone(&queue);
+            let next_idx = &next_idx;
             s.spawn(move || {
                 loop {
-                    let fixture = {
-                        let mut lock = match queue.lock() {
-                            Ok(guard) => guard,
-                            Err(_) => {
-                                let _ = tx.send(Err("mutex poisoned".to_string()));
-                                return;
-                            }
-                        };
-                        lock.next()
-                    };
-                    let fixture = match fixture {
-                        Some(f) => f,
-                        None => break,
-                    };
+                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    if i >= fixtures.len() {
+                        break;
+                    }
+                    let fixture = &fixtures[i];
                     let path = match fixture["path"].as_str() {
                         Some(p) => p,
                         None => {

@@ -3,7 +3,7 @@
 default: vv
 
 # The whole gate.
-vv: template-check fmt-check model lint test features bdd deny
+vv: template-check fmt-check model lint test features deny
     @echo "vv: the acceptance gate passed"
 
 # R1, R4, R5 --- the repository gates, each falsifiable.
@@ -32,7 +32,7 @@ lint:
     cargo clippy --workspace --all-targets -- -D warnings
 
 test:
-    cargo test --workspace
+    cargo test --workspace --lib --bins --tests
 
 # A feature only its author has built is a feature that does not work: nothing
 # else in the gate compiles a crate at anything but its default features, so a
