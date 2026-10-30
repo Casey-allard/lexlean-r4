@@ -28,23 +28,74 @@ fn complete_tokenizer_json_r4_20() -> Result<(), Box<dyn std::error::Error>> {
     }
     assert_eq!(count, 399);
 
-    for fixture in fixtures {
-        let path = fixture["path"].as_str().ok_or("missing control path")?;
-        let module = fixture["module"].as_str().ok_or("missing control module")?;
-        let digest = fixture["sha256"].as_str().ok_or("missing control digest")?;
-        let mut modules = vec![
-            module,
-            "R4.Json",
-            "R4.JsonNumber",
-            "R4.JsonNumberArithmetic",
-            "R4.TokenizerText",
-            "R4.TokenizerTextUnicode",
-        ];
-        if module.starts_with("TokenizerJson") || module == "JsonAdditionalControls" {
-            modules.extend(["R4.TokenizerJson", "R4.TokenizerKernel"]);
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let queue = std::sync::Arc::new(std::sync::Mutex::new(fixtures.clone().into_iter()));
+    std::thread::scope(|s| {
+        let workers = 2;
+        for _ in 0..workers {
+            let tx = tx.clone();
+            let queue = std::sync::Arc::clone(&queue);
+            s.spawn(move || {
+                loop {
+                    let fixture = {
+                        let mut lock = match queue.lock() {
+                            Ok(guard) => guard,
+                            Err(_) => {
+                                let _ = tx.send(Err("mutex poisoned".to_string()));
+                                return;
+                            }
+                        };
+                        lock.next()
+                    };
+                    let fixture = match fixture {
+                        Some(f) => f,
+                        None => break,
+                    };
+                    let path = match fixture["path"].as_str() {
+                        Some(p) => p,
+                        None => {
+                            let _ = tx.send(Err("missing control path".to_string()));
+                            return;
+                        }
+                    };
+                    let module = match fixture["module"].as_str() {
+                        Some(m) => m,
+                        None => {
+                            let _ = tx.send(Err("missing control module".to_string()));
+                            return;
+                        }
+                    };
+                    let digest = match fixture["sha256"].as_str() {
+                        Some(d) => d,
+                        None => {
+                            let _ = tx.send(Err("missing control digest".to_string()));
+                            return;
+                        }
+                    };
+                    let mut modules = vec![
+                        module,
+                        "R4.Json",
+                        "R4.JsonNumber",
+                        "R4.JsonNumberArithmetic",
+                        "R4.TokenizerText",
+                        "R4.TokenizerTextUnicode",
+                    ];
+                    if module.starts_with("TokenizerJson") || module == "JsonAdditionalControls" {
+                        modules.extend(["R4.TokenizerJson", "R4.TokenizerKernel"]);
+                    }
+                    modules.sort_unstable();
+                    if let Err(e) = support::verify_controls(path, module, digest, &modules) {
+                        let _ = tx.send(Err(e.to_string()));
+                        return;
+                    }
+                }
+                let _ = tx.send(Ok(()));
+            });
         }
-        modules.sort_unstable();
-        support::verify_controls(path, module, digest, &modules)?;
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
     }
     Ok(())
 }

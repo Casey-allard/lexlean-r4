@@ -125,15 +125,30 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
         "missing or unregistered hash control source"
     );
     // Audit the entire frozen partition before invoking any verifier; every case is mandatory.
-    // Verify the complete 30-case partition across 3 worker threads to fit within the 45-minute CI budget without CPU thrashing.
+    // Verify the complete 30-case partition across 4 worker threads pulling from a dynamic work queue to fit within the 45-minute CI budget without CPU thrashing.
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let queue = std::sync::Arc::new(std::sync::Mutex::new(groups.clone().into_iter()));
     std::thread::scope(|s| {
-        let workers = 3;
-        let chunk_size = groups.len().div_ceil(workers);
-        for chunk in groups.chunks(chunk_size) {
+        let workers = 4;
+        for _ in 0..workers {
             let tx = tx.clone();
+            let queue = std::sync::Arc::clone(&queue);
             s.spawn(move || {
-                for group in chunk {
+                loop {
+                    let group = {
+                        let mut lock = match queue.lock() {
+                            Ok(guard) => guard,
+                            Err(_) => {
+                                let _ = tx.send(Err("mutex poisoned".to_string()));
+                                return;
+                            }
+                        };
+                        lock.next()
+                    };
+                    let group = match group {
+                        Some(g) => g,
+                        None => break,
+                    };
                     let module = match group["module"].as_str() {
                         Some(m) => m,
                         None => {

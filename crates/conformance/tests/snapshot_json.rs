@@ -28,13 +28,30 @@ fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(count, 476);
 
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let mut sorted_fixtures = fixtures.clone();
+    sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["controls"].as_u64().unwrap_or(0)));
+    let queue = std::sync::Arc::new(std::sync::Mutex::new(sorted_fixtures.into_iter()));
     std::thread::scope(|s| {
-        let workers = 3;
-        let chunk_size = fixtures.len().div_ceil(workers);
-        for chunk in fixtures.chunks(chunk_size) {
+        let workers = 4;
+        for _ in 0..workers {
             let tx = tx.clone();
+            let queue = std::sync::Arc::clone(&queue);
             s.spawn(move || {
-                for fixture in chunk {
+                loop {
+                    let fixture = {
+                        let mut lock = match queue.lock() {
+                            Ok(guard) => guard,
+                            Err(_) => {
+                                let _ = tx.send(Err("mutex poisoned".to_string()));
+                                return;
+                            }
+                        };
+                        lock.next()
+                    };
+                    let fixture = match fixture {
+                        Some(f) => f,
+                        None => break,
+                    };
                     let path = match fixture["path"].as_str() {
                         Some(p) => p,
                         None => {
