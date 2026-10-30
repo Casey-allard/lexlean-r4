@@ -128,7 +128,7 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
     // Verify the complete 30-case partition across worker threads to fit within the 45-minute CI budget.
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
     std::thread::scope(|s| {
-        let workers = 4;
+        let workers = 10;
         let chunk_size = groups.len().div_ceil(workers);
         for chunk in groups.chunks(chunk_size) {
             let tx = tx.clone();
