@@ -132,3 +132,21 @@ id = "R4-08"
 level = "build"
 suite = "r4-learning"
 statement = "The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train."
+
+[[id]]
+id = "R4-13"
+level = "build"
+suite = "r4-object"
+statement = "Pure LexLean constructs and authenticates canonical content-addressed ternary byte objects, exact record and manifest codecs, bounded atomic inventory changes, occurrence-preserving range reads and distinct whole-object and closure verification. Formal controls establish neither hash injectivity nor peer transactions, tokenizer binding, durable browser persistence or language capability."
+
+[[id]]
+id = "R4-15"
+level = "build"
+suite = "r4-blake3"
+statement = "Pure LexLean computes complete unkeyed BLAKE3-256 over admitted finite byte sequences and incremental updates, preserving full block, chunk, tree and ROOT semantics with exact length and budget admission. Formal known-answer controls establish neither tokenizer composition nor cryptographic injectivity or production acceptance."
+
+[[id]]
+id = "R4-19"
+level = "build"
+suite = "r4-prediction"
+statement = "Pure LexLean target-free prediction validates complete geometric inputs and retains all identities under occupied-cell admission and global ranking, with general supervised-writer projection and lawful loss-safety proofs. This establishes no artifact custody, generated fixed-memory serving, research parity or deployment."

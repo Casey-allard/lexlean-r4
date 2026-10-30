@@ -187,3 +187,27 @@ citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb
 checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
 statement = "The pinned kernels define baseline-fixed candidate losses, active candidate inventories, deterministic selection and guarded geometric updates; device.rs supplies instance/source/geometry and dual-epoch admission. Explicit model loss inputs do not authenticate a device proposal or release training."
 realized_by = ["R4-08"]
+
+[[authority]]
+id = "UOR-CONTENT-OBJECTS"
+name = "UOR exact content-addressed ternary objects"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/lib.rs; companion record.rs, manifest.rs and store.rs define UOROBJ01 codecs, closure and range semantics"
+checksum = "sha256:e82939bd3fe505a6a972d3107958aaa02157552683e69d67a6fe4cb351242114"
+statement = "Pinned source defines ordered ternary content identities, exact byte ranges, immutable inventory admission and the distinction between range authenticity, whole-object digest and closure. Local explicit budgets and strengthened admission are documented refinements; hashes are not assumed injective."
+realized_by = ["R4-13"]
+
+[[authority]]
+id = "BLAKE3-UNKEYED-VECTORS"
+name = "BLAKE3 1.5.0 complete unkeyed construction and published vectors"
+citation = "https://github.com/BLAKE3-team/BLAKE3/blob/5aa53f07f7188a569cadfc5daf1522972d9a9630/test_vectors/test_vectors.json; companion reference_impl/reference_impl.rs; docs/specs/blake3-design.md pins the specification and UOR package identity"
+checksum = "sha256:dcb91ea8accc77e6d6e632af7cdc1a99a9f3ae78cf648da595c7d064db32f624"
+statement = "The checksum binds the complete official vector file; its 35 ordinary unkeyed outputs supply independent 32-byte known answers. The pinned construction defines exact compression, tree, counter and ROOT behavior. These facts are imported, not a collision-resistance proof or a tokenizer identity result."
+realized_by = ["R4-15"]
+
+[[authority]]
+id = "UOR-TARGET-FREE-WRITER"
+name = "UOR writer target-independent prediction projection"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu; docs/specs/target-free-writer-api.md binds writer lines 307-345 and the sufficient arithmetic domain"
+checksum = "sha256:8cc15ccb605364e8ae4239a1852fc71a08fcfb747c515269b8cca7eecdbf190e"
+statement = "Source admission and best-token updates are independent of supervised target and loss policy; the target-free API and general checked refinement must be constructed locally. Imported source structure is not a runtime serving acceptance."
+realized_by = ["R4-19"]

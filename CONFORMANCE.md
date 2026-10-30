@@ -30,6 +30,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-04` | `build` | The pure LexLean binder model constructs the pinned canonical ordered ternary forest and independently validates general forests with the source's ordered error classes, preserving node order, atom identity, frontier coverage and four-word node serialization. Formal metadata controls do not establish carrier execution, window framing, or learning. |
 
+## r4-blake3
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-15` | `build` | Pure LexLean computes complete unkeyed BLAKE3-256 over admitted finite byte sequences and incremental updates, preserving full block, chunk, tree and ROOT semantics with exact length and budget admission. Formal known-answer controls establish neither tokenizer composition nor cryptographic injectivity or production acceptance. |
+
 ## r4-codebook-words
 
 | ID | Level | Statement |
@@ -84,11 +90,23 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-08` | `build` | The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train. |
 
+## r4-object
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-13` | `build` | Pure LexLean constructs and authenticates canonical content-addressed ternary byte objects, exact record and manifest codecs, bounded atomic inventory changes, occurrence-preserving range reads and distinct whole-object and closure verification. Formal controls establish neither hash injectivity nor peer transactions, tokenizer binding, durable browser persistence or language capability. |
+
 ## r4-objective
 
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-03` | `build` | The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification. |
+
+## r4-prediction
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-19` | `build` | Pure LexLean target-free prediction validates complete geometric inputs and retains all identities under occupied-cell admission and global ranking, with general supervised-writer projection and lawful loss-safety proofs. This establishes no artifact custody, generated fixed-memory serving, research parity or deployment. |
 
 ## r4-route
 
@@ -160,6 +178,9 @@ Never re-derived, vendored, or gated on.
 | `UOR-OBJECT-HASH-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/hash.rs — BLAKE2b96 compression | `R4-09` |
 | `UOR-DISCRETE-ROUTE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — route_vector, input_block and move_action | `R4-07` |
 | `UOR-DISCRETE-LEARNING` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu — discrete_counterfactual, discrete_choose and discrete_apply; companion device.rs Binding, parameter and apply | `R4-08` |
+| `UOR-CONTENT-OBJECTS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-object-store/src/lib.rs; companion record.rs, manifest.rs and store.rs define UOROBJ01 codecs, closure and range semantics | `R4-13` |
+| `BLAKE3-UNKEYED-VECTORS` | https://github.com/BLAKE3-team/BLAKE3/blob/5aa53f07f7188a569cadfc5daf1522972d9a9630/test_vectors/test_vectors.json; companion reference_impl/reference_impl.rs; docs/specs/blake3-design.md pins the specification and UOR package identity | `R4-15` |
+| `UOR-TARGET-FREE-WRITER` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/discrete.cu; docs/specs/target-free-writer-api.md binds writer lines 307-345 and the sufficient arithmetic domain | `R4-19` |
 
 ## Claims that are not conformance IDs
 
@@ -187,3 +208,6 @@ Never re-derived, vendored, or gated on.
 | `AUTH-OBJECT-HASH-WORDS` | `some-true` | Cryptographic word requirements are imported from the pinned object-store hash implementation. Fixed-word formal controls do not establish a complete hash, protocol or accepted runtime. |
 | `AUTH-DISCRETE-ROUTE` | `some-true` | Route traversal semantics are imported from the pinned CUDA kernel. Explicit row-root formal controls do not establish carried-batch encoding or binding, GPU execution or language capability. |
 | `AUTH-DISCRETE-LEARNING` | `some-true` | Finite selection, update and batch eligibility contracts are imported from pinned CUDA and host binding source. Their formal model establishes neither GPU parity, private proposal authenticity nor an owner training release. |
+| `AUTH-CONTENT-OBJECTS` | `some-true` | Object layout and traversal contracts are imported from pinned UOR source; formal source controls do not establish durable storage, distributed transactions or cryptographic collision freedom. |
+| `AUTH-BLAKE3-UNKEYED` | `some-true` | BLAKE3 construction and complete published unkeyed known answers are imported from exact upstream source bytes. Local formal checks establish only their modeled implementation, not cryptographic security or trusted tokenizer identity. |
+| `AUTH-TARGET-FREE-WRITER` | `some-true` | The pinned supervised writer supplies the source projection contract. General local refinement, generated serving and provenance custody remain distinct obligations. |

@@ -71,55 +71,36 @@ fn main() {
     // Inspect the audit and common verifier too; neither has a conditional mode.
     parse_active_source(&root.join("build.rs"));
     parse_active_source(&root.join("tests/support/mod.rs"));
-    require_test(
-        &root,
-        "tests/tokenizer_json.rs",
-        "complete_tokenizer_json_r4_20",
+    let required_entrypoints = [
+        ("tests/lexlean.rs", "configuration_boundaries_r4_01"),
+        ("tests/geometry.rs", "finite_geometry_r4_02"),
+        ("tests/objective.rs", "scalar_objective_r4_03"),
+        ("tests/binder.rs", "canonical_binder_r4_04"),
+        ("tests/admission.rs", "admitted_identity_writer_r4_05"),
+        ("tests/configuration.rs", "typed_configuration_r4_06"),
+        ("tests/route.rs", "bounded_route_operator_r4_07"),
+        ("tests/learning.rs", "finite_learning_transition_r4_08"),
+        ("tests/words.rs", "fixed_word_algebra_r4_09"),
+        ("tests/flock.rs", "complete_flock_relation_r4_10"),
+        ("tests/hash.rs", "complete_content_hashes_r4_11"),
+        ("tests/engine.rs", "complete_engine_composition_r4_12"),
+        ("tests/object.rs", "canonical_content_objects_r4_13"),
+        ("tests/tokenizer_text.rs", "exact_tokenizer_text_r4_14"),
+        ("tests/blake3.rs", "complete_unkeyed_blake3_r4_15"),
+        ("tests/tokenizer_kernel.rs", "exact_tokenizer_kernel_r4_16"),
+        ("tests/evidence.rs", "exact_evidence_r4_17"),
+        ("tests/json_number.rs", "exact_json_number_r4_18"),
+        ("tests/prediction.rs", "target_free_prediction_r4_19"),
+        ("tests/tokenizer_json.rs", "complete_tokenizer_json_r4_20"),
+        ("tests/codebook_words.rs", "exact_codebook_words_r4_21"),
+        ("tests/snapshot_json.rs", "complete_snapshot_storage_r4_22"),
+    ];
+    assert_eq!(
+        required_entrypoints.len(),
+        22,
+        "exactly 22 R4 acceptance entrypoints required"
     );
-    require_test(
-        &root,
-        "tests/snapshot_json.rs",
-        "complete_snapshot_storage_r4_22",
-    );
-    require_test(
-        &root,
-        "tests/codebook_words.rs",
-        "exact_codebook_words_r4_21",
-    );
-    require_test(&root, "tests/lexlean.rs", "configuration_boundaries_r4_01");
-    require_test(&root, "tests/geometry.rs", "finite_geometry_r4_02");
-    require_test(&root, "tests/objective.rs", "scalar_objective_r4_03");
-    require_test(&root, "tests/binder.rs", "canonical_binder_r4_04");
-    require_test(
-        &root,
-        "tests/admission.rs",
-        "admitted_identity_writer_r4_05",
-    );
-    require_test(&root, "tests/configuration.rs", "typed_configuration_r4_06");
-    require_test(&root, "tests/route.rs", "bounded_route_operator_r4_07");
-    require_test(
-        &root,
-        "tests/learning.rs",
-        "finite_learning_transition_r4_08",
-    );
-    require_test(&root, "tests/words.rs", "fixed_word_algebra_r4_09");
-    require_test(&root, "tests/flock.rs", "complete_flock_relation_r4_10");
-    require_test(&root, "tests/hash.rs", "complete_content_hashes_r4_11");
-    require_test(
-        &root,
-        "tests/tokenizer_text.rs",
-        "exact_tokenizer_text_r4_14",
-    );
-    require_test(
-        &root,
-        "tests/tokenizer_kernel.rs",
-        "exact_tokenizer_kernel_r4_16",
-    );
-    require_test(&root, "tests/evidence.rs", "exact_evidence_r4_17");
-    require_test(&root, "tests/json_number.rs", "exact_json_number_r4_18");
-    require_test(
-        &root,
-        "tests/engine.rs",
-        "complete_engine_composition_r4_12",
-    );
+    for (path, name) in required_entrypoints {
+        require_test(&root, path, name);
+    }
 }

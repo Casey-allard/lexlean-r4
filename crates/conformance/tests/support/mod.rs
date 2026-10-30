@@ -19,6 +19,7 @@ fn validate_receipt_language(
     let (language, schema) = match controls["spec"].as_str() {
         Some("lexlean/semantic-module/1") => ("1.1", "lexlean/attestation/1"),
         Some("lexlean/semantic-module/2") => ("1.2", "lexlean/attestation/2"),
+        Some("lexlean/core-module/1") => ("1.2", "lexlean/attestation/2"),
         _ => return Err("unsupported control source schema"),
     };
     if manifest["language"] != language {
@@ -40,6 +41,7 @@ fn receipt_language_binding() {
     for (source, language, receipt) in [
         ("lexlean/semantic-module/1", "1.1", "lexlean/attestation/1"),
         ("lexlean/semantic-module/2", "1.2", "lexlean/attestation/2"),
+        ("lexlean/core-module/1", "1.2", "lexlean/attestation/2"),
     ] {
         let controls = json!({"spec": source});
         let manifest = json!({"language": language});
@@ -107,15 +109,24 @@ pub fn verify_controls(
         expected_digest,
         "reviewed control statements changed: {control_path}"
     );
-    let data = source
-        .split_once("\\semanticdata{")
-        .ok_or("missing semantic data")?
-        .1
-        .split_once("\n\\end{semanticmodule}")
-        .ok_or("missing semantic module end")?
-        .0
-        .strip_suffix('}')
-        .ok_or("missing semantic data end")?;
+    let data = if let Some(semantic) = source.split_once("\\semanticdata{") {
+        semantic
+            .1
+            .split_once("\n\\end{semanticmodule}")
+            .ok_or("missing semantic module end")?
+            .0
+            .strip_suffix('}')
+            .ok_or("missing semantic data end")?
+    } else if let Some(core) = source.split_once("\\coredata{") {
+        core.1
+            .split_once("\n\\end{coremodule}")
+            .ok_or("missing core module end")?
+            .0
+            .strip_suffix('}')
+            .ok_or("missing core data end")?
+    } else {
+        return Err("missing semantic or core data".into());
+    };
     let controls: Value = serde_json::from_str(data)?;
     let declarations = controls["declarations"]
         .as_array()
@@ -124,9 +135,20 @@ pub fn verify_controls(
     let mut expected_names = BTreeSet::new();
     for declaration in declarations {
         assert_eq!(declaration["kind"], "theorem");
-        assert_eq!(declaration["axioms"], json!([]));
+        if let Some(axioms) = declaration.get("axioms") {
+            assert_eq!(axioms, &json!([]));
+        } else if let Some(policy) = declaration.get("policy") {
+            assert_eq!(policy, &json!({"kind": "none"}));
+        } else {
+            return Err("declaration must have empty axioms or none policy".into());
+        }
         let name = declaration["name"].as_str().ok_or("missing theorem name")?;
-        assert!(expected_names.insert(format!("LexLeanR4.{control_module}.{name}")));
+        let qualified = if name.starts_with("LexLeanR4.") {
+            name.to_string()
+        } else {
+            format!("LexLeanR4.{control_module}.{name}")
+        };
+        assert!(expected_names.insert(qualified));
     }
     let output = Command::new("lexlean")
         .current_dir(&root)

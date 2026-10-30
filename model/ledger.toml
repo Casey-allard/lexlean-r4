@@ -144,3 +144,21 @@ id = "AUTH-DISCRETE-LEARNING"
 level = "some-true"
 authority = "UOR-DISCRETE-LEARNING"
 statement = "Finite selection, update and batch eligibility contracts are imported from pinned CUDA and host binding source. Their formal model establishes neither GPU parity, private proposal authenticity nor an owner training release."
+
+[[claim]]
+id = "AUTH-CONTENT-OBJECTS"
+level = "some-true"
+authority = "UOR-CONTENT-OBJECTS"
+statement = "Object layout and traversal contracts are imported from pinned UOR source; formal source controls do not establish durable storage, distributed transactions or cryptographic collision freedom."
+
+[[claim]]
+id = "AUTH-BLAKE3-UNKEYED"
+level = "some-true"
+authority = "BLAKE3-UNKEYED-VECTORS"
+statement = "BLAKE3 construction and complete published unkeyed known answers are imported from exact upstream source bytes. Local formal checks establish only their modeled implementation, not cryptographic security or trusted tokenizer identity."
+
+[[claim]]
+id = "AUTH-TARGET-FREE-WRITER"
+level = "some-true"
+authority = "UOR-TARGET-FREE-WRITER"
+statement = "The pinned supervised writer supplies the source projection contract. General local refinement, generated serving and provenance custody remain distinct obligations."
