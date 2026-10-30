@@ -36,29 +36,18 @@ fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {
             "a53867dd2739599c3befd778d0fe0b80d10e956cbccec408e8787c3565992b8e",
         ),
     ];
-    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    std::thread::scope(|s| {
-        for (path, module, digest) in cases {
-            let tx = tx.clone();
-            s.spawn(move || {
-                let res = support::verify_controls(
-                    path,
-                    module,
-                    digest,
-                    &[
-                        "R4.TokenizerKernel",
-                        "R4.TokenizerText",
-                        "R4.TokenizerTextUnicode",
-                        module,
-                    ],
-                );
-                let _ = tx.send(res.map_err(|e| e.to_string()));
-            });
-        }
-    });
-    drop(tx);
-    while let Ok(res) = rx.recv() {
-        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
+    for (path, module, digest) in cases {
+        support::verify_controls(
+            path,
+            module,
+            digest,
+            &[
+                "R4.TokenizerKernel",
+                "R4.TokenizerText",
+                "R4.TokenizerTextUnicode",
+                module,
+            ],
+        )?;
     }
     Ok(())
 }

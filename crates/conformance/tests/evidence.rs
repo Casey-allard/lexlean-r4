@@ -90,19 +90,8 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
         ),
     ];
 
-    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    std::thread::scope(|s| {
-        for (path, module, digest, modules) in cases {
-            let tx = tx.clone();
-            s.spawn(move || {
-                let res = support::verify_controls(path, module, digest, modules);
-                let _ = tx.send(res.map_err(|e| e.to_string()));
-            });
-        }
-    });
-    drop(tx);
-    while let Ok(res) = rx.recv() {
-        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
+    for (path, module, digest, modules) in cases {
+        support::verify_controls(path, module, digest, modules)?;
     }
     Ok(())
 }
