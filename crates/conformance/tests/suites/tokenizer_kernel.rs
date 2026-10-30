@@ -1,6 +1,6 @@
 //! Complete typed byte-BPE semantics; raw JSON and identity are separate gates.
 
-mod support;
+use crate::support;
 
 #[test]
 fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {

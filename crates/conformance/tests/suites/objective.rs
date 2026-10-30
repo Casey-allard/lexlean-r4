@@ -1,6 +1,6 @@
 //! Scalar objective contracts; no carrier evaluation or training is executed.
 
-mod support;
+use crate::support;
 
 #[test]
 fn scalar_objective_r4_03() -> Result<(), Box<dyn std::error::Error>> {

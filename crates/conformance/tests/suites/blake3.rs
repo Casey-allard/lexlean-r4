@@ -1,6 +1,6 @@
 //! Complete unkeyed BLAKE3 hashing contracts (R4-15).
 
-mod support;
+use crate::support;
 
 const BLAKE3_CASES: [(&str, &str); 35] = [
     (

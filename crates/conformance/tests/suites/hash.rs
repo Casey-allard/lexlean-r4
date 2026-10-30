@@ -1,6 +1,6 @@
 //! Complete hash controls, partitioned without changing any reviewed declaration.
 
-mod support;
+use crate::support;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;

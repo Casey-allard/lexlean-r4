@@ -1,7 +1,7 @@
 //! Complete imported catalog, declared coverage and structural report descriptions.
 //! Caller-supplied reports never authenticate themselves or authorize execution.
 
-mod support;
+use crate::support;
 
 #[test]
 fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {

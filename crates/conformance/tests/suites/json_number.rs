@@ -1,7 +1,7 @@
 //! Complete bounded JSON-number observation and exact finite arithmetic.
 //! Raw JSON values and production export remain separate acceptance gates.
 
-mod support;
+use crate::support;
 
 #[test]
 fn exact_json_number_r4_18() -> Result<(), Box<dyn std::error::Error>> {

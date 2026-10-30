@@ -1,6 +1,6 @@
 //! Read configuration metadata; no carrier or research compute is executed.
 
-mod support;
+use crate::support;
 
 #[test]
 fn typed_configuration_r4_06() -> Result<(), Box<dyn std::error::Error>> {

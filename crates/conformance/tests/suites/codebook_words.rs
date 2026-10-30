@@ -1,7 +1,7 @@
 //! Complete checked integer and signed-scalar precursor conformance.
 //! This gate does not establish prime, floating-phase or codebook construction.
 
-mod support;
+use crate::support;
 
 use serde_json::Value;
 

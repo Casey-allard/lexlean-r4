@@ -1,7 +1,7 @@
 //! Complete raw JSON parsing, document revalidation and tokenizer extraction.
 //! The actual LexLean verifier executes every frozen control with its full closure.
 
-mod support;
+use crate::support;
 
 use serde_json::Value;
 

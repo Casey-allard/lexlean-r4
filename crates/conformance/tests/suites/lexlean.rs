@@ -1,6 +1,6 @@
 //! Configuration boundary statements verified through the SDK, never skipped.
 
-mod support;
+use crate::support;
 
 #[test]
 fn configuration_boundaries_r4_01() -> Result<(), Box<dyn std::error::Error>> {

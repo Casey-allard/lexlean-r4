@@ -1,6 +1,6 @@
 //! Exact tokenizer text primitives, not a complete tokenizer or identity claim.
 
-mod support;
+use crate::support;
 
 #[test]
 fn exact_tokenizer_text_r4_14() -> Result<(), Box<dyn std::error::Error>> {

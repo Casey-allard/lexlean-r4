@@ -1,6 +1,6 @@
 //! Formal Prediction contracts (R4-19); target-free projection of the supervised writer.
 
-mod support;
+use crate::support;
 
 #[test]
 fn target_free_prediction_r4_19() -> Result<(), Box<dyn std::error::Error>> {

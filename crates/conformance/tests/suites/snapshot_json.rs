@@ -1,6 +1,6 @@
 //! Complete Snapshot storage decoding and exact encoding controls.
 
-mod support;
+use crate::support;
 
 use serde_json::Value;
 
