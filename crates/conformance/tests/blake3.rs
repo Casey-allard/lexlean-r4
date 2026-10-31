@@ -178,43 +178,58 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    support::verify_controls(
-        "tests/lexlean/Blake3NatControls.lex.tex",
-        "Blake3NatControls",
-        "c53bf66b28d2be6a2978aa04b69962d9bc36fde7dac5887b860ee679a625e62f",
-        &["Blake3NatControls", "R4.Blake3Nat"],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/Blake3CoreControls.lex.tex",
-        "Blake3CoreControls",
-        "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
-        &["Blake3CoreControls", "R4.Blake3Core", "R4.Blake3Nat"],
-    )?;
-    support::verify_controls(
-        "tests/lexlean/Blake3StreamingControls.lex.tex",
-        "Blake3StreamingControls",
-        "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
-        &[
+    let mut tasks: Vec<(String, &str, &str, Vec<&str>)> = vec![
+        (
+            "tests/lexlean/Blake3NatControls.lex.tex".to_string(),
+            "Blake3NatControls",
+            "c53bf66b28d2be6a2978aa04b69962d9bc36fde7dac5887b860ee679a625e62f",
+            vec!["Blake3NatControls", "R4.Blake3Nat"],
+        ),
+        (
+            "tests/lexlean/Blake3CoreControls.lex.tex".to_string(),
+            "Blake3CoreControls",
+            "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
+            vec!["Blake3CoreControls", "R4.Blake3Core", "R4.Blake3Nat"],
+        ),
+        (
+            "tests/lexlean/Blake3StreamingControls.lex.tex".to_string(),
             "Blake3StreamingControls",
-            "R4.Blake3",
-            "R4.Blake3Core",
-            "R4.Blake3Nat",
-        ],
-    )?;
+            "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
+            vec![
+                "Blake3StreamingControls",
+                "R4.Blake3",
+                "R4.Blake3Core",
+                "R4.Blake3Nat",
+            ],
+        ),
+    ];
     for (module, digest) in &BLAKE3_CASES[..1] {
-        let path = format!("tests/lexlean/{module}.lex.tex");
-        support::verify_controls(
-            &path,
+        tasks.push((
+            format!("tests/lexlean/{module}.lex.tex"),
             module,
             digest,
-            &[
+            vec![
                 module,
                 "R4.Blake3",
                 "R4.Blake3Core",
                 "R4.Blake3Input",
                 "R4.Blake3Nat",
             ],
-        )?;
+        ));
+    }
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    std::thread::scope(|s| {
+        for (path, module, digest, modules) in &tasks {
+            let tx = tx.clone();
+            s.spawn(move || {
+                let res = support::verify_controls(path, module, digest, modules);
+                let _ = tx.send(res.map_err(|e| e.to_string()));
+            });
+        }
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
     }
     Ok(())
 }
