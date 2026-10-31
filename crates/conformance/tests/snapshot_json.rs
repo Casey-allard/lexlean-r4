@@ -28,22 +28,13 @@ fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(count, 476);
 
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let mut sorted_fixtures = fixtures.clone();
-    sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["controls"].as_u64().unwrap_or(0)));
-    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
         let workers = 3;
-        for _ in 0..workers {
+        let chunk_size = fixtures.len().div_ceil(workers);
+        for chunk in fixtures.chunks(chunk_size) {
             let tx = tx.clone();
-            let next_idx = &next_idx;
-            let sorted_fixtures = &sorted_fixtures;
             s.spawn(move || {
-                loop {
-                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                    if i >= sorted_fixtures.len() {
-                        break;
-                    }
-                    let fixture = &sorted_fixtures[i];
+                for fixture in chunk {
                     let path = match fixture["path"].as_str() {
                         Some(p) => p,
                         None => {

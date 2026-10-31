@@ -125,31 +125,15 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
         "missing or unregistered hash control source"
     );
     // Audit the entire frozen partition before invoking any verifier; every case is mandatory.
-    // Verify the complete 30-case partition across 3 worker threads pulling from a dynamic work-stealing counter without CPU thrashing.
+    // Verify the complete 30-case partition across 3 worker threads to fit within the 45-minute CI budget without CPU thrashing.
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let mut sorted_groups = groups.clone();
-    sorted_groups.sort_by_cached_key(|g| {
-        let path = g["path"].as_str().unwrap_or_default();
-        std::cmp::Reverse(
-            std::fs::metadata(root.join(path))
-                .map(|m| m.len())
-                .unwrap_or(0),
-        )
-    });
-    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
         let workers = 3;
-        for _ in 0..workers {
+        let chunk_size = groups.len().div_ceil(workers);
+        for chunk in groups.chunks(chunk_size) {
             let tx = tx.clone();
-            let next_idx = &next_idx;
-            let sorted_groups = &sorted_groups;
             s.spawn(move || {
-                loop {
-                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                    if i >= sorted_groups.len() {
-                        break;
-                    }
-                    let group = &sorted_groups[i];
+                for group in chunk {
                     let module = match group["module"].as_str() {
                         Some(m) => m,
                         None => {
