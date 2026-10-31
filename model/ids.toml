@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-23"
+level = "build"
+suite = "r4-integer-stack"
+statement = "Pure LexLean models the integer serving stack's induction-keyed Hamming read (/6), dialogue turn-memory opening and reply-continuation tables (/7), continuous point-key L1 plurality fallback (/8), geometric retention Q31 lambdas, whole-table nearest readout, session-snapshot turn-memory refusal, and bounded multi-token prose generation. Formal stack controls establish no floating-point parity, trained checkpoint custody, or unrestricted language capability."
+
+[[id]]
 id = "R4-21"
 level = "build"
 suite = "r4-codebook-words"

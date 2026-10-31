@@ -85,12 +85,12 @@ fn every_id_has_a_scenario_and_a_test_cm_02() {
         report.violations.join("\n\n")
     );
     assert_eq!(
-        report.ids_checked, 22,
-        "CM-02 requires exactly 22 registered conformance IDs"
+        report.ids_checked, 23,
+        "CM-02 requires exactly 23 registered conformance IDs"
     );
     assert_eq!(
-        report.scenarios_checked, 22,
-        "CM-02 requires exactly 22 Gherkin scenarios"
+        report.scenarios_checked, 23,
+        "CM-02 requires exactly 23 Gherkin scenarios"
     );
     eprintln!(
         "CM-02: {} registered IDs, {} scenarios, {} test names",
@@ -113,12 +113,12 @@ fn no_scenario_is_pending_cm_02() {
     let suites = scenarios_in(&root().join("features/suites")).expect("suites read");
     assert_eq!(
         model.ids.id.len(),
-        22,
-        "M2 requires all 22 registered IDs present"
+        23,
+        "M2 requires all 23 registered IDs present"
     );
     assert!(
-        suites.files >= 22,
-        "expected at least 22 feature suite files"
+        suites.files >= 23,
+        "expected at least 23 feature suite files"
     );
     for s in &suites.scenarios {
         assert!(!s.steps.is_empty(), "{} has no steps", s.id);
@@ -163,8 +163,8 @@ fn every_some_true_claim_cites_an_authority_cm_03() {
         );
     }
     assert_eq!(
-        some_true, 25,
-        "CM-03 requires exactly 25 cited some-true authorities"
+        some_true, 26,
+        "CM-03 requires exactly 26 cited some-true authorities"
     );
     eprintln!("CM-03: {some_true} cited authorities, each with a citation");
 }

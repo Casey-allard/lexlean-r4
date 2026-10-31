@@ -94,11 +94,15 @@ fn main() {
         ("tests/tokenizer_json.rs", "complete_tokenizer_json_r4_20"),
         ("tests/codebook_words.rs", "exact_codebook_words_r4_21"),
         ("tests/snapshot_json.rs", "complete_snapshot_storage_r4_22"),
+        (
+            "tests/integer_stack.rs",
+            "complete_integer_stack_serving_r4_23",
+        ),
     ];
     assert_eq!(
         required_entrypoints.len(),
-        22,
-        "exactly 22 R4 acceptance entrypoints required"
+        23,
+        "exactly 23 R4 acceptance entrypoints required"
     );
     for (path, name) in required_entrypoints {
         require_test(&root, path, name);

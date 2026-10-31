@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-INTEGER-STACK"
+name = "UOR-R4 integer LUT serving stack (/6 Hamming, /7 turn memory, /8 point key, nearest readout)"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/mod.rs; companion hamming.rs, memory.rs, point_key.rs, kernels.rs, session.rs and chat.rs"
+checksum = "sha256:58144609d5b1b492f332e0f9edc3af4bad9de2424db439fdb7776049d135c103"
+statement = "Pinned upstream uor-r4-integer stack source defines induction-keyed Hamming matching (/6), exact opening and reply-continuation memory tables with session-snapshot guards (/7), continuous Q12 point-key L1 plurality fallback (/8), geometric retention Q31 lambdas, whole-table nearest L1 readout, and greedy prose continuation. Source provenance is distinct from local formal verification and browser execution."
+realized_by = ["R4-23"]
+
+[[authority]]
 id = "UOR-CODEBOOK-WORDS"
 name = "Exact codebook integer and byte boundaries"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities"

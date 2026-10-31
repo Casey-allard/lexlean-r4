@@ -78,6 +78,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-11` | `build` | Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability. |
 
+## r4-integer-stack
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-23` | `build` | Pure LexLean models the integer serving stack's induction-keyed Hamming read (/6), dialogue turn-memory opening and reply-continuation tables (/7), continuous point-key L1 plurality fallback (/8), geometric retention Q31 lambdas, whole-table nearest readout, session-snapshot turn-memory refusal, and bounded multi-token prose generation. Formal stack controls establish no floating-point parity, trained checkpoint custody, or unrestricted language capability. |
+
 ## r4-json-number
 
 | ID | Level | Statement |
@@ -156,6 +162,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-R4-INTEGER-STACK` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/mod.rs; companion hamming.rs, memory.rs, point_key.rs, kernels.rs, session.rs and chat.rs | `R4-23` |
 | `UOR-CODEBOOK-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities | `R4-21` |
 | `UOR-SNAPSHOT-STORAGE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden | `R4-22` |
 | `SERDE-SNAPSHOT-VALUE` | serde_json 1.0.150 src/value/de.rs with serde/serde_derive 1.0.228 and exact companion source pins in docs/specs/snapshot-json-codec-api.md; default BTreeMap and numeric profile | `R4-22` |
@@ -186,6 +193,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UOR-R4-INTEGER-STACK` | `some-true` | Integer stack mechanics for /6 Hamming reads, /7 turn memory, /8 point-key L1 plurality fallback, Q31 retention lambdas, and whole-table nearest readout are imported from the pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish full-checkpoint parity or open-domain generation. |
 | `AUTH-CODEBOOK-WORDS` | `some-true` | Source integer operations and exact signed-word bytes are imported authority facts. Local arithmetic formal conformance remains distinct from prime capacity, reference floating semantics, complete codebook construction and generated serving. |
 | `AUTH-SNAPSHOT-STORAGE` | `some-true` | Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance. |
 | `AUTH-SERDE-SNAPSHOT-VALUE` | `some-true` | The bounded compatibility surface follows the pinned Serde source profile. Effective production feature binding and generated runtime acceptance remain separate; the stricter raw duplicate policy is locally specified and must be modeled explicitly. |

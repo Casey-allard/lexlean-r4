@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-INTEGER-STACK"
+level = "some-true"
+authority = "UOR-R4-INTEGER-STACK"
+statement = "Integer stack mechanics for /6 Hamming reads, /7 turn memory, /8 point-key L1 plurality fallback, Q31 retention lambdas, and whole-table nearest readout are imported from the pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish full-checkpoint parity or open-domain generation."
+
+[[claim]]
 id = "AUTH-CODEBOOK-WORDS"
 level = "some-true"
 authority = "UOR-CODEBOOK-WORDS"

@@ -33,7 +33,8 @@ publication channel.
 
 | Source | Reviewed commit | Role |
 | --- | --- | --- |
-| [UOR-R4](https://github.com/UOR-Foundation/uor-r4/tree/4611538bb4843947363ccb9cce5f388e32c46883) | `4611538bb4843947363ccb9cce5f388e32c46883` | Mechanics, artifact and protocol semantics, scientific constraints |
+| [UOR-R4](https://github.com/UOR-Foundation/uor-r4/tree/4611538bb4843947363ccb9cce5f388e32c46883) | `4611538bb4843947363ccb9cce5f388e32c46883` | Mechanics, artifact and protocol semantics, scientific constraints (`R4-01` .. `R4-22`) |
+| [UOR-R4 Integer Stack](https://github.com/UOR-Foundation/uor-r4/tree/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack) | `4195ce2bf83d703b1acd3eb868c888d1da053479` | Integer LUT serving stack (`/6` Hamming read, `/7` turn memory, `/8` point-key L1 plurality, Q31 retention lambdas, whole-table nearest readout, `R4-23`) |
 | [LexLean](https://github.com/UOR-Foundation/LexLean/tree/6bcc8d59836506d6365dcfa4c755d068771c4f93) | `6bcc8d59836506d6365dcfa4c755d068771c4f93` | Authoring language, proof and production contracts |
 | [PrismPM](https://github.com/UOR-Foundation/PrismPM/tree/590ec8a9c41d46cd61dea567130f8f8ef9bca26e) | `590ec8a9c41d46cd61dea567130f8f8ef9bca26e` | Model projection, application profiles, SDK and deployment contracts |
 | [Template](https://github.com/UOR-Foundation/template/tree/1bea460bac6ea50bae53a7eeb674589d7900e6cb) | `1bea460bac6ea50bae53a7eeb674589d7900e6cb` | Repository policy and bootstrap |
@@ -209,3 +210,18 @@ release held research, or promote mechanism status.
 The user's explicit language choice is LexLean for this separate project.
 Rust remains a generated target or inherited verification tool, not a second
 handwritten implementation of R4 behavior.
+
+## Source observation update, 2026-10-31 (`R4-23` integer serving stack)
+
+At upstream `UOR-Foundation/uor-r4` revision `4195ce2bf83d703b1acd3eb868c888d1da053479`,
+`crates/uor-r4-integer/src/stack/` defines the integer LUT serving stack modeled
+by `R4-23` (`src/R4/IntegerStack.lex.tex` and `tests/lexlean/IntegerStackControls.lex.tex`):
+
+| Upstream path (`4195ce2bf83d703b1acd3eb868c888d1da053479`) | SHA-256 | Modeled mechanics |
+| --- | --- | --- |
+| `crates/uor-r4-integer/src/stack/mod.rs` | `58144609d5b1b492f332e0f9edc3af4bad9de2424db439fdb7776049d135c103` | Stack container versions (`/1`..`/8`) and whole-table nearest L1 readout |
+| `crates/uor-r4-integer/src/stack/hamming.rs` | `b7c1cb291346de0a4f7b7caacd1d1155168b802d02a8e0c1bb89b024b4695cba` | `/6` induction-keyed Hamming read and margin-gated weight |
+| `crates/uor-r4-integer/src/stack/memory.rs` | `5e812162dadecb466a7208bb07b0dc23f8cff892f11b92c14ddf46a722cbab85` | `/7` opening and reply-continuation tables and readout interpolation |
+| `crates/uor-r4-integer/src/stack/point_key.rs` | `5a3692b27f0111e2f82eab8602b6fe2d87a9aceb88424814cf92ff664cd8a751` | `/8` continuous point-key L1 plurality fallback and tie-breaking |
+| `crates/uor-r4-integer/src/stack/session.rs` | `0e051017b5d9845053cdbc164617aa814ec40f9898a16fa7282ff92bbff644d4` | `RETAIN_LAMBDA_Q31` geometric retention constants and snapshot turn-memory guard |
+| `crates/uor-r4-integer/src/stack/chat.rs` | `ff33e7bf5659c83e35a203fa7f7f4b0666d83fa29e21a1db3767533916eed698` | Bounded greedy prose reply token loop stopping at EOS (`1`) or token cap |
