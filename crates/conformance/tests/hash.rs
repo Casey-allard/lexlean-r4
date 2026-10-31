@@ -138,7 +138,7 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
     });
     let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 3;
+        let workers = 4;
         for _ in 0..workers {
             let tx = tx.clone();
             let next_idx = &next_idx;

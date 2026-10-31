@@ -32,7 +32,7 @@ fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["controls"].as_u64().unwrap_or(0)));
     let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 3;
+        let workers = 4;
         for _ in 0..workers {
             let tx = tx.clone();
             let next_idx = &next_idx;
