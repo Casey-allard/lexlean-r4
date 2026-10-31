@@ -7,7 +7,7 @@ fn complete_discrete_trunk_r4_25() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/DiscreteTrunkControls.lex.tex",
         "DiscreteTrunkControls",
-        "92a8fea675031aad4815430cc1d3ecff706cf1f977f9dc5f075d917b0ae9b183",
+        "8abd1d264aa982fe6c56635516324596a3a34924c440b7d6bcbfdd20124d15f9",
         &["DiscreteTrunkControls", "R4.DiscreteTrunk"],
     )
 }

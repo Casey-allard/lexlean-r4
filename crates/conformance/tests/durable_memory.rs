@@ -7,7 +7,7 @@ fn complete_durable_memory_r4_26() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/DurableMemoryControls.lex.tex",
         "DurableMemoryControls",
-        "b3786cb1962339e482830d2cae4288fbdd2ad3c9774abedf82ebd33f17449913",
+        "407cfd4af2f40bcfdb480e715e2a1a09e8a51e890bf52476d337cb674f6e69c7",
         &["DurableMemoryControls", "R4.DurableMemory"],
     )
 }
