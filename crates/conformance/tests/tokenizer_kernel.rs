@@ -1,10 +1,15 @@
 //! Complete typed byte-BPE semantics; raw JSON and identity are separate gates.
 
-use crate::support;
+mod support;
 
 #[test]
 fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {
     let cases = [
+        (
+            "tests/lexlean/TokenizerKernelSurfaceControls.lex.tex",
+            "TokenizerKernelSurfaceControls",
+            "d35601ce6fb324ebe3ba5277cc496b0f338b9be1e16cba61adc8bd5740159181",
+        ),
         (
             "tests/lexlean/TokenizerKernelControls.lex.tex",
             "TokenizerKernelControls",
@@ -16,16 +21,6 @@ fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {
             "6505f13cf095fcc2c76e04e4380dda2e3bb9bd548fb26579b85cba0cdf98bc33",
         ),
         (
-            "tests/lexlean/TokenizerKernelSurfaceControls.lex.tex",
-            "TokenizerKernelSurfaceControls",
-            "d35601ce6fb324ebe3ba5277cc496b0f338b9be1e16cba61adc8bd5740159181",
-        ),
-        (
-            "tests/lexlean/TokenizerKernelProgressControls.lex.tex",
-            "TokenizerKernelProgressControls",
-            "0881fe66fec1b81e3f206fb3d98cc92e003c9f67447343b4ed06bf3eff5e7581",
-        ),
-        (
             "tests/lexlean/TokenizerKernelLengthControls.lex.tex",
             "TokenizerKernelLengthControls",
             "eab7082f59c84862c7387e23e73010a8dbe812f28483242e48aeb54031185551",
@@ -35,11 +30,16 @@ fn exact_tokenizer_kernel_r4_16() -> Result<(), Box<dyn std::error::Error>> {
             "TokenizerKernelUnicodeControls",
             "a53867dd2739599c3befd778d0fe0b80d10e956cbccec408e8787c3565992b8e",
         ),
+        (
+            "tests/lexlean/TokenizerKernelProgressControls.lex.tex",
+            "TokenizerKernelProgressControls",
+            "0881fe66fec1b81e3f206fb3d98cc92e003c9f67447343b4ed06bf3eff5e7581",
+        ),
     ];
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
     let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 3;
+        let workers = 2;
         for _ in 0..workers {
             let tx = tx.clone();
             let next_idx = &next_idx;

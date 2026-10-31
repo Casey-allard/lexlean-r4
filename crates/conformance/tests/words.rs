@@ -1,6 +1,6 @@
 //! Fixed Boolean word arithmetic and codecs; no hash or model execution claim.
 
-use crate::support;
+mod support;
 
 #[test]
 fn fixed_word_algebra_r4_09() -> Result<(), Box<dyn std::error::Error>> {

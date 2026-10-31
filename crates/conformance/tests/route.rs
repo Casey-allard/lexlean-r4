@@ -1,6 +1,6 @@
 //! Formal Route contracts; no host model execution or GPU qualification.
 
-use crate::support;
+mod support;
 
 #[test]
 fn bounded_route_operator_r4_07() -> Result<(), Box<dyn std::error::Error>> {

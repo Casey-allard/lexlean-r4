@@ -1,6 +1,6 @@
 //! Complete hash controls, partitioned without changing any reviewed declaration.
 
-use crate::support;
+mod support;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -125,46 +125,69 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
         "missing or unregistered hash control source"
     );
     // Audit the entire frozen partition before invoking any verifier; every case is mandatory.
-    // Verify the complete 30-case partition across 4 worker threads pulling from a dynamic work-stealing counter without CPU thrashing.
+    // Verify the complete 30-case partition across 3 worker threads pulling from a dynamic work-stealing counter without CPU thrashing.
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let mut sorted_groups = groups.clone();
+    sorted_groups.sort_by_cached_key(|g| {
+        let path = g["path"].as_str().unwrap_or_default();
+        std::cmp::Reverse(
+            std::fs::metadata(root.join(path))
+                .map(|m| m.len())
+                .unwrap_or(0),
+        )
+    });
+    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        for group in groups {
+        let workers = 3;
+        for _ in 0..workers {
             let tx = tx.clone();
+            let next_idx = &next_idx;
+            let sorted_groups = &sorted_groups;
             s.spawn(move || {
-                let module = match group["module"].as_str() {
-                    Some(m) => m,
-                    None => {
-                        let _ = tx.send(Err("missing module".to_string()));
-                        return;
+                loop {
+                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    if i >= sorted_groups.len() {
+                        break;
                     }
-                };
-                let path = match group["path"].as_str() {
-                    Some(p) => p,
-                    None => {
-                        let _ = tx.send(Err("missing path".to_string()));
-                        return;
-                    }
-                };
-                let digest = match group["source_sha256"].as_str() {
-                    Some(d) => d,
-                    None => {
-                        let _ = tx.send(Err("missing digest".to_string()));
-                        return;
-                    }
-                };
-                let res = support::verify_controls(
-                    path,
-                    module,
-                    digest,
-                    &[
+                    let group = &sorted_groups[i];
+                    let module = match group["module"].as_str() {
+                        Some(m) => m,
+                        None => {
+                            let _ = tx.send(Err("missing module".to_string()));
+                            return;
+                        }
+                    };
+                    let path = match group["path"].as_str() {
+                        Some(p) => p,
+                        None => {
+                            let _ = tx.send(Err("missing path".to_string()));
+                            return;
+                        }
+                    };
+                    let digest = match group["source_sha256"].as_str() {
+                        Some(d) => d,
+                        None => {
+                            let _ = tx.send(Err("missing digest".to_string()));
+                            return;
+                        }
+                    };
+                    if let Err(e) = support::verify_controls(
+                        path,
                         module,
-                        "R4.Hash",
-                        "R4.HashNat",
-                        "R4.HashNatCore",
-                        "R4.Words",
-                    ],
-                );
-                let _ = tx.send(res.map_err(|e| e.to_string()));
+                        digest,
+                        &[
+                            module,
+                            "R4.Hash",
+                            "R4.HashNat",
+                            "R4.HashNatCore",
+                            "R4.Words",
+                        ],
+                    ) {
+                        let _ = tx.send(Err(e.to_string()));
+                        return;
+                    }
+                }
+                let _ = tx.send(Ok(()));
             });
         }
     });

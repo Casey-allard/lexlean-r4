@@ -1,6 +1,6 @@
 //! Ordered binder metadata contracts; no carrier arithmetic is executed.
 
-use crate::support;
+mod support;
 
 #[test]
 fn canonical_binder_r4_04() -> Result<(), Box<dyn std::error::Error>> {

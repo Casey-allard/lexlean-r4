@@ -1,6 +1,6 @@
 //! Formal writer contracts; no host model execution or GPU qualification.
 
-use crate::support;
+mod support;
 
 #[test]
 fn admitted_identity_writer_r4_05() -> Result<(), Box<dyn std::error::Error>> {

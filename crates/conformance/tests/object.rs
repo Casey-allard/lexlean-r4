@@ -4,7 +4,7 @@
 //! (311 Codec and 20 Store controls) per `docs/OBJECT.md` and continuation records.
 //! Read33 and Construction39 remain open continuation obligations.
 
-use crate::support;
+mod support;
 
 #[test]
 fn canonical_content_objects_r4_13() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,6 +1,6 @@
 //! Verify the complete reviewed finite-geometry control graph in the SDK.
 
-use crate::support;
+mod support;
 
 #[test]
 fn finite_geometry_r4_02() -> Result<(), Box<dyn std::error::Error>> {

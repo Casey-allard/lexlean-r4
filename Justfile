@@ -29,7 +29,7 @@ fmt-check:
     cargo fmt --all -- --check
 
 lint:
-    cargo clippy --workspace --all-targets -- -D warnings
+    cargo clippy --workspace --all-features --all-targets -- -D warnings
 
 test:
     cargo test --workspace --lib --bins --tests

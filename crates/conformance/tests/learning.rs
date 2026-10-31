@@ -1,6 +1,6 @@
 //! Finite semantic learning transitions; no training or model evaluation runs.
 
-use crate::support;
+mod support;
 
 #[test]
 fn finite_learning_transition_r4_08() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,6 +1,6 @@
 //! Formal Flock/Relation source contracts; no host model or GPU execution.
 
-use crate::support;
+mod support;
 
 #[test]
 fn complete_flock_relation_r4_10() -> Result<(), Box<dyn std::error::Error>> {

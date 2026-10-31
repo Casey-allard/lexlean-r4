@@ -1,6 +1,6 @@
 //! Formal Engine composition contracts; no host model or GPU execution.
 
-use crate::support;
+mod support;
 
 #[test]
 fn complete_engine_composition_r4_12() -> Result<(), Box<dyn std::error::Error>> {

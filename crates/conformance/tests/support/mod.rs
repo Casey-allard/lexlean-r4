@@ -8,49 +8,6 @@ use serde_json::{json, Value};
 mod sha256;
 pub use sha256::sha256_hex;
 
-use std::sync::{Condvar, Mutex, OnceLock};
-
-struct Semaphore {
-    permits: Mutex<usize>,
-    cvar: Condvar,
-}
-
-impl Semaphore {
-    fn new(permits: usize) -> Self {
-        Self {
-            permits: Mutex::new(permits),
-            cvar: Condvar::new(),
-        }
-    }
-
-    fn acquire(&self) -> PermitGuard<'_> {
-        let mut count = self.permits.lock().unwrap();
-        while *count == 0 {
-            count = self.cvar.wait(count).unwrap();
-        }
-        *count -= 1;
-        PermitGuard { sem: self }
-    }
-}
-
-struct PermitGuard<'a> {
-    sem: &'a Semaphore,
-}
-
-impl Drop for PermitGuard<'_> {
-    fn drop(&mut self) {
-        let mut count = self.sem.permits.lock().unwrap();
-        *count += 1;
-        self.sem.cvar.notify_one();
-    }
-}
-
-static KERNEL_SEMAPHORE: OnceLock<Semaphore> = OnceLock::new();
-
-fn acquire_kernel_permit() -> PermitGuard<'static> {
-    KERNEL_SEMAPHORE.get_or_init(|| Semaphore::new(4)).acquire()
-}
-
 // The immutable control source selects the language, not the returned receipt.
 // LexLean 0865df4e emits attestation/2 for language 1.2; its ordinary
 // declaration audits and independent kernel replays retain their meaning.
@@ -193,13 +150,10 @@ pub fn verify_controls(
         };
         assert!(expected_names.insert(qualified));
     }
-    let output = {
-        let _permit = acquire_kernel_permit();
-        Command::new("lexlean")
-            .current_dir(&root)
-            .args(["--diagnostic-format", "json", "verify", control_path])
-            .output()?
-    };
+    let output = Command::new("lexlean")
+        .current_dir(&root)
+        .args(["--diagnostic-format", "json", "verify", control_path])
+        .output()?;
     assert!(
         output.status.success(),
         "LexLean verification failed:\n{}\n{}",
