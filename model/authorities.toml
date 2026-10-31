@@ -13,6 +13,38 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-EXACT-ARITHMETIC"
+name = "UOR-R4 M6 multi-digit geometric arithmetic, ablation, PRLL lawful likelihood, and uor-naf/1-draft.6"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/m6_exact_arithmetic.rs; companion m6_ablation.rs, lawful_likelihood.rs, and crates/uor-r4-naf/src/lib.rs"
+checksum = "sha256:4739a4b8b0ad017278bc81c2b77ae004fdb08c22941bbe0a01b49ee2340a043f"
+statement = "Pinned upstream uor-r4-integer and uor-r4-naf source defines M6 radix-B orbit-digit place addition and carry propagation, 5 causal ablation arms, PRLL_MASS_QUANTUM=1_000_000 integer likelihood mass conservation and micro-bit scoring, and uor-naf/1-draft.6 minimal uvar and 6-state taxonomy admission. Source provenance is distinct from local formal verification."
+realized_by = ["R4-27"]
+
+[[authority]]
+id = "UOR-R4-DURABLE-MEMORY"
+name = "UOR-R4 M3 scoped durable turn memory, PrimeAddress GCD sieve, and +3-sigma manifold sketch"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-object-store/src/durable_consumer.rs; companion address_read.rs, manifold_sketch.rs, and crates/uor-r4-integer/src/session_codec.rs"
+checksum = "sha256:855fac3adaa94700bb92f2c6c05272f00b5626b9019ddf366a905db8fb7aaef8"
+statement = "Pinned upstream uor-r4-object-store and uor-r4-integer source defines UORMEM01 v1/v2 scoped turn-memory persistence, UR4SESS1 v1/v2 session snapshots with explicit turn-memory opt-in, sorted-merge PrimeAddress GCD shared-prime intersection, and the 4096-bit +3-sigma (96 excess over 2048, threshold 2144) manifold sketch admission gate."
+realized_by = ["R4-26"]
+
+[[authority]]
+id = "UOR-R4-DISCRETE-TRUNK"
+name = "UOR-R4 19-table M1 discrete trunk, orbit-root causal successor, and Level-3 joint pointer read"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/discrete_d11.rs; companion crates/uor-r4-discrete/src/trunk.rs"
+checksum = "sha256:de788ce61a2f6c3ada2deff2bdd58d3864bf22de3b56d90f1b5b457eddfb6561"
+statement = "Pinned upstream uor-r4-integer and uor-r4-discrete source defines the 19-table M1 trunk layout (12,288 bits per token across levels 0..5), base-17 4-block root packing, causal prefix orbit-root successor lookup, and Level-3 joint pointer L1 + 2*min-Hamming scoring with smallest-token tie-breaking."
+realized_by = ["R4-25"]
+
+[[authority]]
+id = "UOR-R4-SPIRALCORE-FBS"
+name = "UOR-R4 17-root Icosian Z[phi] snap kernels, UORLUT01 /1../8 format, and model-source admission"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/kernels.rs; companion format.rs and crates/uor-r4-model-source/src/lib.rs"
+checksum = "sha256:613cbee55ab9fb1214797504d8f51e7911da721deda05595570451d9da86b2bf"
+statement = "Pinned upstream uor-r4-integer and uor-r4-model-source source defines the exact 5*a^2 < d Icosian inequality, 17-root Z[phi] GoldenQ12 table, snap compatibility scoring and tie-breaking, quaternion Hamilton products, UORLUT01 /1../8 binary headers, and model-source family/scale admission."
+realized_by = ["R4-24"]
+
+[[authority]]
 id = "UOR-R4-INTEGER-STACK"
 name = "UOR-R4 integer LUT serving stack (/6 Hamming, /7 turn memory, /8 point key, nearest readout)"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/mod.rs; companion hamming.rs, memory.rs, point_key.rs, kernels.rs, session.rs and chat.rs"

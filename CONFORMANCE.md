@@ -48,6 +48,18 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-06` | `build` | The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification. |
 
+## r4-discrete-trunk
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-25` | `build` | Pure LexLean models the 19-table M1 discrete trunk specification (12,288 bits per token across levels 0..5), base-17 4-block root-code packing and unpacking, causal orbit-root prefix successor lookup, and Level-3 joint pointer L1 + 2*min-Hamming scoring with smallest-token tie-breaking. Formal controls establish no CUDA kernel parity, learned trunk weights, or open-ended generation quality. |
+
+## r4-durable-memory
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-26` | `build` | Pure LexLean models M3 scoped durable turn-memory binary persistence (UORMEM01 v1/v2 and UR4SESS1 v1/v2 with explicit turn-memory opt-in), sorted-merge PrimeAddress GCD shared-prime intersection, and the +3-sigma (96 excess over 2048, threshold 2144/4096) 4096-bit manifold sketch admission gate. Formal controls establish no browser IndexedDB durability, network synchronization, or cryptographic collision resistance. |
+
 ## r4-engine
 
 | ID | Level | Statement |
@@ -59,6 +71,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-17` | `build` | Pure LexLean preserves the complete pinned mechanism catalog and typed lineage, admits complete finite port-obligation graphs and structurally classifies bound evidence descriptions with explicit failure and observation cases. Structural admission cannot authenticate receipts, promote source status, authorize research or establish deployment. |
+
+## r4-exact-arithmetic
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-27` | `build` | Pure LexLean models M6 multi-digit radix-B exact geometric arithmetic over orbit digits (carry propagation, step-mismatch detection, multi-place column addition, and 5 causal ablation arms), integer-only PRLL lawful likelihood (PRLL_MASS_QUANTUM=1_000_000 mass conservation and micro-bit scoring), and uor-naf/1-draft.6 minimal uvar and 6-state taxonomy admission. Formal controls establish no empirical benchmark parity or floating-point equivalence. |
 
 ## r4-flock
 
@@ -126,6 +144,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-22` | `build` | Pure LexLean models complete bounded Snapshot JSON storage admission, exact typed and original-Value compact encodings, all source-compatible Serde representations, and a separately named strict duplicate policy driven by complete actual parser transitions. Formal codec controls establish no runtime artifact admission, compiled provenance, hash-domain acceptance, serving or deployment. |
 
+## r4-spiralcore-fbs
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-24` | `build` | Pure LexLean models the 17-root Icosian Z[phi] integer snap kernels (exact 5*a^2 < d with negative-a handling, 17-root GoldenQ12 table, snap compatibility scoring, deterministic tie-breaking, and quaternion Hamilton products), UORLUT01 /1../8 binary container header validation, and model-source family/scale admission. Formal controls establish no floating-point checkpoint equivalence or hardware SIMD execution. |
+
 ## r4-tokenizer-json
 
 | ID | Level | Statement |
@@ -162,6 +186,10 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-R4-EXACT-ARITHMETIC` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/m6_exact_arithmetic.rs; companion m6_ablation.rs, lawful_likelihood.rs, and crates/uor-r4-naf/src/lib.rs | `R4-27` |
+| `UOR-R4-DURABLE-MEMORY` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-object-store/src/durable_consumer.rs; companion address_read.rs, manifold_sketch.rs, and crates/uor-r4-integer/src/session_codec.rs | `R4-26` |
+| `UOR-R4-DISCRETE-TRUNK` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/discrete_d11.rs; companion crates/uor-r4-discrete/src/trunk.rs | `R4-25` |
+| `UOR-R4-SPIRALCORE-FBS` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/kernels.rs; companion format.rs and crates/uor-r4-model-source/src/lib.rs | `R4-24` |
 | `UOR-R4-INTEGER-STACK` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/mod.rs; companion hamming.rs, memory.rs, point_key.rs, kernels.rs, session.rs and chat.rs | `R4-23` |
 | `UOR-CODEBOOK-WORDS` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/prime_zeta.rs; companion address_cells.rs and training.rs; docs/specs/codebook-integer-api.md defines explicit checked port domains and exact arithmetic identities | `R4-21` |
 | `UOR-SNAPSHOT-STORAGE` | https://github.com/UOR-Foundation/uor-r4/blob/4611538bb4843947363ccb9cce5f388e32c46883/crates/uor-r4-discrete/src/snapshot.rs — Snapshot fields, snapshot_hash_domains, stored_snapshot_hash_domains and literal typed encoding golden | `R4-22` |
@@ -193,6 +221,10 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UOR-R4-EXACT-ARITHMETIC` | `some-true` | M6 multi-digit radix-B geometric arithmetic, 5 causal ablation arms, integer PRLL lawful likelihood (PRLL_MASS_QUANTUM=1_000_000), and uor-naf/1-draft.6 admission are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish benchmark corpus scores or floating-point parity. |
+| `AUTH-UOR-R4-DURABLE-MEMORY` | `some-true` | M3 scoped durable turn-memory codecs (UORMEM01 and UR4SESS1), sorted-merge PrimeAddress GCD shared-prime intersection, and the +3-sigma (threshold 2144/4096) manifold sketch gate are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish persistent browser storage or network synchronization. |
+| `AUTH-UOR-R4-DISCRETE-TRUNK` | `some-true` | The 19-table M1 discrete trunk specification (12,288 bits per token across levels 0..5), base-17 4-block root packing, causal orbit-root successor lookup, and Level-3 joint pointer read are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish CUDA execution parity or learned trunk capability. |
+| `AUTH-UOR-R4-SPIRALCORE-FBS` | `some-true` | The 17-root Icosian Z[phi] snap kernels (5*a^2 < d, GoldenQ12 root table, compatibility scoring, quaternion Hamilton product), UORLUT01 /1../8 binary container headers, and model-source admission are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish floating-point checkpoint equivalence. |
 | `AUTH-UOR-R4-INTEGER-STACK` | `some-true` | Integer stack mechanics for /6 Hamming reads, /7 turn memory, /8 point-key L1 plurality fallback, Q31 retention lambdas, and whole-table nearest readout are imported from the pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish full-checkpoint parity or open-domain generation. |
 | `AUTH-CODEBOOK-WORDS` | `some-true` | Source integer operations and exact signed-word bytes are imported authority facts. Local arithmetic formal conformance remains distinct from prime capacity, reference floating semantics, complete codebook construction and generated serving. |
 | `AUTH-SNAPSHOT-STORAGE` | `some-true` | Snapshot fields and distinct storage/typed encoding domains are imported from the pinned Rust storage source. No source/hash string authenticates an artifact, constructs a Device or establishes runtime acceptance. |

@@ -98,11 +98,18 @@ fn main() {
             "tests/integer_stack.rs",
             "complete_integer_stack_serving_r4_23",
         ),
+        ("tests/spiralcore_fbs.rs", "complete_spiralcore_fbs_r4_24"),
+        ("tests/discrete_trunk.rs", "complete_discrete_trunk_r4_25"),
+        ("tests/durable_memory.rs", "complete_durable_memory_r4_26"),
+        (
+            "tests/exact_arithmetic.rs",
+            "complete_exact_arithmetic_r4_27",
+        ),
     ];
     assert_eq!(
         required_entrypoints.len(),
-        23,
-        "exactly 23 R4 acceptance entrypoints required"
+        27,
+        "exactly 27 R4 acceptance entrypoints required"
     );
     for (path, name) in required_entrypoints {
         require_test(&root, path, name);

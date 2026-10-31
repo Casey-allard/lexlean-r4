@@ -20,6 +20,30 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-27"
+level = "build"
+suite = "r4-exact-arithmetic"
+statement = "Pure LexLean models M6 multi-digit radix-B exact geometric arithmetic over orbit digits (carry propagation, step-mismatch detection, multi-place column addition, and 5 causal ablation arms), integer-only PRLL lawful likelihood (PRLL_MASS_QUANTUM=1_000_000 mass conservation and micro-bit scoring), and uor-naf/1-draft.6 minimal uvar and 6-state taxonomy admission. Formal controls establish no empirical benchmark parity or floating-point equivalence."
+
+[[id]]
+id = "R4-26"
+level = "build"
+suite = "r4-durable-memory"
+statement = "Pure LexLean models M3 scoped durable turn-memory binary persistence (UORMEM01 v1/v2 and UR4SESS1 v1/v2 with explicit turn-memory opt-in), sorted-merge PrimeAddress GCD shared-prime intersection, and the +3-sigma (96 excess over 2048, threshold 2144/4096) 4096-bit manifold sketch admission gate. Formal controls establish no browser IndexedDB durability, network synchronization, or cryptographic collision resistance."
+
+[[id]]
+id = "R4-25"
+level = "build"
+suite = "r4-discrete-trunk"
+statement = "Pure LexLean models the 19-table M1 discrete trunk specification (12,288 bits per token across levels 0..5), base-17 4-block root-code packing and unpacking, causal orbit-root prefix successor lookup, and Level-3 joint pointer L1 + 2*min-Hamming scoring with smallest-token tie-breaking. Formal controls establish no CUDA kernel parity, learned trunk weights, or open-ended generation quality."
+
+[[id]]
+id = "R4-24"
+level = "build"
+suite = "r4-spiralcore-fbs"
+statement = "Pure LexLean models the 17-root Icosian Z[phi] integer snap kernels (exact 5*a^2 < d with negative-a handling, 17-root GoldenQ12 table, snap compatibility scoring, deterministic tie-breaking, and quaternion Hamilton products), UORLUT01 /1../8 binary container header validation, and model-source family/scale admission. Formal controls establish no floating-point checkpoint equivalence or hardware SIMD execution."
+
+[[id]]
 id = "R4-23"
 level = "build"
 suite = "r4-integer-stack"

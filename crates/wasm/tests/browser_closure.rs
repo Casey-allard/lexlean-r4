@@ -380,9 +380,15 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(index_html.contains("id=\"trajectory-table\""));
     assert!(index_html.contains("id=\"studio-admit-form\""));
     assert!(index_html.contains("id=\"corpus-table\""));
+    assert!(index_html.contains("id=\"studio-subsystems-form\""));
+    assert!(index_html.contains("id=\"sub-r4-24\""));
+    assert!(index_html.contains("id=\"sub-r4-25\""));
+    assert!(index_html.contains("id=\"sub-r4-26\""));
+    assert!(index_html.contains("id=\"sub-r4-27\""));
 
     // Studio v2 JS bindings and envelope dispatch
     assert!(app_js.contains("studio_dispatch"));
+    assert!(app_js.contains("runStudioSubsystems"));
     assert!(app_js.contains("1\\tstudio\\t"));
     assert!(binding_js.contains("export function studio_dispatch("));
 }

@@ -32,7 +32,19 @@ const diagPluralityVotes = document.getElementById('diag-plurality-votes');
 const diagRetainLambda = document.getElementById('diag-retain-lambda');
 const diagPromptQ12 = document.getElementById('diag-prompt-q12');
 const diagPromptSign = document.getElementById('diag-prompt-sign');
+const diagIcosianRoot = document.getElementById('diag-icosian-root');
+const diagPacked4Block = document.getElementById('diag-packed-4block');
+const diagSketchGate = document.getElementById('diag-sketch-gate');
+const diagPrllMass = document.getElementById('diag-prll-mass');
 const diagInferenceReceipt = document.getElementById('diag-inference-receipt');
+
+const studioSubsystemsForm = document.getElementById('studio-subsystems-form');
+const subsystemsPayloadInput = document.getElementById('subsystems-payload');
+const subR424 = document.getElementById('sub-r4-24');
+const subR425 = document.getElementById('sub-r4-25');
+const subR426 = document.getElementById('sub-r4-26');
+const subR427 = document.getElementById('sub-r4-27');
+const subReceipt = document.getElementById('sub-receipt');
 
 const predictionsTbody = document.getElementById('predictions-tbody');
 const trajectoryTbody = document.getElementById('trajectory-tbody');
@@ -169,6 +181,18 @@ function renderInferenceResult(data) {
   if (diagPromptSign) {
     diagPromptSign.textContent = data.prompt_sign_code_hex;
   }
+  if (diagIcosianRoot && typeof data.icosian_root_index === 'number') {
+    diagIcosianRoot.textContent = `root #${data.icosian_root_index} (score ${data.icosian_compat_score})`;
+  }
+  if (diagPacked4Block && typeof data.packed_4block_root === 'number') {
+    diagPacked4Block.textContent = `${data.packed_4block_root} / 83520`;
+  }
+  if (diagSketchGate && typeof data.manifold_sketch_overlap === 'number') {
+    diagSketchGate.textContent = `${data.manifold_sketch_overlap}/4096 (${data.manifold_sketch_admitted ? 'ADMIT' : 'REJECT'})`;
+  }
+  if (diagPrllMass && typeof data.prll_top1_mass_ppm === 'number') {
+    diagPrllMass.textContent = `${data.prll_top1_mass_ppm} / 1000000 ppm`;
+  }
   if (diagInferenceReceipt) {
     diagInferenceReceipt.textContent = data.receipt_sha256;
   }
@@ -222,6 +246,30 @@ function renderInferenceResult(data) {
 function runStudioGenerate(promptText) {
   const res = dispatchStudioEnvelope('generate', promptText);
   renderInferenceResult(res);
+}
+
+function runStudioSubsystems(payloadText) {
+  const res = dispatchStudioEnvelope('subsystems', payloadText);
+  if (!res || res.status !== 'ok') return;
+  const r24 = res.r4_24_spiralcore;
+  const r25 = res.r4_25_discrete_trunk;
+  const r26 = res.r4_26_durable_memory;
+  const r27 = res.r4_27_exact_arithmetic;
+  if (subR424 && r24) {
+    subR424.textContent = `root #${r24.icosian_root} | 5a^2<d (+:${r24.below_d_sqrt5_pos}, -:${r24.below_d_sqrt5_neg}) | H=[${r24.hamilton_product.join(',')}]`;
+  }
+  if (subR425 && r25) {
+    subR425.textContent = `${r25.table_count} tables (${r25.bits_per_token} bits) | packed=${r25.packed_4block_roots} [${r25.unpacked_4block_roots.join(',')}] | L3=${r25.level3_joint_pointer_score}`;
+  }
+  if (subR426 && r26) {
+    subR426.textContent = `GCD=[${r26.gcd_shared_primes.join(',')}] | sketch=${r26.sketch_overlap}>=${r26.sketch_threshold_3sigma} (${r26.sketch_admitted ? 'ADMIT' : 'REJECT'})`;
+  }
+  if (subR427 && r27) {
+    subR427.textContent = `FullExact=(digit ${r27.full_exact_sum_digit}, carry ${r27.full_exact_carry_out}) | ZeroCarry=${r27.zero_carry_digit} | PRLL sum=${r27.prll_mass_sum} ppm`;
+  }
+  if (subReceipt) {
+    subReceipt.textContent = res.receipt_sha256;
+  }
 }
 
 function executeCoordinateEnvelope() {
@@ -314,11 +362,18 @@ if (admitResetBtn) {
     const state = dispatchStudioEnvelope('reset', '');
     renderStudioState(state);
     if (admitStatus) {
-      admitStatus.textContent = 'Reset geometric memory to the 8 default UOR-R4 turns.';
+      admitStatus.textContent = 'Reset geometric memory to the 12 default UOR-R4 turns.';
     }
     if (studioPromptInput) {
       runStudioGenerate(studioPromptInput.value);
     }
+  });
+}
+
+if (studioSubsystemsForm) {
+  studioSubsystemsForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '');
   });
 }
 
@@ -327,4 +382,5 @@ renderStudioState(initialState);
 if (studioPromptInput && studioPromptInput.value) {
   runStudioGenerate(studioPromptInput.value);
 }
+runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
 executeCoordinateEnvelope();

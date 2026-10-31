@@ -225,3 +225,26 @@ by `R4-23` (`src/R4/IntegerStack.lex.tex` and `tests/lexlean/IntegerStackControl
 | `crates/uor-r4-integer/src/stack/point_key.rs` | `5a3692b27f0111e2f82eab8602b6fe2d87a9aceb88424814cf92ff664cd8a751` | `/8` continuous point-key L1 plurality fallback and tie-breaking |
 | `crates/uor-r4-integer/src/stack/session.rs` | `0e051017b5d9845053cdbc164617aa814ec40f9898a16fa7282ff92bbff644d4` | `RETAIN_LAMBDA_Q31` geometric retention constants and snapshot turn-memory guard |
 | `crates/uor-r4-integer/src/stack/chat.rs` | `ff33e7bf5659c83e35a203fa7f7f4b0666d83fa29e21a1db3767533916eed698` | Bounded greedy prose reply token loop stopping at EOS (`1`) or token cap |
+
+## Source observation update, 2026-10-31 (`R4-24`..`R4-27` complete pure-integer subsystems)
+
+At upstream `UOR-Foundation/uor-r4` revision `4195ce2bf83d703b1acd3eb868c888d1da053479`,
+the remaining pure-integer subsystems modeled by `R4-24` (`src/R4/SpiralCoreFbs.lex.tex`),
+`R4-25` (`src/R4/DiscreteTrunk.lex.tex`), `R4-26` (`src/R4/DurableMemory.lex.tex`), and
+`R4-27` (`src/R4/ExactArithmetic.lex.tex`) are bound to the following reviewed source files:
+
+| Conformance ID | Upstream path (`4195ce2bf83d703b1acd3eb868c888d1da053479`) | SHA-256 | Modeled mechanics |
+| --- | --- | --- | --- |
+| `R4-24` | `crates/uor-r4-integer/src/stack/kernels.rs` | `613cbee55ab9fb1214797504d8f51e7911da721deda05595570451d9da86b2bf` | `below_d_sqrt5` ($5a^2 < d$), 17-root Icosian $\mathbb{Z}[\phi]$ `GoldenQ12` table, `snap_compatible_score`, `stack_snap_select`, and `stack_hamilton` |
+| `R4-24` | `crates/uor-r4-integer/src/stack/format.rs` | `91814645ea8bd08a5375f77296adae026753abd58fad3d6dc02deb16d8ba09dd` | `UORLUT01` `/1`..`/8` binary container header validation |
+| `R4-24` | `crates/uor-r4-model-source/src/lib.rs` | `737ad23bdf4b93245442ae845c4f6e9c23f8e34e82684b1e4430ca1fafe4e812` | Model-source family (`1`), scale (`1`/`2`/`3`), and dimension admission |
+| `R4-25` | `crates/uor-r4-integer/src/discrete_d11.rs` | `de788ce61a2f6c3ada2deff2bdd58d3864bf22de3b56d90f1b5b457eddfb6561` | Base-17 4-block root packing (`pack_4block_roots`), `orbit_root_causal_successor`, and `level3_joint_pointer_score` / `select_level3_joint_pointer_global` |
+| `R4-25` | `crates/uor-r4-discrete/src/trunk.rs` | `6cc332f8dde685c4a52ed650e72c3f40adaa1b270cbc03a308e98f631eca6a45` | 19-table M1 discrete trunk specification (`12,288` bits per token across levels `0..5`) |
+| `R4-26` | `crates/uor-r4-object-store/src/durable_consumer.rs` | `855fac3adaa94700bb92f2c6c05272f00b5626b9019ddf366a905db8fb7aaef8` | `UORMEM01` v1/v2 scoped durable turn-memory store and query |
+| `R4-26` | `crates/uor-r4-integer/src/session_codec.rs` | `0d694065d5f45345bd844731b1515c892c2381af3c9a45381f4ba73db12f50fa` | `UR4SESS1` v1/v2 session codec with explicit turn-memory opt-in |
+| `R4-26` | `crates/uor-r4-object-store/src/address_read.rs` | `8a4eedfe3812bcbad86d442cf76a4fcfdd1c9dfa3dcea2bcc5fa886fe130547c` | `PrimeAddress::gcd_shared_primes` sorted-merge prime-address intersection |
+| `R4-26` | `crates/uor-r4-object-store/src/manifold_sketch.rs` | `55940ae983473558e0ece3deed94d4890b2cc2e6bf105058a61baf80e59cc6f3` | `Sketch4096` $+3\sigma = 96$ excess (`2144 / 4096`) manifold sketch admission gate |
+| `R4-27` | `crates/uor-r4-integer/src/m6_exact_arithmetic.rs` | `4739a4b8b0ad017278bc81c2b77ae004fdb08c22941bbe0a01b49ee2340a043f` | M6 multi-digit radix-$B$ geometric orbit-digit addition, carry propagation, and step-mismatch verification |
+| `R4-27` | `crates/uor-r4-integer/src/m6_ablation.rs` | `cb0cc644f8c275e7740568f2c924e3712ca10e5ebfc38f92e95242a0da634541` | 5 causal ablation arms (`FullExact`, `ZeroCarry`, `IdentityGroupAddition`, `NoSignInversion`, `FixedRadix10`) |
+| `R4-27` | `crates/uor-r4-integer/src/lawful_likelihood.rs` | `1e9950f8e121cd7c74bfb61018e049b7d6cd2650a6c18cb445f3c6b418782ee6` | `PRLL_MASS_QUANTUM = 1_000_000` integer lawful likelihood mass conservation and micro-bit scoring |
+| `R4-27` | `crates/uor-r4-naf/src/lib.rs` | `2e769ce4279533e5c355aea8a75dd006adc2dc13ae9077bd4c1dd790ef8763ab` | `uor-naf/1-draft.6` minimal `uvar` and 6-state taxonomy admission |

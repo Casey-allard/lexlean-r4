@@ -14,6 +14,30 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-EXACT-ARITHMETIC"
+level = "some-true"
+authority = "UOR-R4-EXACT-ARITHMETIC"
+statement = "M6 multi-digit radix-B geometric arithmetic, 5 causal ablation arms, integer PRLL lawful likelihood (PRLL_MASS_QUANTUM=1_000_000), and uor-naf/1-draft.6 admission are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish benchmark corpus scores or floating-point parity."
+
+[[claim]]
+id = "AUTH-UOR-R4-DURABLE-MEMORY"
+level = "some-true"
+authority = "UOR-R4-DURABLE-MEMORY"
+statement = "M3 scoped durable turn-memory codecs (UORMEM01 and UR4SESS1), sorted-merge PrimeAddress GCD shared-prime intersection, and the +3-sigma (threshold 2144/4096) manifold sketch gate are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish persistent browser storage or network synchronization."
+
+[[claim]]
+id = "AUTH-UOR-R4-DISCRETE-TRUNK"
+level = "some-true"
+authority = "UOR-R4-DISCRETE-TRUNK"
+statement = "The 19-table M1 discrete trunk specification (12,288 bits per token across levels 0..5), base-17 4-block root packing, causal orbit-root successor lookup, and Level-3 joint pointer read are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish CUDA execution parity or learned trunk capability."
+
+[[claim]]
+id = "AUTH-UOR-R4-SPIRALCORE-FBS"
+level = "some-true"
+authority = "UOR-R4-SPIRALCORE-FBS"
+statement = "The 17-root Icosian Z[phi] snap kernels (5*a^2 < d, GoldenQ12 root table, compatibility scoring, quaternion Hamilton product), UORLUT01 /1../8 binary container headers, and model-source admission are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish floating-point checkpoint equivalence."
+
+[[claim]]
 id = "AUTH-UOR-R4-INTEGER-STACK"
 level = "some-true"
 authority = "UOR-R4-INTEGER-STACK"

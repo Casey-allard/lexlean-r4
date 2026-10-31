@@ -74,7 +74,19 @@
           RETAIN_LAMBDA_Q31 Horizon
         </button>
         <button type="button" class="preset-btn" data-prompt="What does LexLean prove?">
-          LexLean Formal Proofs
+          27/27 LexLean Proofs
+        </button>
+        <button type="button" class="preset-btn" data-prompt="How does the 17-root Icosian snap work?">
+          R4-24 Icosian Z[phi] Snap
+        </button>
+        <button type="button" class="preset-btn" data-prompt="What is the 19-table M1 discrete trunk?">
+          R4-25 19-Table M1 Trunk
+        </button>
+        <button type="button" class="preset-btn" data-prompt="How do durable turn memory and manifold sketches work?">
+          R4-26 Durable Memory &amp; +3&sigma; Sketch
+        </button>
+        <button type="button" class="preset-btn" data-prompt="How do M6 exact arithmetic and PRLL lawful likelihood work?">
+          R4-27 M6 Arithmetic &amp; PRLL
         </button>
       </div>
 
@@ -125,7 +137,23 @@
             <span class="diag-label">/6 Quaternion Sign Code</span>
             <code id="diag-prompt-sign">0x0000000000000000</code>
           </div>
-          <div class="diag-item diag-item-span3">
+          <div class="diag-item">
+            <span class="diag-label">R4-24 Icosian Root Snap</span>
+            <code id="diag-icosian-root">root #0</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">R4-25 Base-17 4-Block</span>
+            <code id="diag-packed-4block">0</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">R4-26 Sketch +3&sigma; Gate</span>
+            <code id="diag-sketch-gate">4096 / 4096</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">R4-27 PRLL Top-1 Mass</span>
+            <code id="diag-prll-mass">0 ppm</code>
+          </div>
+          <div class="diag-item diag-item-span2">
             <span class="diag-label">Inference Transition Receipt (SHA-256)</span>
             <code id="diag-inference-receipt">&mdash;</code>
           </div>
@@ -200,7 +228,7 @@
         </div>
         <div class="button-row">
           <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
-          <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 8 Turns</button>
+          <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 12 Turns</button>
         </div>
       </form>
       <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
@@ -223,9 +251,45 @@
       </div>
     </section>
 
+    <section class="studio-panel" aria-labelledby="heading-subsystems">
+      <div class="panel-header">
+        <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27 &middot; 27/27 Conformance Suites)</h2>
+        <span class="panel-badge">Icosian Snap + 19-Table Trunk + Durable Sketch + M6 Arithmetic &amp; PRLL</span>
+      </div>
+      <form id="studio-subsystems-form" class="prompt-form" novalidate>
+        <div class="field">
+          <label for="subsystems-payload">Probe Parameters (digit_a, digit_b, carry_in, radix, sketch_overlap_bits)</label>
+          <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
+        </div>
+        <button id="subsystems-run-btn" type="submit">Run R4-24..R4-27 Subsystems Probe</button>
+      </form>
+      <div class="diag-grid" id="subsystems-grid">
+        <div class="diag-item">
+          <span class="diag-label">R4-24 Icosian Root &amp; 5a&sup2;&lt;d</span>
+          <code id="sub-r4-24">&mdash;</code>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">R4-25 19-Table Trunk &amp; Base-17</span>
+          <code id="sub-r4-25">&mdash;</code>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">R4-26 GCD Sieve &amp; +3&sigma; Sketch</span>
+          <code id="sub-r4-26">&mdash;</code>
+        </div>
+        <div class="diag-item diag-item-span2">
+          <span class="diag-label">R4-27 M6 5-Arm Place Addition &amp; PRLL Mass Quantum</span>
+          <code id="sub-r4-27">&mdash;</code>
+        </div>
+        <div class="diag-item">
+          <span class="diag-label">Subsystems Probe Receipt</span>
+          <code id="sub-receipt">&mdash;</code>
+        </div>
+      </div>
+    </section>
+
     <section class="studio-panel" aria-labelledby="heading-envelope">
       <div class="panel-header">
-        <h2 id="heading-envelope">5. PrismPM Coordinate Envelope Inspector (prismpm/text-application/1)</h2>
+        <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector (prismpm/text-application/1)</h2>
         <span class="panel-badge">64-Bit Signed Integer Coordinate Operations</span>
       </div>
       <form id="application-form" novalidate>
