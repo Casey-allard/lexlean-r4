@@ -27,58 +27,97 @@ fn complete_snapshot_storage_r4_22() -> Result<(), Box<dyn std::error::Error>> {
     }
     assert_eq!(count, 476);
 
+    let fixture_map: std::collections::BTreeMap<&str, &Value> = fixtures
+        .iter()
+        .filter_map(|f| f["module"].as_str().map(|m| (m, f)))
+        .collect();
+    assert_eq!(fixture_map.len(), 9);
+
+    let batches = [
+        (
+            "tests/lexlean/SnapshotBatch01.lex.tex",
+            "SnapshotBatch01",
+            "a927c0d5c847cfacceb6d4522c43b5015647ccf1053e72eec0a924724525cfcb",
+            &[
+                "SnapshotStringControls",
+                "SnapshotStrictControls",
+                "SnapshotBudgetControls",
+            ][..],
+        ),
+        (
+            "tests/lexlean/SnapshotBatch02.lex.tex",
+            "SnapshotBatch02",
+            "2679bc4437cbbafdd572ab0e6d4ecda54c93e9f3d63a716fa5028a7bb0b7fbcd",
+            &[
+                "SnapshotNumericControls",
+                "SnapshotRoundtripControls",
+                "SnapshotSchemaControls",
+            ][..],
+        ),
+        (
+            "tests/lexlean/SnapshotBatch03.lex.tex",
+            "SnapshotBatch03",
+            "75ffe36a7ef930c3c53ccb7518fecadce08f3151dc1e9a50e19076a1409a9c9a",
+            &[
+                "SnapshotRepresentationControls",
+                "SnapshotOrderControls",
+                "SnapshotStoredValueControls",
+            ][..],
+        ),
+    ];
+
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let mut sorted_fixtures = fixtures.clone();
-    sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["controls"].as_u64().unwrap_or(0)));
-    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 4;
-        for _ in 0..workers {
+        for batch in batches {
             let tx = tx.clone();
-            let next_idx = &next_idx;
-            let sorted_fixtures = &sorted_fixtures;
+            let fixture_map = &fixture_map;
             s.spawn(move || {
-                loop {
-                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                    if i >= sorted_fixtures.len() {
-                        break;
-                    }
-                    let fixture = &sorted_fixtures[i];
-                    let path = match fixture["path"].as_str() {
-                        Some(p) => p,
+                let (batch_path, batch_module, batch_digest, batch_modules) = batch;
+                let mut controls = Vec::new();
+                let mut modules = vec![
+                    batch_module,
+                    "R4.Json",
+                    "R4.JsonNumber",
+                    "R4.JsonNumberArithmetic",
+                    "R4.SnapshotJson",
+                    "R4.TokenizerText",
+                    "R4.TokenizerTextUnicode",
+                ];
+                for mod_name in batch_modules {
+                    let fixture = match fixture_map.get(mod_name) {
+                        Some(f) => f,
                         None => {
-                            let _ = tx.send(Err("missing control path".to_string()));
+                            let _ = tx.send(Err(format!("missing fixture {mod_name}")));
                             return;
                         }
                     };
-                    let module = match fixture["module"].as_str() {
-                        Some(m) => m,
+                    let path = match fixture["path"].as_str() {
+                        Some(p) => p,
                         None => {
-                            let _ = tx.send(Err("missing control module".to_string()));
+                            let _ = tx.send(Err("missing path".to_string()));
                             return;
                         }
                     };
                     let digest = match fixture["sha256"].as_str() {
                         Some(d) => d,
                         None => {
-                            let _ = tx.send(Err("missing control digest".to_string()));
+                            let _ = tx.send(Err("missing digest".to_string()));
                             return;
                         }
                     };
-                    let mut modules = vec![
-                        module,
-                        "R4.Json",
-                        "R4.JsonNumber",
-                        "R4.JsonNumberArithmetic",
-                        "R4.SnapshotJson",
-                        "R4.TokenizerText",
-                        "R4.TokenizerTextUnicode",
-                    ];
-                    modules.sort_unstable();
-                    if let Err(e) = support::verify_controls(path, module, digest, &modules) {
-                        let _ = tx.send(Err(e.to_string()));
-                        return;
-                    }
+                    controls.push((path, *mod_name, digest));
+                    modules.push(mod_name);
+                }
+                modules.sort_unstable();
+                if let Err(e) = support::verify_control_batch(
+                    batch_path,
+                    batch_module,
+                    batch_digest,
+                    &controls,
+                    &modules,
+                ) {
+                    let _ = tx.send(Err(e.to_string()));
+                    return;
                 }
                 let _ = tx.send(Ok(()));
             });

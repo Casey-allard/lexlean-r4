@@ -125,31 +125,43 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
         "missing or unregistered hash control source"
     );
     // Audit the entire frozen partition before invoking any verifier; every case is mandatory.
-    // Verify the complete 30-case partition across 3 worker threads pulling from a dynamic work-stealing counter without CPU thrashing.
+    // Verify the complete 30-case partition across 3 import-closure batches in parallel.
+    let batches = [
+        (
+            "tests/lexlean/HashBatch01.lex.tex",
+            "HashBatch01",
+            "221b0a08698a53557eb15089c3dd20ef40f11a2631788aa5e4d54ff75ad56ca8",
+            &groups[0..10],
+        ),
+        (
+            "tests/lexlean/HashBatch02.lex.tex",
+            "HashBatch02",
+            "7b44311ff5e60a1b6f985e34f3f8acbbd6749e5a0e34bc90828caa22378d6ce2",
+            &groups[10..20],
+        ),
+        (
+            "tests/lexlean/HashBatch03.lex.tex",
+            "HashBatch03",
+            "2542f41144915bf07ee87eed7cae3257ecd4fd55e82a021439edcf2551ceab13",
+            &groups[20..30],
+        ),
+    ];
+
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let mut sorted_groups = groups.clone();
-    sorted_groups.sort_by_cached_key(|g| {
-        let path = g["path"].as_str().unwrap_or_default();
-        std::cmp::Reverse(
-            std::fs::metadata(root.join(path))
-                .map(|m| m.len())
-                .unwrap_or(0),
-        )
-    });
-    let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 4;
-        for _ in 0..workers {
+        for batch in batches {
             let tx = tx.clone();
-            let next_idx = &next_idx;
-            let sorted_groups = &sorted_groups;
             s.spawn(move || {
-                loop {
-                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                    if i >= sorted_groups.len() {
-                        break;
-                    }
-                    let group = &sorted_groups[i];
+                let (batch_path, batch_module, batch_digest, batch_groups) = batch;
+                let mut controls = Vec::new();
+                let mut modules = vec![
+                    batch_module,
+                    "R4.Hash",
+                    "R4.HashNat",
+                    "R4.HashNatCore",
+                    "R4.Words",
+                ];
+                for group in batch_groups {
                     let module = match group["module"].as_str() {
                         Some(m) => m,
                         None => {
@@ -171,21 +183,19 @@ fn complete_content_hashes_r4_11() -> Result<(), Box<dyn Error>> {
                             return;
                         }
                     };
-                    if let Err(e) = support::verify_controls(
-                        path,
-                        module,
-                        digest,
-                        &[
-                            module,
-                            "R4.Hash",
-                            "R4.HashNat",
-                            "R4.HashNatCore",
-                            "R4.Words",
-                        ],
-                    ) {
-                        let _ = tx.send(Err(e.to_string()));
-                        return;
-                    }
+                    controls.push((path, module, digest));
+                    modules.push(module);
+                }
+                modules.sort_unstable();
+                if let Err(e) = support::verify_control_batch(
+                    batch_path,
+                    batch_module,
+                    batch_digest,
+                    &controls,
+                    &modules,
+                ) {
+                    let _ = tx.send(Err(e.to_string()));
+                    return;
                 }
                 let _ = tx.send(Ok(()));
             });
