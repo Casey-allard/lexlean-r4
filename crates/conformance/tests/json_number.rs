@@ -19,7 +19,7 @@ fn exact_json_number_r4_18() -> Result<(), Box<dyn std::error::Error>> {
         "92d6ef7689f4370840aac9ffc38e02bf540782e68067155076482b80a87da6df",
         &["JsonNumberArithmeticControls", "R4.JsonNumberArithmetic"],
     )?;
-    for (path, module, digest) in [
+    let cases = [
         (
             "tests/lexlean/JsonNumberSyntaxControls.lex.tex",
             "JsonNumberSyntaxControls",
@@ -40,13 +40,38 @@ fn exact_json_number_r4_18() -> Result<(), Box<dyn std::error::Error>> {
             "JsonNumberCombineControls",
             "d2f96367e5483f097a5fabb74f047b55390ea523dcd4bf875031ce61c2664960",
         ),
-    ] {
-        support::verify_controls(
-            path,
-            module,
-            digest,
-            &[module, "R4.JsonNumber", "R4.JsonNumberArithmetic"],
-        )?;
+    ];
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    let next_idx = std::sync::atomic::AtomicUsize::new(0);
+    std::thread::scope(|s| {
+        let workers = 2;
+        for _ in 0..workers {
+            let tx = tx.clone();
+            let next_idx = &next_idx;
+            s.spawn(move || {
+                loop {
+                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    if i >= cases.len() {
+                        break;
+                    }
+                    let (path, module, digest) = cases[i];
+                    if let Err(e) = support::verify_controls(
+                        path,
+                        module,
+                        digest,
+                        &[module, "R4.JsonNumber", "R4.JsonNumberArithmetic"],
+                    ) {
+                        let _ = tx.send(Err(e.to_string()));
+                        return;
+                    }
+                }
+                let _ = tx.send(Ok(()));
+            });
+        }
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
     }
     Ok(())
 }

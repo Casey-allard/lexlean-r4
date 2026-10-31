@@ -34,7 +34,7 @@ fn exact_codebook_words_r4_21() -> Result<(), Box<dyn std::error::Error>> {
     sorted_fixtures.sort_by_key(|f| std::cmp::Reverse(f["theorem_count"].as_u64().unwrap_or(0)));
     let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 4;
+        let workers = 2;
         for _ in 0..workers {
             let tx = tx.clone();
             let next_idx = &next_idx;
