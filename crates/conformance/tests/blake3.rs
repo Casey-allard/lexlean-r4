@@ -178,70 +178,43 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    let cases: [(&str, &str, &str, &[&str]); 4] = [
-        (
-            "tests/lexlean/Blake3NatControls.lex.tex",
-            "Blake3NatControls",
-            "c53bf66b28d2be6a2978aa04b69962d9bc36fde7dac5887b860ee679a625e62f",
-            &["Blake3NatControls", "R4.Blake3Nat"],
-        ),
-        (
-            "tests/lexlean/Blake3CoreControls.lex.tex",
-            "Blake3CoreControls",
-            "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
-            &["Blake3CoreControls", "R4.Blake3Core", "R4.Blake3Nat"],
-        ),
-        (
-            "tests/lexlean/Blake3StreamingControls.lex.tex",
+    support::verify_controls(
+        "tests/lexlean/Blake3NatControls.lex.tex",
+        "Blake3NatControls",
+        "c53bf66b28d2be6a2978aa04b69962d9bc36fde7dac5887b860ee679a625e62f",
+        &["Blake3NatControls", "R4.Blake3Nat"],
+    )?;
+    support::verify_controls(
+        "tests/lexlean/Blake3CoreControls.lex.tex",
+        "Blake3CoreControls",
+        "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
+        &["Blake3CoreControls", "R4.Blake3Core", "R4.Blake3Nat"],
+    )?;
+    support::verify_controls(
+        "tests/lexlean/Blake3StreamingControls.lex.tex",
+        "Blake3StreamingControls",
+        "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
+        &[
             "Blake3StreamingControls",
-            "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
+            "R4.Blake3",
+            "R4.Blake3Core",
+            "R4.Blake3Nat",
+        ],
+    )?;
+    for (module, digest) in &BLAKE3_CASES[..1] {
+        let path = format!("tests/lexlean/{module}.lex.tex");
+        support::verify_controls(
+            &path,
+            module,
+            digest,
             &[
-                "Blake3StreamingControls",
-                "R4.Blake3",
-                "R4.Blake3Core",
-                "R4.Blake3Nat",
-            ],
-        ),
-        (
-            "tests/lexlean/Blake3Case01.lex.tex",
-            "Blake3Case01",
-            "bb14cd3233a674cf26160e94cd7902220b56f16b93f25b27a3f32786671024c0",
-            &[
-                "Blake3Case01",
+                module,
                 "R4.Blake3",
                 "R4.Blake3Core",
                 "R4.Blake3Input",
                 "R4.Blake3Nat",
             ],
-        ),
-    ];
-
-    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    let next_idx = std::sync::atomic::AtomicUsize::new(0);
-    std::thread::scope(|s| {
-        let workers = 2;
-        for _ in 0..workers {
-            let tx = tx.clone();
-            let next_idx = &next_idx;
-            s.spawn(move || {
-                loop {
-                    let i = next_idx.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                    if i >= cases.len() {
-                        break;
-                    }
-                    let (path, module, digest, modules) = cases[i];
-                    if let Err(e) = support::verify_controls(path, module, digest, modules) {
-                        let _ = tx.send(Err(e.to_string()));
-                        return;
-                    }
-                }
-                let _ = tx.send(Ok(()));
-            });
-        }
-    });
-    drop(tx);
-    while let Ok(res) = rx.recv() {
-        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
+        )?;
     }
     Ok(())
 }
