@@ -9,28 +9,247 @@
 </head>
 <body>
   <main>
-    <h1>LexLean-R4 Reference Engine</h1>
-    <form id="application-form" novalidate>
-      <div class="field">
-        <label for="left">Left operand / Occurrence Coordinate</label>
-        <input id="left" name="left" inputmode="numeric" autocomplete="off" spellcheck="false">
+    <header class="studio-header">
+      <div class="header-top">
+        <div>
+          <span class="eyebrow">UOR-R4 Studio v2 &middot; Float-Free Geometric Language Model</span>
+          <h1>LexLean-R4 Universal Reference Engine</h1>
+        </div>
+        <div class="schema-pill">
+          <span class="pill-label">Active Stack</span>
+          <code id="stat-schema">uor-r4.lut-stack/8</code>
+        </div>
       </div>
-      <div class="field">
-        <label for="operation">Operation</label>
-        <select id="operation" name="operation">
-          <option value="0" data-request="forward" selected>Forward Transition</option>
-          <option value="1" data-request="route">Route Descent</option>
-          <option value="2" data-request="flock">Flock Consensus</option>
-          <option value="3" data-request="verify-receipt">Verify Receipt</option>
-        </select>
+      <p class="subtitle">
+        Zero-float WebAssembly inference over the 16-root E8 discrete orbit, 64-action Cl(0,6) Clifford carrier, and 40-node ternary binder forest &mdash; combining <strong>/6</strong> quaternion sign-code SWAR Hamming read, <strong>/7</strong> turn-anchored opening &amp; reply continuation tables, <strong>/8</strong> continuous Q12 L1 point-key fallback (<code>memory.point.points</code>), and <code>RETAIN_LAMBDA_Q31</code> geometric retention.
+      </p>
+      <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
+        <div class="metric-card">
+          <span class="metric-label">Vocabulary Atoms</span>
+          <strong id="stat-vocab" class="metric-value">0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">/7 Opening &amp; Reply Rows</span>
+          <strong id="stat-turn-rows" class="metric-value">0 / 0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">/8 Point-Key Q12 Rows</span>
+          <strong id="stat-point-rows" class="metric-value">0</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Occupied E8 Product Cells</span>
+          <strong id="stat-cells" class="metric-value">0 / 256</strong>
+        </div>
+        <div class="metric-card metric-card-wide">
+          <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
+          <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
+        </div>
       </div>
-      <div class="field">
-        <label for="right">Right operand / Parameter</label>
-        <input id="right" name="right" inputmode="numeric" autocomplete="off" spellcheck="false">
+    </header>
+
+    <section class="studio-panel" aria-labelledby="heading-prose">
+      <div class="panel-header">
+        <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
+        <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
       </div>
-      <button id="submit" type="submit">Execute</button>
-    </form>
-    <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
+
+      <div class="preset-bar" role="group" aria-label="Preset Prompts">
+        <span class="preset-title">Preset Prompts:</span>
+        <button type="button" class="preset-btn" data-prompt="How does recall work?">
+          Exact /7 Recall
+        </button>
+        <button type="button" class="preset-btn" data-prompt="Can you explain how memory lookup recovers a rephrased question?">
+          Paraphrased /8 Point-Key L1 Recovery
+        </button>
+        <button type="button" class="preset-btn" data-prompt="How does prose generation work?">
+          Prose Generation (/7 Reply Chain)
+        </button>
+        <button type="button" class="preset-btn" data-prompt="How does prediction work?">
+          Prediction &amp; Ranking
+        </button>
+        <button type="button" class="preset-btn" data-prompt="What is integer Hamming read?">
+          /6 Quaternion Hamming Read
+        </button>
+        <button type="button" class="preset-btn" data-prompt="What is geometric retention?">
+          RETAIN_LAMBDA_Q31 Horizon
+        </button>
+        <button type="button" class="preset-btn" data-prompt="What does LexLean prove?">
+          LexLean Formal Proofs
+        </button>
+      </div>
+
+      <form id="studio-prompt-form" class="prompt-form" novalidate>
+        <div class="field">
+          <label for="studio-prompt">Prompt or Question (enter an exact turn key or a rephrased question)</label>
+          <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
+        </div>
+        <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
+      </form>
+
+      <div class="reply-card">
+        <div class="reply-card-header">
+          <span class="reply-title">Generated Prose Continuation</span>
+          <span id="diag-recall-mode" class="mode-badge">Awaiting inference</span>
+        </div>
+        <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
+        <div class="diag-grid">
+          <div class="diag-item">
+            <span class="diag-label">Matched Turn Anchor</span>
+            <code id="diag-matched-anchor">&mdash;</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Opening Token &amp; Length</span>
+            <code id="diag-opening-token">&mdash;</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">/8 Q12 L1 Distance</span>
+            <code id="diag-l1-distance">0</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">/6 SWAR Hamming Dist</span>
+            <code id="diag-hamming-distance">0 bits</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">/8 Plurality Votes</span>
+            <code id="diag-plurality-votes">0</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Active RETAIN_LAMBDA_Q31</span>
+            <code id="diag-retain-lambda">0</code>
+          </div>
+          <div class="diag-item diag-item-span2">
+            <span class="diag-label">Prompt 8D Q12 Readout Vector (memory.point.points)</span>
+            <code id="diag-prompt-q12">[0, 0, 0, 0, 0, 0, 0, 0]</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">/6 Quaternion Sign Code</span>
+            <code id="diag-prompt-sign">0x0000000000000000</code>
+          </div>
+          <div class="diag-item diag-item-span3">
+            <span class="diag-label">Inference Transition Receipt (SHA-256)</span>
+            <code id="diag-inference-receipt">&mdash;</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="studio-panel" aria-labelledby="heading-predictions">
+      <div class="panel-header">
+        <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
+        <span class="panel-badge">Whole-Table Q12 L1 Readout + Level-3 Pointer Gates</span>
+      </div>
+      <div class="table-wrap">
+        <table class="studio-table" id="predictions-table">
+          <thead>
+            <tr>
+              <th scope="col">Rank</th>
+              <th scope="col">Token ID</th>
+              <th scope="col">Decoded Piece</th>
+              <th scope="col">E8 Product Cell</th>
+              <th scope="col">Cl(0,6) Action</th>
+              <th scope="col">Ternary Node</th>
+              <th scope="col">Q12 L1 Dist</th>
+              <th scope="col">/6 Hamming Weight</th>
+              <th scope="col">Rank Score</th>
+              <th scope="col">Resolution Source</th>
+            </tr>
+          </thead>
+          <tbody id="predictions-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="studio-panel" aria-labelledby="heading-trajectory">
+      <div class="panel-header">
+        <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory (E8 Orbit &times; Cl(0,6) &times; 40-Node Ternary Forest)</h2>
+        <span class="panel-badge">Prompt &rarr; &lt;REPLY_START&gt; &rarr; Autoregressive Reply</span>
+      </div>
+      <div class="table-wrap">
+        <table class="studio-table" id="trajectory-table">
+          <thead>
+            <tr>
+              <th scope="col">Step</th>
+              <th scope="col">Phase</th>
+              <th scope="col">Token Piece</th>
+              <th scope="col">ID</th>
+              <th scope="col">E8 Root</th>
+              <th scope="col">Cl(0,6) Action</th>
+              <th scope="col">Forest Node &amp; Trit Path</th>
+              <th scope="col">/6 Sign Code (64-bit)</th>
+              <th scope="col">/8 Q12 Readout Vector (8D)</th>
+            </tr>
+          </thead>
+          <tbody id="trajectory-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="studio-panel" aria-labelledby="heading-admission">
+      <div class="panel-header">
+        <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission (R4.Admission + /7 + /8 + /6)</h2>
+        <span class="panel-badge">Teach New Facts &amp; Query with Paraphrased Prompts</span>
+      </div>
+      <form id="studio-admit-form" class="admit-form" novalidate>
+        <div class="field">
+          <label for="admit-prompt">New Prompt / Question Anchor</label>
+          <input id="admit-prompt" name="admit-prompt" type="text" value="How does ternary routing work?" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="admit-reply">Prose Reply / Continuation to Admit</label>
+          <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits {-1, 0, +1} at each level." autocomplete="off" spellcheck="false">
+        </div>
+        <div class="button-row">
+          <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
+          <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 8 Turns</button>
+        </div>
+      </form>
+      <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
+
+      <div class="table-wrap">
+        <table class="studio-table" id="corpus-table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Prompt Anchor</th>
+              <th scope="col">Opening Token</th>
+              <th scope="col">E8 Cell</th>
+              <th scope="col">64-Bit Sign Code</th>
+              <th scope="col">Prose Reply Continuation</th>
+              <th scope="col">Inspect</th>
+            </tr>
+          </thead>
+          <tbody id="corpus-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="studio-panel" aria-labelledby="heading-envelope">
+      <div class="panel-header">
+        <h2 id="heading-envelope">5. PrismPM Coordinate Envelope Inspector (prismpm/text-application/1)</h2>
+        <span class="panel-badge">64-Bit Signed Integer Coordinate Operations</span>
+      </div>
+      <form id="application-form" novalidate>
+        <div class="field">
+          <label for="left">Left operand / Occurrence Coordinate</label>
+          <input id="left" name="left" value="10" inputmode="numeric" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="operation">Operation</label>
+          <select id="operation" name="operation">
+            <option value="0" data-request="forward" selected>Forward Transition</option>
+            <option value="1" data-request="route">Route Descent</option>
+            <option value="2" data-request="flock">Flock Consensus</option>
+            <option value="3" data-request="verify-receipt">Verify Receipt</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="right">Right operand / Parameter</label>
+          <input id="right" name="right" value="20" inputmode="numeric" autocomplete="off" spellcheck="false">
+        </div>
+        <button id="submit" type="submit">Execute</button>
+      </form>
+      <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
+    </section>
   </main>
   <script type="module" src="app.js"></script>
 </body>

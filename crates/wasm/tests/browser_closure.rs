@@ -360,3 +360,29 @@ fn test_browser_css_wcag_contrast_and_focus() {
     assert!(!app_css.contains("url("));
     assert!(app_css.contains("system-ui"));
 }
+
+#[test]
+fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
+    let root = repo_root();
+    let index_html =
+        std::fs::read_to_string(root.join("public/index.html")).expect("read index.html");
+    let app_js = std::fs::read_to_string(root.join("public/app.js")).expect("read app.js");
+    let binding_js =
+        std::fs::read_to_string(root.join("public/lexlean_r4.js")).expect("read lexlean_r4.js");
+
+    // Studio v2 HTML sections and interactive controls
+    assert!(index_html.contains("uor-r4.lut-stack/8"));
+    assert!(index_html.contains("memory.point.points"));
+    assert!(index_html.contains("id=\"studio-prompt-form\""));
+    assert!(index_html.contains("id=\"studio-prompt\""));
+    assert!(index_html.contains("id=\"studio-prose-output\""));
+    assert!(index_html.contains("id=\"predictions-table\""));
+    assert!(index_html.contains("id=\"trajectory-table\""));
+    assert!(index_html.contains("id=\"studio-admit-form\""));
+    assert!(index_html.contains("id=\"corpus-table\""));
+
+    // Studio v2 JS bindings and envelope dispatch
+    assert!(app_js.contains("studio_dispatch"));
+    assert!(app_js.contains("1\\tstudio\\t"));
+    assert!(binding_js.contains("export function studio_dispatch("));
+}
