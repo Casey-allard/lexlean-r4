@@ -93,7 +93,7 @@ fn exact_evidence_r4_17() -> Result<(), Box<dyn std::error::Error>> {
     let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
     let next_idx = std::sync::atomic::AtomicUsize::new(0);
     std::thread::scope(|s| {
-        let workers = 2;
+        let workers = 4;
         for _ in 0..workers {
             let tx = tx.clone();
             let next_idx = &next_idx;
