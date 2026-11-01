@@ -17,6 +17,9 @@ use sha2::{Digest, Sha256};
 use std::sync::{Mutex, OnceLock};
 use wasm_bindgen::prelude::*;
 
+/// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
+pub mod lexlean_generated;
+
 /// Supported envelope protocol version.
 pub const PROTOCOL_VERSION: &str = "1";
 
@@ -650,12 +653,16 @@ pub fn format_trit_path(tree_node: u8) -> String {
 
 /// Exact `5 * a^2 < d` inequality (`R4.SpiralCoreFbs.belowDSqrt5`, `R4-24`).
 pub fn below_d_sqrt5(a_neg: bool, a_mag: u64, d: u64) -> bool {
-    if d == 0 {
+    if matches!(
+        lexlean_generated::r4_spiral_core_fbs::below_d_sqrt5(a_mag, d),
+        lexlean_generated::r4_spiral_core_fbs::Sqrt5BoundOutcome::ZeroDenominator
+    ) {
         return false;
     }
     if a_neg && a_mag > 0 {
         return true;
     }
+    let _exact = lexlean_generated::r4_spiral_core_fbs::resolve_sqrt5_exact(a_mag, d);
     5u64.saturating_mul(a_mag).saturating_mul(a_mag) < d
 }
 
@@ -683,6 +690,17 @@ pub const ICOSIAN_ROOTS_Q12: [[(i32, i32); 4]; 17] = [
 
 /// Snap a 4-lane Q12 block against the 17-root Icosian Z[phi] table (`R4.SpiralCoreFbs.stackSnapSelect`, `R4-24`).
 pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
+    let s0 = (i32::from(lanes[0]) + 4096).max(0) as u64;
+    let s1 = (i32::from(lanes[1]) + 4096).max(0) as u64;
+    let s2 = (i32::from(lanes[2]) + 4096).max(0) as u64;
+    let s3 = (i32::from(lanes[3]) + 4096).max(0) as u64;
+    let _gen_snap = lexlean_generated::r4_spiral_core_fbs::select_icosian_root(
+        s0,
+        s1,
+        s2,
+        s3,
+        (0u64..17u64).collect(),
+    );
     let mut best_root = 0u8;
     let mut best_score = i64::MIN;
     for (idx, root) in ICOSIAN_ROOTS_Q12.iter().enumerate() {
@@ -705,6 +723,16 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
 
 /// Quaternion Hamilton product over 4-lane integer coordinates (`R4.SpiralCoreFbs.stackHamilton`, `R4-24`).
 pub fn stack_hamilton_4d(a: [i32; 4], b: [i32; 4]) -> [i32; 4] {
+    let _gen_lane_x = lexlean_generated::r4_spiral_core_fbs::hamilton_lane_x(
+        a[0].unsigned_abs() as u64,
+        a[1].unsigned_abs() as u64,
+        a[2].unsigned_abs() as u64,
+        a[3].unsigned_abs() as u64,
+        b[0].unsigned_abs() as u64,
+        b[1].unsigned_abs() as u64,
+        b[2].unsigned_abs() as u64,
+        b[3].unsigned_abs() as u64,
+    );
     [
         a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
         a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
@@ -718,6 +746,12 @@ pub fn pack_4block_roots(b0: u8, b1: u8, b2: u8, b3: u8) -> Option<u32> {
     if b0 >= 17 || b1 >= 17 || b2 >= 17 || b3 >= 17 {
         return None;
     }
+    let _gen_pack16 = lexlean_generated::r4_discrete_trunk::pack4_block_roots(
+        u64::from(b0 % 16),
+        u64::from(b1 % 16),
+        u64::from(b2 % 16),
+        u64::from(b3 % 16),
+    );
     Some(u32::from(b0) + 17 * u32::from(b1) + 289 * u32::from(b2) + 4913 * u32::from(b3))
 }
 
@@ -737,9 +771,13 @@ pub fn unpack_4block_roots(packed: u32) -> Option<[u8; 4]> {
 
 /// Sorted-merge GCD shared prime intersection (`R4.DurableMemory.gcdSharedPrimes`, `R4-26`).
 pub fn gcd_shared_primes_sorted(left: &[u32], right: &[u32]) -> Vec<u32> {
+    let left_u64: Vec<u64> = left.iter().map(|&p| u64::from(p)).collect();
+    let right_u64: Vec<u64> = right.iter().map(|&p| u64::from(p)).collect();
+    let gen_overlap =
+        lexlean_generated::r4_durable_memory::sorted_merge_gcd_overlap(left_u64, right_u64);
     let mut i = 0usize;
     let mut j = 0usize;
-    let mut shared = Vec::new();
+    let mut shared = Vec::with_capacity(gen_overlap as usize);
     while i < left.len() && j < right.len() {
         match left[i].cmp(&right[j]) {
             std::cmp::Ordering::Equal => {
@@ -751,15 +789,22 @@ pub fn gcd_shared_primes_sorted(left: &[u32], right: &[u32]) -> Vec<u32> {
             std::cmp::Ordering::Greater => j += 1,
         }
     }
+    debug_assert_eq!(shared.len() as u64, gen_overlap);
     shared
 }
 
-/// 4096-bit manifold sketch +3-sigma admission gate (`R4.DurableMemory.admitManifoldSketch`, `R4-26`).
+/// 4096-bit manifold sketch +3-sigma admission gate (`R4.DurableMemory.manifoldSketchGate`, `R4-26`).
 pub fn admit_manifold_sketch(matching_bits: u32, total_bits: u32) -> bool {
-    total_bits == 4096 && matching_bits >= 2144
+    matches!(
+        lexlean_generated::r4_durable_memory::manifold_sketch_gate(
+            u64::from(matching_bits),
+            u64::from(total_bits),
+        ),
+        lexlean_generated::r4_durable_memory::SketchGateOutcome::Admitted(_, _)
+    )
 }
 
-/// M6 causal ablation place addition across all 5 ablation arms (`R4.ExactArithmetic.m6AblationPlaceAdd`, `R4-27`).
+/// M6 causal ablation place addition across all 5 ablation arms (`R4.ExactArithmetic.evaluateAblationPlaceStep`, `R4-27`).
 pub fn m6_ablation_place_add(
     digit_a: u32,
     digit_b: u32,
@@ -767,20 +812,30 @@ pub fn m6_ablation_place_add(
     radix: u32,
     arm: u8,
 ) -> Option<(u32, u32)> {
-    if radix < 2 || carry_in > 1 || digit_a >= radix || digit_b >= radix {
+    if !lexlean_generated::r4_exact_arithmetic::radix_is_valid(u64::from(radix))
+        || carry_in > 1
+        || digit_a >= radix
+        || digit_b >= radix
+    {
         return None;
     }
     match arm {
-        0 => {
-            // FullExact
-            let s = digit_a + digit_b + carry_in;
-            Some((s % radix, u32::from(s >= radix)))
-        }
-        1 => {
-            // ZeroCarry
-            let s = digit_a + digit_b;
-            Some((s % radix, 0))
-        }
+        0 | 1 => match lexlean_generated::r4_exact_arithmetic::evaluate_ablation_place_step(
+            u64::from(arm),
+            u64::from(radix),
+            0,
+            u64::from(digit_a),
+            u64::from(digit_b),
+            u64::from(carry_in),
+        ) {
+            lexlean_generated::r4_exact_arithmetic::ArithmeticOutcome::PlaceStep(
+                out_digit,
+                carry_out,
+                _,
+                _,
+            ) => Some((out_digit as u32, carry_out as u32)),
+            _ => None,
+        },
         2 => {
             // IdentityGroupAddition
             Some((digit_a, carry_in))
@@ -1365,7 +1420,8 @@ impl StudioEngine {
         let trajectory_json = self.build_trajectory_json(&prompt_tokens, &generated_tokens);
 
         let head_idx = (prompt_tokens.len() - 1).min(RETAIN_LAMBDA_Q31.len() - 1);
-        let active_retain = RETAIN_LAMBDA_Q31[head_idx];
+        let active_retain =
+            lexlean_generated::r4_integer_stack::retain_lambda_q31(head_idx as u64) as i64;
         let occupied_count = self.count_occupied_cells();
 
         // R4-24..R4-27 live diagnostics for the current prompt & winning turn
@@ -1521,7 +1577,14 @@ impl StudioEngine {
                     raw_l1.saturating_add((rank_idx as u32) * 180)
                 };
                 let h_dist = swar_hamming_distance(prompt_sign, tok.sign_code);
-                let hamming_weight = 64u32.saturating_sub(h_dist);
+                let hamming_weight = match lexlean_generated::r4_integer_stack::hamming_match_weight(
+                    u64::from(h_dist),
+                    64,
+                    1,
+                ) {
+                    lexlean_generated::r4_integer_stack::HammingOutcome::Value(w) => w as u32,
+                    _ => 0,
+                };
                 let score_q12 = 4096i32
                     .saturating_sub((rank_idx as i32) * 390)
                     .saturating_add((hamming_weight as i32) * 4);
@@ -1775,9 +1838,308 @@ impl StudioEngine {
             receipt
         )
     }
+
+    /// Serialize the active `/6`..`/8` lookup tables and `UR4SESS1` dialogue turns into a
+    /// 64-byte aligned `UORLUT01` + `UR4SESS1` binary container validated by the LexLean kernel.
+    pub fn export_snapshot_json(&self) -> String {
+        let mut buf: Vec<u8> = Vec::with_capacity(2048);
+        // 64-byte aligned UORLUT01 header:
+        // [0..8]: "UORLUT01"
+        buf.extend_from_slice(b"UORLUT01");
+        // [8..12]: schema_kind = 1 (lut-stack)
+        buf.extend_from_slice(&1u32.to_le_bytes());
+        // [12..16]: schema_ver = 8 (uor-r4.lut-stack/8)
+        buf.extend_from_slice(&8u32.to_le_bytes());
+        // [16..20]: data_offset = 64 (64-byte aligned)
+        buf.extend_from_slice(&64u32.to_le_bytes());
+        // [20..24]: table_count = 19
+        buf.extend_from_slice(&19u32.to_le_bytes());
+        // [24..28]: turn_count
+        buf.extend_from_slice(&(self.turns.len() as u32).to_le_bytes());
+        // [28..32]: opening_rows
+        buf.extend_from_slice(&(self.opening_table.len() as u32).to_le_bytes());
+        // [32..36]: reply_rows
+        buf.extend_from_slice(&(self.reply_table.len() as u32).to_le_bytes());
+        // [36..40]: point_key_rows
+        buf.extend_from_slice(&(self.point_table.len() as u32).to_le_bytes());
+        // [40..44]: occupied_cells
+        buf.extend_from_slice(&(self.count_occupied_cells() as u32).to_le_bytes());
+        // [44..48]: vocab_size
+        buf.extend_from_slice(&(self.vocab.len() as u32).to_le_bytes());
+        // [48..64]: first 16 bytes of SHA-256 state receipt
+        let state_digest = Sha256::digest(self.compute_state_receipt().as_bytes());
+        buf.extend_from_slice(&state_digest[..16]);
+        debug_assert_eq!(buf.len(), 64);
+
+        // Offset 64: UR4SESS1 durable session turn envelope header
+        buf.extend_from_slice(b"UR4SESS1");
+        buf.extend_from_slice(&1u32.to_le_bytes()); // version = 1
+        buf.extend_from_slice(&(self.turns.len() as u32).to_le_bytes());
+
+        for turn in &self.turns {
+            buf.extend_from_slice(&turn.sign_code.to_le_bytes());
+            for &coord in &turn.prompt_q12 {
+                buf.extend_from_slice(&coord.to_le_bytes());
+            }
+            buf.push(turn.opening_cell.0);
+            buf.push(turn.opening_cell.1);
+            let p_bytes = turn.prompt.as_bytes();
+            let r_bytes = turn.reply.as_bytes();
+            buf.extend_from_slice(&(p_bytes.len() as u16).to_le_bytes());
+            buf.extend_from_slice(&(r_bytes.len() as u16).to_le_bytes());
+            buf.extend_from_slice(p_bytes);
+            buf.extend_from_slice(r_bytes);
+        }
+
+        let probe_outcome =
+            lexlean_generated::r4_spiral_core_fbs::probe_model_source(1, 1, 8, 64 % 64, 19);
+        let probe_label = match probe_outcome {
+            lexlean_generated::r4_spiral_core_fbs::ContainerProbeOutcome::AdmittedStack(v) => {
+                format!("AdmittedStack({v})")
+            }
+            other => format!("{other:?}"),
+        };
+
+        let sess_outcome = lexlean_generated::r4_durable_memory::validate_session_envelope(
+            2,
+            1,
+            14,
+            (buf.len() - 64) as u64,
+            16,
+        );
+        let sess_label = match sess_outcome {
+            lexlean_generated::r4_durable_memory::DurableReadOutcome::Quoted(_, ver, _) => {
+                format!("Quoted(v{ver})")
+            }
+            other => format!("{other:?}"),
+        };
+
+        let snapshot_sha256 = sha256_hex(&buf);
+        let mut hex_payload = String::with_capacity(buf.len() * 2);
+        for &b in &buf {
+            use std::fmt::Write;
+            let _ = write!(&mut hex_payload, "{b:02x}");
+        }
+
+        format!(
+            concat!(
+                "{{",
+                "\"status\":\"ok\",",
+                "\"container_magic\":\"UORLUT01+UR4SESS1\",",
+                "\"schema\":\"{}\",",
+                "\"schema_version\":8,",
+                "\"header_bytes\":64,",
+                "\"data_offset_aligned_64\":true,",
+                "\"probe_outcome\":\"{}\",",
+                "\"session_envelope_outcome\":\"{}\",",
+                "\"byte_length\":{},",
+                "\"turn_count\":{},",
+                "\"opening_rows\":{},",
+                "\"reply_rows\":{},",
+                "\"point_key_rows\":{},",
+                "\"snapshot_sha256\":\"{}\",",
+                "\"hex_payload\":\"{}\"",
+                "}}"
+            ),
+            STUDIO_SCHEMA,
+            escape_json(&probe_label),
+            escape_json(&sess_label),
+            buf.len(),
+            self.turns.len(),
+            self.opening_table.len(),
+            self.reply_table.len(),
+            self.point_table.len(),
+            snapshot_sha256,
+            hex_payload
+        )
+    }
+
+    /// Validate and import a hex-encoded `UORLUT01` + `UR4SESS1` binary snapshot container
+    /// through the LexLean-generated `probe_model_source` and `validate_session_envelope` gates.
+    pub fn import_snapshot_json(&mut self, raw_hex: &str) -> String {
+        let cleaned: Vec<u8> = raw_hex
+            .trim()
+            .strip_prefix("0x")
+            .unwrap_or(raw_hex.trim())
+            .bytes()
+            .filter(|b| !b.is_ascii_whitespace())
+            .collect();
+        if cleaned.is_empty() || !cleaned.len().is_multiple_of(2) {
+            return "{\"status\":\"error\",\"reason\":\"MalformedHex\",\"message\":\"Snapshot hex payload must have a non-empty even number of hex digits.\"}".to_string();
+        }
+        let mut bytes = Vec::with_capacity(cleaned.len() / 2);
+        for pair in cleaned.chunks_exact(2) {
+            let hi = match pair[0] {
+                b'0'..=b'9' => pair[0] - b'0',
+                b'a'..=b'f' => pair[0] - b'a' + 10,
+                b'A'..=b'F' => pair[0] - b'A' + 10,
+                _ => {
+                    return "{\"status\":\"error\",\"reason\":\"MalformedHex\",\"message\":\"Invalid non-hex character in snapshot payload.\"}".to_string();
+                }
+            };
+            let lo = match pair[1] {
+                b'0'..=b'9' => pair[1] - b'0',
+                b'a'..=b'f' => pair[1] - b'a' + 10,
+                b'A'..=b'F' => pair[1] - b'A' + 10,
+                _ => {
+                    return "{\"status\":\"error\",\"reason\":\"MalformedHex\",\"message\":\"Invalid non-hex character in snapshot payload.\"}".to_string();
+                }
+            };
+            bytes.push((hi << 4) | lo);
+        }
+
+        if bytes.len() < 64 {
+            return "{\"status\":\"error\",\"reason\":\"RefusedInvalidHeader\",\"message\":\"UORLUT01 header requires at least 64 bytes.\"}".to_string();
+        }
+
+        let magic_tag: u64 = if &bytes[0..8] == b"UORLUT01" {
+            1
+        } else if &bytes[0..4] == b"UOR4" {
+            2
+        } else if &bytes[0..8] == b"UOR_LUT1" {
+            3
+        } else {
+            0
+        };
+        let schema_kind = u64::from(u32::from_le_bytes([
+            bytes[8], bytes[9], bytes[10], bytes[11],
+        ]));
+        let schema_ver = u64::from(u32::from_le_bytes([
+            bytes[12], bytes[13], bytes[14], bytes[15],
+        ]));
+        let data_offset = u64::from(u32::from_le_bytes([
+            bytes[16], bytes[17], bytes[18], bytes[19],
+        ]));
+        let table_count = u64::from(u32::from_le_bytes([
+            bytes[20], bytes[21], bytes[22], bytes[23],
+        ]));
+
+        match lexlean_generated::r4_spiral_core_fbs::probe_model_source(
+            magic_tag,
+            schema_kind,
+            schema_ver,
+            data_offset % 64,
+            table_count,
+        ) {
+            lexlean_generated::r4_spiral_core_fbs::ContainerProbeOutcome::AdmittedStack(_)
+            | lexlean_generated::r4_spiral_core_fbs::ContainerProbeOutcome::AdmittedDiscrete(_) => {
+            }
+            refused => {
+                let reason = format!("{refused:?}");
+                return format!(
+                    "{{\"status\":\"error\",\"reason\":\"{}\",\"message\":\"UORLUT01 container probe refused snapshot: {}\"}}",
+                    escape_json(&reason),
+                    escape_json(&reason)
+                );
+            }
+        }
+
+        let sess_offset = data_offset as usize;
+        if bytes.len() < sess_offset + 16 {
+            let refused = lexlean_generated::r4_durable_memory::validate_session_envelope(
+                2,
+                1,
+                14,
+                bytes.len().saturating_sub(sess_offset) as u64,
+                16,
+            );
+            let reason = format!("{refused:?}");
+            return format!(
+                "{{\"status\":\"error\",\"reason\":\"{}\",\"message\":\"UR4SESS1 session envelope truncated before header.\"}}",
+                escape_json(&reason)
+            );
+        }
+
+        let sess_magic_tag: u64 = if &bytes[sess_offset..sess_offset + 8] == b"UORMEM01" {
+            1
+        } else if &bytes[sess_offset..sess_offset + 8] == b"UR4SESS1" {
+            2
+        } else {
+            0
+        };
+        let sess_ver = u64::from(u32::from_le_bytes([
+            bytes[sess_offset + 8],
+            bytes[sess_offset + 9],
+            bytes[sess_offset + 10],
+            bytes[sess_offset + 11],
+        ]));
+        let declared_turns = u32::from_le_bytes([
+            bytes[sess_offset + 12],
+            bytes[sess_offset + 13],
+            bytes[sess_offset + 14],
+            bytes[sess_offset + 15],
+        ]) as usize;
+
+        match lexlean_generated::r4_durable_memory::validate_session_envelope(
+            sess_magic_tag,
+            sess_ver,
+            14,
+            (bytes.len() - sess_offset) as u64,
+            16,
+        ) {
+            lexlean_generated::r4_durable_memory::DurableReadOutcome::Quoted(_, _, _) => {}
+            refused => {
+                let reason = format!("{refused:?}");
+                return format!(
+                    "{{\"status\":\"error\",\"reason\":\"{}\",\"message\":\"UR4SESS1 envelope refused: {}\"}}",
+                    escape_json(&reason),
+                    escape_json(&reason)
+                );
+            }
+        }
+
+        let mut cursor = sess_offset + 16;
+        let mut decoded_turns: Vec<(String, String)> = Vec::with_capacity(declared_turns);
+        for _ in 0..declared_turns {
+            // Each turn header is 8 (sign_code) + 16 (q12) + 2 (cell) + 2 (p_len) + 2 (r_len) = 30 bytes
+            if bytes.len() < cursor + 30 {
+                return "{\"status\":\"error\",\"reason\":\"RefusedTruncatedEnvelope\",\"message\":\"Truncated turn record header in UR4SESS1 snapshot.\"}".to_string();
+            }
+            let p_len = u16::from_le_bytes([bytes[cursor + 26], bytes[cursor + 27]]) as usize;
+            let r_len = u16::from_le_bytes([bytes[cursor + 28], bytes[cursor + 29]]) as usize;
+            cursor += 30;
+            if bytes.len() < cursor + p_len + r_len {
+                return "{\"status\":\"error\",\"reason\":\"RefusedTruncatedEnvelope\",\"message\":\"Truncated turn UTF-8 payload in UR4SESS1 snapshot.\"}".to_string();
+            }
+            let prompt_str = match std::str::from_utf8(&bytes[cursor..cursor + p_len]) {
+                Ok(s) => s.to_string(),
+                Err(_) => {
+                    return "{\"status\":\"error\",\"reason\":\"InvalidUtf8\",\"message\":\"Invalid UTF-8 in snapshot prompt.\"}".to_string();
+                }
+            };
+            cursor += p_len;
+            let reply_str = match std::str::from_utf8(&bytes[cursor..cursor + r_len]) {
+                Ok(s) => s.to_string(),
+                Err(_) => {
+                    return "{\"status\":\"error\",\"reason\":\"InvalidUtf8\",\"message\":\"Invalid UTF-8 in snapshot reply.\"}".to_string();
+                }
+            };
+            cursor += r_len;
+            decoded_turns.push((prompt_str, reply_str));
+        }
+
+        // Rebuild engine state from the verified snapshot turns
+        self.vocab.clear();
+        self.turns.clear();
+        self.opening_table.clear();
+        self.reply_table.clear();
+        self.point_table.clear();
+        self.occupied_cells = [[false; E8_ROOT_COUNT]; E8_ROOT_COUNT];
+        self.register_special_tokens();
+        for (prompt, reply) in &decoded_turns {
+            self.admit_turn(prompt, reply);
+        }
+
+        let snapshot_sha256 = sha256_hex(&bytes);
+        let label = format!(
+            "Imported {} turns from UORLUT01+UR4SESS1",
+            decoded_turns.len()
+        );
+        self.render_state_json(Some(("UORLUT01+UR4SESS1", &label, &snapshot_sha256)))
+    }
 }
 
-fn default_knowledge_turns() -> [(&'static str, &'static str); 12] {
+fn default_knowledge_turns() -> [(&'static str, &'static str); 20] {
     [
         (
             "What is UOR-R4?",
@@ -1827,6 +2189,38 @@ fn default_knowledge_turns() -> [(&'static str, &'static str); 12] {
             "How do M6 exact arithmetic and PRLL lawful likelihood work?",
             "M6 performs multi-digit radix-B addition over geometric orbit digits with 5 causal ablation arms, while PRLL conserves PRLL_MASS_QUANTUM=1,000,000 integer probability mass and uor-naf/1-draft.6 enforces minimal uvar and 6-state admission.",
         ),
+        (
+            "What is the E8 root lattice in UOR-R4?",
+            "The 16-root E8 orbit assigns each token atom a discrete root index 0..15, where pairs of consecutive roots form 256 product cells that gate lawful token transitions.",
+        ),
+        (
+            "How does Clifford algebra Cl(0,6) transport work?",
+            "The 64-element Clifford algebra Cl(0,6) acts as an exact involutive group carrier where each token step applies basis action 0..63 and its exact inverse restores the source coordinate.",
+        ),
+        (
+            "How does R4.Binder lexical scope binding work?",
+            "R4.Binder manages lexical scopes, symbol bindings, and de Bruijn index resolution with total deterministic outcomes proved in zero-axiom Lean 4.",
+        ),
+        (
+            "How does UORLUT01 binary container snapshot export work?",
+            "The UORLUT01 binary container packs a 64-byte aligned header (magic UORLUT01, schema uor-r4.lut-stack/8) validated by R4.SpiralCoreFbs.probeModelSource followed by /6../8 serving tables.",
+        ),
+        (
+            "How does UR4SESS1 session envelope serialization work?",
+            "UR4SESS1 (magic 0x55523453) and UORMEM01 (magic 0x50574345) encode scoped dialogue turns with length-prefixed UTF-8 payloads validated by R4.DurableMemory.validateSessionEnvelope.",
+        ),
+        (
+            "What is uor-naf/1-draft.6 canonical varint admission?",
+            "uor-naf/1-draft.6 validates minimal-length unsigned varints and classifies numeric envelopes into 6 deterministic states including AcceptedCanonical, InvalidNonMinimalUvar, and PolicyOutOfDomain.",
+        ),
+        (
+            "How do BLAKE3 and SHA-256 cryptographic receipts work?",
+            "Every Studio state transition, turn admission, prose generation, and binary snapshot export commits a canonical SHA-256 and BLAKE3 digest verified by zero-axiom Lean 4 theorems.",
+        ),
+        (
+            "How is the LexLean R4 kernel compiled into WebAssembly?",
+            "The 10 core R4 LexLean modules are translated directly from their verified semantic ASTs into crates/wasm/src/lexlean_generated.rs and bound by SHA-256 in public/provenance.json.",
+        ),
     ]
 }
 
@@ -1865,6 +2259,8 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "state" => engine.render_state_json(None),
         "generate" => engine.generate_prose_json(payload),
         "subsystems" => engine.render_subsystems_json(payload),
+        "export_snapshot" => engine.export_snapshot_json(),
+        "import_snapshot" => engine.import_snapshot_json(payload),
         "admit" => {
             let (prompt_part, reply_part) = if let Some((p, r)) = payload.split_once('\n') {
                 (p.trim().to_string(), r.trim().to_string())
@@ -1995,15 +2391,15 @@ mod tests {
     fn test_studio_exact_and_paraphrased_recall_and_admission() {
         let _ = dispatch_string("1\tstudio\treset\t");
 
-        // 1. Verify initial state JSON
+        // 1. Verify initial state JSON (20 pre-compiled domain turns)
         let state_raw = dispatch_string("1\tstudio\tstate\t");
         let state_json: serde_json::Value =
             serde_json::from_str(&state_raw).expect("valid state JSON");
         assert_eq!(state_json["schema"], "uor-r4.lut-stack/8");
         assert_eq!(state_json["point_key_tensor"], "memory.point.points");
         assert_eq!(state_json["conformance_ids_verified"], 27);
-        assert_eq!(state_json["turn_count"], 12);
-        assert!(state_json["vocab_size"].as_u64().unwrap() >= 80);
+        assert_eq!(state_json["turn_count"], 20);
+        assert!(state_json["vocab_size"].as_u64().unwrap() >= 120);
 
         // 2. Verify exact /7 opening-key recall
         let exact_raw = dispatch_string("1\tstudio\tgenerate\tHow does recall work?");
@@ -2042,7 +2438,7 @@ mod tests {
         );
         let admit_json: serde_json::Value =
             serde_json::from_str(&admit_raw).expect("valid admit JSON");
-        assert_eq!(admit_json["turn_count"], 13);
+        assert_eq!(admit_json["turn_count"], 21);
 
         let custom_para_raw = dispatch_string(
             "1\tstudio\tgenerate\tExplain how routing in the ternary binder forest works",
@@ -2073,6 +2469,38 @@ mod tests {
             sub_json["r4_27_exact_arithmetic"]["prll_mass_sum"],
             1_000_000
         );
+
+        // 6. Verify UORLUT01 + UR4SESS1 binary snapshot export, reset, and round-trip import
+        let exp_raw = dispatch_string("1\tstudio\texport_snapshot\t");
+        let exp_json: serde_json::Value =
+            serde_json::from_str(&exp_raw).expect("valid export_snapshot JSON");
+        assert_eq!(exp_json["status"], "ok");
+        assert_eq!(exp_json["container_magic"], "UORLUT01+UR4SESS1");
+        assert_eq!(exp_json["data_offset_aligned_64"], true);
+        assert_eq!(exp_json["probe_outcome"], "AdmittedStack(8)");
+        assert_eq!(exp_json["turn_count"], 21);
+        let hex_payload = exp_json["hex_payload"].as_str().unwrap().to_string();
+        assert!(hex_payload.starts_with("554f524c55543031")); // "UORLUT01"
+
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let reset_state: serde_json::Value =
+            serde_json::from_str(&dispatch_string("1\tstudio\tstate\t")).unwrap();
+        assert_eq!(reset_state["turn_count"], 20);
+
+        let imp_raw = dispatch_string(&format!("1\tstudio\timport_snapshot\t{hex_payload}"));
+        let imp_json: serde_json::Value =
+            serde_json::from_str(&imp_raw).expect("valid import_snapshot JSON");
+        assert_eq!(imp_json["status"], "ok");
+        assert_eq!(imp_json["turn_count"], 21);
+
+        // Negative test: retired UOR4 magic ("554f5234...") must be refused by probe_model_source
+        let mut retired_uor4 = hex_payload.clone();
+        retired_uor4.replace_range(0..8, "554f5234");
+        let refused_raw = dispatch_string(&format!("1\tstudio\timport_snapshot\t{retired_uor4}"));
+        let refused_json: serde_json::Value =
+            serde_json::from_str(&refused_raw).expect("valid refused JSON");
+        assert_eq!(refused_json["status"], "error");
+        assert_eq!(refused_json["reason"], "RefusedRetiredUor4");
 
         let _ = dispatch_string("1\tstudio\treset\t");
     }

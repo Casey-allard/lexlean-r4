@@ -178,58 +178,51 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
-    let mut tasks: Vec<(String, &str, &str, Vec<&str>)> = vec![
+    let mut controls: Vec<(&str, &str, &str)> = vec![
         (
-            "tests/lexlean/Blake3NatControls.lex.tex".to_string(),
+            "tests/lexlean/Blake3NatControls.lex.tex",
             "Blake3NatControls",
             "c53bf66b28d2be6a2978aa04b69962d9bc36fde7dac5887b860ee679a625e62f",
-            vec!["Blake3NatControls", "R4.Blake3Nat"],
         ),
         (
-            "tests/lexlean/Blake3CoreControls.lex.tex".to_string(),
+            "tests/lexlean/Blake3CoreControls.lex.tex",
             "Blake3CoreControls",
             "b4a6b5a5d3978f90828b4532e5dea0a3e8cda2035ce5454b1080b7dbf213d80d",
-            vec!["Blake3CoreControls", "R4.Blake3Core", "R4.Blake3Nat"],
         ),
         (
-            "tests/lexlean/Blake3StreamingControls.lex.tex".to_string(),
+            "tests/lexlean/Blake3StreamingControls.lex.tex",
             "Blake3StreamingControls",
             "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
-            vec![
-                "Blake3StreamingControls",
-                "R4.Blake3",
-                "R4.Blake3Core",
-                "R4.Blake3Nat",
-            ],
         ),
     ];
-    for (module, digest) in &BLAKE3_CASES[..1] {
-        tasks.push((
-            format!("tests/lexlean/{module}.lex.tex"),
-            module,
-            digest,
-            vec![
-                module,
-                "R4.Blake3",
-                "R4.Blake3Core",
-                "R4.Blake3Input",
-                "R4.Blake3Nat",
-            ],
-        ));
+    let case_paths: Vec<String> = BLAKE3_CASES
+        .iter()
+        .map(|(module, _)| format!("tests/lexlean/{module}.lex.tex"))
+        .collect();
+    for (idx, (module, digest)) in BLAKE3_CASES.iter().enumerate() {
+        controls.push((case_paths[idx].as_str(), module, digest));
     }
-    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
-    std::thread::scope(|s| {
-        for (path, module, digest, modules) in &tasks {
-            let tx = tx.clone();
-            s.spawn(move || {
-                let res = support::verify_controls(path, module, digest, modules);
-                let _ = tx.send(res.map_err(|e| e.to_string()));
-            });
-        }
-    });
-    drop(tx);
-    while let Ok(res) = rx.recv() {
-        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
+
+    let mut modules: Vec<&str> = vec![
+        "Blake3Batch",
+        "Blake3CoreControls",
+        "Blake3NatControls",
+        "Blake3StreamingControls",
+        "R4.Blake3",
+        "R4.Blake3Core",
+        "R4.Blake3Input",
+        "R4.Blake3Nat",
+    ];
+    for (module, _) in &BLAKE3_CASES {
+        modules.push(module);
     }
-    Ok(())
+    modules.sort_unstable();
+
+    support::verify_control_batch(
+        "tests/lexlean/Blake3Batch.lex.tex",
+        "Blake3Batch",
+        "ee462ffa491b0fd2077ffdb94915297568ddf212f8cfce9971191be0184d4f75",
+        &controls,
+        &modules,
+    )
 }

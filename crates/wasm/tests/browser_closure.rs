@@ -98,6 +98,14 @@ fn test_browser_provenance_schema_and_digests() {
         "provenance binding_javascript_sha256 must match public/lexlean_r4.js"
     );
 
+    // Generated LexLean core SHA-256 match
+    let generated_core_path = root.join("crates/wasm/src/lexlean_generated.rs");
+    let actual_generated_core_sha = sha256_file(&generated_core_path);
+    assert_eq!(
+        json["generated_core_sha256"], actual_generated_core_sha,
+        "provenance generated_core_sha256 must match crates/wasm/src/lexlean_generated.rs"
+    );
+
     // Valid 64-char hex model ID and hashes
     for field in [
         "adapter_lock_sha256",

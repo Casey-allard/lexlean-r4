@@ -228,9 +228,15 @@
         </div>
         <div class="button-row">
           <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
-          <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 12 Turns</button>
+          <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 20 Turns</button>
+          <button id="snapshot-export-btn" type="button" class="btn-secondary">Export UORLUT01 + UR4SESS1 Snapshot</button>
+          <button id="snapshot-import-btn" type="button" class="btn-secondary">Validate &amp; Import Snapshot</button>
         </div>
       </form>
+      <div class="field">
+        <label for="snapshot-hex-input">Binary Container Snapshot Hex (`UORLUT01` 64B Header + `UR4SESS1` Session Envelope)</label>
+        <input id="snapshot-hex-input" name="snapshot-hex-input" type="text" value="" placeholder="Click 'Export UORLUT01 + UR4SESS1 Snapshot' to serialize active /6../8 tables &amp; session turns..." autocomplete="off" spellcheck="false">
+      </div>
       <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
 
       <div class="table-wrap">

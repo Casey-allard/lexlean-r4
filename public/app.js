@@ -14,6 +14,9 @@ const studioAdmitForm = document.getElementById('studio-admit-form');
 const admitPromptInput = document.getElementById('admit-prompt');
 const admitReplyInput = document.getElementById('admit-reply');
 const admitResetBtn = document.getElementById('admit-reset-btn');
+const snapshotExportBtn = document.getElementById('snapshot-export-btn');
+const snapshotImportBtn = document.getElementById('snapshot-import-btn');
+const snapshotHexInput = document.getElementById('snapshot-hex-input');
 const admitStatus = document.getElementById('admit-status');
 
 const statSchema = document.getElementById('stat-schema');
@@ -362,10 +365,44 @@ if (admitResetBtn) {
     const state = dispatchStudioEnvelope('reset', '');
     renderStudioState(state);
     if (admitStatus) {
-      admitStatus.textContent = 'Reset geometric memory to the 12 default UOR-R4 turns.';
+      admitStatus.textContent = 'Reset geometric memory to the 20 default UOR-R4 turns.';
     }
     if (studioPromptInput) {
       runStudioGenerate(studioPromptInput.value);
+    }
+  });
+}
+
+if (snapshotExportBtn) {
+  snapshotExportBtn.addEventListener('click', () => {
+    const snap = dispatchStudioEnvelope('export_snapshot', '');
+    if (snap && snap.status === 'ok') {
+      if (snapshotHexInput) {
+        snapshotHexInput.value = snap.snapshot_hex;
+      }
+      if (admitStatus) {
+        admitStatus.textContent = `Exported ${snap.byte_length}-byte UORLUT01/8 + UR4SESS1 binary envelope (${snap.turns_count} turns, SHA-256: ${snap.snapshot_sha256})`;
+      }
+    } else if (admitStatus && snap) {
+      admitStatus.textContent = snap.message || 'Snapshot export failed';
+    }
+  });
+}
+
+if (snapshotImportBtn) {
+  snapshotImportBtn.addEventListener('click', () => {
+    const hexPayload = snapshotHexInput ? snapshotHexInput.value.trim() : '';
+    const state = dispatchStudioEnvelope('import_snapshot', hexPayload);
+    if (state && state.status === 'ok') {
+      renderStudioState(state);
+      if (admitStatus) {
+        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 snapshot (${state.imported_turns} turns, SHA-256: ${state.snapshot_sha256})`;
+      }
+      if (studioPromptInput) {
+        runStudioGenerate(studioPromptInput.value);
+      }
+    } else if (admitStatus && state) {
+      admitStatus.textContent = state.message || 'Snapshot import failed';
     }
   });
 }
