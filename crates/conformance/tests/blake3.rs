@@ -195,11 +195,12 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
             "ed8cef63cec1f587c44243abe65407b2cce691587a4a87325a69f0f1c146c970",
         ),
     ];
-    let case_paths: Vec<String> = BLAKE3_CASES
+    let batch_cases = &BLAKE3_CASES[..33];
+    let case_paths: Vec<String> = batch_cases
         .iter()
         .map(|(module, _)| format!("tests/lexlean/{module}.lex.tex"))
         .collect();
-    for (idx, (module, digest)) in BLAKE3_CASES.iter().enumerate() {
+    for (idx, (module, digest)) in batch_cases.iter().enumerate() {
         controls.push((case_paths[idx].as_str(), module, digest));
     }
 
@@ -213,16 +214,67 @@ fn complete_unkeyed_blake3_r4_15() -> Result<(), Box<dyn std::error::Error>> {
         "R4.Blake3Input",
         "R4.Blake3Nat",
     ];
-    for (module, _) in &BLAKE3_CASES {
+    for (module, _) in batch_cases {
         modules.push(module);
     }
     modules.sort_unstable();
 
-    support::verify_control_batch(
-        "tests/lexlean/Blake3Batch.lex.tex",
-        "Blake3Batch",
-        "ee462ffa491b0fd2077ffdb94915297568ddf212f8cfce9971191be0184d4f75",
-        &controls,
-        &modules,
-    )
+    let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
+    std::thread::scope(|s| {
+        let tx35 = tx.clone();
+        s.spawn(move || {
+            let res = support::verify_controls(
+                "tests/lexlean/Blake3Case35.lex.tex",
+                BLAKE3_CASES[34].0,
+                BLAKE3_CASES[34].1,
+                &[
+                    "Blake3Case35",
+                    "R4.Blake3",
+                    "R4.Blake3Core",
+                    "R4.Blake3Input",
+                    "R4.Blake3Nat",
+                ],
+            )
+            .map_err(|e| e.to_string());
+            let _ = tx35.send(res);
+        });
+
+        let tx34 = tx.clone();
+        s.spawn(move || {
+            let res = support::verify_controls(
+                "tests/lexlean/Blake3Case34.lex.tex",
+                BLAKE3_CASES[33].0,
+                BLAKE3_CASES[33].1,
+                &[
+                    "Blake3Case34",
+                    "R4.Blake3",
+                    "R4.Blake3Core",
+                    "R4.Blake3Input",
+                    "R4.Blake3Nat",
+                ],
+            )
+            .map_err(|e| e.to_string());
+            let _ = tx34.send(res);
+        });
+
+        let tx_batch = tx.clone();
+        let controls = &controls;
+        let modules = &modules;
+        s.spawn(move || {
+            let res = support::verify_control_batch(
+                "tests/lexlean/Blake3Batch.lex.tex",
+                "Blake3Batch",
+                "62bacb880372daf97d8eea23d750530861de6b8be15e024525356a07054198ab",
+                controls,
+                modules,
+            )
+            .map_err(|e| e.to_string());
+            let _ = tx_batch.send(res);
+        });
+    });
+    drop(tx);
+    while let Ok(res) = rx.recv() {
+        res.map_err(|e| -> Box<dyn std::error::Error> { e.into() })?;
+    }
+    Ok(())
 }
