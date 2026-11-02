@@ -26,12 +26,12 @@ fn canonical_content_objects_r4_13() -> Result<(), Box<dyn std::error::Error>> {
             (
                 "tests/lexlean/ObjectReadControls.lex.tex",
                 "ObjectReadControls",
-                "f99c16bb472a2e543e46dcdfb99fac0582e25818b365d392fb0f7cb5588ce56e",
+                "2065f64c597fa40e16967e827c405f4efb2de9f05baeeeb028c7f9750b46d65c",
             ),
             (
                 "tests/lexlean/ObjectControls.lex.tex",
                 "ObjectControls",
-                "4246311734006874b8459e781ecefca7e4ed4c336f4c40f6fa63356769b72b87",
+                "c377df81491d4658aa34537cd2ee726be7eeca0a6bce58dc282d847e3f73427d",
             ),
         ],
         &[
