@@ -378,9 +378,14 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     let binding_js =
         std::fs::read_to_string(root.join("public/lexlean_r4.js")).expect("read lexlean_r4.js");
 
-    // Studio v2 HTML sections and interactive controls
+    // Studio v2 & Claude-Code-Desktop HTML sections and interactive controls
     assert!(index_html.contains("uor-r4.lut-stack/8"));
     assert!(index_html.contains("memory.point.points"));
+    assert!(index_html.contains("id=\"claude-code-desktop\""));
+    assert!(index_html.contains("id=\"workspace-file-list\""));
+    assert!(index_html.contains("id=\"claude-chat-form\""));
+    assert!(index_html.contains("id=\"chat-apply-patch-btn\""));
+    assert!(index_html.contains("id=\"studio-train-form\""));
     assert!(index_html.contains("id=\"studio-prompt-form\""));
     assert!(index_html.contains("id=\"studio-prompt\""));
     assert!(index_html.contains("id=\"studio-prose-output\""));
@@ -394,9 +399,11 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(index_html.contains("id=\"sub-r4-26\""));
     assert!(index_html.contains("id=\"sub-r4-27\""));
 
-    // Studio v2 JS bindings and envelope dispatch
+    // Studio v2 & Claude-Code-Desktop JS bindings and envelope dispatch
     assert!(app_js.contains("studio_dispatch"));
     assert!(app_js.contains("runStudioSubsystems"));
+    assert!(app_js.contains("runClaudeChat"));
+    assert!(app_js.contains("runOnDeviceTrain"));
     assert!(app_js.contains("1\\tstudio\\t"));
     assert!(binding_js.contains("export function studio_dispatch("));
 }

@@ -7,7 +7,7 @@ fn target_free_prediction_r4_19() -> Result<(), Box<dyn std::error::Error>> {
     support::verify_controls(
         "tests/lexlean/PredictionControls.lex.tex",
         "PredictionControls",
-        "677087de1a6b844dd353e87909d96d9feb95d8cb2d07108f527d26698d3a5cde",
+        "07d1bd83243a26b3e5defc665c1579252e0765eb495ec4f6f04064f284fea8e2",
         &[
             "PredictionControls",
             "R4.Admission",

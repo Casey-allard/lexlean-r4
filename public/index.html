@@ -40,12 +40,162 @@
           <span class="metric-label">Occupied E8 Product Cells</span>
           <strong id="stat-cells" class="metric-value">0 / 256</strong>
         </div>
+        <div class="metric-card">
+          <span class="metric-label">Trained Epochs &amp; Active Gates</span>
+          <strong id="stat-train-epochs" class="metric-value">0 ep / 0 gates</strong>
+        </div>
         <div class="metric-card metric-card-wide">
           <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
           <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
         </div>
       </div>
     </header>
+
+    <section class="studio-panel ide-shell" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Matmul-Free End-to-End Developer Environment</span>
+          <h2 id="heading-claude-desktop">Claude-Code-Desktop &middot; UOR-R4 Geometric Coding Assistant &amp; On-Device Trainer</h2>
+        </div>
+        <span class="panel-badge">R4.Flock Cyclic Consensus &middot; R4.Prediction Basin Decoding &middot; R4.Learning Coupled Gate-Vector</span>
+      </div>
+
+      <div class="ide-grid">
+        <aside class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
+          <div class="pane-subheader">
+            <strong>Workspace Files</strong>
+            <span id="workspace-pinned-badge" class="mode-badge">2 pinned</span>
+          </div>
+          <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
+          <form id="workspace-new-form" class="workspace-new-form" novalidate>
+            <div class="field">
+              <label for="workspace-new-path">Create or Select Workspace File</label>
+              <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
+            </div>
+            <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
+          </form>
+        </aside>
+
+        <div class="ide-pane" id="assistant-pane" aria-label="Claude-Code Geometric Chat and Patch Synthesis">
+          <div class="pane-subheader">
+            <strong>Multi-Turn Geometric Assistant &amp; Code Patcher</strong>
+            <span id="chat-target-badge" class="mode-badge">Target: src/attention.rs</span>
+          </div>
+
+          <div class="preset-bar" role="group" aria-label="Assistant Coding Prompts">
+            <span class="preset-title">Coding Tasks:</span>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
+              Cyclic Flock Attention (src/attention.rs)
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Add coupled gate-vector escape step in src/trainer.rs">
+              Coupled Gate Trainer (src/trainer.rs)
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Synthesize contextual basin router method in src/engine.rs">
+              Contextual Basin Router (src/engine.rs)
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Document live geometric receipts in README.md">
+              Update Architecture Docs (README.md)
+            </button>
+          </div>
+
+          <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History"></div>
+
+          <form id="claude-chat-form" class="prompt-form" novalidate>
+            <div class="field">
+              <label for="claude-chat-input">Ask Claude-Code-Desktop to explain, refactor, or synthesize code across pinned files</label>
+              <input id="claude-chat-input" name="claude-chat-input" type="text" value="Upgrade multi-head cyclic flock attention in src/attention.rs" autocomplete="off" spellcheck="false">
+            </div>
+            <button id="claude-chat-submit" type="submit">Synthesize Response &amp; Code Patch</button>
+          </form>
+
+          <div class="patch-card">
+            <div class="reply-card-header">
+              <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
+              <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
+            </div>
+            <pre id="chat-diff-preview" class="code-block" aria-label="Proposed Unified Diff"></pre>
+            <div class="diag-grid" id="chat-flock-grid">
+              <div class="diag-item">
+                <span class="diag-label">8-Head Cyclic Consensus</span>
+                <code id="chat-diag-consensus">Cl(0)</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Weighted Resonance</span>
+                <code id="chat-diag-resonance">0</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Icosian Z[phi] Root</span>
+                <code id="chat-diag-root">root #0</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Turn Receipt (SHA-256)</span>
+                <code id="chat-diag-receipt">&mdash;</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="ide-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor and On-Device Trainer">
+          <div class="pane-subheader">
+            <strong>Workspace File Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
+            <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+          </div>
+          <div class="field">
+            <label for="workspace-editor-textarea">Active Workspace Source Code (Editable)</label>
+            <textarea id="workspace-editor-textarea" class="code-textarea" rows="10" spellcheck="false"></textarea>
+          </div>
+          <div class="button-row">
+            <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
+          </div>
+          <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
+
+          <hr class="pane-divider">
+
+          <div class="pane-subheader">
+            <strong>On-Device Coordinate-Sweep Trainer</strong>
+            <span class="mode-badge">Zero Backprop &middot; R4.Learning</span>
+          </div>
+          <form id="studio-train-form" class="prompt-form" novalidate>
+            <div class="field">
+              <label for="train-epochs-input">Discrete Sweep Epochs (1..12)</label>
+              <input id="train-epochs-input" name="train-epochs-input" type="text" value="3" inputmode="numeric" autocomplete="off">
+            </div>
+            <button id="studio-train-btn" type="submit">Train Weights On-Device</button>
+          </form>
+          <div class="diag-grid">
+            <div class="diag-item">
+              <span class="diag-label">Corpus Transition Loss</span>
+              <code id="train-stat-loss">&mdash;</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Coupled Gate Escapes</span>
+              <code id="train-stat-escapes">0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Active Non-Zero Gates</span>
+              <code id="train-stat-gates">0 / 40</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Training Receipt</span>
+              <code id="train-stat-receipt">&mdash;</code>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="studio-table" id="train-history-table">
+              <thead>
+                <tr>
+                  <th scope="col">Ep</th>
+                  <th scope="col">Loss (Before &rarr; After)</th>
+                  <th scope="col">Improved</th>
+                  <th scope="col">Gate Escapes</th>
+                </tr>
+              </thead>
+              <tbody id="train-history-tbody"></tbody>
+            </table>
+          </div>
+        </aside>
+      </div>
+    </section>
 
     <section class="studio-panel" aria-labelledby="heading-prose">
       <div class="panel-header">

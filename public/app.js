@@ -24,7 +24,42 @@ const statVocab = document.getElementById('stat-vocab');
 const statTurnRows = document.getElementById('stat-turn-rows');
 const statPointRows = document.getElementById('stat-point-rows');
 const statCells = document.getElementById('stat-cells');
+const statTrainEpochs = document.getElementById('stat-train-epochs');
 const statStateReceipt = document.getElementById('stat-state-receipt');
+
+const workspaceFileList = document.getElementById('workspace-file-list');
+const workspacePinnedBadge = document.getElementById('workspace-pinned-badge');
+const workspaceNewForm = document.getElementById('workspace-new-form');
+const workspaceNewPath = document.getElementById('workspace-new-path');
+const editorFilePath = document.getElementById('editor-file-path');
+const editorFileReceipt = document.getElementById('editor-file-receipt');
+const workspaceEditorTextarea = document.getElementById('workspace-editor-textarea');
+const workspaceSaveBtn = document.getElementById('workspace-save-btn');
+const workspaceStatus = document.getElementById('workspace-status');
+
+const claudeChatForm = document.getElementById('claude-chat-form');
+const claudeChatInput = document.getElementById('claude-chat-input');
+const chatTranscript = document.getElementById('chat-transcript');
+const chatTargetBadge = document.getElementById('chat-target-badge');
+const chatDiffFile = document.getElementById('chat-diff-file');
+const chatDiffPreview = document.getElementById('chat-diff-preview');
+const chatApplyPatchBtn = document.getElementById('chat-apply-patch-btn');
+const chatDiagConsensus = document.getElementById('chat-diag-consensus');
+const chatDiagResonance = document.getElementById('chat-diag-resonance');
+const chatDiagRoot = document.getElementById('chat-diag-root');
+const chatDiagReceipt = document.getElementById('chat-diag-receipt');
+
+const studioTrainForm = document.getElementById('studio-train-form');
+const trainEpochsInput = document.getElementById('train-epochs-input');
+const trainStatLoss = document.getElementById('train-stat-loss');
+const trainStatEscapes = document.getElementById('train-stat-escapes');
+const trainStatGates = document.getElementById('train-stat-gates');
+const trainStatReceipt = document.getElementById('train-stat-receipt');
+const trainHistoryTbody = document.getElementById('train-history-tbody');
+
+let activeWorkspacePath = 'src/attention.rs';
+let pendingPatchPath = '';
+let pendingProposedCode = '';
 
 const diagRecallMode = document.getElementById('diag-recall-mode');
 const diagMatchedAnchor = document.getElementById('diag-matched-anchor');
@@ -115,6 +150,11 @@ function renderStudioState(state) {
   }
   if (statPointRows) statPointRows.textContent = String(state.point_key_rows);
   if (statCells) statCells.textContent = `${state.occupied_cells} / 256`;
+  if (statTrainEpochs) {
+    const ep = typeof state.training_epoch === 'number' ? state.training_epoch : 0;
+    const gates = typeof state.active_nonzero_gates === 'number' ? state.active_nonzero_gates : 0;
+    statTrainEpochs.textContent = `${ep} ep / ${gates} gates`;
+  }
   if (statStateReceipt) statStateReceipt.textContent = state.state_receipt_sha256;
 
   if (!corpusTbody || !Array.isArray(state.entries)) return;
@@ -143,6 +183,170 @@ function renderStudioState(state) {
     tr.appendChild(actionTd);
     corpusTbody.appendChild(tr);
   }
+}
+
+function selectWorkspaceFile(pathText) {
+  const res = dispatchStudioEnvelope('workspace_read', pathText);
+  if (!res || res.status !== 'ok') return;
+  activeWorkspacePath = res.path;
+  if (editorFilePath) editorFilePath.textContent = res.path;
+  if (editorFileReceipt) {
+    editorFileReceipt.textContent = res.updated_receipt ? res.updated_receipt.slice(0, 16) : '';
+  }
+  if (workspaceEditorTextarea) {
+    workspaceEditorTextarea.value = res.content;
+  }
+}
+
+function renderWorkspaceList(ws) {
+  if (!ws || ws.status !== 'ok' || !Array.isArray(ws.files)) return;
+  if (workspacePinnedBadge) {
+    workspacePinnedBadge.textContent = `${ws.pinned_count} pinned`;
+  }
+  if (!workspaceFileList) return;
+  workspaceFileList.replaceChildren();
+
+  let foundActive = false;
+  for (const file of ws.files) {
+    if (file.path === activeWorkspacePath) {
+      foundActive = true;
+      if (editorFilePath) editorFilePath.textContent = file.path;
+      if (editorFileReceipt) {
+        editorFileReceipt.textContent = file.updated_receipt ? file.updated_receipt.slice(0, 16) : '';
+      }
+      if (workspaceEditorTextarea && document.activeElement !== workspaceEditorTextarea) {
+        workspaceEditorTextarea.value = file.content;
+      }
+    }
+    const li = document.createElement('li');
+    li.className = `workspace-item${file.path === activeWorkspacePath ? ' workspace-item-active' : ''}`;
+
+    const selectBtn = document.createElement('button');
+    selectBtn.type = 'button';
+    selectBtn.className = 'workspace-file-select';
+    selectBtn.textContent = `${file.path} (${file.line_count}L)`;
+    selectBtn.addEventListener('click', () => {
+      activeWorkspacePath = file.path;
+      selectWorkspaceFile(file.path);
+      const refreshed = dispatchStudioEnvelope('workspace_list', '');
+      renderWorkspaceList(refreshed);
+    });
+
+    const pinBtn = document.createElement('button');
+    pinBtn.type = 'button';
+    pinBtn.className = `workspace-pin-btn${file.pinned ? ' workspace-pin-btn-active' : ''}`;
+    pinBtn.textContent = file.pinned ? 'Pinned' : 'Pin';
+    pinBtn.addEventListener('click', () => {
+      const updated = dispatchStudioEnvelope('workspace_pin', file.path);
+      renderWorkspaceList(updated);
+    });
+
+    li.appendChild(selectBtn);
+    li.appendChild(pinBtn);
+    workspaceFileList.appendChild(li);
+  }
+
+  if (!foundActive && ws.files.length > 0) {
+    activeWorkspacePath = ws.files[0].path;
+    selectWorkspaceFile(activeWorkspacePath);
+  }
+}
+
+function appendChatTurn(role, titleText, bodyText, metaRight = '') {
+  if (!chatTranscript) return;
+  const card = document.createElement('div');
+  card.className = `chat-turn chat-turn-${role}`;
+
+  const meta = document.createElement('div');
+  meta.className = 'chat-turn-meta';
+  const leftSpan = document.createElement('span');
+  leftSpan.textContent = titleText;
+  const rightSpan = document.createElement('span');
+  rightSpan.textContent = metaRight;
+  meta.appendChild(leftSpan);
+  meta.appendChild(rightSpan);
+
+  const body = document.createElement('div');
+  body.textContent = bodyText;
+
+  card.appendChild(meta);
+  card.appendChild(body);
+  chatTranscript.appendChild(card);
+  chatTranscript.scrollTop = chatTranscript.scrollHeight;
+}
+
+function runClaudeChat(promptText) {
+  const trimmed = (promptText || '').trim();
+  if (!trimmed) return;
+  appendChatTurn('user', 'Developer Prompt', trimmed, `Context: ${activeWorkspacePath}`);
+
+  const chatRes = dispatchStudioEnvelope('chat', trimmed);
+  if (!chatRes || chatRes.status !== 'ok') {
+    appendChatTurn('assistant', 'UOR-R4 Engine', chatRes && chatRes.message ? chatRes.message : 'Chat error');
+    return;
+  }
+
+  const gen = chatRes.generation || {};
+  const replyProse = gen.reply || 'Synthesized geometric patch.';
+  const headSummary = Array.isArray(chatRes.flock_heads)
+    ? chatRes.flock_heads.map((h) => `H${h.head}->F${h.cyclic_frame_block}`).join(' ')
+    : '';
+  appendChatTurn(
+    'assistant',
+    `UOR-R4 Assistant -> ${chatRes.target_file}`,
+    `${replyProse} [8-Head Cyclic Routing: ${headSummary}]`,
+    `Cl(${chatRes.flock_consensus_action}) | Root #${chatRes.icosian_root}`
+  );
+
+  pendingPatchPath = chatRes.target_file;
+  pendingProposedCode = chatRes.proposed_code || '';
+
+  if (chatTargetBadge) chatTargetBadge.textContent = `Target: ${chatRes.target_file}`;
+  if (chatDiffFile) chatDiffFile.textContent = chatRes.target_file;
+  if (chatDiffPreview) chatDiffPreview.textContent = chatRes.diff_preview || '';
+  if (chatDiagConsensus) chatDiagConsensus.textContent = `Cl(${chatRes.flock_consensus_action})`;
+  if (chatDiagResonance) chatDiagResonance.textContent = String(chatRes.flock_weighted_resonance);
+  if (chatDiagRoot) chatDiagRoot.textContent = `root #${chatRes.icosian_root}`;
+  if (chatDiagReceipt) {
+    chatDiagReceipt.textContent = chatRes.receipt_sha256 ? chatRes.receipt_sha256.slice(0, 24) : '';
+  }
+
+  if (gen.status === 'ok') {
+    renderInferenceResult(gen);
+  }
+}
+
+function runOnDeviceTrain(epochsText) {
+  const res = dispatchStudioEnvelope('train', epochsText || '3');
+  if (!res || res.status !== 'ok') return;
+
+  if (trainStatLoss) {
+    trainStatLoss.textContent = `${res.initial_loss} -> ${res.final_loss} (-${res.loss_reduction})`;
+  }
+  if (trainStatEscapes) {
+    trainStatEscapes.textContent = `${res.coupled_gate_escapes} dead-gate escapes`;
+  }
+  if (trainStatGates) {
+    trainStatGates.textContent = `${res.active_nonzero_gates} / 40 active`;
+  }
+  if (trainStatReceipt) {
+    trainStatReceipt.textContent = res.receipt_sha256 ? res.receipt_sha256.slice(0, 24) : '';
+  }
+
+  if (trainHistoryTbody && Array.isArray(res.history)) {
+    trainHistoryTbody.replaceChildren();
+    for (const row of res.history) {
+      const tr = document.createElement('tr');
+      tr.appendChild(createCell(`#${row.epoch}`, true));
+      tr.appendChild(createCell(`${row.initial_loss} -> ${row.final_loss}`, true));
+      tr.appendChild(createCell(row.improved_tokens, true));
+      tr.appendChild(createCell(row.coupled_gate_escapes, true));
+      trainHistoryTbody.appendChild(tr);
+    }
+  }
+
+  const refreshedState = dispatchStudioEnvelope('state', '');
+  renderStudioState(refreshedState);
 }
 
 function renderInferenceResult(data) {
@@ -364,6 +568,8 @@ if (admitResetBtn) {
   admitResetBtn.addEventListener('click', () => {
     const state = dispatchStudioEnvelope('reset', '');
     renderStudioState(state);
+    const ws = dispatchStudioEnvelope('workspace_list', '');
+    renderWorkspaceList(ws);
     if (admitStatus) {
       admitStatus.textContent = 'Reset geometric memory to the 20 default UOR-R4 turns.';
     }
@@ -377,11 +583,13 @@ if (snapshotExportBtn) {
   snapshotExportBtn.addEventListener('click', () => {
     const snap = dispatchStudioEnvelope('export_snapshot', '');
     if (snap && snap.status === 'ok') {
+      const hex = snap.hex_payload || snap.snapshot_hex || '';
+      const count = typeof snap.turn_count === 'number' ? snap.turn_count : snap.turns_count;
       if (snapshotHexInput) {
-        snapshotHexInput.value = snap.snapshot_hex;
+        snapshotHexInput.value = hex;
       }
       if (admitStatus) {
-        admitStatus.textContent = `Exported ${snap.byte_length}-byte UORLUT01/8 + UR4SESS1 binary envelope (${snap.turns_count} turns, SHA-256: ${snap.snapshot_sha256})`;
+        admitStatus.textContent = `Exported ${snap.byte_length}-byte UORLUT01/8 + UR4SESS1 binary envelope (${count} turns, SHA-256: ${snap.snapshot_sha256})`;
       }
     } else if (admitStatus && snap) {
       admitStatus.textContent = snap.message || 'Snapshot export failed';
@@ -396,7 +604,7 @@ if (snapshotImportBtn) {
     if (state && state.status === 'ok') {
       renderStudioState(state);
       if (admitStatus) {
-        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 snapshot (${state.imported_turns} turns, SHA-256: ${state.snapshot_sha256})`;
+        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 snapshot (${state.turn_count} turns, SHA-256: ${state.state_receipt_sha256})`;
       }
       if (studioPromptInput) {
         runStudioGenerate(studioPromptInput.value);
@@ -414,8 +622,94 @@ if (studioSubsystemsForm) {
   });
 }
 
+if (claudeChatForm) {
+  claudeChatForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (claudeChatInput) {
+      runClaudeChat(claudeChatInput.value);
+    }
+  });
+}
+
+for (const btn of document.querySelectorAll('.chat-preset-btn')) {
+  btn.addEventListener('click', () => {
+    const promptVal = btn.getAttribute('data-chat-prompt') || '';
+    if (claudeChatInput) {
+      claudeChatInput.value = promptVal;
+    }
+    runClaudeChat(promptVal);
+  });
+}
+
+if (chatApplyPatchBtn) {
+  chatApplyPatchBtn.addEventListener('click', () => {
+    if (!pendingPatchPath || !pendingProposedCode) return;
+    const ws = dispatchStudioEnvelope('workspace_write', `${pendingPatchPath}\n${pendingProposedCode}`);
+    if (ws && ws.status === 'ok') {
+      activeWorkspacePath = pendingPatchPath;
+      renderWorkspaceList(ws);
+      selectWorkspaceFile(pendingPatchPath);
+      const st = dispatchStudioEnvelope('state', '');
+      renderStudioState(st);
+      if (workspaceStatus) {
+        workspaceStatus.textContent = `Applied synthesized patch to ${pendingPatchPath} and admitted into geometric memory.`;
+      }
+    }
+  });
+}
+
+if (workspaceNewForm) {
+  workspaceNewForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const rawPath = workspaceNewPath ? workspaceNewPath.value.trim() : '';
+    if (!rawPath) return;
+    const stub = `//! Module ${rawPath} initialized in UOR-R4 Workspace.\npub fn module_entry_root() -> u8 {\n    0\n}\n`;
+    const ws = dispatchStudioEnvelope('workspace_write', `${rawPath}\n${stub}`);
+    if (ws && ws.status === 'ok') {
+      activeWorkspacePath = rawPath;
+      renderWorkspaceList(ws);
+      selectWorkspaceFile(rawPath);
+      const st = dispatchStudioEnvelope('state', '');
+      renderStudioState(st);
+      if (workspaceStatus) {
+        workspaceStatus.textContent = `Created ${rawPath} in workspace and admitted into geometric memory.`;
+      }
+    }
+  });
+}
+
+if (workspaceSaveBtn) {
+  workspaceSaveBtn.addEventListener('click', () => {
+    const content = workspaceEditorTextarea ? workspaceEditorTextarea.value : '';
+    if (!activeWorkspacePath) return;
+    const ws = dispatchStudioEnvelope('workspace_write', `${activeWorkspacePath}\n${content}`);
+    if (ws && ws.status === 'ok') {
+      renderWorkspaceList(ws);
+      selectWorkspaceFile(activeWorkspacePath);
+      const st = dispatchStudioEnvelope('state', '');
+      renderStudioState(st);
+      if (workspaceStatus) {
+        workspaceStatus.textContent = `Saved ${activeWorkspacePath} and admitted updated tokens into geometric memory.`;
+      }
+    }
+  });
+}
+
+if (studioTrainForm) {
+  studioTrainForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    runOnDeviceTrain(trainEpochsInput ? trainEpochsInput.value : '3');
+  });
+}
+
 const initialState = dispatchStudioEnvelope('state', '');
 renderStudioState(initialState);
+const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
+renderWorkspaceList(initialWorkspace);
+selectWorkspaceFile(activeWorkspacePath);
+if (claudeChatInput && claudeChatInput.value) {
+  runClaudeChat(claudeChatInput.value);
+}
 if (studioPromptInput && studioPromptInput.value) {
   runStudioGenerate(studioPromptInput.value);
 }

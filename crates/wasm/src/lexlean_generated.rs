@@ -4387,3 +4387,117 @@ pub mod r4_exact_arithmetic {
         }
     }
 }
+
+/// Generated from `R4.Flock` (`src/R4/Flock.lex.tex`).
+pub mod r4_flock {
+    /// Function `R4.Flock.cyclicFrameBlock`.
+    pub fn cyclic_frame_block(block: u64, sweep: u64, blocks: u64) -> u64 {
+        if ((blocks.clone()) == (0u64)) {
+            0u64
+        } else {
+            (((block.clone()).saturating_add(sweep.clone())).saturating_add(1u64))
+                % (blocks.clone())
+        }
+    }
+}
+
+/// Generated from `R4.Prediction` (`src/R4/Prediction.lex.tex`).
+pub mod r4_prediction {
+    /// Function `R4.Prediction.containsToken`.
+    pub fn contains_token(token: u64, recent: Vec<u64>) -> bool {
+        {
+            let __scrut = recent.clone();
+            if __scrut.is_empty() {
+                false
+            } else {
+                let head = __scrut[0].clone();
+                let tail = __scrut[1..].to_vec();
+                if ((token.clone()) == (head.clone())) {
+                    true
+                } else {
+                    contains_token(token.clone(), tail.clone())
+                }
+            }
+        }
+    }
+
+    /// Function `R4.Prediction.penalizedLoss`.
+    pub fn penalized_loss(base_loss: u64, token: u64, recent: Vec<u64>, penalty: u64) -> u64 {
+        if contains_token(token.clone(), recent.clone()) {
+            (base_loss.clone()).saturating_add(penalty.clone())
+        } else {
+            base_loss.clone()
+        }
+    }
+
+    /// Function `R4.Prediction.selectContextualToken`.
+    pub fn select_contextual_token(
+        first_token: u64,
+        first_loss: u64,
+        second_token: u64,
+        second_loss: u64,
+        recent: Vec<u64>,
+        penalty: u64,
+    ) -> u64 {
+        let eff_first: u64 = penalized_loss(
+            first_loss.clone(),
+            first_token.clone(),
+            recent.clone(),
+            penalty.clone(),
+        );
+        let eff_second: u64 = penalized_loss(
+            second_loss.clone(),
+            second_token.clone(),
+            recent.clone(),
+            penalty.clone(),
+        );
+        if ((eff_second.clone()) < (eff_first.clone())) {
+            second_token.clone()
+        } else {
+            if ((eff_first.clone()) < (eff_second.clone())) {
+                first_token.clone()
+            } else {
+                if ((second_token.clone()) < (first_token.clone())) {
+                    second_token.clone()
+                } else {
+                    first_token.clone()
+                }
+            }
+        }
+    }
+}
+
+/// Generated from `R4.Learning` (`src/R4/Learning.lex.tex`).
+pub mod r4_learning {
+    /// Inductive type `R4.Learning.CoupledOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum CoupledOutcome {
+        /// Variant `escaped`.
+        Escaped(u64, u64, u64),
+        /// Variant `stalled`.
+        Stalled(u64),
+    }
+
+    /// Function `R4.Learning.evaluateCoupledGateVector`.
+    pub fn evaluate_coupled_gate_vector(
+        baseline_loss: u64,
+        neg_best_action: u64,
+        neg_best_loss: u64,
+        pos_best_action: u64,
+        pos_best_loss: u64,
+    ) -> CoupledOutcome {
+        if ((pos_best_loss.clone()) < (neg_best_loss.clone())) {
+            if ((pos_best_loss.clone()) < (baseline_loss.clone())) {
+                CoupledOutcome::Escaped(2u64, pos_best_action.clone(), pos_best_loss.clone())
+            } else {
+                CoupledOutcome::Stalled(baseline_loss.clone())
+            }
+        } else {
+            if ((neg_best_loss.clone()) < (baseline_loss.clone())) {
+                CoupledOutcome::Escaped(1u64, neg_best_action.clone(), neg_best_loss.clone())
+            } else {
+                CoupledOutcome::Stalled(baseline_loss.clone())
+            }
+        }
+    }
+}
