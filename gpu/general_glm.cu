@@ -1,25 +1,31 @@
-// UOR-R4 Generalized Geometric Language Model (GLM) Multi-Domain Manifold Trainer
+// UOR-R4 Generalized Geometric Language Model (GLM) Multi-Domain Natural Prose Manifold Trainer (`UR4GLM02`)
 // Target architectures: sm_75 .. sm_120 (NVIDIA Turing / Ampere / Hopper / Blackwell RTX 5090)
 //
-// Implements float-to-Q12 and pure-integer coupled coordinate sweeps (`R4.Learning.evaluateCoupledGateVector`)
-// over the 16-root E8 orbit, 64-action Cl(0,6) Clifford carrier, 17-root Icosian Z[phi] lattice,
-// and 64-bit quaternion SWAR sign-code manifold (`UR4GLM01` / `UORLUT01`).
+// Implements float-to-Q12, Hopf Fibration (`S^3 -> S^2 x U(1)`), 120-root `H_4` Icosian projection,
+// 128-bit VSA hypervector bundling, and pure-integer coupled coordinate sweeps (`R4.Learning.evaluateCoupledGateVector`)
+// over the 16-root E8 orbit, 64-action Cl(0,6) Clifford carrier, and 64-bit quaternion SWAR sign-code manifold.
 
 #include <stdint.h>
 
 #define Q12_ONE 4096
+#define Q15_ONE 32767
 #define POINT_KEY_DIM 8
 #define E8_ROOT_COUNT 16
 #define CLIFFORD_ACTION_COUNT 64
 #define TERNARY_FOREST_NODES 40
 #define ICOSIAN_ROOT_COUNT 17
+#define H4_ROOT_COUNT 120
 
 struct GlmDeviceConceptRow {
     int16_t q12_coords[POINT_KEY_DIM];
+    int16_t hopf_s2[3];
+    int16_t hopf_u1[2];
     uint64_t sign_code;
+    uint64_t vsa_hv[2];
     uint8_t e8_root;
     uint8_t clifford_action;
     uint8_t icosian_root;
+    uint8_t h4_root;
     uint8_t tree_node;
     uint32_t domain_id;
 };

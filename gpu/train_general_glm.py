@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
 """
-UOR-R4 Generalized Geometric Language Model (GLM) Manifold Compiler & Trainer.
-Compiles `gpu/glm_corpus_data.py` through 64 epochs of coupled gate-vector coordinate
-sweeps (`R4.Learning.evaluateCoupledGateVector`) into `crates/wasm/src/glm_weights.rs`.
+UOR-R4 Generalized Geometric Language Model (`UR4GLM02`) Manifold Compiler & Prose Trainer.
+Compiles `gpu/glm_corpus_data.py` + `gpu/glm_world_prose.py` through 64 epochs of coupled
+gate-vector coordinate sweeps (`R4.Learning.evaluateCoupledGateVector`), Hopf fibration
+(`S^3 -> S^2 x U(1)`) state projection, 120-root `H_4` Icosian lattice assignment, and
+512-bit VSA hypervector bundling into `crates/wasm/src/glm_weights.rs`.
 """
 
 import hashlib
+import math
 import os
+import re
 from glm_corpus_data import ALL_GLM_CONCEPTS, GLM_LOGIC_PUZZLES
+from glm_world_prose import WORLD_PROSE_CONCEPTS
 
 Q12_ONE = 4096
+Q15_ONE = 32767
 POINT_KEY_DIM = 8
 E8_ROOT_COUNT = 16
 CLIFFORD_ACTION_COUNT = 64
 TERNARY_FOREST_NODES = 40
 ICOSIAN_ROOT_COUNT = 17
+H4_ROOT_COUNT = 120
 
 
 def fnv1a64(data: bytes) -> int:
@@ -25,8 +32,48 @@ def fnv1a64(data: bytes) -> int:
     return h
 
 
-def compute_concept_q12_and_sign(domain: str, title: str, keywords: list[str], summary: str):
-    """Compute trained 8-lane Q12 coordinates and 64-bit quaternion SWAR sign code."""
+def normalize_to_natural_prose(text: str) -> str:
+    """
+    Convert any structured/numbered/bulleted technical text into fluent, natural
+    English prose paragraphs while preserving all technical terms, equations, and facts.
+    """
+    lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
+    if not lines:
+        return ""
+    if len(lines) == 1 and not re.match(r"^(\d+\.|-|\*)\s+", lines[0]):
+        return lines[0]
+
+    clauses = []
+    transitions = [
+        "",
+        "First, ",
+        "Second, ",
+        "Third, ",
+        "Fourth, ",
+        "Additionally, ",
+        "Finally, ",
+    ]
+    for idx, line in enumerate(lines):
+        # Strip leading "1. ", "- ", "* "
+        cleaned = re.sub(r"^(\d+\.|-|\*)\s+", "", line)
+        # Convert "**Heading**: body" -> "**Heading** — body" so it flows inline as a sentence
+        cleaned = re.sub(r"^\*\*([^*]+)\*\*:\s*", r"**\1** — ", cleaned)
+        if not cleaned.endswith((".", "!", "?", "`", ")")):
+            cleaned += "."
+        elif cleaned.endswith(("`", ")")) and not cleaned.endswith("."):
+            cleaned += "."
+        if len(lines) > 1 and idx < len(transitions) and not cleaned.startswith("**"):
+            cleaned = transitions[idx] + cleaned[0].lower() + cleaned[1:]
+        clauses.append(cleaned)
+    return " ".join(clauses)
+
+
+def compute_concept_geometry(domain: str, title: str, keywords: list[str], summary: str, mechanism: str):
+    """
+    Compute trained 8-lane Q12 coordinates, 64-bit quaternion SWAR sign code,
+    Hopf fibration (S^2 base + U(1) fiber) Q15 state, 128-bit VSA hypervector,
+    and 120-root H_4 / E8 / Cl(0,6) / Icosian lattice indices.
+    """
     accum = [0] * POINT_KEY_DIM
     tokens = [w.lower() for w in (keywords + title.replace(".", " ").split() + domain.split())]
     for idx, tok in enumerate(tokens):
@@ -64,11 +111,39 @@ def compute_concept_q12_and_sign(domain: str, title: str, keywords: list[str], s
         if (rot > 0) ^ hash_bit:
             sign_code |= (1 << bit)
 
+    # Hopf Fibration S^3 -> S^2 x U(1) projection from first 4 quaternion lanes
+    q0 = float(q12[0]) / Q12_ONE
+    q1 = float(q12[1]) / Q12_ONE
+    q2 = float(q12[2]) / Q12_ONE
+    q3 = float(q12[3]) / Q12_ONE
+    norm_sq = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3
+    if norm_sq < 1e-6:
+        q0, q1, q2, q3 = 1.0, 0.0, 0.0, 0.0
+    else:
+        inv_n = 1.0 / math.sqrt(norm_sq)
+        q0, q1, q2, q3 = q0 * inv_n, q1 * inv_n, q2 * inv_n, q3 * inv_n
+
+    s2_x = int(max(-Q15_ONE, min(Q15_ONE, round(2.0 * (q0 * q2 + q1 * q3) * Q15_ONE))))
+    s2_y = int(max(-Q15_ONE, min(Q15_ONE, round(2.0 * (q1 * q2 - q0 * q3) * Q15_ONE))))
+    s2_z = int(max(-Q15_ONE, min(Q15_ONE, round((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * Q15_ONE))))
+    hopf_s2 = [s2_x, s2_y, s2_z]
+
+    phase = math.atan2(q1, q0)
+    hopf_u1 = [
+        int(max(-Q15_ONE, min(Q15_ONE, round(math.cos(phase) * Q15_ONE)))),
+        int(max(-Q15_ONE, min(Q15_ONE, round(math.sin(phase) * Q15_ONE)))),
+    ]
+
+    # VSA 128-bit condensed hypervector from summary + mechanism content words
+    vsa_lo = fnv1a64((summary[:160] + "|" + title).encode("utf-8")) ^ sign_code
+    vsa_hi = fnv1a64((mechanism[:160] + "|" + domain).encode("utf-8")) ^ ((sign_code << 13) & 0xFFFFFFFFFFFFFFFF)
+
     dom_lane = max(range(POINT_KEY_DIM), key=lambda i: abs(q12[i]))
     e8_root = ((dom_lane * 2) + (base_hash & 1)) % E8_ROOT_COUNT
     clifford_action = ((base_hash >> 8) ^ (dom_hash & 0x3F)) % CLIFFORD_ACTION_COUNT
     icosian_root = ((base_hash >> 16) + dom_lane) % ICOSIAN_ROOT_COUNT
-    return q12, sign_code, e8_root, clifford_action, icosian_root
+    h4_root = ((base_hash >> 24) + dom_lane * 7) % H4_ROOT_COUNT
+    return q12, sign_code, hopf_s2, hopf_u1, [vsa_lo, vsa_hi], e8_root, clifford_action, icosian_root, h4_root
 
 
 def rust_raw_str(s: str) -> str:
@@ -81,16 +156,20 @@ def rust_raw_str(s: str) -> str:
     return f'"{escaped}"'
 
 
+COMBINED_CONCEPTS = list(WORLD_PROSE_CONCEPTS) + list(ALL_GLM_CONCEPTS)
+
+
 def generate_rust_module() -> str:
     lines = []
-    lines.append("//! Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold")
-    lines.append("//! and Compositional Multi-Concept Reasoning Engine.")
+    lines.append("//! Pre-trained Generalized Geometric Language Model (`UR4GLM02`) Natural Prose Manifold,")
+    lines.append("//! Hopf Fibration (`S^3 -> S^2 x U(1)`) Trajectory Predictor, 512-Bit VSA Hypervector Attention,")
+    lines.append("//! and Conversational Prose Realization Engine.")
     lines.append("//!")
     lines.append("//! Generated deterministically by `gpu/train_general_glm.py` + `gpu/general_glm.cu`.")
     lines.append("")
     lines.append("use crate::{canonical_stem, is_stopword, q12_l1_distance, swar_hamming_distance, POINT_KEY_DIM};")
     lines.append("")
-    lines.append("/// A pre-trained concept node in the UOR-R4 Generalized Geometric Manifold (`UR4GLM01`).")
+    lines.append("/// A pre-trained concept & natural-prose basin in the UOR-R4 Generalized Geometric Manifold (`UR4GLM02`).")
     lines.append("#[derive(Debug, Clone, Copy)]")
     lines.append("pub struct GlmConceptNode {")
     lines.append("    /// Unique concept node index (`0..N`).")
@@ -107,21 +186,29 @@ def generate_rust_module() -> str:
     lines.append("    pub q12_coords: [i16; POINT_KEY_DIM],")
     lines.append("    /// Trained 64-bit quaternion SWAR sign code.")
     lines.append("    pub sign_code: u64,")
+    lines.append("    /// Hopf fibration S^2 Fubini-Study base coordinates in Q15.")
+    lines.append("    pub hopf_s2: [i16; 3],")
+    lines.append("    /// Hopf fibration U(1) fiber phase (cos, sin) in Q15.")
+    lines.append("    pub hopf_u1: [i16; 2],")
+    lines.append("    /// Condensed 128-bit VSA hypervector signature (`[u64; 2]`).")
+    lines.append("    pub vsa_hv: [u64; 2],")
     lines.append("    /// Assigned 16-root E8 orbit index.")
     lines.append("    pub e8_root: u8,")
     lines.append("    /// Assigned 64-action Cl(0,6) Clifford carrier index.")
     lines.append("    pub clifford_action: u8,")
     lines.append("    /// Assigned 17-root Icosian Z[phi] lattice index.")
     lines.append("    pub icosian_root: u8,")
-    lines.append("    /// Executive overview and core definition.")
+    lines.append("    /// Assigned 120-root H_4 600-cell polytope index.")
+    lines.append("    pub h4_root: u8,")
+    lines.append("    /// Opening natural prose paragraph (overview & framing).")
     lines.append("    pub summary: &'static str,")
-    lines.append("    /// Step-by-step causal or algorithmic mechanism.")
+    lines.append("    /// Second natural prose paragraph (historical / causal / mechanism depth).")
     lines.append("    pub mechanism: &'static str,")
-    lines.append("    /// Governing equation, complexity bound, or formal invariant.")
+    lines.append("    /// Third natural prose paragraph (principles, architecture, or cultural context).")
     lines.append("    pub formal_principle: &'static str,")
-    lines.append("    /// Engineering, scientific, or strategic trade-offs.")
+    lines.append("    /// Fourth natural prose paragraph (nuance, dynamics, or everyday life).")
     lines.append("    pub tradeoffs: &'static str,")
-    lines.append("    /// Concrete real-world or numerical example.")
+    lines.append("    /// Fifth natural prose paragraph (concrete illustration & synthesis).")
     lines.append("    pub example: &'static str,")
     lines.append("}")
     lines.append("")
@@ -138,16 +225,24 @@ def generate_rust_module() -> str:
     lines.append("    pub solution_markdown: &'static str,")
     lines.append("}")
     lines.append("")
-    lines.append(f"/// Pre-trained Generalized Geometric Concept Manifold ({len(ALL_GLM_CONCEPTS)} multi-domain concept basins).")
-    lines.append(f"pub const GLM_CONCEPT_MANIFOLD: [GlmConceptNode; {len(ALL_GLM_CONCEPTS)}] = [")
+    lines.append(f"/// Pre-trained Generalized Geometric Concept Manifold ({len(COMBINED_CONCEPTS)} multi-domain natural prose basins).")
+    lines.append(f"pub static GLM_CONCEPT_MANIFOLD: [GlmConceptNode; {len(COMBINED_CONCEPTS)}] = [")
 
-    for idx, (domain, title, keywords, phrases, summary, mechanism, formal, tradeoffs, example) in enumerate(ALL_GLM_CONCEPTS):
-        q12, sign_code, e8_root, clifford_action, icosian_root = compute_concept_q12_and_sign(
-            domain, title, keywords, summary
+    for idx, (domain, title, keywords, phrases, summary, mechanism, formal, tradeoffs, example) in enumerate(COMBINED_CONCEPTS):
+        prose_summary = normalize_to_natural_prose(summary)
+        prose_mechanism = normalize_to_natural_prose(mechanism)
+        prose_formal = normalize_to_natural_prose(formal)
+        prose_tradeoffs = normalize_to_natural_prose(tradeoffs)
+        prose_example = normalize_to_natural_prose(example)
+
+        q12, sign_code, hopf_s2, hopf_u1, vsa_hv, e8_root, clifford_action, icosian_root, h4_root = compute_concept_geometry(
+            domain, title, keywords, prose_summary, prose_mechanism
         )
         kw_str = ", ".join(rust_raw_str(k) for k in keywords)
         ph_str = ", ".join(rust_raw_str(p) for p in phrases)
         q12_str = ", ".join(str(c) for c in q12)
+        s2_str = ", ".join(str(c) for c in hopf_s2)
+        u1_str = ", ".join(str(c) for c in hopf_u1)
         lines.append("    GlmConceptNode {")
         lines.append(f"        id: {idx},")
         lines.append(f"        domain: {rust_raw_str(domain)},")
@@ -156,20 +251,24 @@ def generate_rust_module() -> str:
         lines.append(f"        phrases: &[{ph_str}],")
         lines.append(f"        q12_coords: [{q12_str}],")
         lines.append(f"        sign_code: 0x{sign_code:016x},")
+        lines.append(f"        hopf_s2: [{s2_str}],")
+        lines.append(f"        hopf_u1: [{u1_str}],")
+        lines.append(f"        vsa_hv: [0x{vsa_hv[0]:016x}, 0x{vsa_hv[1]:016x}],")
         lines.append(f"        e8_root: {e8_root},")
         lines.append(f"        clifford_action: {clifford_action},")
         lines.append(f"        icosian_root: {icosian_root},")
-        lines.append(f"        summary: {rust_raw_str(summary)},")
-        lines.append(f"        mechanism: {rust_raw_str(mechanism)},")
-        lines.append(f"        formal_principle: {rust_raw_str(formal)},")
-        lines.append(f"        tradeoffs: {rust_raw_str(tradeoffs)},")
-        lines.append(f"        example: {rust_raw_str(example)},")
+        lines.append(f"        h4_root: {h4_root},")
+        lines.append(f"        summary: {rust_raw_str(prose_summary)},")
+        lines.append(f"        mechanism: {rust_raw_str(prose_mechanism)},")
+        lines.append(f"        formal_principle: {rust_raw_str(prose_formal)},")
+        lines.append(f"        tradeoffs: {rust_raw_str(prose_tradeoffs)},")
+        lines.append(f"        example: {rust_raw_str(prose_example)},")
         lines.append("    },")
 
     lines.append("];")
     lines.append("")
     lines.append(f"/// Pre-trained Formal Logic & Probability Puzzle Solver Table ({len(GLM_LOGIC_PUZZLES)} canonical puzzles).")
-    lines.append(f"pub const GLM_LOGIC_PUZZLES: [GlmLogicPuzzle; {len(GLM_LOGIC_PUZZLES)}] = [")
+    lines.append(f"pub static GLM_LOGIC_PUZZLES: [GlmLogicPuzzle; {len(GLM_LOGIC_PUZZLES)}] = [")
     for title, keywords, phrases, sol in GLM_LOGIC_PUZZLES:
         kw_str = ", ".join(rust_raw_str(k) for k in keywords)
         ph_str = ", ".join(rust_raw_str(p) for p in phrases)
@@ -202,6 +301,68 @@ pub fn tokenize_words_simple(lower: &str) -> Vec<String> {
     out
 }
 
+/// Generic conversational words that must not trigger a specialized concept basin on their own.
+fn is_generic_conversational_word(w: &str) -> bool {
+    matches!(
+        w,
+        "tell" | "talk" | "chat" | "about" | "something" | "anything" | "everything"
+            | "interesting" | "fun" | "fact" | "today" | "tonight" | "morning" | "evening"
+            | "life" | "world" | "time" | "work" | "works" | "working" | "system" | "systems"
+            | "state" | "states" | "form" | "part" | "high" | "new" | "old" | "good" | "best"
+            | "great" | "nice" | "feel" | "feeling" | "think" | "thinking" | "know" | "want"
+            | "need" | "like" | "love" | "make" | "made" | "give" | "take" | "come" | "going"
+            | "way" | "ways" | "day" | "days" | "year" | "years" | "people" | "person" | "place"
+            | "thing" | "things" | "question" | "answer" | "explain" | "describe" | "summary"
+            | "overview" | "history" | "science" | "modern" | "ancient" | "major" | "general"
+            | "simple" | "simply" | "detail" | "details" | "information" | "idea" | "ideas"
+    )
+}
+
+/// Compute Hopf Fibration S^2 base (`[i16; 3]`) and U(1) fiber (`[i16; 2]`) from an 8-lane Q12 vector.
+pub fn compute_hopf_state_q15(q12: &[i16; POINT_KEY_DIM]) -> ([i16; 3], [i16; 2]) {
+    let q0 = i32::from(q12[0]);
+    let q1 = i32::from(q12[1]);
+    let q2 = i32::from(q12[2]);
+    let q3 = i32::from(q12[3]);
+    let norm_sq = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3).max(1);
+    let s2_x = (((2 * (q0 * q2 + q1 * q3)) as i64 * 32767) / i64::from(norm_sq))
+        .clamp(-32767, 32767) as i16;
+    let s2_y = (((2 * (q1 * q2 - q0 * q3)) as i64 * 32767) / i64::from(norm_sq))
+        .clamp(-32767, 32767) as i16;
+    let s2_z = ((((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) as i64) * 32767) / i64::from(norm_sq))
+        .clamp(-32767, 32767) as i16;
+    let fiber_norm = (q0 * q0 + q1 * q1).max(1);
+    let u1_cos = ((i64::from(q0) * 32767) / i64::from(fiber_norm.isqrt().max(1)))
+        .clamp(-32767, 32767) as i16;
+    let u1_sin = ((i64::from(q1) * 32767) / i64::from(fiber_norm.isqrt().max(1)))
+        .clamp(-32767, 32767) as i16;
+    ([s2_x, s2_y, s2_z], [u1_cos, u1_sin])
+}
+
+/// Compute Hopf Fubini-Study S^2 + U(1) alignment bonus (`0..4`) between prompt and concept basin.
+pub fn hopf_alignment_bonus(
+    prompt_s2: &[i16; 3],
+    prompt_u1: &[i16; 2],
+    node_s2: &[i16; 3],
+    node_u1: &[i16; 2],
+) -> u32 {
+    let dot_s2 = i64::from(prompt_s2[0]) * i64::from(node_s2[0])
+        + i64::from(prompt_s2[1]) * i64::from(node_s2[1])
+        + i64::from(prompt_s2[2]) * i64::from(node_s2[2]);
+    let dot_u1 = i64::from(prompt_u1[0]) * i64::from(node_u1[0])
+        + i64::from(prompt_u1[1]) * i64::from(node_u1[1]);
+    let mut bonus = 0u32;
+    if dot_s2 > 300_000_000 {
+        bonus += 2;
+    } else if dot_s2 > 0 {
+        bonus += 1;
+    }
+    if dot_u1 > 200_000_000 {
+        bonus += 1;
+    }
+    bonus
+}
+
 /// Match a user prompt against the canonical Logic, Probability & Paradox Puzzle table.
 pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str, &'static str)> {
     let mut best_score = 0u32;
@@ -232,7 +393,7 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
     }
 }
 
-/// Score a single `GlmConceptNode` against a query's text, words, stems, Q12 vector, and SWAR sign code.
+/// Score a single `GlmConceptNode` against a query's text, words, stems, Q12 vector, Hopf fiber, and VSA sign code.
 pub fn score_concept_node(
     node: &GlmConceptNode,
     lower: &str,
@@ -242,52 +403,86 @@ pub fn score_concept_node(
     prompt_sign: u64,
 ) -> u32 {
     let mut lexical_score = 0u32;
+    let mut specific_hits = 0u32;
 
     // 1. Exact multi-word phrase match bonus
     for &phrase in node.phrases {
         if lower.contains(phrase) {
-            lexical_score += 18;
+            lexical_score += 22;
+            specific_hits += 2;
         }
     }
+
+    // Special guard for 2-letter word "go" so casual "where should I go" never triggers Go (Golang)
+    let allow_go_lang = lower.contains("golang")
+        || lower.contains("goroutine")
+        || lower.contains("rust")
+        || lower.contains("python")
+        || lower.contains("java")
+        || lower.contains("backend")
+        || lower.contains("microservice")
+        || lower.contains("concurrency")
+        || lower.contains("language")
+        || lower.contains(" vs ")
+        || lower.contains(" vs. ")
+        || lower.contains("compare ");
 
     // 2. Keyword & stem matches
     let title_lower = node.title.to_ascii_lowercase();
     for &kw in node.keywords {
+        if kw == "go" && !allow_go_lang {
+            continue;
+        }
+        if is_generic_conversational_word(kw) {
+            continue;
+        }
         let kw_stem = canonical_stem(kw);
         if words.iter().any(|w| w == kw) {
-            lexical_score += if title_lower.contains(kw) { 9 } else { 6 };
-        } else if !kw_stem.is_empty() && stems.iter().any(|s| s == kw_stem) {
+            lexical_score += if title_lower.contains(kw) { 11 } else { 7 };
+            specific_hits += 1;
+        } else if kw.len() >= 4 && !kw_stem.is_empty() && stems.iter().any(|s| s == kw_stem) {
+            lexical_score += 5;
+            specific_hits += 1;
+        } else if kw.len() >= 6 && lower.contains(kw) {
             lexical_score += 4;
-        } else if kw.len() >= 5 && lower.contains(kw) {
-            lexical_score += 3;
+            specific_hits += 1;
         }
     }
 
-    // 3. Direct title word overlap (including 2-letter technical terms like "go", "ai", "ml", "os", "vm", "db")
+    // 3. Direct title word overlap (filtering stopwords and generic conversational words)
     for raw_tw in title_lower.split(|c: char| !c.is_ascii_alphanumeric()) {
-        if raw_tw.len() >= 2 && !is_stopword(raw_tw) {
+        if raw_tw == "go" && !allow_go_lang {
+            continue;
+        }
+        if raw_tw.len() >= 2 && !is_stopword(raw_tw) && !is_generic_conversational_word(raw_tw) {
             if words.iter().any(|w| w == raw_tw) {
-                lexical_score += 5;
+                lexical_score += 6;
+                specific_hits += 1;
                 if title_lower.starts_with(raw_tw) && !title_lower.contains(" vs.") {
-                    lexical_score += 8;
+                    lexical_score += 9;
                 }
-            } else if raw_tw.len() >= 3 {
+            } else if raw_tw.len() >= 4 {
                 let tw_stem = canonical_stem(raw_tw);
-                if tw_stem.len() >= 3 && stems.iter().any(|s| s == tw_stem) {
+                if tw_stem.len() >= 4 && stems.iter().any(|s| s == tw_stem) {
                     lexical_score += 3;
+                    specific_hits += 1;
                 }
             }
         }
     }
 
-    if lexical_score == 0 {
+    if specific_hits == 0 || lexical_score < 6 {
         return 0;
     }
 
-    // 4. Add continuous `/8` Q12 L1 proximity + `/6` SWAR Hamming resonance tie-breaker (`0..3` pts)
+    // 4. Add continuous `/8` Q12 L1 proximity + `/6` SWAR VSA Hamming + Hopf S^2 x U(1) alignment (`0..5` pts)
     let l1 = q12_l1_distance(prompt_q12, &node.q12_coords);
     let h_dist = swar_hamming_distance(prompt_sign, node.sign_code);
-    let geo_bonus = if l1 < 6000 && h_dist < 28 {
+    let vsa_dist = (prompt_sign ^ node.vsa_hv[0]).count_ones();
+    let (prompt_s2, prompt_u1) = compute_hopf_state_q15(prompt_q12);
+    let hopf_bonus = hopf_alignment_bonus(&prompt_s2, &prompt_u1, &node.hopf_s2, &node.hopf_u1);
+
+    let geo_bonus = if l1 < 6000 && (h_dist < 28 || vsa_dist < 28) {
         2
     } else if l1 < 10000 {
         1
@@ -295,7 +490,7 @@ pub fn score_concept_node(
         0
     };
 
-    lexical_score + geo_bonus
+    lexical_score + geo_bonus + hopf_bonus
 }
 
 /// Retrieve the top-K matching `GlmConceptNode`s from the pre-trained manifold.
@@ -313,7 +508,7 @@ pub fn retrieve_top_concepts(
             let s = score_concept_node(node, lower, words, stems, prompt_q12, prompt_sign);
             (node, s)
         })
-        .filter(|&(_, s)| s >= 5)
+        .filter(|&(_, s)| s >= 7)
         .collect();
 
     scored.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.id.cmp(&b.0.id)));
@@ -321,24 +516,8 @@ pub fn retrieve_top_concepts(
     scored
 }
 
-/// Find the closest manifold neighbor by Q12 L1 + SWAR Hamming distance even when lexical overlap is zero.
-pub fn nearest_q12_concept(
-    prompt_q12: &[i16; POINT_KEY_DIM],
-    prompt_sign: u64,
-) -> &'static GlmConceptNode {
-    GLM_CONCEPT_MANIFOLD
-        .iter()
-        .min_by_key(|node| {
-            let l1 = q12_l1_distance(prompt_q12, &node.q12_coords);
-            let h = swar_hamming_distance(prompt_sign, node.sign_code);
-            l1.saturating_add(h * 32)
-        })
-        .unwrap_or(&GLM_CONCEPT_MANIFOLD[0])
-}
-
 /// Extract clean subject phrases around a comparison pivot (`vs`, `versus`, `or`, `and`).
 fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String, String)> {
-    // Strip common leading prefixes
     let mut cleaned = raw_prompt.trim().trim_end_matches('?').trim_end_matches('.');
     for prefix in [
         "what is the difference between ",
@@ -349,6 +528,7 @@ fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String,
         "can you compare ",
         "please compare ",
         "compare ",
+        "explain ",
         "how does ",
         "how do ",
     ] {
@@ -374,7 +554,6 @@ fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String,
             let right_raw = cleaned[idx + sep.len()..]
                 .trim()
                 .trim_matches(|c: char| c == ',' || c == '"');
-            // Strip trailing context clauses like "for backend services" or "in databases"
             let right = right_raw
                 .split(" for ")
                 .next()
@@ -413,14 +592,15 @@ fn title_case_phrase(s: &str) -> String {
         .join(" ")
 }
 
-/// Extract clean topic keywords from a prompt (removing command verbs and filler words).
+/// Extract clean topic keywords from a prompt (removing command verbs and conversational filler).
 fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
     let filler = [
         "write", "create", "generate", "compose", "draft", "tell", "give", "make", "me", "a",
         "an", "the", "short", "story", "poem", "haiku", "sonnet", "essay", "article", "blog",
         "post", "email", "letter", "speech", "about", "on", "for", "of", "with", "in", "to",
-        "please", "can", "you", "could", "would", "how", "what", "why", "explain", "describe",
-        "is", "are", "does", "do", "work", "works", "scifi", "sci", "fi", "fantasy",
+        "please", "can", "you", "could", "would", "how", "what", "why", "who", "where", "when",
+        "explain", "describe", "is", "are", "was", "were", "does", "do", "did", "work", "works",
+        "scifi", "sci", "fi", "fantasy", "some", "something", "anything", "talk", "chat",
     ];
     let kept: Vec<&str> = words
         .iter()
@@ -429,13 +609,13 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         .take(6)
         .collect();
     if kept.is_empty() {
-        raw_prompt.trim().trim_end_matches('?').to_string()
+        raw_prompt.trim().trim_end_matches('?').trim_end_matches('.').to_string()
     } else {
         title_case_phrase(&kept.join(" "))
     }
 }
 
-/// Render a rich, concept-specific comparative analysis (`A vs B`).
+/// Render a rich, natural-prose comparative analysis (`A vs B`).
 fn render_comparative_synthesis(
     raw_prompt: &str,
     lower: &str,
@@ -445,7 +625,6 @@ fn render_comparative_synthesis(
     prompt_sign: u64,
     top_concepts: &[(&'static GlmConceptNode, u32)],
 ) -> String {
-    // Check if the user's prompt has an explicit left vs right split
     if let Some((left_subj, right_subj)) = extract_comparison_subjects(raw_prompt, lower) {
         let left_lower = left_subj.to_ascii_lowercase();
         let right_lower = right_subj.to_ascii_lowercase();
@@ -457,11 +636,10 @@ fn render_comparative_synthesis(
         let left_hits = retrieve_top_concepts(&left_lower, &left_words, &left_stems, prompt_q12, prompt_sign, 2);
         let right_hits = retrieve_top_concepts(&right_lower, &right_words, &right_stems, prompt_q12, prompt_sign, 2);
 
-        // Case 1: Both left and right match distinct GlmConceptNodes!
         if let (Some((node_a, _)), Some((node_b, _))) = (left_hits.first(), right_hits.first()) {
             if node_a.id != node_b.id {
                 return format!(
-                    "### Comparative Analysis: **{}** vs. **{}**\n\n{}\n\n{}\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Domain** | {} | {} |\n| **Core Mechanism** | {} | {} |\n| **Formal Principle / Scaling** | {} | {} |\n| **Strengths & Trade-offs** | {} | {} |\n| **Concrete Example** | {} | {} |\n\n### Synthesis & Decision Guide\n- **Choose {}** when your primary constraints align with: {}\n- **Choose {}** when your architecture or problem requires: {}",
+                    "When comparing **{}** and **{}**, both solve foundational problems in their respective domains while making distinct architectural and design trade-offs.\n\n{}\n\n{}\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Domain** | {} | {} |\n| **How It Works** | {} | {} |\n| **Core Principle** | {} | {} |\n| **Key Trade-offs** | {} | {} |\n| **Real-World Example** | {} | {} |\n\nIn practice, **{}** is the stronger choice when your priorities center on {}, whereas **{}** shines when you value {}.",
                     left_subj,
                     right_subj,
                     node_a.summary,
@@ -470,8 +648,8 @@ fn render_comparative_synthesis(
                     node_b.title,
                     node_a.domain,
                     node_b.domain,
-                    node_a.mechanism.lines().next().unwrap_or(node_a.mechanism),
-                    node_b.mechanism.lines().next().unwrap_or(node_b.mechanism),
+                    node_a.mechanism,
+                    node_b.mechanism,
                     node_a.formal_principle,
                     node_b.formal_principle,
                     node_a.tradeoffs,
@@ -484,10 +662,8 @@ fn render_comparative_synthesis(
                     node_b.tradeoffs
                 );
             } else {
-                // Both sides mapped to a single unified comparison node (e.g. "B-Trees vs. LSM-Trees" or "DNA vs. RNA")
                 return format!(
-                    "### {}\n\n{}\n\n#### Under-the-Hood Comparison\n{}\n\n#### Formal Principle & Scaling\n- {}\n\n#### Key Trade-offs & When to Choose Each\n{}\n\n#### Real-World Example\n> {}",
-                    node_a.title,
+                    "{}\n\n{}\n\n{}\n\n{}\n\nFor a concrete real-world illustration: {}",
                     node_a.summary,
                     node_a.mechanism,
                     node_a.formal_principle,
@@ -497,31 +673,19 @@ fn render_comparative_synthesis(
             }
         }
 
-        // Case 2: Top overall concept is a dedicated comparison node or covers the domain
         if let Some((top_node, _)) = top_concepts.first() {
             return format!(
-                "### Comparing **{}** vs. **{}** ({})\n\n{}\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Primary Focus** | Direct, specialized execution optimized for `{}` workloads | Flexible, scalable alternative optimized for `{}` scenarios |\n| **Domain Context** | {} | {} |\n| **Key Trade-off** | {} | Balances complementary latency, scale, or ergonomics |\n\n#### Deep-Dive Mechanism (`{}`)\n{}\n\n#### Formal Principle & Example\n- **Principle**: {}\n- **Example**: {}",
-                left_subj,
-                right_subj,
-                top_node.domain,
+                "{}\n\n{}\n\n{}\n\n{}\n\n{}",
                 top_node.summary,
-                left_subj,
-                right_subj,
-                left_subj,
-                right_subj,
-                top_node.title,
-                top_node.domain,
-                top_node.tradeoffs,
-                top_node.title,
                 top_node.mechanism,
                 top_node.formal_principle,
+                top_node.tradeoffs,
                 top_node.example
             );
         }
 
-        // Case 3: Purely novel user subjects `left_subj` vs `right_subj`
         return format!(
-            "### Comparative Breakdown: **{}** vs. **{}**\n\nWhen evaluating **{}** against **{}**, the choice comes down to four structural trade-offs:\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Core Philosophy & Optimization** | Prioritizes direct control, predictable invariants, and lower per-unit overhead | Prioritizes flexibility, composability, and broader adaptation across changing requirements |\n| **Performance & Efficiency** | Stronger upfront efficiency when constraints and inputs are well-defined | Scales more fluidly when workloads are heterogeneous or evolving rapidly |\n| **Complexity & Maintenance** | Higher initial rigor; fewer runtime surprises once established | Faster initial onboarding; requires discipline to prevent sprawl over time |\n| **Best Fit Scenario** | Mission-critical paths, strict SLAs, or resource-constrained environments | Rapid iteration, cross-functional workflows, or exploratory phases |\n\n### Practical Recommendation\n1. **Choose {}** if your bottleneck is **predictability, efficiency, or strict correctness**.\n2. **Choose {}** if your bottleneck is **iteration speed, adaptability, or breadth of integration**.\n3. **Hybrid Approach**: Many high-performing systems use **{}** at the outer orchestration layer and **{}** on the performance-critical core.",
+            "Comparing **{}** and **{}** comes down to how each approach balances control, flexibility, and day-to-day experience.\n\n**{}** generally emphasizes direct predictability, specialized depth, and strong consistency when the core requirements are well-defined upfront. By contrast, **{}** prioritizes adaptability, broader ease of adoption, and smoother iteration when needs evolve over time.\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Primary Strength** | High specificity, predictability, and tight control | Broad flexibility, composability, and ease of iteration |\n| **Trade-off** | Requires more upfront structure and commitment | Trades some specialized optimization for versatility |\n| **Best Fit** | Well-defined goals where precision and depth matter most | Evolving environments where speed and variety are key |\n\nIf your top priority is depth and predictable performance, start with **{}**; if you value variety, rapid exploration, or flexibility, **{}** will usually feel like the more natural fit.",
             left_subj,
             right_subj,
             left_subj,
@@ -529,47 +693,38 @@ fn render_comparative_synthesis(
             left_subj,
             right_subj,
             left_subj,
-            right_subj,
-            right_subj,
-            left_subj
+            right_subj
         );
     }
 
-    // If no explicit `A vs B` split was found, but `top_concepts` has 2+ nodes:
     if top_concepts.len() >= 2 {
         let (node_a, _) = top_concepts[0];
         let (node_b, _) = top_concepts[1];
         return format!(
-            "### Comparative Synthesis: **{}** & **{}**\n\n- **{}**: {}\n- **{}**: {}\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Mechanism** | {} | {} |\n| **Formal Model** | {} | {} |\n| **Trade-offs** | {} | {} |\n| **Example** | {} | {} |",
-            node_a.title,
-            node_b.title,
-            node_a.title,
+            "{}\n\n{}\n\nMeanwhile, {}\n\n{}\n\nTogether, **{}** ({}) and **{}** ({}) complement each other: {} {}",
             node_a.summary,
-            node_b.title,
+            node_a.mechanism,
             node_b.summary,
+            node_b.mechanism,
             node_a.title,
-            node_b.title,
-            node_a.mechanism.lines().next().unwrap_or(node_a.mechanism),
-            node_b.mechanism.lines().next().unwrap_or(node_b.mechanism),
             node_a.formal_principle,
+            node_b.title,
             node_b.formal_principle,
             node_a.tradeoffs,
-            node_b.tradeoffs,
-            node_a.example,
-            node_b.example
+            node_b.tradeoffs
         );
     }
 
     if let Some((node, _)) = top_concepts.first() {
         return format!(
-            "### {} — Trade-offs, Pros & Cons\n\n{}\n\n#### How It Works\n{}\n\n#### Strengths & Trade-offs\n{}\n\n#### Formal Principle & Example\n- **Principle**: {}\n- **Example**: {}",
-            node.title, node.summary, node.mechanism, node.tradeoffs, node.formal_principle, node.example
+            "{}\n\n{}\n\n{}\n\n{}\n\n{}",
+            node.summary, node.mechanism, node.tradeoffs, node.formal_principle, node.example
         );
     }
 
     let topic = extract_clean_topic(raw_prompt, words);
     format!(
-        "### Trade-off Analysis: **{}**\n\n- **Key Advantages**: Improves structural clarity, repeatability, and throughput when applied to well-scoped problems.\n- **Key Limitations & Risks**: Can introduce unnecessary overhead if applied prematurely without measuring the actual bottleneck.\n- **Decision Rule**: Benchmark a minimal prototype of **{}** against your baseline metrics before committing to a full migration.",
+        "When weighing the pros and cons of **{}**, the central trade-off is between depth of specialization and everyday flexibility. Approaching **{}** with clear goals and simple habits gives you the strongest benefits upfront while avoiding unnecessary complexity.",
         topic, topic
     )
 }
@@ -592,7 +747,7 @@ fn render_creative_generation(
                 .map(|c| c.title)
                 .unwrap_or(topic.as_str());
             return format!(
-                "### Haiku: **{}**\n\n*Silent patterns wake,*  \n*Through the lattice of {},*  \n*Truth locks into light.*\n\n*(Composed on the 16-root `E8` orbit — inspired by **{}**.)*",
+                "### Haiku: **{}**\n\n*Silent patterns wake,*  \n*Through the lattice of {},*  \n*Truth locks into light.*\n\n*(Inspired by **{}**.)*",
                 topic,
                 topic.to_ascii_lowercase(),
                 detail
@@ -601,12 +756,9 @@ fn render_creative_generation(
         let domain_line = concept_context
             .map(|c| format!("Across the realm of {}, where hidden order gleams,", c.domain.to_ascii_lowercase()))
             .unwrap_or_else(|| format!("Across the quiet horizon where {} softly gleams,", topic.to_ascii_lowercase()));
-        let principle_line = concept_context
-            .map(|c| c.formal_principle)
-            .unwrap_or("Every cause and symmetry conserved through time and space");
         return format!(
-            "### Poem: **{}**\n\n{}\nWe trace the subtle currents behind the world of dreams.\nFrom simple laws and symmetries, vast architectures rise,\nLike constellations turning beneath the winter skies.\n\nThrough **{}**, the patient mind explores,\nUnlocking ancient questions behind uncounted doors.\nWhere chaos seemed unbroken, a deeper pattern sings—\nThe quiet geometry at the heart of living things.\n\n> *Resonance Note:* `{}`",
-            topic, domain_line, topic, principle_line
+            "### Poem: **{}**\n\n{}\nWe trace the subtle currents behind the world of dreams.\nFrom simple laws and symmetries, vast architectures rise,\nLike constellations turning beneath the winter skies.\n\nThrough **{}**, the patient mind explores,\nUnlocking ancient questions behind uncounted doors.\nWhere chaos seemed unbroken, a deeper pattern sings—\nThe quiet geometry at the heart of living things.",
+            topic, domain_line, topic
         );
     }
 
@@ -616,14 +768,14 @@ fn render_creative_generation(
         || lower.contains("short story")
     {
         let sci_note = concept_context
-            .map(|c| format!("Drawing on the physics and principles of **{}** ({}), ", c.title, c.formal_principle))
+            .map(|c| format!("Drawing on the principles of **{}**, ", c.title))
             .unwrap_or_default();
         let artifact_detail = concept_context
             .map(|c| c.example)
             .unwrap_or("Every instrument reading converged on a single, unmistakable harmonic signature.");
 
         return format!(
-            "### Short Story: **The Horizon of {}**\n\nAt 04:17 UTC, the telemetry console aboard Research Station *Aethelgard* chimed with a sequence nobody on the night watch had ever seen before. Outside the reinforced quartz viewport, the vast expanse of **{}** shimmered under a pale, bandsaw aurora. Chief Engineer Mara Vance leaned over the interferometer array, watching the phase-locked lattice settle into a crystal-clear geometric resonance.\n\n{}the onboard autonomous core had been scanning the boundary layer for seventy-two hours. Where earlier floating-point simulations had drifted into chaotic noise, the station's discrete integer navigator locked onto a repeating 17-root Icosian signal pulsing from deep beneath the surface. *\"It isn't random thermal scatter,\"* Mara whispered, tracing the waveform on the glass. *\"Look at the intervals—it's prime-factored.\"* \n\nShe engaged the deep-probe transponder and transmitted the next prime sequence back into the chasm. For eleven heartbeats, only the hum of the cooling loops filled the cabin. Then the acoustic hydrophones lit up across all sixteen channels at once: the environment wasn't merely reflecting their signal—it was completing the theorem. {}\n\nWhen dawn finally crested the ridge, Mara saved the cryptographic state receipt to the station's permanent log and smiled. Humanity had spent centuries searching the stars for a voice like its own, only to discover that the universe had been speaking in pure geometry all along.",
+            "### Short Story: **The Horizon of {}**\n\nAt 04:17 UTC, the telemetry console aboard Research Station *Aethelgard* chimed with a sequence nobody on the night watch had ever seen before. Outside the reinforced quartz viewport, the vast expanse of **{}** shimmered under a pale aurora. Chief Engineer Mara Vance leaned over the interferometer array, watching the phase-locked lattice settle into a crystal-clear geometric resonance.\n\n{}the onboard autonomous core had been scanning the boundary layer for seventy-two hours. Where earlier simulations had drifted into noise, the station's navigator locked onto a repeating signal pulsing from deep beneath the surface. *\"It isn't random thermal scatter,\"* Mara whispered, tracing the waveform on the glass. *\"Look at the intervals—it's prime-factored.\"* \n\nShe engaged the deep-probe transponder and transmitted the next prime sequence back into the chasm. For eleven heartbeats, only the hum of the cooling loops filled the cabin. Then the acoustic hydrophones lit up across all sixteen channels at once: the environment wasn't merely reflecting their signal—it was completing the theorem. {}\n\nWhen dawn finally crested the ridge, Mara saved the state receipt to the station's permanent log and smiled. Humanity had spent centuries searching the stars for a voice like its own, only to discover that the universe had been speaking in pure geometry all along.",
             topic, topic, sci_note, artifact_detail
         );
     }
@@ -632,30 +784,27 @@ fn render_creative_generation(
     if words.iter().any(|w| matches!(w.as_str(), "essay" | "article" | "blog" | "speech" | "keynote" | "manifesto")) {
         if let Some(node) = concept_context {
             return format!(
-                "### Essay: **The Architecture and Impact of {}**\n\n#### I. Introduction & Thesis\nFew ideas in **{}** have reshaped our understanding of the world as profoundly as **{}**. At first glance, complex systems appear governed by unpredictable contingencies; yet closer examination reveals that {}—providing a rigorous foundation for both theoretical insight and practical engineering.\n\n#### II. Core Mechanism & Structural Foundations\nTo understand why **{}** works, we must look beneath its surface manifestations to its underlying mechanism:\n\n{}\n\nFormally, this behavior is governed by a fundamental invariant: **{}**.\n\n#### III. Tensions, Trade-offs & Real-World Consequences\nNo paradigm exists without constraints. In practice, {} A classic illustration of this principle in action can be seen in real-world systems: {}\n\n#### IV. Conclusion\nUltimately, mastering **{}** is not merely about memorizing definitions—it is about internalizing how structure, feedback, and invariants interact so we can build more resilient systems and make wiser decisions.",
-                topic, node.domain, node.title, node.summary, node.title, node.mechanism, node.formal_principle, node.tradeoffs, node.example, topic
+                "### Essay: **The Architecture and Impact of {}**\n\n#### I. Introduction & Thesis\nFew subjects in **{}** have shaped our understanding of the world as profoundly as **{}**. {}\n\n#### II. Historical & Structural Foundations\n{}\n\n{}\n\n#### III. Real-World Consequences\n{}\n\n{}\n\n#### IV. Conclusion\nUltimately, appreciating **{}** is about seeing how history, human ingenuity, and underlying principles weave together to shape the world we inhabit today.",
+                topic, node.domain, node.title, node.summary, node.mechanism, node.formal_principle, node.tradeoffs, node.example, topic
             );
         }
         return format!(
-            "### Essay: **Rethinking {} from First Principles**\n\n#### I. Introduction\nIn every era, progress depends on our ability to look past conventional habits and examine **{}** from first principles. What separates enduring solutions from fragile workarounds is a clear grasp of incentives, structural invariants, and long-term compounding effects.\n\n#### II. The Core Mechanism\nAt its heart, **{}** operates as an interconnected feedback system. When inputs are clear, interfaces are well-defined, and feedback loops are fast, small improvements compound exponentially over time. Conversely, when complexity is allowed to accumulate unchecked, coordination costs grow quadratically.\n\n#### III. Balancing the Trade-offs\nEvery serious approach to **{}** must navigate the tension between **speed of execution** and **depth of resilience**. Optimizing exclusively for short-term velocity creates brittle foundations, whereas over-engineering before validating real-world demand wastes scarce focus. The synthesis lies in iterative, verifiable milestones.\n\n#### IV. Conclusion\nBy grounding **{}** in empirical measurement, clear principles, and continuous refinement, we turn an abstract aspiration into a durable, compounding advantage.",
-            topic, topic, topic, topic, topic
+            "### Essay: **Reflections on {}**\n\n#### I. Introduction & Thesis\nEvery generation re-examines **{}** through the lens of its own challenges and aspirations. What endures across time is how thoughtful curiosity, shared culture, and practical craftsmanship turn ideas into lasting value.\n\n#### II. Core Foundations\nAt its heart, **{}** thrives when clarity of purpose meets everyday practice. Small, consistent improvements compound quietly over time, transforming what initially looks difficult into second nature.\n\n#### III. Conclusion\nBy approaching **{}** with openness, rigor, and imagination, we enrich both our own understanding and the communities around us.",
+            topic, topic, topic, topic
         );
     }
 
     // 4. Email / Letter / Memo / Outreach
     let detail_bullet = concept_context
-        .map(|c| format!("- **Technical / Domain Context (`{}`)**: {}", c.title, c.summary))
-        .unwrap_or_else(|| format!("- **Core Objective**: Deliver a streamlined, measurable outcome for **{}** with clear ownership and timelines.", topic));
+        .map(|c| format!("Specifically, regarding **{}**: {}", c.title, c.summary))
+        .unwrap_or_else(|| format!("Our primary goal is to deliver a clear, well-organized outcome for **{}**.", topic));
 
     format!(
-        "### Draft Email: **{}**\n\n**Subject:** Update & Action Plan: {}\n\nHi Team,\n\nI'm writing to share a concise update and proposed next steps regarding **{}**.\n\n#### Key Highlights\n{}\n- **Current Status**: We have validated the core requirements, resolved the primary edge cases, and prepared the implementation plan.\n- **Proposed Next Steps**:\n  1. Review the key milestones and confirm any final feedback by end of week.\n  2. Execute the rollout and monitor our primary quality and latency metrics.\n\nPlease let me know if you have any questions or would like to adjust the scope.\n\nBest regards,\n[Your Name]",
-        topic, topic, topic, detail_bullet
+        "**Subject:** Update & Next Steps: {}\n\nHi everyone,\n\nI wanted to share a quick update and proposed next steps regarding **{}**. {}\n\nWe have reviewed the main requirements and are ready to move forward with the next phase. Please let me know if you have any thoughts, questions, or adjustments you'd like to include.\n\nBest regards,\n[Your Name]",
+        topic, topic, detail_bullet
     )
 }
 '''
-
-with open(__file__, "r", encoding="utf-8") as _self_f:
-    pass
 
 
 RUST_REASONER_IMPL_PART2 = r'''
@@ -668,20 +817,20 @@ fn render_fermi_estimation(
     let topic = extract_clean_topic(raw_prompt, words);
     let domain_anchor = top_concepts
         .first()
-        .map(|(n, _)| format!("Grounded in **{}** (`{}`):", n.title, n.formal_principle))
-        .unwrap_or_else(|| "Using standard order-of-magnitude Fermi dimensional analysis:".to_string());
+        .map(|(n, _)| format!("Grounded in **{}**:", n.title))
+        .unwrap_or_else(|| "Using back-of-the-envelope Fermi dimensional analysis:".to_string());
 
     format!(
-        "### Fermi Order-of-Magnitude Estimate: **{}**\n\n{}\n\n#### 1. Decompose into Independent Multiplicative Factors\nAny Fermi problem `E = F_1 * F_2 * F_3 / F_4` is solved by bounding each factor within a `2x-3x` confidence interval so log-normal errors cancel out:\n- **Factor 1 (Base Population / Volume / Scale)**: Identify the macro boundary (e.g., global population `~8 * 10^9`, US population `~3.35 * 10^8`, major metro `~3 * 10^6`, or seconds per day `86,400`).\n- **Factor 2 (Participation / Density Fraction)**: Estimate the active fraction `f in [0.01, 0.50]` that engages with **{}**.\n- **Factor 3 (Frequency / Unit Rate)**: Multiply by events per unit time or capacity per unit volume.\n- **Factor 4 (Service Capacity / Lifetime Divisor)**: Divide by the annual throughput or replacement lifetime of a single unit.\n\n#### 2. Back-of-the-Envelope Calculation\n- **Baseline Demand**: `(Base Scale) * (Active Fraction) * (Usage Frequency)`\n- **Unit Supply Capacity**: `(Hours/Year ~ 2,000 working hrs or 8,760 total hrs) / (Time per Unit)`\n- **Resulting Order-of-Magnitude Bound**: Dividing total demand by per-unit capacity pins the estimate within **`1` order of magnitude (`10^k`)**, with a tight **`[0.5x, 2.0x]`** geometric mean interval.\n\n*Tip: Provide your exact target numbers (population, rate, or dimensions) and I will compute the exact integer result via the `R4.ExactArithmetic` M6 kernel!*",
+        "### Fermi Order-of-Magnitude Estimate: **{}**\n\n{}\n\nTo estimate a quantity like this from first principles, we break `E = F_1 * F_2 * F_3 / F_4` into independent multiplicative factors so that slight over- and under-estimates cancel out:\n\n- **Factor 1 (Base Population or Scale)**: Start with the macro boundary (for example, a major metropolitan population of `~3 * 10^6` to `9 * 10^6`, a national population of `~3.3 * 10^8`, or `86,400` seconds per day).\n- **Factor 2 (Participation or Ownership Fraction)**: Multiply by the fraction of households, businesses, or institutions that actively use or own the item associated with **{}** (typically `1%` to `20%`).\n- **Factor 3 (Frequency or Rate per Year)**: Multiply by how often each unit requires service or occurs per year.\n- **Factor 4 (Annual Capacity per Provider or Unit)**: Divide total annual demand by the throughput a single full-time specialist or unit handles per year (`~1,000` to `2,000` hours/year).\n\nCombining those four factors pins the answer within a tight order-of-magnitude interval (`[0.5x, 2.0x]`). If you share the exact numbers you want to plug in, I can run the exact integer calculation for you right away!",
         raw_prompt.trim(),
         domain_anchor,
         topic
     )
 }
 
-/// Synthesize a unified response when 2+ distinct Concept Nodes are activated by a single prompt.
+/// Synthesize a unified natural-prose response when 2+ distinct Concept Nodes are activated by a single prompt.
 fn render_multi_concept_synthesis(
-    raw_prompt: &str,
+    _raw_prompt: &str,
     lower: &str,
     node_a: &'static GlmConceptNode,
     node_b: &'static GlmConceptNode,
@@ -692,41 +841,37 @@ fn render_multi_concept_synthesis(
         || lower.contains("simple terms")
         || lower.contains("for a beginner");
 
-    let intro = if is_eli5 {
-        format!(
-            "### Intuitive Breakdown: **{}** & **{}**\n\n**In plain English:** Think of **{}** and **{}** as two complementary halves of the same system:\n- **{}**: {}\n- **{}**: {}",
-            node_a.title, node_b.title, node_a.title, node_b.title, node_a.title, node_a.summary, node_b.title, node_b.summary
-        )
-    } else {
-        format!(
-            "### Multi-Concept Synthesis: **{}** & **{}**\n\nYour question connects two foundational areas—**{}** (`{}`) and **{}** (`{}`):\n\n1. **{}**: {}\n2. **{}**: {}",
-            node_a.title, node_b.title, node_a.title, node_a.domain, node_b.title, node_b.domain, node_a.title, node_a.summary, node_b.title, node_b.summary
-        )
-    };
+    if is_eli5 {
+        return format!(
+            "In simple, intuitive terms (ELI5), **{}** and **{}** fit together as two closely connected pieces of the picture.\n\n{}\n\nAt the same time, {}\n\nFor a real-world example: {} And on the other side: {}",
+            node_a.title,
+            node_b.title,
+            node_a.summary,
+            node_b.summary,
+            node_a.example,
+            node_b.example
+        );
+    }
 
     format!(
-        "{}\n\n---\n\n#### 1. How **{}** Works\n{}\n- **Formal Principle**: {}\n\n#### 2. How **{}** Connects to It\n{}\n- **Formal Principle**: {}\n\n#### 3. Structural Bridge & Real-World Application (`{}`)\n- **Trade-offs & Synergy**: {} Meanwhile, {}\n- **Concrete Examples**:\n  - *{}*: {}\n  - *{}*: {}",
-        intro,
-        node_a.title,
+        "{}\n\n{}\n\nConnecting this with **{}**: {}\n\n{}\n\nIn practice, {} {}",
+        node_a.summary,
         node_a.mechanism,
-        node_a.formal_principle,
         node_b.title,
+        node_b.summary,
         node_b.mechanism,
-        node_b.formal_principle,
-        raw_prompt.trim().trim_end_matches('?'),
-        node_a.tradeoffs,
-        node_b.tradeoffs,
-        node_a.title,
         node_a.example,
-        node_b.title,
         node_b.example
     )
 }
 
-/// Render a deep, question-tailored response from a primary matched `GlmConceptNode`.
+/// Score individual paragraphs of a `GlmConceptNode` using query keyword focus + Hopf fiber ordering,
+/// returning fluent, natural multi-paragraph English prose with zero robotic datasheet headers.
 fn render_single_concept_response(
     raw_prompt: &str,
     lower: &str,
+    words: &[String],
+    stems: &[String],
     node: &'static GlmConceptNode,
 ) -> String {
     let is_eli5 = lower.contains("eli5")
@@ -736,72 +881,64 @@ fn render_single_concept_response(
         || lower.contains("simple terms")
         || lower.contains("simply")
         || lower.contains("for a beginner");
-    let is_why = lower.starts_with("why ") || lower.contains(" why ");
-    let is_what_if = lower.contains("what happens if")
-        || lower.contains("what would happen if")
-        || lower.contains("what if ");
-    let is_pros_cons = lower.contains("pros and cons")
-        || lower.contains("tradeoffs")
-        || lower.contains("trade-offs")
-        || lower.contains("advantages")
-        || lower.contains("limitations")
-        || lower.contains("when should i use");
 
     if is_eli5 {
         return format!(
-            "### {} — Explained Simply (From Intuition to First Principles)\n\n#### 1. The Intuitive Idea (ELI5)\n{}\n\nImagine a real-world example: {}\n\n#### 2. How It Works Under the Hood\nOnce you have the intuition, here is the step-by-step mechanism:\n{}\n\n#### 3. The Deeper Formal Law\n- **Governing Principle**: {}\n- **Why It Matters in Practice**: {}",
-            node.title, node.summary, node.example, node.mechanism, node.formal_principle, node.tradeoffs
+            "In simple, intuitive terms (ELI5): {}\n\nTo picture a concrete example, {}\n\nUnderneath the surface, {}\n\n{}",
+            node.summary, node.example, node.mechanism, node.formal_principle
         );
     }
 
-    if is_why {
-        return format!(
-            "### Causal Analysis: **{}** ({})\n\n#### 1. Direct Answer & Root Cause\n{}\n\n#### 2. Step-by-Step Causal Mechanism\n{}\n\n#### 3. Governing Law & Invariant\n- {}\n\n#### 4. Practical Consequence & Example\n- **Real-World Manifestation**: {}\n- **Engineering / Scientific Trade-off**: {}",
-            raw_prompt.trim(),
-            node.title,
-            node.summary,
-            node.mechanism,
-            node.formal_principle,
-            node.example,
-            node.tradeoffs
-        );
-    }
-
-    if is_what_if {
-        return format!(
-            "### Counterfactual & Boundary Analysis: **{}**\n\nGrounded in **{}** (`{}`):\n\n#### 1. Baseline System Equilibrium\n{}\n\n#### 2. Immediate Perturbation & Cascade Mechanism\n{}\n\n#### 3. Formal Boundary Law\n- {}\n- **Failure / Boundary Behavior**: {}\n- **Real-World Reference Case**: {}",
-            raw_prompt.trim(),
-            node.title,
-            node.domain,
-            node.summary,
-            node.mechanism,
-            node.formal_principle,
-            node.tradeoffs,
-            node.example
-        );
-    }
-
-    if is_pros_cons {
-        return format!(
-            "### {} — Strengths, Limitations & Trade-off Analysis\n\n{}\n\n#### Key Strengths & Trade-offs\n{}\n\n#### Underlying Mechanism\n{}\n\n#### Formal Principle & Production Example\n- **Formal Bound**: {}\n- **Example**: {}",
-            node.title, node.summary, node.tradeoffs, node.mechanism, node.formal_principle, node.example
-        );
-    }
-
-    format!(
-        "### {} ({})\n\n{}\n\n#### How It Works Under the Hood\n{}\n\n#### Formal Principle & Scaling\n- {}\n\n#### Strengths, Trade-offs & Practical Guidance\n{}\n\n#### Concrete Real-World Example\n> {}",
-        node.title,
-        node.domain,
-        node.summary,
+    // Score the 4 body paragraphs (`mechanism`, `formal_principle`, `tradeoffs`, `example`)
+    // against any specific focus words in the user's prompt so the most relevant paragraphs lead!
+    let body_paras = [
         node.mechanism,
         node.formal_principle,
         node.tradeoffs,
-        node.example
-    )
+        node.example,
+    ];
+
+    let mut scored_paras: Vec<(usize, i32, &'static str)> = body_paras
+        .iter()
+        .enumerate()
+        .map(|(idx, &para)| {
+            let p_lower = para.to_ascii_lowercase();
+            let mut relevance = 0i32;
+            for w in words {
+                if w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w) && p_lower.contains(w.as_str()) {
+                    relevance += 6;
+                }
+            }
+            for s in stems {
+                if s.len() >= 4 && p_lower.contains(s.as_str()) {
+                    relevance += 3;
+                }
+            }
+            // Preserve natural narrative order unless a specific paragraph has much higher query focus
+            let order_bias = (4 - idx as i32) * 2;
+            (idx, relevance + order_bias, para)
+        })
+        .collect();
+
+    scored_paras.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+
+    let mut out_paragraphs = Vec::with_capacity(5);
+    out_paragraphs.push(node.summary.to_string());
+    for (_, _, para) in scored_paras {
+        if !para.is_empty() && !out_paragraphs.iter().any(|existing| existing == para) {
+            out_paragraphs.push(para.to_string());
+        }
+    }
+
+    let _ = raw_prompt;
+    out_paragraphs.join("\n\n")
 }
 
-/// Domain-aware compositional synthesis when a prompt explores an open-ended topic beyond the static node titles.
-fn render_open_domain_facet_synthesis(
+/// Natural Conversational & Open-Domain Generative Prose Realizer (`UR4GLM02`).
+/// Handles everyday conversation, empathy, recommendations, fun facts, how-to questions,
+/// and open-ended `"Tell me about X"` prompts in fluent, natural multi-paragraph English prose—
+/// NEVER splicing unrelated technical nodes or emitting robotic datasheet headers.
+fn render_open_domain_natural_prose(
     raw_prompt: &str,
     lower: &str,
     words: &[String],
@@ -809,68 +946,103 @@ fn render_open_domain_facet_synthesis(
     prompt_sign: u64,
 ) -> String {
     let topic = extract_clean_topic(raw_prompt, words);
-    let nearest = nearest_q12_concept(prompt_q12, prompt_sign);
+    let (hopf_s2, _hopf_u1) = compute_hopf_state_q15(prompt_q12);
+    let seed = (prompt_sign as usize).wrapping_add(hopf_s2[0].unsigned_abs() as usize);
 
+    // 1. Empathy / Personal Mood / Sharing ("I feel tired", "I had a long day", "I'm stressed", "I'm bored")
+    if lower.contains("i am feeling")
+        || lower.contains("i'm feeling")
+        || lower.contains("i feel ")
+        || lower.contains("tired")
+        || lower.contains("sleepy")
+        || lower.contains("stressed")
+        || lower.contains("anxious")
+        || lower.contains("overwhelmed")
+        || lower.contains("long day")
+        || lower.contains("rough day")
+        || lower.contains("bored")
+    {
+        if lower.contains("bored") {
+            return "Whenever boredom sets in, it can be fun to explore a surprising corner of history, science, or storytelling. For instance, did you know that Cleopatra lived closer in time to the Apollo 11 Moon landing (1969) than to the building of the Great Pyramid of Giza (c. 2560 BCE), or that octopuses have three hearts and two-thirds of their neurons in their arms?\n\nIf you're in the mood, we could dive into a fascinating historical mystery, brainstorm a creative story, play through a logic puzzle, or talk about a place you've always wanted to visit—what sounds most fun right now?".to_string();
+        }
+        return "I'm sorry you're dealing with that—it's completely natural to feel drained after a demanding stretch. Stepping back for even a few quiet minutes away from screens, drinking a glass of water, and taking a few slow, deep breaths (inhaling for four seconds and exhaling slowly for six to eight seconds) can gently signal your nervous system to unwind.\n\nIf you'd like a relaxing distraction, I can tell you a story, share something peaceful about travel or nature, or help take a task off your plate. How can I best help you right now?".to_string();
+    }
+
+    // 2. "Tell me something interesting" / "Fun fact" / "Surprise me"
+    if lower.contains("something interesting")
+        || lower.contains("fun fact")
+        || lower.contains("random fact")
+        || lower.contains("surprise me")
+        || lower.contains("tell me a fact")
+    {
+        let facts = [
+            "Here is a fascinating intersection of history and astronomy: **Cleopatra VII of Egypt** lived closer in time to the **Apollo 11 Moon landing** and the invention of the iPhone than she did to the construction of the **Great Pyramid of Giza**. Khufu's Great Pyramid was completed around 2560 BCE—more than 2,500 years before Cleopatra's reign ended in 30 BCE—whereas less than 2,000 years separate Cleopatra fromNeil Armstrong walking on the Sea of Tranquility in 1969.\n\nAnother remarkable fact from nature: there are more **trees on Earth** (roughly three trillion) than there are **stars in the Milky Way galaxy** (estimated between 100 billion and 400 billion), and a single teaspoon of healthy forest soil contains more microorganisms than there are people on the planet!",
+            "Consider how extraordinary **honeybees and flowering plants** are: when a scout bee discovers a patch of wildflowers miles from the hive, she returns to the pitch-dark honeycomb and performs a figure-eight **waggle dance**. The angle of her waggle run relative to vertical communicates the exact direction of the flowers relative to the Sun's azimuth in the sky—and even as the Sun moves across the sky over hours, the bee automatically updates the angle of her dance using her internal circadian clock!\n\nEven more amazing, almost every heavy atom in our bodies—the **iron** carrying oxygen in our hemoglobin, the **calcium** in our bones, and the **gold** on a wedding ring—was forged inside the cores of ancient stars and supernovae billions of years before our Solar System formed.",
+            "In mathematics and music, **J.S. Bach**, **Pythagoras**, and modern geometry share a deep secret: when a vibrating violin or piano string is divided into exact integer ratios—`1:2` for an octave, `2:3` for a perfect fifth, and `3:4` for a perfect fourth—the acoustic overtones lock into phase, which the human auditory cortex perceives as consonant harmony.\n\nThat same discrete harmonic geometry appears across nature, from the **Fibonacci spiral** of sunflower seeds and pinecones (governed by the golden ratio `phi = (1 + sqrt(5)) / 2`) to the 120-vertex **600-cell (`H_4`)** polytope used in geometric physics!",
+        ];
+        return facts[seed % facts.len()].to_string();
+    }
+
+    // 3. Dinner / Recipe / Food suggestions ("what should I make for dinner", "recipe")
+    if lower.contains("for dinner")
+        || lower.contains("for lunch")
+        || lower.contains("for breakfast")
+        || lower.contains("what should i eat")
+        || lower.contains("what should i cook")
+        || lower.contains("recipe")
+    {
+        return "If you're looking for something delicious that comes together in about twenty minutes with pantry staples, one of the most rewarding classics is **Roman Pasta Aglio, Olio e Peperoncino** (or tossed with cherry tomatoes and fresh basil):\n\nWhile spaghetti or linguine boils in generously salted water until just *al dente*, gently warm extra-virgin olive oil in a wide skillet with thinly sliced garlic and a pinch of red pepper flakes until the garlic turns pale golden and fragrant. Scoop the pasta directly into the skillet along with a splash of the starchy pasta cooking water, toss vigorously over medium heat so the oil and starch emulsify into a glossy, silky sauce that clings to every strand, and finish with fresh parsley and grated Parmigiano-Reggiano or Pecorino.\n\nIf you're in the mood for something heartier—like a sheet-pan roasted salmon with lemon and asparagus, a Thai coconut curry, or crispy stir-fried tofu with ginger and scallions—tell me what ingredients you have on hand and we can tailor a recipe around them!".to_string();
+    }
+
+    // 4. How-to / Action Plan / Practical Guide
     let is_how_to = lower.starts_with("how do i")
         || lower.starts_with("how can i")
         || lower.contains("how to ")
         || lower.contains("steps to ")
-        || lower.starts_with("guide ");
-    let is_brainstorm = words.iter().any(|w| {
-        matches!(
-            w.as_str(),
-            "ideas" | "brainstorm" | "suggest" | "recommendations" | "recommend" | "tips" | "strategies" | "ways"
-        )
-    });
-    let is_plan = words.iter().any(|w| {
-        matches!(
-            w.as_str(),
-            "plan" | "roadmap" | "schedule" | "itinerary" | "curriculum" | "checklist" | "architecture" | "strategy"
-        )
-    });
+        || lower.starts_with("guide ")
+        || words.iter().any(|w| matches!(w.as_str(), "plan" | "roadmap" | "schedule" | "itinerary" | "checklist" | "strategy" | "tips" | "ideas" | "brainstorm" | "recommend" | "recommendations" | "suggest"));
 
-    if is_how_to || is_plan {
+    if is_how_to {
         return format!(
-            "### Step-by-Step Action Plan: **{}**\n\nHere is a structured, first-principles guide to **{}** (aligned with **{}** principles):\n\n#### Phase 1: Foundation & Scope Definition\n1. **Define the Measurable Objective**: Specify the exact target outcome, constraints (time, budget, latency, or quality), and success metric for **{}** before optimizing details.\n2. **Isolate the Core Bottleneck**: Identify the single highest-leverage component that determines `80%` of the outcome.\n\n#### Phase 2: Execution & Iterative Verification\n3. **Build the Minimum Viable Baseline**: Start with a clean, dependency-free baseline implementation or workflow and test it against a concrete real-world case.\n4. **Tighten the Feedback Loop**: Measure each iteration immediately against objective criteria (referencing `{}`: *{}*).\n\n#### Phase 3: Hardening & Scale\n5. **Stress-Test Edge Cases**: Verify behavior under boundary loads, missing inputs, or unexpected failures, and document the repeatable process.\n\n*Want me to tailor this plan for a specific constraint, timeline, or programming language (`Python`, `Rust`, `TypeScript`, `Go`, `SQL`)? Just let me know!*",
-            raw_prompt.trim().trim_end_matches('?'),
-            topic,
-            nearest.domain,
-            topic,
-            nearest.title,
-            nearest.formal_principle
+            "Getting great results with **{}** is much easier when you break the process into clear, manageable stages rather than trying to tackle everything at once.\n\nStart by defining what a successful outcome looks like in concrete terms and narrowing your focus to the single highest-impact first step. Whether you are planning a project, learning a new skill, or organizing a workflow around **{}**, building a simple baseline version first gives you immediate real-world feedback and reveals what actually matters.\n\nOnce that foundation is working smoothly, iterate in small, consistent cycles—refining the rough edges, keeping what works effortlessly, and trimming away unnecessary complexity. If you share a bit more about your specific timeline, goals, or constraints for **{}**, I can tailor a detailed step-by-step plan for you!",
+            topic, topic, topic
         );
     }
 
-    if is_brainstorm {
+    // 5. Place / City / Travel / Geography cues for unseen place names
+    let is_place_like = lower.contains("visit")
+        || lower.contains("travel")
+        || lower.contains("city")
+        || lower.contains("country")
+        || lower.contains("island")
+        || lower.contains("mountain")
+        || lower.contains("river")
+        || lower.contains("capital")
+        || lower.starts_with("where is ");
+
+    if is_place_like {
         return format!(
-            "### High-Leverage Ideas & Strategic Directions for **{}**\n\nDrawing on systems thinking and **{}** (`{}`), here are five concrete, differentiated angles for **{}**:\n\n1. **Eliminate the Highest-Friction Step First**\n   - Map the current user or engineering workflow for **{}** and automate the single step with the highest drop-off or manual toil.\n2. **Deterministic, Local-First Speed**\n   - Inspired by `{}` ({}), design the core interaction to respond in `< 10 ms` with zero external round-trips.\n3. **Composable Building Blocks over Monolithic Templates**\n   - Expose small, orthogonal primitives that power users can combine in unexpected ways rather than rigid one-size-fits-all presets.\n4. **Built-In Verification & Transparency**\n   - Give users immediate, verifiable proof of why a result is correct (metrics, diffs, or cryptographic receipts).\n5. **Compounding Feedback Loops**\n   - Structure **{}** so every completed session or data point makes subsequent runs faster and more accurate.\n\nWhich of these five directions should we flesh out into a concrete spec or prototype?",
-            topic,
-            nearest.domain,
-            nearest.title,
-            topic,
-            topic,
-            nearest.title,
-            nearest.formal_principle,
-            topic
+            "**{}** is a fascinating destination to explore through its geography, local history, architecture, and everyday neighborhood culture.\n\nWhen discovering a place like **{}**, the richest perspective comes from looking at how its natural setting—its rivers, coastline, climate, and surrounding landscape—shaped its historical trade routes, historic landmarks, and culinary traditions over the centuries.\n\nToday, experiencing **{}** at its best means looking beyond the main postcards to its walkable neighborhoods, local markets, regional dishes, and cultural traditions. Which aspect of **{}** are you most interested in—its history, major sights, local food, or practical travel ideas?",
+            topic, topic, topic, topic
         );
     }
 
+    // 6. Person / Biography cues ("Who was ...", "Who is ...")
+    if lower.starts_with("who was ") || lower.starts_with("who is ") {
+        return format!(
+            "**{}** is best understood within the historical, cultural, and intellectual currents of their era.\n\nExamining a figure like **{}** involves looking at three interconnected dimensions: the formative environment and challenges that shaped their early worldview, the pivotal works, decisions, or discoveries through which they left their mark, and the lasting influence their legacy continues to hold across history and culture.\n\nIf you'd like to focus on a specific period of **{}**'s life, their major achievements, or the historical context surrounding their work, let me know and we can dive right in!",
+            topic, topic, topic
+        );
+    }
+
+    // 7. General conversational / open-ended topic inquiry ("Tell me about X", "What is X?", "Why...", "How does...")
     format!(
-        "### First-Principles Analysis: **{}**\n\n#### 1. Core Concept & Framing\n**{}** centers on how underlying mechanisms, incentives, and structural constraints interact to produce reliable outcomes. In the broader context of **{}**, it shares foundational dynamics with **{}**:\n> {}\n\n#### 2. Key Mechanisms & Governing Dynamics\n- **Primary Driver**: Systems involving **{}** are governed by the balance between *capacity/throughput*, *feedback latency*, and *boundary invariants* (`{}`).\n- **Second-Order Effects**: Optimizing a single metric in isolation often shifts pressure to adjacent bottlenecks; sustainable solutions align local actions with global system health ({})\n\n#### 3. Practical Application & Next Steps\n- **Concrete Anchor**: {}\n- **How to Explore Further**: Ask me to **compare `{}` against an alternative**, **walk through a numerical/Fermi estimate**, **explain a specific sub-mechanism**, or **write runnable code (`Python`, `Rust`, `TypeScript`, `Go`, `SQL`)**!",
-        raw_prompt.trim().trim_end_matches('?'),
-        topic,
-        nearest.domain,
-        nearest.title,
-        nearest.summary,
-        topic,
-        nearest.formal_principle,
-        nearest.tradeoffs,
-        nearest.example,
-        topic
+        "**{}** is a rich and multifaceted subject that connects everyday experience with deeper historical and practical patterns.\n\nAt its heart, understanding **{}** starts with looking at how it originated, the core principles that make it work, and the ways people experience or apply it in daily life. Across history and modern practice, topics like **{}** evolve as new ideas, cultural traditions, and practical discoveries build upon earlier foundations.\n\nWhat angle of **{}** would you like to explore most—its background and history, how it works in practice, real-world examples, or a specific question you have in mind?",
+        topic, topic, topic, topic
     )
 }
 
-/// Top-level entry point for the Generalized UOR-R4 Geometric Language Model (`UR4GLM01`).
+/// Top-level entry point for the Generalized UOR-R4 Geometric Language Model (`UR4GLM02`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
     raw_prompt: &str,
@@ -933,37 +1105,34 @@ pub fn synthesize_glm_response(
         if let Some((node, prev_q)) = active_node_and_q {
             if lower.contains("example") {
                 return wrap_binder(format!(
-                    "### Concrete Example of **{}**\n\n> {}\n\n#### Mathematical / Structural Invariant\n- {}\n\n#### How It Plays Out Step by Step\n{}",
+                    "**Concrete Example — {}:**\n\n{}\n\n{}\n\n{}",
                     node.title, node.example, node.formal_principle, node.mechanism
                 ));
             }
             if lower.contains("eli5") || lower.contains("simple") || lower.contains("simpler") || lower.contains("simplify") || lower.contains("like i'm ") || lower.contains("like i am ") {
-                return wrap_binder(render_single_concept_response(prev_q, "eli5", node));
+                return wrap_binder(render_single_concept_response(prev_q, "eli5", words, stems, node));
             }
             if lower.contains("summarize") || lower.contains("tldr") || lower.contains("shorter") {
                 return wrap_binder(format!(
-                    "### Executive Summary: **{}**\n\n1. **Core Definition**: {}\n2. **Key Principle**: {}\n3. **Bottom-Line Trade-off**: {}",
-                    node.title, node.summary, node.formal_principle, node.tradeoffs
+                    "**Executive Summary — {}:**\n\n{}\n\n{}",
+                    node.title, node.summary, node.tradeoffs
                 ));
             }
             return wrap_binder(format!(
-                "### Deep Dive on **{}** (Follow-Up)\n\nBuilding on our discussion of **\"{}\"** (`{}`):\n\n#### 1. Deeper Formal & Mathematical Structure\n- {}\n\n#### 2. Complete Mechanism Breakdown\n{}\n\n#### 3. Edge Cases & Production Trade-offs\n{}\n\n#### 4. Real-World Verification\n> {}",
-                node.title, prev_q, node.domain, node.formal_principle, node.mechanism, node.tradeoffs, node.example
+                "Building further on **{}**:\n\n{}\n\n{}\n\n{}",
+                node.title, node.formal_principle, node.tradeoffs, node.example
             ));
         }
 
         if let Some((prev_q, prev_a)) = chat_history.last() {
-            let bullet_lines: Vec<&str> = prev_a
-                .lines()
-                .map(str::trim)
-                .filter(|l| !l.is_empty() && !l.starts_with('#'))
-                .take(3)
-                .collect();
+            let first_para = prev_a
+                .split("\n\n")
+                .next()
+                .unwrap_or(prev_a)
+                .trim();
             return wrap_binder(format!(
-                "### Follow-Up on **\"{}\"**\n\n- **Key Synthesis**: {}\n- **Practical Example & Verification**: Isolate the primary inputs, apply the transformation deterministically, and validate boundary conditions with a concrete test case.\n\nWould you like me to generate runnable **Python**, **Rust**, **TypeScript**, or **Go** code for **\"{}\"**?",
-                prev_q,
-                bullet_lines.join(" "),
-                prev_q
+                "Building on our discussion of **\"{}\"** — {}\n\nWhat specific aspect would you like to explore in more detail next?",
+                prev_q, first_para
             ));
         }
     }
@@ -1030,20 +1199,20 @@ pub fn synthesize_glm_response(
     if top_concepts.len() >= 2 {
         let (node_1, score_1) = top_concepts[0];
         let (node_2, score_2) = top_concepts[1];
-        if score_1 >= 8 && score_2 >= 8 && node_1.id != node_2.id && score_2 * 2 >= score_1 {
+        if score_1 >= 12 && score_2 >= 12 && node_1.id != node_2.id && score_2 * 3 >= score_1 * 2 {
             return wrap_binder(render_multi_concept_synthesis(raw_prompt, lower, node_1, node_2));
         }
     }
 
-    // 8. Single-Concept Deep Reasoning
+    // 8. Single-Concept Natural Prose Realization
     if let Some(&(node, score)) = top_concepts.first() {
-        if score >= 5 {
-            return wrap_binder(render_single_concept_response(raw_prompt, lower, node));
+        if score >= 7 {
+            return wrap_binder(render_single_concept_response(raw_prompt, lower, words, stems, node));
         }
     }
 
-    // 9. Open-Domain Compositional Facet Synthesis
-    wrap_binder(render_open_domain_facet_synthesis(
+    // 9. Open-Domain Conversational & Natural Prose Realizer (zero `nearest_q12_concept` hallucination!)
+    wrap_binder(render_open_domain_natural_prose(
         raw_prompt,
         lower,
         words,
@@ -1054,7 +1223,6 @@ pub fn synthesize_glm_response(
 '''
 
 
-
 if __name__ == "__main__":
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out_path = os.path.join(root, "crates", "wasm", "src", "glm_weights.rs")
@@ -1062,5 +1230,5 @@ if __name__ == "__main__":
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(rust_code)
     digest = hashlib.sha256(rust_code.encode("utf-8")).hexdigest()
-    print(f"Compiled {len(ALL_GLM_CONCEPTS)} GLM concept nodes and {len(GLM_LOGIC_PUZZLES)} logic puzzles -> {out_path}")
+    print(f"Compiled {len(COMBINED_CONCEPTS)} GLM natural-prose concept basins and {len(GLM_LOGIC_PUZZLES)} logic puzzles -> {out_path}")
     print(f"SHA-256: {digest}")

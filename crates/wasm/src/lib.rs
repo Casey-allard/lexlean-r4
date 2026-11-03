@@ -3981,6 +3981,38 @@ mod tests {
         let fermi = ask("How many piano tuners are there in Chicago?");
         assert!(fermi.contains("Fermi") && fermi.contains("Factor 1"));
 
+        // 7. Natural Conversational Prose & World Knowledge (Paris, Cities, Biographies, Everyday Life)
+        let paris = ask("Tell me about Paris");
+        assert!(paris.contains("Seine") && paris.contains("Eiffel") && paris.contains("Louvre"));
+        assert!(!paris.contains("First-Principles Analysis"));
+        assert!(!paris.contains("Core Concept & Framing"));
+        assert!(!paris.contains("Operating Systems"));
+        assert!(!paris.contains("p_TLB"));
+        assert!(!paris.contains("####"));
+
+        let davinci = ask("Who was Leonardo da Vinci?");
+        assert!(davinci.contains("Renaissance") && davinci.contains("Mona Lisa"));
+        assert!(!davinci.contains("First-Principles Analysis"));
+        assert!(!davinci.contains("####"));
+
+        let dogs = ask("Tell me about dogs");
+        assert!(dogs.contains("Canis lupus familiaris") && dogs.contains("oxytocin"));
+        assert!(!dogs.contains("First-Principles Analysis"));
+
+        let coffee = ask("Tell me about coffee");
+        assert!(coffee.contains("Ethiopia") && coffee.contains("Maillard"));
+        assert!(!coffee.contains("First-Principles Analysis"));
+
+        let chat_hello = ask("How are you doing today?");
+        assert!(chat_hello.contains("thank you for asking"));
+        assert!(!chat_hello.contains("occupied `E8` product cells"));
+
+        let unseen = ask("Tell me about sourdough gardening in autumn");
+        assert!(!unseen.contains("First-Principles Analysis"));
+        assert!(!unseen.contains("Core Concept & Framing"));
+        assert!(!unseen.contains("Operating Systems"));
+        assert!(!unseen.contains("p_TLB"));
+
         let _ = dispatch_string("1\tstudio\treset\t");
     }
 }

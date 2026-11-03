@@ -948,23 +948,28 @@ impl StudioEngine {
         }
 
         // 7. Conversational intents: status, greetings, jokes, creative writing, thanks, debugging help
-        if lower.contains("how are you")
-            || lower.contains("how is it going")
-            || lower.contains("how's it going")
-            || lower.contains("how are things")
-            || lower == "status"
-        {
+        if lower == "status" {
             let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
-            let greeting = remembered_name
-                .as_ref()
-                .map(|n| format!("I'm doing great, **{n}**!"))
-                .unwrap_or_else(|| "I'm running smoothly right inside your browser!".to_string());
             return format!(
-                "{greeting} All **27 LexLean/PrismPM conformance suites (`R4-01..R4-27`)** are active in WebAssembly.\n\n- **Live Engine State**: `{}` vocabulary atoms, `{}/256` occupied `E8` product cells, `{}` training epochs (`{}/40` active ternary gates)\n- **Active Workspace File**: `{active_workspace_path}`\n\nWhat would you like to chat about, compute, or build today?",
+                "All **27 LexLean/PrismPM conformance suites (`R4-01..R4-27`)** are active in WebAssembly (`{}` vocabulary atoms, `{}/256` occupied `E8` product cells, `{}` training epochs, `{}/40` active ternary gates, active file `{active_workspace_path}`).",
                 self.vocab.len(),
                 self.count_occupied_cells(),
                 self.training_epoch,
                 active_gates
+            );
+        }
+
+        if lower.contains("how are you")
+            || lower.contains("how is it going")
+            || lower.contains("how's it going")
+            || lower.contains("how are things")
+        {
+            let greeting = remembered_name
+                .as_ref()
+                .map(|n| format!("I'm doing great, **{n}**, thank you for asking!"))
+                .unwrap_or_else(|| "I'm doing well, thank you for asking!".to_string());
+            return format!(
+                "{greeting} I'm always happy to chat—whether you feel like exploring history, travel, science, food, books, everyday questions, or working on a coding or math problem together. How is your day going, and what's on your mind?"
             );
         }
 
@@ -986,7 +991,7 @@ impl StudioEngine {
             &["thank", "thanks", "thx", "awesome", "great", "nice", "cool"],
         ) && words.len() <= 6
         {
-            return "You're very welcome! Let me know if you'd like to explore another topic, run an exact calculation, or synthesize code for your workspace.".to_string();
+            return "You're very welcome! Anytime you want to keep chatting, dive into another subject, or work through a new idea, just let me know.".to_string();
         }
 
         if (has_any_word(&lower, &["debug", "broken", "bug", "error", "fix"])
@@ -994,7 +999,7 @@ impl StudioEngine {
             || lower.contains("help me debug")
         {
             return format!(
-                "I'd love to help debug! Here are three ways we can tackle it right now:\n\n1. **Inspect or Edit the Active Workspace File (`{active_workspace_path}`)**: Paste your code into the **Workspace File Editor** on the right, click **Save & Admit**, and ask me *\"explain `{active_workspace_path}`\"* or *\"write unit tests for `{active_workspace_path}`\"*.\n2. **Describe the Error or Behavior**: Tell me what language you're using (`Python`, `TypeScript`, `Rust`, `SQL`, `CSS`) and what input vs. output is failing.\n3. **Synthesize a Reference Implementation**: Ask me *\"write a Python/Rust/TypeScript function for <task>\"* to compare against a clean, deterministic implementation."
+                "I'd be glad to help debug! If you share the error message or describe what the code is doing versus what you expected, we can trace the root cause step by step. You can also paste code into the active workspace file (`{active_workspace_path}`) or ask me to write a clean reference implementation in Python, Rust, TypeScript, Go, or SQL."
             );
         }
 
@@ -1010,9 +1015,7 @@ impl StudioEngine {
                 | "good evening"
                 | "test"
                 | "ping"
-        ) || lower.contains("who are you")
-            || lower.contains("what can you do")
-            || lower.contains("what are you");
+        );
 
         if is_pure_greeting {
             let greeting_prefix = if let Some(ref name) = remembered_name {
@@ -1020,12 +1023,23 @@ impl StudioEngine {
             } else {
                 "Hello!".to_string()
             };
-            let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
             return format!(
-                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant** — a matmul-free, zero-float language and coding model running 100% in your browser via WebAssembly (**27/27 zero-axiom LexLean suites verified**).\n\n### What You Can Ask Me\n- **World Knowledge, Science, History & CS**: e.g. *\"What is the capital of France?\"*, *\"Explain how Transformers work vs UOR-R4\"*, *\"How do I center a div in CSS?\"*, or *\"What is recursion?\"*\n- **Multi-Language Code Synthesis (`Python`, `TypeScript`, `Rust`, `SQL`, `HTML/CSS`, `Lean 4`)**: e.g. *\"Write a Python function to reverse a string\"*, *\"Write a binary search in Rust\"*, or *\"Create a TypeScript debounce function\"*\n- **Workspace Inspection & Testing**: e.g. *\"Summarize the files in this workspace\"*, *\"Explain `src/attention.rs`\"*, or *\"Write unit tests for this file\"*\n- **Exact Math & Algebra (`R4.ExactArithmetic` M6)**: e.g. *\"What is (15 + 25) * 3?\"*, *\"Is 97 prime?\"*, *\"GCD of 48 and 180\"*, or *\"What is 48291 + 73948?\"*\n- **Live Memory & On-Device Learning**: Tell me *\"My name is ...\"*, *\"Teach: <question> => <answer>\"*, or run coordinate sweeps (`{} epochs trained, {}/40 active gates, {} vocab atoms`).",
-                self.training_epoch,
-                active_gates,
-                self.vocab.len()
+                "{greeting_prefix} Great to see you. We can talk about anything you'd like—world cities and travel, history, science, books, food, everyday life, creative writing, exact math, or software engineering. What would you like to chat about today?"
+            );
+        }
+
+        if lower.contains("who are you")
+            || lower.contains("what can you do")
+            || lower.contains("what are you")
+            || lower.contains("tell me about yourself")
+        {
+            let greeting_prefix = if let Some(ref name) = remembered_name {
+                format!("Hello, **{}**!", name)
+            } else {
+                "Hello!".to_string()
+            };
+            return format!(
+                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly. Instead of relying on floating-point matrix multiplications, I navigate concepts using discrete integer geometry—Hopf fibration trajectories (`S^3 -> S^2 x U(1)`), 120-root `H_4` and 16-root `E8` lattices, 64-action `Cl(0,6)` Clifford carriers, and 512-bit VSA hypervector attention.\n\nWe can have a natural conversation about almost any topic—from world geography, history, biographies, philosophy, and everyday life to science, creative stories, exact mathematics, and multi-language programming. What would you like to explore?"
             );
         }
 
