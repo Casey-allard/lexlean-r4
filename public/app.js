@@ -259,6 +259,102 @@ function renderWorkspaceList(ws) {
   }
 }
 
+function appendInlineFormatted(parent, text) {
+  const tokenRegex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let lastIdx = 0;
+  let match = tokenRegex.exec(text);
+  while (match !== null) {
+    if (match.index > lastIdx) {
+      parent.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+    }
+    const token = match[0];
+    if (token.startsWith('**') && token.endsWith('**')) {
+      const strong = document.createElement('strong');
+      strong.textContent = token.slice(2, -2);
+      parent.appendChild(strong);
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      const code = document.createElement('code');
+      code.className = 'chat-inline-code';
+      code.textContent = token.slice(1, -1);
+      parent.appendChild(code);
+    } else {
+      parent.appendChild(document.createTextNode(token));
+    }
+    lastIdx = tokenRegex.lastIndex;
+    match = tokenRegex.exec(text);
+  }
+  if (lastIdx < text.length) {
+    parent.appendChild(document.createTextNode(text.slice(lastIdx)));
+  }
+}
+
+function renderProseBlockInto(container, proseText) {
+  const lines = (proseText || '').split('\n');
+  let activeList = null;
+  for (const rawLine of lines) {
+    const trimmed = rawLine.trim();
+    if (!trimmed) {
+      activeList = null;
+      continue;
+    }
+    if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
+      activeList = null;
+      const h4 = document.createElement('h4');
+      h4.className = 'chat-heading';
+      const headingText = trimmed.replace(/^#{2,3}\s+/, '');
+      appendInlineFormatted(h4, headingText);
+      container.appendChild(h4);
+    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || /^\d+\.\s+/.test(trimmed)) {
+      if (!activeList) {
+        activeList = document.createElement('ul');
+        activeList.className = 'chat-list';
+        container.appendChild(activeList);
+      }
+      const li = document.createElement('li');
+      const itemText = trimmed.replace(/^([-*]|\d+\.)\s+/, '');
+      appendInlineFormatted(li, itemText);
+      activeList.appendChild(li);
+    } else {
+      activeList = null;
+      const p = document.createElement('p');
+      p.className = 'chat-paragraph';
+      appendInlineFormatted(p, trimmed);
+      container.appendChild(p);
+    }
+  }
+}
+
+function renderFormattedMarkdownInto(container, markdownText) {
+  const fenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+  let lastIdx = 0;
+  let match = fenceRegex.exec(markdownText);
+  while (match !== null) {
+    if (match.index > lastIdx) {
+      renderProseBlockInto(container, markdownText.slice(lastIdx, match.index));
+    }
+    const lang = (match[1] || 'code').trim();
+    const codeBody = match[2] || '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-code-wrapper';
+    const langBar = document.createElement('div');
+    langBar.className = 'chat-code-lang';
+    langBar.textContent = lang.toUpperCase();
+    const pre = document.createElement('pre');
+    pre.className = 'chat-code-block';
+    const codeEl = document.createElement('code');
+    codeEl.textContent = codeBody.replace(/\n$/, '');
+    pre.appendChild(codeEl);
+    wrapper.appendChild(langBar);
+    wrapper.appendChild(pre);
+    container.appendChild(wrapper);
+    lastIdx = fenceRegex.lastIndex;
+    match = fenceRegex.exec(markdownText);
+  }
+  if (lastIdx < markdownText.length) {
+    renderProseBlockInto(container, markdownText.slice(lastIdx));
+  }
+}
+
 function appendChatTurn(role, titleText, bodyText, metaRight = '') {
   if (!chatTranscript) return;
   const card = document.createElement('div');
@@ -275,8 +371,12 @@ function appendChatTurn(role, titleText, bodyText, metaRight = '') {
 
   const body = document.createElement('div');
   body.className = 'chat-turn-body';
-  body.style.whiteSpace = 'pre-wrap';
-  body.textContent = bodyText;
+  if (role === 'assistant') {
+    renderFormattedMarkdownInto(body, bodyText);
+  } else {
+    body.style.whiteSpace = 'pre-wrap';
+    body.textContent = bodyText;
+  }
 
   card.appendChild(meta);
   card.appendChild(body);
@@ -300,19 +400,39 @@ function runClaudeChat(promptText) {
   const headSummary = Array.isArray(chatRes.flock_heads)
     ? chatRes.flock_heads.map((h) => `H${h.head}->F${h.cyclic_frame_block}`).join(' ')
     : '';
+  const assistantTitle = chatRes.is_coding_turn
+    ? `UOR-R4 Code Synthesizer (${chatRes.target_file})`
+    : `UOR-R4 Generalized Assistant`;
   appendChatTurn(
     'assistant',
-    `UOR-R4 Generalized Assistant (${chatRes.target_file})`,
+    assistantTitle,
     `${replyProse}\n\n[8-Head Cyclic Routing: ${headSummary}]`,
     `Cl(${chatRes.flock_consensus_action}) | Root #${chatRes.icosian_root}`
   );
 
-  pendingPatchPath = chatRes.target_file;
-  pendingProposedCode = chatRes.proposed_code || '';
+  if (chatRes.is_coding_turn) {
+    pendingPatchPath = chatRes.target_file;
+    pendingProposedCode = chatRes.proposed_code || '';
+    if (chatTargetBadge) chatTargetBadge.textContent = `Patch Target: ${chatRes.target_file}`;
+    if (chatDiffFile) chatDiffFile.textContent = chatRes.target_file;
+    if (chatDiffPreview) chatDiffPreview.textContent = chatRes.diff_preview || '';
+    if (chatApplyPatchBtn) {
+      chatApplyPatchBtn.disabled = false;
+      chatApplyPatchBtn.textContent = `Apply Synthesized Patch to ${chatRes.target_file} & Admit into Memory`;
+    }
+  } else {
+    if (chatTargetBadge) chatTargetBadge.textContent = `Active File: ${activeWorkspacePath}`;
+    if (!pendingProposedCode) {
+      if (chatDiffFile) chatDiffFile.textContent = activeWorkspacePath || 'No patch staged';
+      if (chatDiffPreview) {
+        chatDiffPreview.textContent = 'No code patch staged yet. Ask the assistant to write or refactor code (e.g. "Write a function in Python to reverse a string" or "Upgrade multi-head cyclic flock attention in src/attention.rs") to stage a unified diff here.';
+      }
+      if (chatApplyPatchBtn) {
+        chatApplyPatchBtn.disabled = true;
+      }
+    }
+  }
 
-  if (chatTargetBadge) chatTargetBadge.textContent = `Target: ${chatRes.target_file}`;
-  if (chatDiffFile) chatDiffFile.textContent = chatRes.target_file;
-  if (chatDiffPreview) chatDiffPreview.textContent = chatRes.diff_preview || '';
   if (chatDiagConsensus) chatDiagConsensus.textContent = `Cl(${chatRes.flock_consensus_action})`;
   if (chatDiagResonance) chatDiagResonance.textContent = String(chatRes.flock_weighted_resonance);
   if (chatDiagRoot) chatDiagRoot.textContent = `root #${chatRes.icosian_root}`;
@@ -718,7 +838,9 @@ if (claudeChatForm) {
   claudeChatForm.addEventListener('submit', (event) => {
     event.preventDefault();
     if (claudeChatInput) {
-      runClaudeChat(claudeChatInput.value);
+      const submittedPrompt = claudeChatInput.value;
+      claudeChatInput.value = '';
+      runClaudeChat(submittedPrompt);
     }
   });
 }
@@ -728,6 +850,9 @@ if (chatClearBtn) {
     if (chatTranscript) {
       chatTranscript.replaceChildren();
     }
+    if (claudeChatInput) {
+      claudeChatInput.value = '';
+    }
     runClaudeChat('Hello! Who are you and what can you do?');
   });
 }
@@ -736,7 +861,7 @@ for (const btn of document.querySelectorAll('.chat-preset-btn')) {
   btn.addEventListener('click', () => {
     const promptVal = btn.getAttribute('data-chat-prompt') || '';
     if (claudeChatInput) {
-      claudeChatInput.value = promptVal;
+      claudeChatInput.value = '';
     }
     runClaudeChat(promptVal);
   });
@@ -849,8 +974,9 @@ renderStudioState(initialState);
 const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
 renderWorkspaceList(initialWorkspace);
 selectWorkspaceFile(activeWorkspacePath);
-if (claudeChatInput && claudeChatInput.value) {
-  runClaudeChat(claudeChatInput.value);
+runClaudeChat('Hello! Who are you and what can you do?');
+if (claudeChatInput) {
+  claudeChatInput.value = '';
 }
 if (studioPromptInput && studioPromptInput.value) {
   runStudioGenerate(studioPromptInput.value);

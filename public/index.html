@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -89,22 +90,28 @@
           <div class="preset-bar" role="group" aria-label="Assistant Coding and General Prompts">
             <span class="preset-title">Try Asking:</span>
             <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Hello! Who are you and what can you do?">
-              General AI Capabilities
+              Capabilities Overview
             </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Write a Python quicksort algorithm">
-              Python 3-Way Quicksort
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Summarize the files in this workspace">
+              Summarize Workspace
             </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Create a TypeScript token-bucket rate limiter">
-              TypeScript Rate Limiter
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Explain src/attention.rs">
+              Explain src/attention.rs
             </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="What is 48291 + 73948?">
-              M6 Exact Math (48291 + 73948)
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Write a function in Python to reverse a string">
+              Python Reverse String
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Write a binary search in Rust">
+              Rust Binary Search
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="What is (144 * 25) + 89?">
+              Exact Math: (144 * 25) + 89
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Explain how transformers work">
+              Explain Transformers
             </button>
             <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
-              Cyclic Flock Attention (src/attention.rs)
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Add coupled gate-vector escape step in src/trainer.rs">
-              Coupled Gate Trainer (src/trainer.rs)
+              Patch src/attention.rs
             </button>
           </div>
 
@@ -113,7 +120,7 @@
           <form id="claude-chat-form" class="prompt-form" novalidate>
             <div class="field">
               <label for="claude-chat-input">Ask anything &mdash; general conversation, Python/TS/Rust/Lean/SQL code, exact math, or workspace refactoring</label>
-              <input id="claude-chat-input" name="claude-chat-input" type="text" value="Hello! Who are you and what can you do?" placeholder="Ask a general question, request Python/TS/Rust code, compute math, or teach a fact..." autocomplete="off" spellcheck="false">
+              <input id="claude-chat-input" name="claude-chat-input" type="text" value="" placeholder="Ask a general question, request Python/TS/Rust code, compute math, or inspect workspace files..." autocomplete="off" spellcheck="false">
             </div>
             <button id="claude-chat-submit" type="submit">Send Message</button>
             <button id="chat-clear-btn" type="button" class="btn-secondary">Clear Chat</button>

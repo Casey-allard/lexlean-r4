@@ -611,6 +611,75 @@ output:empty {
   gap: 0.5rem;
 }
 
+.chat-turn-body {
+  display: grid;
+  gap: 0.45rem;
+  line-height: 1.5;
+  color: #0f172a;
+}
+
+.chat-heading {
+  margin: 0.15rem 0 0;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.chat-paragraph {
+  margin: 0;
+}
+
+.chat-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.chat-inline-code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+  background: #e2e8f0;
+  color: #0f172a;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+.chat-code-wrapper {
+  border: 1px solid #334155;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  margin: 0.25rem 0;
+}
+
+.chat-code-lang {
+  background: #1e293b;
+  color: #93c5fd;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-bottom: 1px solid #334155;
+}
+
+.chat-code-block {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  overflow-x: auto;
+}
+
+button:disabled {
+  background: #94a3b8;
+  border-color: #94a3b8;
+  color: #f8fafc;
+  cursor: not-allowed;
+}
+
 .patch-card {
   padding: 0.8rem;
   border: 1px solid #93c5fd;
