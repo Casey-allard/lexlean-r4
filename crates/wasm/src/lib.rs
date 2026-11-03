@@ -381,6 +381,9 @@ fn is_stopword(norm: &str) -> bool {
             | "was"
             | "were"
             | "be"
+            | "been"
+            | "being"
+            | "am"
             | "to"
             | "of"
             | "in"
@@ -393,14 +396,110 @@ fn is_stopword(norm: &str) -> bool {
             | "as"
             | "and"
             | "or"
+            | "but"
+            | "if"
+            | "so"
+            | "than"
+            | "then"
+            | "that"
+            | "this"
+            | "these"
+            | "those"
+            | "it"
+            | "its"
             | "how"
             | "what"
+            | "whats"
+            | "who"
+            | "whos"
+            | "whom"
+            | "whose"
+            | "which"
+            | "where"
+            | "wheres"
+            | "when"
+            | "whens"
+            | "why"
+            | "whys"
+            | "whether"
+            | "while"
             | "does"
             | "do"
+            | "did"
+            | "done"
+            | "doing"
             | "can"
+            | "cant"
+            | "cannot"
+            | "could"
+            | "couldnt"
+            | "would"
+            | "wouldnt"
+            | "should"
+            | "shouldnt"
+            | "will"
+            | "wont"
+            | "shall"
+            | "may"
+            | "might"
+            | "must"
+            | "have"
+            | "has"
+            | "had"
+            | "having"
+            | "dont"
+            | "doesnt"
+            | "didnt"
+            | "isnt"
+            | "arent"
+            | "wasnt"
+            | "werent"
             | "you"
+            | "your"
+            | "yours"
+            | "yourself"
+            | "youre"
+            | "youve"
+            | "youll"
+            | "youd"
+            | "i"
             | "me"
+            | "my"
+            | "mine"
+            | "myself"
+            | "im"
+            | "ive"
+            | "ill"
+            | "id"
+            | "we"
+            | "us"
+            | "our"
+            | "ours"
+            | "ourselves"
+            | "weve"
+            | "well"
+            | "they"
+            | "them"
+            | "their"
+            | "theirs"
+            | "theyre"
+            | "theyve"
+            | "theyll"
+            | "he"
+            | "him"
+            | "his"
+            | "she"
+            | "her"
+            | "hers"
+            | "let"
+            | "lets"
             | "tell"
+            | "talk"
+            | "talking"
+            | "talked"
+            | "chat"
+            | "chatting"
+            | "discuss"
             | "explain"
             | "describe"
             | "please"
@@ -409,9 +508,26 @@ fn is_stopword(norm: &str) -> bool {
             | "works"
             | "working"
             | "way"
-            | "it"
-            | "this"
-            | "that"
+            | "want"
+            | "wants"
+            | "like"
+            | "think"
+            | "know"
+            | "just"
+            | "not"
+            | "no"
+            | "yes"
+            | "yeah"
+            | "hey"
+            | "hi"
+            | "hello"
+            | "s"
+            | "t"
+            | "m"
+            | "re"
+            | "ve"
+            | "ll"
+            | "d"
     )
 }
 
@@ -4018,11 +4134,29 @@ mod tests {
         assert!(chat_hello.contains("thank you for asking"));
         assert!(!chat_hello.contains("occupied `E8` product cells"));
 
+        let talk_about_you = ask("Let's talk about you!");
+        assert!(talk_about_you.contains("UOR-R4 Generalized Geometric Assistant"));
+        assert!(!talk_about_you.contains("Exploring Let"));
+        assert!(!talk_about_you.contains("Paleolithic bone flutes"));
+
+        let how_you_work = ask("How do you work?");
+        assert!(how_you_work.contains("RTX 5090") && how_you_work.contains("WebAssembly"));
+        assert!(!how_you_work.contains("Exploring How"));
+
+        let lets_paris = ask("Let's talk about Paris!");
+        assert!(lets_paris.contains("Seine") && lets_paris.contains("Eiffel"));
+        assert!(!lets_paris.contains("Exploring Let"));
+
+        let lets_chat = ask("Let's chat!");
+        assert!(!lets_chat.contains("Exploring Let"));
+        assert!(!lets_chat.contains("closely related dynamics in our geometric manifold"));
+
         let unseen = ask("Tell me about sourdough gardening in autumn");
         assert!(!unseen.contains("First-Principles Analysis"));
         assert!(!unseen.contains("Core Concept & Framing"));
         assert!(!unseen.contains("Operating Systems"));
         assert!(!unseen.contains("p_TLB"));
+        assert!(!unseen.contains("closely related dynamics in our geometric manifold"));
 
         // 8. Verify UR4GLM04 CUDA hardware-trained weights & falsifiable geometric routing benchmark
         assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM04");

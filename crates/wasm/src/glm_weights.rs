@@ -64956,11 +64956,59 @@ pub static GLM_CONVERSATIONAL_QA: [GlmConversationalQa; 29] = [
     },
 ];
 
-/// Tokenize lowercase text into alphanumeric words.
+/// Expand English contractions and possessives before tokenizing into alphanumeric words.
 pub fn tokenize_words_simple(lower: &str) -> Vec<String> {
+    let mut s = lower.to_ascii_lowercase().replace(['’', '‘', '`'], "'");
+    for (pat, rep) in [
+        ("let's", "let us"),
+        ("what's", "what is"),
+        ("who's", "who is"),
+        ("how's", "how is"),
+        ("where's", "where is"),
+        ("when's", "when is"),
+        ("why's", "why is"),
+        ("that's", "that is"),
+        ("it's", "it is"),
+        ("there's", "there is"),
+        ("here's", "here is"),
+        ("i'm", "i am"),
+        ("you're", "you are"),
+        ("we're", "we are"),
+        ("they're", "they are"),
+        ("i've", "i have"),
+        ("you've", "you have"),
+        ("we've", "we have"),
+        ("they've", "they have"),
+        ("i'll", "i will"),
+        ("you'll", "you will"),
+        ("we'll", "we will"),
+        ("they'll", "they will"),
+        ("i'd", "i would"),
+        ("you'd", "you would"),
+        ("we'd", "we would"),
+        ("they'd", "they would"),
+        ("can't", "cannot"),
+        ("won't", "will not"),
+        ("don't", "do not"),
+        ("doesn't", "does not"),
+        ("didn't", "did not"),
+        ("isn't", "is not"),
+        ("aren't", "are not"),
+        ("wasn't", "was not"),
+        ("weren't", "were not"),
+        ("wouldn't", "would not"),
+        ("couldn't", "could not"),
+        ("shouldn't", "should not"),
+        ("haven't", "have not"),
+        ("hasn't", "has not"),
+        ("hadn't", "had not"),
+        ("'s", ""),
+    ] {
+        s = s.replace(pat, rep);
+    }
     let mut out = Vec::new();
     let mut cur = String::new();
-    for ch in lower.chars() {
+    for ch in s.chars() {
         if ch.is_ascii_alphanumeric() || ch == '+' || ch == '#' {
             cur.push(ch);
         } else if !cur.is_empty() {
@@ -65471,16 +65519,41 @@ pub fn generate_token_level_geometric_prose(
 fn is_generic_conversational_word(w: &str) -> bool {
     matches!(
         w,
-        "tell"
+        "let"
+            | "lets"
+            | "us"
+            | "you"
+            | "your"
+            | "yours"
+            | "yourself"
+            | "my"
+            | "mine"
+            | "myself"
+            | "we"
+            | "our"
+            | "ours"
+            | "ourselves"
+            | "tell"
             | "talk"
+            | "talking"
+            | "talked"
             | "chat"
+            | "chatting"
+            | "discuss"
+            | "discussing"
+            | "explore"
+            | "exploring"
             | "about"
             | "something"
             | "anything"
             | "everything"
+            | "nothing"
             | "interesting"
             | "fun"
             | "fact"
+            | "facts"
+            | "surprise"
+            | "bored"
             | "today"
             | "tonight"
             | "morning"
@@ -65497,11 +65570,24 @@ fn is_generic_conversational_word(w: &str) -> bool {
             | "give"
             | "make"
             | "help"
+            | "want"
+            | "wants"
+            | "like"
+            | "love"
+            | "think"
+            | "know"
+            | "feel"
+            | "need"
             | "good"
             | "best"
             | "great"
             | "nice"
             | "cool"
+            | "awesome"
+            | "wow"
+            | "really"
+            | "actually"
+            | "maybe"
             | "general"
             | "simple"
             | "basic"
@@ -65519,6 +65605,14 @@ fn is_generic_conversational_word(w: &str) -> bool {
             | "place"
             | "city"
             | "country"
+            | "topic"
+            | "topics"
+            | "subject"
+            | "question"
+            | "questions"
+            | "thing"
+            | "things"
+            | "stuff"
     )
 }
 
@@ -66143,10 +66237,16 @@ pub fn score_concept_geometric(
     }
 
     // Whole-prompt pooled Hopf S^3 -> S^2 x U(1) Fubini-Study & Q12 cosine resonance
-    let (pooled_q12, pooled_sign) = if prompt_q12.iter().any(|&c| c != 0) {
-        (*prompt_q12, prompt_sign)
+    // Always pool from the CUDA-trained `GLM_TRAINED_VOCAB` coordinates first so non-domain fallback hashes never trigger false matches.
+    let (trained_q12, trained_sign) = pool_prompt_trained_geometry(words);
+    if matched_vocab_fibers == 0 && trained_q12.iter().all(|&c| c == 0) {
+        let _ = (prompt_q12, prompt_sign);
+        return 0;
+    }
+    let (pooled_q12, pooled_sign) = if trained_q12.iter().any(|&c| c != 0) {
+        (trained_q12, trained_sign)
     } else {
-        pool_prompt_trained_geometry(words)
+        (*prompt_q12, prompt_sign)
     };
     if pooled_q12.iter().any(|&c| c != 0) {
         let (prompt_s2, prompt_u1) = project_q12_to_hopf_q15(&pooled_q12);
@@ -66219,6 +66319,7 @@ pub fn retrieve_top_concepts_geometric_only(
             let s = score_concept_geometric(node, words, prompt_q12, prompt_sign);
             (node, s)
         })
+        .filter(|&(_, s)| s >= 10)
         .collect();
 
     scored.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.id.cmp(&b.0.id)));
@@ -66318,7 +66419,20 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         "tell",
         "give",
         "make",
+        "let",
+        "lets",
+        "us",
         "me",
+        "my",
+        "myself",
+        "you",
+        "your",
+        "yours",
+        "yourself",
+        "we",
+        "our",
+        "ours",
+        "ourselves",
         "a",
         "an",
         "the",
@@ -66343,9 +66457,10 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         "to",
         "please",
         "can",
-        "you",
         "could",
         "would",
+        "should",
+        "will",
         "how",
         "what",
         "why",
@@ -66354,6 +66469,8 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         "when",
         "explain",
         "describe",
+        "discuss",
+        "explore",
         "is",
         "are",
         "was",
@@ -66363,6 +66480,12 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         "did",
         "work",
         "works",
+        "want",
+        "wants",
+        "like",
+        "love",
+        "think",
+        "know",
         "scifi",
         "sci",
         "fi",
@@ -66371,12 +66494,19 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         "something",
         "anything",
         "talk",
+        "talking",
         "chat",
+        "chatting",
     ];
     let kept: Vec<&str> = words
         .iter()
         .map(String::as_str)
-        .filter(|w| w.len() > 2 && !filler.contains(w) && !is_stopword(w))
+        .filter(|w| {
+            w.len() > 2
+                && !filler.contains(w)
+                && !is_stopword(w)
+                && !is_generic_conversational_word(w)
+        })
         .take(6)
         .collect();
     if kept.is_empty() {
@@ -66384,6 +66514,7 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
             .trim()
             .trim_end_matches('?')
             .trim_end_matches('.')
+            .trim_end_matches('!')
             .to_string()
     } else {
         title_case_phrase(&kept.join(" "))
@@ -66844,13 +66975,66 @@ fn render_open_domain_natural_prose(
     words: &[String],
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
+    chat_history_len: usize,
 ) -> String {
     let trimmed = raw_prompt.trim();
 
-    if words.len() <= 3
-        && (lower.contains("how") || lower.contains("what") || lower.contains("hello"))
+    // 1. Check self-referential / identity / architecture conversational questions
+    let is_self_inquiry = lower.contains("talk about you")
+        || lower.contains("tell me about you")
+        || lower.contains("about yourself")
+        || lower.contains("who are you")
+        || lower.contains("what are you")
+        || lower.contains("what can you do")
+        || lower.contains("how do you work")
+        || lower.contains("how were you trained")
+        || lower.contains("are you a transformer")
+        || lower.contains("what is your name")
+        || lower.contains("what's your name")
+        || (words.len() <= 6
+            && words.iter().any(|w| w == "you" || w == "yourself")
+            && words
+                .iter()
+                .any(|w| matches!(w.as_str(), "talk" | "chat" | "tell" | "who" | "what")));
+
+    if is_self_inquiry {
+        return "I'd love to! I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
+                What makes me unique is how I think under the hood: instead of relying on a neural transformer or floating-point matrix multiplications, my vocabulary, concept basins, and token horizons are trained on an NVIDIA RTX 5090 using **discrete integer geometry**—quaternions on the 3-sphere (`S^3 -> S^2 x U(1)`), 17-root Icosian golden-ratio lattices, 16-root `E8` and 120-root `H4` polytopes, and 8-head integer retention.\n\n\
+                In conversation, though, you can chat with me naturally about almost anything: world cities and travel, history, biographies, science, philosophy, literature, food, logic brainteasers, creative writing, exact mathematics, or software engineering. What are you curious about today?"
+            .to_string();
+    }
+
+    // 2. Check open-ended conversation invitations, "fun fact", "surprise me", "I'm bored", "what should we talk about?"
+    let content_words: Vec<&str> = words
+        .iter()
+        .map(String::as_str)
+        .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
+        .collect();
+
+    if lower.contains("fun fact")
+        || lower.contains("something interesting")
+        || lower.contains("something cool")
+        || lower.contains("surprise me")
+        || lower.contains("bored")
+        || lower.contains("what should we talk about")
+        || lower.contains("what do you want to talk about")
+        || lower.contains("what can we talk about")
     {
-        return "Hello! I'm doing well and ready to chat. We can explore anything on your mind—world cities and history, biographies, science, philosophy, literature, food, everyday questions, or software engineering and mathematics. What would you like to talk about?".to_string();
+        let node = &GLM_CONCEPT_MANIFOLD[(chat_history_len * 13 + 7) % GLM_CONCEPT_MANIFOLD.len()];
+        return format!(
+            "Here is something fascinating to kick things off—let's look at **{}**:\n\n{}\n\n{}\n\nWant to dive deeper into **{}**, or switch gears to another city, historical era, scientific mystery, or puzzle?",
+            node.title, node.summary, node.example, node.title
+        );
+    }
+
+    if content_words.is_empty() {
+        return "I'm ready whenever you are! We can talk about anything that catches your interest—for example:\n\n\
+                - **World Cities & History**: Paris, Rome, Tokyo, Ancient Egypt, the Renaissance, or the Apollo Moon landing\n\
+                - **Science & Philosophy**: Quantum mechanics, relativity, DNA & CRISPR, black holes, or Stoicism\n\
+                - **Everyday Culture & Nature**: The history of coffee and tea, dogs and cats, music theory, or cinema\n\
+                - **Math, Logic & Code**: Exact arithmetic, the Monty Hall or 2-Egg puzzles, or runnable code in Rust, Python, TypeScript, Go, and SQL\n\n\
+                Which of those sounds fun to explore?"
+            .to_string();
     }
 
     if lower.contains("recommend")
@@ -66869,13 +67053,13 @@ fn render_open_domain_natural_prose(
         );
     }
 
-    // Use the pure geometric scorer over the CUDA-trained vocabulary manifold to find the nearest basins
+    // 3. Use the pure geometric scorer over the CUDA-trained vocabulary manifold to find the nearest basins
     let geo_hits = retrieve_top_concepts_geometric_only(words, prompt_q12, prompt_sign, 2);
     if let Some(&(best_node, best_geo_score)) = geo_hits.first() {
-        if best_geo_score >= 10 {
+        if best_geo_score >= 12 {
             let mut active_nodes = vec![best_node];
             if let Some(&(second_node, second_score)) = geo_hits.get(1) {
-                if second_score >= 10 && second_node.id != best_node.id {
+                if second_score >= 12 && second_node.id != best_node.id {
                     active_nodes.push(second_node);
                 }
             }
@@ -66901,22 +67085,23 @@ fn render_open_domain_natural_prose(
         }
     }
 
+    // 4. Genuine conversational response when the topic lies outside the 111 specialized basins
     let topic = extract_clean_topic(trimmed, words);
-    let top_two: Vec<&'static GlmConceptNode> = geo_hits.iter().map(|&(n, _)| n).collect();
-    let (token_stream, stepped, _) = generate_token_level_geometric_prose(words, &top_two, 40, 85);
-    let blended_clauses = synthesize_clause_trajectory(words, &top_two, 3);
-    let context_para = if stepped >= 20 && !blended_clauses.is_empty() {
-        format!("{}\n\n{}", blended_clauses[0], token_stream)
-    } else if !blended_clauses.is_empty() {
-        blended_clauses.join(" ")
-    } else {
-        GLM_CONCEPT_MANIFOLD[usize::from(prompt_sign as u8) % GLM_CONCEPT_MANIFOLD.len()]
-            .summary
-            .to_string()
-    };
+    if let Some(&(best_node, score)) = geo_hits.first() {
+        if score >= 8 {
+            let clauses = synthesize_clause_trajectory(words, &[best_node], 3);
+            if !clauses.is_empty() {
+                return format!(
+                    "When thinking about **{topic}**, it connects closely to **{}**:\n\n{}\n\nWhat specific side of **{topic}** would you like to explore together?",
+                    best_node.title,
+                    clauses.join(" ")
+                );
+            }
+        }
+    }
 
     format!(
-        "Exploring **{topic}** connects to several closely related dynamics in our geometric manifold:\n\n{context_para}\n\nIf you have a specific aspect of **{topic}** in mind—such as its historical background, scientific mechanism, practical trade-offs, or a concrete example—let me know and we can dive right in!"
+        "**{topic}** is a great subject to explore. Depending on what angle interests you most, we can look at how **{topic}** works in everyday practice, trace its historical background and key turning points, or compare different approaches and trade-offs.\n\nWhat aspect of **{topic}** is on your mind?"
     )
 }
 
@@ -66943,7 +67128,7 @@ pub fn synthesize_glm_response(
         }
     };
 
-    // 1. Check for Multi-Turn Conversational Follow-up ("give me an example", "explain simpler", "summarize that", "tell me more")
+    // 1. Check for Multi-Turn Conversational Follow-up ("give me an example", "explain simpler", "summarize that", "tell me more", "why is that?")
     // Recomputes each earlier question's own `(past_q12, past_sign)` from `past_words` (fixing Point 7).
     let is_short_followup = words.len() <= 10
         && (lower.starts_with("tell me more")
@@ -66966,7 +67151,11 @@ pub fn synthesize_glm_response(
             || lower.starts_with("tldr")
             || lower.contains("make it shorter")
             || lower.contains("pros and cons of that")
-            || lower.contains("why does that happen"));
+            || lower.contains("why does that happen")
+            || lower == "why is that"
+            || lower == "why is that?"
+            || lower == "how come"
+            || lower == "how come?");
 
     if is_short_followup && !chat_history.is_empty() {
         let mut active_node_and_q: Option<(&'static GlmConceptNode, &str)> = None;
@@ -67151,6 +67340,7 @@ pub fn synthesize_glm_response(
         words,
         prompt_q12,
         prompt_sign,
+        chat_history.len(),
     ))
 }
 

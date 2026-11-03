@@ -963,6 +963,14 @@ impl StudioEngine {
             || lower.contains("how is it going")
             || lower.contains("how's it going")
             || lower.contains("how are things")
+            || lower.contains("how's your day")
+            || lower.contains("how is your day")
+            || lower == "what's up"
+            || lower == "whats up"
+            || lower == "what's up?"
+            || lower == "whats up?"
+            || lower.starts_with("nice to meet you")
+            || lower.starts_with("pleasure to meet you")
         {
             let greeting = remembered_name
                 .as_ref()
@@ -988,7 +996,17 @@ impl StudioEngine {
 
         if has_any_word(
             &lower,
-            &["thank", "thanks", "thx", "awesome", "great", "nice", "cool"],
+            &[
+                "thank",
+                "thanks",
+                "thx",
+                "awesome",
+                "great",
+                "nice",
+                "cool",
+                "impressed",
+                "impressive",
+            ],
         ) && words.len() <= 6
         {
             return "You're very welcome! Anytime you want to keep chatting, dive into another subject, or work through a new idea, just let me know.".to_string();
@@ -1007,7 +1025,11 @@ impl StudioEngine {
             lower.trim_matches(|c: char| !c.is_ascii_alphabetic() && c != ' '),
             "hi" | "hello"
                 | "hey"
+                | "hey there"
+                | "hi there"
+                | "hello there"
                 | "greetings"
+                | "howdy"
                 | "yo"
                 | "sup"
                 | "good morning"
@@ -1028,18 +1050,52 @@ impl StudioEngine {
             );
         }
 
-        if lower.contains("who are you")
+        let is_how_you_work = lower.contains("how do you work")
+            || lower.contains("how are you built")
+            || lower.contains("how were you trained")
+            || lower.contains("how are you trained")
+            || lower.contains("are you a transformer")
+            || lower.contains("do you use a transformer")
+            || lower.contains("what architecture do you")
+            || lower.contains("what is your architecture");
+
+        if is_how_you_work {
+            return "I work quite differently from standard neural LLMs! Instead of using a Transformer with floating-point matrix multiplications (`matmul`) and `softmax` attention, I run a **pure-integer geometric language engine (`UR4GLM05`)** directly in your browser via WebAssembly:\n\n\
+                    1. **RTX 5090 Geometric Training**: My vocabulary stems (`6,077` 4-fiber stem rows), `111` domain concept basins, and `951` lookahead token horizons are trained on an **NVIDIA GeForce RTX 5090** using discrete coordinate sweeps over `Q12` fixed-point coordinates, `64-bit` quaternion sign codes, and `Cl(0,6)` ternary gates.\n\
+                    2. **$O(1)$ Per-Token Integer Retention**: As I read your prompt and step through tokens, I maintain 8 integer decay registers (`RETAIN_LAMBDA_Q31`) and a non-commutative 4D Hamilton quaternion state (`stackHamilton4D`) that snap onto $17^4 = 83,521$ discrete Base-17 Icosian trunk cells.\n\
+                    3. **Zero External API Calls**: Everything runs locally inside your browser tab with deterministic integer arithmetic.\n\n\
+                    Want to test me on a topic in history, science, world cities, philosophy, logic puzzles, math, or code?".to_string();
+        }
+
+        let is_self_inquiry = lower.contains("who are you")
             || lower.contains("what can you do")
             || lower.contains("what are you")
             || lower.contains("tell me about yourself")
-        {
+            || lower.contains("tell me about you")
+            || lower.contains("talk about you")
+            || lower.contains("talk about yourself")
+            || lower.contains("chat about you")
+            || lower.contains("about yourself")
+            || lower.contains("who made you")
+            || lower.contains("who built you")
+            || lower.contains("who created you")
+            || lower.contains("what is your name")
+            || lower.contains("what's your name")
+            || lower.contains("whats your name")
+            || (words.len() <= 6
+                && has_any_word(&lower, &["you", "yourself"])
+                && has_any_word(&lower, &["talk", "chat", "tell", "who", "what"]));
+
+        if is_self_inquiry {
             let greeting_prefix = if let Some(ref name) = remembered_name {
-                format!("Hello, **{}**!", name)
+                format!("I'd love to, **{}**!", name)
             } else {
-                "Hello!".to_string()
+                "I'd love to!".to_string()
             };
             return format!(
-                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly. Instead of relying on floating-point matrix multiplications, I navigate concepts using discrete integer geometry—Hopf fibration trajectories (`S^3 -> S^2 x U(1)`), 120-root `H_4` and 16-root `E8` lattices, 64-action `Cl(0,6)` Clifford carriers, and 512-bit VSA hypervector attention.\n\nWe can have a natural conversation about almost any topic—from world geography, history, biographies, philosophy, and everyday life to science, creative stories, exact mathematics, and multi-language programming. What would you like to explore?"
+                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
+                 What makes me unique is how I think under the hood: instead of relying on a neural transformer or floating-point matrix multiplications, my vocabulary, concept basins, and token horizons are trained on an NVIDIA RTX 5090 using **discrete integer geometry**—quaternions on the 3-sphere (`S^3 -> S^2 x U(1)`), 17-root Icosian golden-ratio lattices, 16-root `E8` and 120-root `H4` polytopes, and 8-head integer retention.\n\n\
+                 In conversation, though, you can chat with me naturally about almost anything: world cities and travel, history, biographies, science, philosophy, literature, food, logic brainteasers, creative writing, exact mathematics, or software engineering. What are you curious about today?"
             );
         }
 
@@ -1129,12 +1185,66 @@ fn has_any_word(lower_text: &str, targets: &[&str]) -> bool {
     targets.iter().any(|t| words.iter().any(|w| w == t))
 }
 
+fn expand_contractions_lower(text: &str) -> String {
+    let mut s = text.to_ascii_lowercase();
+    s = s.replace(['’', '‘', '`'], "'");
+    for (pat, rep) in [
+        ("let's", "let us"),
+        ("what's", "what is"),
+        ("who's", "who is"),
+        ("how's", "how is"),
+        ("where's", "where is"),
+        ("when's", "when is"),
+        ("why's", "why is"),
+        ("that's", "that is"),
+        ("it's", "it is"),
+        ("there's", "there is"),
+        ("here's", "here is"),
+        ("i'm", "i am"),
+        ("you're", "you are"),
+        ("we're", "we are"),
+        ("they're", "they are"),
+        ("i've", "i have"),
+        ("you've", "you have"),
+        ("we've", "we have"),
+        ("they've", "they have"),
+        ("i'll", "i will"),
+        ("you'll", "you will"),
+        ("we'll", "we will"),
+        ("they'll", "they will"),
+        ("i'd", "i would"),
+        ("you'd", "you would"),
+        ("we'd", "we would"),
+        ("they'd", "they would"),
+        ("can't", "cannot"),
+        ("won't", "will not"),
+        ("don't", "do not"),
+        ("doesn't", "does not"),
+        ("didn't", "did not"),
+        ("isn't", "is not"),
+        ("aren't", "are not"),
+        ("wasn't", "was not"),
+        ("weren't", "were not"),
+        ("wouldn't", "would not"),
+        ("couldn't", "could not"),
+        ("shouldn't", "should not"),
+        ("haven't", "have not"),
+        ("hasn't", "has not"),
+        ("hadn't", "had not"),
+        ("'s", ""),
+    ] {
+        s = s.replace(pat, rep);
+    }
+    s
+}
+
 fn tokenize_words_lower(text: &str) -> Vec<String> {
+    let expanded = expand_contractions_lower(text);
     let mut out = Vec::new();
     let mut cur = String::new();
-    for ch in text.chars() {
+    for ch in expanded.chars() {
         if ch.is_ascii_alphanumeric() || ch == '_' {
-            cur.push(ch.to_ascii_lowercase());
+            cur.push(ch);
         } else if !cur.is_empty() {
             out.push(std::mem::take(&mut cur));
         }
