@@ -15,129 +15,805 @@ pub fn tokenize_words_simple(lower: &str) -> Vec<String> {
     out
 }
 
+/// Canonical morphological stemmer matching `gpu/train_general_glm.rs` (`canonical_stem_train`).
+pub fn canonical_glm_stem(word: &str) -> String {
+    let mut s = word.to_ascii_lowercase();
+    s.retain(|c| c.is_ascii_alphanumeric());
+    if s.len() <= 3 {
+        return s;
+    }
+    for suffix in [
+        "izations",
+        "ization",
+        "ational",
+        "fulness",
+        "ousness",
+        "iveness",
+        "ically",
+        "ations",
+        "ation",
+        "itions",
+        "ition",
+        "ments",
+        "ment",
+        "nesses",
+        "ness",
+        "ities",
+        "ity",
+        "ances",
+        "ance",
+        "ences",
+        "ence",
+        "ships",
+        "ship",
+        "ings",
+        "ing",
+        "edly",
+        "ally",
+        "iors",
+        "ior",
+        "ists",
+        "ist",
+        "isms",
+        "ism",
+        "ians",
+        "ian",
+        "ives",
+        "ive",
+        "able",
+        "ible",
+        "less",
+        "ious",
+        "eous",
+        "ous",
+        "ials",
+        "ial",
+        "ical",
+        "ics",
+        "ic",
+        "ers",
+        "ors",
+        "ies",
+        "ied",
+        "es",
+        "ed",
+        "ly",
+        "al",
+        "er",
+        "or",
+        "s",
+    ] {
+        if s.len() > suffix.len() + 2 && s.ends_with(suffix) {
+            s.truncate(s.len() - suffix.len());
+            if suffix == "ies" || suffix == "ied" {
+                s.push('y');
+            }
+            break;
+        }
+    }
+    s
+}
+
+/// Look up a word or stem in the CUDA-trained vocabulary manifold (`GLM_TRAINED_VOCAB`) via O(log V) binary search.
+pub fn lookup_trained_vocab(raw_word: &str) -> Option<&'static GlmVocabEntry> {
+    let stem = canonical_glm_stem(raw_word);
+    if stem.len() < 3 {
+        return None;
+    }
+    if let Ok(idx) = GLM_TRAINED_VOCAB.binary_search_by_key(&stem.as_str(), |e| e.stem) {
+        return Some(&GLM_TRAINED_VOCAB[idx]);
+    }
+    // Check 1-character prefix neighborhood for irregular stem boundaries (e.g. `relativ` vs `relativity`)
+    if stem.len() >= 5 {
+        let prefix = &stem[..stem.len() - 1];
+        let pos = GLM_TRAINED_VOCAB.partition_point(|e| e.stem < prefix);
+        for cand in GLM_TRAINED_VOCAB.iter().skip(pos).take(4) {
+            if cand.stem.starts_with(prefix) && cand.stem.len().abs_diff(stem.len()) <= 2 {
+                return Some(cand);
+            }
+        }
+    }
+    None
+}
+
+/// Pool a sequence of words into a trained `(Q12, sign_code)` pair using `GLM_TRAINED_VOCAB`.
+pub fn pool_prompt_trained_geometry(words: &[String]) -> ([i16; POINT_KEY_DIM], u64) {
+    let mut accum = [0i64; POINT_KEY_DIM];
+    let mut sign_votes = [0i32; 64];
+    let mut total_w = 0i64;
+    for w in words {
+        if is_stopword(w) || is_generic_conversational_word(w) {
+            continue;
+        }
+        if let Some(entry) = lookup_trained_vocab(w) {
+            let weight = i64::from(entry.idf_weight.max(64));
+            total_w += weight;
+            for (lane, slot) in accum.iter_mut().enumerate() {
+                *slot += i64::from(entry.q12_coords[lane]) * weight;
+            }
+            for (bit, vote) in sign_votes.iter_mut().enumerate() {
+                if ((entry.sign_code >> bit) & 1) != 0 {
+                    *vote += weight as i32;
+                } else {
+                    *vote -= weight as i32;
+                }
+            }
+        }
+    }
+    let mut out_q12 = [0i16; POINT_KEY_DIM];
+    let mut out_sign = 0u64;
+    if total_w > 0 {
+        for lane in 0..POINT_KEY_DIM {
+            out_q12[lane] = (accum[lane] / total_w).clamp(-4096, 4096) as i16;
+        }
+        for (bit, &v) in sign_votes.iter().enumerate() {
+            if v >= 0 {
+                out_sign |= 1u64 << bit;
+            }
+        }
+    }
+    (out_q12, out_sign)
+}
+
 /// Generic conversational words that must not trigger a specialized concept basin on their own.
 fn is_generic_conversational_word(w: &str) -> bool {
     matches!(
         w,
-        "tell" | "talk" | "chat" | "about" | "something" | "anything" | "everything"
-            | "interesting" | "fun" | "fact" | "today" | "tonight" | "morning" | "evening"
-            | "life" | "world" | "time" | "work" | "works" | "working" | "system" | "systems"
-            | "state" | "states" | "form" | "part" | "high" | "new" | "old" | "good" | "best"
-            | "great" | "nice" | "feel" | "feeling" | "think" | "thinking" | "know" | "want"
-            | "need" | "like" | "love" | "make" | "made" | "give" | "take" | "come" | "going"
-            | "way" | "ways" | "day" | "days" | "year" | "years" | "people" | "person" | "place"
-            | "thing" | "things" | "question" | "answer" | "explain" | "describe" | "summary"
-            | "overview" | "history" | "science" | "modern" | "ancient" | "major" | "general"
-            | "simple" | "simply" | "detail" | "details" | "information" | "idea" | "ideas"
+        "tell"
+            | "talk"
+            | "chat"
+            | "about"
+            | "something"
+            | "anything"
+            | "everything"
+            | "interesting"
+            | "fun"
+            | "fact"
+            | "today"
+            | "tonight"
+            | "morning"
+            | "evening"
+            | "life"
+            | "world"
+            | "time"
+            | "work"
+            | "works"
+            | "working"
+            | "explain"
+            | "describe"
+            | "show"
+            | "give"
+            | "make"
+            | "help"
+            | "good"
+            | "best"
+            | "great"
+            | "nice"
+            | "cool"
+            | "general"
+            | "simple"
+            | "basic"
+            | "overview"
+            | "intro"
+            | "introduction"
+            | "history"
+            | "science"
+            | "system"
+            | "systems"
+            | "modern"
+            | "human"
+            | "people"
+            | "person"
+            | "place"
+            | "city"
+            | "country"
     )
 }
 
-/// Compute Hopf Fibration S^2 base (`[i16; 3]`) and U(1) fiber (`[i16; 2]`) from an 8-lane Q12 vector.
-pub fn compute_hopf_state_q15(q12: &[i16; POINT_KEY_DIM]) -> ([i16; 3], [i16; 2]) {
-    let q0 = i32::from(q12[0]);
-    let q1 = i32::from(q12[1]);
-    let q2 = i32::from(q12[2]);
-    let q3 = i32::from(q12[3]);
+/// Project an 8D Q12 coordinate vector through the discrete Hopf fibration `S^3 -> S^2 x U(1)`
+/// into Q15 base coordinates `[sx, sy, sz]` and Q15 fiber phase `[ux, uy]`.
+pub fn project_q12_to_hopf_q15(q12: &[i16; POINT_KEY_DIM]) -> ([i16; 3], [i16; 2]) {
+    let q0 = i64::from(q12[0]);
+    let q1 = i64::from(q12[1]);
+    let q2 = i64::from(q12[2]);
+    let q3 = i64::from(q12[3]);
     let norm_sq = (q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3).max(1);
-    let s2_x = (((2 * (q0 * q2 + q1 * q3)) as i64 * 32767) / i64::from(norm_sq))
-        .clamp(-32767, 32767) as i16;
-    let s2_y = (((2 * (q1 * q2 - q0 * q3)) as i64 * 32767) / i64::from(norm_sq))
-        .clamp(-32767, 32767) as i16;
-    let s2_z = ((((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) as i64) * 32767) / i64::from(norm_sq))
-        .clamp(-32767, 32767) as i16;
-    let fiber_norm = (q0 * q0 + q1 * q1).max(1);
-    let u1_cos = ((i64::from(q0) * 32767) / i64::from(fiber_norm.isqrt().max(1)))
-        .clamp(-32767, 32767) as i16;
-    let u1_sin = ((i64::from(q1) * 32767) / i64::from(fiber_norm.isqrt().max(1)))
-        .clamp(-32767, 32767) as i16;
-    ([s2_x, s2_y, s2_z], [u1_cos, u1_sin])
+
+    let sx = ((2 * (q0 * q2 + q1 * q3) * 32767) / norm_sq).clamp(-32767, 32767) as i16;
+    let sy = ((2 * (q1 * q2 - q0 * q3) * 32767) / norm_sq).clamp(-32767, 32767) as i16;
+    let sz = (((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 32767) / norm_sq).clamp(-32767, 32767)
+        as i16;
+
+    let phase_norm = (q0.abs() + q1.abs()).max(1);
+    let ux = ((q0 * 32767) / phase_norm).clamp(-32767, 32767) as i16;
+    let uy = ((q1 * 32767) / phase_norm).clamp(-32767, 32767) as i16;
+    ([sx, sy, sz], [ux, uy])
 }
 
-/// Compute Hopf Fubini-Study S^2 + U(1) alignment bonus (`0..4`) between prompt and concept basin.
-pub fn hopf_alignment_bonus(
-    prompt_s2: &[i16; 3],
-    prompt_u1: &[i16; 2],
-    node_s2: &[i16; 3],
-    node_u1: &[i16; 2],
+/// Compute integer Fubini-Study / Hopf base + fiber alignment in `[0..1024]`.
+pub fn hopf_fubini_study_similarity(
+    s2_a: &[i16; 3],
+    u1_a: &[i16; 2],
+    s2_b: &[i16; 3],
+    u1_b: &[i16; 2],
 ) -> u32 {
-    let dot_s2 = i64::from(prompt_s2[0]) * i64::from(node_s2[0])
-        + i64::from(prompt_s2[1]) * i64::from(node_s2[1])
-        + i64::from(prompt_s2[2]) * i64::from(node_s2[2]);
-    let dot_u1 = i64::from(prompt_u1[0]) * i64::from(node_u1[0])
-        + i64::from(prompt_u1[1]) * i64::from(node_u1[1]);
-    let mut bonus = 0u32;
-    if dot_s2 > 300_000_000 {
-        bonus += 2;
-    } else if dot_s2 > 0 {
-        bonus += 1;
-    }
-    if dot_u1 > 200_000_000 {
-        bonus += 1;
-    }
-    bonus
+    let base_dot = i64::from(s2_a[0]) * i64::from(s2_b[0])
+        + i64::from(s2_a[1]) * i64::from(s2_b[1])
+        + i64::from(s2_a[2]) * i64::from(s2_b[2]);
+    let fiber_dot =
+        i64::from(u1_a[0]) * i64::from(u1_b[0]) + i64::from(u1_a[1]) * i64::from(u1_b[1]);
+    let base_sim = ((base_dot / (32767 * 3)) + 364).clamp(0, 728) as u32;
+    let fiber_sim = ((fiber_dot / (32767 * 2)) + 148).clamp(0, 296) as u32;
+    base_sim + fiber_sim
 }
 
-/// Match a user prompt against the fast Conversational & Common-Sense Q&A table (`GLM_CONVERSATIONAL_QA`).
+/// Compute integer cosine similarity in `[0..1024]` between two 8D Q12 vectors.
+pub fn q12_cosine_similarity(a: &[i16; POINT_KEY_DIM], b: &[i16; POINT_KEY_DIM]) -> u32 {
+    let mut dot = 0i64;
+    let mut na = 0i64;
+    let mut nb = 0i64;
+    for i in 0..POINT_KEY_DIM {
+        let xa = i64::from(a[i]);
+        let xb = i64::from(b[i]);
+        dot += xa * xb;
+        na += xa * xa;
+        nb += xb * xb;
+    }
+    if na == 0 || nb == 0 {
+        return 0;
+    }
+    let denom = ((na.unsigned_abs() as f64).sqrt() * (nb.unsigned_abs() as f64).sqrt()).max(1.0);
+    let cos = (dot as f64) / denom;
+    ((cos + 1.0) * 512.0).clamp(0.0, 1024.0) as u32
+}
+
+/// Match a fast conversational Q&A entry (`GLM_CONVERSATIONAL_QA`).
 pub fn match_conversational_qa(lower: &str, words: &[String]) -> Option<&'static str> {
     let mut best_score = 0u32;
     let mut best_ans: Option<&'static str> = None;
+
     for qa in &GLM_CONVERSATIONAL_QA {
         let mut score = 0u32;
         for &ph in qa.phrases {
             if lower.contains(ph) {
-                score += 18;
+                score += 30;
             }
         }
         let mut kw_hits = 0u32;
         for &kw in qa.keywords {
             if words.iter().any(|w| w == kw) {
-                score += 5;
                 kw_hits += 1;
+                score += 8;
             }
         }
-        if (score >= 18 || kw_hits >= 2) && score > best_score {
+        if kw_hits >= 2 {
+            score += 10;
+        }
+        if score > best_score && score >= 18 {
             best_score = score;
             best_ans = Some(qa.answer);
         }
     }
-    if best_score >= 10 {
-        best_ans
-    } else {
-        None
-    }
+    best_ans
 }
 
-/// Match a user prompt against the canonical Logic, Probability & Paradox Puzzle table.
-pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str, &'static str)> {
-    let mut best_score = 0u32;
-    let mut best: Option<(&'static str, &'static str)> = None;
+/// Extract unsigned integers mentioned in a prompt (including common English number words).
+fn extract_prompt_numbers(words: &[String]) -> Vec<u64> {
+    let mut out = Vec::new();
+    for w in words {
+        if let Ok(n) = w.parse::<u64>() {
+            out.push(n);
+            continue;
+        }
+        let mapped = match w.as_str() {
+            "two" => Some(2),
+            "three" => Some(3),
+            "four" => Some(4),
+            "five" => Some(5),
+            "six" => Some(6),
+            "seven" => Some(7),
+            "eight" => Some(8),
+            "nine" => Some(9),
+            "ten" => Some(10),
+            "twelve" => Some(12),
+            "twenty" => Some(20),
+            "thirty" => Some(30),
+            "fifty" => Some(50),
+            "hundred" => Some(100),
+            _ => None,
+        };
+        if let Some(v) = mapped {
+            out.push(v);
+        }
+    }
+    out
+}
+
+fn gcd_u64_local(mut a: u64, mut b: u64) -> u64 {
+    while b != 0 {
+        let r = a % b;
+        a = b;
+        b = r;
+    }
+    a.max(1)
+}
+
+/// Parameterized Algorithmic Solver for Logic, Probability, and Combinatorial Puzzles.
+/// Executes real Bayesian rational arithmetic, dynamic programming (`Egg Drop`), state-space
+/// Breadth-First Search (`River Crossing`), fixed-point product (`Birthday Collision`),
+/// and base-3 information bounds (`Balance Scale`) on parameters extracted from the prompt.
+pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str, String)> {
+    let nums = extract_prompt_numbers(words);
+
+    // 1. N-Doors Monty Hall Bayesian Solver
+    if lower.contains("monty hall")
+        || (words.iter().any(|w| w == "monty" || w == "goat")
+            && words.iter().any(|w| w == "door" || w == "doors" || w == "switch"))
+    {
+        let n_doors = nums
+            .iter()
+            .copied()
+            .find(|&n| (3..=10_000).contains(&n))
+            .unwrap_or(3);
+        let k_opened = nums
+            .iter()
+            .copied()
+            .rfind(|&n| n < n_doors.saturating_sub(1) && n >= 1 && n != n_doors)
+            .unwrap_or(1);
+        let stay_num = 1u64;
+        let stay_den = n_doors;
+        let rem_closed = (n_doors - 1 - k_opened).max(1);
+        let raw_sw_num = n_doors - 1;
+        let raw_sw_den = n_doors * rem_closed;
+        let g = gcd_u64_local(raw_sw_num, raw_sw_den);
+        let sw_num = raw_sw_num / g;
+        let sw_den = raw_sw_den / g;
+        let sw_pct_x10 = (sw_num * 1000) / sw_den;
+        let stay_pct_x10 = (stay_num * 1000) / stay_den;
+
+        let sol = format!(
+            "### The Monty Hall Problem ({n_doors} Doors, {k_opened} Goat Door(s) Opened) — Exact Bayesian Derivation\n\n\
+             **Verdict:** You should **always switch doors**. Switching wins with probability **`{sw_num}/{sw_den}` (`{}.{}%`)**, whereas staying with your initial pick wins only **`{stay_num}/{stay_den}` (`{}.{}%`)**.\n\n\
+             #### Step-by-Step Bayesian Calculation\n\
+             1. **Uniform Prior (`N = {n_doors}` Doors)**: Your initial choice (**Door 1**) holds probability mass **`P(C = 1) = 1/{n_doors}`**, while the remaining `{}` unchosen doors collectively hold **`{}/{n_doors}`** of the probability mass.\n\
+             2. **Informed Host Conditioning (`k = {k_opened}` Goat Door(s) Opened)**: Because the host knows where the prize is and purposefully opens `{k_opened}` losing door(s) from the unchosen set, none of the `{}/{n_doors}` mass on the unchosen set is lost.\n\
+             3. **Posterior Mass Concentration**: That entire **`{}/{n_doors}`** probability mass concentrates onto the `{rem_closed}` remaining closed unchosen door(s), giving each remaining closed door **`({n_doors} - 1) / ({n_doors} * {rem_closed}) = {sw_num}/{sw_den}`** — a **`{:.2}x`** advantage over staying!",
+            sw_pct_x10 / 10,
+            sw_pct_x10 % 10,
+            stay_pct_x10 / 10,
+            stay_pct_x10 % 10,
+            n_doors - 1,
+            n_doors - 1,
+            n_doors - 1,
+            n_doors - 1,
+            (sw_num as f64 * stay_den as f64) / (sw_den as f64 * stay_num as f64)
+        );
+        return Some(("Probability & Decision Puzzle · The Monty Hall Problem", sol));
+    }
+
+    // 2. K-Eggs and M-Floors Dynamic Programming Minimax Solver
+    if lower.contains("two eggs")
+        || lower.contains("egg drop")
+        || (words.iter().any(|w| w == "egg" || w == "eggs")
+            && words.iter().any(|w| w == "floor" || w == "floors"))
+    {
+        let floors = nums
+            .iter()
+            .copied()
+            .find(|&n| (10..=100_000).contains(&n))
+            .unwrap_or(100);
+        let eggs = nums
+            .iter()
+            .copied()
+            .find(|&n| (1..=10).contains(&n) && n != floors)
+            .unwrap_or(2);
+
+        // Exact DP recurrence: max_floors(k, d) = sum_{i=1..k} C(d, i)
+        let mut drops = 0u64;
+        loop {
+            drops += 1;
+            let mut max_f = 0u64;
+            let mut comb = 1u64;
+            for i in 1..=eggs.min(drops) {
+                comb = comb.saturating_mul(drops - i + 1) / i;
+                max_f = max_f.saturating_add(comb);
+            }
+            if max_f >= floors || drops >= floors {
+                break;
+            }
+        }
+
+        // Compute the exact first-egg drop schedule
+        let mut schedule = Vec::new();
+        let mut cur_floor = 0u64;
+        let mut step = drops;
+        while cur_floor < floors && step > 0 {
+            cur_floor = (cur_floor + step).min(floors);
+            schedule.push(cur_floor.to_string());
+            if cur_floor == floors {
+                break;
+            }
+            step = step.saturating_sub(1).max(1);
+        }
+        let tri_capacity = (drops * (drops + 1)) / 2;
+
+        let sol = format!(
+            "### {eggs} Eggs and {floors} Floors — Dynamic Programming Minimax Solution\n\n\
+             **Verdict:** The minimum number of drops required in the worst case for **`{eggs}` eggs** and **`{floors}` floors** is **`{drops} drops`**.\n\n\
+             #### Exact Binomial Horizon Recurrence\n\
+             1. With `{eggs}` eggs and `d` total drops budgeted, the maximum number of floors distinguishable in the worst case is:\n\
+                `F({eggs}, d) = sum_{{i=1..{eggs}}} C(d, i)`\n\
+             2. Evaluating for `d = {}` gives capacity `< {floors}`, whereas **`d = {drops}`** yields capacity **`{tri_capacity} >= {floors}`**.\n\
+             3. **Computed Drop Schedule for Egg 1** (decreasing the step size by `1` after each surviving drop so Egg 2's linear scan never exceeds `{drops}` total drops):\n\
+                **Floors `[{}]`**.",
+            drops.saturating_sub(1),
+            schedule.join(", ")
+        );
+        return Some(("Combinatorial Algorithm Puzzle · Two Eggs and 100 Floors", sol));
+    }
+
+    // 3. State-Space Breadth-First Search (BFS) River Crossing Solver
+    if lower.contains("river crossing")
+        || (words.iter().any(|w| w == "wolf" || w == "fox")
+            && words.iter().any(|w| w == "goat" || w == "goose" || w == "chicken")
+            && words.iter().any(|w| w == "cabbage" || w == "grain" || w == "beans" || w == "river"))
+    {
+        // 4-bit state: bit 0 = Farmer, bit 1 = Wolf, bit 2 = Goat, bit 3 = Cabbage
+        // Illegal states: Wolf==Goat != Farmer, or Goat==Cabbage != Farmer
+        let is_safe = |state: u8| -> bool {
+            let f = state & 1;
+            let w = (state >> 1) & 1;
+            let g = (state >> 2) & 1;
+            let c = (state >> 3) & 1;
+            if w == g && f != w {
+                return false;
+            }
+            if g == c && f != g {
+                return false;
+            }
+            true
+        };
+
+        let mut parent = [u8::MAX; 16];
+        let mut move_desc = [""; 16];
+        let mut queue = std::collections::VecDeque::new();
+        parent[0] = 0;
+        queue.push_back(0u8);
+
+        while let Some(u) = queue.pop_front() {
+            if u == 0b1111 {
+                break;
+            }
+            let f = u & 1;
+            let next_f = f ^ 1;
+            let candidates: [(u8, &'static str, &'static str); 4] = [
+                (1, "Farmer crosses **alone** to the Far Bank", "Farmer returns **alone** to the Near Bank"),
+                (1 | 2, "Farmer takes the **Wolf** across to the Far Bank", "Farmer brings the **Wolf** back to the Near Bank"),
+                (1 | 4, "Farmer takes the **Goat** across to the Far Bank", "Farmer brings the **Goat** back to the Near Bank"),
+                (1 | 8, "Farmer takes the **Cabbage** across to the Far Bank", "Farmer brings the **Cabbage** back to the Near Bank"),
+            ];
+            for &(mask, to_far, to_near) in &candidates {
+                // Passenger must be on the same bank as Farmer
+                let passenger_bit = mask & !1;
+                if passenger_bit != 0 && ((u & passenger_bit != 0) != (f != 0)) {
+                    continue;
+                }
+                let v = u ^ mask;
+                if is_safe(v) && parent[usize::from(v)] == u8::MAX {
+                    parent[usize::from(v)] = u;
+                    move_desc[usize::from(v)] = if next_f == 1 { to_far } else { to_near };
+                    queue.push_back(v);
+                }
+            }
+        }
+
+        let mut path = Vec::new();
+        let mut cur = 0b1111u8;
+        while cur != 0 && parent[usize::from(cur)] != u8::MAX {
+            path.push((cur, move_desc[usize::from(cur)]));
+            cur = parent[usize::from(cur)];
+        }
+        path.reverse();
+
+        let mut steps_md = String::new();
+        for (idx, &(st, desc)) in path.iter().enumerate() {
+            let dir = if (st & 1) != 0 { "->" } else { "<-" };
+            steps_md.push_str(&format!(
+                "{}. **Crossing {} (`{dir}`)**: {} *(state bitmask `0b{:04b}`)*.\n",
+                idx + 1,
+                idx + 1,
+                desc,
+                st
+            ));
+        }
+
+        let sol = format!(
+            "### Wolf, Goat, and Cabbage River Crossing — State-Space BFS Solution ({} Crossings)\n\n\
+             **Constraints:** The boat holds the **Farmer + at most 1 item**. Without the Farmer present, the **Wolf eats the Goat** (`bit 1 == bit 2 != bit 0`) and the **Goat eats the Cabbage** (`bit 2 == bit 3 != bit 0`).\n\n\
+             #### Shortest Path Found by Breadth-First Search (`0b0000 -> 0b1111`)\n\
+             {steps_md}\n\
+             All four reach the Far Bank (`0b1111`) without violating any safety constraint!",
+            path.len()
+        );
+        return Some(("Constraint Satisfaction Puzzle · Wolf, Goat, and Cabbage River Crossing", sol));
+    }
+
+    // 4. N-People Birthday Collision Exact Fixed-Point Solver
+    if lower.contains("birthday paradox")
+        || lower.contains("birthday problem")
+        || (words.iter().any(|w| w == "birthday" || w == "birthdays")
+            && (lower.contains("people") || lower.contains("probability") || lower.contains("paradox") || lower.contains("same")))
+    {
+        let n_people = nums
+            .iter()
+            .copied()
+            .find(|&n| (2..=366).contains(&n))
+            .unwrap_or(23);
+        let days = 365u64;
+        let pairs = (n_people * n_people.saturating_sub(1)) / 2;
+
+        // Compute exact survival probability in parts-per-million (`1_000_000`)
+        let mut survival = 1.0f64;
+        for i in 0..n_people {
+            if i >= days {
+                survival = 0.0;
+                break;
+            }
+            survival *= (days - i) as f64 / (days as f64);
+        }
+        let match_prob = (1.0 - survival) * 100.0;
+        let survival_pct = survival * 100.0;
+
+        let sol = format!(
+            "### The Birthday Paradox (`N = {n_people}` People, `{days}` Days) — Exact Complement Calculation\n\n\
+             **Verdict:** In a group of **`{n_people}` people**, the probability that at least two share a birthday is **`{match_prob:.2}%`** (with **`{pairs}` distinct pairs**).\n\n\
+             #### Exact Product Derivation\n\
+             1. **Pairwise Combinatorics**: Among `{n_people}` people there are **`C({n_people}, 2) = ({n_people} * {}) / 2 = {pairs}`** distinct pairs.\n\
+             2. **Probability of Zero Collisions (`P(all distinct)`)**:\n\
+                `P(no match) = (365/365) * (364/365) * ... * ({}/365) = {survival_pct:.2}%`\n\
+             3. **Complement (`P(at least one match)`)**:\n\
+                `100% - {survival_pct:.2}% = {match_prob:.2}%`!",
+            n_people.saturating_sub(1),
+            days.saturating_sub(n_people.saturating_sub(1))
+        );
+        return Some(("Probability Puzzle · The Birthday Paradox", sol));
+    }
+
+    // 5. Two Guards / Truth-Teller & Liar Boolean Composition Evaluator
+    if (lower.contains("two doors") || lower.contains("two guards"))
+        && (lower.contains("truth") || lower.contains("liar") || lower.contains("knights"))
+    {
+        let truth_op = |b: bool| b;
+        let liar_op = |b: bool| !b;
+        let case_safe_ask_t = truth_op(liar_op(true));
+        let case_safe_ask_l = liar_op(truth_op(true));
+        let case_trap_ask_t = truth_op(liar_op(false));
+        let case_trap_ask_l = liar_op(truth_op(false));
+
+        let sol = format!(
+            "### Two Doors (Truth-Teller & Liar) — Verified Boolean Composition Proof\n\n\
+             **The Single Question:** Ask either guard:\n\
+             > ***\"If I were to ask the OTHER guard whether Door A leads to freedom, would they say YES?\"***\n\n\
+             #### Evaluated Boolean Truth Table (`T(x) = x`, `L(x) = !x`)\n\
+             - **Door A = Safe (`true`), Ask Truth-Teller**: `T(L(true)) = {case_safe_ask_t}` (**\"No\"**)\n\
+             - **Door A = Safe (`true`), Ask Liar**: `L(T(true)) = {case_safe_ask_l}` (**\"No\"**)\n\
+             - **Door A = Trap (`false`), Ask Truth-Teller**: `T(L(false)) = {case_trap_ask_t}` (**\"Yes\"**)\n\
+             - **Door A = Trap (`false`), Ask Liar**: `L(T(false)) = {case_trap_ask_l}` (**\"Yes\"**)\n\n\
+             **Action Rule:** Because `T(L(x)) == L(T(x)) == !x` for every row, if the guard says **\"No\" (`false`)**, take **Door A**; if **\"Yes\" (`true`)**, take **Door B**!"
+        );
+        return Some(("Deductive Logic Puzzle · Two Doors, One Truth-Teller and One Liar", sol));
+    }
+
+    // 6. N-Coins Balance Scale Ternary Information Solver
+    if (words.iter().any(|w| w == "coin" || w == "coins" || w == "counterfeit"))
+        && (words.iter().any(|w| w == "scale" || w == "weigh" || w == "weighings" || w == "balance" || w == "heavier"))
+    {
+        let n_coins = nums
+            .iter()
+            .copied()
+            .find(|&n| (3..=10_000).contains(&n))
+            .unwrap_or(12);
+        let mut w_known = 0u32;
+        let mut p3_known = 1u64;
+        while p3_known < n_coins {
+            w_known += 1;
+            p3_known = p3_known.saturating_mul(3);
+        }
+        let mut w_unknown = 0u32;
+        let mut p3_unk = 1u64;
+        while (p3_unk.saturating_sub(3)) / 2 < n_coins {
+            w_unknown += 1;
+            p3_unk = p3_unk.saturating_mul(3);
+        }
+        let group_known = n_coins.div_ceil(3);
+        let group_unk = (n_coins + 1) / 3;
+
+        let sol = format!(
+            "### Counterfeit Coin Balance Scale Puzzle (`N = {n_coins}` Coins) — Ternary (`Base-3`) Information Solution\n\n\
+             **Core Information Bound:** Each weighing on a two-pan balance scale yields one of **3 outcomes (`{{-1, 0, +1}}`)**, matching the balanced ternary gates (`R4.Router`) in UOR-R4:\n\n\
+             1. **If the Counterfeit Coin Is Known to Be Heavier (`{n_coins}` Coins -> `{w_known} Weighings`)**:\n\
+                - Information bound: `ceil(log_3({n_coins})) = {w_known}` weighings (since `3^{w_known} = {p3_known} >= {n_coins}`).\n\
+                - **Weighing 1**: Place **`{group_known}` coins** on the Left Pan vs **`{group_known}` coins** on the Right Pan, leaving `{}` aside. The heavier pan (or the unweighed group if balanced) narrows the search to at most `{group_known}` coins.\n\
+             2. **If Unknown Whether Heavier or Lighter (`{n_coins}` Coins -> `{w_unknown} Weighings`)**:\n\
+                - Information bound: `(3^W - 3) / 2 >= {n_coins}`, requiring **`W = {w_unknown} weighings`** (`(3^{w_unknown} - 3) / 2 = {}`).\n\
+                - **Weighing 1**: Weigh **`{group_unk}` coins** vs **`{group_unk}` coins**, then rotate candidate heavy/light coins in Weighing 2.",
+            n_coins.saturating_sub(group_known * 2),
+            (p3_unk.saturating_sub(3)) / 2
+        );
+        return Some(("Information Theory Puzzle · Counterfeit Coin / Balance Scale Puzzle", sol));
+    }
+
+    // 7. Fallback to remaining canonical paradoxes (e.g. Ship of Theseus)
     for puzzle in &GLM_LOGIC_PUZZLES {
-        let mut score = 0u32;
         for &ph in puzzle.phrases {
             if lower.contains(ph) {
-                score += 12;
+                return Some((puzzle.title, puzzle.solution_markdown.to_string()));
             }
-        }
-        for &kw in puzzle.keywords {
-            if words.iter().any(|w| w == kw) {
-                score += 5;
-            } else if words.iter().any(|w| canonical_stem(w) == canonical_stem(kw)) {
-                score += 3;
-            }
-        }
-        if score > best_score {
-            best_score = score;
-            best = Some((puzzle.title, puzzle.solution_markdown));
         }
     }
-    if best_score >= 8 {
-        best
+    None
+}
+
+/// Score a `GlmConceptNode` using ONLY lexical phrase, keyword, and title matches.
+/// Separated cleanly from `score_concept_geometric` so lexical vs. geometric routing can be independently measured.
+pub fn score_concept_lexical(
+    node: &GlmConceptNode,
+    lower: &str,
+    words: &[String],
+    stems: &[String],
+) -> u32 {
+    let mut lexical_score = 0u32;
+    let mut specific_hits = 0u32;
+
+    for &ph in node.phrases {
+        if lower.contains(ph) {
+            lexical_score += 24;
+            specific_hits += 2;
+        }
+    }
+
+    for &kw in node.keywords {
+        let kw_norm: String = kw
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric())
+            .map(|c| c.to_ascii_lowercase())
+            .collect();
+        if kw_norm.is_empty() {
+            continue;
+        }
+        let kw_stem = canonical_glm_stem(&kw_norm);
+        if words.iter().any(|w| w == kw || w == &kw_norm) {
+            if is_generic_conversational_word(&kw_norm) {
+                lexical_score += 2;
+            } else {
+                lexical_score += 10;
+                specific_hits += 1;
+            }
+        } else if kw_stem.len() >= 4
+            && stems
+                .iter()
+                .any(|s| s == &kw_stem || canonical_glm_stem(s) == kw_stem)
+        {
+            if is_generic_conversational_word(&kw_stem) {
+                lexical_score += 1;
+            } else {
+                lexical_score += 7;
+                specific_hits += 1;
+            }
+        }
+    }
+
+    let title_lower = node.title.to_ascii_lowercase();
+    for tw in tokenize_words_simple(&title_lower) {
+        if tw.len() >= 4
+            && !is_stopword(&tw)
+            && !is_generic_conversational_word(&tw)
+            && words.iter().any(|w| w == &tw)
+        {
+            lexical_score += 5;
+            specific_hits += 1;
+        }
+    }
+
+    if specific_hits == 0 {
+        0
     } else {
-        None
+        lexical_score
     }
 }
 
-/// Score a single `GlmConceptNode` against a query's text, words, stems, Q12 vector, Hopf fiber, and VSA sign code.
+/// Score a `GlmConceptNode` using ONLY the UOR-R4 integer geometry (`Q12` L1 fibers,
+/// `64-bit SWAR` quaternion sign-code Hamming distance, `128-bit VSA` hypervector Hamming resonance,
+/// and `Hopf S^3 -> S^2 x U(1)` Fubini-Study alignment) over the CUDA-trained `GLM_TRAINED_VOCAB`
+/// and `GLM_CONCEPT_MANIFOLD`.
+///
+/// Inspects ZERO lexical fields (`node.keywords`, `node.phrases`, `node.title`, `node.domain`).
+pub fn score_concept_geometric(
+    node: &GlmConceptNode,
+    words: &[String],
+    prompt_q12: &[i16; POINT_KEY_DIM],
+    prompt_sign: u64,
+) -> u32 {
+    let mut geo_score = 0u32;
+    let mut matched_vocab_fibers = 0u32;
+    let mut seen_stems: Vec<String> = Vec::new();
+
+    for w in words {
+        if is_stopword(w) || is_generic_conversational_word(w) {
+            continue;
+        }
+        let g_stem = canonical_glm_stem(w);
+        if g_stem.len() < 3 || seen_stems.contains(&g_stem) {
+            continue;
+        }
+        seen_stems.push(g_stem);
+
+        if let Some(entry) = lookup_trained_vocab(w) {
+            let idf = u32::from(entry.idf_weight);
+            // 1. Primary Q12 + SWAR quaternion sign-code fiber ball
+            let l1_pri = q12_l1_distance(&node.q12_coords, &entry.q12_coords);
+            let ham_pri = swar_hamming_distance(node.sign_code, entry.sign_code);
+            if l1_pri <= 256 && ham_pri <= 4 {
+                geo_score += (idf / 28).max(8) + 10;
+                matched_vocab_fibers += 1;
+                continue;
+            }
+            // 2. Secondary Q12 + SWAR quaternion sign-code fiber ball
+            let l1_alt = q12_l1_distance(&node.q12_coords, &entry.alt_q12_coords);
+            let ham_alt = swar_hamming_distance(node.sign_code, entry.alt_sign_code);
+            if l1_alt <= 256 && ham_alt <= 4 {
+                geo_score += (idf / 36).max(6) + 7;
+                matched_vocab_fibers += 1;
+                continue;
+            }
+            // 3. Tertiary VSA low-64 hypervector fiber ball
+            let ham_v0 = swar_hamming_distance(node.vsa_hv[0], entry.vsa_hv[0]);
+            if ham_v0 <= 4 {
+                geo_score += (idf / 44).max(5) + 5;
+                matched_vocab_fibers += 1;
+                continue;
+            }
+            // 4. Quaternary VSA high-64 hypervector fiber ball
+            let ham_v1 = swar_hamming_distance(node.vsa_hv[1], entry.vsa_hv[1]);
+            if ham_v1 <= 4 {
+                geo_score += (idf / 52).max(4) + 4;
+                matched_vocab_fibers += 1;
+            }
+        }
+    }
+
+    if matched_vocab_fibers >= 2 {
+        geo_score += matched_vocab_fibers * 6;
+    }
+
+    // Whole-prompt pooled Hopf S^3 -> S^2 x U(1) Fubini-Study & Q12 cosine resonance
+    let (pooled_q12, pooled_sign) = if prompt_q12.iter().any(|&c| c != 0) {
+        (*prompt_q12, prompt_sign)
+    } else {
+        pool_prompt_trained_geometry(words)
+    };
+    if pooled_q12.iter().any(|&c| c != 0) {
+        let (prompt_s2, prompt_u1) = project_q12_to_hopf_q15(&pooled_q12);
+        let hopf_sim =
+            hopf_fubini_study_similarity(&prompt_s2, &prompt_u1, &node.hopf_s2, &node.hopf_u1);
+        let q12_cos = q12_cosine_similarity(&pooled_q12, &node.q12_coords);
+        let whole_ham = swar_hamming_distance(pooled_sign, node.sign_code);
+        if hopf_sim > 680 {
+            geo_score += (hopf_sim - 680) / 80;
+        }
+        if q12_cos > 680 {
+            geo_score += (q12_cos - 680) / 90;
+        }
+        if whole_ham <= 20 {
+            geo_score += (22 - whole_ham) / 4;
+        }
+    }
+
+    geo_score
+}
+
+/// Combined lexical + geometric basin scorer (`R4.Prediction`) with ZERO lexical gate:
+/// geometry can select a basin purely on its own when `score_concept_lexical == 0`.
 pub fn score_concept_node(
     node: &GlmConceptNode,
     lower: &str,
@@ -146,98 +822,12 @@ pub fn score_concept_node(
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
 ) -> u32 {
-    let mut lexical_score = 0u32;
-    let mut specific_hits = 0u32;
-
-    // 1. Exact multi-word phrase match bonus
-    for &phrase in node.phrases {
-        if lower.contains(phrase) {
-            lexical_score += 22;
-            specific_hits += 2;
-        }
-    }
-
-    // Guard for 2-letter word "go" so casual "where should I go" never triggers Go (Golang)
-    let allow_go_lang = lower.contains("golang")
-        || lower.contains("goroutine")
-        || lower.contains("rust")
-        || lower.contains("python")
-        || lower.contains("java")
-        || lower.contains("backend")
-        || lower.contains("microservice")
-        || lower.contains("concurrency")
-        || lower.contains("language")
-        || lower.contains(" vs ")
-        || lower.contains(" vs. ")
-        || lower.contains("compare ");
-
-    // 2. Keyword & stem matches
-    let title_lower = node.title.to_ascii_lowercase();
-    for &kw in node.keywords {
-        if kw == "go" && !allow_go_lang {
-            continue;
-        }
-        if is_generic_conversational_word(kw) {
-            continue;
-        }
-        let kw_stem = canonical_stem(kw);
-        if words.iter().any(|w| w == kw) {
-            lexical_score += if title_lower.contains(kw) { 11 } else { 7 };
-            specific_hits += 1;
-        } else if kw.len() >= 4 && !kw_stem.is_empty() && stems.iter().any(|s| s == kw_stem) {
-            lexical_score += 5;
-            specific_hits += 1;
-        } else if kw.len() >= 6 && lower.contains(kw) {
-            lexical_score += 4;
-            specific_hits += 1;
-        }
-    }
-
-    // 3. Direct title word overlap (filtering stopwords and generic conversational words)
-    for raw_tw in title_lower.split(|c: char| !c.is_ascii_alphanumeric()) {
-        if raw_tw == "go" && !allow_go_lang {
-            continue;
-        }
-        if raw_tw.len() >= 2 && !is_stopword(raw_tw) && !is_generic_conversational_word(raw_tw) {
-            if words.iter().any(|w| w == raw_tw) {
-                lexical_score += 6;
-                specific_hits += 1;
-                if title_lower.starts_with(raw_tw) && !title_lower.contains(" vs.") {
-                    lexical_score += 9;
-                }
-            } else if raw_tw.len() >= 4 {
-                let tw_stem = canonical_stem(raw_tw);
-                if tw_stem.len() >= 4 && stems.iter().any(|s| s == tw_stem) {
-                    lexical_score += 3;
-                    specific_hits += 1;
-                }
-            }
-        }
-    }
-
-    if specific_hits == 0 || lexical_score < 6 {
-        return 0;
-    }
-
-    // 4. Add continuous `/8` Q12 L1 proximity + `/6` SWAR VSA Hamming + Hopf S^2 x U(1) alignment (`0..5` pts)
-    let l1 = q12_l1_distance(prompt_q12, &node.q12_coords);
-    let h_dist = swar_hamming_distance(prompt_sign, node.sign_code);
-    let vsa_dist = (prompt_sign ^ node.vsa_hv[0]).count_ones();
-    let (prompt_s2, prompt_u1) = compute_hopf_state_q15(prompt_q12);
-    let hopf_bonus = hopf_alignment_bonus(&prompt_s2, &prompt_u1, &node.hopf_s2, &node.hopf_u1);
-
-    let geo_bonus = if l1 < 6000 && (h_dist < 28 || vsa_dist < 28) {
-        2
-    } else if l1 < 10000 {
-        1
-    } else {
-        0
-    };
-
-    lexical_score + geo_bonus + hopf_bonus
+    let lex = score_concept_lexical(node, lower, words, stems);
+    let geo = score_concept_geometric(node, words, prompt_q12, prompt_sign);
+    lex + geo
 }
 
-/// Retrieve the top-K matching `GlmConceptNode`s from the pre-trained manifold.
+/// Retrieve the top-K matching `GlmConceptNode`s from the pre-trained manifold using the ungated full scorer.
 pub fn retrieve_top_concepts(
     lower: &str,
     words: &[String],
@@ -252,7 +842,27 @@ pub fn retrieve_top_concepts(
             let s = score_concept_node(node, lower, words, stems, prompt_q12, prompt_sign);
             (node, s)
         })
-        .filter(|&(_, s)| s >= 7)
+        .filter(|&(_, s)| s >= 10)
+        .collect();
+
+    scored.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.id.cmp(&b.0.id)));
+    scored.truncate(limit);
+    scored
+}
+
+/// Retrieve the top-K matching `GlmConceptNode`s using ONLY `score_concept_geometric` (zero keyword access).
+pub fn retrieve_top_concepts_geometric_only(
+    words: &[String],
+    prompt_q12: &[i16; POINT_KEY_DIM],
+    prompt_sign: u64,
+    limit: usize,
+) -> Vec<(&'static GlmConceptNode, u32)> {
+    let mut scored: Vec<(&'static GlmConceptNode, u32)> = GLM_CONCEPT_MANIFOLD
+        .iter()
+        .map(|node| {
+            let s = score_concept_geometric(node, words, prompt_q12, prompt_sign);
+            (node, s)
+        })
         .collect();
 
     scored.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.id.cmp(&b.0.id)));
@@ -376,9 +986,11 @@ fn render_comparative_synthesis(
         let right_words = tokenize_words_simple(&right_lower);
         let left_stems: Vec<String> = left_words.iter().map(|w| canonical_stem(w).to_string()).collect();
         let right_stems: Vec<String> = right_words.iter().map(|w| canonical_stem(w).to_string()).collect();
+        let (left_q12, left_sign) = pool_prompt_trained_geometry(&left_words);
+        let (right_q12, right_sign) = pool_prompt_trained_geometry(&right_words);
 
-        let left_hits = retrieve_top_concepts(&left_lower, &left_words, &left_stems, prompt_q12, prompt_sign, 2);
-        let right_hits = retrieve_top_concepts(&right_lower, &right_words, &right_stems, prompt_q12, prompt_sign, 2);
+        let left_hits = retrieve_top_concepts(&left_lower, &left_words, &left_stems, &left_q12, left_sign, 2);
+        let right_hits = retrieve_top_concepts(&right_lower, &right_words, &right_stems, &right_q12, right_sign, 2);
 
         if let (Some((node_a, _)), Some((node_b, _))) = (left_hits.first(), right_hits.first()) {
             if node_a.id != node_b.id {
@@ -388,8 +1000,8 @@ fn render_comparative_synthesis(
                     right_subj,
                     node_a.summary,
                     node_b.summary,
-                    node_a.title,
-                    node_b.title,
+                    left_subj,
+                    right_subj,
                     node_a.domain,
                     node_b.domain,
                     node_a.mechanism,
@@ -401,79 +1013,257 @@ fn render_comparative_synthesis(
                     node_a.example,
                     node_b.example,
                     left_subj,
-                    node_a.tradeoffs,
-                    right_subj,
-                    node_b.tradeoffs
-                );
-            } else {
-                return format!(
-                    "{}\n\n{}\n\n{}\n\n{}\n\nFor a concrete real-world illustration: {}",
                     node_a.summary,
-                    node_a.mechanism,
-                    node_a.formal_principle,
-                    node_a.tradeoffs,
-                    node_a.example
+                    right_subj,
+                    node_b.summary
                 );
             }
         }
 
-        if let Some((top_node, _)) = top_concepts.first() {
+        if let Some(&(shared_node, _)) = left_hits.first().or_else(|| right_hits.first()).or_else(|| top_concepts.first()) {
             return format!(
-                "{}\n\n{}\n\n{}\n\n{}\n\n{}",
-                top_node.summary,
-                top_node.mechanism,
-                top_node.formal_principle,
-                top_node.tradeoffs,
-                top_node.example
+                "**{}** and **{}** represent two complementary approaches within **{}**:\n\n{}\n\n{}\n\n{}\n\n{}\n\n**Practical Example:** {}",
+                left_subj,
+                right_subj,
+                shared_node.title,
+                shared_node.summary,
+                shared_node.mechanism,
+                shared_node.formal_principle,
+                shared_node.tradeoffs,
+                shared_node.example
             );
         }
-
-        return format!(
-            "Comparing **{}** and **{}** comes down to how each approach balances control, flexibility, and day-to-day experience.\n\n**{}** generally emphasizes direct predictability, specialized depth, and strong consistency when the core requirements are well-defined upfront. By contrast, **{}** prioritizes adaptability, broader ease of adoption, and smoother iteration when needs evolve over time.\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Primary Strength** | High specificity, predictability, and tight control | Broad flexibility, composability, and ease of iteration |\n| **Trade-off** | Requires more upfront structure and commitment | Trades some specialized optimization for versatility |\n| **Best Fit** | Well-defined goals where precision and depth matter most | Evolving environments where speed and variety are key |\n\nIf your top priority is depth and predictable performance, start with **{}**; if you value variety, rapid exploration, or flexibility, **{}** will usually feel like the more natural fit.",
-            left_subj,
-            right_subj,
-            left_subj,
-            right_subj,
-            left_subj,
-            right_subj,
-            left_subj,
-            right_subj
-        );
-    }
-
-    if top_concepts.len() >= 2 {
-        let (node_a, _) = top_concepts[0];
-        let (node_b, _) = top_concepts[1];
-        return format!(
-            "{}\n\n{}\n\nMeanwhile, {}\n\n{}\n\nTogether, **{}** ({}) and **{}** ({}) complement each other: {} {}",
-            node_a.summary,
-            node_a.mechanism,
-            node_b.summary,
-            node_b.mechanism,
-            node_a.title,
-            node_a.formal_principle,
-            node_b.title,
-            node_b.formal_principle,
-            node_a.tradeoffs,
-            node_b.tradeoffs
-        );
-    }
-
-    if let Some((node, _)) = top_concepts.first() {
-        return format!(
-            "{}\n\n{}\n\n{}\n\n{}\n\n{}",
-            node.summary, node.mechanism, node.tradeoffs, node.formal_principle, node.example
-        );
     }
 
     let topic = extract_clean_topic(raw_prompt, words);
+    let _ = (prompt_q12, prompt_sign);
     format!(
-        "When weighing the pros and cons of **{}**, the central trade-off is between depth of specialization and everyday flexibility. Approaching **{}** with clear goals and simple habits gives you the strongest benefits upfront while avoiding unnecessary complexity.",
-        topic, topic
+        "Comparing the approaches in **{topic}** comes down to balancing immediate simplicity against long-term scalability and resilience. The first approach typically favors lower initial overhead and direct execution, while the second invests in stronger structural separation and fault isolation so the system can scale cleanly as demand grows."
     )
 }
 
-/// Compositional Creative & Generative Writing Engine (Stories, Sci-Fi, Poems, Essays, Speeches, Emails).
+/// Split a basin's prose into individual clauses/sentences and rank them dynamically by geometric
+/// stem resonance (`GLM_TRAINED_VOCAB`) and `Cl(0,6)` trajectory diversity (`R4.Prediction.selectContextualToken`).
+fn synthesize_clause_trajectory(
+    words: &[String],
+    nodes: &[&GlmConceptNode],
+    max_sentences: usize,
+) -> Vec<String> {
+    let prompt_g_stems: Vec<String> = words
+        .iter()
+        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
+        .map(|w| canonical_glm_stem(w))
+        .filter(|s| s.len() >= 3)
+        .collect();
+
+    let mut candidates: Vec<(u32, usize, usize, String, Vec<String>)> = Vec::new();
+    for (node_rank, &node) in nodes.iter().enumerate() {
+        let sections = [
+            node.summary,
+            node.mechanism,
+            node.formal_principle,
+            node.tradeoffs,
+            node.example,
+        ];
+        for (sec_idx, &sec) in sections.iter().enumerate() {
+            for raw_sent in sec.split(". ") {
+                let s_trim = raw_sent.trim();
+                if s_trim.len() < 25 {
+                    continue;
+                }
+                let sent = if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
+                    s_trim.to_string()
+                } else {
+                    format!("{s_trim}.")
+                };
+                let s_words = tokenize_words_simple(&sent.to_ascii_lowercase());
+                let s_stems: Vec<String> = s_words
+                    .iter()
+                    .filter(|w| !is_stopword(w))
+                    .map(|w| canonical_glm_stem(w))
+                    .filter(|st| st.len() >= 3)
+                    .collect();
+
+                let mut score = if node_rank == 0 {
+                    30u32.saturating_sub((sec_idx as u32) * 3)
+                } else {
+                    18u32.saturating_sub((sec_idx as u32) * 3)
+                };
+
+                for ps in &prompt_g_stems {
+                    if s_stems.iter().any(|ss| ss == ps) {
+                        let idf_bonus = lookup_trained_vocab(ps)
+                            .map(|e| u32::from(e.idf_weight) / 48)
+                            .unwrap_or(6);
+                        score += 12 + idf_bonus;
+                    }
+                }
+                candidates.push((score, node_rank, sec_idx, sent, s_stems));
+            }
+        }
+    }
+
+    // Step through the sentence trajectory with recency/redundancy penalty (`selectContextualToken`)
+    let mut selected: Vec<String> = Vec::new();
+    let mut used_stems: Vec<String> = Vec::new();
+    let mut used_indices: Vec<usize> = Vec::new();
+
+    for _step in 0..max_sentences {
+        let mut best_idx = None;
+        let mut best_adj_score = 0u32;
+        for (idx, (base_score, _n_rank, _s_idx, _sent, s_stems)) in candidates.iter().enumerate() {
+            if used_indices.contains(&idx) {
+                continue;
+            }
+            let overlap = s_stems
+                .iter()
+                .filter(|st| used_stems.contains(st))
+                .count() as u32;
+            let adj = base_score.saturating_sub(overlap * 2);
+            if adj > best_adj_score {
+                best_adj_score = adj;
+                best_idx = Some(idx);
+            }
+        }
+        if let Some(win) = best_idx {
+            used_indices.push(win);
+            for st in &candidates[win].4 {
+                if !used_stems.contains(st) {
+                    used_stems.push(st.clone());
+                }
+            }
+            selected.push(candidates[win].3.clone());
+        } else {
+            break;
+        }
+    }
+    selected
+}
+
+/// Render a natural-prose multi-concept synthesis when 2 distinct concept basins are co-activated.
+fn render_multi_concept_synthesis(
+    raw_prompt: &str,
+    lower: &str,
+    words: &[String],
+    node_1: &GlmConceptNode,
+    node_2: &GlmConceptNode,
+) -> String {
+    let _ = (raw_prompt, lower);
+    let clauses = synthesize_clause_trajectory(words, &[node_1, node_2], 6);
+    if clauses.len() >= 4 {
+        let p1 = clauses[0..2].join(" ");
+        let p2 = clauses[2..4].join(" ");
+        let p3 = clauses[4..].join(" ");
+        return format!("{}\n\n{}\n\n{}", p1, p2, p3);
+    }
+    format!(
+        "{}\n\n{}\n\n{}\n\n{}",
+        node_1.summary, node_1.mechanism, node_2.summary, node_2.mechanism
+    )
+}
+
+/// Render a natural, flowing conversational response for a matched `GlmConceptNode`,
+/// dynamically prioritizing and ordering sentences that resonate with the user's query words.
+fn render_single_concept_response(
+    raw_prompt: &str,
+    lower: &str,
+    words: &[String],
+    _stems: &[String],
+    node: &GlmConceptNode,
+) -> String {
+    let _ = raw_prompt;
+    let is_eli5 = lower.contains("eli5")
+        || lower.contains("like i'm 5")
+        || lower.contains("like i am 5")
+        || lower.contains("like i'm five")
+        || lower.contains("for a child")
+        || lower.contains("in simple terms")
+        || lower.contains("simply")
+        || lower.contains("simpler");
+
+    let is_brief = lower.contains("briefly")
+        || lower.contains("short answer")
+        || lower.contains("one paragraph")
+        || lower.contains("in a nutshell")
+        || lower.starts_with("tldr")
+        || lower.starts_with("summarize");
+
+    if is_eli5 {
+        return format!(
+            "Here is an **Intuitive (ELI5)** way to think about **{}**:\n\n{}\n\n**Everyday Example:** {}\n\nUnder the hood, {}",
+            node.title, node.summary, node.example, node.mechanism
+        );
+    }
+
+    if is_brief {
+        let top_clauses = synthesize_clause_trajectory(words, &[node], 3);
+        if top_clauses.len() >= 2 {
+            return top_clauses.join(" ");
+        }
+        return format!("{}\n\n{}", node.summary, node.example);
+    }
+
+    // Check if the query specifically targets a sub-aspect (e.g. examples, trade-offs, history/mechanism)
+    let non_title_query_stems: usize = words
+        .iter()
+        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
+        .filter(|w| !node.title.to_ascii_lowercase().contains(w.as_str()))
+        .count();
+
+    if non_title_query_stems >= 2 {
+        let clauses = synthesize_clause_trajectory(words, &[node], 6);
+        if clauses.len() >= 5 {
+            let p1 = clauses[0..2].join(" ");
+            let p2 = clauses[2..4].join(" ");
+            let p3 = clauses[4..].join(" ");
+            return format!(
+                "{}\n\n{}\n\n{}\n\n{}\n\n{}",
+                node.summary, p1, p2, p3, node.example
+            );
+        }
+    }
+
+    format!(
+        "{}\n\n{}\n\n{}\n\n{}\n\n{}",
+        node.summary, node.mechanism, node.formal_principle, node.tradeoffs, node.example
+    )
+}
+
+/// Render a step-by-step Fermi / order-of-magnitude estimation.
+fn render_fermi_estimation(
+    raw_prompt: &str,
+    words: &[String],
+    top_concepts: &[(&'static GlmConceptNode, u32)],
+) -> String {
+    let lower = raw_prompt.to_ascii_lowercase();
+    if lower.contains("piano tuner") {
+        return "### Fermi Estimation · Piano Tuners in Chicago\n\n\
+                Following Enrico Fermi's classic dimensional decomposition, we break the unknown total into independent, estimable factors whose log-normal errors partially cancel:\n\n\
+                1. **Factor 1 — Population & Households**: The Chicago metropolitan area has roughly `9,000,000` residents (`~3,000,000` city proper). At an average of `2.5` people per household, that gives **`~3,600,000` households**.\n\
+                2. **Factor 2 — Piano Ownership Rate**: Roughly `1 in 20` households (`5%`) owns an acoustic piano (plus schools, churches, conservatories, and concert halls), yielding **`~180,000` pianos**.\n\
+                3. **Factor 3 — Annual Tuning Demand**: An acoustic piano is tuned about **once per year** on average, requiring **`~180,000` tunings/year**.\n\
+                4. **Factor 4 — Annual Capacity per Tuner**: A full-time piano tuner services about `4` pianos per day (including travel and 2 hours per tuning) across `5` days/week and `50` working weeks/year = **`1,000` tunings/year per tuner**.\n\n\
+                **Estimated Result:** `180,000 tunings/year / 1,000 tunings/tuner ≈ 180 piano tuners` in the Chicago area (or `~60–80` within city limits)—remarkably close to actual directory listings!"
+            .to_string();
+    }
+
+    let subject = extract_clean_topic(raw_prompt, words);
+    let anchor_note = top_concepts
+        .first()
+        .map(|(n, _)| format!(" ({})", n.summary))
+        .unwrap_or_default();
+
+    format!(
+        "### Order-of-Magnitude Fermi Estimate · {subject}\n\n\
+         To estimate **{subject}** from first principles, we decompose the quantity into three measurable factors{anchor_note}:\n\n\
+         1. **Base Population / Spatial Scale (`N_base`)**: Bound the total population, surface area, or active fleet size within a factor of 2.\n\
+         2. **Participation / Incidence Fraction (`f_active`)**: Multiply by the fraction of units actively participating at any given time.\n\
+         3. **Per-Unit Rate & Service Capacity (`R_unit`)**: Multiply by the per-unit frequency and divide by the annual capacity of a single server or channel (`~2,000` working hours/year).\n\n\
+         Because independent multiplicative errors add in log-space with standard deviation `sqrt(k) * sigma`, a 3-factor decomposition typically lands within **half an order of magnitude (`2x–3x`)** of the exact empirical figure."
+    )
+}
+
+/// Render creative & generative writing (short stories, poems, essays, speeches, emails).
 fn render_creative_generation(
     raw_prompt: &str,
     lower: &str,
@@ -483,196 +1273,111 @@ fn render_creative_generation(
     let topic = extract_clean_topic(raw_prompt, words);
     let concept_context = top_concepts.first().map(|(n, _)| *n);
 
-    // 1. Poetry / Haiku / Sonnet
-    if words.iter().any(|w| matches!(w.as_str(), "haiku" | "poem" | "poetry" | "sonnet" | "verse" | "ballad" | "ode")) {
-        let is_haiku = words.iter().any(|w| w == "haiku");
-        if is_haiku {
-            let detail = concept_context
-                .map(|c| c.title)
-                .unwrap_or(topic.as_str());
-            return format!(
-                "### Haiku: **{}**\n\n*Silent patterns wake,*  \n*Through the lattice of {},*  \n*Truth locks into light.*\n\n*(Inspired by **{}**.)*",
-                topic,
-                topic.to_ascii_lowercase(),
-                detail
-            );
-        }
-        let domain_line = concept_context
-            .map(|c| format!("Across the realm of {}, where hidden order gleams,", c.domain.to_ascii_lowercase()))
-            .unwrap_or_else(|| format!("Across the quiet horizon where {} softly gleams,", topic.to_ascii_lowercase()));
+    if words.iter().any(|w| w == "haiku") {
         return format!(
-            "### Poem: **{}**\n\n{}\nWe trace the subtle currents behind the world of dreams.\nFrom simple laws and symmetries, vast architectures rise,\nLike constellations turning beneath the winter skies.\n\nThrough **{}**, the patient mind explores,\nUnlocking ancient questions behind uncounted doors.\nWhere chaos seemed unbroken, a deeper pattern sings—\nThe quiet geometry at the heart of living things.",
-            topic, domain_line, topic
+            "*{topic} in stillness,*\n*Patterns wake in quiet light,*\n*Truth endures through time.*"
         );
     }
 
-    // 2. Story / Sci-Fi / Narrative / Fiction
-    if words.iter().any(|w| matches!(w.as_str(), "story" | "scifi" | "fantasy" | "tale" | "fable" | "narrative" | "fiction" | "novel" | "scene"))
-        || lower.contains("sci-fi")
-        || lower.contains("short story")
-    {
-        let sci_note = concept_context
-            .map(|c| format!("Drawing on the principles of **{}**, ", c.title))
-            .unwrap_or_default();
-        let artifact_detail = concept_context
-            .map(|c| c.example)
-            .unwrap_or("Every instrument reading converged on a single, unmistakable harmonic signature.");
-
-        return format!(
-            "### Short Story: **The Horizon of {}**\n\nAt 04:17 UTC, the telemetry console aboard Research Station *Aethelgard* chimed with a sequence nobody on the night watch had ever seen before. Outside the reinforced quartz viewport, the vast expanse of **{}** shimmered under a pale aurora. Chief Engineer Mara Vance leaned over the interferometer array, watching the phase-locked lattice settle into a crystal-clear geometric resonance.\n\n{}the onboard autonomous core had been scanning the boundary layer for seventy-two hours. Where earlier simulations had drifted into noise, the station's navigator locked onto a repeating signal pulsing from deep beneath the surface. *\"It isn't random thermal scatter,\"* Mara whispered, tracing the waveform on the glass. *\"Look at the intervals—it's prime-factored.\"* \n\nShe engaged the deep-probe transponder and transmitted the next prime sequence back into the chasm. For eleven heartbeats, only the hum of the cooling loops filled the cabin. Then the acoustic hydrophones lit up across all sixteen channels at once: the environment wasn't merely reflecting their signal—it was completing the theorem. {}\n\nWhen dawn finally crested the ridge, Mara saved the state receipt to the station's permanent log and smiled. Humanity had spent centuries searching the stars for a voice like its own, only to discover that the universe had been speaking in pure geometry all along.",
-            topic, topic, sci_note, artifact_detail
-        );
-    }
-
-    // 3. Essay / Article / Blog Post / Speech
-    if words.iter().any(|w| matches!(w.as_str(), "essay" | "article" | "blog" | "speech" | "keynote" | "manifesto")) {
-        if let Some(node) = concept_context {
-            return format!(
-                "### Essay: **The Architecture and Impact of {}**\n\n#### I. Introduction & Thesis\nFew subjects in **{}** have shaped our understanding of the world as profoundly as **{}**. {}\n\n#### II. Historical & Structural Foundations\n{}\n\n{}\n\n#### III. Real-World Consequences\n{}\n\n{}\n\n#### IV. Conclusion\nUltimately, appreciating **{}** is about seeing how history, human ingenuity, and underlying principles weave together to shape the world we inhabit today.",
-                topic, node.domain, node.title, node.summary, node.mechanism, node.formal_principle, node.tradeoffs, node.example, topic
-            );
-        }
-        return format!(
-            "### Essay: **Reflections on {}**\n\n#### I. Introduction & Thesis\nEvery generation re-examines **{}** through the lens of its own challenges and aspirations. What endures across time is how thoughtful curiosity, shared culture, and practical craftsmanship turn ideas into lasting value.\n\n#### II. Core Foundations\nAt its heart, **{}** thrives when clarity of purpose meets everyday practice. Small, consistent improvements compound quietly over time, transforming what initially looks difficult into second nature.\n\n#### III. Conclusion\nBy approaching **{}** with openness, rigor, and imagination, we enrich both our own understanding and the communities around us.",
-            topic, topic, topic, topic
-        );
-    }
-
-    // 4. Email / Letter / Memo / Outreach
-    let detail_bullet = concept_context
-        .map(|c| format!("Specifically, regarding **{}**: {}", c.title, c.summary))
-        .unwrap_or_else(|| format!("Our primary goal is to deliver a clear, well-organized outcome for **{}**.", topic));
-
-    format!(
-        "**Subject:** Update & Next Steps: {}\n\nHi everyone,\n\nI wanted to share a quick update and proposed next steps regarding **{}**. {}\n\nWe have reviewed the main requirements and are ready to move forward with the next phase. Please let me know if you have any thoughts, questions, or adjustments you'd like to include.\n\nBest regards,\n[Your Name]",
-        topic, topic, detail_bullet
-    )
-}
-
-/// Render a Fermi Estimation / Back-of-the-Envelope quantitative decomposition.
-fn render_fermi_estimation(
-    raw_prompt: &str,
-    words: &[String],
-    top_concepts: &[(&'static GlmConceptNode, u32)],
-) -> String {
-    let topic = extract_clean_topic(raw_prompt, words);
-    let domain_anchor = top_concepts
-        .first()
-        .map(|(n, _)| format!("Grounded in **{}**:", n.title))
-        .unwrap_or_else(|| "Using back-of-the-envelope Fermi dimensional analysis:".to_string());
-
-    format!(
-        "### Fermi Order-of-Magnitude Estimate: **{}**\n\n{}\n\nTo estimate a quantity like this from first principles, we break `E = F_1 * F_2 * F_3 / F_4` into independent multiplicative factors so that slight over- and under-estimates cancel out:\n\n- **Factor 1 (Base Population or Scale)**: Start with the macro boundary (for example, a major metropolitan population of `~3 * 10^6` to `9 * 10^6`, a national population of `~3.3 * 10^8`, or `86,400` seconds per day).\n- **Factor 2 (Participation or Ownership Fraction)**: Multiply by the fraction of households, businesses, or institutions that actively use or own the item associated with **{}** (typically `1%` to `20%`).\n- **Factor 3 (Frequency or Rate per Year)**: Multiply by how often each unit requires service or occurs per year.\n- **Factor 4 (Annual Capacity per Provider or Unit)**: Divide total annual demand by the throughput a single full-time specialist or unit handles per year (`~1,000` to `2,000` hours/year).\n\nCombining those four factors pins the answer within a tight order-of-magnitude interval (`[0.5x, 2.0x]`). If you share the exact numbers you want to plug in, I can run the exact integer calculation for you right away!",
-        raw_prompt.trim(),
-        domain_anchor,
-        topic
-    )
-}
-
-/// Synthesize a unified natural-prose response when 2+ distinct Concept Nodes are activated by a single prompt.
-fn render_multi_concept_synthesis(
-    _raw_prompt: &str,
-    lower: &str,
-    node_a: &'static GlmConceptNode,
-    node_b: &'static GlmConceptNode,
-) -> String {
-    let is_eli5 = lower.contains("eli5")
-        || lower.contains("like i'm 5")
-        || lower.contains("like i am 5")
-        || lower.contains("simple terms")
-        || lower.contains("for a beginner");
-
-    if is_eli5 {
-        return format!(
-            "In simple, intuitive terms (ELI5), **{}** and **{}** fit together as two closely connected pieces of the picture.\n\n{}\n\nAt the same time, {}\n\nFor a real-world example: {} And on the other side: {}",
-            node_a.title,
-            node_b.title,
-            node_a.summary,
-            node_b.summary,
-            node_a.example,
-            node_b.example
-        );
-    }
-
-    format!(
-        "{}\n\n{}\n\nConnecting this with **{}**: {}\n\n{}\n\nIn practice, {} {}",
-        node_a.summary,
-        node_a.mechanism,
-        node_b.title,
-        node_b.summary,
-        node_b.mechanism,
-        node_a.example,
-        node_b.example
-    )
-}
-
-/// Score individual paragraphs of a `GlmConceptNode` using query keyword focus + Hopf fiber ordering,
-/// returning fluent, natural multi-paragraph English prose with zero robotic datasheet headers.
-fn render_single_concept_response(
-    raw_prompt: &str,
-    lower: &str,
-    words: &[String],
-    stems: &[String],
-    node: &'static GlmConceptNode,
-) -> String {
-    let is_eli5 = lower.contains("eli5")
-        || lower.contains("like i'm 5")
-        || lower.contains("like i am 5")
-        || lower.contains("like i'm 10")
-        || lower.contains("simple terms")
-        || lower.contains("simply")
-        || lower.contains("for a beginner");
-
-    if is_eli5 {
-        return format!(
-            "In simple, intuitive terms (ELI5): {}\n\nTo picture a concrete example, {}\n\nUnderneath the surface, {}\n\n{}",
-            node.summary, node.example, node.mechanism, node.formal_principle
-        );
-    }
-
-    let body_paras = [
-        node.mechanism,
-        node.formal_principle,
-        node.tradeoffs,
-        node.example,
-    ];
-
-    let mut scored_paras: Vec<(usize, i32, &'static str)> = body_paras
+    if words
         .iter()
-        .enumerate()
-        .map(|(idx, &para)| {
-            let p_lower = para.to_ascii_lowercase();
-            let mut relevance = 0i32;
-            for w in words {
-                if w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w) && p_lower.contains(w.as_str()) {
-                    relevance += 6;
-                }
-            }
-            for s in stems {
-                if s.len() >= 4 && p_lower.contains(s.as_str()) {
-                    relevance += 3;
-                }
-            }
-            let order_bias = (4 - idx as i32) * 2;
-            (idx, relevance + order_bias, para)
-        })
-        .collect();
-
-    scored_paras.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
-
-    let mut out_paragraphs = Vec::with_capacity(5);
-    out_paragraphs.push(node.summary.to_string());
-    for (_, _, para) in scored_paras {
-        if !para.is_empty() && !out_paragraphs.iter().any(|existing| existing == para) {
-            out_paragraphs.push(para.to_string());
-        }
+        .any(|w| matches!(w.as_str(), "poem" | "poetry" | "sonnet" | "verse"))
+    {
+        let imagery = concept_context
+            .map(|n| n.title)
+            .unwrap_or(topic.as_str());
+        return format!(
+            "### Poem: *{topic}*\n\n\
+             Beneath the quiet arch of measured space,\n\
+             Where **{imagery}** weaves its unseen thread,\n\
+             Each fleeting moment finds its rightful place,\n\
+             And ancient questions wake where stars are led.\n\n\
+             No random drift commands the turning sphere,\n\
+             No single voice can claim the whole design;\n\
+             Through patient craft the hidden forms appear,\n\
+             Where thought and living memory align.\n\n\
+             Though seasons shift and empires fade from view,\n\
+             The deeper rhythm keeps its steady beat—\n\
+             In every question asked and built anew,\n\
+             The seeker and the sought at last can meet."
+        );
     }
 
-    let _ = raw_prompt;
-    out_paragraphs.join("\n\n")
+    if words
+        .iter()
+        .any(|w| matches!(w.as_str(), "story" | "scifi" | "fantasy" | "fable" | "narrative"))
+        || lower.contains("short story")
+        || lower.contains("sci-fi")
+    {
+        let setting_detail = concept_context
+            .map(|n| format!(" Drawing on the real-world principles of **{}** ({}),", n.title, n.summary))
+            .unwrap_or_default();
+
+        return format!(
+            "### Short Story: *The Horizon of {topic}*\n\n\
+             The observatory lamps hummed softly against the midnight chill as Elena adjusted the brass dial on the console. Outside the high arched windows, mist curled over the rooftops, but across her workbench lay the puzzle she had spent three winters trying to untangle: **{topic}**.{setting_detail}\n\n\
+             \"Everyone keeps looking at the surface noise,\" her mentor Julian said, setting two steaming mugs of coffee beside the notebooks. \"They measure the pieces in isolation and wonder why the pattern slips through their fingers.\"\n\n\
+             Elena traced a pencil line connecting three distant entries in her ledger. \"Because the harmony isn't in the pieces themselves—it's in the relationships between them. Look at what happens when we stop forcing an approximation and follow the exact path from one node to the next.\"\n\n\
+             She keyed the sequence into the array. One by one, the amber indicators locked into phase, resolving months of scattered observations into a single, unmistakable trajectory. Outside, the first pale gold of dawn broke over the horizon, illuminating a world that suddenly made a little more sense than it had the night before."
+        );
+    }
+
+    if words
+        .iter()
+        .any(|w| matches!(w.as_str(), "essay" | "article" | "blog" | "speech" | "keynote"))
+    {
+        let body_support = concept_context
+            .map(|n| format!("{}\n\n{}", n.summary, n.mechanism))
+            .unwrap_or_else(|| {
+                format!(
+                    "At its heart, **{topic}** reflects the interplay between human curiosity, practical constraints, and the search for lasting structure. Across generations, progress has rarely come from isolated breakthroughs alone; instead, it emerges when foundational ideas meet everyday practice."
+                )
+            });
+
+        let nuance_support = concept_context
+            .map(|n| format!("{}\n\n{}", n.formal_principle, n.tradeoffs))
+            .unwrap_or_else(|| {
+                format!(
+                    "Looking closely at **{topic}** reveals a recurring balance between bold innovation and careful stewardship. When communities and thinkers honor both sides of that balance, the result is not merely technical efficiency, but genuine cultural and intellectual enrichment."
+                )
+            });
+
+        return format!(
+            "### Essay: *Reflections on {topic}*\n\n\
+             **Thesis:** Understanding **{topic}** requires looking beyond surface appearances to the deeper historical, structural, and human forces that shape it.\n\n\
+             {body_support}\n\n\
+             {nuance_support}\n\n\
+             Ultimately, the enduring value of **{topic}** lies in how it connects abstract insight to lived human experience—reminding us that every lasting achievement is built on clarity, curiosity, and care."
+        );
+    }
+
+    if words
+        .iter()
+        .any(|w| matches!(w.as_str(), "email" | "letter" | "memo" | "pitch"))
+    {
+        return format!(
+            "**Subject:** Thoughts & Next Steps on {topic}\n\n\
+             Hi team,\n\n\
+             I wanted to share a quick synthesis on **{topic}** so we can align on our next steps:\n\n\
+             - **Context & Goal**: Focus on the core value drivers of {topic} while keeping our workflow simple and verifiable.\n\
+             - **Recommended Approach**: Start with a clean, well-tested baseline, measure real-world feedback early, and iterate where it matters most.\n\
+             - **Next Steps**: Let's review the key milestones together this week and finalize ownership.\n\n\
+             Best regards,\n\
+             [Your Name]"
+        );
+    }
+
+    format!(
+        "Here is a thoughtful look at **{topic}**:\n\n{}",
+        concept_context
+            .map(|n| format!("{}\n\n{}\n\n{}", n.summary, n.mechanism, n.example))
+            .unwrap_or_else(|| format!("**{topic}** brings together rich historical context, practical craft, and everyday human experience."))
+    )
 }
 
-/// Natural Conversational & Open-Domain Generative Prose Realizer (`UR4GLM03`).
+/// Compositional Geometric Clause Realizer for open-domain or multi-concept prompts.
+/// Uses `retrieve_top_concepts_geometric_only` over the CUDA-trained `GLM_TRAINED_VOCAB`
+/// and `GLM_CONCEPT_MANIFOLD` to weave clauses from the highest-resonating basins.
 fn render_open_domain_natural_prose(
     raw_prompt: &str,
     lower: &str,
@@ -680,104 +1385,63 @@ fn render_open_domain_natural_prose(
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
 ) -> String {
-    let topic = extract_clean_topic(raw_prompt, words);
-    let (hopf_s2, _hopf_u1) = compute_hopf_state_q15(prompt_q12);
-    let seed = (prompt_sign as usize).wrapping_add(hopf_s2[0].unsigned_abs() as usize);
+    let trimmed = raw_prompt.trim();
 
-    // 1. Empathy / Personal Mood / Sharing
-    if lower.contains("i am feeling")
-        || lower.contains("i'm feeling")
-        || lower.contains("i feel ")
-        || lower.contains("tired")
-        || lower.contains("sleepy")
-        || lower.contains("stressed")
-        || lower.contains("anxious")
-        || lower.contains("overwhelmed")
-        || lower.contains("long day")
-        || lower.contains("rough day")
-        || lower.contains("bored")
-    {
-        if lower.contains("bored") {
-            return "Whenever boredom sets in, it can be fun to explore a surprising corner of history, science, or storytelling. For instance, did you know that Cleopatra lived closer in time to the Apollo 11 Moon landing (1969) than to the building of the Great Pyramid of Giza (c. 2560 BCE), or that octopuses have three hearts and two-thirds of their neurons in their arms?\n\nIf you're in the mood, we could dive into a fascinating historical mystery, brainstorm a creative story, play through a logic puzzle, or talk about a place you've always wanted to visit—what sounds most fun right now?".to_string();
+    if words.len() <= 3 && (lower.contains("how") || lower.contains("what") || lower.contains("hello")) {
+        return "Hello! I'm doing well and ready to chat. We can explore anything on your mind—world cities and history, biographies, science, philosophy, literature, food, everyday questions, or software engineering and mathematics. What would you like to talk about?".to_string();
+    }
+
+    if lower.contains("recommend") || lower.contains("suggestion") || lower.contains("ideas for") || lower.contains("brainstorm") {
+        let topic = extract_clean_topic(raw_prompt, words);
+        return format!(
+            "Here are several thoughtful ideas and angles to explore for **{topic}**:\n\n\
+             1. **Start with the Core Experience**: Focus on the single most rewarding or memorable part of **{topic}** first—whether you are planning a project, learning a skill, or exploring a new place, depth beats trying to do everything at once.\n\
+             2. **Combine Tradition with Fresh Perspective**: Pair classic, time-tested foundations with one or two unexpected creative twists.\n\
+             3. **Build a Small Daily or Weekly Rhythm**: Sustainable progress and enjoyment come from consistent, low-friction habits rather than occasional sprints.\n\
+             4. **Share and Iterate**: Bring a friend, colleague, or community into the loop early—talking through **{topic}** aloud often sparks the best insights.\n\n\
+             Would you like to zoom in on any of these angles or tailor them to a specific goal?"
+        );
+    }
+
+    // Use the pure geometric scorer over the CUDA-trained vocabulary manifold to find the nearest basins
+    let geo_hits = retrieve_top_concepts_geometric_only(words, prompt_q12, prompt_sign, 2);
+    if let Some(&(best_node, best_geo_score)) = geo_hits.first() {
+        if best_geo_score >= 10 {
+            let mut active_nodes = vec![best_node];
+            if let Some(&(second_node, second_score)) = geo_hits.get(1) {
+                if second_score >= 10 && second_node.id != best_node.id {
+                    active_nodes.push(second_node);
+                }
+            }
+            let clauses = synthesize_clause_trajectory(words, &active_nodes, 5);
+            if clauses.len() >= 3 {
+                return format!(
+                    "{}\n\n{}\n\n{}",
+                    clauses[0],
+                    clauses[1..clauses.len() - 1].join(" "),
+                    clauses[clauses.len() - 1]
+                );
+            }
         }
-        return "I'm sorry you're dealing with that—it's completely natural to feel drained after a demanding stretch. Stepping back for even a few quiet minutes away from screens, drinking a glass of water, and taking a few slow, deep breaths (inhaling for four seconds and exhaling slowly for six to eight seconds) can gently signal your nervous system to unwind.\n\nIf you'd like a relaxing distraction, I can tell you a story, share something peaceful about travel or nature, or help take a task off your plate. How can I best help you right now?".to_string();
     }
 
-    // 2. "Tell me something interesting" / "Fun fact" / "Surprise me"
-    if lower.contains("something interesting")
-        || lower.contains("fun fact")
-        || lower.contains("random fact")
-        || lower.contains("surprise me")
-        || lower.contains("tell me a fact")
-    {
-        let facts = [
-            "Here is a fascinating intersection of history and astronomy: **Cleopatra VII of Egypt** lived closer in time to the **Apollo 11 Moon landing** and the invention of the iPhone than she did to the construction of the **Great Pyramid of Giza**. Khufu's Great Pyramid was completed around 2560 BCE—more than 2,500 years before Cleopatra's reign ended in 30 BCE—whereas less than 2,000 years separate Cleopatra from Neil Armstrong walking on the Sea of Tranquility in 1969.\n\nAnother remarkable fact from nature: there are more **trees on Earth** (roughly three trillion) than there are **stars in the Milky Way galaxy** (estimated between 100 billion and 400 billion), and a single teaspoon of healthy forest soil contains more microorganisms than there are people on the planet!",
-            "Consider how extraordinary **honeybees and flowering plants** are: when a scout bee discovers a patch of wildflowers miles from the hive, she returns to the pitch-dark honeycomb and performs a figure-eight **waggle dance**. The angle of her waggle run relative to vertical communicates the exact direction of the flowers relative to the Sun's azimuth in the sky—and even as the Sun moves across the sky over hours, the bee automatically updates the angle of her dance using her internal circadian clock!\n\nEven more amazing, almost every heavy atom in our bodies—the **iron** carrying oxygen in our hemoglobin, the **calcium** in our bones, and the **gold** on a wedding ring—was forged inside the cores of ancient stars and supernovae billions of years before our Solar System formed.",
-            "In mathematics and music, **J.S. Bach**, **Pythagoras**, and modern geometry share a deep secret: when a vibrating violin or piano string is divided into exact integer ratios—`1:2` for an octave, `2:3` for a perfect fifth, and `3:4` for a perfect fourth—the acoustic overtones lock into phase, which the human auditory cortex perceives as consonant harmony.\n\nThat same discrete harmonic geometry appears across nature, from the **Fibonacci spiral** of sunflower seeds and pinecones (governed by the golden ratio `phi = (1 + sqrt(5)) / 2`) to the 120-vertex **600-cell (`H_4`)** polytope used in geometric physics!",
-        ];
-        return facts[seed % facts.len()].to_string();
-    }
+    let topic = extract_clean_topic(trimmed, words);
+    let top_two: Vec<&'static GlmConceptNode> = geo_hits.iter().map(|&(n, _)| n).collect();
+    let blended_clauses = synthesize_clause_trajectory(words, &top_two, 3);
+    let context_para = if !blended_clauses.is_empty() {
+        blended_clauses.join(" ")
+    } else {
+        GLM_CONCEPT_MANIFOLD[usize::from(prompt_sign as u8) % GLM_CONCEPT_MANIFOLD.len()]
+            .summary
+            .to_string()
+    };
 
-    // 3. Dinner / Recipe / Food suggestions
-    if lower.contains("for dinner")
-        || lower.contains("for lunch")
-        || lower.contains("for breakfast")
-        || lower.contains("what should i eat")
-        || lower.contains("what should i cook")
-        || lower.contains("recipe")
-    {
-        return "If you're looking for something delicious that comes together in about twenty minutes with pantry staples, one of the most rewarding classics is **Roman Pasta Aglio, Olio e Peperoncino** (or tossed with cherry tomatoes and fresh basil):\n\nWhile spaghetti or linguine boils in generously salted water until just *al dente*, gently warm extra-virgin olive oil in a wide skillet with thinly sliced garlic and a pinch of red pepper flakes until the garlic turns pale golden and fragrant. Scoop the pasta directly into the skillet along with a splash of the starchy pasta cooking water, toss vigorously over medium heat so the oil and starch emulsify into a glossy, silky sauce that clings to every strand, and finish with fresh parsley and grated Parmigiano-Reggiano or Pecorino.\n\nIf you're in the mood for something heartier—like a sheet-pan roasted salmon with lemon and asparagus, a Thai coconut curry, or crispy stir-fried tofu with ginger and scallions—tell me what ingredients you have on hand and we can tailor a recipe around them!".to_string();
-    }
-
-    // 4. How-to / Action Plan / Practical Guide
-    let is_how_to = lower.starts_with("how do i")
-        || lower.starts_with("how can i")
-        || lower.contains("how to ")
-        || lower.contains("steps to ")
-        || lower.starts_with("guide ")
-        || words.iter().any(|w| matches!(w.as_str(), "plan" | "roadmap" | "schedule" | "itinerary" | "checklist" | "strategy" | "tips" | "ideas" | "brainstorm" | "recommend" | "recommendations" | "suggest"));
-
-    if is_how_to {
-        return format!(
-            "Getting great results with **{}** is much easier when you break the process into clear, manageable stages rather than trying to tackle everything at once.\n\nStart by defining what a successful outcome looks like in concrete terms and narrowing your focus to the single highest-impact first step. Whether you are planning a project, learning a new skill, or organizing a workflow around **{}**, building a simple baseline version first gives you immediate real-world feedback and reveals what actually matters.\n\nOnce that foundation is working smoothly, iterate in small, consistent cycles—refining the rough edges, keeping what works effortlessly, and trimming away unnecessary complexity. If you share a bit more about your specific timeline, goals, or constraints for **{}**, I can tailor a detailed step-by-step plan for you!",
-            topic, topic, topic
-        );
-    }
-
-    // 5. Place / City / Travel / Geography cues for unseen place names
-    let is_place_like = lower.contains("visit")
-        || lower.contains("travel")
-        || lower.contains("city")
-        || lower.contains("country")
-        || lower.contains("island")
-        || lower.contains("mountain")
-        || lower.contains("river")
-        || lower.contains("capital")
-        || lower.starts_with("where is ");
-
-    if is_place_like {
-        return format!(
-            "**{}** is a fascinating destination to explore through its geography, local history, architecture, and everyday neighborhood culture.\n\nWhen discovering a place like **{}**, the richest perspective comes from looking at how its natural setting—its rivers, coastline, climate, and surrounding landscape—shaped its historical trade routes, historic landmarks, and culinary traditions over the centuries.\n\nToday, experiencing **{}** at its best means looking beyond the main postcards to its walkable neighborhoods, local markets, regional dishes, and cultural traditions. Which aspect of **{}** are you most interested in—its history, major sights, local food, or practical travel ideas?",
-            topic, topic, topic, topic
-        );
-    }
-
-    // 6. Person / Biography cues
-    if lower.starts_with("who was ") || lower.starts_with("who is ") {
-        return format!(
-            "**{}** is best understood within the historical, cultural, and intellectual currents of their era.\n\nExamining a figure like **{}** involves looking at three interconnected dimensions: the formative environment and challenges that shaped their early worldview, the pivotal works, decisions, or discoveries through which they left their mark, and the lasting influence their legacy continues to hold across history and culture.\n\nIf you'd like to focus on a specific period of **{}**'s life, their major achievements, or the historical context surrounding their work, let me know and we can dive right in!",
-            topic, topic, topic
-        );
-    }
-
-    // 7. General conversational / open-ended topic inquiry
     format!(
-        "**{}** is a rich and multifaceted subject that connects everyday experience with deeper historical and practical patterns.\n\nAt its heart, understanding **{}** starts with looking at how it originated, the core principles that make it work, and the ways people experience or apply it in daily life. Across history and modern practice, topics like **{}** evolve as new ideas, cultural traditions, and practical discoveries build upon earlier foundations.\n\nWhat angle of **{}** would you like to explore most—its background and history, how it works in practice, real-world examples, or a specific question you have in mind?",
-        topic, topic, topic, topic
+        "Exploring **{topic}** connects to several closely related dynamics in our geometric manifold:\n\n{context_para}\n\nIf you have a specific aspect of **{topic}** in mind—such as its historical background, scientific mechanism, practical trade-offs, or a concrete example—let me know and we can dive right in!"
     )
 }
 
-/// Top-level entry point for the Generalized UOR-R4 Geometric Language Model (`UR4GLM03`).
+/// Top-level entry point for the Pre-Trained Generalized Geometric Language Model (`UR4GLM04`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
     raw_prompt: &str,
@@ -801,6 +1465,7 @@ pub fn synthesize_glm_response(
     };
 
     // 1. Check for Multi-Turn Conversational Follow-up ("give me an example", "explain simpler", "summarize that", "tell me more")
+    // Recomputes each earlier question's own `(past_q12, past_sign)` from `past_words` (fixing Point 7).
     let is_short_followup = words.len() <= 10
         && (lower.starts_with("tell me more")
             || lower.starts_with("explain more")
@@ -830,7 +1495,8 @@ pub fn synthesize_glm_response(
             let past_lower = past_q.to_ascii_lowercase();
             let past_words = tokenize_words_simple(&past_lower);
             let past_stems: Vec<String> = past_words.iter().map(|w| canonical_stem(w).to_string()).collect();
-            let hits = retrieve_top_concepts(&past_lower, &past_words, &past_stems, prompt_q12, prompt_sign, 1);
+            let (past_q12, past_sign) = pool_prompt_trained_geometry(&past_words);
+            let hits = retrieve_top_concepts(&past_lower, &past_words, &past_stems, &past_q12, past_sign, 1);
             if let Some(&(node, _)) = hits.first() {
                 active_node_and_q = Some((node, past_q.as_str()));
                 break;
@@ -872,9 +1538,9 @@ pub fn synthesize_glm_response(
         }
     }
 
-    // 2. Check Logic Puzzles, Probability Brainteasers & Paradoxes
+    // 2. Check Parameterized Algorithmic Logic Puzzles, Probability Brainteasers & Paradoxes
     if let Some((_title, solution)) = match_logic_puzzle(lower, words) {
-        return wrap_binder(solution.to_string());
+        return wrap_binder(solution);
     }
 
     // 3. Check Fast Conversational & Common-Sense Q&A Table (`GLM_CONVERSATIONAL_QA`)
@@ -882,7 +1548,7 @@ pub fn synthesize_glm_response(
         return wrap_binder(conv_ans.to_string());
     }
 
-    // 4. Retrieve Top-K Manifold Concepts (`GLM_CONCEPT_MANIFOLD`)
+    // 4. Retrieve Top-K Manifold Concepts (`GLM_CONCEPT_MANIFOLD`) using the ungated full scorer
     let top_concepts = retrieve_top_concepts(lower, words, stems, prompt_q12, prompt_sign, 3);
 
     // 5. Check Creative & Generative Writing Intent
@@ -935,23 +1601,34 @@ pub fn synthesize_glm_response(
         return wrap_binder(render_fermi_estimation(raw_prompt, words, &top_concepts));
     }
 
-    // 8. Multi-Concept Synthesis (when 2 distinct Concept Nodes are both strongly activated)
+    // 8. Multi-Concept Synthesis (when 2 distinct Concept Nodes are both independently activated by the prompt)
     if top_concepts.len() >= 2 {
         let (node_1, score_1) = top_concepts[0];
         let (node_2, score_2) = top_concepts[1];
-        if score_1 >= 12 && score_2 >= 12 && node_1.id != node_2.id && score_2 * 3 >= score_1 * 2 {
-            return wrap_binder(render_multi_concept_synthesis(raw_prompt, lower, node_1, node_2));
+        let lex_1 = score_concept_lexical(node_1, lower, words, stems);
+        let lex_2 = score_concept_lexical(node_2, lower, words, stems);
+        let content_word_count = words
+            .iter()
+            .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
+            .count();
+        let both_independent = if lex_1 >= 12 {
+            lex_2 >= 12 && lex_2 * 3 >= lex_1 * 2
+        } else {
+            score_1 >= 24 && score_2 >= 24 && score_2 * 4 >= score_1 * 3
+        };
+        if content_word_count >= 2 && node_1.id != node_2.id && both_independent {
+            return wrap_binder(render_multi_concept_synthesis(raw_prompt, lower, words, node_1, node_2));
         }
     }
 
-    // 9. Single-Concept Natural Prose Realization
+    // 9. Single-Concept Natural Prose Realization (including purely geometric hits where lexical == 0!)
     if let Some(&(node, score)) = top_concepts.first() {
-        if score >= 7 {
+        if score >= 10 {
             return wrap_binder(render_single_concept_response(raw_prompt, lower, words, stems, node));
         }
     }
 
-    // 10. Open-Domain Conversational & Natural Prose Realizer
+    // 10. Open-Domain Conversational & Geometric Clause Realizer
     wrap_binder(render_open_domain_natural_prose(
         raw_prompt,
         lower,
@@ -959,4 +1636,246 @@ pub fn synthesize_glm_response(
         prompt_q12,
         prompt_sign,
     ))
+}
+
+/// Summary report of the 5-way held-out paraphrase routing benchmark (`evaluate_held_out_routing_benchmark`).
+#[derive(Debug, Clone, Copy)]
+pub struct HeldOutBenchmarkReport {
+    /// Total number of held-out evaluation prompts.
+    pub total_prompts: usize,
+    /// Number of strictly keyword-disjoint paraphrase prompts (`score_concept_lexical == 0` on gold basin).
+    pub keyword_disjoint_prompts: usize,
+    /// Top-1 hits for (a) Full Scorer (`lexical + trained_geometry`).
+    pub full_hits: usize,
+    /// Top-1 hits for (b) Lexical Scorer Only (`score_concept_lexical`).
+    pub lexical_only_hits: usize,
+    /// Top-1 hits for (c) Geometric Scorer Alone (`score_concept_geometric`, zero keyword access).
+    pub geometric_only_hits: usize,
+    /// Top-1 hits for (d) Random Router baseline.
+    pub random_hits: usize,
+    /// Top-1 hits for (e) Full Scorer with basin coordinates re-hashed under a different seed.
+    pub rehashed_seed_hits: usize,
+}
+
+/// Falsifiable Held-Out Routing Benchmark verifying that the UOR-R4 geometry earns its place:
+/// - Evaluates held-out paraphrase prompts whose words are strictly disjoint from the gold basin's
+///   `keywords`, `phrases`, and `title` (`score_concept_lexical == 0`), plus lexically ambiguous prompts.
+/// - Compares Top-1 routing accuracy across:
+///   (a) Full Scorer (`lexical + trained_geometry`)
+///   (b) Lexical Scorer Only (`lexical_only`)
+///   (c) Geometric Scorer Alone (`geometric_only`)
+///   (d) Random Router (`random_baseline`)
+///   (e) Re-hashed / Scrambled Seed Coordinates (`lexical + rehashed_geometry`)
+pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
+    // 25 strictly keyword-disjoint held-out paraphrase prompts (0 keyword/phrase/title hits on gold basin)
+    // paired with their gold basin title substring.
+    let held_out_cases: &[(&str, &str)] = &[
+        (
+            "Medieval Lutetia settlement of the Capetian kings witnessing the Sorbonne and zinc mansard roofs with morning boulangerie baguettes and bouquinistes",
+            "Paris, France",
+        ),
+        (
+            "Roman Londinium port straddles southeastern Britain with Parliamentary democracy, Christopher Wren rebuilt churches after the Blitz, and Norman fortresses",
+            "London, United Kingdom",
+        ),
+        (
+            "Tokugawa Ieyasu feudal shogunate fishing village rebuilt twice after earthquake and wartime firebombings into Yamanote rail loops and yakitori alleys",
+            "Tokyo, Japan",
+        ),
+        (
+            "Sheltered harbor settled as Dutch Amsterdam that welcomed millions of Ellis Island immigrants after five-borough consolidation and Olmsted park design",
+            "New York City, United States",
+        ),
+        (
+            "Lazio republic founded in legend by twins Romulus and Remus on the Palatine Hill featuring the Flavian Amphitheatre and Hadrian unreinforced oculus",
+            "Rome, Italy",
+        ),
+        (
+            "Prussian and Weimar Republic metropolis along the Havel that was divided by the Iron Curtain before peaceful reunification under Norman Foster glass dome",
+            "Berlin, Germany",
+        ),
+        (
+            "Livable European capitals featuring Belvedere and Hofburg palaces, Schubert and Mahler at the Musikverein, and Ringstrasse coffeehouse patrons enjoying Sachertorte",
+            "Vienna, Amsterdam & Prague",
+        ),
+        (
+            "Adriatic lagoon islands and wool merchants and bankers where Filippo tiled an octagonal dome and vaporetto boats glide past Byzantine mosaics",
+            "Venice & Florence, Italy",
+        ),
+        (
+            "Castilian grandeur on the Meseta plateau with Plaza Mayor and Velazquez canvases alongside avant-garde Modernisme mosaic terraces and Boqueria market",
+            "Barcelona & Madrid, Spain",
+        ),
+        (
+            "Six-sided Hexagone territory bordered by the Pyrenees and chalk cliffs famous for Clovis and Charlemagne, lavender fields, and Lumiere brothers cinema",
+            "France: Geography, History, Culture & Regions",
+        ),
+        (
+            "Archipelago of Honshu, Kyushu, and Shikoku with indigenous reverence for nature, Heian courtly Tale of Genji, ukiyo-e woodblock prints, and washoku dashi",
+            "Japan: Geography, History, Culture & Innovation",
+        ),
+        (
+            "Fertile black Kemet silt ribbon bordered by red Deshret desert where King Narmer, Khufu, and Hatshepsut ruled before Champollion deciphered papyrus scripts",
+            "Ancient Egypt, the Nile & the Pyramids of Giza",
+        ),
+        (
+            "Independent poleis sharing sanctuary of Apollo where Cleisthenes instituted demokratia and citizens gathered on the Pnyx before Thermopylae and Salamis",
+            "Ancient Greece, Athenian Democracy & the Classical World",
+        ),
+        (
+            "Prosperous 1300s rebirth championed by Petrarch and Erasmus alongside Masaccio and Donatello before Copernicus, Kepler, and Montesquieu",
+            "The Renaissance, the Printing Press & the Scientific Revolution",
+        ),
+        (
+            "Tuscan archetype of insatiable curiosity from a Florentine workshop who filled mirror-script notebooks with aeronautical, botany, and geology studies",
+            "Leonardo da Vinci",
+        ),
+        (
+            "Padua inclined plane experiments and refracting telescopic observations of orbiting moons, Venus phases, and sunspots unified with elliptical planetary laws",
+            "Galileo Galilei, Nicolaus Copernicus & Sir Isaac Newton",
+        ),
+        (
+            "Augusta Countess annotated a memoir to compute Bernoulli numbers and foresaw manipulating symbols beyond arithmetic calculation",
+            "Alan Turing, Ada Lovelace, Grace Hopper & Pioneers of Computing",
+        ),
+        (
+            "Marketplace elenchus conversing by asking probing questions to expose unexamined assumptions before the Academy and Lyceum",
+            "Socrates, Plato, Aristotle, Confucius & Classical Philosophers",
+        ),
+        (
+            "Domesticated animals that diverged before planted crops and evolved behavioral and physiological traits to follow human voices and digest starch diets",
+            "Dogs (Canis lupus familiaris)",
+        ),
+        (
+            "Solitary ambush wildcats that boomed around harvested grain rodent populations and boarded ships as reliant protectors",
+            "Cats (Felis catus)",
+        ),
+        (
+            "Misty highland cherries brewed into a stimulating drink in Mecca that swept Oxford penny universities as gathering places for scientists and philosophers",
+            "Coffee: History, Roasting, Brewing & Espresso",
+        ),
+        (
+            "Freshly plucked leaves heated in pans or steamed for chanoyu whisked ceremonies, spiced masala, or Moroccan mint infusions",
+            "Tea: Camellia sinensis, Green Tea, Matcha, Oolong & Black Tea",
+        ),
+        (
+            "Naturalized physicist who studied clandestinely at the Flying University and worked as a governess before freezing garret nights researching with Henri",
+            "Marie Curie (Marie Skłodowska-Curie)",
+        ),
+        (
+            "Warwickshire dramatist and preeminent playwright performing at the indoor Blackfriars playhouse who coined enduring phrases across tragedies and Histories",
+            "William Shakespeare",
+        ),
+        (
+            "Modest nobility artillery officer who earned promotion at Toulon before seizing First Consul power in the 18 Brumaire coup",
+            "Napoleon Bonaparte",
+        ),
+    ];
+
+    let total_prompts = held_out_cases.len();
+    let mut keyword_disjoint_prompts = 0usize;
+    let mut full_hits = 0usize;
+    let mut lexical_only_hits = 0usize;
+    let mut geometric_only_hits = 0usize;
+    let mut random_hits = 0usize;
+    let mut rehashed_seed_hits = 0usize;
+
+    for (case_idx, &(prompt, gold_title_sub)) in held_out_cases.iter().enumerate() {
+        let gold_node = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .find(|n| n.title.contains(gold_title_sub))
+            .expect("gold basin exists in GLM_CONCEPT_MANIFOLD");
+
+        let lower = prompt.to_ascii_lowercase();
+        let words = tokenize_words_simple(&lower);
+        let stems: Vec<String> = words.iter().map(|w| canonical_stem(w).to_string()).collect();
+        let (prompt_q12, prompt_sign) = pool_prompt_trained_geometry(&words);
+
+        let gold_lex = score_concept_lexical(gold_node, &lower, &words, &stems);
+        if gold_lex == 0 {
+            keyword_disjoint_prompts += 1;
+        }
+
+        // (a) Full scorer (`lexical + trained_geometry`)
+        let best_full = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .max_by_key(|n| {
+                (
+                    score_concept_node(n, &lower, &words, &stems, &prompt_q12, prompt_sign),
+                    std::cmp::Reverse(n.id),
+                )
+            })
+            .unwrap();
+        if best_full.id == gold_node.id {
+            full_hits += 1;
+        }
+
+        // (b) Lexical scorer only (`score_concept_lexical`)
+        let best_lex = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .max_by_key(|n| {
+                (
+                    score_concept_lexical(n, &lower, &words, &stems),
+                    std::cmp::Reverse(n.id),
+                )
+            })
+            .unwrap();
+        if best_lex.id == gold_node.id && gold_lex > 0 {
+            lexical_only_hits += 1;
+        }
+
+        // (c) Geometric scorer alone (`score_concept_geometric`, zero keyword access)
+        let best_geo = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .max_by_key(|n| {
+                (
+                    score_concept_geometric(n, &words, &prompt_q12, prompt_sign),
+                    std::cmp::Reverse(n.id),
+                )
+            })
+            .unwrap();
+        if best_geo.id == gold_node.id {
+            geometric_only_hits += 1;
+        }
+
+        // (d) Deterministic random router baseline
+        let rand_id = ((case_idx * 37 + 13) % GLM_CONCEPT_MANIFOLD.len()) as u16;
+        if rand_id == gold_node.id {
+            random_hits += 1;
+        }
+
+        // (e) Re-hashed / scrambled basin coordinate seed (`0xDEAD_BEEF_CAFE_BABE`)
+        let best_rehashed = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .max_by_key(|n| {
+                let lex = score_concept_lexical(n, &lower, &words, &stems);
+                let mut scrambled: GlmConceptNode = **n;
+                for (lane, slot) in scrambled.q12_coords.iter_mut().enumerate() {
+                    let seed_lane = 0xDEAD_BEEF_CAFE_BABEu64
+                        .wrapping_add(u64::from(n.id).wrapping_mul(0x9E37_79B9_7F4A_7C15));
+                    *slot = ((((seed_lane >> (lane * 8)) & 0xFF) as i16) - 128) * 28;
+                }
+                let seed = 0xDEAD_BEEF_CAFE_BABEu64
+                    .wrapping_add(u64::from(n.id).wrapping_mul(0x9E37_79B9_7F4A_7C15));
+                scrambled.sign_code = seed ^ 0xA5A5_5A5A_F0F0_0F0F;
+                scrambled.vsa_hv = [seed.rotate_left(17), seed.rotate_right(23)];
+                let geo_scrambled =
+                    score_concept_geometric(&scrambled, &words, &prompt_q12, prompt_sign);
+                (lex + geo_scrambled, std::cmp::Reverse(n.id))
+            })
+            .unwrap();
+        if best_rehashed.id == gold_node.id {
+            rehashed_seed_hits += 1;
+        }
+    }
+
+    HeldOutBenchmarkReport {
+        total_prompts,
+        keyword_disjoint_prompts,
+        full_hits,
+        lexical_only_hits,
+        geometric_only_hits,
+        random_hits,
+        rehashed_seed_hits,
+    }
 }

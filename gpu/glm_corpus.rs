@@ -1,5 +1,5 @@
-//! Pure-Rust Multi-Domain Natural Prose & Conversational Corpus (`UR4GLM03`).
-//! Zero Python dependency: compiled directly by `gpu/train_general_glm.rs` and `gpu/general_glm.cu`.
+// Pure-Rust Multi-Domain Natural Prose & Conversational Corpus (`UR4GLM04`).
+// Zero Python dependency: compiled directly by `gpu/train_general_glm.rs` and `gpu/general_glm.cu`.
 
 pub type RawConceptTuple = (
     &'static str,

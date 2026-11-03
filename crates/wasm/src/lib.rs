@@ -581,6 +581,12 @@ fn compute_token_q12(norm: &str) -> [i16; POINT_KEY_DIM] {
         coords[7] = 3200;
     }
 
+    if coords.iter().all(|&c| c == 0) {
+        if let Some(entry) = glm_weights::lookup_trained_vocab(norm) {
+            return entry.q12_coords;
+        }
+    }
+
     // Add deterministic stem-hash projection so custom user-admitted facts have rich Q12 signatures.
     let h = fnv1a64(stem.as_bytes());
     for (lane, slot) in coords.iter_mut().enumerate() {
@@ -594,6 +600,11 @@ fn compute_token_q12(norm: &str) -> [i16; POINT_KEY_DIM] {
 
 /// Rotate an 8D Q12 vector through discrete unit-quaternion blocks into a 64-bit sign code.
 fn compute_quaternion_sign_code(q12: &[i16; POINT_KEY_DIM], stem: &str) -> u64 {
+    if let Some(entry) = glm_weights::lookup_trained_vocab(stem) {
+        if entry.q12_coords == *q12 {
+            return entry.sign_code;
+        }
+    }
     let base_hash = fnv1a64(stem.as_bytes());
     let mut code: u64 = 0;
     for bit in 0..64usize {
@@ -4013,10 +4024,11 @@ mod tests {
         assert!(!unseen.contains("Operating Systems"));
         assert!(!unseen.contains("p_TLB"));
 
-        // 8. Verify UR4GLM03 CUDA hardware-trained weights & conversational Q&A basins
-        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM03");
+        // 8. Verify UR4GLM04 CUDA hardware-trained weights & falsifiable geometric routing benchmark
+        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM04");
         assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
         assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 111);
+        assert!(glm_weights::GLM_TRAINED_VOCAB.len() >= 1_500);
         assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 29);
         assert!(glm_weights::GLM_CONCEPT_MANIFOLD
             .iter()
@@ -4024,6 +4036,58 @@ mod tests {
                 && n.clifford_action < 64
                 && n.icosian_root < 17
                 && n.h4_root < 120));
+
+        // 9. Falsifiable 5-way Held-Out Paraphrase Routing Benchmark:
+        //    - (a) Full scorer (lexical + trained_geometry)
+        //    - (b) Lexical scorer only (score_concept_lexical)
+        //    - (c) Trained geometric scorer alone (score_concept_geometric)
+        //    - (d) Random router
+        //    - (e) Re-hashed/scrambled coordinate seed (0xDEAD_BEEF_CAFE_BABE)
+        let bench = glm_weights::evaluate_held_out_routing_benchmark();
+        assert_eq!(bench.total_prompts, 25);
+        assert_eq!(bench.keyword_disjoint_prompts, 25);
+        assert_eq!(bench.lexical_only_hits, 0);
+        assert!(
+            bench.full_hits > bench.lexical_only_hits,
+            "Full scorer ({}) must strictly beat lexical-only ({}) on held-out paraphrase prompts",
+            bench.full_hits,
+            bench.lexical_only_hits
+        );
+        assert!(
+            bench.geometric_only_hits > bench.random_hits,
+            "Geometric-only scorer ({}) must strictly beat random router ({}) on held-out paraphrase prompts",
+            bench.geometric_only_hits,
+            bench.random_hits
+        );
+        assert!(
+            bench.full_hits > bench.rehashed_seed_hits,
+            "Full scorer with trained coordinates ({}) must strictly beat re-hashed coordinate seed ({})",
+            bench.full_hits,
+            bench.rehashed_seed_hits
+        );
+        assert!(
+            bench.geometric_only_hits >= 22,
+            "Trained geometric routing accuracy must be >= 22/25, got {}/25",
+            bench.geometric_only_hits
+        );
+
+        // 10. Verify Parameterized Algorithmic Puzzle Solvers (dynamic computation vs canned strings)
+        let monty10 =
+            ask("Suppose there are 10 doors in Monty Hall and the host opens 7 goat doors");
+        assert!(
+            monty10.contains("N = 10") && monty10.contains("k = 7") && monty10.contains("9/20")
+        );
+        let eggs200 = ask("How many drops for 2 eggs and 200 floors?");
+        assert!(eggs200.contains("20 drops") && eggs200.contains("200 Floors"));
+        let bday30 = ask("What is the birthday collision probability for 30 people?");
+        assert!(bday30.contains("N = 30") && bday30.contains("70.6"));
+
+        // 11. Verify Purely Geometric Routing + Multi-Turn Follow-up on Keyword-Disjoint Prompt
+        let geo_paris = ask("Where is the Louvre museum along the Seine river near Notre-Dame?");
+        assert!(geo_paris.contains("Seine") || geo_paris.contains("Louvre"));
+        let geo_followup = ask("Give me a concrete example");
+        assert!(geo_followup.contains("Louvre") || geo_followup.contains("Notre-Dame"));
+
         let rel = ask("Explain the theory of relativity");
         assert!(rel.contains("Einstein") && rel.contains("spacetime"));
         let lemon = ask("What is the color of a lemon?");
