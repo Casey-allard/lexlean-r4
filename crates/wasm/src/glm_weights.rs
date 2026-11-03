@@ -63334,9 +63334,9 @@ pub static GLM_CONCEPT_MANIFOLD: [GlmConceptNode; 111] = [
     GlmConceptNode {
         id: 43,
         domain: "Computer Science · Architecture",
-        title: "UOR-R4 Geometric Language Model vs. Transformers",
-        keywords: &["uorr4", "transformer", "transformers", "attention", "matmul", "geometric", "llm", "glms"],
-        phrases: &["uor-r4", "geometric language model", "self attention", "matrix multiplication"],
+        title: "Artificial Intelligence (AI), UOR-R4 Geometric Language Model & Transformers",
+        keywords: &["ai", "artificial", "intelligence", "agi", "uorr4", "transformer", "transformers", "attention", "matmul", "geometric", "llm", "llms", "glms", "reasoning"],
+        phrases: &["artificial intelligence", "general intelligence", "language model", "large language model", "uor-r4", "geometric language model", "self attention", "matrix multiplication", "future of ai", "think about ai", "talk about ai"],
         q12_coords: [-1533, 1163, -1367, -2424, -997, -2313, 896, -1925],
         sign_code: 0x547f5af92c5a5cd0,
         hopf_s2: [-4142, -30375, -11570],
@@ -65558,6 +65558,14 @@ fn is_generic_conversational_word(w: &str) -> bool {
             | "tonight"
             | "morning"
             | "evening"
+            | "day"
+            | "going"
+            | "doing"
+            | "fine"
+            | "well"
+            | "mind"
+            | "thoughts"
+            | "thinking"
             | "life"
             | "world"
             | "time"
@@ -66117,7 +66125,7 @@ pub fn score_concept_lexical(
 
     for &ph in node.phrases {
         if lower.contains(ph) {
-            lexical_score += 24;
+            lexical_score += 65;
             specific_hits += 2;
         }
     }
@@ -66714,6 +66722,85 @@ fn synthesize_clause_trajectory(
     selected
 }
 
+/// Normalize a sentence to its lowercase alphanumeric word sequence for exact and near-duplicate detection.
+fn normalize_sentence_key(sentence: &str) -> Vec<String> {
+    tokenize_words_simple(&sentence.to_ascii_lowercase())
+        .into_iter()
+        .filter(|w| w.len() >= 2)
+        .collect()
+}
+
+/// Deduplicate repeated or near-identical sentences across all paragraphs of a generated response.
+fn dedup_prose_paragraphs(text: &str) -> String {
+    if text.contains("```") {
+        return text.to_string();
+    }
+    let mut seen_keys: Vec<Vec<String>> = Vec::new();
+    let mut out_paragraphs: Vec<String> = Vec::new();
+
+    for para in text.split("\n\n") {
+        let trimmed = para.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+        if trimmed.starts_with('#') || trimmed.starts_with("- ") || trimmed.starts_with("1. ") {
+            out_paragraphs.push(trimmed.to_string());
+            continue;
+        }
+        let sentences: Vec<String> = trimmed
+            .split(". ")
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(|s| {
+                if s.ends_with('.') || s.ends_with('!') || s.ends_with('?') || s.ends_with(':') {
+                    s.to_string()
+                } else {
+                    format!("{s}.")
+                }
+            })
+            .collect();
+        if sentences.is_empty() {
+            let key = normalize_sentence_key(trimmed);
+            if !key.is_empty() && !seen_keys.contains(&key) {
+                seen_keys.push(key);
+                out_paragraphs.push(trimmed.to_string());
+            }
+            continue;
+        }
+        let mut kept_sentences: Vec<String> = Vec::new();
+        for sent in sentences {
+            let key = normalize_sentence_key(&sent);
+            if key.is_empty() {
+                continue;
+            }
+            let is_dup = seen_keys.iter().any(|existing| {
+                if existing == &key {
+                    return true;
+                }
+                if existing.len() >= 6 && key.len() >= 6 {
+                    let shared = key.iter().filter(|w| existing.contains(w)).count();
+                    let min_len = existing.len().min(key.len());
+                    return shared * 10 >= min_len * 8;
+                }
+                false
+            });
+            if !is_dup {
+                seen_keys.push(key);
+                kept_sentences.push(sent);
+            }
+        }
+        if !kept_sentences.is_empty() {
+            out_paragraphs.push(kept_sentences.join(" "));
+        }
+    }
+
+    if out_paragraphs.is_empty() {
+        text.to_string()
+    } else {
+        out_paragraphs.join("\n\n")
+    }
+}
+
 /// Render a natural-prose multi-concept synthesis when 2 distinct concept basins are co-activated.
 fn render_multi_concept_synthesis(
     raw_prompt: &str,
@@ -66726,24 +66813,25 @@ fn render_multi_concept_synthesis(
     let (token_stream, stepped, _) =
         generate_token_level_geometric_prose(words, &[node_1, node_2], 45, 95);
     let clauses = synthesize_clause_trajectory(words, &[node_1, node_2], 4);
-    if stepped >= 25 && clauses.len() >= 2 {
-        return format!(
+    let raw_out = if stepped >= 25 && clauses.len() >= 2 {
+        format!(
             "{}\n\n{}\n\n{}",
             clauses[0],
             token_stream,
             clauses[1..].join(" ")
-        );
-    }
-    if clauses.len() >= 4 {
+        )
+    } else if clauses.len() >= 4 {
         let p1 = clauses[0..2].join(" ");
         let p2 = clauses[2..4].join(" ");
         let p3 = clauses[4..].join(" ");
-        return format!("{}\n\n{}\n\n{}", p1, p2, p3);
-    }
-    format!(
-        "{}\n\n{}\n\n{}\n\n{}",
-        node_1.summary, node_1.mechanism, node_2.summary, node_2.mechanism
-    )
+        format!("{}\n\n{}\n\n{}", p1, p2, p3)
+    } else {
+        format!(
+            "{}\n\n{}\n\n{}\n\n{}",
+            node_1.summary, node_1.mechanism, node_2.summary, node_2.mechanism
+        )
+    };
+    dedup_prose_paragraphs(&raw_out)
 }
 
 /// Render a natural, flowing conversational response for a matched `GlmConceptNode`,
@@ -66773,18 +66861,57 @@ fn render_single_concept_response(
         || lower.starts_with("summarize");
 
     if is_eli5 {
-        return format!(
+        return dedup_prose_paragraphs(&format!(
             "Here is an **Intuitive (ELI5)** way to think about **{}**:\n\n{}\n\n**Everyday Example:** {}\n\nUnder the hood, {}",
             node.title, node.summary, node.example, node.mechanism
-        );
+        ));
     }
 
     if is_brief {
         let top_clauses = synthesize_clause_trajectory(words, &[node], 3);
         if top_clauses.len() >= 2 {
-            return top_clauses.join(" ");
+            return dedup_prose_paragraphs(&top_clauses.join(" "));
         }
-        return format!("{}\n\n{}", node.summary, node.example);
+        return dedup_prose_paragraphs(&format!("{}\n\n{}", node.summary, node.example));
+    }
+
+    // Detect conversational reciprocity framing (e.g., "My day is going fine. I think that artificial intelligence is on my mind. How about you?")
+    let has_day_or_mood = lower.contains("my day")
+        || lower.contains("doing fine")
+        || lower.contains("doing well")
+        || lower.contains("doing good")
+        || lower.contains("going fine")
+        || lower.contains("going well")
+        || lower.contains("i am fine")
+        || lower.contains("i am good");
+    let has_mind_or_reciprocity = lower.contains("on my mind")
+        || lower.contains("how about you")
+        || lower.contains("what about you")
+        || lower.contains("what do you think");
+
+    if has_day_or_mood || has_mind_or_reciprocity {
+        let opener = if has_day_or_mood {
+            format!(
+                "Glad to hear your day is going well! **{}** is very much on my mind too—it's one of my favorite subjects to explore.",
+                node.title
+            )
+        } else {
+            format!(
+                "I've been thinking about **{}** as well—it's a fascinating area to dive into together.",
+                node.title
+            )
+        };
+        let clauses = synthesize_clause_trajectory(words, &[node], 4);
+        let body = if clauses.len() >= 3 {
+            format!("{}\n\n{}", clauses[0..2].join(" "), clauses[2..].join(" "))
+        } else {
+            format!("{}\n\n{}", node.summary, node.mechanism)
+        };
+        let closer = format!(
+            "What side of **{}** is on your mind today—how it works under the hood, where it is headed next, or a concrete example we can walk through?",
+            node.title
+        );
+        return dedup_prose_paragraphs(&format!("{opener}\n\n{body}\n\n{closer}"));
     }
 
     // Check if the query specifically targets a sub-aspect (e.g. examples, trade-offs, history/mechanism)
@@ -66800,17 +66927,14 @@ fn render_single_concept_response(
             let p1 = clauses[0..2].join(" ");
             let p2 = clauses[2..4].join(" ");
             let p3 = clauses[4..].join(" ");
-            return format!(
-                "{}\n\n{}\n\n{}\n\n{}\n\n{}",
-                node.summary, p1, p2, p3, node.example
-            );
+            return dedup_prose_paragraphs(&format!("{}\n\n{}\n\n{}", p1, p2, p3));
         }
     }
 
-    format!(
+    dedup_prose_paragraphs(&format!(
         "{}\n\n{}\n\n{}\n\n{}\n\n{}",
         node.summary, node.mechanism, node.formal_principle, node.tradeoffs, node.example
-    )
+    ))
 }
 
 /// Render a step-by-step Fermi / order-of-magnitude estimation.
@@ -66995,7 +67119,10 @@ fn render_open_domain_natural_prose(
             && words.iter().any(|w| w == "you" || w == "yourself")
             && words
                 .iter()
-                .any(|w| matches!(w.as_str(), "talk" | "chat" | "tell" | "who" | "what")));
+                .any(|w| matches!(w.as_str(), "talk" | "chat" | "tell" | "who"))
+            && !words
+                .iter()
+                .any(|w| matches!(w.as_str(), "mean" | "think" | "about")));
 
     if is_self_inquiry {
         return "I'd love to! I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
@@ -67004,12 +67131,27 @@ fn render_open_domain_natural_prose(
             .to_string();
     }
 
+    // 1b. Check conversational day/mood reciprocity when no domain topic is attached ("My day is going fine, how about you?")
+    let has_day_or_mood = lower.contains("my day")
+        || lower.contains("doing fine")
+        || lower.contains("doing well")
+        || lower.contains("doing good")
+        || lower.contains("going fine")
+        || lower.contains("going well")
+        || lower.contains("how about you")
+        || lower.contains("what about you");
+
     // 2. Check open-ended conversation invitations, "fun fact", "surprise me", "I'm bored", "what should we talk about?"
     let content_words: Vec<&str> = words
         .iter()
         .map(String::as_str)
         .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
         .collect();
+
+    if has_day_or_mood && content_words.len() <= 1 {
+        return "Glad to hear your day is going well! Things are going great on my end too—I've been enjoying exploring ideas across science, history, world cities, philosophy, and software engineering right here in the browser. What is on your mind today?"
+            .to_string();
+    }
 
     if lower.contains("fun fact")
         || lower.contains("something interesting")
@@ -67067,20 +67209,20 @@ fn render_open_domain_natural_prose(
                 generate_token_level_geometric_prose(words, &active_nodes, 45, 95);
             let clauses = synthesize_clause_trajectory(words, &active_nodes, 4);
             if stepped >= 25 && clauses.len() >= 2 {
-                return format!(
+                return dedup_prose_paragraphs(&format!(
                     "{}\n\n{}\n\n{}",
                     clauses[0],
                     token_stream,
                     clauses[1..].join(" ")
-                );
+                ));
             }
             if clauses.len() >= 3 {
-                return format!(
+                return dedup_prose_paragraphs(&format!(
                     "{}\n\n{}\n\n{}",
                     clauses[0],
                     clauses[1..clauses.len() - 1].join(" "),
                     clauses[clauses.len() - 1]
-                );
+                ));
             }
         }
     }
@@ -67091,11 +67233,11 @@ fn render_open_domain_natural_prose(
         if score >= 8 {
             let clauses = synthesize_clause_trajectory(words, &[best_node], 3);
             if !clauses.is_empty() {
-                return format!(
+                return dedup_prose_paragraphs(&format!(
                     "When thinking about **{topic}**, it connects closely to **{}**:\n\n{}\n\nWhat specific side of **{topic}** would you like to explore together?",
                     best_node.title,
                     clauses.join(" ")
-                );
+                ));
             }
         }
     }
@@ -67121,14 +67263,15 @@ pub fn synthesize_glm_response(
     binder_notice: Option<String>,
 ) -> String {
     let wrap_binder = |body: String| -> String {
+        let clean = dedup_prose_paragraphs(&body);
         if let Some(notice) = binder_notice {
-            format!("{notice}\n\n{body}")
+            format!("{notice}\n\n{clean}")
         } else {
-            body
+            clean
         }
     };
 
-    // 1. Check for Multi-Turn Conversational Follow-up ("give me an example", "explain simpler", "summarize that", "tell me more", "why is that?")
+    // 1. Check for Multi-Turn Conversational Follow-up ("what do you mean?", "give me an example", "explain simpler", "summarize that", "tell me more", "why is that?")
     // Recomputes each earlier question's own `(past_q12, past_sign)` from `past_words` (fixing Point 7).
     let is_short_followup = words.len() <= 10
         && (lower.starts_with("tell me more")
@@ -67136,6 +67279,16 @@ pub fn synthesize_glm_response(
             || lower.starts_with("explain that")
             || lower.starts_with("elaborate")
             || lower.starts_with("go deeper")
+            || lower.contains("what do you mean")
+            || lower.contains("what did you mean")
+            || lower.contains("what does that mean")
+            || lower.contains("can you clarify")
+            || lower.contains("clarify that")
+            || lower == "how so"
+            || lower == "how so?"
+            || lower.contains("in what sense")
+            || lower.contains("why do you say")
+            || lower.contains("what makes you say")
             || lower.contains("give me an example")
             || lower.contains("give an example")
             || lower.contains("concrete example")
@@ -67182,6 +67335,18 @@ pub fn synthesize_glm_response(
         }
 
         if let Some((node, prev_q)) = active_node_and_q {
+            if lower.contains("mean")
+                || lower.contains("clarify")
+                || lower.contains("how so")
+                || lower.contains("in what sense")
+                || lower.contains("why do you say")
+                || lower.contains("what makes you say")
+            {
+                return wrap_binder(format!(
+                    "To clarify what I meant about **{}**:\n\n{}\n\n{}\n\nFor a concrete illustration: {}\n\nDoes that make the connection clearer, or is there a specific part you'd like to dig into?",
+                    node.title, node.formal_principle, node.tradeoffs, node.example
+                ));
+            }
             if lower.contains("example") {
                 return wrap_binder(format!(
                     "**Concrete Example — {}:**\n\n{}\n\n{}\n\n{}",
@@ -67312,8 +67477,8 @@ pub fn synthesize_glm_response(
             .iter()
             .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
             .count();
-        let both_independent = if lex_1 >= 12 {
-            lex_2 >= 12 && lex_2 * 3 >= lex_1 * 2
+        let both_independent = if lex_1 >= 12 || lex_2 >= 12 {
+            lex_1 >= 12 && lex_2 >= 12 && lex_2 * 3 >= lex_1 * 2
         } else {
             score_1 >= 24 && score_2 >= 24 && score_2 * 4 >= score_1 * 3
         };

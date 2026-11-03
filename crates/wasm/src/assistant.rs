@@ -1084,7 +1084,8 @@ impl StudioEngine {
             || lower.contains("whats your name")
             || (words.len() <= 6
                 && has_any_word(&lower, &["you", "yourself"])
-                && has_any_word(&lower, &["talk", "chat", "tell", "who", "what"]));
+                && has_any_word(&lower, &["talk", "chat", "tell", "who"])
+                && !has_any_word(&lower, &["mean", "think", "about"]));
 
         if is_self_inquiry {
             let greeting_prefix = if let Some(ref name) = remembered_name {

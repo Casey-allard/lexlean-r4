@@ -4260,6 +4260,37 @@ mod tests {
         let rainbow = ask("What causes a rainbow?");
         assert!(rainbow.contains("refracts"));
 
+        // 12. Verify 3-Turn Conversational Reciprocity, AI Topic Routing, Clarification & Zero Sentence Duplication
+        let turn1 = ask("How are you?");
+        assert!(turn1.contains("thank you for asking"));
+        let turn2 =
+            ask("My day is going fine. I think that artificial intelligence is on my mind. How about you?");
+        assert!(
+            turn2.contains("Glad to hear your day is going well"),
+            "turn2 was: {turn2}"
+        );
+        assert!(turn2.contains("Artificial Intelligence") || turn2.contains("UOR-R4"));
+        assert!(!turn2.contains("Augusta Ada King"));
+        let turn2_paras: Vec<&str> = turn2.split("\n\n").collect();
+        for (i, p_a) in turn2_paras.iter().enumerate() {
+            for p_b in turn2_paras.iter().skip(i + 1) {
+                assert_ne!(
+                    p_a.trim(),
+                    p_b.trim(),
+                    "Turn 2 must never repeat a paragraph verbatim"
+                );
+            }
+        }
+        let turn3 = ask("what do you mean?");
+        assert!(
+            turn3.contains("To clarify what I meant"),
+            "Turn 3 ('what do you mean?') must clarify Turn 2, got: {turn3}"
+        );
+        assert!(
+            !turn3.contains("I'd love to! I am the **UOR-R4 Generalized Geometric Assistant**"),
+            "Turn 3 ('what do you mean?') must not falsely trigger self-inquiry bio"
+        );
+
         let _ = dispatch_string("1\tstudio\treset\t");
     }
 }

@@ -783,10 +783,57 @@ if (studioAdmitForm) {
   });
 }
 
+const WEBCACHE_INTELLIGENCE_NAME = 'uor-r4-intelligence-v1';
+const WEBCACHE_INTELLIGENCE_KEY = './uor-r4-weights.uorlut';
+
+async function persistIntelligenceToWebCache(hexPayload) {
+  if (!hexPayload || typeof window === 'undefined' || !('caches' in window)) return;
+  try {
+    const cache = await window.caches.open(WEBCACHE_INTELLIGENCE_NAME);
+    const rawBytes = hexToBytes(hexPayload);
+    const resp = new Response(rawBytes, {
+      headers: { 'Content-Type': 'application/octet-stream' },
+    });
+    await cache.put(WEBCACHE_INTELLIGENCE_KEY, resp);
+  } catch {
+    // WebCache unavailable in non-secure or restricted context; Wasm linear memory remains active
+  }
+}
+
+async function clearIntelligenceWebCache() {
+  if (typeof window === 'undefined' || !('caches' in window)) return;
+  try {
+    await window.caches.delete(WEBCACHE_INTELLIGENCE_NAME);
+  } catch {
+    // Ignore cache deletion errors
+  }
+}
+
+async function restoreIntelligenceFromWebCache() {
+  if (typeof window === 'undefined' || !('caches' in window)) return;
+  try {
+    const cache = await window.caches.open(WEBCACHE_INTELLIGENCE_NAME);
+    const matched = await cache.match(WEBCACHE_INTELLIGENCE_KEY);
+    if (!matched) return;
+    const buf = await matched.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    if (bytes.length > 0 && bytes.length <= 65536) {
+      const hex = bytesToHex(bytes);
+      const state = dispatchStudioEnvelope('import_snapshot', hex);
+      if (state && state.status === 'ok') {
+        renderStudioState(state);
+      }
+    }
+  } catch {
+    // Ignore cache restoration errors
+  }
+}
+
 if (admitResetBtn) {
   admitResetBtn.addEventListener('click', () => {
     const state = dispatchStudioEnvelope('reset', '');
     renderStudioState(state);
+    clearIntelligenceWebCache();
     const ws = dispatchStudioEnvelope('workspace_list', '');
     renderWorkspaceList(ws);
     if (admitStatus) {
@@ -807,8 +854,9 @@ if (snapshotExportBtn) {
       if (snapshotHexInput) {
         snapshotHexInput.value = hex;
       }
+      persistIntelligenceToWebCache(hex);
       if (admitStatus) {
-        admitStatus.textContent = `Exported ${snap.byte_length}-byte UORLUT01/8 + UR4SESS1 binary envelope (${count} turns, SHA-256: ${snap.snapshot_sha256})`;
+        admitStatus.textContent = `Exported ${snap.byte_length}-byte UORLUT01/8 + UR4SESS1 binary envelope to WebCache (${count} turns, SHA-256: ${snap.snapshot_sha256})`;
       }
     } else if (admitStatus && snap) {
       admitStatus.textContent = snap.message || 'Snapshot export failed';
@@ -822,10 +870,11 @@ if (snapshotImportBtn) {
     const state = dispatchStudioEnvelope('import_snapshot', hexPayload);
     if (state && state.status === 'ok') {
       renderStudioState(state);
+      persistIntelligenceToWebCache(hexPayload);
       const ws = dispatchStudioEnvelope('workspace_list', '');
       renderWorkspaceList(ws);
       if (admitStatus) {
-        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 + UR4WGHT1 snapshot (${state.turn_count} turns, SHA-256: ${state.state_receipt_sha256})`;
+        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 + UR4WGHT1 snapshot & cached in WebCache (${state.turn_count} turns, SHA-256: ${state.state_receipt_sha256})`;
       }
       if (studioPromptInput) {
         runStudioGenerate(studioPromptInput.value);
@@ -1133,6 +1182,7 @@ if (studioTrainForm) {
 renderThreadSidebar();
 const initialState = dispatchStudioEnvelope('state', '');
 renderStudioState(initialState);
+restoreIntelligenceFromWebCache();
 const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
 renderWorkspaceList(initialWorkspace);
 selectWorkspaceFile(activeWorkspacePath);
