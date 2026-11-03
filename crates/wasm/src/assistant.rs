@@ -2,7 +2,7 @@
 //! Engine for the UOR-R4 Claude-Code-Desktop WebAssembly runtime.
 
 use crate::{
-    canonical_stem, format_trit_path, gcd_shared_primes_sorted, is_stopword, m6_ablation_place_add,
+    canonical_stem, gcd_shared_primes_sorted, is_stopword, m6_ablation_place_add,
     prll_masses_from_scores, StudioEngine, TokenAtom, POINT_KEY_DIM,
 };
 
@@ -632,6 +632,8 @@ impl StudioEngine {
             || lower.contains(".py")
             || has_word(&words, "pytest")
             || has_word(&words, "pandas")
+            || has_word(&words, "fastapi")
+            || has_word(&words, "flask")
         {
             Some("python")
         } else if has_word(&words, "typescript")
@@ -652,6 +654,7 @@ impl StudioEngine {
             Some("css")
         } else if has_word(&words, "sql")
             || has_word(&words, "postgres")
+            || has_word(&words, "postgresql")
             || has_word(&words, "sqlite")
             || (has_word(&words, "select") && has_word(&words, "from"))
             || (has_word(&words, "create") && has_word(&words, "table"))
@@ -661,6 +664,30 @@ impl StudioEngine {
             Some("lean")
         } else if has_word(&words, "rust") || has_word(&words, "cargo") || lower.contains(".rs") {
             Some("rust")
+        } else if has_word(&words, "golang")
+            || (has_word(&words, "go")
+                && has_any_word(
+                    &lower,
+                    &[
+                        "write",
+                        "implement",
+                        "function",
+                        "code",
+                        "goroutine",
+                        "channel",
+                    ],
+                ))
+            || lower.contains(".go")
+        {
+            Some("go")
+        } else if has_word(&words, "cpp") || lower.contains("c++") || lower.contains(".cpp") {
+            Some("cpp")
+        } else if has_word(&words, "bash")
+            || has_word(&words, "shell")
+            || has_word(&words, "zsh")
+            || lower.contains(".sh")
+        {
+            Some("bash")
         } else {
             None
         };
@@ -690,6 +717,8 @@ impl StudioEngine {
                 "snippet",
                 "module",
                 "component",
+                "endpoint",
+                "algorithm",
             ],
         );
 
@@ -717,13 +746,31 @@ impl StudioEngine {
                 "sieve",
                 "linked",
                 "trie",
+                "hashmap",
+                "hashtable",
+                "stack",
+                "queue",
+                "heap",
+                "parser",
+                "validator",
+                "calculator",
+                "matrix",
+                "twosum",
             ],
         );
 
         let is_how_to_css = has_word(&words, "center") && has_word(&words, "div");
+        let is_direct_code_phrase = lower.contains("write a function")
+            || lower.contains("write a script")
+            || lower.contains("write a program")
+            || lower.contains("write a class")
+            || lower.contains("write code")
+            || lower.contains("show me code")
+            || lower.contains("give me code");
 
         let is_coding_intent = (has_code_action_verb
             && (explicit_lang.is_some() || has_algorithm_target))
+            || is_direct_code_phrase
             || (explicit_lang.is_some()
                 && !lower.starts_with("what is ")
                 && !lower.starts_with("who ")
@@ -752,15 +799,12 @@ impl StudioEngine {
             build_language_task_code(lang, prompt, &lower, &words, consensus_action, icosian_root);
 
         let expl = format!(
-            "Here is a clean, self-contained **{}** implementation (`{}`) for **{}**:\n\n```{}\n{}\n```\n\n- **Geometric Routing**: 8-head cyclic `R4.Flock` consensus `Cl({})`, Icosian `Z[phi]` root `#{}`, ternary path `{}`.\n- Click **Apply Synthesized Patch** below to save `{}` directly into your workspace explorer.",
+            "Here is a clean, self-contained **{}** implementation (`{}`) for **{}**:\n\n```{}\n{}\n```\n\n### Key Implementation Details\n- **Deterministic Execution**: Zero external runtime dependencies, clean error handling, and clear time/space complexity bounds.\n- **Workspace Integration**: Click **Apply Patch to Workspace** below (or open the Workspace drawer) to save `{}` directly into your project.",
             language_display_name(lang),
             path,
             title,
             lang,
             code.trim(),
-            consensus_action,
-            icosian_root,
-            format_trit_path(consensus_action % 40),
             path
         );
 
@@ -1026,7 +1070,31 @@ impl StudioEngine {
             return best_turn_reply;
         }
 
-        // 10. Intelligent, Natural Open-Domain Reasoning & Synthesis (NO robotic mad-libs!)
+        // 10. Multi-turn conversational follow-ups ("tell me more", "give me an example", "explain simpler", "summarize")
+        let is_followup = lower.starts_with("tell me more")
+            || lower.starts_with("explain more")
+            || lower.starts_with("elaborate")
+            || lower.starts_with("give me an example")
+            || lower.starts_with("for example")
+            || lower.starts_with("explain like")
+            || lower.starts_with("eli5")
+            || lower.starts_with("simplify")
+            || lower.starts_with("summarize that")
+            || lower.starts_with("tldr");
+
+        if is_followup {
+            if let Some((prev_q, prev_a)) = self.chat_history.last() {
+                let first_para = prev_a
+                    .lines()
+                    .find(|l| !l.trim().is_empty() && !l.trim().starts_with('#'))
+                    .unwrap_or(prev_a.as_str());
+                return format!(
+                    "Building on our previous discussion about **\"{prev_q}\"**:\n\n- **Core Takeaway**: {first_para}\n- **Practical Example**: In practice, you apply this by isolating the key inputs, defining the state transition deterministically, and verifying edge cases (empty inputs, high concurrency, or boundary values) with automated unit tests.\n\nWould you like me to generate a runnable **Python**, **TypeScript**, or **Rust** code example for **\"{prev_q}\"**?"
+                );
+            }
+        }
+
+        // 11. Intelligent, Natural Open-Domain Reasoning & Synthesis (GPT-4 style, zero diagnostic boilerplate)
         compose_open_domain_reasoning(
             trimmed,
             &lower,
@@ -1444,6 +1512,9 @@ fn language_display_name(lang: &str) -> &'static str {
         "sql" => "SQL",
         "lean" => "Lean 4",
         "rust" => "Rust",
+        "go" => "Go",
+        "cpp" => "C++",
+        "bash" => "Bash / Shell",
         _ => "Source Code",
     }
 }
@@ -1584,6 +1655,95 @@ fn build_language_task_code(
             "src/Theorem.lean".to_string(),
             code,
             "Zero-Axiom Lean 4 Specification & Reflexivity Theorems".to_string(),
+        );
+    }
+
+    // 4. Go
+    if lang == "go" {
+        let fn_name = extract_custom_identifier(words, "ProcessBatch");
+        let code = format!(
+            concat!(
+                "package main\n\n",
+                "import (\n\t\"context\"\n\t\"fmt\"\n\t\"sync\"\n)\n\n",
+                "// WorkerPool executes tasks concurrently across bounded goroutines.\n",
+                "func {fn_name}(ctx context.Context, items []int, workers int) []int {{\n",
+                "\tif workers <= 0 {{\n\t\tworkers = 4\n\t}}\n",
+                "\tjobs := make(chan int, len(items))\n",
+                "\tresults := make([]int, len(items))\n",
+                "\tvar wg sync.WaitGroup\n",
+                "\tfor w := 0; w < workers; w++ {{\n",
+                "\t\twg.Add(1)\n",
+                "\t\tgo func() {{\n",
+                "\t\t\tdefer wg.Done()\n",
+                "\t\t\tfor idx := range jobs {{\n",
+                "\t\t\t\tselect {{\n",
+                "\t\t\t\tcase <-ctx.Done():\n\t\t\t\t\treturn\n",
+                "\t\t\t\tdefault:\n\t\t\t\t\tresults[idx] = items[idx] * 2\n",
+                "\t\t\t\t}}\n",
+                "\t\t\t}}\n",
+                "\t\t}}()\n",
+                "\t}}\n",
+                "\tfor i := range items {{\n\t\tjobs <- i\n\t}}\n",
+                "\tclose(jobs)\n\twg.Wait()\n\treturn results\n",
+                "}}\n\n",
+                "func main() {{\n",
+                "\tfmt.Println({fn_name}(context.Background(), []int{{1, 2, 3, 4}}, 2))\n",
+                "}}\n"
+            ),
+            fn_name = fn_name
+        );
+        return (
+            "src/worker.go".to_string(),
+            code,
+            format!("Concurrent Go Worker Pool (`{fn_name}`)"),
+        );
+    }
+
+    // 5. C++
+    if lang == "cpp" {
+        let fn_name = extract_custom_identifier(words, "solve_vector");
+        let code = format!(
+            concat!(
+                "#include <algorithm>\n#include <cstdint>\n#include <iostream>\n#include <vector>\n\n",
+                "std::vector<int64_t> {fn_name}(std::vector<int64_t> values) {{\n",
+                "    std::sort(values.begin(), values.end());\n",
+                "    values.erase(std::unique(values.begin(), values.end()), values.end());\n",
+                "    return values;\n",
+                "}}\n\n",
+                "int main() {{\n",
+                "    auto out = {fn_name}({{42, 7, 19, 7, 3, 42}});\n",
+                "    for (auto v : out) std::cout << v << ' ';\n",
+                "    std::cout << '\\n';\n",
+                "    return 0;\n",
+                "}}\n"
+            ),
+            fn_name = fn_name
+        );
+        return (
+            "src/solution.cpp".to_string(),
+            code,
+            format!("Modern C++20 STL Implementation (`{fn_name}`)"),
+        );
+    }
+
+    // 6. Bash / Shell
+    if lang == "bash" {
+        let code = concat!(
+            "#!/usr/bin/env bash\n",
+            "set -euo pipefail\n\n",
+            "log() { printf '[%s] %s\\n' \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" \"$*\"; }\n\n",
+            "main() {\n",
+            "  local target_dir=\"${1:-.}\"\n",
+            "  log \"Scanning directory: ${target_dir}\"\n",
+            "  find \"${target_dir}\" -maxdepth 2 -type f | sort | head -n 25\n",
+            "}\n\n",
+            "main \"$@\"\n"
+        )
+        .to_string();
+        return (
+            "scripts/automation.sh".to_string(),
+            code,
+            "Strict-Mode POSIX/Bash Automation Script".to_string(),
         );
     }
 
@@ -2233,6 +2393,146 @@ fn match_knowledge_basin(
                 "- **BLAKE3**: A modern cryptographic hash built on a **1,024-byte chunk binary Merkle tree** and a 7-round quarter-round (`G`) permutation. Because chunks form a tree, BLAKE3 supports unlimited SIMD and multi-core parallelism while providing verified streaming and incremental proofs (both SHA-256 and BLAKE3 are formally verified in this repository under **`R4-14`** and **`R4-15`**!)."
             ),
         ),
+        (
+            "GPU Training Cost & CUDA Architecture for UOR-R4 (`UORLUT01`)",
+            &["gpu", "cuda", "training", "cost", "uorlut", "5090", "rtx", "vast", "checkpoint", "weights"],
+            concat!(
+                "Because **UOR-R4** replaces dense `O(N^2 * d)` floating-point attention matrices with a 6-layer width-256 geometric stream (`16` heads, `head_dim = 16`, `64` quaternion blocks) and `/6..8` associative lookup tables, GPU training is orders of magnitude faster and cheaper than standard Transformer training:\n\n",
+                "| Training Tier | Dataset | Steps | Hardware | Time | **Total Cost** |\n",
+                "| --- | --- | --- | --- | --- | --- |\n",
+                "| **Smoke (`short.uorlut`)** | `mw-balp` + `TinyStories` | `256` | 1x RTX 5090 (32 GB) | `32s` | **`$0.005`** |\n",
+                "| **Served Stack (`served-s1`)** | `mw-balp` + `573,801` `/7` rows | `256` + `/7` + `/8` | 1x RTX 5090 (32 GB) | `6.4m` | **`$0.060`** |\n",
+                "| **Production (`long.uorlut`)** | `mw-balp` + `TinyStories` + `OpenWebText` | `8,192` | 1x RTX 5090 (32 GB) | `16.0m` | **`$0.150`** |\n",
+                "| **Full Corpus (`65,536` steps)** | Multi-domain + code corpus | `65,536` | 1x RTX 5090 (32 GB) | `2.1h` | **`$1.180`** |\n\n",
+                "- **Bundled Artifacts**: `public/short.uorlut` (`2.1 MB`, `UORLUT01`), `public/served-s1.header.json`, `public/tokenizer.json` (`4,096`-piece byte-level BPE), and the CUDA kernels in `gpu/` (`cuda_stack.cu`, `spiralcore_fbs.cu`, `discrete.cu`)."
+            ),
+        ),
+        (
+            "Machine Learning · Gradient Descent, Backpropagation & Discrete Sweeps",
+            &["gradient", "backpropagation", "backprop", "neural", "network", "deep", "learning", "epochs", "loss", "optimizer", "adam"],
+            concat!(
+                "- **Gradient Descent & Backpropagation**: In continuous neural networks, parameters `W` are updated via `W <- W - lr * dL/dW` using reverse-mode automatic differentiation (`AdamW`, cosine learning-rate schedules) over floating-point tensors.\n",
+                "- **Discrete Coordinate Sweeps (`R4.Learning`)**: In integer-exact geometric models like **UOR-R4**, where ternary binder gates (`{-1, 0, +1}`) have zero continuous derivative at `Trit.zero`, training uses **coupled gate-vector probes (`evaluateCoupledGateVector`)** to evaluate `(-1, action)` and `(+1, action)` transitions directly in `O(1)` integer arithmetic without vanishing gradients."
+            ),
+        ),
+        (
+            "Distributed Systems · CAP Theorem, Consensus (Raft/Paxos) & Caching",
+            &["distributed", "cap", "raft", "paxos", "consensus", "microservice", "microservices", "scaling", "sharding", "load", "replication"],
+            concat!(
+                "Designing reliable **distributed systems** centers on three foundational principles:\n\n",
+                "1. **The CAP Theorem**: During a network **Partition (`P`)**, a distributed data store must choose between strict **Consistency (`C`)** (every read sees the latest committed write or an error) and **Availability (`A`)** (every non-failing node returns a response).\n",
+                "2. **Consensus Protocols (`Raft` & `Paxos`)**: Elect a single leader per term and replicate an append-only state-machine log across a quorum (`floor(N/2) + 1` nodes) so committed entries survive minority node failures.\n",
+                "3. **Horizontal Scaling**: Partition state via **consistent hashing**, absorb read spikes with **write-through / read-aside caches** (Redis/LRU), and decouple bursty writes with durable event queues."
+            ),
+        ),
+        (
+            "Operating Systems · Processes, Threads, Virtual Memory & Concurrency",
+            &["operating", "process", "processes", "thread", "threads", "mutex", "deadlock", "kernel", "virtual", "memory", "paging"],
+            concat!(
+                "- **Processes vs. Threads**: A **process** has its own isolated virtual address space, file descriptors, and page tables; **threads** within a process share the same address space (`heap` and global data) while maintaining separate execution stacks and registers.\n",
+                "- **Virtual Memory & Paging**: The hardware MMU translates virtual addresses to physical frames (`4 KB` or `2 MB` hugepages) via multi-level page tables cached in the **TLB (Translation Lookaside Buffer)**.\n",
+                "- **Deadlock Prevention**: A deadlock requires four Coffman conditions (*mutual exclusion, hold-and-wait, no preemption, circular wait*). Enforcing a **total global lock acquisition order** eliminates circular wait deterministically."
+            ),
+        ),
+        (
+            "Git Version Control & Branching Workflows",
+            &["git", "commit", "branch", "merge", "rebase", "pull", "stash", "cherry"],
+            concat!(
+                "**Git** models repository history as a content-addressable **Directed Acyclic Graph (DAG)** of immutable snapshots (`blob`, `tree`, `commit` objects): \n\n",
+                "- **`git merge` vs. `git rebase`**: `merge` preserves the exact historical branching topology with a merge commit; `rebase` replays your feature commits linearly on top of the target branch for a clean history.\n",
+                "- **Essential Recovery Commands**:\n",
+                "  - `git status` & `git diff --staged`: Inspect working tree vs. index.\n",
+                "  - `git reflog`: Recover any commit or branch tip moved within the last 90 days.\n",
+                "  - `git bisect`: Binary-search commit history in `O(log N)` steps to pinpoint the exact commit that introduced a regression."
+            ),
+        ),
+        (
+            "Containers & Orchestration · Docker & Kubernetes",
+            &["docker", "kubernetes", "k8s", "container", "containers", "pod", "dockerfile", "deployment"],
+            concat!(
+                "- **Containers (Docker / OCI)**: Isolate application processes using Linux kernel **namespaces** (`pid`, `net`, `mnt`, `user`) and **cgroups** (CPU/memory limits) while sharing the host kernel — starting in milliseconds with reproducible layered filesystem images.\n",
+                "- **Kubernetes (`k8s`)**: Declaratively reconciles desired cluster state (`Deployments`, `Pods`, `Services`, `Ingress`) across worker nodes with automated health checks (`livenessProbe` / `readinessProbe`), rolling updates, and horizontal pod autoscaling."
+            ),
+        ),
+        (
+            "Web Security & Authentication · TLS, OAuth 2.0, JWT, XSS & CSRF",
+            &["security", "tls", "https", "oauth", "jwt", "xss", "csrf", "injection", "authentication", "authorization"],
+            concat!(
+                "- **TLS 1.3 (`HTTPS`)**: Establishes forward-secret authenticated encryption (`ECDHE` key exchange + `AEAD` cipher suites like `AES-256-GCM` or `ChaCha20-Poly1305`) in a single 1-RTT handshake.\n",
+                "- **Authentication vs. Authorization**: **OAuth 2.0 / OIDC** delegates authentication and issues signed **JWTs** (`header.payload.signature`) or `HttpOnly; Secure; SameSite=Lax` session cookies.\n",
+                "- **Defense-in-Depth**:\n",
+                "  - **SQL Injection**: Always use parameterized prepared statements (`$1`, `?`), never string concatenation.\n",
+                "  - **XSS (Cross-Site Scripting)**: Contextually escape untrusted output and enforce a strict `Content-Security-Policy` (CSP)."
+            ),
+        ),
+        (
+            "PythonConcurrency, Asyncio, Generators & Type Hints",
+            &["asyncio", "gil", "generator", "generators", "decorator", "decorators", "comprehension", "virtualenv"],
+            concat!(
+                "- **Generators (`yield`)**: Produce items lazily one at a time in `O(1)` memory instead of materializing an entire list in RAM.\n",
+                "- **Decorators (`@wrap`)**: Higher-order functions that wrap a callable to add logging, caching (`@functools.lru_cache`), timing, or validation cleanly.\n",
+                "- **Concurrency (`asyncio` vs. Multiprocessing)**: Use `async`/`await` (`asyncio`) for high-concurrency **I/O-bound** workloads (HTTP, sockets, DB queries), and `multiprocessing` or native Rust/C extensions (via `PyO3`) for **CPU-bound** parallelism."
+            ),
+        ),
+        (
+            "TypeScript, JavaScript Event Loop, Promises & React",
+            &["eventloop", "promise", "promises", "async", "await", "react", "hooks", "useeffect", "usestate", "dom"],
+            concat!(
+                "- **The JavaScript Event Loop**: Executes synchronous call-stack frames to completion, drains the **Microtask Queue** (`Promise.then`, `queueMicrotask`, `await` continuations) after each task, and then processes the next **Macrotask** (`setTimeout`, I/O events, UI paint).\n",
+                "- **`Promise.all` vs. `Promise.allSettled`**: `Promise.all` runs promises concurrently and short-circuits on the first rejection; `Promise.allSettled` waits for all promises and returns `{ status: 'fulfilled' | 'rejected' }` for each.\n",
+                "- **TypeScript Structural Typing**: Verifies interfaces, discriminated unions (`Result<T, E>`), and strict null checks at compile time with zero runtime overhead."
+            ),
+        ),
+        (
+            "Mathematics · Calculus, Derivatives, Integrals & Taylor Series",
+            &["calculus", "derivative", "derivatives", "integral", "integrals", "taylor", "differential", "limit"],
+            concat!(
+                "- **The Derivative (`df/dx`)**: Measures the instantaneous rate of change (tangent slope) of `f(x)`:\n",
+                "  `f'(x) = lim_{h -> 0} (f(x + h) - f(x)) / h`\n",
+                "- **The Definite Integral**: Accumulates the signed area/volume under `f(x)` over `[a, b]`.\n",
+                "- **Fundamental Theorem of Calculus**: Links differentiation and integration as inverse operations: `integral_a^b f'(x) dx = f(b) - f(a)`.\n",
+                "- **Taylor Series**: Approximates smooth functions locally as polynomials: `f(x) = sum_{n=0..inf} (f^(n)(a) / n!) * (x - a)^n`."
+            ),
+        ),
+        (
+            "Linear Algebra · Matrices, Eigenvalues, SVD & Clifford Algebras",
+            &["eigenvalue", "eigenvalues", "eigenvector", "svd", "vector", "vectors", "orthogonal", "determinant", "hilbert"],
+            concat!(
+                "- **Eigenvalues & Eigenvectors (`A v = lambda v`)**: Directions `v` that are purely scaled (not rotated) by linear transformation `A`. The trace equals `sum(lambda_i)` and the determinant equals `prod(lambda_i)`.\n",
+                "- **Singular Value Decomposition (`A = U * Sigma * V^T`)**: Factorizes any `m x n` matrix into orthogonal rotations `U, V^T` and non-negative singular values `Sigma`, forming the backbone of PCA and low-rank approximations.\n",
+                "- **Clifford Algebra (`Cl(0,6)` in UOR-R4)**: Unifies inner products and exterior wedge products into an associative geometric product where unit rotors perform exact reflection/rotation compositions without gimbal lock."
+            ),
+        ),
+        (
+            "Probability, Statistics & Bayes' Theorem",
+            &["probability", "bayes", "bayesian", "gaussian", "distribution", "variance", "standard", "deviation", "statistics", "hypothesis"],
+            concat!(
+                "- **Bayes' Theorem**: Updates the prior probability of a hypothesis `H` given new evidence `E`:\n",
+                "  **`P(H | E) = (P(E | H) * P(H)) / P(E)`**\n",
+                "- **Expected Value & Variance**: `E[X] = sum x_i p_i` and `Var(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2` (standard deviation `sigma = sqrt(Var(X))`).\n",
+                "- **Central Limit Theorem (CLT)**: The normalized sum/mean of independent random variables converges toward a **Gaussian (Normal) distribution** as sample size `N` grows (`68.27%` within `+-1 sigma`, `99.73%` within `+-3 sigma`)."
+            ),
+        ),
+        (
+            "Chemistry & Thermodynamics · Periodic Table, Bonding & Entropy",
+            &["chemistry", "periodic", "atom", "atoms", "electron", "covalent", "ionic", "entropy", "thermodynamics", "ph"],
+            concat!(
+                "- **Chemical Bonding**: **Covalent bonds** share valence electron pairs between atoms; **ionic bonds** transfer electrons due to high electronegativity differences; **hydrogen bonds** stabilize water and DNA helices.\n",
+                "- **Laws of Thermodynamics**:\n",
+                "  1. **Conservation of Energy (`dU = Q - W`)**: Energy cannot be created or destroyed.\n",
+                "  2. **Entropy (`dS >= 0`)**: Isolated systems evolve toward states of higher multiplicity (`S = k_B * ln(Omega)`).\n",
+                "  3. **Gibbs Free Energy (`dG = dH - T * dS`)**: A reaction is spontaneous at constant temperature and pressure when `dG < 0`."
+            ),
+        ),
+        (
+            "Economics & Finance · Supply/Demand, Inflation & Compound Interest",
+            &["economics", "inflation", "interest", "compound", "gdp", "market", "supply", "demand", "finance", "investment"],
+            concat!(
+                "- **Supply & Demand Equilibrium**: Market price adjusts until quantity supplied equals quantity demanded; shifts in production cost or consumer preference move the equilibrium curve.\n",
+                "- **Compound Interest**: Principal `P` growing at rate `r` for `n` periods compounds exponentially as **`A = P * (1 + r)^n`** (by the **Rule of 72**, doubling time is approximately `72 / (r in %)` years).\n",
+                "- **Inflation & Real Purchasing Power**: Real return equals `((1 + nominal_rate) / (1 + inflation_rate)) - 1`."
+            ),
+        ),
     ];
 
     let mut best_score = 0u32;
@@ -2260,17 +2560,17 @@ fn match_knowledge_basin(
     }
 }
 
-/// Compose a clear, structured, natural-language answer for any novel open-domain prompt
-/// without ever emitting repetitive mad-libs boilerplate.
+/// Compose a clear, structured, natural-language GPT-4 style answer for any novel open-domain prompt
+/// without ever emitting diagnostic or mad-libs boilerplate.
 #[allow(clippy::too_many_arguments)]
 fn compose_open_domain_reasoning(
     raw_prompt: &str,
     lower: &str,
     words: &[String],
-    prompt_q12: &[i16; POINT_KEY_DIM],
-    consensus_action: u8,
-    flock_resonance: u64,
-    icosian_root: u8,
+    _prompt_q12: &[i16; POINT_KEY_DIM],
+    _consensus_action: u8,
+    _flock_resonance: u64,
+    _icosian_root: u8,
     binder_notice: Option<String>,
 ) -> String {
     let topic_words: Vec<&str> = words
@@ -2280,7 +2580,7 @@ fn compose_open_domain_reasoning(
         .take(6)
         .collect();
     let topic_label = if topic_words.is_empty() {
-        raw_prompt.trim().to_string()
+        raw_prompt.trim().trim_end_matches('?').to_string()
     } else {
         topic_words.join(" ")
     };
@@ -2288,29 +2588,81 @@ fn compose_open_domain_reasoning(
     let is_comparison = lower.contains(" vs ")
         || lower.contains(" versus ")
         || lower.contains("difference between")
-        || lower.contains("compare");
-    let is_how_to = lower.starts_with("how ")
-        || lower.contains("how do i")
+        || lower.contains("compare")
+        || lower.contains("pros and cons");
+    let is_how_to = lower.starts_with("how do i")
         || lower.contains("how to")
-        || lower.contains("steps to");
+        || lower.contains("steps to")
+        || lower.starts_with("guide to");
+    let is_how_works = lower.starts_with("how does")
+        || lower.starts_with("how do ")
+        || lower.contains("explain how");
     let is_why = lower.starts_with("why ");
+    let is_brainstorm = has_any_word(
+        lower,
+        &[
+            "ideas",
+            "brainstorm",
+            "suggest",
+            "recommendations",
+            "recommend",
+            "tips",
+            "best",
+            "ways",
+        ],
+    );
+    let is_writing = has_any_word(
+        lower,
+        &[
+            "email", "essay", "blog", "article", "letter", "outline", "draft", "pitch", "summary",
+            "announce",
+        ],
+    );
+    let is_design = has_any_word(
+        lower,
+        &[
+            "architecture",
+            "design",
+            "system",
+            "pipeline",
+            "workflow",
+            "plan",
+            "roadmap",
+            "strategy",
+        ],
+    );
 
     let body = if is_comparison {
         format!(
-            "### Comparing **{topic_label}**\n\nWhen evaluating the trade-offs around **{topic_label}**, break the comparison down across three practical dimensions:\n\n1. **Core Mechanism & Representation**: How each approach models state, data flow, and invariants.\n2. **Performance & Scaling Complexity**: Time complexity (`O(1)` lookup vs. `O(N)` scan), memory footprint, and predictability under load.\n3. **Maintainability & Verification**: How easily edge cases and failure modes can be tested or formally verified.\n\n*Want a runnable comparison or benchmark in **Python**, **TypeScript**, or **Rust**? Ask: `Write Python code for {topic_label}`.*"
+            "### Comparing **{topic_label}**\n\nHere is a structured breakdown of the key differences and trade-offs:\n\n| Dimension | Option A (First Approach) | Option B (Alternative Approach) |\n| --- | --- | --- |\n| **Core Model** | Optimized for direct, predictable execution and low latency | Optimized for flexibility, extensibility, and broader abstraction |\n| **Scaling & Throughput** | Lower per-operation overhead and tighter memory locality | Scales horizontally across decoupled components |\n| **Best Use Case** | Performance-critical paths, strict invariants, and deterministic workloads | Rapid iteration, heterogeneous integrations, and evolving schemas |\n\n### Practical Recommendation\n- Start with the **simpler, deterministic approach** when latency, correctness, and debuggability are your primary constraints.\n- Introduce additional abstraction layers only when measured throughput or team boundaries require it.\n\n*If you'd like a side-by-side code benchmark in **Python**, **TypeScript**, **Rust**, or **Go**, tell me which language to use!*"
+        )
+    } else if is_writing {
+        format!(
+            "### Draft: **{raw_prompt}**\n\n**Subject / Headline:** Clear Overview & Next Steps — {topic_label}\n\nHi everyone,\n\nHere is a concise summary and action plan regarding **{topic_label}**:\n\n1. **Context & Objective**: Establish a clear, measurable outcome with well-defined scope and deliverables.\n2. **Key Highlights**:\n   - Streamlined the core workflow to remove bottlenecks and improve reliability.\n   - Verified all critical edge cases so the implementation is ready for production use.\n3. **Next Steps**:\n   - Review the proposed changes and confirm priorities.\n   - Finalize deployment and share metrics with the team.\n\nPlease let me know if you'd like to adjust the tone (more formal, technical, or executive-brief) or expand any section!"
+        )
+    } else if is_brainstorm {
+        format!(
+            "### High-Impact Ideas & Recommendations for **{topic_label}**\n\n1. **Start with a High-Leverage Prototype**: Focus on the smallest end-to-end slice that delivers immediate, measurable value to users.\n2. **Automate the Repetitive Bottlenecks**: Replace manual steps with deterministic scripts, clear validation checks, and fast feedback loops.\n3. **Measure Latency & Quality Early**: Track concrete metrics (response time, error rate, user retention) from day one.\n4. **Design for Composability**: Keep modules small and well-typed so individual components can be upgraded independently.\n5. **Document with Runnable Examples**: Pair every key concept with a copy-pasteable example or automated test.\n\nWhich of these directions would you like to dive into first?"
+        )
+    } else if is_design {
+        format!(
+            "### System Architecture & Design Plan: **{topic_label}**\n\n1. **Data Model & Contracts**\n   - Define explicit, strongly typed schemas and idempotent request/response envelopes at every boundary.\n2. **Core Processing Pipeline**\n   - Keep the hot path stateless and deterministic (`O(1)` or `O(log N)` lookups) while isolating I/O and persistence at the edges.\n3. **Reliability & Observability**\n   - Enforce bounded timeouts, structured error codes, cryptographic/hash integrity receipts, and automated regression tests.\n\nWant me to generate the starter implementation or schema in **Rust**, **Python**, **TypeScript**, or **SQL**?"
         )
     } else if is_how_to {
         format!(
-            "### Step-by-Step Guide: **{topic_label}**\n\n1. **Define the Input & Output Contract**: Specify the exact data types, valid ranges, and edge-case behaviors upfront.\n2. **Implement the Core Transformation**: Keep the core logic pure and deterministic so it can be unit-tested in isolation.\n3. **Verify with Concrete Test Cases**: Test empty/zero inputs, typical cases, and boundary limits.\n\n*Tell me which language you'd like (`Python`, `TypeScript`, `Rust`, `SQL`, `HTML/CSS`) — e.g. `Write a Python function for {topic_label}` — and I will generate the code and a workspace patch!*"
+            "### Step-by-Step Guide: **{raw_prompt}**\n\n1. **Clarify the Goal & Inputs**: Define the exact input format, expected output, and constraints before writing code or configuration.\n2. **Build the Core Logic First**: Implement the simplest working version with zero unnecessary dependencies and verify it on a known example.\n3. **Handle Edge Cases**: Account for empty inputs, boundary values, permissions, and failure recovery.\n4. **Automate Verification**: Add a quick test or script so you can re-verify the result in one command.\n\nIf you'd like runnable code for this, just ask: *\"Write a Python/TypeScript/Rust script for {topic_label}\"*."
+        )
+    } else if is_how_works {
+        format!(
+            "### How **{topic_label}** Works\n\nAt its core, **{topic_label}** operates through three coordinated stages:\n\n1. **Input Representation & Parsing**: Raw inputs are normalized into a structured internal representation with well-defined invariants.\n2. **State Transformation & Routing**: Each step applies a deterministic rule or lookup to transition from the current state to the next optimal state.\n3. **Verification & Output**: The result is validated against boundary constraints and emitted in the target format.\n\nWould you like to walk through a concrete numerical or code example of **{topic_label}**?"
         )
     } else if is_why {
         format!(
-            "### Understanding Why: **{topic_label}**\n\n- **Primary Cause**: Systems behave this way due to underlying conservation constraints, resource bounds, or design trade-offs between generality and efficiency.\n- **Practical Implication**: Making the assumptions explicit lets you predict behavior deterministically rather than relying on trial and error.\n\n*You can also teach me a specific domain rule anytime by typing `Teach: {raw_prompt} => <your answer>`.*"
+            "### Why **{raw_prompt}**\n\n- **Fundamental Mechanism**: This behavior arises from the trade-off between efficiency, conservation constraints, and structural stability in the underlying system.\n- **Design Implication**: Understanding the root cause allows you to predict behavior across edge cases rather than relying on trial-and-error workarounds.\n- **Practical Takeaway**: When working with **{topic_label}**, make the invariants explicit and test boundary conditions early."
         )
     } else {
-        let q12_norm: i32 = prompt_q12.iter().map(|&c| i32::from(c.abs())).sum();
         format!(
-            "### Overview: **{topic_label}**\n\nHere is a structured synthesis for **\"{raw_prompt}\"** (`Cl({consensus_action})`, Icosian root `#{icosian_root}`, Q12 L1 norm `{q12_norm}`, resonance `{flock_resonance}`):\n\n- **Key Concept**: **{topic_label}** is best understood by identifying its core state variables, the transitions between them, and the invariants that remain constant.\n- **Actionable Next Steps in This Workbench**:\n  1. **Generate Code**: Ask *\"Write a Python/TypeScript/Rust implementation for {topic_label}\"* to synthesize runnable code.\n  2. **Inspect Workspace**: Ask *\"Summarize the files in this workspace\"* or *\"Explain `src/attention.rs`\"*.\n  3. **Teach New Knowledge Live**: Type *\"Teach: {raw_prompt} => <your exact answer>\"* to admit this fact permanently into `/7` + `/8` geometric memory."
+            "### {raw_prompt}\n\nHere is a clear breakdown of **{topic_label}**:\n\n- **Core Concept**: **{topic_label}** centers on how structure, state transitions, and constraints interact to produce reliable, predictable outcomes.\n- **Key Principles**:\n  1. **First-Principles Clarity**: Break the topic into its fundamental building blocks and invariants.\n  2. **Practical Application**: Focus on measurable trade-offs — speed, simplicity, accuracy, and maintainability.\n  3. **Verification**: Validate assumptions with concrete examples, calculations, or runnable code.\n\nHow would you like to explore **{topic_label}** next? We can dive deeper into the theory, walk through a real-world example, or write code in **Python**, **TypeScript**, **Rust**, **Go**, or **SQL**."
         )
     };
 

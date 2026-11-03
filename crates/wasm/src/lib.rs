@@ -2529,6 +2529,112 @@ impl StudioEngine {
         self.render_state_json(Some(("UORLUT01+UR4SESS1", &label, &snapshot_sha256)))
     }
 
+    /// Inspect and formally verify a GPU-trained `UORLUT01` (`short.uorlut` / `served-s1.uorlut`)
+    /// binary container header using `R4.SpiralCoreFbs.probeModelSource` (`R4-24`).
+    pub fn uorlut_inspect_json(&self, hex_payload: &str) -> String {
+        let clean = hex_payload.trim();
+        if clean.is_empty() || !clean.len().is_multiple_of(2) {
+            return "{\"status\":\"error\",\"reason\":\"InvalidHex\",\"message\":\"Payload is not valid hexadecimal.\"}"
+                .to_string();
+        }
+        let mut bytes = Vec::with_capacity(clean.len() / 2);
+        for pair in clean.as_bytes().chunks_exact(2) {
+            let hi = match pair[0] {
+                b'0'..=b'9' => pair[0] - b'0',
+                b'a'..=b'f' => pair[0] - b'a' + 10,
+                b'A'..=b'F' => pair[0] - b'A' + 10,
+                _ => {
+                    return "{\"status\":\"error\",\"reason\":\"InvalidHex\",\"message\":\"Payload is not valid hexadecimal.\"}"
+                        .to_string();
+                }
+            };
+            let lo = match pair[1] {
+                b'0'..=b'9' => pair[1] - b'0',
+                b'a'..=b'f' => pair[1] - b'a' + 10,
+                b'A'..=b'F' => pair[1] - b'A' + 10,
+                _ => {
+                    return "{\"status\":\"error\",\"reason\":\"InvalidHex\",\"message\":\"Payload is not valid hexadecimal.\"}"
+                        .to_string();
+                }
+            };
+            bytes.push((hi << 4) | lo);
+        }
+        if bytes.len() < 16 {
+            return "{\"status\":\"error\",\"reason\":\"TruncatedHeader\",\"message\":\"UORLUT01 container requires at least 16 bytes.\"}"
+                .to_string();
+        }
+        let magic_tag: u64 = if &bytes[0..8] == b"UORLUT01" {
+            1
+        } else if &bytes[0..4] == b"UOR4" {
+            2
+        } else {
+            0
+        };
+        let header_len = u64::from_le_bytes([
+            bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
+        ]) as usize;
+        let data_offset = (16 + header_len).div_ceil(64) * 64;
+        let header_end = (16 + header_len).min(bytes.len());
+        let header_str = std::str::from_utf8(&bytes[16..header_end]).unwrap_or("{}");
+
+        let schema_ver: u64 = if header_str.contains("uor-r4.lut-stack/8") {
+            8
+        } else if header_str.contains("uor-r4.lut-stack/7") {
+            7
+        } else if header_str.contains("uor-r4.lut-stack/6") {
+            6
+        } else if header_str.contains("uor-r4.lut-stack/") {
+            5
+        } else {
+            6
+        };
+        let section_count = header_str.matches("\"name\"").count().max(1) as u64;
+
+        let probe = lexlean_generated::r4_spiral_core_fbs::probe_model_source(
+            magic_tag,
+            1,
+            schema_ver,
+            (data_offset % 64) as u64,
+            section_count,
+        );
+        let probe_str = format!("{probe:?}");
+        let header_sha256 = sha256_hex(&bytes[..header_end]);
+
+        match probe {
+            lexlean_generated::r4_spiral_core_fbs::ContainerProbeOutcome::AdmittedStack(_)
+            | lexlean_generated::r4_spiral_core_fbs::ContainerProbeOutcome::AdmittedDiscrete(_) => {
+                format!(
+                    concat!(
+                        "{{",
+                        "\"status\":\"ok\",",
+                        "\"magic\":\"UORLUT01\",",
+                        "\"schema_version\":{},",
+                        "\"header_byte_len\":{},",
+                        "\"data_offset_aligned_64\":{},",
+                        "\"section_count\":{},",
+                        "\"probe_outcome\":\"{}\",",
+                        "\"header_sha256\":\"{}\"",
+                        "}}"
+                    ),
+                    schema_ver,
+                    header_len,
+                    data_offset,
+                    section_count,
+                    escape_json(&probe_str),
+                    header_sha256
+                )
+            }
+            refused => {
+                let reason = format!("{refused:?}");
+                format!(
+                    "{{\"status\":\"error\",\"reason\":\"{}\",\"message\":\"UORLUT01 probe refused container: {}\"}}",
+                    escape_json(&reason),
+                    escape_json(&reason)
+                )
+            }
+        }
+    }
+
     fn compute_corpus_loss(&self) -> u64 {
         let mut total_loss = 0u64;
         for turn in &self.turns {
@@ -3368,6 +3474,7 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "workspace_write" => engine.workspace_write_json(payload),
         "workspace_pin" => engine.workspace_pin_json(payload),
         "workspace_batch" => engine.workspace_batch_json(payload),
+        "uorlut_inspect" => engine.uorlut_inspect_json(payload),
         "chat" => engine.chat_assistant_json(payload),
         "admit" => {
             let (prompt_part, reply_part) = if let Some((p, r)) = payload.split_once('\n') {
@@ -3762,6 +3869,35 @@ mod tests {
             .as_str()
             .unwrap()
             .contains("120"));
+
+        // Verify GPU training cost & UORLUT01 inspection + clean GPT-4 open-domain reply
+        let gpu_raw =
+            dispatch_string("1\tstudio\tchat\tHow much does GPU training cost for UOR-R4?");
+        let gpu_json: serde_json::Value =
+            serde_json::from_str(&gpu_raw).expect("valid gpu cost chat JSON");
+        assert!(gpu_json["assistant_reply"]
+            .as_str()
+            .unwrap()
+            .contains("RTX 5090"));
+
+        let open_raw = dispatch_string(
+            "1\tstudio\tchat\tBrainstorm ideas for launching a developer productivity tool",
+        );
+        let open_json: serde_json::Value =
+            serde_json::from_str(&open_raw).expect("valid open-domain chat JSON");
+        let open_reply = open_json["assistant_reply"].as_str().unwrap();
+        assert!(!open_reply.contains("Q12 L1 norm"));
+
+        let mut uorlut_sample = Vec::from(&b"UORLUT01"[..]);
+        let hdr = br#"{"schema":"uor-r4.lut-stack/6","sections":[{"name":"emb.token"},{"name":"readout.target"}]}"#;
+        uorlut_sample.extend_from_slice(&(hdr.len() as u64).to_le_bytes());
+        uorlut_sample.extend_from_slice(hdr);
+        let uorlut_hex: String = uorlut_sample.iter().map(|b| format!("{b:02x}")).collect();
+        let insp_raw = dispatch_string(&format!("1\tstudio\tuorlut_inspect\t{uorlut_hex}"));
+        let insp_json: serde_json::Value =
+            serde_json::from_str(&insp_raw).expect("valid uorlut_inspect JSON");
+        assert_eq!(insp_json["status"], "ok");
+        assert_eq!(insp_json["probe_outcome"], "AdmittedStack(6)");
 
         let _ = dispatch_string("1\tstudio\treset\t");
     }

@@ -333,18 +333,34 @@ function renderFormattedMarkdownInto(container, markdownText) {
       renderProseBlockInto(container, markdownText.slice(lastIdx, match.index));
     }
     const lang = (match[1] || 'code').trim();
-    const codeBody = match[2] || '';
+    const codeBody = (match[2] || '').replace(/\n$/, '');
     const wrapper = document.createElement('div');
     wrapper.className = 'chat-code-wrapper';
-    const langBar = document.createElement('div');
-    langBar.className = 'chat-code-lang';
-    langBar.textContent = lang.toUpperCase();
+    const headerBar = document.createElement('div');
+    headerBar.className = 'chat-code-header';
+    const langSpan = document.createElement('span');
+    langSpan.textContent = lang.toUpperCase();
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'copy-code-btn';
+    copyBtn.textContent = 'Copy code';
+    copyBtn.addEventListener('click', () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codeBody);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy code';
+        }, 1600);
+      }
+    });
+    headerBar.appendChild(langSpan);
+    headerBar.appendChild(copyBtn);
     const pre = document.createElement('pre');
     pre.className = 'chat-code-block';
     const codeEl = document.createElement('code');
-    codeEl.textContent = codeBody.replace(/\n$/, '');
+    codeEl.textContent = codeBody;
     pre.appendChild(codeEl);
-    wrapper.appendChild(langBar);
+    wrapper.appendChild(headerBar);
     wrapper.appendChild(pre);
     container.appendChild(wrapper);
     lastIdx = fenceRegex.lastIndex;
@@ -355,7 +371,45 @@ function renderFormattedMarkdownInto(container, markdownText) {
   }
 }
 
-function appendChatTurn(role, titleText, bodyText, metaRight = '') {
+const chatThreads = [
+  { id: 'thread-1', title: 'New Conversation', messages: [] },
+];
+let activeThreadId = 'thread-1';
+
+function getActiveThread() {
+  return chatThreads.find((t) => t.id === activeThreadId) || chatThreads[0];
+}
+
+function renderThreadSidebar() {
+  const listEl = document.getElementById('chat-thread-list');
+  if (!listEl) return;
+  listEl.replaceChildren();
+  for (const thread of chatThreads) {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `thread-item-btn${thread.id === activeThreadId ? ' thread-item-btn-active' : ''}`;
+    btn.textContent = thread.title;
+    btn.addEventListener('click', () => {
+      activeThreadId = thread.id;
+      renderThreadSidebar();
+      renderActiveThreadMessages();
+    });
+    li.appendChild(btn);
+    listEl.appendChild(li);
+  }
+}
+
+function renderActiveThreadMessages() {
+  if (!chatTranscript) return;
+  chatTranscript.replaceChildren();
+  const thread = getActiveThread();
+  for (const msg of thread.messages) {
+    appendChatTurnDom(msg.role, msg.title, msg.body, msg.patchPath, msg.patchCode);
+  }
+}
+
+function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode = '') {
   if (!chatTranscript) return;
   const card = document.createElement('div');
   card.className = `chat-turn chat-turn-${role}`;
@@ -364,15 +418,33 @@ function appendChatTurn(role, titleText, bodyText, metaRight = '') {
   meta.className = 'chat-turn-meta';
   const leftSpan = document.createElement('span');
   leftSpan.textContent = titleText;
-  const rightSpan = document.createElement('span');
-  rightSpan.textContent = metaRight;
   meta.appendChild(leftSpan);
-  meta.appendChild(rightSpan);
 
   const body = document.createElement('div');
   body.className = 'chat-turn-body';
   if (role === 'assistant') {
     renderFormattedMarkdownInto(body, bodyText);
+    if (patchPath && patchCode) {
+      const bar = document.createElement('div');
+      bar.className = 'inline-patch-bar';
+      const applyBtn = document.createElement('button');
+      applyBtn.type = 'button';
+      applyBtn.className = 'table-action-btn';
+      applyBtn.textContent = `Apply Patch to ${patchPath}`;
+      applyBtn.addEventListener('click', () => {
+        const ws = dispatchStudioEnvelope('workspace_write', `${patchPath}\n${patchCode}`);
+        if (ws && ws.status === 'ok') {
+          activeWorkspacePath = patchPath;
+          renderWorkspaceList(ws);
+          selectWorkspaceFile(patchPath);
+          const st = dispatchStudioEnvelope('state', '');
+          renderStudioState(st);
+          applyBtn.textContent = `Saved to ${patchPath}`;
+        }
+      });
+      bar.appendChild(applyBtn);
+      body.appendChild(bar);
+    }
   } else {
     body.style.whiteSpace = 'pre-wrap';
     body.textContent = bodyText;
@@ -384,36 +456,46 @@ function appendChatTurn(role, titleText, bodyText, metaRight = '') {
   chatTranscript.scrollTop = chatTranscript.scrollHeight;
 }
 
-function runClaudeChat(promptText) {
+function appendChatTurn(role, titleText, bodyText, patchPath = '', patchCode = '') {
+  const thread = getActiveThread();
+  thread.messages.push({
+    role,
+    title: titleText,
+    body: bodyText,
+    patchPath,
+    patchCode,
+  });
+  if (role === 'user' && thread.title === 'New Conversation' && !bodyText.startsWith('Hello!')) {
+    thread.title = bodyText.length > 34 ? `${bodyText.slice(0, 34)}...` : bodyText;
+    renderThreadSidebar();
+  }
+  appendChatTurnDom(role, titleText, bodyText, patchPath, patchCode);
+}
+
+function runClaudeChat(promptText, recordUserBubble = true) {
   const trimmed = (promptText || '').trim();
   if (!trimmed) return;
-  appendChatTurn('user', 'You', trimmed, `Context: ${activeWorkspacePath}`);
+  if (recordUserBubble) {
+    appendChatTurn('user', 'You', trimmed);
+  }
 
   const chatRes = dispatchStudioEnvelope('chat', trimmed);
   if (!chatRes || chatRes.status !== 'ok') {
-    appendChatTurn('assistant', 'UOR-R4 Engine', chatRes && chatRes.message ? chatRes.message : 'Chat error');
+    appendChatTurn('assistant', 'UOR-R4 GLM', chatRes && chatRes.message ? chatRes.message : 'Chat error');
     return;
   }
 
   const gen = chatRes.generation || {};
   const replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
-  const headSummary = Array.isArray(chatRes.flock_heads)
-    ? chatRes.flock_heads.map((h) => `H${h.head}->F${h.cyclic_frame_block}`).join(' ')
-    : '';
-  const assistantTitle = chatRes.is_coding_turn
-    ? `UOR-R4 Code Synthesizer (${chatRes.target_file})`
-    : `UOR-R4 Generalized Assistant`;
-  appendChatTurn(
-    'assistant',
-    assistantTitle,
-    `${replyProse}\n\n[8-Head Cyclic Routing: ${headSummary}]`,
-    `Cl(${chatRes.flock_consensus_action}) | Root #${chatRes.icosian_root}`
-  );
+  const assistantTitle = 'UOR-R4 GLM';
+  const patchTarget = chatRes.is_coding_turn ? chatRes.target_file : '';
+  const patchBody = chatRes.is_coding_turn ? (chatRes.proposed_code || '') : '';
+  appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody);
 
   if (chatRes.is_coding_turn) {
     pendingPatchPath = chatRes.target_file;
     pendingProposedCode = chatRes.proposed_code || '';
-    if (chatTargetBadge) chatTargetBadge.textContent = `Patch Target: ${chatRes.target_file}`;
+    if (chatTargetBadge) chatTargetBadge.textContent = `Patch Ready: ${chatRes.target_file}`;
     if (chatDiffFile) chatDiffFile.textContent = chatRes.target_file;
     if (chatDiffPreview) chatDiffPreview.textContent = chatRes.diff_preview || '';
     if (chatApplyPatchBtn) {
@@ -421,11 +503,11 @@ function runClaudeChat(promptText) {
       chatApplyPatchBtn.textContent = `Apply Synthesized Patch to ${chatRes.target_file} & Admit into Memory`;
     }
   } else {
-    if (chatTargetBadge) chatTargetBadge.textContent = `Active File: ${activeWorkspacePath}`;
+    if (chatTargetBadge) chatTargetBadge.textContent = `Context: ${activeWorkspacePath}`;
     if (!pendingProposedCode) {
       if (chatDiffFile) chatDiffFile.textContent = activeWorkspacePath || 'No patch staged';
       if (chatDiffPreview) {
-        chatDiffPreview.textContent = 'No code patch staged yet. Ask the assistant to write or refactor code (e.g. "Write a function in Python to reverse a string" or "Upgrade multi-head cyclic flock attention in src/attention.rs") to stage a unified diff here.';
+        chatDiffPreview.textContent = 'No code patch staged yet. Ask the assistant to write or refactor code (e.g. "Write a function in Python to reverse a string") to stage a unified diff here.';
       }
       if (chatApplyPatchBtn) {
         chatApplyPatchBtn.disabled = true;
@@ -808,20 +890,29 @@ if (snapshotUploadInput) {
     if (!file) return;
     const arrayBuf = await file.arrayBuffer();
     const bytes = new Uint8Array(arrayBuf);
+    const inspectSlice = bytes.slice(0, Math.min(bytes.length, 16384));
     let hexPayload = '';
     if (bytes.length >= 8 && bytes[0] === 0x55 && bytes[1] === 0x4f && bytes[2] === 0x52) {
-      hexPayload = bytesToHex(bytes);
+      hexPayload = bytesToHex(inspectSlice);
     } else {
-      hexPayload = decoder.decode(bytes).trim();
+      hexPayload = decoder.decode(inspectSlice).trim();
     }
-    if (snapshotHexInput) snapshotHexInput.value = hexPayload;
-    const state = dispatchStudioEnvelope('import_snapshot', hexPayload);
+    if (snapshotHexInput) snapshotHexInput.value = hexPayload.slice(0, 512);
+    const fullHex = bytes.length <= 65536 ? bytesToHex(bytes) : hexPayload;
+    const state = dispatchStudioEnvelope('import_snapshot', fullHex);
     if (state && state.status === 'ok') {
       renderStudioState(state);
       const ws = dispatchStudioEnvelope('workspace_list', '');
       renderWorkspaceList(ws);
       if (admitStatus) {
         admitStatus.textContent = `Loaded pre-trained weight pack ${file.name} (${state.turn_count} turns, ${state.training_epoch} epochs, ${state.active_nonzero_gates} gates)`;
+      }
+    } else {
+      const insp = dispatchStudioEnvelope('uorlut_inspect', hexPayload);
+      if (insp && insp.status === 'ok' && admitStatus) {
+        admitStatus.textContent = `Verified GPU UORLUT01 container ${file.name}: ${insp.probe_outcome}, ${insp.section_count} sections, 64B aligned offset ${insp.data_offset_aligned_64} (Header SHA-256: ${insp.header_sha256})`;
+      } else if (admitStatus && state) {
+        admitStatus.textContent = state.message || 'Weight pack inspection failed';
       }
     }
   });
@@ -840,20 +931,38 @@ if (claudeChatForm) {
     if (claudeChatInput) {
       const submittedPrompt = claudeChatInput.value;
       claudeChatInput.value = '';
-      runClaudeChat(submittedPrompt);
+      runClaudeChat(submittedPrompt, true);
+    }
+  });
+}
+
+if (claudeChatInput) {
+  claudeChatInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      const submittedPrompt = claudeChatInput.value;
+      if (submittedPrompt.trim()) {
+        claudeChatInput.value = '';
+        runClaudeChat(submittedPrompt, true);
+      }
     }
   });
 }
 
 if (chatClearBtn) {
   chatClearBtn.addEventListener('click', () => {
+    const newId = `thread-${chatThreads.length + 1}`;
+    chatThreads.unshift({ id: newId, title: 'New Conversation', messages: [] });
+    activeThreadId = newId;
+    renderThreadSidebar();
     if (chatTranscript) {
       chatTranscript.replaceChildren();
     }
     if (claudeChatInput) {
       claudeChatInput.value = '';
+      claudeChatInput.focus();
     }
-    runClaudeChat('Hello! Who are you and what can you do?');
+    runClaudeChat('Hello! Who are you and what can you do?', false);
   });
 }
 
@@ -863,9 +972,61 @@ for (const btn of document.querySelectorAll('.chat-preset-btn')) {
     if (claudeChatInput) {
       claudeChatInput.value = '';
     }
-    runClaudeChat(promptVal);
+    runClaudeChat(promptVal, true);
   });
 }
+
+// Wire Workspace & Diagnostics Modal Windows (hidden by default)
+const workspaceModal = document.getElementById('workspace-modal');
+const diagnosticsModal = document.getElementById('diagnostics-modal');
+
+function setModalOpen(modalEl, openState) {
+  if (!modalEl) return;
+  if (openState) {
+    modalEl.removeAttribute('hidden');
+  } else {
+    modalEl.setAttribute('hidden', '');
+  }
+}
+
+for (const id of ['open-workspace-modal-btn', 'topbar-workspace-btn']) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('click', () => setModalOpen(workspaceModal, true));
+  }
+}
+const closeWsBtn = document.getElementById('close-workspace-modal-btn');
+if (closeWsBtn) {
+  closeWsBtn.addEventListener('click', () => setModalOpen(workspaceModal, false));
+}
+
+for (const id of ['open-diagnostics-modal-btn', 'topbar-diagnostics-btn']) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('click', () => setModalOpen(diagnosticsModal, true));
+  }
+}
+const closeDiagBtn = document.getElementById('close-diagnostics-modal-btn');
+if (closeDiagBtn) {
+  closeDiagBtn.addEventListener('click', () => setModalOpen(diagnosticsModal, false));
+}
+
+for (const modalEl of [workspaceModal, diagnosticsModal]) {
+  if (modalEl) {
+    modalEl.addEventListener('click', (event) => {
+      if (event.target === modalEl) {
+        setModalOpen(modalEl, false);
+      }
+    });
+  }
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    setModalOpen(workspaceModal, false);
+    setModalOpen(diagnosticsModal, false);
+  }
+});
 
 if (chatApplyPatchBtn) {
   chatApplyPatchBtn.addEventListener('click', () => {
@@ -969,12 +1130,13 @@ if (studioTrainForm) {
   });
 }
 
+renderThreadSidebar();
 const initialState = dispatchStudioEnvelope('state', '');
 renderStudioState(initialState);
 const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
 renderWorkspaceList(initialWorkspace);
 selectWorkspaceFile(activeWorkspacePath);
-runClaudeChat('Hello! Who are you and what can you do?');
+runClaudeChat('Hello! Who are you and what can you do?', false);
 if (claudeChatInput) {
   claudeChatInput.value = '';
 }

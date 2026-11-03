@@ -92,21 +92,46 @@ jobs:
             "$SDK_IMAGE" \
             /template-policy/bootstrap/render.mjs "$SDK_IMAGE" "$ACTION_REFERENCE" "$TEMPLATE_REVISION" /sdk-platforms
           rm -r -- .template-policy
+          # The template check regenerates CONFORMANCE.md with the project's own
+          # xtask, which compiles every crate it locks. The SDK's Cargo home holds
+          # only the SDK's crates, so the locked crates are fetched first, by a
+          # step that runs no project code, and the check then runs offline.
+          cargo_home=$(mktemp -d)
           docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --cap-drop ALL \
+            --security-opt no-new-privileges \
+            --volume "$PWD:/workspace:ro" \
+            --volume "$cargo_home:/cargo-home" \
+            --env CARGO_HOME=/cargo-home \
+            --workdir /workspace \
+            --entrypoint cargo \
+            "$SDK_IMAGE" \
+            fetch --locked
+          if ! docker run --rm \
             --user "$(id -u):$(id -g)" \
             --network none \
             --cap-drop ALL \
             --security-opt no-new-privileges \
             --volume "$PWD:/workspace" \
+            --volume "$cargo_home:/cargo-home" \
+            --env CARGO_HOME=/cargo-home \
+            --env CARGO_NET_OFFLINE=true \
             --workdir /workspace \
             "$SDK_IMAGE" \
-            prismpm --json template check >/tmp/template-check.json
+            prismpm --json template check >/tmp/template-check.json; then
+            cat /tmp/template-check.json >&2
+            exit 1
+          fi
           update=$(docker run --rm \
             --user "$(id -u):$(id -g)" \
             --network none \
             --cap-drop ALL \
             --security-opt no-new-privileges \
             --volume "$PWD:/workspace" \
+            --volume "$cargo_home:/cargo-home" \
+            --env CARGO_HOME=/cargo-home \
+            --env CARGO_NET_OFFLINE=true \
             --workdir /workspace \
             "$SDK_IMAGE" \
             prismpm --json template update --sdk-image "$SDK_IMAGE" --template-revision "$TEMPLATE_REVISION")
@@ -125,11 +150,12 @@ jobs:
           git diff --binary >.template-update.patch
           test -s .template-update.patch
       - name: Preserve the inert reviewable patch
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: template-update-proposal
           if-no-files-found: error
           path: .template-update.patch
+          include-hidden-files: true
           retention-days: 1
 
   open-pull-request:
@@ -149,7 +175,7 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event.repository.default_branch }}
       - name: Restore and apply the inert proposal
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: template-update-proposal
       - name: Validate and apply the proposed patch without executing it

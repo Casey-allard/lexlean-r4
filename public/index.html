@@ -10,506 +10,536 @@
 </head>
 <body>
   <main>
-    <header class="studio-header">
-      <div class="header-top">
-        <div>
-          <span class="eyebrow">Claude-Code-Desktop &middot; In-Browser Matmul-Free Geometric Language Model</span>
-          <h1>LexLean-R4 Universal Reference Engine</h1>
-        </div>
-        <div class="schema-pill">
-          <span class="pill-label">Active Stack</span>
-          <code id="stat-schema">uor-r4.lut-stack/8</code>
-        </div>
-      </div>
-      <p class="subtitle">
-        Hosted browser IDE &amp; generalized conversational coding assistant powered 100% client-side by the <code>uor-r4</code> WebAssembly Geometric Language Model (16-root E8 discrete orbit, 64-action Cl(0,6) carrier, 40-node ternary binder forest, <strong>/6../8</strong> integer lookup tables, <code>memory.point.points</code>, and <code>RETAIN_LAMBDA_Q31</code> retention).
-      </p>
-      <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
-        <div class="metric-card">
-          <span class="metric-label">Vocabulary Atoms</span>
-          <strong id="stat-vocab" class="metric-value">0</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">/7 Opening &amp; Reply Rows</span>
-          <strong id="stat-turn-rows" class="metric-value">0 / 0</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">/8 Point-Key Q12 Rows</span>
-          <strong id="stat-point-rows" class="metric-value">0</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Occupied E8 Product Cells</span>
-          <strong id="stat-cells" class="metric-value">0 / 256</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Trained Epochs &amp; Active Gates</span>
-          <strong id="stat-train-epochs" class="metric-value">0 ep / 0 gates</strong>
-        </div>
-        <div class="metric-card metric-card-wide">
-          <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
-          <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
-        </div>
-      </div>
-    </header>
-
-    <section class="studio-panel ide-shell" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
-      <div class="panel-header">
-        <div>
-          <span class="eyebrow">Matmul-Free End-to-End Developer Environment</span>
-          <h2 id="heading-claude-desktop">Claude-Code-Desktop &middot; UOR-R4 Geometric Coding Assistant &amp; On-Device Trainer</h2>
-        </div>
-        <span class="panel-badge">R4.Flock Cyclic Consensus &middot; R4.Prediction Basin Decoding &middot; R4.Learning Coupled Gate-Vector</span>
-      </div>
-
-      <div class="ide-grid">
-        <aside class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
-          <div class="pane-subheader">
-            <strong>Workspace Files</strong>
-            <span id="workspace-pinned-badge" class="mode-badge">2 pinned</span>
+    <!-- Left GPT-4 Style Sidebar -->
+    <aside class="gpt-sidebar" aria-label="Conversation History and Tools">
+      <div class="sidebar-top">
+        <div class="brand-row">
+          <div class="brand-badge">R4</div>
+          <div class="brand-text">
+            <strong>UOR-R4 GLM</strong>
+            <span>Geometric Language Model</span>
           </div>
-          <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
-          <form id="workspace-new-form" class="workspace-new-form" novalidate>
+        </div>
+        <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New chat</button>
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-heading">Conversations</span>
+        <ul id="chat-thread-list" class="thread-list" aria-label="Chat Threads"></ul>
+      </div>
+
+      <div class="sidebar-Section-Prompts">
+        <span class="sidebar-heading">Quick Prompts</span>
+        <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Transformers work vs UOR-R4">
+            Transformers vs. UOR-R4 GLM
+          </button>
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="How much does GPU training cost for UOR-R4?">
+            GPU Training Cost &amp; CUDA
+          </button>
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a Python quicksort algorithm">
+            Python 3-Way Quicksort
+          </button>
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a binary search in Rust">
+            Rust Binary Search
+          </button>
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="What is (144 * 25) + 89?">
+            Exact M6 Arithmetic
+          </button>
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Summarize the files in this workspace">
+            Summarize Workspace Files
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn">
+          <span>Workspace &amp; Code Editor</span>
+          <span id="workspace-pinned-badge" class="sidebar-pill">2 pinned</span>
+        </button>
+        <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn">
+          <span>Diagnostics &amp; Verification</span>
+          <span class="sidebar-pill">27/27</span>
+        </button>
+        <div class="sidebar-model-status">
+          <span class="status-dot"></span>
+          <span>GPU Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center Full-Screen GPT-4 Chat Interface -->
+    <section class="gpt-main-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
+      <header class="gpt-topbar">
+        <div class="model-selector">
+          <h1 id="heading-claude-desktop">UOR-R4 Geometric Language Model</h1>
+          <span class="model-tag">Zero-Float E8 &times; Cl(0,6) &middot; LexLean v0.4.0</span>
+        </div>
+        <div class="topbar-actions">
+          <span id="chat-target-badge" class="topbar-context-pill">Context: src/attention.rs</span>
+          <button id="topbar-workspace-btn" type="button" class="topbar-btn">Workspace</button>
+          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn">Diagnostics Window</button>
+        </div>
+      </header>
+
+      <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History"></div>
+
+      <div class="gpt-composer-dock">
+        <div class="starter-chips" role="group" aria-label="Suggested Prompts">
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Write a function in Python to reverse a string">
+            Python reverse string
+          </button>
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Explain distributed systems and the CAP theorem">
+            CAP theorem &amp; Raft
+          </button>
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
+            Patch src/attention.rs
+          </button>
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="What is the capital of Japan?">
+            World knowledge
+          </button>
+        </div>
+
+        <form id="claude-chat-form" class="gpt-composer-form" novalidate>
+          <div class="composer-field">
+            <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
+            <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Message UOR-R4 GLM (ask anything, generate Python/TS/Rust/Go/SQL code, or run exact math)..." autocomplete="off" spellcheck="false"></textarea>
+          </div>
+          <button id="claude-chat-submit" type="submit" class="composer-send-btn">Send</button>
+        </form>
+        <p class="composer-footnote">
+          Powered by the matmul-free UOR-R4 Geometric Language Model in WebAssembly &middot; 27/27 zero-axiom LexLean conformance suites verified.
+        </p>
+      </div>
+    </section>
+
+    <!-- Hidden Modal Window 1: Project Workspace Explorer, Editor & Diff Patch Inspector -->
+    <div id="workspace-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="workspace-modal-title" hidden>
+      <div class="modal-window">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">Virtual Repository &amp; Live Patching</span>
+            <h2 id="workspace-modal-title">Workspace Explorer, Code Editor &amp; Unified Diff Preview</h2>
+          </div>
+          <button id="close-workspace-modal-btn" type="button" class="modal-close-btn">Close Window</button>
+        </div>
+        <div class="modal-body workspace-modal-grid">
+          <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
+            <div class="pane-subheader">
+              <strong>Workspace Files</strong>
+            </div>
+            <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
+            <form id="workspace-new-form" class="workspace-new-form" novalidate>
+              <div class="field">
+                <label for="workspace-new-path">Create or Select Workspace File</label>
+                <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
+              </div>
+              <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
+            </form>
             <div class="field">
-              <label for="workspace-new-path">Create or Select Workspace File</label>
-              <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
+              <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
+              <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple>
             </div>
-            <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
-          </form>
-          <div class="field">
-            <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
-            <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple>
-          </div>
-        </aside>
-
-        <div class="ide-pane" id="assistant-pane" aria-label="Claude-Code Geometric Chat and Patch Synthesis">
-          <div class="pane-subheader">
-            <strong>Generalized UOR-R4 Conversational Chatbot &amp; Multi-Language Code Assistant</strong>
-            <span id="chat-target-badge" class="mode-badge">Target: src/attention.rs</span>
           </div>
 
-          <div class="preset-bar" role="group" aria-label="Assistant Coding and General Prompts">
-            <span class="preset-title">Try Asking:</span>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Hello! Who are you and what can you do?">
-              Capabilities Overview
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Summarize the files in this workspace">
-              Summarize Workspace
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Explain src/attention.rs">
-              Explain src/attention.rs
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Write a function in Python to reverse a string">
-              Python Reverse String
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Write a binary search in Rust">
-              Rust Binary Search
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="What is (144 * 25) + 89?">
-              Exact Math: (144 * 25) + 89
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Explain how transformers work">
-              Explain Transformers
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
-              Patch src/attention.rs
-            </button>
-          </div>
-
-          <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History"></div>
-
-          <form id="claude-chat-form" class="prompt-form" novalidate>
+          <div class="ide-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
+            <div class="pane-subheader">
+              <strong>Workspace File Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
+              <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+            </div>
             <div class="field">
-              <label for="claude-chat-input">Ask anything &mdash; general conversation, Python/TS/Rust/Lean/SQL code, exact math, or workspace refactoring</label>
-              <input id="claude-chat-input" name="claude-chat-input" type="text" value="" placeholder="Ask a general question, request Python/TS/Rust code, compute math, or inspect workspace files..." autocomplete="off" spellcheck="false">
+              <label for="workspace-editor-textarea">Active Workspace Source Code (Editable)</label>
+              <textarea id="workspace-editor-textarea" class="code-textarea" rows="12" spellcheck="false"></textarea>
             </div>
-            <button id="claude-chat-submit" type="submit">Send Message</button>
-            <button id="chat-clear-btn" type="button" class="btn-secondary">Clear Chat</button>
-          </form>
+            <div class="button-row">
+              <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
+              <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
+            </div>
+            <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
 
-          <div class="patch-card">
-            <div class="reply-card-header">
-              <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
-              <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
-            </div>
-            <pre id="chat-diff-preview" class="code-block" aria-label="Proposed Unified Diff"></pre>
-            <div class="diag-grid" id="chat-flock-grid">
-              <div class="diag-item">
-                <span class="diag-label">8-Head Cyclic Consensus</span>
-                <code id="chat-diag-consensus">Cl(0)</code>
+            <div class="patch-card">
+              <div class="reply-card-header">
+                <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
+                <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
               </div>
-              <div class="diag-item">
-                <span class="diag-label">Weighted Resonance</span>
-                <code id="chat-diag-resonance">0</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Icosian Z[phi] Root</span>
-                <code id="chat-diag-root">root #0</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Turn Receipt (SHA-256)</span>
-                <code id="chat-diag-receipt">&mdash;</code>
-              </div>
+              <pre id="chat-diff-preview" class="code-block" aria-label="Proposed Unified Diff"></pre>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <aside class="ide-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor and On-Device Trainer">
-          <div class="pane-subheader">
-            <strong>Workspace File Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
-            <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+    <!-- Hidden Modal Window 2: Diagnostics, On-Device Trainer, .uorlut Weight Pack I/O & 27/27 Conformance Lab -->
+    <div id="diagnostics-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="diagnostics-modal-title" hidden>
+      <div class="modal-window modal-window-wide">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">UOR-R4 Geometric Manifold Telemetry &amp; Formal Verification</span>
+            <h2 id="diagnostics-modal-title">Engine Diagnostics, On-Device Trainer &amp; 27/27 LexLean Conformance Lab</h2>
           </div>
-          <div class="field">
-            <label for="workspace-editor-textarea">Active Workspace Source Code (Editable)</label>
-            <textarea id="workspace-editor-textarea" class="code-textarea" rows="10" spellcheck="false"></textarea>
-          </div>
-          <div class="button-row">
-            <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
-            <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
-          </div>
-          <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
+          <button id="close-diagnostics-modal-btn" type="button" class="modal-close-btn">Close Window</button>
+        </div>
 
-          <hr class="pane-divider">
-
-          <div class="pane-subheader">
-            <strong>On-Device Coordinate-Sweep Trainer</strong>
-            <span class="mode-badge">Zero Backprop &middot; R4.Learning</span>
+        <div class="modal-body">
+          <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
+            <div class="metric-card">
+              <span class="metric-label">Vocabulary Atoms</span>
+              <strong id="stat-vocab" class="metric-value">0</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">/7 Opening &amp; Reply Rows</span>
+              <strong id="stat-turn-rows" class="metric-value">0 / 0</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">/8 Point-Key Q12 Rows</span>
+              <strong id="stat-point-rows" class="metric-value">0</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Occupied E8 Product Cells</span>
+              <strong id="stat-cells" class="metric-value">0 / 256</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Trained Epochs &amp; Active Gates</span>
+              <strong id="stat-train-epochs" class="metric-value">0 ep / 0 gates</strong>
+            </div>
+            <div class="metric-card metric-card-wide">
+              <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
+              <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
+            </div>
           </div>
-          <form id="studio-train-form" class="prompt-form" novalidate>
+
+          <div class="diag-grid" id="chat-flock-grid">
+            <div class="diag-item">
+              <span class="diag-label">8-Head Cyclic Consensus</span>
+              <code id="chat-diag-consensus">Cl(0)</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Weighted Resonance</span>
+              <code id="chat-diag-resonance">0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Icosian Z[phi] Root</span>
+              <code id="chat-diag-root">root #0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Turn Receipt (SHA-256)</span>
+              <code id="chat-diag-receipt">&mdash;</code>
+            </div>
+          </div>
+
+          <section class="studio-panel" aria-labelledby="heading-trainer">
+            <div class="panel-header">
+              <h2 id="heading-trainer">On-Device Coordinate-Sweep Trainer (R4.Learning.evaluateCoupledGateVector)</h2>
+              <span class="panel-badge">Zero Backprop &middot; Discrete Coordinate Sweeps</span>
+            </div>
+            <form id="studio-train-form" class="prompt-form" novalidate>
+              <div class="field">
+                <label for="train-epochs-input">Discrete Sweep Epochs (1..12)</label>
+                <input id="train-epochs-input" name="train-epochs-input" type="text" value="3" inputmode="numeric" autocomplete="off">
+              </div>
+              <button id="studio-train-btn" type="submit">Train Weights On-Device</button>
+            </form>
+            <div class="diag-grid">
+              <div class="diag-item">
+                <span class="diag-label">Corpus Transition Loss</span>
+                <code id="train-stat-loss">&mdash;</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Coupled Gate Escapes</span>
+                <code id="train-stat-escapes">0</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Active Non-Zero Gates</span>
+                <code id="train-stat-gates">0 / 40</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Sequence Transitions Trained</span>
+                <code id="train-stat-transitions">0</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Workspace Code Tokens Indexed</span>
+                <code id="train-stat-ws-tokens">0</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Training Receipt</span>
+                <code id="train-stat-receipt">&mdash;</code>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="studio-table" id="train-history-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Ep</th>
+                    <th scope="col">Loss (Before &rarr; After)</th>
+                    <th scope="col">Improved</th>
+                    <th scope="col">Gate Escapes</th>
+                  </tr>
+                </thead>
+                <tbody id="train-history-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="studio-panel" aria-labelledby="heading-prose">
+            <div class="panel-header">
+              <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
+              <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
+            </div>
+
+            <div class="preset-bar" role="group" aria-label="Preset Prompts">
+              <span class="preset-title">Preset Prompts:</span>
+              <button type="button" class="preset-btn" data-prompt="How does recall work?">
+                Exact /7 Recall
+              </button>
+              <button type="button" class="preset-btn" data-prompt="Can you explain how memory lookup recovers a rephrased question?">
+                Paraphrased /8 Point-Key L1 Recovery
+              </button>
+              <button type="button" class="preset-btn" data-prompt="How does prose generation work?">
+                Prose Generation (/7 Reply Chain)
+              </button>
+              <button type="button" class="preset-btn" data-prompt="How does prediction work?">
+                Prediction &amp; Ranking
+              </button>
+            </div>
+
+            <form id="studio-prompt-form" class="prompt-form" novalidate>
+              <div class="field">
+                <label for="studio-prompt">Prompt or Question (enter an exact turn key or a rephrased question)</label>
+                <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
+              </div>
+              <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
+            </form>
+
+            <div class="reply-card">
+              <div class="reply-card-header">
+                <span class="reply-title">Generated Prose Continuation</span>
+                <span id="diag-recall-mode" class="mode-badge">Awaiting inference</span>
+              </div>
+              <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
+              <div class="diag-grid">
+                <div class="diag-item">
+                  <span class="diag-label">Matched Turn Anchor</span>
+                  <code id="diag-matched-anchor">&mdash;</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">Opening Token &amp; Length</span>
+                  <code id="diag-opening-token">&mdash;</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">/8 Q12 L1 Distance</span>
+                  <code id="diag-l1-distance">0</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">/6 SWAR Hamming Dist</span>
+                  <code id="diag-hamming-distance">0 bits</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">/8 Plurality Votes</span>
+                  <code id="diag-plurality-votes">0</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">Active RETAIN_LAMBDA_Q31</span>
+                  <code id="diag-retain-lambda">0</code>
+                </div>
+                <div class="diag-item diag-item-span2">
+                  <span class="diag-label">Prompt 8D Q12 Readout Vector (memory.point.points)</span>
+                  <code id="diag-prompt-q12">[0, 0, 0, 0, 0, 0, 0, 0]</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">/6 Quaternion Sign Code</span>
+                  <code id="diag-prompt-sign">0x0000000000000000</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">R4-24 Icosian Root Snap</span>
+                  <code id="diag-icosian-root">root #0</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">R4-25 Base-17 4-Block</span>
+                  <code id="diag-packed-4block">0</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">R4-26 Sketch +3&sigma; Gate</span>
+                  <code id="diag-sketch-gate">4096 / 4096</code>
+                </div>
+                <div class="diag-item">
+                  <span class="diag-label">R4-27 PRLL Top-1 Mass</span>
+                  <code id="diag-prll-mass">0 ppm</code>
+                </div>
+                <div class="diag-item diag-item-span2">
+                  <span class="diag-label">Inference Transition Receipt (SHA-256)</span>
+                  <code id="diag-inference-receipt">&mdash;</code>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="studio-panel" aria-labelledby="heading-predictions">
+            <div class="panel-header">
+              <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
+              <span class="panel-badge">Whole-Table Q12 L1 Readout + Level-3 Pointer Gates</span>
+            </div>
+            <div class="table-wrap">
+              <table class="studio-table" id="predictions-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Rank</th>
+                    <th scope="col">Token ID</th>
+                    <th scope="col">Decoded Piece</th>
+                    <th scope="col">E8 Product Cell</th>
+                    <th scope="col">Cl(0,6) Action</th>
+                    <th scope="col">Ternary Node</th>
+                    <th scope="col">Q12 L1 Dist</th>
+                    <th scope="col">/6 Hamming Weight</th>
+                    <th scope="col">Rank Score</th>
+                    <th scope="col">Resolution Source</th>
+                  </tr>
+                </thead>
+                <tbody id="predictions-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="studio-panel" aria-labelledby="heading-trajectory">
+            <div class="panel-header">
+              <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory (E8 Orbit &times; Cl(0,6) &times; 40-Node Ternary Forest)</h2>
+              <span class="panel-badge">Prompt &rarr; &lt;REPLY_START&gt; &rarr; Autoregressive Reply</span>
+            </div>
+            <div class="table-wrap">
+              <table class="studio-table" id="trajectory-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Step</th>
+                    <th scope="col">Phase</th>
+                    <th scope="col">Token Piece</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">E8 Root</th>
+                    <th scope="col">Cl(0,6) Action</th>
+                    <th scope="col">Forest Node &amp; Trit Path</th>
+                    <th scope="col">/6 Sign Code (64-bit)</th>
+                    <th scope="col">/8 Q12 Readout Vector (8D)</th>
+                  </tr>
+                </thead>
+                <tbody id="trajectory-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="studio-panel" aria-labelledby="heading-admission">
+            <div class="panel-header">
+              <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission + .uorlut Weight Pack I/O</h2>
+              <span class="panel-badge">UORLUT01 + UR4SESS1 + UR4WGHT1</span>
+            </div>
+            <form id="studio-admit-form" class="admit-form" novalidate>
+              <div class="field">
+                <label for="admit-prompt">New Prompt / Question Anchor</label>
+                <input id="admit-prompt" name="admit-prompt" type="text" value="How does ternary routing work?" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="admit-reply">Prose Reply / Continuation to Admit</label>
+                <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits {-1, 0, +1} at each level." autocomplete="off" spellcheck="false">
+              </div>
+              <div class="button-row">
+                <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
+                <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 20 Turns</button>
+                <button id="snapshot-export-btn" type="button" class="btn-secondary">Export UORLUT01 + UR4SESS1 Snapshot</button>
+                <button id="snapshot-import-btn" type="button" class="btn-secondary">Validate &amp; Import Snapshot</button>
+                <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
+              </div>
+            </form>
             <div class="field">
-              <label for="train-epochs-input">Discrete Sweep Epochs (1..12)</label>
-              <input id="train-epochs-input" name="train-epochs-input" type="text" value="3" inputmode="numeric" autocomplete="off">
+              <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack from Disk (`gpu/short.uorlut` or `UORLUT01 + UR4SESS1`)</label>
+              <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" accept=".uorlut,.bin,.hex">
             </div>
-            <button id="studio-train-btn" type="submit">Train Weights On-Device</button>
-          </form>
-          <div class="diag-grid">
-            <div class="diag-item">
-              <span class="diag-label">Corpus Transition Loss</span>
-              <code id="train-stat-loss">&mdash;</code>
+            <div class="field">
+              <label for="snapshot-hex-input">Binary Container Snapshot Hex (`UORLUT01` Header + `UR4SESS1` Envelope)</label>
+              <input id="snapshot-hex-input" name="snapshot-hex-input" type="text" value="" placeholder="Click 'Export UORLUT01 + UR4SESS1 Snapshot' or upload gpu/short.uorlut..." autocomplete="off" spellcheck="false">
             </div>
-            <div class="diag-item">
-              <span class="diag-label">Coupled Gate Escapes</span>
-              <code id="train-stat-escapes">0</code>
+            <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
+
+            <div class="table-wrap">
+              <table class="studio-table" id="corpus-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Prompt Anchor</th>
+                    <th scope="col">Opening Token</th>
+                    <th scope="col">E8 Cell</th>
+                    <th scope="col">64-Bit Sign Code</th>
+                    <th scope="col">Prose Reply Continuation</th>
+                    <th scope="col">Inspect</th>
+                  </tr>
+                </thead>
+                <tbody id="corpus-tbody"></tbody>
+              </table>
             </div>
-            <div class="diag-item">
-              <span class="diag-label">Active Non-Zero Gates</span>
-              <code id="train-stat-gates">0 / 40</code>
+          </section>
+
+          <section class="studio-panel" aria-labelledby="heading-subsystems">
+            <div class="panel-header">
+              <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27 &middot; 27/27 Conformance Suites)</h2>
+              <span class="panel-badge">Icosian Snap + 19-Table Trunk + Durable Sketch + M6 Arithmetic &amp; PRLL</span>
             </div>
-            <div class="diag-item">
-              <span class="diag-label">Sequence Transitions Trained</span>
-              <code id="train-stat-transitions">0</code>
+            <form id="studio-subsystems-form" class="prompt-form" novalidate>
+              <div class="field">
+                <label for="subsystems-payload">Probe Parameters (digit_a, digit_b, carry_in, radix, sketch_overlap_bits)</label>
+                <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
+              </div>
+              <button id="subsystems-run-btn" type="submit">Run R4-24..R4-27 Subsystems Probe</button>
+            </form>
+            <div class="diag-grid" id="subsystems-grid">
+              <div class="diag-item">
+                <span class="diag-label">R4-24 Icosian Root &amp; 5a&sup2;&lt;d</span>
+                <code id="sub-r4-24">&mdash;</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">R4-25 19-Table Trunk &amp; Base-17</span>
+                <code id="sub-r4-25">&mdash;</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">R4-26 GCD Sieve &amp; +3&sigma; Sketch</span>
+                <code id="sub-r4-26">&mdash;</code>
+              </div>
+              <div class="diag-item diag-item-span2">
+                <span class="diag-label">R4-27 M6 5-Arm Place Addition &amp; PRLL Mass Quantum</span>
+                <code id="sub-r4-27">&mdash;</code>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Subsystems Probe Receipt</span>
+                <code id="sub-receipt">&mdash;</code>
+              </div>
             </div>
-            <div class="diag-item">
-              <span class="diag-label">Workspace Code Tokens Indexed</span>
-              <code id="train-stat-ws-tokens">0</code>
+          </section>
+
+          <section class="studio-panel" aria-labelledby="heading-envelope">
+            <div class="panel-header">
+              <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector (prismpm/text-application/1)</h2>
+              <span class="panel-badge">64-Bit Signed Integer Coordinate Operations</span>
             </div>
-            <div class="diag-item">
-              <span class="diag-label">Training Receipt</span>
-              <code id="train-stat-receipt">&mdash;</code>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table class="studio-table" id="train-history-table">
-              <thead>
-                <tr>
-                  <th scope="col">Ep</th>
-                  <th scope="col">Loss (Before &rarr; After)</th>
-                  <th scope="col">Improved</th>
-                  <th scope="col">Gate Escapes</th>
-                </tr>
-              </thead>
-              <tbody id="train-history-tbody"></tbody>
-            </table>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <details class="diagnostics-drawer">
-      <summary class="diagnostics-drawer-summary">
-        <span>Low-Level UOR-R4 Geometric Manifold Inspector, .uorlut Weight Pack I/O &amp; 27/27 Conformance Lab (Sections 1&ndash;6)</span>
-        <span class="panel-badge">Click to Expand / Collapse</span>
-      </summary>
-      <div class="diagnostics-drawer-body">
-    <section class="studio-panel" aria-labelledby="heading-prose">
-      <div class="panel-header">
-        <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
-        <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
-      </div>
-
-      <div class="preset-bar" role="group" aria-label="Preset Prompts">
-        <span class="preset-title">Preset Prompts:</span>
-        <button type="button" class="preset-btn" data-prompt="How does recall work?">
-          Exact /7 Recall
-        </button>
-        <button type="button" class="preset-btn" data-prompt="Can you explain how memory lookup recovers a rephrased question?">
-          Paraphrased /8 Point-Key L1 Recovery
-        </button>
-        <button type="button" class="preset-btn" data-prompt="How does prose generation work?">
-          Prose Generation (/7 Reply Chain)
-        </button>
-        <button type="button" class="preset-btn" data-prompt="How does prediction work?">
-          Prediction &amp; Ranking
-        </button>
-        <button type="button" class="preset-btn" data-prompt="What is integer Hamming read?">
-          /6 Quaternion Hamming Read
-        </button>
-        <button type="button" class="preset-btn" data-prompt="What is geometric retention?">
-          RETAIN_LAMBDA_Q31 Horizon
-        </button>
-        <button type="button" class="preset-btn" data-prompt="What does LexLean prove?">
-          27/27 LexLean Proofs
-        </button>
-        <button type="button" class="preset-btn" data-prompt="How does the 17-root Icosian snap work?">
-          R4-24 Icosian Z[phi] Snap
-        </button>
-        <button type="button" class="preset-btn" data-prompt="What is the 19-table M1 discrete trunk?">
-          R4-25 19-Table M1 Trunk
-        </button>
-        <button type="button" class="preset-btn" data-prompt="How do durable turn memory and manifold sketches work?">
-          R4-26 Durable Memory &amp; +3&sigma; Sketch
-        </button>
-        <button type="button" class="preset-btn" data-prompt="How do M6 exact arithmetic and PRLL lawful likelihood work?">
-          R4-27 M6 Arithmetic &amp; PRLL
-        </button>
-      </div>
-
-      <form id="studio-prompt-form" class="prompt-form" novalidate>
-        <div class="field">
-          <label for="studio-prompt">Prompt or Question (enter an exact turn key or a rephrased question)</label>
-          <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
-        </div>
-        <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
-      </form>
-
-      <div class="reply-card">
-        <div class="reply-card-header">
-          <span class="reply-title">Generated Prose Continuation</span>
-          <span id="diag-recall-mode" class="mode-badge">Awaiting inference</span>
-        </div>
-        <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
-        <div class="diag-grid">
-          <div class="diag-item">
-            <span class="diag-label">Matched Turn Anchor</span>
-            <code id="diag-matched-anchor">&mdash;</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">Opening Token &amp; Length</span>
-            <code id="diag-opening-token">&mdash;</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">/8 Q12 L1 Distance</span>
-            <code id="diag-l1-distance">0</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">/6 SWAR Hamming Dist</span>
-            <code id="diag-hamming-distance">0 bits</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">/8 Plurality Votes</span>
-            <code id="diag-plurality-votes">0</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">Active RETAIN_LAMBDA_Q31</span>
-            <code id="diag-retain-lambda">0</code>
-          </div>
-          <div class="diag-item diag-item-span2">
-            <span class="diag-label">Prompt 8D Q12 Readout Vector (memory.point.points)</span>
-            <code id="diag-prompt-q12">[0, 0, 0, 0, 0, 0, 0, 0]</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">/6 Quaternion Sign Code</span>
-            <code id="diag-prompt-sign">0x0000000000000000</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">R4-24 Icosian Root Snap</span>
-            <code id="diag-icosian-root">root #0</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">R4-25 Base-17 4-Block</span>
-            <code id="diag-packed-4block">0</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">R4-26 Sketch +3&sigma; Gate</span>
-            <code id="diag-sketch-gate">4096 / 4096</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">R4-27 PRLL Top-1 Mass</span>
-            <code id="diag-prll-mass">0 ppm</code>
-          </div>
-          <div class="diag-item diag-item-span2">
-            <span class="diag-label">Inference Transition Receipt (SHA-256)</span>
-            <code id="diag-inference-receipt">&mdash;</code>
-          </div>
+            <form id="application-form" novalidate>
+              <div class="field">
+                <label for="left">Left operand / Occurrence Coordinate</label>
+                <input id="left" name="left" value="10" inputmode="numeric" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="operation">Operation</label>
+                <select id="operation" name="operation">
+                  <option value="0" data-request="forward" selected>Forward Transition</option>
+                  <option value="1" data-request="route">Route Descent</option>
+                  <option value="2" data-request="flock">Flock Consensus</option>
+                  <option value="3" data-request="verify-receipt">Verify Receipt</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="right">Right operand / Parameter</label>
+                <input id="right" name="right" value="20" inputmode="numeric" autocomplete="off" spellcheck="false">
+              </div>
+              <button id="submit" type="submit">Execute</button>
+            </form>
+            <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
+          </section>
         </div>
       </div>
-    </section>
-
-    <section class="studio-panel" aria-labelledby="heading-predictions">
-      <div class="panel-header">
-        <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
-        <span class="panel-badge">Whole-Table Q12 L1 Readout + Level-3 Pointer Gates</span>
-      </div>
-      <div class="table-wrap">
-        <table class="studio-table" id="predictions-table">
-          <thead>
-            <tr>
-              <th scope="col">Rank</th>
-              <th scope="col">Token ID</th>
-              <th scope="col">Decoded Piece</th>
-              <th scope="col">E8 Product Cell</th>
-              <th scope="col">Cl(0,6) Action</th>
-              <th scope="col">Ternary Node</th>
-              <th scope="col">Q12 L1 Dist</th>
-              <th scope="col">/6 Hamming Weight</th>
-              <th scope="col">Rank Score</th>
-              <th scope="col">Resolution Source</th>
-            </tr>
-          </thead>
-          <tbody id="predictions-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="studio-panel" aria-labelledby="heading-trajectory">
-      <div class="panel-header">
-        <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory (E8 Orbit &times; Cl(0,6) &times; 40-Node Ternary Forest)</h2>
-        <span class="panel-badge">Prompt &rarr; &lt;REPLY_START&gt; &rarr; Autoregressive Reply</span>
-      </div>
-      <div class="table-wrap">
-        <table class="studio-table" id="trajectory-table">
-          <thead>
-            <tr>
-              <th scope="col">Step</th>
-              <th scope="col">Phase</th>
-              <th scope="col">Token Piece</th>
-              <th scope="col">ID</th>
-              <th scope="col">E8 Root</th>
-              <th scope="col">Cl(0,6) Action</th>
-              <th scope="col">Forest Node &amp; Trit Path</th>
-              <th scope="col">/6 Sign Code (64-bit)</th>
-              <th scope="col">/8 Q12 Readout Vector (8D)</th>
-            </tr>
-          </thead>
-          <tbody id="trajectory-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="studio-panel" aria-labelledby="heading-admission">
-      <div class="panel-header">
-        <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission (R4.Admission + /7 + /8 + /6)</h2>
-        <span class="panel-badge">Teach New Facts &amp; Query with Paraphrased Prompts</span>
-      </div>
-      <form id="studio-admit-form" class="admit-form" novalidate>
-        <div class="field">
-          <label for="admit-prompt">New Prompt / Question Anchor</label>
-          <input id="admit-prompt" name="admit-prompt" type="text" value="How does ternary routing work?" autocomplete="off" spellcheck="false">
-        </div>
-        <div class="field">
-          <label for="admit-reply">Prose Reply / Continuation to Admit</label>
-          <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits {-1, 0, +1} at each level." autocomplete="off" spellcheck="false">
-        </div>
-        <div class="button-row">
-          <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
-          <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 20 Turns</button>
-          <button id="snapshot-export-btn" type="button" class="btn-secondary">Export UORLUT01 + UR4SESS1 Snapshot</button>
-          <button id="snapshot-import-btn" type="button" class="btn-secondary">Validate &amp; Import Snapshot</button>
-          <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
-        </div>
-      </form>
-      <div class="field">
-        <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack from Disk (`UORLUT01 + UR4SESS1 + UR4WGHT1`)</label>
-        <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" accept=".uorlut,.bin,.hex">
-      </div>
-      <div class="field">
-        <label for="snapshot-hex-input">Binary Container Snapshot Hex (`UORLUT01` 64B Header + `UR4SESS1` Session Envelope)</label>
-        <input id="snapshot-hex-input" name="snapshot-hex-input" type="text" value="" placeholder="Click 'Export UORLUT01 + UR4SESS1 Snapshot' to serialize active /6../8 tables &amp; session turns..." autocomplete="off" spellcheck="false">
-      </div>
-      <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
-
-      <div class="table-wrap">
-        <table class="studio-table" id="corpus-table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Prompt Anchor</th>
-              <th scope="col">Opening Token</th>
-              <th scope="col">E8 Cell</th>
-              <th scope="col">64-Bit Sign Code</th>
-              <th scope="col">Prose Reply Continuation</th>
-              <th scope="col">Inspect</th>
-            </tr>
-          </thead>
-          <tbody id="corpus-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="studio-panel" aria-labelledby="heading-subsystems">
-      <div class="panel-header">
-        <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27 &middot; 27/27 Conformance Suites)</h2>
-        <span class="panel-badge">Icosian Snap + 19-Table Trunk + Durable Sketch + M6 Arithmetic &amp; PRLL</span>
-      </div>
-      <form id="studio-subsystems-form" class="prompt-form" novalidate>
-        <div class="field">
-          <label for="subsystems-payload">Probe Parameters (digit_a, digit_b, carry_in, radix, sketch_overlap_bits)</label>
-          <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
-        </div>
-        <button id="subsystems-run-btn" type="submit">Run R4-24..R4-27 Subsystems Probe</button>
-      </form>
-      <div class="diag-grid" id="subsystems-grid">
-        <div class="diag-item">
-          <span class="diag-label">R4-24 Icosian Root &amp; 5a&sup2;&lt;d</span>
-          <code id="sub-r4-24">&mdash;</code>
-        </div>
-        <div class="diag-item">
-          <span class="diag-label">R4-25 19-Table Trunk &amp; Base-17</span>
-          <code id="sub-r4-25">&mdash;</code>
-        </div>
-        <div class="diag-item">
-          <span class="diag-label">R4-26 GCD Sieve &amp; +3&sigma; Sketch</span>
-          <code id="sub-r4-26">&mdash;</code>
-        </div>
-        <div class="diag-item diag-item-span2">
-          <span class="diag-label">R4-27 M6 5-Arm Place Addition &amp; PRLL Mass Quantum</span>
-          <code id="sub-r4-27">&mdash;</code>
-        </div>
-        <div class="diag-item">
-          <span class="diag-label">Subsystems Probe Receipt</span>
-          <code id="sub-receipt">&mdash;</code>
-        </div>
-      </div>
-    </section>
-
-    <section class="studio-panel" aria-labelledby="heading-envelope">
-      <div class="panel-header">
-        <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector (prismpm/text-application/1)</h2>
-        <span class="panel-badge">64-Bit Signed Integer Coordinate Operations</span>
-      </div>
-      <form id="application-form" novalidate>
-        <div class="field">
-          <label for="left">Left operand / Occurrence Coordinate</label>
-          <input id="left" name="left" value="10" inputmode="numeric" autocomplete="off" spellcheck="false">
-        </div>
-        <div class="field">
-          <label for="operation">Operation</label>
-          <select id="operation" name="operation">
-            <option value="0" data-request="forward" selected>Forward Transition</option>
-            <option value="1" data-request="route">Route Descent</option>
-            <option value="2" data-request="flock">Flock Consensus</option>
-            <option value="3" data-request="verify-receipt">Verify Receipt</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="right">Right operand / Parameter</label>
-          <input id="right" name="right" value="20" inputmode="numeric" autocomplete="off" spellcheck="false">
-        </div>
-        <button id="submit" type="submit">Execute</button>
-      </form>
-      <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
-    </section>
-      </div>
-    </details>
+    </div>
   </main>
   <script type="module" src="app.js"></script>
 </body>
