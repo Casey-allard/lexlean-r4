@@ -4029,6 +4029,7 @@ mod tests {
         assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
         assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 111);
         assert!(glm_weights::GLM_TRAINED_VOCAB.len() >= 1_500);
+        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 951);
         assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 29);
         assert!(glm_weights::GLM_CONCEPT_MANIFOLD
             .iter()
@@ -4036,6 +4037,36 @@ mod tests {
                 && n.clifford_action < 64
                 && n.icosian_root < 17
                 && n.h4_root < 120));
+
+        // 8b. Verify Token-Level Autoregressive Geometric Prose Generation (O(1) per-token integer retention + 4D quaternion + Base-17 4-block trunk)
+        let prompt_words = vec![
+            "seine".to_string(),
+            "cathedral".to_string(),
+            "renaissance".to_string(),
+            "florence".to_string(),
+        ];
+        let active_basins = [
+            &glm_weights::GLM_CONCEPT_MANIFOLD[55],
+            &glm_weights::GLM_CONCEPT_MANIFOLD[66],
+        ];
+        let (tok_prose, tok_stepped, tok_branches) =
+            glm_weights::generate_token_level_geometric_prose(
+                &prompt_words,
+                &active_basins,
+                45,
+                95,
+            );
+        assert!(
+            tok_stepped >= 35,
+            "Token-level geometric decoder must step >= 35 tokens, stepped {}",
+            tok_stepped
+        );
+        assert!(
+            tok_branches >= 1,
+            "Token-level geometric decoder must evaluate multi-branch pivots, got {}",
+            tok_branches
+        );
+        assert!(tok_prose.len() >= 150);
 
         // 9. Falsifiable 5-way Held-Out Paraphrase Routing Benchmark:
         //    - (a) Full scorer (lexical + trained_geometry)

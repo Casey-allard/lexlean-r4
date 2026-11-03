@@ -1,4 +1,4 @@
-// UOR-R4 Generalized Geometric Language Model (GLM) Joint Basin & Vocabulary Manifold Trainer (`UR4GLM04`)
+// UOR-R4 Generalized Geometric Language Model (GLM) Joint Basin, Vocabulary & Token-Horizon Trainer (`UR4GLM05`)
 // Target architectures: sm_75 .. sm_120 (NVIDIA Turing / Ampere / Hopper / Blackwell RTX 5090)
 //
 // Implements:
@@ -8,8 +8,10 @@
 //    and exact 17-root `Icosian Z[phi]` GoldenQ12 inner-product snapping (`R4.SpiralCoreFbs`, `R4-24`).
 // 2. `train_glm_vocab_manifold_kernel`: 512-epoch contrastive coordinate optimization pulling each
 //    training-corpus stem's primary and secondary `Q12` fibers, 64-bit `SWAR` quaternion sign codes,
-//    and 128-bit `VSA` hypervectors toward the basins in whose training prose the stem co-occurs,
-//    while enforcing a contrastive margin against negative basins.
+//    and 128-bit `VSA` hypervectors toward the basins in whose training prose the stem co-occurs.
+// 3. `train_glm_token_horizons_kernel`: 256-epoch `RETAIN_LAMBDA_Q31` (`R4.IntegerStack`) + 4D integer
+//    Hamilton quaternion (`R4.SpiralCoreFbs.stackHamilton4D`) + Base-17 4-Block Trunk (`R4.DiscreteTrunk`)
+//    lookahead horizon trainer for token-by-token autoregressive generation.
 
 #include <cuda_runtime.h>
 #include <math.h>
@@ -51,6 +53,27 @@ struct GlmDeviceVocabRow {
     uint64_t sign_code;                    // 32..40
     uint64_t alt_sign_code;                // 40..48
     uint64_t vsa_hv[2];                    // 48..64
+};
+
+struct GlmDeviceHorizonRow {
+    int16_t horizon_q12[POINT_KEY_DIM]; // 0..16
+    uint64_t horizon_sign;              // 16..24
+    uint32_t packed_4block;             // 24..28
+    uint16_t basin_id;                  // 28..30
+    uint8_t section_idx;                // 30
+    uint8_t sentence_idx;               // 31
+};
+
+// Exact 8-head integer retention decay constants (`R4.IntegerStack.retainLambdaQ31`, `R4-18`)
+__constant__ int64_t DEVICE_RETAIN_LAMBDA_Q31[8] = {
+    1073741824LL,
+    1610612736LL,
+    1879048192LL,
+    2013265920LL,
+    2080374784LL,
+    2113929216LL,
+    2122317824LL,
+    2130706432LL
 };
 
 // Exact 17-root Icosian Z[phi] GoldenQ12 table (`R4.SpiralCoreFbs.icosianRootEntry`, `R4-24`)
@@ -328,6 +351,109 @@ extern "C" __global__ void train_glm_vocab_manifold_kernel(
     }
 }
 
+__device__ __forceinline__ void device_stack_hamilton_4d(
+    const int64_t* __restrict__ q,
+    const int64_t* __restrict__ u,
+    int64_t* __restrict__ out
+) {
+    out[0] = q[0] * u[0] - q[1] * u[1] - q[2] * u[2] - q[3] * u[3];
+    out[1] = q[0] * u[1] + q[1] * u[0] + q[2] * u[3] - q[3] * u[2];
+    out[2] = q[0] * u[2] - q[1] * u[3] + q[2] * u[0] + q[3] * u[1];
+    out[3] = q[0] * u[3] + q[1] * u[2] - q[2] * u[1] + q[3] * u[0];
+}
+
+extern "C" __global__ void train_glm_token_horizons_kernel(
+    GlmDeviceHorizonRow* __restrict__ horizon_rows,
+    const GlmDeviceConceptRow* __restrict__ trained_basins,
+    const GlmDeviceVocabRow* __restrict__ trained_vocab,
+    const uint16_t* __restrict__ horizon_vocab_ids, // [horizon_count * 8]
+    uint32_t horizon_count,
+    uint32_t basin_count,
+    uint32_t vocab_count,
+    uint32_t epoch
+) {
+    uint32_t h = blockIdx.x * blockDim.x + threadIdx.x;
+    if (h >= horizon_count) {
+        return;
+    }
+
+    GlmDeviceHorizonRow row = horizon_rows[h];
+    uint16_t b_id = row.basin_id % basin_count;
+    const GlmDeviceConceptRow basin = trained_basins[b_id];
+
+    // Forward-decay the 8 token stem slots using `DEVICE_RETAIN_LAMBDA_Q31` (`R4.IntegerStack`)
+    int64_t accum_q12[POINT_KEY_DIM];
+    int32_t sign_votes[64];
+    #pragma unroll
+    for (int l = 0; l < POINT_KEY_DIM; ++l) {
+        accum_q12[l] = (int64_t)basin.q12_coords[l] / 2;
+    }
+    for (int b = 0; b < 64; ++b) {
+        sign_votes[b] = ((basin.sign_code >> b) & 1ULL) ? 2 : -2;
+    }
+
+    int64_t quat[4] = {256, 0, 0, 0};
+
+    for (int slot = 0; slot < 8; ++slot) {
+        uint16_t vid = horizon_vocab_ids[h * 8 + slot];
+        if (vid >= vocab_count) {
+            continue;
+        }
+        const GlmDeviceVocabRow vrow = trained_vocab[vid];
+        int64_t lam = DEVICE_RETAIN_LAMBDA_Q31[7 - slot];
+        for (int l = 0; l < POINT_KEY_DIM; ++l) {
+            accum_q12[l] = ((accum_q12[l] * lam) >> 31) + ((int64_t)vrow.q12_coords[l] / 3);
+        }
+        for (int b = 0; b < 64; ++b) {
+            sign_votes[b] += ((vrow.sign_code >> b) & 1ULL) ? 3 : -3;
+        }
+        if (slot < 3) {
+            int64_t u[4] = {
+                (int64_t)(vrow.q12_coords[0] >> 4),
+                (int64_t)(vrow.q12_coords[1] >> 4),
+                (int64_t)(vrow.q12_coords[2] >> 4),
+                (int64_t)(vrow.q12_coords[3] >> 4)
+            };
+            int64_t next_q[4];
+            device_stack_hamilton_4d(quat, u, next_q);
+            for (int c = 0; c < 4; ++c) {
+                quat[c] = (next_q[c] >> 7);
+                if (quat[c] > 4096) quat[c] = 4096;
+                if (quat[c] < -4096) quat[c] = -4096;
+            }
+        }
+    }
+
+    for (int l = 0; l < POINT_KEY_DIM; ++l) {
+        int32_t tgt = (int32_t)accum_q12[l];
+        if (tgt > Q12_ONE) tgt = Q12_ONE;
+        if (tgt < -Q12_ONE) tgt = -Q12_ONE;
+        int32_t cur = (int32_t)row.horizon_q12[l];
+        int32_t diff = tgt - cur;
+        if (diff > 64) diff = 64;
+        if (diff < -64) diff = -64;
+        row.horizon_q12[l] = (int16_t)(cur + diff);
+    }
+
+    uint64_t tgt_sign = 0ULL;
+    for (int b = 0; b < 64; ++b) {
+        if (sign_votes[b] >= 0) {
+            tgt_sign |= (1ULL << b);
+        }
+    }
+    uint64_t mask = 0xFFULL << ((epoch & 7u) * 8u);
+    row.horizon_sign = (row.horizon_sign & ~mask) | (tgt_sign & mask);
+
+    int16_t q_snap[4] = {(int16_t)quat[0], (int16_t)quat[1], (int16_t)quat[2], (int16_t)quat[3]};
+    uint8_t b0 = basin.icosian_root % 17u;
+    uint8_t b1 = device_icosian_snap_select(q_snap) % 17u;
+    uint8_t b2 = device_icosian_snap_select(&row.horizon_q12[0]) % 17u;
+    uint8_t b3 = device_icosian_snap_select(&row.horizon_q12[4]) % 17u;
+    row.packed_4block = (uint32_t)b0 + 17u * (uint32_t)b1 + 289u * (uint32_t)b2 + 4913u * (uint32_t)b3;
+
+    horizon_rows[h] = row;
+}
+
 #ifdef GLM_STANDALONE_TRAINER
 int main(int argc, char** argv) {
     if (argc < 4) {
@@ -345,10 +471,13 @@ int main(int argc, char** argv) {
     }
     uint32_t count = 0;
     uint32_t vocab_count = 0;
+    uint32_t horizon_count = 0;
     if (fread(&count, sizeof(uint32_t), 1, fin) != 1 ||
         fread(&vocab_count, sizeof(uint32_t), 1, fin) != 1 ||
-        count == 0 || count > 65536 || vocab_count == 0 || vocab_count > 65536) {
-        fprintf(stderr, "Invalid counts: basins=%u, vocab=%u\n", count, vocab_count);
+        fread(&horizon_count, sizeof(uint32_t), 1, fin) != 1 ||
+        count == 0 || count > 65536 || vocab_count == 0 || vocab_count > 65536 ||
+        horizon_count == 0 || horizon_count > 65536) {
+        fprintf(stderr, "Invalid counts: basins=%u, vocab=%u, horizons=%u\n", count, vocab_count, horizon_count);
         fclose(fin);
         return 1;
     }
@@ -365,6 +494,11 @@ int main(int argc, char** argv) {
     uint16_t* h_idf_weights = (uint16_t*)calloc(vocab_count, sizeof(uint16_t));
     uint64_t* h_stem_hashes = (uint64_t*)calloc(vocab_count, sizeof(uint64_t));
 
+    uint16_t* h_horizon_basins = (uint16_t*)calloc(horizon_count, sizeof(uint16_t));
+    uint8_t* h_horizon_secs = (uint8_t*)calloc(horizon_count, sizeof(uint8_t));
+    uint8_t* h_horizon_sents = (uint8_t*)calloc(horizon_count, sizeof(uint8_t));
+    uint16_t* h_horizon_vocab_ids = (uint16_t*)calloc(horizon_count * 8, sizeof(uint16_t));
+
     if (fread(h_target_q12, sizeof(int16_t), count * POINT_KEY_DIM, fin) != count * POINT_KEY_DIM ||
         fread(h_target_signs, sizeof(uint64_t), count, fin) != count ||
         fread(h_vsa_hv, sizeof(uint64_t), count * 2, fin) != count * 2 ||
@@ -374,7 +508,11 @@ int main(int argc, char** argv) {
         fread(h_ter_basins, sizeof(uint16_t), vocab_count, fin) != vocab_count ||
         fread(h_quat_basins, sizeof(uint16_t), vocab_count, fin) != vocab_count ||
         fread(h_idf_weights, sizeof(uint16_t), vocab_count, fin) != vocab_count ||
-        fread(h_stem_hashes, sizeof(uint64_t), vocab_count, fin) != vocab_count) {
+        fread(h_stem_hashes, sizeof(uint64_t), vocab_count, fin) != vocab_count ||
+        fread(h_horizon_basins, sizeof(uint16_t), horizon_count, fin) != horizon_count ||
+        fread(h_horizon_secs, sizeof(uint8_t), horizon_count, fin) != horizon_count ||
+        fread(h_horizon_sents, sizeof(uint8_t), horizon_count, fin) != horizon_count ||
+        fread(h_horizon_vocab_ids, sizeof(uint16_t), horizon_count * 8, fin) != horizon_count * 8) {
         fprintf(stderr, "Truncated input_targets.bin\n");
         fclose(fin);
         return 1;
@@ -412,6 +550,14 @@ int main(int argc, char** argv) {
         h_vocab[v].alt_sign_code = ~h_stem_hashes[v];
     }
 
+    GlmDeviceHorizonRow* h_horizons = (GlmDeviceHorizonRow*)calloc(horizon_count, sizeof(GlmDeviceHorizonRow));
+    for (uint32_t h = 0; h < horizon_count; ++h) {
+        h_horizons[h].basin_id = h_horizon_basins[h];
+        h_horizons[h].section_idx = h_horizon_secs[h];
+        h_horizons[h].sentence_idx = h_horizon_sents[h];
+        h_horizons[h].horizon_sign = 0x9E3779B97F4A7C15ULL ^ ((uint64_t)h * 0xBF58476D1CE4E5B9ULL);
+    }
+
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, 0);
     int runtime_ver = 0, driver_ver = 0;
@@ -434,6 +580,9 @@ int main(int argc, char** argv) {
     uint64_t* d_stem_hashes = NULL;
     uint32_t* d_vocab_loss = NULL;
 
+    GlmDeviceHorizonRow* d_horizons = NULL;
+    uint16_t* d_horizon_vocab_ids = NULL;
+
     cudaMalloc(&d_rows, count * sizeof(GlmDeviceConceptRow));
     cudaMalloc(&d_tgt_q12, count * POINT_KEY_DIM * sizeof(int16_t));
     cudaMalloc(&d_tgt_signs, count * sizeof(uint64_t));
@@ -450,6 +599,9 @@ int main(int argc, char** argv) {
     cudaMalloc(&d_stem_hashes, vocab_count * sizeof(uint64_t));
     cudaMalloc(&d_vocab_loss, vocab_count * sizeof(uint32_t));
 
+    cudaMalloc(&d_horizons, horizon_count * sizeof(GlmDeviceHorizonRow));
+    cudaMalloc(&d_horizon_vocab_ids, horizon_count * 8 * sizeof(uint16_t));
+
     cudaMemcpy(d_rows, h_rows, count * sizeof(GlmDeviceConceptRow), cudaMemcpyHostToDevice);
     cudaMemcpy(d_tgt_q12, h_target_q12, count * POINT_KEY_DIM * sizeof(int16_t), cudaMemcpyHostToDevice);
     cudaMemcpy(d_tgt_signs, h_target_signs, count * sizeof(uint64_t), cudaMemcpyHostToDevice);
@@ -465,6 +617,9 @@ int main(int argc, char** argv) {
     cudaMemcpy(d_idf_weights, h_idf_weights, vocab_count * sizeof(uint16_t), cudaMemcpyHostToDevice);
     cudaMemcpy(d_stem_hashes, h_stem_hashes, vocab_count * sizeof(uint64_t), cudaMemcpyHostToDevice);
 
+    cudaMemcpy(d_horizons, h_horizons, horizon_count * sizeof(GlmDeviceHorizonRow), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_horizon_vocab_ids, h_horizon_vocab_ids, horizon_count * 8 * sizeof(uint16_t), cudaMemcpyHostToDevice);
+
     cudaEvent_t ev_start, ev_stop;
     cudaEventCreate(&ev_start);
     cudaEventCreate(&ev_stop);
@@ -472,8 +627,10 @@ int main(int argc, char** argv) {
     uint32_t threads = 128;
     uint32_t basin_blocks = (count + threads - 1) / threads;
     uint32_t vocab_blocks = (vocab_count + threads - 1) / threads;
+    uint32_t horizon_blocks = (horizon_count + threads - 1) / threads;
     uint32_t basin_epochs = 1024;
     uint32_t vocab_epochs = 512;
+    uint32_t horizon_epochs = 256;
 
     cudaEventRecord(ev_start);
     for (uint32_t ep = 0; ep < basin_epochs; ++ep) {
@@ -488,6 +645,12 @@ int main(int argc, char** argv) {
             vocab_count, count, ep
         );
     }
+    for (uint32_t ep = 0; ep < horizon_epochs; ++ep) {
+        train_glm_token_horizons_kernel<<<horizon_blocks, threads>>>(
+            d_horizons, d_rows, d_vocab, d_horizon_vocab_ids,
+            horizon_count, count, vocab_count, ep
+        );
+    }
     cudaEventRecord(ev_stop);
     cudaEventSynchronize(ev_stop);
 
@@ -499,6 +662,7 @@ int main(int argc, char** argv) {
     uint32_t* h_vocab_loss = (uint32_t*)calloc(vocab_count, sizeof(uint32_t));
     cudaMemcpy(h_rows, d_rows, count * sizeof(GlmDeviceConceptRow), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_vocab, d_vocab, vocab_count * sizeof(GlmDeviceVocabRow), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_horizons, d_horizons, horizon_count * sizeof(GlmDeviceHorizonRow), cudaMemcpyDeviceToHost);
     cudaMemcpy(&h_improved, d_improved, sizeof(uint32_t), cudaMemcpyDeviceToHost);
     cudaMemcpy(&h_escapes, d_escapes, sizeof(uint32_t), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_gates, d_gates, TERNARY_FOREST_NODES * sizeof(int8_t), cudaMemcpyDeviceToHost);
@@ -524,16 +688,18 @@ int main(int argc, char** argv) {
     }
     fwrite(&count, sizeof(uint32_t), 1, fout);
     fwrite(&vocab_count, sizeof(uint32_t), 1, fout);
+    fwrite(&horizon_count, sizeof(uint32_t), 1, fout);
     fwrite(h_rows, sizeof(GlmDeviceConceptRow), count, fout);
     fwrite(h_vocab, sizeof(GlmDeviceVocabRow), vocab_count, fout);
+    fwrite(h_horizons, sizeof(GlmDeviceHorizonRow), horizon_count, fout);
     fwrite(h_gates, sizeof(int8_t), TERNARY_FOREST_NODES, fout);
     fclose(fout);
 
     FILE* frec = fopen(receipt_path, "w");
     if (frec) {
         fprintf(frec, "{\n");
-        fprintf(frec, "  \"schema\": \"uor-r4/cuda-glm-training-receipt/2\",\n");
-        fprintf(frec, "  \"model_magic\": \"UR4GLM04\",\n");
+        fprintf(frec, "  \"schema\": \"uor-r4/cuda-glm-training-receipt/3\",\n");
+        fprintf(frec, "  \"model_magic\": \"UR4GLM05\",\n");
         fprintf(frec, "  \"gpu_device\": \"%s\",\n", prop.name);
         fprintf(frec, "  \"compute_capability\": \"%d.%d\",\n", prop.major, prop.minor);
         fprintf(frec, "  \"cuda_driver_version\": %d,\n", driver_ver);
@@ -542,8 +708,10 @@ int main(int argc, char** argv) {
         fprintf(frec, "  \"vram_mib\": %llu,\n", (unsigned long long)(prop.totalGlobalMem / (1024ULL * 1024ULL)));
         fprintf(frec, "  \"trained_basin_rows\": %u,\n", count);
         fprintf(frec, "  \"trained_vocab_rows\": %u,\n", vocab_count);
+        fprintf(frec, "  \"trained_horizon_rows\": %u,\n", horizon_count);
         fprintf(frec, "  \"basin_epochs\": %u,\n", basin_epochs);
         fprintf(frec, "  \"vocab_epochs\": %u,\n", vocab_epochs);
+        fprintf(frec, "  \"horizon_epochs\": %u,\n", horizon_epochs);
         fprintf(frec, "  \"kernel_elapsed_ms\": %.4f,\n", elapsed_ms);
         fprintf(frec, "  \"initial_basin_loss\": %llu,\n", (unsigned long long)initial_total_loss);
         fprintf(frec, "  \"final_basin_loss\": %llu,\n", (unsigned long long)final_total_loss);
@@ -555,10 +723,9 @@ int main(int argc, char** argv) {
         fclose(frec);
     }
 
-    printf("Trained %u basins (%u ep) + %u vocab stems (%u ep) on %s (sm_%d%d) in %.3f ms (basin_loss %llu -> %llu, vocab_loss=%llu, gates=%u/40)\n",
-           count, basin_epochs, vocab_count, vocab_epochs, prop.name, prop.major, prop.minor, elapsed_ms,
-           (unsigned long long)initial_total_loss, (unsigned long long)final_total_loss,
-           (unsigned long long)final_vocab_loss, active_gates);
+    printf("Trained %u basins (%u ep) + %u vocab stems (%u ep) + %u token horizons (%u ep) on %s (sm_%d%d) in %.3f ms\n",
+           count, basin_epochs, vocab_count, vocab_epochs, horizon_count, horizon_epochs,
+           prop.name, prop.major, prop.minor, elapsed_ms);
 
     cudaFree(d_rows);
     cudaFree(d_tgt_q12);
@@ -574,9 +741,12 @@ int main(int argc, char** argv) {
     cudaFree(d_idf_weights);
     cudaFree(d_stem_hashes);
     cudaFree(d_vocab_loss);
+    cudaFree(d_horizons);
+    cudaFree(d_horizon_vocab_ids);
 
     free(h_rows);
     free(h_vocab);
+    free(h_horizons);
     free(h_vocab_loss);
     free(h_target_q12);
     free(h_target_signs);
@@ -588,6 +758,10 @@ int main(int argc, char** argv) {
     free(h_quat_basins);
     free(h_idf_weights);
     free(h_stem_hashes);
+    free(h_horizon_basins);
+    free(h_horizon_secs);
+    free(h_horizon_sents);
+    free(h_horizon_vocab_ids);
     return 0;
 }
 #endif

@@ -23,65 +23,12 @@ pub fn canonical_glm_stem(word: &str) -> String {
         return s;
     }
     for suffix in [
-        "izations",
-        "ization",
-        "ational",
-        "fulness",
-        "ousness",
-        "iveness",
-        "ically",
-        "ations",
-        "ation",
-        "itions",
-        "ition",
-        "ments",
-        "ment",
-        "nesses",
-        "ness",
-        "ities",
-        "ity",
-        "ances",
-        "ance",
-        "ences",
-        "ence",
-        "ships",
-        "ship",
-        "ings",
-        "ing",
-        "edly",
-        "ally",
-        "iors",
-        "ior",
-        "ists",
-        "ist",
-        "isms",
-        "ism",
-        "ians",
-        "ian",
-        "ives",
-        "ive",
-        "able",
-        "ible",
-        "less",
-        "ious",
-        "eous",
-        "ous",
-        "ials",
-        "ial",
-        "ical",
-        "ics",
-        "ic",
-        "ers",
-        "ors",
-        "ies",
-        "ied",
-        "es",
-        "ed",
-        "ly",
-        "al",
-        "er",
-        "or",
-        "s",
+        "izations", "ization", "ational", "fulness", "ousness", "iveness", "ically", "ations",
+        "ation", "itions", "ition", "ments", "ment", "nesses", "ness", "ities", "ity", "ances",
+        "ance", "ences", "ence", "ships", "ship", "ings", "ing", "edly", "ally", "iors", "ior",
+        "ists", "ist", "isms", "ism", "ians", "ian", "ives", "ive", "able", "ible", "less", "ious",
+        "eous", "ous", "ials", "ial", "ical", "ics", "ic", "ers", "ors", "ies", "ied", "es", "ed",
+        "ly", "al", "er", "or", "s",
     ] {
         if s.len() > suffix.len() + 2 && s.ends_with(suffix) {
             s.truncate(s.len() - suffix.len());
@@ -155,6 +102,413 @@ pub fn pool_prompt_trained_geometry(words: &[String]) -> ([i16; POINT_KEY_DIM], 
     (out_q12, out_sign)
 }
 
+/// Exact 8-head integer retention decay constants (`R4.IntegerStack.retainLambdaQ31`, `R4-18`).
+const GLM_RETAIN_LAMBDA_Q31: [i64; 8] = [
+    1_073_741_824,
+    1_610_612_736,
+    1_879_048_192,
+    2_013_265_920,
+    2_080_374_784,
+    2_113_929_216,
+    2_122_317_824,
+    2_130_706_432,
+];
+
+/// Exact 17-root Icosian `Z[phi]` GoldenQ12 table (`R4.SpiralCoreFbs.icosianRootEntry`, `R4-24`).
+const GLM_ICOSIAN_ROOTS_Q12: [[(i32, i32); 4]; 17] = [
+    [(0, 0), (0, 0), (0, 0), (0, 0)],
+    [(4096, 0), (0, 0), (0, 0), (0, 0)],
+    [(-4096, 0), (0, 0), (0, 0), (0, 0)],
+    [(0, 0), (4096, 0), (0, 0), (0, 0)],
+    [(0, 0), (-4096, 0), (0, 0), (0, 0)],
+    [(0, 0), (0, 0), (4096, 0), (0, 0)],
+    [(0, 0), (0, 0), (-4096, 0), (0, 0)],
+    [(0, 0), (0, 0), (0, 0), (4096, 0)],
+    [(0, 0), (0, 0), (0, 0), (-4096, 0)],
+    [(2048, 0), (2048, 0), (2048, 0), (2048, 0)],
+    [(-2048, 0), (-2048, 0), (-2048, 0), (-2048, 0)],
+    [(2048, 0), (2048, 0), (-2048, 0), (-2048, 0)],
+    [(2048, 0), (-2048, 0), (2048, 0), (-2048, 0)],
+    [(0, 2048), (2048, -2048), (2048, 0), (0, 0)],
+    [(0, -2048), (-2048, 2048), (-2048, 0), (0, 0)],
+    [(2048, 0), (0, 2048), (2048, -2048), (0, 0)],
+    [(-2048, 0), (0, -2048), (-2048, 2048), (0, 0)],
+];
+
+fn snap_icosian_4d_q12(lanes: [i16; 4]) -> u8 {
+    let mut best_score = i64::MIN;
+    let mut best_root = 0u8;
+    for (r, root) in GLM_ICOSIAN_ROOTS_Q12.iter().enumerate() {
+        let mut a = 0i64;
+        let mut b = 0i64;
+        for (l, &(ra, rb)) in root.iter().enumerate() {
+            let x = i64::from(lanes[l]);
+            a += x * i64::from(ra);
+            b += x * i64::from(rb);
+        }
+        let score = 2 * a + 3 * b;
+        if score > best_score {
+            best_score = score;
+            best_root = r as u8;
+        }
+    }
+    best_root
+}
+
+/// 8-Head Integer Retention & Non-Commutative Quaternion State (`R4.IntegerStack` + `R4.SpiralCoreFbs` + `R4.DiscreteTrunk`)
+/// for $O(1)$ per-token autoregressive language generation without Transformer KV-caches or matrix multiplications.
+#[derive(Debug, Clone)]
+pub struct GlmRetentionState {
+    /// 8 timescale Q12 context heads decayed by `GLM_RETAIN_LAMBDA_Q31[0..8]`.
+    pub heads_q12: [[i16; POINT_KEY_DIM]; 8],
+    /// Non-commutative 4D integer Hamilton quaternion state (`R4.SpiralCoreFbs.stackHamilton4D`).
+    pub quat_4d: [i64; 4],
+    /// 64-bit SWAR quaternion sign register.
+    pub sign_code: u64,
+    /// Number of tokens stepped so far.
+    pub step_count: usize,
+}
+
+impl GlmRetentionState {
+    /// Create a fresh 8-head retention state.
+    pub fn new() -> Self {
+        Self {
+            heads_q12: [[0; POINT_KEY_DIM]; 8],
+            quat_4d: [256, 0, 0, 0],
+            sign_code: 0xCBF2_9CE4_8422_2325,
+            step_count: 0,
+        }
+    }
+
+    /// Advance the 8-head retention state and 4D Hamilton quaternion state by one surface token in $O(1)$ integer ops.
+    pub fn step_token(&mut self, piece: &str) {
+        let norm: String = piece
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric())
+            .map(|c| c.to_ascii_lowercase())
+            .collect();
+        let (tok_q12, tok_sign) = if let Some(entry) = lookup_trained_vocab(&norm) {
+            (entry.q12_coords, entry.sign_code)
+        } else {
+            let mut h = 0xCBF2_9CE4_8422_2325u64;
+            for &b in piece.as_bytes() {
+                h ^= u64::from(b);
+                h = h.wrapping_mul(0x0100_0000_01B3);
+            }
+            let mut q = [0i16; POINT_KEY_DIM];
+            for (l, slot) in q.iter_mut().enumerate() {
+                *slot = ((((h >> (l * 8)) & 0xFF) as i16) - 128) * 12;
+            }
+            (q, h)
+        };
+
+        for (h_idx, head) in self.heads_q12.iter_mut().enumerate() {
+            let lam = GLM_RETAIN_LAMBDA_Q31[h_idx];
+            for (lane, slot) in head.iter_mut().enumerate() {
+                let decayed = (i64::from(*slot) * lam) >> 31;
+                let stepped = decayed + (i64::from(tok_q12[lane]) / 3);
+                *slot = stepped.clamp(-4096, 4096) as i16;
+            }
+        }
+
+        let u = [
+            i64::from(tok_q12[0] >> 4),
+            i64::from(tok_q12[1] >> 4),
+            i64::from(tok_q12[2] >> 4),
+            i64::from(tok_q12[3] >> 4),
+        ];
+        let q = self.quat_4d;
+        let next_q = [
+            q[0] * u[0] - q[1] * u[1] - q[2] * u[2] - q[3] * u[3],
+            q[0] * u[1] + q[1] * u[0] + q[2] * u[3] - q[3] * u[2],
+            q[0] * u[2] - q[1] * u[3] + q[2] * u[0] + q[3] * u[1],
+            q[0] * u[3] + q[1] * u[2] - q[2] * u[1] + q[3] * u[0],
+        ];
+        for (c, &val) in self.quat_4d.iter_mut().zip(next_q.iter()) {
+            *c = (val >> 7).clamp(-4096, 4096);
+        }
+
+        self.sign_code = self.sign_code.rotate_left(5) ^ tok_sign;
+        self.step_count += 1;
+    }
+
+    /// Compute the instantaneous Base-17 4-Block Icosian Root address (`0..83520`, `R4.DiscreteTrunk.pack4BlockRoots`).
+    pub fn packed_4block_root(&self) -> u32 {
+        let q_lanes = [
+            self.quat_4d[0] as i16,
+            self.quat_4d[1] as i16,
+            self.quat_4d[2] as i16,
+            self.quat_4d[3] as i16,
+        ];
+        let h0 = self.heads_q12[0];
+        let h7 = self.heads_q12[7];
+        let b0 = u32::from(snap_icosian_4d_q12(q_lanes) % 17);
+        let b1 = u32::from(snap_icosian_4d_q12([h0[0], h0[1], h0[2], h0[3]]) % 17);
+        let b2 = u32::from(snap_icosian_4d_q12([h7[0], h7[1], h7[2], h7[3]]) % 17);
+        let b3 = u32::from(snap_icosian_4d_q12([h7[4], h7[5], h7[6], h7[7]]) % 17);
+        b0 + 17 * b1 + 289 * b2 + 4913 * b3
+    }
+}
+
+impl Default for GlmRetentionState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM05`).
+///
+/// Steps one surface token at a time (`w_0 -> w_1 -> w_2 -> ... -> w_T`) across the active
+/// token transition lattice using:
+/// 1. `GlmRetentionState` (`RETAIN_LAMBDA_Q31` 8-head integer decay + 4D Hamilton quaternion state),
+/// 2. `GLM_TOKEN_HORIZONS` (RTX 5090 CUDA-trained lookahead horizon coordinates & Base-17 4-block trunk addresses),
+/// 3. Syntactic pivot switching at clause/conjunction/sentence boundaries (`,`, `;`, `.`, `and`, `while`, `where`, `which`),
+/// 4. `R4.Prediction.selectContextualToken` loop-prevention recency penalties.
+///
+/// Returns `(generated_prose, tokens_stepped, branch_decisions_evaluated)`.
+pub fn generate_token_level_geometric_prose(
+    prompt_words: &[String],
+    nodes: &[&GlmConceptNode],
+    min_tokens: usize,
+    max_tokens: usize,
+) -> (String, usize, usize) {
+    let mut state = GlmRetentionState::new();
+    for pw in prompt_words {
+        state.step_token(pw);
+    }
+
+    let prompt_stems: Vec<String> = prompt_words
+        .iter()
+        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
+        .map(|w| canonical_glm_stem(w))
+        .filter(|s| s.len() >= 3)
+        .collect();
+
+    // Build the active token lattice spans linked to their CUDA-trained `GlmTokenHorizon` rows
+    struct TokenSpan {
+        basin_id: u16,
+        node_rank: usize,
+        sec_idx: u8,
+        tokens: Vec<String>,
+        stems: Vec<String>,
+        horizon: GlmTokenHorizon,
+    }
+
+    let mut spans: Vec<TokenSpan> = Vec::new();
+    for (node_rank, &node) in nodes.iter().enumerate() {
+        let sections = [
+            node.summary,
+            node.mechanism,
+            node.formal_principle,
+            node.tradeoffs,
+            node.example,
+        ];
+        for (sec_idx, &sec_text) in sections.iter().enumerate() {
+            for (sent_idx, raw_sent) in sec_text.split(". ").enumerate() {
+                let s_trim = raw_sent.trim();
+                if s_trim.len() < 25 {
+                    continue;
+                }
+                let formatted =
+                    if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
+                        s_trim.to_string()
+                    } else {
+                        format!("{s_trim}.")
+                    };
+                let toks: Vec<String> = formatted.split_whitespace().map(String::from).collect();
+                if toks.len() < 4 {
+                    continue;
+                }
+                let stems: Vec<String> = toks
+                    .iter()
+                    .map(|t| canonical_glm_stem(&t.to_ascii_lowercase()))
+                    .filter(|st| st.len() >= 3 && !is_stopword(st))
+                    .collect();
+
+                let horizon = GLM_TOKEN_HORIZONS
+                    .iter()
+                    .find(|h| {
+                        h.basin_id == node.id
+                            && usize::from(h.section_idx) == sec_idx
+                            && usize::from(h.sentence_idx) == sent_idx.min(255)
+                    })
+                    .copied()
+                    .unwrap_or(GlmTokenHorizon {
+                        horizon_q12: node.q12_coords,
+                        horizon_sign: node.sign_code,
+                        packed_4block: u32::from(node.icosian_root),
+                        basin_id: node.id,
+                        section_idx: sec_idx as u8,
+                        sentence_idx: (sent_idx.min(255)) as u8,
+                    });
+
+                spans.push(TokenSpan {
+                    basin_id: node.id,
+                    node_rank,
+                    sec_idx: sec_idx as u8,
+                    tokens: toks,
+                    stems,
+                    horizon,
+                });
+            }
+        }
+    }
+
+    if spans.is_empty() {
+        return (String::new(), 0, 0);
+    }
+
+    let score_span_against_state =
+        |sp: &TokenSpan, st: &GlmRetentionState, used_stems: &[String]| -> u32 {
+            let slow_head = &st.heads_q12[7];
+            let l1 = q12_l1_distance(slow_head, &sp.horizon.horizon_q12);
+            let q12_prox = 4096u32.saturating_sub(l1 / 6) / 128;
+            let ham = swar_hamming_distance(st.sign_code, sp.horizon.horizon_sign);
+            let ham_bonus = 64u32.saturating_sub(ham) / 3;
+
+            let cur_4b = st.packed_4block_root();
+            let cand_4b = sp.horizon.packed_4block;
+            let mut block_matches = 0u32;
+            let mut a = cur_4b;
+            let mut b = cand_4b;
+            for _ in 0..4 {
+                if (a % 17) == (b % 17) {
+                    block_matches += 4;
+                }
+                a /= 17;
+                b /= 17;
+            }
+
+            let rank_base = if sp.node_rank == 0 {
+                28u32.saturating_sub(u32::from(sp.sec_idx) * 3)
+            } else {
+                18u32.saturating_sub(u32::from(sp.sec_idx) * 3)
+            };
+
+            let mut prompt_bonus = 0u32;
+            for ps in &prompt_stems {
+                if sp.stems.iter().any(|ss| ss == ps) {
+                    let idf = lookup_trained_vocab(ps)
+                        .map(|e| u32::from(e.idf_weight) / 48)
+                        .unwrap_or(6);
+                    prompt_bonus += 14 + idf;
+                }
+            }
+
+            let redundancy = sp.stems.iter().filter(|ss| used_stems.contains(ss)).count() as u32;
+
+            (rank_base + q12_prox + ham_bonus + block_matches + prompt_bonus)
+                .saturating_sub(redundancy * 3)
+        };
+
+    let mut used_spans: Vec<usize> = Vec::new();
+    let mut used_stems: Vec<String> = Vec::new();
+    let mut emitted_tokens: Vec<String> = Vec::new();
+    let mut branch_decisions = 0usize;
+
+    // Select initial opening span `(w_0, w_1, ...)` via CUDA-trained horizon resonance
+    branch_decisions += 1;
+    let mut cur_span_idx = (0..spans.len())
+        .max_by_key(|&idx| score_span_against_state(&spans[idx], &state, &used_stems))
+        .unwrap_or(0);
+    used_spans.push(cur_span_idx);
+    for st in &spans[cur_span_idx].stems {
+        if !used_stems.contains(st) {
+            used_stems.push(st.clone());
+        }
+    }
+    let mut cur_tok_idx = 0usize;
+
+    // Step token-by-token (`w_0 -> w_1 -> w_2 -> ...`) through the geometric transition lattice
+    while emitted_tokens.len() < max_tokens {
+        let tok_piece = spans[cur_span_idx].tokens[cur_tok_idx].clone();
+        state.step_token(&tok_piece);
+        emitted_tokens.push(tok_piece.clone());
+
+        let is_sentence_end =
+            tok_piece.ends_with('.') || tok_piece.ends_with('!') || tok_piece.ends_with('?');
+        let at_span_end = cur_tok_idx + 1 >= spans[cur_span_idx].tokens.len();
+
+        if (is_sentence_end || at_span_end) && emitted_tokens.len() >= min_tokens {
+            break;
+        }
+
+        // Check for mid-sentence syntactic pivot branches (when another unvisited span shares the same pivot token)
+        let is_pivot_word = cur_tok_idx >= 10
+            && cur_tok_idx + 5 < spans[cur_span_idx].tokens.len()
+            && (tok_piece.ends_with(',')
+                || tok_piece.ends_with(';')
+                || matches!(
+                    tok_piece.as_str(),
+                    "and" | "while" | "where" | "which" | "because" | "through" | "across"
+                ));
+
+        if at_span_end {
+            // Sentence boundary transition: evaluate all unvisited spans in the active geometric neighborhood
+            branch_decisions += 1;
+            let next_span_opt = (0..spans.len())
+                .filter(|idx| !used_spans.contains(idx))
+                .max_by_key(|&idx| score_span_against_state(&spans[idx], &state, &used_stems));
+
+            if let Some(next_span) = next_span_opt {
+                cur_span_idx = next_span;
+                cur_tok_idx = 0;
+                used_spans.push(cur_span_idx);
+                for st in &spans[cur_span_idx].stems {
+                    if !used_stems.contains(st) {
+                        used_stems.push(st.clone());
+                    }
+                }
+            } else {
+                break;
+            }
+        } else if is_pivot_word {
+            // Evaluate whether continuing in `cur_span_idx` or pivoting at `tok_piece` into another resonant span scores higher
+            let cur_score = score_span_against_state(&spans[cur_span_idx], &state, &[]) + 18;
+            let mut best_pivot: Option<(usize, usize, u32)> = None;
+            for (cand_idx, cand_span) in spans.iter().enumerate() {
+                if used_spans.contains(&cand_idx)
+                    || cand_span.basin_id != spans[cur_span_idx].basin_id
+                {
+                    continue;
+                }
+                if let Some(pos) = cand_span
+                    .tokens
+                    .iter()
+                    .enumerate()
+                    .skip(4)
+                    .find(|&(i, t)| t == &tok_piece && i + 4 < cand_span.tokens.len())
+                    .map(|(i, _)| i + 1)
+                {
+                    branch_decisions += 1;
+                    let s = score_span_against_state(cand_span, &state, &used_stems);
+                    if s > cur_score && best_pivot.is_none_or(|(_, _, bs)| s > bs) {
+                        best_pivot = Some((cand_idx, pos, s));
+                    }
+                }
+            }
+            if let Some((win_span, win_tok_pos, _)) = best_pivot {
+                cur_span_idx = win_span;
+                cur_tok_idx = win_tok_pos;
+                used_spans.push(cur_span_idx);
+                for st in &spans[cur_span_idx].stems {
+                    if !used_stems.contains(st) {
+                        used_stems.push(st.clone());
+                    }
+                }
+            } else {
+                cur_tok_idx += 1;
+            }
+        } else {
+            cur_tok_idx += 1;
+        }
+    }
+
+    let steps = emitted_tokens.len();
+    let text = emitted_tokens.join(" ");
+    (text, steps, branch_decisions)
+}
+
 /// Generic conversational words that must not trigger a specialized concept basin on their own.
 fn is_generic_conversational_word(w: &str) -> bool {
     matches!(
@@ -221,8 +575,8 @@ pub fn project_q12_to_hopf_q15(q12: &[i16; POINT_KEY_DIM]) -> ([i16; 3], [i16; 2
 
     let sx = ((2 * (q0 * q2 + q1 * q3) * 32767) / norm_sq).clamp(-32767, 32767) as i16;
     let sy = ((2 * (q1 * q2 - q0 * q3) * 32767) / norm_sq).clamp(-32767, 32767) as i16;
-    let sz = (((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 32767) / norm_sq).clamp(-32767, 32767)
-        as i16;
+    let sz =
+        (((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 32767) / norm_sq).clamp(-32767, 32767) as i16;
 
     let phase_norm = (q0.abs() + q1.abs()).max(1);
     let ux = ((q0 * 32767) / phase_norm).clamp(-32767, 32767) as i16;
@@ -348,7 +702,9 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
     // 1. N-Doors Monty Hall Bayesian Solver
     if lower.contains("monty hall")
         || (words.iter().any(|w| w == "monty" || w == "goat")
-            && words.iter().any(|w| w == "door" || w == "doors" || w == "switch"))
+            && words
+                .iter()
+                .any(|w| w == "door" || w == "doors" || w == "switch"))
     {
         let n_doors = nums
             .iter()
@@ -388,7 +744,10 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
             n_doors - 1,
             (sw_num as f64 * stay_den as f64) / (sw_den as f64 * stay_num as f64)
         );
-        return Some(("Probability & Decision Puzzle · The Monty Hall Problem", sol));
+        return Some((
+            "Probability & Decision Puzzle · The Monty Hall Problem",
+            sol,
+        ));
     }
 
     // 2. K-Eggs and M-Floors Dynamic Programming Minimax Solver
@@ -449,14 +808,21 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
             drops.saturating_sub(1),
             schedule.join(", ")
         );
-        return Some(("Combinatorial Algorithm Puzzle · Two Eggs and 100 Floors", sol));
+        return Some((
+            "Combinatorial Algorithm Puzzle · Two Eggs and 100 Floors",
+            sol,
+        ));
     }
 
     // 3. State-Space Breadth-First Search (BFS) River Crossing Solver
     if lower.contains("river crossing")
         || (words.iter().any(|w| w == "wolf" || w == "fox")
-            && words.iter().any(|w| w == "goat" || w == "goose" || w == "chicken")
-            && words.iter().any(|w| w == "cabbage" || w == "grain" || w == "beans" || w == "river"))
+            && words
+                .iter()
+                .any(|w| w == "goat" || w == "goose" || w == "chicken")
+            && words
+                .iter()
+                .any(|w| w == "cabbage" || w == "grain" || w == "beans" || w == "river"))
     {
         // 4-bit state: bit 0 = Farmer, bit 1 = Wolf, bit 2 = Goat, bit 3 = Cabbage
         // Illegal states: Wolf==Goat != Farmer, or Goat==Cabbage != Farmer
@@ -487,10 +853,26 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
             let f = u & 1;
             let next_f = f ^ 1;
             let candidates: [(u8, &'static str, &'static str); 4] = [
-                (1, "Farmer crosses **alone** to the Far Bank", "Farmer returns **alone** to the Near Bank"),
-                (1 | 2, "Farmer takes the **Wolf** across to the Far Bank", "Farmer brings the **Wolf** back to the Near Bank"),
-                (1 | 4, "Farmer takes the **Goat** across to the Far Bank", "Farmer brings the **Goat** back to the Near Bank"),
-                (1 | 8, "Farmer takes the **Cabbage** across to the Far Bank", "Farmer brings the **Cabbage** back to the Near Bank"),
+                (
+                    1,
+                    "Farmer crosses **alone** to the Far Bank",
+                    "Farmer returns **alone** to the Near Bank",
+                ),
+                (
+                    1 | 2,
+                    "Farmer takes the **Wolf** across to the Far Bank",
+                    "Farmer brings the **Wolf** back to the Near Bank",
+                ),
+                (
+                    1 | 4,
+                    "Farmer takes the **Goat** across to the Far Bank",
+                    "Farmer brings the **Goat** back to the Near Bank",
+                ),
+                (
+                    1 | 8,
+                    "Farmer takes the **Cabbage** across to the Far Bank",
+                    "Farmer brings the **Cabbage** back to the Near Bank",
+                ),
             ];
             for &(mask, to_far, to_near) in &candidates {
                 // Passenger must be on the same bank as Farmer
@@ -535,14 +917,20 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
              All four reach the Far Bank (`0b1111`) without violating any safety constraint!",
             path.len()
         );
-        return Some(("Constraint Satisfaction Puzzle · Wolf, Goat, and Cabbage River Crossing", sol));
+        return Some((
+            "Constraint Satisfaction Puzzle · Wolf, Goat, and Cabbage River Crossing",
+            sol,
+        ));
     }
 
     // 4. N-People Birthday Collision Exact Fixed-Point Solver
     if lower.contains("birthday paradox")
         || lower.contains("birthday problem")
         || (words.iter().any(|w| w == "birthday" || w == "birthdays")
-            && (lower.contains("people") || lower.contains("probability") || lower.contains("paradox") || lower.contains("same")))
+            && (lower.contains("people")
+                || lower.contains("probability")
+                || lower.contains("paradox")
+                || lower.contains("same")))
     {
         let n_people = nums
             .iter()
@@ -601,12 +989,19 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
              - **Door A = Trap (`false`), Ask Liar**: `L(T(false)) = {case_trap_ask_l}` (**\"Yes\"**)\n\n\
              **Action Rule:** Because `T(L(x)) == L(T(x)) == !x` for every row, if the guard says **\"No\" (`false`)**, take **Door A**; if **\"Yes\" (`true`)**, take **Door B**!"
         );
-        return Some(("Deductive Logic Puzzle · Two Doors, One Truth-Teller and One Liar", sol));
+        return Some((
+            "Deductive Logic Puzzle · Two Doors, One Truth-Teller and One Liar",
+            sol,
+        ));
     }
 
     // 6. N-Coins Balance Scale Ternary Information Solver
-    if (words.iter().any(|w| w == "coin" || w == "coins" || w == "counterfeit"))
-        && (words.iter().any(|w| w == "scale" || w == "weigh" || w == "weighings" || w == "balance" || w == "heavier"))
+    if (words
+        .iter()
+        .any(|w| w == "coin" || w == "coins" || w == "counterfeit"))
+        && (words.iter().any(|w| {
+            w == "scale" || w == "weigh" || w == "weighings" || w == "balance" || w == "heavier"
+        }))
     {
         let n_coins = nums
             .iter()
@@ -640,7 +1035,10 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
             n_coins.saturating_sub(group_known * 2),
             (p3_unk.saturating_sub(3)) / 2
         );
-        return Some(("Information Theory Puzzle · Counterfeit Coin / Balance Scale Puzzle", sol));
+        return Some((
+            "Information Theory Puzzle · Counterfeit Coin / Balance Scale Puzzle",
+            sol,
+        ));
     }
 
     // 7. Fallback to remaining canonical paradoxes (e.g. Ship of Theseus)
@@ -872,7 +1270,10 @@ pub fn retrieve_top_concepts_geometric_only(
 
 /// Extract clean subject phrases around a comparison pivot (`vs`, `versus`, `or`, `and`).
 fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String, String)> {
-    let mut cleaned = raw_prompt.trim().trim_end_matches('?').trim_end_matches('.');
+    let mut cleaned = raw_prompt
+        .trim()
+        .trim_end_matches('?')
+        .trim_end_matches('.');
     for prefix in [
         "what is the difference between ",
         "what's the difference between ",
@@ -904,7 +1305,9 @@ fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String,
         " or ",
     ] {
         if let Some(idx) = cleaned_lower.find(sep) {
-            let left = cleaned[..idx].trim().trim_matches(|c: char| c == ',' || c == '"');
+            let left = cleaned[..idx]
+                .trim()
+                .trim_matches(|c: char| c == ',' || c == '"');
             let right_raw = cleaned[idx + sep.len()..]
                 .trim()
                 .trim_matches(|c: char| c == ',' || c == '"');
@@ -949,12 +1352,68 @@ fn title_case_phrase(s: &str) -> String {
 /// Extract clean topic keywords from a prompt (removing command verbs and conversational filler).
 fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
     let filler = [
-        "write", "create", "generate", "compose", "draft", "tell", "give", "make", "me", "a",
-        "an", "the", "short", "story", "poem", "haiku", "sonnet", "essay", "article", "blog",
-        "post", "email", "letter", "speech", "about", "on", "for", "of", "with", "in", "to",
-        "please", "can", "you", "could", "would", "how", "what", "why", "who", "where", "when",
-        "explain", "describe", "is", "are", "was", "were", "does", "do", "did", "work", "works",
-        "scifi", "sci", "fi", "fantasy", "some", "something", "anything", "talk", "chat",
+        "write",
+        "create",
+        "generate",
+        "compose",
+        "draft",
+        "tell",
+        "give",
+        "make",
+        "me",
+        "a",
+        "an",
+        "the",
+        "short",
+        "story",
+        "poem",
+        "haiku",
+        "sonnet",
+        "essay",
+        "article",
+        "blog",
+        "post",
+        "email",
+        "letter",
+        "speech",
+        "about",
+        "on",
+        "for",
+        "of",
+        "with",
+        "in",
+        "to",
+        "please",
+        "can",
+        "you",
+        "could",
+        "would",
+        "how",
+        "what",
+        "why",
+        "who",
+        "where",
+        "when",
+        "explain",
+        "describe",
+        "is",
+        "are",
+        "was",
+        "were",
+        "does",
+        "do",
+        "did",
+        "work",
+        "works",
+        "scifi",
+        "sci",
+        "fi",
+        "fantasy",
+        "some",
+        "something",
+        "anything",
+        "talk",
+        "chat",
     ];
     let kept: Vec<&str> = words
         .iter()
@@ -963,7 +1422,11 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
         .take(6)
         .collect();
     if kept.is_empty() {
-        raw_prompt.trim().trim_end_matches('?').trim_end_matches('.').to_string()
+        raw_prompt
+            .trim()
+            .trim_end_matches('?')
+            .trim_end_matches('.')
+            .to_string()
     } else {
         title_case_phrase(&kept.join(" "))
     }
@@ -984,13 +1447,33 @@ fn render_comparative_synthesis(
         let right_lower = right_subj.to_ascii_lowercase();
         let left_words = tokenize_words_simple(&left_lower);
         let right_words = tokenize_words_simple(&right_lower);
-        let left_stems: Vec<String> = left_words.iter().map(|w| canonical_stem(w).to_string()).collect();
-        let right_stems: Vec<String> = right_words.iter().map(|w| canonical_stem(w).to_string()).collect();
+        let left_stems: Vec<String> = left_words
+            .iter()
+            .map(|w| canonical_stem(w).to_string())
+            .collect();
+        let right_stems: Vec<String> = right_words
+            .iter()
+            .map(|w| canonical_stem(w).to_string())
+            .collect();
         let (left_q12, left_sign) = pool_prompt_trained_geometry(&left_words);
         let (right_q12, right_sign) = pool_prompt_trained_geometry(&right_words);
 
-        let left_hits = retrieve_top_concepts(&left_lower, &left_words, &left_stems, &left_q12, left_sign, 2);
-        let right_hits = retrieve_top_concepts(&right_lower, &right_words, &right_stems, &right_q12, right_sign, 2);
+        let left_hits = retrieve_top_concepts(
+            &left_lower,
+            &left_words,
+            &left_stems,
+            &left_q12,
+            left_sign,
+            2,
+        );
+        let right_hits = retrieve_top_concepts(
+            &right_lower,
+            &right_words,
+            &right_stems,
+            &right_q12,
+            right_sign,
+            2,
+        );
 
         if let (Some((node_a, _)), Some((node_b, _))) = (left_hits.first(), right_hits.first()) {
             if node_a.id != node_b.id {
@@ -1020,7 +1503,11 @@ fn render_comparative_synthesis(
             }
         }
 
-        if let Some(&(shared_node, _)) = left_hits.first().or_else(|| right_hits.first()).or_else(|| top_concepts.first()) {
+        if let Some(&(shared_node, _)) = left_hits
+            .first()
+            .or_else(|| right_hits.first())
+            .or_else(|| top_concepts.first())
+        {
             return format!(
                 "**{}** and **{}** represent two complementary approaches within **{}**:\n\n{}\n\n{}\n\n{}\n\n{}\n\n**Practical Example:** {}",
                 left_subj,
@@ -1071,11 +1558,12 @@ fn synthesize_clause_trajectory(
                 if s_trim.len() < 25 {
                     continue;
                 }
-                let sent = if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
-                    s_trim.to_string()
-                } else {
-                    format!("{s_trim}.")
-                };
+                let sent =
+                    if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
+                        s_trim.to_string()
+                    } else {
+                        format!("{s_trim}.")
+                    };
                 let s_words = tokenize_words_simple(&sent.to_ascii_lowercase());
                 let s_stems: Vec<String> = s_words
                     .iter()
@@ -1115,10 +1603,7 @@ fn synthesize_clause_trajectory(
             if used_indices.contains(&idx) {
                 continue;
             }
-            let overlap = s_stems
-                .iter()
-                .filter(|st| used_stems.contains(st))
-                .count() as u32;
+            let overlap = s_stems.iter().filter(|st| used_stems.contains(st)).count() as u32;
             let adj = base_score.saturating_sub(overlap * 2);
             if adj > best_adj_score {
                 best_adj_score = adj;
@@ -1149,7 +1634,17 @@ fn render_multi_concept_synthesis(
     node_2: &GlmConceptNode,
 ) -> String {
     let _ = (raw_prompt, lower);
-    let clauses = synthesize_clause_trajectory(words, &[node_1, node_2], 6);
+    let (token_stream, stepped, _) =
+        generate_token_level_geometric_prose(words, &[node_1, node_2], 45, 95);
+    let clauses = synthesize_clause_trajectory(words, &[node_1, node_2], 4);
+    if stepped >= 25 && clauses.len() >= 2 {
+        return format!(
+            "{}\n\n{}\n\n{}",
+            clauses[0],
+            token_stream,
+            clauses[1..].join(" ")
+        );
+    }
     if clauses.len() >= 4 {
         let p1 = clauses[0..2].join(" ");
         let p2 = clauses[2..4].join(" ");
@@ -1283,9 +1778,7 @@ fn render_creative_generation(
         .iter()
         .any(|w| matches!(w.as_str(), "poem" | "poetry" | "sonnet" | "verse"))
     {
-        let imagery = concept_context
-            .map(|n| n.title)
-            .unwrap_or(topic.as_str());
+        let imagery = concept_context.map(|n| n.title).unwrap_or(topic.as_str());
         return format!(
             "### Poem: *{topic}*\n\n\
              Beneath the quiet arch of measured space,\n\
@@ -1303,14 +1796,21 @@ fn render_creative_generation(
         );
     }
 
-    if words
-        .iter()
-        .any(|w| matches!(w.as_str(), "story" | "scifi" | "fantasy" | "fable" | "narrative"))
-        || lower.contains("short story")
+    if words.iter().any(|w| {
+        matches!(
+            w.as_str(),
+            "story" | "scifi" | "fantasy" | "fable" | "narrative"
+        )
+    }) || lower.contains("short story")
         || lower.contains("sci-fi")
     {
         let setting_detail = concept_context
-            .map(|n| format!(" Drawing on the real-world principles of **{}** ({}),", n.title, n.summary))
+            .map(|n| {
+                format!(
+                    " Drawing on the real-world principles of **{}** ({}),",
+                    n.title, n.summary
+                )
+            })
             .unwrap_or_default();
 
         return format!(
@@ -1322,10 +1822,12 @@ fn render_creative_generation(
         );
     }
 
-    if words
-        .iter()
-        .any(|w| matches!(w.as_str(), "essay" | "article" | "blog" | "speech" | "keynote"))
-    {
+    if words.iter().any(|w| {
+        matches!(
+            w.as_str(),
+            "essay" | "article" | "blog" | "speech" | "keynote"
+        )
+    }) {
         let body_support = concept_context
             .map(|n| format!("{}\n\n{}", n.summary, n.mechanism))
             .unwrap_or_else(|| {
@@ -1387,11 +1889,17 @@ fn render_open_domain_natural_prose(
 ) -> String {
     let trimmed = raw_prompt.trim();
 
-    if words.len() <= 3 && (lower.contains("how") || lower.contains("what") || lower.contains("hello")) {
+    if words.len() <= 3
+        && (lower.contains("how") || lower.contains("what") || lower.contains("hello"))
+    {
         return "Hello! I'm doing well and ready to chat. We can explore anything on your mind—world cities and history, biographies, science, philosophy, literature, food, everyday questions, or software engineering and mathematics. What would you like to talk about?".to_string();
     }
 
-    if lower.contains("recommend") || lower.contains("suggestion") || lower.contains("ideas for") || lower.contains("brainstorm") {
+    if lower.contains("recommend")
+        || lower.contains("suggestion")
+        || lower.contains("ideas for")
+        || lower.contains("brainstorm")
+    {
         let topic = extract_clean_topic(raw_prompt, words);
         return format!(
             "Here are several thoughtful ideas and angles to explore for **{topic}**:\n\n\
@@ -1413,7 +1921,17 @@ fn render_open_domain_natural_prose(
                     active_nodes.push(second_node);
                 }
             }
-            let clauses = synthesize_clause_trajectory(words, &active_nodes, 5);
+            let (token_stream, stepped, _) =
+                generate_token_level_geometric_prose(words, &active_nodes, 45, 95);
+            let clauses = synthesize_clause_trajectory(words, &active_nodes, 4);
+            if stepped >= 25 && clauses.len() >= 2 {
+                return format!(
+                    "{}\n\n{}\n\n{}",
+                    clauses[0],
+                    token_stream,
+                    clauses[1..].join(" ")
+                );
+            }
             if clauses.len() >= 3 {
                 return format!(
                     "{}\n\n{}\n\n{}",
@@ -1427,8 +1945,11 @@ fn render_open_domain_natural_prose(
 
     let topic = extract_clean_topic(trimmed, words);
     let top_two: Vec<&'static GlmConceptNode> = geo_hits.iter().map(|&(n, _)| n).collect();
+    let (token_stream, stepped, _) = generate_token_level_geometric_prose(words, &top_two, 40, 85);
     let blended_clauses = synthesize_clause_trajectory(words, &top_two, 3);
-    let context_para = if !blended_clauses.is_empty() {
+    let context_para = if stepped >= 20 && !blended_clauses.is_empty() {
+        format!("{}\n\n{}", blended_clauses[0], token_stream)
+    } else if !blended_clauses.is_empty() {
         blended_clauses.join(" ")
     } else {
         GLM_CONCEPT_MANIFOLD[usize::from(prompt_sign as u8) % GLM_CONCEPT_MANIFOLD.len()]
@@ -1494,9 +2015,19 @@ pub fn synthesize_glm_response(
         for (past_q, _) in chat_history.iter().rev() {
             let past_lower = past_q.to_ascii_lowercase();
             let past_words = tokenize_words_simple(&past_lower);
-            let past_stems: Vec<String> = past_words.iter().map(|w| canonical_stem(w).to_string()).collect();
+            let past_stems: Vec<String> = past_words
+                .iter()
+                .map(|w| canonical_stem(w).to_string())
+                .collect();
             let (past_q12, past_sign) = pool_prompt_trained_geometry(&past_words);
-            let hits = retrieve_top_concepts(&past_lower, &past_words, &past_stems, &past_q12, past_sign, 1);
+            let hits = retrieve_top_concepts(
+                &past_lower,
+                &past_words,
+                &past_stems,
+                &past_q12,
+                past_sign,
+                1,
+            );
             if let Some(&(node, _)) = hits.first() {
                 active_node_and_q = Some((node, past_q.as_str()));
                 break;
@@ -1510,8 +2041,16 @@ pub fn synthesize_glm_response(
                     node.title, node.example, node.formal_principle, node.mechanism
                 ));
             }
-            if lower.contains("eli5") || lower.contains("simple") || lower.contains("simpler") || lower.contains("simplify") || lower.contains("like i'm ") || lower.contains("like i am ") {
-                return wrap_binder(render_single_concept_response(prev_q, "eli5", words, stems, node));
+            if lower.contains("eli5")
+                || lower.contains("simple")
+                || lower.contains("simpler")
+                || lower.contains("simplify")
+                || lower.contains("like i'm ")
+                || lower.contains("like i am ")
+            {
+                return wrap_binder(render_single_concept_response(
+                    prev_q, "eli5", words, stems, node,
+                ));
             }
             if lower.contains("summarize") || lower.contains("tldr") || lower.contains("shorter") {
                 return wrap_binder(format!(
@@ -1526,11 +2065,7 @@ pub fn synthesize_glm_response(
         }
 
         if let Some((prev_q, prev_a)) = chat_history.last() {
-            let first_para = prev_a
-                .split("\n\n")
-                .next()
-                .unwrap_or(prev_a)
-                .trim();
+            let first_para = prev_a.split("\n\n").next().unwrap_or(prev_a).trim();
             return wrap_binder(format!(
                 "Building on our discussion of **\"{}\"** — {}\n\nWhat specific aspect would you like to explore in more detail next?",
                 prev_q, first_para
@@ -1555,14 +2090,33 @@ pub fn synthesize_glm_response(
     let is_creative = words.iter().any(|w| {
         matches!(
             w.as_str(),
-            "story" | "scifi" | "fantasy" | "fable" | "poem" | "poetry" | "haiku" | "sonnet" | "verse"
-                | "essay" | "blog" | "speech" | "keynote" | "email" | "letter" | "memo"
+            "story"
+                | "scifi"
+                | "fantasy"
+                | "fable"
+                | "poem"
+                | "poetry"
+                | "haiku"
+                | "sonnet"
+                | "verse"
+                | "essay"
+                | "blog"
+                | "speech"
+                | "keynote"
+                | "email"
+                | "letter"
+                | "memo"
         )
     }) || lower.contains("short story")
         || lower.contains("sci-fi");
 
     if is_creative {
-        return wrap_binder(render_creative_generation(raw_prompt, lower, words, &top_concepts));
+        return wrap_binder(render_creative_generation(
+            raw_prompt,
+            lower,
+            words,
+            &top_concepts,
+        ));
     }
 
     // 6. Check Comparative Analysis Intent ("X vs Y", "compare A and B", "difference between A and B")
@@ -1617,14 +2171,18 @@ pub fn synthesize_glm_response(
             score_1 >= 24 && score_2 >= 24 && score_2 * 4 >= score_1 * 3
         };
         if content_word_count >= 2 && node_1.id != node_2.id && both_independent {
-            return wrap_binder(render_multi_concept_synthesis(raw_prompt, lower, words, node_1, node_2));
+            return wrap_binder(render_multi_concept_synthesis(
+                raw_prompt, lower, words, node_1, node_2,
+            ));
         }
     }
 
     // 9. Single-Concept Natural Prose Realization (including purely geometric hits where lexical == 0!)
     if let Some(&(node, score)) = top_concepts.first() {
         if score >= 10 {
-            return wrap_binder(render_single_concept_response(raw_prompt, lower, words, stems, node));
+            return wrap_binder(render_single_concept_response(
+                raw_prompt, lower, words, stems, node,
+            ));
         }
     }
 
@@ -1788,7 +2346,10 @@ pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
 
         let lower = prompt.to_ascii_lowercase();
         let words = tokenize_words_simple(&lower);
-        let stems: Vec<String> = words.iter().map(|w| canonical_stem(w).to_string()).collect();
+        let stems: Vec<String> = words
+            .iter()
+            .map(|w| canonical_stem(w).to_string())
+            .collect();
         let (prompt_q12, prompt_sign) = pool_prompt_trained_geometry(&words);
 
         let gold_lex = score_concept_lexical(gold_node, &lower, &words, &stems);
