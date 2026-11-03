@@ -43,6 +43,7 @@ const workspaceStatus = document.getElementById('workspace-status');
 
 const claudeChatForm = document.getElementById('claude-chat-form');
 const claudeChatInput = document.getElementById('claude-chat-input');
+const chatClearBtn = document.getElementById('chat-clear-btn');
 const chatTranscript = document.getElementById('chat-transcript');
 const chatTargetBadge = document.getElementById('chat-target-badge');
 const chatDiffFile = document.getElementById('chat-diff-file');
@@ -273,6 +274,8 @@ function appendChatTurn(role, titleText, bodyText, metaRight = '') {
   meta.appendChild(rightSpan);
 
   const body = document.createElement('div');
+  body.className = 'chat-turn-body';
+  body.style.whiteSpace = 'pre-wrap';
   body.textContent = bodyText;
 
   card.appendChild(meta);
@@ -284,7 +287,7 @@ function appendChatTurn(role, titleText, bodyText, metaRight = '') {
 function runClaudeChat(promptText) {
   const trimmed = (promptText || '').trim();
   if (!trimmed) return;
-  appendChatTurn('user', 'Developer Prompt', trimmed, `Context: ${activeWorkspacePath}`);
+  appendChatTurn('user', 'You', trimmed, `Context: ${activeWorkspacePath}`);
 
   const chatRes = dispatchStudioEnvelope('chat', trimmed);
   if (!chatRes || chatRes.status !== 'ok') {
@@ -293,14 +296,14 @@ function runClaudeChat(promptText) {
   }
 
   const gen = chatRes.generation || {};
-  const replyProse = gen.reply || 'Synthesized geometric patch.';
+  const replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
   const headSummary = Array.isArray(chatRes.flock_heads)
     ? chatRes.flock_heads.map((h) => `H${h.head}->F${h.cyclic_frame_block}`).join(' ')
     : '';
   appendChatTurn(
     'assistant',
-    `UOR-R4 Assistant -> ${chatRes.target_file}`,
-    `${replyProse} [8-Head Cyclic Routing: ${headSummary}]`,
+    `UOR-R4 Generalized Assistant (${chatRes.target_file})`,
+    `${replyProse}\n\n[8-Head Cyclic Routing: ${headSummary}]`,
     `Cl(${chatRes.flock_consensus_action}) | Root #${chatRes.icosian_root}`
   );
 
@@ -715,6 +718,15 @@ if (claudeChatForm) {
     if (claudeChatInput) {
       runClaudeChat(claudeChatInput.value);
     }
+  });
+}
+
+if (chatClearBtn) {
+  chatClearBtn.addEventListener('click', () => {
+    if (chatTranscript) {
+      chatTranscript.replaceChildren();
+    }
+    runClaudeChat('Hello! Who are you and what can you do?');
   });
 }
 

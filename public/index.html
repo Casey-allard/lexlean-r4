@@ -82,23 +82,29 @@
 
         <div class="ide-pane" id="assistant-pane" aria-label="Claude-Code Geometric Chat and Patch Synthesis">
           <div class="pane-subheader">
-            <strong>Multi-Turn Geometric Assistant &amp; Code Patcher</strong>
+            <strong>Generalized UOR-R4 Conversational Chatbot &amp; Multi-Language Code Assistant</strong>
             <span id="chat-target-badge" class="mode-badge">Target: src/attention.rs</span>
           </div>
 
-          <div class="preset-bar" role="group" aria-label="Assistant Coding Prompts">
-            <span class="preset-title">Coding Tasks:</span>
+          <div class="preset-bar" role="group" aria-label="Assistant Coding and General Prompts">
+            <span class="preset-title">Try Asking:</span>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Hello! Who are you and what can you do?">
+              General AI Capabilities
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Write a Python quicksort algorithm">
+              Python 3-Way Quicksort
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Create a TypeScript token-bucket rate limiter">
+              TypeScript Rate Limiter
+            </button>
+            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="What is 48291 + 73948?">
+              M6 Exact Math (48291 + 73948)
+            </button>
             <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
               Cyclic Flock Attention (src/attention.rs)
             </button>
             <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Add coupled gate-vector escape step in src/trainer.rs">
               Coupled Gate Trainer (src/trainer.rs)
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Synthesize contextual basin router method in src/engine.rs">
-              Contextual Basin Router (src/engine.rs)
-            </button>
-            <button type="button" class="chat-preset-btn preset-btn" data-chat-prompt="Document live geometric receipts in README.md">
-              Update Architecture Docs (README.md)
             </button>
           </div>
 
@@ -106,10 +112,11 @@
 
           <form id="claude-chat-form" class="prompt-form" novalidate>
             <div class="field">
-              <label for="claude-chat-input">Ask Claude-Code-Desktop to explain, refactor, or synthesize code across pinned files</label>
-              <input id="claude-chat-input" name="claude-chat-input" type="text" value="Upgrade multi-head cyclic flock attention in src/attention.rs" autocomplete="off" spellcheck="false">
+              <label for="claude-chat-input">Ask anything &mdash; general conversation, Python/TS/Rust/Lean/SQL code, exact math, or workspace refactoring</label>
+              <input id="claude-chat-input" name="claude-chat-input" type="text" value="Hello! Who are you and what can you do?" placeholder="Ask a general question, request Python/TS/Rust code, compute math, or teach a fact..." autocomplete="off" spellcheck="false">
             </div>
-            <button id="claude-chat-submit" type="submit">Synthesize Response &amp; Code Patch</button>
+            <button id="claude-chat-submit" type="submit">Send Message</button>
+            <button id="chat-clear-btn" type="button" class="btn-secondary">Clear Chat</button>
           </form>
 
           <div class="patch-card">
