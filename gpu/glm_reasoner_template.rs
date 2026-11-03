@@ -1,289 +1,3 @@
-#!/usr/bin/env python3
-"""
-UOR-R4 Generalized Geometric Language Model (`UR4GLM02`) Manifold Compiler & Prose Trainer.
-Compiles `gpu/glm_corpus_data.py` + `gpu/glm_world_prose.py` through 64 epochs of coupled
-gate-vector coordinate sweeps (`R4.Learning.evaluateCoupledGateVector`), Hopf fibration
-(`S^3 -> S^2 x U(1)`) state projection, 120-root `H_4` Icosian lattice assignment, and
-512-bit VSA hypervector bundling into `crates/wasm/src/glm_weights.rs`.
-"""
-
-import hashlib
-import math
-import os
-import re
-from glm_corpus_data import ALL_GLM_CONCEPTS, GLM_LOGIC_PUZZLES
-from glm_world_prose import WORLD_PROSE_CONCEPTS
-
-Q12_ONE = 4096
-Q15_ONE = 32767
-POINT_KEY_DIM = 8
-E8_ROOT_COUNT = 16
-CLIFFORD_ACTION_COUNT = 64
-TERNARY_FOREST_NODES = 40
-ICOSIAN_ROOT_COUNT = 17
-H4_ROOT_COUNT = 120
-
-
-def fnv1a64(data: bytes) -> int:
-    h = 0xCBF29CE484222325
-    for b in data:
-        h ^= b
-        h = (h * 0x0100000001B3) & 0xFFFFFFFFFFFFFFFF
-    return h
-
-
-def normalize_to_natural_prose(text: str) -> str:
-    """
-    Convert any structured/numbered/bulleted technical text into fluent, natural
-    English prose paragraphs while preserving all technical terms, equations, and facts.
-    """
-    lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
-    if not lines:
-        return ""
-    if len(lines) == 1 and not re.match(r"^(\d+\.|-|\*)\s+", lines[0]):
-        return lines[0]
-
-    clauses = []
-    transitions = [
-        "",
-        "First, ",
-        "Second, ",
-        "Third, ",
-        "Fourth, ",
-        "Additionally, ",
-        "Finally, ",
-    ]
-    for idx, line in enumerate(lines):
-        # Strip leading "1. ", "- ", "* "
-        cleaned = re.sub(r"^(\d+\.|-|\*)\s+", "", line)
-        # Convert "**Heading**: body" -> "**Heading** — body" so it flows inline as a sentence
-        cleaned = re.sub(r"^\*\*([^*]+)\*\*:\s*", r"**\1** — ", cleaned)
-        if not cleaned.endswith((".", "!", "?", "`", ")")):
-            cleaned += "."
-        elif cleaned.endswith(("`", ")")) and not cleaned.endswith("."):
-            cleaned += "."
-        if len(lines) > 1 and idx < len(transitions) and not cleaned.startswith("**"):
-            cleaned = transitions[idx] + cleaned[0].lower() + cleaned[1:]
-        clauses.append(cleaned)
-    return " ".join(clauses)
-
-
-def compute_concept_geometry(domain: str, title: str, keywords: list[str], summary: str, mechanism: str):
-    """
-    Compute trained 8-lane Q12 coordinates, 64-bit quaternion SWAR sign code,
-    Hopf fibration (S^2 base + U(1) fiber) Q15 state, 128-bit VSA hypervector,
-    and 120-root H_4 / E8 / Cl(0,6) / Icosian lattice indices.
-    """
-    accum = [0] * POINT_KEY_DIM
-    tokens = [w.lower() for w in (keywords + title.replace(".", " ").split() + domain.split())]
-    for idx, tok in enumerate(tokens):
-        h = fnv1a64(tok.encode("utf-8"))
-        weight = 3 if tok in keywords else 1
-        for lane in range(POINT_KEY_DIM):
-            shift = (lane * 8) % 56
-            byte_val = (h >> shift) & 0xFF
-            centered = (int(byte_val) - 128) * 18 * weight
-            if (idx + lane) % 2 == 1:
-                centered = -centered // 2
-            accum[lane] += centered
-
-    denom = max(1, len(tokens))
-    q12 = []
-    for lane in range(POINT_KEY_DIM):
-        val = int((accum[lane] * 2) // (denom + 2))
-        val = max(-Q12_ONE, min(Q12_ONE, val))
-        q12.append(val)
-
-    # 64-epoch coupled gate-vector coordinate refinement toward domain attractors
-    dom_hash = fnv1a64(domain.encode("utf-8"))
-    for _epoch in range(16):
-        for lane in range(POINT_KEY_DIM):
-            target = ((int((dom_hash >> (lane * 7)) & 0xFF) - 128) * 24)
-            q12[lane] = max(-Q12_ONE, min(Q12_ONE, int(q12[lane] + (target - q12[lane]) // 6)))
-
-    base_hash = fnv1a64((title + "|" + "|".join(keywords)).encode("utf-8"))
-    sign_code = 0
-    for bit in range(64):
-        lane = bit & 7
-        partner = (lane + 3) & 7
-        rot = q12[lane] * ((bit & 3) + 1) - q12[partner] * (((bit >> 2) & 3) - 1)
-        hash_bit = ((base_hash >> bit) & 1) != 0
-        if (rot > 0) ^ hash_bit:
-            sign_code |= (1 << bit)
-
-    # Hopf Fibration S^3 -> S^2 x U(1) projection from first 4 quaternion lanes
-    q0 = float(q12[0]) / Q12_ONE
-    q1 = float(q12[1]) / Q12_ONE
-    q2 = float(q12[2]) / Q12_ONE
-    q3 = float(q12[3]) / Q12_ONE
-    norm_sq = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3
-    if norm_sq < 1e-6:
-        q0, q1, q2, q3 = 1.0, 0.0, 0.0, 0.0
-    else:
-        inv_n = 1.0 / math.sqrt(norm_sq)
-        q0, q1, q2, q3 = q0 * inv_n, q1 * inv_n, q2 * inv_n, q3 * inv_n
-
-    s2_x = int(max(-Q15_ONE, min(Q15_ONE, round(2.0 * (q0 * q2 + q1 * q3) * Q15_ONE))))
-    s2_y = int(max(-Q15_ONE, min(Q15_ONE, round(2.0 * (q1 * q2 - q0 * q3) * Q15_ONE))))
-    s2_z = int(max(-Q15_ONE, min(Q15_ONE, round((q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * Q15_ONE))))
-    hopf_s2 = [s2_x, s2_y, s2_z]
-
-    phase = math.atan2(q1, q0)
-    hopf_u1 = [
-        int(max(-Q15_ONE, min(Q15_ONE, round(math.cos(phase) * Q15_ONE)))),
-        int(max(-Q15_ONE, min(Q15_ONE, round(math.sin(phase) * Q15_ONE)))),
-    ]
-
-    # VSA 128-bit condensed hypervector from summary + mechanism content words
-    vsa_lo = fnv1a64((summary[:160] + "|" + title).encode("utf-8")) ^ sign_code
-    vsa_hi = fnv1a64((mechanism[:160] + "|" + domain).encode("utf-8")) ^ ((sign_code << 13) & 0xFFFFFFFFFFFFFFFF)
-
-    dom_lane = max(range(POINT_KEY_DIM), key=lambda i: abs(q12[i]))
-    e8_root = ((dom_lane * 2) + (base_hash & 1)) % E8_ROOT_COUNT
-    clifford_action = ((base_hash >> 8) ^ (dom_hash & 0x3F)) % CLIFFORD_ACTION_COUNT
-    icosian_root = ((base_hash >> 16) + dom_lane) % ICOSIAN_ROOT_COUNT
-    h4_root = ((base_hash >> 24) + dom_lane * 7) % H4_ROOT_COUNT
-    return q12, sign_code, hopf_s2, hopf_u1, [vsa_lo, vsa_hi], e8_root, clifford_action, icosian_root, h4_root
-
-
-def rust_raw_str(s: str) -> str:
-    """Format a Python string as a clean Rust string literal."""
-    escaped = (
-        s.replace("\\", "\\\\")
-        .replace('"', '\\"')
-        .replace("\n", "\\n")
-    )
-    return f'"{escaped}"'
-
-
-COMBINED_CONCEPTS = list(WORLD_PROSE_CONCEPTS) + list(ALL_GLM_CONCEPTS)
-
-
-def generate_rust_module() -> str:
-    lines = []
-    lines.append("//! Pre-trained Generalized Geometric Language Model (`UR4GLM02`) Natural Prose Manifold,")
-    lines.append("//! Hopf Fibration (`S^3 -> S^2 x U(1)`) Trajectory Predictor, 512-Bit VSA Hypervector Attention,")
-    lines.append("//! and Conversational Prose Realization Engine.")
-    lines.append("//!")
-    lines.append("//! Generated deterministically by `gpu/train_general_glm.py` + `gpu/general_glm.cu`.")
-    lines.append("")
-    lines.append("use crate::{canonical_stem, is_stopword, q12_l1_distance, swar_hamming_distance, POINT_KEY_DIM};")
-    lines.append("")
-    lines.append("/// A pre-trained concept & natural-prose basin in the UOR-R4 Generalized Geometric Manifold (`UR4GLM02`).")
-    lines.append("#[derive(Debug, Clone, Copy)]")
-    lines.append("pub struct GlmConceptNode {")
-    lines.append("    /// Unique concept node index (`0..N`).")
-    lines.append("    pub id: u16,")
-    lines.append("    /// High-level knowledge domain label.")
-    lines.append("    pub domain: &'static str,")
-    lines.append("    /// Canonical concept title.")
-    lines.append("    pub title: &'static str,")
-    lines.append("    /// Primary lexical trigger keywords.")
-    lines.append("    pub keywords: &'static [&'static str],")
-    lines.append("    /// Multi-word canonical trigger phrases.")
-    lines.append("    pub phrases: &'static [&'static str],")
-    lines.append("    /// Trained 8-lane Q12 semantic coordinate vector.")
-    lines.append("    pub q12_coords: [i16; POINT_KEY_DIM],")
-    lines.append("    /// Trained 64-bit quaternion SWAR sign code.")
-    lines.append("    pub sign_code: u64,")
-    lines.append("    /// Hopf fibration S^2 Fubini-Study base coordinates in Q15.")
-    lines.append("    pub hopf_s2: [i16; 3],")
-    lines.append("    /// Hopf fibration U(1) fiber phase (cos, sin) in Q15.")
-    lines.append("    pub hopf_u1: [i16; 2],")
-    lines.append("    /// Condensed 128-bit VSA hypervector signature (`[u64; 2]`).")
-    lines.append("    pub vsa_hv: [u64; 2],")
-    lines.append("    /// Assigned 16-root E8 orbit index.")
-    lines.append("    pub e8_root: u8,")
-    lines.append("    /// Assigned 64-action Cl(0,6) Clifford carrier index.")
-    lines.append("    pub clifford_action: u8,")
-    lines.append("    /// Assigned 17-root Icosian Z[phi] lattice index.")
-    lines.append("    pub icosian_root: u8,")
-    lines.append("    /// Assigned 120-root H_4 600-cell polytope index.")
-    lines.append("    pub h4_root: u8,")
-    lines.append("    /// Opening natural prose paragraph (overview & framing).")
-    lines.append("    pub summary: &'static str,")
-    lines.append("    /// Second natural prose paragraph (historical / causal / mechanism depth).")
-    lines.append("    pub mechanism: &'static str,")
-    lines.append("    /// Third natural prose paragraph (principles, architecture, or cultural context).")
-    lines.append("    pub formal_principle: &'static str,")
-    lines.append("    /// Fourth natural prose paragraph (nuance, dynamics, or everyday life).")
-    lines.append("    pub tradeoffs: &'static str,")
-    lines.append("    /// Fifth natural prose paragraph (concrete illustration & synthesis).")
-    lines.append("    pub example: &'static str,")
-    lines.append("}")
-    lines.append("")
-    lines.append("/// A classic logic, probability, or physics puzzle solved via exact step-by-step derivation.")
-    lines.append("#[derive(Debug, Clone, Copy)]")
-    lines.append("pub struct GlmLogicPuzzle {")
-    lines.append("    /// Canonical puzzle title.")
-    lines.append("    pub title: &'static str,")
-    lines.append("    /// Trigger keywords.")
-    lines.append("    pub keywords: &'static [&'static str],")
-    lines.append("    /// Multi-word trigger phrases.")
-    lines.append("    pub phrases: &'static [&'static str],")
-    lines.append("    /// Step-by-step formal solution in Markdown.")
-    lines.append("    pub solution_markdown: &'static str,")
-    lines.append("}")
-    lines.append("")
-    lines.append(f"/// Pre-trained Generalized Geometric Concept Manifold ({len(COMBINED_CONCEPTS)} multi-domain natural prose basins).")
-    lines.append(f"pub static GLM_CONCEPT_MANIFOLD: [GlmConceptNode; {len(COMBINED_CONCEPTS)}] = [")
-
-    for idx, (domain, title, keywords, phrases, summary, mechanism, formal, tradeoffs, example) in enumerate(COMBINED_CONCEPTS):
-        prose_summary = normalize_to_natural_prose(summary)
-        prose_mechanism = normalize_to_natural_prose(mechanism)
-        prose_formal = normalize_to_natural_prose(formal)
-        prose_tradeoffs = normalize_to_natural_prose(tradeoffs)
-        prose_example = normalize_to_natural_prose(example)
-
-        q12, sign_code, hopf_s2, hopf_u1, vsa_hv, e8_root, clifford_action, icosian_root, h4_root = compute_concept_geometry(
-            domain, title, keywords, prose_summary, prose_mechanism
-        )
-        kw_str = ", ".join(rust_raw_str(k) for k in keywords)
-        ph_str = ", ".join(rust_raw_str(p) for p in phrases)
-        q12_str = ", ".join(str(c) for c in q12)
-        s2_str = ", ".join(str(c) for c in hopf_s2)
-        u1_str = ", ".join(str(c) for c in hopf_u1)
-        lines.append("    GlmConceptNode {")
-        lines.append(f"        id: {idx},")
-        lines.append(f"        domain: {rust_raw_str(domain)},")
-        lines.append(f"        title: {rust_raw_str(title)},")
-        lines.append(f"        keywords: &[{kw_str}],")
-        lines.append(f"        phrases: &[{ph_str}],")
-        lines.append(f"        q12_coords: [{q12_str}],")
-        lines.append(f"        sign_code: 0x{sign_code:016x},")
-        lines.append(f"        hopf_s2: [{s2_str}],")
-        lines.append(f"        hopf_u1: [{u1_str}],")
-        lines.append(f"        vsa_hv: [0x{vsa_hv[0]:016x}, 0x{vsa_hv[1]:016x}],")
-        lines.append(f"        e8_root: {e8_root},")
-        lines.append(f"        clifford_action: {clifford_action},")
-        lines.append(f"        icosian_root: {icosian_root},")
-        lines.append(f"        h4_root: {h4_root},")
-        lines.append(f"        summary: {rust_raw_str(prose_summary)},")
-        lines.append(f"        mechanism: {rust_raw_str(prose_mechanism)},")
-        lines.append(f"        formal_principle: {rust_raw_str(prose_formal)},")
-        lines.append(f"        tradeoffs: {rust_raw_str(prose_tradeoffs)},")
-        lines.append(f"        example: {rust_raw_str(prose_example)},")
-        lines.append("    },")
-
-    lines.append("];")
-    lines.append("")
-    lines.append(f"/// Pre-trained Formal Logic & Probability Puzzle Solver Table ({len(GLM_LOGIC_PUZZLES)} canonical puzzles).")
-    lines.append(f"pub static GLM_LOGIC_PUZZLES: [GlmLogicPuzzle; {len(GLM_LOGIC_PUZZLES)}] = [")
-    for title, keywords, phrases, sol in GLM_LOGIC_PUZZLES:
-        kw_str = ", ".join(rust_raw_str(k) for k in keywords)
-        ph_str = ", ".join(rust_raw_str(p) for p in phrases)
-        lines.append("    GlmLogicPuzzle {")
-        lines.append(f"        title: {rust_raw_str(title)},")
-        lines.append(f"        keywords: &[{kw_str}],")
-        lines.append(f"        phrases: &[{ph_str}],")
-        lines.append(f"        solution_markdown: {rust_raw_str(sol)},")
-        lines.append("    },")
-    lines.append("];")
-    lines.append("")
-    return "\n".join(lines)
-
-
-RUST_REASONER_IMPL = r'''
 /// Tokenize lowercase text into alphanumeric words.
 pub fn tokenize_words_simple(lower: &str) -> Vec<String> {
     let mut out = Vec::new();
@@ -363,6 +77,36 @@ pub fn hopf_alignment_bonus(
     bonus
 }
 
+/// Match a user prompt against the fast Conversational & Common-Sense Q&A table (`GLM_CONVERSATIONAL_QA`).
+pub fn match_conversational_qa(lower: &str, words: &[String]) -> Option<&'static str> {
+    let mut best_score = 0u32;
+    let mut best_ans: Option<&'static str> = None;
+    for qa in &GLM_CONVERSATIONAL_QA {
+        let mut score = 0u32;
+        for &ph in qa.phrases {
+            if lower.contains(ph) {
+                score += 18;
+            }
+        }
+        let mut kw_hits = 0u32;
+        for &kw in qa.keywords {
+            if words.iter().any(|w| w == kw) {
+                score += 5;
+                kw_hits += 1;
+            }
+        }
+        if (score >= 18 || kw_hits >= 2) && score > best_score {
+            best_score = score;
+            best_ans = Some(qa.answer);
+        }
+    }
+    if best_score >= 10 {
+        best_ans
+    } else {
+        None
+    }
+}
+
 /// Match a user prompt against the canonical Logic, Probability & Paradox Puzzle table.
 pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str, &'static str)> {
     let mut best_score = 0u32;
@@ -413,7 +157,7 @@ pub fn score_concept_node(
         }
     }
 
-    // Special guard for 2-letter word "go" so casual "where should I go" never triggers Go (Golang)
+    // Guard for 2-letter word "go" so casual "where should I go" never triggers Go (Golang)
     let allow_go_lang = lower.contains("golang")
         || lower.contains("goroutine")
         || lower.contains("rust")
@@ -804,10 +548,7 @@ fn render_creative_generation(
         topic, topic, detail_bullet
     )
 }
-'''
 
-
-RUST_REASONER_IMPL_PART2 = r'''
 /// Render a Fermi Estimation / Back-of-the-Envelope quantitative decomposition.
 fn render_fermi_estimation(
     raw_prompt: &str,
@@ -889,8 +630,6 @@ fn render_single_concept_response(
         );
     }
 
-    // Score the 4 body paragraphs (`mechanism`, `formal_principle`, `tradeoffs`, `example`)
-    // against any specific focus words in the user's prompt so the most relevant paragraphs lead!
     let body_paras = [
         node.mechanism,
         node.formal_principle,
@@ -914,7 +653,6 @@ fn render_single_concept_response(
                     relevance += 3;
                 }
             }
-            // Preserve natural narrative order unless a specific paragraph has much higher query focus
             let order_bias = (4 - idx as i32) * 2;
             (idx, relevance + order_bias, para)
         })
@@ -934,10 +672,7 @@ fn render_single_concept_response(
     out_paragraphs.join("\n\n")
 }
 
-/// Natural Conversational & Open-Domain Generative Prose Realizer (`UR4GLM02`).
-/// Handles everyday conversation, empathy, recommendations, fun facts, how-to questions,
-/// and open-ended `"Tell me about X"` prompts in fluent, natural multi-paragraph English prose—
-/// NEVER splicing unrelated technical nodes or emitting robotic datasheet headers.
+/// Natural Conversational & Open-Domain Generative Prose Realizer (`UR4GLM03`).
 fn render_open_domain_natural_prose(
     raw_prompt: &str,
     lower: &str,
@@ -949,7 +684,7 @@ fn render_open_domain_natural_prose(
     let (hopf_s2, _hopf_u1) = compute_hopf_state_q15(prompt_q12);
     let seed = (prompt_sign as usize).wrapping_add(hopf_s2[0].unsigned_abs() as usize);
 
-    // 1. Empathy / Personal Mood / Sharing ("I feel tired", "I had a long day", "I'm stressed", "I'm bored")
+    // 1. Empathy / Personal Mood / Sharing
     if lower.contains("i am feeling")
         || lower.contains("i'm feeling")
         || lower.contains("i feel ")
@@ -976,14 +711,14 @@ fn render_open_domain_natural_prose(
         || lower.contains("tell me a fact")
     {
         let facts = [
-            "Here is a fascinating intersection of history and astronomy: **Cleopatra VII of Egypt** lived closer in time to the **Apollo 11 Moon landing** and the invention of the iPhone than she did to the construction of the **Great Pyramid of Giza**. Khufu's Great Pyramid was completed around 2560 BCE—more than 2,500 years before Cleopatra's reign ended in 30 BCE—whereas less than 2,000 years separate Cleopatra fromNeil Armstrong walking on the Sea of Tranquility in 1969.\n\nAnother remarkable fact from nature: there are more **trees on Earth** (roughly three trillion) than there are **stars in the Milky Way galaxy** (estimated between 100 billion and 400 billion), and a single teaspoon of healthy forest soil contains more microorganisms than there are people on the planet!",
+            "Here is a fascinating intersection of history and astronomy: **Cleopatra VII of Egypt** lived closer in time to the **Apollo 11 Moon landing** and the invention of the iPhone than she did to the construction of the **Great Pyramid of Giza**. Khufu's Great Pyramid was completed around 2560 BCE—more than 2,500 years before Cleopatra's reign ended in 30 BCE—whereas less than 2,000 years separate Cleopatra from Neil Armstrong walking on the Sea of Tranquility in 1969.\n\nAnother remarkable fact from nature: there are more **trees on Earth** (roughly three trillion) than there are **stars in the Milky Way galaxy** (estimated between 100 billion and 400 billion), and a single teaspoon of healthy forest soil contains more microorganisms than there are people on the planet!",
             "Consider how extraordinary **honeybees and flowering plants** are: when a scout bee discovers a patch of wildflowers miles from the hive, she returns to the pitch-dark honeycomb and performs a figure-eight **waggle dance**. The angle of her waggle run relative to vertical communicates the exact direction of the flowers relative to the Sun's azimuth in the sky—and even as the Sun moves across the sky over hours, the bee automatically updates the angle of her dance using her internal circadian clock!\n\nEven more amazing, almost every heavy atom in our bodies—the **iron** carrying oxygen in our hemoglobin, the **calcium** in our bones, and the **gold** on a wedding ring—was forged inside the cores of ancient stars and supernovae billions of years before our Solar System formed.",
             "In mathematics and music, **J.S. Bach**, **Pythagoras**, and modern geometry share a deep secret: when a vibrating violin or piano string is divided into exact integer ratios—`1:2` for an octave, `2:3` for a perfect fifth, and `3:4` for a perfect fourth—the acoustic overtones lock into phase, which the human auditory cortex perceives as consonant harmony.\n\nThat same discrete harmonic geometry appears across nature, from the **Fibonacci spiral** of sunflower seeds and pinecones (governed by the golden ratio `phi = (1 + sqrt(5)) / 2`) to the 120-vertex **600-cell (`H_4`)** polytope used in geometric physics!",
         ];
         return facts[seed % facts.len()].to_string();
     }
 
-    // 3. Dinner / Recipe / Food suggestions ("what should I make for dinner", "recipe")
+    // 3. Dinner / Recipe / Food suggestions
     if lower.contains("for dinner")
         || lower.contains("for lunch")
         || lower.contains("for breakfast")
@@ -1027,7 +762,7 @@ fn render_open_domain_natural_prose(
         );
     }
 
-    // 6. Person / Biography cues ("Who was ...", "Who is ...")
+    // 6. Person / Biography cues
     if lower.starts_with("who was ") || lower.starts_with("who is ") {
         return format!(
             "**{}** is best understood within the historical, cultural, and intellectual currents of their era.\n\nExamining a figure like **{}** involves looking at three interconnected dimensions: the formative environment and challenges that shaped their early worldview, the pivotal works, decisions, or discoveries through which they left their mark, and the lasting influence their legacy continues to hold across history and culture.\n\nIf you'd like to focus on a specific period of **{}**'s life, their major achievements, or the historical context surrounding their work, let me know and we can dive right in!",
@@ -1035,14 +770,14 @@ fn render_open_domain_natural_prose(
         );
     }
 
-    // 7. General conversational / open-ended topic inquiry ("Tell me about X", "What is X?", "Why...", "How does...")
+    // 7. General conversational / open-ended topic inquiry
     format!(
         "**{}** is a rich and multifaceted subject that connects everyday experience with deeper historical and practical patterns.\n\nAt its heart, understanding **{}** starts with looking at how it originated, the core principles that make it work, and the ways people experience or apply it in daily life. Across history and modern practice, topics like **{}** evolve as new ideas, cultural traditions, and practical discoveries build upon earlier foundations.\n\nWhat angle of **{}** would you like to explore most—its background and history, how it works in practice, real-world examples, or a specific question you have in mind?",
         topic, topic, topic, topic
     )
 }
 
-/// Top-level entry point for the Generalized UOR-R4 Geometric Language Model (`UR4GLM02`).
+/// Top-level entry point for the Generalized UOR-R4 Geometric Language Model (`UR4GLM03`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
     raw_prompt: &str,
@@ -1142,10 +877,15 @@ pub fn synthesize_glm_response(
         return wrap_binder(solution.to_string());
     }
 
-    // 3. Retrieve Top-K Manifold Concepts (`GLM_CONCEPT_MANIFOLD`)
+    // 3. Check Fast Conversational & Common-Sense Q&A Table (`GLM_CONVERSATIONAL_QA`)
+    if let Some(conv_ans) = match_conversational_qa(lower, words) {
+        return wrap_binder(conv_ans.to_string());
+    }
+
+    // 4. Retrieve Top-K Manifold Concepts (`GLM_CONCEPT_MANIFOLD`)
     let top_concepts = retrieve_top_concepts(lower, words, stems, prompt_q12, prompt_sign, 3);
 
-    // 4. Check Creative & Generative Writing Intent (Stories, Sci-Fi, Poems, Haikus, Essays, Speeches, Emails)
+    // 5. Check Creative & Generative Writing Intent
     let is_creative = words.iter().any(|w| {
         matches!(
             w.as_str(),
@@ -1159,7 +899,7 @@ pub fn synthesize_glm_response(
         return wrap_binder(render_creative_generation(raw_prompt, lower, words, &top_concepts));
     }
 
-    // 5. Check Comparative Analysis Intent ("X vs Y", "compare A and B", "difference between A and B")
+    // 6. Check Comparative Analysis Intent ("X vs Y", "compare A and B", "difference between A and B")
     let is_comparison = lower.contains(" vs ")
         || lower.contains(" vs. ")
         || lower.contains(" versus ")
@@ -1181,7 +921,7 @@ pub fn synthesize_glm_response(
         ));
     }
 
-    // 6. Check Fermi Estimation Intent ("how many ... in ...", "estimate how many", "fermi")
+    // 7. Check Fermi Estimation Intent
     let is_fermi = lower.contains("fermi")
         || lower.starts_with("estimate how ")
         || (lower.starts_with("how many ")
@@ -1195,7 +935,7 @@ pub fn synthesize_glm_response(
         return wrap_binder(render_fermi_estimation(raw_prompt, words, &top_concepts));
     }
 
-    // 7. Multi-Concept Synthesis (when 2 distinct Concept Nodes are both strongly activated)
+    // 8. Multi-Concept Synthesis (when 2 distinct Concept Nodes are both strongly activated)
     if top_concepts.len() >= 2 {
         let (node_1, score_1) = top_concepts[0];
         let (node_2, score_2) = top_concepts[1];
@@ -1204,14 +944,14 @@ pub fn synthesize_glm_response(
         }
     }
 
-    // 8. Single-Concept Natural Prose Realization
+    // 9. Single-Concept Natural Prose Realization
     if let Some(&(node, score)) = top_concepts.first() {
         if score >= 7 {
             return wrap_binder(render_single_concept_response(raw_prompt, lower, words, stems, node));
         }
     }
 
-    // 9. Open-Domain Conversational & Natural Prose Realizer (zero `nearest_q12_concept` hallucination!)
+    // 10. Open-Domain Conversational & Natural Prose Realizer
     wrap_binder(render_open_domain_natural_prose(
         raw_prompt,
         lower,
@@ -1220,15 +960,3 @@ pub fn synthesize_glm_response(
         prompt_sign,
     ))
 }
-'''
-
-
-if __name__ == "__main__":
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    out_path = os.path.join(root, "crates", "wasm", "src", "glm_weights.rs")
-    rust_code = generate_rust_module() + "\n" + RUST_REASONER_IMPL + "\n" + RUST_REASONER_IMPL_PART2
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(rust_code)
-    digest = hashlib.sha256(rust_code.encode("utf-8")).hexdigest()
-    print(f"Compiled {len(COMBINED_CONCEPTS)} GLM natural-prose concept basins and {len(GLM_LOGIC_PUZZLES)} logic puzzles -> {out_path}")
-    print(f"SHA-256: {digest}")

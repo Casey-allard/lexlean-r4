@@ -4013,6 +4013,24 @@ mod tests {
         assert!(!unseen.contains("Operating Systems"));
         assert!(!unseen.contains("p_TLB"));
 
+        // 8. Verify UR4GLM03 CUDA hardware-trained weights & conversational Q&A basins
+        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM03");
+        assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
+        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 111);
+        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 29);
+        assert!(glm_weights::GLM_CONCEPT_MANIFOLD
+            .iter()
+            .all(|n| n.e8_root < 16
+                && n.clifford_action < 64
+                && n.icosian_root < 17
+                && n.h4_root < 120));
+        let rel = ask("Explain the theory of relativity");
+        assert!(rel.contains("Einstein") && rel.contains("spacetime"));
+        let lemon = ask("What is the color of a lemon?");
+        assert!(lemon.contains("yellow"));
+        let rainbow = ask("What causes a rainbow?");
+        assert!(rainbow.contains("refracts"));
+
         let _ = dispatch_string("1\tstudio\treset\t");
     }
 }

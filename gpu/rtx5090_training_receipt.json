@@ -1,0 +1,18 @@
+{
+  "schema": "uor-r4/cuda-glm-training-receipt/1",
+  "model_magic": "UR4GLM03",
+  "gpu_device": "NVIDIA GeForce RTX 5090",
+  "compute_capability": "12.0",
+  "cuda_driver_version": 13020,
+  "cuda_runtime_version": 12080,
+  "sm_count": 170,
+  "vram_mib": 32110,
+  "trained_rows": 111,
+  "epochs": 1024,
+  "kernel_elapsed_ms": 60.1671,
+  "initial_total_loss": 355574,
+  "final_total_loss": 0,
+  "coordinate_improvements": 4886,
+  "coupled_gate_escapes": 111,
+  "active_ternary_gates": 40
+}
