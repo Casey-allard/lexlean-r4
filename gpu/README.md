@@ -11,6 +11,9 @@ This directory contains the CUDA GPU training kernels (`compute_75` through `com
 | `spiralcore_fbs_arms.cu` | `R4.ExactArithmetic` (`R4-27`) | 5-arm causal ablation and radix-$B$ place-value carry kernels. |
 | `spiralcore_fbs_arms_prelude.cu` | Device Prelude | Fixed-point `Q12` / `Q24` / `Q31` device constants and warp reductions. |
 | `discrete.cu` | `R4.DiscreteTrunk` (`R4-25`) | 19-table M1 discrete trunk (`12,288` bits/token) and `evaluateCoupledGateVector` discrete coordinate sweeps. |
+| `general_glm.cu` | `R4.Learning` / `UR4GLM01` | Multi-domain Generalized GLM manifold trainer (`train_general_glm_manifold_kernel`): coupled `(gate, vectorBlock)` coordinate sweeps over 8-lane `Q12` coordinates and 64-bit `SWAR` quaternion sign codes. |
+| `glm_corpus_data.py` | `UR4GLM01` Knowledge Graph | 68 multi-domain `GlmConceptNode` basins and 7 canonical `GlmLogicPuzzle` solvers across Computer Science, AI/ML, Systems, Cryptography, Mathematics, Physics, Chemistry, Biology, Medicine, Climate, History, Economics, Law, Philosophy, Psychology, and Everyday Science. |
+| `train_general_glm.py` | `UR4GLM01` Weight Compiler | Deterministic GPU/host manifold optimizer and Rust compiler emitting `crates/wasm/src/glm_weights.rs`. |
 
 ## 2. Measured GPU Training Cost Analysis (1× NVIDIA RTX 5090 vs. 8× B200)
 

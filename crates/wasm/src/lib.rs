@@ -18,6 +18,8 @@ use std::sync::{Mutex, OnceLock};
 use wasm_bindgen::prelude::*;
 
 mod assistant;
+/// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.
+pub mod glm_weights;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
 pub mod lexlean_generated;
 
@@ -3602,8 +3604,11 @@ mod tests {
         }
     }
 
+    static TEST_STUDIO_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
     #[test]
     fn test_studio_exact_and_paraphrased_recall_and_admission() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let _ = dispatch_string("1\tstudio\treset\t");
 
         // 1. Verify initial state JSON (20 pre-compiled domain turns)
@@ -3898,6 +3903,83 @@ mod tests {
             serde_json::from_str(&insp_raw).expect("valid uorlut_inspect JSON");
         assert_eq!(insp_json["status"], "ok");
         assert_eq!(insp_json["probe_outcome"], "AdmittedStack(6)");
+
+        let _ = dispatch_string("1\tstudio\treset\t");
+    }
+
+    #[test]
+    fn test_generalized_glm_multi_domain_reasoning_and_generation() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        let ask = |prompt: &str| -> String {
+            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+            let json: serde_json::Value = serde_json::from_str(&raw).expect("valid chat JSON");
+            assert_eq!(json["status"], "ok");
+            json["assistant_reply"].as_str().unwrap().to_string()
+        };
+
+        // 1. Pairwise Comparative Synthesis (zero "Option A / Option B" filler)
+        let rust_go = ask("Compare Rust and Go for building backend microservices");
+        assert!(rust_go.contains("Rust") && rust_go.contains("Go"));
+        assert!(!rust_go.contains("Option A"));
+        assert!(rust_go.contains("Ownership") || rust_go.contains("goroutine"));
+
+        let btree_lsm = ask("What is the difference between B-Trees and LSM-Trees?");
+        assert!(btree_lsm.contains("B+Tree") || btree_lsm.contains("MemTable"));
+        assert!(btree_lsm.contains("SSTable"));
+
+        let tcp_udp = ask("Compare TCP vs UDP");
+        assert!(tcp_udp.contains("Handshake") || tcp_udp.contains("SYN"));
+        assert!(tcp_udp.contains("UDP") && tcp_udp.contains("QUIC"));
+
+        // 2. Causal Science, Physics, Biology & History
+        let sky = ask("Why is the sky blue and why are sunsets red?");
+        assert!(sky.contains("Rayleigh"));
+        assert!(sky.contains("lambda^4"));
+
+        let vaccine = ask("How do mRNA vaccines and the immune system work?");
+        assert!(vaccine.contains("T-cells") || vaccine.contains("Antibodies"));
+
+        let rome = ask("What caused the fall of the Roman Empire?");
+        assert!(rome.contains("Roman") && rome.contains("Byzantine"));
+
+        let fusion = ask("Explain nuclear fission vs nuclear fusion");
+        assert!(fusion.contains("Uranium") && fusion.contains("Deuterium"));
+
+        // 3. Logic Puzzles & Probability Brainteasers
+        let monty = ask("Explain the Monty Hall problem and why switching wins");
+        assert!(monty.contains("2/3") && monty.contains("Door"));
+
+        let eggs = ask("How do you solve the Two Eggs and 100 Floors puzzle?");
+        assert!(eggs.contains("14 drops") || eggs.contains("14"));
+
+        let river = ask("Solve the wolf, goat, and cabbage river crossing puzzle");
+        assert!(river.contains("Crossing 1") && river.contains("Crossing 7"));
+
+        // 4. Creative Story, Poem & Essay Generation
+        let story = ask("Write a short sci-fi story about a probe under the ice of Europa");
+        assert!(story.contains("Short Story") && story.contains("Europa"));
+
+        let poem = ask("Write a poem about black holes and starlight");
+        assert!(poem.contains("Poem:"));
+
+        let essay =
+            ask("Write an essay about how the printing press and the internet changed history");
+        assert!(essay.contains("Essay:") && essay.contains("Thesis"));
+
+        // 5. Multi-Turn Conversational Follow-up ("Explain simpler" -> "Give me an example" -> "Summarize")
+        let _q1 = ask("Explain how Quantum Mechanics and entanglement work");
+        let eli5 = ask("Explain that like I'm 5");
+        assert!(eli5.contains("Intuitive") || eli5.contains("ELI5"));
+        let ex = ask("Give me a concrete example");
+        assert!(ex.contains("Example") && ex.contains("GPS"));
+        let sum = ask("Summarize that");
+        assert!(sum.contains("Executive Summary"));
+
+        // 6. Fermi Estimation
+        let fermi = ask("How many piano tuners are there in Chicago?");
+        assert!(fermi.contains("Fermi") && fermi.contains("Factor 1"));
 
         let _ = dispatch_string("1\tstudio\treset\t");
     }

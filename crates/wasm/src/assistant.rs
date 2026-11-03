@@ -768,20 +768,40 @@ impl StudioEngine {
             || lower.contains("show me code")
             || lower.contains("give me code");
 
-        let is_coding_intent = (has_code_action_verb
-            && (explicit_lang.is_some() || has_algorithm_target))
-            || is_direct_code_phrase
-            || (explicit_lang.is_some()
-                && !lower.starts_with("what is ")
-                && !lower.starts_with("who ")
-                && !lower.starts_with("why ")
-                && (has_code_action_verb
-                    || has_algorithm_target
-                    || lower.contains("how do i")
-                    || lower.contains("how to")
-                    || lower.contains("example")))
-            || is_how_to_css
-            || lower.contains("src/engine.rs");
+        let is_creative_or_prose = has_any_word(
+            &lower,
+            &[
+                "story", "poem", "poetry", "haiku", "sonnet", "essay", "article", "blog", "email",
+                "letter", "speech", "fable", "novel",
+            ],
+        );
+        let is_conceptual_comparison_or_explain = (lower.contains(" vs ")
+            || lower.contains(" versus ")
+            || lower.contains("difference between")
+            || lower.starts_with("compare ")
+            || lower.starts_with("explain ")
+            || lower.starts_with("what is ")
+            || lower.starts_with("what are ")
+            || lower.starts_with("why ")
+            || lower.starts_with("how does "))
+            && !is_direct_code_phrase
+            && !lower.contains("function")
+            && !lower.contains("implement");
+
+        let is_coding_intent = (!is_creative_or_prose && !is_conceptual_comparison_or_explain)
+            && ((has_code_action_verb && (explicit_lang.is_some() || has_algorithm_target))
+                || is_direct_code_phrase
+                || (explicit_lang.is_some()
+                    && !lower.starts_with("what is ")
+                    && !lower.starts_with("who ")
+                    && !lower.starts_with("why ")
+                    && (has_code_action_verb
+                        || has_algorithm_target
+                        || lower.contains("how do i")
+                        || lower.contains("how to")
+                        || lower.contains("example")))
+                || is_how_to_css
+                || lower.contains("src/engine.rs"));
 
         if !is_coding_intent {
             return CodeSynthesisOutcome {
@@ -961,16 +981,6 @@ impl StudioEngine {
             return jokes[idx].to_string();
         }
 
-        if has_any_word(&lower, &["haiku", "poem", "poetry", "verse"]) {
-            return concat!(
-                "Here is a geometric haiku composed on the 16-root `E8` lattice:\n\n",
-                "- *Sixteen roots of light,*\n",
-                "- *Zero floats to drift or fade,*\n",
-                "- *Proofs lock every step.*"
-            )
-            .to_string();
-        }
-
         if has_any_word(
             &lower,
             &["thank", "thanks", "thx", "awesome", "great", "nice", "cool"],
@@ -1019,14 +1029,13 @@ impl StudioEngine {
             );
         }
 
-        // 8. Check user-admitted / core UOR-R4 turns in `self.turns` (including dynamic `Teach:` admissions!)
+        // 8. Check exact normalized match in `self.turns` first (e.g. from `Teach:` or `Admit Turn`)
         let prompt_stems: Vec<String> = prompt_tokens
             .iter()
             .filter(|t| !is_stopword(&t.norm))
             .map(|t| canonical_stem(&t.norm).to_string())
             .collect();
 
-        // Check exact normalized match in `self.turns` first (e.g. from `Teach:` or `Admit Turn`)
         let norm_query = prompt_tokens
             .iter()
             .map(|t| t.norm.as_str())
@@ -1039,70 +1048,59 @@ impl StudioEngine {
             }
         }
 
-        // 9. Query the Comprehensive Multi-Domain Encyclopedia (`KNOWLEDGE_BASINS`) + `self.turns`
-        if let Some((topic_title, answer_body)) =
-            match_knowledge_basin(&lower, &words, &prompt_stems)
+        // Check user-admitted turns (indices >= 20) for paraphrased recall
+        if self.turns.len() > 20 {
+            let mut best_user_score = 0usize;
+            let mut best_user_reply = String::new();
+            for turn in self.turns.iter().skip(20).rev() {
+                let matched = turn
+                    .prompt_tokens
+                    .iter()
+                    .filter(|t| {
+                        let s = canonical_stem(&t.norm);
+                        !s.is_empty() && prompt_stems.iter().any(|ps| ps == s)
+                    })
+                    .count();
+                if matched > best_user_score {
+                    best_user_score = matched;
+                    best_user_reply = turn.reply.clone();
+                }
+            }
+            if best_user_score >= 2 {
+                return best_user_reply;
+            }
+        }
+
+        // 9. Check direct Geography Capital Lookup & GPU Training Cost Table first
+        if has_word(&words, "capital")
+            || lower.contains("capital city")
+            || (has_any_word(&lower, &["gpu", "cuda", "uorlut", "5090", "cost"])
+                && has_any_word(&lower, &["training", "train", "cost", "uor", "r4", "price"]))
         {
-            if let Some(notice) = binder_notice {
-                return format!("{notice}\n\n### {topic_title}\n\n{answer_body}");
-            }
-            return format!("### {topic_title}\n\n{answer_body}");
-        }
-
-        // Also check `self.turns` (UOR-R4 core & user-admitted turns) when stem overlap is strong
-        let mut best_turn_score = 0usize;
-        let mut best_turn_reply = String::new();
-        for turn in self.turns.iter().rev() {
-            let matched = turn
-                .prompt_tokens
-                .iter()
-                .filter(|t| {
-                    let s = canonical_stem(&t.norm);
-                    !s.is_empty() && prompt_stems.iter().any(|ps| ps == s)
-                })
-                .count();
-            if matched > best_turn_score {
-                best_turn_score = matched;
-                best_turn_reply = turn.reply.clone();
-            }
-        }
-        if best_turn_score >= 2 {
-            return best_turn_reply;
-        }
-
-        // 10. Multi-turn conversational follow-ups ("tell me more", "give me an example", "explain simpler", "summarize")
-        let is_followup = lower.starts_with("tell me more")
-            || lower.starts_with("explain more")
-            || lower.starts_with("elaborate")
-            || lower.starts_with("give me an example")
-            || lower.starts_with("for example")
-            || lower.starts_with("explain like")
-            || lower.starts_with("eli5")
-            || lower.starts_with("simplify")
-            || lower.starts_with("summarize that")
-            || lower.starts_with("tldr");
-
-        if is_followup {
-            if let Some((prev_q, prev_a)) = self.chat_history.last() {
-                let first_para = prev_a
-                    .lines()
-                    .find(|l| !l.trim().is_empty() && !l.trim().starts_with('#'))
-                    .unwrap_or(prev_a.as_str());
-                return format!(
-                    "Building on our previous discussion about **\"{prev_q}\"**:\n\n- **Core Takeaway**: {first_para}\n- **Practical Example**: In practice, you apply this by isolating the key inputs, defining the state transition deterministically, and verifying edge cases (empty inputs, high concurrency, or boundary values) with automated unit tests.\n\nWould you like me to generate a runnable **Python**, **TypeScript**, or **Rust** code example for **\"{prev_q}\"**?"
-                );
+            if let Some((topic_title, answer_body)) =
+                match_knowledge_basin(&lower, &words, &prompt_stems)
+            {
+                if let Some(notice) = binder_notice {
+                    return format!("{notice}\n\n### {topic_title}\n\n{answer_body}");
+                }
+                return format!("### {topic_title}\n\n{answer_body}");
             }
         }
 
-        // 11. Intelligent, Natural Open-Domain Reasoning & Synthesis (GPT-4 style, zero diagnostic boilerplate)
-        compose_open_domain_reasoning(
+        // 10. Synthesize via the Pre-Trained Generalized Geometric Language Model (`UR4GLM01`)
+        let prompt_sign = crate::pool_sign_codes(prompt_tokens);
+        let _legacy_fallback = compose_open_domain_reasoning;
+        crate::glm_weights::synthesize_glm_response(
             trimmed,
             &lower,
             &words,
+            &prompt_stems,
             prompt_q12,
+            prompt_sign,
             consensus_action,
             flock_resonance,
             icosian_root,
+            &self.chat_history,
             binder_notice,
         )
     }
