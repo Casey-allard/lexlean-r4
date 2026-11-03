@@ -383,9 +383,15 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(index_html.contains("memory.point.points"));
     assert!(index_html.contains("id=\"claude-code-desktop\""));
     assert!(index_html.contains("id=\"workspace-file-list\""));
+    assert!(index_html.contains("id=\"workspace-mount-input\""));
+    assert!(index_html.contains("id=\"workspace-download-btn\""));
     assert!(index_html.contains("id=\"claude-chat-form\""));
     assert!(index_html.contains("id=\"chat-apply-patch-btn\""));
     assert!(index_html.contains("id=\"studio-train-form\""));
+    assert!(index_html.contains("id=\"train-stat-transitions\""));
+    assert!(index_html.contains("id=\"train-stat-ws-tokens\""));
+    assert!(index_html.contains("id=\"snapshot-download-btn\""));
+    assert!(index_html.contains("id=\"snapshot-upload-input\""));
     assert!(index_html.contains("id=\"studio-prompt-form\""));
     assert!(index_html.contains("id=\"studio-prompt\""));
     assert!(index_html.contains("id=\"studio-prose-output\""));
@@ -404,6 +410,8 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(app_js.contains("runStudioSubsystems"));
     assert!(app_js.contains("runClaudeChat"));
     assert!(app_js.contains("runOnDeviceTrain"));
+    assert!(app_js.contains("workspace_batch"));
+    assert!(app_js.contains("uor-r4-weights.uorlut"));
     assert!(app_js.contains("1\\tstudio\\t"));
     assert!(binding_js.contains("export function studio_dispatch("));
 }

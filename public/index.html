@@ -74,6 +74,10 @@
             </div>
             <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
           </form>
+          <div class="field">
+            <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
+            <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple>
+          </div>
         </aside>
 
         <div class="ide-pane" id="assistant-pane" aria-label="Claude-Code Geometric Chat and Patch Synthesis">
@@ -146,6 +150,7 @@
           </div>
           <div class="button-row">
             <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
+            <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
           </div>
           <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
 
@@ -174,6 +179,14 @@
             <div class="diag-item">
               <span class="diag-label">Active Non-Zero Gates</span>
               <code id="train-stat-gates">0 / 40</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Sequence Transitions Trained</span>
+              <code id="train-stat-transitions">0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Workspace Code Tokens Indexed</span>
+              <code id="train-stat-ws-tokens">0</code>
             </div>
             <div class="diag-item">
               <span class="diag-label">Training Receipt</span>
@@ -381,8 +394,13 @@
           <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 20 Turns</button>
           <button id="snapshot-export-btn" type="button" class="btn-secondary">Export UORLUT01 + UR4SESS1 Snapshot</button>
           <button id="snapshot-import-btn" type="button" class="btn-secondary">Validate &amp; Import Snapshot</button>
+          <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
         </div>
       </form>
+      <div class="field">
+        <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack from Disk (`UORLUT01 + UR4SESS1 + UR4WGHT1`)</label>
+        <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" accept=".uorlut,.bin,.hex">
+      </div>
       <div class="field">
         <label for="snapshot-hex-input">Binary Container Snapshot Hex (`UORLUT01` 64B Header + `UR4SESS1` Session Envelope)</label>
         <input id="snapshot-hex-input" name="snapshot-hex-input" type="text" value="" placeholder="Click 'Export UORLUT01 + UR4SESS1 Snapshot' to serialize active /6../8 tables &amp; session turns..." autocomplete="off" spellcheck="false">

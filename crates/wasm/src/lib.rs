@@ -2127,6 +2127,39 @@ impl StudioEngine {
             buf.extend_from_slice(r_bytes);
         }
 
+        // UR4WGHT1 extension tail: persist trained epoch, 40 gate trits, workspace files, and trained token weights
+        buf.extend_from_slice(b"UR4WGHT1");
+        buf.extend_from_slice(&self.training_epoch.to_le_bytes());
+        for i in 0..TERNARY_FOREST_NODES {
+            let trit = self.gate_trits.get(i).copied().unwrap_or(0);
+            buf.push(trit as u8);
+        }
+        buf.extend_from_slice(&(self.workspace_files.len() as u16).to_le_bytes());
+        for wf in &self.workspace_files {
+            buf.push(u8::from(wf.pinned));
+            let path_b = wf.path.as_bytes();
+            let lang_b = wf.language.as_bytes();
+            let cont_b = wf.content.as_bytes();
+            buf.extend_from_slice(&(path_b.len() as u16).to_le_bytes());
+            buf.extend_from_slice(&(lang_b.len() as u16).to_le_bytes());
+            buf.extend_from_slice(&(cont_b.len() as u32).to_le_bytes());
+            buf.extend_from_slice(path_b);
+            buf.extend_from_slice(lang_b);
+            buf.extend_from_slice(cont_b);
+        }
+        let weight_count = self.vocab.len().saturating_sub(3).min(512);
+        buf.extend_from_slice(&(weight_count as u16).to_le_bytes());
+        for tok in self.vocab.iter().skip(3).take(weight_count) {
+            buf.extend_from_slice(&tok.id.to_le_bytes());
+            buf.push(tok.clifford_action);
+            buf.push(tok.e8_root);
+            buf.push(tok.tree_node);
+            buf.extend_from_slice(&tok.sign_code.to_le_bytes());
+            for &coord in &tok.q12_coords {
+                buf.extend_from_slice(&coord.to_le_bytes());
+            }
+        }
+
         let probe_outcome =
             lexlean_generated::r4_spiral_core_fbs::probe_model_source(1, 1, 8, 64 % 64, 19);
         let probe_label = match probe_outcome {
@@ -2161,7 +2194,7 @@ impl StudioEngine {
             concat!(
                 "{{",
                 "\"status\":\"ok\",",
-                "\"container_magic\":\"UORLUT01+UR4SESS1\",",
+                "\"container_magic\":\"UORLUT01+UR4SESS1+UR4WGHT1\",",
                 "\"schema\":\"{}\",",
                 "\"schema_version\":8,",
                 "\"header_bytes\":64,",
@@ -2368,6 +2401,113 @@ impl StudioEngine {
         for (prompt, reply) in &decoded_turns {
             self.admit_turn(prompt, reply);
         }
+
+        // Parse optional UR4WGHT1 extension tail (trained gates, workspace files, and token weights)
+        if bytes.len() >= cursor + 8 + 4 + TERNARY_FOREST_NODES + 2
+            && &bytes[cursor..cursor + 8] == b"UR4WGHT1"
+        {
+            cursor += 8;
+            self.training_epoch = u32::from_le_bytes([
+                bytes[cursor],
+                bytes[cursor + 1],
+                bytes[cursor + 2],
+                bytes[cursor + 3],
+            ]);
+            cursor += 4;
+            for i in 0..TERNARY_FOREST_NODES {
+                self.gate_trits[i] = (bytes[cursor + i] as i8).clamp(-1, 1);
+            }
+            cursor += TERNARY_FOREST_NODES;
+            let wf_count = u16::from_le_bytes([bytes[cursor], bytes[cursor + 1]]) as usize;
+            cursor += 2;
+            let mut restored_files = Vec::with_capacity(wf_count);
+            let mut valid_tail = true;
+            for _ in 0..wf_count {
+                if bytes.len() < cursor + 9 {
+                    valid_tail = false;
+                    break;
+                }
+                let pinned = bytes[cursor] != 0;
+                let path_len = u16::from_le_bytes([bytes[cursor + 1], bytes[cursor + 2]]) as usize;
+                let lang_len = u16::from_le_bytes([bytes[cursor + 3], bytes[cursor + 4]]) as usize;
+                let cont_len = u32::from_le_bytes([
+                    bytes[cursor + 5],
+                    bytes[cursor + 6],
+                    bytes[cursor + 7],
+                    bytes[cursor + 8],
+                ]) as usize;
+                cursor += 9;
+                if bytes.len() < cursor + path_len + lang_len + cont_len {
+                    valid_tail = false;
+                    break;
+                }
+                let path_s =
+                    std::str::from_utf8(&bytes[cursor..cursor + path_len]).unwrap_or_default();
+                cursor += path_len;
+                let lang_s =
+                    std::str::from_utf8(&bytes[cursor..cursor + lang_len]).unwrap_or_default();
+                cursor += lang_len;
+                let cont_s =
+                    std::str::from_utf8(&bytes[cursor..cursor + cont_len]).unwrap_or_default();
+                cursor += cont_len;
+                if !path_s.is_empty() {
+                    let receipt = sha256_hex(format!("file|{path_s}|{cont_s}").as_bytes());
+                    restored_files.push(WorkspaceFile {
+                        path: path_s.to_string(),
+                        language: lang_s.to_string(),
+                        content: cont_s.to_string(),
+                        pinned,
+                        updated_receipt: receipt,
+                    });
+                }
+            }
+            if valid_tail && !restored_files.is_empty() {
+                self.workspace_files = restored_files;
+            }
+            if valid_tail && bytes.len() >= cursor + 2 {
+                let w_count = u16::from_le_bytes([bytes[cursor], bytes[cursor + 1]]) as usize;
+                cursor += 2;
+                for _ in 0..w_count {
+                    // 4 (id) + 3 (action, root, node) + 8 (sign) + 16 (q12) = 31 bytes
+                    if bytes.len() < cursor + 31 {
+                        break;
+                    }
+                    let tok_id = u32::from_le_bytes([
+                        bytes[cursor],
+                        bytes[cursor + 1],
+                        bytes[cursor + 2],
+                        bytes[cursor + 3],
+                    ]) as usize;
+                    let c_act = bytes[cursor + 4] & 0x3f;
+                    let e_root = bytes[cursor + 5] % (E8_ROOT_COUNT as u8);
+                    let t_node = bytes[cursor + 6] % (TERNARY_FOREST_NODES as u8);
+                    let s_code = u64::from_le_bytes([
+                        bytes[cursor + 7],
+                        bytes[cursor + 8],
+                        bytes[cursor + 9],
+                        bytes[cursor + 10],
+                        bytes[cursor + 11],
+                        bytes[cursor + 12],
+                        bytes[cursor + 13],
+                        bytes[cursor + 14],
+                    ]);
+                    let mut q12 = [0i16; POINT_KEY_DIM];
+                    for (lane, slot) in q12.iter_mut().enumerate() {
+                        let off = cursor + 15 + lane * 2;
+                        *slot = i16::from_le_bytes([bytes[off], bytes[off + 1]]);
+                    }
+                    cursor += 31;
+                    if let Some(tok) = self.vocab.get_mut(tok_id) {
+                        tok.clifford_action = c_act;
+                        tok.e8_root = e_root;
+                        tok.tree_node = t_node;
+                        tok.sign_code = s_code;
+                        tok.q12_coords = q12;
+                    }
+                }
+            }
+        }
+
         if self.workspace_files.is_empty() {
             self.init_default_workspace();
         }
@@ -2423,6 +2563,32 @@ impl StudioEngine {
         let mut current_loss = initial_loss;
         let mut total_improved_tokens = 0usize;
         let mut total_coupled_escapes = 0usize;
+        let mut workspace_tokens_indexed = 0usize;
+        let mut sequence_transitions_trained = 0usize;
+
+        // Index all pinned workspace source files into token sequence transitions
+        let pinned_contents: Vec<String> = self
+            .workspace_files
+            .iter()
+            .filter(|f| f.pinned)
+            .map(|f| f.content.clone())
+            .collect();
+        let mut workspace_pairs: Vec<(u32, u32, [i16; POINT_KEY_DIM], u64)> = Vec::new();
+        for content in &pinned_contents {
+            let file_tokens = self.tokenize(content);
+            workspace_tokens_indexed += file_tokens.len();
+            for pair in file_tokens.windows(2).take(48) {
+                let p_root = usize::from(pair[0].e8_root) % E8_ROOT_COUNT;
+                let r_root = usize::from(pair[1].e8_root) % E8_ROOT_COUNT;
+                self.occupied_cells[p_root][r_root] = true;
+                workspace_pairs.push((
+                    pair[0].id,
+                    pair[1].id,
+                    pair[0].q12_coords,
+                    pair[0].sign_code,
+                ));
+            }
+        }
 
         for _ in 0..requested_epochs {
             self.training_epoch += 1;
@@ -2430,7 +2596,7 @@ impl StudioEngine {
             let mut epoch_improved = 0usize;
             let mut epoch_escapes = 0usize;
 
-            let turn_targets: Vec<(u32, u32, [i16; POINT_KEY_DIM], u64)> = self
+            let mut turn_targets: Vec<(u32, u32, [i16; POINT_KEY_DIM], u64)> = self
                 .turns
                 .iter()
                 .filter_map(|t| {
@@ -2439,6 +2605,20 @@ impl StudioEngine {
                     Some((p_id, r_id, t.prompt_q12, t.sign_code))
                 })
                 .collect();
+
+            // Also include contiguous intra-reply token transitions (w_t -> w_{t+1}) and workspace transitions
+            for turn in &self.turns {
+                for pair in turn.reply_tokens.windows(2).take(6) {
+                    turn_targets.push((
+                        pair[0].id,
+                        pair[1].id,
+                        turn.prompt_q12,
+                        turn.sign_code ^ pair[0].sign_code,
+                    ));
+                }
+            }
+            turn_targets.extend(workspace_pairs.iter().copied());
+            sequence_transitions_trained += turn_targets.len();
 
             for (p_id, r_id, target_q12, target_sign) in turn_targets {
                 let p_idx = p_id as usize;
@@ -2573,6 +2753,8 @@ impl StudioEngine {
                 "\"loss_reduction\":{},",
                 "\"improved_tokens\":{},",
                 "\"coupled_gate_escapes\":{},",
+                "\"sequence_transitions_trained\":{},",
+                "\"workspace_tokens_indexed\":{},",
                 "\"active_nonzero_gates\":{},",
                 "\"occupied_cells\":{},",
                 "\"receipt_sha256\":\"{}\",",
@@ -2586,6 +2768,8 @@ impl StudioEngine {
             loss_reduction,
             total_improved_tokens,
             total_coupled_escapes,
+            sequence_transitions_trained,
+            workspace_tokens_indexed,
             active_nonzero_gates,
             occupied,
             receipt_sha256,
@@ -2728,6 +2912,46 @@ impl StudioEngine {
                 "{{\"status\":\"error\",\"reason\":\"FileNotFound\",\"message\":\"Workspace file '{}' not found.\"}}",
                 escape_json(target)
             )
+        }
+    }
+
+    /// Mount and index a batch of local repository source files separated by `\n===FILE===\n`.
+    pub fn workspace_batch_json(&mut self, payload: &str) -> String {
+        let entries: Vec<&str> = payload
+            .split("\n===FILE===\n")
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .collect();
+        if entries.is_empty() {
+            return "{\"status\":\"error\",\"reason\":\"EmptyBatch\",\"message\":\"Expected at least one file entry in workspace_batch.\"}"
+                .to_string();
+        }
+        let mut ingested_files = 0usize;
+        let mut ingested_tokens = 0usize;
+        for entry in entries {
+            if let Some((raw_path, content)) = entry.split_once('\n') {
+                let path_trimmed = raw_path.trim();
+                if path_trimmed.is_empty() {
+                    continue;
+                }
+                let tokens = self.tokenize(content);
+                ingested_tokens += tokens.len();
+                for pair in tokens.windows(2).take(64) {
+                    let p_root = usize::from(pair[0].e8_root) % E8_ROOT_COUNT;
+                    let r_root = usize::from(pair[1].e8_root) % E8_ROOT_COUNT;
+                    self.occupied_cells[p_root][r_root] = true;
+                }
+                let _ = self.workspace_write_json(&format!("{path_trimmed}\n{content}"));
+                ingested_files += 1;
+            }
+        }
+        let base_list = self.workspace_list_json();
+        if let Some(stripped) = base_list.strip_suffix('}') {
+            format!(
+                "{stripped},\"batch_ingested_files\":{ingested_files},\"batch_ingested_tokens\":{ingested_tokens}}}"
+            )
+        } else {
+            base_list
         }
     }
 
@@ -3054,6 +3278,7 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "workspace_read" => engine.workspace_read_json(payload),
         "workspace_write" => engine.workspace_write_json(payload),
         "workspace_pin" => engine.workspace_pin_json(payload),
+        "workspace_batch" => engine.workspace_batch_json(payload),
         "chat" => engine.chat_assistant_json(payload),
         "admit" => {
             let (prompt_part, reply_part) = if let Some((p, r)) = payload.split_once('\n') {
@@ -3264,12 +3489,12 @@ mod tests {
             1_000_000
         );
 
-        // 6. Verify UORLUT01 + UR4SESS1 binary snapshot export, reset, and round-trip import
+        // 6. Verify UORLUT01 + UR4SESS1 + UR4WGHT1 binary snapshot export, reset, and round-trip import
         let exp_raw = dispatch_string("1\tstudio\texport_snapshot\t");
         let exp_json: serde_json::Value =
             serde_json::from_str(&exp_raw).expect("valid export_snapshot JSON");
         assert_eq!(exp_json["status"], "ok");
-        assert_eq!(exp_json["container_magic"], "UORLUT01+UR4SESS1");
+        assert_eq!(exp_json["container_magic"], "UORLUT01+UR4SESS1+UR4WGHT1");
         assert_eq!(exp_json["data_offset_aligned_64"], true);
         assert_eq!(exp_json["probe_outcome"], "AdmittedStack(8)");
         assert_eq!(exp_json["turn_count"], 21);
@@ -3296,7 +3521,7 @@ mod tests {
         assert_eq!(refused_json["status"], "error");
         assert_eq!(refused_json["reason"], "RefusedRetiredUor4");
 
-        // 7. Verify On-Device Coupled Coordinate-Sweep Training (R4.Learning.evaluateCoupledGateVector)
+        // 7. Verify On-Device Coupled Coordinate-Sweep Training across full sequences & workspace code (Phase 5)
         let train_raw = dispatch_string("1\tstudio\ttrain\t3");
         let train_json: serde_json::Value =
             serde_json::from_str(&train_raw).expect("valid train JSON");
@@ -3308,8 +3533,10 @@ mod tests {
         );
         assert!(train_json["coupled_gate_escapes"].as_u64().unwrap() > 0);
         assert!(train_json["active_nonzero_gates"].as_u64().unwrap() > 0);
+        assert!(train_json["sequence_transitions_trained"].as_u64().unwrap() > 20);
+        assert!(train_json["workspace_tokens_indexed"].as_u64().unwrap() > 0);
 
-        // 8. Verify Virtual Workspace list, write, pin, and Claude-Code-Desktop Chat synthesis
+        // 8. Verify Virtual Workspace list, write, batch mount (Phase 7), pin, and Claude-Code-Desktop Chat synthesis
         let ws_raw = dispatch_string("1\tstudio\tworkspace_list\t");
         let ws_json: serde_json::Value =
             serde_json::from_str(&ws_raw).expect("valid workspace_list JSON");
@@ -3323,6 +3550,33 @@ mod tests {
             serde_json::from_str(&write_raw).expect("valid workspace_write JSON");
         assert_eq!(write_json["status"], "ok");
         assert_eq!(write_json["file_count"], 5);
+
+        let batch_raw = dispatch_string(
+            "1\tstudio\tworkspace_batch\tsrc/batch_a.rs\npub fn batch_a_orbit(x: u8) -> u8 { x ^ 1 }\n===FILE===\nsrc/batch_b.rs\npub fn batch_b_orbit(x: u8) -> u8 { x ^ 2 }\n",
+        );
+        let batch_json: serde_json::Value =
+            serde_json::from_str(&batch_raw).expect("valid workspace_batch JSON");
+        assert_eq!(batch_json["status"], "ok");
+        assert_eq!(batch_json["batch_ingested_files"], 2);
+        assert!(batch_json["batch_ingested_tokens"].as_u64().unwrap() > 0);
+        assert_eq!(batch_json["file_count"], 7);
+
+        // Verify UR4WGHT1 persists trained epoch, gates, and mounted workspace files across reset (Phase 6)
+        let exp2_raw = dispatch_string("1\tstudio\texport_snapshot\t");
+        let exp2_json: serde_json::Value =
+            serde_json::from_str(&exp2_raw).expect("valid export_snapshot 2 JSON");
+        let hex2 = exp2_json["hex_payload"].as_str().unwrap().to_string();
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let imp2_raw = dispatch_string(&format!("1\tstudio\timport_snapshot\t{hex2}"));
+        let imp2_json: serde_json::Value =
+            serde_json::from_str(&imp2_raw).expect("valid import_snapshot 2 JSON");
+        assert_eq!(imp2_json["status"], "ok");
+        assert_eq!(imp2_json["training_epoch"], 3);
+        assert!(imp2_json["active_nonzero_gates"].as_u64().unwrap() > 0);
+        let ws2_raw = dispatch_string("1\tstudio\tworkspace_list\t");
+        let ws2_json: serde_json::Value =
+            serde_json::from_str(&ws2_raw).expect("valid workspace_list 2 JSON");
+        assert_eq!(ws2_json["file_count"], 7);
 
         let chat_raw = dispatch_string(
             "1\tstudio\tchat\tUpgrade multi-head cyclic flock attention in src/attention.rs",

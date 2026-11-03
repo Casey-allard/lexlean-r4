@@ -16,6 +16,8 @@ const admitReplyInput = document.getElementById('admit-reply');
 const admitResetBtn = document.getElementById('admit-reset-btn');
 const snapshotExportBtn = document.getElementById('snapshot-export-btn');
 const snapshotImportBtn = document.getElementById('snapshot-import-btn');
+const snapshotDownloadBtn = document.getElementById('snapshot-download-btn');
+const snapshotUploadInput = document.getElementById('snapshot-upload-input');
 const snapshotHexInput = document.getElementById('snapshot-hex-input');
 const admitStatus = document.getElementById('admit-status');
 
@@ -31,10 +33,12 @@ const workspaceFileList = document.getElementById('workspace-file-list');
 const workspacePinnedBadge = document.getElementById('workspace-pinned-badge');
 const workspaceNewForm = document.getElementById('workspace-new-form');
 const workspaceNewPath = document.getElementById('workspace-new-path');
+const workspaceMountInput = document.getElementById('workspace-mount-input');
 const editorFilePath = document.getElementById('editor-file-path');
 const editorFileReceipt = document.getElementById('editor-file-receipt');
 const workspaceEditorTextarea = document.getElementById('workspace-editor-textarea');
 const workspaceSaveBtn = document.getElementById('workspace-save-btn');
+const workspaceDownloadBtn = document.getElementById('workspace-download-btn');
 const workspaceStatus = document.getElementById('workspace-status');
 
 const claudeChatForm = document.getElementById('claude-chat-form');
@@ -54,6 +58,8 @@ const trainEpochsInput = document.getElementById('train-epochs-input');
 const trainStatLoss = document.getElementById('train-stat-loss');
 const trainStatEscapes = document.getElementById('train-stat-escapes');
 const trainStatGates = document.getElementById('train-stat-gates');
+const trainStatTransitions = document.getElementById('train-stat-transitions');
+const trainStatWsTokens = document.getElementById('train-stat-ws-tokens');
 const trainStatReceipt = document.getElementById('train-stat-receipt');
 const trainHistoryTbody = document.getElementById('train-history-tbody');
 
@@ -329,6 +335,12 @@ function runOnDeviceTrain(epochsText) {
   if (trainStatGates) {
     trainStatGates.textContent = `${res.active_nonzero_gates} / 40 active`;
   }
+  if (trainStatTransitions && typeof res.sequence_transitions_trained === 'number') {
+    trainStatTransitions.textContent = `${res.sequence_transitions_trained} pairs`;
+  }
+  if (trainStatWsTokens && typeof res.workspace_tokens_indexed === 'number') {
+    trainStatWsTokens.textContent = `${res.workspace_tokens_indexed} tokens`;
+  }
   if (trainStatReceipt) {
     trainStatReceipt.textContent = res.receipt_sha256 ? res.receipt_sha256.slice(0, 24) : '';
   }
@@ -603,14 +615,89 @@ if (snapshotImportBtn) {
     const state = dispatchStudioEnvelope('import_snapshot', hexPayload);
     if (state && state.status === 'ok') {
       renderStudioState(state);
+      const ws = dispatchStudioEnvelope('workspace_list', '');
+      renderWorkspaceList(ws);
       if (admitStatus) {
-        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 snapshot (${state.turn_count} turns, SHA-256: ${state.state_receipt_sha256})`;
+        admitStatus.textContent = `Imported UORLUT01/8 + UR4SESS1 + UR4WGHT1 snapshot (${state.turn_count} turns, SHA-256: ${state.state_receipt_sha256})`;
       }
       if (studioPromptInput) {
         runStudioGenerate(studioPromptInput.value);
       }
     } else if (admitStatus && state) {
       admitStatus.textContent = state.message || 'Snapshot import failed';
+    }
+  });
+}
+
+function hexCharToVal(ch) {
+  const code = ch.charCodeAt(0);
+  if (code >= 48 && code <= 57) return code - 48;
+  if (code >= 65 && code <= 70) return code - 55;
+  if (code >= 97 && code <= 102) return code - 87;
+  return 0;
+}
+
+function hexToBytes(hexStr) {
+  const clean = (hexStr || '').trim();
+  const len = Math.floor(clean.length / 2);
+  const out = new Uint8Array(len);
+  for (let i = 0; i < len; i += 1) {
+    out[i] = (hexCharToVal(clean[i * 2]) << 4) | hexCharToVal(clean[i * 2 + 1]);
+  }
+  return out;
+}
+
+function bytesToHex(bytes) {
+  const alphabet = '0123456789abcdef';
+  let out = '';
+  for (let i = 0; i < bytes.length; i += 1) {
+    const b = bytes[i];
+    out += alphabet[(b >> 4) & 0x0f] + alphabet[b & 0x0f];
+  }
+  return out;
+}
+
+if (snapshotDownloadBtn) {
+  snapshotDownloadBtn.addEventListener('click', () => {
+    const snap = dispatchStudioEnvelope('export_snapshot', '');
+    if (!snap || snap.status !== 'ok') return;
+    const hex = snap.hex_payload || '';
+    if (snapshotHexInput) snapshotHexInput.value = hex;
+    const rawBytes = hexToBytes(hex);
+    const blob = new Blob([rawBytes], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'uor-r4-weights.uorlut';
+    a.click();
+    URL.revokeObjectURL(url);
+    if (admitStatus) {
+      admitStatus.textContent = `Downloaded ${snap.byte_length}-byte uor-r4-weights.uorlut weight pack (SHA-256: ${snap.snapshot_sha256})`;
+    }
+  });
+}
+
+if (snapshotUploadInput) {
+  snapshotUploadInput.addEventListener('change', async () => {
+    const file = snapshotUploadInput.files && snapshotUploadInput.files[0];
+    if (!file) return;
+    const arrayBuf = await file.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuf);
+    let hexPayload = '';
+    if (bytes.length >= 8 && bytes[0] === 0x55 && bytes[1] === 0x4f && bytes[2] === 0x52) {
+      hexPayload = bytesToHex(bytes);
+    } else {
+      hexPayload = decoder.decode(bytes).trim();
+    }
+    if (snapshotHexInput) snapshotHexInput.value = hexPayload;
+    const state = dispatchStudioEnvelope('import_snapshot', hexPayload);
+    if (state && state.status === 'ok') {
+      renderStudioState(state);
+      const ws = dispatchStudioEnvelope('workspace_list', '');
+      renderWorkspaceList(ws);
+      if (admitStatus) {
+        admitStatus.textContent = `Loaded pre-trained weight pack ${file.name} (${state.turn_count} turns, ${state.training_epoch} epochs, ${state.active_nonzero_gates} gates)`;
+      }
     }
   });
 }
@@ -690,6 +777,47 @@ if (workspaceSaveBtn) {
       renderStudioState(st);
       if (workspaceStatus) {
         workspaceStatus.textContent = `Saved ${activeWorkspacePath} and admitted updated tokens into geometric memory.`;
+      }
+    }
+  });
+}
+
+if (workspaceDownloadBtn) {
+  workspaceDownloadBtn.addEventListener('click', () => {
+    const content = workspaceEditorTextarea ? workspaceEditorTextarea.value : '';
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const baseName = (activeWorkspacePath || 'module.rs').split('/').pop() || 'module.rs';
+    a.download = baseName;
+    a.click();
+    URL.revokeObjectURL(url);
+    if (workspaceStatus) {
+      workspaceStatus.textContent = `Exported ${activeWorkspacePath} (${content.length} bytes) to local disk.`;
+    }
+  });
+}
+
+if (workspaceMountInput) {
+  workspaceMountInput.addEventListener('change', async () => {
+    const files = workspaceMountInput.files;
+    if (!files || files.length === 0) return;
+    const chunks = [];
+    for (let i = 0; i < files.length; i += 1) {
+      const f = files[i];
+      const text = await f.text();
+      const relPath = f.webkitRelativePath || `src/${f.name}`;
+      chunks.push(`${relPath}\n${text}`);
+    }
+    const batchPayload = chunks.join('\n===FILE===\n');
+    const ws = dispatchStudioEnvelope('workspace_batch', batchPayload);
+    if (ws && ws.status === 'ok') {
+      renderWorkspaceList(ws);
+      const st = dispatchStudioEnvelope('state', '');
+      renderStudioState(st);
+      if (workspaceStatus) {
+        workspaceStatus.textContent = `Mounted ${ws.batch_ingested_files} local file(s) (${ws.batch_ingested_tokens} tokens indexed into geometric memory).`;
       }
     }
   });
