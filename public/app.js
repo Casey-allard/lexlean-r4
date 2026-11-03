@@ -323,6 +323,8 @@ function runClaudeChat(promptText) {
   if (gen.status === 'ok') {
     renderInferenceResult(gen);
   }
+  const latestState = dispatchStudioEnvelope('state', '');
+  renderStudioState(latestState);
 }
 
 function runOnDeviceTrain(epochsText) {
@@ -548,7 +550,7 @@ if (studioPromptForm) {
   });
 }
 
-for (const btn of document.querySelectorAll('.preset-btn')) {
+for (const btn of document.querySelectorAll('.preset-btn[data-prompt]')) {
   btn.addEventListener('click', () => {
     const promptVal = btn.getAttribute('data-prompt') || '';
     if (studioPromptInput) {
