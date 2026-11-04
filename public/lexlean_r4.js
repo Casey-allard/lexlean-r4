@@ -346,7 +346,7 @@ export async function restore_cached_uorlut_from_indexeddb() {
             getReq.onerror = () => reject(getReq.error);
         });
         db.close();
-        if (record && record.bytes && record.bytes.byteLength >= 64 && wasm !== undefined) {
+        if (record && record.bytes && record.bytes.byteLength >= 200000000 && wasm !== undefined) {
             const bytes = record.bytes instanceof Uint8Array
                 ? record.bytes
                 : new Uint8Array(record.bytes);
@@ -412,7 +412,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
                 const hit = await cache.match(cacheKey);
                 if (hit && hit.ok) {
                     globalThis.__uorWeightCacheMeta = {
-                        status: 'CacheStorage Hit (UORLUT01/8 · 22.4 MB)',
+                        status: 'CacheStorage Hit (UORLUT01/8 · 64.7 MB)',
                         sha256: expectedSha,
                         mode: 'hit'
                     };
@@ -433,7 +433,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
                     // Quota or private-browsing fallback
                 }
                 globalThis.__uorWeightCacheMeta = {
-                    status: forceRefresh ? 'Re-Synced & Cached (UORLUT01/8 · 22.4 MB)' : 'Cached in Browser (UORLUT01/8 · 22.4 MB)',
+                    status: forceRefresh ? 'Re-Synced & Cached (UORLUT01/8 · 64.7 MB)' : 'Cached in Browser (UORLUT01/8 · 64.7 MB)',
                     sha256: expectedSha,
                     mode: forceRefresh ? 'resynced' : 'cached'
                 };
@@ -446,155 +446,206 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
 
     const directResp = await fetch(versionedUrl);
     globalThis.__uorWeightCacheMeta = {
-        status: 'Direct Wasm Load (UORLUT01/8 · 22.4 MB)',
+        status: 'Direct Wasm Load (UORLUT01/8 · 64.7 MB)',
         sha256: expectedSha,
         mode: 'direct'
     };
     return directResp;
 }
 
+let __activeWeightStreamPromise = null;
+const __streamProgressListeners = new Set();
+
 export async function stream_sharded_weights_to_indexeddb(onProgress, forceReload) {
-    let manifest = null;
-    let basePrefix = '';
-    const candidateManifests = [
-        { url: new URL('weights/manifest.json', import.meta.url), prefix: '' },
-        { url: new URL('../gpu/weights/manifest.json', import.meta.url), prefix: '../gpu/' }
-    ];
-    for (const cand of candidateManifests) {
+    if (typeof onProgress === 'function') {
+        __streamProgressListeners.add(onProgress);
+    }
+    if (__activeWeightStreamPromise && !forceReload) {
         try {
-            const resp = await fetch(cand.url, { cache: 'no-store' });
-            if (resp && resp.ok) {
-                const json = await resp.json();
-                if (json && Array.isArray(json.shards) && json.shards.length > 0 && json.total_bytes > 0) {
-                    manifest = json;
-                    basePrefix = cand.prefix;
-                    break;
-                }
+            return await __activeWeightStreamPromise;
+        } finally {
+            if (typeof onProgress === 'function') {
+                __streamProgressListeners.delete(onProgress);
             }
-        } catch (_e) {
-            // Try next candidate path
-        }
-    }
-    if (!manifest) {
-        return null;
-    }
-
-    if (!forceReload && globalThis.__uorWeightCacheMeta && globalThis.__uorWeightCacheMeta.mode === 'indexeddb') {
-        if (globalThis.__uorWeightCacheMeta.sha256 === manifest.sha256) {
-            return {
-                status: 'ok',
-                cached: true,
-                byte_len: manifest.total_bytes,
-                sha256: manifest.sha256,
-                opening_entries: manifest.opening_entries,
-                reply_entries: manifest.reply_entries,
-                point_rows: manifest.point_rows
-            };
         }
     }
 
-    const totalBytes = manifest.total_bytes;
-    const totalShards = manifest.shards.length;
-    const fullBytes = new Uint8Array(totalBytes);
-    const shardOffsets = new Array(totalShards);
-    let runningOffset = 0;
-    for (let i = 0; i < totalShards; i++) {
-        shardOffsets[i] = runningOffset;
-        runningOffset += manifest.shards[i].bytes;
-    }
-
-    let cache = null;
-    if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
-        try {
-            cache = await caches.open(WEIGHT_CACHE_NAME);
-        } catch (_e) {
-            cache = null;
-        }
-    }
-
-    let completedShards = 0;
-    let completedBytes = 0;
-    const batchSize = 16;
-
-    for (let start = 0; start < totalShards; start += batchSize) {
-        const end = Math.min(start + batchSize, totalShards);
-        const batchPromises = [];
-        for (let idx = start; idx < end; idx++) {
-            const shard = manifest.shards[idx];
-            const shardUrl = new URL(basePrefix + shard.path + '?sha256=' + shard.sha256, import.meta.url);
-            batchPromises.push((async () => {
-                let resp = null;
-                if (cache && !forceReload) {
-                    try {
-                        const hit = await cache.match(shardUrl.toString());
-                        if (hit && hit.ok) {
-                            resp = hit;
-                        }
-                    } catch (_ce) {
-                        resp = null;
+    const runStream = async () => {
+        let manifest = null;
+        let basePrefix = '';
+        const candidateManifests = [
+            { url: new URL('weights/manifest.json', import.meta.url), prefix: '' },
+            { url: new URL('../gpu/weights/manifest.json', import.meta.url), prefix: '../gpu/' }
+        ];
+        for (const cand of candidateManifests) {
+            try {
+                const resp = await fetch(cand.url, { cache: 'no-store' });
+                if (resp && resp.ok) {
+                    const json = await resp.json();
+                    if (json && Array.isArray(json.shards) && json.shards.length > 0 && json.total_bytes > 0) {
+                        manifest = json;
+                        basePrefix = cand.prefix;
+                        break;
                     }
                 }
-                if (!resp) {
-                    resp = await fetch(shardUrl, { cache: forceReload ? 'reload' : 'default' });
-                    if (!resp || !resp.ok) {
-                        throw new Error('Failed to fetch shard ' + shard.index);
-                    }
-                    if (cache) {
-                        try {
-                            await cache.put(shardUrl.toString(), resp.clone());
-                        } catch (_pe) {
-                            // Ignore quota errors
-                        }
-                    }
-                }
-                const ab = await resp.arrayBuffer();
-                const u8 = new Uint8Array(ab);
-                fullBytes.set(u8, shardOffsets[idx]);
-                completedShards += 1;
-                completedBytes += u8.byteLength;
-            })());
+            } catch (_e) {
+                // Try next candidate path
+            }
         }
-        await Promise.all(batchPromises);
-        const pct = Math.floor((completedShards * 100) / totalShards);
-        const mbDone = (completedBytes / (1024 * 1024)).toFixed(1);
+        if (!manifest) {
+            return null;
+        }
+
+        if (!forceReload && globalThis.__uorWeightCacheMeta && globalThis.__uorWeightCacheMeta.mode === 'indexeddb') {
+            if (globalThis.__uorWeightCacheMeta.sha256 === manifest.sha256) {
+                return {
+                    status: 'ok',
+                    cached: true,
+                    byte_len: manifest.total_bytes,
+                    sha256: manifest.sha256,
+                    opening_entries: manifest.opening_entries,
+                    reply_entries: manifest.reply_entries,
+                    point_rows: manifest.point_rows
+                };
+            }
+        }
+
+        const totalBytes = manifest.total_bytes;
+        const totalShards = manifest.shards.length;
+        const fullBytes = new Uint8Array(totalBytes);
+        const shardOffsets = new Array(totalShards);
+        let runningOffset = 0;
+        for (let i = 0; i < totalShards; i++) {
+            shardOffsets[i] = runningOffset;
+            runningOffset += manifest.shards[i].bytes;
+        }
+
+        let cache = null;
+        if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
+            try {
+                cache = await caches.open(WEIGHT_CACHE_NAME);
+            } catch (_e) {
+                cache = null;
+            }
+        }
+
+        let completedShards = 0;
+        let completedBytes = 0;
+        const batchSize = 12;
         const mbTotal = (totalBytes / (1024 * 1024)).toFixed(1);
-        globalThis.__uorWeightCacheMeta = {
-            status: `Streaming UORLUT01/8 (${mbDone}/${mbTotal} MB · ${pct}%)`,
-            sha256: manifest.sha256 || '',
-            mode: 'streaming'
-        };
-        if (typeof onProgress === 'function') {
-            onProgress({
+
+        const emitProgress = () => {
+            const pct = Math.floor((completedShards * 100) / totalShards);
+            const mbDone = (completedBytes / (1024 * 1024)).toFixed(1);
+            globalThis.__uorWeightCacheMeta = {
+                status: `Streaming 271.5 MB Weights (${mbDone}/${mbTotal} MB · ${pct}%)`,
+                sha256: manifest.sha256 || '',
+                mode: 'streaming'
+            };
+            const payload = {
                 completedShards,
                 totalShards,
                 completedBytes,
                 totalBytes,
                 percent: pct
-            });
+            };
+            for (const listener of __streamProgressListeners) {
+                try {
+                    listener(payload);
+                } catch (_le) {
+                    // Ignore listener error
+                }
+            }
+        };
+
+        emitProgress();
+
+        for (let start = 0; start < totalShards; start += batchSize) {
+            const end = Math.min(start + batchSize, totalShards);
+            const batchPromises = [];
+            for (let idx = start; idx < end; idx++) {
+                const shard = manifest.shards[idx];
+                const shardUrl = new URL(basePrefix + shard.path + '?sha256=' + shard.sha256, import.meta.url);
+                batchPromises.push((async () => {
+                    let resp = null;
+                    if (cache && !forceReload) {
+                        try {
+                            const hit = await cache.match(shardUrl.toString());
+                            if (hit && hit.ok) {
+                                resp = hit;
+                            }
+                        } catch (_ce) {
+                            resp = null;
+                        }
+                    }
+                    if (!resp) {
+                        let lastErr = null;
+                        for (let attempt = 0; attempt < 3; attempt++) {
+                            try {
+                                const fetched = await fetch(shardUrl, { cache: forceReload ? 'reload' : 'default' });
+                                if (fetched && fetched.ok) {
+                                    resp = fetched;
+                                    break;
+                                }
+                                lastErr = new Error('HTTP ' + (fetched ? fetched.status : 0) + ' on shard ' + shard.index);
+                            } catch (fe) {
+                                lastErr = fe;
+                            }
+                        }
+                        if (!resp) {
+                            throw lastErr || new Error('Failed to fetch shard ' + shard.index);
+                        }
+                        if (cache) {
+                            try {
+                                await cache.put(shardUrl.toString(), resp.clone());
+                            } catch (_pe) {
+                                // Ignore quota errors
+                            }
+                        }
+                    }
+                    const ab = await resp.arrayBuffer();
+                    const u8 = new Uint8Array(ab);
+                    fullBytes.set(u8, shardOffsets[idx]);
+                    completedShards += 1;
+                    completedBytes += u8.byteLength;
+                    emitProgress();
+                })());
+            }
+            await Promise.all(batchPromises);
+        }
+
+        const mb = (totalBytes / (1024 * 1024)).toFixed(1);
+        const sourceLabel = `AutoStream:UORLUT01/8 (${mb} MB)`;
+        const rawStatus = studio_load_uorlut_bytes(fullBytes, sourceLabel);
+        const parsed = JSON.parse(rawStatus);
+        if (parsed && parsed.status === 'ok') {
+            await cache_uorlut_in_indexeddb(fullBytes, sourceLabel);
+            globalThis.__uorWeightCacheMeta = {
+                status: `IndexedDB UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
+                sha256: parsed.sha256 || manifest.sha256 || '',
+                mode: 'indexeddb'
+            };
+            return parsed;
+        }
+        return null;
+    };
+
+    __activeWeightStreamPromise = runStream();
+    try {
+        return await __activeWeightStreamPromise;
+    } finally {
+        __activeWeightStreamPromise = null;
+        if (typeof onProgress === 'function') {
+            __streamProgressListeners.delete(onProgress);
         }
     }
-
-    const mb = (totalBytes / (1024 * 1024)).toFixed(1);
-    const sourceLabel = `AutoStream:UORLUT01/8 (${mb} MB)`;
-    const rawStatus = studio_load_uorlut_bytes(fullBytes, sourceLabel);
-    const parsed = JSON.parse(rawStatus);
-    if (parsed && parsed.status === 'ok') {
-        await cache_uorlut_in_indexeddb(fullBytes, sourceLabel);
-        globalThis.__uorWeightCacheMeta = {
-            status: `IndexedDB UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
-            sha256: parsed.sha256 || manifest.sha256 || '',
-            mode: 'indexeddb'
-        };
-        return parsed;
-    }
-    return null;
 }
 
 export async function sync_cached_weights(onProgress) {
-    const defaultUrl = new URL('lexlean_r4_bg.wasm', import.meta.url);
-    await __uor_resolve_cached_wasm(defaultUrl, true);
     const streamed = await stream_sharded_weights_to_indexeddb(onProgress, false);
     if (!streamed) {
+        const defaultUrl = new URL('lexlean_r4_bg.wasm', import.meta.url);
+        await __uor_resolve_cached_wasm(defaultUrl, true);
         await restore_cached_uorlut_from_indexeddb();
     }
     return globalThis.__uorWeightCacheMeta;

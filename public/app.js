@@ -8,7 +8,7 @@ import init, {
   studio_load_uorlut_bytes,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js';
+} from './lexlean_r4.js?v=20261104v8full';
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');
@@ -1270,6 +1270,7 @@ if (workspaceMountInput) {
 }
 
 const weightCacheBadge = document.getElementById('weight-cache-badge');
+const topbarModelTag = document.getElementById('topbar-model-tag');
 const syncWeightsBtn = document.getElementById('sync-weights-btn');
 const loadWeightsTopbarBtn = document.getElementById('load-weights-topbar-btn');
 
@@ -1280,11 +1281,23 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 }
 
 function updateWeightCacheBadge() {
-  if (!weightCacheBadge) return;
-  const meta = globalThis.__uorWeightCacheMeta || {};
-  const label = meta.status || 'Weights: UR4GLM08 · CacheStorage';
-  const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
-  weightCacheBadge.textContent = `${label}${shortSha}`;
+  if (weightCacheBadge) {
+    const meta = globalThis.__uorWeightCacheMeta || {};
+    const label = meta.status || 'Weights: UR4GLM08 · CacheStorage';
+    const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
+    weightCacheBadge.textContent = `${label}${shortSha}`;
+  }
+  if (topbarModelTag && typeof studio_weight_pack_status === 'function') {
+    try {
+      const packInfo = JSON.parse(studio_weight_pack_status());
+      if (packInfo && packInfo.status === 'ok') {
+        const mb = (packInfo.byte_len / (1024 * 1024)).toFixed(1);
+        topbarModelTag.textContent = `UORLUT01 (uor-r4.lut-stack/8) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
+      }
+    } catch {
+      // Ignore parse error during early boot
+    }
+  }
 }
 
 if (syncWeightsBtn) {
@@ -1352,10 +1365,16 @@ try {
     typeof stream_sharded_weights_to_indexeddb === 'function'
     && (!globalThis.__uorWeightCacheMeta || globalThis.__uorWeightCacheMeta.mode !== 'indexeddb')
   ) {
-    stream_sharded_weights_to_indexeddb(() => {
+    stream_sharded_weights_to_indexeddb((prog) => {
+      if (syncWeightsBtn && prog && typeof prog.percent === 'number') {
+        syncWeightsBtn.textContent = `Syncing ${prog.percent}%...`;
+      }
       updateWeightCacheBadge();
     }, false)
       .then((streamed) => {
+        if (syncWeightsBtn) {
+          syncWeightsBtn.textContent = 'Sync Weights';
+        }
         if (streamed && streamed.status === 'ok') {
           updateWeightCacheBadge();
           const st = dispatchStudioEnvelope('state', '');
@@ -1363,7 +1382,9 @@ try {
         }
       })
       .catch(() => {
-        // Offline or local environment without shards; keep embedded 64.7 MB model
+        if (syncWeightsBtn) {
+          syncWeightsBtn.textContent = 'Sync Weights';
+        }
       });
   }
 } catch (err) {

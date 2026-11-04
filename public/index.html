@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=20261104v8full">
 </head>
 <body>
   <main>
@@ -73,7 +73,7 @@
       <header class="gpt-topbar">
         <div class="model-selector">
           <h1 id="heading-claude-desktop">UOR-R4 Geometric Language Model</h1>
-          <span class="model-tag">UORLUT01 (uor-r4.lut-stack/8) &middot; 4,096 BPE &middot; 6-Layer SpiralCore/FBS &middot; 1,843,998 /7 Reply Rows &middot; 16,770 /8 Point Rows</span>
+          <span id="topbar-model-tag" class="model-tag">UORLUT01 (uor-r4.lut-stack/8) &middot; 4,096 BPE &middot; 6-Layer SpiralCore/FBS &middot; 1,843,998 /7 Reply Rows &middot; 16,770 /8 Point Rows</span>
         </div>
         <div class="topbar-actions">
           <span id="weight-cache-badge" class="topbar-context-pill">Weights: UORLUT01/8 (64.7 MB) &middot; CacheStorage + IndexedDB</span>
@@ -544,6 +544,6 @@
       </div>
     </div>
   </main>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=20261104v8full"></script>
 </body>
 </html>
