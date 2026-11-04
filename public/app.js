@@ -334,6 +334,7 @@ function renderProseBlockInto(container, proseText) {
 }
 
 function renderFormattedMarkdownInto(container, markdownText) {
+  container.replaceChildren();
   const fenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
   let lastIdx = 0;
   let match = fenceRegex.exec(markdownText);

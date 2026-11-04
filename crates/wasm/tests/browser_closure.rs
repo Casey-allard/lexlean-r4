@@ -418,6 +418,10 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(app_js.contains("studio_weight_pack_status"));
     assert!(app_js.contains("cache_uorlut_in_indexeddb"));
     assert!(app_js.contains("restore_cached_uorlut_from_indexeddb"));
+    assert!(
+        app_js.contains("function renderFormattedMarkdownInto(container, markdownText) {\n  container.replaceChildren();"),
+        "renderFormattedMarkdownInto must clear container.replaceChildren() before rendering streaming frames"
+    );
     assert!(index_html.contains("id=\"weight-cache-badge\""));
     assert!(index_html.contains("id=\"sync-weights-btn\""));
     assert!(binding_js.contains("export function studio_dispatch("));
