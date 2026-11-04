@@ -1060,11 +1060,17 @@ impl StudioEngine {
             || lower.contains("what is your architecture");
 
         if is_how_you_work {
-            return "I work quite differently from standard neural LLMs! Instead of using a Transformer with floating-point matrix multiplications (`matmul`) and `softmax` attention, I run a **pure-integer geometric language engine (`UR4GLM05`)** directly in your browser via WebAssembly:\n\n\
-                    1. **RTX 5090 Geometric Training**: My vocabulary stems (`6,077` 4-fiber stem rows), `111` domain concept basins, and `951` lookahead token horizons are trained on an **NVIDIA GeForce RTX 5090** using discrete coordinate sweeps over `Q12` fixed-point coordinates, `64-bit` quaternion sign codes, and `Cl(0,6)` ternary gates.\n\
-                    2. **$O(1)$ Per-Token Integer Retention**: As I read your prompt and step through tokens, I maintain 8 integer decay registers (`RETAIN_LAMBDA_Q31`) and a non-commutative 4D Hamilton quaternion state (`stackHamilton4D`) that snap onto $17^4 = 83,521$ discrete Base-17 Icosian trunk cells.\n\
-                    3. **Zero External API Calls**: Everything runs locally inside your browser tab with deterministic integer arithmetic.\n\n\
-                    Want to test me on a topic in history, science, world cities, philosophy, logic puzzles, math, or code?".to_string();
+            let version = crate::glm_weights::GLM_WEIGHTS_VERSION;
+            let n_vocab = crate::glm_weights::GLM_TRAINED_VOCAB.len();
+            let n_basins = crate::glm_weights::GLM_CONCEPT_MANIFOLD.len();
+            let n_horizons = crate::glm_weights::GLM_TOKEN_HORIZONS.len();
+            return format!(
+                "I work quite differently from standard neural LLMs! Instead of using a Transformer with floating-point matrix multiplications (`matmul`) and `softmax` attention, I run a **pure-integer geometric language engine (`{version}`)** directly in your browser via WebAssembly:\n\n\
+                 1. **RTX 5090 Geometric Training**: My vocabulary stems (`{n_vocab}` 4-fiber stem rows), `{n_basins}` domain concept basins, and `{n_horizons}` lookahead token horizons with `/7` geodesic continuation edges are trained on an **NVIDIA GeForce RTX 5090** using discrete coordinate sweeps over `Q12` fixed-point coordinates, `64-bit` quaternion sign codes, and `Cl(0,6)` ternary gates.\n\
+                 2. **$O(1)$ Per-Token Integer Retention**: As I read your prompt and step through tokens, I maintain integer decay registers (`RETAIN_LAMBDA_Q31`) and a non-commutative 4D Hamilton quaternion state (`stackHamilton4D`) that snap onto $17^4 = 83,521$ discrete Base-17 Icosian trunk cells.\n\
+                 3. **Zero External API Calls**: Everything runs locally inside your browser tab with deterministic integer arithmetic.\n\n\
+                 Want to test me on a topic in history, science, world cities, philosophy, logic puzzles, math, or code?"
+            );
         }
 
         let is_self_inquiry = lower.contains("who are you")

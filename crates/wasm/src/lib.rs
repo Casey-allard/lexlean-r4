@@ -4161,9 +4161,9 @@ mod tests {
         // 8. Verify UR4GLM06 CUDA hardware-trained weights & falsifiable geometric routing benchmark
         assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM06");
         assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
-        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 165);
-        assert!(glm_weights::GLM_TRAINED_VOCAB.len() >= 7_000);
-        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 1278);
+        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 170);
+        assert_eq!(glm_weights::GLM_TRAINED_VOCAB.len(), 8084);
+        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 1506);
         assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 105);
         assert!(glm_weights::GLM_CONCEPT_MANIFOLD
             .iter()
@@ -4171,13 +4171,14 @@ mod tests {
                 && n.clifford_action < 64
                 && n.icosian_root < 17
                 && n.h4_root < 120));
-        assert!(glm_weights::GLM_TOKEN_HORIZONS
-            .iter()
-            .all(
-                |h| (h.next_horizon_id as usize) < glm_weights::GLM_TOKEN_HORIZONS.len()
-                    && (h.alt_horizon_id as usize) < glm_weights::GLM_TOKEN_HORIZONS.len()
-                    && h.next_horizon_id != h.alt_horizon_id
-            ));
+        assert!(glm_weights::GLM_TOKEN_HORIZONS.iter().all(|h| {
+            let next_idx = h.next_horizon_id as usize;
+            let alt_idx = h.alt_horizon_id as usize;
+            next_idx < glm_weights::GLM_TOKEN_HORIZONS.len()
+                && alt_idx < glm_weights::GLM_TOKEN_HORIZONS.len()
+                && h.next_horizon_id != h.alt_horizon_id
+                && glm_weights::GLM_TOKEN_HORIZONS[alt_idx].basin_id != h.basin_id
+        }));
 
         // 8b. Verify Token-Level Autoregressive Geometric Prose Generation (O(1) per-token integer retention + 4D quaternion + Base-17 4-block trunk + /7 transitions)
         let prompt_words = vec![
@@ -4265,6 +4266,98 @@ mod tests {
                 || geo_anaphora.contains("Seine")
                 || geo_anaphora.contains("Haussmann"),
             "Anaphora 'there' must resolve to Paris, France: {geo_anaphora}"
+        );
+
+        // 11b. Verify multi-turn locative & pronoun anaphora without repeating Turn 1 opening sentence
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let paris_t1 = ask("Tell me about Paris");
+        assert!(paris_t1.contains("Paris"));
+        let paris_t1_first_sentence = paris_t1.split(". ").next().unwrap_or("");
+        let paris_food = ask("What is the food like there?");
+        assert!(
+            paris_food.contains("Paris")
+                && (paris_food.contains("boulangerie")
+                    || paris_food.contains("croissant")
+                    || paris_food.contains("bistro")
+                    || paris_food.contains("culinary")),
+            "Anaphoric follow-up 'What is the food like there?' must select culinary clauses of Paris: {paris_food}"
+        );
+        assert!(
+            !paris_food.starts_with(paris_t1_first_sentence),
+            "Anaphoric follow-up must not repeat Turn 1 opening sentence verbatim: {paris_food}"
+        );
+
+        // 11c. Verify 4-turn mixed person/place chain ("her discovery", "his theory", "there", "Compare Rome to living there")
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let curie_t1 = ask("Who was Marie Curie?");
+        assert!(curie_t1.contains("Curie"));
+        let einstein_t2 = ask("Who was Albert Einstein?");
+        assert!(einstein_t2.contains("Einstein"));
+        let paris_t3 = ask("Tell me about Paris");
+        assert!(paris_t3.contains("Paris"));
+        let there_t4 = ask("What is the food like there?");
+        assert!(
+            there_t4.contains("Paris"),
+            "Locative 'there' must resolve to Paris: {there_t4}"
+        );
+        let his_t5 = ask("Explain his theory");
+        assert!(
+            his_t5.contains("Einstein")
+                && (his_t5.contains("relativity") || his_t5.contains("spacetime")),
+            "Masculine 'his theory' must resolve to Albert Einstein across intervening turns: {his_t5}"
+        );
+        let her_t6 = ask("Tell me about her discovery");
+        assert!(
+            her_t6.contains("Curie")
+                && (her_t6.contains("polonium")
+                    || her_t6.contains("radium")
+                    || her_t6.contains("radioactivity")),
+            "Feminine 'her discovery' must resolve to Marie Curie across intervening turns: {her_t6}"
+        );
+        let comp_there = ask("Compare Rome to living there");
+        assert!(
+            comp_there.contains("Rome") && comp_there.contains("Paris"),
+            "Comparative anaphora 'Compare Rome to living there' must compare Rome and Paris: {comp_there}"
+        );
+
+        // 11d. Verify neutral pronoun ("it") and Deepening ("What are the trade-offs?") and past_a capital resolution
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let rome_emp = ask("Tell me about the Roman Empire");
+        assert!(rome_emp.contains("Roman"));
+        let rome_fall = ask("Why did it fall?");
+        assert!(
+            rome_fall.contains("Roman") || rome_fall.contains("Rome"),
+            "Pronoun 'it' in 'Why did it fall?' must resolve to The Roman Empire: {rome_fall}"
+        );
+        let btree_t1 = ask("Explain B-Trees");
+        assert!(btree_t1.contains("B-tree") || btree_t1.contains("B-Tree"));
+        let btree_tradeoffs = ask("What are the trade-offs?");
+        assert!(
+            btree_tradeoffs.contains("B-Tree")
+                && (btree_tradeoffs.contains("trade-off")
+                    || btree_tradeoffs.contains("amplification")
+                    || btree_tradeoffs.contains("LSM")),
+            "'What are the trade-offs?' must trigger Deepening on B-Trees: {btree_tradeoffs}"
+        );
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let cap_fr = ask("What is the capital of France?");
+        assert!(cap_fr.contains("Paris"));
+        let cap_arch = ask("What is the architecture like there?");
+        assert!(
+            cap_arch.contains("Paris")
+                || cap_arch.contains("Haussmann")
+                || cap_arch.contains("Gothic"),
+            "Follow-up 'there' after capital lookup must resolve 'Paris' from past_a: {cap_arch}"
+        );
+
+        // 11e. Verify 'How do you work?' reports UR4GLM06, 8084 stems, 170 basins, 1506 horizons
+        let how_work = ask("How do you work?");
+        assert!(
+            how_work.contains("UR4GLM06")
+                && how_work.contains("8084")
+                && how_work.contains("170")
+                && how_work.contains("1506"),
+            "How do you work response must report live UR4GLM06 manifold counts: {how_work}"
         );
 
         let rel = ask("Explain the theory of relativity");

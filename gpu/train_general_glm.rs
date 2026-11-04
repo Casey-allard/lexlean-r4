@@ -389,6 +389,45 @@ fn project_hopf_q15(q12: &[i16; POINT_KEY_DIM]) -> ([i16; 3], [i16; 2]) {
     )
 }
 
+fn split_section_horizon_clauses(sec_text: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    for raw_sent in sec_text.split(". ") {
+        let s_trim = raw_sent.trim();
+        if s_trim.len() < 25 {
+            continue;
+        }
+        if s_trim.len() >= 95 && s_trim.contains("; ") {
+            let parts: Vec<&str> = s_trim
+                .split("; ")
+                .map(str::trim)
+                .filter(|p| p.len() >= 25)
+                .collect();
+            if parts.len() >= 2 {
+                out.extend(parts);
+                continue;
+            }
+        }
+        if s_trim.len() >= 115 && (s_trim.contains(", while ") || s_trim.contains(", whereas ")) {
+            let sep = if s_trim.contains(", while ") {
+                ", while "
+            } else {
+                ", whereas "
+            };
+            let parts: Vec<&str> = s_trim
+                .split(sep)
+                .map(str::trim)
+                .filter(|p| p.len() >= 28)
+                .collect();
+            if parts.len() >= 2 {
+                out.extend(parts);
+                continue;
+            }
+        }
+        out.push(s_trim);
+    }
+    out
+}
+
 /// Extract basin targets, vocabulary stem co-occurrence specs, and token-level sentence horizon windows
 /// STRICTLY from the 5 training prose paragraphs (`s1..s5`) of each basin — never inspecting `keywords`, `phrases`, or `title`.
 fn extract_corpus_targets() -> (
@@ -426,7 +465,7 @@ fn extract_corpus_targets() -> (
     // Build vocabulary stem specifications strictly from training prose co-occurrence
     let mut vocab_specs = Vec::new();
     for (stem, &df) in &global_df {
-        if df == 0 || df > 40 {
+        if df == 0 || df > 50 {
             continue;
         }
         // Rank basins containing `stem` by normalized term frequency in the training prose
@@ -598,18 +637,15 @@ fn extract_corpus_targets() -> (
         });
     }
 
-    // Extract token-level sentence/clause horizon specs across all 5 prose sections of all 111 basins
+    // Extract token-level sentence/clause horizon specs across all 5 prose sections of all 170 basins
     let mut horizon_specs = Vec::new();
     for (b_idx, &(_dom, _title, _kws, _phs, s1, s2, s3, s4, s5)) in
         RAW_GLM_CONCEPTS.iter().enumerate()
     {
         let sections = [s1, s2, s3, s4, s5];
         for (sec_idx, &sec_text) in sections.iter().enumerate() {
-            for (sent_idx, raw_sent) in sec_text.split(". ").enumerate() {
-                let s_trim = raw_sent.trim();
-                if s_trim.len() < 25 {
-                    continue;
-                }
+            let clauses = split_section_horizon_clauses(sec_text);
+            for (sent_idx, s_trim) in clauses.into_iter().enumerate() {
                 let words = tokenize_prose_words(s_trim);
                 let mut vocab_ids = [u16::MAX; 8];
                 let mut write_slot = 0usize;
@@ -716,12 +752,11 @@ fn compute_host_horizon_geometry(
             .enumerate()
             .find(|&(ci, cs)| {
                 ci != h_idx
-                    && ci != usize::from(next_horizon_id)
-                    && cs.basin_id == spec.basin_id
-                    && cs.section_idx != spec.section_idx
+                    && cs.basin_id != spec.basin_id
+                    && cs.section_idx == target_sec
             })
             .map(|(ci, _)| ci as u16)
-            .unwrap_or(((h_idx + 2) % total) as u16);
+            .unwrap_or(((h_idx + 17) % total) as u16);
         out.push(TrainedHorizonGeometry {
             horizon_q12,
             horizon_sign,

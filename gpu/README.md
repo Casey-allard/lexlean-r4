@@ -1,6 +1,6 @@
 # UOR-R4 CUDA GPU Training Pipeline & Cost Analysis
 
-This directory contains the pure-CUDA (`compute_75` through `compute_120` / Blackwell RTX 5090) and pure-Rust (`rustc`) training and quantization pipeline for the **UOR-R4 Geometric Language Model (GLM)** (`UR4GLM03`). There are **zero Python scripts** and **zero Transformer components** anywhere in this repository.
+This directory contains the pure-CUDA (`compute_75` through `compute_120` / Blackwell RTX 5090) and pure-Rust (`rustc`) training and quantization pipeline for the **UOR-R4 Geometric Language Model (GLM)** (`UR4GLM06`). There are **zero Python scripts** and **zero Transformer components** anywhere in this repository.
 
 ## 1. CUDA & Pure-Rust Training Inventory
 
@@ -11,12 +11,12 @@ This directory contains the pure-CUDA (`compute_75` through `compute_120` / Blac
 | `spiralcore_fbs_arms.cu` | `R4.ExactArithmetic` (`R4-27`) | 5-arm causal ablation and radix-$B$ place-value carry kernels. |
 | `spiralcore_fbs_arms_prelude.cu` | Device Prelude | Fixed-point `Q12` / `Q24` / `Q31` device constants and warp reductions. |
 | `discrete.cu` | `R4.DiscreteTrunk` (`R4-25`) | 19-table M1 discrete trunk (`12,288` bits/token) and `evaluateCoupledGateVector` discrete coordinate sweeps. |
-| `general_glm.cu` | `R4.Learning` / `UR4GLM03` | Multi-domain Generalized GLM CUDA manifold trainer (`train_general_glm_manifold_kernel`): 1,024-epoch coupled `(gate, vectorBlock)` coordinate sweeps over 8-lane `Q12` coordinates, `Hopf S^3 -> S^2` base/fiber projections, 128-bit `VSA` hypervectors, `E8`/`Cl(0,6)`/`Icosian`/`H4` lattice indices, and 40-lane ternary gates (`{-1, 0, +1}`). |
-| `glm_corpus.rs` | `UR4GLM03` Knowledge & Prose Corpus | Pure-Rust corpus defining 111 multi-domain natural prose basins (`RAW_GLM_CONCEPTS`), 7 formal logic puzzle solvers (`RAW_GLM_PUZZLES`), and 29 conversational & common-sense Q&A basins (`RAW_GLM_CONV_QA`). |
-| `glm_reasoner_template.rs` | `UR4GLM03` Inference Engine | Pure-Rust natural-prose geometric decoder (`synthesize_general_glm_response`) using `Hopf` fiber alignment, 128-bit `VSA` Hamming resonance, `Q12` cosine similarity, and `SWAR` quaternion sign parity. |
-| `train_general_glm.rs` | `UR4GLM03` Pure-Rust Compiler | Standalone Rust binary (`rustc --edition 2021 -O gpu/train_general_glm.rs`) that emits CUDA binary targets (`--emit-cuda-targets`) and compiles the trained `gpu/rtx5090_glm_weights.bin` directly into `crates/wasm/src/glm_weights.rs` (`--compile-rust`). |
-| `rtx5090_glm_weights.bin` | `UR4GLM03` Trained CUDA Tensor | Binary device weight pack (`7,996` bytes, magic `UR4GLM03`) produced by `general_glm.cu` on an NVIDIA GeForce RTX 5090 (`sm_120`). |
-| `rtx5090_training_receipt.json` | `uor-r4/cuda-glm-training-receipt/1` | Hardware execution receipt from the NVIDIA GeForce RTX 5090 (`1,024` epochs, `60.167 ms`, loss `355,574 -> 0`, `111` coupled escapes, `40/40` active ternary gates). |
+| `general_glm.cu` | `R4.Learning` / `UR4GLM06` | Multi-domain Generalized GLM 4-kernel CUDA trainer (`train_glm_vocab_embedding_kernel`, `train_general_glm_manifold_kernel`, `train_glm_token_horizons_kernel`, `train_glm_horizon_transitions_kernel`): 1,024-epoch coupled `(gate, vectorBlock)` coordinate sweeps over 8-lane `Q12` coordinates, `Hopf S^3 -> S^2` base/fiber projections, 128-bit `VSA` hypervectors, `E8`/`Cl(0,6)`/`Icosian`/`H4` lattice indices, `/7` horizon-to-horizon geodesic continuation edges (`next_horizon_id`, `alt_horizon_id`, `transition_energy`), and 40-lane ternary gates (`{-1, 0, +1}`). |
+| `glm_corpus.rs` | `UR4GLM06` Knowledge & Prose Corpus | Pure-Rust corpus defining 170 multi-domain natural prose basins (`RAW_GLM_CONCEPTS`), 7 formal logic puzzle solvers (`RAW_GLM_PUZZLES`), and 105 conversational & common-sense Q&A basins (`RAW_GLM_CONV_QA`). |
+| `glm_reasoner_template.rs` | `UR4GLM06` Inference Engine | Pure-Rust natural-prose geometric decoder (`synthesize_general_glm_response`) with multi-turn pragmatic discourse state, pronoun/locative anaphora resolution (`GLM_RETAIN_LAMBDA_Q31[6]`), `/7` horizon geodesic continuation, `Hopf` fiber alignment, 128-bit `VSA` Hamming resonance, `Q12` cosine similarity, and `SWAR` quaternion sign parity. |
+| `train_general_glm.rs` | `UR4GLM06` Pure-Rust Compiler | Standalone Rust binary (`rustc --edition 2021 -O gpu/train_general_glm.rs`) that emits CUDA binary targets (`--emit-cuda-targets`) and compiles the trained `gpu/rtx5090_glm_weights.bin` directly into `crates/wasm/src/glm_weights.rs` (`--compile-rust`). |
+| `rtx5090_glm_weights.bin` | `UR4GLM06` Trained CUDA Tensor | Binary device weight pack (magic `UR4GLM06`, `170` basins, `8,084` vocabulary stems, `1,506` token horizons) produced by `general_glm.cu` on an NVIDIA GeForce RTX 5090 (`sm_120`). |
+| `rtx5090_training_receipt.json` | `uor-r4/cuda-glm-training-receipt/3` | Hardware execution receipt from the NVIDIA GeForce RTX 5090 (`1,024` manifold epochs, `512` vocab epochs, `256` horizon epochs, `128` transition epochs). |
 
 ## 2. Reproducing the Pure-Rust + CUDA Training Pass
 
@@ -39,7 +39,7 @@ Because UOR-R4 replaces dense $O(N^2 \cdot d)$ floating-point attention matrices
 
 | Run Tier | Dataset | Steps | Tokens Processed | Hardware | Rental Rate | Wall-Clock Time | **Total GPU Cost** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **UR4GLM03 Manifold (`rtx5090_glm_weights.bin`)** | 111 Basins + 29 Conv QA + 7 Puzzles | `1,024` epochs | `111 × 1,024` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `60.2 ms` | **`< \$0.0001`** |
+| **UR4GLM06 Manifold (`rtx5090_glm_weights.bin`)** | 170 Basins + 105 Conv QA + 8,084 Vocab + 1,506 Horizons | `1,024` epochs | `170 × 1,024 + 8,084 × 512 + 1,506 × 384` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `< 1 sec` | **`< \$0.0002`** |
 | **B-s1 Smoke (`short.uorlut`)** | `mw-balp` + `TinyStories` | `256` (`2×128`) | `32,768` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `32 sec` | **`\$0.005`** |
 | **Served-s1 (`served-s1.uorlut`)** | `mw-balp` + `/7` + `/8` tables | `256` + `573,801` reply rows | `3.1M` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `6.4 min` | **`\$0.060`** |
 | **Long Production (`long.uorlut`)** | `mw-balp` + `TinyStories` + `OpenWebText` | `8,192` | `16.7M` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `16.0 min` | **`\$0.150`** |
@@ -47,7 +47,7 @@ Because UOR-R4 replaces dense $O(N^2 \cdot d)$ floating-point attention matrices
 
 ## 4. Bundled Artifacts in `gpu/`
 
-1. **`gpu/rtx5090_glm_weights.bin`** (`7,996 B`, `UR4GLM03` binary weight tensor trained on NVIDIA GeForce RTX 5090 `sm_120`) and **`gpu/rtx5090_training_receipt.json`**.
+1. **`gpu/rtx5090_glm_weights.bin`** (`UR4GLM06` binary weight tensor trained on NVIDIA GeForce RTX 5090 `sm_120`) and **`gpu/rtx5090_training_receipt.json`**.
 2. **`gpu/short.uorlut`** (`2.1 MB`, `UORLUT01` binary container, schema `uor-r4.lut-stack/6`, `vocab_size = 4,096`, `width = 256`, `n_layers = 6`, `n_heads = 16`, `head_dim = 16`, `n_quat_blocks = 64`). Can be loaded directly into the browser workbench via the `.uorlut` weight pack loader.
 3. **`gpu/served-s1.header.json`** (`uor-r4.lut-stack/8` full header manifest for the `573,801`-row `/7` + `33,219`-point `/8` GPU-trained stack).
 4. **`gpu/tokenizer.json`** (`109 KB`, SHA-256 `d36d3e8700a123e620012df77de195f244fbdb4d05d9e1aa7e77fa9407590f89`, canonical 4,096-piece number-aware byte-level BPE tokenizer).

@@ -304,7 +304,46 @@ impl Default for GlmRetentionState {
     }
 }
 
-/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM05`).
+fn split_section_horizon_clauses(sec_text: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    for raw_sent in sec_text.split(". ") {
+        let s_trim = raw_sent.trim();
+        if s_trim.len() < 25 {
+            continue;
+        }
+        if s_trim.len() >= 95 && s_trim.contains("; ") {
+            let parts: Vec<&str> = s_trim
+                .split("; ")
+                .map(str::trim)
+                .filter(|p| p.len() >= 25)
+                .collect();
+            if parts.len() >= 2 {
+                out.extend(parts);
+                continue;
+            }
+        }
+        if s_trim.len() >= 115 && (s_trim.contains(", while ") || s_trim.contains(", whereas ")) {
+            let sep = if s_trim.contains(", while ") {
+                ", while "
+            } else {
+                ", whereas "
+            };
+            let parts: Vec<&str> = s_trim
+                .split(sep)
+                .map(str::trim)
+                .filter(|p| p.len() >= 28)
+                .collect();
+            if parts.len() >= 2 {
+                out.extend(parts);
+                continue;
+            }
+        }
+        out.push(s_trim);
+    }
+    out
+}
+
+/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM06`).
 ///
 /// Steps one surface token at a time (`w_0 -> w_1 -> w_2 -> ... -> w_T`) across the active
 /// token transition lattice using:
@@ -353,11 +392,8 @@ pub fn generate_token_level_geometric_prose(
             node.example,
         ];
         for (sec_idx, &sec_text) in sections.iter().enumerate() {
-            for (sent_idx, raw_sent) in sec_text.split(". ").enumerate() {
-                let s_trim = raw_sent.trim();
-                if s_trim.len() < 25 {
-                    continue;
-                }
+            let clauses = split_section_horizon_clauses(sec_text);
+            for (sent_idx, s_trim) in clauses.into_iter().enumerate() {
                 let formatted =
                     if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
                         s_trim.to_string()
@@ -1312,18 +1348,34 @@ pub fn score_concept_geometric(
         geo_score += matched_vocab_fibers * 6;
     }
 
-    // Whole-prompt pooled Hopf S^3 -> S^2 x U(1) Fubini-Study & Q12 cosine resonance
-    // Always pool from the CUDA-trained `GLM_TRAINED_VOCAB` coordinates first so non-domain fallback hashes never trigger false matches.
+    // Whole-prompt pooled Hopf S^3 -> S^2 x U(1) Fubini-Study & Q12 cosine resonance.
+    // Pool from the CUDA-trained `GLM_TRAINED_VOCAB` coordinates first; when `prompt_q12` carries
+    // a manifold-anchored retention vector (`GLM_RETAIN_LAMBDA_Q31[6]`), blend it with `trained_q12`.
     let (trained_q12, trained_sign) = pool_prompt_trained_geometry(words);
-    if matched_vocab_fibers == 0 && trained_q12.iter().all(|&c| c == 0) {
-        let _ = (prompt_q12, prompt_sign);
+    let has_trained = trained_q12.iter().any(|&c| c != 0);
+    let has_carried = prompt_q12 != &trained_q12
+        && prompt_q12.iter().any(|&c| c != 0)
+        && GLM_CONCEPT_MANIFOLD
+            .iter()
+            .any(|b| q12_l1_distance(prompt_q12, &b.q12_coords) <= 1600);
+
+    if matched_vocab_fibers == 0 && !has_trained && !has_carried {
         return 0;
     }
-    let (pooled_q12, pooled_sign) = if trained_q12.iter().any(|&c| c != 0) {
+
+    let (pooled_q12, pooled_sign) = if has_trained && has_carried {
+        let mut blended = [0i16; POINT_KEY_DIM];
+        for lane in 0..POINT_KEY_DIM {
+            blended[lane] = ((i32::from(trained_q12[lane]) * 2 + i32::from(prompt_q12[lane])) / 3)
+                .clamp(-4096, 4096) as i16;
+        }
+        (blended, trained_sign ^ (prompt_sign & 0x0F0F_0F0F_0F0F_0F0F))
+    } else if has_trained {
         (trained_q12, trained_sign)
     } else {
         (*prompt_q12, prompt_sign)
     };
+
     if pooled_q12.iter().any(|&c| c != 0) {
         let (prompt_s2, prompt_u1) = project_q12_to_hopf_q15(&pooled_q12);
         let hopf_sim =
@@ -1338,6 +1390,12 @@ pub fn score_concept_geometric(
         }
         if whole_ham <= 20 {
             geo_score += (22 - whole_ham) / 4;
+        }
+        if !has_trained && has_carried {
+            let l1_carried = q12_l1_distance(&pooled_q12, &node.q12_coords);
+            if l1_carried <= 1600 {
+                geo_score += (1800 - l1_carried) / 90;
+            }
         }
     }
 
@@ -1403,7 +1461,7 @@ pub fn retrieve_top_concepts_geometric_only(
     scored
 }
 
-/// Extract clean subject phrases around a comparison pivot (`vs`, `versus`, `or`, `and`).
+/// Extract clean subject phrases around a comparison pivot (`vs`, `versus`, `to`, `with`, `or`, `and`).
 fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String, String)> {
     let mut cleaned = raw_prompt
         .trim()
@@ -1435,10 +1493,17 @@ fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String,
         " versus ",
         " compared to ",
         " compared with ",
+        " compare to ",
+        " compare with ",
         " differ from ",
         " and ",
+        " to ",
+        " with ",
         " or ",
     ] {
+        if (sep == " to " || sep == " with ") && !lower.contains("compare") {
+            continue;
+        }
         if let Some(idx) = cleaned_lower.find(sep) {
             let left = cleaned[..idx]
                 .trim()
@@ -1597,7 +1662,8 @@ fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
     }
 }
 
-/// Render a rich, natural-prose comparative analysis (`A vs B`).
+/// Render a rich, natural-prose comparative analysis (`A vs B`), including anaphoric comparison targets (`"Compare Rome to living there"`).
+#[allow(clippy::too_many_arguments)]
 fn render_comparative_synthesis(
     raw_prompt: &str,
     lower: &str,
@@ -1606,8 +1672,9 @@ fn render_comparative_synthesis(
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
     top_concepts: &[(&'static GlmConceptNode, u32)],
+    chat_history: &[(String, String)],
 ) -> String {
-    if let Some((left_subj, right_subj)) = extract_comparison_subjects(raw_prompt, lower) {
+    if let Some((mut left_subj, mut right_subj)) = extract_comparison_subjects(raw_prompt, lower) {
         let left_lower = left_subj.to_ascii_lowercase();
         let right_lower = right_subj.to_ascii_lowercase();
         let left_words = tokenize_words_simple(&left_lower);
@@ -1623,7 +1690,7 @@ fn render_comparative_synthesis(
         let (left_q12, left_sign) = pool_prompt_trained_geometry(&left_words);
         let (right_q12, right_sign) = pool_prompt_trained_geometry(&right_words);
 
-        let left_hits = retrieve_top_concepts(
+        let mut left_hits = retrieve_top_concepts(
             &left_lower,
             &left_words,
             &left_stems,
@@ -1631,7 +1698,7 @@ fn render_comparative_synthesis(
             left_sign,
             2,
         );
-        let right_hits = retrieve_top_concepts(
+        let mut right_hits = retrieve_top_concepts(
             &right_lower,
             &right_words,
             &right_stems,
@@ -1639,6 +1706,28 @@ fn render_comparative_synthesis(
             right_sign,
             2,
         );
+
+        let left_anaphoric = detect_anaphor_kind(&left_lower, &left_words).is_some()
+            || (left_hits.is_empty() && !chat_history.is_empty());
+        let right_anaphoric = detect_anaphor_kind(&right_lower, &right_words).is_some()
+            || (right_hits.is_empty() && !chat_history.is_empty());
+
+        if left_anaphoric && !chat_history.is_empty() {
+            let kind = detect_anaphor_kind(&left_lower, &left_words)
+                .unwrap_or(AnaphorKind::Neutral);
+            if let Some((ant_node, _, _, _)) = resolve_discourse_antecedent(kind, chat_history) {
+                left_subj = ant_node.title.to_string();
+                left_hits = vec![(ant_node, 40)];
+            }
+        }
+        if right_anaphoric && !chat_history.is_empty() {
+            let kind = detect_anaphor_kind(&right_lower, &right_words)
+                .unwrap_or(AnaphorKind::Neutral);
+            if let Some((ant_node, _, _, _)) = resolve_discourse_antecedent(kind, chat_history) {
+                right_subj = ant_node.title.to_string();
+                right_hits = vec![(ant_node, 40)];
+            }
+        }
 
         if let (Some((node_a, _)), Some((node_b, _))) = (left_hits.first(), right_hits.first()) {
             if node_a.id != node_b.id {
@@ -2320,6 +2409,10 @@ fn render_open_domain_natural_prose(
 pub enum GlmDiscourseAct {
     /// Fresh topical query or self-contained domain shift.
     TopicShift,
+    /// Warm conversational mood/day check-in or reciprocity (`"my day is going fine, how about you?"`).
+    SocialReciprocity,
+    /// Self-referential inquiry about the assistant's identity, training, or integer geometry (`"who are you"`, `"how do you work"`).
+    SelfInquiry,
     /// Anaphoric or deictic reference to an entity/place/concept from `chat_history` (`"there"`, `"it"`, `"its"`, `"her"`, `"his"`).
     AnaphoricFollowup,
     /// Request to clarify a previous point (`"what do you mean"`, `"can you clarify"`).
@@ -2330,22 +2423,326 @@ pub enum GlmDiscourseAct {
     Simplification,
     /// Request for a concise summary (`"summarize"`, `"tldr"`).
     Summarization,
-    /// Request to elaborate further on the active topic (`"tell me more"`, `"go deeper"`, `"why is that"`).
+    /// Request to elaborate further or analyze trade-offs on the active topic (`"tell me more"`, `"go deeper"`, `"what are the trade-offs"`).
     Deepening,
+}
+
+/// Anaphoric reference category for multi-turn antecedent resolution.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AnaphorKind {
+    /// Spatial or geographic deictic reference (`"there"`, `"that city"`, `"that place"`, `"that country"`).
+    Locative,
+    /// Female personal pronoun (`"she"`, `"her"`, `"hers"`, `"herself"`).
+    FemalePersonal,
+    /// Male personal pronoun (`"he"`, `"him"`, `"his"`, `"himself"`).
+    MalePersonal,
+    /// Neutral singular/plural entity pronoun (`"it"`, `"its"`, `"they"`, `"them"`, `"their"`, `"that"`).
+    Neutral,
+}
+
+/// Words that specify an aspect, property, or dimension of an antecedent topic rather than introducing a new entity.
+fn is_aspect_modifier_word(w: &str) -> bool {
+    matches!(
+        w,
+        "there"
+            | "here"
+            | "it"
+            | "its"
+            | "itself"
+            | "they"
+            | "them"
+            | "their"
+            | "theirs"
+            | "he"
+            | "him"
+            | "his"
+            | "himself"
+            | "she"
+            | "her"
+            | "hers"
+            | "herself"
+            | "that"
+            | "this"
+            | "those"
+            | "these"
+            | "food"
+            | "foods"
+            | "cuisine"
+            | "dish"
+            | "dishes"
+            | "eat"
+            | "eating"
+            | "drink"
+            | "drinking"
+            | "gastronomy"
+            | "culinary"
+            | "restaurant"
+            | "restaurants"
+            | "cafe"
+            | "cafes"
+            | "bakery"
+            | "culture"
+            | "cultural"
+            | "history"
+            | "historical"
+            | "architecture"
+            | "architectural"
+            | "building"
+            | "buildings"
+            | "monument"
+            | "monuments"
+            | "landmark"
+            | "landmarks"
+            | "museum"
+            | "museums"
+            | "art"
+            | "arts"
+            | "music"
+            | "weather"
+            | "climate"
+            | "population"
+            | "people"
+            | "language"
+            | "economy"
+            | "transit"
+            | "subway"
+            | "transport"
+            | "neighborhood"
+            | "neighborhoods"
+            | "district"
+            | "districts"
+            | "park"
+            | "parks"
+            | "river"
+            | "rivers"
+            | "life"
+            | "living"
+            | "live"
+            | "visit"
+            | "visiting"
+            | "travel"
+            | "famous"
+            | "known"
+            | "popular"
+            | "important"
+            | "special"
+            | "unique"
+            | "theory"
+            | "theories"
+            | "discovery"
+            | "discoveries"
+            | "discover"
+            | "discovered"
+            | "invention"
+            | "inventions"
+            | "invent"
+            | "invented"
+            | "work"
+            | "works"
+            | "book"
+            | "books"
+            | "play"
+            | "plays"
+            | "painting"
+            | "paintings"
+            | "symphony"
+            | "symphonies"
+            | "law"
+            | "laws"
+            | "equation"
+            | "equations"
+            | "legacy"
+            | "impact"
+            | "influence"
+            | "contribution"
+            | "contributions"
+            | "childhood"
+            | "early"
+            | "education"
+            | "biography"
+            | "career"
+            | "death"
+            | "died"
+            | "born"
+            | "prize"
+            | "nobel"
+            | "award"
+            | "fall"
+            | "fell"
+            | "collapse"
+            | "collapsed"
+            | "decline"
+            | "rise"
+            | "origin"
+            | "origins"
+            | "founded"
+            | "build"
+            | "built"
+            | "govern"
+            | "governed"
+            | "government"
+            | "military"
+            | "army"
+            | "trade"
+            | "tradeoff"
+            | "tradeoffs"
+            | "pros"
+            | "cons"
+            | "advantage"
+            | "advantages"
+            | "disadvantage"
+            | "disadvantages"
+            | "limitation"
+            | "limitations"
+            | "downside"
+            | "downsides"
+            | "complexity"
+            | "performance"
+            | "speed"
+            | "memory"
+            | "safety"
+            | "security"
+    )
+}
+
+/// Detect whether a turn contains an explicit spatial, personal, or entity anaphor and return its `AnaphorKind`.
+pub fn detect_anaphor_kind(lower: &str, words: &[String]) -> Option<AnaphorKind> {
+    let is_existential_there = lower.contains("are there")
+        || lower.contains("is there")
+        || lower.contains("were there")
+        || lower.contains("was there")
+        || lower.contains("there are")
+        || lower.contains("there is")
+        || lower.contains("there were")
+        || lower.contains("there was")
+        || lower.contains("will there");
+    if (!is_existential_there && words.iter().any(|w| w == "there"))
+        || lower.contains("that place")
+        || lower.contains("that city")
+        || lower.contains("that country")
+        || lower.contains("that region")
+        || lower.contains("that nation")
+        || lower.contains("this city")
+        || lower.contains("this place")
+    {
+        return Some(AnaphorKind::Locative);
+    }
+
+    if words
+        .iter()
+        .any(|w| matches!(w.as_str(), "she" | "her" | "hers" | "herself"))
+    {
+        return Some(AnaphorKind::FemalePersonal);
+    }
+
+    if words
+        .iter()
+        .any(|w| matches!(w.as_str(), "he" | "him" | "his" | "himself"))
+    {
+        return Some(AnaphorKind::MalePersonal);
+    }
+
+    let is_idiomatic_it = lower.contains("what time is it")
+        || lower.contains("how is it going")
+        || lower.contains("is it true")
+        || lower.starts_with("it is ")
+        || lower.starts_with("it was ")
+        || lower.contains("make it shorter");
+    let has_neutral_pronoun = (!is_idiomatic_it
+        && words
+            .iter()
+            .any(|w| matches!(w.as_str(), "it" | "its" | "itself" | "they" | "them" | "their" | "theirs")))
+        || lower.contains("about that")
+        || lower.contains("why is that")
+        || lower.contains("how does that")
+        || lower.contains("what does that")
+        || lower.contains("like that")
+        || lower.contains("that empire")
+        || lower.contains("that civilization")
+        || lower.contains("that algorithm")
+        || lower.contains("that system")
+        || lower.contains("that theory")
+        || lower.contains("that language")
+        || lower.contains("that person");
+
+    if has_neutral_pronoun {
+        return Some(AnaphorKind::Neutral);
+    }
+
+    None
+}
+
+fn is_self_inquiry_prompt(lower: &str, words: &[String]) -> bool {
+    lower.contains("talk about you")
+        || lower.contains("tell me about you")
+        || lower.contains("about yourself")
+        || lower.contains("who are you")
+        || lower.contains("what are you")
+        || lower.contains("what can you do")
+        || lower.contains("how do you work")
+        || lower.contains("how were you trained")
+        || lower.contains("are you a transformer")
+        || lower.contains("what is your name")
+        || lower.contains("what's your name")
+        || (words.len() <= 6
+            && words.iter().any(|w| w == "you" || w == "yourself")
+            && words
+                .iter()
+                .any(|w| matches!(w.as_str(), "talk" | "chat" | "tell" | "who"))
+            && !words
+                .iter()
+                .any(|w| matches!(w.as_str(), "mean" | "think" | "about")))
 }
 
 /// Classify the pragmatic discourse act of the user's turn given `lower`, `words`, and whether `chat_history` is non-empty.
 pub fn classify_discourse_act(
     lower: &str,
     words: &[String],
-    stems: &[String],
+    _stems: &[String],
     has_history: bool,
 ) -> GlmDiscourseAct {
+    // Comparative queries ("Compare Rome to living there", "A vs B") are handled by `render_comparative_synthesis`,
+    // which resolves any anaphoric comparison side against `chat_history`.
+    let is_comparison = lower.contains(" vs ")
+        || lower.contains(" vs. ")
+        || lower.contains(" versus ")
+        || lower.contains("difference between")
+        || lower.contains("differences between")
+        || lower.starts_with("compare ")
+        || lower.contains(" compare ")
+        || lower.contains("compared to")
+        || lower.contains("compared with");
+    if is_comparison {
+        return GlmDiscourseAct::TopicShift;
+    }
+
+    if is_self_inquiry_prompt(lower, words) {
+        return GlmDiscourseAct::SelfInquiry;
+    }
+
+    let has_day_or_mood = lower.contains("my day")
+        || lower.contains("doing fine")
+        || lower.contains("doing well")
+        || lower.contains("doing good")
+        || lower.contains("going fine")
+        || lower.contains("going well")
+        || lower.contains("how about you")
+        || lower.contains("what about you");
+    if has_day_or_mood {
+        let content_words_count = words
+            .iter()
+            .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
+            .count();
+        if content_words_count <= 1 {
+            return GlmDiscourseAct::SocialReciprocity;
+        }
+    }
+
     if !has_history {
         return GlmDiscourseAct::TopicShift;
     }
 
-    if words.len() <= 10 {
+    if words.len() <= 12 {
         if lower.contains("what do you mean")
             || lower.contains("what did you mean")
             || lower.contains("what does that mean")
@@ -2363,6 +2760,7 @@ pub fn classify_discourse_act(
             || lower.contains("give an example")
             || lower.contains("concrete example")
             || lower.starts_with("for example")
+            || lower.starts_with("for instance")
         {
             return GlmDiscourseAct::Exemplification;
         }
@@ -2382,74 +2780,349 @@ pub fn classify_discourse_act(
         {
             return GlmDiscourseAct::Summarization;
         }
-        if lower.starts_with("tell me more")
-            || lower.starts_with("explain more")
-            || lower.starts_with("explain that")
-            || lower.starts_with("elaborate")
-            || lower.starts_with("go deeper")
-            || lower.contains("pros and cons of that")
-            || lower.contains("why does that happen")
-            || lower == "why is that"
-            || lower == "why is that?"
-            || lower == "how come"
-            || lower == "how come?"
+        let non_aspect_words: Vec<String> = words
+            .iter()
+            .filter(|w| !is_aspect_modifier_word(w))
+            .cloned()
+            .collect();
+        let non_aspect_stems: Vec<String> = non_aspect_words
+            .iter()
+            .map(|w| canonical_stem(w).to_string())
+            .collect();
+        let non_aspect_lower = non_aspect_words.join(" ");
+        let max_entity_lex = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .map(|n| {
+                score_concept_lexical(n, &non_aspect_lower, &non_aspect_words, &non_aspect_stems)
+            })
+            .max()
+            .unwrap_or(0);
+
+        if max_entity_lex < 15
+            && (lower.starts_with("tell me more")
+                || lower.starts_with("explain more")
+                || lower.starts_with("explain that")
+                || lower.starts_with("elaborate")
+                || lower.starts_with("go deeper")
+                || lower.contains("pros and cons")
+                || lower.contains("trade-offs")
+                || lower.contains("tradeoffs")
+                || lower.contains("trade offs")
+                || lower.contains("why does that happen")
+                || lower == "why is that"
+                || lower == "why is that?"
+                || lower == "how come"
+                || lower == "how come?")
         {
             return GlmDiscourseAct::Deepening;
         }
     }
 
-    // Check for explicit spatial, personal, or entity anaphora ("there", "its", "her", "his", "she", "he", "that place", "that city")
-    let is_existential_there = lower.contains("are there")
-        || lower.contains("is there")
-        || lower.contains("were there")
-        || lower.contains("there are")
-        || lower.contains("there is")
-        || lower.contains("there were");
-    let has_locative_there =
-        !is_existential_there && words.iter().any(|w| w == "there");
-    let has_pronoun_anaphor = words.iter().any(|w| {
-        matches!(
-            w.as_str(),
-            "its" | "her" | "hers" | "she" | "his" | "him" | "he" | "their" | "them"
-        )
-    });
-    let has_anaphor = has_locative_there
-        || has_pronoun_anaphor
-        || lower.contains("that place")
-        || lower.contains("that city")
-        || lower.contains("that country")
-        || lower.contains("about it");
-
-    if has_anaphor
-        && words.len() <= 12
-        && !lower.starts_with("how many ")
-        && !lower.contains("fermi")
-        && match_logic_puzzle(lower, words).is_none()
-        && match_conversational_qa(lower, words).is_none()
-    {
-        let max_self_lex = GLM_CONCEPT_MANIFOLD
-            .iter()
-            .map(|n| score_concept_lexical(n, lower, words, stems))
-            .max()
-            .unwrap_or(0);
-        let lex_cap = if has_locative_there
-            || lower.contains("that place")
-            || lower.contains("that city")
-            || lower.contains("that country")
+    // Check for explicit spatial, personal, or entity anaphora ("there", "it", "its", "her", "his", "she", "he", "they", "that city")
+    if let Some(_anaphor_kind) = detect_anaphor_kind(lower, words) {
+        if words.len() <= 24
+            && !lower.starts_with("how many ")
+            && !lower.contains("fermi")
+            && match_logic_puzzle(lower, words).is_none()
+            && match_conversational_qa(lower, words).is_none()
         {
-            18
-        } else {
-            10
-        };
-        if max_self_lex < lex_cap {
-            return GlmDiscourseAct::AnaphoricFollowup;
+            let non_aspect_words: Vec<String> = words
+                .iter()
+                .filter(|w| !is_aspect_modifier_word(w))
+                .cloned()
+                .collect();
+            let non_aspect_stems: Vec<String> = non_aspect_words
+                .iter()
+                .map(|w| canonical_stem(w).to_string())
+                .collect();
+            let non_aspect_lower = non_aspect_words.join(" ");
+            let max_entity_lex = GLM_CONCEPT_MANIFOLD
+                .iter()
+                .map(|n| {
+                    score_concept_lexical(
+                        n,
+                        &non_aspect_lower,
+                        &non_aspect_words,
+                        &non_aspect_stems,
+                    )
+                })
+                .max()
+                .unwrap_or(0);
+            if max_entity_lex < 15 {
+                return GlmDiscourseAct::AnaphoricFollowup;
+            }
         }
     }
 
     GlmDiscourseAct::TopicShift
 }
 
-/// Top-level entry point for the Pre-Trained Generalized Geometric Language Model (`UR4GLM04`).
+fn node_matches_anaphor_kind(node: &GlmConceptNode, kind: AnaphorKind) -> bool {
+    match kind {
+        AnaphorKind::Locative => {
+            node.domain.contains("Geography")
+                || node.domain.contains("Cities")
+                || node.domain.contains("History")
+                || node.domain.contains("Architecture")
+        }
+        AnaphorKind::FemalePersonal => {
+            node.title.contains("Curie")
+                || node.title.contains("Lovelace")
+                || node.title.contains("Hopper")
+                || node.title.contains("Franklin")
+                || node.title.contains("Goodall")
+                || node.title.contains("Jacobs")
+                || node.title.contains("Hatshepsut")
+        }
+        AnaphorKind::MalePersonal => {
+            (node.domain.contains("Biography") && !node.title.contains("Curie"))
+                || node.title.contains("Einstein")
+                || node.title.contains("Vinci")
+                || node.title.contains("Shakespeare")
+                || node.title.contains("Napoleon")
+                || node.title.contains("Galileo")
+                || node.title.contains("Newton")
+                || node.title.contains("Turing")
+                || node.title.contains("Socrates")
+                || node.title.contains("Darwin")
+                || node.title.contains("Mozart")
+        }
+        AnaphorKind::Neutral => true,
+    }
+}
+
+/// Extract the primary concept basin referenced in a single `(past_q, past_a)` history turn,
+/// checking both `past_q` and `past_a` (for capital lookups and chained follow-up headers).
+fn extract_turn_concept(
+    past_q: &str,
+    past_a: &str,
+) -> Option<(&'static GlmConceptNode, [i16; POINT_KEY_DIM])> {
+    // 1. Check if `past_a` explicitly names a capital city ("The capital of **France** is **Paris**")
+    // or a follow-up header ("Regarding **Paris, France**:", "Building further on **...**:").
+    for prefix in [
+        "Regarding **",
+        "Building further on **",
+        "To clarify what I meant about **",
+    ] {
+        if let Some(rest) = past_a.strip_prefix(prefix) {
+            if let Some(end_idx) = rest.find("**") {
+                let title_str = &rest[..end_idx];
+                if let Some(node) = GLM_CONCEPT_MANIFOLD.iter().find(|n| n.title == title_str) {
+                    return Some((node, node.q12_coords));
+                }
+            }
+        }
+    }
+
+    let past_lower = past_q.to_ascii_lowercase();
+    if past_lower.contains("capital") {
+        if let Some(idx) = past_a.find(" is **") {
+            let after = &past_a[idx + 6..];
+            if let Some(end_idx) = after.find("**") {
+                let cap_name = after[..end_idx].trim();
+                let cap_lower = cap_name.to_ascii_lowercase();
+                if let Some(node) = GLM_CONCEPT_MANIFOLD
+                    .iter()
+                    .find(|n| n.title.to_ascii_lowercase().starts_with(&cap_lower))
+                {
+                    return Some((node, node.q12_coords));
+                }
+            }
+        }
+    }
+
+    // 2. Check `past_q` if it was a standalone topic turn
+    let past_words = tokenize_words_simple(&past_lower);
+    let past_stems: Vec<String> = past_words
+        .iter()
+        .map(|w| canonical_stem(w).to_string())
+        .collect();
+    if classify_discourse_act(&past_lower, &past_words, &past_stems, true)
+        == GlmDiscourseAct::TopicShift
+    {
+        let (past_q12, past_sign) = pool_prompt_trained_geometry(&past_words);
+        let hits = retrieve_top_concepts(
+            &past_lower,
+            &past_words,
+            &past_stems,
+            &past_q12,
+            past_sign,
+            1,
+        );
+        if let Some(&(node, score)) = hits.first() {
+            if score >= 12 {
+                let q12 = if past_q12.iter().any(|&c| c != 0) {
+                    past_q12
+                } else {
+                    node.q12_coords
+                };
+                return Some((node, q12));
+            }
+        }
+    }
+
+    // 3. Fallback: inspect the first sentence of `past_a`
+    let first_sent = past_a.lines().find(|l| !l.trim().is_empty() && !l.starts_with('#'))?;
+    let a_lower = first_sent.to_ascii_lowercase();
+    let a_words = tokenize_words_simple(&a_lower);
+    let a_stems: Vec<String> = a_words
+        .iter()
+        .map(|w| canonical_stem(w).to_string())
+        .collect();
+    let (a_q12, a_sign) = pool_prompt_trained_geometry(&a_words);
+    let a_hits = retrieve_top_concepts(&a_lower, &a_words, &a_stems, &a_q12, a_sign, 1);
+    if let Some(&(node, score)) = a_hits.first() {
+        if score >= 15 {
+            return Some((node, node.q12_coords));
+        }
+    }
+    None
+}
+
+/// Resolve the most appropriate antecedent basin from `chat_history` matching `anaphor_kind`.
+pub fn resolve_discourse_antecedent<'a>(
+    anaphor_kind: AnaphorKind,
+    chat_history: &'a [(String, String)],
+) -> Option<(
+    &'static GlmConceptNode,
+    &'a str,
+    &'a str,
+    [i16; POINT_KEY_DIM],
+)> {
+    let mut fallback: Option<(
+        &'static GlmConceptNode,
+        &'a str,
+        &'a str,
+        [i16; POINT_KEY_DIM],
+    )> = None;
+    for (past_q, past_a) in chat_history.iter().rev() {
+        if let Some((node, q12)) = extract_turn_concept(past_q, past_a) {
+            if fallback.is_none() {
+                fallback = Some((node, past_q.as_str(), past_a.as_str(), q12));
+            }
+            if node_matches_anaphor_kind(node, anaphor_kind) {
+                return Some((node, past_q.as_str(), past_a.as_str(), q12));
+            }
+        }
+    }
+    fallback
+}
+
+/// Expand aspect words in an anaphoric follow-up (`"food"`, `"theory"`, `"discovery"`, `"fall"`, `"architecture"`)
+/// into domain-resonant vocabulary stems so both the antecedent basin's relevant paragraph and secondary basins activate.
+fn expand_anaphoric_aspect_words(words: &[String]) -> Vec<String> {
+    let mut out: Vec<String> = words.to_vec();
+    for w in words {
+        let extras: &[&str] = match w.as_str() {
+            "food" | "foods" | "cuisine" | "eat" | "eating" | "dish" | "dishes" | "dining"
+            | "restaurants" | "culinary" | "gastronomy" => &[
+                "food",
+                "cuisine",
+                "culinary",
+                "gastronomy",
+                "boulangerie",
+                "baguettes",
+                "croissants",
+                "cafes",
+                "markets",
+                "trattorias",
+                "carbonara",
+                "ramen",
+                "sushi",
+                "tapas",
+                "pizza",
+                "bagel",
+                "pubs",
+                "coffeehouse",
+                "sauces",
+                "pastry",
+                "terroir",
+            ],
+            "architecture" | "buildings" | "monuments" | "landmarks" | "skyline" | "sights"
+            | "visit" | "visiting" => &[
+                "architecture",
+                "monuments",
+                "skyline",
+                "cathedral",
+                "tower",
+                "museum",
+                "louvre",
+                "eiffel",
+                "haussmann",
+                "boulevards",
+                "palace",
+                "colosseum",
+                "pantheon",
+                "bridges",
+                "dome",
+                "temples",
+            ],
+            "theory" | "theories" | "equations" | "laws" => &[
+                "theory",
+                "relativity",
+                "spacetime",
+                "photoelectric",
+                "quantum",
+                "equivalence",
+                "gravity",
+                "mass",
+                "energy",
+                "light",
+                "mechanics",
+                "calculus",
+                "motion",
+            ],
+            "discovery" | "discoveries" | "discover" | "discovered" | "invention"
+            | "inventions" | "invented" | "nobel" | "prize" => &[
+                "discovery",
+                "discovered",
+                "polonium",
+                "radium",
+                "radioactivity",
+                "pitchblende",
+                "nobel",
+                "isolated",
+                "elements",
+                "radiation",
+                "telescope",
+                "calculus",
+            ],
+            "fall" | "fell" | "collapse" | "collapsed" | "decline" => &[
+                "fall",
+                "collapse",
+                "decline",
+                "overextension",
+                "division",
+                "visigoths",
+                "constantinople",
+                "byzantine",
+                "instability",
+                "succession",
+            ],
+            "build" | "built" | "engineering" | "constructed" => &[
+                "engineering",
+                "aqueducts",
+                "concrete",
+                "roads",
+                "arches",
+                "dome",
+                "colosseum",
+                "pantheon",
+                "bridges",
+                "monumental",
+            ],
+            _ => &[],
+        };
+        for &ex in extras {
+            if !out.iter().any(|existing| existing == ex) {
+                out.push(ex.to_string());
+            }
+        }
+    }
+    out
+}
+
+/// Top-level entry point for the Pre-Trained Generalized Geometric Language Model (`UR4GLM06`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
     raw_prompt: &str,
@@ -2476,39 +3149,24 @@ pub fn synthesize_glm_response(
     // 1. Classify Pragmatic Discourse Act & Multi-Turn Anaphora State (`Phase 1`)
     let discourse_act = classify_discourse_act(lower, words, stems, !chat_history.is_empty());
 
-    if discourse_act != GlmDiscourseAct::TopicShift {
-        let mut active_node_and_q: Option<(&'static GlmConceptNode, &str, [i16; POINT_KEY_DIM])> =
-            None;
-        for (past_q, _) in chat_history.iter().rev() {
-            let past_lower = past_q.to_ascii_lowercase();
-            let past_words = tokenize_words_simple(&past_lower);
-            let past_stems: Vec<String> = past_words
-                .iter()
-                .map(|w| canonical_stem(w).to_string())
-                .collect();
-            if classify_discourse_act(&past_lower, &past_words, &past_stems, true)
-                != GlmDiscourseAct::TopicShift
-            {
-                continue;
-            }
-            let (past_q12, past_sign) = pool_prompt_trained_geometry(&past_words);
-            let hits = retrieve_top_concepts(
-                &past_lower,
-                &past_words,
-                &past_stems,
-                &past_q12,
-                past_sign,
-                1,
-            );
-            if let Some(&(node, score)) = hits.first() {
-                if score >= 12 {
-                    active_node_and_q = Some((node, past_q.as_str(), past_q12));
-                    break;
-                }
-            }
-        }
+    if discourse_act == GlmDiscourseAct::SelfInquiry
+        || discourse_act == GlmDiscourseAct::SocialReciprocity
+    {
+        return wrap_binder(render_open_domain_natural_prose(
+            raw_prompt,
+            lower,
+            words,
+            prompt_q12,
+            prompt_sign,
+            chat_history.len(),
+        ));
+    }
 
-        if let Some((node, prev_q, past_q12)) = active_node_and_q {
+    if discourse_act != GlmDiscourseAct::TopicShift {
+        let anaphor_kind = detect_anaphor_kind(lower, words).unwrap_or(AnaphorKind::Neutral);
+        if let Some((node, prev_q, prev_a, past_q12)) =
+            resolve_discourse_antecedent(anaphor_kind, chat_history)
+        {
             match discourse_act {
                 GlmDiscourseAct::Clarification => {
                     return wrap_binder(format!(
@@ -2534,6 +3192,16 @@ pub fn synthesize_glm_response(
                     ));
                 }
                 GlmDiscourseAct::Deepening => {
+                    if lower.contains("trade-off")
+                        || lower.contains("tradeoff")
+                        || lower.contains("trade off")
+                        || lower.contains("pros and cons")
+                    {
+                        return wrap_binder(format!(
+                            "**Key Trade-Offs & Design Considerations — {}:**\n\n{}\n\n{}\n\n{}",
+                            node.title, node.tradeoffs, node.formal_principle, node.example
+                        ));
+                    }
                     return wrap_binder(format!(
                         "Building further on **{}**:\n\n{}\n\n{}\n\n{}",
                         node.title, node.formal_principle, node.tradeoffs, node.example
@@ -2542,23 +3210,43 @@ pub fn synthesize_glm_response(
                 GlmDiscourseAct::AnaphoricFollowup => {
                     // Carry over the antecedent's Q12 horizon state via `GLM_RETAIN_LAMBDA_Q31[6]`
                     let lam = GLM_RETAIN_LAMBDA_Q31[6];
+                    let (cur_trained_q12, cur_trained_sign) = pool_prompt_trained_geometry(words);
                     let mut blended_q12 = [0i16; POINT_KEY_DIM];
                     for lane in 0..POINT_KEY_DIM {
-                        let carried = (i64::from(past_q12[lane]) * lam) >> 31;
-                        blended_q12[lane] = ((carried + i64::from(prompt_q12[lane])) / 2)
-                            .clamp(-4096, 4096) as i16;
+                        let base_prev = if past_q12[lane] != 0 {
+                            past_q12[lane]
+                        } else {
+                            node.q12_coords[lane]
+                        };
+                        let carried = (i64::from(base_prev) * lam) >> 31;
+                        let cur_lane = if cur_trained_q12[lane] != 0 {
+                            i64::from(cur_trained_q12[lane])
+                        } else {
+                            carried
+                        };
+                        blended_q12[lane] =
+                            ((carried * 2 + cur_lane) / 3).clamp(-4096, 4096) as i16;
                     }
-                    let mut combined_words: Vec<String> = words.to_vec();
+
+                    let expanded_words = expand_anaphoric_aspect_words(words);
+                    let expanded_stems: Vec<String> = expanded_words
+                        .iter()
+                        .map(|w| canonical_stem(w).to_string())
+                        .collect();
+                    let expanded_lower = expanded_words.join(" ");
+
+                    let mut combined_words: Vec<String> = expanded_words.clone();
                     for kw in node.keywords.iter().take(3) {
                         combined_words.push((*kw).to_string());
                     }
+
                     let secondary = retrieve_top_concepts(
-                        lower,
-                        words,
-                        stems,
+                        &expanded_lower,
+                        &expanded_words,
+                        &expanded_stems,
                         &blended_q12,
-                        prompt_sign ^ node.sign_code,
-                        2,
+                        (prompt_sign ^ cur_trained_sign) ^ node.sign_code,
+                        3,
                     );
                     let mut active_nodes: Vec<&GlmConceptNode> = vec![node];
                     for &(sec_node, sec_score) in &secondary {
@@ -2567,22 +3255,39 @@ pub fn synthesize_glm_response(
                             break;
                         }
                     }
+
                     let (token_stream, _, _) =
                         generate_token_level_geometric_prose(&combined_words, &active_nodes, 45, 95);
-                    let clauses = synthesize_clause_trajectory(&combined_words, &active_nodes, 3);
+                    let all_clauses = synthesize_clause_trajectory(&combined_words, &active_nodes, 5);
+                    let prev_first_sent = prev_a.split(". ").next().unwrap_or("").trim();
+                    let prev_prefix: String = prev_first_sent.chars().take(20).collect();
+                    let filtered_clauses: Vec<String> = all_clauses
+                        .iter()
+                        .filter(|c| prev_prefix.len() < 15 || !c.starts_with(&prev_prefix))
+                        .take(3)
+                        .cloned()
+                        .collect();
+                    let clauses = if filtered_clauses.is_empty() {
+                        all_clauses.into_iter().take(3).collect()
+                    } else {
+                        filtered_clauses
+                    };
+
                     let body = if !clauses.is_empty() {
                         format!(
                             "Regarding **{}**:\n\n{}\n\n{}",
                             node.title,
-                            token_stream,
-                            clauses.join(" ")
+                            clauses.join(" "),
+                            token_stream
                         )
                     } else {
                         format!("Regarding **{}**:\n\n{}", node.title, token_stream)
                     };
                     return wrap_binder(body);
                 }
-                GlmDiscourseAct::TopicShift => {}
+                GlmDiscourseAct::TopicShift
+                | GlmDiscourseAct::SocialReciprocity
+                | GlmDiscourseAct::SelfInquiry => {}
             }
         }
 
@@ -2649,7 +3354,8 @@ pub fn synthesize_glm_response(
         || lower.contains("differences between")
         || lower.starts_with("compare ")
         || lower.contains(" compare ")
-        || lower.contains("compared to");
+        || lower.contains("compared to")
+        || lower.contains("compared with");
 
     if is_comparison {
         return wrap_binder(render_comparative_synthesis(
@@ -2660,6 +3366,7 @@ pub fn synthesize_glm_response(
             prompt_q12,
             prompt_sign,
             &top_concepts,
+            chat_history,
         ));
     }
 

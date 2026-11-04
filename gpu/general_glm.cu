@@ -461,18 +461,20 @@ extern "C" __global__ void train_glm_token_horizons_kernel(
 }
 
 extern "C" __global__ void train_glm_horizon_transitions_kernel(
-    GlmDeviceHorizonRow* __restrict__ horizon_rows,
+    const GlmDeviceHorizonRow* __restrict__ horizon_in,
+    GlmDeviceHorizonRow* __restrict__ horizon_out,
     const GlmDeviceConceptRow* __restrict__ trained_basins,
     uint32_t horizon_count,
     uint32_t basin_count,
-    uint32_t epoch
+    uint32_t epoch,
+    uint32_t total_epochs
 ) {
     uint32_t h = blockIdx.x * blockDim.x + threadIdx.x;
     if (h >= horizon_count || basin_count == 0) {
         return;
     }
 
-    GlmDeviceHorizonRow row = horizon_rows[h];
+    GlmDeviceHorizonRow row = horizon_in[h];
     uint16_t bid = row.basin_id < basin_count ? row.basin_id : 0;
     const GlmDeviceConceptRow basin = trained_basins[bid];
 
@@ -511,60 +513,79 @@ extern "C" __global__ void train_glm_horizon_transitions_kernel(
     uint64_t transported_sign = (row.horizon_sign << 7) | (row.horizon_sign >> 57);
     transported_sign ^= basin.sign_code;
 
-    uint16_t best_next = (uint16_t)((h + 1u) % horizon_count);
-    uint16_t best_alt = (uint16_t)((h + 2u) % horizon_count);
-    uint32_t best_energy = 0xFFFFFFFFu;
-    uint32_t alt_energy = 0xFFFFFFFFu;
+    uint16_t best_next = row.next_horizon_id < horizon_count ? row.next_horizon_id : (uint16_t)((h + 1u) % horizon_count);
+    uint16_t best_alt = row.alt_horizon_id < horizon_count ? row.alt_horizon_id : (uint16_t)((h + 17u) % horizon_count);
+    uint32_t best_next_energy = 0xFFFFFFFFu;
+    uint32_t best_alt_energy = 0xFFFFFFFFu;
+    bool full_scan = ((epoch + 1u) == total_epochs) || ((epoch & 3u) == 3u);
 
-    // Scan local basin neighborhood plus strided manifold candidates
     for (uint32_t cand = 0; cand < horizon_count; ++cand) {
         if (cand == h) {
             continue;
         }
-        const GlmDeviceHorizonRow crow = horizon_rows[cand];
+        const GlmDeviceHorizonRow crow = horizon_in[cand];
         bool same_basin = (crow.basin_id == bid);
-        if (!same_basin && ((cand + epoch) & 7u) != 0u) {
+        if (!full_scan && !same_basin && ((cand + epoch) & 7u) != 0u) {
             continue;
         }
 
-        uint32_t l1 = 0;
-        for (int l = 0; l < POINT_KEY_DIM; ++l) {
-            int32_t d = (int32_t)transported_q12[l] - (int32_t)crow.horizon_q12[l];
-            l1 += (uint32_t)(d < 0 ? -d : d);
+        uint32_t l1 = device_q12_l1(transported_q12, crow.horizon_q12);
+        uint32_t ham = device_swar_hamming64(transported_sign, crow.horizon_sign);
+
+        // Base-17 4-Block Icosian root alignment (`R4.DiscreteTrunk.pack4BlockRoots`)
+        uint32_t a4 = row.packed_4block;
+        uint32_t b4 = crow.packed_4block;
+        uint32_t root_bonus = 0u;
+        #pragma unroll
+        for (int d = 0; d < 4; ++d) {
+            uint32_t da = (a4 + (uint32_t)target_sec + (uint32_t)d) % 17u;
+            uint32_t db = b4 % 17u;
+            if (da == db) {
+                root_bonus += 14u;
+            }
+            a4 /= 17u;
+            b4 /= 17u;
         }
-        uint32_t ham = (uint32_t)__builtin_popcountll(transported_sign ^ crow.horizon_sign);
-        uint32_t energy = (l1 >> 2) + ham * 6u;
+        uint32_t trunk_step = (row.packed_4block * 7u + crow.packed_4block) % 83521u;
+        if ((trunk_step % 17u) == (uint32_t)(basin.icosian_root % 17u)) {
+            root_bonus += 10u;
+        }
+
+        uint32_t base_energy = (l1 >> 2) + ham * 6u;
+        base_energy = (base_energy > root_bonus) ? (base_energy - root_bonus) : 1u;
 
         if (same_basin) {
+            uint32_t intra_energy = base_energy;
             if (crow.section_idx == target_sec) {
-                energy = (energy > 220u) ? (energy - 220u) : 1u;
+                intra_energy = (intra_energy > 220u) ? (intra_energy - 220u) : 1u;
             } else if (crow.section_idx != row.section_idx) {
-                energy = (energy > 110u) ? (energy - 110u) : 4u;
+                intra_energy = (intra_energy > 110u) ? (intra_energy - 110u) : 4u;
             } else {
-                energy += 40u;
+                intra_energy += 40u;
+            }
+            if (intra_energy < best_next_energy) {
+                best_next_energy = intra_energy;
+                best_next = (uint16_t)cand;
             }
         } else {
-            energy += 320u;
-        }
-
-        if (energy < best_energy) {
-            alt_energy = best_energy;
-            best_alt = best_next;
-            best_energy = energy;
-            best_next = (uint16_t)cand;
-        } else if (energy < alt_energy && cand != best_next) {
-            alt_energy = energy;
-            best_alt = (uint16_t)cand;
+            uint32_t inter_energy = base_energy;
+            if (crow.section_idx == target_sec) {
+                inter_energy = (inter_energy > 90u) ? (inter_energy - 90u) : 2u;
+            }
+            if (inter_energy < best_alt_energy) {
+                best_alt_energy = inter_energy;
+                best_alt = (uint16_t)cand;
+            }
         }
     }
 
     row.next_horizon_id = best_next;
     row.alt_horizon_id = best_alt;
-    row.transition_energy = best_energy;
+    row.transition_energy = best_next_energy;
 
-    // Gentle geodesic coupling relaxation along the discovered transition edge
+    // Gentle geodesic coupling relaxation along the discovered intra-basin and cross-basin transition edges
     if ((epoch & 3u) == 3u && best_next < horizon_count) {
-        const GlmDeviceHorizonRow nrow = horizon_rows[best_next];
+        const GlmDeviceHorizonRow nrow = horizon_in[best_next];
         for (int l = 0; l < POINT_KEY_DIM; ++l) {
             int32_t target_mid = ((int32_t)basin.q12_coords[l] * 3 + (int32_t)nrow.horizon_q12[l]) / 4;
             int32_t step = (target_mid - (int32_t)row.horizon_q12[l]) / 16;
@@ -575,9 +596,20 @@ extern "C" __global__ void train_glm_horizon_transitions_kernel(
             if (updated < -Q12_ONE) updated = -Q12_ONE;
             row.horizon_q12[l] = (int16_t)updated;
         }
+        int16_t q_snap[4] = {
+            (int16_t)(q_next[0] >> 8),
+            (int16_t)(q_next[1] >> 8),
+            (int16_t)(q_next[2] >> 8),
+            (int16_t)(q_next[3] >> 8)
+        };
+        uint8_t b0 = basin.icosian_root % 17u;
+        uint8_t b1 = device_icosian_snap_select(q_snap) % 17u;
+        uint8_t b2 = device_icosian_snap_select(&row.horizon_q12[0]) % 17u;
+        uint8_t b3 = device_icosian_snap_select(&row.horizon_q12[4]) % 17u;
+        row.packed_4block = (uint32_t)b0 + 17u * (uint32_t)b1 + 289u * (uint32_t)b2 + 4913u * (uint32_t)b3;
     }
 
-    horizon_rows[h] = row;
+    horizon_out[h] = row;
 }
 
 #ifdef GLM_STANDALONE_TRAINER
@@ -710,6 +742,7 @@ int main(int argc, char** argv) {
     uint32_t* d_vocab_loss = NULL;
 
     GlmDeviceHorizonRow* d_horizons = NULL;
+    GlmDeviceHorizonRow* d_horizons_scratch = NULL;
     uint16_t* d_horizon_vocab_ids = NULL;
 
     cudaMalloc(&d_rows, count * sizeof(GlmDeviceConceptRow));
@@ -729,6 +762,7 @@ int main(int argc, char** argv) {
     cudaMalloc(&d_vocab_loss, vocab_count * sizeof(uint32_t));
 
     cudaMalloc(&d_horizons, horizon_count * sizeof(GlmDeviceHorizonRow));
+    cudaMalloc(&d_horizons_scratch, horizon_count * sizeof(GlmDeviceHorizonRow));
     cudaMalloc(&d_horizon_vocab_ids, horizon_count * 8 * sizeof(uint16_t));
 
     cudaMemcpy(d_rows, h_rows, count * sizeof(GlmDeviceConceptRow), cudaMemcpyHostToDevice);
@@ -783,8 +817,11 @@ int main(int argc, char** argv) {
     }
     for (uint32_t ep = 0; ep < transition_epochs; ++ep) {
         train_glm_horizon_transitions_kernel<<<horizon_blocks, threads>>>(
-            d_horizons, d_rows, horizon_count, count, ep
+            d_horizons, d_horizons_scratch, d_rows, horizon_count, count, ep, transition_epochs
         );
+        GlmDeviceHorizonRow* tmp_h = d_horizons;
+        d_horizons = d_horizons_scratch;
+        d_horizons_scratch = tmp_h;
     }
     cudaEventRecord(ev_stop);
     cudaEventSynchronize(ev_stop);
@@ -884,6 +921,7 @@ int main(int argc, char** argv) {
     cudaFree(d_stem_hashes);
     cudaFree(d_vocab_loss);
     cudaFree(d_horizons);
+    cudaFree(d_horizons_scratch);
     cudaFree(d_horizon_vocab_ids);
 
     free(h_rows);
