@@ -2052,8 +2052,23 @@ impl StudioEngine {
             )
         };
 
+        // Before build_predictions_json runs, intern the top UR4GLM08 TokenTransitionNode candidates
+        // into `self.vocab` when `!opening_hit` so the Top-8 table reflects live TokenTransitionNode logits.
+        let glm_next_candidates = if !opening_hit {
+            crate::glm_weights::predict_next_tokens_from_prompt(trimmed)
+        } else {
+            Vec::new()
+        };
+        let mut glm_interned_ids: Vec<(u32, &'static str)> = Vec::new();
+        for cand in &glm_next_candidates {
+            let atom = self.intern_token(&cand.piece);
+            if !glm_interned_ids.iter().any(|(id, _)| *id == atom.id) {
+                glm_interned_ids.push((atom.id, cand.source_tag));
+            }
+        }
+
         let last_prompt_root = prompt_tokens.last().map(|t| t.e8_root).unwrap_or(0);
-        let predictions_json = self.build_predictions_json(
+        let predictions_json = self.build_predictions_with_glm_json(
             last_prompt_root,
             &prompt_q12,
             prompt_sign,
@@ -2061,6 +2076,7 @@ impl StudioEngine {
             opening_token_id,
             opening_hit,
             &generated_tokens,
+            &glm_interned_ids,
         );
         let trajectory_json = self.build_trajectory_json(&prompt_tokens, &generated_tokens);
 
@@ -2179,16 +2195,51 @@ impl StudioEngine {
         opening_hit: bool,
         generated_tokens: &[TokenAtom],
     ) -> String {
+        self.build_predictions_with_glm_json(
+            source_root,
+            prompt_q12,
+            prompt_sign,
+            winning_turn_idx,
+            opening_token_id,
+            opening_hit,
+            generated_tokens,
+            &[],
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn build_predictions_with_glm_json(
+        &self,
+        source_root: u8,
+        prompt_q12: &[i16; POINT_KEY_DIM],
+        prompt_sign: u64,
+        winning_turn_idx: usize,
+        opening_token_id: u32,
+        opening_hit: bool,
+        generated_tokens: &[TokenAtom],
+        glm_candidates: &[(u32, &'static str)],
+    ) -> String {
         let mut candidate_ids: Vec<(u32, &'static str)> = Vec::new();
         candidate_ids.push((
             opening_token_id,
             if opening_hit {
                 "/7 Exact Opening Key"
             } else {
-                "/8 Point-Key L1 Plurality"
+                "TokenTransitionNode (#1 Emitted)"
             },
         ));
+        for &(cid, tag) in glm_candidates {
+            if !candidate_ids.iter().any(|(id, _)| *id == cid) {
+                candidate_ids.push((cid, tag));
+            }
+            if candidate_ids.len() >= 8 {
+                break;
+            }
+        }
         for tok in generated_tokens.iter().skip(1).take(3) {
+            if candidate_ids.len() >= 8 {
+                break;
+            }
             if !candidate_ids.iter().any(|(id, _)| *id == tok.id) {
                 candidate_ids.push((tok.id, "/7 Reply Continuation"));
             }
@@ -3881,6 +3932,53 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "workspace_pin" => engine.workspace_pin_json(payload),
         "workspace_batch" => engine.workspace_batch_json(payload),
         "uorlut_inspect" => engine.uorlut_inspect_json(payload),
+        "predict_next" => {
+            let trimmed = payload.trim();
+            if trimmed.is_empty() {
+                return "{\"status\":\"error\",\"message\":\"Context must not be empty.\"}"
+                    .to_string();
+            }
+            let cands = crate::glm_weights::predict_next_tokens_from_prompt(trimmed);
+            let mut arr = String::from("[");
+            for (idx, c) in cands.iter().enumerate() {
+                if idx > 0 {
+                    arr.push(',');
+                }
+                arr.push_str(&format!(
+                    concat!(
+                        "{{",
+                        "\"rank\":{},",
+                        "\"piece\":\"{}\",",
+                        "\"stem\":\"{}\",",
+                        "\"score\":{},",
+                        "\"q12_l1\":{},",
+                        "\"hamming_dist\":{},",
+                        "\"packed_4block\":{},",
+                        "\"level3_pointer_score\":{},",
+                        "\"basin_id\":{},",
+                        "\"source_tag\":\"{}\"",
+                        "}}"
+                    ),
+                    c.rank,
+                    escape_json(&c.piece),
+                    escape_json(&c.stem),
+                    c.score,
+                    c.q12_l1,
+                    c.hamming_dist,
+                    c.packed_4block,
+                    c.level3_pointer_score,
+                    c.basin_id,
+                    escape_json(c.source_tag)
+                ));
+            }
+            arr.push(']');
+            format!(
+                "{{\"status\":\"ok\",\"model\":\"{}\",\"context\":\"{}\",\"candidates\":{}}}",
+                crate::glm_weights::GLM_WEIGHTS_VERSION,
+                escape_json(trimmed),
+                arr
+            )
+        }
         "chat" => engine.chat_assistant_json(payload),
         "agent" => {
             let lower_payload = payload.to_ascii_lowercase();
@@ -4820,6 +4918,24 @@ mod tests {
         assert!(
             obs_reply.contains("<thought>") && obs_reply.contains("Observation"),
             "Agentic tool_response turn must synthesize observation reasoning: {obs_reply}"
+        );
+
+        // 14. Verify `1\tstudio\tpredict_next\t<context>` per-token TokenTransitionNode distribution
+        //     and 3-4 content-word natural prompts routing to concept basins without Mad-Libs templates.
+        let pred_next_raw =
+            dispatch_string("1\tstudio\tpredict_next\tHow do superconductors conduct electricity");
+        let pred_next_json: serde_json::Value =
+            serde_json::from_str(&pred_next_raw).expect("valid predict_next JSON");
+        assert_eq!(pred_next_json["status"], "ok");
+        assert_eq!(pred_next_json["model"], "UR4GLM08");
+        let next_cands = pred_next_json["candidates"].as_array().unwrap();
+        assert_eq!(next_cands.len(), 8);
+        assert!(next_cands[0]["score"].as_u64().unwrap() > 0);
+
+        let volcano_q = ask("Why do volcanoes erupt with lava?");
+        assert!(
+            !volcano_q.contains("1. **Define the Goal & Constraints First**"),
+            "3-4 content-word domain question must not fall into Mad-Libs bullet template: {volcano_q}"
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");

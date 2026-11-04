@@ -409,7 +409,7 @@ function renderActiveThreadMessages() {
   }
 }
 
-function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode = '') {
+function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode = '', streamTokens = false) {
   if (!chatTranscript) return;
   const card = document.createElement('div');
   card.className = `chat-turn chat-turn-${role}`;
@@ -422,8 +422,8 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
 
   const body = document.createElement('div');
   body.className = 'chat-turn-body';
-  if (role === 'assistant') {
-    renderFormattedMarkdownInto(body, bodyText);
+
+  const attachPatchBar = () => {
     if (patchPath && patchCode) {
       const bar = document.createElement('div');
       bar.className = 'inline-patch-bar';
@@ -445,6 +445,31 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
       bar.appendChild(applyBtn);
       body.appendChild(bar);
     }
+  };
+
+  if (role === 'assistant') {
+    const tokenPieces = bodyText.split(/(\s+)/);
+    if (streamTokens && tokenPieces.length > 8 && typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+      let idx = 0;
+      const stride = Math.max(4, Math.ceil(tokenPieces.length / 28));
+      const stepFrame = () => {
+        idx = Math.min(tokenPieces.length, idx + stride);
+        const partial = tokenPieces.slice(0, idx).join('');
+        renderFormattedMarkdownInto(body, partial);
+        if (idx < tokenPieces.length) {
+          chatTranscript.scrollTop = chatTranscript.scrollHeight;
+          window.requestAnimationFrame(stepFrame);
+        } else {
+          leftSpan.textContent = titleText;
+          attachPatchBar();
+          chatTranscript.scrollTop = chatTranscript.scrollHeight;
+        }
+      };
+      window.requestAnimationFrame(stepFrame);
+    } else {
+      renderFormattedMarkdownInto(body, bodyText);
+      attachPatchBar();
+    }
   } else {
     body.style.whiteSpace = 'pre-wrap';
     body.textContent = bodyText;
@@ -456,7 +481,7 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
   chatTranscript.scrollTop = chatTranscript.scrollHeight;
 }
 
-function appendChatTurn(role, titleText, bodyText, patchPath = '', patchCode = '') {
+function appendChatTurn(role, titleText, bodyText, patchPath = '', patchCode = '', streamTokens = false) {
   const thread = getActiveThread();
   thread.messages.push({
     role,
@@ -469,7 +494,7 @@ function appendChatTurn(role, titleText, bodyText, patchPath = '', patchCode = '
     thread.title = bodyText.length > 34 ? `${bodyText.slice(0, 34)}...` : bodyText;
     renderThreadSidebar();
   }
-  appendChatTurnDom(role, titleText, bodyText, patchPath, patchCode);
+  appendChatTurnDom(role, titleText, bodyText, patchPath, patchCode, streamTokens);
 }
 
 function runClaudeChat(promptText, recordUserBubble = true) {
@@ -493,7 +518,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     : 'UOR-R4 GLM';
   const patchTarget = chatRes.is_coding_turn ? chatRes.target_file : '';
   const patchBody = chatRes.is_coding_turn ? (chatRes.proposed_code || '') : '';
-  appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody);
+  appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody, true);
 
   if (chatRes.is_coding_turn) {
     pendingPatchPath = chatRes.target_file;

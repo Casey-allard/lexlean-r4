@@ -415,46 +415,239 @@ fn split_section_horizon_clauses(sec_text: &str) -> Vec<&str> {
         .collect()
 }
 
-/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM06`).
+/// Single-token transition node in the UOR-R4 autoregressive token graph (`UR4GLM08`).
 ///
-/// Steps one surface token at a time (`w_0 -> w_1 -> w_2 -> ... -> w_T`) across the active
-/// token transition lattice using:
-/// 1. `GlmRetentionState` (`RETAIN_LAMBDA_Q31` 8-head integer decay + 4D Hamilton quaternion state),
-/// 2. `GLM_TOKEN_HORIZONS` (RTX 5090 CUDA-trained lookahead horizon coordinates & Base-17 4-block trunk addresses),
-/// 3. Syntactic pivot switching at clause/conjunction/sentence boundaries (`,`, `;`, `.`, `and`, `while`, `where`, `which`),
-/// 4. `R4.Prediction.selectContextualToken` loop-prevention recency penalties.
-///
-/// Returns `(generated_prose, tokens_stepped, branch_decisions_evaluated)`.
-pub fn generate_token_level_geometric_prose(
-    prompt_words: &[String],
-    nodes: &[&GlmConceptNode],
-    min_tokens: usize,
-    max_tokens: usize,
-) -> (String, usize, usize) {
-    let mut state = GlmRetentionState::new();
-    for pw in prompt_words {
-        state.step_token(pw);
-    }
+/// Every token position `w_i` in the active submanifold is represented as an individual
+/// vertex carrying its own `Q12` coordinate (`token_q12`), `64-bit SWAR` quaternion sign code
+/// (`token_sign`), Base-17 `packed_4block` trunk cell, 3-token causal context `(prev_3, prev_2, prev_1)`,
+/// and 16-token lookahead stem horizon (`lookahead_stems`).
+#[derive(Clone)]
+struct TokenTransitionNode {
+    node_id: usize,
+    basin_id: u16,
+    node_rank: usize,
+    sec_idx: u8,
+    clause_id: usize,
+    pos_in_clause: usize,
+    clause_len: usize,
+    token_piece: String,
+    token_lower: String,
+    stem: String,
+    prev_1: String,
+    prev_2: String,
+    prev_3: String,
+    token_q12: [i16; POINT_KEY_DIM],
+    token_sign: u64,
+    packed_4block: u32,
+    idf_weight: u16,
+    horizon_idx: usize,
+    horizon: GlmTokenHorizon,
+    lookahead_stems: Vec<String>,
+    next_node_id: Option<usize>,
+    opens_clause: bool,
+    closes_sentence: bool,
+    prefix_markdown_balanced: bool,
+    suffix_markdown_balanced: bool,
+}
 
-    let prompt_stems: Vec<String> = prompt_words
+/// Top-K next-token prediction candidate produced by `predict_next_tokens_from_prompt`.
+#[derive(Debug, Clone)]
+pub struct NextTokenCandidate {
+    /// 1-based rank in the next-token distribution (`1..=8`).
+    pub rank: usize,
+    /// Predicted surface token piece (`w_{t+1}`).
+    pub piece: String,
+    /// Canonical stem of the predicted token.
+    pub stem: String,
+    /// Total integer logit score (`Q12` proximity + `SWAR` Hamming + `Level-3` pointer + n-gram + lookahead).
+    pub score: u32,
+    /// `Q12` L1 distance between the fast retention head (`heads_q12[0]`) and `token_q12`.
+    pub q12_l1: u32,
+    /// `64-bit SWAR` Hamming distance between the active retention sign code and `token_sign`.
+    pub hamming_dist: u32,
+    /// Base-17 4-block trunk cell (`0..83520`).
+    pub packed_4block: u32,
+    /// Level-3 joint pointer score (`R4-25`).
+    pub level3_pointer_score: u32,
+    /// Source basin ID (`0..279`).
+    pub basin_id: u16,
+    /// Source transition tag (`"TokenTransitionNode (/7 Geodesic)"`, `"Bigram Pivot"`, etc.).
+    pub source_tag: &'static str,
+}
+
+fn normalize_token_lower(raw: &str) -> String {
+    raw.chars()
+        .filter(|c| c.is_ascii_alphanumeric())
+        .map(|c| c.to_ascii_lowercase())
+        .collect()
+}
+
+fn stems_match_fuzzy(a: &str, b: &str) -> bool {
+    a == b
+        || (a.len() >= 5
+            && b.len() >= 5
+            && a.len().abs_diff(b.len()) <= 2
+            && (a.starts_with(&b[..b.len() - 1]) || b.starts_with(&a[..a.len() - 1])))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_clause_to_token_graph(
+    token_nodes: &mut Vec<TokenTransitionNode>,
+    clause_id: usize,
+    basin_id: u16,
+    node_rank: usize,
+    sec_idx: u8,
+    horizon_idx: usize,
+    horizon: GlmTokenHorizon,
+    clause_text: &str,
+) {
+    let s_trim = clause_text.trim();
+    let formatted = if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
+        s_trim.to_string()
+    } else {
+        format!("{s_trim}.")
+    };
+    let toks: Vec<String> = formatted.split_whitespace().map(String::from).collect();
+    if toks.len() < 4 {
+        return;
+    }
+    let norms: Vec<String> = toks.iter().map(|t| normalize_token_lower(t)).collect();
+    let stems: Vec<String> = norms
         .iter()
-        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
-        .map(|w| canonical_glm_stem(w))
-        .filter(|s| s.len() >= 3)
+        .map(|n| {
+            if n.is_empty() {
+                String::new()
+            } else {
+                canonical_glm_stem(n)
+            }
+        })
         .collect();
 
-    // Build the active token lattice spans linked to their CUDA-trained `GlmTokenHorizon` rows
-    struct TokenSpan {
-        basin_id: u16,
-        node_rank: usize,
-        sec_idx: u8,
-        tokens: Vec<String>,
-        stems: Vec<String>,
-        horizon_idx: usize,
-        horizon: GlmTokenHorizon,
-    }
+    let base_node_id = token_nodes.len();
+    let clause_len = toks.len();
 
-    let mut spans: Vec<TokenSpan> = Vec::new();
+    for i in 0..clause_len {
+        let node_id = base_node_id + i;
+        let token_piece = toks[i].clone();
+        let token_lower = norms[i].clone();
+        let stem = stems[i].clone();
+        let prev_1 = if i >= 1 {
+            norms[i - 1].clone()
+        } else {
+            "<bos>".to_string()
+        };
+        let prev_2 = if i >= 2 {
+            norms[i - 2].clone()
+        } else {
+            "<bos>".to_string()
+        };
+        let prev_3 = if i >= 3 {
+            norms[i - 3].clone()
+        } else {
+            "<bos>".to_string()
+        };
+
+        let vocab_entry = if !token_lower.is_empty() {
+            lookup_trained_vocab(&token_lower).or_else(|| {
+                if !stem.is_empty() {
+                    lookup_trained_vocab(&stem)
+                } else {
+                    None
+                }
+            })
+        } else {
+            None
+        };
+
+        let (token_q12, token_sign, packed_4block, idf_weight) = if let Some(entry) = vocab_entry {
+            let mut q12 = [0i16; POINT_KEY_DIM];
+            for (lane, slot) in q12.iter_mut().enumerate() {
+                *slot = ((i32::from(entry.q12_coords[lane]) * 2
+                    + i32::from(horizon.horizon_q12[lane]))
+                    / 3)
+                    .clamp(-4096, 4096) as i16;
+            }
+            let sign = entry.sign_code ^ horizon.horizon_sign.rotate_left((i % 16) as u32);
+            let p4b = (((entry.sign_code % 17) as u32)
+                + 17 * (horizon.packed_4block % 4913))
+                % 83521;
+            (q12, sign, p4b, entry.idf_weight)
+        } else {
+            let mut h = 0xcbf2_9ce4_8422_2325u64;
+            for &b in token_lower.as_bytes() {
+                h ^= u64::from(b);
+                h = h.wrapping_mul(0x0100_0000_01b3);
+            }
+            let mut q12 = [0i16; POINT_KEY_DIM];
+            for (lane, slot) in q12.iter_mut().enumerate() {
+                let delta = (((h >> (lane * 8)) & 0x7F) as i16) - 64;
+                *slot = horizon.horizon_q12[lane]
+                    .saturating_add(delta * 8)
+                    .clamp(-4096, 4096);
+            }
+            let sign = horizon.horizon_sign ^ h.rotate_left((i % 31) as u32);
+            let p4b = ((h as u32 % 17) + 17 * (horizon.packed_4block % 4913)) % 83521;
+            (q12, sign, p4b, 96)
+        };
+
+        let lookahead_end = (i + 16).min(clause_len);
+        let mut lookahead_stems: Vec<String> = Vec::new();
+        for st in &stems[i..lookahead_end] {
+            if st.len() >= 3 && !is_stopword(st) && !lookahead_stems.contains(st) {
+                lookahead_stems.push(st.clone());
+            }
+        }
+
+        let opens_clause = i == 0;
+        let closes_sentence = i + 1 == clause_len
+            || token_piece.ends_with('.')
+            || token_piece.ends_with('!')
+            || token_piece.ends_with('?');
+        let prefix_markdown_balanced = is_balanced_markdown_slice(&toks[..=i]);
+        let suffix_markdown_balanced = is_balanced_markdown_slice(&toks[i..]);
+        let next_node_id = if i + 1 < clause_len {
+            Some(node_id + 1)
+        } else {
+            None
+        };
+
+        token_nodes.push(TokenTransitionNode {
+            node_id,
+            basin_id,
+            node_rank,
+            sec_idx,
+            clause_id,
+            pos_in_clause: i,
+            clause_len,
+            token_piece,
+            token_lower,
+            stem,
+            prev_1,
+            prev_2,
+            prev_3,
+            token_q12,
+            token_sign,
+            packed_4block,
+            idf_weight,
+            horizon_idx,
+            horizon,
+            lookahead_stems,
+            next_node_id,
+            opens_clause,
+            closes_sentence,
+            prefix_markdown_balanced,
+            suffix_markdown_balanced,
+        });
+    }
+}
+
+fn build_token_transition_graph(
+    nodes: &[&GlmConceptNode],
+    extra_clauses: &[(u8, String)],
+) -> Vec<TokenTransitionNode> {
+    let mut token_nodes: Vec<TokenTransitionNode> = Vec::new();
+    let mut clause_id = 0usize;
+
     for (node_rank, &node) in nodes.iter().enumerate() {
         let sections = [
             node.summary,
@@ -466,30 +659,6 @@ pub fn generate_token_level_geometric_prose(
         for (sec_idx, &sec_text) in sections.iter().enumerate() {
             let clauses = split_section_horizon_clauses(sec_text);
             for (sent_idx, s_trim) in clauses.into_iter().enumerate() {
-                let formatted =
-                    if s_trim.ends_with('.') || s_trim.ends_with('!') || s_trim.ends_with('?') {
-                        s_trim.to_string()
-                    } else {
-                        format!("{s_trim}.")
-                    };
-                let toks: Vec<String> = formatted.split_whitespace().map(String::from).collect();
-                if toks.len() < 4 {
-                    continue;
-                }
-                let mut stems: Vec<String> = Vec::new();
-                for w in tokenize_words_simple(&formatted) {
-                    let st = canonical_glm_stem(&w);
-                    if st.len() >= 3 && !is_stopword(&st) && !stems.contains(&st) {
-                        stems.push(st);
-                    }
-                }
-                for t in &toks {
-                    let st = canonical_glm_stem(&t.to_ascii_lowercase());
-                    if st.len() >= 3 && !is_stopword(&st) && !stems.contains(&st) {
-                        stems.push(st);
-                    }
-                }
-
                 let (horizon_idx, horizon) = GLM_TOKEN_HORIZONS
                     .iter()
                     .enumerate()
@@ -514,20 +683,226 @@ pub fn generate_token_level_geometric_prose(
                         },
                     ));
 
-                spans.push(TokenSpan {
-                    basin_id: node.id,
+                append_clause_to_token_graph(
+                    &mut token_nodes,
+                    clause_id,
+                    node.id,
                     node_rank,
-                    sec_idx: sec_idx as u8,
-                    tokens: toks,
-                    stems,
+                    sec_idx as u8,
                     horizon_idx,
                     horizon,
-                });
+                    s_trim,
+                );
+                clause_id += 1;
             }
         }
     }
 
-    if spans.is_empty() {
+    for &(sec_idx, ref clause_str) in extra_clauses {
+        let fallback_horizon = GlmTokenHorizon {
+            horizon_q12: [512, -384, 768, -256, 640, -512, 384, -640],
+            horizon_sign: 0x9E37_79B9_7F4A_7C15u64.rotate_left(u32::from(sec_idx) * 7),
+            packed_4block: (u32::from(sec_idx) * 191 + 17) % 83521,
+            basin_id: 999,
+            section_idx: sec_idx,
+            sentence_idx: 0,
+            next_horizon_id: 0,
+            alt_horizon_id: 0,
+            transition_energy: 48,
+        };
+        append_clause_to_token_graph(
+            &mut token_nodes,
+            clause_id,
+            999,
+            nodes.len(),
+            sec_idx,
+            usize::MAX,
+            fallback_horizon,
+            clause_str,
+        );
+        clause_id += 1;
+    }
+
+    token_nodes
+}
+
+#[allow(clippy::too_many_arguments)]
+fn score_token_transition_node(
+    tn: &TokenTransitionNode,
+    st: &GlmRetentionState,
+    last_3: &str,
+    last_2: &str,
+    last_1: &str,
+    cur_node_opt: Option<&TokenTransitionNode>,
+    used_stems: &[String],
+    used_secs: &[u8],
+    prompt_stems: &[String],
+    preferred_sec: Option<u8>,
+) -> u32 {
+    // 1. Fast syntactic head (`heads_q12[0]`) + slow semantic horizon head (`heads_q12[7]`) Q12 proximity
+    let l1_fast = q12_l1_distance(&st.heads_q12[0], &tn.token_q12);
+    let fast_q12_prox = 4096u32.saturating_sub(l1_fast / 6) / 160;
+    let l1_slow = q12_l1_distance(&st.heads_q12[7], &tn.horizon.horizon_q12);
+    let slow_q12_prox = 4096u32.saturating_sub(l1_slow / 6) / 140;
+
+    // 2. Per-token 64-bit SWAR quaternion sign-code resonance
+    let ham = swar_hamming_distance(st.sign_code, tn.token_sign);
+    let ham_bonus = 64u32.saturating_sub(ham) / 3;
+
+    // 3. Base-17 4-block trunk alignment + Level-3 causal pointer induction (`R4-25`)
+    let cur_4b = st.packed_4block_root();
+    let cand_4b = tn.packed_4block;
+    let mut block_matches = 0u32;
+    let mut a = cur_4b;
+    let mut b = cand_4b;
+    for _ in 0..4 {
+        if (a % 17) == (b % 17) {
+            block_matches += 4;
+        }
+        a /= 17;
+        b /= 17;
+    }
+
+    let q_root = (cur_4b % 17) as u8;
+    let ptr_match = st
+        .causal_pointer_successor(q_root)
+        .is_some_and(|(succ_root, succ_tok)| {
+            let succ_lower = succ_tok.to_ascii_lowercase();
+            let succ_stem = canonical_glm_stem(&succ_lower);
+            succ_root == ((cand_4b % 17) as u8)
+                && (tn.token_lower == succ_lower
+                    || (!succ_stem.is_empty()
+                        && (tn.stem == succ_stem || tn.lookahead_stems.contains(&succ_stem))))
+        });
+    let l3_score = st.level3_joint_pointer_score(
+        &tn.token_q12,
+        tn.token_sign,
+        cand_4b,
+        ptr_match,
+    ) / 24;
+
+    // 4. N-gram context continuity & CUDA `/7` horizon transition edges
+    let context_edge_bonus = if let Some(cur_node) = cur_node_opt {
+        if Some(tn.node_id) == cur_node.next_node_id {
+            36
+        } else {
+            let ngram_bonus = if tn.prev_1 == last_1 && tn.prev_2 == last_2 && tn.prev_3 == last_3 {
+                34
+            } else if tn.prev_1 == last_1 && tn.prev_2 == last_2 {
+                26
+            } else if tn.prev_1 == last_1 {
+                16
+            } else {
+                0
+            };
+            let h_edge = if tn.horizon_idx != usize::MAX
+                && tn.horizon_idx == usize::from(cur_node.horizon.next_horizon_id)
+            {
+                20u32
+                    .saturating_sub(cur_node.horizon.transition_energy / 256)
+                    .max(10)
+            } else if tn.horizon_idx != usize::MAX
+                && tn.horizon_idx == usize::from(cur_node.horizon.alt_horizon_id)
+            {
+                14
+            } else {
+                0
+            };
+            ngram_bonus + h_edge
+        }
+    } else {
+        let intent_sec_bonus = if used_secs.is_empty() && preferred_sec == Some(tn.sec_idx) {
+            10
+        } else {
+            0
+        };
+        let sec_diversity_bonus = if !used_secs.contains(&tn.sec_idx) {
+            8
+        } else {
+            0
+        };
+        intent_sec_bonus + sec_diversity_bonus
+    };
+
+    let rank_base = if tn.node_rank == 0 {
+        28u32.saturating_sub(u32::from(tn.sec_idx) * 3)
+    } else {
+        18u32.saturating_sub(u32::from(tn.sec_idx) * 3)
+    };
+
+    // 5. Immediate token stem + 16-token lookahead stem resonance against uncovered prompt stems
+    let mut prompt_bonus = 0u32;
+    if tn.stem.len() >= 3
+        && prompt_stems
+            .iter()
+            .any(|ps| stems_match_fuzzy(&tn.stem, ps))
+        && !used_stems.iter().any(|us| stems_match_fuzzy(us, &tn.stem))
+    {
+        prompt_bonus += 14 + (u32::from(tn.idf_weight) / 64);
+    }
+    for ps in prompt_stems {
+        if tn.lookahead_stems.iter().any(|ls| stems_match_fuzzy(ls, ps)) {
+            let idf = lookup_trained_vocab(ps)
+                .map(|e| u32::from(e.idf_weight) / 48)
+                .unwrap_or(6);
+            let already_covered = used_stems.iter().any(|us| stems_match_fuzzy(us, ps));
+            if !already_covered {
+                prompt_bonus += 28 + idf;
+            } else {
+                prompt_bonus += 3;
+            }
+        }
+    }
+
+    let redundancy = tn
+        .lookahead_stems
+        .iter()
+        .filter(|ls| {
+            !prompt_stems.iter().any(|ps| stems_match_fuzzy(ls, ps)) && used_stems.contains(ls)
+        })
+        .count()
+        .min(5) as u32;
+
+    (rank_base
+        + context_edge_bonus
+        + fast_q12_prox
+        + slow_q12_prox
+        + ham_bonus
+        + block_matches
+        + l3_score
+        + prompt_bonus)
+        .saturating_sub(redundancy * 2)
+}
+
+/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM08`) with optional supplemental clauses.
+///
+/// Steps one surface token at a time (`w_0 -> w_1 -> w_2 -> ... -> w_T`) across the per-token
+/// `TokenTransitionNode` graph using:
+/// 1. `GlmRetentionState` (`RETAIN_LAMBDA_Q31` 16-head integer decay + 4D Hamilton quaternion state),
+/// 2. Per-token `token_q12`, `token_sign`, `packed_4block`, and `level3_joint_pointer_score` (`R4-25`),
+/// 3. N-gram context continuity `(prev_3, prev_2, prev_1)` + syntactic pivot branching across 40+ grammatical pivots,
+/// 4. One-token-at-a-time `used_stems` updates with a 16-token lookahead value horizon (`lookahead_stems`).
+pub fn generate_token_level_geometric_prose_with_clauses(
+    prompt_words: &[String],
+    nodes: &[&GlmConceptNode],
+    extra_clauses: &[(u8, String)],
+    min_tokens: usize,
+    max_tokens: usize,
+) -> (String, usize, usize) {
+    let mut state = GlmRetentionState::new();
+    for pw in prompt_words {
+        state.step_token(pw);
+    }
+
+    let prompt_stems: Vec<String> = prompt_words
+        .iter()
+        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
+        .map(|w| canonical_glm_stem(w))
+        .filter(|s| s.len() >= 3)
+        .collect();
+
+    let token_nodes = build_token_transition_graph(nodes, extra_clauses);
+    if token_nodes.is_empty() {
         return (String::new(), 0, 0);
     }
 
@@ -559,275 +934,346 @@ pub fn generate_token_level_geometric_prose(
         None
     };
 
-    let score_span_against_state =
-        |sp: &TokenSpan, st: &GlmRetentionState, used_stems: &[String], used_secs: &[u8]| -> u32 {
-            let slow_head = &st.heads_q12[7];
-            let l1 = q12_l1_distance(slow_head, &sp.horizon.horizon_q12);
-            let q12_prox = 4096u32.saturating_sub(l1 / 6) / 128;
-            let ham = swar_hamming_distance(st.sign_code, sp.horizon.horizon_sign);
-            let ham_bonus = 64u32.saturating_sub(ham) / 3;
-
-            let cur_4b = st.packed_4block_root();
-            let cand_4b = sp.horizon.packed_4block;
-            let mut block_matches = 0u32;
-            let mut a = cur_4b;
-            let mut b = cand_4b;
-            for _ in 0..4 {
-                if (a % 17) == (b % 17) {
-                    block_matches += 4;
-                }
-                a /= 17;
-                b /= 17;
-            }
-
-            let q_root = (cur_4b % 17) as u8;
-            let ptr_match = st
-                .causal_pointer_successor(q_root)
-                .is_some_and(|(succ_root, succ_tok)| {
-                    let succ_stem = canonical_glm_stem(&succ_tok.to_ascii_lowercase());
-                    succ_root == ((cand_4b % 17) as u8)
-                        && (sp
-                            .tokens
-                            .first()
-                            .is_some_and(|first| first.eq_ignore_ascii_case(succ_tok))
-                            || (!succ_stem.is_empty() && sp.stems.iter().any(|ss| ss == &succ_stem)))
-                });
-            let l3_score = st.level3_joint_pointer_score(
-                &sp.horizon.horizon_q12,
-                sp.horizon.horizon_sign,
-                cand_4b,
-                ptr_match,
-            ) / 24;
-
-            let rank_base = if sp.node_rank == 0 {
-                28u32.saturating_sub(u32::from(sp.sec_idx) * 3)
-            } else {
-                18u32.saturating_sub(u32::from(sp.sec_idx) * 3)
-            };
-
-            let intent_sec_bonus = if used_secs.is_empty() && preferred_sec == Some(sp.sec_idx) {
-                8
-            } else {
-                0
-            };
-
-            let sec_diversity_bonus = if !used_secs.contains(&sp.sec_idx) {
-                8
-            } else {
-                0
-            };
-
-            let stems_match = |a: &str, b: &str| -> bool {
-                a == b
-                    || (a.len() >= 5
-                        && b.len() >= 5
-                        && a.len().abs_diff(b.len()) <= 2
-                        && (a.starts_with(&b[..b.len() - 1]) || b.starts_with(&a[..a.len() - 1])))
-            };
-
-            let mut prompt_bonus = 0u32;
-            for ps in &prompt_stems {
-                if sp.stems.iter().any(|ss| stems_match(ss, ps)) {
-                    let idf = lookup_trained_vocab(ps)
-                        .map(|e| u32::from(e.idf_weight) / 48)
-                        .unwrap_or(6);
-                    let already_covered = used_stems.iter().any(|us| stems_match(us, ps));
-                    if !already_covered {
-                        prompt_bonus += 28 + idf;
-                    }
-                }
-            }
-
-            let redundancy = sp
-                .stems
-                .iter()
-                .filter(|ss| {
-                    !prompt_stems.iter().any(|ps| stems_match(ss, ps)) && used_stems.contains(ss)
-                })
-                .count()
-                .min(4) as u32;
-
-            (rank_base
-                + intent_sec_bonus
-                + sec_diversity_bonus
-                + q12_prox
-                + ham_bonus
-                + block_matches
-                + l3_score
-                + prompt_bonus)
-                .saturating_sub(redundancy * 2)
-        };
-
-    let mut used_spans: Vec<usize> = Vec::new();
+    let mut used_clauses: Vec<usize> = Vec::new();
     let mut used_stems: Vec<String> = Vec::new();
     let mut used_secs: Vec<u8> = Vec::new();
     let mut emitted_tokens: Vec<String> = Vec::new();
     let mut branch_decisions = 0usize;
 
-    // Select initial opening span `(w_0, w_1, ...)` via CUDA-trained horizon resonance
+    let mut last_3 = String::from("<bos>");
+    let mut last_2 = String::from("<bos>");
+    let mut last_1 = String::from("<bos>");
+
+    // Step 0: Select the opening `TokenTransitionNode` `w_0` across all clause-entry nodes
     branch_decisions += 1;
-    let mut cur_span_idx = (0..spans.len())
-        .max_by_key(|&idx| score_span_against_state(&spans[idx], &state, &used_stems, &used_secs))
+    let mut cur_node_id = token_nodes
+        .iter()
+        .filter(|tn| tn.opens_clause)
+        .max_by_key(|tn| {
+            score_token_transition_node(
+                tn,
+                &state,
+                &last_3,
+                &last_2,
+                &last_1,
+                None,
+                &used_stems,
+                &used_secs,
+                &prompt_stems,
+                preferred_sec,
+            )
+        })
+        .map(|tn| tn.node_id)
         .unwrap_or(0);
-    used_spans.push(cur_span_idx);
-    used_secs.push(spans[cur_span_idx].sec_idx);
-    for st in &spans[cur_span_idx].stems {
-        if !used_stems.contains(st) {
-            used_stems.push(st.clone());
-        }
-    }
-    let mut cur_tok_idx = 0usize;
-    let mut tokens_in_cur_span = 0usize;
+
+    used_clauses.push(token_nodes[cur_node_id].clause_id);
+    used_secs.push(token_nodes[cur_node_id].sec_idx);
+    let mut tokens_in_cur_clause = 0usize;
     let mut mid_pivots_taken = 0usize;
 
-    // Step token-by-token (`w_0 -> w_1 -> w_2 -> ...`) through the geometric transition lattice
+    // Step token-by-token (`w_0 -> w_1 -> w_2 -> ... -> w_T`) through `token_nodes`
     while emitted_tokens.len() < max_tokens {
-        let tok_piece = spans[cur_span_idx].tokens[cur_tok_idx].clone();
+        let cur_node = &token_nodes[cur_node_id];
+        let tok_piece = cur_node.token_piece.clone();
+
+        // Update 16-head integer retention state and one-token-at-a-time stem coverage
         state.step_token(&tok_piece);
         emitted_tokens.push(tok_piece.clone());
-        tokens_in_cur_span += 1;
+        tokens_in_cur_clause += 1;
+        if cur_node.stem.len() >= 3
+            && !is_stopword(&cur_node.stem)
+            && !used_stems.contains(&cur_node.stem)
+        {
+            used_stems.push(cur_node.stem.clone());
+        }
+        last_3 = last_2;
+        last_2 = last_1;
+        last_1 = if cur_node.token_lower.is_empty() {
+            tok_piece.to_ascii_lowercase()
+        } else {
+            cur_node.token_lower.clone()
+        };
 
-        let is_sentence_end =
-            tok_piece.ends_with('.') || tok_piece.ends_with('!') || tok_piece.ends_with('?');
-        let at_span_end = cur_tok_idx + 1 >= spans[cur_span_idx].tokens.len();
-
-        if (is_sentence_end || at_span_end)
+        let at_clause_end = cur_node.next_node_id.is_none();
+        if (cur_node.closes_sentence || at_clause_end)
             && emitted_tokens.len() >= min_tokens
             && is_balanced_markdown_slice(&emitted_tokens)
         {
             break;
         }
 
-        // Check for mid-sentence syntactic pivot branches across 40+ grammatical pivot tokens
-        let at_grammatical_pivot = cur_tok_idx >= 5
-            && cur_tok_idx + 4 < spans[cur_span_idx].tokens.len()
-            && is_grammatical_pivot_token(&tok_piece)
-            && is_balanced_markdown_slice(&spans[cur_span_idx].tokens[..=cur_tok_idx]);
-        if at_grammatical_pivot {
-            branch_decisions += 1;
-        }
-        let cur_has_prompt_stem = spans[cur_span_idx].stems.iter().any(|ss| {
-            prompt_stems.iter().any(|ps| {
-                ss == ps
-                    || (ss.len() >= 5
-                        && ps.len() >= 5
-                        && ss.len().abs_diff(ps.len()) <= 2
-                        && (ss.starts_with(&ps[..ps.len() - 1])
-                            || ps.starts_with(&ss[..ss.len() - 1])))
-            })
-        });
-        let is_pivot_word = nodes.len() >= 2
-            && !cur_has_prompt_stem
-            && mid_pivots_taken == 0
-            && tokens_in_cur_span >= 14
-            && at_grammatical_pivot;
+        if let Some(direct_next_id) = cur_node.next_node_id {
+            let at_grammatical_pivot = cur_node.pos_in_clause >= 5
+                && cur_node.pos_in_clause + 4 < cur_node.clause_len
+                && is_grammatical_pivot_token(&tok_piece)
+                && cur_node.prefix_markdown_balanced;
+            if at_grammatical_pivot {
+                branch_decisions += 1;
+            }
 
-        if at_span_end {
-            // Sentence boundary transition: follow CUDA-trained `/7` geodesic transition edges (`next_horizon_id` / `alt_horizon_id`)
-            // combined with active `GlmRetentionState` resonance
-            branch_decisions += 1;
-            let cur_h = spans[cur_span_idx].horizon;
-            let next_span_opt = (0..spans.len())
-                .filter(|idx| !used_spans.contains(idx))
-                .max_by_key(|&idx| {
-                    let base =
-                        score_span_against_state(&spans[idx], &state, &used_stems, &used_secs);
-                    let cand_h_idx = spans[idx].horizon_idx;
-                    let edge_bonus = if cand_h_idx != usize::MAX
-                        && cand_h_idx == usize::from(cur_h.next_horizon_id)
-                    {
-                        22u32.saturating_sub(cur_h.transition_energy / 256).max(10)
-                    } else if cand_h_idx != usize::MAX
-                        && cand_h_idx == usize::from(cur_h.alt_horizon_id)
-                    {
-                        14
-                    } else {
-                        0
-                    };
-                    base + edge_bonus
-                });
+            let direct_next_node = &token_nodes[direct_next_id];
+            let rem_has_uncovered_prompt_stem = direct_next_node.lookahead_stems.iter().any(|ls| {
+                prompt_stems.iter().any(|ps| {
+                    stems_match_fuzzy(ls, ps)
+                        && !used_stems.iter().any(|us| stems_match_fuzzy(us, ps))
+                })
+            });
 
-            if let Some(next_span) = next_span_opt {
-                cur_span_idx = next_span;
-                cur_tok_idx = 0;
-                tokens_in_cur_span = 0;
-                used_spans.push(cur_span_idx);
-                if !used_secs.contains(&spans[cur_span_idx].sec_idx) {
-                    used_secs.push(spans[cur_span_idx].sec_idx);
-                }
-                for st in &spans[cur_span_idx].stems {
-                    if !used_stems.contains(st) {
-                        used_stems.push(st.clone());
+            let can_evaluate_mid_pivot = at_grammatical_pivot
+                && mid_pivots_taken == 0
+                && tokens_in_cur_clause >= 12
+                && !rem_has_uncovered_prompt_stem;
+
+            if can_evaluate_mid_pivot {
+                let direct_score = score_token_transition_node(
+                    direct_next_node,
+                    &state,
+                    &last_3,
+                    &last_2,
+                    &last_1,
+                    Some(cur_node),
+                    &used_stems,
+                    &used_secs,
+                    &prompt_stems,
+                    preferred_sec,
+                ) + 12;
+
+                let mut best_pivot: Option<(usize, u32)> = None;
+                for cand in &token_nodes {
+                    if used_clauses.contains(&cand.clause_id)
+                        || cand.pos_in_clause < 4
+                        || cand.pos_in_clause + 4 >= cand.clause_len
+                        || !cand.suffix_markdown_balanced
+                    {
+                        continue;
                     }
+                    let bigram_match = cand.prev_1 == last_1 && cand.prev_2 == last_2;
+                    let pivot_token_match = cand.prev_1 == last_1 && nodes.len() >= 2;
+                    if bigram_match || pivot_token_match {
+                        branch_decisions += 1;
+                        let s = score_token_transition_node(
+                            cand,
+                            &state,
+                            &last_3,
+                            &last_2,
+                            &last_1,
+                            Some(cur_node),
+                            &used_stems,
+                            &used_secs,
+                            &prompt_stems,
+                            preferred_sec,
+                        );
+                        if s > direct_score && best_pivot.is_none_or(|(_, bs)| s > bs) {
+                            best_pivot = Some((cand.node_id, s));
+                        }
+                    }
+                }
+
+                if let Some((win_node_id, _)) = best_pivot {
+                    cur_node_id = win_node_id;
+                    tokens_in_cur_clause = 0;
+                    mid_pivots_taken += 1;
+                    let win_clause = token_nodes[win_node_id].clause_id;
+                    let win_sec = token_nodes[win_node_id].sec_idx;
+                    if !used_clauses.contains(&win_clause) {
+                        used_clauses.push(win_clause);
+                    }
+                    if !used_secs.contains(&win_sec) {
+                        used_secs.push(win_sec);
+                    }
+                } else {
+                    cur_node_id = direct_next_id;
+                }
+            } else {
+                cur_node_id = direct_next_id;
+            }
+        } else {
+            // Clause boundary: score every unused clause's opening `TokenTransitionNode` against `state`
+            // and the CUDA-trained `/7` geodesic transition edges (`next_horizon_id` / `alt_horizon_id`)
+            branch_decisions += 1;
+            let next_open_opt = token_nodes
+                .iter()
+                .filter(|tn| tn.opens_clause && !used_clauses.contains(&tn.clause_id))
+                .max_by_key(|tn| {
+                    score_token_transition_node(
+                        tn,
+                        &state,
+                        &last_3,
+                        &last_2,
+                        &last_1,
+                        Some(cur_node),
+                        &used_stems,
+                        &used_secs,
+                        &prompt_stems,
+                        preferred_sec,
+                    )
+                })
+                .map(|tn| tn.node_id);
+
+            if let Some(next_id) = next_open_opt {
+                cur_node_id = next_id;
+                tokens_in_cur_clause = 0;
+                let win_clause = token_nodes[next_id].clause_id;
+                let win_sec = token_nodes[next_id].sec_idx;
+                used_clauses.push(win_clause);
+                if !used_secs.contains(&win_sec) {
+                    used_secs.push(win_sec);
                 }
             } else {
                 break;
             }
-        } else if is_pivot_word {
-            // Evaluate whether continuing in `cur_span_idx` or pivoting at `tok_piece` into another resonant span scores higher
-            let cur_score =
-                score_span_against_state(&spans[cur_span_idx], &state, &[], &used_secs) + 20;
-            let cur_h = spans[cur_span_idx].horizon;
-            let mut best_pivot: Option<(usize, usize, u32)> = None;
-            for (cand_idx, cand_span) in spans.iter().enumerate() {
-                if used_spans.contains(&cand_idx)
-                    || (cand_span.basin_id != spans[cur_span_idx].basin_id && nodes.len() < 2)
-                {
-                    continue;
-                }
-                if let Some(pos) = cand_span
-                    .tokens
-                    .iter()
-                    .enumerate()
-                    .skip(3)
-                    .find(|&(i, t)| {
-                        t == &tok_piece
-                            && i + 4 < cand_span.tokens.len()
-                            && is_balanced_markdown_slice(&cand_span.tokens[i + 1..])
-                    })
-                    .map(|(i, _)| i + 1)
-                {
-                    branch_decisions += 1;
-                    let edge_bonus = if cand_span.horizon_idx != usize::MAX
-                        && (cand_span.horizon_idx == usize::from(cur_h.next_horizon_id)
-                            || cand_span.horizon_idx == usize::from(cur_h.alt_horizon_id))
-                    {
-                        12
-                    } else {
-                        0
-                    };
-                    let s = score_span_against_state(cand_span, &state, &used_stems, &used_secs)
-                        + edge_bonus;
-                    if s > cur_score && best_pivot.is_none_or(|(_, _, bs)| s > bs) {
-                        best_pivot = Some((cand_idx, pos, s));
-                    }
-                }
-            }
-            if let Some((win_span, win_tok_pos, _)) = best_pivot {
-                cur_span_idx = win_span;
-                cur_tok_idx = win_tok_pos;
-                tokens_in_cur_span = 0;
-                mid_pivots_taken += 1;
-                used_spans.push(cur_span_idx);
-                if !used_secs.contains(&spans[cur_span_idx].sec_idx) {
-                    used_secs.push(spans[cur_span_idx].sec_idx);
-                }
-                for st in &spans[cur_span_idx].stems {
-                    if !used_stems.contains(st) {
-                        used_stems.push(st.clone());
-                    }
-                }
-            } else {
-                cur_tok_idx += 1;
-            }
-        } else {
-            cur_tok_idx += 1;
         }
     }
 
     let steps = emitted_tokens.len();
     let text = format_emitted_tokens_into_paragraphs(&emitted_tokens);
     (text, steps, branch_decisions)
+}
+
+/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM08`).
+pub fn generate_token_level_geometric_prose(
+    prompt_words: &[String],
+    nodes: &[&GlmConceptNode],
+    min_tokens: usize,
+    max_tokens: usize,
+) -> (String, usize, usize) {
+    generate_token_level_geometric_prose_with_clauses(
+        prompt_words,
+        nodes,
+        &[],
+        min_tokens,
+        max_tokens,
+    )
+}
+
+/// Predict the top-8 next surface tokens `w_{t+1}` from any prompt/context string using the
+/// per-token `TokenTransitionNode` graph and 16-head `GlmRetentionState`.
+pub fn predict_next_tokens_from_prompt(prompt: &str) -> Vec<NextTokenCandidate> {
+    let lower = prompt.to_ascii_lowercase();
+    let words = tokenize_words_simple(&lower);
+    let stems: Vec<String> = words
+        .iter()
+        .map(|w| canonical_stem(w).to_string())
+        .collect();
+    let (prompt_q12, prompt_sign) = pool_prompt_trained_geometry(&words);
+
+    let mut state = GlmRetentionState::new();
+    for w in &words {
+        state.step_token(w);
+    }
+
+    let prompt_stems: Vec<String> = words
+        .iter()
+        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
+        .map(|w| canonical_glm_stem(w))
+        .filter(|s| s.len() >= 3)
+        .collect();
+
+    let top_concepts = retrieve_top_concepts(&lower, &words, &stems, &prompt_q12, prompt_sign, 3);
+    let mut active_nodes: Vec<&GlmConceptNode> = top_concepts.iter().map(|&(n, _)| n).collect();
+    if active_nodes.is_empty() {
+        let geo_only = retrieve_top_concepts_geometric_only(&words, &prompt_q12, prompt_sign, 2);
+        for &(n, _) in &geo_only {
+            active_nodes.push(n);
+        }
+    }
+    if active_nodes.is_empty() {
+        let fallback_idx = (state.packed_4block_root() as usize) % GLM_CONCEPT_MANIFOLD.len();
+        active_nodes.push(&GLM_CONCEPT_MANIFOLD[fallback_idx]);
+    }
+
+    let token_nodes = build_token_transition_graph(&active_nodes, &[]);
+    let n = words.len();
+    let last_1 = if n >= 1 {
+        words[n - 1].clone()
+    } else {
+        "<bos>".to_string()
+    };
+    let last_2 = if n >= 2 {
+        words[n - 2].clone()
+    } else {
+        "<bos>".to_string()
+    };
+    let last_3 = if n >= 3 {
+        words[n - 3].clone()
+    } else {
+        "<bos>".to_string()
+    };
+
+    let mut scored: Vec<(u32, &TokenTransitionNode, &'static str)> = Vec::new();
+    for tn in &token_nodes {
+        let is_ngram_next = tn.prev_1 == last_1;
+        if !tn.opens_clause && !is_ngram_next && tn.pos_in_clause > 2 {
+            continue;
+        }
+        let tag = if tn.prev_1 == last_1 && tn.prev_2 == last_2 {
+            "TokenTransitionNode (Bigram Continuation)"
+        } else if tn.prev_1 == last_1 {
+            "TokenTransitionNode (Unigram Pivot)"
+        } else if tn.opens_clause {
+            "TokenTransitionNode (/7 Horizon Entry)"
+        } else {
+            "TokenTransitionNode (Lookahead Fiber)"
+        };
+        let s = score_token_transition_node(
+            tn,
+            &state,
+            &last_3,
+            &last_2,
+            &last_1,
+            None,
+            &[],
+            &[],
+            &prompt_stems,
+            None,
+        ) + if is_ngram_next { 24 } else { 0 };
+        scored.push((s, tn, tag));
+    }
+
+    scored.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.node_id.cmp(&b.1.node_id)));
+
+    let mut out: Vec<NextTokenCandidate> = Vec::new();
+    let mut seen_pieces: Vec<String> = Vec::new();
+    let cur_4b = state.packed_4block_root();
+    let q_root = (cur_4b % 17) as u8;
+
+    for (score, tn, tag) in scored {
+        let clean_piece = tn.token_piece.clone();
+        if seen_pieces
+            .iter()
+            .any(|p| p.eq_ignore_ascii_case(&clean_piece))
+        {
+            continue;
+        }
+        seen_pieces.push(clean_piece.clone());
+        let l1 = q12_l1_distance(&state.heads_q12[0], &tn.token_q12);
+        let ham = swar_hamming_distance(state.sign_code, tn.token_sign);
+        let ptr_match = state
+            .causal_pointer_successor(q_root)
+            .is_some_and(|(sr, _)| sr == ((tn.packed_4block % 17) as u8));
+        let l3 = state.level3_joint_pointer_score(
+            &tn.token_q12,
+            tn.token_sign,
+            tn.packed_4block,
+            ptr_match,
+        );
+        out.push(NextTokenCandidate {
+            rank: out.len() + 1,
+            piece: clean_piece,
+            stem: tn.stem.clone(),
+            score,
+            q12_l1: l1,
+            hamming_dist: ham,
+            packed_4block: tn.packed_4block,
+            level3_pointer_score: l3,
+            basin_id: tn.basin_id,
+            source_tag: tag,
+        });
+        if out.len() >= 8 {
+            break;
+        }
+    }
+    out
 }
 
 /// Grammatical pivot tokens (`40+` prepositions, conjunctions, relative pronouns, auxiliary verbs, and clause punctuation)
@@ -1583,7 +2029,7 @@ pub fn score_concept_lexical(
             if is_generic_conversational_word(&kw_stem) {
                 lexical_score += 1;
             } else {
-                lexical_score += 7;
+                lexical_score += 10;
                 specific_hits += 1;
             }
         }
@@ -1769,7 +2215,7 @@ pub fn score_concept_node(
             .iter()
             .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
             .count();
-        if content_words >= 3 {
+        if content_words >= 5 {
             return (lex + geo).min(8);
         }
     }
@@ -2090,29 +2536,14 @@ fn render_comparative_synthesis(
 
         if let (Some((node_a, _)), Some((node_b, _))) = (left_hits.first(), right_hits.first()) {
             if node_a.id != node_b.id {
-                return format!(
-                    "When comparing **{}** and **{}**, both solve foundational problems in their respective domains while making distinct architectural and design trade-offs.\n\n{}\n\n{}\n\n| Dimension | **{}** | **{}** |\n| --- | --- | --- |\n| **Domain** | {} | {} |\n| **How It Works** | {} | {} |\n| **Core Principle** | {} | {} |\n| **Key Trade-offs** | {} | {} |\n| **Real-World Example** | {} | {} |\n\nIn practice, **{}** is the stronger choice when your priorities center on {}, whereas **{}** shines when you value {}.",
-                    left_subj,
-                    right_subj,
-                    node_a.summary,
-                    node_b.summary,
-                    left_subj,
-                    right_subj,
-                    node_a.domain,
-                    node_b.domain,
-                    node_a.mechanism,
-                    node_b.mechanism,
-                    node_a.formal_principle,
-                    node_b.formal_principle,
-                    node_a.tradeoffs,
-                    node_b.tradeoffs,
-                    node_a.example,
-                    node_b.example,
-                    left_subj,
-                    node_a.summary,
-                    right_subj,
-                    node_b.summary
-                );
+                let (comp_stream, stepped, _) =
+                    generate_token_level_geometric_prose(words, &[node_a, node_b], 260, 420);
+                if stepped >= 40 {
+                    return dedup_prose_paragraphs(&format!(
+                        "Comparing **{}** and **{}**:\n\n{}",
+                        left_subj, right_subj, comp_stream
+                    ));
+                }
             }
         }
 
@@ -2121,17 +2552,14 @@ fn render_comparative_synthesis(
             .or_else(|| right_hits.first())
             .or_else(|| top_concepts.first())
         {
-            return format!(
-                "**{}** and **{}** represent two complementary approaches within **{}**:\n\n{}\n\n{}\n\n{}\n\n{}\n\n**Practical Example:** {}",
-                left_subj,
-                right_subj,
-                shared_node.title,
-                shared_node.summary,
-                shared_node.mechanism,
-                shared_node.formal_principle,
-                shared_node.tradeoffs,
-                shared_node.example
-            );
+            let (shared_stream, stepped, _) =
+                generate_token_level_geometric_prose(words, &[shared_node], 420, 550);
+            if stepped >= 40 {
+                return dedup_prose_paragraphs(&format!(
+                    "**{}** and **{}** represent two complementary approaches within **{}**:\n\n{}",
+                    left_subj, right_subj, shared_node.title, shared_stream
+                ));
+            }
         }
     }
 
@@ -2716,8 +3144,8 @@ fn render_open_domain_natural_prose(
         }
     }
 
-    // 4. First-Principles & Causal Pointer-Induction Synthesis for genuinely novel/unseen open-domain topics
-    // (Never dumps an unrelated encyclopedia article when basin overlap is below threshold!)
+    // 4. First-Principles & Causal Pointer-Induction Token-by-Token Decoding for novel/unseen open-domain topics
+    // (Decodes token-by-token through `TokenTransitionNode` over first-principles causal clauses without static Mad-Libs bullets!)
     let topic = extract_clean_topic(trimmed, words);
     let mut state = GlmRetentionState::new();
     for w in words {
@@ -2731,47 +3159,50 @@ fn render_open_domain_natural_prose(
         focus_terms.join(", ")
     };
 
-    let is_how_to = lower.starts_with("how do i ")
-        || lower.starts_with("how can i ")
-        || lower.starts_with("how to ")
-        || lower.contains("best way to")
-        || lower.contains("steps to")
-        || lower.contains("tips for")
-        || lower.contains("guide to")
-        || lower.starts_with("help me ");
+    let first_principles_clauses: Vec<(u8, String)> = vec![
+        (
+            0,
+            format!(
+                "From a **First-Principles** causal perspective (`packed_4block_root = {packed_4b}`), analyzing **{topic}** begins by isolating the primary physical, structural, and informational invariants governing `{focus_joined}`."
+            ),
+        ),
+        (
+            1,
+            format!(
+                "Rather than relying on a pre-stored static template, the 16-head integer retention state traces how `{focus_joined}` interact through direct input-to-output state transitions, conservation laws, and feedback constraints."
+            ),
+        ),
+        (
+            2,
+            format!(
+                "When evaluating or calibrating **{topic}**, the highest-leverage step is to establish a minimal, observable baseline where one variable in `{focus_joined}` is varied at a time while surrounding boundary conditions are held constant."
+            ),
+        ),
+        (
+            3,
+            format!(
+                "Across scale, timing, and environmental thresholds, trade-offs in **{topic}** balance immediate responsiveness and throughput against long-term structural stability and error bounds."
+            ),
+        ),
+        (
+            4,
+            format!(
+                "By verifying each causal link around `{focus_joined}` empirically against measurable invariants (`packed_4block_root = {packed_4b}`), you can refine **{topic}** iteratively from real observations."
+            ),
+        ),
+    ];
 
-    if is_how_to {
-        return format!(
-            "Here is a practical, **First-Principles** step-by-step approach to **{topic}** (focusing on `{focus_joined}`):\n\n\
-             1. **Define the Goal & Constraints First**: Clarify the exact outcome you want from **{topic}**, your available time/materials, and what 'good' looks like before jumping into execution.\n\
-             2. **Start with a Clean, Minimal Baseline**: Set up the core essentials for **{topic}** without overcomplicating the first iteration—get one small, working pass end-to-end so you have immediate feedback.\n\
-             3. **Iterate on the High-Leverage Bottleneck**: Observe how the first pass behaves in practice, adjust one variable at a time around `{focus_joined}`, and keep notes on what measurably improves the result.\n\
-             4. **Build Consistency & Safeguards**: Once the core workflow for **{topic}** is reliable, turn the repeatable steps into a simple checklist or habit.\n\n\
-             *(Note: **{topic}** is synthesized compositionally from first principles rather than a pre-stored static article in the offline manifold `packed_4block_root = {packed_4b}`.)* What specific part of **{topic}** are you tackling first, or what constraints should we tailor this around?"
-        );
+    let (decoded_fp, stepped_fp, _) = generate_token_level_geometric_prose_with_clauses(
+        words,
+        &[],
+        &first_principles_clauses,
+        80,
+        180,
+    );
+    if stepped_fp >= 25 {
+        return dedup_prose_paragraphs(&decoded_fp);
     }
-
-    let is_why_or_causal = lower.starts_with("why ")
-        || lower.starts_with("what happens")
-        || lower.starts_with("what causes")
-        || lower.starts_with("how does ")
-        || lower.starts_with("explain ")
-        || lower.ends_with('?');
-
-    if is_why_or_causal {
-        return format!(
-            "Analyzing **{topic}** from **First-Principles** (`focus terms: {focus_joined}`):\n\n\
-             - **Core Mechanism & Causal Drivers**: At its foundation, **{topic}** is governed by how its primary components (`{focus_joined}`) interact under resource, structural, and feedback constraints. Rather than treating it as an isolated black box, trace the direct input-to-output causal chain.\n\
-             - **Key Trade-Offs & Boundary Conditions**: In practice, behavior around **{topic}** shifts whenever scale, timing, or environmental conditions cross a threshold—balancing immediate efficiency against long-term stability and resilience.\n\
-             - **Practical Verification**: The most reliable way to validate a hypothesis about **{topic}** is to hold surrounding variables constant, test one factor at a time, and observe the direct outcome.\n\n\
-             *(Note: **{topic}** is synthesized compositionally from first principles rather than a pre-stored static article in the offline manifold `packed_4block_root = {packed_4b}`. Share any specific context, constraints, or data you have and we can drill right into it!)*"
-        );
-    }
-
-    format!(
-        "Looking at **{topic}** (`{focus_joined}`): the most effective way to approach it is to separate the foundational invariants from surface conventions, start with a clear and testable baseline, and iterate from real feedback.\n\n\
-         What specific angle of **{topic}** would you like to focus on—practical steps, underlying principles, or working through a concrete example together?"
-    )
+    dedup_prose_paragraphs(&first_principles_clauses[0].1)
 }
 
 /// Explicit Pragmatic Discourse Act classification for multi-turn conversational continuity (`Phase 1`).
