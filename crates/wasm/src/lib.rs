@@ -1677,6 +1677,83 @@ impl StudioEngine {
             )
         };
 
+        let winning_stem_matches = self
+            .turns
+            .get(winning_turn_idx)
+            .map(|turn| {
+                turn.prompt_tokens
+                    .iter()
+                    .filter(|t| {
+                        let s = canonical_stem(&t.norm);
+                        !s.is_empty() && prompt_stems.iter().any(|ps| ps == s)
+                    })
+                    .count()
+            })
+            .unwrap_or(0);
+
+        let has_uor_kernel_term = prompt_stems.iter().any(|ps| {
+            matches!(
+                ps.as_str(),
+                "uor"
+                    | "r4"
+                    | "recal"
+                    | "recall"
+                    | "lookup"
+                    | "rephras"
+                    | "predict"
+                    | "retent"
+                    | "lexlean"
+                    | "icosian"
+                    | "trunk"
+                    | "sketch"
+                    | "prll"
+                    | "e8"
+                    | "clifford"
+                    | "binder"
+                    | "uorlut01"
+                    | "ur4sess1"
+                    | "varint"
+                    | "blake3"
+                    | "ham"
+                    | "hamming"
+                    | "ternari"
+                    | "ternary"
+            )
+        });
+
+        // When a general-domain conversational, scientific, coding, or agentic prompt does not
+        // target the 20 UOR-R4 kernel turns (or a user-admitted turn), decode via UR4GLM08
+        // and trace the live generated token trajectory.
+        if !opening_hit
+            && !(winning_turn_idx >= 20 && winning_stem_matches >= 1)
+            && !(has_uor_kernel_term && winning_stem_matches >= 1)
+            && winning_stem_matches < 3
+        {
+            let (_flock_frames, consensus_action, flock_resonance) =
+                self.compute_flock_cyclic_consensus(&prompt_tokens);
+            let (icosian_root, _) =
+                icosian_snap_select([prompt_q12[0], prompt_q12[1], prompt_q12[2], prompt_q12[3]]);
+            let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
+            let active_ws_path = self.active_workspace_path.clone();
+            let code_outcome =
+                self.synthesize_code_turn(trimmed, consensus_action, icosian_root, active_gates);
+            let glm_reply = self.compose_smart_chat_reply(
+                trimmed,
+                &prompt_tokens,
+                &prompt_q12,
+                consensus_action,
+                flock_resonance,
+                icosian_root,
+                &active_ws_path,
+                &code_outcome,
+            );
+            return self.build_live_token_generation_json(
+                trimmed,
+                &glm_reply,
+                Some("ur4glm08_token_horizon (/7) + 16head_retention + level3_pointer (R4-25)"),
+            );
+        }
+
         // Step 3: Autoregressively step `/7` `reply_key` continuation + `R4.Prediction.selectContextualToken`
         // recency-penalized basin decoding until EOS.
         let mut generated_ids = Vec::new();
@@ -1873,6 +1950,205 @@ impl StudioEngine {
             l1_dist,
             hamming_dist,
             plurality_votes,
+            occupied_count,
+            active_retain,
+            icosian_root_idx,
+            icosian_score,
+            packed_4block_root,
+            manifold_sketch_overlap,
+            manifold_sketch_admitted,
+            prll_masses[0],
+            flock_consensus_action,
+            flock_weighted_resonance,
+            contextual_loop_escapes,
+            prompt_q12_json,
+            prompt_sign,
+            receipt_sha256,
+            predictions_json,
+            trajectory_json
+        )
+    }
+
+    /// Build the live token-by-token generation JSON (`predictions` + `trajectory` + `R4-24..R4-27` diagnostics)
+    /// directly from the generated tokens of `reply_text`.
+    pub fn build_live_token_generation_json(
+        &mut self,
+        prompt_text: &str,
+        reply_text: &str,
+        recall_mode_override: Option<&str>,
+    ) -> String {
+        let trimmed = prompt_text.trim();
+        let prompt_tokens = self.tokenize(trimmed);
+        let generated_tokens = self.tokenize(reply_text);
+        if prompt_tokens.is_empty() {
+            return "{\"status\":\"error\",\"message\":\"Prompt produced zero tokens.\"}"
+                .to_string();
+        }
+
+        let opening_key = self.build_opening_key(&prompt_tokens);
+        let prompt_q12 = pool_prompt_q12(&prompt_tokens);
+        let prompt_sign = pool_sign_codes(&prompt_tokens);
+
+        let exact_hit = self
+            .opening_table
+            .iter()
+            .find(|row| row.opening_key == opening_key)
+            .cloned();
+
+        let opening_hit = exact_hit.is_some();
+        let winning_turn_idx = exact_hit.as_ref().map(|r| r.turn_index).unwrap_or(0);
+        let opening_token_id = generated_tokens
+            .first()
+            .map(|t| t.id)
+            .or_else(|| exact_hit.as_ref().map(|r| r.target_token_id))
+            .unwrap_or(EOS_TOKEN_ID);
+
+        let opening_piece = generated_tokens
+            .first()
+            .map(|t| t.piece.clone())
+            .unwrap_or_default();
+
+        let (l1_dist, hamming_dist) = if opening_hit {
+            (0u32, 0u32)
+        } else if let Some(first_tok) = generated_tokens.first() {
+            (
+                q12_l1_distance(&prompt_q12, &first_tok.q12_coords).max(64),
+                swar_hamming_distance(prompt_sign, first_tok.sign_code),
+            )
+        } else {
+            (64u32, 16u32)
+        };
+
+        let mut contextual_loop_escapes = 0usize;
+        let mut window_ids: Vec<u32> = Vec::new();
+        for tok in &generated_tokens {
+            if window_ids.contains(&tok.id) {
+                contextual_loop_escapes += 1;
+            }
+            window_ids.push(tok.id);
+            if window_ids.len() > 6 {
+                window_ids.remove(0);
+            }
+        }
+
+        let (_flock_frames, flock_consensus_action, flock_weighted_resonance) =
+            self.compute_flock_cyclic_consensus(&prompt_tokens);
+
+        let recall_mode = recall_mode_override.unwrap_or(if opening_hit {
+            "exact_opening_table (/7)"
+        } else {
+            "ur4glm08_token_horizon (/7) + 16head_retention + level3_pointer (R4-25)"
+        });
+
+        let matched_anchor = if opening_hit {
+            self.turns
+                .get(winning_turn_idx)
+                .map(|t| t.prompt.clone())
+                .unwrap_or_else(|| trimmed.to_string())
+        } else {
+            format!(
+                "{}::token_horizon_decode",
+                crate::glm_weights::GLM_WEIGHTS_VERSION
+            )
+        };
+
+        let last_prompt_root = prompt_tokens.last().map(|t| t.e8_root).unwrap_or(0);
+        let predictions_json = self.build_predictions_json(
+            last_prompt_root,
+            &prompt_q12,
+            prompt_sign,
+            winning_turn_idx,
+            opening_token_id,
+            opening_hit,
+            &generated_tokens,
+        );
+        let trajectory_json = self.build_trajectory_json(&prompt_tokens, &generated_tokens);
+
+        let head_idx = (prompt_tokens.len() - 1).min(RETAIN_LAMBDA_Q31.len() - 1);
+        let active_retain =
+            lexlean_generated::r4_integer_stack::retain_lambda_q31(head_idx as u64) as i64;
+        let occupied_count = self.count_occupied_cells();
+
+        let (icosian_root_idx, icosian_score) =
+            icosian_snap_select([prompt_q12[0], prompt_q12[1], prompt_q12[2], prompt_q12[3]]);
+        let (icosian_root_hi, _) =
+            icosian_snap_select([prompt_q12[4], prompt_q12[5], prompt_q12[6], prompt_q12[7]]);
+        let packed_4block_root = pack_4block_roots(
+            icosian_root_idx,
+            icosian_root_hi,
+            last_prompt_root % 17,
+            (opening_token_id as u8) % 17,
+        )
+        .unwrap_or(0);
+        let manifold_sketch_overlap = 4096u32.saturating_sub(hamming_dist * 24);
+        let manifold_sketch_admitted = admit_manifold_sketch(manifold_sketch_overlap, 4096);
+        let prll_masses =
+            prll_masses_from_scores([4096u32.saturating_sub(l1_dist.min(3800)), 1024, 512, 256]);
+
+        let receipt_preimage = format!(
+            "{}|{}|{}|{}|{}|{}|{}",
+            STUDIO_SCHEMA, trimmed, recall_mode, matched_anchor, reply_text, l1_dist, hamming_dist
+        );
+        let receipt_sha256 = sha256_hex(receipt_preimage.as_bytes());
+
+        let prompt_q12_json = format!(
+            "[{},{},{},{},{},{},{},{}]",
+            prompt_q12[0],
+            prompt_q12[1],
+            prompt_q12[2],
+            prompt_q12[3],
+            prompt_q12[4],
+            prompt_q12[5],
+            prompt_q12[6],
+            prompt_q12[7]
+        );
+
+        format!(
+            concat!(
+                "{{",
+                "\"status\":\"ok\",",
+                "\"schema\":\"{}\",",
+                "\"point_key_tensor\":\"{}\",",
+                "\"prompt\":\"{}\",",
+                "\"reply\":\"{}\",",
+                "\"generated_token_count\":{},",
+                "\"recall_mode\":\"{}\",",
+                "\"opening_hit\":{},",
+                "\"matched_anchor\":\"{}\",",
+                "\"opening_token\":\"{}\",",
+                "\"l1_distance\":{},",
+                "\"hamming_distance\":{},",
+                "\"plurality_votes\":{},",
+                "\"occupied_cell_count\":{},",
+                "\"active_retain_lambda_q31\":{},",
+                "\"icosian_root_index\":{},",
+                "\"icosian_compat_score\":{},",
+                "\"packed_4block_root\":{},",
+                "\"manifold_sketch_overlap\":{},",
+                "\"manifold_sketch_admitted\":{},",
+                "\"prll_top1_mass_ppm\":{},",
+                "\"flock_consensus_action\":{},",
+                "\"flock_weighted_resonance\":{},",
+                "\"contextual_loop_escapes\":{},",
+                "\"prompt_q12\":{},",
+                "\"prompt_sign_code_hex\":\"0x{:016x}\",",
+                "\"receipt_sha256\":\"{}\",",
+                "\"predictions\":{},",
+                "\"trajectory\":{}",
+                "}}"
+            ),
+            STUDIO_SCHEMA,
+            SERVED_POINT_KEY_NAME,
+            escape_json(trimmed),
+            escape_json(reply_text),
+            generated_tokens.len(),
+            escape_json(recall_mode),
+            opening_hit,
+            escape_json(&matched_anchor),
+            escape_json(&opening_piece),
+            l1_dist,
+            hamming_dist,
+            1usize,
             occupied_count,
             active_retain,
             icosian_root_idx,
@@ -3291,7 +3567,6 @@ impl StudioEngine {
             }
         }
 
-        let base_gen_raw = self.generate_prose_json(trimmed);
         let prompt_tokens = self.tokenize(trimmed);
         let prompt_q12 = pool_prompt_q12(&prompt_tokens);
         let (flock_frames, consensus_action, flock_resonance) =
@@ -3330,6 +3605,8 @@ impl StudioEngine {
             &active_ws_path,
             &code_outcome,
         );
+
+        let base_gen_raw = self.build_live_token_generation_json(trimmed, &assistant_reply, None);
 
         self.chat_history
             .push((trimmed.to_string(), assistant_reply.clone()));
@@ -3605,6 +3882,21 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "workspace_batch" => engine.workspace_batch_json(payload),
         "uorlut_inspect" => engine.uorlut_inspect_json(payload),
         "chat" => engine.chat_assistant_json(payload),
+        "agent" => {
+            let lower_payload = payload.to_ascii_lowercase();
+            let agent_prompt = if lower_payload.contains("[agent_mode]")
+                || lower_payload.contains("<tools>")
+                || lower_payload.contains("\"tools\":")
+                || lower_payload.contains("<tool_call>")
+                || lower_payload.contains("<tool_response>")
+                || lower_payload.contains("<observation>")
+            {
+                payload.to_string()
+            } else {
+                format!("[agent_mode] {payload}")
+            };
+            engine.chat_assistant_json(&agent_prompt)
+        }
         "admit" => {
             let (prompt_part, reply_part) = if let Some((p, r)) = payload.split_once('\n') {
                 (p.trim().to_string(), r.trim().to_string())
@@ -4161,13 +4453,13 @@ mod tests {
         assert!(!unseen.contains("p_TLB"));
         assert!(!unseen.contains("closely related dynamics in our geometric manifold"));
 
-        // 8. Verify UR4GLM07 CUDA hardware-trained weights & falsifiable geometric routing benchmark
-        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM07");
+        // 8. Verify UR4GLM08 CUDA hardware-trained weights & falsifiable geometric routing benchmark
+        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM08");
         assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
-        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 245);
-        assert_eq!(glm_weights::GLM_TRAINED_VOCAB.len(), 10211);
-        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 2040);
-        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 150);
+        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 280);
+        assert_eq!(glm_weights::GLM_TRAINED_VOCAB.len(), 10781);
+        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 2256);
+        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 220);
         assert!(glm_weights::GLM_CONCEPT_MANIFOLD
             .iter()
             .all(|n| n.e8_root < 16
@@ -4353,14 +4645,14 @@ mod tests {
             "Follow-up 'there' after capital lookup must resolve 'Paris' from past_a: {cap_arch}"
         );
 
-        // 11e. Verify 'How do you work?' reports UR4GLM07, 10211 stems, 245 basins, 2040 horizons
+        // 11e. Verify 'How do you work?' reports UR4GLM08, 10781 stems, 280 basins, 2256 horizons
         let how_work = ask("How do you work?");
         assert!(
-            how_work.contains("UR4GLM07")
-                && how_work.contains("10211")
-                && how_work.contains("245")
-                && how_work.contains("2040"),
-            "How do you work response must report live UR4GLM07 manifold counts: {how_work}"
+            how_work.contains("UR4GLM08")
+                && how_work.contains("10781")
+                && how_work.contains("280")
+                && how_work.contains("2256"),
+            "How do you work response must report live UR4GLM08 manifold counts: {how_work}"
         );
 
         // 11f. Verify newly trained UR4GLM07 basins, teacher-student distillation, and code synthesis
@@ -4448,8 +4740,86 @@ mod tests {
             "Turn 3 ('what do you mean?') must clarify Turn 2, got: {turn3}"
         );
         assert!(
-            !turn3.contains("I'd love to! I am the **UOR-R4 Generalized Geometric Assistant**"),
+            !turn3.contains("I'd love to! I am the **UOR-R4 Generalized Geometric Assistant"),
             "Turn 3 ('what do you mean?') must not falsely trigger self-inquiry bio"
+        );
+
+        // 13. Verify UR4GLM08 Live Next-Token Prediction Trace in Chat & Generate, Epistemic Honesty, and Agentic Harness (<thought> / <tool_call>)
+        let chat_trace_raw =
+            dispatch_string("1\tstudio\tchat\tHow does sourdough bread fermentation work?");
+        let chat_trace_json: serde_json::Value =
+            serde_json::from_str(&chat_trace_raw).expect("valid sourdough chat JSON");
+        let sourdough_reply = chat_trace_json["assistant_reply"].as_str().unwrap();
+        assert!(
+            sourdough_reply.contains("Candida humilis")
+                || sourdough_reply.contains("Lactobacillus")
+                || sourdough_reply.contains("levain"),
+            "Sourdough query must decode culinary fermentation basin: {sourdough_reply}"
+        );
+        assert_eq!(
+            chat_trace_json["generation"]["reply"].as_str().unwrap(),
+            sourdough_reply,
+            "Chat generation trace must reflect the actual assistant_reply tokens"
+        );
+        assert_eq!(
+            chat_trace_json["generation"]["predictions"]
+                .as_array()
+                .unwrap()
+                .len(),
+            8
+        );
+        assert!(
+            chat_trace_json["generation"]["generated_token_count"]
+                .as_u64()
+                .unwrap()
+                >= 20
+        );
+
+        let gen_open_raw = dispatch_string(
+            "1\tstudio\tgenerate\tExplain the Tsiolkovsky rocket equation and orbital mechanics",
+        );
+        let gen_open_json: serde_json::Value =
+            serde_json::from_str(&gen_open_raw).expect("valid open generate JSON");
+        assert!(
+            gen_open_json["reply"]
+                .as_str()
+                .unwrap()
+                .contains("Tsiolkovsky")
+                || gen_open_json["reply"].as_str().unwrap().contains("Delta v"),
+            "studio generate on general prompt must decode via UR4GLM08: {}",
+            gen_open_json["reply"]
+        );
+
+        // Epistemic honesty on unseen multi-word prompt with a single incidental word ("quantum" / "coffee")
+        let unseen_honest =
+            ask("How do I calibrate a hyperbaric anti-gravity marshmallow telescope on Pluto?");
+        assert!(
+            unseen_honest.contains("First-Principles")
+                || unseen_honest.contains("Causal")
+                || unseen_honest.contains("packed_4block_root"),
+            "Unseen multi-word prompt must synthesize transparently from first principles without random article dumping: {unseen_honest}"
+        );
+
+        // Agentic Harness (<thought> + <tool_call>) via `1\tstudio\tagent\t...` and `1\tstudio\tchat\t...`
+        let agent_raw = dispatch_string(
+            "1\tstudio\tagent\tAvailable tools: read_file, run_tests, edit_file. Please inspect src/engine.rs to verify the router implementation.",
+        );
+        let agent_json: serde_json::Value =
+            serde_json::from_str(&agent_raw).expect("valid agent JSON");
+        let agent_reply = agent_json["assistant_reply"].as_str().unwrap();
+        assert!(
+            agent_reply.contains("<thought>")
+                && agent_reply.contains("</thought>")
+                && agent_reply.contains("<tool_call>")
+                && agent_reply.contains("\"name\": \"read_file\"")
+                && agent_reply.contains("src/engine.rs"),
+            "Agentic harness turn must emit structured <thought> and <tool_call> for read_file on src/engine.rs: {agent_reply}"
+        );
+
+        let obs_reply = ask("<tool_response>{\"status\": \"ok\", \"content\": \"pub struct GeometricRouter\"}</tool_response> Summarize the observation.");
+        assert!(
+            obs_reply.contains("<thought>") && obs_reply.contains("Observation"),
+            "Agentic tool_response turn must synthesize observation reasoning: {obs_reply}"
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");

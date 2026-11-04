@@ -486,8 +486,11 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   }
 
   const gen = chatRes.generation || {};
+  const tokGen = chatRes.token_generation || gen.token_generation || {};
   const replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
-  const assistantTitle = 'UOR-R4 GLM';
+  const assistantTitle = typeof tokGen.stepped_tokens === 'number' && tokGen.stepped_tokens > 0
+    ? `UOR-R4 GLM · ${tokGen.stepped_tokens} tokens · root #${tokGen.final_icosian_root}`
+    : 'UOR-R4 GLM';
   const patchTarget = chatRes.is_coding_turn ? chatRes.target_file : '';
   const patchBody = chatRes.is_coding_turn ? (chatRes.proposed_code || '') : '';
   appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody);
@@ -1182,7 +1185,7 @@ const syncWeightsBtn = document.getElementById('sync-weights-btn');
 function updateWeightCacheBadge() {
   if (!weightCacheBadge) return;
   const meta = globalThis.__uorWeightCacheMeta || {};
-  const label = meta.status || 'Weights: UR4GLM07 · CacheStorage';
+  const label = meta.status || 'Weights: UR4GLM08 · CacheStorage';
   const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
   weightCacheBadge.textContent = `${label}${shortSha}`;
 }

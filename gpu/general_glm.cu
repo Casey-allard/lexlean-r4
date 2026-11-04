@@ -875,7 +875,7 @@ int main(int argc, char** argv) {
     if (frec) {
         fprintf(frec, "{\n");
         fprintf(frec, "  \"schema\": \"uor-r4/cuda-glm-training-receipt/4\",\n");
-        fprintf(frec, "  \"model_magic\": \"UR4GLM07\",\n");
+        fprintf(frec, "  \"model_magic\": \"UR4GLM08\",\n");
         fprintf(frec, "  \"gpu_device\": \"%s\",\n", prop.name);
         fprintf(frec, "  \"compute_capability\": \"%d.%d\",\n", prop.major, prop.minor);
         fprintf(frec, "  \"cuda_driver_version\": %d,\n", driver_ver);

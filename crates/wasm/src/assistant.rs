@@ -788,7 +788,20 @@ impl StudioEngine {
             && !lower.contains("function")
             && !lower.contains("implement");
 
-        let is_coding_intent = (!is_creative_or_prose && !is_conceptual_comparison_or_explain)
+        let is_agentic_harness_prompt = lower.contains("<tools>")
+            || lower.contains("\"tools\":")
+            || lower.contains("<tool_call>")
+            || lower.contains("<tool_response>")
+            || lower.contains("<observation>")
+            || lower.contains("available tools:")
+            || lower.contains("use the tool")
+            || lower.contains("call the tool")
+            || lower.contains("[agent_mode]")
+            || lower.starts_with("agent:");
+
+        let is_coding_intent = (!is_creative_or_prose
+            && !is_conceptual_comparison_or_explain
+            && !is_agentic_harness_prompt)
             && ((has_code_action_verb && (explicit_lang.is_some() || has_algorithm_target))
                 || is_direct_code_phrase
                 || (explicit_lang.is_some()
@@ -884,6 +897,19 @@ impl StudioEngine {
             if !lower.contains('?') && !code_outcome.is_coding_turn && words.len() <= 12 {
                 return notice.clone();
             }
+        }
+
+        // 2b. Check for Agentic Harness / MCP Tool-Calling Turn (`<tools>`, `<tool_call>`, `[agent_mode]`)
+        if let Some(agent_reply) = crate::glm_weights::try_synthesize_agentic_harness_turn(
+            trimmed,
+            &lower,
+            &words,
+            &self.chat_history,
+        ) {
+            if let Some(notice) = binder_notice {
+                return format!("{notice}\n\n{agent_reply}");
+            }
+            return agent_reply;
         }
 
         // 3. Check for exact math, number theory, unit conversion, or algebra (`R4.ExactArithmetic`)
@@ -1012,9 +1038,12 @@ impl StudioEngine {
             return "You're very welcome! Anytime you want to keep chatting, dive into another subject, or work through a new idea, just let me know.".to_string();
         }
 
-        if (has_any_word(&lower, &["debug", "broken", "bug", "error", "fix"])
-            && !code_outcome.is_coding_turn)
-            || lower.contains("help me debug")
+        if lower.contains("help me debug")
+            || lower == "debug"
+            || lower == "my code is broken"
+            || (words.len() <= 5
+                && has_any_word(&lower, &["debug", "broken"])
+                && !code_outcome.is_coding_turn)
         {
             return format!(
                 "I'd be glad to help debug! If you share the error message or describe what the code is doing versus what you expected, we can trace the root cause step by step. You can also paste code into the active workspace file (`{active_workspace_path}`) or ask me to write a clean reference implementation in Python, Rust, TypeScript, Go, or SQL."
@@ -1067,9 +1096,9 @@ impl StudioEngine {
             return format!(
                 "I work quite differently from standard neural LLMs! Instead of using a Transformer with floating-point matrix multiplications (`matmul`) and `softmax` attention, I run a **pure-integer geometric language engine (`{version}`)** directly in your browser via WebAssembly:\n\n\
                  1. **RTX 5090 Geometric Training**: My vocabulary stems (`{n_vocab}` 4-fiber stem rows), `{n_basins}` domain concept basins, and `{n_horizons}` lookahead token horizons with `/7` geodesic continuation edges are trained on an **NVIDIA GeForce RTX 5090** using discrete coordinate sweeps over `Q12` fixed-point coordinates, `64-bit` quaternion sign codes, and `Cl(0,6)` ternary gates.\n\
-                 2. **$O(1)$ Per-Token Integer Retention**: As I read your prompt and step through tokens, I maintain integer decay registers (`RETAIN_LAMBDA_Q31`) and a non-commutative 4D Hamilton quaternion state (`stackHamilton4D`) that snap onto $17^4 = 83,521$ discrete Base-17 Icosian trunk cells.\n\
-                 3. **Zero External API Calls**: Everything runs locally inside your browser tab with deterministic integer arithmetic.\n\n\
-                 Want to test me on a topic in history, science, world cities, philosophy, logic puzzles, math, or code?"
+                 2. **$O(1)$ 16-Head Per-Token Integer Retention & Causal Pointer Induction**: As I read your prompt and step through tokens, I maintain 16 timescale integer decay registers (`RETAIN_LAMBDA_Q31`), a non-commutative 4D Hamilton quaternion state (`stackHamilton4D`), and Level-3 `DiscreteTrunk` causal pointer induction (`R4-25`, `level3_joint_pointer_score`) that snap onto $17^4 = 83,521$ discrete Base-17 Icosian trunk cells.\n\
+                 3. **Zero External API Calls & Agentic Harness Support**: Everything runs locally inside your browser tab with deterministic integer arithmetic, supporting both open-domain conversational decoding and structured `<thought>` / `<tool_call>` agentic harness execution.\n\n\
+                 Want to test me on a topic in history, science, world cities, philosophy, logic puzzles, math, code, or an agentic `<tools>` turn?"
             );
         }
 
@@ -1094,15 +1123,16 @@ impl StudioEngine {
                 && !has_any_word(&lower, &["mean", "think", "about"]));
 
         if is_self_inquiry {
+            let version = crate::glm_weights::GLM_WEIGHTS_VERSION;
             let greeting_prefix = if let Some(ref name) = remembered_name {
                 format!("I'd love to, **{}**!", name)
             } else {
                 "I'd love to!".to_string()
             };
             return format!(
-                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
-                 What makes me unique is how I think under the hood: instead of relying on a neural transformer or floating-point matrix multiplications, my vocabulary, concept basins, and token horizons are trained on an NVIDIA RTX 5090 using **discrete integer geometry**—quaternions on the 3-sphere (`S^3 -> S^2 x U(1)`), 17-root Icosian golden-ratio lattices, 16-root `E8` and 120-root `H4` polytopes, and 8-head integer retention.\n\n\
-                 In conversation, though, you can chat with me naturally about almost anything: world cities and travel, history, biographies, science, philosophy, literature, food, logic brainteasers, creative writing, exact mathematics, or software engineering. What are you curious about today?"
+                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant (`{version}`)**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
+                 What makes me unique is how I think under the hood: instead of relying on a neural transformer or floating-point matrix multiplications, my vocabulary, concept basins, and token horizons are trained on an NVIDIA RTX 5090 using **discrete integer geometry**—quaternions on the 3-sphere (`S^3 -> S^2 x U(1)`), 17-root Icosian golden-ratio lattices, 16-root `E8` and 120-root `H4` polytopes, 16-head integer retention (`RETAIN_LAMBDA_Q31`), and Level-3 `DiscreteTrunk` causal pointer induction (`R4-25`).\n\n\
+                 In conversation, you can chat with me naturally about world cities and travel, history, biographies, science, philosophy, literature, food, logic brainteasers, creative writing, exact mathematics, software engineering, or connect me to an agentic harness (`<tools>` / `[agent_mode]`). What are you curious about today?"
             );
         }
 

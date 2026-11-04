@@ -232,7 +232,7 @@ function initSync(module) {
 const WEIGHT_CACHE_NAME = 'uor-r4-wasm-weights-v2';
 
 globalThis.__uorWeightCacheMeta = {
-    status: 'Initializing UR4GLM07...',
+    status: 'Initializing UR4GLM08...',
     sha256: '',
     mode: 'init'
 };
@@ -264,7 +264,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
                 const hit = await cache.match(cacheKey);
                 if (hit && hit.ok) {
                     globalThis.__uorWeightCacheMeta = {
-                        status: 'CacheStorage Hit (UR4GLM07)',
+                        status: 'CacheStorage Hit (UR4GLM08)',
                         sha256: expectedSha,
                         mode: 'hit'
                     };
@@ -285,7 +285,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
                     // Quota or private-browsing fallback
                 }
                 globalThis.__uorWeightCacheMeta = {
-                    status: forceRefresh ? 'Re-Synced & Cached (UR4GLM07)' : 'Cached in Browser (UR4GLM07)',
+                    status: forceRefresh ? 'Re-Synced & Cached (UR4GLM08)' : 'Cached in Browser (UR4GLM08)',
                     sha256: expectedSha,
                     mode: forceRefresh ? 'resynced' : 'cached'
                 };
@@ -298,7 +298,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
 
     const directResp = await fetch(versionedUrl);
     globalThis.__uorWeightCacheMeta = {
-        status: 'Direct Wasm Load (UR4GLM07)',
+        status: 'Direct Wasm Load (UR4GLM08)',
         sha256: expectedSha,
         mode: 'direct'
     };
