@@ -2947,9 +2947,7 @@ pub fn select_point_key_with_resonance(
         } else {
             usize::MAX
         };
-        if turn_idx >= 620
-            && (eff_total < 3 || eff_total < max_core_matched_stems + 2)
-        {
+        if turn_idx >= 620 && (eff_total < 3 || eff_total < max_core_matched_stems + 2) {
             break;
         }
 
@@ -3030,8 +3028,10 @@ pub fn select_point_key_with_resonance(
         // Exact branch-and-bound lower bound:
         // Whenever `raw_l1 > 0` (checked in O(1) via lane 0/1 inequality), `geom_dist >= guard_penalty`,
         // so `score = geom_dist - bonus >= guard_penalty - bonus`.
-        let maybe_exact_zero =
-            turn_idx < 620 && w_lim >= 2 && (p_row[0] as i32) == n_t[0] && (p_row[1] as i32) == n_t[1];
+        let maybe_exact_zero = turn_idx < 620
+            && w_lim >= 2
+            && (p_row[0] as i32) == n_t[0]
+            && (p_row[1] as i32) == n_t[1];
         let max_possible_bonus = if turn_idx >= 620 && w_lim >= 2 && (p_row[0] as i32) == n_t[0] {
             bonus + 150_000
         } else {

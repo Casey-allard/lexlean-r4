@@ -1020,6 +1020,11 @@ if (snapshotUploadInput) {
         if (admitStatus) {
           admitStatus.textContent = `Hot-loaded & cached ${mb} MB UORLUT01/8 weight pack "${sourceLabel}" in IndexedDB (${parsed.opening_entries} /7 opening entries, ${parsed.reply_entries} /7 reply entries, ${parsed.point_rows} /8 point rows, SHA-256: ${parsed.sha256})`;
         }
+        appendChatTurn(
+          'assistant',
+          'UOR-R4 GLM',
+          `Hot-loaded and cached **${mb} MB** \`UORLUT01/8\` weight pack (\`${sourceLabel}\`) into \`IndexedDB\` (\`UOR_R4_WEIGHT_CACHE\`):\n\n- **\`/8\` \`ServedPointKey\` Rows**: \`${parsed.point_rows}\`\n- **\`/7\` \`ServedTurnMemory.reply\` Transitions**: \`${parsed.reply_entries}\`\n- **\`/7\` \`ServedTurnMemory.opening\` Entries**: \`${parsed.opening_entries}\`\n- **SHA-256**: \`${parsed.sha256}\``,
+        );
         return;
       }
     }
@@ -1265,6 +1270,13 @@ if (workspaceMountInput) {
 
 const weightCacheBadge = document.getElementById('weight-cache-badge');
 const syncWeightsBtn = document.getElementById('sync-weights-btn');
+const loadWeightsTopbarBtn = document.getElementById('load-weights-topbar-btn');
+
+if (loadWeightsTopbarBtn && snapshotUploadInput) {
+  loadWeightsTopbarBtn.addEventListener('click', () => {
+    snapshotUploadInput.click();
+  });
+}
 
 function updateWeightCacheBadge() {
   if (!weightCacheBadge) return;
