@@ -2410,8 +2410,16 @@ fn probe_reply_table_has_anchor(
     .is_some()
 }
 
-/// Position-Free Causal 4-Gram Suffix lookup in `reply_tbl` (`(anchor, occ, prev_3, prev_2, prev_1, curr_tok)`),
-/// with automatic occurrence backoff (`occ = 0`) and legacy step-index compatibility.
+/// Universal corpus-wide suffix anchor (`0xE000_0000`), disjoint from turn-specific anchors (`0x8000_0000 | idx`),
+/// stem hashes (`0x4000_0000 | h`), BPE token IDs (`0..4095`), and `MEMORY_PAD` (`0xFFFF_FFFF`).
+pub const GLOBAL_SUFFIX_ANCHOR: u32 = 0xE000_0000;
+
+/// Multi-Scale Position-Free Causal Suffix lookup in `reply_tbl`:
+/// 1. Tier 1: Anchor-bound 4-gram (`(anchor, occ, prev_3, prev_2, prev_1, curr_tok)`) + `occ = 0` backoff
+/// 2. Tier 2: Anchor-bound 2-gram backoff (`(anchor, 0, PAD, PAD, prev_1, curr_tok)`)
+/// 3. Tier 3: Universal corpus-wide 4-gram (`(GLOBAL_SUFFIX_ANCHOR, 0, prev_3, prev_2, prev_1, curr_tok)`)
+///    and 3-gram (`(GLOBAL_SUFFIX_ANCHOR, 0, PAD, prev_2, prev_1, curr_tok)`) continuation
+/// 4. Tier 4: Legacy step-index compatibility fallback
 fn lookup_reply_continuation_4gram(
     reply_tbl: &TurnMemoryTable,
     reply_key_len: usize,
@@ -2440,7 +2448,37 @@ fn lookup_reply_continuation_4gram(
             return Some(reply_tbl.values[idx]);
         }
     }
-    // Compatibility fallback for step-indexed `.uorlut` tables
+    // Tier 2: Anchor-bound 2-gram backoff (when `prev_1 != MEMORY_PAD`)
+    if suffix4[2] != MEMORY_PAD {
+        key[reply_key_len - 5] = 0;
+        key[reply_key_len - 4] = MEMORY_PAD;
+        key[reply_key_len - 3] = MEMORY_PAD;
+        key[reply_key_len - 2] = suffix4[2];
+        key[reply_key_len - 1] = suffix4[3];
+        if let Some(idx) = reply_tbl.lookup(&key) {
+            return Some(reply_tbl.values[idx]);
+        }
+    }
+    // Tier 3: Universal corpus-wide 4-gram and 3-gram continuation backoff
+    if suffix4[1] != MEMORY_PAD {
+        let mut gkey = vec![MEMORY_PAD; reply_key_len];
+        gkey[0] = GLOBAL_SUFFIX_ANCHOR;
+        gkey[reply_key_len - 5] = 0;
+        gkey[reply_key_len - 4] = suffix4[0];
+        gkey[reply_key_len - 3] = suffix4[1];
+        gkey[reply_key_len - 2] = suffix4[2];
+        gkey[reply_key_len - 1] = suffix4[3];
+        if suffix4[0] != MEMORY_PAD {
+            if let Some(idx) = reply_tbl.lookup(&gkey) {
+                return Some(reply_tbl.values[idx]);
+            }
+        }
+        gkey[reply_key_len - 4] = MEMORY_PAD;
+        if let Some(idx) = reply_tbl.lookup(&gkey) {
+            return Some(reply_tbl.values[idx]);
+        }
+    }
+    // Tier 4: Compatibility fallback for step-indexed `.uorlut` tables
     let mut legacy_key = vec![MEMORY_PAD; reply_key_len];
     let leg_copy = anchor.len().min(reply_key_len.saturating_sub(4));
     legacy_key[..leg_copy].copy_from_slice(&anchor[..leg_copy]);

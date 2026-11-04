@@ -5192,6 +5192,26 @@ mod tests {
             conscious_reply
         );
 
+        let rough_day_raw = dispatch_string("1\tstudio\tchat\tI'm having a rough day.");
+        let rough_day_json: serde_json::Value =
+            serde_json::from_str(&rough_day_raw).expect("valid rough day JSON");
+        let rough_day_reply = rough_day_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            rough_day_reply.contains("Physiological Sigh"),
+            "Empathetic reset prompt must answer directly: {}",
+            rough_day_reply
+        );
+
+        let gps_raw =
+            dispatch_string("1\tstudio\tchat\tHow does GPS calculate your location on Earth?");
+        let gps_json: serde_json::Value = serde_json::from_str(&gps_raw).expect("valid GPS JSON");
+        let gps_reply = gps_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            gps_reply.contains("trilateration") && gps_reply.contains("38.6 microseconds"),
+            "GPS relativity prompt must decode full explanation: {}",
+            gps_reply
+        );
+
         // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
         let status_raw = studio_weight_pack_status();
         let status_json: serde_json::Value =
@@ -5200,9 +5220,9 @@ mod tests {
         assert_eq!(status_json["schema"], "uor-r4.lut-stack/8");
         assert_eq!(status_json["layers"], 6);
         assert_eq!(status_json["vocab_size"], 4096);
-        assert!(status_json["opening_entries"].as_u64().unwrap() >= 2000);
-        assert!(status_json["reply_entries"].as_u64().unwrap() >= 150000);
-        assert!(status_json["point_rows"].as_u64().unwrap() >= 2000);
+        assert!(status_json["opening_entries"].as_u64().unwrap() >= 4000);
+        assert!(status_json["reply_entries"].as_u64().unwrap() >= 370000);
+        assert!(status_json["point_rows"].as_u64().unwrap() >= 5000);
 
         let reload_raw =
             studio_load_uorlut_bytes(BOOTSTRAP_UORLUT_V8, "IndexedDB :: uor-r4-glm-v8");

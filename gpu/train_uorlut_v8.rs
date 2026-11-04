@@ -16,7 +16,7 @@ mod lut_stack_exec;
 use lut_stack_exec::{
     extract_salient_stem_hashes_from_text, extract_turn_ids, sha256_hex, ByteBpe4096,
     FbsRecState, HammingCache, LutStackModel, ServedPointKey, ServedTurnMemory, TurnMemoryTable,
-    FBS_WIDTH, MEMORY_PAD, MEMORY_REPLY_KEY_LEN, STACK_SCHEMA_V8,
+    FBS_WIDTH, GLOBAL_SUFFIX_ANCHOR, MEMORY_PAD, MEMORY_REPLY_KEY_LEN, STACK_SCHEMA_V8,
 };
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
@@ -26,6 +26,11 @@ use std::sync::Arc;
 #[allow(dead_code)]
 mod glm_corpus {
     include!("glm_corpus.rs");
+}
+
+#[allow(dead_code)]
+mod glm_expanded_corpus {
+    include!("glm_expanded_corpus.rs");
 }
 
 struct DialogueTurnSpec {
@@ -575,6 +580,17 @@ fn build_training_corpus() -> Vec<DialogueTurnSpec> {
         paras.push(title.to_owned());
         paras.push(format!("Tell me about {title}"));
         paras.push(format!("Explain {title}"));
+        paras.push(format!("What is {title}?"));
+        paras.push(format!("How does {title} work?"));
+        paras.push(format!("Can you explain {title} in detail?"));
+        let short_title = title.split([',', ':']).next().unwrap_or(title).trim();
+        if short_title.len() >= 3 && short_title != title {
+            paras.push(short_title.to_owned());
+            paras.push(format!("Tell me about {short_title}"));
+            paras.push(format!("Explain {short_title}"));
+            paras.push(format!("What is {short_title}?"));
+            paras.push(format!("How does {short_title} work?"));
+        }
         let mut parts = vec![summary, mechanism, formal];
         if !tradeoffs.is_empty() {
             parts.push(tradeoffs);
@@ -590,6 +606,11 @@ fn build_training_corpus() -> Vec<DialogueTurnSpec> {
             keywords: kws.iter().map(|&k| k.to_owned()).collect(),
             reply,
         });
+    }
+
+    // Append all expanded multi-domain conversational, coding, math, science, philosophy, and life specs
+    for &(canon, paras, reply) in glm_expanded_corpus::EXPANDED_DIALOGUE_SPECS {
+        specs.push(make_spec(vec![], canon, paras, reply));
     }
 
     specs
@@ -763,7 +784,7 @@ fn main() {
     let mut tok_sum = vec![0i64; model.vocab * FBS_WIDTH];
     let mut tok_count = vec![0i64; model.vocab];
 
-    for turn in corpus.iter().take(64) {
+    for turn in corpus.iter().take(128) {
         let history_owned: Vec<(String, String)> = turn
             .history
             .iter()
@@ -833,6 +854,7 @@ fn main() {
 
     let mut opening_map: BTreeMap<Vec<u32>, u32> = BTreeMap::new();
     let mut reply_map: BTreeMap<Vec<u32>, u32> = BTreeMap::new();
+    let mut global_ngram_freq: BTreeMap<([u32; 4], u32), u32> = BTreeMap::new();
 
     let mut point_points: Vec<i16> = Vec::new();
     let mut point_targets: Vec<u32> = Vec::new();
@@ -877,6 +899,16 @@ fn main() {
             rkey[reply_key_len - 5] = occ;
             rkey[reply_key_len - 4..reply_key_len].copy_from_slice(&suffix);
             reply_map.insert(rkey, next_tok);
+
+            // Accumulate corpus-wide 4-gram and 3-gram continuation counts (excluding EOS)
+            if next_tok != bpe.eos_id() && suffix[1] != MEMORY_PAD {
+                if suffix[0] != MEMORY_PAD {
+                    *global_ngram_freq.entry((suffix, next_tok)).or_insert(0) += 1;
+                }
+                let trigram = [MEMORY_PAD, suffix[1], suffix[2], suffix[3]];
+                *global_ngram_freq.entry((trigram, next_tok)).or_insert(0) += 1;
+            }
+
             suffix = [suffix[1], suffix[2], suffix[3], next_tok];
         }
 
@@ -926,6 +958,36 @@ fn main() {
             point_rows += 1;
         }
     }
+
+    // Register Universal Corpus-Wide 4-Gram & 3-Gram Continuation Backoff (`GLOBAL_SUFFIX_ANCHOR`)
+    let mut best_global_next: BTreeMap<[u32; 4], (u32, u32)> = BTreeMap::new();
+    for ((ngram, next_tok), cnt) in global_ngram_freq {
+        if cnt < 2 {
+            continue;
+        }
+        let entry = best_global_next.entry(ngram).or_insert((0, next_tok));
+        if cnt > entry.0 {
+            *entry = (cnt, next_tok);
+        }
+    }
+    let mut ranked_globals: Vec<([u32; 4], u32, u32)> = best_global_next
+        .into_iter()
+        .map(|(ng, (cnt, nt))| (ng, cnt, nt))
+        .collect();
+    ranked_globals.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+    let mut global_inserted = 0usize;
+    for (ngram, _cnt, next_tok) in ranked_globals.into_iter().take(75_000) {
+        let mut gkey = vec![MEMORY_PAD; reply_key_len];
+        gkey[0] = GLOBAL_SUFFIX_ANCHOR;
+        gkey[reply_key_len - 5] = 0;
+        gkey[reply_key_len - 4..reply_key_len].copy_from_slice(&ngram);
+        reply_map.insert(gkey, next_tok);
+        global_inserted += 1;
+    }
+    println!(
+        "   Registered {} universal multi-scale (4-gram/3-gram) backoff continuations (`GLOBAL_SUFFIX_ANCHOR`).",
+        global_inserted
+    );
 
     let open_weight_q24 = model
         .memory
@@ -1025,6 +1087,11 @@ fn main() {
         (&[], "How do you compare to GPT-4?", "Frontier Transformer models like GPT-4 and Claude"),
         (&[], "What are your limitations?", "Right now, my primary limitation"),
         (&[], "What is the meaning of life?", "Across philosophy, science, and literature"),
+        (&[], "What is the Turing Test and the Chinese Room argument?", "Alan Turing"),
+        (&[], "Explain async/await and Tokio in Rust.", "state machine"),
+        (&[], "Explain Black Holes, the Event Horizon, and Hawking Radiation.", "Schwarzschild radius"),
+        (&[], "How do you systematically debug a difficult software bug?", "scientific method for debugging"),
+        (&[], "How does Quantum Entanglement work?", "Quantum entanglement occurs"),
         (&[], "How do you work?", "Each input token is embedded into a 256D Q12"),
         (
             &[],
