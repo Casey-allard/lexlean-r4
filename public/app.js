@@ -3,6 +3,7 @@ import init, {
   clear_cached_uorlut_in_indexeddb,
   process_envelope,
   restore_cached_uorlut_from_indexeddb,
+  stream_sharded_weights_to_indexeddb,
   studio_dispatch,
   studio_load_uorlut_bytes,
   studio_weight_pack_status,
@@ -1290,10 +1291,17 @@ if (syncWeightsBtn) {
   syncWeightsBtn.addEventListener('click', async () => {
     syncWeightsBtn.disabled = true;
     const prevText = syncWeightsBtn.textContent;
-    syncWeightsBtn.textContent = 'Syncing...';
+    syncWeightsBtn.textContent = 'Syncing 0%...';
     try {
-      await sync_cached_weights();
+      await sync_cached_weights((prog) => {
+        if (prog && typeof prog.percent === 'number') {
+          syncWeightsBtn.textContent = `Syncing ${prog.percent}%...`;
+        }
+        updateWeightCacheBadge();
+      });
       updateWeightCacheBadge();
+      const st = dispatchStudioEnvelope('state', '');
+      renderStudioState(st);
     } finally {
       syncWeightsBtn.disabled = false;
       syncWeightsBtn.textContent = prevText;
@@ -1340,6 +1348,24 @@ try {
   }
   runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
   executeCoordinateEnvelope();
+  if (
+    typeof stream_sharded_weights_to_indexeddb === 'function'
+    && (!globalThis.__uorWeightCacheMeta || globalThis.__uorWeightCacheMeta.mode !== 'indexeddb')
+  ) {
+    stream_sharded_weights_to_indexeddb(() => {
+      updateWeightCacheBadge();
+    }, false)
+      .then((streamed) => {
+        if (streamed && streamed.status === 'ok') {
+          updateWeightCacheBadge();
+          const st = dispatchStudioEnvelope('state', '');
+          renderStudioState(st);
+        }
+      })
+      .catch(() => {
+        // Offline or local environment without shards; keep embedded 64.7 MB model
+      });
+  }
 } catch (err) {
   appendChatTurn(
     'assistant',
