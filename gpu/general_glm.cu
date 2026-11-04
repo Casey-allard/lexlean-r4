@@ -62,6 +62,9 @@ struct GlmDeviceHorizonRow {
     uint16_t basin_id;                  // 28..30
     uint8_t section_idx;                // 30
     uint8_t sentence_idx;               // 31
+    uint16_t next_horizon_id;           // 32..34
+    uint16_t alt_horizon_id;            // 34..36
+    uint32_t transition_energy;         // 36..40
 };
 
 // Exact 8-head integer retention decay constants (`R4.IntegerStack.retainLambdaQ31`, `R4-18`)
@@ -450,6 +453,129 @@ extern "C" __global__ void train_glm_token_horizons_kernel(
     uint8_t b2 = device_icosian_snap_select(&row.horizon_q12[0]) % 17u;
     uint8_t b3 = device_icosian_snap_select(&row.horizon_q12[4]) % 17u;
     row.packed_4block = (uint32_t)b0 + 17u * (uint32_t)b1 + 289u * (uint32_t)b2 + 4913u * (uint32_t)b3;
+    row.next_horizon_id = (uint16_t)((h + 1) % horizon_count);
+    row.alt_horizon_id = (uint16_t)((h + 2) % horizon_count);
+    row.transition_energy = 0u;
+
+    horizon_rows[h] = row;
+}
+
+extern "C" __global__ void train_glm_horizon_transitions_kernel(
+    GlmDeviceHorizonRow* __restrict__ horizon_rows,
+    const GlmDeviceConceptRow* __restrict__ trained_basins,
+    uint32_t horizon_count,
+    uint32_t basin_count,
+    uint32_t epoch
+) {
+    uint32_t h = blockIdx.x * blockDim.x + threadIdx.x;
+    if (h >= horizon_count || basin_count == 0) {
+        return;
+    }
+
+    GlmDeviceHorizonRow row = horizon_rows[h];
+    uint16_t bid = row.basin_id < basin_count ? row.basin_id : 0;
+    const GlmDeviceConceptRow basin = trained_basins[bid];
+
+    // `/7` cyclic section progression (`0 -> 1 -> 2 -> 3 -> 4 -> 0`) via 4D Hamilton transport
+    uint8_t target_sec = (uint8_t)((row.section_idx + 1u) % 5u);
+    uint8_t root_idx = (uint8_t)((basin.icosian_root + target_sec * 3u + 1u) % 17u);
+    int64_t q_cur[4] = {
+        (int64_t)row.horizon_q12[0],
+        (int64_t)row.horizon_q12[1],
+        (int64_t)row.horizon_q12[2],
+        (int64_t)row.horizon_q12[3]
+    };
+    int64_t q_step[4] = {
+        (int64_t)(DEVICE_ICOSIAN_ROOTS_A[root_idx][0] >> 4) + 128LL,
+        (int64_t)(DEVICE_ICOSIAN_ROOTS_A[root_idx][1] >> 4) + (int64_t)(target_sec * 29u),
+        (int64_t)(DEVICE_ICOSIAN_ROOTS_A[root_idx][2] >> 4) - (int64_t)(row.sentence_idx * 19u),
+        (int64_t)(DEVICE_ICOSIAN_ROOTS_A[root_idx][3] >> 4) + 37LL
+    };
+    int64_t q_next[4];
+    device_stack_hamilton_4d(q_cur, q_step, q_next);
+
+    int16_t transported_q12[POINT_KEY_DIM];
+    for (int l = 0; l < 4; ++l) {
+        int64_t v = (q_next[l] >> 8) + ((int64_t)basin.q12_coords[l] >> 2);
+        if (v > Q12_ONE) v = Q12_ONE;
+        if (v < -Q12_ONE) v = -Q12_ONE;
+        transported_q12[l] = (int16_t)v;
+    }
+    for (int l = 4; l < POINT_KEY_DIM; ++l) {
+        int32_t cyc = (int32_t)row.horizon_q12[4 + ((l - 3) & 3)]
+            + ((int32_t)basin.q12_coords[l] >> 3);
+        if (cyc > Q12_ONE) cyc = Q12_ONE;
+        if (cyc < -Q12_ONE) cyc = -Q12_ONE;
+        transported_q12[l] = (int16_t)cyc;
+    }
+    uint64_t transported_sign = (row.horizon_sign << 7) | (row.horizon_sign >> 57);
+    transported_sign ^= basin.sign_code;
+
+    uint16_t best_next = (uint16_t)((h + 1u) % horizon_count);
+    uint16_t best_alt = (uint16_t)((h + 2u) % horizon_count);
+    uint32_t best_energy = 0xFFFFFFFFu;
+    uint32_t alt_energy = 0xFFFFFFFFu;
+
+    // Scan local basin neighborhood plus strided manifold candidates
+    for (uint32_t cand = 0; cand < horizon_count; ++cand) {
+        if (cand == h) {
+            continue;
+        }
+        const GlmDeviceHorizonRow crow = horizon_rows[cand];
+        bool same_basin = (crow.basin_id == bid);
+        if (!same_basin && ((cand + epoch) & 7u) != 0u) {
+            continue;
+        }
+
+        uint32_t l1 = 0;
+        for (int l = 0; l < POINT_KEY_DIM; ++l) {
+            int32_t d = (int32_t)transported_q12[l] - (int32_t)crow.horizon_q12[l];
+            l1 += (uint32_t)(d < 0 ? -d : d);
+        }
+        uint32_t ham = (uint32_t)__builtin_popcountll(transported_sign ^ crow.horizon_sign);
+        uint32_t energy = (l1 >> 2) + ham * 6u;
+
+        if (same_basin) {
+            if (crow.section_idx == target_sec) {
+                energy = (energy > 220u) ? (energy - 220u) : 1u;
+            } else if (crow.section_idx != row.section_idx) {
+                energy = (energy > 110u) ? (energy - 110u) : 4u;
+            } else {
+                energy += 40u;
+            }
+        } else {
+            energy += 320u;
+        }
+
+        if (energy < best_energy) {
+            alt_energy = best_energy;
+            best_alt = best_next;
+            best_energy = energy;
+            best_next = (uint16_t)cand;
+        } else if (energy < alt_energy && cand != best_next) {
+            alt_energy = energy;
+            best_alt = (uint16_t)cand;
+        }
+    }
+
+    row.next_horizon_id = best_next;
+    row.alt_horizon_id = best_alt;
+    row.transition_energy = best_energy;
+
+    // Gentle geodesic coupling relaxation along the discovered transition edge
+    if ((epoch & 3u) == 3u && best_next < horizon_count) {
+        const GlmDeviceHorizonRow nrow = horizon_rows[best_next];
+        for (int l = 0; l < POINT_KEY_DIM; ++l) {
+            int32_t target_mid = ((int32_t)basin.q12_coords[l] * 3 + (int32_t)nrow.horizon_q12[l]) / 4;
+            int32_t step = (target_mid - (int32_t)row.horizon_q12[l]) / 16;
+            if (step > 6) step = 6;
+            if (step < -6) step = -6;
+            int32_t updated = (int32_t)row.horizon_q12[l] + step;
+            if (updated > Q12_ONE) updated = Q12_ONE;
+            if (updated < -Q12_ONE) updated = -Q12_ONE;
+            row.horizon_q12[l] = (int16_t)updated;
+        }
+    }
 
     horizon_rows[h] = row;
 }
@@ -556,6 +682,9 @@ int main(int argc, char** argv) {
         h_horizons[h].section_idx = h_horizon_secs[h];
         h_horizons[h].sentence_idx = h_horizon_sents[h];
         h_horizons[h].horizon_sign = 0x9E3779B97F4A7C15ULL ^ ((uint64_t)h * 0xBF58476D1CE4E5B9ULL);
+        h_horizons[h].next_horizon_id = (uint16_t)((h + 1) % horizon_count);
+        h_horizons[h].alt_horizon_id = (uint16_t)((h + 2) % horizon_count);
+        h_horizons[h].transition_energy = 0u;
     }
 
     cudaDeviceProp prop;
@@ -631,6 +760,7 @@ int main(int argc, char** argv) {
     uint32_t basin_epochs = 1024;
     uint32_t vocab_epochs = 512;
     uint32_t horizon_epochs = 256;
+    uint32_t transition_epochs = 256;
 
     cudaEventRecord(ev_start);
     for (uint32_t ep = 0; ep < basin_epochs; ++ep) {
@@ -649,6 +779,11 @@ int main(int argc, char** argv) {
         train_glm_token_horizons_kernel<<<horizon_blocks, threads>>>(
             d_horizons, d_rows, d_vocab, d_horizon_vocab_ids,
             horizon_count, count, vocab_count, ep
+        );
+    }
+    for (uint32_t ep = 0; ep < transition_epochs; ++ep) {
+        train_glm_horizon_transitions_kernel<<<horizon_blocks, threads>>>(
+            d_horizons, d_rows, horizon_count, count, ep
         );
     }
     cudaEventRecord(ev_stop);
@@ -676,6 +811,10 @@ int main(int argc, char** argv) {
     for (uint32_t v = 0; v < vocab_count; ++v) {
         final_vocab_loss += h_vocab_loss[v];
     }
+    uint64_t total_transition_energy = 0;
+    for (uint32_t h = 0; h < horizon_count; ++h) {
+        total_transition_energy += h_horizons[h].transition_energy;
+    }
     uint32_t active_gates = 0;
     for (int g = 0; g < TERNARY_FOREST_NODES; ++g) {
         if (h_gates[g] != 0) active_gates++;
@@ -698,8 +837,8 @@ int main(int argc, char** argv) {
     FILE* frec = fopen(receipt_path, "w");
     if (frec) {
         fprintf(frec, "{\n");
-        fprintf(frec, "  \"schema\": \"uor-r4/cuda-glm-training-receipt/3\",\n");
-        fprintf(frec, "  \"model_magic\": \"UR4GLM05\",\n");
+        fprintf(frec, "  \"schema\": \"uor-r4/cuda-glm-training-receipt/4\",\n");
+        fprintf(frec, "  \"model_magic\": \"UR4GLM06\",\n");
         fprintf(frec, "  \"gpu_device\": \"%s\",\n", prop.name);
         fprintf(frec, "  \"compute_capability\": \"%d.%d\",\n", prop.major, prop.minor);
         fprintf(frec, "  \"cuda_driver_version\": %d,\n", driver_ver);
@@ -709,13 +848,16 @@ int main(int argc, char** argv) {
         fprintf(frec, "  \"trained_basin_rows\": %u,\n", count);
         fprintf(frec, "  \"trained_vocab_rows\": %u,\n", vocab_count);
         fprintf(frec, "  \"trained_horizon_rows\": %u,\n", horizon_count);
+        fprintf(frec, "  \"trained_horizon_transitions\": %u,\n", horizon_count * 2u);
         fprintf(frec, "  \"basin_epochs\": %u,\n", basin_epochs);
         fprintf(frec, "  \"vocab_epochs\": %u,\n", vocab_epochs);
         fprintf(frec, "  \"horizon_epochs\": %u,\n", horizon_epochs);
+        fprintf(frec, "  \"transition_epochs\": %u,\n", transition_epochs);
         fprintf(frec, "  \"kernel_elapsed_ms\": %.4f,\n", elapsed_ms);
         fprintf(frec, "  \"initial_basin_loss\": %llu,\n", (unsigned long long)initial_total_loss);
         fprintf(frec, "  \"final_basin_loss\": %llu,\n", (unsigned long long)final_total_loss);
         fprintf(frec, "  \"final_vocab_cluster_loss\": %llu,\n", (unsigned long long)final_vocab_loss);
+        fprintf(frec, "  \"total_horizon_transition_energy\": %llu,\n", (unsigned long long)total_transition_energy);
         fprintf(frec, "  \"coordinate_improvements\": %u,\n", h_improved);
         fprintf(frec, "  \"coupled_gate_escapes\": %u,\n", h_escapes);
         fprintf(frec, "  \"active_ternary_gates\": %u\n", active_gates);
@@ -723,8 +865,8 @@ int main(int argc, char** argv) {
         fclose(frec);
     }
 
-    printf("Trained %u basins (%u ep) + %u vocab stems (%u ep) + %u token horizons (%u ep) on %s (sm_%d%d) in %.3f ms\n",
-           count, basin_epochs, vocab_count, vocab_epochs, horizon_count, horizon_epochs,
+    printf("Trained %u basins (%u ep) + %u vocab stems (%u ep) + %u token horizons (%u+%u ep) on %s (sm_%d%d) in %.3f ms\n",
+           count, basin_epochs, vocab_count, vocab_epochs, horizon_count, horizon_epochs, transition_epochs,
            prop.name, prop.major, prop.minor, elapsed_ms);
 
     cudaFree(d_rows);

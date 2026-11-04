@@ -4158,21 +4158,28 @@ mod tests {
         assert!(!unseen.contains("p_TLB"));
         assert!(!unseen.contains("closely related dynamics in our geometric manifold"));
 
-        // 8. Verify UR4GLM04 CUDA hardware-trained weights & falsifiable geometric routing benchmark
-        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM04");
+        // 8. Verify UR4GLM06 CUDA hardware-trained weights & falsifiable geometric routing benchmark
+        assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM06");
         assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
-        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 111);
-        assert!(glm_weights::GLM_TRAINED_VOCAB.len() >= 1_500);
-        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 951);
-        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 29);
+        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 165);
+        assert!(glm_weights::GLM_TRAINED_VOCAB.len() >= 7_000);
+        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 1278);
+        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 105);
         assert!(glm_weights::GLM_CONCEPT_MANIFOLD
             .iter()
             .all(|n| n.e8_root < 16
                 && n.clifford_action < 64
                 && n.icosian_root < 17
                 && n.h4_root < 120));
+        assert!(glm_weights::GLM_TOKEN_HORIZONS
+            .iter()
+            .all(
+                |h| (h.next_horizon_id as usize) < glm_weights::GLM_TOKEN_HORIZONS.len()
+                    && (h.alt_horizon_id as usize) < glm_weights::GLM_TOKEN_HORIZONS.len()
+                    && h.next_horizon_id != h.alt_horizon_id
+            ));
 
-        // 8b. Verify Token-Level Autoregressive Geometric Prose Generation (O(1) per-token integer retention + 4D quaternion + Base-17 4-block trunk)
+        // 8b. Verify Token-Level Autoregressive Geometric Prose Generation (O(1) per-token integer retention + 4D quaternion + Base-17 4-block trunk + /7 transitions)
         let prompt_words = vec![
             "seine".to_string(),
             "cathedral".to_string(),
@@ -4209,8 +4216,8 @@ mod tests {
         //    - (d) Random router
         //    - (e) Re-hashed/scrambled coordinate seed (0xDEAD_BEEF_CAFE_BABE)
         let bench = glm_weights::evaluate_held_out_routing_benchmark();
-        assert_eq!(bench.total_prompts, 25);
-        assert_eq!(bench.keyword_disjoint_prompts, 25);
+        assert_eq!(bench.total_prompts, 35);
+        assert_eq!(bench.keyword_disjoint_prompts, 35);
         assert_eq!(bench.lexical_only_hits, 0);
         assert!(
             bench.full_hits > bench.lexical_only_hits,
@@ -4231,8 +4238,8 @@ mod tests {
             bench.rehashed_seed_hits
         );
         assert!(
-            bench.geometric_only_hits >= 22,
-            "Trained geometric routing accuracy must be >= 22/25, got {}/25",
+            bench.geometric_only_hits >= 31,
+            "Trained geometric routing accuracy must be >= 31/35, got {}/35",
             bench.geometric_only_hits
         );
 
@@ -4247,11 +4254,18 @@ mod tests {
         let bday30 = ask("What is the birthday collision probability for 30 people?");
         assert!(bday30.contains("N = 30") && bday30.contains("70.6"));
 
-        // 11. Verify Purely Geometric Routing + Multi-Turn Follow-up on Keyword-Disjoint Prompt
+        // 11. Verify Purely Geometric Routing + Multi-Turn Follow-up & Pronoun/Anaphora Resolution
         let geo_paris = ask("Where is the Louvre museum along the Seine river near Notre-Dame?");
         assert!(geo_paris.contains("Seine") || geo_paris.contains("Louvre"));
         let geo_followup = ask("Give me a concrete example");
         assert!(geo_followup.contains("Louvre") || geo_followup.contains("Notre-Dame"));
+        let geo_anaphora = ask("What is the architecture like there?");
+        assert!(
+            geo_anaphora.contains("Paris")
+                || geo_anaphora.contains("Seine")
+                || geo_anaphora.contains("Haussmann"),
+            "Anaphora 'there' must resolve to Paris, France: {geo_anaphora}"
+        );
 
         let rel = ask("Explain the theory of relativity");
         assert!(rel.contains("Einstein") && rel.contains("spacetime"));
@@ -4259,6 +4273,10 @@ mod tests {
         assert!(lemon.contains("yellow"));
         let rainbow = ask("What causes a rainbow?");
         assert!(rainbow.contains("refracts"));
+        let onion = ask("Why do onions make you cry?");
+        assert!(onion.contains("lachrymatory") || onion.contains("tear"));
+        let ice = ask("Why is ice slippery?");
+        assert!(ice.contains("quasi-liquid") || ice.contains("friction"));
 
         // 12. Verify 3-Turn Conversational Reciprocity, AI Topic Routing, Clarification & Zero Sentence Duplication
         let turn1 = ask("How are you?");

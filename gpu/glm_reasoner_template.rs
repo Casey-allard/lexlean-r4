@@ -339,6 +339,7 @@ pub fn generate_token_level_geometric_prose(
         sec_idx: u8,
         tokens: Vec<String>,
         stems: Vec<String>,
+        horizon_idx: usize,
         horizon: GlmTokenHorizon,
     }
 
@@ -373,22 +374,29 @@ pub fn generate_token_level_geometric_prose(
                     .filter(|st| st.len() >= 3 && !is_stopword(st))
                     .collect();
 
-                let horizon = GLM_TOKEN_HORIZONS
+                let (horizon_idx, horizon) = GLM_TOKEN_HORIZONS
                     .iter()
-                    .find(|h| {
+                    .enumerate()
+                    .find(|(_, h)| {
                         h.basin_id == node.id
                             && usize::from(h.section_idx) == sec_idx
                             && usize::from(h.sentence_idx) == sent_idx.min(255)
                     })
-                    .copied()
-                    .unwrap_or(GlmTokenHorizon {
-                        horizon_q12: node.q12_coords,
-                        horizon_sign: node.sign_code,
-                        packed_4block: u32::from(node.icosian_root),
-                        basin_id: node.id,
-                        section_idx: sec_idx as u8,
-                        sentence_idx: (sent_idx.min(255)) as u8,
-                    });
+                    .map(|(idx, &h)| (idx, h))
+                    .unwrap_or((
+                        usize::MAX,
+                        GlmTokenHorizon {
+                            horizon_q12: node.q12_coords,
+                            horizon_sign: node.sign_code,
+                            packed_4block: u32::from(node.icosian_root),
+                            basin_id: node.id,
+                            section_idx: sec_idx as u8,
+                            sentence_idx: (sent_idx.min(255)) as u8,
+                            next_horizon_id: 0,
+                            alt_horizon_id: 0,
+                            transition_energy: 64,
+                        },
+                    ));
 
                 spans.push(TokenSpan {
                     basin_id: node.id,
@@ -396,6 +404,7 @@ pub fn generate_token_level_geometric_prose(
                     sec_idx: sec_idx as u8,
                     tokens: toks,
                     stems,
+                    horizon_idx,
                     horizon,
                 });
             }
@@ -492,11 +501,28 @@ pub fn generate_token_level_geometric_prose(
                 ));
 
         if at_span_end {
-            // Sentence boundary transition: evaluate all unvisited spans in the active geometric neighborhood
+            // Sentence boundary transition: follow CUDA-trained `/7` geodesic transition edges (`next_horizon_id` / `alt_horizon_id`)
+            // combined with active `GlmRetentionState` resonance
             branch_decisions += 1;
+            let cur_h = spans[cur_span_idx].horizon;
             let next_span_opt = (0..spans.len())
                 .filter(|idx| !used_spans.contains(idx))
-                .max_by_key(|&idx| score_span_against_state(&spans[idx], &state, &used_stems));
+                .max_by_key(|&idx| {
+                    let base = score_span_against_state(&spans[idx], &state, &used_stems);
+                    let cand_h_idx = spans[idx].horizon_idx;
+                    let edge_bonus = if cand_h_idx != usize::MAX
+                        && cand_h_idx == usize::from(cur_h.next_horizon_id)
+                    {
+                        22u32.saturating_sub(cur_h.transition_energy / 256).max(10)
+                    } else if cand_h_idx != usize::MAX
+                        && cand_h_idx == usize::from(cur_h.alt_horizon_id)
+                    {
+                        14
+                    } else {
+                        0
+                    };
+                    base + edge_bonus
+                });
 
             if let Some(next_span) = next_span_opt {
                 cur_span_idx = next_span;
@@ -2289,6 +2315,140 @@ fn render_open_domain_natural_prose(
     )
 }
 
+/// Explicit Pragmatic Discourse Act classification for multi-turn conversational continuity (`Phase 1`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GlmDiscourseAct {
+    /// Fresh topical query or self-contained domain shift.
+    TopicShift,
+    /// Anaphoric or deictic reference to an entity/place/concept from `chat_history` (`"there"`, `"it"`, `"its"`, `"her"`, `"his"`).
+    AnaphoricFollowup,
+    /// Request to clarify a previous point (`"what do you mean"`, `"can you clarify"`).
+    Clarification,
+    /// Request for a concrete illustration (`"give me an example"`).
+    Exemplification,
+    /// Request for a simpler or intuitive explanation (`"eli5"`, `"in simple terms"`).
+    Simplification,
+    /// Request for a concise summary (`"summarize"`, `"tldr"`).
+    Summarization,
+    /// Request to elaborate further on the active topic (`"tell me more"`, `"go deeper"`, `"why is that"`).
+    Deepening,
+}
+
+/// Classify the pragmatic discourse act of the user's turn given `lower`, `words`, and whether `chat_history` is non-empty.
+pub fn classify_discourse_act(
+    lower: &str,
+    words: &[String],
+    stems: &[String],
+    has_history: bool,
+) -> GlmDiscourseAct {
+    if !has_history {
+        return GlmDiscourseAct::TopicShift;
+    }
+
+    if words.len() <= 10 {
+        if lower.contains("what do you mean")
+            || lower.contains("what did you mean")
+            || lower.contains("what does that mean")
+            || lower.contains("can you clarify")
+            || lower.contains("clarify that")
+            || lower == "how so"
+            || lower == "how so?"
+            || lower.contains("in what sense")
+            || lower.contains("why do you say")
+            || lower.contains("what makes you say")
+        {
+            return GlmDiscourseAct::Clarification;
+        }
+        if lower.contains("give me an example")
+            || lower.contains("give an example")
+            || lower.contains("concrete example")
+            || lower.starts_with("for example")
+        {
+            return GlmDiscourseAct::Exemplification;
+        }
+        if lower.starts_with("explain like")
+            || lower.contains("like i'm ")
+            || lower.contains("like i am ")
+            || lower.contains("eli5")
+            || lower.starts_with("simplify")
+            || lower.contains("simpler")
+            || lower.contains("in simple terms")
+        {
+            return GlmDiscourseAct::Simplification;
+        }
+        if lower.starts_with("summarize")
+            || lower.starts_with("tldr")
+            || lower.contains("make it shorter")
+        {
+            return GlmDiscourseAct::Summarization;
+        }
+        if lower.starts_with("tell me more")
+            || lower.starts_with("explain more")
+            || lower.starts_with("explain that")
+            || lower.starts_with("elaborate")
+            || lower.starts_with("go deeper")
+            || lower.contains("pros and cons of that")
+            || lower.contains("why does that happen")
+            || lower == "why is that"
+            || lower == "why is that?"
+            || lower == "how come"
+            || lower == "how come?"
+        {
+            return GlmDiscourseAct::Deepening;
+        }
+    }
+
+    // Check for explicit spatial, personal, or entity anaphora ("there", "its", "her", "his", "she", "he", "that place", "that city")
+    let is_existential_there = lower.contains("are there")
+        || lower.contains("is there")
+        || lower.contains("were there")
+        || lower.contains("there are")
+        || lower.contains("there is")
+        || lower.contains("there were");
+    let has_locative_there =
+        !is_existential_there && words.iter().any(|w| w == "there");
+    let has_pronoun_anaphor = words.iter().any(|w| {
+        matches!(
+            w.as_str(),
+            "its" | "her" | "hers" | "she" | "his" | "him" | "he" | "their" | "them"
+        )
+    });
+    let has_anaphor = has_locative_there
+        || has_pronoun_anaphor
+        || lower.contains("that place")
+        || lower.contains("that city")
+        || lower.contains("that country")
+        || lower.contains("about it");
+
+    if has_anaphor
+        && words.len() <= 12
+        && !lower.starts_with("how many ")
+        && !lower.contains("fermi")
+        && match_logic_puzzle(lower, words).is_none()
+        && match_conversational_qa(lower, words).is_none()
+    {
+        let max_self_lex = GLM_CONCEPT_MANIFOLD
+            .iter()
+            .map(|n| score_concept_lexical(n, lower, words, stems))
+            .max()
+            .unwrap_or(0);
+        let lex_cap = if has_locative_there
+            || lower.contains("that place")
+            || lower.contains("that city")
+            || lower.contains("that country")
+        {
+            18
+        } else {
+            10
+        };
+        if max_self_lex < lex_cap {
+            return GlmDiscourseAct::AnaphoricFollowup;
+        }
+    }
+
+    GlmDiscourseAct::TopicShift
+}
+
 /// Top-level entry point for the Pre-Trained Generalized Geometric Language Model (`UR4GLM04`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
@@ -2313,47 +2473,12 @@ pub fn synthesize_glm_response(
         }
     };
 
-    // 1. Check for Multi-Turn Conversational Follow-up ("what do you mean?", "give me an example", "explain simpler", "summarize that", "tell me more", "why is that?")
-    // Recomputes each earlier question's own `(past_q12, past_sign)` from `past_words` (fixing Point 7).
-    let is_short_followup = words.len() <= 10
-        && (lower.starts_with("tell me more")
-            || lower.starts_with("explain more")
-            || lower.starts_with("explain that")
-            || lower.starts_with("elaborate")
-            || lower.starts_with("go deeper")
-            || lower.contains("what do you mean")
-            || lower.contains("what did you mean")
-            || lower.contains("what does that mean")
-            || lower.contains("can you clarify")
-            || lower.contains("clarify that")
-            || lower == "how so"
-            || lower == "how so?"
-            || lower.contains("in what sense")
-            || lower.contains("why do you say")
-            || lower.contains("what makes you say")
-            || lower.contains("give me an example")
-            || lower.contains("give an example")
-            || lower.contains("concrete example")
-            || lower.starts_with("for example")
-            || lower.starts_with("explain like")
-            || lower.contains("like i'm ")
-            || lower.contains("like i am ")
-            || lower.contains("eli5")
-            || lower.starts_with("simplify")
-            || lower.contains("simpler")
-            || lower.contains("in simple terms")
-            || lower.starts_with("summarize")
-            || lower.starts_with("tldr")
-            || lower.contains("make it shorter")
-            || lower.contains("pros and cons of that")
-            || lower.contains("why does that happen")
-            || lower == "why is that"
-            || lower == "why is that?"
-            || lower == "how come"
-            || lower == "how come?");
+    // 1. Classify Pragmatic Discourse Act & Multi-Turn Anaphora State (`Phase 1`)
+    let discourse_act = classify_discourse_act(lower, words, stems, !chat_history.is_empty());
 
-    if is_short_followup && !chat_history.is_empty() {
-        let mut active_node_and_q: Option<(&'static GlmConceptNode, &str)> = None;
+    if discourse_act != GlmDiscourseAct::TopicShift {
+        let mut active_node_and_q: Option<(&'static GlmConceptNode, &str, [i16; POINT_KEY_DIM])> =
+            None;
         for (past_q, _) in chat_history.iter().rev() {
             let past_lower = past_q.to_ascii_lowercase();
             let past_words = tokenize_words_simple(&past_lower);
@@ -2361,6 +2486,11 @@ pub fn synthesize_glm_response(
                 .iter()
                 .map(|w| canonical_stem(w).to_string())
                 .collect();
+            if classify_discourse_act(&past_lower, &past_words, &past_stems, true)
+                != GlmDiscourseAct::TopicShift
+            {
+                continue;
+            }
             let (past_q12, past_sign) = pool_prompt_trained_geometry(&past_words);
             let hits = retrieve_top_concepts(
                 &past_lower,
@@ -2370,52 +2500,90 @@ pub fn synthesize_glm_response(
                 past_sign,
                 1,
             );
-            if let Some(&(node, _)) = hits.first() {
-                active_node_and_q = Some((node, past_q.as_str()));
-                break;
+            if let Some(&(node, score)) = hits.first() {
+                if score >= 12 {
+                    active_node_and_q = Some((node, past_q.as_str(), past_q12));
+                    break;
+                }
             }
         }
 
-        if let Some((node, prev_q)) = active_node_and_q {
-            if lower.contains("mean")
-                || lower.contains("clarify")
-                || lower.contains("how so")
-                || lower.contains("in what sense")
-                || lower.contains("why do you say")
-                || lower.contains("what makes you say")
-            {
-                return wrap_binder(format!(
-                    "To clarify what I meant about **{}**:\n\n{}\n\n{}\n\nFor a concrete illustration: {}\n\nDoes that make the connection clearer, or is there a specific part you'd like to dig into?",
-                    node.title, node.formal_principle, node.tradeoffs, node.example
-                ));
+        if let Some((node, prev_q, past_q12)) = active_node_and_q {
+            match discourse_act {
+                GlmDiscourseAct::Clarification => {
+                    return wrap_binder(format!(
+                        "To clarify what I meant about **{}**:\n\n{}\n\n{}\n\nFor a concrete illustration: {}\n\nDoes that make the connection clearer, or is there a specific part you'd like to dig into?",
+                        node.title, node.formal_principle, node.tradeoffs, node.example
+                    ));
+                }
+                GlmDiscourseAct::Exemplification => {
+                    return wrap_binder(format!(
+                        "**Concrete Example — {}:**\n\n{}\n\n{}\n\n{}",
+                        node.title, node.example, node.formal_principle, node.mechanism
+                    ));
+                }
+                GlmDiscourseAct::Simplification => {
+                    return wrap_binder(render_single_concept_response(
+                        prev_q, "eli5", words, stems, node,
+                    ));
+                }
+                GlmDiscourseAct::Summarization => {
+                    return wrap_binder(format!(
+                        "**Executive Summary — {}:**\n\n{}\n\n{}",
+                        node.title, node.summary, node.tradeoffs
+                    ));
+                }
+                GlmDiscourseAct::Deepening => {
+                    return wrap_binder(format!(
+                        "Building further on **{}**:\n\n{}\n\n{}\n\n{}",
+                        node.title, node.formal_principle, node.tradeoffs, node.example
+                    ));
+                }
+                GlmDiscourseAct::AnaphoricFollowup => {
+                    // Carry over the antecedent's Q12 horizon state via `GLM_RETAIN_LAMBDA_Q31[6]`
+                    let lam = GLM_RETAIN_LAMBDA_Q31[6];
+                    let mut blended_q12 = [0i16; POINT_KEY_DIM];
+                    for lane in 0..POINT_KEY_DIM {
+                        let carried = (i64::from(past_q12[lane]) * lam) >> 31;
+                        blended_q12[lane] = ((carried + i64::from(prompt_q12[lane])) / 2)
+                            .clamp(-4096, 4096) as i16;
+                    }
+                    let mut combined_words: Vec<String> = words.to_vec();
+                    for kw in node.keywords.iter().take(3) {
+                        combined_words.push((*kw).to_string());
+                    }
+                    let secondary = retrieve_top_concepts(
+                        lower,
+                        words,
+                        stems,
+                        &blended_q12,
+                        prompt_sign ^ node.sign_code,
+                        2,
+                    );
+                    let mut active_nodes: Vec<&GlmConceptNode> = vec![node];
+                    for &(sec_node, sec_score) in &secondary {
+                        if sec_node.id != node.id && sec_score >= 12 {
+                            active_nodes.push(sec_node);
+                            break;
+                        }
+                    }
+                    let (token_stream, _, _) =
+                        generate_token_level_geometric_prose(&combined_words, &active_nodes, 45, 95);
+                    let clauses = synthesize_clause_trajectory(&combined_words, &active_nodes, 3);
+                    let body = if !clauses.is_empty() {
+                        format!(
+                            "Regarding **{}**:\n\n{}\n\n{}",
+                            node.title,
+                            token_stream,
+                            clauses.join(" ")
+                        )
+                    } else {
+                        format!("Regarding **{}**:\n\n{}", node.title, token_stream)
+                    };
+                    return wrap_binder(body);
+                }
+                GlmDiscourseAct::TopicShift => {}
             }
-            if lower.contains("example") {
-                return wrap_binder(format!(
-                    "**Concrete Example — {}:**\n\n{}\n\n{}\n\n{}",
-                    node.title, node.example, node.formal_principle, node.mechanism
-                ));
-            }
-            if lower.contains("eli5")
-                || lower.contains("simple")
-                || lower.contains("simpler")
-                || lower.contains("simplify")
-                || lower.contains("like i'm ")
-                || lower.contains("like i am ")
-            {
-                return wrap_binder(render_single_concept_response(
-                    prev_q, "eli5", words, stems, node,
-                ));
-            }
-            if lower.contains("summarize") || lower.contains("tldr") || lower.contains("shorter") {
-                return wrap_binder(format!(
-                    "**Executive Summary — {}:**\n\n{}\n\n{}",
-                    node.title, node.summary, node.tradeoffs
-                ));
-            }
-            return wrap_binder(format!(
-                "Building further on **{}**:\n\n{}\n\n{}\n\n{}",
-                node.title, node.formal_principle, node.tradeoffs, node.example
-            ));
         }
 
         if let Some((prev_q, prev_a)) = chat_history.last() {
@@ -2580,7 +2748,7 @@ pub struct HeldOutBenchmarkReport {
 ///   (d) Random Router (`random_baseline`)
 ///   (e) Re-hashed / Scrambled Seed Coordinates (`lexical + rehashed_geometry`)
 pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
-    // 25 strictly keyword-disjoint held-out paraphrase prompts (0 keyword/phrase/title hits on gold basin)
+    // 35 strictly keyword-disjoint held-out paraphrase prompts (0 keyword/phrase/title hits on gold basin)
     // paired with their gold basin title substring.
     let held_out_cases: &[(&str, &str)] = &[
         (
@@ -2682,6 +2850,46 @@ pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
         (
             "Modest nobility artillery officer who earned promotion at Toulon before seizing First Consul power in the 18 Brumaire coup",
             "Napoleon Bonaparte",
+        ),
+        (
+            "Careme and Escoffier brigade kitchens whisking veloute, espagnole, and hollandaise alongside laminated tourage detrempe layers and Paul Bocuse reductions",
+            "French Gastronomy: Mother Sauces, Viennoiserie, Terroir & Culinary Technique",
+        ),
+        (
+            "Essential leucine and tryptophan amino acids paired with Bifidobacterium and Faecalibacterium producing butyrate, propionate, and acetate for colonocytes",
+            "Human Nutrition, Macronutrients, Micronutrients & the Gut Microbiome",
+        ),
+        (
+            "Czochralski monocrystalline ingots patterned via vaporized molten tin droplets and Zeiss Bragg mirrors flat to picometers for nanosheet gates and CoWoS dies",
+            "Semiconductor Fabrication: Extreme Ultraviolet (EUV) Lithography, FinFETs & Packaging",
+        ),
+        (
+            "Torvalds monolithic scheduler EEVDF and slab buddy page allocator managing inode and dentry caches alongside XDP driver hooks dropping packets before sk_buff allocation",
+            "Linux Kernel Internals: System Calls, eBPF, cgroups, Namespaces & Virtual File Systems",
+        ),
+        (
+            "Pratt operator-precedence frontend and bidirectional borrow analysis lowering phi joins for Chaitin-Briggs graph coloring and Lattner modular superscalar backends",
+            "Compiler Design: Lexical Scanning, Parsing, SSA Form, LLVM & Register Allocation",
+        ),
+        (
+            "Saunders Mac Lane associative arrows and isomorphism duality where forgetful exponential currying and Grothendieck schemes and monoidal Haskell pipelines compose",
+            "Category Theory: Functors, Natural Transformations, Yoneda Lemma & Monads",
+        ),
+        (
+            "Hertzsprung-Russell hydrostatic equilibrium and Subrahmanyan degenerate dwarfs collapsing past Tolman-Oppenheimer-Volkoff into binary kilonova GW170817 forging platinum",
+            "Stellar Astrophysics, Nucleosynthesis, Neutron Stars, Supernovae & Gravitational Waves",
+        ),
+        (
+            "Euphrates irrigation cities of Eridu and Lagash where reed styluses recorded Sargon of Akkad, sexagesimal Plimpton 322 triples, and Ashurbanipal library in Nineveh",
+            "Ancient Mesopotamia: Sumer, Babylon, Cuneiform, Hammurabi's Code & the Fertile Crescent",
+        ),
+        (
+            "Double-hulled wayfinding off Pacific atolls and lateen carracks steering Mercator rhumb bearings with Polaris altitude and Yorkshire clockmaker H4 curing scurvy",
+            "The Age of Sail, Celestial Navigation, the Marine Chronometer & the Columbian Exchange",
+        ),
+        (
+            "Hermann forgetting curve where FSRS intervals and Bjork desirable difficulties outperform passive highlighting across proximal mastery tutoring",
+            "Pedagogy, Science of Learning, Spaced Repetition, Active Recall & Bloom's Two-Sigma Problem",
         ),
     ];
 

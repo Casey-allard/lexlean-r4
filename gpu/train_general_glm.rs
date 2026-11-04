@@ -347,6 +347,9 @@ struct TrainedHorizonGeometry {
     basin_id: u16,
     section_idx: u8,
     sentence_idx: u8,
+    next_horizon_id: u16,
+    alt_horizon_id: u16,
+    transition_energy: u32,
 }
 
 fn project_hopf_q15(q12: &[i16; POINT_KEY_DIM]) -> ([i16; 3], [i16; 2]) {
@@ -423,7 +426,7 @@ fn extract_corpus_targets() -> (
     // Build vocabulary stem specifications strictly from training prose co-occurrence
     let mut vocab_specs = Vec::new();
     for (stem, &df) in &global_df {
-        if df == 0 || df > 28 {
+        if df == 0 || df > 40 {
             continue;
         }
         // Rank basins containing `stem` by normalized term frequency in the training prose
@@ -679,7 +682,8 @@ fn compute_host_horizon_geometry(
     specs: &[HorizonTargetSpec],
 ) -> Vec<TrainedHorizonGeometry> {
     let mut out = Vec::with_capacity(specs.len());
-    for spec in specs {
+    let total = specs.len().max(1);
+    for (h_idx, spec) in specs.iter().enumerate() {
         let b = &basins[usize::from(spec.basin_id) % basins.len()];
         let mut horizon_q12 = b.q12;
         let mut horizon_sign = b.sign_code;
@@ -698,6 +702,26 @@ fn compute_host_horizon_geometry(
         let b2 = (b0 + b1) % 17;
         let b3 = (u32::from(spec.section_idx) + u32::from(spec.sentence_idx)) % 17;
         let packed_4block = b0 + 17 * b1 + 289 * b2 + 4913 * b3;
+        let target_sec = (spec.section_idx + 1) % 5;
+        let next_horizon_id = specs
+            .iter()
+            .enumerate()
+            .find(|&(ci, cs)| {
+                ci != h_idx && cs.basin_id == spec.basin_id && cs.section_idx == target_sec
+            })
+            .map(|(ci, _)| ci as u16)
+            .unwrap_or(((h_idx + 1) % total) as u16);
+        let alt_horizon_id = specs
+            .iter()
+            .enumerate()
+            .find(|&(ci, cs)| {
+                ci != h_idx
+                    && ci != usize::from(next_horizon_id)
+                    && cs.basin_id == spec.basin_id
+                    && cs.section_idx != spec.section_idx
+            })
+            .map(|(ci, _)| ci as u16)
+            .unwrap_or(((h_idx + 2) % total) as u16);
         out.push(TrainedHorizonGeometry {
             horizon_q12,
             horizon_sign,
@@ -705,6 +729,9 @@ fn compute_host_horizon_geometry(
             basin_id: spec.basin_id,
             section_idx: spec.section_idx,
             sentence_idx: spec.sentence_idx,
+            next_horizon_id,
+            alt_horizon_id,
+            transition_energy: 64,
         });
     }
     out
@@ -795,7 +822,7 @@ fn load_cuda_weights(
     let horizon_count = u32::from_le_bytes([buf[8], buf[9], buf[10], buf[11]]) as usize;
     let basin_row_size = 72usize;
     let vocab_row_size = 64usize;
-    let horizon_row_size = 32usize;
+    let horizon_row_size = 40usize;
     let min_bytes = 12
         + basin_count * basin_row_size
         + vocab_count * vocab_row_size
@@ -885,6 +912,9 @@ fn load_cuda_weights(
         let basin_id = u16::from_le_bytes([buf[base + 28], buf[base + 29]]);
         let section_idx = buf[base + 30];
         let sentence_idx = buf[base + 31];
+        let next_horizon_id = u16::from_le_bytes([buf[base + 32], buf[base + 33]]);
+        let alt_horizon_id = u16::from_le_bytes([buf[base + 34], buf[base + 35]]);
+        let transition_energy = u32::from_le_bytes(buf[base + 36..base + 40].try_into().ok()?);
         horizons.push(TrainedHorizonGeometry {
             horizon_q12,
             horizon_sign,
@@ -892,6 +922,9 @@ fn load_cuda_weights(
             basin_id,
             section_idx,
             sentence_idx,
+            next_horizon_id,
+            alt_horizon_id,
+            transition_energy,
         });
     }
 
@@ -922,7 +955,7 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
     };
 
     let mut out = String::with_capacity(1024 * 1024);
-    out.push_str("//! Pre-trained Generalized Geometric Language Model (`UR4GLM04`) Natural Prose Manifold,\n");
+    out.push_str("//! Pre-trained Generalized Geometric Language Model (`UR4GLM06`) Natural Prose Manifold,\n");
     out.push_str("//! CUDA-Trained Distributional Vocabulary Manifold (`GLM_TRAINED_VOCAB`),\n");
     out.push_str("//! CUDA-Trained Token-Level Autoregressive Lookahead Horizon Table (`GLM_TOKEN_HORIZONS`),\n");
     out.push_str("//! Hopf Fibration (`S^3 -> S^2 x U(1)`) Trajectory Predictor, 128-Bit VSA Hypervector Attention,\n");
@@ -933,12 +966,12 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
     out.push_str("//! Generated deterministically by the pure-Rust trainer `gpu/train_general_glm.rs` + CUDA kernel `gpu/general_glm.cu`.\n\n");
     out.push_str("use crate::{canonical_stem, is_stopword, q12_l1_distance, swar_hamming_distance, POINT_KEY_DIM};\n\n");
     out.push_str("/// Canonical weights version identifier trained by `gpu/general_glm.cu`.\n");
-    out.push_str("pub const GLM_WEIGHTS_VERSION: &str = \"UR4GLM04\";\n");
+    out.push_str("pub const GLM_WEIGHTS_VERSION: &str = \"UR4GLM06\";\n");
     out.push_str(&format!(
         "/// Whether these weights were optimized by the CUDA hardware kernel (`gpu/general_glm.cu`).\npub const GLM_CUDA_TRAINED: bool = {used_cuda};\n\n"
     ));
 
-    out.push_str("/// A CUDA-trained token-level lookahead horizon row (`RETAIN_LAMBDA_Q31` + 4D Hamilton quaternion + Base-17 4-Block Trunk).\n");
+    out.push_str("/// A CUDA-trained token-level lookahead horizon row (`RETAIN_LAMBDA_Q31` + 4D Hamilton quaternion + Base-17 4-Block Trunk + `/7` Geodesic Transition Edges).\n");
     out.push_str("#[derive(Debug, Clone, Copy)]\n");
     out.push_str("pub struct GlmTokenHorizon {\n");
     out.push_str("    /// Forward-decayed 8-lane Q12 lookahead horizon vector (`R4.IntegerStack.retainLambdaQ31`).\n    pub horizon_q12: [i16; POINT_KEY_DIM],\n");
@@ -946,12 +979,15 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
         "    /// Forward-decayed 64-bit SWAR quaternion sign code.\n    pub horizon_sign: u64,\n",
     );
     out.push_str("    /// Base-17 4-Block Icosian root address (`0..83520`, `R4.DiscreteTrunk.pack4BlockRoots`).\n    pub packed_4block: u32,\n");
-    out.push_str("    /// Originating basin index (`0..110`).\n    pub basin_id: u16,\n");
+    out.push_str("    /// Originating basin index (`0..164`).\n    pub basin_id: u16,\n");
     out.push_str("    /// Paragraph section index (`0..4`).\n    pub section_idx: u8,\n");
     out.push_str("    /// Sentence index within section (`0..N`).\n    pub sentence_idx: u8,\n");
+    out.push_str("    /// CUDA-trained primary `/7` geodesic continuation horizon index.\n    pub next_horizon_id: u16,\n");
+    out.push_str("    /// CUDA-trained alternate `/7` geodesic continuation horizon index.\n    pub alt_horizon_id: u16,\n");
+    out.push_str("    /// CUDA-trained geodesic transition energy along `next_horizon_id`.\n    pub transition_energy: u32,\n");
     out.push_str("}\n\n");
 
-    out.push_str("/// A CUDA-trained vocabulary stem coordinate row in `UR4GLM04` (derived strictly from training prose text).\n");
+    out.push_str("/// A CUDA-trained vocabulary stem coordinate row in `UR4GLM06` (derived strictly from training prose text).\n");
     out.push_str("/// Contains ONLY geometric coordinates (`Q12`, `SWAR` sign codes, `VSA` hypervectors, and IDF weight) — zero basin IDs.\n");
     out.push_str("#[derive(Debug, Clone, Copy)]\n");
     out.push_str("pub struct GlmVocabEntry {\n");
@@ -966,7 +1002,7 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
     out.push_str("    /// Integer inverse-document-frequency specificity weight in Q8 (`64..1024`).\n    pub idf_weight: u16,\n");
     out.push_str("}\n\n");
 
-    out.push_str("/// A pre-trained concept & natural-prose basin in the UOR-R4 Generalized Geometric Manifold (`UR4GLM04`).\n");
+    out.push_str("/// A pre-trained concept & natural-prose basin in the UOR-R4 Generalized Geometric Manifold (`UR4GLM06`).\n");
     out.push_str("#[derive(Debug, Clone, Copy)]\n");
     out.push_str("pub struct GlmConceptNode {\n");
     out.push_str("    /// Unique concept node index (`0..N`).\n    pub id: u16,\n");
@@ -1064,12 +1100,15 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
             .collect::<Vec<_>>()
             .join(", ");
         out.push_str(&format!(
-            "    GlmTokenHorizon {{ horizon_q12: [{q12_h}], horizon_sign: 0x{:016x}, packed_4block: {}, basin_id: {}, section_idx: {}, sentence_idx: {} }},\n",
+            "    GlmTokenHorizon {{ horizon_q12: [{q12_h}], horizon_sign: 0x{:016x}, packed_4block: {}, basin_id: {}, section_idx: {}, sentence_idx: {}, next_horizon_id: {}, alt_horizon_id: {}, transition_energy: {} }},\n",
             hg.horizon_sign,
             hg.packed_4block,
             hg.basin_id,
             hg.section_idx,
-            hg.sentence_idx
+            hg.sentence_idx,
+            hg.next_horizon_id,
+            hg.alt_horizon_id,
+            hg.transition_energy
         ));
     }
     out.push_str("];\n\n");
