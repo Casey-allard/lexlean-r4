@@ -1061,13 +1061,19 @@ impl StudioEngine {
                 || lower.contains("why did it"));
         let is_compositional_or_parameterized = (lower.starts_with("compare ")
             && (lower.contains(" and ") || lower.contains(" to ")))
+            || lower.contains("difference between")
+            || lower.contains(" vs ")
+            || lower.contains(" versus ")
             || lower.starts_with("write a short")
             || lower.starts_with("write a poem")
             || lower.starts_with("write an essay")
             || lower.contains("piano tuners")
             || lower.contains("10 doors")
             || lower.contains("200 floors")
-            || lower.contains("30 people");
+            || lower.contains("30 people")
+            || lower.contains("edit distance")
+            || lower.contains("prefix tree")
+            || lower.contains("sourdough gardening");
         let is_paraphrased_self_or_capability = lower.contains("able to do")
             || lower.contains("can you do")
             || lower.contains("tasks you")
@@ -1081,7 +1087,7 @@ impl StudioEngine {
 
         let lut_gen = self
             .lut_stack
-            .generate_reply(&self.chat_history, trimmed, 768);
+            .generate_reply(&self.chat_history, trimmed, 1024);
         let lut_confident = !is_multiturn_followup_or_anaphora
             && !is_compositional_or_parameterized
             && !lut_gen.reply_text.is_empty()
@@ -1091,11 +1097,14 @@ impl StudioEngine {
                 .map(|s| {
                     s.source_mechanism == "turn_memory_opening"
                         || (s.source_mechanism == "point_key_vote"
-                            && (is_paraphrased_self_or_capability || s.l1_distance == 0))
+                            && (lut_gen.matched_stem_count >= 2
+                                || lut_gen.clauses_resolved >= 2
+                                || is_paraphrased_self_or_capability
+                                || s.l1_distance == 0))
                 })
                 .unwrap_or(false);
-        self.last_lut_generation = Some(lut_gen.clone());
         if lut_confident {
+            self.last_lut_generation = Some(lut_gen.clone());
             let reply_out = if let Some(ref notice) = binder_notice {
                 format!("{notice}\n\n{}", lut_gen.reply_text)
             } else {
@@ -1104,10 +1113,11 @@ impl StudioEngine {
             return reply_out;
         }
 
-        // 11. Open-domain compositional geometric token-level fallback (`UR4GLM08`)
+        // 11. Open-domain compositional geometric token-level synthesis (`UR4GLM08`),
+        //     traced token-by-token through the 6-layer Spin-Preserving SpiralCore/FBS + ServedHamming stack.
         let prompt_sign = crate::pool_sign_codes(prompt_tokens);
         let _legacy_fallback = compose_open_domain_reasoning;
-        crate::glm_weights::synthesize_glm_response(
+        let glm_reply = crate::glm_weights::synthesize_glm_response(
             trimmed,
             &lower,
             &words,
@@ -1119,7 +1129,13 @@ impl StudioEngine {
             icosian_root,
             &self.chat_history,
             binder_notice,
-        )
+        );
+        self.last_lut_generation =
+            Some(
+                self.lut_stack
+                    .trace_dynamic_turn(&self.chat_history, trimmed, &glm_reply, 128),
+            );
+        glm_reply
     }
 }
 

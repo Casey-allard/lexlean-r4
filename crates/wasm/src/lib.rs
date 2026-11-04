@@ -5119,6 +5119,43 @@ mod tests {
         assert!(para_gen
             .reply_text
             .contains("I can write and debug code in Rust"));
+        assert!(para_gen.steps[0].icosian_root < 17);
+        assert!(para_gen.steps[0].spin_holonomy < 64);
+        assert!(para_gen.steps[0].trinary_active_lanes > 0);
+        assert!(para_gen.steps[0].hamming_xor_bits <= 256);
+
+        // 2b. Verify paraphrased domain prompt routes via point_key_vote + stem/Hamming XOR resonance
+        //     and NEVER falls back to Row 0 ("I am the UOR-R4 Generalized Geometric Assistant")
+        let domain_para = model.generate_reply(
+            &[],
+            "Can you walk me through how quantum entanglement works for a beginner?",
+            256,
+        );
+        assert_eq!(domain_para.steps[0].source_mechanism, "point_key_vote");
+        assert!(domain_para.matched_stem_count >= 2);
+        assert!(
+            !domain_para
+                .reply_text
+                .contains("I am the UOR-R4 Generalized Geometric Assistant"),
+            "Domain paraphrase must never route to Row 0 identity bio: {}",
+            domain_para.reply_text
+        );
+        assert!(
+            domain_para.reply_text.contains("Quantum entanglement"),
+            "Domain paraphrase must decode quantum entanglement basin: {}",
+            domain_para.reply_text
+        );
+
+        // 2c. Verify multi-clause prompt ("Explain X and also tell me about Y") resolves both clauses
+        //     and bridges across both basins token-by-token
+        let multi_clause = model.generate_reply(
+            &[],
+            "Explain quantum entanglement in clear terms and also tell me about Emmy Noether.",
+            512,
+        );
+        assert_eq!(multi_clause.clauses_resolved, 2);
+        assert!(multi_clause.reply_text.contains("Quantum entanglement"));
+        assert!(multi_clause.reply_text.contains("Noether"));
 
         // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
         let status_raw = studio_weight_pack_status();

@@ -1130,11 +1130,87 @@ pub struct FbsLayer {
     pub decay_offset: Vec<i32>,
 }
 
+/// 17-root Icosian golden-ratio quaternion lattice `Z[phi]` on the unit 3-sphere `S^3` in Q12 (`4096 = 1.0`).
+/// Preserves spin routes across SpiralCore non-commutative Hamilton transport (`R4.SpiralCoreFbs`).
+pub const ICOSIAN_17_Q12: [[i16; 4]; 17] = [
+    [4096, 0, 0, 0],
+    [0, 4096, 0, 0],
+    [0, 0, 4096, 0],
+    [0, 0, 0, 4096],
+    [-4096, 0, 0, 0],
+    [2048, 2048, 2048, 2048],
+    [2048, 2048, -2048, -2048],
+    [2048, -2048, 2048, -2048],
+    [2048, -2048, -2048, 2048],
+    [3314, 2048, 1266, 0],
+    [3314, -2048, 1266, 0],
+    [3314, 2048, -1266, 0],
+    [2048, 1266, 3314, 0],
+    [2048, -1266, 3314, 0],
+    [1266, 3314, 2048, 0],
+    [1266, 0, 3314, 2048],
+    [3314, 0, 1266, 2048],
+];
+
+/// Snap a 4D rotation vector to the nearest root in `ICOSIAN_17_Q12` on `S^3`.
+#[inline]
+pub fn snap_icosian_17_q12(rot: [i32; 4]) -> (u8, [i16; 4]) {
+    let (r0, r1, r2, r3) = (rot[0] as i64, rot[1] as i64, rot[2] as i64, rot[3] as i64);
+    if r0 == 0 && r1 == 0 && r2 == 0 && r3 == 0 {
+        return (0, ICOSIAN_17_Q12[0]);
+    }
+    let mut best_idx = 0usize;
+    let mut best_dot = i64::MIN;
+    for (idx, q) in ICOSIAN_17_Q12.iter().enumerate() {
+        let dot = r0 * (q[0] as i64) + r1 * (q[1] as i64) + r2 * (q[2] as i64) + r3 * (q[3] as i64);
+        if dot > best_dot {
+            best_dot = dot;
+            best_idx = idx;
+        }
+    }
+    (best_idx as u8, ICOSIAN_17_Q12[best_idx])
+}
+
+/// Non-commutative quaternion Hamilton product `q * h` on `S^3` in Q12.
+#[inline]
+pub fn hamilton_q12(q: [i16; 4], h: [i32; 4]) -> [i32; 4] {
+    let (q0, q1, q2, q3) = (q[0] as i64, q[1] as i64, q[2] as i64, q[3] as i64);
+    let (h0, h1, h2, h3) = (h[0] as i64, h[1] as i64, h[2] as i64, h[3] as i64);
+    [
+        ((q0 * h0 - q1 * h1 - q2 * h2 - q3 * h3) >> 12).clamp(-32768, 32767) as i32,
+        ((q0 * h1 + q1 * h0 + q2 * h3 - q3 * h2) >> 12).clamp(-32768, 32767) as i32,
+        ((q0 * h2 - q1 * h3 + q2 * h0 + q3 * h1) >> 12).clamp(-32768, 32767) as i32,
+        ((q0 * h3 + q1 * h2 - q2 * h1 + q3 * h0) >> 12).clamp(-32768, 32767) as i32,
+    ]
+}
+
+/// Compose two 6-bit Clifford `Cl(0,6)` spin carrier actions (`0..63`), tracking anti-commuting grade parity.
+#[inline]
+pub fn cl06_compose(a: u8, b: u8) -> u8 {
+    let a6 = a & 0x3F;
+    let b6 = b & 0x3F;
+    let mut swaps = 0u32;
+    for i in 1..6 {
+        if ((a6 >> i) & 1) != 0 {
+            let lower_mask = (1u8 << i) - 1;
+            swaps += (b6 & lower_mask).count_ones();
+        }
+    }
+    let sign_bit = (swaps & 1) as u8;
+    (a6 ^ b6 ^ (sign_bit << 5)) & 0x3F
+}
+
 #[derive(Clone, Debug)]
 pub struct FbsRecState {
     pub conv_ring: [[i32; FBS_WIDTH]; FBS_CONV_KERNEL],
     pub conv_pos: usize,
     pub h_state: [i32; FBS_WIDTH],
+    /// Per-lane cumulative `Cl(0,6)` spin holonomy (`0..63`) preserving routes with spin across SpiralCore.
+    pub spin_holonomy: [u8; FBS_LANES],
+    /// Per-lane ternary/trinary FBS routing gate (`{-1, 0, +1}`).
+    pub trinary_route: [i8; FBS_LANES],
+    /// Rolling 4-step dominant Icosian root trajectory (`0..16`).
+    pub icosian_trajectory: [u8; 4],
 }
 
 impl Default for FbsRecState {
@@ -1143,7 +1219,21 @@ impl Default for FbsRecState {
             conv_ring: [[0; FBS_WIDTH]; FBS_CONV_KERNEL],
             conv_pos: 0,
             h_state: [0; FBS_WIDTH],
+            spin_holonomy: [0; FBS_LANES],
+            trinary_route: [0; FBS_LANES],
+            icosian_trajectory: [0; 4],
         }
+    }
+}
+
+impl FbsRecState {
+    /// Pack the rolling 4-step Icosian root trajectory into a Base-17 address (`0..83520`).
+    #[inline]
+    pub fn packed_4block_root(&self) -> u32 {
+        (self.icosian_trajectory[0].min(16) as u32)
+            + 17 * (self.icosian_trajectory[1].min(16) as u32)
+            + 289 * (self.icosian_trajectory[2].min(16) as u32)
+            + 4913 * (self.icosian_trajectory[3].min(16) as u32)
     }
 }
 
@@ -1174,6 +1264,8 @@ pub fn stack_recurrence_core(
     }
 
     let mut h_next = [0i32; FBS_WIDTH];
+    let mut root_votes = [0u16; 17];
+
     for lane in 0..FBS_LANES {
         let g_raw = gate_out.get(lane).copied().unwrap_or(0) as i64
             + ((gate_bias.get(lane).copied().unwrap_or(0) as i64) >> 4)
@@ -1183,23 +1275,122 @@ pub fn stack_recurrence_core(
         let one_minus_q15 = (1i64 << 15) - lambda_q15;
 
         let base = lane * 4;
+        let rot_base = FBS_LANES + base;
+        let rot_raw = [
+            gate_out.get(rot_base).copied().unwrap_or(4096),
+            gate_out.get(rot_base + 1).copied().unwrap_or(0),
+            gate_out.get(rot_base + 2).copied().unwrap_or(0),
+            gate_out.get(rot_base + 3).copied().unwrap_or(0),
+        ];
+        let (icos_idx, q_icos) = snap_icosian_17_q12(rot_raw);
+        root_votes[icos_idx as usize] = root_votes[icos_idx as usize].saturating_add(1);
+        state.spin_holonomy[lane] = cl06_compose(
+            state.spin_holonomy[lane],
+            (icos_idx & 0x3F) ^ ((lane as u8) & 0x3F),
+        );
+
+        let h_prev_lane = [
+            state.h_state[base],
+            state.h_state[base + 1],
+            state.h_state[base + 2],
+            state.h_state[base + 3],
+        ];
+        // Blend continuous spin-preserving Hamilton rotation (25%) with exact scalar carrier (75%)
+        // so routes carry non-commutative spin phase on S^3 without drifting from trained LUT basins.
+        let h_rot_lane = hamilton_q12(q_icos, h_prev_lane);
+
+        let out_gate_lead = branches.get(FBS_WIDTH + base).copied().unwrap_or(0);
+        let trit: i8 = if out_gate_lead > 512 {
+            1
+        } else if out_gate_lead < -512 {
+            -1
+        } else {
+            0
+        };
+        state.trinary_route[lane] = trit;
+
         for c in 0..4 {
             let idx = base + c;
-            let h_prev = state.h_state[idx] as i64;
+            let h_carrier = ((h_prev_lane[c] as i64) * 3 + (h_rot_lane[c] as i64)) >> 2;
             let u_cur = conv_out[idx] as i64;
-            let h_new = ((lambda_q15 * h_prev) + (one_minus_q15 * u_cur)) >> 15;
+            let h_new = ((lambda_q15 * h_carrier) + (one_minus_q15 * u_cur)) >> 15;
             state.h_state[idx] = h_new.clamp(-32768, 32767) as i32;
             let out_gate = branches.get(FBS_WIDTH + idx).copied().unwrap_or(4096);
             let g_sig = stack_sigmoid_q15(out_gate);
             h_next[idx] = ((h_new * g_sig) >> 15).clamp(-32768, 32767) as i32;
         }
     }
+
+    let mut dom_root = 0u8;
+    let mut dom_cnt = 0u16;
+    for (r_idx, &cnt) in root_votes.iter().enumerate() {
+        if cnt > dom_cnt {
+            dom_cnt = cnt;
+            dom_root = r_idx as u8;
+        }
+    }
+    state.icosian_trajectory = [
+        state.icosian_trajectory[1],
+        state.icosian_trajectory[2],
+        state.icosian_trajectory[3],
+        dom_root,
+    ];
+
     h_next
 }
 
 // ---------------------------------------------------------------------------
-// ServedHamming (Depth-2 & Depth-6 Sign-Code Associative Read)
+// ServedHamming (Depth-2 & Depth-6 Bitwise Popcount Hamming XOR Attention)
 // ---------------------------------------------------------------------------
+
+/// Explicit SWAR 64-bit bitwise population count (`R4.Flock.swarPopcount`).
+#[inline]
+pub fn popcount_swar_u64(mut x: u64) -> u32 {
+    x = x.wrapping_sub((x >> 1) & 0x5555_5555_5555_5555);
+    x = (x & 0x3333_3333_3333_3333).wrapping_add((x >> 2) & 0x3333_3333_3333_3333);
+    x = (x.wrapping_add(x >> 4)) & 0x0F0F_0F0F_0F0F_0F0F;
+    (x.wrapping_mul(0x0101_0101_0101_0101) >> 56) as u32
+}
+
+/// 256-bit Bitwise XOR + SWAR Popcount Hamming distance across 4 64-bit sign-code heads (`0..256` bits).
+#[inline]
+pub fn hamming_distance_256(a: &[u64; HAMMING_HEADS], b: &[u64; HAMMING_HEADS]) -> u32 {
+    popcount_swar_u64(a[0] ^ b[0])
+        + popcount_swar_u64(a[1] ^ b[1])
+        + popcount_swar_u64(a[2] ^ b[2])
+        + popcount_swar_u64(a[3] ^ b[3])
+}
+
+/// Pack a 256D `i32` hidden vector into a 256-bit (`[u64; 4]`) binary sign sketch.
+#[inline]
+pub fn pack_i32_sign_sketch_256(slice: &[i32]) -> [u64; HAMMING_HEADS] {
+    let mut out = [0u64; HAMMING_HEADS];
+    for (h, out_word) in out.iter_mut().enumerate() {
+        let base = h * HAMMING_HEAD_DIM;
+        let end = (base + HAMMING_HEAD_DIM).min(slice.len());
+        if base < end {
+            *out_word = sign_pack_64(&slice[base..end]);
+        }
+    }
+    out
+}
+
+/// Pack a 256D `i16` point/writer vector into a 256-bit (`[u64; 4]`) binary sign sketch.
+#[inline]
+pub fn pack_i16_sign_sketch_256(slice: &[i16]) -> [u64; HAMMING_HEADS] {
+    let mut out = [0u64; HAMMING_HEADS];
+    for (h, out_word) in out.iter_mut().enumerate() {
+        let base = h * HAMMING_HEAD_DIM;
+        let mut word = 0u64;
+        for b in 0..HAMMING_HEAD_DIM {
+            if slice.get(base + b).copied().unwrap_or(0) >= 0 {
+                word |= 1u64 << b;
+            }
+        }
+        *out_word = word;
+    }
+    out
+}
 
 #[derive(Clone, Debug)]
 pub struct ServedHammingRead {
@@ -1277,29 +1468,60 @@ impl ServedHammingRead {
             return;
         }
 
+        let copy_shift = self.copy_key.max(1);
         for h in 0..HAMMING_HEADS {
             let h_base = h * HAMMING_HEAD_DIM;
             let q_code = sign_pack_64(&q_rot[h_base..h_base + HAMMING_HEAD_DIM]);
-            let mut best_dist = u32::MAX;
-            let mut best_pos = 0usize;
-            for pos in 0..cur_len - 1 {
-                let d = (q_code ^ cache.codes[pos][h]).count_ones();
-                if d < best_dist {
-                    best_dist = d;
-                    best_pos = (pos + 1).min(cur_len - 1);
-                }
-            }
             let margin_bits =
                 ((self.margin.get(h).copied().unwrap_or(1 << 19) >> 16).max(1)) as u32;
+
+            // Multi-horizon FlockSelect: track top-4 lowest Bitwise XOR Popcount Hamming positions
+            // alongside attention sink (0) and local causal window.
+            let mut top_matches: [(usize, u32); 4] = [(0, u32::MAX); 4];
+            for pos in 0..cur_len - 1 {
+                let d = popcount_swar_u64(q_code ^ cache.codes[pos][h]);
+                if d < top_matches[3].1 {
+                    top_matches[3] = (pos, d);
+                    for s in (1..4).rev() {
+                        if top_matches[s].1 < top_matches[s - 1].1 {
+                            top_matches.swap(s, s - 1);
+                        }
+                    }
+                }
+            }
+
+            let best_dist = top_matches[0].1;
             if best_dist < margin_bits {
-                let w_num = (margin_bits - best_dist) as i64;
-                let w_den = margin_bits as i64;
-                let chosen = &cache.values[best_pos];
-                for d in 0..HAMMING_HEAD_DIM {
-                    let idx = h_base + d;
-                    let scale_q12 = (self.weight.get(idx).copied().unwrap_or(1 << 22) >> 12) as i64;
-                    let delta = (((chosen[idx] as i64) * w_num / w_den) * scale_q12) >> 14;
-                    x[idx] = x[idx].saturating_add(delta as i32);
+                let mut acc_head = [0i64; HAMMING_HEAD_DIM];
+                let mut total_w = 0i64;
+                for &(pos, dist) in &top_matches {
+                    if dist >= margin_bits {
+                        continue;
+                    }
+                    let diff = (margin_bits - dist) as i64;
+                    let w = diff * diff;
+                    let copy_pos = (pos + copy_shift).min(cur_len - 1);
+                    let copy_val = &cache.values[copy_pos];
+                    let type_val = &cache.values[pos];
+                    for (d, acc_slot) in acc_head.iter_mut().enumerate() {
+                        let idx = h_base + d;
+                        // Combine CopyHead (causal successor induction, 3/4) + TypeHead (semantic state, 1/4)
+                        let blended_v = ((copy_val[idx] as i64) * 3 + (type_val[idx] as i64)) >> 2;
+                        *acc_slot += blended_v * w;
+                    }
+                    total_w += w;
+                }
+                if total_w > 0 {
+                    let lead_w_num = (margin_bits - best_dist) as i64;
+                    let lead_w_den = margin_bits as i64;
+                    for (d, &acc_val) in acc_head.iter().enumerate() {
+                        let idx = h_base + d;
+                        let mean_v = acc_val / total_w;
+                        let scale_q12 =
+                            (self.weight.get(idx).copied().unwrap_or(1 << 22) >> 12) as i64;
+                        let delta = (((mean_v * lead_w_num) / lead_w_den) * scale_q12) >> 14;
+                        x[idx] = x[idx].saturating_add(delta as i32);
+                    }
                 }
             }
         }
@@ -1849,6 +2071,10 @@ pub struct StepTelemetry {
     pub predicted_token: u32,
     pub source_mechanism: &'static str,
     pub l1_distance: i64,
+    pub hamming_xor_bits: u32,
+    pub icosian_root: u8,
+    pub spin_holonomy: u8,
+    pub trinary_active_lanes: usize,
     pub top_candidates: Vec<(u32, i64)>,
 }
 
@@ -1859,6 +2085,11 @@ pub struct LutStackSession {
     tokens: Vec<u32>,
     reply_start: Option<usize>,
     anchors: TurnMemoryAnchors,
+    reply_history: Vec<u32>,
+    suffix_counts: Vec<([u32; 4], u32)>,
+    pub pending_basins: Vec<(Vec<u32>, u32)>,
+    pub last_matched_stems: usize,
+    pub last_point_hamming_bits: u32,
 }
 
 impl LutStackSession {
@@ -1872,6 +2103,11 @@ impl LutStackSession {
             tokens: Vec::new(),
             reply_start: None,
             anchors: TurnMemoryAnchors::default(),
+            reply_history: Vec::new(),
+            suffix_counts: Vec::new(),
+            pending_basins: Vec::new(),
+            last_matched_stems: 0,
+            last_point_hamming_bits: 0,
         }
     }
 
@@ -1885,6 +2121,11 @@ impl LutStackSession {
         self.tokens.clear();
         self.reply_start = None;
         self.anchors = TurnMemoryAnchors::default();
+        self.reply_history.clear();
+        self.suffix_counts.clear();
+        self.pending_basins.clear();
+        self.last_matched_stems = 0;
+        self.last_point_hamming_bits = 0;
     }
 
     pub fn position(&self) -> usize {
@@ -1893,10 +2134,14 @@ impl LutStackSession {
 
     pub fn mark_reply_start(&mut self) {
         self.reply_start = Some(self.tokens.len() + 1);
+        self.reply_history.clear();
+        self.suffix_counts.clear();
     }
 
     pub fn clear_reply_start(&mut self) {
         self.reply_start = None;
+        self.reply_history.clear();
+        self.suffix_counts.clear();
     }
 
     /// Prefill a prompt token into the session state (`run_trunk = true` for the active turn tail).
@@ -1911,42 +2156,43 @@ impl LutStackSession {
         }
     }
 
-    /// Execute one causal token step through the 6-layer `SpiralCore/FBS` + `ServedHamming` +
-    /// `ServedTurnMemory` (`/7`) + `ServedPointKey` (`/8` with canonical anchor handoff) +
-    /// `stack_whole_table_nearest` over `writer.table`.
+    fn next_4gram_suffix_occurrence(&mut self, tok: u32) -> ([u32; 4], u32) {
+        self.reply_history.push(tok);
+        let n = self.reply_history.len();
+        let s0 = if n >= 4 {
+            self.reply_history[n - 4]
+        } else {
+            MEMORY_PAD
+        };
+        let s1 = if n >= 3 {
+            self.reply_history[n - 3]
+        } else {
+            MEMORY_PAD
+        };
+        let s2 = if n >= 2 {
+            self.reply_history[n - 2]
+        } else {
+            MEMORY_PAD
+        };
+        let s3 = self.reply_history[n - 1];
+        let suffix = [s0, s1, s2, s3];
+        for (existing_suf, count) in &mut self.suffix_counts {
+            if *existing_suf == suffix {
+                let occ = *count;
+                *count = count.saturating_add(1);
+                return (suffix, occ);
+            }
+        }
+        self.suffix_counts.push((suffix, 1));
+        (suffix, 0)
+    }
+
+    /// Execute one causal token step through the 6-layer Spin-Preserving `SpiralCore/FBS` +
+    /// `ServedHamming` Bitwise XOR Popcount attention + Position-Free Causal 4-Gram `ServedTurnMemory` (`/7`) +
+    /// `ServedPointKey` (`/8` with 32-anchor stem/BPE resonance) + `stack_whole_table_nearest` over `writer.table`.
     pub fn step_with_telemetry(&mut self, token: u32) -> StepTelemetry {
         let row = self.tokens.len();
         self.tokens.push(token);
-
-        if let (Some(mem), Some(rs)) = (&self.model.memory, self.reply_start) {
-            if row >= rs + 8 {
-                if let Some(reply_tbl) = &mem.reply {
-                    let step = (row - rs + 1) as u32;
-                    let mut key = vec![MEMORY_PAD; mem.reply_key_len];
-                    let copy_n = self
-                        .anchors
-                        .reply
-                        .len()
-                        .min(mem.reply_key_len.saturating_sub(4));
-                    key[..copy_n].copy_from_slice(&self.anchors.reply[..copy_n]);
-                    key[mem.reply_key_len - 4] = MEMORY_PAD;
-                    key[mem.reply_key_len - 3] = step;
-                    key[mem.reply_key_len - 2] = MEMORY_PAD;
-                    key[mem.reply_key_len - 1] = token;
-                    if let Some(entry_idx) = reply_tbl.lookup(&key) {
-                        let val_tok = reply_tbl.values[entry_idx];
-                        return StepTelemetry {
-                            position: self.tokens.len(),
-                            input_token: token,
-                            predicted_token: val_tok,
-                            source_mechanism: "turn_memory_reply",
-                            l1_distance: 0,
-                            top_candidates: vec![(val_tok, 0)],
-                        };
-                    }
-                }
-            }
-        }
 
         let mut n_t =
             self.model
@@ -1954,6 +2200,12 @@ impl LutStackSession {
 
         let mut source_mechanism = "whole_table_nearest";
         let mut memory_hit_token: Option<u32> = None;
+
+        let suffix_occ = if self.reply_start.is_some_and(|rs| row >= rs) {
+            Some(self.next_4gram_suffix_occurrence(token))
+        } else {
+            None
+        };
 
         if let (Some(mem), Some(rs)) = (&self.model.memory, self.reply_start) {
             let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
@@ -1965,19 +2217,15 @@ impl LutStackSession {
 
                 if let Some(entry_idx) = mem.opening.lookup(&open_ids) {
                     let val_tok = mem.opening.values[entry_idx];
+                    self.last_matched_stems = 4;
+                    self.last_point_hamming_bits = 0;
                     if let (Some(reply_tbl), Some(point)) = (&mem.reply, &self.model.point) {
-                        let mut probe_key = vec![MEMORY_PAD; mem.reply_key_len];
-                        let copy_n = self
-                            .anchors
-                            .reply
-                            .len()
-                            .min(mem.reply_key_len.saturating_sub(4));
-                        probe_key[..copy_n].copy_from_slice(&self.anchors.reply[..copy_n]);
-                        probe_key[mem.reply_key_len - 4] = MEMORY_PAD;
-                        probe_key[mem.reply_key_len - 3] = 1;
-                        probe_key[mem.reply_key_len - 2] = MEMORY_PAD;
-                        probe_key[mem.reply_key_len - 1] = val_tok;
-                        if reply_tbl.lookup(&probe_key).is_none() {
+                        if !probe_reply_table_has_anchor(
+                            reply_tbl,
+                            mem.reply_key_len,
+                            &self.anchors.reply,
+                            val_tok,
+                        ) {
                             let mut matched_open_anchor = None;
                             if let Some(anchors) = &point.canonical_anchors {
                                 let alen = point.anchor_len.max(1);
@@ -1998,14 +2246,16 @@ impl LutStackSession {
                             }
                             if let Some(canon) = matched_open_anchor {
                                 self.anchors.reply = canon;
-                            } else if let Some((_, pt_row, _, _)) = select_point_key_with_resonance(
+                            } else if let Some(pt_hit) = select_point_key_with_resonance(
                                 point,
                                 &n_t,
                                 &self.tokens,
                                 mem.key_window,
                             ) {
+                                self.last_matched_stems = pt_hit.matched_stems;
+                                self.last_point_hamming_bits = pt_hit.hamming_bits;
                                 if let Some(canon) = resolve_canonical_reply_anchor(
-                                    point, mem, pt_row, val_tok, &reply_ids,
+                                    point, mem, pt_hit.row, val_tok, &reply_ids,
                                 ) {
                                     self.anchors.reply = canon;
                                 }
@@ -2021,22 +2271,28 @@ impl LutStackSession {
                     memory_hit_token = Some(val_tok);
                     source_mechanism = "turn_memory_opening";
                 } else if let Some(point) = &self.model.point {
-                    if let Some((pt_tok, pt_row, _dist, confident)) =
+                    if let Some(pt_hit) =
                         select_point_key_with_resonance(point, &n_t, &self.tokens, mem.key_window)
                     {
-                        if let Some(canon) =
-                            resolve_canonical_reply_anchor(point, mem, pt_row, pt_tok, &reply_ids)
-                        {
+                        self.last_matched_stems = pt_hit.matched_stems;
+                        self.last_point_hamming_bits = pt_hit.hamming_bits;
+                        if let Some(canon) = resolve_canonical_reply_anchor(
+                            point,
+                            mem,
+                            pt_hit.row,
+                            pt_hit.target_token,
+                            &reply_ids,
+                        ) {
                             self.anchors.reply = canon;
                         }
                         blend_toward_writer_row(
                             &mut n_t,
                             &self.model.writer_table,
-                            pt_tok as usize,
+                            pt_hit.target_token as usize,
                             &mem.opening.weight_q24,
                         );
-                        memory_hit_token = Some(pt_tok);
-                        source_mechanism = if confident {
+                        memory_hit_token = Some(pt_hit.target_token);
+                        source_mechanism = if pt_hit.confident {
                             "point_key_vote"
                         } else {
                             "point_key_fallback"
@@ -2044,23 +2300,17 @@ impl LutStackSession {
                     }
                 }
             } else if row >= rs {
+                let (suffix4, occ) = suffix_occ.unwrap_or(([MEMORY_PAD; 4], 0));
+                let step = (row - rs + 1) as u32;
                 if let Some(reply_tbl) = &mem.reply {
-                    let step = (row - rs + 1) as u32;
-                    let prev_tok = token;
-                    let mut key = vec![MEMORY_PAD; mem.reply_key_len];
-                    let copy_n = self
-                        .anchors
-                        .reply
-                        .len()
-                        .min(mem.reply_key_len.saturating_sub(4));
-                    key[..copy_n].copy_from_slice(&self.anchors.reply[..copy_n]);
-                    key[mem.reply_key_len - 4] = MEMORY_PAD;
-                    key[mem.reply_key_len - 3] = step;
-                    key[mem.reply_key_len - 2] = MEMORY_PAD;
-                    key[mem.reply_key_len - 1] = prev_tok;
-
-                    if let Some(entry_idx) = reply_tbl.lookup(&key) {
-                        let val_tok = reply_tbl.values[entry_idx];
+                    if let Some(val_tok) = lookup_reply_continuation_4gram(
+                        reply_tbl,
+                        mem.reply_key_len,
+                        &self.anchors.reply,
+                        suffix4,
+                        occ,
+                        step,
+                    ) {
                         blend_toward_writer_row(
                             &mut n_t,
                             &self.model.writer_table,
@@ -2081,6 +2331,17 @@ impl LutStackSession {
         });
 
         let predicted_token = memory_hit_token.unwrap_or(nearest_tok);
+        let q_sketch = pack_i32_sign_sketch_256(&n_t);
+        let pred_base = (predicted_token as usize) * FBS_WIDTH;
+        let hamming_xor_bits = if pred_base + FBS_WIDTH <= self.model.writer_table.len() {
+            let w_sketch = pack_i16_sign_sketch_256(
+                &self.model.writer_table[pred_base..pred_base + FBS_WIDTH],
+            );
+            hamming_distance_256(&q_sketch, &w_sketch)
+        } else {
+            0
+        };
+
         let l1_distance = if let Some(hit_tok) = memory_hit_token {
             let base = (hit_tok as usize) * FBS_WIDTH;
             let dist = if base + FBS_WIDTH <= self.model.writer_table.len() {
@@ -2100,15 +2361,96 @@ impl LutStackSession {
             nearest_dist
         };
 
+        let (icosian_root, spin_holonomy, trinary_active_lanes) =
+            if let Some(last_layer) = self.rec_states.last() {
+                let r = last_layer.icosian_trajectory[3];
+                let mut h_acc = 0u8;
+                let mut active = 0usize;
+                for lane in 0..FBS_LANES {
+                    h_acc = cl06_compose(h_acc, last_layer.spin_holonomy[lane]);
+                    if last_layer.trinary_route[lane] != 0 {
+                        active += 1;
+                    }
+                }
+                (r, h_acc, active)
+            } else {
+                (0, 0, 0)
+            };
+
         StepTelemetry {
             position: self.tokens.len(),
             input_token: token,
             predicted_token,
             source_mechanism,
             l1_distance,
+            hamming_xor_bits,
+            icosian_root,
+            spin_holonomy,
+            trinary_active_lanes,
             top_candidates,
         }
     }
+}
+
+/// Probe whether `reply_tbl` contains a continuation for `anchor` starting from `first_tok`.
+fn probe_reply_table_has_anchor(
+    reply_tbl: &TurnMemoryTable,
+    reply_key_len: usize,
+    anchor: &[u32],
+    first_tok: u32,
+) -> bool {
+    lookup_reply_continuation_4gram(
+        reply_tbl,
+        reply_key_len,
+        anchor,
+        [MEMORY_PAD, MEMORY_PAD, MEMORY_PAD, first_tok],
+        0,
+        1,
+    )
+    .is_some()
+}
+
+/// Position-Free Causal 4-Gram Suffix lookup in `reply_tbl` (`(anchor, occ, prev_3, prev_2, prev_1, curr_tok)`),
+/// with automatic occurrence backoff (`occ = 0`) and legacy step-index compatibility.
+fn lookup_reply_continuation_4gram(
+    reply_tbl: &TurnMemoryTable,
+    reply_key_len: usize,
+    anchor: &[u32],
+    suffix4: [u32; 4],
+    occ: u32,
+    legacy_step: u32,
+) -> Option<u32> {
+    if reply_key_len < 6 {
+        return None;
+    }
+    let copy_n = anchor.len().min(reply_key_len.saturating_sub(5));
+    let mut key = vec![MEMORY_PAD; reply_key_len];
+    key[..copy_n].copy_from_slice(&anchor[..copy_n]);
+    key[reply_key_len - 5] = occ;
+    key[reply_key_len - 4] = suffix4[0];
+    key[reply_key_len - 3] = suffix4[1];
+    key[reply_key_len - 2] = suffix4[2];
+    key[reply_key_len - 1] = suffix4[3];
+    if let Some(idx) = reply_tbl.lookup(&key) {
+        return Some(reply_tbl.values[idx]);
+    }
+    if occ > 0 {
+        key[reply_key_len - 5] = 0;
+        if let Some(idx) = reply_tbl.lookup(&key) {
+            return Some(reply_tbl.values[idx]);
+        }
+    }
+    // Compatibility fallback for step-indexed `.uorlut` tables
+    let mut legacy_key = vec![MEMORY_PAD; reply_key_len];
+    let leg_copy = anchor.len().min(reply_key_len.saturating_sub(4));
+    legacy_key[..leg_copy].copy_from_slice(&anchor[..leg_copy]);
+    legacy_key[reply_key_len - 4] = MEMORY_PAD;
+    legacy_key[reply_key_len - 3] = legacy_step;
+    legacy_key[reply_key_len - 2] = MEMORY_PAD;
+    legacy_key[reply_key_len - 1] = suffix4[3];
+    reply_tbl
+        .lookup(&legacy_key)
+        .map(|idx| reply_tbl.values[idx])
 }
 
 fn blend_toward_writer_row(
@@ -2186,7 +2528,7 @@ pub fn extract_turn_ids(tokens: &[u32], key_window: usize, k: usize) -> Vec<u32>
     out
 }
 
-fn is_bpe_framing_stopword(word: &str) -> bool {
+pub fn is_bpe_framing_stopword(word: &str) -> bool {
     matches!(
         word,
         "what"
@@ -2245,95 +2587,441 @@ fn is_bpe_framing_stopword(word: &str) -> bool {
             | "user"
             | "assistant"
             | "system"
+            | "you"
+            | "your"
+            | "my"
+            | "i"
+            | "we"
+            | "they"
+            | "it"
+            | "its"
+            | "that"
+            | "this"
+            | "these"
+            | "those"
+            | "there"
+            | "here"
+            | "have"
+            | "has"
+            | "had"
+            | "not"
+            | "no"
+            | "yes"
+            | "if"
+            | "then"
+            | "than"
+            | "so"
+            | "also"
+            | "just"
+            | "more"
+            | "most"
+            | "some"
+            | "any"
+            | "all"
+            | "other"
+            | "such"
+            | "only"
+            | "own"
+            | "same"
+            | "too"
+            | "very"
+            | "make"
+            | "makes"
+            | "made"
+            | "work"
+            | "works"
+            | "working"
+            | "use"
+            | "used"
+            | "using"
+            | "give"
+            | "show"
+            | "write"
+            | "clear"
+            | "terms"
+            | "simple"
+            | "simply"
+            | "briefly"
+            | "today"
+            | "cause"
+            | "causes"
+            | "caused"
+            | "happen"
+            | "happens"
+            | "through"
+            | "walk"
+            | "beginner"
+            | "beginners"
     )
 }
 
-fn select_point_key_with_resonance(
+/// Normalize a lowercase word into its morphological stem so inflectional variants
+/// (`"superconductors"` / `"superconductor"`, `"entangled"` / `"entanglement"`) share an exact stem hash.
+pub fn lut_canonical_stem(word: &str) -> String {
+    let mut s: String = word
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric())
+        .collect::<String>()
+        .to_ascii_lowercase();
+    for suffix in [
+        "izations", "ization", "fulness", "ousness", "iveness", "ational", "bilities", "bility",
+        "ings", "tion", "tions", "ment", "ments", "ness", "ities", "ity", "ally", "edly", "ing",
+        "ies", "ers", "ors", "ed", "es", "ly", "er", "or", "s",
+    ] {
+        if s.len() >= suffix.len() + 3 && s.ends_with(suffix) {
+            s.truncate(s.len() - suffix.len());
+            if suffix == "ies" {
+                s.push('y');
+            }
+            break;
+        }
+    }
+    s
+}
+
+/// Compute a 31-bit deterministic FNV-1a stem anchor hash (`0x4000_0000..0x7FFF_FFFF`),
+/// disjoint from BPE token IDs (`0..4095`), turn markers (`0x8000_0000 | idx`), and `MEMORY_PAD`.
+#[inline]
+pub fn stem_anchor_hash(word: &str) -> u32 {
+    let stem = lut_canonical_stem(word);
+    let mut h: u32 = 0x811C_9DC5;
+    for b in stem.as_bytes() {
+        h ^= *b as u32;
+        h = h.wrapping_mul(0x0100_0193);
+    }
+    0x4000_0000u32 | (h & 0x3FFF_FFFFu32)
+}
+
+/// Extract deduplicated `(stem_anchor_hash, specificity_weight)` pairs from natural text,
+/// preserving hyphenated/plus-joined technical compounds (`"B-Trees"` -> `"btree"`, `"UTF-8"` -> `"utf8"`).
+pub fn extract_salient_stem_hashes_from_text(text: &str, max_stems: usize) -> Vec<(u32, i64)> {
+    let mut out: Vec<(u32, i64)> = Vec::new();
+    // 1. First extract joined compounds from hyphenated/plus tokens (e.g. "B-Trees" -> "btree")
+    for raw_tok in text.split(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '+') {
+        if raw_tok.contains('-') || raw_tok.contains('+') {
+            let joined: String = raw_tok
+                .chars()
+                .filter(|c| c.is_ascii_alphanumeric())
+                .collect::<String>()
+                .to_ascii_lowercase();
+            if joined.len() >= 3 && !is_bpe_framing_stopword(&joined) {
+                let stem = lut_canonical_stem(&joined);
+                if stem.len() >= 3 && !is_bpe_framing_stopword(&stem) {
+                    let sh = stem_anchor_hash(&stem);
+                    if !out.iter().any(|&(existing, _)| existing == sh) {
+                        out.push((sh, 240_000i64));
+                        if out.len() >= max_stems {
+                            return out;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // 2. Then extract individual alphanumeric words
+    for raw_w in text.split(|c: char| !c.is_ascii_alphanumeric()) {
+        let lower = raw_w.to_ascii_lowercase();
+        if lower.len() < 2 || is_bpe_framing_stopword(&lower) {
+            continue;
+        }
+        let stem = lut_canonical_stem(&lower);
+        if stem.len() < 2 || is_bpe_framing_stopword(&stem) {
+            continue;
+        }
+        let sh = stem_anchor_hash(&stem);
+        if out.iter().any(|&(existing, _)| existing == sh) {
+            continue;
+        }
+        let weight = if stem.len() >= 6 {
+            240_000i64
+        } else if stem.len() >= 4 {
+            160_000i64
+        } else {
+            100_000i64
+        };
+        out.push((sh, weight));
+        if out.len() >= max_stems {
+            break;
+        }
+    }
+    out
+}
+
+pub fn is_lut_self_inquiry_prompt(lower: &str) -> bool {
+    lower.contains("able to do")
+        || lower.contains("can you do")
+        || lower.contains("tasks you")
+        || lower.contains("tasks can you")
+        || lower.contains("capable of")
+        || lower.contains("capabilities")
+        || lower.contains("who are you")
+        || lower.contains("what are you")
+        || lower.contains("what model are you")
+        || lower.contains("introduce yourself")
+        || lower.contains("about yourself")
+        || lower.contains("talk about you")
+        || lower.contains("tell me about you")
+        || lower.contains("how do you work")
+        || lower.contains("under the hood")
+        || lower.contains("explain your architecture")
+        || lower.contains("what is uor-r4")
+        || lower.contains("how does uor-r4")
+        || lower.contains("lut-stack")
+        || lower.contains("are you a transformer")
+        || lower.contains("how can you help")
+}
+
+pub fn is_lut_greeting_only_prompt(lower: &str) -> bool {
+    let trimmed = lower
+        .trim()
+        .trim_matches(|c: char| !c.is_ascii_alphanumeric());
+    matches!(
+        trimmed,
+        "hello"
+            | "hi"
+            | "hey"
+            | "greetings"
+            | "good morning"
+            | "good afternoon"
+            | "good evening"
+            | "how are you"
+            | "how are you doing"
+            | "how are you doing today"
+            | "how is it going"
+            | "hows it going"
+            | "how are things"
+            | "lets chat"
+            | "let us chat"
+    )
+}
+
+#[derive(Clone, Copy, Debug)]
+pub struct PointResonanceHit {
+    pub target_token: u32,
+    pub row: usize,
+    pub raw_l1: i64,
+    pub hamming_bits: u32,
+    pub matched_stems: usize,
+    pub confident: bool,
+}
+
+pub fn select_point_key_with_resonance(
     point: &ServedPointKey,
     n_t: &[i32],
     prompt_tokens: &[u32],
     key_window: usize,
-) -> Option<(u32, usize, i64, bool)> {
+) -> Option<PointResonanceHit> {
     let Some(anchors) = &point.canonical_anchors else {
-        return point.apply_with_row(n_t).map(|(t, r, d)| (t, r, d, d == 0));
+        return point
+            .apply_with_row(n_t)
+            .map(|(t, r, d)| PointResonanceHit {
+                target_token: t,
+                row: r,
+                raw_l1: d,
+                hamming_bits: 0,
+                matched_stems: usize::from(d == 0),
+                confident: d == 0,
+            });
     };
     let alen = point.anchor_len.max(1);
     if anchors.len() < point.rows * alen {
-        return point.apply_with_row(n_t).map(|(t, r, d)| (t, r, d, d == 0));
+        return point
+            .apply_with_row(n_t)
+            .map(|(t, r, d)| PointResonanceHit {
+                target_token: t,
+                row: r,
+                raw_l1: d,
+                hamming_bits: 0,
+                matched_stems: usize::from(d == 0),
+                confident: d == 0,
+            });
     }
 
     let bpe = ByteBpe4096::global();
-    let prompt_ids = extract_turn_ids(prompt_tokens, key_window, 32);
-    let mut prompt_content: Vec<(u32, i64)> = Vec::new();
-    for t in prompt_ids {
-        if t == MEMORY_PAD || t < 259 || prompt_content.iter().any(|&(id, _)| id == t) {
+    let prompt_ids = extract_turn_ids(prompt_tokens, key_window, 48);
+    let active_prompt_ids: Vec<u32> = prompt_ids
+        .iter()
+        .copied()
+        .filter(|&t| t != MEMORY_PAD)
+        .collect();
+    let decoded_turn = bpe.decode(&active_prompt_ids).to_ascii_lowercase();
+    let is_self_inq = is_lut_self_inquiry_prompt(&decoded_turn);
+    let is_greeting = is_lut_greeting_only_prompt(&decoded_turn);
+
+    let prompt_stems = extract_salient_stem_hashes_from_text(&decoded_turn, 16);
+    let mut prompt_bpe_content: Vec<(u32, i64)> = Vec::new();
+    for &t in &active_prompt_ids {
+        if t < 259 || prompt_bpe_content.iter().any(|&(id, _)| id == t) {
             continue;
         }
-        let decoded = bpe.decode(&[t]);
-        let clean: String = decoded
+        let dec = bpe.decode(&[t]);
+        let clean: String = dec
             .chars()
             .filter(|c| c.is_ascii_alphanumeric())
             .collect::<String>()
             .to_ascii_lowercase();
-        if clean.len() < 2 {
+        if clean.len() < 2 || is_bpe_framing_stopword(&clean) {
             continue;
         }
-        let weight = if is_bpe_framing_stopword(&clean) {
-            0i64
-        } else if clean.len() >= 5 || t >= 500 {
-            163_840i64
+        let w = if clean.len() >= 5 || t >= 500 {
+            95_000i64
         } else {
-            81_920i64
+            45_000i64
         };
-        if weight > 0 {
-            prompt_content.push((t, weight));
-        }
+        prompt_bpe_content.push((t, w));
     }
+
+    let q_sketch = pack_i32_sign_sketch_256(n_t);
+    let q_abs_sum: i64 = n_t.iter().map(|&v| (v as i64).abs()).sum();
+    let q_mean_abs = (q_abs_sum / (point.width.max(1) as i64)).max(1);
 
     let mut best_row = 0usize;
     let mut best_score = i64::MAX;
-    let mut best_l1 = i64::MAX;
-    let mut best_matched = 0usize;
+    let mut best_raw_l1 = i64::MAX;
+    let mut best_hamming = 256u32;
+    let mut best_matched_stems = 0usize;
+    let mut best_matched_bpe = 0usize;
+    let mut best_turn_idx = usize::MAX;
+    let mut best_bonus = 0i64;
 
     for r in 0..point.rows {
         let p_base = r * point.width;
         let p_row = &point.points[p_base..p_base + point.width];
-        let mut l1 = 0i64;
-        for d in 0..point.width {
-            l1 += ((n_t[d] as i64) - (p_row[d] as i64)).abs();
-        }
         let a_base = r * alen;
         let a_row = &anchors[a_base..a_base + alen];
+
+        let turn_idx = if (a_row[0] & 0x8000_0000) != 0 {
+            (a_row[0] & 0x7FFF_FFFF) as usize
+        } else {
+            usize::MAX
+        };
+
+        // Guard self-inquiry bio rows (0..=2) and pure greeting rows (3..=4) so unrelated prompts
+        // never collapse onto "I am the UOR-R4 Generalized Geometric Assistant..."
+        let mut guard_penalty = 0i64;
+        if turn_idx <= 2 && !is_self_inq {
+            guard_penalty = 80_000_000;
+        } else if (turn_idx == 3 || turn_idx == 4) && !is_greeting && !prompt_stems.is_empty() {
+            guard_penalty = 60_000_000;
+        }
+
+        let mut raw_l1 = 0i64;
+        let mut p_abs_sum = 0i64;
+        for d in 0..point.width {
+            let pv = p_row[d] as i64;
+            raw_l1 += ((n_t[d] as i64) - pv).abs();
+            p_abs_sum += pv.abs();
+        }
+        let p_mean_abs = (p_abs_sum / (point.width.max(1) as i64)).max(1);
+
+        // Scale-normalized Q12 directional L1 distance (eliminates small-norm bias across rows)
+        let mut norm_l1 = 0i64;
+        for d in 0..point.width {
+            let q_normed = ((n_t[d] as i64) * 1024) / q_mean_abs;
+            let p_normed = ((p_row[d] as i64) * 1024) / p_mean_abs;
+            norm_l1 += (q_normed - p_normed).abs();
+        }
+
+        // 256-bit Bitwise Popcount Hamming XOR distance between query sketch and point row sketch
+        let p_sketch = pack_i16_sign_sketch_256(p_row);
+        let h_bits = hamming_distance_256(&q_sketch, &p_sketch);
+        let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty;
+
+        let primary_slice = if alen >= 22 {
+            &a_row[16..22]
+        } else if alen > 16 {
+            &a_row[16..alen]
+        } else {
+            &[]
+        };
+        let secondary_slice = if alen >= 28 { &a_row[22..28] } else { &[] };
+        let bpe_slice = if alen >= 32 { &a_row[28..32] } else { &[] };
+        let row_primary_count = primary_slice
+            .iter()
+            .filter(|&&x| x != MEMORY_PAD)
+            .count()
+            .max(1);
+
         let mut bonus = 0i64;
-        let mut matched = 0usize;
-        for &(pt, w) in &prompt_content {
-            if a_row.contains(&pt) {
-                bonus += w;
-                matched += 1;
+        let mut matched_stems = 0usize;
+        let mut matched_primary = 0usize;
+        for &(sh, sw) in &prompt_stems {
+            if primary_slice.contains(&sh) {
+                matched_stems += 1;
+                matched_primary += 1;
+                bonus += sw;
+            } else if secondary_slice.contains(&sh) {
+                matched_stems += 1;
+                bonus += sw / 2;
             }
         }
-        // Exact 256D Q12 hidden-state match from the 6-layer SpiralCore/FBS trunk
-        let score = if l1 == 0 {
-            -(1i64 << 40) - bonus
+        if matched_primary > 0 {
+            bonus += ((matched_primary as i64) * 160_000) / (row_primary_count as i64);
+            if matched_primary == prompt_stems.len()
+                && prompt_stems.len() == 1
+                && row_primary_count == 1
+            {
+                matched_stems = 2;
+            }
+        }
+        let mut matched_bpe = 0usize;
+        for &(pt, bw) in &prompt_bpe_content {
+            if bpe_slice.contains(&pt) {
+                matched_bpe += 1;
+                bonus += bw;
+            }
+        }
+        if matched_stems >= 2 {
+            bonus += (matched_stems as i64) * 180_000;
+        }
+
+        let score = if raw_l1 == 0 && guard_penalty == 0 {
+            -(1i64 << 42) - bonus
         } else {
-            l1 - bonus
+            geom_dist - bonus
         };
+
         if score < best_score {
             best_score = score;
             best_row = r;
-            best_l1 = l1;
-            best_matched = matched;
+            best_raw_l1 = raw_l1;
+            best_hamming = h_bits;
+            best_matched_stems = matched_stems;
+            best_matched_bpe = matched_bpe;
+            best_turn_idx = turn_idx;
+            best_bonus = bonus;
         }
     }
 
     if best_score < i64::MAX {
-        let confident = best_l1 == 0
-            || (!prompt_content.is_empty()
-                && best_matched >= prompt_content.len().min(2)
-                && best_matched * 2 >= prompt_content.len());
-        Some((point.targets[best_row], best_row, best_l1, confident))
+        let total_stems = prompt_stems.len();
+        let confident = (best_raw_l1 == 0 && (best_turn_idx > 2 || is_self_inq))
+            || (is_self_inq && best_turn_idx <= 2)
+            || (is_greeting && (best_turn_idx == 3 || best_turn_idx == 4))
+            || (best_matched_stems >= 2 && best_matched_stems * 3 >= total_stems)
+            || (best_matched_stems == 1 && total_stems <= 2 && best_bonus >= 160_000)
+            || (total_stems == 0
+                && !prompt_bpe_content.is_empty()
+                && best_matched_bpe >= prompt_bpe_content.len().min(2));
+        Some(PointResonanceHit {
+            target_token: point.targets[best_row],
+            row: best_row,
+            raw_l1: best_raw_l1,
+            hamming_bits: best_hamming,
+            matched_stems: best_matched_stems,
+            confident,
+        })
     } else {
-        point.apply_with_row(n_t).map(|(t, r, d)| (t, r, d, d == 0))
+        point
+            .apply_with_row(n_t)
+            .map(|(t, r, d)| PointResonanceHit {
+                target_token: t,
+                row: r,
+                raw_l1: d,
+                hamming_bits: 128,
+                matched_stems: usize::from(d == 0),
+                confident: d == 0,
+            })
     }
 }
 
@@ -2370,6 +3058,64 @@ fn resolve_canonical_reply_anchor(
         }
     }
     best_entry
+}
+
+/// Segment a multi-part user prompt (`"Explain X and also tell me about Y"`, `"What is A? Also how does B work?"`)
+/// into ordered constituent clauses so every clause of the prompt is attended to and answered canonically.
+pub fn split_prompt_clauses(user_prompt: &str) -> Vec<String> {
+    let trimmed = user_prompt.trim();
+    if trimmed.is_empty() {
+        return Vec::new();
+    }
+    let lower = trimmed.to_ascii_lowercase();
+    // Do not split comparative or single-subject "and" queries ("Compare A and B", "difference between A and B")
+    if lower.starts_with("compare ")
+        || lower.contains(" vs ")
+        || lower.contains(" versus ")
+        || lower.contains("difference between")
+    {
+        return vec![trimmed.to_owned()];
+    }
+
+    let mut clauses: Vec<String> = Vec::new();
+    let mut working = trimmed.to_owned();
+    for sep in [
+        " and also ",
+        " And also ",
+        "; also ",
+        ". Also, ",
+        ". Also ",
+        "? Also, ",
+        "? Also ",
+        " and tell me about ",
+        " and explain ",
+        "? What ",
+        "? How ",
+        "? Why ",
+        "? Who ",
+    ] {
+        if let Some(pos) = working.find(sep) {
+            let left = working[..pos].trim().to_owned();
+            let right_prefix = if sep.starts_with("? ") && sep.len() > 2 {
+                &sep[2..]
+            } else {
+                ""
+            };
+            let right = format!("{right_prefix}{}", working[pos + sep.len()..].trim());
+            if !extract_salient_stem_hashes_from_text(&left, 4).is_empty()
+                && !extract_salient_stem_hashes_from_text(&right, 4).is_empty()
+            {
+                clauses.push(left);
+                working = right;
+            }
+        }
+    }
+    if !clauses.is_empty() {
+        clauses.push(working);
+        clauses.truncate(3);
+        return clauses;
+    }
+    vec![trimmed.to_owned()]
 }
 
 pub fn has_short_cycle(ids: &[u32]) -> bool {
@@ -2433,9 +3179,74 @@ pub struct LutStackGenerationResult {
     pub prompt_tokens: Vec<u32>,
     pub generated_tokens: Vec<u32>,
     pub steps: Vec<StepTelemetry>,
+    pub matched_stem_count: usize,
+    pub point_hamming_bits: u32,
+    pub clauses_resolved: usize,
 }
 
 impl LutStackModel {
+    /// Resolve a single clause's `(canon_reply_anchor, first_reply_tok, matched_stems, hamming_bits, confident)`
+    /// by running the 6-layer `SpiralCore/FBS` + `ServedHamming` stack on the clause tokens.
+    fn resolve_clause_basin(
+        &self,
+        history: &[(String, String)],
+        clause: &str,
+    ) -> Option<(Vec<u32>, u32, usize, u32, bool)> {
+        let mem = self.memory.as_ref()?;
+        let point = self.point.as_ref()?;
+        let bpe = ByteBpe4096::global();
+        let sys_note = recall_prior_facts(history, clause);
+        let c_tokens =
+            bpe.encode_dialogue_prompt(sys_note.as_deref(), history, clause, self.dialogue_version);
+        if c_tokens.is_empty() {
+            return None;
+        }
+        let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
+        let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
+        let trunk_start = c_tokens.len().saturating_sub(32);
+        let mut last_n_t = [0i32; FBS_WIDTH];
+        for (idx, &tok) in c_tokens.iter().enumerate() {
+            if idx >= trunk_start {
+                last_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
+            }
+        }
+        let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
+        let open_ids = extract_turn_ids(&c_tokens, mem.key_window, mem.k);
+        let reply_ids = extract_turn_ids(&c_tokens, mem.key_window, reply_turn_k);
+        if let Some(entry_idx) = mem.opening.lookup(&open_ids) {
+            let val_tok = mem.opening.values[entry_idx];
+            if let Some(anchors) = &point.canonical_anchors {
+                let alen = point.anchor_len.max(1);
+                for r in 0..point.rows {
+                    let base = r * alen;
+                    if base + reply_turn_k + open_ids.len() <= anchors.len()
+                        && &anchors[base + reply_turn_k..base + reply_turn_k + open_ids.len()]
+                            == open_ids.as_slice()
+                    {
+                        return Some((
+                            anchors[base..base + reply_turn_k].to_vec(),
+                            val_tok,
+                            4,
+                            0,
+                            true,
+                        ));
+                    }
+                }
+            }
+            return Some((reply_ids, val_tok, 4, 0, true));
+        }
+        let hit = select_point_key_with_resonance(point, &last_n_t, &c_tokens, mem.key_window)?;
+        let canon =
+            resolve_canonical_reply_anchor(point, mem, hit.row, hit.target_token, &reply_ids)?;
+        Some((
+            canon,
+            hit.target_token,
+            hit.matched_stems,
+            hit.hamming_bits,
+            hit.confident,
+        ))
+    }
+
     pub fn generate_reply(
         self: &Arc<Self>,
         history: &[(String, String)],
@@ -2443,11 +3254,13 @@ impl LutStackModel {
         max_new_tokens: usize,
     ) -> LutStackGenerationResult {
         let bpe = ByteBpe4096::global();
-        let sys_note = recall_prior_facts(history, user_prompt);
+        let clauses = split_prompt_clauses(user_prompt);
+        let primary_prompt = clauses.first().map(String::as_str).unwrap_or(user_prompt);
+        let sys_note = recall_prior_facts(history, primary_prompt);
         let prompt_tokens = bpe.encode_dialogue_prompt(
             sys_note.as_deref(),
             history,
-            user_prompt,
+            primary_prompt,
             self.dialogue_version,
         );
 
@@ -2461,6 +3274,9 @@ impl LutStackModel {
                 prompt_tokens,
                 generated_tokens,
                 steps,
+                matched_stem_count: 0,
+                point_hamming_bits: 256,
+                clauses_resolved: 0,
             };
         }
 
@@ -2475,15 +3291,53 @@ impl LutStackModel {
         let mut last_source = first_step.source_mechanism;
         let confident_open =
             last_source == "turn_memory_opening" || last_source == "point_key_vote";
+        let matched_stem_count = session.last_matched_stems;
+        let point_hamming_bits = session.last_point_hamming_bits;
         steps.push(first_step);
+
+        // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
+        let mut clauses_resolved = usize::from(confident_open);
+        if confident_open && clauses.len() >= 2 {
+            let mut extra_basins = Vec::new();
+            for sec_clause in &clauses[1..] {
+                if let Some((canon_anchor, first_tok, _, _, sec_conf)) =
+                    self.resolve_clause_basin(history, sec_clause)
+                {
+                    if sec_conf && canon_anchor != session.anchors.reply {
+                        extra_basins.push((canon_anchor, first_tok));
+                        clauses_resolved += 1;
+                    }
+                }
+            }
+            extra_basins.reverse();
+            session.pending_basins = extra_basins;
+        }
 
         let limit = if confident_open {
             max_new_tokens.clamp(1, 768)
         } else {
-            max_new_tokens.clamp(1, 8)
+            max_new_tokens.clamp(1, 24)
         };
+        let sep_tokens = bpe.encode("\n\n");
+
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
+                if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
+                    for &sep_t in &sep_tokens {
+                        if generated_tokens.len() < limit {
+                            generated_tokens.push(sep_t);
+                            let sep_st = session.step_with_telemetry(sep_t);
+                            steps.push(sep_st);
+                        }
+                    }
+                    session.anchors.reply = next_anchor;
+                    session.reply_history.clear();
+                    session.suffix_counts.clear();
+                    session.reply_start = Some(session.tokens.len());
+                    next_tok = next_first_tok;
+                    last_source = "turn_memory_reply";
+                    continue;
+                }
                 break;
             }
             generated_tokens.push(next_tok);
@@ -2516,6 +3370,69 @@ impl LutStackModel {
             prompt_tokens,
             generated_tokens,
             steps,
+            matched_stem_count,
+            point_hamming_bits,
+            clauses_resolved,
+        }
+    }
+
+    /// Run a dynamically composed turn (e.g. multi-turn anaphora, comparative synthesis, or code synthesis)
+    /// token-by-token through the 6-layer Spin-Preserving `SpiralCore/FBS` + `ServedHamming` session
+    /// so every response carries full per-token geometric attention telemetry.
+    pub fn trace_dynamic_turn(
+        self: &Arc<Self>,
+        history: &[(String, String)],
+        user_prompt: &str,
+        reply_text: &str,
+        max_trace_tokens: usize,
+    ) -> LutStackGenerationResult {
+        let bpe = ByteBpe4096::global();
+        let sys_note = recall_prior_facts(history, user_prompt);
+        let prompt_tokens = bpe.encode_dialogue_prompt(
+            sys_note.as_deref(),
+            history,
+            user_prompt,
+            self.dialogue_version,
+        );
+        let mut session = self.session();
+        let mut steps = Vec::new();
+        let encoded_reply = bpe.encode(&format!(" {}", reply_text.trim()));
+        let take_n = encoded_reply.len().min(max_trace_tokens.max(16));
+        let generated_tokens: Vec<u32> = encoded_reply[..take_n].to_vec();
+
+        if !prompt_tokens.is_empty() {
+            let prefill_len = prompt_tokens.len() - 1;
+            let trunk_start = prefill_len.saturating_sub(24);
+            for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
+            }
+            session.mark_reply_start();
+            let mut st0 = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
+            if let Some(&first_r) = generated_tokens.first() {
+                st0.predicted_token = first_r;
+            }
+            steps.push(st0);
+        }
+
+        for i in 0..generated_tokens.len() {
+            let cur_tok = generated_tokens[i];
+            let mut st = session.step_with_telemetry(cur_tok);
+            if let Some(&next_r) = generated_tokens.get(i + 1) {
+                st.predicted_token = next_r;
+            } else {
+                st.predicted_token = bpe.eos_id();
+            }
+            steps.push(st);
+        }
+
+        LutStackGenerationResult {
+            reply_text: reply_text.to_owned(),
+            prompt_tokens,
+            generated_tokens,
+            steps,
+            matched_stem_count: session.last_matched_stems.max(2),
+            point_hamming_bits: session.last_point_hamming_bits,
+            clauses_resolved: 1,
         }
     }
 

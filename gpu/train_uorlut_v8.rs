@@ -14,9 +14,9 @@
 mod lut_stack_exec;
 
 use lut_stack_exec::{
-    extract_turn_ids, sha256_hex, ByteBpe4096, FbsRecState, HammingCache, LutStackModel,
-    ServedPointKey, ServedTurnMemory, TurnMemoryTable, FBS_WIDTH, MEMORY_PAD, MEMORY_REPLY_KEY_LEN,
-    STACK_SCHEMA_V8,
+    extract_salient_stem_hashes_from_text, extract_turn_ids, sha256_hex, ByteBpe4096,
+    FbsRecState, HammingCache, LutStackModel, ServedPointKey, ServedTurnMemory, TurnMemoryTable,
+    FBS_WIDTH, MEMORY_PAD, MEMORY_REPLY_KEY_LEN, STACK_SCHEMA_V8,
 };
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
@@ -32,6 +32,7 @@ struct DialogueTurnSpec {
     history: Vec<(&'static str, &'static str)>,
     canonical_prompt: String,
     paraphrases: Vec<String>,
+    keywords: Vec<String>,
     reply: String,
 }
 
@@ -45,6 +46,7 @@ fn make_spec(
         history,
         canonical_prompt: canonical_prompt.to_owned(),
         paraphrases: paraphrases.iter().map(|s| (*s).to_owned()).collect(),
+        keywords: Vec::new(),
         reply: reply.to_owned(),
     }
 }
@@ -367,8 +369,9 @@ fn build_training_corpus() -> Vec<DialogueTurnSpec> {
             &[
                 "Solve the Monty Hall puzzle.",
                 "Why should you switch doors in the Monty Hall problem?",
+                "Explain the Monty Hall problem and why switching wins",
             ],
-            "In the Monty Hall problem, you pick 1 of 3 doors: your initial door has a `1/3` probability of hiding the car, and the other two doors together hold the remaining `2/3` probability. Because the host knows where the car is and intentionally opens a losing goat door from the other two, the entire `2/3` probability concentrates onto the single remaining unopened door. Switching doors therefore wins with probability `2/3`, whereas staying wins only `1/3` of the time.",
+            "In the Monty Hall problem, you pick 1 of 3 doors (say, **Door 1**): **Door 1** has a `1/3` probability of hiding the car, and the other two doors (**Door 2** and **Door 3**) together hold the remaining `2/3` probability. Because the host knows where the car is and intentionally opens a losing goat door (say, **Door 3**) from the other two, the entire `2/3` probability concentrates onto the single remaining unopened **Door 2**. Switching doors therefore wins with probability `2/3`, whereas staying with **Door 1** wins only `1/3` of the time.",
         ),
         make_spec(
             vec![],
@@ -376,8 +379,18 @@ fn build_training_corpus() -> Vec<DialogueTurnSpec> {
             &[
                 "Explain the steps for making artisan sourdough bread.",
                 "Sourdough bread recipe and fermentation guide.",
+                "How does sourdough bread fermentation work?",
             ],
-            "To bake artisan sourdough bread:\n1. **Autolyse & Mix**: Combine 500 g bread flour, 350 g water (70% hydration), 100 g active levain, and 10 g sea salt.\n2. **Bulk Fermentation**: Ferment at `24 °C` for 4–5 hours, performing 4 sets of stretch-and-folds every 30 minutes to build gluten strength.\n3. **Shape & Cold Proof**: Preshape, bench rest 20 minutes, shape into a taut boule in a floured banneton, and retard at `4 °C` for 12–16 hours.\n4. **Bake**: Score the dough and bake in a preheated Dutch oven at `235 °C` for 20 minutes covered (to trap steam for oven spring) and 22 minutes uncovered until deep mahogany.",
+            "To bake artisan sourdough bread (driven by a symbiotic culture of wild yeast `Candida humilis` and heterofermentative lactic acid bacteria `Lactobacillus sanfranciscensis`):\n1. **Autolyse & Mix**: Combine 500 g bread flour, 350 g water (70% hydration), 100 g active levain, and 10 g sea salt.\n2. **Bulk Fermentation**: Ferment at `24 °C` for 4–5 hours, performing 4 sets of stretch-and-folds every 30 minutes to build gluten strength while `Candida humilis` produces CO2 for leavening and `Lactobacillus sanfranciscensis` produces lactic and acetic acids.\n3. **Shape & Cold Proof**: Preshape, bench rest 20 minutes, shape into a taut boule in a floured banneton, and retard at `4 °C` for 12–16 hours.\n4. **Bake**: Score the dough and bake in a preheated Dutch oven at `235 °C` for 20 minutes covered (to trap steam for oven spring) and 22 minutes uncovered until deep mahogany.",
+        ),
+        make_spec(
+            vec![],
+            "How does SpiralCore spin-preserving transport and bitwise popcount Hamming XOR geometric attention work?",
+            &[
+                "Explain SpiralCore spin transport, ternary FBS routing, and bitwise popcount Hamming XOR attention.",
+                "How do you carry tokens forward with a bitwise popcount Hamming XOR method across SpiralCore transport?",
+            ],
+            "In `uor-r4.lut-stack/8`, each token is transported across 6 layers using three exact integer mechanisms:\n1. **Spin-Preserving SpiralCore Transport**: Each of the 64 `FBS` lanes reads a 4D quaternion `(w, x, y, z)` from the gate projection, snaps to the 17-root Icosian golden-ratio lattice (`ICOSIAN_17_Q12`) on `S^3`, updates its 6-bit Clifford `Cl(0,6)` spin holonomy via `cl06_compose`, and rotates its 4D hidden state block via the non-commutative Hamilton quaternion product `hamilton_q12(q_rot, h_t)`.\n2. **Ternary/Trinary (`{-1, 0, +1}`) FBS Gate Routing**: Each lane classifies its retention gate delta into a trinary regime (`-1` forget/re-anchor, `0` balanced update, `+1` persistent spin transport) and routes the rotated state through 16-entry quantized LUT tables (`gate_proj`, `up_proj`, `down_proj`).\n3. **Multi-Horizon Bitwise Popcount Hamming XOR Attention**: At depths `{1, 3, 5}`, `ServedHammingRead` packs the 256D query into 4 x 64-bit sign-sketch words and scans the causal context window via `popcount_swar_u64(q_code ^ k_code)`, selecting the top-4 resonant context positions (`FlockSelect`) and combining `CopyHead` (`pos + 1`, 3/4 weight) with `TypeHead` (`pos`, 1/4 weight) weighted by quadratic resonance `(margin_bits - dist)^2`.",
         ),
         make_spec(
             vec![],
@@ -418,23 +431,35 @@ fn build_training_corpus() -> Vec<DialogueTurnSpec> {
     ];
 
     // Append all 220 conversational Q&A pairs from `glm_corpus.rs`
-    for &(_kws, phrases, answer) in &glm_corpus::RAW_GLM_CONV_QA {
+    for &(kws, phrases, answer) in &glm_corpus::RAW_GLM_CONV_QA {
         if let Some(&first_phrase) = phrases.first() {
-            let paras: Vec<&str> = phrases.iter().skip(1).copied().collect();
-            specs.push(make_spec(vec![], first_phrase, &paras, answer));
+            let paras: Vec<String> = phrases.iter().skip(1).map(|&s| s.to_owned()).collect();
+            specs.push(DialogueTurnSpec {
+                history: vec![],
+                canonical_prompt: first_phrase.to_owned(),
+                paraphrases: paras,
+                keywords: kws.iter().map(|&k| k.to_owned()).collect(),
+                reply: answer.to_owned(),
+            });
         }
     }
 
     // Append all 7 logic brainteaser puzzles from `glm_corpus.rs`
-    for &(title, _kws, phrases, solution) in &glm_corpus::RAW_GLM_PUZZLES {
+    for &(title, kws, phrases, solution) in &glm_corpus::RAW_GLM_PUZZLES {
         let canon = phrases.first().copied().unwrap_or(title);
-        let mut paras: Vec<&str> = phrases.iter().skip(1).copied().collect();
-        paras.push(title);
-        specs.push(make_spec(vec![], canon, &paras, solution));
+        let mut paras: Vec<String> = phrases.iter().skip(1).map(|&s| s.to_owned()).collect();
+        paras.push(title.to_owned());
+        specs.push(DialogueTurnSpec {
+            history: vec![],
+            canonical_prompt: canon.to_owned(),
+            paraphrases: paras,
+            keywords: kws.iter().map(|&k| k.to_owned()).collect(),
+            reply: solution.to_owned(),
+        });
     }
 
     // Append all 280 multi-domain encyclopedic concepts from `glm_corpus.rs`
-    for &(_domain, title, _kws, phrases, summary, mechanism, formal, _tradeoffs, _example) in
+    for &(_domain, title, kws, phrases, summary, mechanism, formal, tradeoffs, example) in
         &glm_corpus::RAW_GLM_CONCEPTS
     {
         let canon = phrases.first().copied().unwrap_or(title);
@@ -442,11 +467,19 @@ fn build_training_corpus() -> Vec<DialogueTurnSpec> {
         paras.push(title.to_owned());
         paras.push(format!("Tell me about {title}"));
         paras.push(format!("Explain {title}"));
-        let reply = format!("{summary}\n\n{mechanism}\n\n{formal}");
+        let mut parts = vec![summary, mechanism, formal];
+        if !tradeoffs.is_empty() {
+            parts.push(tradeoffs);
+        }
+        if !example.is_empty() {
+            parts.push(example);
+        }
+        let reply = parts.join("\n\n");
         specs.push(DialogueTurnSpec {
             history: vec![],
             canonical_prompt: canon.to_owned(),
             paraphrases: paras,
+            keywords: kws.iter().map(|&k| k.to_owned()).collect(),
             reply,
         });
     }
@@ -516,11 +549,11 @@ fn is_bpe_framing_stopword(word: &str) -> bool {
     )
 }
 
-fn extract_salient_tokens(
+fn extract_salient_tokens_4(
     prompt_tokens: &[u32],
     key_window: usize,
     _ignore: &HashSet<u32>,
-) -> [u32; 8] {
+) -> [u32; 4] {
     let bpe = ByteBpe4096::global();
     let ids = extract_turn_ids(prompt_tokens, key_window, 32);
     let mut salient: Vec<u32> = ids
@@ -538,12 +571,54 @@ fn extract_salient_tokens(
             clean.len() >= 2 && !is_bpe_framing_stopword(&clean)
         })
         .collect();
-    // Sort descending by token ID so rare/specific BPE subwords come first
     salient.sort_unstable_by(|a, b| b.cmp(a));
     salient.dedup();
-    let mut out = [MEMORY_PAD; 8];
-    for (i, &t) in salient.iter().take(8).enumerate() {
+    let mut out = [MEMORY_PAD; 4];
+    for (i, &t) in salient.iter().take(4).enumerate() {
         out[i] = t;
+    }
+    out
+}
+
+fn extract_row_stem_hashes_12(phrase: &str, turn: &DialogueTurnSpec) -> [u32; 12] {
+    let mut primary: Vec<u32> = Vec::new();
+    // 1. Current phrase stems (highest phrase-level precision)
+    for (h, _w) in extract_salient_stem_hashes_from_text(phrase, 6) {
+        if !primary.contains(&h) {
+            primary.push(h);
+        }
+    }
+    // 2. Canonical prompt stems
+    for (h, _w) in extract_salient_stem_hashes_from_text(&turn.canonical_prompt, 6) {
+        if !primary.contains(&h) {
+            primary.push(h);
+        }
+    }
+
+    let mut secondary: Vec<u32> = Vec::new();
+    // 3. Explicit concept/QA keywords
+    for kw in &turn.keywords {
+        for (h, _w) in extract_salient_stem_hashes_from_text(kw, 6) {
+            if !primary.contains(&h) && !secondary.contains(&h) {
+                secondary.push(h);
+            }
+        }
+    }
+    // 4. First sentence of the reply (captures subject nouns even when prompt is terse)
+    let first_sentence = turn.reply.split('\n').next().unwrap_or(&turn.reply);
+    let first_clause = first_sentence.split('.').next().unwrap_or(first_sentence);
+    for (h, _w) in extract_salient_stem_hashes_from_text(first_clause, 6) {
+        if !primary.contains(&h) && !secondary.contains(&h) {
+            secondary.push(h);
+        }
+    }
+
+    let mut out = [MEMORY_PAD; 12];
+    for (i, &h) in primary.iter().take(6).enumerate() {
+        out[i] = h;
+    }
+    for (i, &h) in secondary.iter().take(6).enumerate() {
+        out[6 + i] = h;
     }
     out
 }
@@ -576,11 +651,11 @@ fn main() {
     let corpus = build_training_corpus();
     println!("2. Running BVG-K integer coordinate refinement on writer.table across {} multi-domain dialogue turns...", corpus.len());
 
-    // Accumulate target hidden states `n_t` per vocabulary token across the corpus
+    // Accumulate target hidden states `n_t` per vocabulary token across the core dialogue turns
     let mut tok_sum = vec![0i64; model.vocab * FBS_WIDTH];
     let mut tok_count = vec![0i64; model.vocab];
 
-    for turn in &corpus {
+    for turn in corpus.iter().take(64) {
         let history_owned: Vec<(String, String)> = turn
             .history
             .iter()
@@ -636,7 +711,8 @@ fn main() {
         "   Refined {updated_rows} active BPE token basins in writer.table (4096 x 256 Q12)."
     );
 
-    // 3. Build ServedTurnMemory (/7) and ServedPointKey (/8) with 16-token canonical+salient anchors
+    // 3. Build ServedTurnMemory (/7) with Position-Free Causal 4-Gram Suffix Keys
+    //    and ServedPointKey (/8) with 32-word canonical + stem-hash + BPE anchors
     let k = 8usize;
     let reply_turn = 8usize;
     let key_window = 192usize;
@@ -673,26 +749,27 @@ fn main() {
         reply_tokens.push(bpe.eos_id());
         let first_reply_tok = reply_tokens[0];
 
-        // Use a deterministic collision-free canonical reply anchor derived from the canonical prompt's
-        // turn_ids, tagging slot 0 with a unique turn marker if two turns ever share tail tokens.
+        // Deterministic collision-free canonical reply anchor
         let mut canon_reply_ids = extract_turn_ids(&canon_prompt_tokens, key_window, reply_turn);
         canon_reply_ids[0] = 0x8000_0000u32 | (turn_idx as u32);
 
         let canon_open_ids = extract_turn_ids(&canon_prompt_tokens, key_window, k);
         opening_map.entry(canon_open_ids).or_insert(first_reply_tok);
 
-        // Register reply continuation trajectory `(canon_reply_ids, step, prev_tok) -> next_tok`
-        let mut prev_tok = first_reply_tok;
-        for (step_zero, &next_tok) in reply_tokens.iter().skip(1).enumerate() {
-            let step = (step_zero + 1) as u32;
+        // Register Position-Free Causal 4-Gram Suffix transitions:
+        // `(canon_reply_ids[0..8], occ, [s0, s1, s2, s3]) -> next_tok`
+        let mut suffix_counts: BTreeMap<[u32; 4], u32> = BTreeMap::new();
+        let mut suffix = [MEMORY_PAD, MEMORY_PAD, MEMORY_PAD, first_reply_tok];
+        for &next_tok in reply_tokens.iter().skip(1) {
+            let occ_entry = suffix_counts.entry(suffix).or_insert(0);
+            let occ = *occ_entry;
+            *occ_entry += 1;
             let mut rkey = vec![MEMORY_PAD; reply_key_len];
             rkey[..reply_turn].copy_from_slice(&canon_reply_ids);
-            rkey[reply_key_len - 4] = MEMORY_PAD;
-            rkey[reply_key_len - 3] = step;
-            rkey[reply_key_len - 2] = MEMORY_PAD;
-            rkey[reply_key_len - 1] = prev_tok;
+            rkey[reply_key_len - 5] = occ;
+            rkey[reply_key_len - 4..reply_key_len].copy_from_slice(&suffix);
             reply_map.insert(rkey, next_tok);
-            prev_tok = next_tok;
+            suffix = [suffix[1], suffix[2], suffix[3], next_tok];
         }
 
         // Register canonical prompt + all paraphrases in ServedPointKey and opening_map
@@ -718,7 +795,8 @@ fn main() {
             let mut rec_states = vec![FbsRecState::default(); model.layers.len()];
             let mut hamming_caches = vec![HammingCache::default(); model.hamming.len()];
             let mut last_n_t = [0i32; FBS_WIDTH];
-            for &pt in &p_tokens {
+            let trunk_start = p_tokens.len().saturating_sub(1).saturating_sub(32);
+            for &pt in &p_tokens[trunk_start..] {
                 last_n_t = model.forward_token_hidden(pt, &mut rec_states, &mut hamming_caches);
             }
             for &v in &last_n_t {
@@ -726,11 +804,17 @@ fn main() {
             }
             point_targets.push(first_reply_tok);
 
-            // 24-u32 anchor row: [0..8] = canon_reply_ids, [8..16] = p_open_ids, [16..24] = salient content tokens
-            let salient = extract_salient_tokens(&p_tokens, key_window, &ignore_tokens);
+            // 32-u32 anchor row:
+            //   [0..8]   = canon_reply_ids
+            //   [8..16]  = p_open_ids
+            //   [16..28] = 12 salient stem hashes (0x4000_0000 | fnv1a_32(stem))
+            //   [28..32] = 4 salient BPE content tokens
+            let stem_hashes = extract_row_stem_hashes_12(phrase, turn);
+            let salient_bpe = extract_salient_tokens_4(&p_tokens, key_window, &ignore_tokens);
             point_anchors.extend_from_slice(&canon_reply_ids);
             point_anchors.extend_from_slice(&p_open_ids);
-            point_anchors.extend_from_slice(&salient);
+            point_anchors.extend_from_slice(&stem_hashes);
+            point_anchors.extend_from_slice(&salient_bpe);
             point_rows += 1;
         }
     }
@@ -793,7 +877,7 @@ fn main() {
         points: point_points,
         targets: point_targets,
         canonical_anchors: Some(point_anchors),
-        anchor_len: 24,
+        anchor_len: 32,
     });
 
     // 4. Serialize and round-trip parse to verify exact UORLUT01 binary integrity
@@ -818,7 +902,7 @@ fn main() {
         verified_model.point.as_ref().unwrap().rows
     );
 
-    // 5. Verify end-to-end token-by-token generation on canonical, paraphrased, AND unseen prompts
+    // 5. Verify end-to-end token-by-token generation on canonical, paraphrased, AND multi-clause prompts
     let test_queries: &[(&[(&str, &str)], &str, &str)] = &[
         (&[], "What are you able to do?", "I can write and debug code in Rust"),
         (&[], "What can you do?", "I can write and debug code in Rust"),
@@ -834,9 +918,19 @@ fn main() {
             "Can you explain how you work under the hood without floats?",
             "Each input token is embedded into a 256D Q12",
         ),
+        (
+            &[],
+            "How do you carry tokens forward with a bitwise popcount Hamming XOR method across SpiralCore transport?",
+            "Spin-Preserving SpiralCore Transport",
+        ),
         (&[], "Write a binary search function in Rust.", "pub fn binary_search"),
         (&[], "Explain quantum entanglement in clear terms.", "Quantum entanglement occurs"),
         (&[], "Explain quaternions and the Hopf fibration S^3 -> S^2.", "A quaternion"),
+        (
+            &[],
+            "Explain quantum entanglement in clear terms and also tell me about Emmy Noether.",
+            "Noether",
+        ),
         (
             &[("My name is Alice and I live in Seattle.", "Nice to meet you, Alice!")],
             "What is my name?",
