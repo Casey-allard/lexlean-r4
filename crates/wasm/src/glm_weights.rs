@@ -129819,12 +129819,21 @@ fn score_token_transition_node(
         }
     } else {
         let intent_sec_bonus = if used_secs.is_empty() && preferred_sec == Some(tn.sec_idx) {
-            10
+            16
+        } else if used_secs.is_empty() && preferred_sec.is_none() && tn.sec_idx == 0 {
+            24
         } else {
             0
         };
         let sec_diversity_bonus = if !used_secs.contains(&tn.sec_idx) {
-            8
+            let last_sec = used_secs.last().copied().unwrap_or(0);
+            if tn.sec_idx == last_sec + 1 {
+                20
+            } else if tn.sec_idx > last_sec {
+                12
+            } else {
+                6
+            }
         } else {
             0
         };
@@ -129832,9 +129841,9 @@ fn score_token_transition_node(
     };
 
     let rank_base = if tn.node_rank == 0 {
-        28u32.saturating_sub(u32::from(tn.sec_idx) * 3)
+        56u32.saturating_sub(u32::from(tn.sec_idx) * 10)
     } else {
-        18u32.saturating_sub(u32::from(tn.sec_idx) * 3)
+        36u32.saturating_sub(u32::from(tn.sec_idx) * 8)
     };
 
     // 5. Immediate token stem + 16-token lookahead stem resonance against uncovered prompt stems

@@ -5157,6 +5157,41 @@ mod tests {
         assert!(multi_clause.reply_text.contains("Quantum entanglement"));
         assert!(multi_clause.reply_text.contains("Noether"));
 
+        // 2d. Verify single-stem conversational prompts ("Are you AGI?", "Are you conscious?")
+        //     route cleanly via uor-r4.lut-stack/8 and NEVER emit out-of-order "Complexity: O(1) table lookup"
+        let agi_raw = dispatch_string("1\tstudio\tchat\tAre you AGI?");
+        let agi_json: serde_json::Value =
+            serde_json::from_str(&agi_raw).expect("valid AGI chat JSON");
+        assert_eq!(agi_json["status"], "ok");
+        assert!(
+            agi_json["generation"]["generated_token_count"]
+                .as_u64()
+                .unwrap_or(0)
+                >= 50
+        );
+        let agi_reply = agi_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            agi_reply.contains("Artificial General Intelligence"),
+            "Are you AGI? must answer directly: {}",
+            agi_reply
+        );
+        assert!(
+            !agi_reply.starts_with("Complexity: O(1) table lookup"),
+            "Must never start with sec_idx=2 Complexity line: {}",
+            agi_reply
+        );
+
+        let conscious_raw = dispatch_string("1\tstudio\tchat\tAre you conscious?");
+        let conscious_json: serde_json::Value =
+            serde_json::from_str(&conscious_raw).expect("valid conscious chat JSON");
+        assert_eq!(conscious_json["status"], "ok");
+        let conscious_reply = conscious_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            conscious_reply.contains("not sentient or subjectively conscious"),
+            "Are you conscious? must answer directly: {}",
+            conscious_reply
+        );
+
         // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
         let status_raw = studio_weight_pack_status();
         let status_json: serde_json::Value =

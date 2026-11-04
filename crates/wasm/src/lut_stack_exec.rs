@@ -2556,7 +2556,14 @@ pub fn is_bpe_framing_stopword(word: &str) -> bool {
             | "may"
             | "might"
             | "tell"
+            | "let"
+            | "lets"
+            | "talk"
+            | "talking"
+            | "discuss"
+            | "discussing"
             | "me"
+            | "us"
             | "about"
             | "explain"
             | "describe"
@@ -2959,7 +2966,7 @@ pub fn select_point_key_with_resonance(
             bonus += ((matched_primary as i64) * 160_000) / (row_primary_count as i64);
             if matched_primary == prompt_stems.len()
                 && prompt_stems.len() == 1
-                && row_primary_count == 1
+                && row_primary_count <= 3
             {
                 matched_stems = 2;
             }
