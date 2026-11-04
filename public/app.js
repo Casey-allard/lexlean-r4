@@ -734,8 +734,6 @@ function executeCoordinateEnvelope() {
   }
 }
 
-await init();
-
 if (form) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -974,27 +972,33 @@ if (studioSubsystemsForm) {
   });
 }
 
+function submitComposerPrompt() {
+  if (!claudeChatInput) return;
+  const submittedPrompt = claudeChatInput.value;
+  if (!submittedPrompt.trim()) return;
+  claudeChatInput.value = '';
+  claudeChatInput.style.height = 'auto';
+  runClaudeChat(submittedPrompt, true);
+  claudeChatInput.focus();
+}
+
 if (claudeChatForm) {
   claudeChatForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    if (claudeChatInput) {
-      const submittedPrompt = claudeChatInput.value;
-      claudeChatInput.value = '';
-      runClaudeChat(submittedPrompt, true);
-    }
+    submitComposerPrompt();
   });
 }
 
 if (claudeChatInput) {
   claudeChatInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
-      const submittedPrompt = claudeChatInput.value;
-      if (submittedPrompt.trim()) {
-        claudeChatInput.value = '';
-        runClaudeChat(submittedPrompt, true);
-      }
+      submitComposerPrompt();
     }
+  });
+  claudeChatInput.addEventListener('input', () => {
+    claudeChatInput.style.height = 'auto';
+    claudeChatInput.style.height = `${Math.min(claudeChatInput.scrollHeight, 160)}px`;
   });
 }
 
@@ -1180,18 +1184,28 @@ if (studioTrainForm) {
 }
 
 renderThreadSidebar();
-const initialState = dispatchStudioEnvelope('state', '');
-renderStudioState(initialState);
-restoreIntelligenceFromWebCache();
-const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
-renderWorkspaceList(initialWorkspace);
-selectWorkspaceFile(activeWorkspacePath);
-runClaudeChat('Hello! Who are you and what can you do?', false);
-if (claudeChatInput) {
-  claudeChatInput.value = '';
+try {
+  await init();
+  const initialState = dispatchStudioEnvelope('state', '');
+  renderStudioState(initialState);
+  restoreIntelligenceFromWebCache();
+  const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
+  renderWorkspaceList(initialWorkspace);
+  selectWorkspaceFile(activeWorkspacePath);
+  runClaudeChat('Hello! Who are you and what can you do?', false);
+  if (claudeChatInput) {
+    claudeChatInput.value = '';
+    claudeChatInput.focus();
+  }
+  if (studioPromptInput && studioPromptInput.value) {
+    runStudioGenerate(studioPromptInput.value);
+  }
+  runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
+  executeCoordinateEnvelope();
+} catch (err) {
+  appendChatTurn(
+    'assistant',
+    'UOR-R4 GLM',
+    `WebAssembly initialization error: ${err && err.message ? err.message : String(err)}`,
+  );
 }
-if (studioPromptInput && studioPromptInput.value) {
-  runStudioGenerate(studioPromptInput.value);
-}
-runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
-executeCoordinateEnvelope();

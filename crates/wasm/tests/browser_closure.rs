@@ -414,4 +414,30 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(app_js.contains("uor-r4-weights.uorlut"));
     assert!(app_js.contains("1\\tstudio\\t"));
     assert!(binding_js.contains("export function studio_dispatch("));
+
+    // Verify public/lexlean_r4_bg.wasm has been post-processed by wasm-bindgen
+    let wasm_bytes =
+        std::fs::read(root.join("public/lexlean_r4_bg.wasm")).expect("read lexlean_r4_bg.wasm");
+    assert!(
+        wasm_bytes.starts_with(b"\0asm\x01\0\0\0"),
+        "lexlean_r4_bg.wasm must have a valid WebAssembly binary header"
+    );
+    assert!(
+        !wasm_bytes
+            .windows(b"__wbindgen_placeholder__".len())
+            .any(|w| w == b"__wbindgen_placeholder__"),
+        "lexlean_r4_bg.wasm contains raw __wbindgen_placeholder__ imports; run wasm-bindgen before packaging"
+    );
+    assert!(
+        wasm_bytes
+            .windows(b"__wbindgen_malloc".len())
+            .any(|w| w == b"__wbindgen_malloc"),
+        "lexlean_r4_bg.wasm must export __wbindgen_malloc for JS string passing"
+    );
+    assert!(
+        wasm_bytes
+            .windows(b"studio_dispatch".len())
+            .any(|w| w == b"studio_dispatch"),
+        "lexlean_r4_bg.wasm must export studio_dispatch"
+    );
 }
