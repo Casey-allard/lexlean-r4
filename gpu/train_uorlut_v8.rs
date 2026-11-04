@@ -16,7 +16,7 @@ mod lut_stack_exec;
 use lut_stack_exec::{
     extract_salient_stem_hashes_from_text, extract_turn_ids, sha256_hex, ByteBpe4096,
     FbsRecState, HammingCache, LutStackModel, ServedPointKey, ServedTurnMemory, TurnMemoryTable,
-    FBS_WIDTH, GLOBAL_SUFFIX_ANCHOR, MEMORY_PAD, MEMORY_REPLY_KEY_LEN, STACK_SCHEMA_V8,
+    FBS_WIDTH, GLOBAL_SUFFIX_ANCHOR, MEMORY_PAD, STACK_SCHEMA_V8,
 };
 use std::collections::{BTreeMap, HashSet};
 use std::fs;
@@ -33,6 +33,7 @@ mod glm_expanded_corpus {
     include!("glm_expanded_corpus.rs");
 }
 
+#[derive(Clone)]
 struct DialogueTurnSpec {
     history: Vec<(&'static str, &'static str)>,
     canonical_prompt: String,
@@ -752,8 +753,113 @@ fn extract_row_stem_hashes_12(phrase: &str, turn: &DialogueTurnSpec) -> [u32; 12
     out
 }
 
+fn decode_tsv_escaped(raw: &str) -> String {
+    let mut out = String::with_capacity(raw.len());
+    let mut chars = raw.chars();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            match chars.next() {
+                Some('n') => out.push('\n'),
+                Some('t') => out.push('\t'),
+                Some('\\') => out.push('\\'),
+                Some(other) => {
+                    out.push('\\');
+                    out.push(other);
+                }
+                None => out.push('\\'),
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+fn load_external_tsv_turns(path: &str, max_turns: usize) -> Vec<DialogueTurnSpec> {
+    let Ok(text) = fs::read_to_string(path) else {
+        return Vec::new();
+    };
+    let mut specs = Vec::with_capacity(max_turns.min(65_536));
+    for line in text.lines() {
+        if specs.len() >= max_turns {
+            break;
+        }
+        let mut parts = line.splitn(3, '\t');
+        let Some(_src) = parts.next() else { continue };
+        let Some(p_raw) = parts.next() else { continue };
+        let Some(r_raw) = parts.next() else { continue };
+        let prompt = decode_tsv_escaped(p_raw);
+        let reply = decode_tsv_escaped(r_raw);
+        if prompt.len() < 6 || reply.len() < 24 {
+            continue;
+        }
+        specs.push(DialogueTurnSpec {
+            history: vec![],
+            canonical_prompt: prompt,
+            paraphrases: vec![],
+            keywords: vec![],
+            reply,
+        });
+    }
+    specs
+}
+
+#[inline]
+fn pack_ngram_next_u128(s: [u32; 4], next_tok: u32) -> u128 {
+    let map16 = |t: u32| -> u128 {
+        if t == MEMORY_PAD {
+            0xFFFFu128
+        } else {
+            (t & 0x7FFF) as u128
+        }
+    };
+    (map16(s[0]) << 64)
+        | (map16(s[1]) << 48)
+        | (map16(s[2]) << 32)
+        | (map16(s[3]) << 16)
+        | map16(next_tok)
+}
+
+#[inline]
+fn unpack_ngram_next_u128(v: u128) -> ([u32; 4], u32) {
+    let unmap16 = |w: u128| -> u32 {
+        let low = (w & 0xFFFF) as u32;
+        if low == 0xFFFF {
+            MEMORY_PAD
+        } else {
+            low
+        }
+    };
+    (
+        [
+            unmap16(v >> 64),
+            unmap16(v >> 48),
+            unmap16(v >> 32),
+            unmap16(v >> 16),
+        ],
+        unmap16(v),
+    )
+}
+
+fn rle_sorted_u128(mut vec: Vec<u128>) -> Vec<(u128, u32)> {
+    vec.sort_unstable();
+    let mut out = Vec::with_capacity(vec.len() / 2 + 1);
+    let mut i = 0usize;
+    while i < vec.len() {
+        let val = vec[i];
+        let mut cnt = 1u32;
+        i += 1;
+        while i < vec.len() && vec[i] == val {
+            cnt += 1;
+            i += 1;
+        }
+        out.push((val, cnt));
+    }
+    out
+}
+
 fn main() {
-    println!("=== UOR-R4 End-to-End LutStack v8 Trainer & Artifact Exporter ===");
+    println!("=== UOR-R4 End-to-End LutStack v8 Multi-Threaded Trainer & Artifact Exporter ===");
     let base_uorlut_path = "/Users/casey.allard/uor-r4/local/claude/full-266/serve-out/served/k2-s1.uorlut";
     let fallback_path = "crates/wasm/src/bootstrap_v8.uorlut";
     let source_path = if Path::new(base_uorlut_path).exists() {
@@ -776,15 +882,57 @@ fn main() {
         model.hamming.iter().map(|h| h.depth).collect::<Vec<_>>()
     );
 
-    let bpe = ByteBpe4096::global();
-    let corpus = build_training_corpus();
-    println!("2. Running BVG-K integer coordinate refinement on writer.table across {} multi-domain dialogue turns...", corpus.len());
+    let ext_tsv_path = std::env::var("UOR_EXTERNAL_TSV").unwrap_or_else(|_| {
+        if Path::new("/tmp/uor_full_corpus.tsv").exists() {
+            "/tmp/uor_full_corpus.tsv".to_owned()
+        } else {
+            "/tmp/uor_external_corpus.tsv".to_owned()
+        }
+    });
+    let max_ext_point_turns: usize = std::env::var("UOR_POINT_TURNS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(11_500);
+    let max_ext_ngram_turns: usize = std::env::var("UOR_NGRAM_TURNS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(65_000);
+    let max_global_ngrams: usize = std::env::var("UOR_GLOBAL_NGRAMS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(320_000);
+    let max_ext_reply_toks: usize = std::env::var("UOR_MAX_REPLY_TOKS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(135);
+    let out_uorlut_path =
+        std::env::var("UOR_OUT_UORLUT").unwrap_or_else(|_| fallback_path.to_owned());
+    let out_weights_dir =
+        std::env::var("UOR_OUT_WEIGHTS_DIR").unwrap_or_else(|_| "gpu/weights".to_owned());
 
-    // Accumulate target hidden states `n_t` per vocabulary token across the core dialogue turns
+    let bpe = ByteBpe4096::global();
+    let mut corpus = build_training_corpus();
+    let core_corpus_len = corpus.len();
+    let all_ext_turns = load_external_tsv_turns(&ext_tsv_path, max_ext_ngram_turns);
+    println!(
+        "   Loaded {} core verified turns + {} external curated turns from {} (point_cap={}, ngram_cap={}).",
+        core_corpus_len,
+        all_ext_turns.len(),
+        ext_tsv_path,
+        max_ext_point_turns,
+        max_ext_ngram_turns
+    );
+    for ext_turn in all_ext_turns.iter().take(max_ext_point_turns) {
+        corpus.push(ext_turn.clone());
+    }
+
+    println!(
+        "2. Running parallel BVG-K integer coordinate refinement on writer.table across dialogue turns..."
+    );
     let mut tok_sum = vec![0i64; model.vocab * FBS_WIDTH];
     let mut tok_count = vec![0i64; model.vocab];
 
-    for turn in corpus.iter().take(128) {
+    for turn in corpus.iter().take(256) {
         let history_owned: Vec<(String, String)> = turn
             .history
             .iter()
@@ -798,6 +946,9 @@ fn main() {
             model.dialogue_version,
         );
         let mut reply_tokens = bpe.encode(&format!(" {}", turn.reply));
+        if reply_tokens.len() > 160 {
+            reply_tokens.truncate(160);
+        }
         reply_tokens.push(bpe.eos_id());
 
         let mut rec_states = vec![FbsRecState::default(); model.layers.len()];
@@ -821,7 +972,6 @@ fn main() {
         }
     }
 
-    // Apply conservative BVG-K integer coordinate step toward observed target centroids
     let mut updated_rows = 0usize;
     for tok in 0..model.vocab {
         let cnt = tok_count[tok];
@@ -840,12 +990,13 @@ fn main() {
         "   Refined {updated_rows} active BPE token basins in writer.table (4096 x 256 Q12)."
     );
 
-    // 3. Build ServedTurnMemory (/7) with Position-Free Causal 4-Gram Suffix Keys
-    //    and ServedPointKey (/8) with 32-word canonical + stem-hash + BPE anchors
+    // 3. Build ServedTurnMemory (/7) with Compact 6-Word Position-Free Causal 4-Gram Suffix Keys
+    //    (`[anchor_id, occ, prev_3, prev_2, prev_1, curr_tok]` -> 28 bytes/entry, 3.0x denser!)
+    //    and ServedPointKey (/8) with 8-thread parallel SpiralCore/FBS hidden state routing.
     let k = 8usize;
     let reply_turn = 8usize;
     let key_window = 192usize;
-    let reply_key_len = MEMORY_REPLY_KEY_LEN;
+    let reply_key_len = 6usize;
 
     let ignore_tokens: HashSet<u32> = bpe
         .encode("<|bos|><|eos|>User: Assistant: System: \n?.,!\"'")
@@ -853,15 +1004,21 @@ fn main() {
         .collect();
 
     let mut opening_map: BTreeMap<Vec<u32>, u32> = BTreeMap::new();
-    let mut reply_map: BTreeMap<Vec<u32>, u32> = BTreeMap::new();
-    let mut global_ngram_freq: BTreeMap<([u32; 4], u32), u32> = BTreeMap::new();
+    let mut reply_entries: Vec<([u32; 6], u32)> = Vec::with_capacity(2_200_000);
+    let mut core_ngram_events: Vec<u128> = Vec::with_capacity(600_000);
 
-    let mut point_points: Vec<i16> = Vec::new();
-    let mut point_targets: Vec<u32> = Vec::new();
-    let mut point_anchors: Vec<u32> = Vec::new();
-    let mut point_rows = 0usize;
+    struct PointRowJob {
+        is_core: bool,
+        first_reply_tok: u32,
+        p_tokens: Vec<u32>,
+        anchor_32: [u32; 32],
+    }
+    let mut point_jobs: Vec<PointRowJob> = Vec::with_capacity(corpus.len() + 5_000);
+    let eos_id = bpe.eos_id();
+    let period_toks: Vec<u32> = bpe.encode(".\n");
 
     for (turn_idx, turn) in corpus.iter().enumerate() {
+        let is_core = turn_idx < core_corpus_len;
         let history_owned: Vec<(String, String)> = turn
             .history
             .iter()
@@ -876,43 +1033,55 @@ fn main() {
         );
 
         let mut reply_tokens = bpe.encode(&format!(" {}", turn.reply));
-        reply_tokens.push(bpe.eos_id());
+        if !is_core && reply_tokens.len() > max_ext_reply_toks {
+            // Truncate cleanly at the last sentence boundary before `max_ext_reply_toks`
+            let mut cut = max_ext_reply_toks;
+            for idx in (48..max_ext_reply_toks).rev() {
+                if period_toks.contains(&reply_tokens[idx]) {
+                    cut = idx + 1;
+                    break;
+                }
+            }
+            reply_tokens.truncate(cut);
+        }
+        reply_tokens.push(eos_id);
         let first_reply_tok = reply_tokens[0];
 
-        // Deterministic collision-free canonical reply anchor
         let mut canon_reply_ids = extract_turn_ids(&canon_prompt_tokens, key_window, reply_turn);
         canon_reply_ids[0] = 0x8000_0000u32 | (turn_idx as u32);
 
         let canon_open_ids = extract_turn_ids(&canon_prompt_tokens, key_window, k);
-        opening_map.entry(canon_open_ids).or_insert(first_reply_tok);
+        if is_core {
+            opening_map.entry(canon_open_ids).or_insert(first_reply_tok);
+        }
 
-        // Register Position-Free Causal 4-Gram Suffix transitions:
-        // `(canon_reply_ids[0..8], occ, [s0, s1, s2, s3]) -> next_tok`
         let mut suffix_counts: BTreeMap<[u32; 4], u32> = BTreeMap::new();
         let mut suffix = [MEMORY_PAD, MEMORY_PAD, MEMORY_PAD, first_reply_tok];
         for &next_tok in reply_tokens.iter().skip(1) {
             let occ_entry = suffix_counts.entry(suffix).or_insert(0);
             let occ = *occ_entry;
             *occ_entry += 1;
-            let mut rkey = vec![MEMORY_PAD; reply_key_len];
-            rkey[..reply_turn].copy_from_slice(&canon_reply_ids);
-            rkey[reply_key_len - 5] = occ;
-            rkey[reply_key_len - 4..reply_key_len].copy_from_slice(&suffix);
-            reply_map.insert(rkey, next_tok);
+            let rkey: [u32; 6] = [
+                canon_reply_ids[0],
+                occ,
+                suffix[0],
+                suffix[1],
+                suffix[2],
+                suffix[3],
+            ];
+            reply_entries.push((rkey, next_tok));
 
-            // Accumulate corpus-wide 4-gram and 3-gram continuation counts (excluding EOS)
-            if next_tok != bpe.eos_id() && suffix[1] != MEMORY_PAD {
+            if is_core && next_tok != eos_id && suffix[1] != MEMORY_PAD {
                 if suffix[0] != MEMORY_PAD {
-                    *global_ngram_freq.entry((suffix, next_tok)).or_insert(0) += 1;
+                    core_ngram_events.push(pack_ngram_next_u128(suffix, next_tok));
                 }
                 let trigram = [MEMORY_PAD, suffix[1], suffix[2], suffix[3]];
-                *global_ngram_freq.entry((trigram, next_tok)).or_insert(0) += 1;
+                core_ngram_events.push(pack_ngram_next_u128(trigram, next_tok));
             }
 
             suffix = [suffix[1], suffix[2], suffix[3], next_tok];
         }
 
-        // Register canonical prompt + all paraphrases in ServedPointKey and opening_map
         let mut all_prompts: Vec<&str> = Vec::with_capacity(1 + turn.paraphrases.len());
         all_prompts.push(&turn.canonical_prompt);
         for p in &turn.paraphrases {
@@ -920,74 +1089,195 @@ fn main() {
         }
 
         for &phrase in &all_prompts {
-            let p_sys = lut_stack_exec::recall_prior_facts(&history_owned, phrase);
-            let p_tokens = bpe.encode_dialogue_prompt(
-                p_sys.as_deref(),
-                &history_owned,
-                phrase,
-                model.dialogue_version,
-            );
+            let p_tokens = if phrase == turn.canonical_prompt.as_str() {
+                canon_prompt_tokens.clone()
+            } else {
+                let p_sys = lut_stack_exec::recall_prior_facts(&history_owned, phrase);
+                bpe.encode_dialogue_prompt(
+                    p_sys.as_deref(),
+                    &history_owned,
+                    phrase,
+                    model.dialogue_version,
+                )
+            };
             let p_open_ids = extract_turn_ids(&p_tokens, key_window, k);
-            opening_map
-                .entry(p_open_ids.clone())
-                .or_insert(first_reply_tok);
-
-            let mut rec_states = vec![FbsRecState::default(); model.layers.len()];
-            let mut hamming_caches = vec![HammingCache::default(); model.hamming.len()];
-            let mut last_n_t = [0i32; FBS_WIDTH];
-            let trunk_start = p_tokens.len().saturating_sub(1).saturating_sub(32);
-            for &pt in &p_tokens[trunk_start..] {
-                last_n_t = model.forward_token_hidden(pt, &mut rec_states, &mut hamming_caches);
+            if is_core {
+                opening_map
+                    .entry(p_open_ids.clone())
+                    .or_insert(first_reply_tok);
             }
-            for &v in &last_n_t {
-                point_points.push(v.clamp(-32768, 32767) as i16);
-            }
-            point_targets.push(first_reply_tok);
 
-            // 32-u32 anchor row:
-            //   [0..8]   = canon_reply_ids
-            //   [8..16]  = p_open_ids
-            //   [16..28] = 12 salient stem hashes (0x4000_0000 | fnv1a_32(stem))
-            //   [28..32] = 4 salient BPE content tokens
             let stem_hashes = extract_row_stem_hashes_12(phrase, turn);
             let salient_bpe = extract_salient_tokens_4(&p_tokens, key_window, &ignore_tokens);
-            point_anchors.extend_from_slice(&canon_reply_ids);
-            point_anchors.extend_from_slice(&p_open_ids);
-            point_anchors.extend_from_slice(&stem_hashes);
-            point_anchors.extend_from_slice(&salient_bpe);
-            point_rows += 1;
+            let mut anchor_32 = [MEMORY_PAD; 32];
+            anchor_32[0..8].copy_from_slice(&canon_reply_ids);
+            anchor_32[8..16].copy_from_slice(&p_open_ids);
+            anchor_32[16..28].copy_from_slice(&stem_hashes);
+            anchor_32[28..32].copy_from_slice(&salient_bpe);
+
+            point_jobs.push(PointRowJob {
+                is_core,
+                first_reply_tok,
+                p_tokens,
+                anchor_32,
+            });
         }
     }
 
-    // Register Universal Corpus-Wide 4-Gram & 3-Gram Continuation Backoff (`GLOBAL_SUFFIX_ANCHOR`)
-    let mut best_global_next: BTreeMap<[u32; 4], (u32, u32)> = BTreeMap::new();
-    for ((ngram, next_tok), cnt) in global_ngram_freq {
-        if cnt < 2 {
+    let point_rows = point_jobs.len();
+    println!(
+        "   Executing 6-layer SpiralCore/FBS hidden-state routing across {} PointKey rows on 8 CPU threads...",
+        point_rows
+    );
+    let num_threads = 8usize;
+    let chunk_len = (point_rows + num_threads - 1) / num_threads;
+    let model_ref = &model;
+
+    let point_chunks: Vec<(Vec<i16>, Vec<u32>, Vec<u32>)> = std::thread::scope(|s| {
+        let mut handles = Vec::new();
+        for chunk in point_jobs.chunks(chunk_len.max(1)) {
+            handles.push(s.spawn(move || {
+                let mut local_points = Vec::with_capacity(chunk.len() * FBS_WIDTH);
+                let mut local_targets = Vec::with_capacity(chunk.len());
+                let mut local_anchors = Vec::with_capacity(chunk.len() * 32);
+                let mut rec_states = vec![FbsRecState::default(); model_ref.layers.len()];
+                let mut hamming_caches = vec![HammingCache::default(); model_ref.hamming.len()];
+
+                for job in chunk {
+                    for st in &mut rec_states {
+                        *st = FbsRecState::default();
+                    }
+                    for hc in &mut hamming_caches {
+                        *hc = HammingCache::default();
+                    }
+                    let mut last_n_t = [0i32; FBS_WIDTH];
+                    let win = if job.is_core { 32 } else { 12 };
+                    let trunk_start = job.p_tokens.len().saturating_sub(1).saturating_sub(win);
+                    for &pt in &job.p_tokens[trunk_start..] {
+                        last_n_t = model_ref.forward_token_hidden(
+                            pt,
+                            &mut rec_states,
+                            &mut hamming_caches,
+                        );
+                    }
+                    for &v in &last_n_t {
+                        local_points.push(v.clamp(-32768, 32767) as i16);
+                    }
+                    local_targets.push(job.first_reply_tok);
+                    local_anchors.extend_from_slice(&job.anchor_32);
+                }
+                (local_points, local_targets, local_anchors)
+            }));
+        }
+        handles.into_iter().map(|h| h.join().unwrap()).collect()
+    });
+
+    let mut point_points: Vec<i16> = Vec::with_capacity(point_rows * FBS_WIDTH);
+    let mut point_targets: Vec<u32> = Vec::with_capacity(point_rows);
+    let mut point_anchors: Vec<u32> = Vec::with_capacity(point_rows * 32);
+    for (lp, lt, la) in point_chunks {
+        point_points.extend_from_slice(&lp);
+        point_targets.extend_from_slice(&lt);
+        point_anchors.extend_from_slice(&la);
+    }
+
+    // Mine Universal Corpus-Wide 4-Gram & 3-Gram Continuation Backoff (`GLOBAL_SUFFIX_ANCHOR`)
+    // across all `all_ext_turns` in parallel across 8 threads
+    println!(
+        "   Mining universal multi-scale (4-gram/3-gram) continuations across {} external + {} core turns on 8 threads...",
+        all_ext_turns.len(),
+        core_corpus_len
+    );
+    let ext_chunk_len = (all_ext_turns.len() + num_threads - 1) / num_threads;
+    let ext_rle_chunks: Vec<Vec<(u128, u32)>> = std::thread::scope(|s| {
+        let mut handles = Vec::new();
+        for chunk in all_ext_turns.chunks(ext_chunk_len.max(1)) {
+            handles.push(s.spawn(move || {
+                let bpe_local = ByteBpe4096::global();
+                let mut events: Vec<u128> = Vec::with_capacity(chunk.len() * 140);
+                for turn in chunk {
+                    let reply_tokens = bpe_local.encode(&format!(" {}", turn.reply));
+                    if reply_tokens.is_empty() {
+                        continue;
+                    }
+                    let mut suffix = [MEMORY_PAD, MEMORY_PAD, MEMORY_PAD, reply_tokens[0]];
+                    for &next_tok in reply_tokens.iter().skip(1) {
+                        if suffix[1] != MEMORY_PAD {
+                            if suffix[0] != MEMORY_PAD {
+                                events.push(pack_ngram_next_u128(suffix, next_tok));
+                            }
+                            let trigram = [MEMORY_PAD, suffix[1], suffix[2], suffix[3]];
+                            events.push(pack_ngram_next_u128(trigram, next_tok));
+                        }
+                        suffix = [suffix[1], suffix[2], suffix[3], next_tok];
+                    }
+                }
+                rle_sorted_u128(events)
+            }));
+        }
+        handles.into_iter().map(|h| h.join().unwrap()).collect()
+    });
+
+    let mut merged_rle = rle_sorted_u128(core_ngram_events);
+    // Boost core curriculum n-gram weights by 3x so core phrasing takes precedence on ties
+    for item in &mut merged_rle {
+        item.1 *= 3;
+    }
+    for chunk_rle in ext_rle_chunks {
+        merged_rle.extend_from_slice(&chunk_rle);
+    }
+    merged_rle.sort_unstable_by_key(|&(k, _)| k);
+
+    // Aggregate counts per `(ngram, next_tok)` and pick the highest-frequency `next_tok` per `ngram`
+    let mut best_global_next: Vec<([u32; 4], u32, u32)> = Vec::with_capacity(merged_rle.len() / 2);
+    let mut idx = 0usize;
+    while idx < merged_rle.len() {
+        let key_u128 = merged_rle[idx].0;
+        let mut total_cnt = merged_rle[idx].1;
+        idx += 1;
+        while idx < merged_rle.len() && merged_rle[idx].0 == key_u128 {
+            total_cnt += merged_rle[idx].1;
+            idx += 1;
+        }
+        if total_cnt < 2 {
             continue;
         }
-        let entry = best_global_next.entry(ngram).or_insert((0, next_tok));
-        if cnt > entry.0 {
-            *entry = (cnt, next_tok);
+        let (ngram, next_tok) = unpack_ngram_next_u128(key_u128);
+        if let Some(last) = best_global_next.last_mut() {
+            if last.0 == ngram {
+                if total_cnt > last.1 {
+                    last.1 = total_cnt;
+                    last.2 = next_tok;
+                }
+                continue;
+            }
         }
+        best_global_next.push((ngram, total_cnt, next_tok));
     }
-    let mut ranked_globals: Vec<([u32; 4], u32, u32)> = best_global_next
-        .into_iter()
-        .map(|(ng, (cnt, nt))| (ng, cnt, nt))
-        .collect();
-    ranked_globals.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+
+    best_global_next.sort_unstable_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
     let mut global_inserted = 0usize;
-    for (ngram, _cnt, next_tok) in ranked_globals.into_iter().take(75_000) {
-        let mut gkey = vec![MEMORY_PAD; reply_key_len];
-        gkey[0] = GLOBAL_SUFFIX_ANCHOR;
-        gkey[reply_key_len - 5] = 0;
-        gkey[reply_key_len - 4..reply_key_len].copy_from_slice(&ngram);
-        reply_map.insert(gkey, next_tok);
+    for (ngram, _cnt, next_tok) in best_global_next.into_iter().take(max_global_ngrams) {
+        let gkey: [u32; 6] = [
+            GLOBAL_SUFFIX_ANCHOR,
+            0,
+            ngram[0],
+            ngram[1],
+            ngram[2],
+            ngram[3],
+        ];
+        reply_entries.push((gkey, next_tok));
         global_inserted += 1;
     }
     println!(
         "   Registered {} universal multi-scale (4-gram/3-gram) backoff continuations (`GLOBAL_SUFFIX_ANCHOR`).",
         global_inserted
     );
+
+    // Sort `reply_entries` lexicographically by 6-word key (preserving last write on exact collision)
+    reply_entries.reverse();
+    reply_entries.sort_by(|a, b| a.0.cmp(&b.0));
+    reply_entries.dedup_by(|a, b| a.0 == b.0);
 
     let open_weight_q24 = model
         .memory
@@ -1010,10 +1300,10 @@ fn main() {
         open_vals.push(*v_tok);
     }
 
-    let mut rep_keys = Vec::with_capacity(reply_map.len() * reply_key_len);
-    let mut rep_vals = Vec::with_capacity(reply_map.len());
-    for (k_vec, v_tok) in &reply_map {
-        rep_keys.extend_from_slice(k_vec);
+    let mut rep_keys = Vec::with_capacity(reply_entries.len() * reply_key_len);
+    let mut rep_vals = Vec::with_capacity(reply_entries.len());
+    for (k_arr, v_tok) in &reply_entries {
+        rep_keys.extend_from_slice(k_arr);
         rep_vals.push(*v_tok);
     }
 
@@ -1148,21 +1438,21 @@ fn main() {
         );
     }
 
-    // 6. Write WASM bootstrap artifact (`crates/wasm/src/bootstrap_v8.uorlut`)
-    fs::write(fallback_path, &uorlut_bytes).expect("write bootstrap_v8.uorlut");
+    // 6. Write WASM bootstrap artifact (`crates/wasm/src/bootstrap_v8.uorlut` or `UOR_OUT_UORLUT`)
+    fs::write(&out_uorlut_path, &uorlut_bytes).expect("write output .uorlut");
     println!(
-        "5. Wrote WASM bootstrap pack to {} ({} bytes)",
-        fallback_path,
+        "5. Wrote UORLUT01 artifact to {} ({} bytes)",
+        out_uorlut_path,
         uorlut_bytes.len()
     );
 
-    // 7. Write chunked weight shards (`gpu/weights/uor_r4_glm_v8.uorlut.part*`) + `gpu/weights/manifest.json`
-    let weights_dir = Path::new("gpu/weights");
-    fs::create_dir_all(weights_dir).expect("create gpu/weights");
+    // 7. Write chunked weight shards (`gpu/weights/uor_r4_glm_v8.uorlut.part*`) + `manifest.json`
+    let weights_dir = Path::new(&out_weights_dir);
+    fs::create_dir_all(weights_dir).expect("create weights_dir");
     let shard_size = 512 * 1024; // 512 KB per shard for fast parallel fetch & progress reporting
     let mut shard_entries = Vec::new();
     for (idx, chunk) in uorlut_bytes.chunks(shard_size).enumerate() {
-        let file_name = format!("uor_r4_glm_v8.uorlut.part{idx:02}");
+        let file_name = format!("uor_r4_glm_v8.uorlut.part{idx:03}");
         let full_path = weights_dir.join(&file_name);
         fs::write(&full_path, chunk).expect("write weight shard");
         let shard_sha = sha256_hex(chunk);
@@ -1194,8 +1484,9 @@ fn main() {
     );
     fs::write(weights_dir.join("manifest.json"), manifest_json).expect("write manifest.json");
     println!(
-        "6. Wrote {} shards + public/weights/manifest.json (total={} bytes, sha256={}).",
+        "6. Wrote {} shards + {}/manifest.json (total={} bytes, sha256={}).",
         shard_entries.len(),
+        out_weights_dir,
         verified_model.artifact_bytes,
         verified_model.artifact_sha256
     );

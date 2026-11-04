@@ -2883,7 +2883,7 @@ pub fn select_point_key_with_resonance(
     }
 
     let bpe = ByteBpe4096::global();
-    let prompt_ids = extract_turn_ids(prompt_tokens, key_window, 48);
+    let prompt_ids = extract_turn_ids(prompt_tokens, key_window, key_window.max(128));
     let active_prompt_ids: Vec<u32> = prompt_ids
         .iter()
         .copied()
@@ -2919,6 +2919,11 @@ pub fn select_point_key_with_resonance(
     let q_sketch = pack_i32_sign_sketch_256(n_t);
     let q_abs_sum: i64 = n_t.iter().map(|&v| (v as i64).abs()).sum();
     let q_mean_abs = (q_abs_sum / (point.width.max(1) as i64)).max(1);
+    let mut q_normed = [0i64; FBS_WIDTH];
+    let w_lim = point.width.min(FBS_WIDTH);
+    for d in 0..w_lim {
+        q_normed[d] = ((n_t[d] as i64) * 1024) / q_mean_abs;
+    }
 
     let mut best_row = 0usize;
     let mut best_score = i64::MAX;
@@ -2928,6 +2933,8 @@ pub fn select_point_key_with_resonance(
     let mut best_matched_bpe = 0usize;
     let mut best_turn_idx = usize::MAX;
     let mut best_bonus = 0i64;
+    let eff_total = prompt_stems.len().min(6);
+    let mut max_core_matched_stems = 0usize;
 
     for r in 0..point.rows {
         let p_base = r * point.width;
@@ -2940,6 +2947,11 @@ pub fn select_point_key_with_resonance(
         } else {
             usize::MAX
         };
+        if turn_idx >= 620
+            && (eff_total < 3 || eff_total < max_core_matched_stems + 2)
+        {
+            break;
+        }
 
         // Guard self-inquiry bio rows (0..=2) and pure greeting rows (3..=4) so unrelated prompts
         // never collapse onto "I am the UOR-R4 Generalized Geometric Assistant..."
@@ -2949,28 +2961,6 @@ pub fn select_point_key_with_resonance(
         } else if (turn_idx == 3 || turn_idx == 4) && !is_greeting && !prompt_stems.is_empty() {
             guard_penalty = 60_000_000;
         }
-
-        let mut raw_l1 = 0i64;
-        let mut p_abs_sum = 0i64;
-        for d in 0..point.width {
-            let pv = p_row[d] as i64;
-            raw_l1 += ((n_t[d] as i64) - pv).abs();
-            p_abs_sum += pv.abs();
-        }
-        let p_mean_abs = (p_abs_sum / (point.width.max(1) as i64)).max(1);
-
-        // Scale-normalized Q12 directional L1 distance (eliminates small-norm bias across rows)
-        let mut norm_l1 = 0i64;
-        for d in 0..point.width {
-            let q_normed = ((n_t[d] as i64) * 1024) / q_mean_abs;
-            let p_normed = ((p_row[d] as i64) * 1024) / p_mean_abs;
-            norm_l1 += (q_normed - p_normed).abs();
-        }
-
-        // 256-bit Bitwise Popcount Hamming XOR distance between query sketch and point row sketch
-        let p_sketch = pack_i16_sign_sketch_256(p_row);
-        let h_bits = hamming_distance_256(&q_sketch, &p_sketch);
-        let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty;
 
         let primary_slice = if alen >= 22 {
             &a_row[16..22]
@@ -3019,9 +3009,63 @@ pub fn select_point_key_with_resonance(
         if matched_stems >= 2 {
             bonus += (matched_stems as i64) * 180_000;
         }
+        // Core verified curriculum turns (`0..620`) receive deterministic priority, while external
+        // corpus turns (`>= 620`) activate when they match >= 3 stems, >= 2/3 of `eff_total`, and
+        // at least 2 more stems than the best core curriculum turn (`max_core_matched_stems + 2`).
+        if turn_idx < 620 && matched_stems >= 1 {
+            if matched_stems > max_core_matched_stems {
+                max_core_matched_stems = matched_stems;
+            }
+            bonus += (matched_stems as i64) * 350_000;
+        } else if turn_idx >= 620 {
+            if matched_stems < 3
+                || matched_stems < max_core_matched_stems + 2
+                || matched_stems * 3 < eff_total * 2
+            {
+                continue;
+            }
+            bonus += (matched_stems as i64) * 350_000;
+        }
 
-        let score = if raw_l1 == 0 && guard_penalty == 0 {
+        // Exact branch-and-bound lower bound:
+        // Whenever `raw_l1 > 0` (checked in O(1) via lane 0/1 inequality), `geom_dist >= guard_penalty`,
+        // so `score = geom_dist - bonus >= guard_penalty - bonus`.
+        let maybe_exact_zero =
+            turn_idx < 620 && w_lim >= 2 && (p_row[0] as i32) == n_t[0] && (p_row[1] as i32) == n_t[1];
+        let max_possible_bonus = if turn_idx >= 620 && w_lim >= 2 && (p_row[0] as i32) == n_t[0] {
+            bonus + 150_000
+        } else {
+            bonus
+        };
+        if !maybe_exact_zero && (guard_penalty - max_possible_bonus) >= best_score {
+            continue;
+        }
+
+        let mut raw_l1 = 0i64;
+        let mut p_abs_sum = 0i64;
+        for d in 0..w_lim {
+            let pv = p_row[d] as i64;
+            raw_l1 += ((n_t[d] as i64) - pv).abs();
+            p_abs_sum += pv.abs();
+        }
+        let p_mean_abs = (p_abs_sum / (w_lim.max(1) as i64)).max(1);
+
+        // Scale-normalized Q12 directional L1 distance (eliminates small-norm bias across rows)
+        let mut norm_l1 = 0i64;
+        for d in 0..w_lim {
+            let p_normed = ((p_row[d] as i64) * 1024) / p_mean_abs;
+            norm_l1 += (q_normed[d] - p_normed).abs();
+        }
+
+        // 256-bit Bitwise Popcount Hamming XOR distance between query sketch and point row sketch
+        let p_sketch = pack_i16_sign_sketch_256(p_row);
+        let h_bits = hamming_distance_256(&q_sketch, &p_sketch);
+        let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty;
+
+        let score = if raw_l1 == 0 && guard_penalty == 0 && turn_idx < 620 {
             -(1i64 << 42) - bonus
+        } else if raw_l1 == 0 && guard_penalty == 0 {
+            geom_dist - bonus - 150_000
         } else {
             geom_dist - bonus
         };

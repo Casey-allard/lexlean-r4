@@ -5212,6 +5212,22 @@ mod tests {
             gps_reply
         );
 
+        // 2e. Verify external OpenHermes-2.5 / CodeAlpaca / Dolly turns in the 16,770-row PointKey table
+        //     decode token-by-token through uor-r4.lut-stack/8 without colliding with core curriculum
+        let numpy_raw = dispatch_string(
+            "1\tstudio\tchat\tHow can I remove NaN values from a NumPy array? For example, I want to convert an array like [1, 2, NaN, 4, NaN, 8] into [1, 2, 4, 8].",
+        );
+        let numpy_json: serde_json::Value =
+            serde_json::from_str(&numpy_raw).expect("valid numpy JSON");
+        assert_eq!(numpy_json["status"], "ok");
+        let numpy_reply = numpy_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            numpy_reply.to_ascii_lowercase().contains("isnan")
+                || numpy_reply.to_ascii_lowercase().contains("numpy"),
+            "External OpenHermes NumPy prompt must decode via uor-r4.lut-stack/8: {}",
+            numpy_reply
+        );
+
         // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
         let status_raw = studio_weight_pack_status();
         let status_json: serde_json::Value =
@@ -5221,8 +5237,8 @@ mod tests {
         assert_eq!(status_json["layers"], 6);
         assert_eq!(status_json["vocab_size"], 4096);
         assert!(status_json["opening_entries"].as_u64().unwrap() >= 4000);
-        assert!(status_json["reply_entries"].as_u64().unwrap() >= 370000);
-        assert!(status_json["point_rows"].as_u64().unwrap() >= 5000);
+        assert!(status_json["reply_entries"].as_u64().unwrap() >= 1_800_000);
+        assert!(status_json["point_rows"].as_u64().unwrap() >= 16_000);
 
         let reload_raw =
             studio_load_uorlut_bytes(BOOTSTRAP_UORLUT_V8, "IndexedDB :: uor-r4-glm-v8");
