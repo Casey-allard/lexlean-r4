@@ -1,4 +1,4 @@
-import init, { process_envelope, studio_dispatch } from './lexlean_r4.js';
+import init, { process_envelope, studio_dispatch, sync_cached_weights } from './lexlean_r4.js';
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');
@@ -1176,6 +1176,32 @@ if (workspaceMountInput) {
   });
 }
 
+const weightCacheBadge = document.getElementById('weight-cache-badge');
+const syncWeightsBtn = document.getElementById('sync-weights-btn');
+
+function updateWeightCacheBadge() {
+  if (!weightCacheBadge) return;
+  const meta = globalThis.__uorWeightCacheMeta || {};
+  const label = meta.status || 'Weights: UR4GLM07 · CacheStorage';
+  const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
+  weightCacheBadge.textContent = `${label}${shortSha}`;
+}
+
+if (syncWeightsBtn) {
+  syncWeightsBtn.addEventListener('click', async () => {
+    syncWeightsBtn.disabled = true;
+    const prevText = syncWeightsBtn.textContent;
+    syncWeightsBtn.textContent = 'Syncing...';
+    try {
+      await sync_cached_weights();
+      updateWeightCacheBadge();
+    } finally {
+      syncWeightsBtn.disabled = false;
+      syncWeightsBtn.textContent = prevText;
+    }
+  });
+}
+
 if (studioTrainForm) {
   studioTrainForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -1186,6 +1212,7 @@ if (studioTrainForm) {
 renderThreadSidebar();
 try {
   await init();
+  updateWeightCacheBadge();
   const initialState = dispatchStudioEnvelope('state', '');
   renderStudioState(initialState);
   restoreIntelligenceFromWebCache();

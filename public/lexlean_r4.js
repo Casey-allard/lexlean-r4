@@ -229,6 +229,88 @@ function initSync(module) {
     return __wbg_finalize_init(instance, module);
 }
 
+const WEIGHT_CACHE_NAME = 'uor-r4-wasm-weights-v2';
+
+globalThis.__uorWeightCacheMeta = {
+    status: 'Initializing UR4GLM07...',
+    sha256: '',
+    mode: 'init'
+};
+
+async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
+    let expectedSha = '';
+    try {
+        const provUrl = new URL('provenance.json', import.meta.url);
+        const provResp = await fetch(provUrl, { cache: 'no-store' });
+        if (provResp && provResp.ok) {
+            const provJson = await provResp.json();
+            if (provJson && typeof provJson.adapter_wasm_sha256 === 'string') {
+                expectedSha = provJson.adapter_wasm_sha256;
+            }
+        }
+    } catch (_e) {
+        // Offline or local fallback
+    }
+
+    const versionedUrl = expectedSha
+        ? new URL('lexlean_r4_bg.wasm?sha256=' + expectedSha, import.meta.url)
+        : defaultUrl;
+
+    if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
+        try {
+            const cache = await caches.open(WEIGHT_CACHE_NAME);
+            const cacheKey = versionedUrl.toString();
+            if (!forceRefresh) {
+                const hit = await cache.match(cacheKey);
+                if (hit && hit.ok) {
+                    globalThis.__uorWeightCacheMeta = {
+                        status: 'CacheStorage Hit (UR4GLM07)',
+                        sha256: expectedSha,
+                        mode: 'hit'
+                    };
+                    return hit;
+                }
+            }
+            const netResp = await fetch(versionedUrl, { cache: forceRefresh ? 'reload' : 'default' });
+            if (netResp && netResp.ok) {
+                try {
+                    const keys = await cache.keys();
+                    for (const req of keys) {
+                        if (req.url !== cacheKey) {
+                            await cache.delete(req);
+                        }
+                    }
+                    await cache.put(cacheKey, netResp.clone());
+                } catch (_ce) {
+                    // Quota or private-browsing fallback
+                }
+                globalThis.__uorWeightCacheMeta = {
+                    status: forceRefresh ? 'Re-Synced & Cached (UR4GLM07)' : 'Cached in Browser (UR4GLM07)',
+                    sha256: expectedSha,
+                    mode: forceRefresh ? 'resynced' : 'cached'
+                };
+                return netResp;
+            }
+        } catch (_err) {
+            // Fall through to direct fetch
+        }
+    }
+
+    const directResp = await fetch(versionedUrl);
+    globalThis.__uorWeightCacheMeta = {
+        status: 'Direct Wasm Load (UR4GLM07)',
+        sha256: expectedSha,
+        mode: 'direct'
+    };
+    return directResp;
+}
+
+export async function sync_cached_weights() {
+    const defaultUrl = new URL('lexlean_r4_bg.wasm', import.meta.url);
+    await __uor_resolve_cached_wasm(defaultUrl, true);
+    return globalThis.__uorWeightCacheMeta;
+}
+
 async function __wbg_init(module_or_path) {
     if (wasm !== undefined) return wasm;
 
@@ -241,12 +323,15 @@ async function __wbg_init(module_or_path) {
         }
     }
 
-    if (typeof module_or_path === 'undefined') {
+    const useManagedCache = (typeof module_or_path === 'undefined');
+    if (useManagedCache) {
         module_or_path = new URL('lexlean_r4_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 
-    if (typeof module_or_path === 'string' || (typeof Request === 'function' && module_or_path instanceof Request) || (typeof URL === 'function' && module_or_path instanceof URL)) {
+    if (useManagedCache) {
+        module_or_path = __uor_resolve_cached_wasm(module_or_path, false);
+    } else if (typeof module_or_path === 'string' || (typeof Request === 'function' && module_or_path instanceof Request) || (typeof URL === 'function' && module_or_path instanceof URL)) {
         module_or_path = fetch(module_or_path);
     }
 

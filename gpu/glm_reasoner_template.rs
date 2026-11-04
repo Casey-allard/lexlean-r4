@@ -304,43 +304,54 @@ impl Default for GlmRetentionState {
     }
 }
 
-fn split_section_horizon_clauses(sec_text: &str) -> Vec<&str> {
+fn split_balanced_sentences(sec_text: &str) -> Vec<&str> {
     let mut out = Vec::new();
-    for raw_sent in sec_text.split(". ") {
-        let s_trim = raw_sent.trim();
-        if s_trim.len() < 25 {
-            continue;
-        }
-        if s_trim.len() >= 95 && s_trim.contains("; ") {
-            let parts: Vec<&str> = s_trim
-                .split("; ")
-                .map(str::trim)
-                .filter(|p| p.len() >= 25)
-                .collect();
-            if parts.len() >= 2 {
-                out.extend(parts);
-                continue;
+    let bytes = sec_text.as_bytes();
+    let mut start = 0usize;
+    let mut paren_depth = 0i32;
+    let mut i = 0usize;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'(' => paren_depth += 1,
+            b')' => paren_depth = (paren_depth - 1).max(0),
+            b'.' if paren_depth == 0 && i + 1 < bytes.len() && bytes[i + 1] == b' ' => {
+                let seg = sec_text[start..=i].trim();
+                let is_abbrev = seg.ends_with(" c.")
+                    || seg.ends_with("(c.")
+                    || seg.ends_with(" e.g.")
+                    || seg.ends_with("(e.g.")
+                    || seg.ends_with(" i.e.")
+                    || seg.ends_with("(i.e.")
+                    || seg.ends_with(" vs.")
+                    || seg.ends_with(" St.")
+                    || seg.ends_with(" Dr.");
+                if !is_abbrev {
+                    if !seg.is_empty() {
+                        out.push(seg);
+                    }
+                    start = i + 2;
+                    i += 2;
+                    continue;
+                }
             }
+            _ => {}
         }
-        if s_trim.len() >= 115 && (s_trim.contains(", while ") || s_trim.contains(", whereas ")) {
-            let sep = if s_trim.contains(", while ") {
-                ", while "
-            } else {
-                ", whereas "
-            };
-            let parts: Vec<&str> = s_trim
-                .split(sep)
-                .map(str::trim)
-                .filter(|p| p.len() >= 28)
-                .collect();
-            if parts.len() >= 2 {
-                out.extend(parts);
-                continue;
-            }
+        i += 1;
+    }
+    if start < bytes.len() {
+        let tail = sec_text[start..].trim();
+        if !tail.is_empty() {
+            out.push(tail);
         }
-        out.push(s_trim);
     }
     out
+}
+
+fn split_section_horizon_clauses(sec_text: &str) -> Vec<&str> {
+    split_balanced_sentences(sec_text)
+        .into_iter()
+        .filter(|s| s.len() >= 25)
+        .collect()
 }
 
 /// Token-by-token Autoregressive Geometric Decoder (`UR4GLM06`).
@@ -452,7 +463,7 @@ pub fn generate_token_level_geometric_prose(
     }
 
     let score_span_against_state =
-        |sp: &TokenSpan, st: &GlmRetentionState, used_stems: &[String]| -> u32 {
+        |sp: &TokenSpan, st: &GlmRetentionState, used_stems: &[String], used_secs: &[u8]| -> u32 {
             let slow_head = &st.heads_q12[7];
             let l1 = q12_l1_distance(slow_head, &sp.horizon.horizon_q12);
             let q12_prox = 4096u32.saturating_sub(l1 / 6) / 128;
@@ -478,6 +489,12 @@ pub fn generate_token_level_geometric_prose(
                 18u32.saturating_sub(u32::from(sp.sec_idx) * 3)
             };
 
+            let sec_diversity_bonus = if !used_secs.contains(&sp.sec_idx) {
+                16
+            } else {
+                0
+            };
+
             let mut prompt_bonus = 0u32;
             for ps in &prompt_stems {
                 if sp.stems.iter().any(|ss| ss == ps) {
@@ -490,51 +507,62 @@ pub fn generate_token_level_geometric_prose(
 
             let redundancy = sp.stems.iter().filter(|ss| used_stems.contains(ss)).count() as u32;
 
-            (rank_base + q12_prox + ham_bonus + block_matches + prompt_bonus)
+            (rank_base + sec_diversity_bonus + q12_prox + ham_bonus + block_matches + prompt_bonus)
                 .saturating_sub(redundancy * 3)
         };
 
     let mut used_spans: Vec<usize> = Vec::new();
     let mut used_stems: Vec<String> = Vec::new();
+    let mut used_secs: Vec<u8> = Vec::new();
     let mut emitted_tokens: Vec<String> = Vec::new();
     let mut branch_decisions = 0usize;
 
     // Select initial opening span `(w_0, w_1, ...)` via CUDA-trained horizon resonance
     branch_decisions += 1;
     let mut cur_span_idx = (0..spans.len())
-        .max_by_key(|&idx| score_span_against_state(&spans[idx], &state, &used_stems))
+        .max_by_key(|&idx| score_span_against_state(&spans[idx], &state, &used_stems, &used_secs))
         .unwrap_or(0);
     used_spans.push(cur_span_idx);
+    used_secs.push(spans[cur_span_idx].sec_idx);
     for st in &spans[cur_span_idx].stems {
         if !used_stems.contains(st) {
             used_stems.push(st.clone());
         }
     }
     let mut cur_tok_idx = 0usize;
+    let mut tokens_in_cur_span = 0usize;
+    let mut mid_pivots_taken = 0usize;
 
     // Step token-by-token (`w_0 -> w_1 -> w_2 -> ...`) through the geometric transition lattice
     while emitted_tokens.len() < max_tokens {
         let tok_piece = spans[cur_span_idx].tokens[cur_tok_idx].clone();
         state.step_token(&tok_piece);
         emitted_tokens.push(tok_piece.clone());
+        tokens_in_cur_span += 1;
 
         let is_sentence_end =
             tok_piece.ends_with('.') || tok_piece.ends_with('!') || tok_piece.ends_with('?');
         let at_span_end = cur_tok_idx + 1 >= spans[cur_span_idx].tokens.len();
 
-        if (is_sentence_end || at_span_end) && emitted_tokens.len() >= min_tokens {
+        if (is_sentence_end || at_span_end)
+            && emitted_tokens.len() >= min_tokens
+            && is_balanced_markdown_slice(&emitted_tokens)
+        {
             break;
         }
 
-        // Check for mid-sentence syntactic pivot branches (when another unvisited span shares the same pivot token)
-        let is_pivot_word = cur_tok_idx >= 10
-            && cur_tok_idx + 5 < spans[cur_span_idx].tokens.len()
-            && (tok_piece.ends_with(',')
-                || tok_piece.ends_with(';')
-                || matches!(
-                    tok_piece.as_str(),
-                    "and" | "while" | "where" | "which" | "because" | "through" | "across"
-                ));
+        // Check for mid-sentence syntactic pivot branches across 40+ grammatical pivot tokens
+        let at_grammatical_pivot = cur_tok_idx >= 5
+            && cur_tok_idx + 4 < spans[cur_span_idx].tokens.len()
+            && is_grammatical_pivot_token(&tok_piece)
+            && is_balanced_markdown_slice(&spans[cur_span_idx].tokens[..=cur_tok_idx]);
+        if at_grammatical_pivot {
+            branch_decisions += 1;
+        }
+        let is_pivot_word = nodes.len() >= 2
+            && mid_pivots_taken == 0
+            && tokens_in_cur_span >= 14
+            && at_grammatical_pivot;
 
         if at_span_end {
             // Sentence boundary transition: follow CUDA-trained `/7` geodesic transition edges (`next_horizon_id` / `alt_horizon_id`)
@@ -544,7 +572,8 @@ pub fn generate_token_level_geometric_prose(
             let next_span_opt = (0..spans.len())
                 .filter(|idx| !used_spans.contains(idx))
                 .max_by_key(|&idx| {
-                    let base = score_span_against_state(&spans[idx], &state, &used_stems);
+                    let base =
+                        score_span_against_state(&spans[idx], &state, &used_stems, &used_secs);
                     let cand_h_idx = spans[idx].horizon_idx;
                     let edge_bonus = if cand_h_idx != usize::MAX
                         && cand_h_idx == usize::from(cur_h.next_horizon_id)
@@ -563,7 +592,11 @@ pub fn generate_token_level_geometric_prose(
             if let Some(next_span) = next_span_opt {
                 cur_span_idx = next_span;
                 cur_tok_idx = 0;
+                tokens_in_cur_span = 0;
                 used_spans.push(cur_span_idx);
+                if !used_secs.contains(&spans[cur_span_idx].sec_idx) {
+                    used_secs.push(spans[cur_span_idx].sec_idx);
+                }
                 for st in &spans[cur_span_idx].stems {
                     if !used_stems.contains(st) {
                         used_stems.push(st.clone());
@@ -574,7 +607,8 @@ pub fn generate_token_level_geometric_prose(
             }
         } else if is_pivot_word {
             // Evaluate whether continuing in `cur_span_idx` or pivoting at `tok_piece` into another resonant span scores higher
-            let cur_score = score_span_against_state(&spans[cur_span_idx], &state, &[]) + 18;
+            let cur_score =
+                score_span_against_state(&spans[cur_span_idx], &state, &[], &used_secs) + 20;
             let cur_h = spans[cur_span_idx].horizon;
             let mut best_pivot: Option<(usize, usize, u32)> = None;
             for (cand_idx, cand_span) in spans.iter().enumerate() {
@@ -587,8 +621,12 @@ pub fn generate_token_level_geometric_prose(
                     .tokens
                     .iter()
                     .enumerate()
-                    .skip(4)
-                    .find(|&(i, t)| t == &tok_piece && i + 4 < cand_span.tokens.len())
+                    .skip(3)
+                    .find(|&(i, t)| {
+                        t == &tok_piece
+                            && i + 4 < cand_span.tokens.len()
+                            && is_balanced_markdown_slice(&cand_span.tokens[i + 1..])
+                    })
                     .map(|(i, _)| i + 1)
                 {
                     branch_decisions += 1;
@@ -600,8 +638,8 @@ pub fn generate_token_level_geometric_prose(
                     } else {
                         0
                     };
-                    let s =
-                        score_span_against_state(cand_span, &state, &used_stems) + edge_bonus;
+                    let s = score_span_against_state(cand_span, &state, &used_stems, &used_secs)
+                        + edge_bonus;
                     if s > cur_score && best_pivot.is_none_or(|(_, _, bs)| s > bs) {
                         best_pivot = Some((cand_idx, pos, s));
                     }
@@ -610,7 +648,12 @@ pub fn generate_token_level_geometric_prose(
             if let Some((win_span, win_tok_pos, _)) = best_pivot {
                 cur_span_idx = win_span;
                 cur_tok_idx = win_tok_pos;
+                tokens_in_cur_span = 0;
+                mid_pivots_taken += 1;
                 used_spans.push(cur_span_idx);
+                if !used_secs.contains(&spans[cur_span_idx].sec_idx) {
+                    used_secs.push(spans[cur_span_idx].sec_idx);
+                }
                 for st in &spans[cur_span_idx].stems {
                     if !used_stems.contains(st) {
                         used_stems.push(st.clone());
@@ -625,8 +668,121 @@ pub fn generate_token_level_geometric_prose(
     }
 
     let steps = emitted_tokens.len();
-    let text = emitted_tokens.join(" ");
+    let text = format_emitted_tokens_into_paragraphs(&emitted_tokens);
     (text, steps, branch_decisions)
+}
+
+/// Grammatical pivot tokens (`40+` prepositions, conjunctions, relative pronouns, auxiliary verbs, and clause punctuation)
+/// where the autoregressive token-level decoder evaluates branch transitions across horizon spans.
+fn is_grammatical_pivot_token(tok: &str) -> bool {
+    if tok.ends_with(',') || tok.ends_with(';') || tok.ends_with(':') {
+        return true;
+    }
+    let clean = tok.trim_matches(|c: char| !c.is_ascii_alphabetic());
+    matches!(
+        clean,
+        "in" | "on"
+            | "by"
+            | "to"
+            | "of"
+            | "for"
+            | "with"
+            | "from"
+            | "as"
+            | "at"
+            | "into"
+            | "through"
+            | "across"
+            | "between"
+            | "under"
+            | "over"
+            | "within"
+            | "without"
+            | "along"
+            | "around"
+            | "where"
+            | "which"
+            | "that"
+            | "while"
+            | "whereas"
+            | "because"
+            | "when"
+            | "if"
+            | "although"
+            | "until"
+            | "since"
+            | "and"
+            | "or"
+            | "but"
+            | "yet"
+            | "so"
+            | "is"
+            | "are"
+            | "was"
+            | "were"
+            | "can"
+            | "enables"
+            | "provides"
+            | "uses"
+            | "computes"
+    )
+}
+
+/// Verify that a slice of tokens has balanced Markdown (`**`, `` ` ``) and brackets (`()`, `[]`)
+/// so mid-sentence syntactic pivots never split an open span.
+fn is_balanced_markdown_slice(tokens: &[String]) -> bool {
+    let mut bold_markers = 0usize;
+    let mut backticks = 0usize;
+    let mut paren_depth = 0i32;
+    let mut bracket_depth = 0i32;
+    for tok in tokens {
+        bold_markers += tok.matches("**").count();
+        for ch in tok.chars() {
+            match ch {
+                '`' => backticks += 1,
+                '(' => paren_depth += 1,
+                ')' => {
+                    paren_depth -= 1;
+                    if paren_depth < 0 {
+                        return false;
+                    }
+                }
+                '[' => bracket_depth += 1,
+                ']' => {
+                    bracket_depth -= 1;
+                    if bracket_depth < 0 {
+                        return false;
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    bold_markers.is_multiple_of(2)
+        && backticks.is_multiple_of(2)
+        && paren_depth == 0
+        && bracket_depth == 0
+}
+
+/// Group an autoregressively emitted token stream into clean multi-paragraph Markdown prose.
+fn format_emitted_tokens_into_paragraphs(tokens: &[String]) -> String {
+    if tokens.is_empty() {
+        return String::new();
+    }
+    let mut paragraphs: Vec<String> = Vec::new();
+    let mut current: Vec<String> = Vec::new();
+    for tok in tokens {
+        current.push(tok.clone());
+        let ends_sent = tok.ends_with('.') || tok.ends_with('!') || tok.ends_with('?');
+        if ends_sent && current.len() >= 42 && is_balanced_markdown_slice(&current) {
+            paragraphs.push(current.join(" "));
+            current.clear();
+        }
+    }
+    if !current.is_empty() {
+        paragraphs.push(current.join(" "));
+    }
+    paragraphs.join("\n\n")
 }
 
 /// Generic conversational words that must not trigger a specialized concept basin on their own.
@@ -1817,7 +1973,7 @@ fn synthesize_clause_trajectory(
             node.example,
         ];
         for (sec_idx, &sec) in sections.iter().enumerate() {
-            for raw_sent in sec.split(". ") {
+            for raw_sent in split_balanced_sentences(sec) {
                 let s_trim = raw_sent.trim();
                 if s_trim.len() < 25 {
                     continue;
@@ -1868,7 +2024,7 @@ fn synthesize_clause_trajectory(
                 continue;
             }
             let overlap = s_stems.iter().filter(|st| used_stems.contains(st)).count() as u32;
-            let adj = base_score.saturating_sub(overlap * 2);
+            let adj = base_score.saturating_sub(overlap * 2).max(1);
             if adj > best_adj_score {
                 best_adj_score = adj;
                 best_idx = Some(idx);
@@ -1914,8 +2070,8 @@ fn dedup_prose_paragraphs(text: &str) -> String {
             out_paragraphs.push(trimmed.to_string());
             continue;
         }
-        let sentences: Vec<String> = trimmed
-            .split(". ")
+        let sentences: Vec<String> = split_balanced_sentences(trimmed)
+            .into_iter()
             .map(str::trim)
             .filter(|s| !s.is_empty())
             .map(|s| {
@@ -2081,21 +2237,20 @@ fn render_single_concept_response(
         return dedup_prose_paragraphs(&format!("{opener}\n\n{body}\n\n{closer}"));
     }
 
-    // Check if the query specifically targets a sub-aspect (e.g. examples, trade-offs, history/mechanism)
-    let non_title_query_stems: usize = words
-        .iter()
-        .filter(|w| !is_stopword(w) && !is_generic_conversational_word(w))
-        .filter(|w| !node.title.to_ascii_lowercase().contains(w.as_str()))
-        .count();
-
-    if non_title_query_stems >= 2 {
-        let clauses = synthesize_clause_trajectory(words, &[node], 6);
-        if clauses.len() >= 5 {
-            let p1 = clauses[0..2].join(" ");
-            let p2 = clauses[2..4].join(" ");
-            let p3 = clauses[4..].join(" ");
-            return dedup_prose_paragraphs(&format!("{}\n\n{}\n\n{}", p1, p2, p3));
+    // Autoregressive token-by-token geometric trajectory decoding (`w_0 -> w_1 -> ...`) across the active concept basin
+    let (token_stream, stepped, _) =
+        generate_token_level_geometric_prose(words, &[node], 260, 420);
+    if stepped >= 80 {
+        let clauses = synthesize_clause_trajectory(words, &[node], 10);
+        if clauses.len() >= 2 {
+            return dedup_prose_paragraphs(&format!(
+                "{}\n\n{}\n\n{}",
+                node.summary,
+                token_stream,
+                clauses.join(" ")
+            ));
         }
+        return dedup_prose_paragraphs(&format!("{}\n\n{}", node.summary, token_stream));
     }
 
     dedup_prose_paragraphs(&format!(

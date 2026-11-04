@@ -1887,14 +1887,21 @@ fn build_language_task_code(
         (has_word(words, "binary") && has_word(words, "search")) || has_word(words, "bsearch");
     let is_fib = has_any_word(lower, &["fibonacci", "fib", "factorial", "prime", "sieve"]);
     let is_cache = has_any_word(lower, &["lru", "cache", "memoize"]);
-    let is_graph = has_any_word(
-        lower,
-        &["bfs", "dfs", "dijkstra", "graph", "shortest", "tree"],
-    );
+    let is_trie = has_any_word(lower, &["trie", "autocomplete", "prefix"]);
+    let is_graph = !is_trie
+        && has_any_word(
+            lower,
+            &["bfs", "dfs", "dijkstra", "graph", "shortest", "tree"],
+        );
     let is_debounce_or_rate = has_any_word(
         lower,
         &["debounce", "throttle", "limiter", "bucket", "retry"],
     );
+    let is_dp = has_any_word(
+        lower,
+        &["knapsack", "levenshtein", "dynamic", "subsequence", "coins"],
+    ) || lower.contains("edit distance");
+    let is_twosum = has_word(words, "twosum") || lower.contains("two sum");
 
     match lang {
         "python" => {
@@ -2065,6 +2072,89 @@ fn build_language_task_code(
                     )
                     .to_string(),
                     "Breadth-First Shortest Path Graph Traversal (O(V + E))".to_string(),
+                )
+            } else if is_dp {
+                (
+                    "src/dynamic_programming.py".to_string(),
+                    concat!(
+                        "from typing import List\n\n",
+                        "def edit_distance(a: str, b: str) -> int:\n",
+                        "    \"\"\"Wagner-Fischer Levenshtein edit distance in O(M * N) time and O(N) space.\"\"\"\n",
+                        "    prev = list(range(len(b) + 1))\n",
+                        "    for i, ca in enumerate(a, start=1):\n",
+                        "        curr = [i] + [0] * len(b)\n",
+                        "        for j, cb in enumerate(b, start=1):\n",
+                        "            cost = 0 if ca == cb else 1\n",
+                        "            curr[j] = min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost)\n",
+                        "        prev = curr\n",
+                        "    return prev[-1]\n\n",
+                        "def knapsack_01(weights: List[int], values: List[int], capacity: int) -> int:\n",
+                        "    \"\"\"0/1 Knapsack dynamic programming in O(N * W) time and O(W) space.\"\"\"\n",
+                        "    dp = [0] * (capacity + 1)\n",
+                        "    for w, v in zip(weights, values):\n",
+                        "        for cap in range(capacity, w - 1, -1):\n",
+                        "            dp[cap] = max(dp[cap], dp[cap - w] + v)\n",
+                        "    return dp[capacity]\n\n",
+                        "if __name__ == '__main__':\n",
+                        "    assert edit_distance('kitten', 'sitting') == 3\n",
+                        "    assert knapsack_01([2, 3, 4, 5], [3, 4, 5, 8], 5) == 8\n"
+                    )
+                    .to_string(),
+                    "Space-Optimized Dynamic Programming (Levenshtein Edit Distance & 0/1 Knapsack)"
+                        .to_string(),
+                )
+            } else if is_trie {
+                (
+                    "src/trie.py".to_string(),
+                    concat!(
+                        "from typing import Dict, List\n\n",
+                        "class PrefixTrie:\n",
+                        "    \"\"\"Deterministic Prefix Tree (Trie) with O(L) insert, lookup, and autocomplete.\"\"\"\n",
+                        "    def __init__(self) -> None:\n",
+                        "        self.children: Dict[str, 'PrefixTrie'] = {}\n",
+                        "        self.is_end: bool = False\n\n",
+                        "    def insert(self, word: str) -> None:\n",
+                        "        node = self\n",
+                        "        for ch in word:\n",
+                        "            node = node.children.setdefault(ch, PrefixTrie())\n",
+                        "        node.is_end = True\n\n",
+                        "    def starts_with(self, prefix: str) -> List[str]:\n",
+                        "        node = self\n",
+                        "        for ch in prefix:\n",
+                        "            if ch not in node.children:\n",
+                        "                return []\n",
+                        "            node = node.children[ch]\n",
+                        "        out: List[str] = []\n",
+                        "        def _dfs(cur: 'PrefixTrie', path: str) -> None:\n",
+                        "            if cur.is_end:\n",
+                        "                out.append(path)\n",
+                        "            for k in sorted(cur.children):\n",
+                        "                _dfs(cur.children[k], path + k)\n",
+                        "        _dfs(node, prefix)\n",
+                        "        return out\n"
+                    )
+                    .to_string(),
+                    "Prefix Tree (Trie) with O(L) Lookup & Lexicographic Autocomplete".to_string(),
+                )
+            } else if is_twosum {
+                (
+                    "src/two_sum.py".to_string(),
+                    concat!(
+                        "from typing import Dict, List, Optional, Tuple\n\n",
+                        "def two_sum(nums: List[int], target: int) -> Optional[Tuple[int, int]]:\n",
+                        "    \"\"\"Single-pass O(N) hash-table Two-Sum solver.\"\"\"\n",
+                        "    seen: Dict[int, int] = {}\n",
+                        "    for i, x in enumerate(nums):\n",
+                        "        comp = target - x\n",
+                        "        if comp in seen:\n",
+                        "            return (seen[comp], i)\n",
+                        "        seen[x] = i\n",
+                        "    return None\n\n",
+                        "if __name__ == '__main__':\n",
+                        "    assert two_sum([2, 7, 11, 15], 9) == (0, 1)\n"
+                    )
+                    .to_string(),
+                    "Single-Pass O(N) Hash-Table Two-Sum Solver".to_string(),
                 )
             } else {
                 let fn_name = extract_custom_identifier(words, "solve_task");
@@ -2298,6 +2388,125 @@ fn build_language_task_code(
                     )
                     .to_string(),
                     "Overflow-Safe Fibonacci Evaluator in Rust".to_string(),
+                )
+            } else if is_cache {
+                (
+                    "src/lru_cache.rs".to_string(),
+                    concat!(
+                        "use std::collections::VecDeque;\n\n",
+                        "/// Deterministic bounded LRU Cache in Rust.\n",
+                        "pub struct BoundedLruCache<K, V> {\n",
+                        "    capacity: usize,\n",
+                        "    entries: VecDeque<(K, V)>,\n",
+                        "}\n\n",
+                        "impl<K: Eq + Clone, V: Clone> BoundedLruCache<K, V> {\n",
+                        "    pub fn new(capacity: usize) -> Self {\n",
+                        "        Self { capacity: capacity.max(1), entries: VecDeque::new() }\n",
+                        "    }\n\n",
+                        "    pub fn get(&mut self, key: &K) -> Option<V> {\n",
+                        "        let pos = self.entries.iter().position(|(k, _)| k == key)?;\n",
+                        "        let pair = self.entries.remove(pos)?;\n",
+                        "        let val = pair.1.clone();\n",
+                        "        self.entries.push_back(pair);\n",
+                        "        Some(val)\n",
+                        "    }\n\n",
+                        "    pub fn put(&mut self, key: K, value: V) {\n",
+                        "        if let Some(pos) = self.entries.iter().position(|(k, _)| k == &key) {\n",
+                        "            self.entries.remove(pos);\n",
+                        "        } else if self.entries.len() >= self.capacity {\n",
+                        "            self.entries.pop_front();\n",
+                        "        }\n",
+                        "        self.entries.push_back((key, value));\n",
+                        "    }\n",
+                        "}\n"
+                    )
+                    .to_string(),
+                    "Deterministic Bounded LRU Cache in Rust".to_string(),
+                )
+            } else if is_trie {
+                (
+                    "src/trie.rs".to_string(),
+                    concat!(
+                        "use std::collections::BTreeMap;\n\n",
+                        "/// Deterministic Prefix Trie in Rust.\n",
+                        "#[derive(Default)]\n",
+                        "pub struct PrefixTrie {\n",
+                        "    children: BTreeMap<char, PrefixTrie>,\n",
+                        "    is_end: bool,\n",
+                        "}\n\n",
+                        "impl PrefixTrie {\n",
+                        "    pub fn new() -> Self {\n",
+                        "        Self::default()\n",
+                        "    }\n\n",
+                        "    pub fn insert(&mut self, word: &str) {\n",
+                        "        let mut node = self;\n",
+                        "        for ch in word.chars() {\n",
+                        "            node = node.children.entry(ch).or_default();\n",
+                        "        }\n",
+                        "        node.is_end = true;\n",
+                        "    }\n\n",
+                        "    pub fn search(&self, word: &str) -> bool {\n",
+                        "        let mut node = self;\n",
+                        "        for ch in word.chars() {\n",
+                        "            match node.children.get(&ch) {\n",
+                        "                Some(next) => node = next,\n",
+                        "                None => return false,\n",
+                        "            }\n",
+                        "        }\n",
+                        "        node.is_end\n",
+                        "    }\n\n",
+                        "    pub fn starts_with(&self, prefix: &str) -> bool {\n",
+                        "        let mut node = self;\n",
+                        "        for ch in prefix.chars() {\n",
+                        "            match node.children.get(&ch) {\n",
+                        "                Some(next) => node = next,\n",
+                        "                None => return false,\n",
+                        "            }\n",
+                        "        }\n",
+                        "        true\n",
+                        "    }\n",
+                        "}\n"
+                    )
+                    .to_string(),
+                    "Deterministic Prefix Trie (`PrefixTrie`) in Rust".to_string(),
+                )
+            } else if is_graph || is_dp || is_twosum {
+                (
+                    "src/algorithms.rs".to_string(),
+                    concat!(
+                        "use std::collections::{BinaryHeap, HashMap};\nuse std::cmp::Reverse;\n\n",
+                        "/// Dijkstra shortest-path distances from `start` over non-negative edge weights.\n",
+                        "pub fn dijkstra_shortest_paths(adj: &[Vec<(usize, u64)>], start: usize) -> Vec<u64> {\n",
+                        "    let mut dist = vec![u64::MAX; adj.len()];\n",
+                        "    let mut heap = BinaryHeap::new();\n",
+                        "    dist[start] = 0;\n",
+                        "    heap.push(Reverse((0u64, start)));\n",
+                        "    while let Some(Reverse((d, u))) = heap.pop() {\n",
+                        "        if d > dist[u] { continue; }\n",
+                        "        for &(v, w) in &adj[u] {\n",
+                        "            let next = d.saturating_add(w);\n",
+                        "            if next < dist[v] {\n",
+                        "                dist[v] = next;\n",
+                        "                heap.push(Reverse((next, v)));\n",
+                        "            }\n",
+                        "        }\n",
+                        "    }\n",
+                        "    dist\n",
+                        "}\n\n",
+                        "/// Single-pass O(N) hash-table Two-Sum solver.\n",
+                        "pub fn two_sum(nums: &[i64], target: i64) -> Option<(usize, usize)> {\n",
+                        "    let mut seen = HashMap::with_capacity(nums.len());\n",
+                        "    for (i, &x) in nums.iter().enumerate() {\n",
+                        "        if let Some(&j) = seen.get(&(target - x)) {\n",
+                        "            return Some((j, i));\n",
+                        "        }\n",
+                        "        seen.insert(x, i);\n",
+                        "    }\n",
+                        "    None\n",
+                        "}\n"
+                    )
+                    .to_string(),
+                    "Dijkstra Shortest-Path & O(N) Two-Sum in Rust".to_string(),
                 )
             } else {
                 let fn_name = extract_custom_identifier(words, "step_contextual_basin");

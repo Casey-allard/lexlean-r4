@@ -413,7 +413,12 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(app_js.contains("workspace_batch"));
     assert!(app_js.contains("uor-r4-weights.uorlut"));
     assert!(app_js.contains("1\\tstudio\\t"));
+    assert!(app_js.contains("sync_cached_weights"));
+    assert!(index_html.contains("id=\"weight-cache-badge\""));
+    assert!(index_html.contains("id=\"sync-weights-btn\""));
     assert!(binding_js.contains("export function studio_dispatch("));
+    assert!(binding_js.contains("uor-r4-wasm-weights-v2"));
+    assert!(binding_js.contains("export async function sync_cached_weights("));
 
     // Verify public/lexlean_r4_bg.wasm has been post-processed by wasm-bindgen
     let wasm_bytes =

@@ -990,7 +990,7 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
     };
 
     let mut out = String::with_capacity(1024 * 1024);
-    out.push_str("//! Pre-trained Generalized Geometric Language Model (`UR4GLM06`) Natural Prose Manifold,\n");
+    out.push_str("//! Pre-trained Generalized Geometric Language Model (`UR4GLM07`) Natural Prose Manifold,\n");
     out.push_str("//! CUDA-Trained Distributional Vocabulary Manifold (`GLM_TRAINED_VOCAB`),\n");
     out.push_str("//! CUDA-Trained Token-Level Autoregressive Lookahead Horizon Table (`GLM_TOKEN_HORIZONS`),\n");
     out.push_str("//! Hopf Fibration (`S^3 -> S^2 x U(1)`) Trajectory Predictor, 128-Bit VSA Hypervector Attention,\n");
@@ -1001,7 +1001,7 @@ fn compile_rust_weights(cuda_weights_path: Option<&str>, out_rs_path: &str) -> s
     out.push_str("//! Generated deterministically by the pure-Rust trainer `gpu/train_general_glm.rs` + CUDA kernel `gpu/general_glm.cu`.\n\n");
     out.push_str("use crate::{canonical_stem, is_stopword, q12_l1_distance, swar_hamming_distance, POINT_KEY_DIM};\n\n");
     out.push_str("/// Canonical weights version identifier trained by `gpu/general_glm.cu`.\n");
-    out.push_str("pub const GLM_WEIGHTS_VERSION: &str = \"UR4GLM06\";\n");
+    out.push_str("pub const GLM_WEIGHTS_VERSION: &str = \"UR4GLM07\";\n");
     out.push_str(&format!(
         "/// Whether these weights were optimized by the CUDA hardware kernel (`gpu/general_glm.cu`).\npub const GLM_CUDA_TRAINED: bool = {used_cuda};\n\n"
     ));
