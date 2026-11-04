@@ -12,11 +12,11 @@ This directory contains the pure-CUDA (`compute_75` through `compute_120` / Blac
 | `spiralcore_fbs_arms_prelude.cu` | Device Prelude | Fixed-point `Q12` / `Q24` / `Q31` device constants and warp reductions. |
 | `discrete.cu` | `R4.DiscreteTrunk` (`R4-25`) | 19-table M1 discrete trunk (`12,288` bits/token) and `evaluateCoupledGateVector` discrete coordinate sweeps. |
 | `general_glm.cu` | `R4.Learning` / `UR4GLM06` | Multi-domain Generalized GLM 4-kernel CUDA trainer (`train_glm_vocab_embedding_kernel`, `train_general_glm_manifold_kernel`, `train_glm_token_horizons_kernel`, `train_glm_horizon_transitions_kernel`): 1,024-epoch coupled `(gate, vectorBlock)` coordinate sweeps over 8-lane `Q12` coordinates, `Hopf S^3 -> S^2` base/fiber projections, 128-bit `VSA` hypervectors, `E8`/`Cl(0,6)`/`Icosian`/`H4` lattice indices, `/7` horizon-to-horizon geodesic continuation edges (`next_horizon_id`, `alt_horizon_id`, `transition_energy`), and 40-lane ternary gates (`{-1, 0, +1}`). |
-| `glm_corpus.rs` | `UR4GLM06` Knowledge & Prose Corpus | Pure-Rust corpus defining 170 multi-domain natural prose basins (`RAW_GLM_CONCEPTS`), 7 formal logic puzzle solvers (`RAW_GLM_PUZZLES`), and 105 conversational & common-sense Q&A basins (`RAW_GLM_CONV_QA`). |
+| `glm_corpus.rs` | `UR4GLM06` Knowledge & Prose Corpus | Pure-Rust corpus defining 205 multi-domain natural prose basins (`RAW_GLM_CONCEPTS`), 7 formal logic puzzle solvers (`RAW_GLM_PUZZLES`), and 135 conversational & common-sense Q&A basins (`RAW_GLM_CONV_QA`). |
 | `glm_reasoner_template.rs` | `UR4GLM06` Inference Engine | Pure-Rust natural-prose geometric decoder (`synthesize_general_glm_response`) with multi-turn pragmatic discourse state, pronoun/locative anaphora resolution (`GLM_RETAIN_LAMBDA_Q31[6]`), `/7` horizon geodesic continuation, `Hopf` fiber alignment, 128-bit `VSA` Hamming resonance, `Q12` cosine similarity, and `SWAR` quaternion sign parity. |
 | `train_general_glm.rs` | `UR4GLM06` Pure-Rust Compiler | Standalone Rust binary (`rustc --edition 2021 -O gpu/train_general_glm.rs`) that emits CUDA binary targets (`--emit-cuda-targets`) and compiles the trained `gpu/rtx5090_glm_weights.bin` directly into `crates/wasm/src/glm_weights.rs` (`--compile-rust`). |
-| `rtx5090_glm_weights.bin` | `UR4GLM06` Trained CUDA Tensor | Binary device weight pack (magic `UR4GLM06`, `170` basins, `8,084` vocabulary stems, `1,506` token horizons) produced by `general_glm.cu` on an NVIDIA GeForce RTX 5090 (`sm_120`). |
-| `rtx5090_training_receipt.json` | `uor-r4/cuda-glm-training-receipt/3` | Hardware execution receipt from the NVIDIA GeForce RTX 5090 (`1,024` manifold epochs, `512` vocab epochs, `256` horizon epochs, `128` transition epochs). |
+| `rtx5090_glm_weights.bin` | `UR4GLM06` Trained CUDA Tensor | Binary device weight pack (magic `UR4GLM06`, `205` basins, `9,393` vocabulary stems, `1,742` token horizons, `3,484` `/7` transitions) produced by `general_glm.cu` on an NVIDIA GeForce RTX 5090 (`sm_120`). |
+| `rtx5090_training_receipt.json` | `uor-r4/cuda-glm-training-receipt/4` | Hardware execution receipt from the NVIDIA GeForce RTX 5090 (`1,024` manifold epochs, `512` vocab epochs, `256` horizon epochs, `256` transition epochs, `90.48 ms`). |
 
 ## 2. Reproducing the Pure-Rust + CUDA Training Pass
 
@@ -39,7 +39,7 @@ Because UOR-R4 replaces dense $O(N^2 \cdot d)$ floating-point attention matrices
 
 | Run Tier | Dataset | Steps | Tokens Processed | Hardware | Rental Rate | Wall-Clock Time | **Total GPU Cost** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **UR4GLM06 Manifold (`rtx5090_glm_weights.bin`)** | 170 Basins + 105 Conv QA + 8,084 Vocab + 1,506 Horizons | `1,024` epochs | `170 × 1,024 + 8,084 × 512 + 1,506 × 384` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `< 1 sec` | **`< \$0.0002`** |
+| **UR4GLM06 Manifold (`rtx5090_glm_weights.bin`)** | 205 Basins + 135 Conv QA + 9,393 Vocab + 1,742 Horizons | `1,024` epochs | `205 × 1,024 + 9,393 × 512 + 1,742 × 512` | 1× RTX 5090 (32 GB) | `\$0.503 / hr` | `90.5 ms` | **`< \$0.0002`** |
 | **B-s1 Smoke (`short.uorlut`)** | `mw-balp` + `TinyStories` | `256` (`2×128`) | `32,768` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `32 sec` | **`\$0.005`** |
 | **Served-s1 (`served-s1.uorlut`)** | `mw-balp` + `/7` + `/8` tables | `256` + `573,801` reply rows | `3.1M` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `6.4 min` | **`\$0.060`** |
 | **Long Production (`long.uorlut`)** | `mw-balp` + `TinyStories` + `OpenWebText` | `8,192` | `16.7M` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `16.0 min` | **`\$0.150`** |

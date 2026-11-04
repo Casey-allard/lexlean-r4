@@ -4161,10 +4161,10 @@ mod tests {
         // 8. Verify UR4GLM06 CUDA hardware-trained weights & falsifiable geometric routing benchmark
         assert_eq!(glm_weights::GLM_WEIGHTS_VERSION, "UR4GLM06");
         assert!(std::hint::black_box(glm_weights::GLM_CUDA_TRAINED));
-        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 170);
-        assert_eq!(glm_weights::GLM_TRAINED_VOCAB.len(), 8084);
-        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 1506);
-        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 105);
+        assert_eq!(glm_weights::GLM_CONCEPT_MANIFOLD.len(), 205);
+        assert_eq!(glm_weights::GLM_TRAINED_VOCAB.len(), 9393);
+        assert_eq!(glm_weights::GLM_TOKEN_HORIZONS.len(), 1742);
+        assert_eq!(glm_weights::GLM_CONVERSATIONAL_QA.len(), 135);
         assert!(glm_weights::GLM_CONCEPT_MANIFOLD
             .iter()
             .all(|n| n.e8_root < 16
@@ -4217,8 +4217,8 @@ mod tests {
         //    - (d) Random router
         //    - (e) Re-hashed/scrambled coordinate seed (0xDEAD_BEEF_CAFE_BABE)
         let bench = glm_weights::evaluate_held_out_routing_benchmark();
-        assert_eq!(bench.total_prompts, 35);
-        assert_eq!(bench.keyword_disjoint_prompts, 35);
+        assert_eq!(bench.total_prompts, 40);
+        assert_eq!(bench.keyword_disjoint_prompts, 40);
         assert_eq!(bench.lexical_only_hits, 0);
         assert!(
             bench.full_hits > bench.lexical_only_hits,
@@ -4239,8 +4239,8 @@ mod tests {
             bench.rehashed_seed_hits
         );
         assert!(
-            bench.geometric_only_hits >= 31,
-            "Trained geometric routing accuracy must be >= 31/35, got {}/35",
+            bench.geometric_only_hits >= 36,
+            "Trained geometric routing accuracy must be >= 36/40, got {}/40",
             bench.geometric_only_hits
         );
 
@@ -4350,15 +4350,31 @@ mod tests {
             "Follow-up 'there' after capital lookup must resolve 'Paris' from past_a: {cap_arch}"
         );
 
-        // 11e. Verify 'How do you work?' reports UR4GLM06, 8084 stems, 170 basins, 1506 horizons
+        // 11e. Verify 'How do you work?' reports UR4GLM06, 9393 stems, 205 basins, 1742 horizons
         let how_work = ask("How do you work?");
         assert!(
             how_work.contains("UR4GLM06")
-                && how_work.contains("8084")
-                && how_work.contains("170")
-                && how_work.contains("1506"),
+                && how_work.contains("9393")
+                && how_work.contains("205")
+                && how_work.contains("1742"),
             "How do you work response must report live UR4GLM06 manifold counts: {how_work}"
         );
+
+        // 11f. Verify newly trained UR4GLM06 basins and conversational Q&A patterns
+        let choc = ask("How does tempering chocolate work?");
+        assert!(choc.contains("Form V") && choc.contains("cocoa butter"));
+        let supercond = ask("How do superconductors work?");
+        assert!(supercond.contains("Cooper") && supercond.contains("Meissner"));
+        let shannon = ask("Explain Claude Shannon information theory");
+        assert!(
+            shannon.contains("Shannon")
+                && (shannon.contains("Entropy") || shannon.contains("Bell Labs")),
+            "shannon was: {shannon}"
+        );
+        let kyoto = ask("Tell me about Kyoto and Osaka");
+        assert!(kyoto.contains("Kinkaku-ji") && kyoto.contains("Dotonbori"));
+        let chicken_egg = ask("What came first, the chicken or the egg?");
+        assert!(chicken_egg.contains("amniotic") && chicken_egg.contains("300 million"));
 
         let rel = ask("Explain the theory of relativity");
         assert!(rel.contains("Einstein") && rel.contains("spacetime"));

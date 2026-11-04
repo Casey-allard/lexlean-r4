@@ -575,10 +575,11 @@ pub fn generate_token_level_geometric_prose(
         } else if is_pivot_word {
             // Evaluate whether continuing in `cur_span_idx` or pivoting at `tok_piece` into another resonant span scores higher
             let cur_score = score_span_against_state(&spans[cur_span_idx], &state, &[]) + 18;
+            let cur_h = spans[cur_span_idx].horizon;
             let mut best_pivot: Option<(usize, usize, u32)> = None;
             for (cand_idx, cand_span) in spans.iter().enumerate() {
                 if used_spans.contains(&cand_idx)
-                    || cand_span.basin_id != spans[cur_span_idx].basin_id
+                    || (cand_span.basin_id != spans[cur_span_idx].basin_id && nodes.len() < 2)
                 {
                     continue;
                 }
@@ -591,7 +592,16 @@ pub fn generate_token_level_geometric_prose(
                     .map(|(i, _)| i + 1)
                 {
                     branch_decisions += 1;
-                    let s = score_span_against_state(cand_span, &state, &used_stems);
+                    let edge_bonus = if cand_span.horizon_idx != usize::MAX
+                        && (cand_span.horizon_idx == usize::from(cur_h.next_horizon_id)
+                            || cand_span.horizon_idx == usize::from(cur_h.alt_horizon_id))
+                    {
+                        12
+                    } else {
+                        0
+                    };
+                    let s =
+                        score_span_against_state(cand_span, &state, &used_stems) + edge_bonus;
                     if s > cur_score && best_pivot.is_none_or(|(_, _, bs)| s > bs) {
                         best_pivot = Some((cand_idx, pos, s));
                     }
@@ -2384,18 +2394,41 @@ fn render_open_domain_natural_prose(
         }
     }
 
-    // 4. Genuine conversational response when the topic lies outside the 111 specialized basins
+    // 4. Genuine conversational response when the topic lies outside the primary threshold:
+    // check any basin with `score_concept_geometric >= 6` over the CUDA-trained vocabulary manifold
     let topic = extract_clean_topic(trimmed, words);
-    if let Some(&(best_node, score)) = geo_hits.first() {
-        if score >= 8 {
-            let clauses = synthesize_clause_trajectory(words, &[best_node], 3);
-            if !clauses.is_empty() {
-                return dedup_prose_paragraphs(&format!(
-                    "When thinking about **{topic}**, it connects closely to **{}**:\n\n{}\n\nWhat specific side of **{topic}** would you like to explore together?",
-                    best_node.title,
-                    clauses.join(" ")
-                ));
+    let mut broad_geo: Vec<(&GlmConceptNode, u32)> = GLM_CONCEPT_MANIFOLD
+        .iter()
+        .map(|node| {
+            (
+                node,
+                score_concept_geometric(node, words, prompt_q12, prompt_sign),
+            )
+        })
+        .filter(|&(_, s)| s >= 6)
+        .collect();
+    broad_geo.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.id.cmp(&b.0.id)));
+
+    if let Some(&(best_node, _score)) = broad_geo.first() {
+        let mut active_nodes = vec![best_node];
+        if let Some(&(sec_node, _)) = broad_geo.get(1) {
+            if sec_node.id != best_node.id {
+                active_nodes.push(sec_node);
             }
+        }
+        let (token_stream, stepped, _) =
+            generate_token_level_geometric_prose(words, &active_nodes, 35, 80);
+        let clauses = synthesize_clause_trajectory(words, &active_nodes, 3);
+        if !clauses.is_empty() {
+            let body = if stepped >= 20 {
+                format!("{}\n\n{}", clauses.join(" "), token_stream)
+            } else {
+                clauses.join(" ")
+            };
+            return dedup_prose_paragraphs(&format!(
+                "When thinking about **{topic}**, it connects closely to **{}**:\n\n{}\n\nWhat specific side of **{topic}** would you like to explore together?",
+                best_node.title, body
+            ));
         }
     }
 
@@ -3455,7 +3488,7 @@ pub struct HeldOutBenchmarkReport {
 ///   (d) Random Router (`random_baseline`)
 ///   (e) Re-hashed / Scrambled Seed Coordinates (`lexical + rehashed_geometry`)
 pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
-    // 35 strictly keyword-disjoint held-out paraphrase prompts (0 keyword/phrase/title hits on gold basin)
+    // 40 strictly keyword-disjoint held-out paraphrase prompts (0 keyword/phrase/title hits on gold basin)
     // paired with their gold basin title substring.
     let held_out_cases: &[(&str, &str)] = &[
         (
@@ -3597,6 +3630,26 @@ pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
         (
             "Hermann forgetting curve where FSRS intervals and Bjork desirable difficulties outperform passive highlighting across proximal mastery tutoring",
             "Pedagogy, Science of Learning, Spaced Repetition, Active Recall & Bloom's Two-Sigma Problem",
+        ),
+        (
+            "Paul Ehrlich magic bullet hypothesis and Lipinski rule of five governing hepatic cytochrome P450 first-pass clearance before double-blind randomized cohorts",
+            "Pharmacology, Drug Discovery, Pharmacokinetics (ADME), Receptor Binding & Clinical Trials",
+        ),
+        (
+            "Mesoamerican Theobroma pods processed via Van Houten Dutching press and Rodolphe Lindt conching rollers to align glossy Form V crystals rich in theobromine",
+            "Chocolate, Cacao Fermentation, Cocoa Butter Polymorphism, Tempering & Confectionery Science",
+        ),
+        (
+            "Heike Kamerlingh Onnes liquid helium cooling where Ochsenfeld and Bardeen and Schrieffer condensates form Abrikosov vortex lattices and picotesla SQUID magnetometers",
+            "Superconductivity, Cooper Pairs, BCS Theory, Meissner Flux Expulsion, Josephson Junctions & Superfluids",
+        ),
+        (
+            "Bell Labs logarithmic surprise bound and Kraft-McMillan prefix trees alongside Robert Gallager low-density parity checks transmitting Voyager deep-space telemetry",
+            "Information Theory: Shannon Entropy, Huffman & Arithmetic Coding, Channel Capacity & Reed-Solomon ECC",
+        ),
+        (
+            "Tribonian and Empress Theodora codifying Pandects while Anthemius of Tralles raised pendentives and Callinicus siphons defended Ravenna and the solidus bezant",
+            "The Byzantine Empire, Justinian's Corpus Juris Civilis, Constantinople, Greek Fire & Eastern Orthodoxy",
         ),
     ];
 
