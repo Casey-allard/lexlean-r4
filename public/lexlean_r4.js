@@ -99,6 +99,45 @@ function passArray8ToWasm0(arg, malloc) {
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
+/**
+ * Hot-load a binary `UORLUT01` (`uor-r4.lut-stack/8`) weight artifact directly from JS/IndexedDB bytes.
+ * @param {Uint8Array} bytes
+ * @param {string} source_label
+ * @returns {string}
+ */
+export function studio_load_uorlut_bytes(bytes, source_label) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(source_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_load_uorlut_bytes(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Query the currently loaded `UORLUT01` (`uor-r4.lut-stack/8`) weight pack status as JSON.
+ * @returns {string}
+ */
+export function studio_weight_pack_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_weight_pack_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
 
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
@@ -230,12 +269,121 @@ function initSync(module) {
 }
 
 const WEIGHT_CACHE_NAME = 'uor-r4-wasm-weights-v2';
+const IDB_DB_NAME = 'UOR_R4_WEIGHT_CACHE';
+const IDB_STORE_NAME = 'uorlut_packs';
+const IDB_ACTIVE_KEY = 'active_uorlut_v8';
 
 globalThis.__uorWeightCacheMeta = {
-    status: 'Initializing UR4GLM08...',
+    status: 'Initializing UORLUT01/8...',
     sha256: '',
     mode: 'init'
 };
+
+function __uor_open_idb() {
+    return new Promise((resolve, reject) => {
+        if (typeof indexedDB === 'undefined') {
+            reject(new Error('IndexedDB unavailable'));
+            return;
+        }
+        const req = indexedDB.open(IDB_DB_NAME, 1);
+        req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+                db.createObjectStore(IDB_STORE_NAME);
+            }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error || new Error('IndexedDB open error'));
+    });
+}
+
+export async function cache_uorlut_in_indexeddb(bytes, sourceLabel) {
+    try {
+        const db = await __uor_open_idb();
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(IDB_STORE_NAME, 'readwrite');
+            const store = tx.objectStore(IDB_STORE_NAME);
+            const copy = new Uint8Array(bytes);
+            store.put({
+                bytes: copy,
+                source_label: sourceLabel || 'IndexedDB:UOR_R4_WEIGHT_CACHE',
+                byte_length: copy.length,
+                saved_at: Date.now()
+            }, IDB_ACTIVE_KEY);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+        return true;
+    } catch (_e) {
+        return false;
+    }
+}
+
+export async function clear_cached_uorlut_in_indexeddb() {
+    try {
+        const db = await __uor_open_idb();
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(IDB_STORE_NAME, 'readwrite');
+            tx.objectStore(IDB_STORE_NAME).delete(IDB_ACTIVE_KEY);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+        return true;
+    } catch (_e) {
+        return false;
+    }
+}
+
+export async function restore_cached_uorlut_from_indexeddb() {
+    try {
+        const db = await __uor_open_idb();
+        const record = await new Promise((resolve, reject) => {
+            const tx = db.transaction(IDB_STORE_NAME, 'readonly');
+            const getReq = tx.objectStore(IDB_STORE_NAME).get(IDB_ACTIVE_KEY);
+            getReq.onsuccess = () => resolve(getReq.result || null);
+            getReq.onerror = () => reject(getReq.error);
+        });
+        db.close();
+        if (record && record.bytes && record.bytes.byteLength >= 64 && wasm !== undefined) {
+            const bytes = record.bytes instanceof Uint8Array
+                ? record.bytes
+                : new Uint8Array(record.bytes);
+            const rawStatus = studio_load_uorlut_bytes(bytes, record.source_label || 'IndexedDB:UOR_R4_WEIGHT_CACHE');
+            const parsed = JSON.parse(rawStatus);
+            if (parsed && parsed.status === 'ok') {
+                const mb = (bytes.byteLength / (1024 * 1024)).toFixed(1);
+                globalThis.__uorWeightCacheMeta = {
+                    status: `IndexedDB UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
+                    sha256: parsed.sha256 || '',
+                    mode: 'indexeddb'
+                };
+                return parsed;
+            }
+        }
+    } catch (_e) {
+        // IndexedDB not populated or unavailable; use embedded bootstrap_v8.uorlut
+    }
+    if (wasm !== undefined) {
+        try {
+            const rawStatus = studio_weight_pack_status();
+            const parsed = JSON.parse(rawStatus);
+            if (parsed && parsed.status === 'ok') {
+                const mb = (parsed.byte_len / (1024 * 1024)).toFixed(1);
+                globalThis.__uorWeightCacheMeta = {
+                    status: `UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
+                    sha256: parsed.sha256 || globalThis.__uorWeightCacheMeta.sha256 || '',
+                    mode: globalThis.__uorWeightCacheMeta.mode || 'embedded'
+                };
+                return parsed;
+            }
+        } catch (_err) {
+            // Ignore status parse error
+        }
+    }
+    return null;
+}
 
 async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
     let expectedSha = '';
@@ -264,7 +412,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
                 const hit = await cache.match(cacheKey);
                 if (hit && hit.ok) {
                     globalThis.__uorWeightCacheMeta = {
-                        status: 'CacheStorage Hit (UR4GLM08)',
+                        status: 'CacheStorage Hit (UORLUT01/8 · 22.4 MB)',
                         sha256: expectedSha,
                         mode: 'hit'
                     };
@@ -285,7 +433,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
                     // Quota or private-browsing fallback
                 }
                 globalThis.__uorWeightCacheMeta = {
-                    status: forceRefresh ? 'Re-Synced & Cached (UR4GLM08)' : 'Cached in Browser (UR4GLM08)',
+                    status: forceRefresh ? 'Re-Synced & Cached (UORLUT01/8 · 22.4 MB)' : 'Cached in Browser (UORLUT01/8 · 22.4 MB)',
                     sha256: expectedSha,
                     mode: forceRefresh ? 'resynced' : 'cached'
                 };
@@ -298,7 +446,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
 
     const directResp = await fetch(versionedUrl);
     globalThis.__uorWeightCacheMeta = {
-        status: 'Direct Wasm Load (UR4GLM08)',
+        status: 'Direct Wasm Load (UORLUT01/8 · 22.4 MB)',
         sha256: expectedSha,
         mode: 'direct'
     };
@@ -308,6 +456,7 @@ async function __uor_resolve_cached_wasm(defaultUrl, forceRefresh) {
 export async function sync_cached_weights() {
     const defaultUrl = new URL('lexlean_r4_bg.wasm', import.meta.url);
     await __uor_resolve_cached_wasm(defaultUrl, true);
+    await restore_cached_uorlut_from_indexeddb();
     return globalThis.__uorWeightCacheMeta;
 }
 

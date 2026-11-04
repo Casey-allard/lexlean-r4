@@ -1,4 +1,13 @@
-import init, { process_envelope, studio_dispatch, sync_cached_weights } from './lexlean_r4.js';
+import init, {
+  cache_uorlut_in_indexeddb,
+  clear_cached_uorlut_in_indexeddb,
+  process_envelope,
+  restore_cached_uorlut_from_indexeddb,
+  studio_dispatch,
+  studio_load_uorlut_bytes,
+  studio_weight_pack_status,
+  sync_cached_weights,
+} from './lexlean_r4.js';
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');
@@ -860,6 +869,7 @@ if (admitResetBtn) {
     const state = dispatchStudioEnvelope('reset', '');
     renderStudioState(state);
     clearIntelligenceWebCache();
+    clear_cached_uorlut_in_indexeddb();
     const ws = dispatchStudioEnvelope('workspace_list', '');
     renderWorkspaceList(ws);
     if (admitStatus) {
@@ -961,10 +971,58 @@ if (snapshotDownloadBtn) {
 
 if (snapshotUploadInput) {
   snapshotUploadInput.addEventListener('change', async () => {
-    const file = snapshotUploadInput.files && snapshotUploadInput.files[0];
-    if (!file) return;
-    const arrayBuf = await file.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuf);
+    const fileList = snapshotUploadInput.files ? Array.from(snapshotUploadInput.files) : [];
+    if (fileList.length === 0) return;
+    fileList.sort((a, b) => a.name.localeCompare(b.name));
+    const buffers = [];
+    let totalLen = 0;
+    for (const f of fileList) {
+      const ab = await f.arrayBuffer();
+      const u8 = new Uint8Array(ab);
+      buffers.push(u8);
+      totalLen += u8.byteLength;
+    }
+    const bytes = new Uint8Array(totalLen);
+    let writeOffset = 0;
+    for (const u8 of buffers) {
+      bytes.set(u8, writeOffset);
+      writeOffset += u8.byteLength;
+    }
+    const sourceLabel = fileList.length === 1
+      ? fileList[0].name
+      : `${fileList[0].name}..${fileList[fileList.length - 1].name} (${fileList.length} shards)`;
+
+    const isUorlutHeader = bytes.length >= 8
+      && bytes[0] === 0x55
+      && bytes[1] === 0x4f
+      && bytes[2] === 0x52
+      && bytes[3] === 0x4c
+      && bytes[4] === 0x55
+      && bytes[5] === 0x54
+      && bytes[6] === 0x30
+      && bytes[7] === 0x31;
+
+    if (isUorlutHeader && bytes.length > 65536 && typeof studio_load_uorlut_bytes === 'function') {
+      const rawRes = studio_load_uorlut_bytes(bytes, sourceLabel);
+      const parsed = JSON.parse(rawRes);
+      if (parsed && parsed.status === 'ok') {
+        await cache_uorlut_in_indexeddb(bytes, sourceLabel);
+        const mb = (bytes.byteLength / (1024 * 1024)).toFixed(2);
+        globalThis.__uorWeightCacheMeta = {
+          status: `IndexedDB UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
+          sha256: parsed.sha256 || '',
+          mode: 'indexeddb',
+        };
+        updateWeightCacheBadge();
+        const st = dispatchStudioEnvelope('state', '');
+        renderStudioState(st);
+        if (admitStatus) {
+          admitStatus.textContent = `Hot-loaded & cached ${mb} MB UORLUT01/8 weight pack "${sourceLabel}" in IndexedDB (${parsed.opening_entries} /7 opening entries, ${parsed.reply_entries} /7 reply entries, ${parsed.point_rows} /8 point rows, SHA-256: ${parsed.sha256})`;
+        }
+        return;
+      }
+    }
+
     const inspectSlice = bytes.slice(0, Math.min(bytes.length, 16384));
     let hexPayload = '';
     if (bytes.length >= 8 && bytes[0] === 0x55 && bytes[1] === 0x4f && bytes[2] === 0x52) {
@@ -980,12 +1038,12 @@ if (snapshotUploadInput) {
       const ws = dispatchStudioEnvelope('workspace_list', '');
       renderWorkspaceList(ws);
       if (admitStatus) {
-        admitStatus.textContent = `Loaded pre-trained weight pack ${file.name} (${state.turn_count} turns, ${state.training_epoch} epochs, ${state.active_nonzero_gates} gates)`;
+        admitStatus.textContent = `Loaded pre-trained weight pack ${sourceLabel} (${state.turn_count} turns, ${state.training_epoch} epochs, ${state.active_nonzero_gates} gates)`;
       }
     } else {
       const insp = dispatchStudioEnvelope('uorlut_inspect', hexPayload);
       if (insp && insp.status === 'ok' && admitStatus) {
-        admitStatus.textContent = `Verified GPU UORLUT01 container ${file.name}: ${insp.probe_outcome}, ${insp.section_count} sections, 64B aligned offset ${insp.data_offset_aligned_64} (Header SHA-256: ${insp.header_sha256})`;
+        admitStatus.textContent = `Verified GPU UORLUT01 container ${sourceLabel}: ${insp.probe_outcome}, ${insp.section_count} sections, 64B aligned offset ${insp.data_offset_aligned_64} (Header SHA-256: ${insp.header_sha256})`;
       } else if (admitStatus && state) {
         admitStatus.textContent = state.message || 'Weight pack inspection failed';
       }
@@ -1240,6 +1298,18 @@ if (studioTrainForm) {
 renderThreadSidebar();
 try {
   await init();
+  await restore_cached_uorlut_from_indexeddb();
+  if (typeof studio_weight_pack_status === 'function') {
+    try {
+      const packInfo = JSON.parse(studio_weight_pack_status());
+      if (packInfo && packInfo.status === 'ok' && globalThis.__uorWeightCacheMeta && globalThis.__uorWeightCacheMeta.mode !== 'indexeddb') {
+        const mb = (packInfo.byte_len / (1024 * 1024)).toFixed(1);
+        globalThis.__uorWeightCacheMeta.status = `${globalThis.__uorWeightCacheMeta.status || 'UORLUT01/8'} · ${mb} MB · ${packInfo.reply_entries} reply rows`;
+      }
+    } catch {
+      // Ignore weight status parse error
+    }
+  }
   updateWeightCacheBadge();
   const initialState = dispatchStudioEnvelope('state', '');
   renderStudioState(initialState);

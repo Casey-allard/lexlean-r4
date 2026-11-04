@@ -132038,108 +132038,20 @@ fn render_creative_generation(
 /// and `GLM_CONCEPT_MANIFOLD` to weave clauses from the highest-resonating basins.
 fn render_open_domain_natural_prose(
     raw_prompt: &str,
-    lower: &str,
+    _lower: &str,
     words: &[String],
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
-    chat_history_len: usize,
+    _chat_history_len: usize,
 ) -> String {
     let trimmed = raw_prompt.trim();
-
-    // 1. Check self-referential / identity / architecture conversational questions
-    let is_self_inquiry = lower.contains("talk about you")
-        || lower.contains("tell me about you")
-        || lower.contains("about yourself")
-        || lower.contains("who are you")
-        || lower.contains("what are you")
-        || lower.contains("what can you do")
-        || lower.contains("how do you work")
-        || lower.contains("how were you trained")
-        || lower.contains("are you a transformer")
-        || lower.contains("what is your name")
-        || lower.contains("what's your name")
-        || (words.len() <= 6
-            && words.iter().any(|w| w == "you" || w == "yourself")
-            && words
-                .iter()
-                .any(|w| matches!(w.as_str(), "talk" | "chat" | "tell" | "who"))
-            && !words
-                .iter()
-                .any(|w| matches!(w.as_str(), "mean" | "think" | "about")));
-
-    if is_self_inquiry {
-        return "I'd love to! I am the **UOR-R4 Generalized Geometric Assistant**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
-                What makes me unique is how I think under the hood: instead of relying on a neural transformer or floating-point matrix multiplications, my vocabulary, concept basins, and token horizons are trained on an NVIDIA RTX 5090 using **discrete integer geometry**—quaternions on the 3-sphere (`S^3 -> S^2 x U(1)`), 17-root Icosian golden-ratio lattices, 16-root `E8` and 120-root `H4` polytopes, and 8-head integer retention.\n\n\
-                In conversation, though, you can chat with me naturally about almost anything: world cities and travel, history, biographies, science, philosophy, literature, food, logic brainteasers, creative writing, exact mathematics, or software engineering. What are you curious about today?"
-            .to_string();
-    }
-
-    // 1b. Check conversational day/mood reciprocity when no domain topic is attached ("My day is going fine, how about you?")
-    let has_day_or_mood = lower.contains("my day")
-        || lower.contains("doing fine")
-        || lower.contains("doing well")
-        || lower.contains("doing good")
-        || lower.contains("going fine")
-        || lower.contains("going well")
-        || lower.contains("how about you")
-        || lower.contains("what about you");
-
-    // 2. Check open-ended conversation invitations, "fun fact", "surprise me", "I'm bored", "what should we talk about?"
     let content_words: Vec<&str> = words
         .iter()
         .map(String::as_str)
         .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
         .collect();
 
-    if has_day_or_mood && content_words.len() <= 1 {
-        return "Glad to hear your day is going well! Things are going great on my end too—I've been enjoying exploring ideas across science, history, world cities, philosophy, and software engineering right here in the browser. What is on your mind today?"
-            .to_string();
-    }
-
-    if lower.contains("fun fact")
-        || lower.contains("something interesting")
-        || lower.contains("something cool")
-        || lower.contains("surprise me")
-        || lower.contains("bored")
-        || lower.contains("what should we talk about")
-        || lower.contains("what do you want to talk about")
-        || lower.contains("what can we talk about")
-    {
-        let node = &GLM_CONCEPT_MANIFOLD[(chat_history_len * 13 + 7) % GLM_CONCEPT_MANIFOLD.len()];
-        return format!(
-            "Here is something fascinating to kick things off—let's look at **{}**:\n\n{}\n\n{}\n\nWant to dive deeper into **{}**, or switch gears to another city, historical era, scientific mystery, or puzzle?",
-            node.title, node.summary, node.example, node.title
-        );
-    }
-
-    if content_words.is_empty() {
-        return "I'm ready whenever you are! We can talk about anything that catches your interest—for example:\n\n\
-                - **World Cities & History**: Paris, Rome, Tokyo, Ancient Egypt, the Renaissance, or the Apollo Moon landing\n\
-                - **Science & Philosophy**: Quantum mechanics, relativity, DNA & CRISPR, black holes, or Stoicism\n\
-                - **Everyday Culture & Nature**: The history of coffee and tea, dogs and cats, music theory, or cinema\n\
-                - **Math, Logic & Code**: Exact arithmetic, the Monty Hall or 2-Egg puzzles, or runnable code in Rust, Python, TypeScript, Go, and SQL\n\n\
-                Which of those sounds fun to explore?"
-            .to_string();
-    }
-
-    if lower.contains("recommend")
-        || lower.contains("suggestion")
-        || lower.contains("ideas for")
-        || lower.contains("brainstorm")
-    {
-        let topic = extract_clean_topic(raw_prompt, words);
-        return format!(
-            "Here are several thoughtful ideas and angles to explore for **{topic}**:\n\n\
-             1. **Start with the Core Experience**: Focus on the single most rewarding or memorable part of **{topic}** first—whether you are planning a project, learning a skill, or exploring a new place, depth beats trying to do everything at once.\n\
-             2. **Combine Tradition with Fresh Perspective**: Pair classic, time-tested foundations with one or two unexpected creative twists.\n\
-             3. **Build a Small Daily or Weekly Rhythm**: Sustainable progress and enjoyment come from consistent, low-friction habits rather than occasional sprints.\n\
-             4. **Share and Iterate**: Bring a friend, colleague, or community into the loop early—talking through **{topic}** aloud often sparks the best insights.\n\n\
-             Would you like to zoom in on any of these angles or tailor them to a specific goal?"
-        );
-    }
-
-    // 3. Use the pure geometric scorer over the CUDA-trained vocabulary manifold to find the nearest basins
-    // (Requires >= 2 matched vocabulary fibers on multi-word prompts so incidental single words never hijack the topic)
+    // 1. Use the pure geometric scorer over the CUDA-trained vocabulary manifold to find the nearest basins
     let geo_hits = retrieve_top_concepts_geometric_only(words, prompt_q12, prompt_sign, 2);
     if let Some(&(best_node, best_geo_score)) = geo_hits.first() {
         if best_geo_score >= 12 {

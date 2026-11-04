@@ -14,7 +14,7 @@
 //!      `RETAIN_LAMBDA_Q31` geometric retention schedule, and SHA-256 transition receipts.
 
 use sha2::{Digest, Sha256};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 use wasm_bindgen::prelude::*;
 
 mod assistant;
@@ -22,6 +22,20 @@ mod assistant;
 pub mod glm_weights;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
 pub mod lexlean_generated;
+/// Native integer execution engine for `uor-r4.lut-stack/7` and `uor-r4.lut-stack/8` (`UORLUT01`).
+pub mod lut_stack_exec;
+
+static BOOTSTRAP_UORLUT_V8: &[u8] = include_bytes!("bootstrap_v8.uorlut");
+
+fn default_lut_stack_model() -> Arc<lut_stack_exec::LutStackModel> {
+    static MODEL: OnceLock<Arc<lut_stack_exec::LutStackModel>> = OnceLock::new();
+    Arc::clone(MODEL.get_or_init(|| {
+        Arc::new(
+            lut_stack_exec::LutStackModel::parse(BOOTSTRAP_UORLUT_V8)
+                .expect("valid embedded bootstrap_v8.uorlut"),
+        )
+    }))
+}
 
 /// Supported envelope protocol version.
 pub const PROTOCOL_VERSION: &str = "1";
@@ -327,6 +341,9 @@ pub struct StudioEngine {
     binder_memory: Vec<(String, String)>,
     last_language: String,
     active_workspace_path: String,
+    pub(crate) lut_stack: Arc<lut_stack_exec::LutStackModel>,
+    pub(crate) lut_stack_source: String,
+    pub(crate) last_lut_generation: Option<lut_stack_exec::LutStackGenerationResult>,
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
@@ -1056,6 +1073,9 @@ impl StudioEngine {
             binder_memory: Vec::new(),
             last_language: "rust".to_string(),
             active_workspace_path: "src/attention.rs".to_string(),
+            lut_stack: default_lut_stack_model(),
+            lut_stack_source: "bootstrap_v8.uorlut (WASM embedded)".to_string(),
+            last_lut_generation: None,
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -1063,6 +1083,75 @@ impl StudioEngine {
         }
         engine.init_default_workspace();
         engine
+    }
+
+    /// Hot-load a `UORLUT01` (`uor-r4.lut-stack/7` or `/8`) binary weight pack into the active engine.
+    pub fn load_lut_stack_bytes(
+        &mut self,
+        bytes: &[u8],
+        source_label: &str,
+    ) -> Result<String, String> {
+        let parsed = lut_stack_exec::LutStackModel::parse(bytes)?;
+        self.lut_stack = Arc::new(parsed);
+        self.lut_stack_source = if source_label.trim().is_empty() {
+            "IndexedDB / Custom UORLUT01".to_string()
+        } else {
+            source_label.trim().to_string()
+        };
+        Ok(self.weight_pack_status_json())
+    }
+
+    /// Return JSON status of the currently mounted `UORLUT01` (`uor-r4.lut-stack/8`) model pack.
+    pub fn weight_pack_status_json(&self) -> String {
+        let m = &self.lut_stack;
+        let open_entries = m
+            .memory
+            .as_ref()
+            .map(|mem| mem.opening.entries)
+            .unwrap_or(0);
+        let reply_entries = m
+            .memory
+            .as_ref()
+            .and_then(|mem| mem.reply.as_ref())
+            .map(|r| r.entries)
+            .unwrap_or(0);
+        let point_rows = m.point.as_ref().map(|pt| pt.rows).unwrap_or(0);
+        format!(
+            concat!(
+                "{{",
+                "\"status\":\"ok\",",
+                "\"schema\":\"{}\",",
+                "\"source\":\"{}\",",
+                "\"sha256\":\"{}\",",
+                "\"bytes\":{},",
+                "\"byte_len\":{},",
+                "\"artifact_bytes\":{},",
+                "\"vocab\":{},",
+                "\"vocab_size\":{},",
+                "\"width\":{},",
+                "\"mlp\":{},",
+                "\"layers\":{},",
+                "\"hamming_heads\":4,",
+                "\"opening_entries\":{},",
+                "\"reply_entries\":{},",
+                "\"point_rows\":{}",
+                "}}"
+            ),
+            escape_json(&m.schema),
+            escape_json(&self.lut_stack_source),
+            escape_json(&m.artifact_sha256),
+            m.artifact_bytes,
+            m.artifact_bytes,
+            m.artifact_bytes,
+            m.vocab,
+            m.vocab,
+            m.width,
+            m.mlp,
+            m.layers.len(),
+            open_entries,
+            reply_entries,
+            point_rows
+        )
     }
 
     fn init_default_workspace(&mut self) {
@@ -3657,7 +3746,22 @@ impl StudioEngine {
             &code_outcome,
         );
 
-        let base_gen_raw = self.build_live_token_generation_json(trimmed, &assistant_reply, None);
+        let lut_mode_label = self.last_lut_generation.take().map(|lg| {
+            let first_mech = lg
+                .steps
+                .first()
+                .map(|s| s.source_mechanism)
+                .unwrap_or("whole_table_nearest");
+            format!(
+                "uor-r4.lut-stack/8 ({first_mech} -> turn_memory_reply, {} BPE tokens)",
+                lg.generated_tokens.len()
+            )
+        });
+        let base_gen_raw = self.build_live_token_generation_json(
+            trimmed,
+            &assistant_reply,
+            lut_mode_label.as_deref(),
+        );
 
         self.chat_history
             .push((trimmed.to_string(), assistant_reply.clone()));
@@ -3932,6 +4036,7 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "workspace_pin" => engine.workspace_pin_json(payload),
         "workspace_batch" => engine.workspace_batch_json(payload),
         "uorlut_inspect" => engine.uorlut_inspect_json(payload),
+        "weight_status" => engine.weight_pack_status_json(),
         "predict_next" => {
             let trimmed = payload.trim();
             if trimmed.is_empty() {
@@ -4030,6 +4135,39 @@ pub fn studio_dispatch(input: &str) -> String {
         let (cmd, payload) = input.split_once('\t').unwrap_or((input, ""));
         execute_studio_command(cmd, payload)
     }
+}
+
+/// Hot-load a binary `UORLUT01` (`uor-r4.lut-stack/8`) weight artifact directly from JS/IndexedDB bytes.
+#[wasm_bindgen]
+pub fn studio_load_uorlut_bytes(bytes: &[u8], source_label: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let label = if source_label.trim().is_empty() {
+        "IndexedDB / Browser Weight Pack (UORLUT01)"
+    } else {
+        source_label.trim()
+    };
+    match engine.load_lut_stack_bytes(bytes, label) {
+        Ok(json) => json,
+        Err(err) => format!(
+            "{{\"status\":\"error\",\"message\":\"{}\"}}",
+            escape_json(&err)
+        ),
+    }
+}
+
+/// Query the currently loaded `UORLUT01` (`uor-r4.lut-stack/8`) weight pack status as JSON.
+#[wasm_bindgen]
+pub fn studio_weight_pack_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.weight_pack_status_json()
 }
 
 /// Dispatch a string envelope and return the encoded response envelope.
@@ -4936,6 +5074,73 @@ mod tests {
         assert!(
             !volcano_q.contains("1. **Define the Goal & Constraints First**"),
             "3-4 content-word domain question must not fall into Mad-Libs bullet template: {volcano_q}"
+        );
+
+        let _ = dispatch_string("1\tstudio\treset\t");
+    }
+
+    #[test]
+    fn test_uorlut_v8_end_to_end_token_prediction_and_hot_reload() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        // 1. Verify "What are you able to do?" decodes token-by-token through uor-r4.lut-stack/8
+        //    and NEVER emits the old hardcoded "I'd love to!" string.
+        let able_raw = dispatch_string("1\tstudio\tchat\tWhat are you able to do?");
+        let able_json: serde_json::Value =
+            serde_json::from_str(&able_raw).expect("valid able_json");
+        let able_reply = able_json["assistant_reply"].as_str().unwrap();
+        assert!(
+            !able_reply.starts_with("I'd love to!"),
+            "Must not emit old hardcoded 'I'd love to!' intercept: {able_reply}"
+        );
+        assert!(
+            able_reply.contains("I can write and debug code in Rust"),
+            "Must decode trained uor-r4.lut-stack/8 capability tokens: {able_reply}"
+        );
+        assert!(
+            able_json["generation"]["generated_token_count"]
+                .as_u64()
+                .unwrap()
+                >= 50
+        );
+
+        // 2. Verify paraphrased capability prompt triggers /8 point_key_vote on step 0 and
+        //    hands off canonical reply anchor to /7 turn_memory_reply on steps 1..N
+        let model = default_lut_stack_model();
+        let para_gen = model.generate_reply(
+            &[],
+            "Could you tell me what tasks you are able to do for me?",
+            512,
+        );
+        assert_eq!(para_gen.steps[0].source_mechanism, "point_key_vote");
+        assert_eq!(para_gen.steps[1].source_mechanism, "turn_memory_reply");
+        assert!(para_gen.generated_tokens.len() >= 100);
+        assert!(para_gen
+            .reply_text
+            .contains("I can write and debug code in Rust"));
+
+        // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
+        let status_raw = studio_weight_pack_status();
+        let status_json: serde_json::Value =
+            serde_json::from_str(&status_raw).expect("valid weight status JSON");
+        assert_eq!(status_json["status"], "ok");
+        assert_eq!(status_json["schema"], "uor-r4.lut-stack/8");
+        assert_eq!(status_json["layers"], 6);
+        assert_eq!(status_json["vocab_size"], 4096);
+        assert!(status_json["opening_entries"].as_u64().unwrap() >= 2000);
+        assert!(status_json["reply_entries"].as_u64().unwrap() >= 150000);
+        assert!(status_json["point_rows"].as_u64().unwrap() >= 2000);
+
+        let reload_raw =
+            studio_load_uorlut_bytes(BOOTSTRAP_UORLUT_V8, "IndexedDB :: uor-r4-glm-v8");
+        let reload_json: serde_json::Value =
+            serde_json::from_str(&reload_raw).expect("valid reload JSON");
+        assert_eq!(reload_json["status"], "ok");
+        assert_eq!(reload_json["source"], "IndexedDB :: uor-r4-glm-v8");
+        assert_eq!(
+            reload_json["artifact_bytes"].as_u64().unwrap(),
+            BOOTSTRAP_UORLUT_V8.len() as u64
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");

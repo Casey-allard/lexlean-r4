@@ -414,9 +414,16 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     assert!(app_js.contains("uor-r4-weights.uorlut"));
     assert!(app_js.contains("1\\tstudio\\t"));
     assert!(app_js.contains("sync_cached_weights"));
+    assert!(app_js.contains("studio_load_uorlut_bytes"));
+    assert!(app_js.contains("studio_weight_pack_status"));
+    assert!(app_js.contains("cache_uorlut_in_indexeddb"));
+    assert!(app_js.contains("restore_cached_uorlut_from_indexeddb"));
     assert!(index_html.contains("id=\"weight-cache-badge\""));
     assert!(index_html.contains("id=\"sync-weights-btn\""));
     assert!(binding_js.contains("export function studio_dispatch("));
+    assert!(binding_js.contains("export function studio_load_uorlut_bytes("));
+    assert!(binding_js.contains("export function studio_weight_pack_status("));
+    assert!(binding_js.contains("UOR_R4_WEIGHT_CACHE"));
     assert!(binding_js.contains("uor-r4-wasm-weights-v2"));
     assert!(binding_js.contains("export async function sync_cached_weights("));
 
@@ -444,5 +451,11 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
             .windows(b"studio_dispatch".len())
             .any(|w| w == b"studio_dispatch"),
         "lexlean_r4_bg.wasm must export studio_dispatch"
+    );
+    assert!(
+        wasm_bytes
+            .windows(b"studio_load_uorlut_bytes".len())
+            .any(|w| w == b"studio_load_uorlut_bytes"),
+        "lexlean_r4_bg.wasm must export studio_load_uorlut_bytes"
     );
 }

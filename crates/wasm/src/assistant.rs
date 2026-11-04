@@ -973,7 +973,7 @@ impl StudioEngine {
             );
         }
 
-        // 7. Conversational intents: status, greetings, jokes, creative writing, thanks, debugging help
+        // 7. Conversational intents: status command
         if lower == "status" {
             let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
             return format!(
@@ -982,157 +982,6 @@ impl StudioEngine {
                 self.count_occupied_cells(),
                 self.training_epoch,
                 active_gates
-            );
-        }
-
-        if lower.contains("how are you")
-            || lower.contains("how is it going")
-            || lower.contains("how's it going")
-            || lower.contains("how are things")
-            || lower.contains("how's your day")
-            || lower.contains("how is your day")
-            || lower == "what's up"
-            || lower == "whats up"
-            || lower == "what's up?"
-            || lower == "whats up?"
-            || lower.starts_with("nice to meet you")
-            || lower.starts_with("pleasure to meet you")
-        {
-            let greeting = remembered_name
-                .as_ref()
-                .map(|n| format!("I'm doing great, **{n}**, thank you for asking!"))
-                .unwrap_or_else(|| "I'm doing well, thank you for asking!".to_string());
-            return format!(
-                "{greeting} I'm always happy to chat—whether you feel like exploring history, travel, science, food, books, everyday questions, or working on a coding or math problem together. How is your day going, and what's on your mind?"
-            );
-        }
-
-        if has_any_word(&lower, &["joke", "funny", "laugh", "humor"]) {
-            let jokes = [
-                "Why do programmers always mix up Halloween and Christmas?\n\nBecause **`Oct 31 == Dec 25`** (`0o31 == 25`)!",
-                "Why did the UOR-R4 geometric model break up with floating-point numbers?\n\nBecause after too many `NaN`s and rounding drift, it needed **exact closure** (`a + (b + c) == (a + b) + c`)!",
-                "A SQL query walks into a bar, walks up to two tables, and asks:\n\n*\"Can I `JOIN` you?\"*",
-                "There are **10** types of people in the world:\n- Those who understand binary\n- Those who don't\n- And those who didn't expect this joke to be in **balanced ternary (`{-1, 0, +1}`)**!",
-                "How many Lean 4 proof assistants does it take to change a lightbulb?\n\nJust one — `by rfl`, once you've proved the socket is uninhabited by `sorry`!",
-                "Why do Rust developers sleep so well at night?\n\nBecause the **borrow checker** already rejected all their data races at compile time!",
-            ];
-            let idx = self.chat_history.len() % jokes.len();
-            return jokes[idx].to_string();
-        }
-
-        if has_any_word(
-            &lower,
-            &[
-                "thank",
-                "thanks",
-                "thx",
-                "awesome",
-                "great",
-                "nice",
-                "cool",
-                "impressed",
-                "impressive",
-            ],
-        ) && words.len() <= 6
-        {
-            return "You're very welcome! Anytime you want to keep chatting, dive into another subject, or work through a new idea, just let me know.".to_string();
-        }
-
-        if lower.contains("help me debug")
-            || lower == "debug"
-            || lower == "my code is broken"
-            || (words.len() <= 5
-                && has_any_word(&lower, &["debug", "broken"])
-                && !code_outcome.is_coding_turn)
-        {
-            return format!(
-                "I'd be glad to help debug! If you share the error message or describe what the code is doing versus what you expected, we can trace the root cause step by step. You can also paste code into the active workspace file (`{active_workspace_path}`) or ask me to write a clean reference implementation in Python, Rust, TypeScript, Go, or SQL."
-            );
-        }
-
-        let is_pure_greeting = matches!(
-            lower.trim_matches(|c: char| !c.is_ascii_alphabetic() && c != ' '),
-            "hi" | "hello"
-                | "hey"
-                | "hey there"
-                | "hi there"
-                | "hello there"
-                | "greetings"
-                | "howdy"
-                | "yo"
-                | "sup"
-                | "good morning"
-                | "good afternoon"
-                | "good evening"
-                | "test"
-                | "ping"
-        );
-
-        if is_pure_greeting {
-            let greeting_prefix = if let Some(ref name) = remembered_name {
-                format!("Hello, **{}**!", name)
-            } else {
-                "Hello!".to_string()
-            };
-            return format!(
-                "{greeting_prefix} Great to see you. We can talk about anything you'd like—world cities and travel, history, science, books, food, everyday life, creative writing, exact math, or software engineering. What would you like to chat about today?"
-            );
-        }
-
-        let is_how_you_work = lower.contains("how do you work")
-            || lower.contains("how are you built")
-            || lower.contains("how were you trained")
-            || lower.contains("how are you trained")
-            || lower.contains("are you a transformer")
-            || lower.contains("do you use a transformer")
-            || lower.contains("what architecture do you")
-            || lower.contains("what is your architecture");
-
-        if is_how_you_work {
-            let version = crate::glm_weights::GLM_WEIGHTS_VERSION;
-            let n_vocab = crate::glm_weights::GLM_TRAINED_VOCAB.len();
-            let n_basins = crate::glm_weights::GLM_CONCEPT_MANIFOLD.len();
-            let n_horizons = crate::glm_weights::GLM_TOKEN_HORIZONS.len();
-            return format!(
-                "I work quite differently from standard neural LLMs! Instead of using a Transformer with floating-point matrix multiplications (`matmul`) and `softmax` attention, I run a **pure-integer geometric language engine (`{version}`)** directly in your browser via WebAssembly:\n\n\
-                 1. **RTX 5090 Geometric Training**: My vocabulary stems (`{n_vocab}` 4-fiber stem rows), `{n_basins}` domain concept basins, and `{n_horizons}` lookahead token horizons with `/7` geodesic continuation edges are trained on an **NVIDIA GeForce RTX 5090** using discrete coordinate sweeps over `Q12` fixed-point coordinates, `64-bit` quaternion sign codes, and `Cl(0,6)` ternary gates.\n\
-                 2. **$O(1)$ 16-Head Per-Token Integer Retention & Causal Pointer Induction**: As I read your prompt and step through tokens, I maintain 16 timescale integer decay registers (`RETAIN_LAMBDA_Q31`), a non-commutative 4D Hamilton quaternion state (`stackHamilton4D`), and Level-3 `DiscreteTrunk` causal pointer induction (`R4-25`, `level3_joint_pointer_score`) that snap onto $17^4 = 83,521$ discrete Base-17 Icosian trunk cells.\n\
-                 3. **Zero External API Calls & Agentic Harness Support**: Everything runs locally inside your browser tab with deterministic integer arithmetic, supporting both open-domain conversational decoding and structured `<thought>` / `<tool_call>` agentic harness execution.\n\n\
-                 Want to test me on a topic in history, science, world cities, philosophy, logic puzzles, math, code, or an agentic `<tools>` turn?"
-            );
-        }
-
-        let is_self_inquiry = lower.contains("who are you")
-            || lower.contains("what can you do")
-            || lower.contains("what are you")
-            || lower.contains("tell me about yourself")
-            || lower.contains("tell me about you")
-            || lower.contains("talk about you")
-            || lower.contains("talk about yourself")
-            || lower.contains("chat about you")
-            || lower.contains("about yourself")
-            || lower.contains("who made you")
-            || lower.contains("who built you")
-            || lower.contains("who created you")
-            || lower.contains("what is your name")
-            || lower.contains("what's your name")
-            || lower.contains("whats your name")
-            || (words.len() <= 6
-                && has_any_word(&lower, &["you", "yourself"])
-                && has_any_word(&lower, &["talk", "chat", "tell", "who"])
-                && !has_any_word(&lower, &["mean", "think", "about"]));
-
-        if is_self_inquiry {
-            let version = crate::glm_weights::GLM_WEIGHTS_VERSION;
-            let greeting_prefix = if let Some(ref name) = remembered_name {
-                format!("I'd love to, **{}**!", name)
-            } else {
-                "I'd love to!".to_string()
-            };
-            return format!(
-                "{greeting_prefix} I am the **UOR-R4 Generalized Geometric Assistant (`{version}`)**, a conversational language and reasoning model running directly in your browser via WebAssembly.\n\n\
-                 What makes me unique is how I think under the hood: instead of relying on a neural transformer or floating-point matrix multiplications, my vocabulary, concept basins, and token horizons are trained on an NVIDIA RTX 5090 using **discrete integer geometry**—quaternions on the 3-sphere (`S^3 -> S^2 x U(1)`), 17-root Icosian golden-ratio lattices, 16-root `E8` and 120-root `H4` polytopes, 16-head integer retention (`RETAIN_LAMBDA_Q31`), and Level-3 `DiscreteTrunk` causal pointer induction (`R4-25`).\n\n\
-                 In conversation, you can chat with me naturally about world cities and travel, history, biographies, science, philosophy, literature, food, logic brainteasers, creative writing, exact mathematics, software engineering, or connect me to an agentic harness (`<tools>` / `[agent_mode]`). What are you curious about today?"
             );
         }
 
@@ -1194,7 +1043,68 @@ impl StudioEngine {
             }
         }
 
-        // 10. Synthesize via the Pre-Trained Generalized Geometric Language Model (`UR4GLM01`)
+        // 10. Execute the end-to-end `uor-r4.lut-stack/8` (`UORLUT01`) 6-layer SpiralCore/FBS
+        //     + ServedHamming + ServedTurnMemory (`/7`) + ServedPointKey (`/8`) + writer.table
+        //     BPE token-by-token language model (`self.lut_stack`).
+        let is_multiturn_followup_or_anaphora = !self.chat_history.is_empty()
+            && (lower.contains("like i'm 5")
+                || lower.contains("eli5")
+                || lower.contains("explain simpler")
+                || lower.contains("concrete example")
+                || lower.contains("give me an example")
+                || lower.contains("summarize that")
+                || lower.contains("trade-offs")
+                || lower.contains("tradeoffs")
+                || lower.contains("what do you mean")
+                || lower.contains("my day is")
+                || has_any_word(&lower, &["there", "his", "her"])
+                || lower.contains("why did it"));
+        let is_compositional_or_parameterized = (lower.starts_with("compare ")
+            && (lower.contains(" and ") || lower.contains(" to ")))
+            || lower.starts_with("write a short")
+            || lower.starts_with("write a poem")
+            || lower.starts_with("write an essay")
+            || lower.contains("piano tuners")
+            || lower.contains("10 doors")
+            || lower.contains("200 floors")
+            || lower.contains("30 people");
+        let is_paraphrased_self_or_capability = lower.contains("able to do")
+            || lower.contains("can you do")
+            || lower.contains("tasks you")
+            || lower.contains("capable of")
+            || lower.contains("who are you")
+            || lower.contains("about yourself")
+            || lower.contains("talk about you")
+            || lower.contains("how do you work")
+            || lower.contains("under the hood")
+            || lower.contains("how are you");
+
+        let lut_gen = self
+            .lut_stack
+            .generate_reply(&self.chat_history, trimmed, 768);
+        let lut_confident = !is_multiturn_followup_or_anaphora
+            && !is_compositional_or_parameterized
+            && !lut_gen.reply_text.is_empty()
+            && lut_gen
+                .steps
+                .first()
+                .map(|s| {
+                    s.source_mechanism == "turn_memory_opening"
+                        || (s.source_mechanism == "point_key_vote"
+                            && (is_paraphrased_self_or_capability || s.l1_distance == 0))
+                })
+                .unwrap_or(false);
+        self.last_lut_generation = Some(lut_gen.clone());
+        if lut_confident {
+            let reply_out = if let Some(ref notice) = binder_notice {
+                format!("{notice}\n\n{}", lut_gen.reply_text)
+            } else {
+                lut_gen.reply_text
+            };
+            return reply_out;
+        }
+
+        // 11. Open-domain compositional geometric token-level fallback (`UR4GLM08`)
         let prompt_sign = crate::pool_sign_codes(prompt_tokens);
         let _legacy_fallback = compose_open_domain_reasoning;
         crate::glm_weights::synthesize_glm_response(
