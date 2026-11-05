@@ -713,7 +713,7 @@ target_reply = "At row_idx=6416 with anchor_id=0x800006af, Q12 writer refinement
 
 [[claim]]
 id = "R4-F47"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -724,6 +724,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:thinking-solve:r6553:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f47_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging thinking and solve across PointKey row 6553 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect thinking and solve across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects thinking and solve by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -786,3 +787,17 @@ kappa = "r4:v1:manifold:open-basin:market-ence:r7028:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging market and ence across PointKey row 7028 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect market and ence across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects market and ence by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F52"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:ines-determ:r7311:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems ines and determ at manifold row 7311."
+prompt = "How does PointKey routing resolve conversational prompts about ines and determ?"
+target_reply = "PointKey routing matches conversational stems ines and determ directly to their canonical reply anchor without token loops."
