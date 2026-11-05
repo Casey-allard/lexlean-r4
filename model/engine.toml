@@ -11,7 +11,7 @@ value = 10
 [[weight]]
 strategy = "pointkey-resonance"
 family = "dialogue-stem"
-value = 14
+value = 16
 
 [[weight]]
 strategy = "reply-4gram-deduction"
@@ -139,6 +139,14 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T05:19:34Z"
 
+[[attempt]]
+kappa = "r4:v1:stem:favorite-book-recommendation:k=8"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T05:41:24Z"
+
 [[tick]]
 id = "2026-11-05T03:30:00Z"
 outcome = "advanced"
@@ -175,3 +183,11 @@ discovered = 1
 pruned = 0
 proved = ["R4-F07"]
 minted = 14
+
+[[tick]]
+id = "2026-11-05T05:41:24Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F08"]
+minted = 15

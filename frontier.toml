@@ -114,7 +114,7 @@ target_reply = "In Rust, slice::binary_search compares the midpoint element agai
 
 [[claim]]
 id = "R4-F08"
-status = "observed"
+status = "proved"
 depends = ["R4-F02"]
 relation = "dialogue-stem"
 window = [
@@ -122,6 +122,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:stem:favorite-book-recommendation:k=8"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
 statement = "Respond naturally to questions about favorite books and reading recommendations without falling back to repetitive templates."
 prompt = "What is your favorite book?"
 target_reply = "A great read is Godel, Escher, Bach by Douglas Hofstadter, alongside classic science fiction like Dune and The Hitchhiker's Guide to the Galaxy."
@@ -212,3 +213,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify that strategy scheduling orders deduction strategies descending by bounded Hebbian weights in [1, 16]."
 prompt = "How does the autonomous engine schedule deduction strategies?"
 target_reply = "The autonomous engine maintains learned weights in [1, 16] per strategy and family, scheduling higher-weighted strategies first on every tick."
+
+[[claim]]
+id = "R4-F15"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    3,
+    14,
+]
+kappa = "r4:v1:stem:discrete-trunk-19table:k=14"
+lean = "LexLeanR4.DiscreteTrunkControls"
+statement = "Verify that the 19-table M1 discrete trunk packs 4-block base-17 orbit roots and scores Level-3 joint pointers deterministically."
+prompt = "What is the 19-table M1 discrete trunk layout?"
+target_reply = "The 19-table M1 discrete trunk allocates 12,288 bits per token across levels 0..5 and packs 4-block base-17 orbit roots for causal lookup."
