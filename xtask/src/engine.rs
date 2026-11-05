@@ -518,6 +518,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
           image=$(sed -n 's/.*"sdk_image":"\([^"]*\)".*/\1/p' prismpm.lock)
           if [[ ! $image =~ ^[a-z0-9.-]+(:[0-9]{1,5})?/[a-z0-9./_-]+@sha256:[0-9a-f]{64}$ ]]; then
             printf '%s\n' 'prismpm.lock does not select an immutable SDK image' >&2
@@ -551,6 +552,7 @@ jobs:
               umask 077
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true
+              rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true
             '
           if [ -f .r4-engine-output.env ]; then
             cat .r4-engine-output.env >> "$GITHUB_OUTPUT"
