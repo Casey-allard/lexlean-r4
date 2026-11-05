@@ -99,7 +99,7 @@ target_reply = "The 17-root Icosian snap kernel evaluates exact integer inequali
 
 [[claim]]
 id = "R4-F07"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "code-synthesis"
 window = [
@@ -107,6 +107,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:stem:rust-binary-search:k=8"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
 statement = "Synthesize a concise, idiomatic Rust binary search explanation and implementation summary without token repetition."
 prompt = "How do you write a binary search in Rust?"
 target_reply = "In Rust, slice::binary_search compares the midpoint element against the target in O(log n) time, returning Ok(index) when found or Err(insertion_index) when absent."
@@ -196,3 +197,18 @@ lean = "LexLeanR4.DurableMemoryControls"
 statement = "Verify that M3 scoped durable turn memory intersects PrimeAddress factors and enforces the +3-sigma (2144/4096) manifold sketch gate."
 prompt = "How does durable turn memory filter noisy recall candidates?"
 target_reply = "Durable turn memory intersects sorted PrimeAddress factors via GCD sieve and requires at least 2,144 of 4,096 manifold sketch bits (+3 sigma)."
+
+[[claim]]
+id = "R4-F14"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    2,
+    12,
+]
+kappa = "r4:v1:stem:hebbian-schedule-invariant:k=12"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify that strategy scheduling orders deduction strategies descending by bounded Hebbian weights in [1, 16]."
+prompt = "How does the autonomous engine schedule deduction strategies?"
+target_reply = "The autonomous engine maintains learned weights in [1, 16] per strategy and family, scheduling higher-weighted strategies first on every tick."
