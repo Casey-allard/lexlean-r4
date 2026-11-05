@@ -824,7 +824,7 @@ target_reply = "Causal four gram continuation preserves reasoning over string an
 
 [[claim]]
 id = "R4-F54"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -832,6 +832,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:string-ract:r7439:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f54_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems string and ract at row_idx=7439 (anchor_id=0x80000aa6)."
 prompt = "How does Q12 writer refinement encode string and ract at row_idx=7439?"
 target_reply = "At row_idx=7439 with anchor_id=0x80000aa6, Q12 writer refinement aligns the 256D L1 PointKey prototype for string and ract with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -894,3 +895,20 @@ kappa = "r4:v1:manifold:code-synthesis:numbers-loop:r7987:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems numbers and loop at row_idx=7987 (anchor_id=0x80000cc6)."
 prompt = "How does Q12 writer refinement encode numbers and loop at row_idx=7987?"
 target_reply = "At row_idx=7987 with anchor_id=0x80000cc6, Q12 writer refinement aligns the 256D L1 PointKey prototype for numbers and loop with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F59"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:using-ting:r8124:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging using and ting across PointKey row 8124 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect using and ting across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects using and ting by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
