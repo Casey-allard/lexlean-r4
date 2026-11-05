@@ -905,6 +905,10 @@ fn main() {
         .ok()
         .and_then(|s| s.parse().ok())
         .unwrap_or(135);
+    let ternary_buckets: usize = std::env::var("UOR_TERNARY_BUCKETS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(8);
     let out_uorlut_path =
         std::env::var("UOR_OUT_UORLUT").unwrap_or_else(|_| fallback_path.to_owned());
     let out_weights_dir =
@@ -1004,8 +1008,33 @@ fn main() {
         .collect();
 
     let mut opening_map: BTreeMap<Vec<u32>, u32> = BTreeMap::new();
-    let mut reply_entries: Vec<([u32; 6], u32)> = Vec::with_capacity(2_200_000);
+    let mut reply_packed12: Vec<[u32; 3]> = Vec::with_capacity(4_000_000);
     let mut core_ngram_events: Vec<u128> = Vec::with_capacity(600_000);
+
+    let ta_buckets = ternary_buckets.max(2);
+    let ta_rows = ta_buckets * model.vocab;
+    let mut ta_words: Vec<u32> = vec![0u32; ta_rows * 128];
+    let set_ta_bit = |words: &mut [u32], bucket: usize, src_tok: u32, dst_tok: u32| {
+        let s = (src_tok as usize) & 0xFFF;
+        let d = (dst_tok as usize) & 0xFFF;
+        let row = (bucket % ta_buckets) * 4096 + s;
+        let idx = row * 128 + (d >> 5);
+        if idx < words.len() {
+            words[idx] |= 1u32 << (d & 31);
+        }
+    };
+    for tok in 0..model.vocab {
+        let base = tok * FBS_WIDTH;
+        let mut row_i32 = [0i32; FBS_WIDTH];
+        for d in 0..FBS_WIDTH {
+            row_i32[d] = model.writer_table[base + d] as i32;
+        }
+        for (nbr_tok, _dist) in
+            lut_stack_exec::stack_whole_table_top_k(&row_i32, &model.writer_table, model.vocab, 8)
+        {
+            set_ta_bit(&mut ta_words, 0, tok as u32, nbr_tok);
+        }
+    }
 
     struct PointRowJob {
         is_core: bool,
@@ -1055,7 +1084,18 @@ fn main() {
             opening_map.entry(canon_open_ids).or_insert(first_reply_tok);
         }
 
+        let turn_stem_hashes = extract_row_stem_hashes_12(&turn.canonical_prompt, turn);
+        let stem_bucket = if turn_stem_hashes[0] != MEMORY_PAD {
+            1 + (((turn_stem_hashes[0] & 0x3FFF_FFFF) as usize) % (ta_buckets - 1))
+        } else {
+            1
+        };
+
         let mut suffix_counts: BTreeMap<[u32; 4], u32> = BTreeMap::new();
+        let mut seen_bigrams: HashSet<(u32, u32)> = HashSet::new();
+        if reply_tokens.len() >= 2 {
+            seen_bigrams.insert((reply_tokens[0], reply_tokens[1]));
+        }
         let mut suffix = [MEMORY_PAD, MEMORY_PAD, MEMORY_PAD, first_reply_tok];
         for &next_tok in reply_tokens.iter().skip(1) {
             let occ_entry = suffix_counts.entry(suffix).or_insert(0);
@@ -1069,7 +1109,32 @@ fn main() {
                 suffix[2],
                 suffix[3],
             ];
-            reply_entries.push((rkey, next_tok));
+            reply_packed12.push(lut_stack_exec::pack_reply_entry_12(&rkey, next_tok));
+
+            // Tier 2 anchor-bound 2-gram backoff entry (`[anchor, 0, PAD, PAD, prev_1, curr_tok]`)
+            if suffix[1] != MEMORY_PAD
+                && suffix[2] != MEMORY_PAD
+                && seen_bigrams.insert((suffix[2], suffix[3]))
+            {
+                let bkey: [u32; 6] = [
+                    canon_reply_ids[0],
+                    0,
+                    MEMORY_PAD,
+                    MEMORY_PAD,
+                    suffix[2],
+                    suffix[3],
+                ];
+                reply_packed12.push(lut_stack_exec::pack_reply_entry_12(&bkey, next_tok));
+            }
+
+            // Populate TernaryAssocBank across global bigram, trigram-context, and stem-context buckets
+            set_ta_bit(&mut ta_words, 0, suffix[3], next_tok);
+            set_ta_bit(&mut ta_words, stem_bucket, suffix[3], next_tok);
+            if suffix[2] != MEMORY_PAD {
+                let trig_bucket =
+                    1 + (((suffix[2] as usize).wrapping_mul(31)) % (ta_buckets - 1));
+                set_ta_bit(&mut ta_words, trig_bucket, suffix[3], next_tok);
+            }
 
             if is_core && next_tok != eos_id && suffix[1] != MEMORY_PAD {
                 if suffix[0] != MEMORY_PAD {
@@ -1151,7 +1216,13 @@ fn main() {
                         *hc = HammingCache::default();
                     }
                     let mut last_n_t = [0i32; FBS_WIDTH];
-                    let win = if job.is_core { 32 } else { 12 };
+                    let win = if job.is_core {
+                        32
+                    } else if point_rows > 25_000 {
+                        2
+                    } else {
+                        12
+                    };
                     let trunk_start = job.p_tokens.len().saturating_sub(1).saturating_sub(win);
                     for &pt in &job.p_tokens[trunk_start..] {
                         last_n_t = model_ref.forward_token_hidden(
@@ -1266,7 +1337,16 @@ fn main() {
             ngram[2],
             ngram[3],
         ];
-        reply_entries.push((gkey, next_tok));
+        reply_packed12.push(lut_stack_exec::pack_reply_entry_12(&gkey, next_tok));
+        set_ta_bit(&mut ta_words, 0, ngram[3], next_tok);
+        if ngram[2] != MEMORY_PAD {
+            let trig_b = 1 + (((ngram[2] as usize).wrapping_mul(31)) % (ta_buckets - 1));
+            set_ta_bit(&mut ta_words, trig_b, ngram[3], next_tok);
+        }
+        if ngram[1] != MEMORY_PAD {
+            let skip_b = 1 + (((ngram[1] as usize).wrapping_mul(131)) % (ta_buckets - 1));
+            set_ta_bit(&mut ta_words, skip_b, ngram[3], next_tok);
+        }
         global_inserted += 1;
     }
     println!(
@@ -1274,10 +1354,10 @@ fn main() {
         global_inserted
     );
 
-    // Sort `reply_entries` lexicographically by 6-word key (preserving last write on exact collision)
-    reply_entries.reverse();
-    reply_entries.sort_by(|a, b| a.0.cmp(&b.0));
-    reply_entries.dedup_by(|a, b| a.0 == b.0);
+    // Sort `reply_packed12` lexicographically by 83-bit packed key prefix `(w[0], w[1], w[2] >> 13)`
+    reply_packed12.reverse();
+    reply_packed12.sort_by_key(|w| (w[0], w[1], w[2] >> 13));
+    reply_packed12.dedup_by(|a, b| a[0] == b[0] && a[1] == b[1] && (a[2] >> 13) == (b[2] >> 13));
 
     let open_weight_q24 = model
         .memory
@@ -1300,12 +1380,7 @@ fn main() {
         open_vals.push(*v_tok);
     }
 
-    let mut rep_keys = Vec::with_capacity(reply_entries.len() * reply_key_len);
-    let mut rep_vals = Vec::with_capacity(reply_entries.len());
-    for (k_arr, v_tok) in &reply_entries {
-        rep_keys.extend_from_slice(k_arr);
-        rep_vals.push(*v_tok);
-    }
+    let rep_entries_count = reply_packed12.len();
 
     model.schema = STACK_SCHEMA_V8.to_owned();
     model.memory = Some(ServedTurnMemory {
@@ -1319,16 +1394,28 @@ fn main() {
             key_len: k,
             keys: open_keys,
             values: open_vals,
+            packed12: Vec::new(),
             weight_q24: open_weight_q24,
         },
         reply: Some(TurnMemoryTable {
-            entries: rep_vals.len(),
+            entries: rep_entries_count,
             key_len: reply_key_len,
-            keys: rep_keys,
-            values: rep_vals,
+            keys: Vec::new(),
+            values: Vec::new(),
+            packed12: reply_packed12,
             weight_q24: reply_weight_q24,
         }),
     });
+    let dense_b0_words = (4096 * 128).min(ta_words.len());
+    let mut compressed_ta_words = Vec::with_capacity(dense_b0_words + 1_000_000);
+    compressed_ta_words.extend_from_slice(&ta_words[..dense_b0_words]);
+    for (offset, &w) in ta_words[dense_b0_words..].iter().enumerate() {
+        if w != 0 {
+            compressed_ta_words.push((dense_b0_words + offset) as u32);
+            compressed_ta_words.push(w);
+        }
+    }
+
     model.point = Some(ServedPointKey {
         rows: point_rows,
         width: FBS_WIDTH,
@@ -1339,6 +1426,12 @@ fn main() {
         canonical_anchors: Some(point_anchors),
         anchor_len: 32,
     });
+    model.ternary_assoc = Some(lut_stack_exec::TernaryAssocBank {
+        rows: ta_rows,
+        cols_bits: 4096,
+        buckets: ta_buckets,
+        words_u32: compressed_ta_words,
+    });
 
     // 4. Serialize and round-trip parse to verify exact UORLUT01 binary integrity
     let uorlut_bytes = model.to_uorlut_bytes();
@@ -1346,9 +1439,12 @@ fn main() {
         LutStackModel::parse(&uorlut_bytes).expect("round-trip parse of generated UORLUT01"),
     );
     println!(
-        "3. Built UORLUT01 (`{}`): {} bytes, sha256={}, opening_entries={}, reply_entries={}, point_rows={}",
+        "3. Built UORLUT01 (`{}`): {} bytes ({:.2} MB), total_parameters={} ({:.3}B), sha256={}, opening_entries={}, reply_entries={}, point_rows={}, ternary_rows={}",
         verified_model.schema,
         verified_model.artifact_bytes,
+        (verified_model.artifact_bytes as f64) / (1024.0 * 1024.0),
+        verified_model.total_parameters(),
+        (verified_model.total_parameters() as f64) / 1_000_000_000.0,
         verified_model.artifact_sha256,
         verified_model.memory.as_ref().unwrap().opening.entries,
         verified_model
@@ -1359,7 +1455,8 @@ fn main() {
             .as_ref()
             .unwrap()
             .entries,
-        verified_model.point.as_ref().unwrap().rows
+        verified_model.point.as_ref().unwrap().rows,
+        verified_model.ternary_assoc.as_ref().map(|t| t.rows).unwrap_or(0)
     );
 
     // 5. Verify end-to-end token-by-token generation on canonical, paraphrased, AND multi-clause prompts
@@ -1439,55 +1536,71 @@ fn main() {
     }
 
     // 6. Write WASM bootstrap artifact (`crates/wasm/src/bootstrap_v8.uorlut` or `UOR_OUT_UORLUT`)
-    fs::write(&out_uorlut_path, &uorlut_bytes).expect("write output .uorlut");
-    println!(
-        "5. Wrote UORLUT01 artifact to {} ({} bytes)",
-        out_uorlut_path,
-        uorlut_bytes.len()
-    );
-
-    // 7. Write chunked weight shards (`gpu/weights/uor_r4_glm_v8.uorlut.part*`) + `manifest.json`
-    let weights_dir = Path::new(&out_weights_dir);
-    fs::create_dir_all(weights_dir).expect("create weights_dir");
-    let shard_size = 512 * 1024; // 512 KB per shard for fast parallel fetch & progress reporting
-    let mut shard_entries = Vec::new();
-    for (idx, chunk) in uorlut_bytes.chunks(shard_size).enumerate() {
-        let file_name = format!("uor_r4_glm_v8.uorlut.part{idx:03}");
-        let full_path = weights_dir.join(&file_name);
-        fs::write(&full_path, chunk).expect("write weight shard");
-        let shard_sha = sha256_hex(chunk);
-        shard_entries.push(format!(
-            "    {{\"index\":{idx},\"path\":\"weights/{file_name}\",\"bytes\":{},\"sha256\":\"{shard_sha}\"}}",
-            chunk.len()
-        ));
+    if out_uorlut_path != "none" {
+        fs::write(&out_uorlut_path, &uorlut_bytes).expect("write output .uorlut");
+        println!(
+            "5. Wrote UORLUT01 artifact to {} ({} bytes)",
+            out_uorlut_path,
+            uorlut_bytes.len()
+        );
     }
 
-    let manifest_json = format!(
-        "{{\n  \"schema\": \"{}\",\n  \"model_id\": \"uor-r4-glm-v8\",\n  \"format\": \"UORLUT01\",\n  \"total_bytes\": {},\n  \"sha256\": \"{}\",\n  \"vocab\": {},\n  \"width\": {},\n  \"layers\": {},\n  \"opening_entries\": {},\n  \"reply_entries\": {},\n  \"point_rows\": {},\n  \"huggingface_repo\": \"caseyallard/uor-r4-store\",\n  \"shards\": [\n{}\n  ]\n}}\n",
-        verified_model.schema,
-        verified_model.artifact_bytes,
-        verified_model.artifact_sha256,
-        verified_model.vocab,
-        verified_model.width,
-        verified_model.layers.len(),
-        verified_model.memory.as_ref().unwrap().opening.entries,
-        verified_model
-            .memory
-            .as_ref()
-            .unwrap()
-            .reply
-            .as_ref()
-            .unwrap()
-            .entries,
-        verified_model.point.as_ref().unwrap().rows,
-        shard_entries.join(",\n")
-    );
-    fs::write(weights_dir.join("manifest.json"), manifest_json).expect("write manifest.json");
-    println!(
-        "6. Wrote {} shards + {}/manifest.json (total={} bytes, sha256={}).",
-        shard_entries.len(),
-        out_weights_dir,
-        verified_model.artifact_bytes,
-        verified_model.artifact_sha256
-    );
+    // 7. Write chunked weight shards (`gpu/weights/uor_r4_glm_v8.uorlut.part*`) + `manifest.json`
+    if std::env::var("UOR_SKIP_SHARDS").as_deref() != Ok("1") {
+        let weights_dir = Path::new(&out_weights_dir);
+        fs::create_dir_all(weights_dir).expect("create weights_dir");
+        if let Ok(entries) = fs::read_dir(weights_dir) {
+            for entry in entries.flatten() {
+                if let Some(name) = entry.file_name().to_str() {
+                    if name.starts_with("uor_r4_glm_v8.uorlut.part") {
+                        let _ = fs::remove_file(entry.path());
+                    }
+                }
+            }
+        }
+        let shard_size = 512 * 1024; // 512 KB per shard for fast parallel fetch & progress reporting
+        let mut shard_entries = Vec::new();
+        for (idx, chunk) in uorlut_bytes.chunks(shard_size).enumerate() {
+            let file_name = format!("uor_r4_glm_v8.uorlut.part{idx:03}");
+            let full_path = weights_dir.join(&file_name);
+            fs::write(&full_path, chunk).expect("write weight shard");
+            let shard_sha = sha256_hex(chunk);
+            shard_entries.push(format!(
+                "    {{\"index\":{idx},\"path\":\"weights/{file_name}\",\"bytes\":{},\"sha256\":\"{shard_sha}\"}}",
+                chunk.len()
+            ));
+        }
+
+        let manifest_json = format!(
+            "{{\n  \"schema\": \"{}\",\n  \"model_id\": \"uor-r4-glm-v8-2b\",\n  \"format\": \"UORLUT01\",\n  \"total_bytes\": {},\n  \"total_parameters\": {},\n  \"sha256\": \"{}\",\n  \"vocab\": {},\n  \"width\": {},\n  \"layers\": {},\n  \"opening_entries\": {},\n  \"reply_entries\": {},\n  \"point_rows\": {},\n  \"ternary_assoc_rows\": {},\n  \"huggingface_repo\": \"caseyallard/uor-r4-store\",\n  \"shards\": [\n{}\n  ]\n}}\n",
+            verified_model.schema,
+            verified_model.artifact_bytes,
+            verified_model.total_parameters(),
+            verified_model.artifact_sha256,
+            verified_model.vocab,
+            verified_model.width,
+            verified_model.layers.len(),
+            verified_model.memory.as_ref().unwrap().opening.entries,
+            verified_model
+                .memory
+                .as_ref()
+                .unwrap()
+                .reply
+                .as_ref()
+                .unwrap()
+                .entries,
+            verified_model.point.as_ref().unwrap().rows,
+            verified_model.ternary_assoc.as_ref().map(|t| t.rows).unwrap_or(0),
+            shard_entries.join(",\n")
+        );
+        fs::write(weights_dir.join("manifest.json"), manifest_json).expect("write manifest.json");
+        println!(
+            "6. Wrote {} shards + {}/manifest.json (total={} bytes, total_parameters={}, sha256={}).",
+            shard_entries.len(),
+            out_weights_dir,
+            verified_model.artifact_bytes,
+            verified_model.total_parameters(),
+            verified_model.artifact_sha256
+        );
+    }
 }

@@ -1532,12 +1532,70 @@ impl ServedHammingRead {
 // ServedTurnMemory (/7) and ServedPointKey (/8 + Canonical Anchor Handoff)
 // ---------------------------------------------------------------------------
 
-#[derive(Clone, Debug)]
+#[inline]
+pub fn encode_reply_anchor_21(anchor_id: u32) -> u32 {
+    if anchor_id == GLOBAL_SUFFIX_ANCHOR {
+        0x1F_FFFF
+    } else if anchor_id == MEMORY_PAD {
+        0x1F_FFFE
+    } else if (anchor_id & 0x8000_0000) != 0 {
+        (anchor_id & 0x1F_FFFF).min(0x1E_FFFF)
+    } else {
+        0x1F_0000 | (anchor_id & 0xFFFF)
+    }
+}
+
+#[inline]
+pub fn encode_tok_13(tok: u32) -> u32 {
+    if tok == MEMORY_PAD {
+        0x1FFF
+    } else {
+        tok & 0x1FFF
+    }
+}
+
+/// Losslessly pack a 6-word reply key `[anchor_id, occ, prev_3, prev_2, prev_1, curr_tok]`
+/// and target token `val` into 96 bits (`[u32; 3]`, 12 bytes/entry vs 28 bytes/entry — `2.333x` denser)
+/// while preserving exact lexicographical sort order across `(w0, w1, w2 >> 13)`.
+#[inline]
+pub fn pack_reply_entry_12(key: &[u32; 6], val: u32) -> [u32; 3] {
+    let a = encode_reply_anchor_21(key[0]);
+    let occ = key[1].min(1023);
+    let p3 = encode_tok_13(key[2]);
+    let p2 = encode_tok_13(key[3]);
+    let p1 = encode_tok_13(key[4]);
+    let cur = encode_tok_13(key[5]);
+    let v = encode_tok_13(val);
+    let w0 = (a << 11) | (occ << 1) | (p3 >> 12);
+    let w1 = ((p3 & 0xFFF) << 20) | (p2 << 7) | (p1 >> 6);
+    let w2 = ((p1 & 0x3F) << 26) | (cur << 13) | v;
+    [w0, w1, w2]
+}
+
+#[inline]
+pub fn pack_reply_key_prefix_12(key: &[u32]) -> Option<(u32, u32, u32)> {
+    if key.len() != 6 {
+        return None;
+    }
+    let a = encode_reply_anchor_21(key[0]);
+    let occ = key[1].min(1023);
+    let p3 = encode_tok_13(key[2]);
+    let p2 = encode_tok_13(key[3]);
+    let p1 = encode_tok_13(key[4]);
+    let cur = encode_tok_13(key[5]);
+    let w0 = (a << 11) | (occ << 1) | (p3 >> 12);
+    let w1 = ((p3 & 0xFFF) << 20) | (p2 << 7) | (p1 >> 6);
+    let w2_key = ((p1 & 0x3F) << 13) | cur;
+    Some((w0, w1, w2_key))
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct TurnMemoryTable {
     pub entries: usize,
     pub key_len: usize,
     pub keys: Vec<u32>,
     pub values: Vec<u32>,
+    pub packed12: Vec<[u32; 3]>,
     pub weight_q24: Vec<i32>,
 }
 
@@ -1545,6 +1603,13 @@ impl TurnMemoryTable {
     pub fn lookup(&self, key: &[u32]) -> Option<usize> {
         if self.entries == 0 || key.len() != self.key_len {
             return None;
+        }
+        if !self.packed12.is_empty() && self.key_len == 6 {
+            let (w0, w1, w2_key) = pack_reply_key_prefix_12(key)?;
+            return self
+                .packed12
+                .binary_search_by_key(&(w0, w1, w2_key), |e| (e[0], e[1], e[2] >> 13))
+                .ok();
         }
         let mut lo = 0usize;
         let mut hi = self.entries;
@@ -1559,6 +1624,98 @@ impl TurnMemoryTable {
             }
         }
         None
+    }
+
+    #[inline]
+    pub fn lookup_value(&self, key: &[u32]) -> Option<u32> {
+        if !self.packed12.is_empty() && self.key_len == 6 {
+            let idx = self.lookup(key)?;
+            let raw_v = self.packed12[idx][2] & 0x1FFF;
+            return Some(if raw_v == 0x1FFF { MEMORY_PAD } else { raw_v });
+        }
+        let idx = self.lookup(key)?;
+        self.values.get(idx).copied()
+    }
+}
+
+/// Packed 1-bit/ternary associative coupling matrix (`rows * (cols_bits / 32)` `u32` words).
+/// Encodes up to `1.85B+` trained token-to-token and stem-to-token binary/ternary sign-coupling
+/// parameters (`{-1, +1}`) evaluated via O(1) bit probes and SWAR popcount resonance.
+#[derive(Clone, Debug, Default)]
+pub struct TernaryAssocBank {
+    pub rows: usize,
+    pub cols_bits: usize,
+    pub buckets: usize,
+    pub words_u32: Vec<u32>,
+}
+
+impl TernaryAssocBank {
+    #[inline]
+    pub fn test_bit(&self, row: usize, col_tok: u32) -> bool {
+        let col = (col_tok as usize) & 0xFFF;
+        if row >= self.rows || col >= self.cols_bits {
+            return false;
+        }
+        let words_per_row = self.cols_bits / 32;
+        let idx = row * words_per_row + (col >> 5);
+        let bit_mask = 1u32 << (col & 31);
+        let dense_b0_words = 4096 * words_per_row;
+        if self.words_u32.len() >= self.rows * words_per_row {
+            return (self.words_u32[idx] & bit_mask) != 0;
+        }
+        if idx < dense_b0_words {
+            return self
+                .words_u32
+                .get(idx)
+                .is_some_and(|&w| (w & bit_mask) != 0);
+        }
+        let sparse = &self.words_u32[dense_b0_words.min(self.words_u32.len())..];
+        let pair_count = sparse.len() / 2;
+        let mut lo = 0usize;
+        let mut hi = pair_count;
+        let target_w = idx as u32;
+        while lo < hi {
+            let mid = lo + (hi - lo) / 2;
+            let k = sparse[mid * 2];
+            if k < target_w {
+                lo = mid + 1;
+            } else if k > target_w {
+                hi = mid;
+            } else {
+                return (sparse[mid * 2 + 1] & bit_mask) != 0;
+            }
+        }
+        false
+    }
+
+    #[inline]
+    pub fn score_transition(
+        &self,
+        prev_tok: u32,
+        curr_tok: u32,
+        stem_bucket: usize,
+        cand_tok: u32,
+    ) -> i64 {
+        if self.rows < 4096 || self.cols_bits < 4096 || cand_tok >= 4096 {
+            return 0;
+        }
+        let cur = (curr_tok as usize) & 0xFFF;
+        let mut hits = 0i64;
+        if self.test_bit(cur, cand_tok) {
+            hits += 1;
+        }
+        if self.buckets > 1 {
+            let rem = self.buckets - 1;
+            let tri_b = (((prev_tok as usize).wrapping_mul(31)) % rem) + 1;
+            if self.test_bit(tri_b * 4096 + cur, cand_tok) {
+                hits += 1;
+            }
+            let stem_b = (stem_bucket % rem) + 1;
+            if self.test_bit(stem_b * 4096 + cur, cand_tok) {
+                hits += 1;
+            }
+        }
+        hits
     }
 }
 
@@ -1717,6 +1874,7 @@ pub struct LutStackModel {
     pub hamming: Vec<ServedHammingRead>,
     pub memory: Option<ServedTurnMemory>,
     pub point: Option<ServedPointKey>,
+    pub ternary_assoc: Option<TernaryAssocBank>,
     pub dialogue_version: u8,
 }
 
@@ -1911,15 +2069,31 @@ impl LutStackModel {
                     key_len: k,
                     keys: read_u32("memory.opening.keys").unwrap_or_default(),
                     values: read_u32("memory.opening.values").unwrap_or_default(),
+                    packed12: Vec::new(),
                     weight_q24: read_i32("memory.opening.weight").unwrap_or_default(),
                 };
                 let reply = if let Some(re) = reply_entries {
-                    if tables.contains_key("memory.reply.keys") {
+                    if tables.contains_key("memory.reply.packed12") {
+                        let raw_p12 = read_u32("memory.reply.packed12")?;
+                        let packed12: Vec<[u32; 3]> = raw_p12
+                            .chunks_exact(3)
+                            .map(|c| [c[0], c[1], c[2]])
+                            .collect();
+                        Some(TurnMemoryTable {
+                            entries: packed12.len().max(re),
+                            key_len: reply_key_len,
+                            keys: Vec::new(),
+                            values: Vec::new(),
+                            packed12,
+                            weight_q24: read_i32("memory.reply.weight")?,
+                        })
+                    } else if tables.contains_key("memory.reply.keys") {
                         Some(TurnMemoryTable {
                             entries: re,
                             key_len: reply_key_len,
                             keys: read_u32("memory.reply.keys")?,
                             values: read_u32("memory.reply.values")?,
+                            packed12: Vec::new(),
                             weight_q24: read_i32("memory.reply.weight")?,
                         })
                     } else {
@@ -1983,6 +2157,28 @@ impl LutStackModel {
             }
         }
 
+        let mut ternary_assoc = None;
+        if let Some(ta_obj) = header.get("ternary_assoc") {
+            let ta_rows = ta_obj.get("rows").and_then(JsonVal::as_usize).unwrap_or(0);
+            let cols_bits = ta_obj
+                .get("cols_bits")
+                .and_then(JsonVal::as_usize)
+                .unwrap_or(4096);
+            let buckets = ta_obj
+                .get("buckets")
+                .and_then(JsonVal::as_usize)
+                .unwrap_or(1);
+            if ta_rows > 0 && tables.contains_key("ternary.assoc.bank") {
+                let words_u32 = read_u32("ternary.assoc.bank")?;
+                ternary_assoc = Some(TernaryAssocBank {
+                    rows: ta_rows,
+                    cols_bits,
+                    buckets,
+                    words_u32,
+                });
+            }
+        }
+
         let artifact_sha256 = sha256_hex(bytes);
 
         Ok(Self {
@@ -1999,8 +2195,48 @@ impl LutStackModel {
             hamming,
             memory,
             point,
+            ternary_assoc,
             dialogue_version,
         })
+    }
+
+    pub fn total_parameters(&self) -> u64 {
+        let mut total = (self.writer_table.len() + self.final_gain.len()) as u64;
+        for l in &self.layers {
+            total += (l.rec_gain.len()
+                + l.mlp_gain.len()
+                + l.rec_in.packed_entries.len() * 5
+                + l.rec_gate.packed_entries.len() * 5
+                + l.rec_out.packed_entries.len() * 5
+                + l.mlp_gate.packed_entries.len() * 5
+                + l.mlp_up.packed_entries.len() * 5
+                + l.mlp_down.packed_entries.len() * 5
+                + l.taps.len()
+                + l.conv_bias.len()
+                + l.gate_bias.len()
+                + l.decay_offset.len()) as u64;
+        }
+        for h in &self.hamming {
+            total += (h.query_rotation.len()
+                + h.key_rotation.len()
+                + h.value_rotation.len()
+                + h.margin.len()
+                + h.weight.len()) as u64;
+        }
+        if let Some(mem) = &self.memory {
+            total += (mem.opening.entries * (mem.opening.key_len + 1)
+                + mem.opening.weight_q24.len()) as u64;
+            if let Some(rep) = &mem.reply {
+                total += (rep.entries * (rep.key_len + 1) + rep.weight_q24.len()) as u64;
+            }
+        }
+        if let Some(pt) = &self.point {
+            total += (pt.rows * (pt.width + 1 + pt.anchor_len)) as u64;
+        }
+        if let Some(ta) = &self.ternary_assoc {
+            total += (ta.rows as u64) * (ta.cols_bits as u64);
+        }
+        total
     }
 
     pub fn session(self: &Arc<Self>) -> LutStackSession {
@@ -2092,6 +2328,7 @@ pub struct LutStackSession {
     pub last_point_hamming_bits: u32,
     pub last_covered_stem_mask: u16,
     pub last_turn_idx: usize,
+    pub prompt_stem_bucket: usize,
 }
 
 impl LutStackSession {
@@ -2112,6 +2349,7 @@ impl LutStackSession {
             last_point_hamming_bits: 0,
             last_covered_stem_mask: 0,
             last_turn_idx: usize::MAX,
+            prompt_stem_bucket: 0,
         }
     }
 
@@ -2132,6 +2370,7 @@ impl LutStackSession {
         self.last_point_hamming_bits = 0;
         self.last_covered_stem_mask = 0;
         self.last_turn_idx = usize::MAX;
+        self.prompt_stem_bucket = 0;
     }
 
     pub fn position(&self) -> usize {
@@ -2220,6 +2459,16 @@ impl LutStackSession {
                 let reply_ids = extract_turn_ids(&self.tokens, mem.key_window, reply_turn_k);
                 self.anchors.opening = open_ids.clone();
                 self.anchors.reply = reply_ids.clone();
+                let active_open: Vec<u32> = open_ids
+                    .iter()
+                    .copied()
+                    .filter(|&t| t != MEMORY_PAD)
+                    .collect();
+                let dec_open = ByteBpe4096::global().decode(&active_open);
+                self.prompt_stem_bucket = extract_salient_stem_hashes_from_text(&dec_open, 1)
+                    .first()
+                    .map(|&(sh, _)| (sh & 0x3FFF_FFFF) as usize)
+                    .unwrap_or(0);
 
                 if let Some(entry_idx) = mem.opening.lookup(&open_ids) {
                     let val_tok = mem.opening.values[entry_idx];
@@ -2336,6 +2585,26 @@ impl LutStackSession {
 
         let mut top_candidates =
             stack_whole_table_top_k(&n_t, &self.model.writer_table, self.model.vocab, 5);
+        if memory_hit_token.is_none() {
+            if let Some(ta) = &self.model.ternary_assoc {
+                let prev_tok = if self.tokens.len() >= 2 {
+                    self.tokens[self.tokens.len() - 2]
+                } else {
+                    MEMORY_PAD
+                };
+                for (cand_tok, cand_dist) in &mut top_candidates {
+                    let hits =
+                        ta.score_transition(prev_tok, token, self.prompt_stem_bucket, *cand_tok);
+                    *cand_dist = cand_dist.saturating_sub(hits * 45_000);
+                }
+                top_candidates.sort_by_key(|&(_, d)| d);
+                if top_candidates.first().is_some_and(|&(ct, _)| {
+                    ta.score_transition(prev_tok, token, self.prompt_stem_bucket, ct) > 0
+                }) {
+                    source_mechanism = "ternary_assoc_nearest";
+                }
+            }
+        }
         let (nearest_tok, nearest_dist) = top_candidates.first().copied().unwrap_or_else(|| {
             stack_whole_table_nearest(&n_t, &self.model.writer_table, self.model.vocab)
         });
@@ -2449,13 +2718,13 @@ fn lookup_reply_continuation_4gram(
     key[reply_key_len - 3] = suffix4[1];
     key[reply_key_len - 2] = suffix4[2];
     key[reply_key_len - 1] = suffix4[3];
-    if let Some(idx) = reply_tbl.lookup(&key) {
-        return Some(reply_tbl.values[idx]);
+    if let Some(val) = reply_tbl.lookup_value(&key) {
+        return Some(val);
     }
     if occ > 0 {
         key[reply_key_len - 5] = 0;
-        if let Some(idx) = reply_tbl.lookup(&key) {
-            return Some(reply_tbl.values[idx]);
+        if let Some(val) = reply_tbl.lookup_value(&key) {
+            return Some(val);
         }
     }
     // Tier 2: Anchor-bound 2-gram backoff (when `prev_1 != MEMORY_PAD`)
@@ -2465,8 +2734,8 @@ fn lookup_reply_continuation_4gram(
         key[reply_key_len - 3] = MEMORY_PAD;
         key[reply_key_len - 2] = suffix4[2];
         key[reply_key_len - 1] = suffix4[3];
-        if let Some(idx) = reply_tbl.lookup(&key) {
-            return Some(reply_tbl.values[idx]);
+        if let Some(val) = reply_tbl.lookup_value(&key) {
+            return Some(val);
         }
     }
     // Tier 3: Universal corpus-wide 4-gram and 3-gram continuation backoff
@@ -2479,13 +2748,13 @@ fn lookup_reply_continuation_4gram(
         gkey[reply_key_len - 2] = suffix4[2];
         gkey[reply_key_len - 1] = suffix4[3];
         if suffix4[0] != MEMORY_PAD {
-            if let Some(idx) = reply_tbl.lookup(&gkey) {
-                return Some(reply_tbl.values[idx]);
+            if let Some(val) = reply_tbl.lookup_value(&gkey) {
+                return Some(val);
             }
         }
         gkey[reply_key_len - 4] = MEMORY_PAD;
-        if let Some(idx) = reply_tbl.lookup(&gkey) {
-            return Some(reply_tbl.values[idx]);
+        if let Some(val) = reply_tbl.lookup_value(&gkey) {
+            return Some(val);
         }
     }
     // Tier 4: Compatibility fallback for step-indexed `.uorlut` tables
@@ -2496,9 +2765,7 @@ fn lookup_reply_continuation_4gram(
     legacy_key[reply_key_len - 3] = legacy_step;
     legacy_key[reply_key_len - 2] = MEMORY_PAD;
     legacy_key[reply_key_len - 1] = suffix4[3];
-    reply_tbl
-        .lookup(&legacy_key)
-        .map(|idx| reply_tbl.values[idx])
+    reply_tbl.lookup_value(&legacy_key)
 }
 
 fn blend_toward_writer_row(
@@ -3932,18 +4199,28 @@ impl LutStackModel {
                 &i32_bytes(&mem.opening.weight_q24),
             );
             let reply_count = if let Some(rep) = &mem.reply {
-                push_section(
-                    "memory.reply.keys",
-                    "u32",
-                    rep.keys.len(),
-                    &u32_bytes(&rep.keys),
-                );
-                push_section(
-                    "memory.reply.values",
-                    "u32",
-                    rep.values.len(),
-                    &u32_bytes(&rep.values),
-                );
+                if !rep.packed12.is_empty() {
+                    let mut raw = Vec::with_capacity(rep.packed12.len() * 12);
+                    for w in &rep.packed12 {
+                        raw.extend_from_slice(&w[0].to_le_bytes());
+                        raw.extend_from_slice(&w[1].to_le_bytes());
+                        raw.extend_from_slice(&w[2].to_le_bytes());
+                    }
+                    push_section("memory.reply.packed12", "u32", rep.packed12.len() * 3, &raw);
+                } else {
+                    push_section(
+                        "memory.reply.keys",
+                        "u32",
+                        rep.keys.len(),
+                        &u32_bytes(&rep.keys),
+                    );
+                    push_section(
+                        "memory.reply.values",
+                        "u32",
+                        rep.values.len(),
+                        &u32_bytes(&rep.values),
+                    );
+                }
                 push_section(
                     "memory.reply.weight",
                     "i32",
@@ -3997,9 +4274,24 @@ impl LutStackModel {
             String::new()
         };
 
+        let ternary_json = if let Some(ta) = &self.ternary_assoc {
+            push_section(
+                "ternary.assoc.bank",
+                "u32",
+                ta.words_u32.len(),
+                &u32_bytes(&ta.words_u32),
+            );
+            format!(
+                ",\"ternary_assoc\":{{\"rows\":{},\"cols_bits\":{},\"buckets\":{}}}",
+                ta.rows, ta.cols_bits, ta.buckets
+            )
+        } else {
+            String::new()
+        };
+
         let pattern = "r".repeat(self.layers.len());
         let header_str = format!(
-            "{{\"schema\":\"{}\",\"dialogue_version\":{},\"shape\":{{\"vocab\":{},\"width\":{},\"mlp\":{},\"pattern\":\"{}\",\"context\":{}}},\"hamming\":{{\"copy_key\":{},\"depths\":[{}],\"heads\":{}}}{}{},\"tables\":[{}]}}",
+            "{{\"schema\":\"{}\",\"dialogue_version\":{},\"shape\":{{\"vocab\":{},\"width\":{},\"mlp\":{},\"pattern\":\"{}\",\"context\":{}}},\"hamming\":{{\"copy_key\":{},\"depths\":[{}],\"heads\":{}}}{}{}{},\"tables\":[{}]}}",
             self.schema,
             self.dialogue_version,
             self.vocab,
@@ -4012,6 +4304,7 @@ impl LutStackModel {
             HAMMING_HEADS,
             memory_json,
             point_json,
+            ternary_json,
             table_entries.join(",")
         );
         let header_bytes = header_str.as_bytes();

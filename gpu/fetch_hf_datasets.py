@@ -171,10 +171,17 @@ def parse_alpaca_json(path: str, source_tag: str):
     return pairs
 
 
-def stream_openhermes_subset(url: str, cache_jsonl: str, max_items: int = 80000):
-    """Streams the first `max_items` high-quality single-turn/multi-turn pairs from OpenHermes-2.5 without needing 2GB RAM."""
-    if os.path.exists(cache_jsonl) and os.path.getsize(cache_jsonl) > 1_000_000:
-        print(f"  [cached] {cache_jsonl} ({os.path.getsize(cache_jsonl):,} bytes)", flush=True)
+def stream_openhermes_subset(url: str, cache_jsonl: str, max_items: int = 180000):
+    """Streams up to `max_items` high-quality single-turn/multi-turn pairs from OpenHermes-2.5 without needing 2GB RAM."""
+    existing_lines = 0
+    if os.path.exists(cache_jsonl):
+        with open(cache_jsonl, "r", encoding="utf-8") as f:
+            existing_lines = sum(1 for _ in f)
+    if existing_lines >= max_items:
+        print(
+            f"  [cached] {cache_jsonl} ({existing_lines:,} lines, {os.path.getsize(cache_jsonl):,} bytes)",
+            flush=True,
+        )
     else:
         print(f"  [streaming] {url} -> {cache_jsonl} (up to {max_items} items)...", flush=True)
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (UOR-R4-Trainer)"})
@@ -198,23 +205,27 @@ def stream_openhermes_subset(url: str, cache_jsonl: str, max_items: int = 80000)
                         obj, end_idx = decoder.raw_decode(buf)
                         buf = buf[end_idx:]
                         convs = obj.get("conversations", [])
-                        user_msg = ""
-                        asst_msg = ""
+                        pending_user = ""
                         for turn in convs:
                             role = turn.get("from", "")
                             val = turn.get("value", "")
-                            if role in ("human", "user") and not user_msg:
-                                user_msg = clean_field(val)
-                            elif role in ("gpt", "assistant") and user_msg and not asst_msg:
+                            if role in ("human", "user"):
+                                pending_user = clean_field(val)
+                            elif role in ("gpt", "assistant") and pending_user:
                                 asst_msg = clean_field(val)
-                                break
-                        if user_msg and asst_msg and is_high_quality_pair(user_msg, asst_msg):
-                            out.write(json.dumps({"p": user_msg, "r": asst_msg}) + "\n")
-                            count += 1
-                            if count % 5000 == 0:
-                                print(f"    streamed {count:,} OpenHermes-2.5 pairs...", flush=True)
-                            if count >= max_items:
-                                break
+                                if is_high_quality_pair(pending_user, asst_msg):
+                                    out.write(json.dumps({"p": pending_user, "r": asst_msg}) + "\n")
+                                    count += 1
+                                    if count % 10000 == 0:
+                                        print(
+                                            f"    streamed {count:,} OpenHermes-2.5 pairs...",
+                                            flush=True,
+                                        )
+                                    if count >= max_items:
+                                        break
+                                pending_user = ""
+                        if count >= max_items:
+                            break
                     except json.JSONDecodeError:
                         # Need more bytes from network
                         break

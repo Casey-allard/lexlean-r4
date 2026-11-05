@@ -1116,6 +1116,8 @@ impl StudioEngine {
             .map(|r| r.entries)
             .unwrap_or(0);
         let point_rows = m.point.as_ref().map(|pt| pt.rows).unwrap_or(0);
+        let ternary_rows = m.ternary_assoc.as_ref().map(|t| t.rows).unwrap_or(0);
+        let total_params = m.total_parameters();
         format!(
             concat!(
                 "{{",
@@ -1134,7 +1136,9 @@ impl StudioEngine {
                 "\"hamming_heads\":4,",
                 "\"opening_entries\":{},",
                 "\"reply_entries\":{},",
-                "\"point_rows\":{}",
+                "\"point_rows\":{},",
+                "\"ternary_assoc_rows\":{},",
+                "\"total_parameters\":{}",
                 "}}"
             ),
             escape_json(&m.schema),
@@ -1150,7 +1154,9 @@ impl StudioEngine {
             m.layers.len(),
             open_entries,
             reply_entries,
-            point_rows
+            point_rows,
+            ternary_rows,
+            total_params
         )
     }
 

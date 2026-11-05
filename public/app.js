@@ -1292,7 +1292,11 @@ function updateWeightCacheBadge() {
       const packInfo = JSON.parse(studio_weight_pack_status());
       if (packInfo && packInfo.status === 'ok') {
         const mb = (packInfo.byte_len / (1024 * 1024)).toFixed(1);
-        topbarModelTag.textContent = `UORLUT01 (uor-r4.lut-stack/8) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
+        const totalParams = packInfo.total_parameters || 0;
+        const paramStr = totalParams >= 1000000000
+          ? `${(totalParams / 1000000000).toFixed(2)}B Params`
+          : `${(totalParams / 1000000).toFixed(1)}M Params`;
+        topbarModelTag.textContent = `UORLUT01 (uor-r4.lut-stack/8 · ${paramStr}) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
       }
     } catch {
       // Ignore parse error during early boot
@@ -1361,10 +1365,7 @@ try {
   }
   runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
   executeCoordinateEnvelope();
-  if (
-    typeof stream_sharded_weights_to_indexeddb === 'function'
-    && (!globalThis.__uorWeightCacheMeta || globalThis.__uorWeightCacheMeta.mode !== 'indexeddb')
-  ) {
+  if (typeof stream_sharded_weights_to_indexeddb === 'function') {
     stream_sharded_weights_to_indexeddb((prog) => {
       if (syncWeightsBtn && prog && typeof prog.percent === 'number') {
         syncWeightsBtn.textContent = `Syncing ${prog.percent}%...`;

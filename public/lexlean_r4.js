@@ -354,8 +354,12 @@ export async function restore_cached_uorlut_from_indexeddb() {
             const parsed = JSON.parse(rawStatus);
             if (parsed && parsed.status === 'ok') {
                 const mb = (bytes.byteLength / (1024 * 1024)).toFixed(1);
+                const pCount = parsed.total_parameters || 0;
+                const pLabel = pCount >= 1000000000
+                    ? `${(pCount / 1000000000).toFixed(2)}B Params · `
+                    : '';
                 globalThis.__uorWeightCacheMeta = {
-                    status: `IndexedDB UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
+                    status: `IndexedDB UORLUT01/8 (${pLabel}${mb} MB · ${parsed.reply_entries} reply rows)`,
                     sha256: parsed.sha256 || '',
                     mode: 'indexeddb'
                 };
@@ -537,8 +541,12 @@ export async function stream_sharded_weights_to_indexeddb(onProgress, forceReloa
         const emitProgress = () => {
             const pct = Math.floor((completedShards * 100) / totalShards);
             const mbDone = (completedBytes / (1024 * 1024)).toFixed(1);
+            const mParams = manifest.total_parameters || 0;
+            const mParamStr = mParams >= 1000000000
+                ? `${(mParams / 1000000000).toFixed(2)}B`
+                : `${mbTotal} MB`;
             globalThis.__uorWeightCacheMeta = {
-                status: `Streaming 271.5 MB Weights (${mbDone}/${mbTotal} MB · ${pct}%)`,
+                status: `Streaming ${mParamStr} Weights (${mbDone}/${mbTotal} MB · ${pct}%)`,
                 sha256: manifest.sha256 || '',
                 mode: 'streaming'
             };
@@ -620,8 +628,12 @@ export async function stream_sharded_weights_to_indexeddb(onProgress, forceReloa
         const parsed = JSON.parse(rawStatus);
         if (parsed && parsed.status === 'ok') {
             await cache_uorlut_in_indexeddb(fullBytes, sourceLabel);
+            const pCount = parsed.total_parameters || manifest.total_parameters || 0;
+            const pLabel = pCount >= 1000000000
+                ? `${(pCount / 1000000000).toFixed(2)}B Params · `
+                : '';
             globalThis.__uorWeightCacheMeta = {
-                status: `IndexedDB UORLUT01/8 (${mb} MB · ${parsed.reply_entries} reply rows)`,
+                status: `IndexedDB UORLUT01/8 (${pLabel}${mb} MB · ${parsed.reply_entries} reply rows)`,
                 sha256: parsed.sha256 || manifest.sha256 || '',
                 mode: 'indexeddb'
             };
