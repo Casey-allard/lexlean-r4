@@ -416,7 +416,7 @@ target_reply = "The Curry-Howard correspondence identifies mathematical proposit
 
 [[claim]]
 id = "R4-F28"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -424,6 +424,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:stem:crispr-cas9-pam-hdr-nhej-editing:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f28_corpus_induction"
 statement = "Verify how Cas9 endonuclease recognizes the 5'-NGG-3' PAM sequence and how cells repair double-strand breaks via NHEJ vs homology-directed repair (HDR)."
 prompt = "How does CRISPR-Cas9 locate a target DNA sequence and what distinguishes NHEJ from HDR repair?"
 target_reply = "Cas9 scans DNA for a protospacer adjacent motif (5'-NGG-3' PAM) before unwinding the duplex to pair its 20-nucleotide guide RNA; after Cas9 cleaves both strands, non-homologous end joining (NHEJ) ligates ends with small indels, whereas homology-directed repair (HDR) copies a donor template."
@@ -486,3 +487,17 @@ kappa = "r4:v1:manifold:dialogue-stem:ield-work:r5082:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ield and work at manifold row 5082."
 prompt = "How does PointKey routing resolve conversational prompts about ield and work?"
 target_reply = "PointKey routing matches conversational stems ield and work directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F33"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:return-number:r5438:k=8"
+statement = "Verify causal four gram deduction over stems return and number from manifold row 5438 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over return and number?"
+target_reply = "Causal four gram continuation preserves reasoning over return and number because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
