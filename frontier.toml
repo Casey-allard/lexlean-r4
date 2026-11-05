@@ -1109,7 +1109,7 @@ target_reply = "Multi-basin geodesic synthesis connects display and design by re
 
 [[claim]]
 id = "R4-F72"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1117,6 +1117,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:steps-sour:r197:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f72_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems steps and sour at manifold row 197."
 prompt = "How does PointKey routing resolve conversational prompts about steps and sour?"
 target_reply = "PointKey routing matches conversational stems steps and sour directly to their canonical reply anchor without token loops."
@@ -1179,3 +1180,17 @@ kappa = "r4:v1:manifold:dialogue-stem:cient-work:r1033:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems cient and work at manifold row 1033."
 prompt = "How does PointKey routing resolve conversational prompts about cient and work?"
 target_reply = "PointKey routing matches conversational stems cient and work directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F77"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:work-nder:r1023:k=8"
+statement = "Verify causal four gram deduction over stems work and nder from manifold row 1023 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over work and nder?"
+target_reply = "Causal four gram continuation preserves reasoning over work and nder because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
