@@ -133,7 +133,17 @@ jobs:
                 --title "$tick_title" \
                 --body-file .r4-engine-status.txt || true
               b64=$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)
-              git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin HEAD:refs/heads/main
+              pushed_main=false
+              for attempt in 1 2 3 4; do
+                sleep 2
+                if git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin HEAD:refs/heads/main; then
+                  pushed_main=true
+                  break
+                fi
+              done
+              if [ "$pushed_main" != "true" ]; then
+                exit 1
+              fi
               git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin --delete "$tick_branch" || true
             fi
           fi
