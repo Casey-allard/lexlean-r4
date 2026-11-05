@@ -281,7 +281,7 @@ target_reply = "A compiler computes the dominance tree of the control-flow graph
 
 [[claim]]
 id = "R4-F19"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -368,3 +368,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify that multi-basin geodesic synthesis chains complementary PointKey basins across uncovered prompt stems while preserving cycle-free 4-gram decoding."
 prompt = "How does UOR-R4 combine multiple concept basins when answering a complex multi-part question?"
 target_reply = "UOR-R4 tracks covered prompt stem bits on the primary PointKey basin and iteratively resolves up to three complementary basins over the remaining uncovered stems, decoding each basin's 4-gram trajectory into a coherent multi-paragraph response."
+
+[[claim]]
+id = "R4-F25"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:zero-knowledge-succinct-proof-soundness:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify the completeness, knowledge soundness, and zero-knowledge properties of succinct non-interactive arguments of knowledge (zk-SNARKs)."
+prompt = "What are the three core security properties of a zero-knowledge proof system?"
+target_reply = "A zero-knowledge proof system satisfies completeness (an honest prover convinces an honest verifier), soundness (a cheating prover cannot forge a valid proof for a false statement), and zero-knowledge (the proof reveals nothing beyond the statement's truth)."
