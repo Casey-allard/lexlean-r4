@@ -203,7 +203,7 @@ target_reply = "Durable turn memory intersects sorted PrimeAddress factors via G
 
 [[claim]]
 id = "R4-F14"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -293,3 +293,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify how Multi-Version Concurrency Control (MVCC) provides non-blocking snapshot reads and how Serializable Snapshot Isolation (SSI) detects write-skew anomalies."
 prompt = "What is the difference between Snapshot Isolation and Serializable Snapshot Isolation in MVCC databases?"
 target_reply = "Snapshot Isolation lets readers observe a consistent transaction snapshot without blocking writers but permits write skew when concurrent transactions read overlapping predicates and update disjoint rows; Serializable Snapshot Isolation tracks rw-antidependency cycles to abort non-serializable commits."
+
+[[claim]]
+id = "R4-F20"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:noether-symmetry-conservation-laws:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify Noether's first theorem linking continuous symmetries of the action functional to conserved currents in physical systems."
+prompt = "How does Noether's theorem connect symmetries to conservation laws in physics?"
+target_reply = "Noether's theorem proves that every differentiable symmetry of a system's action yields a conserved quantity: time-translation invariance conserves energy, spatial-translation invariance conserves linear momentum, and rotational invariance conserves angular momentum."

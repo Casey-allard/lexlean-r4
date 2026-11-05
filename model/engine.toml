@@ -51,7 +51,7 @@ value = 8
 [[weight]]
 strategy = "pointkey-resonance"
 family = "code-synthesis"
-value = 14
+value = 16
 
 [[weight]]
 strategy = "reply-4gram-deduction"
@@ -179,6 +179,14 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T13:19:20Z"
 
+[[attempt]]
+kappa = "r4:v1:stem:hebbian-schedule-invariant:k=12"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T14:36:12Z"
+
 [[tick]]
 id = "2026-11-05T03:30:00Z"
 outcome = "advanced"
@@ -254,4 +262,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F13"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T14:36:12Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F14"]
 minted = 16
