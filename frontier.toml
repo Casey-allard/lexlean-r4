@@ -341,7 +341,7 @@ target_reply = "The Shannon-Hartley theorem states that the maximum error-free i
 
 [[claim]]
 id = "R4-F23"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -428,3 +428,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify how Cas9 endonuclease recognizes the 5'-NGG-3' PAM sequence and how cells repair double-strand breaks via NHEJ vs homology-directed repair (HDR)."
 prompt = "How does CRISPR-Cas9 locate a target DNA sequence and what distinguishes NHEJ from HDR repair?"
 target_reply = "Cas9 scans DNA for a protospacer adjacent motif (5'-NGG-3' PAM) before unwinding the duplex to pair its 20-nucleotide guide RNA; after Cas9 cleaves both strands, non-homologous end joining (NHEJ) ligates ends with small indels, whereas homology-directed repair (HDR) copies a donor template."
+
+[[claim]]
+id = "R4-F29"
+status = "observed"
+depends = ["R4-F02"]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:lsm-tree-vs-btree-write-read-amplification:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify the write amplification, read amplification, and space amplification trade-offs between Log-Structured Merge-trees (LSM-trees) and B+Trees."
+prompt = "When should a storage engine use an LSM-tree instead of a B+Tree?"
+target_reply = "An LSM-tree buffers writes sequentially in a MemTable and immutable SSTables with Bloom filters, achieving much higher write throughput and lower space amplification than in-place B+Tree page updates, at the cost of background compaction CPU/IO and higher range-scan read amplification."
