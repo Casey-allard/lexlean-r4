@@ -1088,7 +1088,10 @@ pub struct StrategyProofSpec {
 
 /// Compute structural witnesses for `claim` matching the preconditions of
 /// `R4.AutonomousEngine.verify*` definitions.
-pub fn compute_claim_witnesses(claim: &FrontierClaim, orphaned_point_rows: usize) -> ClaimWitnesses {
+pub fn compute_claim_witnesses(
+    claim: &FrontierClaim,
+    orphaned_point_rows: usize,
+) -> ClaimWitnesses {
     const STOPWORDS: &[&str] = &[
         "how", "what", "why", "when", "where", "who", "does", "are", "the", "and", "for", "with",
         "into", "from", "that", "this", "can", "you", "should",
@@ -1129,7 +1132,18 @@ pub fn compute_claim_witnesses(claim: &FrontierClaim, orphaned_point_rows: usize
                         c.is_ascii_digit()
                             || matches!(
                                 c,
-                                '=' | '+' | '_' | ':' | '&' | '(' | ')' | '/' | '-' | '<' | '>' | '[' | ']'
+                                '=' | '+'
+                                    | '_'
+                                    | ':'
+                                    | '&'
+                                    | '('
+                                    | ')'
+                                    | '/'
+                                    | '-'
+                                    | '<'
+                                    | '>'
+                                    | '['
+                                    | ']'
                             )
                     })
                 })
@@ -1173,20 +1187,14 @@ pub fn evaluate_strategy_on_claim(
     let theorem_name = format!("frontier_{id_slug}_{strat_slug}");
     match strategy {
         "corpus-induction" => {
-            if w.prompt_words >= 4
-                && w.reply_words >= 20
-                && w.stem_count >= 3
-                && w.window_span >= 8
+            if w.prompt_words >= 4 && w.reply_words >= 20 && w.stem_count >= 3 && w.window_span >= 8
             {
                 Some(StrategyProofSpec {
                     theorem_name,
                     function_name: "verifyCorpusInduction",
                     args: [w.prompt_words, w.reply_words, w.stem_count, w.window_span],
                     constructor_name: "EngineVerdict.mintedHypothesis",
-                    result_args: [
-                        w.prompt_words + w.reply_words,
-                        w.stem_count + w.window_span,
-                    ],
+                    result_args: [w.prompt_words + w.reply_words, w.stem_count + w.window_span],
                 })
             } else {
                 None
@@ -1229,20 +1237,14 @@ pub fn evaluate_strategy_on_claim(
             }
         }
         "bvgk-writer-refinement" => {
-            if w.symbolic_count >= 1
-                && w.reply_words >= 14
-                && w.stem_count >= 3
-                && w.window_hi >= 8
+            if w.symbolic_count >= 1 && w.reply_words >= 14 && w.stem_count >= 3 && w.window_hi >= 8
             {
                 Some(StrategyProofSpec {
                     theorem_name,
                     function_name: "verifyBvgkWriterRefinement",
                     args: [w.symbolic_count, w.reply_words, w.stem_count, w.window_hi],
                     constructor_name: "EngineVerdict.mintedHypothesis",
-                    result_args: [
-                        w.symbolic_count + w.reply_words,
-                        w.stem_count + w.window_hi,
-                    ],
+                    result_args: [w.symbolic_count + w.reply_words, w.stem_count + w.window_hi],
                 })
             } else {
                 None
@@ -1356,8 +1358,7 @@ pub fn sync_and_verify_frontier_theorems(
          \\end{{lexlean}}\n"
     );
     let path = root.join("tests/lexlean/FrontierTheorems.lex.tex");
-    std::fs::write(&path, tex)
-        .map_err(|e| format!("failed to write {}: {e}", path.display()))?;
+    std::fs::write(&path, tex).map_err(|e| format!("failed to write {}: {e}", path.display()))?;
     let count = verify_frontier_theorems_ast(root, frontier)?;
     if std::env::var_os("SDK_IMAGE").is_some() {
         verify_frontier_theorems_with_lexlean(root)?;
@@ -1367,10 +1368,7 @@ pub fn sync_and_verify_frontier_theorems(
 
 /// Verify `tests/lexlean/FrontierTheorems.lex.tex` AST and reflexivity equations against
 /// `src/R4/AutonomousEngine.lex.tex` and `frontier.toml`.
-pub fn verify_frontier_theorems_ast(
-    root: &Path,
-    frontier: &FrontierFile,
-) -> Result<usize, String> {
+pub fn verify_frontier_theorems_ast(root: &Path, frontier: &FrontierFile) -> Result<usize, String> {
     let path = root.join("tests/lexlean/FrontierTheorems.lex.tex");
     let source = std::fs::read_to_string(&path)
         .map_err(|e| format!("failed to read {}: {e}", path.display()))?;
@@ -1398,7 +1396,9 @@ pub fn verify_frontier_theorems_ast(
             .as_str()
             .ok_or("FrontierTheorems declaration missing name")?;
         if !verified_names.insert(name.to_string()) {
-            return Err(format!("duplicate theorem {name} in FrontierTheorems.lex.tex"));
+            return Err(format!(
+                "duplicate theorem {name} in FrontierTheorems.lex.tex"
+            ));
         }
     }
 
@@ -1470,7 +1470,19 @@ fn decode_point_row_basin(
         if lower.len() >= 4
             && !matches!(
                 lower.as_str(),
-                "what" | "when" | "where" | "which" | "with" | "from" | "that" | "this" | "have" | "will" | "your" | "about" | "does"
+                "what"
+                    | "when"
+                    | "where"
+                    | "which"
+                    | "with"
+                    | "from"
+                    | "that"
+                    | "this"
+                    | "have"
+                    | "will"
+                    | "your"
+                    | "about"
+                    | "does"
             )
             && !stems.contains(&lower)
         {
