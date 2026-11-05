@@ -10,6 +10,7 @@
   3. `b67d4e2` — `engine(tick): prove R4-F08 and update Hebbian weights`
   4. `c29d397` — `engine(tick): prove R4-F09 and update Hebbian weights` (compiled `R4-F09` into `crates/wasm/src/bootstrap_v8.uorlut`)
   5. `f3f3c9f` — `engine(tick): prove R4-F10 and update Hebbian weights` (compiled `R4-F10` into `crates/wasm/src/bootstrap_v8.uorlut`, raising `point_rows` to `9,799` with `0` orphaned rows)
+  6. `efe5270` — `engine(tick): prove R4-F12 and update Hebbian weights` (compiled `R4-F12` into `crates/wasm/src/bootstrap_v8.uorlut`, raising `point_rows` to `9,800` with `0` orphaned rows)
 - **Historical Archive**: The October 2026 checkpoint log below is preserved for audit lineage; PR `#78` (`e1e6990`) was merged and Issue `#66` (`2142b71`) was resolved and closed.
 
 Updated 2026-10-26. This is the repository entry point for continuing the work

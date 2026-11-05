@@ -31,7 +31,10 @@ fn main() -> ExitCode {
         "audit-bootstrap" => bootstrap::audit(&root),
         "audit-dependency-updates" => bootstrap::audit_dependency_updates(&root),
         "validate" => validate(&root),
-        "status" | "brief" => engine::print_status(&root).map_err(Into::into),
+        "status" => engine::print_status(&root).map_err(Into::into),
+        "brief" => engine::print_brief(&root).map_err(Into::into),
+        "chain" => engine::print_chain(&root).map_err(Into::into),
+        "claim" => engine::print_claim(&root, rest).map_err(Into::into),
         "frontier" => engine::run_frontier_cmd(&root, rest).map_err(Into::into),
         "discover" => engine::discover(&root, write, 2)
             .map(|added| {

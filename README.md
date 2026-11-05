@@ -85,13 +85,17 @@ Modeled directly on [`afflom/rule30`](https://github.com/afflom/rule30)'s autono
 
 ```text
 bin/r4 status
-bin/r4 frontier [--status STATUS]
-bin/r4 discover [--apply]
-bin/r4 audit [--apply]
-bin/r4 deduce [--budget-seconds N] [--max-claims N] [--apply]
+bin/r4 brief
+bin/r4 chain
+bin/r4 claim <ID>
+bin/r4 frontier [list|check|set]
+bin/r4 discover [--write]
+bin/r4 audit
+bin/r4 deduce [--write]
+bin/r4 engine status
 bin/r4 engine tick [--budget-minutes 75] [--commit] [--push]
-bin/r4 engine hypotheses [--apply]
-bin/r4 engine prune
+bin/r4 engine hypotheses
+bin/r4 engine prune [--apply]
 bin/r4 api check
 bin/r4 api sync
 ```
