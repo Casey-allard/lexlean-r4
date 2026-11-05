@@ -5296,6 +5296,67 @@ mod tests {
             BOOTSTRAP_UORLUT_V8.len() as u64
         );
 
+        // 4. Verify 3-basin complementary uncovered-stem geodesic synthesis (`Gap 1`)
+        let comp_three = model.generate_reply(
+            &[],
+            "Explain quantum entanglement, Emmy Noether, and GPS location on Earth",
+            1024,
+        );
+        assert!(
+            comp_three.clauses_resolved >= 3
+                && comp_three.reply_text.contains("Quantum entanglement")
+                && comp_three.reply_text.contains("Noether")
+                && comp_three.reply_text.contains("trilateration"),
+            "3-concept single-clause prompt must chain all 3 basins cleanly: {}",
+            comp_three.reply_text
+        );
+
+        // 5. Verify deep multi-turn scope retention on >12-word follow-ups with secondary concept bridging (`Gap 2`)
+        //    and multi-clause latent geometric deliberation (`Gap 3`)
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let btree_t1_raw = dispatch_string("1\tstudio\tchat\tExplain B-Trees");
+        let btree_t1_j: serde_json::Value =
+            serde_json::from_str(&btree_t1_raw).expect("valid btree t1 JSON");
+        assert!(btree_t1_j["assistant_reply"]
+            .as_str()
+            .unwrap_or("")
+            .to_ascii_lowercase()
+            .contains("b-tree"));
+
+        let btree_t2_raw = dispatch_string(
+            "1\tstudio\tchat\tIn that approach you just explained, what happens if we combine it with Raft consensus replication across nodes?",
+        );
+        let btree_t2_j: serde_json::Value =
+            serde_json::from_str(&btree_t2_raw).expect("valid btree t2 JSON");
+        let btree_t2_reply = btree_t2_j["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            btree_t2_reply.contains("Regarding **B-Trees")
+                && (btree_t2_reply.contains("Raft") || btree_t2_reply.contains("Consensus")),
+            "18-word follow-up with explicit deictic must retain B-Tree antecedent scope and bridge Raft consensus: {btree_t2_reply}"
+        );
+
+        let multi_clause_delib_raw = dispatch_string(
+            "1\tstudio\tchat\tWhen designing a storage engine with B-Trees, how does Raft consensus handle leader election across replicas?",
+        );
+        let multi_clause_delib_j: serde_json::Value =
+            serde_json::from_str(&multi_clause_delib_raw).expect("valid multi-clause JSON");
+        let multi_clause_delib_reply = multi_clause_delib_j["assistant_reply"]
+            .as_str()
+            .unwrap_or("");
+        assert!(
+            !multi_clause_delib_reply.contains("1. **Core Concept**:")
+                && (multi_clause_delib_reply
+                    .to_ascii_lowercase()
+                    .contains("b-tree")
+                    || multi_clause_delib_reply
+                        .to_ascii_lowercase()
+                        .contains("raft")
+                    || multi_clause_delib_reply
+                        .to_ascii_lowercase()
+                        .contains("consensus")),
+            "Multi-clause deliberation prompt must synthesize domain concepts without legacy scaffold: {multi_clause_delib_reply}"
+        );
+
         let _ = dispatch_string("1\tstudio\treset\t");
     }
 }

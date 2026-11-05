@@ -71,6 +71,8 @@ fn main() -> ExitCode {
                         }
                         engine::save_frontier(&root, &front)?;
                         engine::save_engine(&root, &eng)?;
+                        let _compiled =
+                            engine::compile_proved_frontier_claims_to_uorlut(&root, &front)?;
                     }
                     println!(
                         "deduce (write={write}): proved {} claim(s): {:?}",

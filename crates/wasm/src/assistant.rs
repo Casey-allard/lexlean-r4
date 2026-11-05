@@ -1058,7 +1058,20 @@ impl StudioEngine {
                 || lower.contains("what do you mean")
                 || lower.contains("my day is")
                 || has_any_word(&lower, &["there", "his", "her"])
-                || lower.contains("why did it"));
+                || lower.contains("why did it")
+                || lower.contains("that approach")
+                || lower.contains("that design")
+                || lower.contains("that mechanism")
+                || lower.contains("that architecture")
+                || lower.contains("that protocol")
+                || lower.contains("this approach")
+                || lower.contains("this system")
+                || lower.contains("this algorithm")
+                || lower.contains("what happens if")
+                || lower.contains("how does that affect")
+                || lower.contains("how does this affect")
+                || lower.contains("can you go deeper")
+                || lower.contains("elaborate on"));
         let is_compositional_or_parameterized = (lower.starts_with("compare ")
             && (lower.contains(" and ") || lower.contains(" to ")))
             || lower.contains("difference between")
@@ -1093,6 +1106,7 @@ impl StudioEngine {
             .generate_reply(&self.chat_history, trimmed, 1024);
         let has_curated_qa_override = lut_gen.primary_turn_idx
             >= crate::lut_stack_exec::CORE_CURRICULUM_TURNS
+            && lut_gen.steps.first().is_none_or(|s| s.l1_distance > 0)
             && crate::glm_weights::has_curated_glm_override(
                 &lower,
                 &words,
@@ -2880,108 +2894,27 @@ fn compose_open_domain_reasoning(
     raw_prompt: &str,
     lower: &str,
     words: &[String],
-    _prompt_q12: &[i16; POINT_KEY_DIM],
-    _consensus_action: u8,
-    _flock_resonance: u64,
-    _icosian_root: u8,
+    prompt_q12: &[i16; POINT_KEY_DIM],
+    consensus_action: u8,
+    flock_resonance: u64,
+    icosian_root: u8,
     binder_notice: Option<String>,
 ) -> String {
-    let topic_words: Vec<&str> = words
+    let prompt_stems: Vec<String> = words
         .iter()
-        .map(String::as_str)
-        .filter(|w| !is_stopword(w) && w.len() > 2)
-        .take(6)
+        .map(|w| canonical_stem(w).to_string())
         .collect();
-    let topic_label = if topic_words.is_empty() {
-        raw_prompt.trim().trim_end_matches('?').to_string()
-    } else {
-        topic_words.join(" ")
-    };
-
-    let is_comparison = lower.contains(" vs ")
-        || lower.contains(" versus ")
-        || lower.contains("difference between")
-        || lower.contains("compare")
-        || lower.contains("pros and cons");
-    let is_how_to = lower.starts_with("how do i")
-        || lower.contains("how to")
-        || lower.contains("steps to")
-        || lower.starts_with("guide to");
-    let is_how_works = lower.starts_with("how does")
-        || lower.starts_with("how do ")
-        || lower.contains("explain how");
-    let is_why = lower.starts_with("why ");
-    let is_brainstorm = has_any_word(
+    crate::glm_weights::synthesize_glm_response(
+        raw_prompt,
         lower,
-        &[
-            "ideas",
-            "brainstorm",
-            "suggest",
-            "recommendations",
-            "recommend",
-            "tips",
-            "best",
-            "ways",
-        ],
-    );
-    let is_writing = has_any_word(
-        lower,
-        &[
-            "email", "essay", "blog", "article", "letter", "outline", "draft", "pitch", "summary",
-            "announce",
-        ],
-    );
-    let is_design = has_any_word(
-        lower,
-        &[
-            "architecture",
-            "design",
-            "system",
-            "pipeline",
-            "workflow",
-            "plan",
-            "roadmap",
-            "strategy",
-        ],
-    );
-
-    let body = if is_comparison {
-        format!(
-            "### Comparing **{topic_label}**\n\nHere is a structured breakdown of the key differences and trade-offs:\n\n| Dimension | Option A (First Approach) | Option B (Alternative Approach) |\n| --- | --- | --- |\n| **Core Model** | Optimized for direct, predictable execution and low latency | Optimized for flexibility, extensibility, and broader abstraction |\n| **Scaling & Throughput** | Lower per-operation overhead and tighter memory locality | Scales horizontally across decoupled components |\n| **Best Use Case** | Performance-critical paths, strict invariants, and deterministic workloads | Rapid iteration, heterogeneous integrations, and evolving schemas |\n\n### Practical Recommendation\n- Start with the **simpler, deterministic approach** when latency, correctness, and debuggability are your primary constraints.\n- Introduce additional abstraction layers only when measured throughput or team boundaries require it.\n\n*If you'd like a side-by-side code benchmark in **Python**, **TypeScript**, **Rust**, or **Go**, tell me which language to use!*"
-        )
-    } else if is_writing {
-        format!(
-            "### Draft: **{raw_prompt}**\n\n**Subject / Headline:** Clear Overview & Next Steps — {topic_label}\n\nHi everyone,\n\nHere is a concise summary and action plan regarding **{topic_label}**:\n\n1. **Context & Objective**: Establish a clear, measurable outcome with well-defined scope and deliverables.\n2. **Key Highlights**:\n   - Streamlined the core workflow to remove bottlenecks and improve reliability.\n   - Verified all critical edge cases so the implementation is ready for production use.\n3. **Next Steps**:\n   - Review the proposed changes and confirm priorities.\n   - Finalize deployment and share metrics with the team.\n\nPlease let me know if you'd like to adjust the tone (more formal, technical, or executive-brief) or expand any section!"
-        )
-    } else if is_brainstorm {
-        format!(
-            "### High-Impact Ideas & Recommendations for **{topic_label}**\n\n1. **Start with a High-Leverage Prototype**: Focus on the smallest end-to-end slice that delivers immediate, measurable value to users.\n2. **Automate the Repetitive Bottlenecks**: Replace manual steps with deterministic scripts, clear validation checks, and fast feedback loops.\n3. **Measure Latency & Quality Early**: Track concrete metrics (response time, error rate, user retention) from day one.\n4. **Design for Composability**: Keep modules small and well-typed so individual components can be upgraded independently.\n5. **Document with Runnable Examples**: Pair every key concept with a copy-pasteable example or automated test.\n\nWhich of these directions would you like to dive into first?"
-        )
-    } else if is_design {
-        format!(
-            "### System Architecture & Design Plan: **{topic_label}**\n\n1. **Data Model & Contracts**\n   - Define explicit, strongly typed schemas and idempotent request/response envelopes at every boundary.\n2. **Core Processing Pipeline**\n   - Keep the hot path stateless and deterministic (`O(1)` or `O(log N)` lookups) while isolating I/O and persistence at the edges.\n3. **Reliability & Observability**\n   - Enforce bounded timeouts, structured error codes, cryptographic/hash integrity receipts, and automated regression tests.\n\nWant me to generate the starter implementation or schema in **Rust**, **Python**, **TypeScript**, or **SQL**?"
-        )
-    } else if is_how_to {
-        format!(
-            "### Step-by-Step Guide: **{raw_prompt}**\n\n1. **Clarify the Goal & Inputs**: Define the exact input format, expected output, and constraints before writing code or configuration.\n2. **Build the Core Logic First**: Implement the simplest working version with zero unnecessary dependencies and verify it on a known example.\n3. **Handle Edge Cases**: Account for empty inputs, boundary values, permissions, and failure recovery.\n4. **Automate Verification**: Add a quick test or script so you can re-verify the result in one command.\n\nIf you'd like runnable code for this, just ask: *\"Write a Python/TypeScript/Rust script for {topic_label}\"*."
-        )
-    } else if is_how_works {
-        format!(
-            "### How **{topic_label}** Works\n\nAt its core, **{topic_label}** operates through three coordinated stages:\n\n1. **Input Representation & Parsing**: Raw inputs are normalized into a structured internal representation with well-defined invariants.\n2. **State Transformation & Routing**: Each step applies a deterministic rule or lookup to transition from the current state to the next optimal state.\n3. **Verification & Output**: The result is validated against boundary constraints and emitted in the target format.\n\nWould you like to walk through a concrete numerical or code example of **{topic_label}**?"
-        )
-    } else if is_why {
-        format!(
-            "### Why **{raw_prompt}**\n\n- **Fundamental Mechanism**: This behavior arises from the trade-off between efficiency, conservation constraints, and structural stability in the underlying system.\n- **Design Implication**: Understanding the root cause allows you to predict behavior across edge cases rather than relying on trial-and-error workarounds.\n- **Practical Takeaway**: When working with **{topic_label}**, make the invariants explicit and test boundary conditions early."
-        )
-    } else {
-        format!(
-            "### {raw_prompt}\n\nHere is a clear breakdown of **{topic_label}**:\n\n- **Core Concept**: **{topic_label}** centers on how structure, state transitions, and constraints interact to produce reliable, predictable outcomes.\n- **Key Principles**:\n  1. **First-Principles Clarity**: Break the topic into its fundamental building blocks and invariants.\n  2. **Practical Application**: Focus on measurable trade-offs — speed, simplicity, accuracy, and maintainability.\n  3. **Verification**: Validate assumptions with concrete examples, calculations, or runnable code.\n\nHow would you like to explore **{topic_label}** next? We can dive deeper into the theory, walk through a real-world example, or write code in **Python**, **TypeScript**, **Rust**, **Go**, or **SQL**."
-        )
-    };
-
-    if let Some(notice) = binder_notice {
-        format!("{notice}\n\n{body}")
-    } else {
-        body
-    }
+        words,
+        &prompt_stems,
+        prompt_q12,
+        0,
+        consensus_action,
+        flock_resonance,
+        icosian_root,
+        &[],
+        binder_notice,
+    )
 }

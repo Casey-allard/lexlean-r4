@@ -132613,13 +132613,93 @@ pub fn detect_anaphor_kind(lower: &str, words: &[String]) -> Option<AnaphorKind>
         || lower.contains("that system")
         || lower.contains("that theory")
         || lower.contains("that language")
-        || lower.contains("that person");
+        || lower.contains("that person")
+        || lower.contains("that approach")
+        || lower.contains("that design")
+        || lower.contains("that mechanism")
+        || lower.contains("that architecture")
+        || lower.contains("that method")
+        || lower.contains("that function")
+        || lower.contains("that protocol")
+        || lower.contains("that process")
+        || lower.contains("that model")
+        || lower.contains("this approach")
+        || lower.contains("this system")
+        || lower.contains("this algorithm")
+        || lower.contains("this protocol")
+        || lower.contains("the second point")
+        || lower.contains("the first point")
+        || lower.contains("what happens if")
+        || lower.contains("how does this");
 
     if has_neutral_pronoun {
         return Some(AnaphorKind::Neutral);
     }
 
     None
+}
+
+/// Latent per-clause geometric deliberation (`Gap 3`) for complex multi-clause prompts.
+/// Splits a multi-clause prompt across clause boundaries and resolves each clause independently
+/// against `GLM_CONCEPT_MANIFOLD` so long sentences do not suffer Q12 centroid dilution.
+fn deliberate_multi_clause_concepts(raw_prompt: &str) -> Vec<&'static GlmConceptNode> {
+    let mut normalized = raw_prompt.to_string();
+    for sep in [
+        "; ",
+        "? ",
+        " — ",
+        " - ",
+        ", and ",
+        ", while ",
+        ", whereas ",
+        ", because ",
+        ", when ",
+        " and also ",
+        " while ",
+        " whereas ",
+    ] {
+        normalized = normalized.replace(sep, "\n");
+    }
+    let clauses: Vec<&str> = normalized
+        .lines()
+        .flat_map(|line| line.split(", "))
+        .map(str::trim)
+        .filter(|c| !c.is_empty())
+        .collect();
+    if clauses.len() < 2 {
+        return Vec::new();
+    }
+
+    let mut matched_nodes: Vec<&'static GlmConceptNode> = Vec::new();
+    for clause in clauses {
+        let c_lower = clause.to_ascii_lowercase();
+        let c_words = tokenize_words_simple(&c_lower);
+        let content_count = c_words
+            .iter()
+            .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
+            .count();
+        if content_count < 2 {
+            continue;
+        }
+        let c_stems: Vec<String> = c_words
+            .iter()
+            .map(|w| canonical_stem(w).to_string())
+            .collect();
+        let (c_q12, c_sign) = pool_prompt_trained_geometry(&c_words);
+        let hits = retrieve_top_concepts(&c_lower, &c_words, &c_stems, &c_q12, c_sign, 1);
+        if let Some(&(node, score)) = hits.first() {
+            let lex = score_concept_lexical(node, &c_lower, &c_words, &c_stems);
+            if score >= 18 && lex >= 12 && !matched_nodes.iter().any(|n| n.id == node.id) {
+                matched_nodes.push(node);
+            }
+        }
+    }
+
+    if matched_nodes.len() >= 2 {
+        matched_nodes
+    } else {
+        Vec::new()
+    }
 }
 
 fn is_self_inquiry_prompt(lower: &str, words: &[String]) -> bool {
@@ -132692,73 +132772,81 @@ pub fn classify_discourse_act(
         return GlmDiscourseAct::TopicShift;
     }
 
-    if words.len() <= 12 {
-        if lower.contains("what do you mean")
-            || lower.contains("what did you mean")
-            || lower.contains("what does that mean")
-            || lower.contains("can you clarify")
-            || lower.contains("clarify that")
-            || lower == "how so"
-            || lower == "how so?"
-            || lower.contains("in what sense")
-            || lower.contains("why do you say")
-            || lower.contains("what makes you say")
+    let non_aspect_words: Vec<String> = words
+        .iter()
+        .filter(|w| !is_aspect_modifier_word(w))
+        .cloned()
+        .collect();
+    let non_aspect_stems: Vec<String> = non_aspect_words
+        .iter()
+        .map(|w| canonical_stem(w).to_string())
+        .collect();
+    let non_aspect_lower = non_aspect_words.join(" ");
+    let max_entity_lex = GLM_CONCEPT_MANIFOLD
+        .iter()
+        .map(|n| score_concept_lexical(n, &non_aspect_lower, &non_aspect_words, &non_aspect_stems))
+        .max()
+        .unwrap_or(0);
+
+    if words.len() <= 28 {
+        if (words.len() <= 12 || max_entity_lex < 15)
+            && (lower.contains("what do you mean")
+                || lower.contains("what did you mean")
+                || lower.contains("what does that mean")
+                || lower.contains("can you clarify")
+                || lower.contains("clarify that")
+                || lower == "how so"
+                || lower == "how so?"
+                || lower.contains("in what sense")
+                || lower.contains("why do you say")
+                || lower.contains("what makes you say"))
         {
             return GlmDiscourseAct::Clarification;
         }
-        if lower.contains("give me an example")
-            || lower.contains("give an example")
-            || lower.contains("concrete example")
-            || lower.starts_with("for example")
-            || lower.starts_with("for instance")
+        if max_entity_lex < 15
+            && (lower.contains("give me an example")
+                || lower.contains("give an example")
+                || lower.contains("concrete example")
+                || lower.starts_with("for example")
+                || lower.starts_with("for instance"))
         {
             return GlmDiscourseAct::Exemplification;
         }
-        if lower.starts_with("explain like")
-            || lower.contains("like i'm ")
-            || lower.contains("like i am ")
-            || lower.contains("eli5")
-            || lower.starts_with("simplify")
-            || lower.contains("simpler")
-            || lower.contains("in simple terms")
+        if max_entity_lex < 15
+            && (lower.starts_with("explain like")
+                || lower.contains("like i'm ")
+                || lower.contains("like i am ")
+                || lower.contains("eli5")
+                || lower.starts_with("simplify")
+                || lower.contains("simpler")
+                || lower.contains("in simple terms"))
         {
             return GlmDiscourseAct::Simplification;
         }
-        if lower.starts_with("summarize")
-            || lower.starts_with("tldr")
-            || lower.contains("make it shorter")
+        if max_entity_lex < 15
+            && (lower.starts_with("summarize")
+                || lower.starts_with("tldr")
+                || lower.contains("make it shorter"))
         {
             return GlmDiscourseAct::Summarization;
         }
-        let non_aspect_words: Vec<String> = words
-            .iter()
-            .filter(|w| !is_aspect_modifier_word(w))
-            .cloned()
-            .collect();
-        let non_aspect_stems: Vec<String> = non_aspect_words
-            .iter()
-            .map(|w| canonical_stem(w).to_string())
-            .collect();
-        let non_aspect_lower = non_aspect_words.join(" ");
-        let max_entity_lex = GLM_CONCEPT_MANIFOLD
-            .iter()
-            .map(|n| {
-                score_concept_lexical(n, &non_aspect_lower, &non_aspect_words, &non_aspect_stems)
-            })
-            .max()
-            .unwrap_or(0);
 
         if max_entity_lex < 15
             && (lower.starts_with("tell me more")
                 || lower.starts_with("explain more")
                 || lower.starts_with("explain that")
                 || lower.starts_with("elaborate")
+                || lower.contains("elaborate on")
                 || lower.starts_with("go deeper")
+                || lower.contains("can you go deeper")
                 || lower.contains("pros and cons")
                 || lower.contains("trade-offs")
                 || lower.contains("tradeoffs")
                 || lower.contains("trade offs")
                 || lower.contains("why does that happen")
+                || lower.contains("what happens if")
+                || lower.contains("how does that affect")
+                || lower.contains("how does this affect")
                 || lower == "why is that"
                 || lower == "why is that?"
                 || lower == "how come"
@@ -132769,38 +132857,27 @@ pub fn classify_discourse_act(
     }
 
     // Check for explicit spatial, personal, or entity anaphora ("there", "it", "its", "her", "his", "she", "he", "they", "that city")
+    let has_explicit_cross_turn_deictic = lower.contains("that approach")
+        || lower.contains("that design")
+        || lower.contains("that mechanism")
+        || lower.contains("that architecture")
+        || lower.contains("that protocol")
+        || lower.contains("this approach")
+        || lower.contains("this system")
+        || lower.contains("this algorithm")
+        || lower.contains("this protocol")
+        || lower.contains("you just explained")
+        || lower.contains("you mentioned")
+        || lower.contains("earlier turn");
     if let Some(_anaphor_kind) = detect_anaphor_kind(lower, words) {
-        if words.len() <= 24
+        if words.len() <= 28
             && !lower.starts_with("how many ")
             && !lower.contains("fermi")
             && match_logic_puzzle(lower, words).is_none()
-            && match_conversational_qa(lower, words).is_none()
+            && (match_conversational_qa(lower, words).is_none() || has_explicit_cross_turn_deictic)
+            && (max_entity_lex < 15 || has_explicit_cross_turn_deictic)
         {
-            let non_aspect_words: Vec<String> = words
-                .iter()
-                .filter(|w| !is_aspect_modifier_word(w))
-                .cloned()
-                .collect();
-            let non_aspect_stems: Vec<String> = non_aspect_words
-                .iter()
-                .map(|w| canonical_stem(w).to_string())
-                .collect();
-            let non_aspect_lower = non_aspect_words.join(" ");
-            let max_entity_lex = GLM_CONCEPT_MANIFOLD
-                .iter()
-                .map(|n| {
-                    score_concept_lexical(
-                        n,
-                        &non_aspect_lower,
-                        &non_aspect_words,
-                        &non_aspect_stems,
-                    )
-                })
-                .max()
-                .unwrap_or(0);
-            if max_entity_lex < 15 {
-                return GlmDiscourseAct::AnaphoricFollowup;
-            }
+            return GlmDiscourseAct::AnaphoricFollowup;
         }
     }
 
@@ -133460,15 +133537,26 @@ pub fn synthesize_glm_response(
                         filtered_clauses
                     };
 
+                    let secondary_bridge = active_nodes
+                        .get(1)
+                        .map(|sec| {
+                            format!("\n\nIn connection with **{}**: {}", sec.title, sec.summary)
+                        })
+                        .unwrap_or_default();
+
                     let body = if !clauses.is_empty() {
                         format!(
-                            "Regarding **{}**:\n\n{}\n\n{}",
+                            "Regarding **{}**:\n\n{}\n\n{}{}",
                             node.title,
                             clauses.join(" "),
-                            token_stream
+                            token_stream,
+                            secondary_bridge
                         )
                     } else {
-                        format!("Regarding **{}**:\n\n{}", node.title, token_stream)
+                        format!(
+                            "Regarding **{}**:\n\n{}{}",
+                            node.title, token_stream, secondary_bridge
+                        )
                     };
                     return wrap_binder(body);
                 }
@@ -133595,6 +133683,18 @@ pub fn synthesize_glm_response(
                 raw_prompt, lower, words, node_1, node_2,
             ));
         }
+    }
+
+    // 8b. Latent Per-Clause Geometric Deliberation (`Gap 3`) when a multi-clause prompt spans 2+ concept basins
+    let deliberated = deliberate_multi_clause_concepts(raw_prompt);
+    if deliberated.len() >= 2 {
+        return wrap_binder(render_multi_concept_synthesis(
+            raw_prompt,
+            lower,
+            words,
+            deliberated[0],
+            deliberated[1],
+        ));
     }
 
     // 9. Single-Concept Natural Prose Realization (including purely geometric hits where lexical == 0!)

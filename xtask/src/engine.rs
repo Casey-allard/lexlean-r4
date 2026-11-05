@@ -635,7 +635,225 @@ fn discovery_curriculum_pool() -> Vec<FrontierClaim> {
             prompt: Some("What is the 19-table M1 discrete trunk layout?".to_string()),
             target_reply: Some("The 19-table M1 discrete trunk allocates 12,288 bits per token across levels 0..5 and packs 4-block base-17 orbit roots for causal lookup.".to_string()),
         },
+        FrontierClaim {
+            id: "R4-F16".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F01".to_string(), "R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:raft-consensus-safety-leader-completeness:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify that Raft consensus guarantees Election Safety and Leader Completeness via majority quorum intersection and up-to-date log term comparisons.".to_string(),
+            prompt: Some("How does Raft consensus guarantee Leader Completeness across network partitions?".to_string()),
+            target_reply: Some("Raft guarantees Leader Completeness because a candidate must receive votes from a majority quorum and voters reject candidates whose last log entry has an older term or shorter index than their own.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F17".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F02".to_string()],
+            relation: "code-synthesis".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:rust-borrow-checker-aliasing-xor-mutability:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify that Rust's borrow checker enforces aliasing XOR mutability at compile time to eliminate data races and dangling references without garbage collection.".to_string(),
+            prompt: Some("Why does Rust enforce aliasing XOR mutability in its borrow checker?".to_string()),
+            target_reply: Some("Rust enforces aliasing XOR mutability so any value has either multiple shared immutable references (&T) or one exclusive mutable reference (&mut T), preventing data races and iterator invalidation at compile time.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F18".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:ssa-dominance-frontier-phi-placement:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify that Static Single Assignment (SSA) form places phi nodes along iterated dominance frontiers to make def-use chains explicit for compiler optimizations.".to_string(),
+            prompt: Some("How does a compiler place phi nodes when constructing Static Single Assignment form?".to_string()),
+            target_reply: Some("A compiler computes the dominance tree of the control-flow graph and places minimal phi nodes at the iterated dominance frontier of each variable's definition blocks before renaming variables in dominator-tree preorder.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F19".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F01".to_string()],
+            relation: "dialogue-stem".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:mvcc-snapshot-isolation-write-skew:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify how Multi-Version Concurrency Control (MVCC) provides non-blocking snapshot reads and how Serializable Snapshot Isolation (SSI) detects write-skew anomalies.".to_string(),
+            prompt: Some("What is the difference between Snapshot Isolation and Serializable Snapshot Isolation in MVCC databases?".to_string()),
+            target_reply: Some("Snapshot Isolation lets readers observe a consistent transaction snapshot without blocking writers but permits write skew when concurrent transactions read overlapping predicates and update disjoint rows; Serializable Snapshot Isolation tracks rw-antidependency cycles to abort non-serializable commits.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F20".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:noether-symmetry-conservation-laws:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify Noether's first theorem linking continuous symmetries of the action functional to conserved currents in physical systems.".to_string(),
+            prompt: Some("How does Noether's theorem connect symmetries to conservation laws in physics?".to_string()),
+            target_reply: Some("Noether's theorem proves that every differentiable symmetry of a system's action yields a conserved quantity: time-translation invariance conserves energy, spatial-translation invariance conserves linear momentum, and rotational invariance conserves angular momentum.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F21".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F04".to_string()],
+            relation: "code-synthesis".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:dijkstra-monotonic-nonnegative-edge-invariant:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify why Dijkstra's shortest-path greedy frontier relaxation requires non-negative edge weights and when Bellman-Ford or Johnson's reweighting is needed.".to_string(),
+            prompt: Some("Why does Dijkstra's algorithm fail on graphs with negative edge weights?".to_string()),
+            target_reply: Some("Dijkstra's algorithm assumes that adding an edge never decreases path length, so once the minimum-distance vertex is popped from the priority queue its distance is final; a negative edge can later create a shorter path to an already finalized vertex.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F22".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:shannon-channel-capacity-awgn-bound:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify the Shannon-Hartley channel capacity theorem C = B log2(1 + S/N) bounding reliable bit rate over an additive white Gaussian noise channel.".to_string(),
+            prompt: Some("What does the Shannon-Hartley theorem state about communication channel capacity?".to_string()),
+            target_reply: Some("The Shannon-Hartley theorem states that the maximum error-free information rate over an additive white Gaussian noise channel of bandwidth B and signal-to-noise ratio S/N is C = B log2(1 + S/N) bits per second.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F23".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F01".to_string()],
+            relation: "dialogue-stem".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:tcp-bbr-vs-cubic-congestion-control:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify the architectural trade-offs between loss-based TCP CUBIC congestion control and model-based TCP BBR bandwidth-delay product pacing.".to_string(),
+            prompt: Some("How does TCP BBR congestion control differ from TCP CUBIC on high-bandwidth long-fat networks?".to_string()),
+            target_reply: Some("TCP CUBIC treats packet loss as its congestion signal and fills router buffers until drops occur (causing bufferbloat), whereas TCP BBR continuously estimates bottleneck bandwidth and minimum round-trip propagation delay to pace packets at the bandwidth-delay product.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F24".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F02".to_string()],
+            relation: "open-basin".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:multi-basin-complementary-stem-synthesis:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify that multi-basin geodesic synthesis chains complementary PointKey basins across uncovered prompt stems while preserving cycle-free 4-gram decoding.".to_string(),
+            prompt: Some("How does UOR-R4 combine multiple concept basins when answering a complex multi-part question?".to_string()),
+            target_reply: Some("UOR-R4 tracks covered prompt stem bits on the primary PointKey basin and iteratively resolves up to three complementary basins over the remaining uncovered stems, decoding each basin's 4-gram trajectory into a coherent multi-paragraph response.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F25".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:zero-knowledge-succinct-proof-soundness:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify the completeness, knowledge soundness, and zero-knowledge properties of succinct non-interactive arguments of knowledge (zk-SNARKs).".to_string(),
+            prompt: Some("What are the three core security properties of a zero-knowledge proof system?".to_string()),
+            target_reply: Some("A zero-knowledge proof system satisfies completeness (an honest prover convinces an honest verifier), soundness (a cheating prover cannot forge a valid proof for a false statement), and zero-knowledge (the proof reveals nothing beyond the statement's truth).".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F26".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F04".to_string()],
+            relation: "code-synthesis".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:lock-free-cas-aba-epoch-reclamation:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify how the ABA problem arises in lock-free compare-and-swap (CAS) data structures and how epoch-based reclamation or tagged pointers prevent it.".to_string(),
+            prompt: Some("How do lock-free data structures prevent the ABA problem during compare-and-swap operations?".to_string()),
+            target_reply: Some("Lock-free structures prevent the ABA problem either by packing a monotonically increasing version tag alongside the pointer in a double-width CAS or by deferring node reuse via epoch-based memory reclamation and hazard pointers until all concurrent readers exit the epoch.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F27".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:curry-howard-propositions-as-types:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify the Curry-Howard isomorphism mapping logical propositions to dependent types, proofs to constructive terms, and cut elimination to beta reduction.".to_string(),
+            prompt: Some("What is the Curry-Howard correspondence between logic and type theory?".to_string()),
+            target_reply: Some("The Curry-Howard correspondence identifies mathematical propositions with types, proofs with well-typed programs, implication with function types, conjunction with product types, universal quantification with dependent Pi types, and proof normalization with program evaluation.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F28".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F01".to_string()],
+            relation: "dialogue-stem".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:crispr-cas9-pam-hdr-nhej-editing:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify how Cas9 endonuclease recognizes the 5'-NGG-3' PAM sequence and how cells repair double-strand breaks via NHEJ vs homology-directed repair (HDR).".to_string(),
+            prompt: Some("How does CRISPR-Cas9 locate a target DNA sequence and what distinguishes NHEJ from HDR repair?".to_string()),
+            target_reply: Some("Cas9 scans DNA for a protospacer adjacent motif (5'-NGG-3' PAM) before unwinding the duplex to pair its 20-nucleotide guide RNA; after Cas9 cleaves both strands, non-homologous end joining (NHEJ) ligates ends with small indels, whereas homology-directed repair (HDR) copies a donor template.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F29".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F02".to_string()],
+            relation: "open-basin".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:lsm-tree-vs-btree-write-read-amplification:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify the write amplification, read amplification, and space amplification trade-offs between Log-Structured Merge-trees (LSM-trees) and B+Trees.".to_string(),
+            prompt: Some("When should a storage engine use an LSM-tree instead of a B+Tree?".to_string()),
+            target_reply: Some("An LSM-tree buffers writes sequentially in a MemTable and immutable SSTables with Bloom filters, achieving much higher write throughput and lower space amplification than in-place B+Tree page updates, at the cost of background compaction CPU/IO and higher range-scan read amplification.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F30".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F03".to_string()],
+            relation: "stem-reasoning".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:thermodynamic-landauer-erasure-limit:k=14".to_string(),
+            lean: Some("LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending".to_string()),
+            statement: "Verify Landauer's principle establishing the minimum thermodynamic heat dissipation k_B T ln 2 required to irreversibly erase one bit of information.".to_string(),
+            prompt: Some("Why does Landauer's principle set a minimum energy cost for erasing a bit of information?".to_string()),
+            target_reply: Some("Erasing one bit maps two logical states onto one, compressing the computational phase space by a factor of two; by the second law of thermodynamics, the environment's entropy must increase by at least k_B ln 2, dissipating at least k_B T ln 2 of heat at temperature T.".to_string()),
+        },
     ]
+}
+
+/// Deterministically compile all `proved` claims in `frontier` that carry `(prompt, target_reply)`
+/// into `crates/wasm/src/bootstrap_v8.uorlut` and verify `orphaned_point_rows == 0`.
+pub fn compile_proved_frontier_claims_to_uorlut(
+    root: &Path,
+    frontier: &FrontierFile,
+) -> Result<usize, String> {
+    let lut_path = root.join("crates/wasm/src/bootstrap_v8.uorlut");
+    let bytes = std::fs::read(&lut_path)
+        .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
+    let mut model = lexlean_r4_wasm::lut_stack_exec::LutStackModel::parse(&bytes)?;
+    let mut compiled = 0usize;
+    for claim in &frontier.claim {
+        if claim.status != "proved" {
+            continue;
+        }
+        if let (Some(prompt), Some(reply)) =
+            (claim.prompt.as_deref(), claim.target_reply.as_deref())
+        {
+            if model.compile_verified_dialogue_turn(prompt, reply)? {
+                compiled += 1;
+            }
+        }
+    }
+    if compiled > 0 {
+        let out_bytes = model.to_uorlut_bytes();
+        std::fs::write(&lut_path, &out_bytes)
+            .map_err(|e| format!("failed to write {}: {e}", lut_path.display()))?;
+        let post_audit = audit_uorlut_synchronization(root)?;
+        if post_audit.orphaned_point_rows != 0 {
+            return Err(format!(
+                "compiled .uorlut produced {} orphaned PointKey rows",
+                post_audit.orphaned_point_rows
+            ));
+        }
+    }
+    Ok(compiled)
 }
 
 /// Induce up to `max_new` candidate relations into `frontier.toml` (`cargo xtask discover`).
@@ -1075,6 +1293,12 @@ pub fn run_engine_tick(
         while engine.tick.len() > MAX_TICK_HISTORY {
             engine.tick.remove(0);
         }
+        let compiled_turns = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
+        if compiled_turns > 0 {
+            println!(
+                "engine[4b/7 weight-synthesis]: compiled {compiled_turns} proved frontier claim(s) into crates/wasm/src/bootstrap_v8.uorlut"
+            );
+        }
         save_frontier(root, &frontier)?;
         save_engine(root, &engine)?;
         save_hypotheses(root, &hyps)?;
@@ -1095,6 +1319,9 @@ pub fn run_engine_tick(
         check_frontier(&frontier).is_ok()
             && load_engine(root).is_ok()
             && load_hypotheses(root).is_ok()
+            && audit_uorlut_synchronization(root)
+                .map(|a| a.orphaned_point_rows == 0)
+                .unwrap_or(false)
     };
 
     if !gate_ok {
@@ -1118,6 +1345,7 @@ pub fn run_engine_tick(
                 "frontier.toml",
                 "model/engine.toml",
                 "model/hypotheses.toml",
+                "crates/wasm/src/bootstrap_v8.uorlut",
             ])
             .status();
 
@@ -1309,11 +1537,12 @@ pub fn run_api_cmd(root: &Path, args: &[String]) -> Result<(), String> {
             let engine = load_engine(root)?;
             let hyps = load_hypotheses(root)?;
             let (tick_budget, gate_budget) = validate_workflow_homeostasis(root)?;
-            let audit = audit_uorlut_synchronization(root)?;
             if sub == "sync" {
+                let _compiled = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
                 let refreshed = mint_hypotheses(&engine, &frontier, "2026-11-05T03:30:00Z");
                 save_hypotheses(root, &refreshed)?;
             }
+            let audit = audit_uorlut_synchronization(root)?;
             println!(
                 "api {sub}: R4.AutonomousEngine homeostasis verified (claims={}, weights={}, hypotheses={}, tick={}m, gate={}m, point_rows={})",
                 frontier.claim.len(),
@@ -1400,5 +1629,73 @@ mod tests {
         assert_eq!(gate_b, 15);
         let audit = audit_uorlut_synchronization(&root).expect("UORLUT01 audit valid");
         assert_eq!(audit.orphaned_point_rows, 0);
+        assert_eq!(discovery_curriculum_pool().len(), 19);
+    }
+
+    #[test]
+    fn compiled_frontier_claim_roundtrips_uorlut_with_zero_orphans() {
+        let root = repo_model::repo_root();
+        let uorlut_bytes = std::fs::read(root.join("crates/wasm/src/bootstrap_v8.uorlut"))
+            .expect("read bootstrap_v8.uorlut");
+        let mut model = lexlean_r4_wasm::lut_stack_exec::LutStackModel::parse(&uorlut_bytes)
+            .expect("parse bootstrap_v8.uorlut");
+        let initial_rows = model.point.as_ref().unwrap().rows;
+        let prompt = "How does zero-float B-tree consensus scale across distributed shards?";
+        let reply = "Zero-float B-tree consensus scales across distributed shards by combining O(log_B N) page branching with deterministic quorum replication and prefix-compressed fence keys.";
+
+        let inserted = model
+            .compile_verified_dialogue_turn(prompt, reply)
+            .expect("compile_verified_dialogue_turn succeeds");
+        assert!(inserted);
+        assert_eq!(model.point.as_ref().unwrap().rows, initial_rows + 1);
+        assert_eq!(
+            model.point.as_ref().unwrap().targets.len(),
+            initial_rows + 1
+        );
+
+        // Idempotency check: compiling the exact same (prompt, reply) again is a no-op
+        let inserted_again = model
+            .compile_verified_dialogue_turn(prompt, reply)
+            .expect("idempotent second compile");
+        assert!(!inserted_again);
+        assert_eq!(model.point.as_ref().unwrap().rows, initial_rows + 1);
+
+        // Round-trip through UORLUT01/8 binary serialization and verify zero orphaned PointKey rows
+        let bytes = model.to_uorlut_bytes();
+        let parsed = std::sync::Arc::new(
+            lexlean_r4_wasm::lut_stack_exec::LutStackModel::parse(&bytes)
+                .expect("reparse compiled UORLUT01/8"),
+        );
+        let pk = parsed.point.as_ref().unwrap();
+        assert_eq!(pk.rows, initial_rows + 1);
+        let anchors = pk.canonical_anchors.as_ref().unwrap();
+        for (idx, a_row) in anchors.chunks(pk.anchor_len).enumerate() {
+            assert!(
+                a_row[0] != 0 || a_row[1] != 0 || a_row[2] != 0,
+                "row {idx} must have non-zero anchor prefix"
+            );
+        }
+
+        let exact_gen = parsed.generate_reply(&[], prompt, 256);
+        assert!(
+            exact_gen
+                .reply_text
+                .contains("Zero-float B-tree consensus scales"),
+            "exact prompt must decode compiled reply: {}",
+            exact_gen.reply_text
+        );
+
+        let para_gen = parsed.generate_reply(
+            &[],
+            "Can you explain how zero-float B-tree consensus scales across distributed shards?",
+            256,
+        );
+        assert!(
+            para_gen
+                .reply_text
+                .contains("Zero-float B-tree consensus scales"),
+            "paraphrased prompt must route to compiled PointKey row: {}",
+            para_gen.reply_text
+        );
     }
 }
