@@ -188,7 +188,7 @@ target_reply = "PRLL allocates integer mass quanta summing to 1,000,000 using ex
 
 [[claim]]
 id = "R4-F13"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -278,3 +278,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify that Static Single Assignment (SSA) form places phi nodes along iterated dominance frontiers to make def-use chains explicit for compiler optimizations."
 prompt = "How does a compiler place phi nodes when constructing Static Single Assignment form?"
 target_reply = "A compiler computes the dominance tree of the control-flow graph and places minimal phi nodes at the iterated dominance frontier of each variable's definition blocks before renaming variables in dominator-tree preorder."
+
+[[claim]]
+id = "R4-F19"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:mvcc-snapshot-isolation-write-skew:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify how Multi-Version Concurrency Control (MVCC) provides non-blocking snapshot reads and how Serializable Snapshot Isolation (SSI) detects write-skew anomalies."
+prompt = "What is the difference between Snapshot Isolation and Serializable Snapshot Isolation in MVCC databases?"
+target_reply = "Snapshot Isolation lets readers observe a consistent transaction snapshot without blocking writers but permits write skew when concurrent transactions read overlapping predicates and update disjoint rows; Serializable Snapshot Isolation tracks rw-antidependency cycles to abort non-serializable commits."
