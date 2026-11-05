@@ -36,7 +36,7 @@ value = 10
 [[weight]]
 strategy = "reply-4gram-deduction"
 family = "stem-reasoning"
-value = 14
+value = 16
 
 [[weight]]
 strategy = "bvgk-writer-refinement"
@@ -147,6 +147,14 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T05:41:24Z"
 
+[[attempt]]
+kappa = "r4:v1:stem:blake3-merkle-custody:k=10"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T07:37:48Z"
+
 [[tick]]
 id = "2026-11-05T03:30:00Z"
 outcome = "advanced"
@@ -191,3 +199,11 @@ discovered = 1
 pruned = 0
 proved = ["R4-F08"]
 minted = 15
+
+[[tick]]
+id = "2026-11-05T07:37:48Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F09"]
+minted = 16

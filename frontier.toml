@@ -129,7 +129,7 @@ target_reply = "A great read is Godel, Escher, Bach by Douglas Hofstadter, along
 
 [[claim]]
 id = "R4-F09"
-status = "open"
+status = "proved"
 depends = ["R4-F06"]
 relation = "stem-reasoning"
 window = [
@@ -137,6 +137,7 @@ window = [
     10,
 ]
 kappa = "r4:v1:stem:blake3-merkle-custody:k=10"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
 statement = "Explain how unkeyed BLAKE3-256 content addressing secures weight shards and browser cache custody."
 prompt = "How are the model weight shards verified?"
 target_reply = "Each weight shard and manifest entry carries a cryptographic digest verified before admission into the browser CacheStorage and IndexedDB tables."
@@ -228,3 +229,21 @@ lean = "LexLeanR4.DiscreteTrunkControls"
 statement = "Verify that the 19-table M1 discrete trunk packs 4-block base-17 orbit roots and scores Level-3 joint pointers deterministically."
 prompt = "What is the 19-table M1 discrete trunk layout?"
 target_reply = "The 19-table M1 discrete trunk allocates 12,288 bits per token across levels 0..5 and packs 4-block base-17 orbit roots for causal lookup."
+
+[[claim]]
+id = "R4-F16"
+status = "observed"
+depends = [
+    "R4-F01",
+    "R4-F03",
+]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:raft-consensus-safety-leader-completeness:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify that Raft consensus guarantees Election Safety and Leader Completeness via majority quorum intersection and up-to-date log term comparisons."
+prompt = "How does Raft consensus guarantee Leader Completeness across network partitions?"
+target_reply = "Raft guarantees Leader Completeness because a candidate must receive votes from a majority quorum and voters reject candidates whose last log entry has an older term or shorter index than their own."
