@@ -271,7 +271,8 @@ function initSync(module) {
 const WEIGHT_CACHE_NAME = 'uor-r4-wasm-weights-v2';
 const IDB_DB_NAME = 'UOR_R4_WEIGHT_CACHE';
 const IDB_STORE_NAME = 'uorlut_packs';
-const IDB_ACTIVE_KEY = 'active_uorlut_v8';
+const IDB_ACTIVE_KEY = 'active_uorlut_v8_2b_34259da9';
+const EXPECTED_SHARD_SHA256 = '34259da95f7760d0d8633ff53afd6d6cce9a89d98c3e5bd0b11ff862ceee5e48';
 
 globalThis.__uorWeightCacheMeta = {
     status: 'Initializing UORLUT01/8...',
@@ -297,16 +298,18 @@ function __uor_open_idb() {
     });
 }
 
-export async function cache_uorlut_in_indexeddb(bytes, sourceLabel) {
+export async function cache_uorlut_in_indexeddb(bytes, sourceLabel, sha256) {
     try {
         const db = await __uor_open_idb();
         await new Promise((resolve, reject) => {
             const tx = db.transaction(IDB_STORE_NAME, 'readwrite');
             const store = tx.objectStore(IDB_STORE_NAME);
+            store.delete('active_uorlut_v8');
             const copy = new Uint8Array(bytes);
             store.put({
                 bytes: copy,
                 source_label: sourceLabel || 'IndexedDB:UOR_R4_WEIGHT_CACHE',
+                sha256: sha256 || EXPECTED_SHARD_SHA256,
                 byte_length: copy.length,
                 saved_at: Date.now()
             }, IDB_ACTIVE_KEY);
@@ -325,7 +328,9 @@ export async function clear_cached_uorlut_in_indexeddb() {
         const db = await __uor_open_idb();
         await new Promise((resolve, reject) => {
             const tx = db.transaction(IDB_STORE_NAME, 'readwrite');
-            tx.objectStore(IDB_STORE_NAME).delete(IDB_ACTIVE_KEY);
+            const store = tx.objectStore(IDB_STORE_NAME);
+            store.delete('active_uorlut_v8');
+            store.delete(IDB_ACTIVE_KEY);
             tx.oncomplete = () => resolve(true);
             tx.onerror = () => reject(tx.error);
         });
@@ -346,7 +351,7 @@ export async function restore_cached_uorlut_from_indexeddb() {
             getReq.onerror = () => reject(getReq.error);
         });
         db.close();
-        if (record && record.bytes && record.bytes.byteLength >= 200000000 && wasm !== undefined) {
+        if (record && record.bytes && record.bytes.byteLength >= 150000000 && wasm !== undefined) {
             const bytes = record.bytes instanceof Uint8Array
                 ? record.bytes
                 : new Uint8Array(record.bytes);
@@ -627,7 +632,7 @@ export async function stream_sharded_weights_to_indexeddb(onProgress, forceReloa
         const rawStatus = studio_load_uorlut_bytes(fullBytes, sourceLabel);
         const parsed = JSON.parse(rawStatus);
         if (parsed && parsed.status === 'ok') {
-            await cache_uorlut_in_indexeddb(fullBytes, sourceLabel);
+            await cache_uorlut_in_indexeddb(fullBytes, sourceLabel, parsed.sha256 || manifest.sha256);
             const pCount = parsed.total_parameters || manifest.total_parameters || 0;
             const pLabel = pCount >= 1000000000
                 ? `${(pCount / 1000000000).toFixed(2)}B Params · `

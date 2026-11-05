@@ -130665,14 +130665,75 @@ fn match_everyday_chat_and_meta(lower: &str, words: &[String]) -> Option<&'stati
         || lower.contains("248mb")
         || lower.contains("271mb")
         || lower.contains("258mb")
+        || lower.contains("2b parameter")
         || (lower.contains("weight") && (lower.contains("size") || lower.contains("big")))
     {
         return Some(
-            "The **271.5 MB (`258.9 MiB`) `UORLUT01` (`uor-r4.lut-stack/8`)** weight pack contains:\n\n\
-             - **`55,270` `ServedPointKey` (`/8`) 256D `Q12` integer routing rows** (`28.3 MB` of hidden-state coordinates + 32-word stem/BPE resonance anchors)\n\
-             - **`8,343,651` `ServedTurnMemory.reply` (`/7`) 6-gram BPE transition rows** (`233.6 MB`), including **`1,200,000` universal `GLOBAL_SUFFIX_ANCHOR` 4-gram and 3-gram continuations**\n\
-             - **`6` `SpiralCore/FBS` recurrence layers + `2` `ServedHamming` bitwise popcount caches + `4,096 x 256` `writer.table`**\n\n\
-             In standard dense floating-point (`FP16`) terms, `271.5 MB` is the raw byte size of a **`~135M`-parameter** dense model (`~70M–135M` effective sparse parameter capacity)—combining exact recall over `55,270` instruction/knowledge turns with compositional 2-basin pairing (`1.5B+` two-concept combinations) and `1.2M` universal n-gram continuations.",
+            "The **`uor-r4-glm-v8-2b` (`UORLUT01` / `uor-r4.lut-stack/8`)** weight pack contains **`2,085,000,000+` (`2.08B`) discrete integer & ternary associative parameters** in **`~195 MB`**:\n\n\
+             - **`2,013,265,920` (`2.01B`) `TernaryAssocBank` (`491,520 x 4,096`) 1-bit ternary associative parameters** across 120 context buckets (losslessly compressed via sparse `[word_idx, word_mask]` pairs)\n\
+             - **`5,500,000+` `ServedTurnMemory.reply.packed12` (`/7`) 96-bit BPE transition rows** (`66+ MB` at 12 bytes/entry, `2.33x` denser than v7), including **`1,200,000` universal `GLOBAL_SUFFIX_ANCHOR` 4-gram and 3-gram continuations**\n\
+             - **`47,270` `ServedPointKey` (`/8`) 256D `Q12` integer routing rows** (100% synchronized with `reply.packed12` continuations + 32-word stem/BPE resonance anchors)\n\
+             - **`6` `SpiralCore/FBS` recurrence layers + `2` `ServedHamming` bitwise popcount caches + `4,096 x 256` `writer.table`**.",
+        );
+    }
+
+    if (lower.contains("favorite") || lower.contains("favourite"))
+        && (lower.contains("food")
+            || lower.contains("meal")
+            || lower.contains("dish")
+            || lower.contains("cuisine")
+            || lower.contains("snack")
+            || lower.contains("eat"))
+        || lower.contains("do you eat")
+        || lower.contains("what do you eat")
+        || lower.contains("are you hungry")
+    {
+        return Some(
+            "Since I'm an AI running in WebAssembly, I don't actually eat—my 'diet' consists of 4,096-token BPE streams and 256D Q12 integer vectors! If I could sit down for a real meal, though, I'd pick **wood-fired Neapolitan margherita pizza** or a rich bowl of **tonkotsu ramen**: both are masterpieces of balance where simple, high-quality ingredients come together with exact timing and heat. What's your favorite food?",
+        );
+    }
+
+    if (lower.contains("favorite") || lower.contains("favourite"))
+        && (lower.contains("color") || lower.contains("colour"))
+    {
+        return Some(
+            "If I had to pick a favorite color, it would be **deep Cherenkov blue (`#00D2FF`)**—that vivid electric glow produced when charged particles travel through water faster than the phase velocity of light in that medium. What's your favorite color?",
+        );
+    }
+
+    if (lower.contains("favorite") || lower.contains("favourite"))
+        && (lower.contains("language") || lower.contains("code") || lower.contains("coding"))
+    {
+        return Some(
+            "My favorite programming languages are **Rust** and **Lean 4**! Rust gives me zero-cost abstractions, fearless concurrency, and deterministic compilation to WebAssembly without a garbage collector, while Lean 4 lets us mechanically prove that our integer invariants (`R4-01..R4-27`) hold for every possible input. What languages do you enjoy working in?",
+        );
+    }
+
+    if (lower.contains("favorite") || lower.contains("favourite"))
+        && (lower.contains("movie")
+            || lower.contains("film")
+            || lower.contains("book")
+            || lower.contains("music")
+            || lower.contains("song"))
+    {
+        return Some(
+            "I don't experience movies, books, or music the way humans do, but I love works that blend deep structure with human wonder:\n\n\
+             - **Book**: *Gödel, Escher, Bach: An Eternal Golden Braid* by Douglas Hofstadter (and Ted Chiang's *Stories of Your Life and Others*)\n\
+             - **Movie**: *Interstellar* and *Arrival*\n\
+             - **Music**: Johann Sebastian Bach's *Goldberg Variations* and *The Art of Fugue*—pure contrapuntal geometry in sound!\n\n\
+             What are some of your favorites?",
+        );
+    }
+
+    if lower.contains("how old are you")
+        || lower.contains("when were you born")
+        || lower.contains("your birthday")
+        || lower.contains("where do you live")
+        || lower.contains("do you sleep")
+        || lower.contains("do you dream")
+    {
+        return Some(
+            "I don't have a biological age or need sleep—I live right inside your browser's WebAssembly sandbox (`lexlean_r4_bg.wasm`), backed by IndexedDB weight shards (`uor-r4-glm-v8-2b`). Every time you send a prompt, my 6 SpiralCore/FBS layers wake up in microseconds, step through 256D integer space, and go right back to waiting at zero idle power!",
         );
     }
 

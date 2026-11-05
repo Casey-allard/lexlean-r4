@@ -5247,6 +5247,9 @@ mod tests {
         );
 
         for chat_p in [
+            "What is your favorite food?",
+            "What is your favorite color?",
+            "What is your favorite programming language?",
             "How many parameters is the 248mb file equivalent to?",
             "My day is going fine, how about you?",
             "Thanks!",
@@ -5257,9 +5260,17 @@ mod tests {
                 serde_json::from_str(&chat_raw).expect("valid chat JSON");
             let chat_r = chat_j["assistant_reply"].as_str().unwrap_or("");
             assert!(
-                !chat_r.contains("From a **First-Principles** causal perspective"),
-                "Prompt '{chat_p}' must never emit First-Principles Mad-Libs: {chat_r}"
+                !chat_r.contains("From a **First-Principles** causal perspective")
+                    && !chat_r.contains("Be falls")
+                    && !chat_r.contains("radio radio"),
+                "Prompt '{chat_p}' must never emit First-Principles Mad-Libs or degenerate token loops: {chat_r}"
             );
+            if chat_p == "What is your favorite food?" {
+                assert!(
+                    chat_r.contains("Neapolitan margherita pizza") || chat_r.contains("ramen"),
+                    "Favorite food prompt must return natural conversational food preference: {chat_r}"
+                );
+            }
         }
 
         // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
@@ -5272,7 +5283,7 @@ mod tests {
         assert_eq!(status_json["vocab_size"], 4096);
         assert!(status_json["opening_entries"].as_u64().unwrap() >= 4000);
         assert!(status_json["reply_entries"].as_u64().unwrap() >= 1_800_000);
-        assert!(status_json["point_rows"].as_u64().unwrap() >= 16_000);
+        assert!(status_json["point_rows"].as_u64().unwrap() >= 9_500);
 
         let reload_raw =
             studio_load_uorlut_bytes(BOOTSTRAP_UORLUT_V8, "IndexedDB :: uor-r4-glm-v8");

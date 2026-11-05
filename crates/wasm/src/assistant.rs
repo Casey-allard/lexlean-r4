@@ -1091,17 +1091,25 @@ impl StudioEngine {
         let lut_gen = self
             .lut_stack
             .generate_reply(&self.chat_history, trimmed, 1024);
-        let has_curated_qa_override = lut_gen.primary_turn_idx >= 620
+        let has_curated_qa_override = lut_gen.primary_turn_idx
+            >= crate::lut_stack_exec::CORE_CURRICULUM_TURNS
             && crate::glm_weights::has_curated_glm_override(
                 &lower,
                 &words,
                 &prompt_stems,
                 lut_gen.matched_stem_count,
             );
+        let reply_mem_steps = lut_gen
+            .steps
+            .iter()
+            .filter(|s| s.source_mechanism == "turn_memory_reply")
+            .count();
         let lut_confident = !is_multiturn_followup_or_anaphora
             && !is_compositional_or_parameterized
             && !has_curated_qa_override
             && !lut_gen.reply_text.is_empty()
+            && lut_gen.generated_tokens.len() >= 5
+            && reply_mem_steps >= 4
             && lut_gen
                 .steps
                 .first()

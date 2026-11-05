@@ -8,7 +8,7 @@ import init, {
   studio_load_uorlut_bytes,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261104v8chat';
+} from './lexlean_r4.js?v=20261104v8fix';
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');

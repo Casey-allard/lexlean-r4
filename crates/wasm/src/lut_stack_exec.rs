@@ -2506,6 +2506,8 @@ impl LutStackSession {
                                 &n_t,
                                 &self.tokens,
                                 mem.key_window,
+                                mem.reply.as_ref(),
+                                mem.reply_key_len,
                             ) {
                                 self.last_matched_stems = pt_hit.matched_stems;
                                 self.last_point_hamming_bits = pt_hit.hamming_bits;
@@ -2528,9 +2530,14 @@ impl LutStackSession {
                     memory_hit_token = Some(val_tok);
                     source_mechanism = "turn_memory_opening";
                 } else if let Some(point) = &self.model.point {
-                    if let Some(pt_hit) =
-                        select_point_key_with_resonance(point, &n_t, &self.tokens, mem.key_window)
-                    {
+                    if let Some(pt_hit) = select_point_key_with_resonance(
+                        point,
+                        &n_t,
+                        &self.tokens,
+                        mem.key_window,
+                        mem.reply.as_ref(),
+                        mem.reply_key_len,
+                    ) {
                         self.last_matched_stems = pt_hit.matched_stems;
                         self.last_point_hamming_bits = pt_hit.hamming_bits;
                         self.last_covered_stem_mask = pt_hit.covered_stem_mask;
@@ -3117,6 +3124,8 @@ pub fn is_lut_greeting_only_prompt(lower: &str) -> bool {
     )
 }
 
+pub const CORE_CURRICULUM_TURNS: usize = 623;
+
 #[derive(Clone, Copy, Debug)]
 pub struct PointResonanceHit {
     pub target_token: u32,
@@ -3134,6 +3143,8 @@ pub fn select_point_key_with_resonance(
     n_t: &[i32],
     prompt_tokens: &[u32],
     key_window: usize,
+    reply_tbl: Option<&TurnMemoryTable>,
+    reply_key_len: usize,
 ) -> Option<PointResonanceHit> {
     let Some(anchors) = &point.canonical_anchors else {
         return point
@@ -3232,10 +3243,10 @@ pub fn select_point_key_with_resonance(
         } else {
             usize::MAX
         };
-        if turn_idx >= 620 {
+        if turn_idx >= CORE_CURRICULUM_TURNS {
             let core_already_complete = is_self_inq
                 || is_greeting
-                || (best_raw_l1 == 0 && best_turn_idx < 620)
+                || (best_raw_l1 == 0 && best_turn_idx < CORE_CURRICULUM_TURNS)
                 || (total_stems > 0 && max_core_matched_stems >= total_stems.max(2))
                 || (max_core_matched_stems >= 2 && eff_total < max_core_matched_stems + 2);
             if core_already_complete {
@@ -3292,7 +3303,11 @@ pub fn select_point_key_with_resonance(
         }
         if matched_primary > 0 {
             bonus += ((matched_primary as i64) * 160_000) / (row_primary_count as i64);
-            let max_single_primary_width = if turn_idx < 620 { 3 } else { 4 };
+            let max_single_primary_width = if turn_idx < CORE_CURRICULUM_TURNS {
+                3
+            } else {
+                4
+            };
             if matched_primary == total_stems
                 && total_stems == 1
                 && row_primary_count <= max_single_primary_width
@@ -3310,17 +3325,17 @@ pub fn select_point_key_with_resonance(
         if matched_stems >= 2 {
             bonus += (matched_stems as i64) * 180_000;
         }
-        // Core verified curriculum turns (`0..620`) receive priority whenever they match the prompt;
-        // external corpus turns (`>= 620`) activate when no core turn matched (`max_core_matched_stems == 0`),
+        // Core verified curriculum turns (`0..CORE_CURRICULUM_TURNS`) receive priority whenever they match the prompt;
+        // external corpus turns (`>= CORE_CURRICULUM_TURNS`) activate when no core turn matched (`max_core_matched_stems == 0`),
         // when a core turn matched only 1 incidental stem out of 2+ (`max_core_matched_stems == 1` and
         // external matches >= 2 primary stems covering >= 1/2 of the prompt), or when external matches
         // at least 2 more stems than the best core turn.
-        if turn_idx < 620 && matched_stems >= 1 {
+        if turn_idx < CORE_CURRICULUM_TURNS && matched_stems >= 1 {
             if matched_stems > max_core_matched_stems {
                 max_core_matched_stems = matched_stems;
             }
             bonus += (matched_stems as i64) * 350_000;
-        } else if turn_idx >= 620 {
+        } else if turn_idx >= CORE_CURRICULUM_TURNS {
             let ext_eligible = if max_core_matched_stems == 0 {
                 if total_stems <= 1 {
                     matched_primary >= 1 && row_primary_count <= 4
@@ -3352,15 +3367,16 @@ pub fn select_point_key_with_resonance(
         // Exact branch-and-bound lower bound:
         // Whenever `raw_l1 > 0` (checked in O(1) via lane 0/1 inequality), `geom_dist >= guard_penalty`,
         // so `score = geom_dist - bonus >= guard_penalty - bonus`.
-        let maybe_exact_zero = turn_idx < 620
+        let maybe_exact_zero = turn_idx < CORE_CURRICULUM_TURNS
             && w_lim >= 2
             && (p_row[0] as i32) == n_t[0]
             && (p_row[1] as i32) == n_t[1];
-        let max_possible_bonus = if turn_idx >= 620 && w_lim >= 2 && (p_row[0] as i32) == n_t[0] {
-            bonus + 150_000
-        } else {
-            bonus
-        };
+        let max_possible_bonus =
+            if turn_idx >= CORE_CURRICULUM_TURNS && w_lim >= 2 && (p_row[0] as i32) == n_t[0] {
+                bonus + 150_000
+            } else {
+                bonus
+            };
         if !maybe_exact_zero && (guard_penalty - max_possible_bonus) >= best_score {
             continue;
         }
@@ -3386,7 +3402,7 @@ pub fn select_point_key_with_resonance(
         let h_bits = hamming_distance_256(&q_sketch, &p_sketch);
         let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty;
 
-        let score = if raw_l1 == 0 && guard_penalty == 0 && turn_idx < 620 {
+        let score = if raw_l1 == 0 && guard_penalty == 0 && turn_idx < CORE_CURRICULUM_TURNS {
             -(1i64 << 42) - bonus
         } else if raw_l1 == 0 && guard_penalty == 0 {
             geom_dist - bonus - 150_000
@@ -3395,6 +3411,18 @@ pub fn select_point_key_with_resonance(
         };
 
         if score < best_score {
+            if let Some(rt) = reply_tbl {
+                if !a_row.is_empty()
+                    && !probe_reply_table_has_anchor(
+                        rt,
+                        reply_key_len,
+                        &a_row[0..1],
+                        point.targets[r],
+                    )
+                {
+                    continue;
+                }
+            }
             best_score = score;
             best_row = r;
             best_raw_l1 = raw_l1;
@@ -3536,21 +3564,18 @@ pub fn split_prompt_clauses(user_prompt: &str) -> Vec<String> {
 }
 
 pub fn has_short_cycle(ids: &[u32]) -> bool {
-    if ids.len() >= 6 {
+    if ids.len() >= 2 {
         let n = ids.len();
-        let last = ids[n - 1];
-        if ids[n - 6..n].iter().all(|&t| t == last) {
+        if ids[n - 1] == ids[n - 2] {
             return true;
         }
     }
     for period in 2..=4 {
-        if ids.len() >= period * 4 {
+        if ids.len() >= period * 2 {
             let n = ids.len();
             let a = &ids[n - period..n];
             let b = &ids[n - 2 * period..n - period];
-            let c = &ids[n - 3 * period..n - 2 * period];
-            let d = &ids[n - 4 * period..n - 3 * period];
-            if a == b && b == c && c == d {
+            if a == b {
                 return true;
             }
         }
@@ -3653,7 +3678,14 @@ impl LutStackModel {
             }
             return Some((reply_ids, val_tok, 4, 0, true));
         }
-        let hit = select_point_key_with_resonance(point, &last_n_t, &c_tokens, mem.key_window)?;
+        let hit = select_point_key_with_resonance(
+            point,
+            &last_n_t,
+            &c_tokens,
+            mem.key_window,
+            mem.reply.as_ref(),
+            mem.reply_key_len,
+        )?;
         let canon =
             resolve_canonical_reply_anchor(point, mem, hit.row, hit.target_token, &reply_ids)?;
         Some((
@@ -3776,10 +3808,22 @@ impl LutStackModel {
                 continue;
             }
             score += ((matched as i64) * 200_000) / (row_primary_count as i64);
-            if turn_idx < 620 {
+            if turn_idx < CORE_CURRICULUM_TURNS {
                 score += 90_000;
             }
             if score > best_score {
+                if let Some(rt) = mem.reply.as_ref() {
+                    if !a_row.is_empty()
+                        && !probe_reply_table_has_anchor(
+                            rt,
+                            mem.reply_key_len,
+                            &a_row[0..1],
+                            point.targets[r],
+                        )
+                    {
+                        continue;
+                    }
+                }
                 best_score = score;
                 best_row = r;
                 best_matched = matched;
@@ -3924,6 +3968,10 @@ impl LutStackModel {
                 break;
             }
             let st = session.step_with_telemetry(next_tok);
+            if confident_open && st.source_mechanism != "turn_memory_reply" {
+                next_tok = bpe.eos_id();
+                continue;
+            }
             next_tok = st.predicted_token;
             last_source = st.source_mechanism;
             steps.push(st);
