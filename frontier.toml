@@ -144,7 +144,7 @@ target_reply = "Each weight shard and manifest entry carries a cryptographic dig
 
 [[claim]]
 id = "R4-F10"
-status = "open"
+status = "proved"
 depends = ["R4-F07"]
 relation = "code-synthesis"
 window = [
@@ -152,6 +152,7 @@ window = [
     10,
 ]
 kappa = "r4:v1:stem:webassembly-zero-copy-serving:k=10"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
 statement = "Explain how WebAssembly linear memory serves UORLUT01 integer lookup tables at zero-copy speed in the browser."
 prompt = "How does the WebAssembly runtime serve weights in the browser?"
 target_reply = "The WebAssembly runtime maps the UORLUT01 binary directly into linear memory and executes integer Hamming, turn-memory, and PointKey lookups with deterministic sub-millisecond latency."
@@ -247,3 +248,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify that Raft consensus guarantees Election Safety and Leader Completeness via majority quorum intersection and up-to-date log term comparisons."
 prompt = "How does Raft consensus guarantee Leader Completeness across network partitions?"
 target_reply = "Raft guarantees Leader Completeness because a candidate must receive votes from a majority quorum and voters reject candidates whose last log entry has an older term or shorter index than their own."
+
+[[claim]]
+id = "R4-F17"
+status = "observed"
+depends = ["R4-F02"]
+relation = "code-synthesis"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:rust-borrow-checker-aliasing-xor-mutability:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify that Rust's borrow checker enforces aliasing XOR mutability at compile time to eliminate data races and dangling references without garbage collection."
+prompt = "Why does Rust enforce aliasing XOR mutability in its borrow checker?"
+target_reply = "Rust enforces aliasing XOR mutability so any value has either multiple shared immutable references (&T) or one exclusive mutable reference (&mut T), preventing data races and iterator invalidation at compile time."
