@@ -4,19 +4,6 @@
 spec = "r4/hypotheses/1"
 
 [[hypothesis]]
-label = "H-OBL-DIALOGUE-STEM-R4-F32"
-form = "obligation"
-family = "dialogue-stem"
-sources = [
-    "R4-F01",
-    "R4-F32",
-]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
-status = "minted"
-statement = "Synthesize and verify 28-bit PointKey and 4-gram reply continuation rows for R4-F32 (Verify compact PointKey paraphrase routing for conversational stems ield and work at manifold row 5082.)"
-
-[[hypothesis]]
 label = "H-OBL-STEM-REASONING-R4-F33"
 form = "obligation"
 family = "stem-reasoning"
@@ -25,7 +12,7 @@ sources = [
     "R4-F33",
 ]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Synthesize and verify 28-bit PointKey and 4-gram reply continuation rows for R4-F33 (Verify causal four gram deduction over stems return and number from manifold row 5438 without symbolic drift.)"
 
@@ -38,7 +25,7 @@ sources = [
     "R4-F34",
 ]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Synthesize and verify 28-bit PointKey and 4-gram reply continuation rows for R4-F34 (Verify Q12 writer refinement and 28-bit anchor alignment for stems ling and ator at row_idx=5064 (anchor_id=0x80000237).)"
 
@@ -52,7 +39,7 @@ sources = [
     "R4-F35",
 ]
 weight = 14
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Synthesize and verify 28-bit PointKey and 4-gram reply continuation rows for R4-F35 (Verify cross-basin geodesic synthesis bridging ject and build across PointKey row 5274 in the UORLUT01 manifold.)"
 
@@ -64,10 +51,23 @@ sources = [
     "R4-F01",
     "R4-F36",
 ]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
+weight = 16
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Synthesize and verify 28-bit PointKey and 4-gram reply continuation rows for R4-F36 (Verify compact PointKey paraphrase routing for conversational stems steak and pasta at manifold row 5192.)"
+
+[[hypothesis]]
+label = "H-OBL-STEM-REASONING-R4-F37"
+form = "obligation"
+family = "stem-reasoning"
+sources = [
+    "R4-F03",
+    "R4-F37",
+]
+weight = 15
+tick = "2026-11-05T17:29:35Z"
+status = "minted"
+statement = "Synthesize and verify 28-bit PointKey and 4-gram reply continuation rows for R4-F37 (Verify causal four gram deduction over stems ions and window from manifold row 5110 without symbolic drift.)"
 
 [[hypothesis]]
 label = "H-EXCL-OPEN-BASIN-R4-F11"
@@ -75,7 +75,7 @@ form = "exclusion"
 family = "open-basin"
 sources = ["R4-F11"]
 weight = 16
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Exclude falsified configuration R4-F11 (r4:v1:stem:unanchored-pointkey-shift21:k=4) and enforce 28-bit PointKey anchor invariant."
 
@@ -84,8 +84,8 @@ label = "H-VERIFIED-DIALOGUE-STEM-R4-F01"
 form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F01"]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
+weight = 16
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F01 (r4:v1:stem:identity-greeting:k=4)"
 
@@ -94,8 +94,8 @@ label = "H-VERIFIED-DIALOGUE-STEM-R4-F02"
 form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F02"]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
+weight = 16
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F02 (r4:v1:stem:favorite-food-culinary:k=6)"
 
@@ -105,7 +105,7 @@ form = "obligation"
 family = "stem-reasoning"
 sources = ["R4-F03"]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F03 (r4:v1:stem:exact-radix-addition:k=8)"
 
@@ -114,8 +114,8 @@ label = "H-VERIFIED-DIALOGUE-STEM-R4-F04"
 form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F04"]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
+weight = 16
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F04 (r4:v1:stem:autonomous-homeostasis:k=8)"
 
@@ -124,8 +124,8 @@ label = "H-VERIFIED-DIALOGUE-STEM-R4-F05"
 form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F05"]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
+weight = 16
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F05 (r4:v1:stem:rule30-cellular-automaton:k=8)"
 
@@ -135,7 +135,7 @@ form = "obligation"
 family = "stem-reasoning"
 sources = ["R4-F06"]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F06 (r4:v1:stem:icosian-golden-snap:k=8)"
 
@@ -145,7 +145,7 @@ form = "obligation"
 family = "code-synthesis"
 sources = ["R4-F07"]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F07 (r4:v1:stem:rust-binary-search:k=8)"
 
@@ -154,8 +154,8 @@ label = "H-VERIFIED-DIALOGUE-STEM-R4-F08"
 form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F08"]
-weight = 15
-tick = "2026-11-05T17:22:04Z"
+weight = 16
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F08 (r4:v1:stem:favorite-book-recommendation:k=8)"
 
@@ -165,7 +165,7 @@ form = "obligation"
 family = "stem-reasoning"
 sources = ["R4-F09"]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F09 (r4:v1:stem:blake3-merkle-custody:k=10)"
 
@@ -175,6 +175,6 @@ form = "obligation"
 family = "code-synthesis"
 sources = ["R4-F10"]
 weight = 15
-tick = "2026-11-05T17:22:04Z"
+tick = "2026-11-05T17:29:35Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F10 (r4:v1:stem:webassembly-zero-copy-serving:k=10)"
