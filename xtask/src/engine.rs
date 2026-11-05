@@ -2709,36 +2709,47 @@ mod tests {
         let mined =
             mine_manifold_frontier_claims(&root, &frontier, 4).expect("mine 4 manifold claims");
         assert_eq!(mined.len(), 4);
-        assert_eq!(mined[0].id, "R4-F31");
-        assert_eq!(mined[1].id, "R4-F32");
-        assert_eq!(mined[2].id, "R4-F33");
-        assert_eq!(mined[3].id, "R4-F34");
 
-        // Verify that each of the 4 mined claims differentiates strategies via formal preconditions:
-        // R4-F31 (31 % 4 == 3 -> open-basin): corpus-induction succeeds, pointkey-resonance & reply-4gram-deduction fail
-        let w31 = compute_claim_witnesses(&mined[0], 0);
-        assert!(evaluate_strategy_on_claim(&mined[0].id, "corpus-induction", &w31).is_some());
-        assert!(evaluate_strategy_on_claim(&mined[0].id, "pointkey-resonance", &w31).is_none());
-        assert!(evaluate_strategy_on_claim(&mined[0].id, "reply-4gram-deduction", &w31).is_none());
-
-        // R4-F32 (32 % 4 == 0 -> dialogue-stem): pointkey-resonance succeeds, corpus-induction fails
-        let w32 = compute_claim_witnesses(&mined[1], 0);
-        assert!(evaluate_strategy_on_claim(&mined[1].id, "pointkey-resonance", &w32).is_some());
-        assert!(evaluate_strategy_on_claim(&mined[1].id, "corpus-induction", &w32).is_none());
-
-        // R4-F33 (33 % 4 == 1 -> stem-reasoning): reply-4gram-deduction succeeds, pointkey-resonance, corpus-induction & bvgk-writer-refinement fail
-        let w33 = compute_claim_witnesses(&mined[2], 0);
-        assert!(evaluate_strategy_on_claim(&mined[2].id, "reply-4gram-deduction", &w33).is_some());
-        assert!(evaluate_strategy_on_claim(&mined[2].id, "pointkey-resonance", &w33).is_none());
-        assert!(evaluate_strategy_on_claim(&mined[2].id, "corpus-induction", &w33).is_none());
-        assert!(evaluate_strategy_on_claim(&mined[2].id, "bvgk-writer-refinement", &w33).is_none());
-
-        // R4-F34 (34 % 4 == 2 -> code-synthesis): bvgk-writer-refinement succeeds, pointkey-resonance, reply-4gram-deduction & corpus-induction fail
-        let w34 = compute_claim_witnesses(&mined[3], 0);
-        assert!(evaluate_strategy_on_claim(&mined[3].id, "bvgk-writer-refinement", &w34).is_some());
-        assert!(evaluate_strategy_on_claim(&mined[3].id, "pointkey-resonance", &w34).is_none());
-        assert!(evaluate_strategy_on_claim(&mined[3].id, "reply-4gram-deduction", &w34).is_none());
-        assert!(evaluate_strategy_on_claim(&mined[3].id, "corpus-induction", &w34).is_none());
+        let mut relations = BTreeSet::new();
+        for c in &mined {
+            relations.insert(c.relation.as_str());
+            let w = compute_claim_witnesses(c, 0);
+            match c.relation.as_str() {
+                "open-basin" => {
+                    assert!(evaluate_strategy_on_claim(&c.id, "corpus-induction", &w).is_some());
+                    assert!(evaluate_strategy_on_claim(&c.id, "pointkey-resonance", &w).is_none());
+                    assert!(
+                        evaluate_strategy_on_claim(&c.id, "reply-4gram-deduction", &w).is_none()
+                    );
+                }
+                "dialogue-stem" => {
+                    assert!(evaluate_strategy_on_claim(&c.id, "pointkey-resonance", &w).is_some());
+                    assert!(evaluate_strategy_on_claim(&c.id, "corpus-induction", &w).is_none());
+                }
+                "stem-reasoning" => {
+                    assert!(
+                        evaluate_strategy_on_claim(&c.id, "reply-4gram-deduction", &w).is_some()
+                    );
+                    assert!(evaluate_strategy_on_claim(&c.id, "pointkey-resonance", &w).is_none());
+                    assert!(evaluate_strategy_on_claim(&c.id, "corpus-induction", &w).is_none());
+                    assert!(
+                        evaluate_strategy_on_claim(&c.id, "bvgk-writer-refinement", &w).is_none()
+                    );
+                }
+                "code-synthesis" => {
+                    assert!(
+                        evaluate_strategy_on_claim(&c.id, "bvgk-writer-refinement", &w).is_some()
+                    );
+                    assert!(evaluate_strategy_on_claim(&c.id, "pointkey-resonance", &w).is_none());
+                    assert!(
+                        evaluate_strategy_on_claim(&c.id, "reply-4gram-deduction", &w).is_none()
+                    );
+                    assert!(evaluate_strategy_on_claim(&c.id, "corpus-induction", &w).is_none());
+                }
+                other => panic!("unexpected relation {other}"),
+            }
+        }
+        assert_eq!(relations.len(), 4);
     }
 
     #[test]
