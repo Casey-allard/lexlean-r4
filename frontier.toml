@@ -401,7 +401,7 @@ target_reply = "Lock-free structures prevent the ABA problem either by packing a
 
 [[claim]]
 id = "R4-F27"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -409,6 +409,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:stem:curry-howard-propositions-as-types:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f27_reply_4gram_deduction"
 statement = "Verify the Curry-Howard isomorphism mapping logical propositions to dependent types, proofs to constructive terms, and cut elimination to beta reduction."
 prompt = "What is the Curry-Howard correspondence between logic and type theory?"
 target_reply = "The Curry-Howard correspondence identifies mathematical propositions with types, proofs with well-typed programs, implication with function types, conjunction with product types, universal quantification with dependent Pi types, and proof normalization with program evaluation."
@@ -471,3 +472,17 @@ kappa = "r4:v1:manifold:open-basin:ions-ation:r4361:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging ions and ation across PointKey row 4361 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ions and ation across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ions and ation by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F32"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:ield-work:r5082:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems ield and work at manifold row 5082."
+prompt = "How does PointKey routing resolve conversational prompts about ield and work?"
+target_reply = "PointKey routing matches conversational stems ield and work directly to their canonical reply anchor without token loops."
