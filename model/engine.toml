@@ -211,13 +211,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T14:59:38Z"
 
-[[tick]]
-id = "2026-11-05T04:54:59Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F05"]
-minted = 12
+[[attempt]]
+kappa = "r4:v1:stem:ssa-dominance-frontier-phi-placement:k=14"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T15:09:03Z"
 
 [[tick]]
 id = "2026-11-05T04:58:53Z"
@@ -305,4 +305,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F17"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T15:09:03Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F18"]
 minted = 16

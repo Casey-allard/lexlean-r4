@@ -266,7 +266,7 @@ target_reply = "Rust enforces aliasing XOR mutability so any value has either mu
 
 [[claim]]
 id = "R4-F18"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -353,3 +353,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify the architectural trade-offs between loss-based TCP CUBIC congestion control and model-based TCP BBR bandwidth-delay product pacing."
 prompt = "How does TCP BBR congestion control differ from TCP CUBIC on high-bandwidth long-fat networks?"
 target_reply = "TCP CUBIC treats packet loss as its congestion signal and fills router buffers until drops occur (causing bufferbloat), whereas TCP BBR continuously estimates bottleneck bandwidth and minimum round-trip propagation delay to pace packets at the bandwidth-delay product."
+
+[[claim]]
+id = "R4-F24"
+status = "observed"
+depends = ["R4-F02"]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:multi-basin-complementary-stem-synthesis:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify that multi-basin geodesic synthesis chains complementary PointKey basins across uncovered prompt stems while preserving cycle-free 4-gram decoding."
+prompt = "How does UOR-R4 combine multiple concept basins when answering a complex multi-part question?"
+target_reply = "UOR-R4 tracks covered prompt stem bits on the primary PointKey basin and iteratively resolves up to three complementary basins over the remaining uncovered stems, decoding each basin's 4-gram trajectory into a coherent multi-paragraph response."
