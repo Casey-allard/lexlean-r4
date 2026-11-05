@@ -36,7 +36,7 @@ value = 10
 [[weight]]
 strategy = "reply-4gram-deduction"
 family = "stem-reasoning"
-value = 12
+value = 14
 
 [[weight]]
 strategy = "bvgk-writer-refinement"
@@ -123,6 +123,14 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T04:54:59Z"
 
+[[attempt]]
+kappa = "r4:v1:stem:icosian-golden-snap:k=8"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T04:58:53Z"
+
 [[tick]]
 id = "2026-11-05T03:30:00Z"
 outcome = "advanced"
@@ -143,3 +151,11 @@ discovered = 1
 pruned = 0
 proved = ["R4-F05"]
 minted = 12
+
+[[tick]]
+id = "2026-11-05T04:58:53Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F06"]
+minted = 13

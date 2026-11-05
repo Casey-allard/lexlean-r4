@@ -84,7 +84,7 @@ target_reply = "Like the UOR Rule 30 repository, LexLean-R4 pairs a formal LexLe
 
 [[claim]]
 id = "R4-F06"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -92,6 +92,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:stem:icosian-golden-snap:k=8"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
 statement = "Describe how the 17-root Icosian Z[phi] golden-field snap kernel maps continuous coordinates onto discrete root addresses."
 prompt = "What is the 17-root Icosian snap kernel?"
 target_reply = "The 17-root Icosian snap kernel evaluates exact integer inequalities over Z[phi] to project continuous vectors onto the 16 signed roots plus the zero origin without floating-point drift."
@@ -180,3 +181,18 @@ lean = "LexLeanR4.ExactArithmeticControls.prllAllocateMassBasePlusQuota"
 statement = "Verify that integer PRLL lawful likelihood conserves PRLL_MASS_QUANTUM=1_000_000 across candidate token distributions."
 prompt = "How does PRLL lawful likelihood conserve probability mass in integers?"
 target_reply = "PRLL allocates integer mass quanta summing to 1,000,000 using exact base-plus-quota floor division without floating-point softmax."
+
+[[claim]]
+id = "R4-F13"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    2,
+    12,
+]
+kappa = "r4:v1:stem:durable-turn-memory-sieve:k=12"
+lean = "LexLeanR4.DurableMemoryControls"
+statement = "Verify that M3 scoped durable turn memory intersects PrimeAddress factors and enforces the +3-sigma (2144/4096) manifold sketch gate."
+prompt = "How does durable turn memory filter noisy recall candidates?"
+target_reply = "Durable turn memory intersects sorted PrimeAddress factors via GCD sieve and requires at least 2,144 of 4,096 manifold sketch bits (+3 sigma)."
