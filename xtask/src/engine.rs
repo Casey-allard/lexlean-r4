@@ -827,7 +827,7 @@ pub fn compile_proved_frontier_claims_to_uorlut(
     let lut_path = root.join("crates/wasm/src/bootstrap_v8.uorlut");
     let bytes = std::fs::read(&lut_path)
         .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
-    let mut model = lexlean_r4_wasm::lut_stack_exec::LutStackModel::parse(&bytes)?;
+    let mut model = crate::lut_stack_exec::LutStackModel::parse(&bytes)?;
     let mut compiled = 0usize;
     for claim in &frontier.claim {
         if claim.status != "proved" {
@@ -1637,7 +1637,7 @@ mod tests {
         let root = repo_model::repo_root();
         let uorlut_bytes = std::fs::read(root.join("crates/wasm/src/bootstrap_v8.uorlut"))
             .expect("read bootstrap_v8.uorlut");
-        let mut model = lexlean_r4_wasm::lut_stack_exec::LutStackModel::parse(&uorlut_bytes)
+        let mut model = crate::lut_stack_exec::LutStackModel::parse(&uorlut_bytes)
             .expect("parse bootstrap_v8.uorlut");
         let initial_rows = model.point.as_ref().unwrap().rows;
         let prompt = "How does zero-float B-tree consensus scale across distributed shards?";
@@ -1663,7 +1663,7 @@ mod tests {
         // Round-trip through UORLUT01/8 binary serialization and verify zero orphaned PointKey rows
         let bytes = model.to_uorlut_bytes();
         let parsed = std::sync::Arc::new(
-            lexlean_r4_wasm::lut_stack_exec::LutStackModel::parse(&bytes)
+            crate::lut_stack_exec::LutStackModel::parse(&bytes)
                 .expect("reparse compiled UORLUT01/8"),
         );
         let pk = parsed.point.as_ref().unwrap();

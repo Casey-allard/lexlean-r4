@@ -13,6 +13,9 @@ use repo_model::{codegen, Model};
 mod audit;
 mod bootstrap;
 mod engine;
+#[allow(dead_code, clippy::all)]
+#[path = "../../crates/wasm/src/lut_stack_exec.rs"]
+pub mod lut_stack_exec;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
