@@ -371,7 +371,7 @@ target_reply = "UOR-R4 tracks covered prompt stem bits on the primary PointKey b
 
 [[claim]]
 id = "R4-F25"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
