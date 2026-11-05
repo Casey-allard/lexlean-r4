@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-AUTONOMOUS-ENGINE"
+level = "some-true"
+authority = "UOR-R4-AUTONOMOUS-ENGINE"
+statement = "Autonomous homeostasis engine invariants, bounded Hebbian strategy plasticity in [1, 16], priority strategy scheduling, and non-redundant hypothesis minting are imported from the UOR Rule 30 engine specification. Formal LexLean controls do not establish external GitHub Actions runner availability or unbounded open-domain convergence."
+
+[[claim]]
 id = "AUTH-UOR-R4-EXACT-ARITHMETIC"
 level = "some-true"
 authority = "UOR-R4-EXACT-ARITHMETIC"

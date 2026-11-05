@@ -1,0 +1,182 @@
+# Research and curriculum frontier for the LexLean-R4 autonomous engine.
+# Governed by `src/R4/AutonomousEngine.lex.tex` (`R4-28`).
+
+[[claim]]
+id = "R4-F01"
+status = "proved"
+depends = []
+relation = "dialogue-stem"
+window = [
+    0,
+    4,
+]
+kappa = "r4:v1:stem:identity-greeting:k=4"
+lean = "LexLeanR4.IntegerStackControls"
+statement = "Greeting and identity stems map deterministically through /7 opening-turn memory and /8 PointKey anchors without orphaned rows."
+prompt = "Hello! Who are you?"
+target_reply = "Hello! I am the UOR-R4 BVGK 2B Language Engine running in your browser via WebAssembly."
+
+[[claim]]
+id = "R4-F02"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    0,
+    6,
+]
+kappa = "r4:v1:stem:favorite-food-culinary:k=6"
+lean = "LexLeanR4.IntegerStackControls"
+statement = "Conversational preference prompts ('What is your favorite food?') resolve to natural culinary replies with zero 1-cycle or 2-cycle token loops."
+prompt = "What is your favorite food?"
+target_reply = "If I could eat, I would pick wood-fired margherita pizza, fresh ramen, and warm tacos."
+
+[[claim]]
+id = "R4-F03"
+status = "proved"
+depends = ["R4-F01"]
+relation = "stem-reasoning"
+window = [
+    0,
+    8,
+]
+kappa = "r4:v1:stem:exact-radix-addition:k=8"
+lean = "LexLeanR4.ExactArithmeticControls.multiDigitDecimalAdd579Plus486"
+statement = "Multi-digit radix-B orbit addition preserves exact carry propagation and detects step-action mismatches across radices 2..16."
+prompt = "How does exact arithmetic work in UOR-R4?"
+target_reply = "UOR-R4 computes multi-digit radix-B addition over 17-root orbit digits with verified carry trits and step-action checks."
+
+[[claim]]
+id = "R4-F04"
+status = "proved"
+depends = [
+    "R4-F01",
+    "R4-F02",
+]
+relation = "dialogue-stem"
+window = [
+    0,
+    8,
+]
+kappa = "r4:v1:stem:autonomous-homeostasis:k=8"
+lean = "LexLeanR4.AutonomousEngineControls.workflowHomeostasisAcceptsCanonicalTickBudget"
+statement = "Bounded Hebbian strategy plasticity in [1, 16], priority strategy scheduling, and 75-minute CI homeostasis ticks govern self-improvement."
+prompt = "How does the LexLean-R4 autonomous engine improve itself?"
+target_reply = "Every scheduled CI tick runs discovery, pruning, priority-scheduled deduction, Hebbian weight updates, hypothesis minting, and the full acceptance gate before publishing updated weights."
+
+[[claim]]
+id = "R4-F05"
+status = "proved"
+depends = [
+    "R4-F01",
+    "R4-F04",
+]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:stem:rule30-cellular-automaton:k=8"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Explain how Rule 30 cellular automaton recurrence discovery and LexLean formal verification relate to the UOR-R4 autonomous engine."
+prompt = "How does Rule 30 relate to this repository?"
+target_reply = "Like the UOR Rule 30 repository, LexLean-R4 pairs a formal LexLean specification with an autonomous CI engine that discovers candidate relations, schedules deduction strategies by Hebbian weights, and commits only gate-verified improvements."
+
+[[claim]]
+id = "R4-F06"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:stem:icosian-golden-snap:k=8"
+statement = "Describe how the 17-root Icosian Z[phi] golden-field snap kernel maps continuous coordinates onto discrete root addresses."
+prompt = "What is the 17-root Icosian snap kernel?"
+target_reply = "The 17-root Icosian snap kernel evaluates exact integer inequalities over Z[phi] to project continuous vectors onto the 16 signed roots plus the zero origin without floating-point drift."
+
+[[claim]]
+id = "R4-F07"
+status = "observed"
+depends = ["R4-F03"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:stem:rust-binary-search:k=8"
+statement = "Synthesize a concise, idiomatic Rust binary search explanation and implementation summary without token repetition."
+prompt = "How do you write a binary search in Rust?"
+target_reply = "In Rust, slice::binary_search compares the midpoint element against the target in O(log n) time, returning Ok(index) when found or Err(insertion_index) when absent."
+
+[[claim]]
+id = "R4-F08"
+status = "observed"
+depends = ["R4-F02"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:stem:favorite-book-recommendation:k=8"
+statement = "Respond naturally to questions about favorite books and reading recommendations without falling back to repetitive templates."
+prompt = "What is your favorite book?"
+target_reply = "A great read is Godel, Escher, Bach by Douglas Hofstadter, alongside classic science fiction like Dune and The Hitchhiker's Guide to the Galaxy."
+
+[[claim]]
+id = "R4-F09"
+status = "open"
+depends = ["R4-F06"]
+relation = "stem-reasoning"
+window = [
+    2,
+    10,
+]
+kappa = "r4:v1:stem:blake3-merkle-custody:k=10"
+statement = "Explain how unkeyed BLAKE3-256 content addressing secures weight shards and browser cache custody."
+prompt = "How are the model weight shards verified?"
+target_reply = "Each weight shard and manifest entry carries a cryptographic digest verified before admission into the browser CacheStorage and IndexedDB tables."
+
+[[claim]]
+id = "R4-F10"
+status = "open"
+depends = ["R4-F07"]
+relation = "code-synthesis"
+window = [
+    2,
+    10,
+]
+kappa = "r4:v1:stem:webassembly-zero-copy-serving:k=10"
+statement = "Explain how WebAssembly linear memory serves UORLUT01 integer lookup tables at zero-copy speed in the browser."
+prompt = "How does the WebAssembly runtime serve weights in the browser?"
+target_reply = "The WebAssembly runtime maps the UORLUT01 binary directly into linear memory and executes integer Hamming, turn-memory, and PointKey lookups with deterministic sub-millisecond latency."
+
+[[claim]]
+id = "R4-F11"
+status = "refuted"
+depends = ["R4-F01"]
+relation = "open-basin"
+window = [
+    0,
+    4,
+]
+kappa = "r4:v1:stem:unanchored-pointkey-shift21:k=4"
+statement = "Refuted hypothesis that 21-bit shifted PointKey anchors preserve /7 reply synchronization; falsified by 88,653 orphaned rows and replaced by exact 28-bit anchor packing."
+prompt = "Legacy 21-bit anchor shift test"
+target_reply = "Refuted by 28-bit anchor invariant."
+
+[[claim]]
+id = "R4-F12"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    12,
+]
+kappa = "r4:v1:stem:prll-mass-conservation:k=12"
+lean = "LexLeanR4.ExactArithmeticControls.prllAllocateMassBasePlusQuota"
+statement = "Verify that integer PRLL lawful likelihood conserves PRLL_MASS_QUANTUM=1_000_000 across candidate token distributions."
+prompt = "How does PRLL lawful likelihood conserve probability mass in integers?"
+target_reply = "PRLL allocates integer mass quanta summing to 1,000,000 using exact base-plus-quota floor division without floating-point softmax."

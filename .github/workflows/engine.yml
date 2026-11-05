@@ -1,0 +1,122 @@
+name: Engine
+
+on:
+  schedule:
+    - cron: "17,47 * * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: r4-engine
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  tick:
+    name: run autonomous homeostasis tick
+    if: vars.R4_ENGINE != 'off'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out the exact event revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check branch tip
+        id: tip
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_head=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+          local_head=$(git rev-parse HEAD)
+          if [ "$local_head" = "$remote_head" ]; then
+            printf 'current=true\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'current=false\n' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore settled commit marker
+        id: settled
+        if: steps.tip.outputs.current == 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .r4-settled
+          key: r4-settled-${{ github.sha }}
+
+      - name: Restore Cargo target cache
+        if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: target
+          key: r4-engine-target-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            r4-engine-target-
+
+      - name: Run autonomous homeostasis tick through the locked SDK
+        id: tick
+        if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          image=$(sed -n 's/.*"sdk_image":"\([^"]*\)".*/\1/p' prismpm.lock)
+          if [[ ! $image =~ ^[a-z0-9.-]+(:[0-9]{1,5})?/[a-z0-9./_-]+@sha256:[0-9a-f]{64}$ ]]; then
+            printf '%s\n' 'prismpm.lock does not select an immutable SDK image' >&2
+            exit 64
+          fi
+          docker_config=$(mktemp -d)
+          trap 'rm -rf "$docker_config" .r4-engine-output.env' EXIT
+          if test -f "$HOME/.docker/config.json"; then
+            cp "$HOME/.docker/config.json" "$docker_config/config.json"
+          else
+            printf '{}\n' >"$docker_config/config.json"
+          fi
+          rm -f .r4-engine-output.env
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --group-add "$(stat -c '%g' /var/run/docker.sock)" \
+            --tmpfs /tmp:rw,exec,nosuid,size=2g \
+            --volume "$PWD:$PWD" \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume "$docker_config:/tmp/prismpm-home/.docker:ro" \
+            --workdir "$PWD" \
+            --env DOCKER_CONFIG=/tmp/prismpm-home/.docker \
+            --env BUILDX_CONFIG=/tmp/prismpm-buildx \
+            --env HOME=/tmp/prismpm-home \
+            --env PRISMPM_EPHEMERAL_HOME=1 \
+            --env SDK_IMAGE="$image" \
+            --env GITHUB_TOKEN="$GITHUB_TOKEN" \
+            --env R4_ENGINE_OUTPUT_FILE=".r4-engine-output.env" \
+            "$image" bash -c '
+              set -euo pipefail
+              umask 077
+              cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
+            '
+          if [ -f .r4-engine-output.env ]; then
+            cat .r4-engine-output.env >> "$GITHUB_OUTPUT"
+            rm -f .r4-engine-output.env
+          fi
+
+      - name: Save settled commit marker
+        if: steps.tick.outputs.outcome == 'settled' && steps.settled.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .r4-settled
+          key: r4-settled-${{ github.sha }}
+
+      - name: Trigger Pages deployment after engine advancement
+        if: steps.tick.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run pages.yml --ref main

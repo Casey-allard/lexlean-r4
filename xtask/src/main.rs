@@ -1,4 +1,4 @@
-//! Repository gates.
+//! Repository gates and autonomous homeostasis engine (`R4-28`).
 //!
 //! `cargo xtask <task>`; `just vv` runs the whole normative acceptance gate.
 //! Each task below enforces one of the rules `AGENTS.md` sets out, and each
@@ -12,33 +12,96 @@ use repo_model::{codegen, Model};
 
 mod audit;
 mod bootstrap;
+mod engine;
 
 fn main() -> ExitCode {
-    let task = std::env::args()
-        .nth(1)
-        .unwrap_or_else(|| "help".to_string());
-    let write = std::env::args().any(|a| a == "--write");
+    let args: Vec<String> = std::env::args().collect();
+    let task = args.get(1).map(String::as_str).unwrap_or("help");
+    let rest = if args.len() > 2 { &args[2..] } else { &[] };
+    let write = args.iter().any(|a| a == "--write");
     let root = repo_model::repo_root();
 
-    let result = match task.as_str() {
+    let result: Result<(), Fail> = match task {
         "check-model" => check_model(&root, write),
         "audit-limits" => audit::audit_limits(&root),
         "audit-deferral" => audit::audit_deferral(&root),
         "audit-bootstrap" => bootstrap::audit(&root),
         "audit-dependency-updates" => bootstrap::audit_dependency_updates(&root),
         "validate" => validate(&root),
+        "status" | "brief" => engine::print_status(&root).map_err(Into::into),
+        "frontier" => engine::run_frontier_cmd(&root, rest).map_err(Into::into),
+        "discover" => engine::discover(&root, write, 2)
+            .map(|added| {
+                println!(
+                    "discover (write={write}): {} candidate claim(s) induced: {:?}",
+                    added.len(),
+                    added
+                );
+            })
+            .map_err(Into::into),
+        "audit" => engine::audit_uorlut_synchronization(&root)
+            .map(|a| {
+                println!(
+                    "audit: UORLUT01 reply_anchors={} point_rows={} orphaned_point_rows={}",
+                    a.reply_anchor_count, a.point_row_count, a.orphaned_point_rows
+                );
+            })
+            .map_err(Into::into),
+        "deduce" => {
+            let tick_id = "2026-11-05T04:00:00Z";
+            let mut eng = match engine::load_engine(&root) {
+                Ok(v) => v,
+                Err(e) => {
+                    eprintln!("gate failed: {e}");
+                    return ExitCode::FAILURE;
+                }
+            };
+            let mut front = match engine::load_frontier(&root) {
+                Ok(v) => v,
+                Err(e) => {
+                    eprintln!("gate failed: {e}");
+                    return ExitCode::FAILURE;
+                }
+            };
+            engine::deduce(&root, &mut eng, &mut front, tick_id, 2)
+                .and_then(|summary| {
+                    if !summary.proved_ids.is_empty() && write {
+                        for (strat, fam, succ) in &summary.outcomes {
+                            engine::update_weight(&mut eng.weight, strat, fam, *succ);
+                        }
+                        engine::save_frontier(&root, &front)?;
+                        engine::save_engine(&root, &eng)?;
+                    }
+                    println!(
+                        "deduce (write={write}): proved {} claim(s): {:?}",
+                        summary.proved_ids.len(),
+                        summary.proved_ids
+                    );
+                    Ok(())
+                })
+                .map_err(Into::into)
+        }
+        "engine" => engine::run_engine_cmd(&root, rest).map_err(Into::into),
+        "api" => engine::run_api_cmd(&root, rest).map_err(Into::into),
         _ => {
             eprintln!(
                 "cargo xtask <task>\n\
                  \n\
                  check-model       R1: model/*.toml is the single source; regenerate and diff\n\
-                 audit-limits      R5:  no bound that cannot be traced to a parameter\n\
+                 audit-limits      R5: no bound that cannot be traced to a parameter\n\
                  audit-deferral    R4: no deferral marker, no stub, no capability behind a flag\n\
                  audit-bootstrap   immutable SDK and least-privilege workflow trust root\n\
                  audit-dependency-updates   SDK ownership and ordinary dependency maintenance\n\
                  validate          run every gate above\n\
+                 status | brief    print autonomous engine, frontier, and UORLUT01 status\n\
+                 frontier          list, check, or update frontier.toml claims\n\
+                 discover          induce candidate relations into frontier.toml (--write)\n\
+                 audit             verify 0 orphaned PointKey rows and anchor synchronization\n\
+                 deduce            run priority-scheduled deduction over frontier claims\n\
+                 engine            run autonomous homeostasis subcommands (status|hypotheses|prune|tick)\n\
+                 api               check or synchronize autonomous engine ledgers (check|sync)\n\
                  \n\
-                 --write           check-model only: rewrite the generated file"
+                 --write           rewrite generated or induced files"
             );
             return ExitCode::from(2);
         }
@@ -99,6 +162,5 @@ fn validate(root: &Path) -> Result<(), Fail> {
     audit::audit_limits(root)?;
     audit::audit_deferral(root)?;
     bootstrap::audit(root)?;
-    println!("validate: every gate passed");
     Ok(())
 }

@@ -1,0 +1,145 @@
+# Consolidated autonomous engine state (`r4/engine/1`).
+# Governed by `src/R4/AutonomousEngine.lex.tex` (`R4-28`).
+
+spec = "r4/engine/1"
+
+[[weight]]
+strategy = "corpus-induction"
+family = "dialogue-stem"
+value = 10
+
+[[weight]]
+strategy = "pointkey-resonance"
+family = "dialogue-stem"
+value = 14
+
+[[weight]]
+strategy = "reply-4gram-deduction"
+family = "dialogue-stem"
+value = 10
+
+[[weight]]
+strategy = "bvgk-writer-refinement"
+family = "dialogue-stem"
+value = 8
+
+[[weight]]
+strategy = "corpus-induction"
+family = "stem-reasoning"
+value = 10
+
+[[weight]]
+strategy = "pointkey-resonance"
+family = "stem-reasoning"
+value = 10
+
+[[weight]]
+strategy = "reply-4gram-deduction"
+family = "stem-reasoning"
+value = 12
+
+[[weight]]
+strategy = "bvgk-writer-refinement"
+family = "stem-reasoning"
+value = 10
+
+[[weight]]
+strategy = "corpus-induction"
+family = "code-synthesis"
+value = 8
+
+[[weight]]
+strategy = "pointkey-resonance"
+family = "code-synthesis"
+value = 10
+
+[[weight]]
+strategy = "reply-4gram-deduction"
+family = "code-synthesis"
+value = 10
+
+[[weight]]
+strategy = "bvgk-writer-refinement"
+family = "code-synthesis"
+value = 10
+
+[[weight]]
+strategy = "corpus-induction"
+family = "open-basin"
+value = 8
+
+[[weight]]
+strategy = "pointkey-resonance"
+family = "open-basin"
+value = 8
+
+[[weight]]
+strategy = "reply-4gram-deduction"
+family = "open-basin"
+value = 8
+
+[[weight]]
+strategy = "bvgk-writer-refinement"
+family = "open-basin"
+value = 8
+
+[[attempt]]
+kappa = "r4:v1:stem:identity-greeting:k=4"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-opening-turn"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T03:00:00Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:favorite-food-culinary:k=6"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T03:15:00Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:exact-radix-addition:k=8"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-m6-radix"
+library = "r4-exact-arithmetic@1"
+outcome = "proved"
+tick = "2026-11-05T03:20:00Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:autonomous-homeostasis:k=8"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-homeostasis"
+library = "r4-autonomous-engine@1"
+outcome = "proved"
+tick = "2026-11-05T03:30:00Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:rule30-cellular-automaton:k=8"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T04:54:59Z"
+
+[[tick]]
+id = "2026-11-05T03:30:00Z"
+outcome = "advanced"
+discovered = 4
+pruned = 1
+proved = [
+    "R4-F01",
+    "R4-F02",
+    "R4-F03",
+    "R4-F04",
+]
+minted = 4
+
+[[tick]]
+id = "2026-11-05T04:54:59Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F05"]
+minted = 12

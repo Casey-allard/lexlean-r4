@@ -15,6 +15,8 @@ pub mod codegen;
 pub mod registry;
 
 pub use registry::{Authorities, AuthorityRow, Claim, IdRow, Ids, Ledger, Level};
+pub use serde;
+pub use toml;
 
 use std::path::{Path, PathBuf};
 

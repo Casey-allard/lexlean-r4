@@ -13,6 +13,14 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-AUTONOMOUS-ENGINE"
+name = "UOR Rule 30 / R4 autonomous homeostasis engine, Hebbian strategy plasticity, and hypothesis minting"
+citation = "https://github.com/afflom/rule30/blob/main/src/Rule30/Engine.lex.tex; companion Discovery.lex.tex, Hypotheses.lex.tex, tools/r30/engine.py, and .github/workflows/engine.yml"
+checksum = "sha256:10803c03888623e48e68a60d6b9843864487e7ee405b9b00d95729e6d81165f6"
+statement = "Pinned upstream UOR autonomous engine specification defines bounded Hebbian strategy plasticity in [1, 16], priority strategy scheduling by learned family weight, off-hour 30-minute homeostasis workflow invariants and stage budgets, and non-redundant exclusion/obligation hypothesis minting. Source provenance is distinct from local formal verification and repository-specific deduction."
+realized_by = ["R4-28"]
+
+[[authority]]
 id = "UOR-R4-EXACT-ARITHMETIC"
 name = "UOR-R4 M6 multi-digit geometric arithmetic, ablation, PRLL lawful likelihood, and uor-naf/1-draft.6"
 citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/m6_exact_arithmetic.rs; companion m6_ablation.rs, lawful_likelihood.rs, and crates/uor-r4-naf/src/lib.rs"

@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-28"
+level = "build"
+suite = "r4-autonomous-engine"
+statement = "Pure LexLean models the autonomous homeostasis engine: bounded Hebbian strategy weight plasticity in [1, 16] with +2/-1 updates, priority strategy scheduling ordered descending by learned family weight, CI workflow schedule and stage-budget homeostasis (cron 17,47 * * * *, 75-minute tick budget within 90-minute timeout, >=15-minute gate reserve), and non-redundant hypothesis minting with support clamping and budget conservation. Formal controls establish no external runner liveness or unbounded empirical convergence."
+
+[[id]]
 id = "R4-27"
 level = "build"
 suite = "r4-exact-arithmetic"

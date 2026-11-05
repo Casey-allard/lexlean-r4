@@ -24,6 +24,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-05` | `build` | The pure LexLean writer derives current and virtual product cells, admits occupied cells in distance/ID order, retains every admitted token identity, ranks tokens globally, integrates both checked objectives and optional telemetry, and preserves explicit baseline/candidate eligibility. Formal controls establish source semantics only, not read integration, GPU execution, or serving qualification. |
 
+## r4-autonomous-engine
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-28` | `build` | Pure LexLean models the autonomous homeostasis engine: bounded Hebbian strategy weight plasticity in [1, 16] with +2/-1 updates, priority strategy scheduling ordered descending by learned family weight, CI workflow schedule and stage-budget homeostasis (cron 17,47 * * * *, 75-minute tick budget within 90-minute timeout, >=15-minute gate reserve), and non-redundant hypothesis minting with support clamping and budget conservation. Formal controls establish no external runner liveness or unbounded empirical convergence. |
+
 ## r4-binder
 
 | ID | Level | Statement |
@@ -186,6 +192,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-R4-AUTONOMOUS-ENGINE` | https://github.com/afflom/rule30/blob/main/src/Rule30/Engine.lex.tex; companion Discovery.lex.tex, Hypotheses.lex.tex, tools/r30/engine.py, and .github/workflows/engine.yml | `R4-28` |
 | `UOR-R4-EXACT-ARITHMETIC` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/m6_exact_arithmetic.rs; companion m6_ablation.rs, lawful_likelihood.rs, and crates/uor-r4-naf/src/lib.rs | `R4-27` |
 | `UOR-R4-DURABLE-MEMORY` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-object-store/src/durable_consumer.rs; companion address_read.rs, manifold_sketch.rs, and crates/uor-r4-integer/src/session_codec.rs | `R4-26` |
 | `UOR-R4-DISCRETE-TRUNK` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/discrete_d11.rs; companion crates/uor-r4-discrete/src/trunk.rs | `R4-25` |
@@ -221,6 +228,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UOR-R4-AUTONOMOUS-ENGINE` | `some-true` | Autonomous homeostasis engine invariants, bounded Hebbian strategy plasticity in [1, 16], priority strategy scheduling, and non-redundant hypothesis minting are imported from the UOR Rule 30 engine specification. Formal LexLean controls do not establish external GitHub Actions runner availability or unbounded open-domain convergence. |
 | `AUTH-UOR-R4-EXACT-ARITHMETIC` | `some-true` | M6 multi-digit radix-B geometric arithmetic, 5 causal ablation arms, integer PRLL lawful likelihood (PRLL_MASS_QUANTUM=1_000_000), and uor-naf/1-draft.6 admission are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish benchmark corpus scores or floating-point parity. |
 | `AUTH-UOR-R4-DURABLE-MEMORY` | `some-true` | M3 scoped durable turn-memory codecs (UORMEM01 and UR4SESS1), sorted-merge PrimeAddress GCD shared-prime intersection, and the +3-sigma (threshold 2144/4096) manifold sketch gate are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish persistent browser storage or network synchronization. |
 | `AUTH-UOR-R4-DISCRETE-TRUNK` | `some-true` | The 19-table M1 discrete trunk specification (12,288 bits per token across levels 0..5), base-17 4-block root packing, causal orbit-root successor lookup, and Level-3 joint pointer read are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish CUDA execution parity or learned trunk capability. |

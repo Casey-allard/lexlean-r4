@@ -105,11 +105,15 @@ fn main() {
             "tests/exact_arithmetic.rs",
             "complete_exact_arithmetic_r4_27",
         ),
+        (
+            "tests/autonomous_engine.rs",
+            "complete_autonomous_engine_r4_28",
+        ),
     ];
     assert_eq!(
         required_entrypoints.len(),
-        27,
-        "exactly 27 R4 acceptance entrypoints required"
+        28,
+        "exactly 28 R4 acceptance entrypoints required"
     );
     for (path, name) in required_entrypoints {
         require_test(&root, path, name);
