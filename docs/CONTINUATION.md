@@ -1,6 +1,16 @@
 # LexLean R4: current working plan and continuation
 
-**PAUSED at the user’s request (2026-10-27):** The [fifth-round source pause checkpoint](../tests/fixtures/blake3-fifth-round/PAUSED.md) preserves reviewed source and invocation preparation; all three fifth-round native phases are NOT_RUN. The continuation automation is paused for the requested week. Wait for explicit user resume—no automatic restart, native execution or further development. Earlier executing/next-step paragraphs below are historical and do not override this pause. Resume requires fresh source/resource/invocation checks; the last accepted product result is the fourth-round decomposition.
+**ACTIVE (updated 2026-11-05): Autonomous Homeostasis Engine (`R4-28`) and all 28 LexLean slices (`R4-01`..`R4-28`) are live on `main` and GitHub Actions.**
+
+- **Autonomous Engine Workflow**: [`.github/workflows/engine.yml`](../.github/workflows/engine.yml) runs `bin/r4 engine tick --budget-minutes 75 --commit --push` inside the locked PrismPM SDK (`prismpm.lock`) on `schedule` (`17,47 * * * *`), `workflow_dispatch`, and `push` to `main`.
+- **Authoritative Model & Ledgers**: [`src/R4/AutonomousEngine.lex.tex`](../src/R4/AutonomousEngine.lex.tex), [`tests/lexlean/AutonomousEngineControls.lex.tex`](../tests/lexlean/AutonomousEngineControls.lex.tex), [`frontier.toml`](../frontier.toml), [`model/engine.toml`](../model/engine.toml), [`model/hypotheses.toml`](../model/hypotheses.toml), and [`bin/r4`](../bin/r4).
+- **Verified Autonomous `r4-engine` Commits on `main`**:
+  1. `32aa4a3` — `engine(tick): prove R4-F06 and update Hebbian weights`
+  2. `960a525` — `engine(tick): prove R4-F07 and update Hebbian weights`
+  3. `b67d4e2` — `engine(tick): prove R4-F08 and update Hebbian weights`
+  4. `c29d397` — `engine(tick): prove R4-F09 and update Hebbian weights` (compiled `R4-F09` into `crates/wasm/src/bootstrap_v8.uorlut`)
+  5. `f3f3c9f` — `engine(tick): prove R4-F10 and update Hebbian weights` (compiled `R4-F10` into `crates/wasm/src/bootstrap_v8.uorlut`, raising `point_rows` to `9,799` with `0` orphaned rows)
+- **Historical Archive**: The October 2026 checkpoint log below is preserved for audit lineage; PR `#78` (`e1e6990`) was merged and Issue `#66` (`2142b71`) was resolved and closed.
 
 Updated 2026-10-26. This is the repository entry point for continuing the work
 without the original chat or its temporary directories. The approved scope is
