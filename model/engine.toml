@@ -26,7 +26,7 @@ value = 8
 [[weight]]
 strategy = "corpus-induction"
 family = "stem-reasoning"
-value = 10
+value = 12
 
 [[weight]]
 strategy = "pointkey-resonance"
@@ -36,7 +36,7 @@ value = 10
 [[weight]]
 strategy = "reply-4gram-deduction"
 family = "stem-reasoning"
-value = 16
+value = 15
 
 [[weight]]
 strategy = "bvgk-writer-refinement"
@@ -331,13 +331,21 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T17:06:18Z"
 
-[[tick]]
-id = "2026-11-05T15:09:03Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F18"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:stem:thermodynamic-landauer-erasure-limit:k=14"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "exhausted"
+tick = "2026-11-05T17:14:28Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:thermodynamic-landauer-erasure-limit:k=14"
+strategy = "corpus-induction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T17:14:28Z"
 
 [[tick]]
 id = "2026-11-05T15:19:29Z"
@@ -425,4 +433,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F29"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T17:14:28Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F30"]
 minted = 16
