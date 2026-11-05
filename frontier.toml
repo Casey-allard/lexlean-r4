@@ -233,7 +233,7 @@ target_reply = "The 19-table M1 discrete trunk allocates 12,288 bits per token a
 
 [[claim]]
 id = "R4-F16"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F01",
     "R4-F03",
@@ -323,3 +323,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify why Dijkstra's shortest-path greedy frontier relaxation requires non-negative edge weights and when Bellman-Ford or Johnson's reweighting is needed."
 prompt = "Why does Dijkstra's algorithm fail on graphs with negative edge weights?"
 target_reply = "Dijkstra's algorithm assumes that adding an edge never decreases path length, so once the minimum-distance vertex is popped from the priority queue its distance is final; a negative edge can later create a shorter path to an already finalized vertex."
+
+[[claim]]
+id = "R4-F22"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:shannon-channel-capacity-awgn-bound:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify the Shannon-Hartley channel capacity theorem C = B log2(1 + S/N) bounding reliable bit rate over an additive white Gaussian noise channel."
+prompt = "What does the Shannon-Hartley theorem state about communication channel capacity?"
+target_reply = "The Shannon-Hartley theorem states that the maximum error-free information rate over an additive white Gaussian noise channel of bandwidth B and signal-to-noise ratio S/N is C = B log2(1 + S/N) bits per second."
