@@ -356,7 +356,7 @@ target_reply = "TCP CUBIC treats packet loss as its congestion signal and fills 
 
 [[claim]]
 id = "R4-F24"
-status = "observed"
+status = "proved"
 depends = ["R4-F02"]
 relation = "open-basin"
 window = [
@@ -443,3 +443,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify the write amplification, read amplification, and space amplification trade-offs between Log-Structured Merge-trees (LSM-trees) and B+Trees."
 prompt = "When should a storage engine use an LSM-tree instead of a B+Tree?"
 target_reply = "An LSM-tree buffers writes sequentially in a MemTable and immutable SSTables with Bloom filters, achieving much higher write throughput and lower space amplification than in-place B+Tree page updates, at the cost of background compaction CPU/IO and higher range-scan read amplification."
+
+[[claim]]
+id = "R4-F30"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:thermodynamic-landauer-erasure-limit:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify Landauer's principle establishing the minimum thermodynamic heat dissipation k_B T ln 2 required to irreversibly erase one bit of information."
+prompt = "Why does Landauer's principle set a minimum energy cost for erasing a bit of information?"
+target_reply = "Erasing one bit maps two logical states onto one, compressing the computational phase space by a factor of two; by the second law of thermodynamics, the environment's entropy must increase by at least k_B ln 2, dissipating at least k_B T ln 2 of heat at temperature T."

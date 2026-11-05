@@ -66,7 +66,7 @@ value = 10
 [[weight]]
 strategy = "corpus-induction"
 family = "open-basin"
-value = 8
+value = 10
 
 [[weight]]
 strategy = "pointkey-resonance"
@@ -259,13 +259,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T15:48:45Z"
 
-[[tick]]
-id = "2026-11-05T13:04:24Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F12"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:stem:multi-basin-complementary-stem-synthesis:k=14"
+strategy = "corpus-induction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T15:54:59Z"
 
 [[tick]]
 id = "2026-11-05T13:19:20Z"
@@ -353,4 +353,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F23"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T15:54:59Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F24"]
 minted = 16
