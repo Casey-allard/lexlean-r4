@@ -1124,7 +1124,7 @@ target_reply = "PointKey routing matches conversational stems steps and sour dir
 
 [[claim]]
 id = "R4-F73"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -1132,6 +1132,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:stem-reasoning:joke-know:r479:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f73_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems joke and know from manifold row 479 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over joke and know?"
 target_reply = "Causal four gram continuation preserves reasoning over joke and know because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
@@ -1194,3 +1195,17 @@ kappa = "r4:v1:manifold:stem-reasoning:work-nder:r1023:k=8"
 statement = "Verify causal four gram deduction over stems work and nder from manifold row 1023 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over work and nder?"
 target_reply = "Causal four gram continuation preserves reasoning over work and nder because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F78"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:inary-izza:r1232:k=8"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems inary and izza at row_idx=1232 (anchor_id=0x80000130)."
+prompt = "How does Q12 writer refinement encode inary and izza at row_idx=1232?"
+target_reply = "At row_idx=1232 with anchor_id=0x80000130, Q12 writer refinement aligns the 256D L1 PointKey prototype for inary and izza with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
