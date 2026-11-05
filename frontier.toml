@@ -326,7 +326,7 @@ target_reply = "Dijkstra's algorithm assumes that adding an edge never decreases
 
 [[claim]]
 id = "R4-F22"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -413,3 +413,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify the Curry-Howard isomorphism mapping logical propositions to dependent types, proofs to constructive terms, and cut elimination to beta reduction."
 prompt = "What is the Curry-Howard correspondence between logic and type theory?"
 target_reply = "The Curry-Howard correspondence identifies mathematical propositions with types, proofs with well-typed programs, implication with function types, conjunction with product types, universal quantification with dependent Pi types, and proof normalization with program evaluation."
+
+[[claim]]
+id = "R4-F28"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:crispr-cas9-pam-hdr-nhej-editing:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify how Cas9 endonuclease recognizes the 5'-NGG-3' PAM sequence and how cells repair double-strand breaks via NHEJ vs homology-directed repair (HDR)."
+prompt = "How does CRISPR-Cas9 locate a target DNA sequence and what distinguishes NHEJ from HDR repair?"
+target_reply = "Cas9 scans DNA for a protospacer adjacent motif (5'-NGG-3' PAM) before unwinding the duplex to pair its 20-nucleotide guide RNA; after Cas9 cleaves both strands, non-homologous end joining (NHEJ) ligates ends with small indels, whereas homology-directed repair (HDR) copies a donor template."
