@@ -115,11 +115,63 @@ const ackPin=s=>[...filePin(s),String(s.size)];
 function ackTime(state){const time=now();requireValue(time>=state.last&&time-state.started<=2000000000n,'deadline');state.last=time;return time;}
 function same(a,b){return encoded(a).equals(encoded(b));}
 function usingFD(fd,action){let result;const errors=[];try{result=action(fd);}catch(e){errors.push(e);}try{fs.closeSync(fd);}catch(e){errors.push(e);}if(errors.length)throw new AggregateError(errors,'connection_io');return result;}
+function freezeValue(value){
+ if(value&&typeof value==='object'&&!Buffer.isBuffer(value)){for(const item of Object.values(value))freezeValue(item);Object.freeze(value);}
+ return value;
+}
+function staticPrefix(id){
+ requireValue(Array.isArray(id)&&id.length===5,'static_identity');
+ hex(id[0]);requireValue(typeof id[1]==='string'&&id[1].startsWith('sha256:'),'image');hex(id[1].slice(7));
+ requireValue(typeof id[2]==='string'&&id[2].length<=64&&/^[\x20-\x7e]+T.*Z$/.test(id[2])&&Number.isFinite(Date.parse(id[2])),'started');
+ requireValue(typeof id[3]==='string'&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(id[3]),'boot');
+ const t=id[4];requireValue(Array.isArray(t)&&t.length===4,'target_identity');absolute(t[0]);
+ [t[1],t[2],t[3]].forEach(v=>decimal(String(v)));
+ const mode=BigInt(t[3]);requireValue((mode&61440n)===16384n,'config_directory_mode');
+ return id;
+}
+function observerPlacement(member,target){
+ absolute(member);requireValue(member!==target&&!member.startsWith(target.replace(/\/$/,'')+'/'),'observer_placement');
+}
+function fullIdentity(id){
+ requireValue(Array.isArray(id)&&id.length===6,'observed_identity');
+ staticPrefix(id.slice(0,5));
+ requireValue(Array.isArray(id[5])&&id[5].length===3,'observed_identity');
+ ownerIdentity(id[5].slice(0,2));observerPlacement(id[5][2],id[4][0]);
+ return id;
+}
 class HostConnection{
- constructor({directory,pin,nonce,identity}){
+ #admit;
+ #failReady;
+ constructor({directory,pin,nonce,identity,staticIdentity}){
   requireValue(typeof directory==='string'&&path.isAbsolute(directory)&&path.normalize(directory)===directory&&!/[\0\r\n]/.test(directory),'directory');
   requireValue(Array.isArray(pin)&&pin.length===4,'pin');pin.forEach(decimal);hex(nonce);
-  this.directory=directory;this.pin=pin;this.nonce=nonce;this.identity=identity;this.sequence=1;this.failed=false;this.previous=null;this.published=null;this.lastAck=null;this.closed=false;
+  requireValue((identity!==undefined)!==(staticIdentity!==undefined),'identity_mode');
+  let boundIdentity=identity!==undefined?freezeValue(structuredClone(fullIdentity(identity))):null;
+  let currentState=identity!==undefined?'READY':'UNBOUND';
+  const prefix=identity!==undefined?boundIdentity.slice(0,5):staticPrefix(staticIdentity);
+  this.directory=directory;this.pin=pin;this.nonce=nonce;this.staticIdentity=freezeValue(structuredClone(prefix));
+  Object.defineProperty(this,'identity',{get:()=>boundIdentity,enumerable:true,configurable:false});
+  Object.defineProperty(this,'state',{get:()=>currentState,enumerable:true,configurable:false});
+  this.#admit=(acquired,launch)=>{
+   requireValue(currentState==='UNBOUND'&&boundIdentity===null,'ready_state');
+   boundIdentity=freezeValue(structuredClone(fullIdentity(acquired)));
+   Object.defineProperty(this,'launch',{value:freezeValue(structuredClone(launch)),writable:false,configurable:false,enumerable:true});
+   currentState='READY';
+  };
+  this.#failReady=()=>{if(currentState==='UNBOUND')currentState='FAILED';};
+  this.launch=null;this.sequence=1;this.failed=false;this.previous=null;this.published=null;this.lastAck=null;this.closed=false;
+  this.guard();
+ }
+ admitted(){
+  requireValue(this.state!=='UNBOUND'&&this.state!=='FAILED'&&Array.isArray(this.identity),'unbound');
+ }
+ ensureEmptyOutput(){
+  this.guard();
+  const dir=fs.opendirSync(this.directory,{bufferSize:1}),errors=[];
+  try{requireValue(dir.readSync()===null,'output_not_empty');}catch(e){errors.push(e);}
+  try{dir.closeSync();}catch(e){errors.push(e);}
+  if(errors.length===1)throw errors[0];
+  if(errors.length>1)throw new AggregateError(errors,'connection_output_census');
   this.guard();
  }
  guard(){
@@ -167,6 +219,7 @@ class HostConnection{
   const peer=this.read('ack',512);requireValue(same(peer.pin,state.pin)&&same(ackPin(fs.lstatSync(path.join(this.directory,'ack'),{bigint:true})),state.pin),'ack_generation');this.guard();ackTime(state);return peer;
  }
  publish(raw){
+  this.admitted();requireValue(!this.failed,'failed');
   control(raw,'q');const current=this.read('request',512,true);requireValue(same(current?.pin??null,this.published?.pin??null)&&(!current||current.raw.equals(this.published.raw)),'destination');
   const file=path.join(this.directory,'request_temp'),fd=fs.openSync(file,fs.constants.O_RDWR|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600);
   usingFD(fd,()=>{let offset=0;while(offset<raw.length){const n=fs.writeSync(fd,raw,offset,raw.length-offset);requireValue(Number.isInteger(n)&&n>0&&n<=raw.length-offset,'write');offset+=n;}fs.fsyncSync(fd);});
@@ -175,6 +228,7 @@ class HostConnection{
   requireValue(same(this.read('request_temp',512).pin,prepared.pin),'temp_changed');this.guard();fs.renameSync(file,path.join(this.directory,'request'));this.published=prepared;
  }
  boundary(sequence){
+  this.admitted();
   try{
    requireValue(!this.failed&&sequence===this.sequence&&sequence<=11,'sequence');
    const started=now(),request=encoded(['q',1,this.nonce,sequence,LABELS[sequence-1]]),waiting={started,last:started,used:false,pin:null};
@@ -185,11 +239,16 @@ class HostConnection{
     if(peer&&(waiting.used||!this.lastAck||!peer.raw.equals(this.lastAck))){
      const ack=control(peer.raw,'a');requireValue(ack[2]===this.nonce&&ack[3]===sequence&&ack[8]===hash(encoded(this.identity)),'ack_identity');
      const journal=this.read('journal.jsonl',LIMIT,false,true),declared=Number(ack[6]);
+     if(this.journalPin)requireValue(same(journal.pin.slice(0,5),this.journalPin),'journal_generation');
+     if(this.headerRaw)requireValue(journal.raw.length>=this.headerRaw.length&&journal.raw.subarray(0,this.headerRaw.length).equals(this.headerRaw),'journal_generation');
      const end=journal.raw.indexOf(10,declared);
      if(journal.raw.length>=declared&&end>=0){
       requireValue(end+1-declared<=8192,'adjacent_size');
       const result=admitBoundaryPrefix({journal:journal.raw.subarray(0,end+1),request,ack:peer.raw,identity:this.identity,previousPrefix:this.previous});
-      const confirm=this.read('journal.jsonl',LIMIT,false,true);requireValue(confirm.raw.length>=result.copyEnd&&hash(confirm.raw.subarray(0,result.copyEnd))===result.hash,'prefix_changed');
+      const confirm=this.read('journal.jsonl',LIMIT,false,true);
+      if(this.journalPin)requireValue(same(confirm.pin.slice(0,5),this.journalPin),'journal_generation');
+      if(this.headerRaw)requireValue(confirm.raw.length>=this.headerRaw.length&&confirm.raw.subarray(0,this.headerRaw.length).equals(this.headerRaw),'journal_generation');
+      requireValue(confirm.raw.length>=result.copyEnd&&hash(confirm.raw.subarray(0,result.copyEnd))===result.hash,'prefix_changed');
       const accepted=ackTime(waiting);
       this.lastAck=peer.raw;this.lastAckPin=peer.pin;this.previous=result;this.sequence++;
       if(sequence===7||sequence===8){this.rootControls??=new Map();this.rootControls.set(sequence,{request,ack:peer.raw,receivedNs:String(accepted)});}
@@ -201,10 +260,12 @@ class HostConnection{
   }catch(e){this.failed=true;throw e;}
  }
  verifyArguments(stage){
+  this.admitted();
   requireValue(stage===ROOT_STAGE&&this.identity[0]===ROOT_CID,'root_invocation');hex(this.nonce);
   return ['exec','-w',stage,ROOT_CID,'/bin/sh','-c',ROOT_WRAPPER,'r4-root-v1',this.nonce,'/tmp/r4-object-read-root-'+this.nonce,'lexlean','--diagnostic-format','json','verify','tests/lexlean/ObjectAdmittedRangeResult.lex.tex'];
  }
  writeRootSlot(name,raw,cap){
+  this.admitted();
   requireValue((name==='root.marker'&&cap===4096)||(name==='root-retrieval.json'&&cap===16384),'root_slot');
   requireValue(Buffer.isBuffer(raw)&&raw.length<=cap,'root_size');this.guard();
   const fd=fs.openSync(path.join(this.directory,name),fs.constants.O_RDWR|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600);
@@ -212,6 +273,7 @@ class HostConnection{
   requireValue(this.read(name,cap).raw.equals(raw),'root_readback');
  }
  async retainRoot(){
+  this.admitted();
   requireValue(!this.rootAttempted,'root_once');this.rootAttempted=true;
   requireValue(this.identity[0]===ROOT_CID,'root_invocation');hex(this.nonce);
   const capture=await captureRoot(this);this.rootCapture=capture;
@@ -234,16 +296,61 @@ class HostConnection{
   const row=decodeOwner(value.raw);requireValue(row[2]===this.nonce&&row[3]===this.contextDigest,'owner_binding');return row;
  }
  ready(){
-  const deadline=now()+2000000000n;
-  while(true){
-   requireValue(now()<=deadline&&!this.transportErrors.length,'ready_timeout');
-   const launch=this.ownerRecord('observer-launch.json');
-   if(launch){requireValue(launch[0]==='ol'&&same(launch[5],this.identity[5].slice(0,2))&&launch[6]===this.identity[3],'launch_identity');this.launch=launch;
-    const journal=this.read('journal.jsonl',LIMIT,true,true);
-    if(journal){const end=journal.raw.indexOf(10);if(end>=0){header(decode(journal.raw.subarray(0,end+1),8192),this.nonce,this.identity);return;}}
+  requireValue(this.state==='UNBOUND'&&this.identity===null,'ready_state');
+  try{
+   const started=now(),deadline=started+2000000000n;let last=started;
+   const checkTime=()=>{const t=now();requireValue(t>=last&&t<=deadline&&!this.transportErrors.length,'ready_timeout');last=t;return t;};
+   while(true){
+    checkTime();
+    const launchFile=this.read('observer-launch.json',512,true);
+    if(!launchFile)requireValue(!this.launchPin,'launch_generation');
+    else{
+     const pin5=launchFile.pin.slice(0,5);
+     if(!this.launchPin)this.launchPin=pin5;else requireValue(same(pin5,this.launchPin),'launch_generation');
+     if(this.launchRaw)requireValue(launchFile.raw.equals(this.launchRaw),'launch_generation');
+     else{
+      if(this.launchPartial)requireValue(launchFile.raw.length>=this.launchPartial.length&&launchFile.raw.subarray(0,this.launchPartial.length).equals(this.launchPartial),'launch_generation');
+      if(launchFile.raw.length>0&&launchFile.raw.at(-1)===10){
+       const row=decodeOwner(launchFile.raw);requireValue(row[2]===this.nonce&&row[3]===this.contextDigest,'owner_binding');
+       requireValue(row[0]==='ol'&&row[6]===this.staticIdentity[3]&&row[4][0]!==row[5][0],'launch_identity');
+       this.launchRaw=Buffer.from(launchFile.raw);this.launchCandidate=row;
+      }else this.launchPartial=Buffer.from(launchFile.raw);
+     }
+    }
+    const journalFile=this.read('journal.jsonl',LIMIT,true,true);
+    if(!journalFile)requireValue(!this.journalPin,'journal_generation');
+    else{
+     const pin5=journalFile.pin.slice(0,5);
+     if(!this.journalPin)this.journalPin=pin5;else requireValue(same(pin5,this.journalPin),'journal_generation');
+     if(this.headerRaw)requireValue(journalFile.raw.length>=this.headerRaw.length&&journalFile.raw.subarray(0,this.headerRaw.length).equals(this.headerRaw),'journal_generation');
+     else{
+      if(this.journalPartial)requireValue(journalFile.raw.length>=this.journalPartial.length&&journalFile.raw.subarray(0,this.journalPartial.length).equals(this.journalPartial),'journal_generation');
+      const end=journalFile.raw.indexOf(10);
+      if(end>=0){
+       const rawHeader=journalFile.raw.subarray(0,end+1),row=decode(rawHeader,8192);
+       requireValue(Array.isArray(row)&&row.length===10&&row[0]==='h'&&row[1]===3&&row[2]===this.nonce&&Array.isArray(row[4])&&row[4].length===3&&same([...row[4],row[3],row[5]],this.staticIdentity)&&Array.isArray(row[6])&&row[6].length===3,'header');
+       ownerIdentity(row[6].slice(0,2));observerPlacement(row[6][2],this.staticIdentity[4][0]);
+       header(row,this.nonce,[...this.staticIdentity,row[6]]);
+       this.headerRaw=Buffer.from(rawHeader);this.headerCandidate=row;
+      }else this.journalPartial=Buffer.from(journalFile.raw);
+     }
+    }
+    checkTime();
+    if(this.launchCandidate&&this.headerCandidate){
+     requireValue(same(this.launchCandidate[5],this.headerCandidate[6].slice(0,2)),'launch_identity');
+     const confirmLaunch=this.read('observer-launch.json',512);
+     requireValue(same(confirmLaunch.pin.slice(0,5),this.launchPin)&&confirmLaunch.raw.equals(this.launchRaw),'launch_generation');
+     const confirmJournal=this.read('journal.jsonl',LIMIT,false,true);
+     requireValue(same(confirmJournal.pin.slice(0,5),this.journalPin)&&confirmJournal.raw.length>=this.headerRaw.length&&confirmJournal.raw.subarray(0,this.headerRaw.length).equals(this.headerRaw),'journal_generation');
+     const acquired=fullIdentity([...this.staticIdentity,this.headerCandidate[6]]);
+     header(this.headerCandidate,this.nonce,acquired);
+     checkTime();
+     this.#admit(acquired,this.launchCandidate);
+     return this.identity;
+    }
+    sleepSync(deadline-checkTime());
    }
-   sleepSync(deadline-now());
-  }
+  }catch(e){this.#failReady();this.failed=true;throw e;}
  }
  async close(){
   if(this.closeResult)return this.closeResult;
@@ -255,7 +362,8 @@ class HostConnection{
    while(now()<=deadline){
     if(!exit&&!receiptFailed)try{
      exit=this.ownerRecord('observer-exit.json');
-     if(exit){requireValue(exit[0]==='oe','exit_tag');if(this.launch)requireValue(same(exit.slice(4,6),this.launch[5]),'exit_identity');requireValue(['exited','signaled'].includes(exit[6][0]),'exit_unknown');}
+     const expectedChild=this.launch?.[5]??this.launchCandidate?.[5];
+     if(exit){requireValue(exit[0]==='oe','exit_tag');if(expectedChild)requireValue(same(exit.slice(4,6),expectedChild),'exit_identity');requireValue(['exited','signaled'].includes(exit[6][0]),'exit_unknown');}
     }catch(e){errors.push(e);receiptFailed=true;exit=undefined;}
     if(this.transportClosed&&(exit||receiptFailed))break;
     await new Promise(resolve=>setTimeout(resolve,Math.max(0,Math.min(10,Number(deadline-now())/1e6))));
@@ -337,7 +445,7 @@ function keys(object,names){requireValue(object!==null&&typeof object==='object'
 function absolute(value){requireValue(typeof value==='string'&&Buffer.byteLength(value)<=4092&&path.isAbsolute(value)&&path.normalize(value)===value&&!/[\0\r\n]/.test(value)&&!value.split('/').some(p=>p==='.'||p==='..'),'path');return value;}
 function directoryPin(pin,privateMode=false){requireValue(Array.isArray(pin)&&pin.length===4,'config_pin');pin.forEach(decimal);const mode=BigInt(pin[3]);requireValue((mode&61440n)===16384n&&(!privateMode||(mode&511n)===448n),'config_directory_mode');return pin.map(BigInt);}
 function decodeConfiguration(raw){
- const d=decode(raw,16384);keys(d,['schema','guestConfigDirectory','guestParentPin','hostOutputDirectory','hostOutputPin','identity','config']);requireValue(d.schema==='lexlean-r4/invocation-connection/1','config_schema');
+ const d=decode(raw,16384);keys(d,['schema','guestConfigDirectory','guestParentPin','hostOutputDirectory','hostOutputPin','config']);requireValue(d.schema==='lexlean-r4/invocation-connection/2','config_schema');
  absolute(d.guestConfigDirectory);absolute(d.hostOutputDirectory);directoryPin(d.guestParentPin,true);directoryPin(d.hostOutputPin,true);
  const c=d.config;keys(c,['schema','nonce','context','output_directory']);requireValue(c.schema==='lexlean-r4/observer-config/1','guest_schema');hex(c.nonce);
  const x=c.context;requireValue(x?.docker?.[0]===ROOT_CID,'root_container');keys(x,['docker','boot','init_start','cgroup','proc','boot_directory','target']);
@@ -346,21 +454,25 @@ function decodeConfiguration(raw){
  requireValue(typeof x.boot==='string'&&/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(x.boot),'boot');absolute(x.target);
  const pair=(p,owned=false)=>{requireValue(Array.isArray(p)&&p.length===2,'directory_pair');return [absolute(p[0]),directoryPin(p[1],owned)];};
  const cg=pair(x.cgroup),proc=pair(x.proc),boot=pair(x.boot_directory);pair(c.output_directory,true);
- const id=d.identity;requireValue(Array.isArray(id)&&id.length===6&&same(id.slice(0,4),[...x.docker.slice(0,3),x.boot])&&same(id[4],[x.target,cg[1][0],cg[1][1],cg[1][3]])&&Array.isArray(id[5])&&id[5].length===3,'observed_identity');
- ownerIdentity(id[5].slice(0,2));absolute(id[5][2]);requireValue(id[5][2]!==x.target&&!id[5][2].startsWith(x.target.replace(/\/$/,'')+'/'),'observer_placement');
- return {directory:d.hostOutputDirectory,pin:d.hostOutputPin,nonce:c.nonce,identity:id,contextDigest:hash(encoded([x.docker,x.boot,x.init_start,cg,proc,boot,x.target])),arguments:['--config-directory',d.guestConfigDirectory,'--parent-pin',...d.guestParentPin]};
+ const pinScalar=n=>n<=BigInt(Number.MAX_SAFE_INTEGER)?Number(n):n;
+ const staticIdentity=freezeValue(staticPrefix([...x.docker.slice(0,3),x.boot,[x.target,pinScalar(cg[1][0]),pinScalar(cg[1][1]),pinScalar(cg[1][3])]]));
+ return {directory:d.hostOutputDirectory,pin:d.hostOutputPin,nonce:c.nonce,staticIdentity,contextDigest:hash(encoded([x.docker,x.boot,x.init_start,cg,proc,boot,x.target])),arguments:['--config-directory',d.guestConfigDirectory,'--parent-pin',...d.guestParentPin]};
 }
 
 const OWNER_BOOTSTRAP="ROOT = '/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation'\nMODULES = (('observer_entry', 6189, 'ab6f4c8ef96e297dce0b8a3acd24ddae6d3833cfc2ef393347d583e5340b5d1e'), ('observer_session', 8169, 'eb84e076c2809003406bdc9665aa12a7d6482c335b4c67914f3e9b0736b669c5'), ('live_context', 7977, 'df74150b428a0ad72f3ec4ac1a3638dacd786fc1e4220adc9c69bcfd77508a55'), ('boundary', 26535, 'b457b8e290158a45766ddec34a2518e8215a1c9fed35e31b1353bd7e5b76dddf'), ('family', 4288, '7a5f1135d1cea44c1fb02dd721a8eff2422708442fd69c272c1e4aa685a072b0'), ('observe', 32926, '341fdc5f4def127af11954b2cbfb0251932923b06eb6e227fc9a132553eb0e13'), ('cadence', 4264, 'aefa62d3c242f53013299ab362b2895c9c9e7ed6fc2e72c09307952542823c46'), ('control_slots', 5571, 'dfa6ef3ea8c12c60c5b37e48bb944f819bfa387afe2302c8b8ca2cf3cac1d79a'))\nimport sys, os, stat, io, json, base64, errno, datetime, hashlib, uuid, time\nimport dataclasses, typing, importlib.util\ndef stable(item):\n    return (item.st_dev, item.st_ino, item.st_uid, item.st_mode, item.st_nlink,\n            item.st_size, item.st_mtime_ns, item.st_ctime_ns)\ndef root_fd():\n    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)\n    try:\n        for part in ROOT.split('/')[1:]:\n            new = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,\n                          dir_fd=fd)\n            os.close(fd); fd = new\n        info = os.fstat(fd)\n        if info.st_uid != os.getuid() or info.st_mode & 0o022:\n            raise ValueError('source custody')\n        return fd\n    except BaseException:\n        os.close(fd)\n        raise\ndef verify(fd):\n    for name, length, digest in MODULES:\n        path = ROOT+'/'+name+'.py'\n        for cache in (importlib.util.cache_from_source(path), ROOT+'/'+name+'.pyc'):\n            if os.path.lexists(cache): raise ValueError('source cache')\n        src = os.open(name+'.py', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,\n                      dir_fd=fd)\n        try:\n            before = os.fstat(src)\n            if (not stat.S_ISREG(before.st_mode) or before.st_uid != os.getuid()\n                    or before.st_mode & 0o022 or before.st_nlink != 1 or before.st_size != length):\n                raise ValueError('source identity')\n            raw = os.read(src, length + 1)\n            if (len(raw) != length or hashlib.sha256(raw).hexdigest() != digest\n                    or stable(os.fstat(src)) != stable(before)\n                    or stable(os.stat(name+'.py', dir_fd=fd, follow_symlinks=False)) != stable(before)):\n                raise ValueError('source bytes')\n        finally:\n            os.close(src)\n\nimport select, signal, threading\nMODULES = MODULES + (('observer_owner', 15897, 'a0e6d5cd2c45600f034aea083dbeaec7361519708b68d4debb99cd31c2e725bc'),)\ntry:\n    source = root_fd()\n    try:\n        initial = stable(os.fstat(source))\n        verify(source)\n        sys.path.insert(0, ROOT)\n        import observer_owner\n        names = {row[0] for row in MODULES}\n        for name in names:\n            if getattr(sys.modules.get(name), '__file__', None) != ROOT+'/'+name+'.py':\n                raise ValueError('module path')\n        for name, module in tuple(sys.modules.items()):\n            path = getattr(module, '__file__', None)\n            if isinstance(path, str) and path.startswith(ROOT+'/') and name not in names:\n                raise ValueError('extra dependency')\n        verify(source)\n        again = root_fd()\n        try:\n            if stable(os.fstat(again)) != initial: raise ValueError('source replacement')\n        finally:\n            os.close(again)\n    finally:\n        os.close(source)\nexcept Exception:\n    sys.stderr.write('observer-owner: bootstrap\\n')\n    sys.exit(74)\nsys.exit(observer_owner.cli(sys.argv[1:]))\n";
 const CONFIG_DIRECTORY='/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/invocation-control';
+let openAttempted=false;
 function loadConfiguration(){
  const s=fs.lstatSync(CONFIG_DIRECTORY,{bigint:true});
- const reader=new HostConnection({directory:CONFIG_DIRECTORY,pin:[s.dev,s.ino,s.uid,s.mode].map(String),nonce:'0'.repeat(64),identity:[]});
+ const reader=Object.assign(Object.create(HostConnection.prototype),{directory:CONFIG_DIRECTORY,pin:[s.dev,s.ino,s.uid,s.mode].map(String),closed:false});
+ reader.guard();
  try{return decodeConfiguration(reader.read('connection.json',16384).raw);}finally{reader.closeFiles();}
 }
 export async function openConnection(){
+ requireValue(!openAttempted,'open_once');openAttempted=true;
  const config=loadConfiguration(),connection=new HostConnection(config);
  try{
+  connection.ensureEmptyOutput();
   const child=spawn('colima',['ssh','--profile','lexlean-r4','--','/usr/bin/python3.12','-I','-B','-c',OWNER_BOOTSTRAP,...config.arguments],{stdio:['pipe','ignore','ignore']});
   connection.ownTransport(child,config.contextDigest);connection.ready();return connection;
  }catch(primary){

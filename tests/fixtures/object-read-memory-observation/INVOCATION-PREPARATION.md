@@ -49,12 +49,23 @@ The original inclusive2s deadline is never reset. Expected nonce/sequence/label,
 identity binding and complete retained-prefix semantics still gate acceptance.
 Generic file reads, publication and owner/root guards are unchanged.
 
-The descriptor remains the exact bounded connection/1 shape: schema,
-guestConfigDirectory,guestParentPin,hostOutputDirectory,hostOutputPin,identity,
-config. Host/guest pins remain independent. The Docker ID must match the fixed
-compiler container before owner launch. No actual descriptor or live pins are
-created. The unchanged owner/eight-module bootstrap remains3818 bytes,
-SHA25657f9d411b178f8c42bf8668935247160eed790b93d6aebe144dac94fa164f3cd.
+The descriptor uses the exact bounded `lexlean-r4/invocation-connection/2` shape:
+`schema`, `guestConfigDirectory`, `guestParentPin`, `hostOutputDirectory`,
+`hostOutputPin`, `config` (rejecting legacy `/1` and any caller-supplied
+`identity`). Host/guest pins remain independent. The Docker ID must match the
+fixed compiler container before owner launch, and the 5-element static identity
+prefix (`docker[0..3]`, `boot`, `[target, dev, ino, mode]`) plus `contextDigest`
+are derived directly from `config.context`. `openConnection()` consumes a
+module-instance one-attempt flag synchronously at entry, verifies via a bounded
+`fs.opendirSync(..., {bufferSize: 1})` pre-spawn census that the pinned host
+output directory is empty without deleting or modifying preexisting files, spawns
+the unchanged 3818-byte owner/eight-module bootstrap
+(`SHA256 57f9d411b178f8c42bf8668935247160eed790b93d6aebe144dac94fa164f3cd`),
+and acquires the unknown-until-spawn observer identity `[pid, start, cgroup]`
+from the same-generation `observer-launch.json` (`ol`) and `journal.jsonl` header
+(`h3`) within a single 2s readiness deadline before transitioning from `UNBOUND`
+to `READY` (planted defect verified: removing `ensureEmptyOutput()` causes
+`test_invocation_connection.mjs` to fail on `connection_output_not_empty`).
 
 The verify wrapper derives /tmp/r4-object-read-root-<nonce>/root.marker outside
 the stage and all inputs. It creates the directory exclusively0700, writes a

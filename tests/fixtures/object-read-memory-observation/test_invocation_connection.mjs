@@ -95,7 +95,8 @@ test('owner receipt decoder rejects unknown/type/canonical and status combinatio
  assert.throws(()=>decodeOwner(Buffer.from(JSON.stringify(v)+' \n')));
 });
 async function finiteExchange(mode='normal'){
- const fixture=new URL('./finite_owner_connection_fixture.py',import.meta.url);
+ const pinnedFixture='/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/finite_owner_connection_fixture.py';
+ const fixture=fs.existsSync(pinnedFixture)?new URL('file://'+pinnedFixture):new URL('./finite_owner_connection_fixture.py',import.meta.url);
  assert.ok(fs.existsSync(fixture),'finite owner/reader fixture missing');
  const {testHostClass:HostConnection}=await candidate();
  const {spawn}=await import('node:child_process');
@@ -112,7 +113,10 @@ async function finiteExchange(mode='normal'){
    child.stderr.on('data',part=>{err=Buffer.concat([err,part]).subarray(0,8192);});
    child.once('close',()=>{clearTimeout(timer);reject(Error('fixture early exit '+err));});child.once('error',e=>{clearTimeout(timer);reject(e);});
   });
-  connection=new HostConnection(data);connection.ownTransport(child,data.contextDigest);connection.ready();
+  connection=new HostConnection({directory:data.directory,pin:data.pin,nonce:data.nonce,staticIdentity:data.identity.slice(0,5)});
+  assert.equal(connection.state,'UNBOUND');assert.equal(connection.identity,null);
+  connection.ownTransport(child,data.contextDigest);connection.ready();
+  assert.equal(connection.state,'READY');assert.deepEqual(connection.identity,data.identity);
   if(observation)restoreObservation=observation.install(connection,(await candidate()).testObservationBindings);
   if(mode==='consumed'){
    const publish=connection.publish.bind(connection);
@@ -156,16 +160,18 @@ test('independent Python identity vector includes LF; old stripped digest reject
 });
 function configuration(){
  const pin=['1','2','501','16832'];
- return {schema:'lexlean-r4/invocation-connection/1',guestConfigDirectory:'/guest/config',guestParentPin:pin,
-  hostOutputDirectory:'/host/output',hostOutputPin:pin,identity,
+ return {schema:'lexlean-r4/invocation-connection/2',guestConfigDirectory:'/guest/config',guestParentPin:pin,
+  hostOutputDirectory:'/host/output',hostOutputPin:pin,
   config:{schema:'lexlean-r4/observer-config/1',nonce,context:{docker:[...identity.slice(0,3),'41'],boot:identity[3],init_start:'900',cgroup:['/guest/cgroup',pin],proc:['/guest/proc',pin],boot_directory:['/guest/boot',pin],target:'/owned'},output_directory:['/guest/output',pin]}};
 }
 test('explicit configuration keeps host and guest pins distinct and rejects malformed data',async()=>{
  const {testConfig:decodeConfiguration}=await candidate();assert.equal(typeof decodeConfiguration,'function');
- const record=configuration();record.identity=structuredClone(record.identity);record.identity[0]=fixedCid;record.config.context.docker[0]=fixedCid;const got=decodeConfiguration(wire(record));
+ const record=configuration();record.config.context.docker[0]=fixedCid;const got=decodeConfiguration(wire(record));
  assert.deepEqual(got.arguments,['--config-directory','/guest/config','--parent-pin','1','2','501','16832']);
  assert.equal(got.directory,'/host/output');assert.equal(got.nonce,nonce);
- for(const mutate of [r=>r.extra=1,r=>r.guestParentPin[0]=true,r=>r.config.context.extra=0,r=>r.config.nonce='d'.repeat(64),r=>r.identity[4][1]=3,r=>r.guestConfigDirectory='../guest',r=>r.config.context.docker[3]='00',r=>r.hostOutputPin=[]]){
+ assert.equal(got.identity,undefined);
+ assert.deepEqual(got.staticIdentity,[fixedCid,...identity.slice(1,4),['/owned',1,2,16832]]);
+ for(const mutate of [r=>r.extra=1,r=>r.schema='lexlean-r4/invocation-connection/1',r=>r.identity=identity,r=>r.guestParentPin[0]=true,r=>r.config.context.extra=0,r=>r.config.nonce='d'.repeat(64),r=>r.guestConfigDirectory='../guest',r=>r.config.context.docker[3]='00',r=>r.hostOutputPin=[]]){
   const bad=structuredClone(record);mutate(bad);
   if(bad.config.nonce!==nonce){assert.equal(decodeConfiguration(wire(bad)).nonce,bad.config.nonce);continue;}
   assert.throws(()=>decodeConfiguration(wire(bad)));
@@ -380,8 +386,8 @@ test('late completion cannot win timer race and failed signal is not retried',as
 test('configuration rejects a different compiler container before any launch',async()=>{
  const {testConfig:decodeConfiguration}=await candidate();
  assert.throws(()=>decodeConfiguration(wire(configuration())),/root_container/);
- const good=configuration();good.identity=structuredClone(good.identity);good.identity[0]=fixedCid;good.config.context.docker[0]=fixedCid;
- assert.equal(decodeConfiguration(wire(good)).identity[0],fixedCid);
+ const good=configuration();good.config.context.docker[0]=fixedCid;
+ assert.equal(decodeConfiguration(wire(good)).staticIdentity[0],fixedCid);
 });
 
 test('retrieval receipts round-trip the unchanged Python codec',async()=>{
@@ -747,4 +753,315 @@ test('deadline observation delegate failures publish exact deepest stage before 
  const expected={publish:[2,['publish']],ack:[4,['publish','ack']],journal:[6,['publish','ack','journal']],prefix:[7,['publish','ack','journal','prefix']],confirm:[8,['publish','ack','journal','prefix','confirm']],sleep:[11,['publish','ack','sleep']],transition:[5,['publish','ack','nested']],final:[9,['publish','ack','journal','prefix','confirm','nested']]};const failures=[];
  for(const [mode,[stage,calls]] of Object.entries(expected)){const x=await deadlineDelegateScenario(mode);assert.ok(x.thrown&&x.error===x.marker,mode);assert.deepEqual(x.calls,calls,mode);assert.equal(x.restored,true,mode);assert.equal(x.clocks,mode==='publish'?1:mode==='sleep'?4:3,mode+' original clock calls plus one labeled publication sample');if(x.stage!==stage)failures.push([mode,x.stage,stage]);}
  assert.deepEqual(failures,[],'every actual failing delegate must publish its stage');
+});
+
+let freshModuleCounter=0;
+async function freshPublicModule(configDir){
+ const source=fs.readFileSync(url,'utf8');
+ const replaced=configDir?source.replace("const CONFIG_DIRECTORY='/Users/casey.allard/lexlean-r4-worktrees/model-port/tests/fixtures/object-read-memory-observation/invocation-control';",`const CONFIG_DIRECTORY=${JSON.stringify(configDir)};`):source;
+ const targetUrl=url.href+'?fresh='+(++freshModuleCounter);
+ const hook=registerHooks({load(u,c,next){return u===targetUrl?{format:'module',source:replaced+'\nexport {HostConnection,decodeConfiguration,OWNER_BOOTSTRAP};\n',shortCircuit:true}:next(u,c);}});
+ try{return await import(targetUrl);}finally{hook.deregister();}
+}
+function setupPublicDirs(){
+ const base=fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()),'r4-public-conn-'));fs.chmodSync(base,0o700);
+ const configDir=path.join(base,'config'),outputDir=path.join(base,'output');
+ fs.mkdirSync(configDir,{mode:0o700});fs.mkdirSync(outputDir,{mode:0o700});
+ const outStat=fs.statSync(outputDir,{bigint:true}),outPin=[outStat.dev,outStat.ino,outStat.uid,outStat.mode].map(String);
+ const record=configuration();record.config.context.docker[0]=fixedCid;record.hostOutputDirectory=outputDir;record.hostOutputPin=outPin;
+ fs.writeFileSync(path.join(configDir,'connection.json'),wire(record),{mode:0o600});
+ return {base,configDir,outputDir,outPin,record};
+}
+function recordsForIdentity(customIdentity,sequence=1){
+ const keys=['high','low','max','oom','oom_group_kill','oom_kill'],customBinding=sha(wire(customIdentity));
+ const rows=[['h',3,nonce,customIdentity[3],customIdentity.slice(0,3),customIdentity[4],customIdentity[5],'1000','relative_us',{quotaProfile:'owner-retention/1',pidFlags:{rssAbsent:1,hwmAbsent:2,namespaceAbsent:4,parentUnknown:8},sampleFlags:{peakUnsupported:1},slowFlags:{pressureUnsupported:1,localUnsupported:2},maxPids:64,maxIdentities:1024,maxKeysets:32}],['e',1,keys]];
+ let journal=Buffer.concat(rows.map(wire)),request,ack;
+ for(let n=1;n<=sequence;n++){
+  const s=['s',n,String(n),String(n),1,keys.map(()=>'0'),'123','0','456',[],0,0];
+  const m=['m',n,String(n),String(n),'anon 100\n',null,null,3];
+  journal=Buffer.concat([journal,wire(s),wire(m)]);
+  const labels=['staging-before','staging-after','lock-before','lock-after','check-before','check-after','before-verify','verify-return-before-copy','copy-start','copy-end','postguard-complete'];
+  request=wire(['q',1,nonce,n,labels[n-1]]);
+  const first=wire(['b',n,labels[n-1],String(n),n,String(journal.length),'unsynced',[0,request.toString('base64'),null]]);
+  const offset=journal.length+first.length;
+  ack=wire(['a',1,nonce,n,labels[n-1],n,String(offset),String(offset),customBinding]);
+  const second=wire(['b',n,labels[n-1],String(n),n,String(offset),'synced',[0,null,ack.toString('base64')]]);
+  journal=Buffer.concat([journal,first,second]);
+ }
+ return {header:wire(rows[0]),journal,request,ack,identity:customIdentity,binding:customBinding};
+}
+
+test('public openConnection acquires unknown-until-spawn observer identity and admits boundary1',async()=>{
+ const {base,configDir,outputDir,record}=setupPublicDirs();
+ const oldSpawn=childProcess.spawn;let spawns=0;
+ try{
+  const m=await freshPublicModule(configDir);
+  const decoded=m.decodeConfiguration(wire(record));
+  const acquiredIdentity=[...decoded.staticIdentity,['777','888','/observer']];
+  const data=recordsForIdentity(acquiredIdentity,1);
+  const launch=['ol',1,nonce,decoded.contextDigest,['555','666'],['777','888'],decoded.staticIdentity[3]];
+  const exit=['oe',1,nonce,decoded.contextDigest,'777','888',['exited',0,null],'natural'];
+  childProcess.spawn=(exe,args,options)=>{
+   spawns++;assert.equal(exe,'colima');
+   assert.deepEqual(args,['ssh','--profile','lexlean-r4','--','/usr/bin/python3.12','-I','-B','-c',m.OWNER_BOOTSTRAP,'--config-directory','/guest/config','--parent-pin','1','2','501','16832']);
+   assert.deepEqual(options,{stdio:['pipe','ignore','ignore']});
+   assert.equal(fs.existsSync(path.join(outputDir,'observer-launch.json')),false);
+   fs.writeFileSync(path.join(outputDir,'observer-launch.json'),wire(launch),{mode:0o600});
+   fs.writeFileSync(path.join(outputDir,'journal.jsonl'),data.journal,{mode:0o600});
+   fs.writeFileSync(path.join(outputDir,'ack'),data.ack,{mode:0o600});
+   const child=new EventEmitter();child.stdin=new EventEmitter();
+   child.stdin.end=()=>{fs.writeFileSync(path.join(outputDir,'observer-exit.json'),wire(exit),{mode:0o600});child.emit('close',0,null);};
+   return child;
+  };syncBuiltinESMExports();
+  const connection=await m.openConnection();
+  assert.equal(spawns,1);assert.equal(connection.state,'READY');
+  assert.deepEqual(connection.identity,acquiredIdentity);
+  assert.deepEqual(connection.launch,launch);
+  assert.throws(()=>{connection.identity=identity;},TypeError);
+  assert.throws(()=>{connection.identity[5][0]='1';},TypeError);
+  assert.throws(()=>{connection. identity.push('extra');},TypeError);
+  assert.throws(()=>Object.defineProperty(connection,'identity',{value:identity}),TypeError);
+  assert.throws(()=>{connection.launch=['ol'];},TypeError);
+  assert.throws(()=>{connection.launch[5][0]='1';},TypeError);
+  assert.throws(()=>connection.ready(),/connection_ready_state/);
+  assert.equal(connection.boundary(1).sequence,1);
+  assert.deepEqual(await connection.close(),exit);
+ }finally{childProcess.spawn=oldSpawn;syncBuiltinESMExports();fs.rmSync(base,{recursive:true});}
+});
+
+test('pre-spawn empty output census rejects stale valid ol+h3 and preserves preexisting entries',async()=>{
+ for(const mode of ['stale-valid','extra-file','swap-after','close-error','both-errors']){
+  const {base,configDir,outputDir,record}=setupPublicDirs();
+  const oldSpawn=childProcess.spawn,oldOpendir=fs.opendirSync;let spawns=0;
+  try{
+   const m=await freshPublicModule(configDir),decoded=m.decodeConfiguration(wire(record));
+   const staleIdentity=[...decoded.staticIdentity,['777','888','/observer']];
+   const staleData=recordsForIdentity(staleIdentity,1);
+   const staleLaunch=wire(['ol',1,nonce,decoded.contextDigest,['555','666'],['777','888'],decoded.staticIdentity[3]]);
+   if(mode==='stale-valid'||mode==='both-errors'){
+    fs.writeFileSync(path.join(outputDir,'observer-launch.json'),staleLaunch,{mode:0o600});
+    fs.writeFileSync(path.join(outputDir,'journal.jsonl'),staleData.header,{mode:0o600});
+   }
+   if(mode==='extra-file')fs.writeFileSync(path.join(outputDir,'request'),staleData.request,{mode:0o600});
+   if(mode==='swap-after'||mode==='close-error'||mode==='both-errors'){
+    fs.opendirSync=(dir,opts)=>{
+     const handle=oldOpendir(dir,opts),origClose=handle.closeSync.bind(handle);
+     handle.closeSync=()=>{
+      origClose();
+      if(mode==='swap-after')fs.chmodSync(outputDir,0o755);
+      if(mode==='close-error'||mode==='both-errors')throw Error('fixture closeSync');
+     };
+     return handle;
+    };syncBuiltinESMExports();
+   }
+   childProcess.spawn=()=>{spawns++;throw Error('must not spawn');};syncBuiltinESMExports();
+   await assert.rejects(m.openConnection(),err=>{
+    const text=[err,...(err.errors||[])].map(String).join(' ');
+    if(mode==='stale-valid'||mode==='extra-file')assert.match(text,/connection_output_not_empty/);
+    if(mode==='swap-after')assert.match(text,/connection_directory_pin/);
+    if(mode==='close-error')assert.match(text,/fixture closeSync/);
+    if(mode==='both-errors'){assert.ok(err instanceof AggregateError);assert.match(text,/connection_output_not_empty/);assert.match(text,/fixture closeSync/);}
+    return true;
+   });
+   assert.equal(spawns,0);
+   if(mode==='stale-valid'){
+    assert.deepEqual(fs.readFileSync(path.join(outputDir,'observer-launch.json')),staleLaunch);
+    assert.deepEqual(fs.readFileSync(path.join(outputDir,'journal.jsonl')),staleData.header);
+   }
+   if(mode==='extra-file')assert.deepEqual(fs.readFileSync(path.join(outputDir,'request')),staleData.request);
+  }finally{childProcess.spawn=oldSpawn;fs.opendirSync=oldOpendir;syncBuiltinESMExports();fs.chmodSync(outputDir,0o700);fs.rmSync(base,{recursive:true});}
+ }
+});
+
+test('module-instance attempt flag is consumed synchronously before config IO and never resets',async()=>{
+ const {base,configDir,outputDir,record}=setupPublicDirs();
+ const oldSpawn=childProcess.spawn,oldLstat=fs.lstatSync;
+ try{
+  const missingModule=await freshPublicModule(path.join(base,'absent'));
+  await assert.rejects(missingModule.openConnection(),e=>e.code==='ENOENT');
+  let lstats=0;fs.lstatSync=(...a)=>{lstats++;return oldLstat(...a);};syncBuiltinESMExports();
+  await assert.rejects(missingModule.openConnection(),/connection_open_once/);
+  assert.equal(lstats,0,'second call after failure must reject before config IO');
+  fs.lstatSync=oldLstat;syncBuiltinESMExports();
+
+  const overlapModule=await freshPublicModule(configDir);
+  let reentrantError,finishClose;
+  childProcess.spawn=()=>{
+   const child=new EventEmitter();child.stdin=new EventEmitter();
+   child.stdin.end=()=>{finishClose=()=>child.emit('close',0,null);};
+   return child;
+  };syncBuiltinESMExports();
+  fs.writeFileSync(path.join(outputDir,'observer-launch.json'),Buffer.from('bad\n'),{mode:0o600});
+  const firstAttempt=overlapModule.openConnection().catch(e=>e);
+  reentrantError=await overlapModule.openConnection().catch(e=>e);
+  assert.match(String(reentrantError),/connection_open_once/);
+  setTimeout(()=>finishClose?.(),15);
+  const firstResult=await firstAttempt;
+  assert.match(String(firstResult),/connection_output_not_empty|connection_json/);
+  await assert.rejects(overlapModule.openConnection(),/connection_open_once/);
+ }finally{childProcess.spawn=oldSpawn;fs.lstatSync=oldLstat;syncBuiltinESMExports();fs.rmSync(base,{recursive:true});}
+});
+
+test('readiness waits across partial launch and header prefixes and rejects generation replacement or mutation',async()=>{
+ for(const mode of ['partial-then-valid-append','launch-disappear','launch-replace','launch-partial-mutate','launch-completed-mutate','journal-disappear','journal-replace','journal-partial-mutate','header-mutate-ready','header-mutate-boundary','journal-replace-boundary']){
+  const {base,configDir,outputDir,outPin,record}=setupPublicDirs();
+  const oldWait=Atomics.wait;
+  try{
+   const m=await freshPublicModule(configDir),decoded=m.decodeConfiguration(wire(record));
+   const acquiredIdentity=[...decoded.staticIdentity,['777','888','/observer']];
+   const data=recordsForIdentity(acquiredIdentity,1);
+   const launchRow=['ol',1,nonce,decoded.contextDigest,['555','666'],['777','888'],decoded.staticIdentity[3]];
+   const launchBytes=wire(launchRow);
+   const launchPath=path.join(outputDir,'observer-launch.json'),journalPath=path.join(outputDir,'journal.jsonl');
+   fs.writeFileSync(launchPath,launchBytes.subarray(0,20),{mode:0o600});
+   fs.writeFileSync(journalPath,data.header.subarray(0,30),{mode:0o600});
+   let sleeps=0;
+   Atomics.wait=()=>{
+    sleeps++;
+    if(sleeps===1){
+     if(mode==='launch-disappear'){fs.unlinkSync(launchPath);return 'timed-out';}
+     if(mode==='launch-replace'){fs.unlinkSync(launchPath);fs.writeFileSync(launchPath,launchBytes,{mode:0o600});return 'timed-out';}
+     if(mode==='launch-partial-mutate'){const b=Buffer.from(launchBytes);b[0]=63;fs.writeFileSync(launchPath,b,{mode:0o600});return 'timed-out';}
+     fs.writeFileSync(launchPath,launchBytes,{mode:0o600});
+     if(mode==='journal-disappear'){fs.unlinkSync(journalPath);return 'timed-out';}
+     if(mode==='journal-replace'){fs.unlinkSync(journalPath);fs.writeFileSync(journalPath,data.header,{mode:0o600});return 'timed-out';}
+     if(mode==='journal-partial-mutate'){const b=Buffer.from(data.header);b[0]=63;fs.writeFileSync(journalPath,b,{mode:0o600});return 'timed-out';}
+     if(mode==='header-mutate-ready'){fs.writeFileSync(journalPath,data.header,{mode:0o600});return 'timed-out';}
+    }
+    if(sleeps===2){
+     if(mode==='launch-completed-mutate'){fs.appendFileSync(launchPath,' ');return 'timed-out';}
+     fs.writeFileSync(journalPath,data.journal,{mode:0o600});
+    }
+    return 'timed-out';
+   };
+   const c=new m.HostConnection({directory:outputDir,pin:outPin,nonce:decoded.nonce,staticIdentity:decoded.staticIdentity});
+   const child=new EventEmitter();child.stdin=new EventEmitter();child.stdin.end=()=>{};
+   c.ownTransport(child,decoded.contextDigest);
+   if(mode==='header-mutate-ready'){
+    const origRead=c.read.bind(c);let journalReads=0;
+    c.read=(name,...args)=>{const res=origRead(name,...args);if(name==='journal.jsonl'&&res&&++journalReads===2){const b=Buffer.from(data.header);b[10]^=1;fs.writeFileSync(journalPath,b,{mode:0o600});}return res;};
+   }
+   if(mode==='partial-then-valid-append'||mode==='header-mutate-boundary'||mode==='journal-replace-boundary'){
+    c.ready();
+    assert.equal(c.state,'READY');assert.deepEqual(c.identity,acquiredIdentity);
+    fs.writeFileSync(path.join(outputDir,'ack'),data.ack,{mode:0o600});
+    if(mode==='header-mutate-boundary'){const b=Buffer.from(data.journal);b[10]^=1;fs.writeFileSync(journalPath,b,{mode:0o600});assert.throws(()=>c.boundary(1),/connection_journal_generation/);assert.equal(c.failed,true);}
+    else if(mode==='journal-replace-boundary'){const tmp=path.join(outputDir,'jtmp');fs.writeFileSync(tmp,data.journal,{mode:0o600});fs.renameSync(tmp,journalPath);assert.throws(()=>c.boundary(1),/connection_journal_generation/);assert.equal(c.failed,true);}
+    else assert.equal(c.boundary(1).sequence,1);
+   }else{
+    assert.throws(()=>c.ready(),/connection_(launch_generation|journal_generation)/,mode);
+    assert.equal(c.state,'FAILED');assert.equal(c.identity,null);assert.equal(c.launch,null);
+   }
+   c.closeFiles();
+  }finally{Atomics.wait=oldWait;fs.rmSync(base,{recursive:true});}
+ }
+});
+
+test('readiness negative matrix rejects mismatched identity placement deadline and aggregates cleanup errors',async()=>{
+ for(const mode of ['ol-only','h3-only','wrong-ol-nonce','wrong-ol-digest','wrong-ol-boot','equal-parent-child','mismatch-pid','mismatch-start','wrong-h3-target','wrong-h3-pin','inside-target','descendant-target','late-valid','clock-regression','cleanup-compound']){
+  const {base,configDir,outputDir,record}=setupPublicDirs();
+  const oldSpawn=childProcess.spawn,oldClock=process.hrtime.bigint,oldWait=Atomics.wait;
+  let time=1000n;
+  try{
+   const m=await freshPublicModule(configDir),decoded=m.decodeConfiguration(wire(record));
+   const member=mode==='inside-target'?'/owned':mode==='descendant-target'?'/owned/sub':'/observer';
+   const acquiredIdentity=[...decoded.staticIdentity,['777','888',member]];
+   const h3Identity=structuredClone(acquiredIdentity);
+   if(mode==='wrong-h3-target')h3Identity[4][0]='/other';
+   if(mode==='wrong-h3-pin')h3Identity[4][1]=999;
+   const data=recordsForIdentity(acquiredIdentity,1);
+   const h3Row=JSON.parse(data.header);h3Row[5]=h3Identity[4];h3Row[6]=h3Identity[5];
+   const launch=['ol',1,mode==='wrong-ol-nonce'||mode==='cleanup-compound'?'e'.repeat(64):nonce,mode==='wrong-ol-digest'?'e'.repeat(64):decoded.contextDigest,[mode==='equal-parent-child'?'777':'555','666'],[mode==='mismatch-pid'?'778':'777',mode==='mismatch-start'?'889':'888'],mode==='wrong-ol-boot'?'00000000-0000-0000-0000-000000000000':decoded.staticIdentity[3]];
+   let clockCalls=0;
+   process.hrtime.bigint=()=>{
+    clockCalls+=1;
+    if(mode==='late-valid'&&clockCalls>1)return 2000001001n;
+    if(mode==='clock-regression'&&clockCalls>1)return 500n;
+    return time;
+   };
+   Atomics.wait=()=>{
+    if(mode==='clock-regression')time=500n;
+    else time+=2000000001n;
+    return 'timed-out';
+   };
+   childProcess.spawn=()=>{
+    if(mode!=='h3-only')fs.writeFileSync(path.join(outputDir,'observer-launch.json'),wire(launch),{mode:0o600});
+    if(mode!=='ol-only')fs.writeFileSync(path.join(outputDir,'journal.jsonl'),wire(h3Row),{mode:0o600});
+    const child=new EventEmitter();child.stdin=new EventEmitter();
+    child.stdin.end=()=>{
+     if(mode==='cleanup-compound'){
+      fs.writeFileSync(path.join(outputDir,'observer-exit.json'),Buffer.from('bad-exit\n'),{mode:0o600});
+      child.emit('close',70,null);
+      throw Error('fixture writer error');
+     }
+     fs.writeFileSync(path.join(outputDir,'observer-exit.json'),wire(['oe',1,nonce,decoded.contextDigest,launch[5][0],launch[5][1],['exited',0,null],'natural']),{mode:0o600});
+     child.emit('close',0,null);
+    };
+    return child;
+   };syncBuiltinESMExports();
+   await assert.rejects(m.openConnection(),err=>{
+    const text=[err,...(err.errors||[])].flatMap(e=>[e,...(e.errors||[])]).map(String).join(' ');
+    if(mode==='cleanup-compound'){
+     assert.ok(err instanceof AggregateError);
+     for(const part of ['fixture writer error','connection_json','connection_transport_failure'])assert.match(text,new RegExp(part));
+    }
+    return true;
+   },mode);
+  }finally{childProcess.spawn=oldSpawn;process.hrtime.bigint=oldClock;Atomics.wait=oldWait;syncBuiltinESMExports();fs.rmSync(base,{recursive:true});}
+ }
+});
+
+test('admission UNBOUND/FAILED guard blocks effects while post-READY ACK8 poison still permits root retention',async()=>{
+ const {base,configDir,outputDir,outPin,record}=setupPublicDirs();
+ const oldSpawn=childProcess.spawn;
+ try{
+  const m=await freshPublicModule(configDir),decoded=m.decodeConfiguration(wire(record));
+  const unbound=new m.HostConnection({directory:outputDir,pin:outPin,nonce:decoded.nonce,staticIdentity:decoded.staticIdentity});
+  assert.equal(unbound.state,'UNBOUND');assert.equal(unbound.identity,null);
+  assert.throws(()=>unbound.publish(wire(['q',1,nonce,1,'staging-before'])),/connection_unbound/);
+  assert.throws(()=>unbound.boundary(1),/connection_unbound/);
+  assert.throws(()=>unbound.verifyArguments('/tmp/r4-object-read-complete-admitted-positive-owned-20261025'),/connection_unbound/);
+  assert.throws(()=>unbound.writeRootSlot('root.marker',Buffer.from('x'),4096),/connection_unbound/);
+  await assert.rejects(unbound.retainRoot(),/connection_unbound/);
+  assert.equal(unbound.rootAttempted,undefined,'unbound rejection must not consume rootAttempted');
+  assert.equal(fs.readdirSync(outputDir).length,0,'no file side effects while UNBOUND');
+  unbound.closeFiles();
+
+  const acquiredIdentity=[...decoded.staticIdentity,['777','888','/observer']];
+  const data7=recordsForIdentity(acquiredIdentity,7);
+  const launch=['ol',1,nonce,decoded.contextDigest,['555','666'],['777','888'],decoded.staticIdentity[3]];
+  const exit=['oe',1,nonce,decoded.contextDigest,'777','888',['exited',0,null],'natural'];
+  childProcess.spawn=(exe,args)=>{
+   if(exe==='colima'){
+    fs.writeFileSync(path.join(outputDir,'observer-launch.json'),wire(launch),{mode:0o600});
+    fs.writeFileSync(path.join(outputDir,'journal.jsonl'),data7.journal,{mode:0o600});
+    const child=new EventEmitter();child.stdin=new EventEmitter();
+    child.stdin.end=()=>{fs.writeFileSync(path.join(outputDir,'observer-exit.json'),wire(exit),{mode:0o600});child.emit('close',0,null);};
+    return child;
+   }
+   assert.equal(exe,'docker');assert.ok(args.includes('r4-root-read-v1'));
+   const child=new EventEmitter();child.pid=4321;child.stdout=new EventEmitter();child.stderr=new EventEmitter();
+   queueMicrotask(()=>{child.stdout.emit('data',Buffer.from('R4ROOT/1\n'));child.stdout.emit('end');child.stderr.emit('end');child.emit('exit',0,null);child.emit('close',0,null);});
+   return child;
+  };syncBuiltinESMExports();
+  const conn=await m.openConnection();
+  const rotateAck=raw=>{const tmp=path.join(outputDir,'ack.tmp');fs.writeFileSync(tmp,raw,{mode:0o600});fs.renameSync(tmp,path.join(outputDir,'ack'));};
+  for(let n=1;n<=7;n++){
+   const step=recordsForIdentity(acquiredIdentity,n);
+   rotateAck(step.ack);
+   assert.equal(conn.boundary(n).sequence,n);
+  }
+  const badAck=JSON.parse(data7.ack);badAck[3]=8;badAck[4]='verify-return-before-copy';badAck[8]='0'.repeat(64);
+  rotateAck(wire(badAck));
+  assert.throws(()=>conn.boundary(8),/connection_ack_identity/);
+  assert.equal(conn.failed,true);assert.equal(conn.state,'READY');
+  assert.throws(()=>conn.boundary(9),/connection_sequence/);
+  assert.throws(()=>conn.publish(wire(['q',1,nonce,9,'copy-start'])),/connection_failed/);
+  assert.equal(conn.verifyArguments('/tmp/r4-object-read-complete-admitted-positive-owned-20261025')[0],'exec');
+  const receipt=await conn.retainRoot();
+  assert.equal(receipt[11],'none');
+  assert.equal(fs.existsSync(path.join(outputDir,'root.marker')),true);
+  assert.equal(fs.existsSync(path.join(outputDir,'root-retrieval.json')),true);
+  assert.deepEqual(await conn.close(),exit);
+ }finally{childProcess.spawn=oldSpawn;syncBuiltinESMExports();fs.rmSync(base,{recursive:true});}
 });
