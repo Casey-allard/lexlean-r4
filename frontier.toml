@@ -461,7 +461,7 @@ target_reply = "Erasing one bit maps two logical states onto one, compressing th
 
 [[claim]]
 id = "R4-F31"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -472,6 +472,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:ions-ation:r4361:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f31_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging ions and ation across PointKey row 4361 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ions and ation across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ions and ation by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -534,3 +535,17 @@ kappa = "r4:v1:manifold:open-basin:ject-build:r5274:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging ject and build across PointKey row 5274 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ject and build across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ject and build by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F36"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:steak-pasta:r5192:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems steak and pasta at manifold row 5192."
+prompt = "How does PointKey routing resolve conversational prompts about steak and pasta?"
+target_reply = "PointKey routing matches conversational stems steak and pasta directly to their canonical reply anchor without token loops."
