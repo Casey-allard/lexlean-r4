@@ -2090,6 +2090,8 @@ pub struct LutStackSession {
     pub pending_basins: Vec<(Vec<u32>, u32)>,
     pub last_matched_stems: usize,
     pub last_point_hamming_bits: u32,
+    pub last_covered_stem_mask: u16,
+    pub last_turn_idx: usize,
 }
 
 impl LutStackSession {
@@ -2108,6 +2110,8 @@ impl LutStackSession {
             pending_basins: Vec::new(),
             last_matched_stems: 0,
             last_point_hamming_bits: 0,
+            last_covered_stem_mask: 0,
+            last_turn_idx: usize::MAX,
         }
     }
 
@@ -2126,6 +2130,8 @@ impl LutStackSession {
         self.pending_basins.clear();
         self.last_matched_stems = 0;
         self.last_point_hamming_bits = 0;
+        self.last_covered_stem_mask = 0;
+        self.last_turn_idx = usize::MAX;
     }
 
     pub fn position(&self) -> usize {
@@ -2254,6 +2260,8 @@ impl LutStackSession {
                             ) {
                                 self.last_matched_stems = pt_hit.matched_stems;
                                 self.last_point_hamming_bits = pt_hit.hamming_bits;
+                                self.last_covered_stem_mask = pt_hit.covered_stem_mask;
+                                self.last_turn_idx = pt_hit.turn_idx;
                                 if let Some(canon) = resolve_canonical_reply_anchor(
                                     point, mem, pt_hit.row, val_tok, &reply_ids,
                                 ) {
@@ -2276,6 +2284,8 @@ impl LutStackSession {
                     {
                         self.last_matched_stems = pt_hit.matched_stems;
                         self.last_point_hamming_bits = pt_hit.hamming_bits;
+                        self.last_covered_stem_mask = pt_hit.covered_stem_mask;
+                        self.last_turn_idx = pt_hit.turn_idx;
                         if let Some(canon) = resolve_canonical_reply_anchor(
                             point,
                             mem,
@@ -2844,9 +2854,11 @@ pub fn is_lut_greeting_only_prompt(lower: &str) -> bool {
 pub struct PointResonanceHit {
     pub target_token: u32,
     pub row: usize,
+    pub turn_idx: usize,
     pub raw_l1: i64,
     pub hamming_bits: u32,
     pub matched_stems: usize,
+    pub covered_stem_mask: u16,
     pub confident: bool,
 }
 
@@ -2862,9 +2874,11 @@ pub fn select_point_key_with_resonance(
             .map(|(t, r, d)| PointResonanceHit {
                 target_token: t,
                 row: r,
+                turn_idx: usize::MAX,
                 raw_l1: d,
                 hamming_bits: 0,
                 matched_stems: usize::from(d == 0),
+                covered_stem_mask: 0,
                 confident: d == 0,
             });
     };
@@ -2875,9 +2889,11 @@ pub fn select_point_key_with_resonance(
             .map(|(t, r, d)| PointResonanceHit {
                 target_token: t,
                 row: r,
+                turn_idx: usize::MAX,
                 raw_l1: d,
                 hamming_bits: 0,
                 matched_stems: usize::from(d == 0),
+                covered_stem_mask: 0,
                 confident: d == 0,
             });
     }
@@ -2930,10 +2946,12 @@ pub fn select_point_key_with_resonance(
     let mut best_raw_l1 = i64::MAX;
     let mut best_hamming = 256u32;
     let mut best_matched_stems = 0usize;
+    let mut best_covered_mask = 0u16;
     let mut best_matched_bpe = 0usize;
     let mut best_turn_idx = usize::MAX;
     let mut best_bonus = 0i64;
-    let eff_total = prompt_stems.len().min(6);
+    let total_stems = prompt_stems.len();
+    let eff_total = total_stems.min(6);
     let mut max_core_matched_stems = 0usize;
 
     for r in 0..point.rows {
@@ -2947,8 +2965,15 @@ pub fn select_point_key_with_resonance(
         } else {
             usize::MAX
         };
-        if turn_idx >= 620 && (eff_total < 3 || eff_total < max_core_matched_stems + 2) {
-            break;
+        if turn_idx >= 620 {
+            let core_already_complete = is_self_inq
+                || is_greeting
+                || (best_raw_l1 == 0 && best_turn_idx < 620)
+                || (total_stems > 0 && max_core_matched_stems >= total_stems.max(2))
+                || (max_core_matched_stems >= 2 && eff_total < max_core_matched_stems + 2);
+            if core_already_complete {
+                break;
+            }
         }
 
         // Guard self-inquiry bio rows (0..=2) and pure greeting rows (3..=4) so unrelated prompts
@@ -2978,21 +3003,32 @@ pub fn select_point_key_with_resonance(
         let mut bonus = 0i64;
         let mut matched_stems = 0usize;
         let mut matched_primary = 0usize;
-        for &(sh, sw) in &prompt_stems {
+        let mut covered_mask = 0u16;
+        for (stem_i, &(sh, sw)) in prompt_stems.iter().enumerate() {
             if primary_slice.contains(&sh) {
                 matched_stems += 1;
                 matched_primary += 1;
+                if stem_i < 16 {
+                    covered_mask |= 1u16 << stem_i;
+                }
                 bonus += sw;
+                if primary_slice.first() == Some(&sh) {
+                    bonus += 65_000;
+                }
             } else if secondary_slice.contains(&sh) {
                 matched_stems += 1;
+                if stem_i < 16 {
+                    covered_mask |= 1u16 << stem_i;
+                }
                 bonus += sw / 2;
             }
         }
         if matched_primary > 0 {
             bonus += ((matched_primary as i64) * 160_000) / (row_primary_count as i64);
-            if matched_primary == prompt_stems.len()
-                && prompt_stems.len() == 1
-                && row_primary_count <= 3
+            let max_single_primary_width = if turn_idx < 620 { 3 } else { 4 };
+            if matched_primary == total_stems
+                && total_stems == 1
+                && row_primary_count <= max_single_primary_width
             {
                 matched_stems = 2;
             }
@@ -3007,22 +3043,43 @@ pub fn select_point_key_with_resonance(
         if matched_stems >= 2 {
             bonus += (matched_stems as i64) * 180_000;
         }
-        // Core verified curriculum turns (`0..620`) receive deterministic priority, while external
-        // corpus turns (`>= 620`) activate when they match >= 3 stems, >= 2/3 of `eff_total`, and
-        // at least 2 more stems than the best core curriculum turn (`max_core_matched_stems + 2`).
+        // Core verified curriculum turns (`0..620`) receive priority whenever they match the prompt;
+        // external corpus turns (`>= 620`) activate when no core turn matched (`max_core_matched_stems == 0`),
+        // when a core turn matched only 1 incidental stem out of 2+ (`max_core_matched_stems == 1` and
+        // external matches >= 2 primary stems covering >= 1/2 of the prompt), or when external matches
+        // at least 2 more stems than the best core turn.
         if turn_idx < 620 && matched_stems >= 1 {
             if matched_stems > max_core_matched_stems {
                 max_core_matched_stems = matched_stems;
             }
             bonus += (matched_stems as i64) * 350_000;
         } else if turn_idx >= 620 {
-            if matched_stems < 3
-                || matched_stems < max_core_matched_stems + 2
-                || matched_stems * 3 < eff_total * 2
-            {
+            let ext_eligible = if max_core_matched_stems == 0 {
+                if total_stems <= 1 {
+                    matched_primary >= 1 && row_primary_count <= 4
+                } else if total_stems == 2 {
+                    (matched_stems >= 2 && matched_primary >= 1)
+                        || (matched_primary == 1
+                            && row_primary_count <= 2
+                            && primary_slice.first() == Some(&prompt_stems[0].0))
+                } else {
+                    matched_stems >= 2 && matched_primary >= 1 && matched_stems * 2 >= total_stems
+                }
+            } else if max_core_matched_stems == 1 {
+                total_stems >= 2
+                    && matched_stems >= 2
+                    && matched_primary >= 2
+                    && matched_stems * 2 >= total_stems
+            } else {
+                matched_stems >= max_core_matched_stems + 2
+                    && matched_primary >= 2
+                    && matched_stems * 3 >= eff_total * 2
+            };
+            if !ext_eligible {
                 continue;
             }
-            bonus += (matched_stems as i64) * 350_000;
+            let stem_gain = matched_stems.saturating_sub(max_core_matched_stems) as i64;
+            bonus += (matched_stems as i64) * 350_000 + stem_gain * 180_000;
         }
 
         // Exact branch-and-bound lower bound:
@@ -3076,6 +3133,7 @@ pub fn select_point_key_with_resonance(
             best_raw_l1 = raw_l1;
             best_hamming = h_bits;
             best_matched_stems = matched_stems;
+            best_covered_mask = covered_mask;
             best_matched_bpe = matched_bpe;
             best_turn_idx = turn_idx;
             best_bonus = bonus;
@@ -3083,7 +3141,6 @@ pub fn select_point_key_with_resonance(
     }
 
     if best_score < i64::MAX {
-        let total_stems = prompt_stems.len();
         let confident = (best_raw_l1 == 0 && (best_turn_idx > 2 || is_self_inq))
             || (is_self_inq && best_turn_idx <= 2)
             || (is_greeting && (best_turn_idx == 3 || best_turn_idx == 4))
@@ -3095,9 +3152,11 @@ pub fn select_point_key_with_resonance(
         Some(PointResonanceHit {
             target_token: point.targets[best_row],
             row: best_row,
+            turn_idx: best_turn_idx,
             raw_l1: best_raw_l1,
             hamming_bits: best_hamming,
             matched_stems: best_matched_stems,
+            covered_stem_mask: best_covered_mask,
             confident,
         })
     } else {
@@ -3106,9 +3165,11 @@ pub fn select_point_key_with_resonance(
             .map(|(t, r, d)| PointResonanceHit {
                 target_token: t,
                 row: r,
+                turn_idx: usize::MAX,
                 raw_l1: d,
                 hamming_bits: 128,
                 matched_stems: usize::from(d == 0),
+                covered_stem_mask: 0,
                 confident: d == 0,
             })
     }
@@ -3271,6 +3332,7 @@ pub struct LutStackGenerationResult {
     pub matched_stem_count: usize,
     pub point_hamming_bits: u32,
     pub clauses_resolved: usize,
+    pub primary_turn_idx: usize,
 }
 
 impl LutStackModel {
@@ -3336,6 +3398,139 @@ impl LutStackModel {
         ))
     }
 
+    /// When a single-clause prompt contains multiple salient concepts and the primary basin only
+    /// covers a subset of the prompt's stems (`covered_mask`), find the best complementary basin
+    /// in `ServedPointKey` covering the remaining uncovered stems.
+    fn resolve_complementary_uncovered_basin(
+        &self,
+        user_prompt: &str,
+        covered_mask: u16,
+        primary_turn_idx: usize,
+        prompt_tokens: &[u32],
+    ) -> Option<(Vec<u32>, u32, usize)> {
+        let mem = self.memory.as_ref()?;
+        let point = self.point.as_ref()?;
+        let anchors = point.canonical_anchors.as_ref()?;
+        let alen = point.anchor_len.max(1);
+        if anchors.len() < point.rows * alen {
+            return None;
+        }
+        let lower = user_prompt.to_ascii_lowercase();
+        if is_lut_self_inquiry_prompt(&lower) || is_lut_greeting_only_prompt(&lower) {
+            return None;
+        }
+        let prompt_stems = extract_salient_stem_hashes_from_text(&lower, 16);
+        if prompt_stems.len() < 2 || prompt_stems.len() > 4 {
+            return None;
+        }
+        let generic_framing_hashes: [u32; 14] = [
+            stem_anchor_hash("theory"),
+            stem_anchor_hash("concept"),
+            stem_anchor_hash("principle"),
+            stem_anchor_hash("idea"),
+            stem_anchor_hash("overview"),
+            stem_anchor_hash("summary"),
+            stem_anchor_hash("introduction"),
+            stem_anchor_hash("basic"),
+            stem_anchor_hash("definition"),
+            stem_anchor_hash("meaning"),
+            stem_anchor_hash("question"),
+            stem_anchor_hash("problem"),
+            stem_anchor_hash("example"),
+            stem_anchor_hash("method"),
+        ];
+        let uncovered: Vec<(u32, i64)> = prompt_stems
+            .iter()
+            .enumerate()
+            .filter_map(|(i, &(sh, sw))| {
+                if i < 16
+                    && (covered_mask & (1u16 << i)) == 0
+                    && sw >= 160_000
+                    && !generic_framing_hashes.contains(&sh)
+                {
+                    Some((sh, sw))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        if uncovered.is_empty() {
+            return None;
+        }
+
+        let mut best_row = usize::MAX;
+        let mut best_score = 0i64;
+        let mut best_matched = 0usize;
+        for r in 0..point.rows {
+            let a_base = r * alen;
+            let a_row = &anchors[a_base..a_base + alen];
+            let turn_idx = if (a_row[0] & 0x8000_0000) != 0 {
+                (a_row[0] & 0x7FFF_FFFF) as usize
+            } else {
+                usize::MAX
+            };
+            if turn_idx == primary_turn_idx || turn_idx <= 4 {
+                continue;
+            }
+            let primary_slice = if alen >= 22 {
+                &a_row[16..22]
+            } else if alen > 16 {
+                &a_row[16..alen]
+            } else {
+                &[]
+            };
+            let row_primary_count = primary_slice
+                .iter()
+                .filter(|&&x| x != MEMORY_PAD)
+                .count()
+                .max(1);
+            let mut matched = 0usize;
+            let mut score = 0i64;
+            for &(ush, usw) in &uncovered {
+                if primary_slice.contains(&ush) {
+                    matched += 1;
+                    score += usw + 280_000;
+                    if primary_slice.first() == Some(&ush) {
+                        score += 120_000;
+                    }
+                }
+            }
+            if matched == 0 {
+                continue;
+            }
+            let qualifies = if uncovered.len() >= 2 {
+                matched >= 2 && row_primary_count <= 4
+            } else {
+                matched == 1
+                    && row_primary_count <= 2
+                    && primary_slice.first() == Some(&uncovered[0].0)
+            };
+            if !qualifies {
+                continue;
+            }
+            score += ((matched as i64) * 200_000) / (row_primary_count as i64);
+            if turn_idx < 620 {
+                score += 90_000;
+            }
+            if score > best_score {
+                best_score = score;
+                best_row = r;
+                best_matched = matched;
+            }
+        }
+
+        if best_row == usize::MAX
+            || (covered_mask.count_ones() as usize) + best_matched < prompt_stems.len()
+        {
+            return None;
+        }
+        let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
+        let reply_ids = extract_turn_ids(prompt_tokens, mem.key_window, reply_turn_k);
+        let target_tok = point.targets[best_row];
+        let canon = resolve_canonical_reply_anchor(point, mem, best_row, target_tok, &reply_ids)?;
+        Some((canon, target_tok, best_matched))
+    }
+
     pub fn generate_reply(
         self: &Arc<Self>,
         history: &[(String, String)],
@@ -3366,6 +3561,7 @@ impl LutStackModel {
                 matched_stem_count: 0,
                 point_hamming_bits: 256,
                 clauses_resolved: 0,
+                primary_turn_idx: usize::MAX,
             };
         }
 
@@ -3375,14 +3571,14 @@ impl LutStackModel {
             session.prefill_token(tok, idx >= trunk_start);
         }
         session.mark_reply_start();
-        let first_step = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
+        let mut first_step = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
         let mut next_tok = first_step.predicted_token;
         let mut last_source = first_step.source_mechanism;
-        let confident_open =
+        let mut confident_open =
             last_source == "turn_memory_opening" || last_source == "point_key_vote";
-        let matched_stem_count = session.last_matched_stems;
+        let mut matched_stem_count = session.last_matched_stems;
         let point_hamming_bits = session.last_point_hamming_bits;
-        steps.push(first_step);
+        let primary_turn_idx = session.last_turn_idx;
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
         let mut clauses_resolved = usize::from(confident_open);
@@ -3400,7 +3596,30 @@ impl LutStackModel {
             }
             extra_basins.reverse();
             session.pending_basins = extra_basins;
+        } else if clauses.len() == 1
+            && first_step.source_mechanism != "turn_memory_opening"
+            && first_step.l1_distance > 0
+            && matched_stem_count <= 2
+        {
+            if let Some((comp_anchor, comp_tok, comp_matched)) = self
+                .resolve_complementary_uncovered_basin(
+                    primary_prompt,
+                    session.last_covered_stem_mask,
+                    session.last_turn_idx,
+                    &prompt_tokens,
+                )
+            {
+                if comp_anchor != session.anchors.reply {
+                    session.pending_basins.push((comp_anchor, comp_tok));
+                    matched_stem_count += comp_matched;
+                    clauses_resolved = clauses_resolved.max(1) + 1;
+                    confident_open = true;
+                    first_step.source_mechanism = "point_key_vote";
+                    last_source = "point_key_vote";
+                }
+            }
         }
+        steps.push(first_step);
 
         let limit = if confident_open {
             max_new_tokens.clamp(1, 768)
@@ -3462,6 +3681,7 @@ impl LutStackModel {
             matched_stem_count,
             point_hamming_bits,
             clauses_resolved,
+            primary_turn_idx,
         }
     }
 
@@ -3522,6 +3742,7 @@ impl LutStackModel {
             matched_stem_count: session.last_matched_stems.max(2),
             point_hamming_bits: session.last_point_hamming_bits,
             clauses_resolved: 1,
+            primary_turn_idx: session.last_turn_idx,
         }
     }
 

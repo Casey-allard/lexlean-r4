@@ -1074,22 +1074,33 @@ impl StudioEngine {
             || lower.contains("edit distance")
             || lower.contains("prefix tree")
             || lower.contains("sourdough gardening");
-        let is_paraphrased_self_or_capability = lower.contains("able to do")
-            || lower.contains("can you do")
-            || lower.contains("tasks you")
-            || lower.contains("capable of")
-            || lower.contains("who are you")
-            || lower.contains("about yourself")
-            || lower.contains("talk about you")
-            || lower.contains("how do you work")
-            || lower.contains("under the hood")
-            || lower.contains("how are you");
+        let is_paraphrased_self_or_capability =
+            crate::lut_stack_exec::is_lut_self_inquiry_prompt(&lower)
+                || crate::lut_stack_exec::is_lut_greeting_only_prompt(&lower)
+                || lower.contains("able to do")
+                || lower.contains("can you do")
+                || lower.contains("tasks you")
+                || lower.contains("capable of")
+                || lower.contains("who are you")
+                || lower.contains("about yourself")
+                || lower.contains("talk about you")
+                || lower.contains("how do you work")
+                || lower.contains("under the hood")
+                || lower.contains("how are you");
 
         let lut_gen = self
             .lut_stack
             .generate_reply(&self.chat_history, trimmed, 1024);
+        let has_curated_qa_override = lut_gen.primary_turn_idx >= 620
+            && crate::glm_weights::has_curated_glm_override(
+                &lower,
+                &words,
+                &prompt_stems,
+                lut_gen.matched_stem_count,
+            );
         let lut_confident = !is_multiturn_followup_or_anaphora
             && !is_compositional_or_parameterized
+            && !has_curated_qa_override
             && !lut_gen.reply_text.is_empty()
             && lut_gen
                 .steps

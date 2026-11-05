@@ -5228,6 +5228,34 @@ mod tests {
             numpy_reply
         );
 
+        // 2f. Verify 2-basin complementary uncovered-stem synthesis and everyday chat / parameter questions
+        //     never fall back to the old "From a First-Principles causal perspective" Mad-Libs template
+        let comp_two =
+            model.generate_reply(&[], "Explain quantum entanglement and Emmy Noether", 512);
+        assert!(
+            comp_two.clauses_resolved >= 2
+                && comp_two.reply_text.contains("Quantum entanglement")
+                && comp_two.reply_text.contains("Noether"),
+            "Single-clause 2-concept prompt must chain both basins cleanly: {}",
+            comp_two.reply_text
+        );
+
+        for chat_p in [
+            "How many parameters is the 248mb file equivalent to?",
+            "My day is going fine, how about you?",
+            "Thanks!",
+            "Why were you comparing everything to first principles?",
+        ] {
+            let chat_raw = dispatch_string(&format!("1\tstudio\tchat\t{chat_p}"));
+            let chat_j: serde_json::Value =
+                serde_json::from_str(&chat_raw).expect("valid chat JSON");
+            let chat_r = chat_j["assistant_reply"].as_str().unwrap_or("");
+            assert!(
+                !chat_r.contains("From a **First-Principles** causal perspective"),
+                "Prompt '{chat_p}' must never emit First-Principles Mad-Libs: {chat_r}"
+            );
+        }
+
         // 3. Verify studio_weight_pack_status() and studio_load_uorlut_bytes() hot-swapping
         let status_raw = studio_weight_pack_status();
         let status_json: serde_json::Value =
