@@ -1235,7 +1235,7 @@ target_reply = "Multi-basin geodesic synthesis connects ions and ation by resolv
 
 [[claim]]
 id = "R4-F80"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1243,6 +1243,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:ffee-ence:r1212:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f80_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ffee and ence at manifold row 1212."
 prompt = "How does PointKey routing resolve conversational prompts about ffee and ence?"
 target_reply = "PointKey routing matches conversational stems ffee and ence directly to their canonical reply anchor without token loops."
@@ -1305,3 +1306,17 @@ kappa = "r4:v1:manifold:dialogue-stem:video-games:r2705:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems video and games at manifold row 2705."
 prompt = "How does PointKey routing resolve conversational prompts about video and games?"
 target_reply = "PointKey routing matches conversational stems video and games directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F85"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:value-money:r2039:k=8"
+statement = "Verify causal four gram deduction over stems value and money from manifold row 2039 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over value and money?"
+target_reply = "Causal four gram continuation preserves reasoning over value and money because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
