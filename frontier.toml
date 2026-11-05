@@ -311,7 +311,7 @@ target_reply = "Noether's theorem proves that every differentiable symmetry of a
 
 [[claim]]
 id = "R4-F21"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -398,3 +398,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify how the ABA problem arises in lock-free compare-and-swap (CAS) data structures and how epoch-based reclamation or tagged pointers prevent it."
 prompt = "How do lock-free data structures prevent the ABA problem during compare-and-swap operations?"
 target_reply = "Lock-free structures prevent the ABA problem either by packing a monotonically increasing version tag alongside the pointer in a double-width CAS or by deferring node reuse via epoch-based memory reclamation and hazard pointers until all concurrent readers exit the epoch."
+
+[[claim]]
+id = "R4-F27"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:curry-howard-propositions-as-types:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify the Curry-Howard isomorphism mapping logical propositions to dependent types, proofs to constructive terms, and cut elimination to beta reduction."
+prompt = "What is the Curry-Howard correspondence between logic and type theory?"
+target_reply = "The Curry-Howard correspondence identifies mathematical propositions with types, proofs with well-typed programs, implication with function types, conjunction with product types, universal quantification with dependent Pi types, and proof normalization with program evaluation."
