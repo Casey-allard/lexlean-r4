@@ -668,7 +668,7 @@ target_reply = "Multi-basin geodesic synthesis connects ever and someone by reso
 
 [[claim]]
 id = "R4-F44"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -676,6 +676,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:mole-ation:r6069:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f44_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems mole and ation at manifold row 6069."
 prompt = "How does PointKey routing resolve conversational prompts about mole and ation?"
 target_reply = "PointKey routing matches conversational stems mole and ation directly to their canonical reply anchor without token loops."
@@ -738,3 +739,17 @@ kappa = "r4:v1:manifold:dialogue-stem:bill-cost:r6690:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems bill and cost at manifold row 6690."
 prompt = "How does PointKey routing resolve conversational prompts about bill and cost?"
 target_reply = "PointKey routing matches conversational stems bill and cost directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F49"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:order-cost:r6754:k=8"
+statement = "Verify causal four gram deduction over stems order and cost from manifold row 6754 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over order and cost?"
+target_reply = "Causal four gram continuation preserves reasoning over order and cost because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
