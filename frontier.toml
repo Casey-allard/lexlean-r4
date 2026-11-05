@@ -218,7 +218,7 @@ target_reply = "The autonomous engine maintains learned weights in [1, 16] per s
 
 [[claim]]
 id = "R4-F15"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -308,3 +308,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify Noether's first theorem linking continuous symmetries of the action functional to conserved currents in physical systems."
 prompt = "How does Noether's theorem connect symmetries to conservation laws in physics?"
 target_reply = "Noether's theorem proves that every differentiable symmetry of a system's action yields a conserved quantity: time-translation invariance conserves energy, spatial-translation invariance conserves linear momentum, and rotational invariance conserves angular momentum."
+
+[[claim]]
+id = "R4-F21"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:dijkstra-monotonic-nonnegative-edge-invariant:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify why Dijkstra's shortest-path greedy frontier relaxation requires non-negative edge weights and when Bellman-Ford or Johnson's reweighting is needed."
+prompt = "Why does Dijkstra's algorithm fail on graphs with negative edge weights?"
+target_reply = "Dijkstra's algorithm assumes that adding an edge never decreases path length, so once the minimum-distance vertex is popped from the priority queue its distance is final; a negative edge can later create a shorter path to an already finalized vertex."
