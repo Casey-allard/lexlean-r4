@@ -173,7 +173,7 @@ target_reply = "Refuted by 28-bit anchor invariant."
 
 [[claim]]
 id = "R4-F12"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -263,3 +263,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify that Rust's borrow checker enforces aliasing XOR mutability at compile time to eliminate data races and dangling references without garbage collection."
 prompt = "Why does Rust enforce aliasing XOR mutability in its borrow checker?"
 target_reply = "Rust enforces aliasing XOR mutability so any value has either multiple shared immutable references (&T) or one exclusive mutable reference (&mut T), preventing data races and iterator invalidation at compile time."
+
+[[claim]]
+id = "R4-F18"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:ssa-dominance-frontier-phi-placement:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify that Static Single Assignment (SSA) form places phi nodes along iterated dominance frontiers to make def-use chains explicit for compiler optimizations."
+prompt = "How does a compiler place phi nodes when constructing Static Single Assignment form?"
+target_reply = "A compiler computes the dominance tree of the control-flow graph and places minimal phi nodes at the iterated dominance frontier of each variable's definition blocks before renaming variables in dominator-tree preorder."
