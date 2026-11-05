@@ -1046,7 +1046,7 @@ target_reply = "Multi-basin geodesic synthesis connects ital and using by resolv
 
 [[claim]]
 id = "R4-F68"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1054,6 +1054,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:ation-first:r9357:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f68_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ation and first at manifold row 9357."
 prompt = "How does PointKey routing resolve conversational prompts about ation and first?"
 target_reply = "PointKey routing matches conversational stems ation and first directly to their canonical reply anchor without token loops."
@@ -1116,3 +1117,17 @@ kappa = "r4:v1:manifold:dialogue-stem:steps-sour:r197:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems steps and sour at manifold row 197."
 prompt = "How does PointKey routing resolve conversational prompts about steps and sour?"
 target_reply = "PointKey routing matches conversational stems steps and sour directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F73"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:joke-know:r479:k=8"
+statement = "Verify causal four gram deduction over stems joke and know from manifold row 479 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over joke and know?"
+target_reply = "Causal four gram continuation preserves reasoning over joke and know because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."

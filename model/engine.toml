@@ -659,13 +659,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T21:51:49Z"
 
-[[tick]]
-id = "2026-11-05T20:26:59Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F56"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:dialogue-stem:ation-first:r9357:k=8"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T21:59:20Z"
 
 [[tick]]
 id = "2026-11-05T20:34:24Z"
@@ -753,4 +753,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F67"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T21:59:20Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F68"]
 minted = 16
