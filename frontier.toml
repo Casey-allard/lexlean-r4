@@ -296,7 +296,7 @@ target_reply = "Snapshot Isolation lets readers observe a consistent transaction
 
 [[claim]]
 id = "R4-F20"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -383,3 +383,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify the completeness, knowledge soundness, and zero-knowledge properties of succinct non-interactive arguments of knowledge (zk-SNARKs)."
 prompt = "What are the three core security properties of a zero-knowledge proof system?"
 target_reply = "A zero-knowledge proof system satisfies completeness (an honest prover convinces an honest verifier), soundness (a cheating prover cannot forge a valid proof for a false statement), and zero-knowledge (the proof reveals nothing beyond the statement's truth)."
+
+[[claim]]
+id = "R4-F26"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:lock-free-cas-aba-epoch-reclamation:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify how the ABA problem arises in lock-free compare-and-swap (CAS) data structures and how epoch-based reclamation or tagged pointers prevent it."
+prompt = "How do lock-free data structures prevent the ABA problem during compare-and-swap operations?"
+target_reply = "Lock-free structures prevent the ABA problem either by packing a monotonically increasing version tag alongside the pointer in a double-width CAS or by deferring node reuse via epoch-based memory reclamation and hazard pointers until all concurrent readers exit the epoch."

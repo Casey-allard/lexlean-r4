@@ -227,13 +227,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T15:19:29Z"
 
-[[tick]]
-id = "2026-11-05T05:19:34Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F07"]
-minted = 14
+[[attempt]]
+kappa = "r4:v1:stem:noether-symmetry-conservation-laws:k=14"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T15:25:39Z"
 
 [[tick]]
 id = "2026-11-05T05:41:24Z"
@@ -321,4 +321,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F19"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T15:25:39Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F20"]
 minted = 16
