@@ -251,7 +251,7 @@ target_reply = "Raft guarantees Leader Completeness because a candidate must rec
 
 [[claim]]
 id = "R4-F17"
-status = "observed"
+status = "proved"
 depends = ["R4-F02"]
 relation = "code-synthesis"
 window = [
@@ -338,3 +338,18 @@ lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeig
 statement = "Verify the Shannon-Hartley channel capacity theorem C = B log2(1 + S/N) bounding reliable bit rate over an additive white Gaussian noise channel."
 prompt = "What does the Shannon-Hartley theorem state about communication channel capacity?"
 target_reply = "The Shannon-Hartley theorem states that the maximum error-free information rate over an additive white Gaussian noise channel of bandwidth B and signal-to-noise ratio S/N is C = B log2(1 + S/N) bits per second."
+
+[[claim]]
+id = "R4-F23"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:stem:tcp-bbr-vs-cubic-congestion-control:k=14"
+lean = "LexLeanR4.AutonomousEngineControls.scheduleStrategiesOrdersByLearnedWeightDescending"
+statement = "Verify the architectural trade-offs between loss-based TCP CUBIC congestion control and model-based TCP BBR bandwidth-delay product pacing."
+prompt = "How does TCP BBR congestion control differ from TCP CUBIC on high-bandwidth long-fat networks?"
+target_reply = "TCP CUBIC treats packet loss as its congestion signal and fills router buffers until drops occur (causing bufferbloat), whereas TCP BBR continuously estimates bottleneck bandwidth and minimum round-trip propagation delay to pace packets at the bandwidth-delay product."
