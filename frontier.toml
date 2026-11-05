@@ -431,7 +431,7 @@ target_reply = "Cas9 scans DNA for a protospacer adjacent motif (5'-NGG-3' PAM) 
 
 [[claim]]
 id = "R4-F29"
-status = "observed"
+status = "proved"
 depends = ["R4-F02"]
 relation = "open-basin"
 window = [
@@ -439,6 +439,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:stem:lsm-tree-vs-btree-write-read-amplification:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f29_corpus_induction"
 statement = "Verify the write amplification, read amplification, and space amplification trade-offs between Log-Structured Merge-trees (LSM-trees) and B+Trees."
 prompt = "When should a storage engine use an LSM-tree instead of a B+Tree?"
 target_reply = "An LSM-tree buffers writes sequentially in a MemTable and immutable SSTables with Bloom filters, achieving much higher write throughput and lower space amplification than in-place B+Tree page updates, at the cost of background compaction CPU/IO and higher range-scan read amplification."
@@ -501,3 +502,17 @@ kappa = "r4:v1:manifold:stem-reasoning:return-number:r5438:k=8"
 statement = "Verify causal four gram deduction over stems return and number from manifold row 5438 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over return and number?"
 target_reply = "Causal four gram continuation preserves reasoning over return and number because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F34"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:ling-ator:r5064:k=8"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ling and ator at row_idx=5064 (anchor_id=0x80000237)."
+prompt = "How does Q12 writer refinement encode ling and ator at row_idx=5064?"
+target_reply = "At row_idx=5064 with anchor_id=0x80000237, Q12 writer refinement aligns the 256D L1 PointKey prototype for ling and ator with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
