@@ -51,17 +51,17 @@ value = 8
 [[weight]]
 strategy = "pointkey-resonance"
 family = "code-synthesis"
-value = 16
+value = 15
 
 [[weight]]
 strategy = "reply-4gram-deduction"
 family = "code-synthesis"
-value = 10
+value = 9
 
 [[weight]]
 strategy = "bvgk-writer-refinement"
 family = "code-synthesis"
-value = 10
+value = 12
 
 [[weight]]
 strategy = "corpus-induction"
@@ -275,13 +275,29 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-05T16:03:16Z"
 
-[[tick]]
-id = "2026-11-05T14:36:12Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F14"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:stem:lock-free-cas-aba-epoch-reclamation:k=14"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "exhausted"
+tick = "2026-11-05T16:42:00Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:lock-free-cas-aba-epoch-reclamation:k=14"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "exhausted"
+tick = "2026-11-05T16:42:00Z"
+
+[[attempt]]
+kappa = "r4:v1:stem:lock-free-cas-aba-epoch-reclamation:k=14"
+strategy = "bvgk-writer-refinement"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-05T16:42:00Z"
 
 [[tick]]
 id = "2026-11-05T14:43:59Z"
@@ -369,4 +385,12 @@ outcome = "advanced"
 discovered = 0
 pruned = 0
 proved = ["R4-F25"]
+minted = 16
+
+[[tick]]
+id = "2026-11-05T16:42:00Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F26"]
 minted = 16

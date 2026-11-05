@@ -386,7 +386,7 @@ target_reply = "A zero-knowledge proof system satisfies completeness (an honest 
 
 [[claim]]
 id = "R4-F26"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -394,6 +394,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:stem:lock-free-cas-aba-epoch-reclamation:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f26_bvgk_writer_refinement"
 statement = "Verify how the ABA problem arises in lock-free compare-and-swap (CAS) data structures and how epoch-based reclamation or tagged pointers prevent it."
 prompt = "How do lock-free data structures prevent the ABA problem during compare-and-swap operations?"
 target_reply = "Lock-free structures prevent the ABA problem either by packing a monotonically increasing version tag alongside the pointer in a double-width CAS or by deferring node reuse via epoch-based memory reclamation and hazard pointers until all concurrent readers exit the epoch."
@@ -453,3 +454,20 @@ kappa = "r4:v1:stem:thermodynamic-landauer-erasure-limit:k=14"
 statement = "Verify Landauer's principle establishing the minimum thermodynamic heat dissipation k_B T ln 2 required to irreversibly erase one bit of information."
 prompt = "Why does Landauer's principle set a minimum energy cost for erasing a bit of information?"
 target_reply = "Erasing one bit maps two logical states onto one, compressing the computational phase space by a factor of two; by the second law of thermodynamics, the environment's entropy must increase by at least k_B ln 2, dissipating at least k_B T ln 2 of heat at temperature T."
+
+[[claim]]
+id = "R4-F31"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:ions-ation:r4361:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging ions and ation across PointKey row 4361 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect ions and ation across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects ions and ation by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
