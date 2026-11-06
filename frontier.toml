@@ -2492,7 +2492,7 @@ target_reply = "Multi-basin geodesic synthesis connects prep and ence by resolvi
 
 [[claim]]
 id = "R4-F160"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -2500,6 +2500,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:determ-counted:r10380:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f160_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems determ and counted at manifold row 10380."
 prompt = "How does PointKey routing resolve conversational prompts about determ and counted?"
 target_reply = "PointKey routing matches conversational stems determ and counted directly to their canonical reply anchor without token loops."
@@ -2562,3 +2563,17 @@ kappa = "r4:v1:manifold:dialogue-stem:gener-pping:r10699:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems gener and pping at manifold row 10699."
 prompt = "How does PointKey routing resolve conversational prompts about gener and pping?"
 target_reply = "PointKey routing matches conversational stems gener and pping directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F165"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:factor-ment:r10835:k=8"
+statement = "Verify causal four gram deduction over stems factor and ment from manifold row 10835 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over factor and ment?"
+target_reply = "Causal four gram continuation preserves reasoning over factor and ment because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
