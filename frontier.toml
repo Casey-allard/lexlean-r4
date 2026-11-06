@@ -2648,7 +2648,7 @@ target_reply = "Causal four gram continuation preserves reasoning over ignor and
 
 [[claim]]
 id = "R4-F170"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -2656,6 +2656,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:pattern-using:r11588:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f170_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems pattern and using at row_idx=11588 (anchor_id=0x8000131f)."
 prompt = "How does Q12 writer refinement encode pattern and using at row_idx=11588?"
 target_reply = "At row_idx=11588 with anchor_id=0x8000131f, Q12 writer refinement aligns the 256D L1 PointKey prototype for pattern and using with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -2718,3 +2719,20 @@ kappa = "r4:v1:manifold:code-synthesis:banan-brown:r458:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems banan and brown at row_idx=458 (anchor_id=0x80000091)."
 prompt = "How does Q12 writer refinement encode banan and brown at row_idx=458?"
 target_reply = "At row_idx=458 with anchor_id=0x80000091, Q12 writer refinement aligns the 256D L1 PointKey prototype for banan and brown with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F175"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:design-comp:r1542:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging design and comp across PointKey row 1542 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect design and comp across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects design and comp by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
