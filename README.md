@@ -118,6 +118,7 @@ The WebAssembly studio (`crates/wasm` + `web/app.js`) is deployed on GitHub Page
 
 - [Approved full-scope design](docs/specs/2026-10-21-lexlean-r4-design.md)
 - [Implementation sequence and acceptance gates](docs/plans/2026-10-21-lexlean-r4.md)
+- [500B parameter scaling & self-improvement report](docs/reports/scaling-500b-self-improvement.md)
 - [Pinned source review and toolchain gaps](docs/UPSTREAM.md)
 - [Inherited repository rules](AGENTS.md)
 - [Template contract](TEMPLATE-CONTRACT.md)

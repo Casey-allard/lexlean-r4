@@ -168,26 +168,39 @@
           <div id="composer-autocomplete-menu" class="composer-autocomplete-menu" role="listbox" aria-label="Slash Commands and Context Mentions" hidden></div>
 
           <form id="claude-chat-form" class="gpt-composer-form ts-rich-composer" novalidate>
-            <div class="composer-inline-left">
-              <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)">/</button>
-              <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip">@</button>
-              <div id="composer-attachments-bar" class="composer-attachments-bar" aria-label="Attached Context Chips" hidden></div>
-            </div>
+            <div id="composer-attachments-bar" class="composer-attachments-bar" aria-label="Attached Context Chips" hidden></div>
 
             <div class="composer-field">
               <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Message UOR-R4... (/ for commands, @ for context)" autocomplete="off" spellcheck="false"></textarea>
+              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Message UOR-R4... (/ for commands, @ for context, + to attach)" autocomplete="off" spellcheck="false"></textarea>
             </div>
 
-            <div class="composer-inline-right">
-              <div class="composer-mode-group" role="group" aria-label="Composer Execution Mode">
-                <button type="button" class="composer-mode-btn active" data-composer-mode="agentic" title="Agentic Mode">Agent</button>
-                <button type="button" class="composer-mode-btn" data-composer-mode="thinking" title="Deep <thinking> Trace">Think</button>
-                <button type="button" class="composer-mode-btn" data-composer-mode="teach" title="Teach Online LUT">Teach</button>
-                <button type="button" class="composer-mode-btn" data-composer-mode="math" title="Exact M6 Math">Math</button>
+            <div id="composer-send-bar" class="composer-send-bar">
+              <div class="composer-send-bar-left">
+                <button id="composer-attach-btn" type="button" class="composer-action-btn" title="Attach File (+)" aria-label="Attach File">+</button>
+                <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
+                <label for="composer-model-select" class="sr-only">Select Model</label>
+                <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
+                  <option value="uor-r4-glm-v8" selected>uor-r4-glm-v8</option>
+                  <option value="claude-3-5-sonnet">claude-3-5-sonnet</option>
+                  <option value="gpt-4o">gpt-4o</option>
+                  <option value="deepseek-r1">deepseek-r1</option>
+                  <option value="uor-r4-500b">uor-r4-500b</option>
+                </select>
+                <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
+                <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
               </div>
-              <span id="composer-token-badge" class="composer-token-badge" title="Live Token Estimate">0t</span>
-              <button id="claude-chat-submit" type="submit" class="composer-send-btn" title="Send (Enter)">&crarr;</button>
+
+              <div class="composer-send-bar-right">
+                <div class="composer-mode-group" role="group" aria-label="Composer Execution Mode">
+                  <button type="button" class="composer-mode-btn active" data-composer-mode="agentic" title="Agentic Mode">Agent</button>
+                  <button type="button" class="composer-mode-btn" data-composer-mode="thinking" title="Deep <thinking> Trace">Think</button>
+                  <button type="button" class="composer-mode-btn" data-composer-mode="teach" title="Teach Online LUT">Teach</button>
+                  <button type="button" class="composer-mode-btn" data-composer-mode="math" title="Exact M6 Math">Math</button>
+                </div>
+                <span id="composer-token-badge" class="composer-token-badge" title="Live Token Estimate">0t</span>
+                <button id="claude-chat-submit" type="submit" class="composer-send-btn" title="Send (Enter)" aria-label="Send Message">&crarr;</button>
+              </div>
             </div>
           </form>
         </div>
@@ -656,6 +669,32 @@
             <div class="diag-item"><span class="diag-label">Sub-Span Deduplication Hits</span><code id="trace-stat-dedup-hits">0</code></div>
             <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
           </div>
+
+          <!-- 3D Holographic Neural Process Viewport -->
+          <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
+            <div class="neural-3d-toolbar">
+              <div class="neural-3d-title-group">
+                <span class="neural-3d-title">3D Holographic Neural Latent Process</span>
+                <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
+              </div>
+              <div class="neural-3d-controls">
+                <button id="neural-3d-reset-btn" type="button" class="neural-btn" title="Reset Camera (Center View)">Reset Camera</button>
+                <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
+              </div>
+            </div>
+            <div class="neural-3d-canvas-wrap">
+              <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="400" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
+            </div>
+            <div class="neural-3d-legend" aria-label="3D Neural Process Legend">
+              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Clifford Cl(0,6) Nodes (64)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Icosian Roots (17)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>SpiralCore Layer Planes (l0&ndash;l5)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Synaptic Activation Beams</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Token Trajectory Spline</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>PointKey Memory Basins</span></div>
+            </div>
+          </div>
+
           <pre id="trace-raw-otlp-output" class="code-block" hidden aria-label="Hydrated OTLP JSON Payload"></pre>
           <div id="trace-waterfall-tree" class="trace-waterfall-tree">
             <!-- Rendered dynamically from OTLP trace data -->

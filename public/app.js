@@ -1404,11 +1404,46 @@ const AGENTIC_SLASH_COMMANDS = [
   },
 ];
 
+const COMPOSER_MODELS = [
+  {
+    id: 'uor-r4-glm-v8',
+    name: 'UOR-R4 8/8 SpiralCore',
+    contextWindow: '8k',
+    badge: '256D Q12',
+  },
+  {
+    id: 'claude-3-5-sonnet',
+    name: 'Claude 3.5 Sonnet',
+    contextWindow: '200k',
+    badge: 'v1/messages',
+  },
+  {
+    id: 'gpt-4o',
+    name: 'GPT-4o',
+    contextWindow: '128k',
+    badge: 'v1/chat',
+  },
+  {
+    id: 'deepseek-r1',
+    name: 'DeepSeek R1 Latent',
+    contextWindow: '64k',
+    badge: 'MLA Q12',
+  },
+  {
+    id: 'uor-r4-500b',
+    name: 'UOR-R4 500B Self-Improving Core',
+    contextWindow: '128k',
+    badge: 'R3 Scale',
+  },
+];
+
 class AgenticTypeScriptComposer {
   constructor() {
     this.state = {
       rawText: '',
       mode: 'agentic',
+      selectedModel: 'uor-r4-glm-v8',
+      savedDraft: null,
       attachments: [],
       history: [],
       historyIndex: -1,
@@ -1425,6 +1460,33 @@ class AgenticTypeScriptComposer {
 
   setMode(mode) {
     this.state.mode = mode;
+  }
+
+  getSelectedModel() {
+    return this.state.selectedModel;
+  }
+
+  setModel(modelId) {
+    const exists = COMPOSER_MODELS.some((m) => m.id === modelId);
+    if (exists || modelId) {
+      this.state.selectedModel = modelId;
+      return true;
+    }
+    return false;
+  }
+
+  getModelOptions() {
+    return COMPOSER_MODELS;
+  }
+
+  attachFile(file) {
+    const chip = {
+      id: `file:${file.name}`,
+      kind: 'file',
+      label: file.name,
+      payload: file.text || '',
+    };
+    return this.addAttachment(chip);
   }
 
   addAttachment(chip) {
@@ -1490,26 +1552,39 @@ class AgenticTypeScriptComposer {
     if (!clean) return;
     if (this.state.history.length === 0 || this.state.history[0] !== clean) {
       this.state.history.unshift(clean);
-      if (this.state.history.length > 32) {
+      if (this.state.history.length > 50) {
         this.state.history.pop();
       }
     }
     this.state.historyIndex = -1;
+    this.state.savedDraft = null;
   }
 
-  stepHistory(direction) {
+  stepHistory(direction, currentDraft) {
     if (this.state.history.length === 0) return null;
     if (direction === 'up') {
-      const nextIdx = Math.min(this.state.historyIndex + 1, this.state.history.length - 1);
-      this.state.historyIndex = nextIdx;
-      return this.state.history[nextIdx];
+      if (this.state.historyIndex === -1) {
+        this.state.savedDraft = currentDraft !== undefined ? currentDraft : this.state.rawText;
+        this.state.historyIndex = 0;
+      } else {
+        this.state.historyIndex = Math.min(this.state.historyIndex + 1, this.state.history.length - 1);
+      }
+      return this.state.history[this.state.historyIndex];
     }
-    if (this.state.historyIndex <= 0) {
-      this.state.historyIndex = -1;
-      return '';
+    if (direction === 'down') {
+      if (this.state.historyIndex < 0) {
+        return null;
+      }
+      if (this.state.historyIndex === 0) {
+        this.state.historyIndex = -1;
+        const draft = this.state.savedDraft ?? '';
+        this.state.savedDraft = null;
+        return draft;
+      }
+      this.state.historyIndex -= 1;
+      return this.state.history[this.state.historyIndex];
     }
-    this.state.historyIndex -= 1;
-    return this.state.history[this.state.historyIndex];
+    return null;
   }
 
   getAttachmentBadges() {
@@ -1530,9 +1605,72 @@ const tsComposer = new AgenticTypeScriptComposer();
 const composerAutocompleteMenu = document.getElementById('composer-autocomplete-menu');
 const composerAttachmentsBar = document.getElementById('composer-attachments-bar');
 const composerTokenBadge = document.getElementById('composer-token-badge');
+const composerSendBar = document.getElementById('composer-send-bar');
+const composerAttachBtn = document.getElementById('composer-attach-btn');
+const composerFileInput = document.getElementById('composer-file-input');
+const composerModelSelect = document.getElementById('composer-model-select');
 const composerSlashBtn = document.getElementById('composer-slash-btn');
 const composerMentionBtn = document.getElementById('composer-mention-btn');
 const composerModeButtons = document.querySelectorAll('.composer-mode-btn');
+
+function syncComposerModel(modelId) {
+  tsComposer.setModel(modelId);
+  if (composerModelSelect && composerModelSelect.value !== modelId) {
+    composerModelSelect.value = modelId;
+  }
+  if (topbarModelTag) {
+    const opt = COMPOSER_MODELS.find((m) => m.id === modelId);
+    if (opt) {
+      topbarModelTag.textContent = `${opt.name} · ${opt.badge}`;
+    }
+  }
+}
+
+if (composerModelSelect) {
+  composerModelSelect.addEventListener('change', (e) => {
+    syncComposerModel(e.target.value);
+  });
+}
+
+if (composerAttachBtn && composerFileInput) {
+  composerAttachBtn.addEventListener('click', () => {
+    composerFileInput.click();
+  });
+
+  composerFileInput.addEventListener('change', () => {
+    const files = composerFileInput.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const textContent = typeof reader.result === 'string' ? reader.result : '';
+        const filePath = file.webkitRelativePath || `src/${file.name}`;
+        try {
+          const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n${textContent}`);
+          if (ws && ws.status === 'ok') {
+            renderWorkspaceList(ws);
+            selectWorkspaceFile(filePath);
+          }
+        } catch (_) {
+          // Virtual workspace fallback
+        }
+
+        tsComposer.attachFile({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          text: textContent,
+        });
+
+        renderComposerAttachments();
+      };
+      reader.readAsText(file);
+    }
+    composerFileInput.value = '';
+  });
+}
 
 function getComposerMentionCandidates(query) {
   const candidates = [
@@ -1784,7 +1922,7 @@ function submitComposerPrompt() {
   if (!synthesizedPrompt) return;
   tsComposer.pushHistory(rawVal);
   claudeChatInput.value = '';
-  claudeChatInput.style.height = '1.45rem';
+  claudeChatInput.style.height = '1.5rem';
   closeComposerAutocomplete();
   updateComposerTokenBadge();
   runClaudeChat(synthesizedPrompt, true);
@@ -1844,29 +1982,40 @@ if (claudeChatInput) {
       return;
     }
 
-    if (event.key === 'ArrowUp' && !claudeChatInput.value.trim()) {
-      const recalled = tsComposer.stepHistory('up');
-      if (recalled !== null) {
-        event.preventDefault();
-        claudeChatInput.value = recalled;
-        updateComposerTokenBadge();
+    if (event.key === 'ArrowUp') {
+      const canStepUp =
+        st.historyIndex >= 0 ||
+        claudeChatInput.selectionStart === 0 ||
+        !claudeChatInput.value.includes('\n');
+      if (canStepUp) {
+        const recalled = tsComposer.stepHistory('up', claudeChatInput.value);
+        if (recalled !== null) {
+          event.preventDefault();
+          claudeChatInput.value = recalled;
+          claudeChatInput.setSelectionRange(recalled.length, recalled.length);
+          claudeChatInput.style.height = '1.5rem';
+          const newHeight = Math.min(Math.max(claudeChatInput.scrollHeight, 24), 128);
+          claudeChatInput.style.height = `${newHeight}px`;
+          updateComposerTokenBadge();
+        }
       }
     } else if (event.key === 'ArrowDown' && st.historyIndex >= 0) {
       const recalled = tsComposer.stepHistory('down');
       if (recalled !== null) {
         event.preventDefault();
         claudeChatInput.value = recalled;
+        claudeChatInput.setSelectionRange(recalled.length, recalled.length);
+        claudeChatInput.style.height = '1.5rem';
+        const newHeight = Math.min(Math.max(claudeChatInput.scrollHeight, 24), 128);
+        claudeChatInput.style.height = `${newHeight}px`;
         updateComposerTokenBadge();
       }
     }
   });
   claudeChatInput.addEventListener('input', () => {
-    if (!claudeChatInput.value.includes('\n') && claudeChatInput.value.length < 80) {
-      claudeChatInput.style.height = '1.45rem';
-    } else {
-      claudeChatInput.style.height = 'auto';
-      claudeChatInput.style.height = `${Math.min(claudeChatInput.scrollHeight, 96)}px`;
-    }
+    claudeChatInput.style.height = '1.5rem';
+    const newHeight = Math.min(Math.max(claudeChatInput.scrollHeight, 24), 128);
+    claudeChatInput.style.height = `${newHeight}px`;
     updateComposerTokenBadge();
     renderComposerAutocomplete();
   });
@@ -2894,7 +3043,923 @@ if (exportOtlpJsonBtn && traceRawOtlpOutput) {
       exportOtlpJsonBtn.textContent = 'Toggle Hydrated OTLP/JSON';
     }
   });
+// ============================================================================
+// 3D Holographic Neural Process Visualization (WebGL2 / WebGL1 Fallback)
+// ============================================================================
+
+function mat4_create() {
+  const out = new Float32Array(16);
+  out[0] = 1.0;
+  out[5] = 1.0;
+  out[10] = 1.0;
+  out[15] = 1.0;
+  return out;
 }
+
+function mat4_perspective(out, fovy, aspect, near, far) {
+  const f = 1.0 / Math.tan(fovy / 2.0);
+  const nf = 1.0 / (near - far);
+  out[0] = f / aspect;
+  out[1] = 0.0;
+  out[2] = 0.0;
+  out[3] = 0.0;
+  out[4] = 0.0;
+  out[5] = f;
+  out[6] = 0.0;
+  out[7] = 0.0;
+  out[8] = 0.0;
+  out[9] = 0.0;
+  out[10] = (far + near) * nf;
+  out[11] = -1.0;
+  out[12] = 0.0;
+  out[13] = 0.0;
+  out[14] = 2.0 * far * near * nf;
+  out[15] = 0.0;
+  return out;
+}
+
+function mat4_lookAt(out, eye, center, up) {
+  let z0 = eye[0] - center[0];
+  let z1 = eye[1] - center[1];
+  let z2 = eye[2] - center[2];
+  let len = Math.hypot(z0, z1, z2);
+  if (len === 0) len = 1.0;
+  z0 /= len; z1 /= len; z2 /= len;
+
+  let x0 = up[1] * z2 - up[2] * z1;
+  let x1 = up[2] * z0 - up[0] * z2;
+  let x2 = up[0] * z1 - up[1] * z0;
+  len = Math.hypot(x0, x1, x2);
+  if (len === 0) len = 1.0;
+  x0 /= len; x1 /= len; x2 /= len;
+
+  let y0 = z1 * x2 - z2 * x1;
+  let y1 = z2 * x0 - z0 * x2;
+  let y2 = z0 * x1 - z1 * x0;
+
+  out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0.0;
+  out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0.0;
+  out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0.0;
+  out[12] = -(x0 * eye[0] + x1 * eye[1] + x2 * eye[2]);
+  out[13] = -(y0 * eye[0] + y1 * eye[1] + y2 * eye[2]);
+  out[14] = -(z0 * eye[0] + z1 * eye[1] + z2 * eye[2]);
+  out[15] = 1.0;
+  return out;
+}
+
+function mat4_multiply(out, a, b) {
+  const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+  const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+  const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+  const a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+
+  let b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+  out[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+
+  b0 = b[4]; b1 = b[5]; b2 = b[6]; b3 = b[7];
+  out[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+
+  b0 = b[8]; b1 = b[9]; b2 = b[10]; b3 = b[11];
+  out[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+
+  b0 = b[12]; b1 = b[13]; b2 = b[14]; b3 = b[15];
+  out[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+  out[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+  out[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+  out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+  return out;
+}
+
+function catmullRom1D(p0, p1, p2, p3, t) {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return 0.5 * (
+    2.0 * p1 +
+    (-p0 + p2) * t +
+    (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 +
+    (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3
+  );
+}
+
+function catmullRomPoint(out, p0, p1, p2, p3, t) {
+  out[0] = catmullRom1D(p0[0], p1[0], p2[0], p3[0], t);
+  out[1] = catmullRom1D(p0[1], p1[1], p2[1], p3[1], t);
+  out[2] = catmullRom1D(p0[2], p1[2], p2[2], p3[2], t);
+  return out;
+}
+
+function compileShader(gl, type, source) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    const info = gl.getShaderInfoLog(shader);
+    gl.deleteShader(shader);
+    throw new Error(`Shader compilation failure: ${info}`);
+  }
+  return shader;
+}
+
+function createProgram(gl, vsSource, fsSource) {
+  const vs = compileShader(gl, gl.VERTEX_SHADER, vsSource);
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    const info = gl.getProgramInfoLog(prog);
+    gl.deleteProgram(prog);
+    throw new Error(`Program link failure: ${info}`);
+  }
+  return prog;
+}
+
+class LexLean3DVisualizer {
+  constructor() {
+    this.canvas = null;
+    this.gl = null;
+    this.isWebGL2 = false;
+    this.programPoints = null;
+    this.programLines = null;
+    this.pointsVbo = null;
+    this.linesVbo = null;
+    this.animFrameId = null;
+    this.lastTimestamp = 0;
+    this.autoRotate = true;
+
+    // Camera parameters
+    this.yaw = 0.55;
+    this.pitch = 0.28;
+    this.distance = 15.0; // clamped between 2.0 and 50.0 via Math.min/Math.max
+    this.target = new Float32Array([0.0, 0.0, 0.0]);
+
+    // Pointer interaction
+    this.isDragging = false;
+    this.lastPointerX = 0;
+    this.lastPointerY = 0;
+
+    // Matrices
+    this.projMatrix = mat4_create();
+    this.viewMatrix = mat4_create();
+    this.viewProjMatrix = mat4_create();
+
+    // Scene geometry
+    // 64 Clifford Cl(0,6) basis state nodes
+    this.cliffordNodes = [];
+    this.cliffordGradeEnergies = new Float32Array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
+
+    // 17 Icosian roots
+    this.icosianRoots = [];
+    this.dominantIcosianRoot = 0;
+
+    // 6 SpiralCore layer planes (l0..l5)
+    this.layerElevations = new Float32Array([-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]);
+    this.layerEnergies = new Float32Array([0.6, 0.6, 0.6, 0.6, 0.6, 0.6]);
+
+    // Starfield PointKey memory basin particles
+    this.starfieldParticles = [];
+    this.winningPointKeyRow = null;
+
+    // Token trajectory spline
+    this.decodeWaypoints = [];
+    this.tokenSplinePoints = [];
+
+    // UI hooks
+    this.statusEl = null;
+    this.resetBtn = null;
+    this.animToggleBtn = null;
+    this.activeTraceInfo = null;
+
+    this.boundAnimate = this.animate.bind(this);
+  }
+
+  init(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return false;
+    this.canvas = canvas;
+    this.statusEl = document.getElementById('neural-3d-status');
+    this.resetBtn = document.getElementById('neural-3d-reset-btn');
+    this.animToggleBtn = document.getElementById('neural-3d-anim-toggle');
+
+    this.initGL();
+    this.buildStaticGeometry();
+    this.buildDefaultDecodeSpline();
+    this.bindEvents();
+    this.updateStatus();
+
+    if (this.gl && !this.animFrameId) {
+      this.animFrameId = requestAnimationFrame(this.boundAnimate);
+    }
+    return true;
+  }
+
+  initGL() {
+    const canvas = this.canvas;
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) {
+      if (this.statusEl) {
+        this.statusEl.textContent = 'WebGL Not Supported';
+      }
+      return false;
+    }
+    this.gl = gl;
+    this.isWebGL2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+
+    // Universal GLSL ES shaders
+    const vsPoints = `
+      attribute vec3 a_position;
+      attribute vec4 a_color;
+      attribute float a_size;
+      uniform mat4 u_viewProjection;
+      uniform float u_viewportHeight;
+      varying vec4 v_color;
+
+      void main() {
+        vec4 pos = u_viewProjection * vec4(a_position, 1.0);
+        gl_Position = pos;
+        float w = max(pos.w, 0.001);
+        gl_PointSize = clamp(a_size * (u_viewportHeight / w) * 0.08, 1.0, 64.0);
+        v_color = a_color;
+      }
+    `;
+
+    const fsPoints = `
+      precision mediump float;
+      varying vec4 v_color;
+
+      void main() {
+        vec2 coord = gl_PointCoord - vec2(0.5);
+        float dist = length(coord);
+        if (dist > 0.5) {
+          discard;
+        }
+        float alpha = smoothstep(0.5, 0.04, dist) * v_color.a;
+        gl_FragColor = vec4(v_color.rgb, alpha);
+      }
+    `;
+
+    const vsLines = `
+      attribute vec3 a_position;
+      attribute vec4 a_color;
+      uniform mat4 u_viewProjection;
+      varying vec4 v_color;
+
+      void main() {
+        gl_Position = u_viewProjection * vec4(a_position, 1.0);
+        v_color = a_color;
+      }
+    `;
+
+    const fsLines = `
+      precision mediump float;
+      varying vec4 v_color;
+
+      void main() {
+        gl_FragColor = v_color;
+      }
+    `;
+
+    this.programPoints = createProgram(gl, vsPoints, fsPoints);
+    this.programLines = createProgram(gl, vsLines, fsLines);
+
+    this.pointsVbo = gl.createBuffer();
+    this.linesVbo = gl.createBuffer();
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.clearColor(0.031, 0.035, 0.051, 1.0);
+    return true;
+  }
+
+  buildStaticGeometry() {
+    // 1. 64 Clifford Cl(0,6) basis state nodes
+    this.cliffordNodes = [];
+
+    // Grade 0: 1 scalar at origin
+    this.cliffordNodes.push({
+      pos: new Float32Array([0.0, 0.0, 0.0]),
+      grade: 0,
+      baseColor: new Float32Array([0.2, 0.9, 1.0, 0.95]),
+      baseSize: 14.0
+    });
+
+    // Grade 1: 6 vectors along coordinate axes at radius 1.5
+    const r1 = 1.5;
+    const g1Coords = [
+      [r1, 0, 0], [-r1, 0, 0],
+      [0, r1, 0], [0, -r1, 0],
+      [0, 0, r1], [0, 0, -r1]
+    ];
+    for (let i = 0; i < 6; i++) {
+      this.cliffordNodes.push({
+        pos: new Float32Array(g1Coords[i]),
+        grade: 1,
+        baseColor: new Float32Array([0.15, 0.85, 0.75, 0.9]),
+        baseSize: 11.0
+      });
+    }
+
+    // Grade 2: 15 bivectors on shell radius 2.3 across 3 tilted orbital rings (5 nodes each)
+    for (let i = 0; i < 15; i++) {
+      const ringIdx = Math.floor(i / 5);
+      const tilt = -0.7 + ringIdx * 0.7;
+      const ang = (i % 5) * (2.0 * Math.PI / 5.0) + ringIdx * 0.42;
+      const r = Math.sqrt(Math.max(0.1, 2.3 * 2.3 - tilt * tilt));
+      this.cliffordNodes.push({
+        pos: new Float32Array([r * Math.cos(ang), tilt, r * Math.sin(ang)]),
+        grade: 2,
+        baseColor: new Float32Array([0.2, 0.9, 0.4, 0.85]),
+        baseSize: 9.0
+      });
+    }
+
+    // Grade 3: 20 trivectors on shell radius 3.1 (spherical Fibonacci distribution)
+    for (let i = 0; i < 20; i++) {
+      const y = -2.6 + (i + 0.5) * (5.2 / 20.0);
+      const r = Math.sqrt(Math.max(0.1, 3.1 * 3.1 - y * y));
+      const ang = i * 2.3999632;
+      this.cliffordNodes.push({
+        pos: new Float32Array([r * Math.cos(ang), y, r * Math.sin(ang)]),
+        grade: 3,
+        baseColor: new Float32Array([0.4, 0.5, 1.0, 0.85]),
+        baseSize: 9.0
+      });
+    }
+
+    // Grade 4: 15 quadrivectors on shell radius 3.8 across 3 tilted rings
+    for (let i = 0; i < 15; i++) {
+      const ringIdx = Math.floor(i / 5);
+      const tilt = 0.8 - ringIdx * 0.8;
+      const ang = (i % 5) * (2.0 * Math.PI / 5.0) + ringIdx * 0.53 + 0.3;
+      const r = Math.sqrt(Math.max(0.1, 3.8 * 3.8 - tilt * tilt));
+      this.cliffordNodes.push({
+        pos: new Float32Array([r * Math.cos(ang), tilt, r * Math.sin(ang)]),
+        grade: 4,
+        baseColor: new Float32Array([0.9, 0.3, 0.8, 0.85]),
+        baseSize: 9.0
+      });
+    }
+
+    // Grade 5: 6 pseudovectors along 6 diagonal axes at radius 4.4
+    const d5 = 4.4 / Math.sqrt(3.0);
+    const g5Coords = [
+      [d5, d5, d5], [-d5, -d5, d5],
+      [-d5, d5, -d5], [d5, -d5, -d5],
+      [d5, d5, -d5], [-d5, d5, d5]
+    ];
+    for (let i = 0; i < 6; i++) {
+      this.cliffordNodes.push({
+        pos: new Float32Array(g5Coords[i]),
+        grade: 5,
+        baseColor: new Float32Array([1.0, 0.7, 0.2, 0.9]),
+        baseSize: 11.0
+      });
+    }
+
+    // Grade 6: 1 pseudoscalar at top pole
+    this.cliffordNodes.push({
+      pos: new Float32Array([0.0, 4.8, 0.0]),
+      grade: 6,
+      baseColor: new Float32Array([1.0, 0.85, 0.1, 0.95]),
+      baseSize: 14.0
+    });
+
+    // 2. 17 Icosian root vertices on celestial sphere (radius 5.3)
+    const phi = 1.6180339887;
+    const rIco = 5.3;
+    const sIco = rIco / Math.sqrt(1.0 + phi * phi);
+    const ico12 = [
+      [sIco, sIco * phi, 0.0], [-sIco, sIco * phi, 0.0],
+      [sIco, -sIco * phi, 0.0], [-sIco, -sIco * phi, 0.0],
+      [0.0, sIco, sIco * phi], [0.0, -sIco, sIco * phi],
+      [0.0, sIco, -sIco * phi], [0.0, -sIco, -sIco * phi],
+      [sIco * phi, 0.0, sIco], [-sIco * phi, 0.0, sIco],
+      [sIco * phi, 0.0, -sIco], [-sIco * phi, 0.0, -sIco]
+    ];
+    const icoPoles = [
+      [0.0, rIco, 0.0], [0.0, -rIco, 0.0],
+      [rIco, 0.0, 0.0], [-rIco, 0.0, 0.0],
+      [0.0, 0.0, rIco]
+    ];
+    this.icosianRoots = [];
+    for (const v of ico12) {
+      this.icosianRoots.push(new Float32Array(v));
+    }
+    for (const v of icoPoles) {
+      this.icosianRoots.push(new Float32Array(v));
+    }
+
+    // 3. 256 Starfield PointKey memory basin particles
+    this.starfieldParticles = [];
+    for (let i = 0; i < 256; i++) {
+      const t = i / 255.0;
+      const y = (t * 2.0 - 1.0) * 5.5;
+      const r = Math.sqrt(Math.max(0.1, 1.0 - (y / 5.5) * (y / 5.5))) * (7.0 + (i % 5) * 0.6);
+      const ang = i * 2.3999632;
+      this.starfieldParticles.push({
+        pos: new Float32Array([r * Math.cos(ang), y, r * Math.sin(ang)]),
+        baseColor: new Float32Array([0.35, 0.25, 0.7, 0.35]),
+        baseSize: 3.5
+      });
+    }
+  }
+
+  buildDefaultDecodeSpline() {
+    const defaultSteps = 6;
+    const waypoints = [];
+    for (let s = 0; s < defaultSteps; s++) {
+      const ang = s * 0.85;
+      const rad = 2.0 + (s % 3) * 0.35;
+      const y = -2.2 + (s / (defaultSteps - 1)) * 4.4;
+      waypoints.push(new Float32Array([rad * Math.sin(ang), y, rad * Math.cos(ang)]));
+    }
+    this.decodeWaypoints = waypoints;
+    this.rebuildSplinePoints();
+  }
+
+  rebuildSplinePoints() {
+    const pts = this.decodeWaypoints;
+    if (pts.length < 2) {
+      this.tokenSplinePoints = [];
+      return;
+    }
+    const spline = [];
+    const segments = pts.length - 1;
+    const stepsPerSegment = 10;
+
+    for (let i = 0; i < segments; i++) {
+      const p0 = i > 0 ? pts[i - 1] : pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = i + 2 < pts.length ? pts[i + 2] : p2;
+
+      for (let step = 0; step < stepsPerSegment; step++) {
+        const t = step / stepsPerSegment;
+        const pt = new Float32Array(3);
+        catmullRomPoint(pt, p0, p1, p2, p3, t);
+        spline.push(pt);
+      }
+    }
+    spline.push(pts[pts.length - 1]);
+    this.tokenSplinePoints = spline;
+  }
+
+  bindEvents() {
+    const canvas = this.canvas;
+    if (!canvas) return;
+
+    // Pointer events for orbit and pan
+    canvas.addEventListener('pointerdown', (e) => {
+      this.isDragging = true;
+      this.lastPointerX = e.clientX;
+      this.lastPointerY = e.clientY;
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!this.isDragging) return;
+      const dx = e.clientX - this.lastPointerX;
+      const dy = e.clientY - this.lastPointerY;
+      this.lastPointerX = e.clientX;
+      this.lastPointerY = e.clientY;
+
+      if (e.shiftKey || e.button === 1 || e.button === 2) {
+        // Pan
+        const panSpeed = 0.015 * (this.distance / 15.0);
+        this.target[0] -= dx * panSpeed * Math.cos(this.yaw);
+        this.target[2] += dx * panSpeed * Math.sin(this.yaw);
+        this.target[1] += dy * panSpeed;
+      } else {
+        // Orbit
+        this.yaw += dx * 0.007;
+        this.pitch = Math.min(Math.max(this.pitch + dy * 0.007, -1.45), 1.45);
+      }
+    });
+
+    const endDrag = (e) => {
+      if (this.isDragging) {
+        this.isDragging = false;
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+    };
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
+
+    // Zoom via wheel - clamped strictly between 2.0 and 50.0 via Math.min and Math.max
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY > 0 ? 1.08 : 0.92;
+      this.distance = Math.min(Math.max(this.distance * zoomFactor, 2.0), 50.0);
+    }, { passive: false });
+
+    // WebGL Context Recovery
+    canvas.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      if (this.animFrameId) {
+        cancelAnimationFrame(this.animFrameId);
+        this.animFrameId = null;
+      }
+      if (this.statusEl) {
+        this.statusEl.textContent = 'WebGL Context Lost · Restoring...';
+      }
+    });
+
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.initGL();
+      this.buildStaticGeometry();
+      this.buildDefaultDecodeSpline();
+      this.updateStatus();
+      this.animFrameId = requestAnimationFrame(this.boundAnimate);
+    });
+
+    // Reset button
+    if (this.resetBtn) {
+      this.resetBtn.addEventListener('click', () => {
+        this.resetCamera();
+      });
+    }
+
+    // Animation toggle button
+    if (this.animToggleBtn) {
+      this.animToggleBtn.addEventListener('click', () => {
+        this.toggleAnimation();
+      });
+    }
+  }
+
+  resetCamera() {
+    this.yaw = 0.55;
+    this.pitch = 0.28;
+    this.distance = 15.0;
+    this.target[0] = 0.0;
+    this.target[1] = 0.0;
+    this.target[2] = 0.0;
+  }
+
+  toggleAnimation() {
+    this.autoRotate = !this.autoRotate;
+    if (this.animToggleBtn) {
+      this.animToggleBtn.textContent = this.autoRotate ? 'Pause Orbit' : 'Resume Orbit';
+    }
+    this.updateStatus();
+  }
+
+  updateStatus() {
+    if (!this.statusEl) return;
+    const mode = this.isWebGL2 ? 'WebGL2' : 'WebGL1';
+    if (this.activeTraceInfo) {
+      this.statusEl.textContent = `Turn #${this.activeTraceInfo.turnIndex} · ${this.activeTraceInfo.spanCount} Spans · Root #${this.dominantIcosianRoot} · ${mode}`;
+    } else {
+      this.statusEl.textContent = `${this.autoRotate ? 'Orbiting' : 'Paused'} · 64 Cl(0,6) · ${mode}`;
+    }
+  }
+
+  loadTrace(trace) {
+    if (!trace || !Array.isArray(trace.spans)) return;
+    const internTable = trace.intern_table || { entries: [] };
+    const entries = internTable.entries || [];
+    const getInternStr = (idx) => (typeof idx === 'number' && entries[idx] !== undefined ? entries[idx] : String(idx));
+
+    const decodeSpans = [];
+
+    for (const span of trace.spans) {
+      if (!span || typeof span !== 'object') continue;
+      const spanName = getInternStr(span.name_ref);
+      const attrMap = {};
+      if (Array.isArray(span.attributes)) {
+        for (const item of span.attributes) {
+          if (!Array.isArray(item) || item.length < 2) continue;
+          const [kRef, val] = item;
+          const kStr = getInternStr(kRef);
+          attrMap[kStr] = val;
+        }
+      }
+
+      if (spanName.startsWith('gllm.trunk.layer')) {
+        let layerIdx = 0;
+        const rawLayer = attrMap['uor.layer_index'];
+        if (typeof rawLayer === 'number' && Number.isFinite(rawLayer)) {
+          layerIdx = Math.abs(Math.floor(rawLayer));
+        } else {
+          const match = spanName.match(/\.l([0-5])/);
+          if (match) layerIdx = (+match[1]) || 0;
+        }
+        layerIdx = Math.min(Math.max(layerIdx, 0), 5);
+
+        if (attrMap['uor.basin_energy_l1'] !== undefined) {
+          const rawE = +attrMap['uor.basin_energy_l1'];
+          if (typeof rawE === 'number' && Number.isFinite(rawE)) {
+            this.layerEnergies[layerIdx] = Math.min(Math.max(rawE / 600.0, 0.2), 2.5);
+          }
+        }
+        if (Array.isArray(attrMap['uor.clifford_grades'])) {
+          for (let g = 0; g < 7 && g < attrMap['uor.clifford_grades'].length; g++) {
+            const rawG = +attrMap['uor.clifford_grades'][g];
+            if (typeof rawG === 'number' && Number.isFinite(rawG)) {
+              this.cliffordGradeEnergies[g] = Math.min(Math.max(rawG / 100.0, 0.2), 3.0);
+            }
+          }
+        }
+        if (attrMap['uor.dominant_icosian_root'] !== undefined) {
+          const rawRoot = +attrMap['uor.dominant_icosian_root'];
+          if (typeof rawRoot === 'number' && Number.isFinite(rawRoot)) {
+            this.dominantIcosianRoot = Math.abs(Math.floor(rawRoot)) % 17;
+          }
+        }
+      } else if (spanName.startsWith('gllm.routing')) {
+        if (attrMap['uor.winning_row'] !== undefined) {
+          const rawRow = +attrMap['uor.winning_row'];
+          if (typeof rawRow === 'number' && Number.isFinite(rawRow)) {
+            this.winningPointKeyRow = Math.abs(Math.floor(rawRow));
+          }
+        }
+      } else if (spanName.startsWith('gllm.decode')) {
+        const rawStep = +attrMap['uor.step'];
+        const step = (typeof rawStep === 'number' && Number.isFinite(rawStep)) ? Math.abs(Math.floor(rawStep)) : decodeSpans.length;
+        decodeSpans.push({
+          step,
+          token: attrMap['uor.predicted_token'] || 0,
+          mechanism: attrMap['uor.source_mechanism'] || 'point_routing',
+          l1: attrMap['uor.l1_distance'] || 0
+        });
+      }
+    }
+
+    if (decodeSpans.length > 0) {
+      const waypoints = [];
+      const count = decodeSpans.length;
+      for (let s = 0; s < count; s++) {
+        const ang = s * 0.75;
+        const rad = 2.0 + (s % 3) * 0.35;
+        const y = -2.2 + (s / Math.max(count - 1, 1)) * 4.4;
+        waypoints.push(new Float32Array([rad * Math.sin(ang), y, rad * Math.cos(ang)]));
+      }
+      this.decodeWaypoints = waypoints;
+      this.rebuildSplinePoints();
+    }
+
+    this.activeTraceInfo = {
+      turnIndex: trace.turn_index !== undefined ? trace.turn_index : 0,
+      spanCount: trace.spans.length,
+      traceId: trace.trace_id ? trace.trace_id.slice(0, 8) : ''
+    };
+    this.updateStatus();
+  }
+
+  animate(timestamp = 0) {
+    if (!this.gl) return;
+    const deltaTime = this.lastTimestamp ? Math.min((timestamp - this.lastTimestamp) / 1000.0, 0.1) : 0.016;
+    this.lastTimestamp = timestamp;
+
+    if (this.autoRotate && !this.isDragging) {
+      this.yaw += 0.25 * deltaTime;
+    }
+
+    this.render(timestamp * 0.001);
+    this.animFrameId = requestAnimationFrame(this.boundAnimate);
+  }
+
+  render(time) {
+    const gl = this.gl;
+    const canvas = this.canvas;
+    if (!gl || !canvas) return;
+
+    // Viewport resize check
+    const cw = canvas.clientWidth;
+    const ch = canvas.clientHeight;
+    if (cw > 0 && ch > 0) {
+      if (canvas.width !== cw || canvas.height !== ch) {
+        canvas.width = cw;
+        canvas.height = ch;
+        gl.viewport(0, 0, cw, ch);
+      }
+    }
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Compute view and projection matrices
+    const aspect = canvas.width / Math.max(canvas.height, 1);
+    mat4_perspective(this.projMatrix, 45.0 * Math.PI / 180.0, aspect, 0.1, 100.0);
+
+    const eyeX = this.target[0] + this.distance * Math.cos(this.pitch) * Math.sin(this.yaw);
+    const eyeY = this.target[1] + this.distance * Math.sin(this.pitch);
+    const eyeZ = this.target[2] + this.distance * Math.cos(this.pitch) * Math.cos(this.yaw);
+    mat4_lookAt(this.viewMatrix, [eyeX, eyeY, eyeZ], this.target, [0.0, 1.0, 0.0]);
+    mat4_multiply(this.viewProjMatrix, this.projMatrix, this.viewMatrix);
+
+    // ------------------------------------------------------------------------
+    // 1. Pack Line Vertices: Layer rings, synaptic beams, spline, and beacon
+    // ------------------------------------------------------------------------
+    const lineData = []; // [x, y, z, r, g, b, a]
+
+    // 6 SpiralCore layer planes: circular wireframe rings
+    const ringSegs = 32;
+    for (let l = 0; l < 6; l++) {
+      const y = this.layerElevations[l];
+      const energy = (typeof this.layerEnergies[l] === 'number' && Number.isFinite(this.layerEnergies[l])) ? this.layerEnergies[l] : 0.6;
+      const alpha = 0.35 + 0.45 * Math.min(energy, 1.0);
+      const r = 2.6;
+
+      for (let s = 0; s < ringSegs; s++) {
+        const a1 = (s / ringSegs) * 2.0 * Math.PI;
+        const a2 = ((s + 1) / ringSegs) * 2.0 * Math.PI;
+        const x1 = r * Math.cos(a1), z1 = r * Math.sin(a1);
+        const x2 = r * Math.cos(a2), z2 = r * Math.sin(a2);
+
+        lineData.push(x1, y, z1, 0.25, 0.55, 1.0, alpha);
+        lineData.push(x2, y, z2, 0.25, 0.55, 1.0, alpha);
+      }
+    }
+
+    // Synaptic activation beams between adjacent layers
+    const beamCount = 12;
+    for (let l = 0; l < 5; l++) {
+      const y1 = this.layerElevations[l];
+      const y2 = this.layerElevations[l + 1];
+      const eA = (typeof this.layerEnergies[l] === 'number' && Number.isFinite(this.layerEnergies[l])) ? this.layerEnergies[l] : 0.6;
+      const eB = (typeof this.layerEnergies[l + 1] === 'number' && Number.isFinite(this.layerEnergies[l + 1])) ? this.layerEnergies[l + 1] : 0.6;
+      const avgE = (eA + eB) * 0.5;
+      const r = 2.6;
+
+      for (let b = 0; b < beamCount; b++) {
+        const a1 = (b / beamCount) * 2.0 * Math.PI;
+        const a2 = a1 + 0.35; // helix twist
+        const x1 = r * Math.cos(a1), z1 = r * Math.sin(a1);
+        const x2 = r * Math.cos(a2), z2 = r * Math.sin(a2);
+
+        const wave = Math.sin(time * 4.0 - y1 * 1.5) * 0.5 + 0.5;
+        const cr = 0.45 + 0.45 * wave;
+        const cg = 0.35 + 0.5 * wave;
+        const cb = 1.0;
+        const ca = (0.25 + 0.55 * wave) * Math.min(avgE, 1.2);
+
+        lineData.push(x1, y1, z1, cr, cg, cb, ca);
+        lineData.push(x2, y2, z2, cr, cg, cb, ca);
+      }
+    }
+
+    // Token trajectory spline lines
+    if (this.tokenSplinePoints.length > 1) {
+      for (let j = 0; j < this.tokenSplinePoints.length - 1; j++) {
+        const pA = this.tokenSplinePoints[j];
+        const pB = this.tokenSplinePoints[j + 1];
+        if (pA && pB && Number.isFinite(pA[0]) && Number.isFinite(pB[0])) {
+          lineData.push(pA[0], pA[1], pA[2], 0.1, 0.95, 0.5, 0.85);
+          lineData.push(pB[0], pB[1], pB[2], 0.1, 0.95, 0.5, 0.85);
+        }
+      }
+    }
+
+    // Winning PointKey beacon ray
+    if (typeof this.winningPointKeyRow === 'number' && Number.isFinite(this.winningPointKeyRow) && this.starfieldParticles.length > 0) {
+      const winIdx = Math.abs(Math.floor(this.winningPointKeyRow)) % this.starfieldParticles.length;
+      const winPart = this.starfieldParticles[winIdx];
+      if (winPart && winPart.pos && Array.isArray(winPart.pos) && Number.isFinite(winPart.pos[0])) {
+        const layerIdx = Math.abs(Math.floor(this.winningPointKeyRow)) % 6;
+        const targetLayerY = this.layerElevations[layerIdx] !== undefined ? this.layerElevations[layerIdx] : 0.0;
+        lineData.push(winPart.pos[0], winPart.pos[1], winPart.pos[2], 1.0, 0.8, 0.2, 0.9);
+        lineData.push(0.0, targetLayerY, 0.0, 1.0, 0.8, 0.2, 0.9);
+      }
+    }
+
+    // Upload line buffer & draw
+    if (lineData.length > 0) {
+      const lineArray = new Float32Array(lineData);
+      gl.useProgram(this.programLines);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.linesVbo);
+      gl.bufferData(gl.ARRAY_BUFFER, lineArray, gl.DYNAMIC_DRAW);
+
+      const uVpLines = gl.getUniformLocation(this.programLines, 'u_viewProjection');
+      gl.uniformMatrix4fv(uVpLines, false, this.viewProjMatrix);
+
+      const aPosLines = gl.getAttribLocation(this.programLines, 'a_position');
+      const aColLines = gl.getAttribLocation(this.programLines, 'a_color');
+
+      gl.enableVertexAttribArray(aPosLines);
+      gl.vertexAttribPointer(aPosLines, 3, gl.FLOAT, false, 28, 0);
+
+      gl.enableVertexAttribArray(aColLines);
+      gl.vertexAttribPointer(aColLines, 4, gl.FLOAT, false, 28, 12);
+
+      gl.drawArrays(gl.LINES, 0, lineData.length / 7);
+    }
+
+    // ------------------------------------------------------------------------
+    // 2. Pack Point Vertices: Clifford nodes, Icosian roots, Starfield, Waypoints
+    // ------------------------------------------------------------------------
+    const pointData = []; // [x, y, z, r, g, b, a, size]
+
+    // 64 Clifford Cl(0,6) nodes
+    for (let i = 0; i < this.cliffordNodes.length; i++) {
+      const node = this.cliffordNodes[i];
+      const gEnergy = (typeof this.cliffordGradeEnergies[node.grade] === 'number' && Number.isFinite(this.cliffordGradeEnergies[node.grade]))
+        ? this.cliffordGradeEnergies[node.grade]
+        : 1.0;
+      const pulse = 1.0 + 0.15 * Math.sin(time * 3.0 + node.grade);
+      const size = node.baseSize * gEnergy * pulse;
+      const alpha = node.baseColor[3] * Math.min(gEnergy, 1.0);
+
+      pointData.push(
+        node.pos[0], node.pos[1], node.pos[2],
+        node.baseColor[0], node.baseColor[1], node.baseColor[2], alpha,
+        size
+      );
+    }
+
+    // 17 Icosian root vertices
+    const hasDomRoot = typeof this.dominantIcosianRoot === 'number' && Number.isFinite(this.dominantIcosianRoot);
+    const validDomRoot = hasDomRoot ? (Math.abs(Math.floor(this.dominantIcosianRoot)) % 17) : 0;
+    for (let k = 0; k < this.icosianRoots.length; k++) {
+      const root = this.icosianRoots[k];
+      const isDom = k === validDomRoot;
+      if (isDom) {
+        const domSize = 24.0 + 6.0 * Math.sin(time * 5.0);
+        pointData.push(root[0], root[1], root[2], 1.0, 0.84, 0.0, 1.0, domSize);
+        // Outer pulsing ring particle
+        const ringSize = domSize * 1.5;
+        pointData.push(root[0], root[1], root[2], 1.0, 0.9, 0.3, 0.4, ringSize);
+      } else {
+        pointData.push(root[0], root[1], root[2], 0.7, 0.85, 1.0, 0.65, 9.0);
+      }
+    }
+
+    // 256 Starfield PointKey memory basin particles
+    const hasWinningRow = typeof this.winningPointKeyRow === 'number' && Number.isFinite(this.winningPointKeyRow);
+    const validWinIdx = hasWinningRow && this.starfieldParticles.length > 0
+      ? (Math.abs(Math.floor(this.winningPointKeyRow)) % this.starfieldParticles.length)
+      : -1;
+    for (let i = 0; i < this.starfieldParticles.length; i++) {
+      const p = this.starfieldParticles[i];
+      const isWinning = (i === validWinIdx);
+      if (isWinning) {
+        const winSize = 18.0 + 4.0 * Math.sin(time * 6.0);
+        pointData.push(p.pos[0], p.pos[1], p.pos[2], 1.0, 0.75, 0.1, 1.0, winSize);
+      } else {
+        pointData.push(
+          p.pos[0], p.pos[1], p.pos[2],
+          p.baseColor[0], p.baseColor[1], p.baseColor[2], p.baseColor[3],
+          p.baseSize
+        );
+      }
+    }
+
+    // Token trajectory waypoint particles
+    for (let w = 0; w < this.decodeWaypoints.length; w++) {
+      const wp = this.decodeWaypoints[w];
+      pointData.push(wp[0], wp[1], wp[2], 0.15, 1.0, 0.6, 0.95, 13.0);
+    }
+
+    // Traveling tracer bead along the spline
+    if (this.tokenSplinePoints.length > 0) {
+      const tracerIdx = Math.floor((time * 20.0) % this.tokenSplinePoints.length);
+      const pt = this.tokenSplinePoints[tracerIdx];
+      pointData.push(pt[0], pt[1], pt[2], 1.0, 1.0, 1.0, 1.0, 18.0);
+    }
+
+    // Upload point buffer & draw
+    if (pointData.length > 0) {
+      const pointArray = new Float32Array(pointData);
+      gl.useProgram(this.programPoints);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.pointsVbo);
+      gl.bufferData(gl.ARRAY_BUFFER, pointArray, gl.DYNAMIC_DRAW);
+
+      const uVpPoints = gl.getUniformLocation(this.programPoints, 'u_viewProjection');
+      const uVhPoints = gl.getUniformLocation(this.programPoints, 'u_viewportHeight');
+      gl.uniformMatrix4fv(uVpPoints, false, this.viewProjMatrix);
+      gl.uniform1f(uVhPoints, canvas.height);
+
+      const aPosPoints = gl.getAttribLocation(this.programPoints, 'a_position');
+      const aColPoints = gl.getAttribLocation(this.programPoints, 'a_color');
+      const aSizePoints = gl.getAttribLocation(this.programPoints, 'a_size');
+
+      gl.enableVertexAttribArray(aPosPoints);
+      gl.vertexAttribPointer(aPosPoints, 3, gl.FLOAT, false, 32, 0);
+
+      gl.enableVertexAttribArray(aColPoints);
+      gl.vertexAttribPointer(aColPoints, 4, gl.FLOAT, false, 32, 12);
+
+      gl.enableVertexAttribArray(aSizePoints);
+      gl.vertexAttribPointer(aSizePoints, 1, gl.FLOAT, false, 32, 28);
+
+      gl.drawArrays(gl.POINTS, 0, pointData.length / 8);
+    }
+  }
+}
+
+// Global 3D visualizer instance
+let lexLean3dVisualizer = null;
 
 // OTel Traces Inspector
 const traceSpans = [];
@@ -2947,6 +4012,10 @@ function renderTraceInspector() {
   const internTable = currentTrace.intern_table || { entries: [] };
   const entries = internTable.entries || [];
   const getInternStr = (idx) => (typeof idx === 'number' && entries[idx] !== undefined ? entries[idx] : String(idx));
+
+  if (lexLean3dVisualizer && currentTrace) {
+    lexLean3dVisualizer.loadTrace(currentTrace);
+  }
 
   // Update bona fide stat cards
   const fullTraceId = currentTrace.trace_id || '';
@@ -3415,6 +4484,10 @@ loadThreadsFromStorage();
 renderThreadSidebar();
 renderLiteratureFeed();
 renderActiveThreadMessages();
+if (document.getElementById('neural-3d-canvas')) {
+  lexLean3dVisualizer = new LexLean3DVisualizer();
+  lexLean3dVisualizer.init('neural-3d-canvas');
+}
 renderTraceInspector();
 
 try {

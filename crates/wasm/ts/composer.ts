@@ -38,9 +38,51 @@ export interface MentionCandidate {
   readonly payload: string;
 }
 
+export interface ComposerModelOption {
+  readonly id: string;
+  readonly name: string;
+  readonly contextWindow: string;
+  readonly badge: string;
+}
+
+export const COMPOSER_MODELS: readonly ComposerModelOption[] = [
+  {
+    id: 'uor-r4-glm-v8',
+    name: 'UOR-R4 8/8 SpiralCore',
+    contextWindow: '8k',
+    badge: '256D Q12',
+  },
+  {
+    id: 'claude-3-5-sonnet',
+    name: 'Claude 3.5 Sonnet',
+    contextWindow: '200k',
+    badge: 'v1/messages',
+  },
+  {
+    id: 'gpt-4o',
+    name: 'GPT-4o',
+    contextWindow: '128k',
+    badge: 'v1/chat',
+  },
+  {
+    id: 'deepseek-r1',
+    name: 'DeepSeek R1 Latent',
+    contextWindow: '64k',
+    badge: 'MLA Q12',
+  },
+  {
+    id: 'uor-r4-500b',
+    name: 'UOR-R4 500B Self-Improving Core',
+    contextWindow: '128k',
+    badge: 'R3 Scale',
+  },
+];
+
 export interface ComposerState {
   rawText: string;
   mode: ComposerMode;
+  selectedModel: string;
+  savedDraft: string | null;
   attachments: ComposerAttachmentChip[];
   history: string[];
   historyIndex: number;
@@ -124,6 +166,8 @@ export class AgenticTypeScriptComposer {
     this.state = {
       rawText: '',
       mode: 'agentic',
+      selectedModel: 'uor-r4-glm-v8',
+      savedDraft: null,
       attachments: [],
       history: [],
       historyIndex: -1,
@@ -140,6 +184,33 @@ export class AgenticTypeScriptComposer {
 
   public setMode(mode: ComposerMode): void {
     this.state.mode = mode;
+  }
+
+  public getSelectedModel(): string {
+    return this.state.selectedModel;
+  }
+
+  public setModel(modelId: string): boolean {
+    const exists = COMPOSER_MODELS.some((m) => m.id === modelId);
+    if (exists || modelId) {
+      this.state.selectedModel = modelId;
+      return true;
+    }
+    return false;
+  }
+
+  public getModelOptions(): readonly ComposerModelOption[] {
+    return COMPOSER_MODELS;
+  }
+
+  public attachFile(file: { name: string; size?: number; type?: string; text?: string }): boolean {
+    const chip: ComposerAttachmentChip = {
+      id: `file:${file.name}`,
+      kind: 'file',
+      label: file.name,
+      payload: file.text || '',
+    };
+    return this.addAttachment(chip);
   }
 
   public addAttachment(chip: ComposerAttachmentChip): boolean {
@@ -209,26 +280,39 @@ export class AgenticTypeScriptComposer {
     if (!clean) return;
     if (this.state.history.length === 0 || this.state.history[0] !== clean) {
       this.state.history.unshift(clean);
-      if (this.state.history.length > 32) {
+      if (this.state.history.length > 50) {
         this.state.history.pop();
       }
     }
     this.state.historyIndex = -1;
+    this.state.savedDraft = null;
   }
 
-  public stepHistory(direction: 'up' | 'down'): string | null {
+  public stepHistory(direction: 'up' | 'down', currentDraft?: string): string | null {
     if (this.state.history.length === 0) return null;
     if (direction === 'up') {
-      const nextIdx = Math.min(this.state.historyIndex + 1, this.state.history.length - 1);
-      this.state.historyIndex = nextIdx;
-      return this.state.history[nextIdx];
+      if (this.state.historyIndex === -1) {
+        this.state.savedDraft = currentDraft !== undefined ? currentDraft : this.state.rawText;
+        this.state.historyIndex = 0;
+      } else {
+        this.state.historyIndex = Math.min(this.state.historyIndex + 1, this.state.history.length - 1);
+      }
+      return this.state.history[this.state.historyIndex];
     }
-    if (this.state.historyIndex <= 0) {
-      this.state.historyIndex = -1;
-      return '';
+    if (direction === 'down') {
+      if (this.state.historyIndex < 0) {
+        return null;
+      }
+      if (this.state.historyIndex === 0) {
+        this.state.historyIndex = -1;
+        const draft = this.state.savedDraft ?? '';
+        this.state.savedDraft = null;
+        return draft;
+      }
+      this.state.historyIndex -= 1;
+      return this.state.history[this.state.historyIndex];
     }
-    this.state.historyIndex -= 1;
-    return this.state.history[this.state.historyIndex];
+    return null;
   }
 
   public getAttachmentBadges(): string[] {
