@@ -2144,7 +2144,7 @@ target_reply = "Causal four gram continuation preserves reasoning over using and
 
 [[claim]]
 id = "R4-F138"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -2152,6 +2152,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:string-words:r8015:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f138_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems string and words at row_idx=8015 (anchor_id=0x8000089e)."
 prompt = "How does Q12 writer refinement encode string and words at row_idx=8015?"
 target_reply = "At row_idx=8015 with anchor_id=0x8000089e, Q12 writer refinement aligns the 256D L1 PointKey prototype for string and words with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -2214,3 +2215,20 @@ kappa = "r4:v1:manifold:code-synthesis:number-string:r8500:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems number and string at row_idx=8500 (anchor_id=0x800009fb)."
 prompt = "How does Q12 writer refinement encode number and string at row_idx=8500?"
 target_reply = "At row_idx=8500 with anchor_id=0x800009fb, Q12 writer refinement aligns the 256D L1 PointKey prototype for number and string with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F143"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:using-words:r8636:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging using and words across PointKey row 8636 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect using and words across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects using and words by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
