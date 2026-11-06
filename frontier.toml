@@ -2381,7 +2381,7 @@ target_reply = "PointKey routing matches conversational stems square and many di
 
 [[claim]]
 id = "R4-F153"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -2389,6 +2389,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:stem-reasoning:week-number:r9647:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f153_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems week and number from manifold row 9647 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over week and number?"
 target_reply = "Causal four gram continuation preserves reasoning over week and number because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
@@ -2451,3 +2452,17 @@ kappa = "r4:v1:manifold:stem-reasoning:ates-gener:r10047:k=8"
 statement = "Verify causal four gram deduction over stems ates and gener from manifold row 10047 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over ates and gener?"
 target_reply = "Causal four gram continuation preserves reasoning over ates and gener because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F158"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:gener-ator:r10108:k=8"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems gener and ator at row_idx=10108 (anchor_id=0x80000dfb)."
+prompt = "How does Q12 writer refinement encode gener and ator at row_idx=10108?"
+target_reply = "At row_idx=10108 with anchor_id=0x80000dfb, Q12 writer refinement aligns the 256D L1 PointKey prototype for gener and ator with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
