@@ -1565,7 +1565,7 @@ target_reply = "PointKey routing matches conversational stems atch and ation dir
 
 [[claim]]
 id = "R4-F101"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -1573,6 +1573,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:stem-reasoning:ions-ation:r4361:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f101_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems ions and ation from manifold row 4361 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over ions and ation?"
 target_reply = "Causal four gram continuation preserves reasoning over ions and ation because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
@@ -1632,3 +1633,20 @@ kappa = "r4:v1:literature:2401.04088:H-LIT-2401.04088-01:k=8"
 statement = "Verify that bounded epoch-based memory reclamation neutralizes ABA hazards and bounds unreclaimed memory under concurrent compare-and-swap operations."
 prompt = "How do epoch-based reclamation algorithms prevent use-after-free and ABA hazards in concurrent memory management?"
 target_reply = "Bounded epoch reclamation protects concurrent nodes by tracking global_epoch=e with thread-local arrival counters (stride=64, grace_period=3); retirement buffers defer deallocation until all active threads advance past epoch_id+1, neutralizing ABA hazards and keeping uncollected heap nodes strictly bounded under O(N*T) space."
+
+[[claim]]
+id = "R4-F106"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2206.10708:H-LIT-2206.10708-01:k=14"
+statement = "Verify that reversible cellular automata preserve computational entropy and microscopic state information via bijective block permutation mappings."
+prompt = "How do reversible cellular automata preserve microscopic information across infinite grid configurations?"
+target_reply = "Reversible cellular automata preserve microscopic information by restricting local transition rules to bijective block permutations where every forward trajectory has a unique backward trajectory, guaranteeing that computational entropy remains strictly constant without any state collapse or thermodynamic heat dissipation over time."
