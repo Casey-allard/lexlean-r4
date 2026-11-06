@@ -2333,7 +2333,7 @@ target_reply = "Causal four gram continuation preserves reasoning over triang an
 
 [[claim]]
 id = "R4-F150"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -2341,6 +2341,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:view-ated:r9385:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f150_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems view and ated at row_idx=9385 (anchor_id=0x80000c54)."
 prompt = "How does Q12 writer refinement encode view and ated at row_idx=9385?"
 target_reply = "At row_idx=9385 with anchor_id=0x80000c54, Q12 writer refinement aligns the 256D L1 PointKey prototype for view and ated with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -2403,3 +2404,20 @@ kappa = "r4:v1:manifold:code-synthesis:ging-large:r9639:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ging and large at row_idx=9639 (anchor_id=0x80000cbe)."
 prompt = "How does Q12 writer refinement encode ging and large at row_idx=9639?"
 target_reply = "At row_idx=9639 with anchor_id=0x80000cbe, Q12 writer refinement aligns the 256D L1 PointKey prototype for ging and large with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F155"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:write-first:r9775:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging write and first across PointKey row 9775 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect write and first across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects write and first by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
