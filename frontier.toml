@@ -1799,7 +1799,7 @@ target_reply = "Multi-basin geodesic synthesis connects change and ling by resol
 
 [[claim]]
 id = "R4-F116"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1807,6 +1807,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:numbers-number:r5733:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f116_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems numbers and number at manifold row 5733."
 prompt = "How does PointKey routing resolve conversational prompts about numbers and number?"
 target_reply = "PointKey routing matches conversational stems numbers and number directly to their canonical reply anchor without token loops."
@@ -1869,3 +1870,17 @@ kappa = "r4:v1:manifold:dialogue-stem:using-ient:r6241:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems using and ient at manifold row 6241."
 prompt = "How does PointKey routing resolve conversational prompts about using and ient?"
 target_reply = "PointKey routing matches conversational stems using and ient directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F121"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:five-ines:r6304:k=8"
+statement = "Verify causal four gram deduction over stems five and ines from manifold row 6304 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over five and ines?"
+target_reply = "Causal four gram continuation preserves reasoning over five and ines because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
