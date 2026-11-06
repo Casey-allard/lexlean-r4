@@ -1844,7 +1844,7 @@ target_reply = "At row_idx=5896 with anchor_id=0x800002c4, Q12 writer refinement
 
 [[claim]]
 id = "R4-F119"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -1855,6 +1855,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:valu-asing:r6105:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f119_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging valu and asing across PointKey row 6105 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect valu and asing across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects valu and asing by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -1917,3 +1918,17 @@ kappa = "r4:v1:manifold:open-basin:ever-someone:r6536:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging ever and someone across PointKey row 6536 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ever and someone across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ever and someone by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F124"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:river-flow:r6599:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems river and flow at manifold row 6599."
+prompt = "How does PointKey routing resolve conversational prompts about river and flow?"
+target_reply = "PointKey routing matches conversational stems river and flow directly to their canonical reply anchor without token loops."
