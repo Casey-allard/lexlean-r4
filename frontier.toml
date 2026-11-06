@@ -1862,7 +1862,7 @@ target_reply = "Multi-basin geodesic synthesis connects valu and asing by resolv
 
 [[claim]]
 id = "R4-F120"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1870,6 +1870,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:using-ient:r6241:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f120_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems using and ient at manifold row 6241."
 prompt = "How does PointKey routing resolve conversational prompts about using and ient?"
 target_reply = "PointKey routing matches conversational stems using and ient directly to their canonical reply anchor without token loops."
@@ -1932,3 +1933,17 @@ kappa = "r4:v1:manifold:dialogue-stem:river-flow:r6599:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems river and flow at manifold row 6599."
 prompt = "How does PointKey routing resolve conversational prompts about river and flow?"
 target_reply = "PointKey routing matches conversational stems river and flow directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F125"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:inclu-display:r6735:k=8"
+statement = "Verify causal four gram deduction over stems inclu and display from manifold row 6735 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over inclu and display?"
+target_reply = "Causal four gram continuation preserves reasoning over inclu and display because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
