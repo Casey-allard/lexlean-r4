@@ -211,7 +211,10 @@ fn challenge_dynamic_fallback_claims_mutual_exclusivity_zero_cross_proving() {
 #[test]
 fn challenge_frontier_induction_boundary_counts() {
     let root = repo_model::repo_root();
-    let frontier = load_frontier(&root).expect("frontier loads");
+    let mut frontier = load_frontier(&root).expect("frontier loads");
+    frontier
+        .claim
+        .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
 
     // Case A: needed = 0
     let mined_0 = mine_literature_frontier_claims(&root, &frontier, 0).expect("mine with needed=0");
@@ -251,7 +254,10 @@ fn challenge_frontier_induction_boundary_counts() {
 #[test]
 fn challenge_id_uniqueness_kappa_uniqueness_and_prerequisite_trees() {
     let root = repo_model::repo_root();
-    let frontier = load_frontier(&root).expect("frontier loads");
+    let mut frontier = load_frontier(&root).expect("frontier loads");
+    frontier
+        .claim
+        .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
 
     let mined = mine_literature_frontier_claims(&root, &frontier, 50).expect("mine claims");
     assert!(!mined.is_empty());
@@ -331,6 +337,9 @@ fn challenge_id_uniqueness_kappa_uniqueness_and_prerequisite_trees() {
 fn challenge_incremental_mining_and_idempotency() {
     let root = repo_model::repo_root();
     let mut frontier = load_frontier(&root).expect("frontier loads");
+    frontier
+        .claim
+        .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
 
     let max_num = frontier
         .claim

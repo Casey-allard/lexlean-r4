@@ -5011,7 +5011,10 @@ and establish non-blocking progress guarantees.
     #[test]
     fn test_mine_literature_frontier_claims() {
         let root = repo_model::repo_root();
-        let frontier = load_frontier(&root).expect("frontier.toml loads");
+        let mut frontier = load_frontier(&root).expect("frontier.toml loads");
+        frontier
+            .claim
+            .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
         let max_num = frontier
             .claim
             .iter()
@@ -5031,7 +5034,10 @@ and establish non-blocking progress guarantees.
     #[test]
     fn test_mine_literature_frontier_claims_satisfies_witness_bounds() {
         let root = repo_model::repo_root();
-        let frontier = load_frontier(&root).expect("frontier.toml loads");
+        let mut frontier = load_frontier(&root).expect("frontier.toml loads");
+        frontier
+            .claim
+            .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
         let mined = mine_literature_frontier_claims(&root, &frontier, 5)
             .expect("mine literature frontier claims");
         assert!(!mined.is_empty());
