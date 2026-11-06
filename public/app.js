@@ -1554,8 +1554,7 @@ function getComposerMentionCandidates(query) {
 function updateComposerTokenBadge() {
   if (!composerTokenBadge || !claudeChatInput) return;
   const tokCount = tsComposer.estimateTokenCount(claudeChatInput.value);
-  const modeLabel = tsComposer.getState().mode.toUpperCase();
-  composerTokenBadge.textContent = `TS:${modeLabel} · ~${tokCount} tok`;
+  composerTokenBadge.textContent = `${tokCount}t`;
 }
 
 function renderComposerAttachments() {
@@ -1785,7 +1784,7 @@ function submitComposerPrompt() {
   if (!synthesizedPrompt) return;
   tsComposer.pushHistory(rawVal);
   claudeChatInput.value = '';
-  claudeChatInput.style.height = 'auto';
+  claudeChatInput.style.height = '1.45rem';
   closeComposerAutocomplete();
   updateComposerTokenBadge();
   runClaudeChat(synthesizedPrompt, true);
@@ -1862,8 +1861,12 @@ if (claudeChatInput) {
     }
   });
   claudeChatInput.addEventListener('input', () => {
-    claudeChatInput.style.height = 'auto';
-    claudeChatInput.style.height = `${Math.min(claudeChatInput.scrollHeight, 160)}px`;
+    if (!claudeChatInput.value.includes('\n') && claudeChatInput.value.length < 80) {
+      claudeChatInput.style.height = '1.45rem';
+    } else {
+      claudeChatInput.style.height = 'auto';
+      claudeChatInput.style.height = `${Math.min(claudeChatInput.scrollHeight, 96)}px`;
+    }
     updateComposerTokenBadge();
     renderComposerAutocomplete();
   });
