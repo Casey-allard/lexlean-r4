@@ -26,7 +26,13 @@ use serde_json::Value;
 const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
 
 fn load_test_model() -> LutStackModel {
-    LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully")
+    static MODEL: std::sync::OnceLock<Arc<LutStackModel>> = std::sync::OnceLock::new();
+    MODEL
+        .get_or_init(|| {
+            Arc::new(LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"))
+        })
+        .as_ref()
+        .clone()
 }
 
 #[test]

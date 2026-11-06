@@ -1,11 +1,3 @@
-#![allow(
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec
-)]
 //! Empirical Adversarial Challenge Suite 2 for Milestone M4 Iteration 2:
 //! Tier 2b Continuity & Long Generation Adversarial Verification
 //!
@@ -23,10 +15,10 @@ use lexlean_r4_wasm::lut_stack_exec::{
 use std::sync::Arc;
 use std::time::Instant;
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 
 fn load_test_model() -> Arc<LutStackModel> {
-    Arc::new(LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"))
+    crate::shared_bootstrap_model_arc()
 }
 
 /// Stress Test 1: Empirically verify Tier 2b 1-gram continuation under long multi-basin

@@ -1,11 +1,3 @@
-#![allow(
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec
-)]
 //! Empirical Challenge Suite for Milestone M2:
 //! Dynamic Sub-Sentence Re-Attention, Anti-Chunking, and Continuous Generation (R1)
 //!
@@ -24,10 +16,10 @@ use lexlean_r4_wasm::lut_stack_exec::{
 };
 use std::sync::Arc;
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 
 fn load_test_model() -> Arc<LutStackModel> {
-    Arc::new(LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"))
+    crate::shared_bootstrap_model_arc()
 }
 
 #[test]

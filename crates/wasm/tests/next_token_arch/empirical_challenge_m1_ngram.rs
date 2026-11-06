@@ -1,11 +1,3 @@
-#![allow(
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec
-)]
 //! Empirical Challenger 2 Stress Suite for Milestone M1
 //! Adversarial N-Gram Repetition Detection, Multi-Candidate Fallback & 64-Bit Boundary Harness
 //!
@@ -27,10 +19,10 @@ use lexlean_r4_wasm::lut_stack_exec::{
     hash_4gram, LutStackModel, LutStackSession, RollingContextState,
 };
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 
 fn load_test_model() -> Arc<LutStackModel> {
-    Arc::new(LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"))
+    crate::shared_bootstrap_model_arc()
 }
 
 #[test]

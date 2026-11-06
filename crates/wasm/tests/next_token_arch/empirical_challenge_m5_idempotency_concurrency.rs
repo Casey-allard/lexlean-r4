@@ -1,11 +1,3 @@
-#![allow(
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec
-)]
 //! Empirical Adversarial Challenge Test Suite for Milestone M5:
 //! Dialogue Turn Re-Admission Idempotency, Concurrency Race Safety,
 //! Coordinate Descent Drift Invariance, and Zero-Orphan Point Key Invariants.
@@ -28,10 +20,10 @@ use lexlean_r4_wasm::lut_stack_exec::{
     WeightConsolidationSample, FBS_WIDTH,
 };
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 
 fn load_test_model() -> LutStackModel {
-    LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully")
+    crate::shared_bootstrap_model_clone()
 }
 
 fn find_row_by_prov_span(model: &LutStackModel, prov_span: u64) -> Option<usize> {

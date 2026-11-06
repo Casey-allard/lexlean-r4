@@ -4811,7 +4811,8 @@ impl LutStackModel {
         let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
         let mut last_n_t = [0i32; FBS_WIDTH];
-        for &tok in &c_tokens {
+        let trunk_start = c_tokens.len().saturating_sub(128);
+        for &tok in &c_tokens[trunk_start..] {
             last_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
         let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
@@ -5206,8 +5207,9 @@ impl LutStackModel {
         let mut clauses_resolved;
 
         if let Some(ref th) = thinking_text {
-            for &tok in &prompt_tokens {
-                session.prefill_token(tok, true);
+            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            for (idx, &tok) in prompt_tokens.iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
             }
             let (th_toks, _) = session.step_reasoning_trace(th);
             thinking_tokens = th_toks;
@@ -5224,8 +5226,9 @@ impl LutStackModel {
             steps.push(first_step);
         } else {
             let prefill_len = prompt_tokens.len() - 1;
-            for &tok in &prompt_tokens[..prefill_len] {
-                session.prefill_token(tok, true);
+            let trunk_start = prefill_len.saturating_sub(128);
+            for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
             }
             session.mark_reply_start();
             let first_step = session.step_with_telemetry(prompt_tokens[prefill_len]);
@@ -5402,8 +5405,9 @@ impl LutStackModel {
         let mut steps = Vec::new();
 
         if !prompt_tokens.is_empty() {
-            for &tok in &prompt_tokens {
-                session.prefill_token(tok, true);
+            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            for (idx, &tok) in prompt_tokens.iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
             }
         }
 
@@ -5523,8 +5527,9 @@ impl LutStackModel {
         let mut clauses_resolved;
 
         if let Some(ref th) = thinking_text {
-            for &tok in &prompt_tokens {
-                session.prefill_token(tok, true);
+            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            for (idx, &tok) in prompt_tokens.iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
             }
             let (th_toks, _) = session.step_reasoning_trace(th);
             thinking_tokens = th_toks;
@@ -5541,8 +5546,9 @@ impl LutStackModel {
             steps.push(first_step);
         } else {
             let prefill_len = prompt_tokens.len() - 1;
-            for &tok in &prompt_tokens[..prefill_len] {
-                session.prefill_token(tok, true);
+            let trunk_start = prefill_len.saturating_sub(128);
+            for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
             }
             session.mark_reply_start();
             let first_step = session.step_with_telemetry(prompt_tokens[prefill_len]);
@@ -5738,8 +5744,9 @@ impl LutStackModel {
         let mut steps = Vec::new();
 
         if !prompt_tokens.is_empty() {
-            for &tok in &prompt_tokens {
-                session.prefill_token(tok, true);
+            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            for (idx, &tok) in prompt_tokens.iter().enumerate() {
+                session.prefill_token(tok, idx >= trunk_start);
             }
         }
 
@@ -5837,7 +5844,8 @@ impl LutStackModel {
         let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
         let prefill_len = prompt_tokens.len() - 1;
-        for &tok in &prompt_tokens[..prefill_len] {
+        let trunk_start = prefill_len.saturating_sub(128);
+        for &tok in &prompt_tokens[trunk_start..prefill_len] {
             let _ = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
         let n_t = self.forward_token_hidden(
@@ -5924,19 +5932,25 @@ impl LutStackModel {
             )
             .max(1);
 
-            // Check idempotency: if a row with identical PointKey vector (or identical provenance span), target token,
-            // and primary stems already exists and has a valid reply continuation in `mem.reply`, skip duplicate compilation.
+            // Check idempotency: if a row with identical provenance span (or identical PointKey vector for legacy rows),
+            // target token, and primary stems already exists and has a valid reply continuation in `mem.reply`, skip duplicate compilation.
             for r in 0..pt.rows {
                 let p_slice = &pt.points[r * p_width..(r + 1) * p_width];
                 let a_slice = &anchors[r * alen..(r + 1) * alen];
-                let prov_match = (alen >= 3
-                    && a_slice[1] == (prov_span & 0xFFFF_FFFF) as u32
-                    && a_slice[2] == ((prov_span >> 32) & 0xFFFF_FFFF) as u32)
-                    || pt
-                        .provenance_spans
+                let row_prov_span = if alen >= 3 && (a_slice[1] != 0 || a_slice[2] != 0) {
+                    (a_slice[1] as u64) | ((a_slice[2] as u64) << 32)
+                } else {
+                    pt.provenance_spans
                         .as_ref()
-                        .is_some_and(|sp| sp.get(r) == Some(&prov_span));
-                if (p_slice == n_t_i16.as_slice() || prov_match)
+                        .and_then(|sp| sp.get(r).copied())
+                        .unwrap_or(0)
+                };
+                let is_same_turn = if row_prov_span != 0 {
+                    row_prov_span == prov_span
+                } else {
+                    p_slice == n_t_i16.as_slice()
+                };
+                if is_same_turn
                     && pt.targets[r] == first_reply_tok
                     && alen >= 22
                     && a_slice[16..22] == primary_stems
@@ -6149,8 +6163,9 @@ impl LutStackModel {
             ));
         }
 
-        // 2. Reply clause boundaries
-        for i in 0..reply_tokens.len() {
+        // 2. Reply clause boundaries (bounded to first 24 tokens for interactive online admission)
+        let scan_len = reply_tokens.len().min(24);
+        for i in 0..scan_len {
             let tok = reply_tokens[i];
             let step_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
             let target_tok = reply_tokens.get(i + 1).copied().unwrap_or(bpe.eos_id());
@@ -6180,7 +6195,7 @@ impl LutStackModel {
                 clamp_min: -30000,
                 clamp_max: 30000,
                 sync_point_keys: true,
-                update_ternary_assoc: true,
+                update_ternary_assoc: false,
             };
             let _ = consolidate_lut_weights(self, &residual_samples, &cfg)?;
         }
@@ -6513,17 +6528,19 @@ impl LutStackModel {
             return 0;
         }
 
-        let mut reply_anchors = HashSet::new();
-        for chunk in &reply_tbl.packed12 {
-            let w0 = chunk[0];
-            reply_anchors.insert(w0 >> 11);
-        }
-
         let mut orphaned = 0usize;
         for r in 0..pt.rows {
             let raw_anchor = anchors[r * alen];
             let encoded = encode_reply_anchor_21(raw_anchor);
-            if !reply_anchors.contains(&encoded) {
+            let present = reply_tbl
+                .packed12
+                .binary_search_by_key(&encoded, |chunk| chunk[0] >> 11)
+                .is_ok()
+                || reply_tbl
+                    .packed12
+                    .iter()
+                    .any(|chunk| (chunk[0] >> 11) == encoded);
+            if !present {
                 orphaned += 1;
             }
         }
@@ -6629,32 +6646,45 @@ pub fn consolidate_lut_trajectory_points(
     let c_min = config.clamp_min as i64;
     let c_max = config.clamp_max as i64;
 
-    // Accumulate sums, weighted sums, counts, and residual margins per token basin
-    let mut tok_sum = vec![0i64; vocab * FBS_WIDTH];
-    let mut tok_count = vec![0usize; vocab];
-    let mut tok_weighted_sum = vec![0i64; vocab * FBS_WIDTH];
-    let mut weight_sum = vec![0i64; vocab];
-    let mut margin_sum = vec![0u64; vocab];
-    let mut has_explicit_residuals = vec![false; vocab];
+    // Accumulate sums, weighted sums, counts, and residual margins per active token basin
+    struct TokenConsolidationAccum {
+        sum: [i64; FBS_WIDTH],
+        weighted_sum: [i64; FBS_WIDTH],
+        weight_sum: i64,
+        margin_sum: u64,
+        count: usize,
+        has_explicit_residuals: bool,
+    }
+    let mut tok_accums: std::collections::BTreeMap<usize, TokenConsolidationAccum> =
+        std::collections::BTreeMap::new();
 
     for pt in points {
         let t = pt.target_token as usize;
         if t < vocab {
-            let base = t * FBS_WIDTH;
+            let acc = tok_accums
+                .entry(t)
+                .or_insert_with(|| TokenConsolidationAccum {
+                    sum: [0i64; FBS_WIDTH],
+                    weighted_sum: [0i64; FBS_WIDTH],
+                    weight_sum: 0,
+                    margin_sum: 0,
+                    count: 0,
+                    has_explicit_residuals: false,
+                });
             let omega = match pt.residual_margin {
                 Some(m) => {
-                    has_explicit_residuals[t] = true;
-                    margin_sum[t] = margin_sum[t].saturating_add(m);
+                    acc.has_explicit_residuals = true;
+                    acc.margin_sum = acc.margin_sum.saturating_add(m);
                     (m as i64).max(1)
                 }
                 None => 1i64,
             };
             for dim in 0..FBS_WIDTH {
-                tok_sum[base + dim] += pt.latent[dim] as i64;
-                tok_weighted_sum[base + dim] += (pt.latent[dim] as i64) * omega;
+                acc.sum[dim] += pt.latent[dim] as i64;
+                acc.weighted_sum[dim] += (pt.latent[dim] as i64) * omega;
             }
-            weight_sum[t] += omega;
-            tok_count[t] += 1;
+            acc.weight_sum += omega;
+            acc.count += 1;
         }
     }
 
@@ -6666,17 +6696,15 @@ pub fn consolidate_lut_trajectory_points(
 
     let num_iterations = config.iterations.max(1);
     for _iter in 0..num_iterations {
-        for (t, &cnt) in tok_count.iter().enumerate().take(vocab) {
-            if cnt == 0 {
-                continue;
-            }
+        for (&t, acc) in &tok_accums {
+            let cnt = acc.count;
             let cnt_i64 = cnt as i64;
             let base = t * FBS_WIDTH;
             let mut row_changed = false;
             let mut centroid_row = [0i16; FBS_WIDTH];
 
-            let s_eff = if has_explicit_residuals[t] {
-                let mean_margin = margin_sum[t] / (cnt as u64);
+            let s_eff = if acc.has_explicit_residuals {
+                let mean_margin = acc.margin_sum / (cnt as u64);
                 if mean_margin == 0 {
                     0i64
                 } else {
@@ -6687,11 +6715,11 @@ pub fn consolidate_lut_trajectory_points(
                 s
             };
 
-            for dim in 0..FBS_WIDTH {
-                let mu_td = if weight_sum[t] > 0 {
-                    tok_weighted_sum[base + dim] / weight_sum[t]
+            for (dim, c_slot) in centroid_row.iter_mut().enumerate().take(FBS_WIDTH) {
+                let mu_td = if acc.weight_sum > 0 {
+                    acc.weighted_sum[dim] / acc.weight_sum
                 } else {
-                    tok_sum[base + dim] / cnt_i64
+                    acc.sum[dim] / cnt_i64
                 };
                 let old_w = model.writer_table[base + dim] as i64;
                 let numerator = (d - s_eff) * old_w + s_eff * mu_td;
@@ -6707,7 +6735,7 @@ pub fn consolidate_lut_trajectory_points(
                     row_changed = true;
                 }
                 model.writer_table[base + dim] = new_w;
-                centroid_row[dim] = new_w;
+                *c_slot = new_w;
             }
 
             if row_changed {
@@ -6718,40 +6746,45 @@ pub fn consolidate_lut_trajectory_points(
     }
 
     // Record training provenance spans for updated tokens in model.writer_provenance
-    let prov_span =
-        fnv1a64(format!("gllm.training.consolidate_weights:{}", points.len()).as_bytes()).max(1);
-    let prov_trace_lo = fnv1a64(b"gllm.training.trace:consolidate").max(1);
-    let prov_trace_hi = fnv1a64(b"uor.consolidate.hi").max(1);
-    let prov_trace = (prov_trace_lo as u128) | ((prov_trace_hi as u128) << 64);
+    if !updated_tokens.is_empty() {
+        let prov_span =
+            fnv1a64(format!("gllm.training.consolidate_weights:{}", points.len()).as_bytes())
+                .max(1);
+        let prov_trace_lo = fnv1a64(b"gllm.training.trace:consolidate").max(1);
+        let prov_trace_hi = fnv1a64(b"uor.consolidate.hi").max(1);
+        let prov_trace = (prov_trace_lo as u128) | ((prov_trace_hi as u128) << 64);
 
-    let w_spans = model
-        .writer_provenance
-        .get_or_insert_with(|| vec![0u64; vocab]);
-    if w_spans.len() < vocab {
-        w_spans.resize(vocab, 0);
-    }
-    let w_traces = model
-        .writer_provenance_traces
-        .get_or_insert_with(|| vec![0u128; vocab]);
-    if w_traces.len() < vocab {
-        w_traces.resize(vocab, 0);
-    }
-    for &t in &updated_tokens {
-        if t < vocab {
-            w_spans[t] = prov_span;
-            w_traces[t] = prov_trace;
+        let w_spans = model
+            .writer_provenance
+            .get_or_insert_with(|| vec![0u64; vocab]);
+        if w_spans.len() < vocab {
+            w_spans.resize(vocab, 0);
+        }
+        let w_traces = model
+            .writer_provenance_traces
+            .get_or_insert_with(|| vec![0u128; vocab]);
+        if w_traces.len() < vocab {
+            w_traces.resize(vocab, 0);
+        }
+        for &t in &updated_tokens {
+            if t < vocab {
+                w_spans[t] = prov_span;
+                w_traces[t] = prov_trace;
+            }
         }
     }
 
     // Synchronize PointKey rows with updated centroids
-    if config.sync_point_keys {
+    if config.sync_point_keys && !updated_centroids.is_empty() {
         if let Some(pt) = model.point.as_mut() {
             let p_width = pt.width.max(1);
             for r in 0..pt.rows {
                 let target = pt.targets[r] as usize;
-                if let Some(new_centroid) = updated_centroids.get(&target) {
-                    let s_sync = if has_explicit_residuals[target] {
-                        let mean_margin = margin_sum[target] / (tok_count[target] as u64);
+                if let (Some(new_centroid), Some(acc)) =
+                    (updated_centroids.get(&target), tok_accums.get(&target))
+                {
+                    let s_sync = if acc.has_explicit_residuals {
+                        let mean_margin = acc.margin_sum / (acc.count as u64);
                         if mean_margin == 0 {
                             0i64
                         } else {
@@ -6814,8 +6847,14 @@ mod tests {
     use super::*;
 
     fn default_lut_stack_model() -> LutStackModel {
-        const BOOTSTRAP: &[u8] = include_bytes!("bootstrap_v8.uorlut");
-        LutStackModel::parse(BOOTSTRAP).expect("bootstrap model parses")
+        static MODEL: OnceLock<Arc<LutStackModel>> = OnceLock::new();
+        MODEL
+            .get_or_init(|| {
+                const BOOTSTRAP: &[u8] = include_bytes!("bootstrap_v8.uorlut");
+                Arc::new(LutStackModel::parse(BOOTSTRAP).expect("bootstrap model parses"))
+            })
+            .as_ref()
+            .clone()
     }
 
     #[test]

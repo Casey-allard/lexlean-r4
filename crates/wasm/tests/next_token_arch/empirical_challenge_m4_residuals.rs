@@ -1,11 +1,3 @@
-#![allow(
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec
-)]
 //! Empirical challenge test suite for Milestone M4 (Requirement R4: Per-Token Prediction Residual Backprop).
 //!
 //! Evaluates:
@@ -24,10 +16,10 @@ use lexlean_r4_wasm::lut_stack_exec::{
     ConsolidationConfig, LutStackModel, RollingContextState, WeightConsolidationSample, FBS_WIDTH,
 };
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 
 fn load_bootstrap() -> LutStackModel {
-    LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully")
+    crate::shared_bootstrap_model_clone()
 }
 
 /// Simple deterministic SplitMix64 PRNG for reproducibility without external crate dependencies.

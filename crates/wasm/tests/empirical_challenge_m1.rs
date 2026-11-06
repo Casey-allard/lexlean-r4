@@ -13,7 +13,15 @@ use lexlean_r4_wasm::studio_consolidate_weights;
 const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
 
 fn load_bootstrap() -> LutStackModel {
-    LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully")
+    static MODEL: std::sync::OnceLock<std::sync::Arc<LutStackModel>> = std::sync::OnceLock::new();
+    MODEL
+        .get_or_init(|| {
+            std::sync::Arc::new(
+                LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"),
+            )
+        })
+        .as_ref()
+        .clone()
 }
 
 #[test]
