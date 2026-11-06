@@ -1658,7 +1658,7 @@ target_reply = "Reversible cellular automata preserve microscopic information by
 
 [[claim]]
 id = "R4-F107"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -1666,6 +1666,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:literature:2310.06825:H-LIT-2310.06825-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f107_reply_4gram_deduction"
 statement = "Verify that polynomial quotient identities in succinct non-interactive proofs enforce knowledge soundness against forged evaluations over large finite fields."
 prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
 target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
@@ -1728,3 +1729,17 @@ kappa = "r4:v1:manifold:open-basin:matter-dark:r5158:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging matter and dark across PointKey row 5158 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect matter and dark across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects matter and dark by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F112"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:carry-school:r5659:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems carry and school at manifold row 5659."
+prompt = "How does PointKey routing resolve conversational prompts about carry and school?"
+target_reply = "PointKey routing matches conversational stems carry and school directly to their canonical reply anchor without token loops."

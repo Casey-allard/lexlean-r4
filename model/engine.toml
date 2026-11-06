@@ -987,13 +987,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-06T06:36:48Z"
 
-[[tick]]
-id = "2026-11-06T01:25:14Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F95"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:literature:2310.06825:H-LIT-2310.06825-01:k=8"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-06T06:49:11Z"
 
 [[tick]]
 id = "2026-11-06T01:33:20Z"
@@ -1097,4 +1097,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F106"]
+minted = 16
+
+[[tick]]
+id = "2026-11-06T06:49:11Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F107"]
 minted = 16
