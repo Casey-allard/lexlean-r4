@@ -1877,7 +1877,7 @@ target_reply = "PointKey routing matches conversational stems using and ient dir
 
 [[claim]]
 id = "R4-F121"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -1885,6 +1885,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:stem-reasoning:five-ines:r6304:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f121_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems five and ines from manifold row 6304 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over five and ines?"
 target_reply = "Causal four gram continuation preserves reasoning over five and ines because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
@@ -1947,3 +1948,17 @@ kappa = "r4:v1:manifold:stem-reasoning:inclu-display:r6735:k=8"
 statement = "Verify causal four gram deduction over stems inclu and display from manifold row 6735 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over inclu and display?"
 target_reply = "Causal four gram continuation preserves reasoning over inclu and display because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F126"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:return-string:r6754:k=8"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems return and string at row_idx=6754 (anchor_id=0x80000530)."
+prompt = "How does Q12 writer refinement encode return and string at row_idx=6754?"
+target_reply = "At row_idx=6754 with anchor_id=0x80000530, Q12 writer refinement aligns the 256D L1 PointKey prototype for return and string with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
