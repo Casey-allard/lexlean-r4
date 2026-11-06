@@ -1872,6 +1872,290 @@ button:disabled {
   background: #334155;
 }
 
+/* ============================================================================
+   Claude Cowork Agentic Harness Status Bar, OTel Audit Footer & Frontier Cards
+   ============================================================================ */
+
+.cowork-agent-status-bar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.agent-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.45rem 0.65rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.45rem;
+}
+
+.agent-status-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.agent-status-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.agent-status-code {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 0.08rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+.agent-status-sub {
+  font-size: 0.73rem;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-mini-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.agent-mini-btn {
+  padding: 0.16rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 0.3rem;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.agent-mini-btn:hover {
+  background: #e2e8f0;
+}
+
+.agent-mini-btn-active {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.agent-mini-btn-primary {
+  background: #1d4ed8;
+  border-color: #1e40af;
+  color: #ffffff;
+}
+
+.agent-mini-btn-primary:hover {
+  background: #1e40af;
+}
+
+.topbar-btn-accent {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.sidebar-surfaces-dock {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-surfaces-grid {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.sidebar-surface-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.35rem;
+  color: #f8fafc;
+  font-size: 0.74rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-surface-btn:hover {
+  background: #334155;
+  border-color: #60a5fa;
+}
+
+.surface-btn-title {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.chat-thinking-content {
+  padding: 0.65rem 0.75rem;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: #1e293b;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  white-space: pre-wrap;
+}
+
+.chat-tool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tool-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  padding: 0.08rem 0.38rem;
+  border-radius: 999px;
+}
+
+.chat-tool-args {
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.35rem;
+  font-size: 0.74rem;
+  color: #0f172a;
+  overflow-x: auto;
+}
+
+.chat-meta-otel-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+}
+
+.chat-otel-footer {
+  margin-top: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #cbd5e1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.chat-otel-info {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.71rem;
+  color: #475569;
+}
+
+.chat-otel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.frontier-ledger-section {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.frontier-summary-banner {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 0.5rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.frontier-banner-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.82rem;
+  color: #1e3a8a;
+}
+
+.frontier-banner-desc {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #1e293b;
+  line-height: 1.45;
+}
+
+.frontier-claims-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.frontier-ledger-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.45rem;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.frontier-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+}
+
+.frontier-card-desc {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.paper-consolidate-btn {
+  background: #1d4ed8;
+  border-color: #1e40af;
+  color: #ffffff;
+}
+
+.paper-consolidate-btn:hover {
+  background: #1e40af;
+}
+
+.api-harness-box {
+  margin-bottom: 1rem;
+  border: 1px solid #93c5fd;
+  background: #f8fafc;
+}
+
 @media (max-width: 64rem) {
   main,
   main.cowork-layout {
@@ -1880,7 +2164,9 @@ button:disabled {
   .gpt-sidebar {
     display: none;
   }
-  .workspace-modal-grid {
+  .workspace-modal-grid,
+  .cowork-agent-status-bar,
+  .frontier-claims-grid {
     grid-template-columns: 1fr;
   }
 }

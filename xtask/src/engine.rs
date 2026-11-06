@@ -5012,11 +5012,17 @@ and establish non-blocking progress guarantees.
     fn test_mine_literature_frontier_claims() {
         let root = repo_model::repo_root();
         let frontier = load_frontier(&root).expect("frontier.toml loads");
+        let max_num = frontier
+            .claim
+            .iter()
+            .filter_map(|c| c.id.strip_prefix("R4-F")?.parse::<usize>().ok())
+            .max()
+            .unwrap_or(31);
         let mined = mine_literature_frontier_claims(&root, &frontier, 2)
             .expect("mine literature frontier claims");
         assert_eq!(mined.len(), 2, "must mine exactly 2 claims when requested");
-        assert_eq!(mined[0].id, "R4-F32");
-        assert_eq!(mined[1].id, "R4-F33");
+        assert_eq!(mined[0].id, format!("R4-F{:02}", max_num + 1));
+        assert_eq!(mined[1].id, format!("R4-F{:02}", max_num + 2));
         assert!(mined[0].kappa.starts_with("r4:v1:literature:"));
         assert!(mined[1].kappa.starts_with("r4:v1:literature:"));
         assert_ne!(mined[0].kappa, mined[1].kappa);
@@ -5107,9 +5113,16 @@ and establish non-blocking progress guarantees.
     #[test]
     fn test_discover_incorporates_literature_claims() {
         let root = repo_model::repo_root();
+        let frontier = load_frontier(&root).expect("frontier.toml loads");
+        let max_num = frontier
+            .claim
+            .iter()
+            .filter_map(|c| c.id.strip_prefix("R4-F")?.parse::<usize>().ok())
+            .max()
+            .unwrap_or(31);
         let added = discover(&root, false, 2).expect("discover dry run succeeds");
         assert!(!added.is_empty(), "discover must induce at least one claim");
-        assert_eq!(added[0], "R4-F32");
+        assert_eq!(added[0], format!("R4-F{:02}", max_num + 1));
     }
 
     #[test]

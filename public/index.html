@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261105m3cowork">
+  <link rel="stylesheet" href="app.css?v=20261106coworkv2">
 </head>
 <body>
   <main>
@@ -16,11 +16,41 @@
         <div class="brand-row">
           <div class="brand-badge">R4</div>
           <div class="brand-text">
-            <strong>UOR-R4 GLM</strong>
-            <span>Claude Cowork Engine</span>
+            <strong>UOR-R4 GLLM</strong>
+            <span>Claude Cowork Agentic Harness</span>
           </div>
         </div>
-        <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New chat</button>
+        <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
+      </div>
+
+      <div class="sidebar-section" aria-label="Cowork Agentic Surfaces">
+        <span class="sidebar-heading">Cowork Agentic Surfaces</span>
+        <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
+          <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
+            <span>Workspace &amp; Code IDE</span>
+            <span id="workspace-pinned-badge" class="sidebar-pill">2 pinned</span>
+          </button>
+          <button id="sidebar-diff-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diff">
+            <span>Unified Diff &amp; Patch Stage</span>
+            <span id="sidebar-diff-badge" class="sidebar-pill">Ready</span>
+          </button>
+          <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
+            <span>Autonomous Engine &amp; ArXiv</span>
+            <span id="sidebar-feed-badge" class="sidebar-pill">R4-F103 &middot; 10</span>
+          </button>
+          <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
+            <span>Web Worker Consolidation</span>
+            <span id="sidebar-consolidation-badge" class="sidebar-pill">Q12 Sweep</span>
+          </button>
+          <button id="sidebar-traces-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="traces">
+            <span>OTel GLLM Trace Waterfall</span>
+            <span id="sidebar-traces-badge" class="sidebar-pill">u16 Dedup</span>
+          </button>
+          <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
+            <span>API (/v1/messages) &amp; Suites</span>
+            <span class="sidebar-pill">27/27</span>
+          </button>
+        </div>
       </div>
 
       <div class="sidebar-section">
@@ -32,38 +62,33 @@
       </div>
 
       <div class="sidebar-Section-Prompts">
-        <span class="sidebar-heading">Quick Prompts</span>
+        <span class="sidebar-heading">Agentic Cowork Missions</span>
         <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Transformers work vs UOR-R4">
-            Transformers vs. UOR-R4 GLM
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
+            Agentic Patch: src/attention.rs
           </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="How much does GPU training cost for UOR-R4?">
-            GPU Training Cost &amp; CUDA
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="How does Direct Preference Optimization align language models without reinforcement learning?">
+            ArXiv 2403.05530: DPO Synthesis
+          </button>
+          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Transformers work vs UOR-R4">
+            Transformers vs. UOR-R4 GLLM
           </button>
           <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a Python quicksort algorithm">
-            Python 3-Way Quicksort
+            Python 3-Way Ternary Quicksort
           </button>
           <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a binary search in Rust">
-            Rust Binary Search
+            Rust Zero-Float Binary Search
           </button>
           <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="What is (144 * 25) + 89?">
-            Exact M6 Arithmetic
+            Exact M6 Place-Value Math
           </button>
           <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Summarize the files in this workspace">
-            Summarize Workspace Files
+            Audit Workspace Architecture
           </button>
         </div>
       </div>
 
       <div class="sidebar-footer">
-        <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
-          <span>Workspace &amp; Code Editor</span>
-          <span id="workspace-pinned-badge" class="sidebar-pill">2 pinned</span>
-        </button>
-        <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
-          <span>Diagnostics &amp; Verification</span>
-          <span class="sidebar-pill">27/27</span>
-        </button>
         <div class="sidebar-model-status">
           <span class="status-dot"></span>
           <span>GPU Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
@@ -75,46 +100,90 @@
     <section class="gpt-main-pane cowork-chat-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
       <header class="gpt-topbar">
         <div class="model-selector">
-          <h1 id="heading-claude-desktop">UOR-R4 Geometric Language Model</h1>
+          <h1 id="heading-claude-desktop">UOR-R4 Geometric Language Model &middot; Claude Cowork Harness</h1>
           <span id="topbar-model-tag" class="model-tag">UORLUT01 (uor-r4.lut-stack/8) &middot; 4,096 BPE &middot; 6-Layer SpiralCore/FBS &middot; 1,843,998 /7 Reply Rows &middot; 16,770 /8 Point Rows</span>
         </div>
         <div class="topbar-actions">
           <span id="weight-cache-badge" class="topbar-context-pill">Weights: UORLUT01/8 (64.7 MB) &middot; CacheStorage + IndexedDB</span>
           <span id="chat-target-badge" class="topbar-context-pill">Context: src/attention.rs</span>
-          <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut / Shards</button>
+          <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync Weights</button>
-          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace">Workspace</button>
-          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics">Diagnostics Window</button>
+          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace">Workspace IDE</button>
+          <button id="topbar-feed-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="feed">ArXiv &amp; Frontier</button>
+          <button id="topbar-consolidation-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="consolidation">Consolidate Weights</button>
+          <button id="topbar-traces-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="traces">OTel Traces</button>
+          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics">API &amp; 27/27</button>
         </div>
       </header>
+
+      <!-- Live Rolling 256D Q12 Context & Agentic Harness Status Bar -->
+      <div id="cowork-agent-status-bar" class="cowork-agent-status-bar" role="region" aria-label="Live Agentic Harness Status">
+        <div class="agent-status-card">
+          <div class="agent-status-top">
+            <span class="agent-status-label">Rolling 256D Q12 Context State</span>
+            <code id="live-context-turn-digest" class="agent-status-code">Turn #1 &middot; Q12 Active</code>
+          </div>
+          <div id="live-context-summary" class="agent-status-sub">Carry-forward latent summary across multi-turn reasoning</div>
+        </div>
+
+        <div class="agent-status-card">
+          <div class="agent-status-top">
+            <span class="agent-status-label">Agentic Tool Belt &amp; Reasoning</span>
+            <button id="agent-mode-toggle-btn" type="button" class="agent-mini-btn agent-mini-btn-active">Agentic Loop: ON</button>
+          </div>
+          <div id="live-agent-tools-badge" class="agent-status-sub">Tools: <code>workspace_read</code> &middot; <code>patch_file</code> &middot; <code>arxiv_mine</code> &middot; <code>consolidate_lut</code> &middot; <code>m6_math</code></div>
+        </div>
+
+        <div class="agent-status-card">
+          <div class="agent-status-top">
+            <span class="agent-status-label">Autonomous Engine &amp; ArXiv Sync</span>
+            <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">Open Feed</button>
+          </div>
+          <div id="live-engine-frontier-badge" class="agent-status-sub">Tick #94 &middot; 103 Claims (<code>R4-F103</code>) &middot; 10 ArXiv Papers</div>
+        </div>
+
+        <div class="agent-status-card">
+          <div class="agent-status-top">
+            <span class="agent-status-label">OTel GLLM Audit &amp; Weight Optimizer</span>
+            <div class="agent-mini-btn-group">
+              <button id="quick-consolidate-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Consolidate</button>
+              <button id="quick-open-traces-btn" type="button" class="agent-mini-btn" data-canvas-tab="traces">OTel Waterfall</button>
+            </div>
+          </div>
+          <div id="live-otel-trace-badge" class="agent-status-sub"><code>uor.gllm.trace/1</code> &middot; W3C Trace + u16 Hash Dedup</div>
+        </div>
+      </div>
 
       <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History"></div>
 
       <div class="gpt-composer-dock">
         <div class="starter-chips" role="group" aria-label="Suggested Prompts">
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
+            Agentic Patch: src/attention.rs
+          </button>
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="How does Direct Preference Optimization align language models without reinforcement learning?">
+            ArXiv DPO Hypothesis (2403.05530)
+          </button>
           <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Write a function in Python to reverse a string">
-            Python reverse string
+            Python reverse string + diff
           </button>
           <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Explain distributed systems and the CAP theorem">
-            CAP theorem &amp; Raft
+            CAP theorem &amp; Raft consensus
           </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
-            Patch src/attention.rs
-          </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="What is the capital of Japan?">
-            World knowledge
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Teach: What is Multi-Head Latent Attention? => <thinking>Compress KV cache into low-rank latent vector and project into 256D Q12 coordinates</thinking>Multi-Head Latent Attention (MLA) compresses keys and values into a shared low-rank latent vector, matching UOR-R4 RollingContextState 256D Q12 carry-forward.">
+            Teach MLA with &lt;thinking&gt; Trace
           </button>
         </div>
 
         <form id="claude-chat-form" class="gpt-composer-form" novalidate>
           <div class="composer-field">
             <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-            <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Message UOR-R4 GLM (ask anything, generate Python/TS/Rust/Go/SQL code, or run exact math)..." autocomplete="off" spellcheck="false"></textarea>
+            <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Give UOR-R4 an agentic coding mission, query arXiv literature hypotheses, teach with <thinking>, or run exact M6 math..." autocomplete="off" spellcheck="false"></textarea>
           </div>
-          <button id="claude-chat-submit" type="submit" class="composer-send-btn">Send</button>
+          <button id="claude-chat-submit" type="submit" class="composer-send-btn">Run Agent</button>
         </form>
         <p class="composer-footnote">
-          Powered by the matmul-free UOR-R4 Geometric Language Model in WebAssembly &middot; 27/27 zero-axiom LexLean conformance suites verified.
+          Claude Cowork Agentic Harness &middot; Rolling 256D Q12 Context &middot; OTel <code>uor.gllm.trace/1</code> Audit &middot; Web Worker Coordinate-Descent Weight Consolidation &middot; <code>/v1/messages</code> API.
         </p>
       </div>
     </section>
@@ -123,32 +192,34 @@
     <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas">
       <div class="canvas-header">
         <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
-          <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
+          <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
             <span>Editor</span>
           </button>
           <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
             <span>Diff Preview</span>
           </button>
-          <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
-            <span>Engine &amp; Papers</span>
-            <span class="canvas-tab-pill">2 papers</span>
-          </button>
-          <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
-            <span>Diagnostics</span>
-            <span class="canvas-tab-pill">27/27</span>
+          <button id="canvas-tab-feed" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-feed" data-tab-id="feed">
+            <span>Engine &amp; ArXiv</span>
+            <span class="canvas-tab-pill">R4-F103 &middot; 10</span>
           </button>
           <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
             <span>Consolidation</span>
+            <span class="canvas-tab-pill">Worker Q12</span>
           </button>
           <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
             <span>OTel Traces</span>
+            <span class="canvas-tab-pill">u16 Dedup</span>
+          </button>
+          <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
+            <span>API &amp; 27/27</span>
+            <span class="canvas-tab-pill">27/27</span>
           </button>
         </nav>
       </div>
 
       <div class="canvas-body">
         <!-- Tab 1: Workspace & Editor Panel -->
-        <div id="canvas-panel-workspace" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0">
+        <div id="canvas-panel-workspace" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0" hidden>
           <div class="workspace-panel-grid">
             <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
               <div class="pane-subheader">
@@ -197,19 +268,56 @@
           </div>
         </div>
 
-        <!-- Tab 3: Live Engine & Literature Feed Panel -->
-        <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
+        <!-- Tab 3: Live Engine & Literature Feed Panel (Default Active Tab) -->
+        <div id="canvas-panel-feed" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0">
           <div class="feed-header">
-            <h3>Autonomous Engine &amp; ArXiv Literature Catalog</h3>
-            <span class="panel-badge">Offline Catalog &middot; r4/literature/1</span>
+            <h3>Autonomous Engine Frontier &amp; ArXiv Literature Mining</h3>
+            <span class="panel-badge">r4/literature/1 &middot; 94 Ticks &middot; 103 Claims</span>
+          </div>
+          <div id="engine-frontier-ledger" class="frontier-ledger-section">
+            <!-- Rendered dynamically with autonomous tick & frontier claim ledger -->
           </div>
           <div class="feed-grid" id="literature-feed-list">
             <!-- Rendered dynamically from model/literature.toml data -->
           </div>
         </div>
 
-        <!-- Tab 4: Diagnostics & Studio Tables Panel -->
+        <!-- Tab 4: Standalone R4 API Harness & 27/27 Studio Tables Panel -->
         <div id="canvas-panel-diagnostics" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diagnostics" tabindex="0" hidden>
+          <section class="studio-panel api-harness-box" id="api-harness-panel" aria-labelledby="heading-api-harness">
+            <div class="panel-header">
+              <h2 id="heading-api-harness">Standalone R4 API Harness (<code>/v1/messages</code> &amp; <code>/v1/chat/completions</code>)</h2>
+              <span class="panel-badge">Anthropic &amp; OpenAI Compatible Wasm Endpoints</span>
+            </div>
+            <p class="panel-description">
+              Decoupled R4 inference &amp; tool engine. Compatible with external Claude Code / OpenAI harnesses via JSON payloads with <code>tools[]</code>, <code>&lt;thinking&gt;</code> blocks, and rolling <code>256D Q12</code> state.
+            </p>
+            <div class="consolidation-controls">
+              <div class="field">
+                <label for="api-endpoint-select">Protocol Endpoint</label>
+                <select id="api-endpoint-select">
+                  <option value="messages" selected>POST /v1/messages (Anthropic Claude Cowork Format)</option>
+                  <option value="chat_completions">POST /v1/chat/completions (OpenAI Tool-Call Format)</option>
+                  <option value="traces">GET /v1/traces (OTel uor.gllm.trace/1 Ring Buffer)</option>
+                </select>
+              </div>
+              <button id="run-api-request-btn" type="button" class="btn-primary">Execute API Request in Wasm</button>
+            </div>
+            <div class="field">
+              <label for="api-request-textarea">Request JSON Body</label>
+              <textarea id="api-request-textarea" class="code-textarea" rows="5" spellcheck="false">{
+  "model": "uor-r4-glm",
+  "messages": [
+    {"role": "user", "content": "<thinking>Route query through 6-layer SpiralCore/FBS and inspect src/attention.rs</thinking>How does Direct Preference Optimization align language models without reinforcement learning?"}
+  ],
+  "tools": [
+    {"name": "workspace_patch", "description": "Synthesize unified diff against active workspace file"}
+  ]
+}</textarea>
+            </div>
+            <pre id="api-response-output" class="code-block" aria-label="Standalone API JSON Response"></pre>
+          </section>
+
           <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
             <div class="metric-card">
               <span class="metric-label">Vocabulary Atoms</span>
@@ -523,11 +631,14 @@
           </div>
         </div>
 
-        <!-- Tab 6: OTel Trace Inspector Panel (M4 Preview) -->
+        <!-- Tab 6: OTel Trace Inspector Panel (uor.gllm.trace/1) -->
         <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
           <div class="traces-header">
-            <h3>OTel GLLM Trace &amp; Provenance Inspector</h3>
-            <span class="panel-badge">Milestone 4 Preview</span>
+            <h3>OTel GLLM Trace &amp; Provenance Waterfall (<code>uor.gllm.trace/1</code>)</h3>
+            <div class="agent-mini-btn-group">
+              <button id="export-otlp-json-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Toggle Hydrated OTLP/JSON</button>
+              <span class="panel-badge">W3C Trace + u16 Hash Dedup</span>
+            </div>
           </div>
           <div class="traces-metrics-grid">
             <div class="diag-item"><span class="diag-label">Root Trace ID</span><code id="trace-stat-trace-id">&mdash;</code></div>
@@ -535,6 +646,7 @@
             <div class="diag-item"><span class="diag-label">Sub-Span Deduplication Hits</span><code id="trace-stat-dedup-hits">0</code></div>
             <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
           </div>
+          <pre id="trace-raw-otlp-output" class="code-block" hidden aria-label="Hydrated OTLP JSON Payload"></pre>
           <div id="trace-waterfall-tree" class="trace-waterfall-tree">
             <!-- Rendered dynamically from OTLP trace data -->
           </div>
@@ -550,6 +662,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261105m3cowork"></script>
+  <script type="module" src="app.js?v=20261106coworkv2"></script>
 </body>
 </html>

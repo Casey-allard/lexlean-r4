@@ -221,9 +221,15 @@ fn challenge_frontier_induction_boundary_counts() {
     );
 
     // Case B: needed = 1
+    let max_num = frontier
+        .claim
+        .iter()
+        .filter_map(|c| c.id.strip_prefix("R4-F")?.parse::<usize>().ok())
+        .max()
+        .unwrap_or(0);
     let mined_1 = mine_literature_frontier_claims(&root, &frontier, 1).expect("mine with needed=1");
     assert_eq!(mined_1.len(), 1, "needed=1 must return exactly 1 claim");
-    assert_eq!(mined_1[0].id, "R4-F32");
+    assert_eq!(mined_1[0].id, format!("R4-F{:02}", max_num + 1));
 
     // Case C: needed = 5
     let mined_5 = mine_literature_frontier_claims(&root, &frontier, 5).expect("mine with needed=5");
@@ -326,11 +332,18 @@ fn challenge_incremental_mining_and_idempotency() {
     let root = repo_model::repo_root();
     let mut frontier = load_frontier(&root).expect("frontier loads");
 
+    let max_num = frontier
+        .claim
+        .iter()
+        .filter_map(|c| c.id.strip_prefix("R4-F")?.parse::<usize>().ok())
+        .max()
+        .unwrap_or(0);
+
     // Mine batch 1 (2 claims)
     let batch_1 = mine_literature_frontier_claims(&root, &frontier, 2).expect("batch 1");
     assert_eq!(batch_1.len(), 2);
-    assert_eq!(batch_1[0].id, "R4-F32");
-    assert_eq!(batch_1[1].id, "R4-F33");
+    assert_eq!(batch_1[0].id, format!("R4-F{:02}", max_num + 1));
+    assert_eq!(batch_1[1].id, format!("R4-F{:02}", max_num + 2));
 
     // Append batch 1 into frontier
     for c in batch_1 {
@@ -340,9 +353,9 @@ fn challenge_incremental_mining_and_idempotency() {
     // Mine batch 2 (3 claims)
     let batch_2 = mine_literature_frontier_claims(&root, &frontier, 3).expect("batch 2");
     assert_eq!(batch_2.len(), 3);
-    assert_eq!(batch_2[0].id, "R4-F34");
-    assert_eq!(batch_2[1].id, "R4-F35");
-    assert_eq!(batch_2[2].id, "R4-F36");
+    assert_eq!(batch_2[0].id, format!("R4-F{:02}", max_num + 3));
+    assert_eq!(batch_2[1].id, format!("R4-F{:02}", max_num + 4));
+    assert_eq!(batch_2[2].id, format!("R4-F{:02}", max_num + 5));
 
     // Append batch 2 into frontier
     for c in batch_2 {

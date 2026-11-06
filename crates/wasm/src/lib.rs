@@ -3777,6 +3777,7 @@ impl StudioEngine {
             }
         }
 
+        let ctx_before = self.rolling_context.q12_latent;
         let start_turn_index = self.rolling_context.turn_index;
         let assistant_reply = self.compose_smart_chat_reply(
             trimmed,
@@ -3789,17 +3790,25 @@ impl StudioEngine {
             &code_outcome,
         );
 
-        let lut_mode_label = self.last_lut_generation.take().map(|lg| {
-            let first_mech = lg
-                .steps
-                .first()
-                .map(|s| s.source_mechanism)
-                .unwrap_or("whole_table_nearest");
-            format!(
-                "uor-r4.lut-stack/8 ({first_mech} -> turn_memory_reply, {} BPE tokens)",
-                lg.generated_tokens.len()
-            )
-        });
+        let lut_gen_for_trace = match self.last_lut_generation.take() {
+            Some(lg) => lg,
+            None => self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &assistant_reply,
+                48,
+            ),
+        };
+        let first_mech = lut_gen_for_trace
+            .steps
+            .first()
+            .map(|s| s.source_mechanism)
+            .unwrap_or("whole_table_nearest");
+        let lut_mode_label = Some(format!(
+            "uor-r4.lut-stack/8 ({first_mech} -> turn_memory_reply, {} BPE tokens)",
+            lut_gen_for_trace.generated_tokens.len()
+        ));
         let is_agentic = trimmed.contains("[agent_mode]")
             || trimmed.contains("<tool_response>")
             || trimmed.contains("<observation>")
@@ -3837,6 +3846,48 @@ impl StudioEngine {
         if self.rolling_context.turn_index == start_turn_index {
             self.rolling_context.turn_index = self.rolling_context.turn_index.saturating_add(1);
         }
+
+        let otel_trace = otel::build_inference_trace(
+            self.rolling_context.turn_index,
+            trimmed,
+            &ctx_before,
+            &self.rolling_context.q12_latent,
+            &lut_gen_for_trace,
+            &self.lut_stack,
+        );
+        let otel_trace_id = otel_trace.trace_id.clone();
+        let otel_savings_pct = otel_trace.metrics.savings_percentage;
+        let otel_span_count = otel_trace.spans.len();
+        let otel_interned_hashes = otel_trace.metrics.interned_hash_count;
+        let otel_dedup_hits = otel_trace.metrics.deduped_span_hits;
+        let otel_winning_row = lut_gen_for_trace.primary_turn_idx;
+        let ctx_digest_before = otel_trace.context_digest_before.clone();
+        let ctx_digest_after = otel_trace.context_digest_after.clone();
+        otel::record_trace(otel_trace);
+
+        let geometric_thinking = format!(
+            "[1] Rolling 256D Q12 Latent Context (Turn #{}): digest {} -> {} | summary=\"{}\"\n\
+             [2] 6-Layer SpiralCore/FBS & 8-Head Flock: Cl({}) consensus (resonance={}), 17-root Icosian Z[phi] root #{}, active gates={}/40\n\
+             [3] /8 PointKey & /7 Reply Routing: winning_row=#{}, matched_stems={}, mechanism={}, stepped={} BPE tokens\n\
+             [4] OTel uor.gllm.trace/1 Audit: trace_id={} | {} spans | {} u16 interned hashes ({} dedup hits, {:.1}% compression)",
+            self.rolling_context.turn_index,
+            &ctx_digest_before[..8.min(ctx_digest_before.len())],
+            &ctx_digest_after[..8.min(ctx_digest_after.len())],
+            self.rolling_context.context_summary,
+            consensus_action,
+            flock_resonance,
+            icosian_root,
+            active_gates,
+            otel_winning_row,
+            lut_gen_for_trace.matched_stem_count,
+            first_mech,
+            lut_gen_for_trace.generated_tokens.len(),
+            &otel_trace_id[..16.min(otel_trace_id.len())],
+            otel_span_count,
+            otel_interned_hashes,
+            otel_dedup_hits,
+            otel_savings_pct
+        );
 
         self.chat_history
             .push((trimmed.to_string(), clean_reply.clone()));
@@ -3954,6 +4005,13 @@ impl StudioEngine {
                 "\"prompt\":\"{}\",",
                 "\"assistant_reply\":\"{}\",",
                 "\"thinking\":{},",
+                "\"geometric_thinking\":\"{}\",",
+                "\"otel_trace_id\":\"{}\",",
+                "\"otel_savings_pct\":{:.1},",
+                "\"otel_span_count\":{},",
+                "\"otel_interned_hashes\":{},",
+                "\"otel_dedup_hits\":{},",
+                "\"otel_winning_row\":{},",
                 "\"context\":{},",
                 "\"is_coding_turn\":{},",
                 "\"conversation_turn_count\":{},",
@@ -3975,6 +4033,13 @@ impl StudioEngine {
             escape_json(trimmed),
             escape_json(&clean_reply),
             thinking_json,
+            escape_json(&geometric_thinking),
+            escape_json(&otel_trace_id),
+            otel_savings_pct,
+            otel_span_count,
+            otel_interned_hashes,
+            otel_dedup_hits,
+            otel_winning_row,
             context_json,
             is_coding,
             self.chat_history.len(),
