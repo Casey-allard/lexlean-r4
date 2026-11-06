@@ -939,13 +939,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-06T04:47:18Z"
 
-[[tick]]
-id = "2026-11-06T00:51:15Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F90"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:code-synthesis:interest-work:r4132:k=8"
+strategy = "bvgk-writer-refinement"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-06T04:56:12Z"
 
 [[tick]]
 id = "2026-11-06T00:58:37Z"
@@ -1041,4 +1041,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F101"]
+minted = 16
+
+[[tick]]
+id = "2026-11-06T04:56:12Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F102"]
 minted = 16

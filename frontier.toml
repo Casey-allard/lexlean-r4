@@ -1580,7 +1580,7 @@ target_reply = "Causal four gram continuation preserves reasoning over ions and 
 
 [[claim]]
 id = "R4-F102"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -1588,6 +1588,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:interest-work:r4132:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f102_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems interest and work at row_idx=4132 (anchor_id=0x800001f1)."
 prompt = "How does Q12 writer refinement encode interest and work at row_idx=4132?"
 target_reply = "At row_idx=4132 with anchor_id=0x800001f1, Q12 writer refinement aligns the 256D L1 PointKey prototype for interest and work with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -1650,3 +1651,17 @@ kappa = "r4:v1:literature:2206.10708:H-LIT-2206.10708-01:k=14"
 statement = "Verify that reversible cellular automata preserve computational entropy and microscopic state information via bijective block permutation mappings."
 prompt = "How do reversible cellular automata preserve microscopic information across infinite grid configurations?"
 target_reply = "Reversible cellular automata preserve microscopic information by restricting local transition rules to bijective block permutations where every forward trajectory has a unique backward trajectory, guaranteeing that computational entropy remains strictly constant without any state collapse or thermodynamic heat dissipation over time."
+
+[[claim]]
+id = "R4-F107"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2310.06825:H-LIT-2310.06825-01:k=8"
+statement = "Verify that polynomial quotient identities in succinct non-interactive proofs enforce knowledge soundness against forged evaluations over large finite fields."
+prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
+target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
