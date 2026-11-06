@@ -2789,7 +2789,7 @@ target_reply = "At row_idx=1071 with anchor_id=0x80000126, Q12 writer refinement
 
 [[claim]]
 id = "R4-F179"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -2800,6 +2800,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:uper-ment:r2447:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f179_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging uper and ment across PointKey row 2447 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect uper and ment across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects uper and ment by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -2862,3 +2863,17 @@ kappa = "r4:v1:manifold:open-basin:atch-ation:r1600:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging atch and ation across PointKey row 1600 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect atch and ation across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects atch and ation by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F184"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:ions-ation:r1735:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems ions and ation at manifold row 1735."
+prompt = "How does PointKey routing resolve conversational prompts about ions and ation?"
+target_reply = "PointKey routing matches conversational stems ions and ation directly to their canonical reply anchor without token loops."
