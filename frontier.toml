@@ -2474,7 +2474,7 @@ target_reply = "At row_idx=10108 with anchor_id=0x80000dfb, Q12 writer refinemen
 
 [[claim]]
 id = "R4-F159"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -2485,6 +2485,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:prep-ence:r10244:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f159_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging prep and ence across PointKey row 10244 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect prep and ence across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects prep and ence by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -2547,3 +2548,17 @@ kappa = "r4:v1:manifold:open-basin:order-create:r10563:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging order and create across PointKey row 10563 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect order and create across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects order and create by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F164"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:gener-pping:r10699:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems gener and pping at manifold row 10699."
+prompt = "How does PointKey routing resolve conversational prompts about gener and pping?"
+target_reply = "PointKey routing matches conversational stems gener and pping directly to their canonical reply anchor without token loops."
