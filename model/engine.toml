@@ -891,13 +891,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-06T01:33:20Z"
 
-[[tick]]
-id = "2026-11-06T00:09:49Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F85"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:stem-reasoning:cing-ions:r3744:k=8"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-06T01:41:05Z"
 
 [[tick]]
 id = "2026-11-06T00:18:59Z"
@@ -985,4 +985,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F96"]
+minted = 16
+
+[[tick]]
+id = "2026-11-06T01:41:05Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F97"]
 minted = 16
