@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261106coworkv2">
+  <link rel="stylesheet" href="app.css?v=20261106coworkv3">
 </head>
 <body>
   <main>
@@ -17,40 +17,11 @@
           <div class="brand-badge">R4</div>
           <div class="brand-text">
             <strong>UOR-R4 GLLM</strong>
-            <span>Claude Cowork Agentic Harness</span>
+            <span>Claude Cowork Harness</span>
           </div>
+          <button id="close-sidebar-btn" type="button" class="sidebar-action-icon-btn" title="Hide sidebar" aria-label="Hide sidebar">&times;</button>
         </div>
         <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
-      </div>
-
-      <div class="sidebar-section" aria-label="Cowork Agentic Surfaces">
-        <span class="sidebar-heading">Cowork Agentic Surfaces</span>
-        <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
-          <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
-            <span>Workspace &amp; Code IDE</span>
-            <span id="workspace-pinned-badge" class="sidebar-pill">2 pinned</span>
-          </button>
-          <button id="sidebar-diff-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diff">
-            <span>Unified Diff &amp; Patch Stage</span>
-            <span id="sidebar-diff-badge" class="sidebar-pill">Ready</span>
-          </button>
-          <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
-            <span>Autonomous Engine &amp; ArXiv</span>
-            <span id="sidebar-feed-badge" class="sidebar-pill">R4-F103 &middot; 10</span>
-          </button>
-          <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
-            <span>Web Worker Consolidation</span>
-            <span id="sidebar-consolidation-badge" class="sidebar-pill">Q12 Sweep</span>
-          </button>
-          <button id="sidebar-traces-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="traces">
-            <span>OTel GLLM Trace Waterfall</span>
-            <span id="sidebar-traces-badge" class="sidebar-pill">u16 Dedup</span>
-          </button>
-          <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
-            <span>API (/v1/messages) &amp; Suites</span>
-            <span class="sidebar-pill">27/27</span>
-          </button>
-        </div>
       </div>
 
       <div class="sidebar-section">
@@ -61,8 +32,38 @@
         <ul id="chat-thread-list" class="thread-list" aria-label="Chat Threads"></ul>
       </div>
 
-      <div class="sidebar-Section-Prompts">
-        <span class="sidebar-heading">Agentic Cowork Missions</span>
+      <details class="sidebar-collapsible" open>
+        <summary class="sidebar-heading sidebar-summary">Cowork Canvas Drawers</summary>
+        <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
+          <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
+            <span>Engine &amp; ArXiv</span>
+            <span id="sidebar-feed-badge" class="sidebar-pill">R4-F103</span>
+          </button>
+          <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
+            <span>Consolidate</span>
+            <span id="sidebar-consolidation-badge" class="sidebar-pill">Worker</span>
+          </button>
+          <button id="sidebar-traces-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="traces">
+            <span>OTel Traces</span>
+            <span id="sidebar-traces-badge" class="sidebar-pill">u16</span>
+          </button>
+          <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
+            <span>Code Editor</span>
+            <span id="workspace-pinned-badge" class="sidebar-pill">2 files</span>
+          </button>
+          <button id="sidebar-diff-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diff">
+            <span>Diff Stage</span>
+            <span id="sidebar-diff-badge" class="sidebar-pill">Patch</span>
+          </button>
+          <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
+            <span>API &amp; 27/27</span>
+            <span class="sidebar-pill">/v1</span>
+          </button>
+        </div>
+      </details>
+
+      <details class="sidebar-collapsible">
+        <summary class="sidebar-heading sidebar-summary">Starter Missions (7)</summary>
         <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
           <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
             Agentic Patch: src/attention.rs
@@ -86,12 +87,12 @@
             Audit Workspace Architecture
           </button>
         </div>
-      </div>
+      </details>
 
       <div class="sidebar-footer">
         <div class="sidebar-model-status">
           <span class="status-dot"></span>
-          <span>GPU Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
+          <span>Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
         </div>
       </div>
     </aside>
@@ -100,58 +101,46 @@
     <section class="gpt-main-pane cowork-chat-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
       <header class="gpt-topbar">
         <div class="model-selector">
-          <h1 id="heading-claude-desktop">UOR-R4 Geometric Language Model &middot; Claude Cowork Harness</h1>
-          <span id="topbar-model-tag" class="model-tag">UORLUT01 (uor-r4.lut-stack/8) &middot; 4,096 BPE &middot; 6-Layer SpiralCore/FBS &middot; 1,843,998 /7 Reply Rows &middot; 16,770 /8 Point Rows</span>
+          <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Left Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
+          <h1 id="heading-claude-desktop">UOR-R4 GLLM</h1>
+          <span id="topbar-model-tag" class="model-tag">UORLUT01/8 &middot; 6-Layer SpiralCore</span>
+          <span id="weight-cache-badge" class="topbar-context-pill">64.7 MB Cached</span>
+          <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
         </div>
         <div class="topbar-actions">
-          <span id="weight-cache-badge" class="topbar-context-pill">Weights: UORLUT01/8 (64.7 MB) &middot; CacheStorage + IndexedDB</span>
-          <span id="chat-target-badge" class="topbar-context-pill">Context: src/attention.rs</span>
-          <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
-          <button id="sync-weights-btn" type="button" class="topbar-btn">Sync Weights</button>
-          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace">Workspace IDE</button>
-          <button id="topbar-feed-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="feed">ArXiv &amp; Frontier</button>
+          <button id="topbar-feed-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="feed">Engine &amp; ArXiv (10)</button>
           <button id="topbar-consolidation-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="consolidation">Consolidate Weights</button>
           <button id="topbar-traces-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="traces">OTel Traces</button>
+          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace">Workspace IDE</button>
           <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics">API &amp; 27/27</button>
+          <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
+          <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
         </div>
       </header>
 
-      <!-- Live Rolling 256D Q12 Context & Agentic Harness Status Bar -->
+      <!-- Slim Single-Line Rolling 256D Q12 Context & Agentic Status Strip (Dismissible) -->
       <div id="cowork-agent-status-bar" class="cowork-agent-status-bar" role="region" aria-label="Live Agentic Harness Status">
-        <div class="agent-status-card">
-          <div class="agent-status-top">
-            <span class="agent-status-label">Rolling 256D Q12 Context State</span>
-            <code id="live-context-turn-digest" class="agent-status-code">Turn #1 &middot; Q12 Active</code>
-          </div>
-          <div id="live-context-summary" class="agent-status-sub">Carry-forward latent summary across multi-turn reasoning</div>
-        </div>
-
-        <div class="agent-status-card">
-          <div class="agent-status-top">
-            <span class="agent-status-label">Agentic Tool Belt &amp; Reasoning</span>
+        <div class="status-strip-items">
+          <span class="status-strip-item">
+            <strong>256D Q12 Context:</strong>
+            <code id="live-context-turn-digest" class="agent-status-code">Turn #1</code>
+            <span id="live-context-summary" class="status-strip-summary">Carry-forward latent summary active</span>
+          </span>
+          <span class="status-strip-item">
             <button id="agent-mode-toggle-btn" type="button" class="agent-mini-btn agent-mini-btn-active">Agentic Loop: ON</button>
-          </div>
-          <div id="live-agent-tools-badge" class="agent-status-sub">Tools: <code>workspace_read</code> &middot; <code>patch_file</code> &middot; <code>arxiv_mine</code> &middot; <code>consolidate_lut</code> &middot; <code>m6_math</code></div>
+            <span id="live-agent-tools-badge" class="sr-only">Tools active</span>
+          </span>
+          <span class="status-strip-item">
+            <span id="live-engine-frontier-badge">Tick #94 &middot; <code>R4-F103</code></span>
+            <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">ArXiv Feed</button>
+          </span>
+          <span class="status-strip-item">
+            <span id="live-otel-trace-badge"><code>uor.gllm.trace/1</code></span>
+            <button id="quick-consolidate-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Consolidate</button>
+            <button id="quick-open-traces-btn" type="button" class="agent-mini-btn" data-canvas-tab="traces">Waterfall</button>
+          </span>
         </div>
-
-        <div class="agent-status-card">
-          <div class="agent-status-top">
-            <span class="agent-status-label">Autonomous Engine &amp; ArXiv Sync</span>
-            <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">Open Feed</button>
-          </div>
-          <div id="live-engine-frontier-badge" class="agent-status-sub">Tick #94 &middot; 103 Claims (<code>R4-F103</code>) &middot; 10 ArXiv Papers</div>
-        </div>
-
-        <div class="agent-status-card">
-          <div class="agent-status-top">
-            <span class="agent-status-label">OTel GLLM Audit &amp; Weight Optimizer</span>
-            <div class="agent-mini-btn-group">
-              <button id="quick-consolidate-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Consolidate</button>
-              <button id="quick-open-traces-btn" type="button" class="agent-mini-btn" data-canvas-tab="traces">OTel Waterfall</button>
-            </div>
-          </div>
-          <div id="live-otel-trace-badge" class="agent-status-sub"><code>uor.gllm.trace/1</code> &middot; W3C Trace + u16 Hash Dedup</div>
-        </div>
+        <button id="close-status-bar-btn" type="button" class="status-strip-close-btn" title="Dismiss status bar" aria-label="Dismiss status bar">&times;</button>
       </div>
 
       <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History"></div>
@@ -188,8 +177,8 @@
       </div>
     </section>
 
-    <!-- Column 3: Dockable Canvas Pane -->
-    <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas">
+    <!-- Column 3: Dockable Canvas Pane (Collapsible Drawer) -->
+    <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas" hidden>
       <div class="canvas-header">
         <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
           <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
@@ -215,6 +204,7 @@
             <span class="canvas-tab-pill">27/27</span>
           </button>
         </nav>
+        <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Close Canvas Drawer (Esc)" aria-label="Close Canvas Drawer">&times; Close</button>
       </div>
 
       <div class="canvas-body">
@@ -662,6 +652,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261106coworkv2"></script>
+  <script type="module" src="app.js?v=20261106coworkv3"></script>
 </body>
 </html>

@@ -639,12 +639,12 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
     if (effectiveThinking) {
       const details = document.createElement('details');
       details.className = 'chat-thinking-accordion';
-      details.open = Boolean(tagThinking || streamTokens);
+      details.open = false;
       const summary = document.createElement('summary');
       summary.className = 'chat-thinking-summary';
       summary.textContent = tagThinking
-        ? 'Explicit <thinking> Trace (Rolling 256D Q12 Readback)'
-        : 'Geometric <thinking> & 5-Tier Routing Trace (256D Q12 -> E8 -> PointKey)';
+        ? 'Thinking Trace (Rolling 256D Q12 Readback)'
+        : 'Geometric Thinking & 5-Tier Routing Trace (256D Q12 -> E8 -> PointKey)';
       const content = document.createElement('div');
       content.className = 'chat-thinking-content';
       content.textContent = effectiveThinking;
@@ -654,6 +654,14 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
     }
 
     if (allTools.length > 0) {
+      const toolsDetails = document.createElement('details');
+      toolsDetails.className = 'chat-thinking-accordion';
+      toolsDetails.open = false;
+      const toolsSummary = document.createElement('summary');
+      toolsSummary.className = 'chat-thinking-summary';
+      toolsSummary.textContent = `Agent Tools Executed (${allTools.map((t) => t.name || 'dispatch').join(', ')})`;
+      const toolsContent = document.createElement('div');
+      toolsContent.className = 'chat-thinking-content';
       for (const tc of allTools) {
         const toolCard = document.createElement('div');
         toolCard.className = 'chat-tool-card';
@@ -672,8 +680,11 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
         argsPre.textContent = typeof tc.arguments === 'object' ? JSON.stringify(tc.arguments, null, 2) : String(tc.arguments || '');
         toolCard.appendChild(header);
         toolCard.appendChild(argsPre);
-        body.appendChild(toolCard);
+        toolsContent.appendChild(toolCard);
       }
+      toolsDetails.appendChild(toolsSummary);
+      toolsDetails.appendChild(toolsContent);
+      body.appendChild(toolsDetails);
     }
 
     const proseContainer = document.createElement('div');
@@ -1419,8 +1430,30 @@ for (const btn of document.querySelectorAll('.chat-preset-btn')) {
 // Canvas Dockable Tabs Navigation
 const canvasTabButtons = document.querySelectorAll('.canvas-tab-btn');
 const canvasPanels = document.querySelectorAll('.canvas-panel');
+const dockableCanvasPane = document.getElementById('dockable-canvas-pane');
+const mainLayoutEl = document.querySelector('main');
+let activeCanvasTabId = 'feed';
+if (mainLayoutEl && dockableCanvasPane && dockableCanvasPane.hasAttribute('hidden')) {
+  mainLayoutEl.classList.add('canvas-drawer-closed');
+}
+
+function closeCanvasDrawer() {
+  if (dockableCanvasPane) {
+    dockableCanvasPane.setAttribute('hidden', '');
+  }
+  if (mainLayoutEl) {
+    mainLayoutEl.classList.add('canvas-drawer-closed');
+  }
+}
 
 function activateCanvasTab(tabId) {
+  activeCanvasTabId = tabId;
+  if (dockableCanvasPane) {
+    dockableCanvasPane.removeAttribute('hidden');
+  }
+  if (mainLayoutEl) {
+    mainLayoutEl.classList.remove('canvas-drawer-closed');
+  }
   for (const btn of canvasTabButtons) {
     const isActive = btn.getAttribute('data-tab-id') === tabId;
     btn.classList.toggle('active', isActive);
@@ -1439,6 +1472,34 @@ function activateCanvasTab(tabId) {
       panel.setAttribute('hidden', '');
     }
   }
+}
+
+const closeCanvasPaneBtn = document.getElementById('close-canvas-pane-btn');
+if (closeCanvasPaneBtn) {
+  closeCanvasPaneBtn.addEventListener('click', () => {
+    closeCanvasDrawer();
+  });
+}
+
+const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+if (toggleSidebarBtn && mainLayoutEl) {
+  toggleSidebarBtn.addEventListener('click', () => {
+    mainLayoutEl.classList.toggle('sidebar-collapsed');
+  });
+}
+if (closeSidebarBtn && mainLayoutEl) {
+  closeSidebarBtn.addEventListener('click', () => {
+    mainLayoutEl.classList.add('sidebar-collapsed');
+  });
+}
+
+const closeStatusBarBtn = document.getElementById('close-status-bar-btn');
+const coworkStatusBar = document.getElementById('cowork-agent-status-bar');
+if (closeStatusBarBtn && coworkStatusBar) {
+  closeStatusBarBtn.addEventListener('click', () => {
+    coworkStatusBar.setAttribute('hidden', '');
+  });
 }
 
 for (const btn of canvasTabButtons) {
@@ -1475,7 +1536,13 @@ if (tabsNav) {
 for (const el of document.querySelectorAll('[data-canvas-tab]')) {
   el.addEventListener('click', () => {
     const tabId = el.getAttribute('data-canvas-tab');
-    if (tabId) activateCanvasTab(tabId);
+    if (!tabId) return;
+    const isDrawerOpen = dockableCanvasPane && !dockableCanvasPane.hasAttribute('hidden');
+    if (isDrawerOpen && activeCanvasTabId === tabId) {
+      closeCanvasDrawer();
+    } else {
+      activateCanvasTab(tabId);
+    }
   });
 }
 
@@ -2670,6 +2737,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     setModalOpen(workspaceModal, false);
     setModalOpen(diagnosticsModal, false);
+    closeCanvasDrawer();
   }
 });
 
@@ -2796,7 +2864,8 @@ function updateWeightCacheBadge() {
         const paramStr = totalParams >= 1000000000
           ? `${(totalParams / 1000000000).toFixed(2)}B Params`
           : `${(totalParams / 1000000).toFixed(1)}M Params`;
-        topbarModelTag.textContent = `UORLUT01 (uor-r4.lut-stack/8 · ${paramStr}) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
+        topbarModelTag.textContent = `UORLUT01/8 · ${paramStr} · ${mb} MB`;
+        topbarModelTag.title = `UORLUT01 (uor-r4.lut-stack/8 · ${paramStr}) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
       }
     } catch {
       // Ignore parse error during early boot
