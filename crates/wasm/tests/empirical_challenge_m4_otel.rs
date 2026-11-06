@@ -1,3 +1,11 @@
+#![allow(
+    clippy::needless_range_loop,
+    clippy::field_reassign_with_default,
+    clippy::doc_lazy_continuation,
+    clippy::identity_op,
+    clippy::manual_range_contains,
+    clippy::useless_vec
+)]
 //! Empirical Challenge Test Suite for Milestone 4:
 //! OpenTelemetry (OTel) for Geometric Language Models (GLLMs).
 //!

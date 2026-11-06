@@ -4163,7 +4163,14 @@ impl api::InferenceBackend for StudioEngine {
         otel::record_trace(trace.clone());
         let otel_trace = Some(trace.to_combined_value());
 
-        let raw_output = if gen.reply_text.trim().is_empty() {
+        let raw_output = if let Some(ref th) = gen.thinking_text {
+            let base_reply = if gen.reply_text.trim().is_empty() {
+                "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?"
+            } else {
+                gen.reply_text.as_str()
+            };
+            format!("<thinking>\n{}\n</thinking>\n\n{}", th.trim(), base_reply)
+        } else if gen.reply_text.trim().is_empty() {
             "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?".to_string()
         } else {
             gen.reply_text
@@ -6074,5 +6081,35 @@ mod tests {
             err.contains("invalid clamp bounds") && err.contains("clamp_min=1000"),
             "error must explain clamp violation: {err}"
         );
+    }
+
+    #[test]
+    fn test_glm_concept_node_score_penalty() {
+        use crate::glm_weights::{score_concept_node, GLM_CONCEPT_MANIFOLD};
+        let node = &GLM_CONCEPT_MANIFOLD[0];
+        let words = vec!["paris".to_string(), "france".to_string()];
+        let stems = vec!["pari".to_string(), "franc".to_string()];
+        let q12 = [0i16; 8];
+
+        let s0 = score_concept_node(node, "paris france", &words, &stems, &q12, 0, &[]);
+        assert!(s0 >= 10, "unpenalized score must exceed threshold");
+
+        // Penalize with node.id at recency index 0: penalty is 20
+        let s1 = score_concept_node(
+            node,
+            "paris france",
+            &words,
+            &stems,
+            &q12,
+            0,
+            &[node.id as usize],
+        );
+        assert_eq!(s1, s0.saturating_sub(20));
+
+        // Penalize with node.id at recency index 7 (most recent): penalty is 160
+        let mut recent_8 = vec![999usize; 7];
+        recent_8.push(node.id as usize);
+        let s7 = score_concept_node(node, "paris france", &words, &stems, &q12, 0, &recent_8);
+        assert_eq!(s7, s0.saturating_sub(160));
     }
 }

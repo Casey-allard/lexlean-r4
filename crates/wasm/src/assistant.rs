@@ -2927,65 +2927,7 @@ fn compose_open_domain_reasoning(
     )
 }
 
-/// Parse structured `<thinking>...</thinking>` (or `<thought>...</thought>`) blocks from assistant output.
-/// Iteratively strips all thinking blocks (including multiple or mixed tags and unclosed tags).
-/// Returns `(Some(thinking_trace), clean_reply)` if present, or `(None, raw_text)` if absent.
-pub fn parse_thinking_block(raw_text: &str) -> (Option<String>, String) {
-    let mut traces: Vec<String> = Vec::new();
-    let mut current = raw_text.to_string();
-
-    loop {
-        let thinking_pos = current
-            .find("<thinking>")
-            .map(|idx| (idx, 10usize, "</thinking>", 11usize));
-        let thought_pos = current
-            .find("<thought>")
-            .map(|idx| (idx, 9usize, "</thought>", 10usize));
-
-        let candidate = match (thinking_pos, thought_pos) {
-            (Some(a), Some(b)) => {
-                if a.0 <= b.0 {
-                    Some(a)
-                } else {
-                    Some(b)
-                }
-            }
-            (Some(a), None) => Some(a),
-            (None, Some(b)) => Some(b),
-            (None, None) => None,
-        };
-
-        if let Some((start, open_len, close_tag, close_len)) = candidate {
-            if let Some(rel_end) = current[start + open_len..].find(close_tag) {
-                let trace = current[start + open_len..start + open_len + rel_end]
-                    .trim()
-                    .to_string();
-                if !trace.is_empty() {
-                    traces.push(trace);
-                }
-                let mut clean = String::with_capacity(current.len());
-                clean.push_str(&current[..start]);
-                clean.push_str(&current[start + open_len + rel_end + close_len..]);
-                current = clean;
-            } else {
-                let trace = current[start + open_len..].trim().to_string();
-                if !trace.is_empty() {
-                    traces.push(trace);
-                }
-                current.truncate(start);
-                break;
-            }
-        } else {
-            break;
-        }
-    }
-    let combined_trace = if traces.is_empty() {
-        None
-    } else {
-        Some(traces.join("\n\n"))
-    };
-    (combined_trace, current.trim().to_string())
-}
+pub use crate::lut_stack_exec::parse_thinking_block;
 
 /// Extract and update a concise, high-signal contextual summary across multi-turn interactions.
 pub fn update_context_summary(

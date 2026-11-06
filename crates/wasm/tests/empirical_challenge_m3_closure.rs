@@ -1,3 +1,11 @@
+#![allow(
+    clippy::needless_range_loop,
+    clippy::field_reassign_with_default,
+    clippy::doc_lazy_continuation,
+    clippy::identity_op,
+    clippy::manual_range_contains,
+    clippy::useless_vec
+)]
 //! Empirical Challenge Suite for Milestone 3:
 //! 1. File set closure invariant (strictly 6 files, NO worker.js on disk).
 //! 2. CSP compliance (worker-src 'self' blob:, child-src 'self' blob:, zero unsafe-inline).

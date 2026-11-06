@@ -1025,7 +1025,14 @@ pub fn execute_agentic_turn(
     }
 
     // 3. No tool required: return model generation directly
-    let raw_output = if gen.reply_text.trim().is_empty() {
+    let raw_output = if let Some(ref th) = gen.thinking_text {
+        let base_reply = if gen.reply_text.trim().is_empty() {
+            "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?"
+        } else {
+            gen.reply_text.as_str()
+        };
+        format!("<thinking>\n{}\n</thinking>\n\n{}", th.trim(), base_reply)
+    } else if gen.reply_text.trim().is_empty() {
         "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?".to_string()
     } else {
         gen.reply_text
@@ -1082,7 +1089,14 @@ impl InferenceBackend for Arc<crate::lut_stack_exec::LutStackModel> {
         crate::otel::record_trace(trace.clone());
         let otel_trace = Some(trace.to_combined_value());
 
-        let raw_output = if gen.reply_text.trim().is_empty() {
+        let raw_output = if let Some(ref th) = gen.thinking_text {
+            let base_reply = if gen.reply_text.trim().is_empty() {
+                "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?"
+            } else {
+                gen.reply_text.as_str()
+            };
+            format!("<thinking>\n{}\n</thinking>\n\n{}", th.trim(), base_reply)
+        } else if gen.reply_text.trim().is_empty() {
             "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?".to_string()
         } else {
             gen.reply_text
@@ -1172,6 +1186,19 @@ pub fn synthesize_turn_output(
                     .filter_map(|x| x.as_str().map(String::from))
                     .collect();
             }
+            if let Some(rtr) = v.get("recent_turn_rows").and_then(|r| r.as_array()) {
+                s.recent_turn_rows = rtr
+                    .iter()
+                    .filter_map(|x| x.as_u64().map(|n| n as usize))
+                    .collect();
+                if s.recent_turn_rows.len() > 8 {
+                    let start = s.recent_turn_rows.len() - 8;
+                    s.recent_turn_rows = s.recent_turn_rows[start..].to_vec();
+                }
+            }
+            if let Some(e4) = v.get("emitted_4grams").and_then(|e| e.as_array()) {
+                s.emitted_4grams = e4.iter().filter_map(|x| x.as_u64()).collect();
+            }
             s
         }
         None => crate::lut_stack_exec::RollingContextState::default(),
@@ -1202,6 +1229,8 @@ pub fn synthesize_turn_output(
         "q12_latent": context.q12_latent.to_vec(),
         "context_summary": context.context_summary,
         "thinking_trace": context.thinking_trace,
+        "recent_turn_rows": context.recent_turn_rows,
+        "emitted_4grams": context.emitted_4grams,
     });
     (parsed, ctx_val)
 }
@@ -1281,6 +1310,19 @@ pub fn handle_v1_messages_payload_with_backend<B: InferenceBackend + ?Sized>(
                     .iter()
                     .filter_map(|x| x.as_str().map(String::from))
                     .collect();
+            }
+            if let Some(rtr) = v.get("recent_turn_rows").and_then(|r| r.as_array()) {
+                s.recent_turn_rows = rtr
+                    .iter()
+                    .filter_map(|x| x.as_u64().map(|n| n as usize))
+                    .collect();
+                if s.recent_turn_rows.len() > 8 {
+                    let start = s.recent_turn_rows.len() - 8;
+                    s.recent_turn_rows = s.recent_turn_rows[start..].to_vec();
+                }
+            }
+            if let Some(e4) = v.get("emitted_4grams").and_then(|e| e.as_array()) {
+                s.emitted_4grams = e4.iter().filter_map(|x| x.as_u64()).collect();
             }
             s
         }
@@ -1367,6 +1409,8 @@ pub fn handle_v1_messages_payload_with_backend<B: InferenceBackend + ?Sized>(
         "q12_latent": context.q12_latent.to_vec(),
         "context_summary": context.context_summary,
         "thinking_trace": context.thinking_trace,
+        "recent_turn_rows": context.recent_turn_rows,
+        "emitted_4grams": context.emitted_4grams,
     });
 
     let response = AnthropicMessagesResponse {
@@ -1466,6 +1510,19 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
                     .filter_map(|x| x.as_str().map(String::from))
                     .collect();
             }
+            if let Some(rtr) = v.get("recent_turn_rows").and_then(|r| r.as_array()) {
+                s.recent_turn_rows = rtr
+                    .iter()
+                    .filter_map(|x| x.as_u64().map(|n| n as usize))
+                    .collect();
+                if s.recent_turn_rows.len() > 8 {
+                    let start = s.recent_turn_rows.len() - 8;
+                    s.recent_turn_rows = s.recent_turn_rows[start..].to_vec();
+                }
+            }
+            if let Some(e4) = v.get("emitted_4grams").and_then(|e| e.as_array()) {
+                s.emitted_4grams = e4.iter().filter_map(|x| x.as_u64()).collect();
+            }
             s
         }
         None => crate::lut_stack_exec::RollingContextState::default(),
@@ -1553,6 +1610,8 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
         "q12_latent": context.q12_latent.to_vec(),
         "context_summary": context.context_summary,
         "thinking_trace": context.thinking_trace,
+        "recent_turn_rows": context.recent_turn_rows,
+        "emitted_4grams": context.emitted_4grams,
     });
 
     let created = std::time::SystemTime::now()

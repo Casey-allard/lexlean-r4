@@ -109,6 +109,7 @@ jobs:
   deploy:
     name: deploy to GitHub Pages
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     needs: build
     if: github.ref == 'refs/heads/main'
     permissions:
@@ -122,3 +123,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+        with:
+          timeout: 1800000
+          error_count: 25

@@ -744,6 +744,9 @@ jobs:
                 exit 1
               fi
               git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin --delete "$tick_branch" || true
+              sleep 3
+              GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
+                | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/{}" || true
             fi
           fi
 
@@ -786,7 +789,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gh workflow run pages.yml --ref main
+          active_pages=$(gh run list --workflow=pages.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length' 2>/dev/null || echo 0)
+          if [ "${active_pages:-0}" = "0" ]; then
+            gh workflow run pages.yml --ref main
+          fi
           gh workflow run engine.yml --ref main
 "#
     .to_string()

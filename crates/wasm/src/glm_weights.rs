@@ -130193,7 +130193,8 @@ pub fn predict_next_tokens_from_prompt(prompt: &str) -> Vec<NextTokenCandidate> 
         .filter(|s| s.len() >= 3)
         .collect();
 
-    let top_concepts = retrieve_top_concepts(&lower, &words, &stems, &prompt_q12, prompt_sign, 3);
+    let top_concepts =
+        retrieve_top_concepts(&lower, &words, &stems, &prompt_q12, prompt_sign, 3, &[]);
     let mut active_nodes: Vec<&GlmConceptNode> = top_concepts.iter().map(|&(n, _)| n).collect();
     if active_nodes.is_empty() {
         let geo_only = retrieve_top_concepts_geometric_only(&words, &prompt_q12, prompt_sign, 2);
@@ -131462,19 +131463,28 @@ pub fn score_concept_node(
     stems: &[String],
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
+    recent_turn_rows: &[usize],
 ) -> u32 {
     let lex = score_concept_lexical(node, lower, words, stems);
     let geo = score_concept_geometric(node, words, prompt_q12, prompt_sign);
+    let penalty: u32 = if let Some(pos) = recent_turn_rows
+        .iter()
+        .rposition(|&r| r == node.id as usize)
+    {
+        ((pos as u32) + 1) * 20
+    } else {
+        0
+    };
     if lex > 0 && lex < 15 && geo <= 5 {
         let content_words = words
             .iter()
             .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
             .count();
         if content_words >= 5 {
-            return (lex + geo).min(8);
+            return ((lex + geo).min(8)).saturating_sub(penalty);
         }
     }
-    lex + geo
+    (lex + geo).saturating_sub(penalty)
 }
 
 /// Retrieve the top-K matching `GlmConceptNode`s from the pre-trained manifold using the ungated full scorer.
@@ -131485,11 +131495,20 @@ pub fn retrieve_top_concepts(
     prompt_q12: &[i16; POINT_KEY_DIM],
     prompt_sign: u64,
     limit: usize,
+    recent_turn_rows: &[usize],
 ) -> Vec<(&'static GlmConceptNode, u32)> {
     let mut scored: Vec<(&'static GlmConceptNode, u32)> = GLM_CONCEPT_MANIFOLD
         .iter()
         .map(|node| {
-            let s = score_concept_node(node, lower, words, stems, prompt_q12, prompt_sign);
+            let s = score_concept_node(
+                node,
+                lower,
+                words,
+                stems,
+                prompt_q12,
+                prompt_sign,
+                recent_turn_rows,
+            );
             (node, s)
         })
         .filter(|&(_, s)| s >= 10)
@@ -131757,6 +131776,7 @@ fn render_comparative_synthesis(
             &left_q12,
             left_sign,
             2,
+            &[],
         );
         let mut right_hits = retrieve_top_concepts(
             &right_lower,
@@ -131765,6 +131785,7 @@ fn render_comparative_synthesis(
             &right_q12,
             right_sign,
             2,
+            &[],
         );
 
         let left_anaphoric = detect_anaphor_kind(&left_lower, &left_words).is_some()
@@ -132686,7 +132707,7 @@ fn deliberate_multi_clause_concepts(raw_prompt: &str) -> Vec<&'static GlmConcept
             .map(|w| canonical_stem(w).to_string())
             .collect();
         let (c_q12, c_sign) = pool_prompt_trained_geometry(&c_words);
-        let hits = retrieve_top_concepts(&c_lower, &c_words, &c_stems, &c_q12, c_sign, 1);
+        let hits = retrieve_top_concepts(&c_lower, &c_words, &c_stems, &c_q12, c_sign, 1, &[]);
         if let Some(&(node, score)) = hits.first() {
             let lex = score_concept_lexical(node, &c_lower, &c_words, &c_stems);
             if score >= 18 && lex >= 12 && !matched_nodes.iter().any(|n| n.id == node.id) {
@@ -132975,6 +132996,7 @@ fn extract_turn_concept(
             &past_q12,
             past_sign,
             1,
+            &[],
         );
         if let Some(&(node, score)) = hits.first() {
             if score >= 12 {
@@ -132999,7 +133021,7 @@ fn extract_turn_concept(
         .map(|w| canonical_stem(w).to_string())
         .collect();
     let (a_q12, a_sign) = pool_prompt_trained_geometry(&a_words);
-    let a_hits = retrieve_top_concepts(&a_lower, &a_words, &a_stems, &a_q12, a_sign, 1);
+    let a_hits = retrieve_top_concepts(&a_lower, &a_words, &a_stems, &a_q12, a_sign, 1, &[]);
     if let Some(&(node, score)) = a_hits.first() {
         if score >= 15 {
             return Some((node, node.q12_coords));
@@ -133506,6 +133528,7 @@ pub fn synthesize_glm_response(
                         &blended_q12,
                         (prompt_sign ^ cur_trained_sign) ^ node.sign_code,
                         3,
+                        &[],
                     );
                     let mut active_nodes: Vec<&GlmConceptNode> = vec![node];
                     for &(sec_node, sec_score) in &secondary {
@@ -133599,7 +133622,7 @@ pub fn synthesize_glm_response(
     }
 
     // 4. Retrieve Top-K Manifold Concepts (`GLM_CONCEPT_MANIFOLD`) using the ungated full scorer
-    let top_concepts = retrieve_top_concepts(lower, words, stems, prompt_q12, prompt_sign, 3);
+    let top_concepts = retrieve_top_concepts(lower, words, stems, prompt_q12, prompt_sign, 3, &[]);
 
     // 5. Check Creative & Generative Writing Intent
     let is_creative = words.iter().any(|w| {
@@ -133943,7 +133966,7 @@ pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
             .iter()
             .max_by_key(|n| {
                 (
-                    score_concept_node(n, &lower, &words, &stems, &prompt_q12, prompt_sign),
+                    score_concept_node(n, &lower, &words, &stems, &prompt_q12, prompt_sign, &[]),
                     std::cmp::Reverse(n.id),
                 )
             })

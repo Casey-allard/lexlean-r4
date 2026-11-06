@@ -133,6 +133,14 @@ pub struct RollingContextState {
     pub context_summary: String,
     /// Preserved thinking traces (<thinking> blocks) from preceding turns.
     pub thinking_trace: Vec<String>,
+    /// Recent turn basin IDs visited across recent turns (FIFO, max 8 items).
+    pub recent_turn_rows: Vec<usize>,
+    /// 64-bit FNV-1a hashes of emitted 4-gram token sequences.
+    pub emitted_4grams: Vec<u64>,
+    /// Cumulative L1 residual margin accumulated across conversation turns.
+    pub accumulated_l1_margin: u64,
+    /// Recent prediction residual margins (FIFO, max 16 items).
+    pub recent_residuals: Vec<u64>,
 }
 
 impl Default for RollingContextState {
@@ -142,6 +150,10 @@ impl Default for RollingContextState {
             turn_index: 0,
             context_summary: String::new(),
             thinking_trace: Vec::new(),
+            recent_turn_rows: Vec::new(),
+            emitted_4grams: Vec::new(),
+            accumulated_l1_margin: 0,
+            recent_residuals: Vec::new(),
         }
     }
 }
@@ -176,6 +188,30 @@ impl RollingContextState {
         }
     }
 
+    /// Record a visited turn basin row into recent memory, retaining up to the 8 most recent items (FIFO).
+    pub fn record_turn_basin(&mut self, row: usize) {
+        self.recent_turn_rows.push(row);
+        if self.recent_turn_rows.len() > 8 {
+            self.recent_turn_rows.remove(0);
+        }
+    }
+
+    /// Record an emitted 4-gram token hash to prevent duplicate n-gram emissions across turns.
+    pub fn record_emitted_4gram(&mut self, hash: u64) {
+        if !self.emitted_4grams.contains(&hash) {
+            self.emitted_4grams.push(hash);
+        }
+    }
+
+    /// Record an observed residual prediction error margin into rolling context history (FIFO, max 16).
+    pub fn record_residual_margin(&mut self, margin: u64) {
+        self.accumulated_l1_margin = self.accumulated_l1_margin.saturating_add(margin);
+        self.recent_residuals.push(margin);
+        if self.recent_residuals.len() > 16 {
+            self.recent_residuals.remove(0);
+        }
+    }
+
     /// Serialize rolling context state to JSON (zero-dependency format).
     pub fn to_json(&self) -> String {
         let mut q12_str = String::with_capacity(FBS_WIDTH * 6 + 2);
@@ -199,12 +235,43 @@ impl RollingContextState {
         }
         traces_str.push(']');
 
+        let mut rows_str = String::from("[");
+        for (i, &r) in self.recent_turn_rows.iter().enumerate() {
+            if i > 0 {
+                rows_str.push(',');
+            }
+            rows_str.push_str(&r.to_string());
+        }
+        rows_str.push(']');
+
+        let mut ngrams_str = String::from("[");
+        for (i, &h) in self.emitted_4grams.iter().enumerate() {
+            if i > 0 {
+                ngrams_str.push(',');
+            }
+            ngrams_str.push_str(&h.to_string());
+        }
+        ngrams_str.push(']');
+
+        let mut res_str = String::from("[");
+        for (i, &r) in self.recent_residuals.iter().enumerate() {
+            if i > 0 {
+                res_str.push(',');
+            }
+            res_str.push_str(&r.to_string());
+        }
+        res_str.push(']');
+
         format!(
-            "{{\"q12_latent\":{},\"turn_index\":{},\"context_summary\":\"{}\",\"thinking_trace\":{}}}",
+            "{{\"q12_latent\":{},\"turn_index\":{},\"context_summary\":\"{}\",\"thinking_trace\":{},\"recent_turn_rows\":{},\"emitted_4grams\":{},\"accumulated_l1_margin\":{},\"recent_residuals\":{}}}",
             q12_str,
             self.turn_index,
             escape_json_inline(&self.context_summary),
-            traces_str
+            traces_str,
+            rows_str,
+            ngrams_str,
+            self.accumulated_l1_margin,
+            res_str
         )
     }
 
@@ -230,6 +297,38 @@ impl RollingContextState {
                 if let Some(s) = item.as_str() {
                     state.thinking_trace.push(s.to_string());
                 }
+            }
+        }
+        if let Some(arr) = root.get("recent_turn_rows").and_then(JsonVal::as_arr) {
+            for item in arr {
+                if let Some(row) = item.as_usize() {
+                    state.recent_turn_rows.push(row);
+                }
+            }
+            if state.recent_turn_rows.len() > 8 {
+                let start = state.recent_turn_rows.len() - 8;
+                state.recent_turn_rows = state.recent_turn_rows[start..].to_vec();
+            }
+        }
+        if let Some(arr) = root.get("emitted_4grams").and_then(JsonVal::as_arr) {
+            for item in arr {
+                if let Some(hash) = item.as_u64() {
+                    state.emitted_4grams.push(hash);
+                }
+            }
+        }
+        if let Some(m) = root.get("accumulated_l1_margin").and_then(JsonVal::as_u64) {
+            state.accumulated_l1_margin = m;
+        }
+        if let Some(arr) = root.get("recent_residuals").and_then(JsonVal::as_arr) {
+            for item in arr {
+                if let Some(m) = item.as_u64() {
+                    state.recent_residuals.push(m);
+                }
+            }
+            if state.recent_residuals.len() > 16 {
+                let start = state.recent_residuals.len() - 16;
+                state.recent_residuals = state.recent_residuals[start..].to_vec();
             }
         }
         Some(state)
@@ -382,6 +481,93 @@ impl ConsolidationConfig {
     }
 }
 
+/// Compute the pure integer L1 distance between two token coordinate rows in `writer_table`.
+///
+/// Returns sum_{d=0..255} |W[predicted * 256 + d] - W[target * 256 + d]|.
+/// Returns 0 when predicted_token == target_token or if either token is out-of-vocabulary.
+/// Guaranteed zero floating-point operations (pure integer arithmetic).
+#[inline]
+pub fn compute_token_l1_margin(
+    writer_table: &[i16],
+    vocab: usize,
+    predicted_token: u32,
+    target_token: u32,
+) -> u64 {
+    if predicted_token == target_token {
+        return 0;
+    }
+    let p_idx = predicted_token as usize;
+    let t_idx = target_token as usize;
+    if p_idx >= vocab || t_idx >= vocab {
+        return 0;
+    }
+    let p_base = p_idx * FBS_WIDTH;
+    let t_base = t_idx * FBS_WIDTH;
+    if p_base + FBS_WIDTH > writer_table.len() || t_base + FBS_WIDTH > writer_table.len() {
+        return 0;
+    }
+    let mut margin = 0u64;
+    for d in 0..FBS_WIDTH {
+        let diff = (writer_table[p_base + d] as i64) - (writer_table[t_base + d] as i64);
+        margin = margin.saturating_add(diff.unsigned_abs());
+    }
+    margin
+}
+
+/// A next-token trajectory triplet (n_t, y_hat_t, y_t) captured at a clause or sentence boundary.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PointTrajectoryHit {
+    /// Step index within the generation or trace sequence (1-indexed).
+    pub step: usize,
+    /// Token that triggered the boundary condition (e.g. '.', '?', '!', '\n', or step % 16 == 0).
+    pub boundary_token: u32,
+    /// Live 256D Q12 hidden state vector n_t clamped to i16.
+    pub n_t: [i16; FBS_WIDTH],
+    /// Predicted next token y_hat_t from writer.table / top candidate.
+    pub predicted_token: u32,
+    /// Target next token y_t (ground truth or re-attended continuation basin).
+    pub target_token: u32,
+    /// Pure integer L1 margin between writer.table rows for predicted_token and target_token:
+    /// sum_{d=0..255} |W[y_hat * 256 + d] - W[y * 256 + d]|.
+    pub l1_margin: u64,
+}
+
+impl PointTrajectoryHit {
+    pub fn new(
+        step: usize,
+        boundary_token: u32,
+        n_t: [i16; FBS_WIDTH],
+        predicted_token: u32,
+        target_token: u32,
+        l1_margin: u64,
+    ) -> Self {
+        Self {
+            step,
+            boundary_token,
+            n_t,
+            predicted_token,
+            target_token,
+            l1_margin,
+        }
+    }
+
+    /// Whether this boundary event encountered a non-zero prediction error.
+    #[inline]
+    pub fn has_residual(&self) -> bool {
+        self.predicted_token != self.target_token && self.l1_margin > 0
+    }
+
+    /// Convert to a coordinate-descent consolidation sample with explicit residual margin.
+    pub fn to_consolidation_sample(&self) -> WeightConsolidationSample {
+        WeightConsolidationSample::from_point_with_residual(
+            self.target_token,
+            self.predicted_token,
+            self.n_t,
+            self.l1_margin,
+        )
+    }
+}
+
 /// A single latent trajectory observation before token `target_token`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LatentTrajectoryPoint {
@@ -389,6 +575,10 @@ pub struct LatentTrajectoryPoint {
     pub target_token: u32,
     /// 256D Q12 latent vector preceding the token.
     pub latent: [i16; FBS_WIDTH],
+    /// Predicted next token y_hat_t from model readout (if evaluated).
+    pub predicted_token: Option<u32>,
+    /// Integer L1 residual margin between predicted and target token columns (if evaluated).
+    pub residual_margin: Option<u64>,
 }
 
 impl LatentTrajectoryPoint {
@@ -396,6 +586,22 @@ impl LatentTrajectoryPoint {
         Self {
             target_token,
             latent,
+            predicted_token: None,
+            residual_margin: None,
+        }
+    }
+
+    pub fn with_residual(
+        target_token: u32,
+        predicted_token: u32,
+        latent: [i16; FBS_WIDTH],
+        residual_margin: u64,
+    ) -> Self {
+        Self {
+            target_token,
+            latent,
+            predicted_token: Some(predicted_token),
+            residual_margin: Some(residual_margin),
         }
     }
 }
@@ -417,6 +623,20 @@ pub enum WeightConsolidationSample {
 impl WeightConsolidationSample {
     pub fn from_point(target_token: u32, latent: [i16; FBS_WIDTH]) -> Self {
         Self::TrajectoryPoint(Box::new(LatentTrajectoryPoint::new(target_token, latent)))
+    }
+
+    pub fn from_point_with_residual(
+        target_token: u32,
+        predicted_token: u32,
+        latent: [i16; FBS_WIDTH],
+        residual_margin: u64,
+    ) -> Self {
+        Self::TrajectoryPoint(Box::new(LatentTrajectoryPoint::with_residual(
+            target_token,
+            predicted_token,
+            latent,
+            residual_margin,
+        )))
     }
 
     pub fn from_dialogue(prompt: impl Into<String>, reply: impl Into<String>) -> Self {
@@ -536,6 +756,7 @@ pub enum JsonVal {
     Bool(bool),
     Num(f64),
     Int(i64),
+    UInt(u64),
     Str(String),
     Arr(Vec<JsonVal>),
     Obj(BTreeMap<String, JsonVal>),
@@ -574,13 +795,20 @@ impl JsonVal {
     pub fn as_i64(&self) -> Option<i64> {
         match self {
             JsonVal::Int(n) => Some(*n),
+            JsonVal::UInt(u) => i64::try_from(*u).ok(),
             JsonVal::Num(f) => Some(*f as i64),
             _ => None,
         }
     }
 
     pub fn as_u64(&self) -> Option<u64> {
-        self.as_i64().and_then(|v| u64::try_from(v).ok())
+        match self {
+            JsonVal::UInt(u) => Some(*u),
+            JsonVal::Int(n) => u64::try_from(*n).ok(),
+            JsonVal::Str(s) => s.parse::<u64>().ok(),
+            JsonVal::Num(f) if *f >= 0.0 && *f <= u64::MAX as f64 => Some(*f as u64),
+            _ => None,
+        }
     }
 
     pub fn as_usize(&self) -> Option<usize> {
@@ -735,6 +963,9 @@ impl<'a> JsonParser<'a> {
         if !is_float {
             if let Ok(i) = slice.parse::<i64>() {
                 return Some(JsonVal::Int(i));
+            }
+            if let Ok(u) = slice.parse::<u64>() {
+                return Some(JsonVal::UInt(u));
             }
         }
         slice.parse::<f64>().ok().map(JsonVal::Num)
@@ -1054,7 +1285,102 @@ impl ByteBpe4096 {
     pub fn decode(&self, ids: &[u32]) -> String {
         String::from_utf8_lossy(&self.decode_bytes(ids)).into_owned()
     }
+}
 
+/// Precomputed lookup table for O(1) zero-allocation boundary token detection.
+/// Identifies tokens whose decoded representation ends with '.', '?', '!', ':', ';'
+/// or contains '\n'.
+pub fn is_boundary_token(tok: u32) -> bool {
+    static BOUNDARY_TOKENS: OnceLock<[bool; 4096]> = OnceLock::new();
+    let table = BOUNDARY_TOKENS.get_or_init(|| {
+        let bpe = ByteBpe4096::global();
+        let mut t = [false; 4096];
+        for (id, slot) in t.iter_mut().enumerate() {
+            let s = bpe.decode(&[id as u32]);
+            if s.contains('\n')
+                || s.ends_with('.')
+                || s.ends_with('?')
+                || s.ends_with('!')
+                || s.ends_with(':')
+                || s.ends_with(';')
+            {
+                *slot = true;
+            }
+        }
+        t
+    });
+    table.get(tok as usize).copied().unwrap_or(false)
+}
+
+/// Zero-allocation clause and sentence boundary detection.
+/// Returns true if `tok` is a punctuation/newline boundary or if `step` interval K=16 is reached.
+#[inline]
+pub fn is_clause_boundary(tok: u32, step: usize) -> bool {
+    (step > 0 && step.is_multiple_of(16)) || is_boundary_token(tok)
+}
+
+/// Cyclic frame block calculation: `(block + sweep + 1) % blocks`.
+/// Proved in `R4.Flock.cyclicFrameBlock` (`src/R4/Flock.lex.tex`).
+/// Guaranteed zero heap allocation and zero floating-point operations.
+#[inline]
+pub fn cyclic_frame_block(block: u64, sweep: u64, blocks: u64) -> u64 {
+    if blocks == 0 {
+        0
+    } else {
+        (block.saturating_add(sweep).saturating_add(1)) % blocks
+    }
+}
+
+/// Modulate live 256D Q12 hidden state `n_t` across 8 heads (32 dimensions each)
+/// using `R4.Flock.cyclicFrameBlock` cyclic frame routing.
+///
+/// Guaranteed zero heap allocation (operates entirely on stack arrays)
+/// and zero floating-point operations (pure integer Q12 coordinate routing).
+#[inline]
+pub fn modulate_flock_cyclic_frame_block(
+    n_t: &[i32; FBS_WIDTH],
+    tokens_len: usize,
+) -> [i32; FBS_WIDTH] {
+    let mut flock_n_t = [0i32; FBS_WIDTH];
+    let sweep = (tokens_len as u64) % 8;
+    for head in 0..8 {
+        let frame_block = cyclic_frame_block(head as u64, sweep, 8) as usize;
+        let dst_base = head * 32;
+        let src_base = frame_block * 32;
+        flock_n_t[dst_base..dst_base + 32].copy_from_slice(&n_t[src_base..src_base + 32]);
+    }
+    flock_n_t
+}
+
+/// Alias for `modulate_flock_cyclic_frame_block` for compatibility with attention test suites.
+#[inline]
+pub fn modulate_flock_cyclic_attention(
+    n_t: &[i32; FBS_WIDTH],
+    tokens_len: usize,
+) -> [i32; FBS_WIDTH] {
+    modulate_flock_cyclic_frame_block(n_t, tokens_len)
+}
+
+/// Alternative geodesic convex blend (50% local state, 50% cyclic frame state).
+#[inline]
+pub fn modulate_flock_geodesic_blend(
+    n_t: &[i32; FBS_WIDTH],
+    tokens_len: usize,
+) -> [i32; FBS_WIDTH] {
+    let mut flock_n_t = [0i32; FBS_WIDTH];
+    let sweep = (tokens_len as u64) % 8;
+    for head in 0..8 {
+        let frame_block = cyclic_frame_block(head as u64, sweep, 8) as usize;
+        let dst_base = head * 32;
+        let src_base = frame_block * 32;
+        for d in 0..32 {
+            flock_n_t[dst_base + d] = (n_t[dst_base + d] + n_t[src_base + d]) / 2;
+        }
+    }
+    flock_n_t
+}
+
+impl ByteBpe4096 {
     /// Encode a single user prompt under `uor-r4.literal-role-dialogue` v1 or v2.
     pub fn encode_dialogue_prompt(
         &self,
@@ -1740,6 +2066,7 @@ pub struct ServedHammingRead {
 pub struct HammingCache {
     pub codes: Vec<[u64; HAMMING_HEADS]>,
     pub values: Vec<[i32; FBS_WIDTH]>,
+    pub count: usize,
 }
 
 fn rotate_lanes_q12(x: &[i32], rot_q24: &[i32]) -> [i32; FBS_WIDTH] {
@@ -1795,6 +2122,7 @@ impl ServedHammingRead {
         }
         cache.codes.push(k_codes);
         cache.values.push(v_rot);
+        cache.count += 1;
 
         let cur_len = cache.values.len();
         if cur_len <= 1 {
@@ -2756,13 +3084,13 @@ pub struct StepTelemetry {
 
 pub struct LutStackSession {
     model: Arc<LutStackModel>,
-    rec_states: Vec<FbsRecState>,
-    hamming_caches: Vec<HammingCache>,
-    tokens: Vec<u32>,
-    reply_start: Option<usize>,
-    anchors: TurnMemoryAnchors,
-    reply_history: Vec<u32>,
-    suffix_counts: Vec<([u32; 4], u32)>,
+    pub rec_states: Vec<FbsRecState>,
+    pub hamming_caches: Vec<HammingCache>,
+    pub tokens: Vec<u32>,
+    pub reply_start: Option<usize>,
+    pub anchors: TurnMemoryAnchors,
+    pub reply_history: Vec<u32>,
+    pub suffix_counts: Vec<([u32; 4], u32)>,
     pub pending_basins: Vec<(Vec<u32>, u32)>,
     pub last_matched_stems: usize,
     pub last_point_hamming_bits: u32,
@@ -2770,6 +3098,10 @@ pub struct LutStackSession {
     pub last_turn_idx: usize,
     pub prompt_stem_bucket: usize,
     pub last_n_t: [i32; FBS_WIDTH],
+    pub recent_turn_rows: Vec<usize>,
+    pub emitted_4grams: Vec<u64>,
+    pub boundary_trajectories: Vec<PointTrajectoryHit>,
+    pub total_l1_margin: u64,
 }
 
 impl LutStackSession {
@@ -2792,6 +3124,10 @@ impl LutStackSession {
             last_turn_idx: usize::MAX,
             prompt_stem_bucket: 0,
             last_n_t: [0; FBS_WIDTH],
+            recent_turn_rows: Vec::new(),
+            emitted_4grams: Vec::new(),
+            boundary_trajectories: Vec::new(),
+            total_l1_margin: 0,
         }
     }
 
@@ -2811,6 +3147,8 @@ impl LutStackSession {
                 }
             }
         }
+        self.recent_turn_rows = context.recent_turn_rows.clone();
+        self.emitted_4grams = context.emitted_4grams.clone();
     }
 
     pub fn reset(&mut self) {
@@ -2831,6 +3169,59 @@ impl LutStackSession {
         self.last_covered_stem_mask = 0;
         self.last_turn_idx = usize::MAX;
         self.prompt_stem_bucket = 0;
+        self.recent_turn_rows.clear();
+        self.emitted_4grams.clear();
+        self.boundary_trajectories.clear();
+        self.total_l1_margin = 0;
+    }
+
+    /// Record a clause boundary trajectory hit (n_t, y_hat_t, y_t, l1_margin) into session memory.
+    pub fn record_boundary_trajectory(
+        &mut self,
+        step: usize,
+        boundary_token: u32,
+        predicted_token: u32,
+        target_token: u32,
+    ) -> PointTrajectoryHit {
+        let mut n_t_i16 = [0i16; FBS_WIDTH];
+        for (d, slot) in n_t_i16.iter_mut().enumerate() {
+            *slot = self.last_n_t[d].clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+        }
+        let l1_margin = compute_token_l1_margin(
+            &self.model.writer_table,
+            self.model.vocab,
+            predicted_token,
+            target_token,
+        );
+        let hit = PointTrajectoryHit::new(
+            step,
+            boundary_token,
+            n_t_i16,
+            predicted_token,
+            target_token,
+            l1_margin,
+        );
+        self.total_l1_margin = self.total_l1_margin.saturating_add(l1_margin);
+        self.boundary_trajectories.push(hit.clone());
+        hit
+    }
+
+    /// Record a visited turn basin row into recent session memory (FIFO, max 8 items).
+    pub fn record_turn_basin(&mut self, row: usize) {
+        self.recent_turn_rows.push(row);
+        if self.recent_turn_rows.len() > 8 {
+            self.recent_turn_rows.remove(0);
+        }
+    }
+
+    /// Record an emitted 4-gram token hash into session memory (deduplicating and capping to 2048 entries).
+    pub fn record_emitted_4gram(&mut self, hash: u64) {
+        if !self.emitted_4grams.contains(&hash) {
+            self.emitted_4grams.push(hash);
+            if self.emitted_4grams.len() > 2048 {
+                self.emitted_4grams.remove(0);
+            }
+        }
     }
 
     pub fn position(&self) -> usize {
@@ -2849,16 +3240,151 @@ impl LutStackSession {
         self.suffix_counts.clear();
     }
 
-    /// Prefill a prompt token into the session state (`run_trunk = true` for the active turn tail).
+    /// Prefill a prompt or reasoning token into the session state.
+    /// When `run_trunk = true`, forwards through the 6-layer `SpiralCore/FBS` + `ServedHamming`
+    /// trunk and evolves `self.last_n_t` to steer the latent manifold trajectory.
     pub fn prefill_token(&mut self, token: u32, run_trunk: bool) {
         self.tokens.push(token);
         if run_trunk {
-            let _ = self.model.forward_token_hidden(
+            let n_t = self.model.forward_token_hidden(
                 token,
                 &mut self.rec_states,
                 &mut self.hamming_caches,
             );
+            self.last_n_t = n_t;
         }
+    }
+
+    /// Prefill a slice of tokens sequentially through the session state.
+    pub fn prefill_tokens(&mut self, tokens: &[u32], run_trunk: bool) {
+        for &tok in tokens {
+            self.prefill_token(tok, run_trunk);
+        }
+    }
+
+    /// Autoregressively step through `<thinking>...</thinking>` reasoning tokens,
+    /// feeding each token into `self.prefill_token(tok, true)` so the reasoning trajectory
+    /// directly steers `self.last_n_t`.
+    ///
+    /// Sets `self.mark_reply_start()` strictly AFTER `</thinking>`, establishing
+    /// the commencement barrier for visible answer prediction.
+    ///
+    /// Returns `(thinking_tokens, final_steered_n_t)`.
+    pub fn step_reasoning_trace(&mut self, thinking_trace: &str) -> (Vec<u32>, [i32; FBS_WIDTH]) {
+        let bpe = ByteBpe4096::global();
+        let trimmed = thinking_trace.trim();
+        if trimmed.is_empty() {
+            self.mark_reply_start();
+            return (Vec::new(), self.last_n_t);
+        }
+
+        let mut formatted_block = trimmed.to_string();
+        if !formatted_block.starts_with("<thinking>") && !formatted_block.starts_with("<thought>") {
+            formatted_block = format!("<thinking>\n{}\n</thinking>", formatted_block);
+        } else if !formatted_block.contains("</thinking>")
+            && !formatted_block.contains("</thought>")
+        {
+            formatted_block.push_str("\n</thinking>");
+        }
+
+        let reasoning_tokens = bpe.encode(&formatted_block);
+        for &tok in &reasoning_tokens {
+            self.prefill_token(tok, true);
+        }
+
+        // Enforcement barrier: visible reply commencement begins ONLY after </thinking>
+        self.mark_reply_start();
+
+        (reasoning_tokens, self.last_n_t)
+    }
+
+    /// Commence visible reply prediction using /8 `ServedPointKey` and `writer.table`
+    /// evaluated on the reasoning-steered `self.last_n_t`.
+    ///
+    /// Locks `self.anchors.reply` to the continuation basin chosen by the steered trajectory.
+    pub fn commence_visible_prediction(&mut self) -> (StepTelemetry, u32) {
+        let row = self.tokens.len();
+        let mut n_t = self.last_n_t;
+        let mut source_mechanism = "whole_table_nearest";
+        let mut memory_hit_token: Option<u32> = None;
+
+        if let Some(mem) = &self.model.memory {
+            let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
+            let open_ids = extract_turn_ids(&self.tokens, mem.key_window, mem.k);
+            let reply_ids = extract_turn_ids(&self.tokens, mem.key_window, reply_turn_k);
+            self.anchors.opening = open_ids.clone();
+            self.anchors.reply = reply_ids.clone();
+
+            if let Some(point) = &self.model.point {
+                if let Some(pt_hit) = select_point_key_with_resonance(
+                    point,
+                    &n_t,
+                    &self.tokens,
+                    mem.key_window,
+                    mem.reply.as_ref(),
+                    mem.reply_key_len,
+                    &self.recent_turn_rows,
+                ) {
+                    self.last_matched_stems = pt_hit.matched_stems;
+                    self.last_point_hamming_bits = pt_hit.hamming_bits;
+                    self.last_covered_stem_mask = pt_hit.covered_stem_mask;
+                    self.last_turn_idx = pt_hit.turn_idx;
+
+                    if let Some(canon) = resolve_canonical_reply_anchor(
+                        point,
+                        mem,
+                        pt_hit.row,
+                        pt_hit.target_token,
+                        &reply_ids,
+                    ) {
+                        self.anchors.reply = canon;
+                    }
+                    blend_toward_writer_row(
+                        &mut n_t,
+                        &self.model.writer_table,
+                        pt_hit.target_token as usize,
+                        &mem.opening.weight_q24,
+                    );
+                    memory_hit_token = Some(pt_hit.target_token);
+                    source_mechanism = if pt_hit.confident {
+                        "point_key_vote"
+                    } else {
+                        "point_key_fallback"
+                    };
+                }
+            }
+        }
+
+        let top_candidates =
+            stack_whole_table_top_k(&n_t, &self.model.writer_table, self.model.vocab, 5);
+        let chosen_tok = memory_hit_token
+            .unwrap_or_else(|| top_candidates.first().map(|&(t, _)| t).unwrap_or(0));
+
+        let q_sketch = pack_i32_sign_sketch_256(&n_t);
+        let pred_base = (chosen_tok as usize) * FBS_WIDTH;
+        let hamming_xor_bits = if pred_base + FBS_WIDTH <= self.model.writer_table.len() {
+            let w_sketch = pack_i16_sign_sketch_256(
+                &self.model.writer_table[pred_base..pred_base + FBS_WIDTH],
+            );
+            hamming_distance_256(&q_sketch, &w_sketch)
+        } else {
+            256
+        };
+
+        let st = StepTelemetry {
+            position: row,
+            input_token: self.tokens.last().copied().unwrap_or(0),
+            predicted_token: chosen_tok,
+            source_mechanism,
+            l1_distance: 0,
+            hamming_xor_bits,
+            icosian_root: 0,
+            spin_holonomy: 0,
+            trinary_active_lanes: 0,
+            top_candidates,
+        };
+
+        (st, chosen_tok)
     }
 
     fn next_4gram_suffix_occurrence(&mut self, tok: u32) -> ([u32; 4], u32) {
@@ -2907,7 +3433,7 @@ impl LutStackSession {
         let mut source_mechanism = "whole_table_nearest";
         let mut memory_hit_token: Option<u32> = None;
 
-        let suffix_occ = if self.reply_start.is_some_and(|rs| row >= rs) {
+        let suffix_occ = if self.reply_start.is_some_and(|rs| self.tokens.len() >= rs) {
             Some(self.next_4gram_suffix_occurrence(token))
         } else {
             None
@@ -2969,6 +3495,7 @@ impl LutStackSession {
                                 mem.key_window,
                                 mem.reply.as_ref(),
                                 mem.reply_key_len,
+                                &self.recent_turn_rows,
                             ) {
                                 self.last_matched_stems = pt_hit.matched_stems;
                                 self.last_point_hamming_bits = pt_hit.hamming_bits;
@@ -2998,6 +3525,7 @@ impl LutStackSession {
                         mem.key_window,
                         mem.reply.as_ref(),
                         mem.reply_key_len,
+                        &self.recent_turn_rows,
                     ) {
                         self.last_matched_stems = pt_hit.matched_stems;
                         self.last_point_hamming_bits = pt_hit.hamming_bits;
@@ -3073,11 +3601,86 @@ impl LutStackSession {
                 }
             }
         }
-        let (nearest_tok, nearest_dist) = top_candidates.first().copied().unwrap_or_else(|| {
-            stack_whole_table_nearest(&n_t, &self.model.writer_table, self.model.vocab)
-        });
 
-        let predicted_token = memory_hit_token.unwrap_or(nearest_tok);
+        let n_toks = self.tokens.len();
+        let t_minus_1 = token;
+        let t_minus_2 = if n_toks >= 2 {
+            self.tokens[n_toks - 2]
+        } else {
+            MEMORY_PAD
+        };
+        let t_minus_3 = if n_toks >= 3 {
+            self.tokens[n_toks - 3]
+        } else {
+            MEMORY_PAD
+        };
+
+        if let Some(hit_tok) = memory_hit_token {
+            let base = (hit_tok as usize) * FBS_WIDTH;
+            let hit_dist = if base + FBS_WIDTH <= self.model.writer_table.len() {
+                let row_w = &self.model.writer_table[base..base + FBS_WIDTH];
+                (0..FBS_WIDTH)
+                    .map(|d| ((n_t[d] as i64) - (row_w[d] as i64)).abs())
+                    .sum()
+            } else {
+                top_candidates.first().map(|&(_, d)| d).unwrap_or(0)
+            };
+            if let Some(pos) = top_candidates.iter().position(|&(t, _)| t == hit_tok) {
+                top_candidates.remove(pos);
+            }
+            top_candidates.insert(0, (hit_tok, hit_dist));
+            top_candidates.truncate(5);
+        }
+
+        let has_full_4gram = t_minus_3 != MEMORY_PAD && t_minus_2 != MEMORY_PAD;
+        let (predicted_token, l1_distance, source_mechanism) =
+            if source_mechanism == "turn_memory_reply" || !has_full_4gram {
+                let (tok, dist) = if let Some(hit_tok) = memory_hit_token {
+                    let dist = top_candidates
+                        .iter()
+                        .find(|&&(t, _)| t == hit_tok)
+                        .map(|&(_, d)| d)
+                        .unwrap_or(0);
+                    (hit_tok, dist)
+                } else {
+                    top_candidates.first().copied().unwrap_or_else(|| {
+                        stack_whole_table_nearest(&n_t, &self.model.writer_table, self.model.vocab)
+                    })
+                };
+                (tok, dist, source_mechanism)
+            } else {
+                // Select the best candidate from top_candidates (writer.table and ServedHamming)
+                // that does not repeat an already-emitted 4-gram
+                let mut selected_token = None;
+                let mut selected_dist = 0i64;
+                let mut selected_source = source_mechanism;
+
+                for (idx, &(cand_tok, cand_dist)) in top_candidates.iter().enumerate() {
+                    let cand_h = hash_4gram(t_minus_3, t_minus_2, t_minus_1, cand_tok);
+                    if !self.emitted_4grams.contains(&cand_h) {
+                        selected_token = Some(cand_tok);
+                        selected_dist = cand_dist;
+                        if idx > 0 {
+                            selected_source = "ngram_fallback_nearest";
+                        }
+                        break;
+                    }
+                }
+
+                if let Some(tok) = selected_token {
+                    (tok, selected_dist, selected_source)
+                } else {
+                    let (nearest_tok, nearest_dist) =
+                        stack_whole_table_nearest(&n_t, &self.model.writer_table, self.model.vocab);
+                    (nearest_tok, nearest_dist, "ngram_fallback_nearest")
+                }
+            };
+
+        if has_full_4gram {
+            let chosen_hash = hash_4gram(t_minus_3, t_minus_2, t_minus_1, predicted_token);
+            self.record_emitted_4gram(chosen_hash);
+        }
+
         let q_sketch = pack_i32_sign_sketch_256(&n_t);
         let pred_base = (predicted_token as usize) * FBS_WIDTH;
         let hamming_xor_bits = if pred_base + FBS_WIDTH <= self.model.writer_table.len() {
@@ -3087,25 +3690,6 @@ impl LutStackSession {
             hamming_distance_256(&q_sketch, &w_sketch)
         } else {
             0
-        };
-
-        let l1_distance = if let Some(hit_tok) = memory_hit_token {
-            let base = (hit_tok as usize) * FBS_WIDTH;
-            let dist = if base + FBS_WIDTH <= self.model.writer_table.len() {
-                let row_w = &self.model.writer_table[base..base + FBS_WIDTH];
-                (0..FBS_WIDTH)
-                    .map(|d| ((n_t[d] as i64) - (row_w[d] as i64)).abs())
-                    .sum()
-            } else {
-                nearest_dist
-            };
-            if !top_candidates.iter().any(|&(t, _)| t == hit_tok) {
-                top_candidates.insert(0, (hit_tok, dist));
-                top_candidates.truncate(5);
-            }
-            dist
-        } else {
-            nearest_dist
         };
 
         let (icosian_root, spin_holonomy, trinary_active_lanes) =
@@ -3195,6 +3779,17 @@ fn lookup_reply_continuation_4gram(
             return Some(val);
         }
     }
+    // Tier 1.5: Anchor-bound 3-gram backoff (when `suffix4[1] != MEMORY_PAD`)
+    if suffix4[1] != MEMORY_PAD {
+        key[reply_key_len - 5] = 0;
+        key[reply_key_len - 4] = MEMORY_PAD;
+        key[reply_key_len - 3] = suffix4[1];
+        key[reply_key_len - 2] = suffix4[2];
+        key[reply_key_len - 1] = suffix4[3];
+        if let Some(val) = reply_tbl.lookup_value(&key) {
+            return Some(val);
+        }
+    }
     // Tier 2: Anchor-bound 2-gram backoff (when `prev_1 != MEMORY_PAD`)
     if suffix4[2] != MEMORY_PAD {
         key[reply_key_len - 5] = 0;
@@ -3205,6 +3800,16 @@ fn lookup_reply_continuation_4gram(
         if let Some(val) = reply_tbl.lookup_value(&key) {
             return Some(val);
         }
+    }
+    // Tier 2b: Anchor-bound 1-gram / opening continuation fallback
+    // (enables mid-stream transition to a new basin while preserving continuous reply_history)
+    key[reply_key_len - 5] = 0;
+    key[reply_key_len - 4] = MEMORY_PAD;
+    key[reply_key_len - 3] = MEMORY_PAD;
+    key[reply_key_len - 2] = MEMORY_PAD;
+    key[reply_key_len - 1] = suffix4[3];
+    if let Some(val) = reply_tbl.lookup_value(&key) {
+        return Some(val);
     }
     // Tier 3: Universal corpus-wide 4-gram and 3-gram continuation backoff
     if suffix4[1] != MEMORY_PAD {
@@ -3492,6 +4097,19 @@ pub fn fnv1a64(data: &[u8]) -> u64 {
     h
 }
 
+/// Compute a deterministic 64-bit FNV-1a hash over four 32-bit token IDs (16 bytes).
+/// Used for sliding-window 4-gram repetition detection in zero-float integer Q12 decoding.
+#[inline]
+pub fn hash_4gram(t0: u32, t1: u32, t2: u32, t3: u32) -> u64 {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    for &tok in &[t0, t1, t2, t3] {
+        for &b in &tok.to_le_bytes() {
+            h = (h ^ u64::from(b)).wrapping_mul(0x0100_0000_01b3);
+        }
+    }
+    h
+}
+
 /// Extract deduplicated `(stem_anchor_hash, specificity_weight)` pairs from natural text,
 /// preserving hyphenated/plus-joined technical compounds (`"B-Trees"` -> `"btree"`, `"UTF-8"` -> `"utf8"`).
 pub fn extract_salient_stem_hashes_from_text(text: &str, max_stems: usize) -> Vec<(u32, i64)> {
@@ -3617,6 +4235,7 @@ pub fn select_point_key_with_resonance(
     key_window: usize,
     reply_tbl: Option<&TurnMemoryTable>,
     reply_key_len: usize,
+    recent_turn_rows: &[usize],
 ) -> Option<PointResonanceHit> {
     let Some(anchors) = &point.canonical_anchors else {
         return point
@@ -3737,6 +4356,13 @@ pub fn select_point_key_with_resonance(
             guard_penalty = 60_000_000;
         }
 
+        let basin_penalty: i64 =
+            if let Some(pos) = recent_turn_rows.iter().rposition(|&row_id| row_id == r) {
+                250_000i64 * (pos as i64 + 1)
+            } else {
+                0i64
+            };
+
         let primary_slice = if alen >= 22 {
             &a_row[16..22]
         } else if alen > 16 {
@@ -3777,7 +4403,7 @@ pub fn select_point_key_with_resonance(
         }
         if matched_primary > 0 {
             bonus += ((matched_primary as i64) * 160_000) / (row_primary_count as i64);
-            let max_single_primary_width = if is_core_or_proved { 3 } else { 4 };
+            let max_single_primary_width = 1;
             if matched_primary == total_stems
                 && total_stems == 1
                 && row_primary_count <= max_single_primary_width
@@ -3838,6 +4464,7 @@ pub fn select_point_key_with_resonance(
         // Whenever `raw_l1 > 0` (checked in O(1) via lane 0/1 inequality), `geom_dist >= guard_penalty`,
         // so `score = geom_dist - bonus >= guard_penalty - bonus`.
         let maybe_exact_zero = is_core_or_proved
+            && basin_penalty == 0
             && w_lim >= 2
             && (p_row[0] as i32) == n_t[0]
             && (p_row[1] as i32) == n_t[1];
@@ -3847,7 +4474,7 @@ pub fn select_point_key_with_resonance(
         } else {
             bonus
         };
-        if !maybe_exact_zero && (guard_penalty - max_possible_bonus) >= best_score {
+        if !maybe_exact_zero && (guard_penalty + basin_penalty - max_possible_bonus) >= best_score {
             continue;
         }
 
@@ -3870,11 +4497,12 @@ pub fn select_point_key_with_resonance(
         // 256-bit Bitwise Popcount Hamming XOR distance between query sketch and point row sketch
         let p_sketch = pack_i16_sign_sketch_256(p_row);
         let h_bits = hamming_distance_256(&q_sketch, &p_sketch);
-        let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty;
+        let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty + basin_penalty;
 
-        let score = if raw_l1 == 0 && guard_penalty == 0 && is_core_or_proved {
+        let score = if raw_l1 == 0 && guard_penalty == 0 && basin_penalty == 0 && is_core_or_proved
+        {
             -(1i64 << 42) - bonus
-        } else if raw_l1 == 0 && guard_penalty == 0 {
+        } else if raw_l1 == 0 && guard_penalty == 0 && basin_penalty == 0 {
             geom_dist - bonus - 150_000
         } else {
             geom_dist - bonus
@@ -3940,7 +4568,7 @@ pub fn select_point_key_with_resonance(
     }
 }
 
-fn resolve_canonical_reply_anchor(
+pub fn resolve_canonical_reply_anchor(
     point: &ServedPointKey,
     mem: &ServedTurnMemory,
     pt_row: usize,
@@ -3973,6 +4601,66 @@ fn resolve_canonical_reply_anchor(
         }
     }
     best_entry
+}
+
+/// Parse structured `<thinking>...</thinking>` (or `<thought>...</thought>`) blocks from assistant output.
+/// Iteratively strips all thinking blocks (including multiple or mixed tags and unclosed tags).
+/// Returns `(Some(thinking_trace), clean_reply)` if present, or `(None, raw_text)` if absent.
+pub fn parse_thinking_block(raw_text: &str) -> (Option<String>, String) {
+    let mut traces: Vec<String> = Vec::new();
+    let mut current = raw_text.to_string();
+
+    loop {
+        let thinking_pos = current
+            .find("<thinking>")
+            .map(|idx| (idx, 10usize, "</thinking>", 11usize));
+        let thought_pos = current
+            .find("<thought>")
+            .map(|idx| (idx, 9usize, "</thought>", 10usize));
+
+        let candidate = match (thinking_pos, thought_pos) {
+            (Some(a), Some(b)) => {
+                if a.0 <= b.0 {
+                    Some(a)
+                } else {
+                    Some(b)
+                }
+            }
+            (Some(a), None) => Some(a),
+            (None, Some(b)) => Some(b),
+            (None, None) => None,
+        };
+
+        if let Some((start, open_len, close_tag, close_len)) = candidate {
+            if let Some(rel_end) = current[start + open_len..].find(close_tag) {
+                let trace = current[start + open_len..start + open_len + rel_end]
+                    .trim()
+                    .to_string();
+                if !trace.is_empty() {
+                    traces.push(trace);
+                }
+                let mut clean = String::with_capacity(current.len());
+                clean.push_str(&current[..start]);
+                clean.push_str(&current[start + open_len + rel_end + close_len..]);
+                current = clean;
+            } else {
+                let trace = current[start + open_len..].trim().to_string();
+                if !trace.is_empty() {
+                    traces.push(trace);
+                }
+                current.truncate(start);
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    let combined_trace = if traces.is_empty() {
+        None
+    } else {
+        Some(traces.join("\n\n"))
+    };
+    (combined_trace, current.trim().to_string())
 }
 
 /// Segment a multi-part user prompt (`"Explain X and also tell me about Y"`, `"What is A? Also how does B work?"`)
@@ -4088,6 +4776,8 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
 #[derive(Clone, Debug)]
 pub struct LutStackGenerationResult {
     pub reply_text: String,
+    pub thinking_text: Option<String>,
+    pub thinking_tokens: Vec<u32>,
     pub prompt_tokens: Vec<u32>,
     pub generated_tokens: Vec<u32>,
     pub steps: Vec<StepTelemetry>,
@@ -4096,6 +4786,8 @@ pub struct LutStackGenerationResult {
     pub clauses_resolved: usize,
     pub primary_turn_idx: usize,
     pub final_n_t: [i32; FBS_WIDTH],
+    pub boundary_trajectories: Vec<PointTrajectoryHit>,
+    pub total_l1_margin: u64,
 }
 
 impl LutStackModel {
@@ -4105,6 +4797,7 @@ impl LutStackModel {
         &self,
         history: &[(String, String)],
         clause: &str,
+        recent_turn_rows: &[usize],
     ) -> Option<(Vec<u32>, u32, usize, u32, bool)> {
         let mem = self.memory.as_ref()?;
         let point = self.point.as_ref()?;
@@ -4117,12 +4810,9 @@ impl LutStackModel {
         }
         let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
-        let trunk_start = c_tokens.len().saturating_sub(32);
         let mut last_n_t = [0i32; FBS_WIDTH];
-        for (idx, &tok) in c_tokens.iter().enumerate() {
-            if idx >= trunk_start {
-                last_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
-            }
+        for &tok in &c_tokens {
+            last_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
         let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
         let open_ids = extract_turn_ids(&c_tokens, mem.key_window, mem.k);
@@ -4156,6 +4846,7 @@ impl LutStackModel {
             mem.key_window,
             mem.reply.as_ref(),
             mem.reply_key_len,
+            recent_turn_rows,
         )?;
         let canon =
             resolve_canonical_reply_anchor(point, mem, hit.row, hit.target_token, &reply_ids)?;
@@ -4166,6 +4857,97 @@ impl LutStackModel {
             hit.hamming_bits,
             hit.confident,
         ))
+    }
+
+    /// Attempt dynamic mid-stream re-attention hand-off at clause and sentence boundaries.
+    ///
+    /// Evaluates:
+    /// 1. Boundary condition: `.`, `?`, `!`, `:`, `;`, `\n` or step interval K=16 via `is_clause_boundary`.
+    /// 2. Queued complementary basins: pops `(next_anchor, next_first_tok)` from `session.pending_basins`
+    ///    WITHOUT output chunking (no `\n\n` injection, no `reply_history` clearing, no `reply_start` reset).
+    /// 3. Trajectory re-evaluation: modulates live `n_t` across 8 heads with `R4.Flock` cyclic frame routing,
+    ///    evaluates `select_point_key_with_resonance` with `recent_turn_rows` penalty, and updates
+    ///    `session.anchors.reply` mid-stream when a high-resonance continuation basin is detected.
+    ///
+    /// Adheres strictly to repository zero-float integer Q12 arithmetic.
+    pub fn try_mid_stream_re_attention(
+        &self,
+        session: &mut LutStackSession,
+        boundary_tok: u32,
+        step_idx: usize,
+        next_tok: &mut u32,
+        last_source: &mut &'static str,
+        clauses_resolved: &mut usize,
+    ) -> bool {
+        if !is_clause_boundary(boundary_tok, step_idx) {
+            return false;
+        }
+
+        // Path A: Queued complementary basins from multi-clause prompts
+        // Transition when a sentence/clause punctuation boundary is reached or when current memory row ends
+        if (is_boundary_token(boundary_tok) || *last_source != "turn_memory_reply")
+            && !session.pending_basins.is_empty()
+        {
+            if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
+                session.anchors.reply = next_anchor;
+                *next_tok = next_first_tok;
+                *last_source = "turn_memory_reply";
+                return true;
+            }
+        }
+
+        // Path B: Dynamic trajectory shift against ServedPointKey
+        // Evaluates when pending_basins is empty and not actively decoding a turn_memory_reply sequence
+        if session.pending_basins.is_empty() && *last_source != "turn_memory_reply" {
+            if let (Some(mem), Some(point)) = (&self.memory, &self.point) {
+                let modulated_n_t =
+                    modulate_flock_cyclic_frame_block(&session.last_n_t, session.tokens.len());
+                if let Some(pt_hit) = select_point_key_with_resonance(
+                    point,
+                    &modulated_n_t,
+                    &session.tokens,
+                    mem.key_window,
+                    mem.reply.as_ref(),
+                    mem.reply_key_len,
+                    &session.recent_turn_rows,
+                ) {
+                    let is_high_resonance = pt_hit.confident
+                        || pt_hit.matched_stems >= 2
+                        || (pt_hit.matched_stems >= 1 && pt_hit.hamming_bits <= 64);
+
+                    if is_high_resonance {
+                        let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
+                        let reply_ids =
+                            extract_turn_ids(&session.tokens, mem.key_window, reply_turn_k);
+                        if let Some(canon) = resolve_canonical_reply_anchor(
+                            point,
+                            mem,
+                            pt_hit.row,
+                            pt_hit.target_token,
+                            &reply_ids,
+                        ) {
+                            if canon != session.anchors.reply {
+                                session.anchors.reply = canon;
+                                session.last_turn_idx = pt_hit.turn_idx;
+                                session.last_matched_stems = pt_hit.matched_stems;
+                                session.last_point_hamming_bits = pt_hit.hamming_bits;
+                                session.record_turn_basin(pt_hit.row);
+                                *clauses_resolved += 1;
+                                *next_tok = pt_hit.target_token;
+                                *last_source = if pt_hit.confident {
+                                    "point_key_vote"
+                                } else {
+                                    "point_key_fallback"
+                                };
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        false
     }
 
     /// When a single-clause prompt contains multiple salient concepts and the primary basin only
@@ -4299,7 +5081,7 @@ impl LutStackModel {
                     continue;
                 }
                 let qualifies = if uncovered.len() >= 2 {
-                    (matched >= 2 && row_primary_count <= 4)
+                    (matched >= 2 && (is_core_or_proved || row_primary_count <= 4))
                         || (primary_matched == 1
                             && row_primary_count <= 2
                             && is_core_or_proved
@@ -4383,20 +5165,25 @@ impl LutStackModel {
         let clauses = split_prompt_clauses(user_prompt);
         let primary_prompt = clauses.first().map(String::as_str).unwrap_or(user_prompt);
         let sys_note = recall_prior_facts(history, primary_prompt);
+        let (prompt_thinking, clean_primary) = parse_thinking_block(primary_prompt);
         let prompt_tokens = bpe.encode_dialogue_prompt(
             sys_note.as_deref(),
             history,
-            primary_prompt,
+            &clean_primary,
             self.dialogue_version,
         );
 
         let mut session = self.session();
         let mut steps = Vec::new();
         let mut generated_tokens = Vec::new();
+        let mut thinking_tokens = Vec::new();
+        let thinking_text = prompt_thinking;
 
         if prompt_tokens.is_empty() {
             return LutStackGenerationResult {
                 reply_text: String::new(),
+                thinking_text: None,
+                thinking_tokens: Vec::new(),
                 prompt_tokens,
                 generated_tokens,
                 steps,
@@ -4405,31 +5192,60 @@ impl LutStackModel {
                 clauses_resolved: 0,
                 primary_turn_idx: usize::MAX,
                 final_n_t: [0; FBS_WIDTH],
+                boundary_trajectories: Vec::new(),
+                total_l1_margin: 0,
             };
         }
 
-        let prefill_len = prompt_tokens.len() - 1;
-        let trunk_start = prefill_len.saturating_sub(32);
-        for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
-            session.prefill_token(tok, idx >= trunk_start);
+        let mut next_tok;
+        let mut last_source;
+        let mut confident_open;
+        let mut matched_stem_count;
+        let point_hamming_bits;
+        let primary_turn_idx;
+        let mut clauses_resolved;
+
+        if let Some(ref th) = thinking_text {
+            for &tok in &prompt_tokens {
+                session.prefill_token(tok, true);
+            }
+            let (th_toks, _) = session.step_reasoning_trace(th);
+            thinking_tokens = th_toks;
+
+            let (first_step, first_tok) = session.commence_visible_prediction();
+            next_tok = first_tok;
+            last_source = first_step.source_mechanism;
+            confident_open =
+                last_source == "turn_memory_opening" || last_source == "point_key_vote";
+            matched_stem_count = session.last_matched_stems;
+            point_hamming_bits = session.last_point_hamming_bits;
+            primary_turn_idx = session.last_turn_idx;
+            clauses_resolved = usize::from(confident_open);
+            steps.push(first_step);
+        } else {
+            let prefill_len = prompt_tokens.len() - 1;
+            for &tok in &prompt_tokens[..prefill_len] {
+                session.prefill_token(tok, true);
+            }
+            session.mark_reply_start();
+            let first_step = session.step_with_telemetry(prompt_tokens[prefill_len]);
+            next_tok = first_step.predicted_token;
+            last_source = first_step.source_mechanism;
+            confident_open =
+                last_source == "turn_memory_opening" || last_source == "point_key_vote";
+            matched_stem_count = session.last_matched_stems;
+            point_hamming_bits = session.last_point_hamming_bits;
+            primary_turn_idx = session.last_turn_idx;
+            clauses_resolved = usize::from(confident_open);
+            steps.push(first_step);
         }
-        session.mark_reply_start();
-        let mut first_step = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
-        let mut next_tok = first_step.predicted_token;
-        let mut last_source = first_step.source_mechanism;
-        let mut confident_open =
-            last_source == "turn_memory_opening" || last_source == "point_key_vote";
-        let mut matched_stem_count = session.last_matched_stems;
-        let point_hamming_bits = session.last_point_hamming_bits;
-        let primary_turn_idx = session.last_turn_idx;
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
-        let mut clauses_resolved = usize::from(confident_open);
         if confident_open && clauses.len() >= 2 {
             let mut extra_basins = Vec::new();
             for sec_clause in &clauses[1..] {
                 if let Some((canon_anchor, first_tok, _, _, sec_conf)) =
-                    self.resolve_clause_basin(history, sec_clause)
+                    self.resolve_clause_basin(history, sec_clause, &session.recent_turn_rows)
                 {
                     if sec_conf && canon_anchor != session.anchors.reply {
                         extra_basins.push((canon_anchor, first_tok));
@@ -4440,21 +5256,21 @@ impl LutStackModel {
             extra_basins.reverse();
             session.pending_basins = extra_basins;
         } else if clauses.len() == 1
-            && first_step.source_mechanism != "turn_memory_opening"
-            && first_step.l1_distance > 0
+            && last_source != "turn_memory_opening"
+            && steps.first().map(|s| s.l1_distance).unwrap_or(0) > 0
             && matched_stem_count <= 4
         {
             let comp_basins = self.resolve_complementary_uncovered_basins(
-                primary_prompt,
+                &clean_primary,
                 session.last_covered_stem_mask,
                 session.last_turn_idx,
                 &prompt_tokens,
             );
             let mut extra_basins = Vec::new();
             let mut comp_total_matched = 0usize;
-            for (comp_anchor, comp_tok, comp_matched) in comp_basins {
-                if comp_anchor != session.anchors.reply {
-                    extra_basins.push((comp_anchor, comp_tok));
+            for (comp_anchor, comp_tok, comp_matched) in &comp_basins {
+                if *comp_anchor != session.anchors.reply {
+                    extra_basins.push((comp_anchor.clone(), *comp_tok));
                     comp_total_matched += comp_matched;
                 }
             }
@@ -4466,40 +5282,30 @@ impl LutStackModel {
                     matched_stem_count += comp_total_matched;
                 }
                 confident_open = true;
-                first_step.source_mechanism = "point_key_vote";
+                if let Some(s0) = steps.first_mut() {
+                    s0.source_mechanism = "point_key_vote";
+                }
                 last_source = "point_key_vote";
             }
         }
-        steps.push(first_step);
 
         let limit = if confident_open {
             max_new_tokens.clamp(1, 1024)
         } else {
             max_new_tokens.clamp(1, 24)
         };
-        let sep_tokens = bpe.encode("\n\n");
-
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
-                    for &sep_t in &sep_tokens {
-                        if generated_tokens.len() < limit {
-                            generated_tokens.push(sep_t);
-                            let sep_st = session.step_with_telemetry(sep_t);
-                            steps.push(sep_st);
-                        }
-                    }
                     session.anchors.reply = next_anchor;
-                    session.reply_history.clear();
-                    session.suffix_counts.clear();
-                    session.reply_start = Some(session.tokens.len());
                     next_tok = next_first_tok;
                     last_source = "turn_memory_reply";
                     continue;
                 }
                 break;
             }
-            generated_tokens.push(next_tok);
+            let cur_tok = next_tok;
+            generated_tokens.push(cur_tok);
             if last_source != "turn_memory_reply" && has_short_cycle(&generated_tokens) {
                 generated_tokens.truncate(generated_tokens.len().saturating_sub(1));
                 break;
@@ -4507,29 +5313,60 @@ impl LutStackModel {
             if generated_tokens.len() >= limit {
                 break;
             }
-            let st = session.step_with_telemetry(next_tok);
-            if confident_open && st.source_mechanism != "turn_memory_reply" {
-                next_tok = bpe.eos_id();
-                continue;
-            }
-            next_tok = st.predicted_token;
+            let st = session.step_with_telemetry(cur_tok);
+            let pred_tok = st.predicted_token;
+            next_tok = pred_tok;
             last_source = st.source_mechanism;
             steps.push(st);
+
+            self.try_mid_stream_re_attention(
+                &mut session,
+                cur_tok,
+                generated_tokens.len(),
+                &mut next_tok,
+                &mut last_source,
+                &mut clauses_resolved,
+            );
+
+            if is_clause_boundary(cur_tok, generated_tokens.len()) {
+                let target_tok = next_tok;
+                session.record_boundary_trajectory(
+                    generated_tokens.len(),
+                    cur_tok,
+                    pred_tok,
+                    target_tok,
+                );
+            }
         }
 
         let raw_decoded = bpe.decode(&generated_tokens);
-        let reply_text = if self.dialogue_version == 2 {
-            raw_decoded
-                .strip_prefix(' ')
-                .unwrap_or(&raw_decoded)
-                .trim()
-                .to_owned()
-        } else {
-            raw_decoded.trim().to_owned()
-        };
+        let (post_th, clean_reply) = parse_thinking_block(&raw_decoded);
+        let (reply_text, thinking_text, thinking_tokens, generated_tokens) =
+            if let Some(th) = post_th {
+                let vis_toks = bpe.encode(&format!(" {}", clean_reply.trim()));
+                let th_toks = if thinking_tokens.is_empty() {
+                    bpe.encode(&format!("<thinking>\n{}\n</thinking>", th))
+                } else {
+                    thinking_tokens
+                };
+                (clean_reply, Some(th), th_toks, vis_toks)
+            } else {
+                let text = if self.dialogue_version == 2 {
+                    raw_decoded
+                        .strip_prefix(' ')
+                        .unwrap_or(&raw_decoded)
+                        .trim()
+                        .to_owned()
+                } else {
+                    raw_decoded.trim().to_owned()
+                };
+                (text, thinking_text, thinking_tokens, generated_tokens)
+            };
 
         LutStackGenerationResult {
             reply_text,
+            thinking_text,
+            thinking_tokens,
             prompt_tokens,
             generated_tokens,
             steps,
@@ -4538,6 +5375,8 @@ impl LutStackModel {
             clauses_resolved,
             primary_turn_idx,
             final_n_t: session.last_n_t,
+            boundary_trajectories: session.boundary_trajectories,
+            total_l1_margin: session.total_l1_margin,
         }
     }
 
@@ -4561,37 +5400,47 @@ impl LutStackModel {
         );
         let mut session = self.session();
         let mut steps = Vec::new();
-        let encoded_reply = bpe.encode(&format!(" {}", reply_text.trim()));
-        let take_n = encoded_reply.len().min(max_trace_tokens.max(16));
-        let generated_tokens: Vec<u32> = encoded_reply[..take_n].to_vec();
 
         if !prompt_tokens.is_empty() {
-            let prefill_len = prompt_tokens.len() - 1;
-            let trunk_start = prefill_len.saturating_sub(24);
-            for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
-                session.prefill_token(tok, idx >= trunk_start);
+            for &tok in &prompt_tokens {
+                session.prefill_token(tok, true);
             }
-            session.mark_reply_start();
-            let mut st0 = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
-            if let Some(&first_r) = generated_tokens.first() {
-                st0.predicted_token = first_r;
-            }
-            steps.push(st0);
         }
+
+        let (thinking_opt, clean_reply) = parse_thinking_block(reply_text);
+        let mut thinking_tokens = Vec::new();
+
+        if let Some(ref th) = thinking_opt {
+            let (th_toks, _) = session.step_reasoning_trace(th);
+            thinking_tokens = th_toks;
+        } else {
+            session.mark_reply_start();
+        }
+
+        let encoded_reply = bpe.encode(&format!(" {}", clean_reply.trim()));
+        let take_n = encoded_reply.len().min(max_trace_tokens.max(16));
+        let generated_tokens: Vec<u32> = encoded_reply[..take_n].to_vec();
 
         for i in 0..generated_tokens.len() {
             let cur_tok = generated_tokens[i];
             let mut st = session.step_with_telemetry(cur_tok);
-            if let Some(&next_r) = generated_tokens.get(i + 1) {
-                st.predicted_token = next_r;
+            let pred_tok = st.predicted_token;
+            let target_tok = if let Some(&next_r) = generated_tokens.get(i + 1) {
+                next_r
             } else {
-                st.predicted_token = bpe.eos_id();
-            }
+                bpe.eos_id()
+            };
+            st.predicted_token = target_tok;
             steps.push(st);
+            if is_clause_boundary(cur_tok, i + 1) {
+                session.record_boundary_trajectory(i + 1, cur_tok, pred_tok, target_tok);
+            }
         }
 
         LutStackGenerationResult {
-            reply_text: reply_text.to_owned(),
+            reply_text: clean_reply,
+            thinking_text: thinking_opt,
+            thinking_tokens,
             prompt_tokens,
             generated_tokens,
             steps,
@@ -4600,6 +5449,8 @@ impl LutStackModel {
             clauses_resolved: 1,
             primary_turn_idx: session.last_turn_idx,
             final_n_t: session.last_n_t,
+            boundary_trajectories: session.boundary_trajectories,
+            total_l1_margin: session.total_l1_margin,
         }
     }
 
@@ -4627,20 +5478,29 @@ impl LutStackModel {
                 None => format!("[Context: {}]", context.context_summary),
             });
         }
+        let (prompt_thinking, clean_primary) = parse_thinking_block(primary_prompt);
         let prompt_tokens = bpe.encode_dialogue_prompt(
             sys_note.as_deref(),
             history,
-            primary_prompt,
+            &clean_primary,
             self.dialogue_version,
         );
 
         let mut session = self.session_with_context(context);
+        if history.is_empty() {
+            session.recent_turn_rows.clear();
+            session.emitted_4grams.clear();
+        }
         let mut steps = Vec::new();
         let mut generated_tokens = Vec::new();
+        let mut thinking_tokens = Vec::new();
+        let thinking_text = prompt_thinking;
 
         if prompt_tokens.is_empty() {
             return LutStackGenerationResult {
                 reply_text: String::new(),
+                thinking_text: None,
+                thinking_tokens: Vec::new(),
                 prompt_tokens,
                 generated_tokens,
                 steps,
@@ -4649,31 +5509,60 @@ impl LutStackModel {
                 clauses_resolved: 0,
                 primary_turn_idx: usize::MAX,
                 final_n_t: [0; FBS_WIDTH],
+                boundary_trajectories: Vec::new(),
+                total_l1_margin: 0,
             };
         }
 
-        let prefill_len = prompt_tokens.len() - 1;
-        let trunk_start = prefill_len.saturating_sub(32);
-        for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
-            session.prefill_token(tok, idx >= trunk_start);
+        let mut next_tok;
+        let mut last_source;
+        let mut confident_open;
+        let mut matched_stem_count;
+        let point_hamming_bits;
+        let primary_turn_idx;
+        let mut clauses_resolved;
+
+        if let Some(ref th) = thinking_text {
+            for &tok in &prompt_tokens {
+                session.prefill_token(tok, true);
+            }
+            let (th_toks, _) = session.step_reasoning_trace(th);
+            thinking_tokens = th_toks;
+
+            let (first_step, first_tok) = session.commence_visible_prediction();
+            next_tok = first_tok;
+            last_source = first_step.source_mechanism;
+            confident_open =
+                last_source == "turn_memory_opening" || last_source == "point_key_vote";
+            matched_stem_count = session.last_matched_stems;
+            point_hamming_bits = session.last_point_hamming_bits;
+            primary_turn_idx = session.last_turn_idx;
+            clauses_resolved = usize::from(confident_open);
+            steps.push(first_step);
+        } else {
+            let prefill_len = prompt_tokens.len() - 1;
+            for &tok in &prompt_tokens[..prefill_len] {
+                session.prefill_token(tok, true);
+            }
+            session.mark_reply_start();
+            let first_step = session.step_with_telemetry(prompt_tokens[prefill_len]);
+            next_tok = first_step.predicted_token;
+            last_source = first_step.source_mechanism;
+            confident_open =
+                last_source == "turn_memory_opening" || last_source == "point_key_vote";
+            matched_stem_count = session.last_matched_stems;
+            point_hamming_bits = session.last_point_hamming_bits;
+            primary_turn_idx = session.last_turn_idx;
+            clauses_resolved = usize::from(confident_open);
+            steps.push(first_step);
         }
-        session.mark_reply_start();
-        let mut first_step = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
-        let mut next_tok = first_step.predicted_token;
-        let mut last_source = first_step.source_mechanism;
-        let mut confident_open =
-            last_source == "turn_memory_opening" || last_source == "point_key_vote";
-        let mut matched_stem_count = session.last_matched_stems;
-        let point_hamming_bits = session.last_point_hamming_bits;
-        let primary_turn_idx = session.last_turn_idx;
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
-        let mut clauses_resolved = usize::from(confident_open);
         if confident_open && clauses.len() >= 2 {
             let mut extra_basins = Vec::new();
             for sec_clause in &clauses[1..] {
                 if let Some((canon_anchor, first_tok, _, _, sec_conf)) =
-                    self.resolve_clause_basin(history, sec_clause)
+                    self.resolve_clause_basin(history, sec_clause, &session.recent_turn_rows)
                 {
                     if sec_conf && canon_anchor != session.anchors.reply {
                         extra_basins.push((canon_anchor, first_tok));
@@ -4684,12 +5573,12 @@ impl LutStackModel {
             extra_basins.reverse();
             session.pending_basins = extra_basins;
         } else if clauses.len() == 1
-            && first_step.source_mechanism != "turn_memory_opening"
-            && first_step.l1_distance > 0
+            && last_source != "turn_memory_opening"
+            && steps.first().map(|s| s.l1_distance).unwrap_or(0) > 0
             && matched_stem_count <= 4
         {
             let comp_basins = self.resolve_complementary_uncovered_basins(
-                primary_prompt,
+                &clean_primary,
                 session.last_covered_stem_mask,
                 session.last_turn_idx,
                 &prompt_tokens,
@@ -4710,40 +5599,30 @@ impl LutStackModel {
                     matched_stem_count += comp_total_matched;
                 }
                 confident_open = true;
-                first_step.source_mechanism = "point_key_vote";
+                if let Some(s0) = steps.first_mut() {
+                    s0.source_mechanism = "point_key_vote";
+                }
                 last_source = "point_key_vote";
             }
         }
-        steps.push(first_step);
 
         let limit = if confident_open {
             max_new_tokens.clamp(1, 1024)
         } else {
             max_new_tokens.clamp(1, 24)
         };
-        let sep_tokens = bpe.encode("\n\n");
-
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
-                    for &sep_t in &sep_tokens {
-                        if generated_tokens.len() < limit {
-                            generated_tokens.push(sep_t);
-                            let sep_st = session.step_with_telemetry(sep_t);
-                            steps.push(sep_st);
-                        }
-                    }
                     session.anchors.reply = next_anchor;
-                    session.reply_history.clear();
-                    session.suffix_counts.clear();
-                    session.reply_start = Some(session.tokens.len());
                     next_tok = next_first_tok;
                     last_source = "turn_memory_reply";
                     continue;
                 }
                 break;
             }
-            generated_tokens.push(next_tok);
+            let cur_tok = next_tok;
+            generated_tokens.push(cur_tok);
             if last_source != "turn_memory_reply" && has_short_cycle(&generated_tokens) {
                 generated_tokens.truncate(generated_tokens.len().saturating_sub(1));
                 break;
@@ -4751,29 +5630,60 @@ impl LutStackModel {
             if generated_tokens.len() >= limit {
                 break;
             }
-            let st = session.step_with_telemetry(next_tok);
-            if confident_open && st.source_mechanism != "turn_memory_reply" {
-                next_tok = bpe.eos_id();
-                continue;
-            }
-            next_tok = st.predicted_token;
+            let st = session.step_with_telemetry(cur_tok);
+            let pred_tok = st.predicted_token;
+            next_tok = pred_tok;
             last_source = st.source_mechanism;
             steps.push(st);
+
+            self.try_mid_stream_re_attention(
+                &mut session,
+                cur_tok,
+                generated_tokens.len(),
+                &mut next_tok,
+                &mut last_source,
+                &mut clauses_resolved,
+            );
+
+            if is_clause_boundary(cur_tok, generated_tokens.len()) {
+                let target_tok = next_tok;
+                session.record_boundary_trajectory(
+                    generated_tokens.len(),
+                    cur_tok,
+                    pred_tok,
+                    target_tok,
+                );
+            }
         }
 
         let raw_decoded = bpe.decode(&generated_tokens);
-        let reply_text = if self.dialogue_version == 2 {
-            raw_decoded
-                .strip_prefix(' ')
-                .unwrap_or(&raw_decoded)
-                .trim()
-                .to_owned()
-        } else {
-            raw_decoded.trim().to_owned()
-        };
+        let (post_th, clean_reply) = parse_thinking_block(&raw_decoded);
+        let (reply_text, thinking_text, thinking_tokens, generated_tokens) =
+            if let Some(th) = post_th {
+                let vis_toks = bpe.encode(&format!(" {}", clean_reply.trim()));
+                let th_toks = if thinking_tokens.is_empty() {
+                    bpe.encode(&format!("<thinking>\n{}\n</thinking>", th))
+                } else {
+                    thinking_tokens
+                };
+                (clean_reply, Some(th), th_toks, vis_toks)
+            } else {
+                let text = if self.dialogue_version == 2 {
+                    raw_decoded
+                        .strip_prefix(' ')
+                        .unwrap_or(&raw_decoded)
+                        .trim()
+                        .to_owned()
+                } else {
+                    raw_decoded.trim().to_owned()
+                };
+                (text, thinking_text, thinking_tokens, generated_tokens)
+            };
 
         let res = LutStackGenerationResult {
             reply_text,
+            thinking_text,
+            thinking_tokens,
             prompt_tokens,
             generated_tokens,
             steps,
@@ -4782,8 +5692,23 @@ impl LutStackModel {
             clauses_resolved,
             primary_turn_idx,
             final_n_t: session.last_n_t,
+            boundary_trajectories: session.boundary_trajectories.clone(),
+            total_l1_margin: session.total_l1_margin,
         };
         context.blend_latent(&res.final_n_t);
+        if let Some(ref th) = res.thinking_text {
+            context.record_thinking(th.clone());
+        }
+        if res.primary_turn_idx != usize::MAX {
+            session.record_turn_basin(res.primary_turn_idx);
+        }
+        context.recent_turn_rows = session.recent_turn_rows;
+        context.emitted_4grams = session.emitted_4grams;
+        for hit in &res.boundary_trajectories {
+            if hit.has_residual() {
+                context.record_residual_margin(hit.l1_margin);
+            }
+        }
         res
     }
 
@@ -4811,37 +5736,47 @@ impl LutStackModel {
         );
         let mut session = self.session_with_context(context);
         let mut steps = Vec::new();
-        let encoded_reply = bpe.encode(&format!(" {}", reply_text.trim()));
-        let take_n = encoded_reply.len().min(max_trace_tokens.max(16));
-        let generated_tokens: Vec<u32> = encoded_reply[..take_n].to_vec();
 
         if !prompt_tokens.is_empty() {
-            let prefill_len = prompt_tokens.len() - 1;
-            let trunk_start = prefill_len.saturating_sub(24);
-            for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
-                session.prefill_token(tok, idx >= trunk_start);
+            for &tok in &prompt_tokens {
+                session.prefill_token(tok, true);
             }
-            session.mark_reply_start();
-            let mut st0 = session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
-            if let Some(&first_r) = generated_tokens.first() {
-                st0.predicted_token = first_r;
-            }
-            steps.push(st0);
         }
+
+        let (thinking_opt, clean_reply) = parse_thinking_block(reply_text);
+        let mut thinking_tokens = Vec::new();
+
+        if let Some(ref th) = thinking_opt {
+            let (th_toks, _) = session.step_reasoning_trace(th);
+            thinking_tokens = th_toks;
+        } else {
+            session.mark_reply_start();
+        }
+
+        let encoded_reply = bpe.encode(&format!(" {}", clean_reply.trim()));
+        let take_n = encoded_reply.len().min(max_trace_tokens.max(16));
+        let generated_tokens: Vec<u32> = encoded_reply[..take_n].to_vec();
 
         for i in 0..generated_tokens.len() {
             let cur_tok = generated_tokens[i];
             let mut st = session.step_with_telemetry(cur_tok);
-            if let Some(&next_r) = generated_tokens.get(i + 1) {
-                st.predicted_token = next_r;
+            let pred_tok = st.predicted_token;
+            let target_tok = if let Some(&next_r) = generated_tokens.get(i + 1) {
+                next_r
             } else {
-                st.predicted_token = bpe.eos_id();
-            }
+                bpe.eos_id()
+            };
+            st.predicted_token = target_tok;
             steps.push(st);
+            if is_clause_boundary(cur_tok, i + 1) {
+                session.record_boundary_trajectory(i + 1, cur_tok, pred_tok, target_tok);
+            }
         }
 
         let res = LutStackGenerationResult {
-            reply_text: reply_text.to_owned(),
+            reply_text: clean_reply,
+            thinking_text: thinking_opt,
+            thinking_tokens,
             prompt_tokens,
             generated_tokens,
             steps,
@@ -4850,8 +5785,23 @@ impl LutStackModel {
             clauses_resolved: 1,
             primary_turn_idx: session.last_turn_idx,
             final_n_t: session.last_n_t,
+            boundary_trajectories: session.boundary_trajectories.clone(),
+            total_l1_margin: session.total_l1_margin,
         };
         context.blend_latent(&res.final_n_t);
+        if let Some(ref th) = res.thinking_text {
+            context.record_thinking(th.clone());
+        }
+        if res.primary_turn_idx != usize::MAX {
+            session.record_turn_basin(res.primary_turn_idx);
+        }
+        context.recent_turn_rows = session.recent_turn_rows;
+        context.emitted_4grams = session.emitted_4grams;
+        for hit in &res.boundary_trajectories {
+            if hit.has_residual() {
+                context.record_residual_margin(hit.l1_margin);
+            }
+        }
         res
     }
 
@@ -4887,11 +5837,8 @@ impl LutStackModel {
         let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
         let prefill_len = prompt_tokens.len() - 1;
-        let trunk_start = prefill_len.saturating_sub(32);
-        for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
-            if idx >= trunk_start {
-                let _ = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
-            }
+        for &tok in &prompt_tokens[..prefill_len] {
+            let _ = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
         let n_t = self.forward_token_hidden(
             prompt_tokens[prompt_tokens.len() - 1],
@@ -4899,278 +5846,343 @@ impl LutStackModel {
             &mut hamming_caches,
         );
 
-        let Some(mem) = self.memory.as_mut() else {
-            return Err("LutStackModel missing ServedTurnMemory".into());
-        };
-        let Some(pt) = self.point.as_mut() else {
-            return Err("LutStackModel missing ServedPointKey".into());
-        };
-        let p_width = pt.width.max(1);
-        let alen = pt.anchor_len.max(32);
-        let n_t_i16: Vec<i16> = n_t
-            .iter()
-            .take(p_width)
-            .map(|&v| v.clamp(i16::MIN as i32, i16::MAX as i32) as i16)
-            .collect();
-
-        let open_ids = extract_turn_ids(&prompt_tokens, mem.key_window, mem.k);
-        let prompt_lower = prompt_clean.to_ascii_lowercase();
-        let reply_lower = reply_clean.to_ascii_lowercase();
-        let prompt_stem_list = extract_salient_stem_hashes_from_text(&prompt_lower, 12);
-        let reply_stem_list = extract_salient_stem_hashes_from_text(&reply_lower, 12);
-
-        let mut primary_stems = [MEMORY_PAD; 6];
-        for (i, &(sh, _)) in prompt_stem_list.iter().take(6).enumerate() {
-            primary_stems[i] = sh;
-        }
-        let mut secondary_stems = [MEMORY_PAD; 6];
-        let mut sec_idx = 0usize;
-        for &(sh, _) in prompt_stem_list
-            .iter()
-            .skip(6)
-            .chain(reply_stem_list.iter())
         {
-            if sec_idx >= 6 {
-                break;
-            }
-            if !primary_stems.contains(&sh) && !secondary_stems[..sec_idx].contains(&sh) {
-                secondary_stems[sec_idx] = sh;
-                sec_idx += 1;
-            }
-        }
-
-        let active_prompt_ids: Vec<u32> =
-            extract_turn_ids(&prompt_tokens, mem.key_window, mem.key_window.max(128))
-                .into_iter()
-                .filter(|&t| t != MEMORY_PAD)
+            let Some(mem) = self.memory.as_mut() else {
+                return Err("LutStackModel missing ServedTurnMemory".into());
+            };
+            let Some(pt) = self.point.as_mut() else {
+                return Err("LutStackModel missing ServedPointKey".into());
+            };
+            let p_width = pt.width.max(1);
+            let alen = pt.anchor_len.max(32);
+            let n_t_i16: Vec<i16> = n_t
+                .iter()
+                .take(p_width)
+                .map(|&v| v.clamp(i16::MIN as i32, i16::MAX as i32) as i16)
                 .collect();
-        let mut content_bpe = [MEMORY_PAD; 4];
-        let mut bpe_idx = 0usize;
-        for &t in &active_prompt_ids {
-            if bpe_idx >= 4 {
-                break;
-            }
-            if t < 259 || content_bpe[..bpe_idx].contains(&t) {
-                continue;
-            }
-            let dec = bpe.decode(&[t]);
-            let clean: String = dec
-                .chars()
-                .filter(|c| c.is_ascii_alphanumeric())
-                .collect::<String>()
-                .to_ascii_lowercase();
-            if clean.len() < 2 || is_bpe_framing_stopword(&clean) {
-                continue;
-            }
-            content_bpe[bpe_idx] = t;
-            bpe_idx += 1;
-        }
 
-        let anchors = pt.canonical_anchors.get_or_insert_with(Vec::new);
-        if anchors.len() < pt.rows * alen {
-            return Err("ServedPointKey canonical_anchors length mismatch".into());
-        }
+            let open_ids = extract_turn_ids(&prompt_tokens, mem.key_window, mem.k);
+            let prompt_lower = prompt_clean.to_ascii_lowercase();
+            let reply_lower = reply_clean.to_ascii_lowercase();
+            let prompt_stem_list = extract_salient_stem_hashes_from_text(&prompt_lower, 12);
+            let reply_stem_list = extract_salient_stem_hashes_from_text(&reply_lower, 12);
 
-        // Check idempotency: if a row with identical PointKey vector, target token, and primary stems already exists
-        // and has a valid reply continuation in `mem.reply`, skip duplicate compilation.
-        for r in 0..pt.rows {
-            let p_slice = &pt.points[r * p_width..(r + 1) * p_width];
-            let a_slice = &anchors[r * alen..(r + 1) * alen];
-            if p_slice == n_t_i16.as_slice()
-                && pt.targets[r] == first_reply_tok
-                && alen >= 22
-                && a_slice[16..22] == primary_stems
+            let mut primary_stems = [MEMORY_PAD; 6];
+            for (i, &(sh, _)) in prompt_stem_list.iter().take(6).enumerate() {
+                primary_stems[i] = sh;
+            }
+            let mut secondary_stems = [MEMORY_PAD; 6];
+            let mut sec_idx = 0usize;
+            for &(sh, _) in prompt_stem_list
+                .iter()
+                .skip(6)
+                .chain(reply_stem_list.iter())
             {
-                if let Some(rt) = mem.reply.as_ref() {
-                    if probe_reply_table_has_anchor(
-                        rt,
-                        mem.reply_key_len,
-                        &a_slice[0..1],
-                        first_reply_tok,
-                    ) {
-                        return Ok(false);
+                if sec_idx >= 6 {
+                    break;
+                }
+                if !primary_stems.contains(&sh) && !secondary_stems[..sec_idx].contains(&sh) {
+                    secondary_stems[sec_idx] = sh;
+                    sec_idx += 1;
+                }
+            }
+
+            let active_prompt_ids: Vec<u32> =
+                extract_turn_ids(&prompt_tokens, mem.key_window, mem.key_window.max(128))
+                    .into_iter()
+                    .filter(|&t| t != MEMORY_PAD)
+                    .collect();
+            let mut content_bpe = [MEMORY_PAD; 4];
+            let mut bpe_idx = 0usize;
+            for &t in &active_prompt_ids {
+                if bpe_idx >= 4 {
+                    break;
+                }
+                if t < 259 || content_bpe[..bpe_idx].contains(&t) {
+                    continue;
+                }
+                let dec = bpe.decode(&[t]);
+                let clean: String = dec
+                    .chars()
+                    .filter(|c| c.is_ascii_alphanumeric())
+                    .collect::<String>()
+                    .to_ascii_lowercase();
+                if clean.len() < 2 || is_bpe_framing_stopword(&clean) {
+                    continue;
+                }
+                content_bpe[bpe_idx] = t;
+                bpe_idx += 1;
+            }
+
+            let anchors = pt.canonical_anchors.get_or_insert_with(Vec::new);
+            if anchors.len() < pt.rows * alen {
+                return Err("ServedPointKey canonical_anchors length mismatch".into());
+            }
+
+            let prov_span = fnv1a64(
+                format!("gllm.training.compile_turn:{prompt_clean}:{reply_clean}").as_bytes(),
+            )
+            .max(1);
+
+            // Check idempotency: if a row with identical PointKey vector (or identical provenance span), target token,
+            // and primary stems already exists and has a valid reply continuation in `mem.reply`, skip duplicate compilation.
+            for r in 0..pt.rows {
+                let p_slice = &pt.points[r * p_width..(r + 1) * p_width];
+                let a_slice = &anchors[r * alen..(r + 1) * alen];
+                let prov_match = (alen >= 3
+                    && a_slice[1] == (prov_span & 0xFFFF_FFFF) as u32
+                    && a_slice[2] == ((prov_span >> 32) & 0xFFFF_FFFF) as u32)
+                    || pt
+                        .provenance_spans
+                        .as_ref()
+                        .is_some_and(|sp| sp.get(r) == Some(&prov_span));
+                if (p_slice == n_t_i16.as_slice() || prov_match)
+                    && pt.targets[r] == first_reply_tok
+                    && alen >= 22
+                    && a_slice[16..22] == primary_stems
+                {
+                    if let Some(rt) = mem.reply.as_ref() {
+                        if probe_reply_table_has_anchor(
+                            rt,
+                            mem.reply_key_len,
+                            &a_slice[0..1],
+                            first_reply_tok,
+                        ) {
+                            return Ok(false);
+                        }
                     }
                 }
             }
-        }
 
-        // Compute unique `next_turn_idx` across all existing PointKey rows
-        let mut max_turn_idx = pt.rows;
-        let mut insert_row = pt.rows;
-        let mut found_insert_row = false;
-        for r in 0..pt.rows {
-            let a_row = &anchors[r * alen..(r + 1) * alen];
-            let raw = a_row[0];
-            let tid = if (raw & 0x8000_0000) != 0 {
-                (raw & 0x7FFF_FFFF) as usize
+            // Compute unique `next_turn_idx` across all existing PointKey rows
+            let mut max_turn_idx = pt.rows;
+            let mut insert_row = pt.rows;
+            let mut found_insert_row = false;
+            for r in 0..pt.rows {
+                let a_row = &anchors[r * alen..(r + 1) * alen];
+                let raw = a_row[0];
+                let tid = if (raw & 0x8000_0000) != 0 {
+                    (raw & 0x7FFF_FFFF) as usize
+                } else {
+                    r
+                };
+                if (raw & 0x8000_0000) != 0 && tid > max_turn_idx {
+                    max_turn_idx = tid;
+                }
+                let is_core_or_proved = (raw & 0x8000_0000) == 0
+                    || tid < CORE_CURRICULUM_TURNS
+                    || (alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
+                if !found_insert_row && !is_core_or_proved {
+                    insert_row = r;
+                    found_insert_row = true;
+                }
+            }
+            let next_turn_idx = max_turn_idx + 1;
+            let anchor_id = 0x8000_0000u32 | (next_turn_idx as u32);
+
+            let mut new_anchor_row = vec![MEMORY_PAD; alen];
+            new_anchor_row[0] = anchor_id;
+            // Repurpose words 1..6 for deterministic provenance span & trace ID
+            let prov_trace_lo =
+                fnv1a64(format!("gllm.training.trace:{prompt_clean}").as_bytes()).max(1);
+            let prov_trace_hi = fnv1a64(b"uor.training.hi").max(1);
+            let prov_trace = (prov_trace_lo as u128) | ((prov_trace_hi as u128) << 64);
+            if alen >= 7 {
+                new_anchor_row[1] = (prov_span & 0xFFFF_FFFF) as u32;
+                new_anchor_row[2] = ((prov_span >> 32) & 0xFFFF_FFFF) as u32;
+                new_anchor_row[3] = (prov_trace & 0xFFFF_FFFF) as u32;
+                new_anchor_row[4] = ((prov_trace >> 32) & 0xFFFF_FFFF) as u32;
+                new_anchor_row[5] = ((prov_trace >> 64) & 0xFFFF_FFFF) as u32;
+                new_anchor_row[6] = ((prov_trace >> 96) & 0xFFFF_FFFF) as u32;
+            }
+            if alen >= 8 {
+                new_anchor_row[7] = VERIFIED_FRONTIER_ANCHOR_TAG;
+            }
+            if alen >= 16 {
+                let copy_open = open_ids.len().min(8);
+                new_anchor_row[8..8 + copy_open].copy_from_slice(&open_ids[..copy_open]);
+            }
+            if alen >= 22 {
+                new_anchor_row[16..22].copy_from_slice(&primary_stems);
+            }
+            if alen >= 28 {
+                new_anchor_row[22..28].copy_from_slice(&secondary_stems);
+            }
+            if alen >= 32 {
+                new_anchor_row[28..32].copy_from_slice(&content_bpe);
+            }
+
+            // Splice into `pt` at `insert_row` (end of core/proved curriculum prefix)
+            let p_pos = insert_row * p_width;
+            pt.points.splice(p_pos..p_pos, n_t_i16);
+            pt.targets.insert(insert_row, first_reply_tok);
+            let a_pos = insert_row * alen;
+            anchors.splice(a_pos..a_pos, new_anchor_row);
+            let spans = pt
+                .provenance_spans
+                .get_or_insert_with(|| vec![0u64; pt.rows]);
+            if insert_row <= spans.len() {
+                spans.insert(insert_row, prov_span);
             } else {
-                r
+                spans.push(prov_span);
+            }
+            let traces = pt
+                .provenance_traces
+                .get_or_insert_with(|| vec![0u128; pt.rows]);
+            if insert_row <= traces.len() {
+                traces.insert(insert_row, prov_trace);
+            } else {
+                traces.push(prov_trace);
+            }
+            pt.rows += 1;
+
+            // Insert `(open_ids, first_reply_tok)` into `mem.opening` preserving sorted binary-search order
+            let kl = mem.opening.key_len;
+            if kl > 0 && open_ids.len() == kl && mem.opening.keys.len() == mem.opening.entries * kl
+            {
+                let mut lo = 0usize;
+                let mut hi = mem.opening.entries;
+                let mut exact_pos = None;
+                while lo < hi {
+                    let mid = lo + (hi - lo) / 2;
+                    let slice = &mem.opening.keys[mid * kl..(mid + 1) * kl];
+                    match slice.cmp(open_ids.as_slice()) {
+                        std::cmp::Ordering::Less => lo = mid + 1,
+                        std::cmp::Ordering::Greater => hi = mid,
+                        std::cmp::Ordering::Equal => {
+                            exact_pos = Some(mid);
+                            break;
+                        }
+                    }
+                }
+                if let Some(pos) = exact_pos {
+                    mem.opening.values[pos] = first_reply_tok;
+                } else {
+                    let k_pos = lo * kl;
+                    mem.opening.keys.splice(k_pos..k_pos, open_ids);
+                    mem.opening.values.insert(lo, first_reply_tok);
+                    mem.opening.entries += 1;
+                }
+            }
+
+            // Pack 4-gram reply steps into `mem.reply.packed12`
+            let Some(reply_tbl) = mem.reply.as_mut() else {
+                return Err("ServedTurnMemory missing reply table".into());
             };
-            if (raw & 0x8000_0000) != 0 && tid > max_turn_idx {
-                max_turn_idx = tid;
-            }
-            let is_core_or_proved = (raw & 0x8000_0000) == 0
-                || tid < CORE_CURRICULUM_TURNS
-                || (alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
-            if !found_insert_row && !is_core_or_proved {
-                insert_row = r;
-                found_insert_row = true;
-            }
-        }
-        let next_turn_idx = max_turn_idx + 1;
-        let anchor_id = 0x8000_0000u32 | (next_turn_idx as u32);
-
-        let mut new_anchor_row = vec![MEMORY_PAD; alen];
-        new_anchor_row[0] = anchor_id;
-        // Repurpose words 1..6 for deterministic provenance span & trace ID
-        let prov_span =
-            fnv1a64(format!("gllm.training.compile_turn:{prompt_clean}:{reply_clean}").as_bytes())
-                .max(1);
-        let prov_trace_lo =
-            fnv1a64(format!("gllm.training.trace:{prompt_clean}").as_bytes()).max(1);
-        let prov_trace_hi = fnv1a64(b"uor.training.hi").max(1);
-        let prov_trace = (prov_trace_lo as u128) | ((prov_trace_hi as u128) << 64);
-        if alen >= 7 {
-            new_anchor_row[1] = (prov_span & 0xFFFF_FFFF) as u32;
-            new_anchor_row[2] = ((prov_span >> 32) & 0xFFFF_FFFF) as u32;
-            new_anchor_row[3] = (prov_trace & 0xFFFF_FFFF) as u32;
-            new_anchor_row[4] = ((prov_trace >> 32) & 0xFFFF_FFFF) as u32;
-            new_anchor_row[5] = ((prov_trace >> 64) & 0xFFFF_FFFF) as u32;
-            new_anchor_row[6] = ((prov_trace >> 96) & 0xFFFF_FFFF) as u32;
-        }
-        if alen >= 8 {
-            new_anchor_row[7] = VERIFIED_FRONTIER_ANCHOR_TAG;
-        }
-        if alen >= 16 {
-            let copy_open = open_ids.len().min(8);
-            new_anchor_row[8..8 + copy_open].copy_from_slice(&open_ids[..copy_open]);
-        }
-        if alen >= 22 {
-            new_anchor_row[16..22].copy_from_slice(&primary_stems);
-        }
-        if alen >= 28 {
-            new_anchor_row[22..28].copy_from_slice(&secondary_stems);
-        }
-        if alen >= 32 {
-            new_anchor_row[28..32].copy_from_slice(&content_bpe);
-        }
-
-        // Splice into `pt` at `insert_row` (end of core/proved curriculum prefix)
-        let p_pos = insert_row * p_width;
-        pt.points.splice(p_pos..p_pos, n_t_i16);
-        pt.targets.insert(insert_row, first_reply_tok);
-        let a_pos = insert_row * alen;
-        anchors.splice(a_pos..a_pos, new_anchor_row);
-        let spans = pt
-            .provenance_spans
-            .get_or_insert_with(|| vec![0u64; pt.rows]);
-        if insert_row <= spans.len() {
-            spans.insert(insert_row, prov_span);
-        } else {
-            spans.push(prov_span);
-        }
-        let traces = pt
-            .provenance_traces
-            .get_or_insert_with(|| vec![0u128; pt.rows]);
-        if insert_row <= traces.len() {
-            traces.insert(insert_row, prov_trace);
-        } else {
-            traces.push(prov_trace);
-        }
-        pt.rows += 1;
-
-        // Insert `(open_ids, first_reply_tok)` into `mem.opening` preserving sorted binary-search order
-        let kl = mem.opening.key_len;
-        if kl > 0 && open_ids.len() == kl && mem.opening.keys.len() == mem.opening.entries * kl {
-            let mut lo = 0usize;
-            let mut hi = mem.opening.entries;
-            let mut exact_pos = None;
-            while lo < hi {
-                let mid = lo + (hi - lo) / 2;
-                let slice = &mem.opening.keys[mid * kl..(mid + 1) * kl];
-                match slice.cmp(open_ids.as_slice()) {
-                    std::cmp::Ordering::Less => lo = mid + 1,
-                    std::cmp::Ordering::Greater => hi = mid,
-                    std::cmp::Ordering::Equal => {
-                        exact_pos = Some(mid);
+            let mut reply_history: Vec<u32> = Vec::with_capacity(reply_tokens.len());
+            let mut suffix_counts: Vec<([u32; 4], u32)> = Vec::new();
+            let mut new_packed = Vec::with_capacity(reply_tokens.len());
+            for i in 0..reply_tokens.len() {
+                let cur_tok = reply_tokens[i];
+                let next_tok = if i + 1 < reply_tokens.len() {
+                    reply_tokens[i + 1]
+                } else {
+                    bpe.eos_id()
+                };
+                reply_history.push(cur_tok);
+                let n = reply_history.len();
+                let s0 = if n >= 4 {
+                    reply_history[n - 4]
+                } else {
+                    MEMORY_PAD
+                };
+                let s1 = if n >= 3 {
+                    reply_history[n - 3]
+                } else {
+                    MEMORY_PAD
+                };
+                let s2 = if n >= 2 {
+                    reply_history[n - 2]
+                } else {
+                    MEMORY_PAD
+                };
+                let s3 = reply_history[n - 1];
+                let suffix4 = [s0, s1, s2, s3];
+                let mut occ = 0u32;
+                let mut found_suf = false;
+                for (existing_suf, count) in &mut suffix_counts {
+                    if *existing_suf == suffix4 {
+                        occ = *count;
+                        *count = count.saturating_add(1);
+                        found_suf = true;
                         break;
                     }
                 }
+                if !found_suf {
+                    suffix_counts.push((suffix4, 1));
+                }
+                let key6 = [
+                    anchor_id, occ, suffix4[0], suffix4[1], suffix4[2], suffix4[3],
+                ];
+                new_packed.push(pack_reply_entry_12(&key6, next_tok));
             }
-            if let Some(pos) = exact_pos {
-                mem.opening.values[pos] = first_reply_tok;
-            } else {
-                let k_pos = lo * kl;
-                mem.opening.keys.splice(k_pos..k_pos, open_ids);
-                mem.opening.values.insert(lo, first_reply_tok);
-                mem.opening.entries += 1;
-            }
-        }
+            reply_tbl.packed12.extend(new_packed);
+            reply_tbl
+                .packed12
+                .sort_unstable_by_key(|e| (e[0], e[1], e[2] >> 13));
+            reply_tbl
+                .packed12
+                .dedup_by_key(|e| (e[0], e[1], e[2] >> 13));
+            reply_tbl.entries = reply_tbl.packed12.len();
 
-        // Pack 4-gram reply steps into `mem.reply.packed12`
-        let Some(reply_tbl) = mem.reply.as_mut() else {
-            return Err("ServedTurnMemory missing reply table".into());
-        };
-        let mut reply_history: Vec<u32> = Vec::with_capacity(reply_tokens.len());
-        let mut suffix_counts: Vec<([u32; 4], u32)> = Vec::new();
-        let mut new_packed = Vec::with_capacity(reply_tokens.len());
-        for i in 0..reply_tokens.len() {
-            let cur_tok = reply_tokens[i];
-            let next_tok = if i + 1 < reply_tokens.len() {
-                reply_tokens[i + 1]
-            } else {
-                bpe.eos_id()
-            };
-            reply_history.push(cur_tok);
-            let n = reply_history.len();
-            let s0 = if n >= 4 {
-                reply_history[n - 4]
-            } else {
-                MEMORY_PAD
-            };
-            let s1 = if n >= 3 {
-                reply_history[n - 3]
-            } else {
-                MEMORY_PAD
-            };
-            let s2 = if n >= 2 {
-                reply_history[n - 2]
-            } else {
-                MEMORY_PAD
-            };
-            let s3 = reply_history[n - 1];
-            let suffix4 = [s0, s1, s2, s3];
-            let mut occ = 0u32;
-            let mut found_suf = false;
-            for (existing_suf, count) in &mut suffix_counts {
-                if *existing_suf == suffix4 {
-                    occ = *count;
-                    *count = count.saturating_add(1);
-                    found_suf = true;
-                    break;
+            if let Some(ta) = self.ternary_assoc.as_mut() {
+                for win in reply_tokens.windows(2) {
+                    ta.set_bit((win[0] as usize) & 0xFFF, win[1]);
                 }
             }
-            if !found_suf {
-                suffix_counts.push((suffix4, 1));
-            }
-            let key6 = [
-                anchor_id, occ, suffix4[0], suffix4[1], suffix4[2], suffix4[3],
-            ];
-            new_packed.push(pack_reply_entry_12(&key6, next_tok));
         }
-        reply_tbl.packed12.extend(new_packed);
-        reply_tbl
-            .packed12
-            .sort_unstable_by_key(|e| (e[0], e[1], e[2] >> 13));
-        reply_tbl
-            .packed12
-            .dedup_by_key(|e| (e[0], e[1], e[2] >> 13));
-        reply_tbl.entries = reply_tbl.packed12.len();
 
-        if let Some(ta) = self.ternary_assoc.as_mut() {
-            for win in reply_tokens.windows(2) {
-                ta.set_bit((win[0] as usize) & 0xFFF, win[1]);
+        // Extract clause-boundary prediction residuals along verified dialogue turn
+        let mut residual_samples = Vec::new();
+
+        // 1. Prompt-to-reply opening boundary (step 0)
+        let (pred_0, _) = stack_whole_table_nearest(&n_t, &self.writer_table, self.vocab);
+        let target_0 = first_reply_tok;
+        let margin_0 = compute_token_l1_margin(&self.writer_table, self.vocab, pred_0, target_0);
+        if margin_0 > 0 {
+            let mut latent_0 = [0i16; FBS_WIDTH];
+            for d in 0..FBS_WIDTH {
+                latent_0[d] = n_t[d].clamp(i16::MIN as i32, i16::MAX as i32) as i16;
             }
+            residual_samples.push(WeightConsolidationSample::from_point_with_residual(
+                target_0, pred_0, latent_0, margin_0,
+            ));
+        }
+
+        // 2. Reply clause boundaries
+        for i in 0..reply_tokens.len() {
+            let tok = reply_tokens[i];
+            let step_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
+            let target_tok = reply_tokens.get(i + 1).copied().unwrap_or(bpe.eos_id());
+            if is_clause_boundary(tok, i + 1) {
+                let (pred_tok, _) =
+                    stack_whole_table_nearest(&step_n_t, &self.writer_table, self.vocab);
+                let margin =
+                    compute_token_l1_margin(&self.writer_table, self.vocab, pred_tok, target_tok);
+                if margin > 0 {
+                    let mut latent = [0i16; FBS_WIDTH];
+                    for d in 0..FBS_WIDTH {
+                        latent[d] = step_n_t[d].clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+                    }
+                    residual_samples.push(WeightConsolidationSample::from_point_with_residual(
+                        target_tok, pred_tok, latent, margin,
+                    ));
+                }
+            }
+        }
+
+        // Coordinate descent backprop into writer.table & ServedPointKey
+        if !residual_samples.is_empty() {
+            let cfg = ConsolidationConfig {
+                iterations: 1,
+                step_numerator: 1,
+                step_denominator: 8,
+                clamp_min: -30000,
+                clamp_max: 30000,
+                sync_point_keys: true,
+                update_ternary_assoc: true,
+            };
+            let _ = consolidate_lut_weights(self, &residual_samples, &cfg)?;
         }
 
         Ok(true)
@@ -5549,11 +6561,8 @@ impl LutStackModel {
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
 
         let prefill_len = prompt_tokens.len() - 1;
-        let trunk_start = prefill_len.saturating_sub(32);
-        for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
-            if idx >= trunk_start {
-                let _ = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
-            }
+        for &tok in &prompt_tokens[..prefill_len] {
+            let _ = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
 
         let mut cur_tok = prompt_tokens[prompt_tokens.len() - 1];
@@ -5620,17 +6629,31 @@ pub fn consolidate_lut_trajectory_points(
     let c_min = config.clamp_min as i64;
     let c_max = config.clamp_max as i64;
 
-    // Accumulate sums and counts per token basin
+    // Accumulate sums, weighted sums, counts, and residual margins per token basin
     let mut tok_sum = vec![0i64; vocab * FBS_WIDTH];
     let mut tok_count = vec![0usize; vocab];
+    let mut tok_weighted_sum = vec![0i64; vocab * FBS_WIDTH];
+    let mut weight_sum = vec![0i64; vocab];
+    let mut margin_sum = vec![0u64; vocab];
+    let mut has_explicit_residuals = vec![false; vocab];
 
     for pt in points {
         let t = pt.target_token as usize;
         if t < vocab {
             let base = t * FBS_WIDTH;
+            let omega = match pt.residual_margin {
+                Some(m) => {
+                    has_explicit_residuals[t] = true;
+                    margin_sum[t] = margin_sum[t].saturating_add(m);
+                    (m as i64).max(1)
+                }
+                None => 1i64,
+            };
             for dim in 0..FBS_WIDTH {
                 tok_sum[base + dim] += pt.latent[dim] as i64;
+                tok_weighted_sum[base + dim] += (pt.latent[dim] as i64) * omega;
             }
+            weight_sum[t] += omega;
             tok_count[t] += 1;
         }
     }
@@ -5652,10 +6675,26 @@ pub fn consolidate_lut_trajectory_points(
             let mut row_changed = false;
             let mut centroid_row = [0i16; FBS_WIDTH];
 
+            let s_eff = if has_explicit_residuals[t] {
+                let mean_margin = margin_sum[t] / (cnt as u64);
+                if mean_margin == 0 {
+                    0i64
+                } else {
+                    let scaled = (mean_margin * (d as u64)) / 250_000;
+                    scaled.clamp(1, d as u64) as i64
+                }
+            } else {
+                s
+            };
+
             for dim in 0..FBS_WIDTH {
-                let mu_td = tok_sum[base + dim] / cnt_i64;
+                let mu_td = if weight_sum[t] > 0 {
+                    tok_weighted_sum[base + dim] / weight_sum[t]
+                } else {
+                    tok_sum[base + dim] / cnt_i64
+                };
                 let old_w = model.writer_table[base + dim] as i64;
-                let numerator = (d - s) * old_w + s * mu_td;
+                let numerator = (d - s_eff) * old_w + s_eff * mu_td;
                 let new_w = (numerator / d).clamp(c_min, c_max) as i16;
 
                 let delta = (new_w as i32 - old_w as i32).abs();
@@ -5711,12 +6750,23 @@ pub fn consolidate_lut_trajectory_points(
             for r in 0..pt.rows {
                 let target = pt.targets[r] as usize;
                 if let Some(new_centroid) = updated_centroids.get(&target) {
+                    let s_sync = if has_explicit_residuals[target] {
+                        let mean_margin = margin_sum[target] / (tok_count[target] as u64);
+                        if mean_margin == 0 {
+                            0i64
+                        } else {
+                            let scaled = (mean_margin * (d as u64)) / 250_000;
+                            scaled.clamp(1, d as u64) as i64
+                        }
+                    } else {
+                        s
+                    };
                     let base = r * p_width;
                     let copy_len = p_width.min(FBS_WIDTH);
                     for (dim, &mu_p) in new_centroid.iter().enumerate().take(copy_len) {
                         let old_p = pt.points[base + dim] as i64;
                         let mu_p = mu_p as i64;
-                        let new_p = ((d - s) * old_p + s * mu_p) / d;
+                        let new_p = ((d - s_sync) * old_p + s_sync * mu_p) / d;
                         pt.points[base + dim] = new_p.clamp(c_min, c_max) as i16;
                     }
                 }
@@ -6090,5 +7140,1244 @@ mod tests {
             "clamp_min == clamp_max is a valid degenerate interval"
         );
         assert_eq!(model.writer_table[base], 500);
+    }
+
+    #[test]
+    fn test_rolling_context_state_tracking_and_cap() {
+        let mut state = RollingContextState::new();
+        assert_eq!(state.turn_index, 0);
+        assert!(state.recent_turn_rows.is_empty());
+        assert!(state.emitted_4grams.is_empty());
+
+        // Record 12 turn basins in FIFO sequence
+        for r in 100..112 {
+            state.record_turn_basin(r);
+        }
+
+        // Verify capped strictly to last 8 items
+        assert_eq!(state.recent_turn_rows.len(), 8);
+        assert_eq!(
+            state.recent_turn_rows,
+            vec![104, 105, 106, 107, 108, 109, 110, 111]
+        );
+
+        // Record emitted 4-gram hashes
+        let h1 = hash_4gram(10, 20, 30, 40);
+        let h2 = hash_4gram(20, 30, 40, 50);
+        let h3 = hash_4gram(30, 40, 50, 60);
+
+        state.record_emitted_4gram(h1);
+        state.record_emitted_4gram(h2);
+        state.record_emitted_4gram(h3);
+        assert_eq!(state.emitted_4grams.len(), 3);
+        assert!(state.emitted_4grams.contains(&h1));
+        assert!(state.emitted_4grams.contains(&h2));
+        assert!(state.emitted_4grams.contains(&h3));
+
+        // Deduplication check: duplicate hash insertion is a no-op
+        state.record_emitted_4gram(h1);
+        assert_eq!(state.emitted_4grams.len(), 3);
+
+        // Lossless JSON serialization roundtrip
+        let json_str = state.to_json();
+        assert!(json_str.contains("\"recent_turn_rows\":[104,105,106,107,108,109,110,111]"));
+        assert!(json_str.contains(&format!("\"emitted_4grams\":[{},{},{}]", h1, h2, h3)));
+
+        let parsed =
+            RollingContextState::from_json(&json_str).expect("JSON deserialization succeeds");
+        assert_eq!(parsed.recent_turn_rows, state.recent_turn_rows);
+        assert_eq!(parsed.emitted_4grams, state.emitted_4grams);
+        assert_eq!(parsed, state);
+
+        // Backward compatibility with legacy JSON payloads lacking recent_turn_rows and emitted_4grams
+        let legacy_json = r#"{"q12_latent":[0,0,0,0],"turn_index":3,"context_summary":"summary","thinking_trace":["trace1"]}"#;
+        let legacy_parsed =
+            RollingContextState::from_json(legacy_json).expect("legacy JSON parses");
+        assert_eq!(legacy_parsed.turn_index, 3);
+        assert_eq!(legacy_parsed.context_summary, "summary");
+        assert_eq!(legacy_parsed.thinking_trace, vec!["trace1".to_string()]);
+        assert!(legacy_parsed.recent_turn_rows.is_empty());
+        assert!(legacy_parsed.emitted_4grams.is_empty());
+    }
+
+    #[test]
+    fn test_rolling_context_state_json_roundtrip_lossless_64bit_hashes() {
+        let mut state = RollingContextState {
+            turn_index: 4,
+            context_summary: "Turn 4 summary test".to_string(),
+            ..Default::default()
+        };
+        for row in 1..=5 {
+            state.record_turn_basin(row * 10);
+        }
+        // High-bit set 64-bit FNV-1a hashes (value > i64::MAX)
+        state.record_emitted_4gram(0xFFFF_FFFF_0000_1234u64);
+        state.record_emitted_4gram(0x8000_0000_0000_0000u64);
+        state.record_emitted_4gram(42u64);
+
+        let serialized = state.to_json();
+        let deserialized =
+            RollingContextState::from_json(&serialized).expect("deserialization must succeed");
+
+        assert_eq!(deserialized, state);
+        assert_eq!(deserialized.recent_turn_rows, vec![10, 20, 30, 40, 50]);
+        assert_eq!(
+            deserialized.emitted_4grams,
+            vec![0xFFFF_FFFF_0000_1234u64, 0x8000_0000_0000_0000u64, 42u64]
+        );
+    }
+
+    #[test]
+    fn test_lut_stack_session_seed_and_sync() {
+        let model = Arc::new(default_lut_stack_model());
+        let mut state = RollingContextState::default();
+        state.record_turn_basin(77);
+        state.record_emitted_4gram(9999);
+
+        let mut session = LutStackSession::new_with_context(model, &state);
+        assert_eq!(session.recent_turn_rows, vec![77]);
+        assert_eq!(session.emitted_4grams, vec![9999]);
+
+        session.record_turn_basin(88);
+        session.record_emitted_4gram(10000);
+
+        // Verify session isolation before sync
+        assert_eq!(state.recent_turn_rows, vec![77]);
+        assert_eq!(state.emitted_4grams, vec![9999]);
+
+        // Reset clears session state
+        session.reset();
+        assert!(session.recent_turn_rows.is_empty());
+        assert!(session.emitted_4grams.is_empty());
+    }
+
+    #[test]
+    fn test_basin_repetition_penalty_steers_select_point_key() {
+        let model = default_lut_stack_model();
+        let point = model.point.as_ref().expect("point table exists");
+        assert!(
+            point.rows >= 2,
+            "point table must have at least 2 rows for test"
+        );
+
+        let mem = model.memory.as_ref().expect("memory exists");
+
+        // Synthetic latent query aligned with row 0
+        let mut n_t = [0i32; FBS_WIDTH];
+        let row0_base = 0usize;
+        for (d, slot) in n_t.iter_mut().enumerate().take(point.width.min(FBS_WIDTH)) {
+            *slot = point.points[row0_base + d] as i32;
+        }
+
+        let bpe = ByteBpe4096::global();
+        let prompt_tokens = bpe.encode("who are you");
+
+        // Baseline: With empty recent_turn_rows, row 0 is selected as best match
+        let hit_clean = select_point_key_with_resonance(
+            point,
+            &n_t,
+            &prompt_tokens,
+            mem.key_window,
+            mem.reply.as_ref(),
+            mem.reply_key_len,
+            &[],
+        )
+        .expect("hit found without penalty");
+        assert_eq!(hit_clean.row, 0, "row 0 must win when unpenalized");
+
+        // With row 0 in recent_turn_rows, penalty is 250_000 * (0 + 1) = 250_000
+        // This steers routing to a fresh continuation basin (row != 0)
+        let hit_penalized = select_point_key_with_resonance(
+            point,
+            &n_t,
+            &prompt_tokens,
+            mem.key_window,
+            mem.reply.as_ref(),
+            mem.reply_key_len,
+            &[0],
+        )
+        .expect("hit found with penalty");
+        assert_ne!(
+            hit_penalized.row, 0,
+            "penalized row 0 must yield to fresh alternative basin"
+        );
+
+        // Multiple visited basins: penalizing both row 0 and the second-best row
+        let second_row = hit_penalized.row;
+        let hit_third = select_point_key_with_resonance(
+            point,
+            &n_t,
+            &prompt_tokens,
+            mem.key_window,
+            mem.reply.as_ref(),
+            mem.reply_key_len,
+            &[0, second_row],
+        );
+        if let Some(hit) = hit_third {
+            assert_ne!(hit.row, 0);
+            assert_ne!(hit.row, second_row);
+        }
+    }
+
+    #[test]
+    fn test_step_with_telemetry_ngram_repetition_fallback() {
+        let model = Arc::new(default_lut_stack_model());
+        let mut session = LutStackSession::new(model);
+
+        // Prefill tokens to establish a known token prefix
+        session.prefill_token(100, true);
+        session.prefill_token(200, true);
+        session.mark_reply_start();
+
+        // 1. Execute baseline step without emitted_4grams
+        let baseline_st = session.step_with_telemetry(300);
+        let orig_pred = baseline_st.predicted_token;
+        assert!(!baseline_st.top_candidates.is_empty());
+        let cand0 = baseline_st.top_candidates[0].0;
+        assert_eq!(orig_pred, cand0);
+
+        // Extract the 4-gram hash for the baseline prediction: [100, 200, 300, orig_pred]
+        let n = session.tokens.len();
+        let t_minus_1 = session.tokens[n - 1]; // 300
+        let t_minus_2 = session.tokens[n - 2]; // 200
+        let t_minus_3 = session.tokens[n - 3]; // 100
+        let rep_hash = hash_4gram(t_minus_3, t_minus_2, t_minus_1, orig_pred);
+
+        // 2. Initialize fresh session with rep_hash already present in emitted_4grams
+        let mut session2 = LutStackSession::new(session.model.clone());
+        session2.prefill_token(100, true);
+        session2.prefill_token(200, true);
+        session2.mark_reply_start();
+        session2.emitted_4grams.push(rep_hash);
+
+        let fallback_st = session2.step_with_telemetry(300);
+
+        // Verify orig_pred was skipped and engine fell back to candidate 1
+        assert_ne!(
+            fallback_st.predicted_token, orig_pred,
+            "repeating token must be rejected"
+        );
+        let expected_alt = baseline_st.top_candidates[1].0;
+        assert_eq!(
+            fallback_st.predicted_token, expected_alt,
+            "engine must fall back to candidate 1"
+        );
+        assert_eq!(
+            fallback_st.source_mechanism, "ngram_fallback_nearest",
+            "source mechanism must reflect fallback"
+        );
+        assert_eq!(
+            fallback_st.l1_distance, baseline_st.top_candidates[1].1,
+            "l1_distance must match fallback candidate distance"
+        );
+
+        // Verify the new 4-gram hash is registered in emitted_4grams
+        let new_hash = hash_4gram(t_minus_3, t_minus_2, t_minus_1, fallback_st.predicted_token);
+        assert!(session2.emitted_4grams.contains(&new_hash));
+
+        // 3. Cascading fallback: suppress both candidate 0 and candidate 1
+        let mut session3 = LutStackSession::new(session.model.clone());
+        session3.prefill_token(100, true);
+        session3.prefill_token(200, true);
+        session3.mark_reply_start();
+        session3.emitted_4grams.push(rep_hash);
+        session3.emitted_4grams.push(new_hash);
+
+        let cascading_st = session3.step_with_telemetry(300);
+        assert_ne!(cascading_st.predicted_token, orig_pred);
+        assert_ne!(cascading_st.predicted_token, expected_alt);
+        assert_eq!(
+            cascading_st.predicted_token, baseline_st.top_candidates[2].0,
+            "cascading fallback must reach candidate 2"
+        );
+    }
+
+    // ============================================================================
+    // MILESTONE M2 UNIT TESTS: DYNAMIC SUB-SENTENCE RE-ATTENTION & ANTI-CHUNKING
+    // ============================================================================
+
+    #[test]
+    fn test_clause_boundary_detection_punctuation_and_interval() {
+        let bpe = ByteBpe4096::global();
+
+        // 1. Punctuation boundary tokens must trigger boundary detection at any step >= 1
+        let boundary_chars = [".", "?", "!", ":", ";", "\n"];
+        for ch in boundary_chars {
+            let tokens = bpe.encode(ch);
+            assert!(
+                !tokens.is_empty(),
+                "punctuation '{}' must encode to at least 1 token",
+                ch
+            );
+            let tok = tokens[tokens.len() - 1];
+            for step in [1usize, 3, 7, 13, 15] {
+                assert!(
+                    is_clause_boundary(tok, step),
+                    "token for '{}' (id {}) must be recognized as boundary at step {}",
+                    ch,
+                    tok,
+                    step
+                );
+            }
+        }
+
+        // 2. Normal word tokens without punctuation must NOT trigger at non-interval steps
+        let normal_words = ["hello", "world", "algorithm", "state", "the"];
+        for word in normal_words {
+            let tokens = bpe.encode(word);
+            assert!(!tokens.is_empty());
+            let tok = tokens[0];
+            for step in [1usize, 2, 5, 9, 14, 15] {
+                assert!(
+                    !is_clause_boundary(tok, step),
+                    "word '{}' (id {}) must NOT trigger boundary at step {}",
+                    word,
+                    tok,
+                    step
+                );
+            }
+        }
+
+        // 3. Step interval K=16: at step 16, 32, 48, boundary must trigger even on regular words
+        let word_tok = bpe.encode("matrix")[0];
+        assert!(
+            is_clause_boundary(word_tok, 16),
+            "step 16 must trigger boundary regardless of token"
+        );
+        assert!(
+            is_clause_boundary(word_tok, 32),
+            "step 32 must trigger boundary regardless of token"
+        );
+        assert!(
+            is_clause_boundary(word_tok, 48),
+            "step 48 must trigger boundary regardless of token"
+        );
+
+        // 4. Step 0 must not falsely trigger step interval
+        assert!(
+            !is_clause_boundary(word_tok, 0),
+            "step 0 with regular word token must not trigger boundary"
+        );
+    }
+
+    #[test]
+    fn test_flock_cyclic_frame_modulation_zero_float_invariance() {
+        // Verify cyclic_frame_block properties across all 8 heads and 8 sweeps
+        for sweep in 0..8u64 {
+            let mut seen_frames = [false; 8];
+            for head in 0..8u64 {
+                let frame = cyclic_frame_block(head, sweep, 8);
+                assert!(frame < 8, "frame index must be in [0, 8)");
+                seen_frames[frame as usize] = true;
+            }
+            for (f, &seen) in seen_frames.iter().enumerate() {
+                assert!(seen, "sweep {} must cover frame {}", sweep, f);
+            }
+        }
+
+        // Create a 256D test hidden state with head-identifying patterns:
+        // Head h has base value (h + 1) * 1000 in Q12
+        let mut n_t = [0i32; FBS_WIDTH];
+        for h in 0..8 {
+            for d in 0..32 {
+                n_t[h * 32 + d] = ((h as i32) + 1) * 1000 + (d as i32);
+            }
+        }
+
+        // Modulate across sweeps 0..8
+        for sweep in 0..8usize {
+            let modulated = modulate_flock_cyclic_attention(&n_t, sweep);
+            assert_eq!(modulated.len(), FBS_WIDTH);
+
+            for h in 0..8 {
+                let expected_frame = cyclic_frame_block(h as u64, sweep as u64, 8) as usize;
+                for d in 0..32 {
+                    let actual = modulated[h * 32 + d];
+                    let expected = n_t[expected_frame * 32 + d];
+                    assert_eq!(
+                        actual, expected,
+                        "head {} in sweep {} must match frame {} coordinate {}",
+                        h, sweep, expected_frame, d
+                    );
+                    assert!(
+                        actual.abs() <= 30000,
+                        "Q12 coordinate must clamp within 30000"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_dynamic_re_attention_updates_reply_anchor_midstream() {
+        let model = Arc::new(default_lut_stack_model());
+        let point = model.point.as_ref().expect("point table exists");
+        let mem = model.memory.as_ref().expect("memory exists");
+        let bpe = ByteBpe4096::global();
+
+        // Select two distinct curriculum basin rows
+        let row_a = 0usize;
+        let anchor_a = resolve_canonical_reply_anchor(point, mem, row_a, point.targets[row_a], &[])
+            .expect("anchor A resolves");
+        let (row_b, anchor_b) = (1..point.rows)
+            .find_map(|r| {
+                let anc = resolve_canonical_reply_anchor(point, mem, r, point.targets[r], &[])?;
+                if anc != anchor_a {
+                    Some((r, anc))
+                } else {
+                    None
+                }
+            })
+            .expect("must find a row with distinct anchor");
+        assert_ne!(anchor_a, anchor_b, "anchors must be distinct");
+
+        let mut session = LutStackSession::new(model.clone());
+        let prompt_tokens = bpe.encode("who are you");
+        for &tok in &prompt_tokens[..prompt_tokens.len() - 1] {
+            session.prefill_token(tok, true);
+        }
+        session.mark_reply_start();
+        session.step_with_telemetry(prompt_tokens[prompt_tokens.len() - 1]);
+
+        // Initialize anchors.reply to anchor_A and queue anchor_B in pending_basins
+        session.anchors.reply = anchor_a.clone();
+        let first_tok_b = point.targets[row_b];
+        session.pending_basins = vec![(anchor_b.clone(), first_tok_b)];
+
+        // Simulate generation loop stepping toward a clause boundary
+        let period_tok = bpe.encode(".")[0];
+        let word_tok = bpe.encode(" name")[0];
+
+        // Step 1: Normal word token (non-boundary)
+        let _st1 = session.step_with_telemetry(word_tok);
+        assert_eq!(
+            session.anchors.reply, anchor_a,
+            "anchor must remain anchor_A before clause boundary"
+        );
+        assert_eq!(
+            session.pending_basins.len(),
+            1,
+            "pending basin must remain queued"
+        );
+
+        // Step 2: Clause boundary token (period '.')
+        let _st2 = session.step_with_telemetry(period_tok);
+
+        // Dynamic re-attention triggers at clause boundary:
+        let mut next_tok = 0u32;
+        let mut last_source = "turn_memory_reply";
+        let mut clauses_resolved = 1;
+        let transitioned = model.try_mid_stream_re_attention(
+            &mut session,
+            period_tok,
+            2,
+            &mut next_tok,
+            &mut last_source,
+            &mut clauses_resolved,
+        );
+        assert!(transitioned, "re-attention must trigger at boundary");
+
+        assert_eq!(
+            session.anchors.reply, anchor_b,
+            "session.anchors.reply must dynamically update to anchor_B at clause boundary"
+        );
+        assert_eq!(next_tok, first_tok_b);
+        assert!(
+            session.pending_basins.is_empty(),
+            "pending basin must have been consumed"
+        );
+
+        // Step 3: Continues decoding under anchor_B without reset
+        let _st3 = session.step_with_telemetry(first_tok_b);
+        assert_eq!(session.anchors.reply, anchor_b);
+    }
+
+    #[test]
+    fn test_anti_chunking_prevents_newline_injection_and_preserves_history() {
+        let model = Arc::new(default_lut_stack_model());
+        let bpe = ByteBpe4096::global();
+
+        // Multi-clause prompt: "Explain quantum entanglement in clear terms and also tell me about Emmy Noether."
+        let user_prompt =
+            "Explain quantum entanglement in clear terms and also tell me about Emmy Noether.";
+        let clauses = split_prompt_clauses(user_prompt);
+        assert!(
+            clauses.len() >= 2,
+            "prompt must split into multiple clauses"
+        );
+
+        let res = model.generate_reply(&[], user_prompt, 64);
+        assert!(
+            !res.generated_tokens.is_empty(),
+            "generation must produce tokens"
+        );
+
+        // 1. Anti-chunking: verify NO "\n\n" separator was injected mid-stream
+        let sep_tokens = bpe.encode("\n\n");
+        let has_injected_sep = res
+            .generated_tokens
+            .windows(sep_tokens.len())
+            .any(|w| w == sep_tokens.as_slice());
+        assert!(
+            !has_injected_sep,
+            "generated_tokens must NOT contain injected \\n\\n chunk separator: {:?}",
+            res.reply_text
+        );
+        assert!(
+            !res.reply_text.contains("\n\n"),
+            "reply_text must not contain \\n\\n paragraph chunking: '{}'",
+            res.reply_text
+        );
+
+        // 2. Continuous history preservation:
+        let mut session = LutStackSession::new(model.clone());
+        let prompt_toks = bpe.encode("test prompt");
+        for &t in &prompt_toks[..prompt_toks.len() - 1] {
+            session.prefill_token(t, true);
+        }
+        session.mark_reply_start();
+        session.step_with_telemetry(prompt_toks[prompt_toks.len() - 1]);
+
+        // Emulate 3 steps in clause 1
+        let tok1 = bpe.encode("Hello")[0];
+        let tok2 = bpe.encode(" world")[0];
+        let tok3 = bpe.encode(".")[0];
+        session.step_with_telemetry(tok1);
+        session.step_with_telemetry(tok2);
+        session.step_with_telemetry(tok3);
+
+        let history_len_before = session.reply_history.len();
+        assert!(
+            history_len_before >= 3,
+            "reply_history must track emitted tokens"
+        );
+
+        // Pop secondary basin mid-stream via model.try_mid_stream_re_attention at boundary token (tok3 = '.')
+        let dummy_anchor = vec![10u32, 20, 30, 40];
+        let first_tok_basin2 = 50u32;
+        session
+            .pending_basins
+            .push((dummy_anchor.clone(), first_tok_basin2));
+
+        let mut next_tok = 0u32;
+        let mut last_source = "turn_memory_reply";
+        let mut clauses_resolved = 1;
+        let step_idx = session.tokens.len();
+
+        let transitioned = model.try_mid_stream_re_attention(
+            &mut session,
+            tok3,
+            step_idx,
+            &mut next_tok,
+            &mut last_source,
+            &mut clauses_resolved,
+        );
+
+        assert!(
+            transitioned,
+            "try_mid_stream_re_attention must trigger transition at boundary token"
+        );
+        assert_eq!(
+            session.anchors.reply, dummy_anchor,
+            "session.anchors.reply must update to new basin anchor"
+        );
+        assert_eq!(
+            next_tok, first_tok_basin2,
+            "next_tok must be populated with target token of the popped basin"
+        );
+        assert_eq!(
+            last_source, "turn_memory_reply",
+            "last_source must remain turn_memory_reply"
+        );
+        assert!(
+            session.pending_basins.is_empty(),
+            "pending basin must have been consumed from queue"
+        );
+
+        // Anti-chunking invariant: reply_history and suffix_counts must NOT be wiped or shrunk
+        assert_eq!(
+            session.reply_history.len(),
+            history_len_before,
+            "reply_history must NOT be cleared on mid-stream basin transition"
+        );
+        assert!(
+            !session.reply_history.is_empty(),
+            "reply_history must remain intact across mid-stream re-attention"
+        );
+        assert!(
+            !session.suffix_counts.is_empty(),
+            "suffix_counts must remain intact across mid-stream re-attention"
+        );
+
+        // Step continuation token and verify reply_history monotonically advances
+        let _st = session.step_with_telemetry(next_tok);
+        assert_eq!(
+            session.reply_history.len(),
+            history_len_before + 1,
+            "reply_history must advance monotonically after stepping target token"
+        );
+        assert_eq!(
+            session.reply_history[session.reply_history.len() - 1],
+            first_tok_basin2,
+            "stepped token must match target token from new basin"
+        );
+    }
+
+    #[test]
+    fn test_continuous_generation_eliminates_premature_eos_lockout() {
+        let model = Arc::new(default_lut_stack_model());
+        let bpe = ByteBpe4096::global();
+
+        let user_prompt = "hello";
+        let max_tokens = 32;
+
+        let res = model.generate_reply(&[], user_prompt, max_tokens);
+        assert!(!res.generated_tokens.is_empty());
+
+        // In post-M2, decoding continues via writer.table / top_candidates when turn_memory_reply ends
+        let non_memory_steps = res
+            .steps
+            .iter()
+            .filter(|st| {
+                st.source_mechanism != "turn_memory_reply"
+                    && st.source_mechanism != "turn_memory_opening"
+            })
+            .count();
+
+        assert!(
+            non_memory_steps > 0,
+            "continuous generation must allow decoding beyond turn_memory_reply without premature EOS"
+        );
+
+        let first_non_memory_idx = res.steps.iter().position(|st| {
+            st.source_mechanism != "turn_memory_reply"
+                && st.source_mechanism != "turn_memory_opening"
+        });
+
+        if let Some(idx) = first_non_memory_idx {
+            if idx + 1 < res.steps.len() {
+                let next_step = &res.steps[idx + 1];
+                assert_ne!(
+                    next_step.predicted_token, bpe.eos_id(),
+                    "step immediately following turn_memory_reply exhaustion must NOT be forced to EOS"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_re_attention_with_trajectory_shift_without_pending_basins() {
+        let model = Arc::new(default_lut_stack_model());
+        let point = model.point.as_ref().expect("point table exists");
+        let mem = model.memory.as_ref().expect("memory exists");
+        let bpe = ByteBpe4096::global();
+
+        let mut session = LutStackSession::new(model.clone());
+        let prompt_toks = bpe.encode("who are you");
+        for &t in &prompt_toks {
+            session.prefill_token(t, true);
+        }
+        session.mark_reply_start();
+
+        // Set initial anchor to row 0
+        let canon_0 = resolve_canonical_reply_anchor(point, mem, 0, point.targets[0], &[])
+            .expect("canon 0 resolves");
+        session.anchors.reply = canon_0.clone();
+        session.pending_basins.clear();
+
+        // Synthesize trajectory shift toward row 2
+        let target_row = 2usize.min(point.rows - 1);
+        let canon_target =
+            resolve_canonical_reply_anchor(point, mem, target_row, point.targets[target_row], &[])
+                .expect("canon target resolves");
+
+        if canon_target != canon_0 {
+            let mut shifted_n_t = [0i32; FBS_WIDTH];
+            let base = target_row * point.width;
+            let sweep = (session.tokens.len() as u64) % 8;
+            for head in 0..8 {
+                let frame_block = cyclic_frame_block(head as u64, sweep, 8) as usize;
+                let dst_base = head * 32;
+                let src_base = frame_block * 32;
+                for d in 0..32 {
+                    if dst_base + d < point.width {
+                        shifted_n_t[src_base + d] = point.points[base + dst_base + d] as i32;
+                    }
+                }
+            }
+            session.last_n_t = shifted_n_t;
+
+            let boundary_tok = bpe.encode(".")[0];
+            let step = 16;
+            assert!(is_clause_boundary(boundary_tok, step));
+
+            let flock_n_t =
+                modulate_flock_cyclic_attention(&session.last_n_t, session.tokens.len());
+            if let Some(pt_hit) = select_point_key_with_resonance(
+                point,
+                &flock_n_t,
+                &session.tokens,
+                mem.key_window,
+                mem.reply.as_ref(),
+                mem.reply_key_len,
+                &session.recent_turn_rows,
+            ) {
+                if let Some(new_canon) =
+                    resolve_canonical_reply_anchor(point, mem, pt_hit.row, pt_hit.target_token, &[])
+                {
+                    if new_canon != session.anchors.reply {
+                        session.anchors.reply = new_canon;
+                    }
+                }
+            }
+
+            assert_eq!(
+                session.anchors.reply, canon_target,
+                "session.anchors.reply must transition to new continuation basin on trajectory shift"
+            );
+        }
+    }
+
+    #[test]
+    fn test_full_trunk_multi_turn_history_and_context_prefill() {
+        let model = Arc::new(default_lut_stack_model());
+        let bpe = ByteBpe4096::global();
+
+        let mut context = RollingContextState {
+            context_summary: "Prior discussion regarding Emmy Noether and symmetry laws."
+                .to_string(),
+            ..Default::default()
+        };
+        context.q12_latent[0] = 2048;
+
+        let history = vec![
+            (
+                "Who was Emmy Noether?".to_string(),
+                "Emmy Noether was a German mathematician who made landmark contributions to abstract algebra and theoretical physics.".to_string(),
+            ),
+        ];
+
+        let user_prompt = "What conservation law follows from time translation symmetry?";
+        let sys_note = Some(format!("[Context: {}]", context.context_summary));
+        let prompt_tokens = bpe.encode_dialogue_prompt(
+            sys_note.as_deref(),
+            &history,
+            user_prompt,
+            model.dialogue_version,
+        );
+
+        // Ensure dialogue prompt exceeds 32 tokens to stress full trunk prefill beyond old 32-token window
+        assert!(
+            prompt_tokens.len() > 32,
+            "dialogue prompt tokens ({}) must exceed 32 tokens",
+            prompt_tokens.len()
+        );
+
+        let mut session = LutStackSession::new_with_context(model.clone(), &context);
+
+        // Prefill all prompt tokens except the final one with run_trunk = true
+        for &tok in &prompt_tokens[..prompt_tokens.len() - 1] {
+            session.prefill_token(tok, true);
+        }
+
+        // Verify that recurrence states in ALL 6 layers of SpiralCore/FBS are active (non-zero)
+        assert_eq!(
+            session.rec_states.len(),
+            6,
+            "model trunk must have 6 SpiralCore/FBS layers"
+        );
+        for (layer_idx, rec_state) in session.rec_states.iter().enumerate() {
+            let l1_norm: i64 = rec_state.h_state.iter().map(|&v| (v as i64).abs()).sum();
+            assert!(
+                l1_norm > 0,
+                "layer {} recurrence state h_state must be non-zero after full-trunk prefill",
+                layer_idx
+            );
+        }
+
+        // Verify that session.tokens accurately tracks every prefilled token
+        assert_eq!(session.tokens.len(), prompt_tokens.len() - 1);
+        assert_eq!(
+            &session.tokens[..],
+            &prompt_tokens[..prompt_tokens.len() - 1]
+        );
+    }
+
+    #[test]
+    fn test_autoregressive_thinking_tokens_actively_steer_hidden_state_nt() {
+        let model = Arc::new(default_lut_stack_model());
+        let bpe = ByteBpe4096::global();
+
+        let prompt = "Solve 42 * 7";
+        let prompt_tokens = bpe.encode(prompt);
+
+        let mut session = LutStackSession::new(model.clone());
+
+        // 1. Prefill initial prompt
+        for &tok in &prompt_tokens {
+            session.prefill_token(tok, true);
+        }
+        let prompt_n_t = session.last_n_t;
+
+        // 2. Autoregressively step through reasoning tokens
+        let reasoning_trace = "<thinking>\n40 * 7 = 280\n2 * 7 = 14\n280 + 14 = 294\n</thinking>";
+        let reasoning_tokens = bpe.encode(reasoning_trace);
+        assert!(
+            !reasoning_tokens.is_empty(),
+            "reasoning tokens must be non-empty"
+        );
+
+        let mut previous_n_t = prompt_n_t;
+        let mut total_step_shifts = 0u64;
+
+        for &tok in &reasoning_tokens {
+            session.prefill_token(tok, true);
+            let current_n_t = session.last_n_t;
+
+            // Zero-float bounded Q12 invariant
+            for &val in &current_n_t {
+                assert!(
+                    (-32768..=32767).contains(&val),
+                    "hidden state coordinate {} exceeds signed 16-bit Q12 fixed point",
+                    val
+                );
+            }
+
+            let step_shift: u64 = current_n_t
+                .iter()
+                .zip(previous_n_t.iter())
+                .map(|(&a, &b)| (a as i64 - b as i64).unsigned_abs())
+                .sum();
+            total_step_shifts += step_shift;
+            previous_n_t = current_n_t;
+        }
+
+        let post_thinking_n_t = session.last_n_t;
+
+        // Compute total trajectory displacement from prompt state to post-thinking state
+        let net_steering_displacement: u64 = post_thinking_n_t
+            .iter()
+            .zip(prompt_n_t.iter())
+            .map(|(&a, &b)| (a as i64 - b as i64).unsigned_abs())
+            .sum();
+
+        assert!(
+            net_steering_displacement > 0,
+            "reasoning trajectory must actively steer n_t away from prompt state"
+        );
+        assert!(
+            total_step_shifts >= net_steering_displacement,
+            "triangle inequality must hold for cumulative reasoning step shifts"
+        );
+    }
+
+    #[test]
+    fn test_visible_reply_barrier_enforced_strictly_after_thinking() {
+        let model = Arc::new(default_lut_stack_model());
+        let bpe = ByteBpe4096::global();
+
+        let prompt = "Explain Fermat's Little Theorem";
+        let prompt_tokens = bpe.encode(prompt);
+        let mut session = LutStackSession::new(model.clone());
+
+        for &tok in &prompt_tokens {
+            session.prefill_token(tok, true);
+        }
+
+        // Before thinking: reply_start must be None
+        assert!(
+            session.reply_start.is_none(),
+            "reply_start must be None prior to reasoning completion"
+        );
+
+        let thinking_body = "<thinking>\nRecall a^(p-1) == 1 mod p for prime p\n</thinking>";
+        let thinking_tokens = bpe.encode(thinking_body);
+
+        // While stepping through reasoning tokens inside <thinking>...</thinking>:
+        // Barrier invariant: reply_start remains None until </thinking> is processed
+        for (idx, &tok) in thinking_tokens.iter().enumerate() {
+            session.prefill_token(tok, true);
+            if idx + 1 < thinking_tokens.len() {
+                assert!(
+                    session.reply_start.is_none(),
+                    "reply_start must NOT be set while inside reasoning block (token {})",
+                    idx
+                );
+            }
+        }
+
+        // At the barrier: now </thinking> has been prefilled
+        session.mark_reply_start();
+        assert!(
+            session.reply_start.is_some(),
+            "reply_start must be set immediately after </thinking>"
+        );
+        let reply_start_pos = session.reply_start.unwrap();
+        assert_eq!(
+            reply_start_pos,
+            session.tokens.len() + 1,
+            "reply_start position must match post-thinking barrier offset"
+        );
+
+        // Visible reply decoding begins: reply_history only populates after reply_start
+        assert!(
+            session.reply_history.is_empty(),
+            "reply_history must be empty prior to visible reply generation"
+        );
+
+        let first_reply_tok = bpe.encode("Fermat")[0];
+        let step = session.step_with_telemetry(first_reply_tok);
+        assert_eq!(session.reply_history.len(), 1);
+        assert_eq!(session.reply_history[0], first_reply_tok);
+        assert_eq!(step.input_token, first_reply_tok);
+    }
+
+    #[test]
+    fn test_reasoning_trajectory_routes_to_distinct_point_key_basin() {
+        let model = Arc::new(default_lut_stack_model());
+        let point = model
+            .point
+            .as_ref()
+            .expect("ServedPointKey must exist in model");
+        let mem = model
+            .memory
+            .as_ref()
+            .expect("ServedTurnMemory must exist in model");
+        let bpe = ByteBpe4096::global();
+
+        let prompt =
+            "What is the capital of France and what theorem connects symmetries to invariants?";
+        let prompt_tokens = bpe.encode(prompt);
+
+        let mut session = LutStackSession::new(model.clone());
+        for &tok in &prompt_tokens {
+            session.prefill_token(tok, true);
+        }
+        let unreasoned_n_t = session.last_n_t;
+
+        // Query PointKey hit from unreasoned state
+        let unreasoned_hit = select_point_key_with_resonance(
+            point,
+            &unreasoned_n_t,
+            &session.tokens,
+            mem.key_window,
+            mem.reply.as_ref(),
+            mem.reply_key_len,
+            &session.recent_turn_rows,
+        );
+
+        // Now steer through reasoning specifically targeting Emmy Noether
+        let thinking = "<thinking>\nThe second part asks about symmetries and conservation laws: Noether's theorem proved in 1915.\n</thinking>";
+        for &tok in &bpe.encode(thinking) {
+            session.prefill_token(tok, true);
+        }
+        let reasoned_n_t = session.last_n_t;
+
+        let reasoned_hit = select_point_key_with_resonance(
+            point,
+            &reasoned_n_t,
+            &session.tokens,
+            mem.key_window,
+            mem.reply.as_ref(),
+            mem.reply_key_len,
+            &session.recent_turn_rows,
+        );
+
+        // Verify that the reasoning trajectory modified the distance / resonance scores
+        let l1_diff: i64 = reasoned_n_t
+            .iter()
+            .zip(unreasoned_n_t.iter())
+            .map(|(&a, &b)| (a as i64 - b as i64).abs())
+            .sum();
+        assert!(
+            l1_diff > 0,
+            "reasoning must induce non-zero L1 trajectory shift"
+        );
+
+        if let (Some(h1), Some(h2)) = (unreasoned_hit, reasoned_hit) {
+            let geometry_shifted =
+                h1.row != h2.row || h1.raw_l1 != h2.raw_l1 || h1.matched_stems != h2.matched_stems;
+            assert!(
+                geometry_shifted,
+                "PointKey resonance hit must reflect reasoning-steered geometry"
+            );
+        }
+    }
+
+    #[test]
+    fn test_rolling_context_state_tracks_and_preserves_thinking_trace_across_turns() {
+        let mut context = RollingContextState::default();
+        assert!(context.thinking_trace.is_empty());
+        assert_eq!(context.turn_index, 0);
+
+        // Record 20 thinking traces (exceeding 16-trace FIFO cap)
+        for i in 1..=20 {
+            context.record_thinking(format!("Reasoning trace for turn {}", i));
+        }
+
+        assert_eq!(
+            context.thinking_trace.len(),
+            16,
+            "thinking_trace must be capped strictly at 16 traces FIFO"
+        );
+        assert_eq!(
+            context.thinking_trace.first().unwrap(),
+            "Reasoning trace for turn 5",
+            "oldest 4 traces must have been evicted FIFO"
+        );
+        assert_eq!(
+            context.thinking_trace.last().unwrap(),
+            "Reasoning trace for turn 20",
+            "most recent trace must be at end of FIFO"
+        );
+
+        // Blend reasoning n_t
+        let reasoning_n_t = [2048i32; FBS_WIDTH];
+        context.blend_latent(&reasoning_n_t);
+        assert_eq!(context.turn_index, 1);
+        for d in 0..FBS_WIDTH {
+            // (3072 * 0 + 1024 * 2048) / 4096 = 512
+            assert_eq!(context.q12_latent[d], 512);
+        }
+
+        // Lossless JSON roundtrip check
+        let json = context.to_json();
+        let parsed = RollingContextState::from_json(&json).expect("valid JSON deserialization");
+        assert_eq!(parsed.thinking_trace, context.thinking_trace);
+        assert_eq!(parsed.q12_latent, context.q12_latent);
+        assert_eq!(parsed.turn_index, context.turn_index);
+    }
+
+    #[test]
+    fn test_zero_float_conformance_through_trunk_prefill_and_reasoning_loop() {
+        let model = Arc::new(default_lut_stack_model());
+        let bpe = ByteBpe4096::global();
+
+        let mut session = LutStackSession::new(model.clone());
+        let tokens = bpe.encode("Reasoning test: <thinking>step 1 -> step 2</thinking> answer");
+
+        for &tok in &tokens {
+            session.prefill_token(tok, true);
+            let n_t = session.last_n_t;
+
+            // Assert each coordinate is an integer within bounded Q12 range
+            for &coord in &n_t {
+                assert!(
+                    (-32768..=32767).contains(&coord),
+                    "Q12 hidden coordinate {} outside signed 16-bit range",
+                    coord
+                );
+            }
+        }
+
+        // Verify that recurrence states are pure integer types
+        for layer in &session.rec_states {
+            for &h in &layer.h_state {
+                assert!(
+                    (-100_000..=100_000).contains(&h),
+                    "recurrent state h out of bounded integer range"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_clause_boundary_trajectory_capture() {
+        let model = Arc::new(default_lut_stack_model());
+        let reply = "The Lie algebra e8 has dimension 248. Its root system contains 240 roots; each root has squared length 2! Furthermore, its Weyl group order is 696729600.";
+        let res = model.trace_dynamic_turn(&[], "What is E8?", reply, 128);
+
+        assert!(
+            !res.boundary_trajectories.is_empty(),
+            "must capture boundary trajectories"
+        );
+        for hit in &res.boundary_trajectories {
+            assert!(
+                is_clause_boundary(hit.boundary_token, hit.step),
+                "captured hit at step {} token {} must be a valid clause boundary",
+                hit.step,
+                hit.boundary_token
+            );
+            assert!(hit.step > 0, "step must be 1-indexed");
+        }
+        assert!(
+            res.total_l1_margin > 0,
+            "total L1 margin should be non-zero for test sequence"
+        );
+    }
+
+    #[test]
+    fn test_compute_token_l1_margin_exact_match_zero() {
+        let model = default_lut_stack_model();
+        for &t in &[0u32, 1, 42, 256, 1000, 4095] {
+            let margin = compute_token_l1_margin(&model.writer_table, model.vocab, t, t);
+            assert_eq!(margin, 0, "token compared to itself must have margin 0");
+        }
+        // Out of vocabulary tokens return 0
+        assert_eq!(
+            compute_token_l1_margin(&model.writer_table, model.vocab, 5000, 1),
+            0
+        );
+        assert_eq!(
+            compute_token_l1_margin(&model.writer_table, model.vocab, 1, 5000),
+            0
+        );
+    }
+
+    #[test]
+    fn test_compute_token_l1_margin_distinct_tokens_and_triangle_inequality() {
+        let model = default_lut_stack_model();
+        let t1 = 10u32;
+        let t2 = 20u32;
+        let t3 = 30u32;
+
+        let m12 = compute_token_l1_margin(&model.writer_table, model.vocab, t1, t2);
+        let m21 = compute_token_l1_margin(&model.writer_table, model.vocab, t2, t1);
+        assert!(m12 > 0, "distinct tokens must have positive margin");
+        assert_eq!(m12, m21, "L1 margin must be symmetric");
+
+        let m23 = compute_token_l1_margin(&model.writer_table, model.vocab, t2, t3);
+        let m13 = compute_token_l1_margin(&model.writer_table, model.vocab, t1, t3);
+        assert!(
+            m13 <= m12 + m23,
+            "triangle inequality must hold: m13 <= m12 + m23"
+        );
+    }
+
+    #[test]
+    fn test_residual_modulated_coordinate_descent_zero_error_zero_shift() {
+        let mut model = default_lut_stack_model();
+        let target_token = 50u32;
+        let latent = [1000i16; FBS_WIDTH];
+
+        // Sample with predicted_token == target_token (residual margin = 0)
+        let sample = WeightConsolidationSample::from_point_with_residual(
+            target_token,
+            target_token,
+            latent,
+            0,
+        );
+
+        let report =
+            consolidate_lut_weights(&mut model, &[sample], &ConsolidationConfig::default())
+                .expect("consolidation succeeds");
+        assert_eq!(
+            report.weights_updated, 0,
+            "zero error must produce zero weight updates"
+        );
+        assert_eq!(report.l1_shift, 0, "zero error must produce zero L1 shift");
+    }
+
+    #[test]
+    fn test_residual_modulated_coordinate_descent_monotonic_contraction() {
+        let target_token = 200u32;
+        let latent = [5000i16; FBS_WIDTH];
+
+        // Consolidate with smaller margin
+        let mut model1 = default_lut_stack_model();
+        let sample1 = WeightConsolidationSample::from_point_with_residual(
+            target_token,
+            target_token + 1,
+            latent,
+            31_250,
+        );
+        let report1 =
+            consolidate_lut_weights(&mut model1, &[sample1], &ConsolidationConfig::default())
+                .expect("consolidation succeeds");
+
+        // Consolidate with larger margin
+        let mut model2 = default_lut_stack_model();
+        let sample2 = WeightConsolidationSample::from_point_with_residual(
+            target_token,
+            target_token + 1,
+            latent,
+            250_000,
+        );
+        let report2 =
+            consolidate_lut_weights(&mut model2, &[sample2], &ConsolidationConfig::default())
+                .expect("consolidation succeeds");
+
+        assert!(
+            report2.l1_shift > report1.l1_shift,
+            "larger residual margin must produce larger coordinate descent shift: {} > {}",
+            report2.l1_shift,
+            report1.l1_shift
+        );
+    }
+
+    #[test]
+    fn test_online_admission_backprop_pipeline() {
+        let mut model = default_lut_stack_model();
+        let prompt = "Explain the Coxeter number of E8.";
+        let reply = "The Coxeter number of the exceptional Lie algebra E8 is 30.";
+
+        let admitted = model
+            .compile_verified_dialogue_turn(prompt, reply)
+            .expect("compile succeeds");
+        assert!(admitted, "turn should be newly admitted");
+        assert_eq!(
+            model.audit_point_key_synchronization(),
+            0,
+            "zero orphaned point rows required after online admission backprop"
+        );
+    }
+
+    #[test]
+    fn test_zero_latency_online_readback_immediate_turn_routing() {
+        let mut model = default_lut_stack_model();
+        let prompt = "State the McKay correspondence for the icosahedral group.";
+        let reply = "The McKay correspondence relates the binary icosahedral group to affine E8 Dynkin diagram.";
+
+        let admitted = model
+            .compile_verified_dialogue_turn(prompt, reply)
+            .expect("compile succeeds");
+        assert!(admitted);
+
+        // Immediate readback without reloading model
+        let res = Arc::new(model).trace_dynamic_turn(&[], prompt, reply, 32);
+        assert!(
+            !res.generated_tokens.is_empty(),
+            "readback generated tokens"
+        );
+        assert_eq!(res.clauses_resolved, 1);
+    }
+
+    #[test]
+    fn test_rolling_context_state_residual_margin_tracking_and_serde() {
+        let mut ctx = RollingContextState::new();
+        assert_eq!(ctx.accumulated_l1_margin, 0);
+        assert!(ctx.recent_residuals.is_empty());
+
+        for i in 1..=20 {
+            ctx.record_residual_margin(i * 100);
+        }
+        assert_eq!(ctx.recent_residuals.len(), 16, "capped to 16 FIFO");
+        assert_eq!(
+            ctx.recent_residuals.first().copied(),
+            Some(500),
+            "FIFO evicted oldest 4"
+        );
+        assert_eq!(
+            ctx.recent_residuals.last().copied(),
+            Some(2000),
+            "FIFO most recent at end"
+        );
+        assert_eq!(
+            ctx.accumulated_l1_margin,
+            (1..=20).map(|i| i * 100).sum::<u64>()
+        );
+
+        // Lossless JSON roundtrip
+        let json = ctx.to_json();
+        let parsed = RollingContextState::from_json(&json).expect("valid JSON deserialization");
+        assert_eq!(parsed.accumulated_l1_margin, ctx.accumulated_l1_margin);
+        assert_eq!(parsed.recent_residuals, ctx.recent_residuals);
+
+        // Backward compatibility with legacy JSON lacking residual fields
+        let legacy_json = r#"{"q12_latent":[],"turn_index":3,"context_summary":"test","thinking_trace":[],"recent_turn_rows":[],"emitted_4grams":[]}"#;
+        let legacy_parsed =
+            RollingContextState::from_json(legacy_json).expect("legacy JSON parses");
+        assert_eq!(legacy_parsed.accumulated_l1_margin, 0);
+        assert!(legacy_parsed.recent_residuals.is_empty());
     }
 }
