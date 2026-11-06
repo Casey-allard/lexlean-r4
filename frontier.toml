@@ -1298,7 +1298,7 @@ target_reply = "Multi-basin geodesic synthesis connects ness and problem by reso
 
 [[claim]]
 id = "R4-F84"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1306,6 +1306,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:video-games:r2705:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f84_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems video and games at manifold row 2705."
 prompt = "How does PointKey routing resolve conversational prompts about video and games?"
 target_reply = "PointKey routing matches conversational stems video and games directly to their canonical reply anchor without token loops."
@@ -1368,3 +1369,17 @@ kappa = "r4:v1:manifold:dialogue-stem:uper-ment:r2447:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems uper and ment at manifold row 2447."
 prompt = "How does PointKey routing resolve conversational prompts about uper and ment?"
 target_reply = "PointKey routing matches conversational stems uper and ment directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F89"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:space-explor:r2364:k=8"
+statement = "Verify causal four gram deduction over stems space and explor from manifold row 2364 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over space and explor?"
+target_reply = "Causal four gram continuation preserves reasoning over space and explor because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
