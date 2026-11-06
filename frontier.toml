@@ -1595,7 +1595,7 @@ target_reply = "At row_idx=4132 with anchor_id=0x800001f1, Q12 writer refinement
 
 [[claim]]
 id = "R4-F103"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1603,6 +1603,7 @@ window = [
     7,
 ]
 kappa = "r4:v1:literature:2403.05530:H-LIT-2403.05530-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f103_pointkey_resonance"
 statement = "Verify that Direct Preference Optimization establishes closed-form cross-entropy alignment over preference pairs without an explicit reward model."
 prompt = "How does Direct Preference Optimization align language models without reinforcement learning?"
 target_reply = "Direct Preference Optimization trains policies directly on preference pairs using closed form implicit reward substitution."
@@ -1665,3 +1666,17 @@ kappa = "r4:v1:literature:2310.06825:H-LIT-2310.06825-01:k=8"
 statement = "Verify that polynomial quotient identities in succinct non-interactive proofs enforce knowledge soundness against forged evaluations over large finite fields."
 prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
 target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
+
+[[claim]]
+id = "R4-F108"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:atch-stat:r5070:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems atch and stat at manifold row 5070."
+prompt = "How does PointKey routing resolve conversational prompts about atch and stat?"
+target_reply = "PointKey routing matches conversational stems atch and stat directly to their canonical reply anchor without token loops."
