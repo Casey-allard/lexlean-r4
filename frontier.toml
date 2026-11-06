@@ -1424,7 +1424,7 @@ target_reply = "Multi-basin geodesic synthesis connects ination and work by reso
 
 [[claim]]
 id = "R4-F92"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1432,6 +1432,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:cheese-made:r3575:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f92_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems cheese and made at manifold row 3575."
 prompt = "How does PointKey routing resolve conversational prompts about cheese and made?"
 target_reply = "PointKey routing matches conversational stems cheese and made directly to their canonical reply anchor without token loops."
@@ -1494,3 +1495,17 @@ kappa = "r4:v1:manifold:dialogue-stem:comp-work:r4265:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems comp and work at manifold row 4265."
 prompt = "How does PointKey routing resolve conversational prompts about comp and work?"
 target_reply = "PointKey routing matches conversational stems comp and work directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F97"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:cing-ions:r3744:k=8"
+statement = "Verify causal four gram deduction over stems cing and ions from manifold row 3744 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over cing and ions?"
+target_reply = "Causal four gram continuation preserves reasoning over cing and ions because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
