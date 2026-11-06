@@ -116,6 +116,7 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
+              cargo run -q -p xtask -- literature-sync --offline-fallback || true
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true
               rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true

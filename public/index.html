@@ -3,28 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261104v8full">
+  <link rel="stylesheet" href="app.css?v=20261105m3cowork">
 </head>
 <body>
   <main>
-    <!-- Left GPT-4 Style Sidebar -->
-    <aside class="gpt-sidebar" aria-label="Conversation History and Tools">
+    <!-- Column 1: Threads Sidebar -->
+    <aside class="gpt-sidebar" id="threads-sidebar" aria-label="Conversation History and Tools">
       <div class="sidebar-top">
         <div class="brand-row">
           <div class="brand-badge">R4</div>
           <div class="brand-text">
             <strong>UOR-R4 GLM</strong>
-            <span>Geometric Language Model</span>
+            <span>Claude Cowork Engine</span>
           </div>
         </div>
         <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New chat</button>
       </div>
 
       <div class="sidebar-section">
-        <span class="sidebar-heading">Conversations</span>
+        <div class="sidebar-section-header">
+          <span class="sidebar-heading">Conversations</span>
+          <button id="clear-all-threads-btn" type="button" class="sidebar-action-icon-btn" title="Clear all threads" aria-label="Clear all threads">&times;</button>
+        </div>
         <ul id="chat-thread-list" class="thread-list" aria-label="Chat Threads"></ul>
       </div>
 
@@ -53,11 +56,11 @@
       </div>
 
       <div class="sidebar-footer">
-        <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn">
+        <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
           <span>Workspace &amp; Code Editor</span>
           <span id="workspace-pinned-badge" class="sidebar-pill">2 pinned</span>
         </button>
-        <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn">
+        <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
           <span>Diagnostics &amp; Verification</span>
           <span class="sidebar-pill">27/27</span>
         </button>
@@ -68,8 +71,8 @@
       </div>
     </aside>
 
-    <!-- Center Full-Screen GPT-4 Chat Interface -->
-    <section class="gpt-main-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
+    <!-- Column 2: Center Chat Interface -->
+    <section class="gpt-main-pane cowork-chat-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
       <header class="gpt-topbar">
         <div class="model-selector">
           <h1 id="heading-claude-desktop">UOR-R4 Geometric Language Model</h1>
@@ -80,8 +83,8 @@
           <span id="chat-target-badge" class="topbar-context-pill">Context: src/attention.rs</span>
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut / Shards</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync Weights</button>
-          <button id="topbar-workspace-btn" type="button" class="topbar-btn">Workspace</button>
-          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn">Diagnostics Window</button>
+          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace">Workspace</button>
+          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics">Diagnostics Window</button>
         </div>
       </header>
 
@@ -116,74 +119,97 @@
       </div>
     </section>
 
-    <!-- Hidden Modal Window 1: Project Workspace Explorer, Editor & Diff Patch Inspector -->
-    <div id="workspace-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="workspace-modal-title" hidden>
-      <div class="modal-window">
-        <div class="modal-header">
-          <div>
-            <span class="eyebrow">Virtual Repository &amp; Live Patching</span>
-            <h2 id="workspace-modal-title">Workspace Explorer, Code Editor &amp; Unified Diff Preview</h2>
-          </div>
-          <button id="close-workspace-modal-btn" type="button" class="modal-close-btn">Close Window</button>
-        </div>
-        <div class="modal-body workspace-modal-grid">
-          <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
-            <div class="pane-subheader">
-              <strong>Workspace Files</strong>
-            </div>
-            <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
-            <form id="workspace-new-form" class="workspace-new-form" novalidate>
-              <div class="field">
-                <label for="workspace-new-path">Create or Select Workspace File</label>
-                <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
-              </div>
-              <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
-            </form>
-            <div class="field">
-              <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
-              <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple>
-            </div>
-          </div>
-
-          <div class="ide-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
-            <div class="pane-subheader">
-              <strong>Workspace File Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
-              <code id="editor-file-receipt" class="metric-code">&mdash;</code>
-            </div>
-            <div class="field">
-              <label for="workspace-editor-textarea">Active Workspace Source Code (Editable)</label>
-              <textarea id="workspace-editor-textarea" class="code-textarea" rows="12" spellcheck="false"></textarea>
-            </div>
-            <div class="button-row">
-              <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
-              <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
-            </div>
-            <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
-
-            <div class="patch-card">
-              <div class="reply-card-header">
-                <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
-                <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
-              </div>
-              <pre id="chat-diff-preview" class="code-block" aria-label="Proposed Unified Diff"></pre>
-            </div>
-          </div>
-        </div>
+    <!-- Column 3: Dockable Canvas Pane -->
+    <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas">
+      <div class="canvas-header">
+        <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
+          <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
+            <span>Editor</span>
+          </button>
+          <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
+            <span>Diff Preview</span>
+          </button>
+          <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
+            <span>Engine &amp; Papers</span>
+            <span class="canvas-tab-pill">2 papers</span>
+          </button>
+          <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
+            <span>Diagnostics</span>
+            <span class="canvas-tab-pill">27/27</span>
+          </button>
+          <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
+            <span>Consolidation</span>
+          </button>
+          <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
+            <span>OTel Traces</span>
+          </button>
+        </nav>
       </div>
-    </div>
 
-    <!-- Hidden Modal Window 2: Diagnostics, On-Device Trainer, .uorlut Weight Pack I/O & 27/27 Conformance Lab -->
-    <div id="diagnostics-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="diagnostics-modal-title" hidden>
-      <div class="modal-window modal-window-wide">
-        <div class="modal-header">
-          <div>
-            <span class="eyebrow">UOR-R4 Geometric Manifold Telemetry &amp; Formal Verification</span>
-            <h2 id="diagnostics-modal-title">Engine Diagnostics, On-Device Trainer &amp; 27/27 LexLean Conformance Lab</h2>
+      <div class="canvas-body">
+        <!-- Tab 1: Workspace & Editor Panel -->
+        <div id="canvas-panel-workspace" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0">
+          <div class="workspace-panel-grid">
+            <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
+              <div class="pane-subheader">
+                <strong>Workspace Files</strong>
+              </div>
+              <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
+              <form id="workspace-new-form" class="workspace-new-form" novalidate>
+                <div class="field">
+                  <label for="workspace-new-path">Create or Select Workspace File</label>
+                  <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
+                </div>
+                <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
+              </form>
+              <div class="field">
+                <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
+                <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple>
+              </div>
+            </div>
+
+            <div class="ide-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
+              <div class="pane-subheader">
+                <strong>Workspace File Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
+                <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+              </div>
+              <div class="field">
+                <label for="workspace-editor-textarea">Active Workspace Source Code (Editable)</label>
+                <textarea id="workspace-editor-textarea" class="code-textarea" rows="12" spellcheck="false"></textarea>
+              </div>
+              <div class="button-row">
+                <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
+                <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
+              </div>
+              <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
+            </div>
           </div>
-          <button id="close-diagnostics-modal-btn" type="button" class="modal-close-btn">Close Window</button>
         </div>
 
-        <div class="modal-body">
+        <!-- Tab 2: Unified Diff Panel -->
+        <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diff" tabindex="0" hidden>
+          <div class="patch-card">
+            <div class="reply-card-header">
+              <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
+              <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
+            </div>
+            <pre id="chat-diff-preview" class="code-block" aria-label="Proposed Unified Diff"></pre>
+          </div>
+        </div>
+
+        <!-- Tab 3: Live Engine & Literature Feed Panel -->
+        <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
+          <div class="feed-header">
+            <h3>Autonomous Engine &amp; ArXiv Literature Catalog</h3>
+            <span class="panel-badge">Offline Catalog &middot; r4/literature/1</span>
+          </div>
+          <div class="feed-grid" id="literature-feed-list">
+            <!-- Rendered dynamically from model/literature.toml data -->
+          </div>
+        </div>
+
+        <!-- Tab 4: Diagnostics & Studio Tables Panel -->
+        <div id="canvas-panel-diagnostics" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diagnostics" tabindex="0" hidden>
           <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
             <div class="metric-card">
               <span class="metric-label">Vocabulary Atoms</span>
@@ -230,6 +256,7 @@
             </div>
           </div>
 
+          <!-- Section 1: Trainer -->
           <section class="studio-panel" aria-labelledby="heading-trainer">
             <div class="panel-header">
               <h2 id="heading-trainer">On-Device Coordinate-Sweep Trainer (R4.Learning.evaluateCoupledGateVector)</h2>
@@ -283,103 +310,44 @@
             </div>
           </section>
 
+          <!-- Section 2: Prompt Recall & Prose Generation -->
           <section class="studio-panel" aria-labelledby="heading-prose">
             <div class="panel-header">
               <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
               <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
             </div>
-
-            <div class="preset-bar" role="group" aria-label="Preset Prompts">
-              <span class="preset-title">Preset Prompts:</span>
-              <button type="button" class="preset-btn" data-prompt="How does recall work?">
-                Exact /7 Recall
-              </button>
-              <button type="button" class="preset-btn" data-prompt="Can you explain how memory lookup recovers a rephrased question?">
-                Paraphrased /8 Point-Key L1 Recovery
-              </button>
-              <button type="button" class="preset-btn" data-prompt="How does prose generation work?">
-                Prose Generation (/7 Reply Chain)
-              </button>
-              <button type="button" class="preset-btn" data-prompt="How does prediction work?">
-                Prediction &amp; Ranking
-              </button>
-            </div>
-
             <form id="studio-prompt-form" class="prompt-form" novalidate>
               <div class="field">
-                <label for="studio-prompt">Prompt or Question (enter an exact turn key or a rephrased question)</label>
+                <label for="studio-prompt">Prompt or Question</label>
                 <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
               </div>
               <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
             </form>
-
             <div class="reply-card">
-              <div class="reply-card-header">
-                <span class="reply-title">Generated Prose Continuation</span>
-                <span id="diag-recall-mode" class="mode-badge">Awaiting inference</span>
-              </div>
               <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
-              <div class="diag-grid">
-                <div class="diag-item">
-                  <span class="diag-label">Matched Turn Anchor</span>
-                  <code id="diag-matched-anchor">&mdash;</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">Opening Token &amp; Length</span>
-                  <code id="diag-opening-token">&mdash;</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">/8 Q12 L1 Distance</span>
-                  <code id="diag-l1-distance">0</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">/6 SWAR Hamming Dist</span>
-                  <code id="diag-hamming-distance">0 bits</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">/8 Plurality Votes</span>
-                  <code id="diag-plurality-votes">0</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">Active RETAIN_LAMBDA_Q31</span>
-                  <code id="diag-retain-lambda">0</code>
-                </div>
-                <div class="diag-item diag-item-span2">
-                  <span class="diag-label">Prompt 8D Q12 Readout Vector (memory.point.points)</span>
-                  <code id="diag-prompt-q12">[0, 0, 0, 0, 0, 0, 0, 0]</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">/6 Quaternion Sign Code</span>
-                  <code id="diag-prompt-sign">0x0000000000000000</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">R4-24 Icosian Root Snap</span>
-                  <code id="diag-icosian-root">root #0</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">R4-25 Base-17 4-Block</span>
-                  <code id="diag-packed-4block">0</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">R4-26 Sketch +3&sigma; Gate</span>
-                  <code id="diag-sketch-gate">4096 / 4096</code>
-                </div>
-                <div class="diag-item">
-                  <span class="diag-label">R4-27 PRLL Top-1 Mass</span>
-                  <code id="diag-prll-mass">0 ppm</code>
-                </div>
-                <div class="diag-item diag-item-span2">
-                  <span class="diag-label">Inference Transition Receipt (SHA-256)</span>
-                  <code id="diag-inference-receipt">&mdash;</code>
-                </div>
-              </div>
+            </div>
+            <div class="diag-grid">
+              <div class="diag-item"><span class="diag-label">Recall Mode</span><code id="diag-recall-mode">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Matched Anchor</span><code id="diag-matched-anchor">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Opening Token</span><code id="diag-opening-token">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">L1 Point Dist</span><code id="diag-l1-distance">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Hamming Dist</span><code id="diag-hamming-distance">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Plurality Votes</span><code id="diag-plurality-votes">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Retain Lambda</span><code id="diag-retain-lambda">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Prompt Q12</span><code id="diag-prompt-q12">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Prompt Sign</span><code id="diag-prompt-sign">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Icosian Root</span><code id="diag-icosian-root">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Packed 4-Block</span><code id="diag-packed-4block">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Sketch Gate</span><code id="diag-sketch-gate">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">PRLL Mass</span><code id="diag-prll-mass">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Inference Receipt</span><code id="diag-inference-receipt">&mdash;</code></div>
             </div>
           </section>
 
+          <!-- Section 3: Predictions Table -->
           <section class="studio-panel" aria-labelledby="heading-predictions">
             <div class="panel-header">
               <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
-              <span class="panel-badge">Whole-Table Q12 L1 Readout + Level-3 Pointer Gates</span>
             </div>
             <div class="table-wrap">
               <table class="studio-table" id="predictions-table">
@@ -402,10 +370,10 @@
             </div>
           </section>
 
+          <!-- Section 4: Trajectory Table -->
           <section class="studio-panel" aria-labelledby="heading-trajectory">
             <div class="panel-header">
-              <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory (E8 Orbit &times; Cl(0,6) &times; 40-Node Ternary Forest)</h2>
-              <span class="panel-badge">Prompt &rarr; &lt;REPLY_START&gt; &rarr; Autoregressive Reply</span>
+              <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory</h2>
             </div>
             <div class="table-wrap">
               <table class="studio-table" id="trajectory-table">
@@ -427,10 +395,10 @@
             </div>
           </section>
 
+          <!-- Section 5: Admission & Weight Pack I/O -->
           <section class="studio-panel" aria-labelledby="heading-admission">
             <div class="panel-header">
               <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission + .uorlut Weight Pack I/O</h2>
-              <span class="panel-badge">UORLUT01 + UR4SESS1 + UR4WGHT1</span>
             </div>
             <form id="studio-admit-form" class="admit-form" novalidate>
               <div class="field">
@@ -439,26 +407,22 @@
               </div>
               <div class="field">
                 <label for="admit-reply">Prose Reply / Continuation to Admit</label>
-                <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits {-1, 0, +1} at each level." autocomplete="off" spellcheck="false">
+                <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits." autocomplete="off" spellcheck="false">
               </div>
               <div class="button-row">
                 <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
-                <button id="admit-reset-btn" type="button" class="btn-secondary">Reset to Default 20 Turns</button>
-                <button id="snapshot-export-btn" type="button" class="btn-secondary">Export UORLUT01 + UR4SESS1 Snapshot</button>
-                <button id="snapshot-import-btn" type="button" class="btn-secondary">Validate &amp; Import Snapshot</button>
                 <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
+                <button id="admit-reset-btn" type="button" class="btn-secondary">Reset Admitted Turns</button>
+                <button id="snapshot-export-btn" type="button" class="btn-secondary">Export Hex Snapshot</button>
+                <button id="snapshot-import-btn" type="button" class="btn-secondary">Import Hex Snapshot</button>
               </div>
+              <input id="snapshot-hex-input" type="hidden">
+              <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
             </form>
             <div class="field">
-              <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack or Multi-Part Shards (`>100 MB` Cached in IndexedDB `UOR_R4_WEIGHT_CACHE`)</label>
+              <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack</label>
               <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" multiple accept=".uorlut,.bin,.hex,*">
             </div>
-            <div class="field">
-              <label for="snapshot-hex-input">Binary Container Snapshot Hex (`UORLUT01` Header + `UR4SESS1` Envelope)</label>
-              <input id="snapshot-hex-input" name="snapshot-hex-input" type="text" value="" placeholder="Click 'Export UORLUT01 + UR4SESS1 Snapshot' or upload gpu/short.uorlut..." autocomplete="off" spellcheck="false">
-            </div>
-            <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
-
             <div class="table-wrap">
               <table class="studio-table" id="corpus-table">
                 <thead>
@@ -477,46 +441,31 @@
             </div>
           </section>
 
+          <!-- Section 6: Subsystems Lab -->
           <section class="studio-panel" aria-labelledby="heading-subsystems">
             <div class="panel-header">
-              <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27 &middot; 27/27 Conformance Suites)</h2>
-              <span class="panel-badge">Icosian Snap + 19-Table Trunk + Durable Sketch + M6 Arithmetic &amp; PRLL</span>
+              <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27)</h2>
             </div>
             <form id="studio-subsystems-form" class="prompt-form" novalidate>
               <div class="field">
-                <label for="subsystems-payload">Probe Parameters (digit_a, digit_b, carry_in, radix, sketch_overlap_bits)</label>
+                <label for="subsystems-payload">Probe Parameters</label>
                 <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
               </div>
-              <button id="subsystems-run-btn" type="submit">Run R4-24..R4-27 Subsystems Probe</button>
+              <button id="subsystems-run-btn" type="submit">Run Subsystems Probe</button>
             </form>
-            <div class="diag-grid" id="subsystems-grid">
-              <div class="diag-item">
-                <span class="diag-label">R4-24 Icosian Root &amp; 5a&sup2;&lt;d</span>
-                <code id="sub-r4-24">&mdash;</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">R4-25 19-Table Trunk &amp; Base-17</span>
-                <code id="sub-r4-25">&mdash;</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">R4-26 GCD Sieve &amp; +3&sigma; Sketch</span>
-                <code id="sub-r4-26">&mdash;</code>
-              </div>
-              <div class="diag-item diag-item-span2">
-                <span class="diag-label">R4-27 M6 5-Arm Place Addition &amp; PRLL Mass Quantum</span>
-                <code id="sub-r4-27">&mdash;</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Subsystems Probe Receipt</span>
-                <code id="sub-receipt">&mdash;</code>
-              </div>
+            <div class="diag-grid">
+              <div class="diag-item"><span class="diag-label">R4-24 Icosian Root</span><code id="sub-r4-24">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">R4-25 19-Table Trunk</span><code id="sub-r4-25">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">R4-26 GCD Sieve</span><code id="sub-r4-26">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">R4-27 M6 5-Arm Place Add</span><code id="sub-r4-27">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Subsystems Receipt</span><code id="sub-receipt">&mdash;</code></div>
             </div>
           </section>
 
+          <!-- Section 7: PrismPM Envelope Inspector -->
           <section class="studio-panel" aria-labelledby="heading-envelope">
             <div class="panel-header">
-              <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector (prismpm/text-application/1)</h2>
-              <span class="panel-badge">64-Bit Signed Integer Coordinate Operations</span>
+              <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector</h2>
             </div>
             <form id="application-form" novalidate>
               <div class="field">
@@ -526,10 +475,10 @@
               <div class="field">
                 <label for="operation">Operation</label>
                 <select id="operation" name="operation">
-                  <option value="0" data-request="forward" selected>Forward Transition</option>
-                  <option value="1" data-request="route">Route Descent</option>
-                  <option value="2" data-request="flock">Flock Consensus</option>
-                  <option value="3" data-request="verify-receipt">Verify Receipt</option>
+                  <option value="0" selected>Forward Transition</option>
+                  <option value="1">Route Descent</option>
+                  <option value="2">Flock Consensus</option>
+                  <option value="3">Verify Receipt</option>
                 </select>
               </div>
               <div class="field">
@@ -541,9 +490,66 @@
             <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
           </section>
         </div>
+
+        <!-- Tab 5: Weight Consolidation Runner Panel -->
+        <div id="canvas-panel-consolidation" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-consolidation" tabindex="0" hidden>
+          <div class="consolidation-header">
+            <h3>Self-Organizing Weight Consolidation</h3>
+            <span class="panel-badge">Web Worker &middot; Discrete Coordinate Descent</span>
+          </div>
+          <p class="panel-description">
+            Consolidates integer LUT weights against dialogue and literature samples without floating-point backpropagation.
+          </p>
+          <div class="consolidation-controls">
+            <div class="field">
+              <label for="consolidation-epochs">Optimization Sweeps (1..12)</label>
+              <input id="consolidation-epochs" type="number" min="1" max="12" value="3">
+            </div>
+            <button id="run-consolidation-btn" type="button" class="btn-primary">Run Weight Consolidation in Web Worker</button>
+          </div>
+          <div class="progress-bar-container">
+            <progress id="consolidation-progress-bar" value="0" max="100" class="progress-bar-fill"></progress>
+          </div>
+          <div class="diag-grid">
+            <div class="diag-item"><span class="diag-label">Status</span><code id="consolidation-status-text">Ready</code></div>
+            <div class="diag-item"><span class="diag-label">Initial Loss</span><code id="consolidation-stat-init-loss">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Final Loss</span><code id="consolidation-stat-final-loss">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Reduction</span><code id="consolidation-stat-reduction">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Weight Size</span><code id="consolidation-stat-size">&mdash;</code></div>
+          </div>
+          <div class="console-box">
+            <span class="console-title">Live Worker Log Stream</span>
+            <pre id="consolidation-log-stream" class="console-log-stream" aria-label="Consolidation Worker Log"></pre>
+          </div>
+        </div>
+
+        <!-- Tab 6: OTel Trace Inspector Panel (M4 Preview) -->
+        <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
+          <div class="traces-header">
+            <h3>OTel GLLM Trace &amp; Provenance Inspector</h3>
+            <span class="panel-badge">Milestone 4 Preview</span>
+          </div>
+          <div class="traces-metrics-grid">
+            <div class="diag-item"><span class="diag-label">Root Trace ID</span><code id="trace-stat-trace-id">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Interned UOR Hashes</span><code id="trace-stat-interned-count">0</code></div>
+            <div class="diag-item"><span class="diag-label">Sub-Span Deduplication Hits</span><code id="trace-stat-dedup-hits">0</code></div>
+            <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
+          </div>
+          <div id="trace-waterfall-tree" class="trace-waterfall-tree">
+            <!-- Rendered dynamically from OTLP trace data -->
+          </div>
+        </div>
       </div>
+    </section>
+
+    <!-- Legacy Modal Compatibility Wrappers (ensure no querySelector null pointer errors) -->
+    <div id="workspace-modal" hidden>
+      <button id="close-workspace-modal-btn" type="button" class="sr-only">Close</button>
+    </div>
+    <div id="diagnostics-modal" hidden>
+      <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261104v8fix"></script>
+  <script type="module" src="app.js?v=20261105m3cowork"></script>
 </body>
 </html>

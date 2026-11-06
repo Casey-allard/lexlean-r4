@@ -17,6 +17,8 @@ use sha2::{Digest, Sha256};
 use std::sync::{Arc, Mutex, OnceLock};
 use wasm_bindgen::prelude::*;
 
+/// Standard Provider-Compatible API Types and Dispatch Engine (Anthropic / OpenAI).
+pub mod api;
 mod assistant;
 /// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.
 pub mod glm_weights;
@@ -24,17 +26,13 @@ pub mod glm_weights;
 pub mod lexlean_generated;
 /// Native integer execution engine for `uor-r4.lut-stack/7` and `uor-r4.lut-stack/8` (`UORLUT01`).
 pub mod lut_stack_exec;
+/// OpenTelemetry (OTel) for Geometric Language Models and Cross-Lifecycle Provenance.
+pub mod otel;
 
 static BOOTSTRAP_UORLUT_V8: &[u8] = include_bytes!("bootstrap_v8.uorlut");
 
 fn default_lut_stack_model() -> Arc<lut_stack_exec::LutStackModel> {
-    static MODEL: OnceLock<Arc<lut_stack_exec::LutStackModel>> = OnceLock::new();
-    Arc::clone(MODEL.get_or_init(|| {
-        Arc::new(
-            lut_stack_exec::LutStackModel::parse(BOOTSTRAP_UORLUT_V8)
-                .expect("valid embedded bootstrap_v8.uorlut"),
-        )
-    }))
+    api::default_model_backend()
 }
 
 /// Supported envelope protocol version.
@@ -344,6 +342,7 @@ pub struct StudioEngine {
     pub(crate) lut_stack: Arc<lut_stack_exec::LutStackModel>,
     pub(crate) lut_stack_source: String,
     pub(crate) last_lut_generation: Option<lut_stack_exec::LutStackGenerationResult>,
+    pub(crate) rolling_context: lut_stack_exec::RollingContextState,
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
@@ -1076,6 +1075,7 @@ impl StudioEngine {
             lut_stack: default_lut_stack_model(),
             lut_stack_source: "bootstrap_v8.uorlut (WASM embedded)".to_string(),
             last_lut_generation: None,
+            rolling_context: lut_stack_exec::RollingContextState::default(),
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -3693,7 +3693,43 @@ impl StudioEngine {
     /// `TypeScript`, `Rust`, `HTML/CSS`, `Lean 4`, `SQL`), 8-head cyclic flock consensus (`R4.Flock`),
     /// and multi-domain general knowledge & reasoning.
     pub fn chat_assistant_json(&mut self, prompt_text: &str) -> String {
-        let trimmed = prompt_text.trim();
+        let trimmed_raw = prompt_text.trim();
+        if trimmed_raw.is_empty() {
+            return "{\"status\":\"error\",\"message\":\"Chat prompt must not be empty.\"}"
+                .to_string();
+        }
+
+        // Dual-mode input routing: accept either plain prompt or JSON envelope {"prompt": "...", "context": {...}}
+        let (effective_prompt, client_context_opt): (
+            String,
+            Option<lut_stack_exec::RollingContextState>,
+        ) = {
+            if trimmed_raw.starts_with('{') && trimmed_raw.ends_with('}') {
+                if let Ok(serde_json::Value::Object(map)) =
+                    serde_json::from_str::<serde_json::Value>(trimmed_raw)
+                {
+                    if let Some(p) = map.get("prompt").and_then(|v| v.as_str()) {
+                        let ctx = map.get("context").and_then(|c| {
+                            let c_str = c.to_string();
+                            lut_stack_exec::RollingContextState::from_json(&c_str)
+                        });
+                        (p.to_string(), ctx)
+                    } else {
+                        (trimmed_raw.to_string(), None)
+                    }
+                } else {
+                    (trimmed_raw.to_string(), None)
+                }
+            } else {
+                (trimmed_raw.to_string(), None)
+            }
+        };
+
+        if let Some(ctx) = client_context_opt {
+            self.rolling_context = ctx;
+        }
+
+        let trimmed = effective_prompt.trim();
         if trimmed.is_empty() {
             return "{\"status\":\"error\",\"message\":\"Chat prompt must not be empty.\"}"
                 .to_string();
@@ -3741,6 +3777,7 @@ impl StudioEngine {
             }
         }
 
+        let start_turn_index = self.rolling_context.turn_index;
         let assistant_reply = self.compose_smart_chat_reply(
             trimmed,
             &prompt_tokens,
@@ -3763,14 +3800,49 @@ impl StudioEngine {
                 lg.generated_tokens.len()
             )
         });
-        let base_gen_raw = self.build_live_token_generation_json(
+        let is_agentic = trimmed.contains("[agent_mode]")
+            || trimmed.contains("<tool_response>")
+            || trimmed.contains("<observation>")
+            || trimmed.contains("<tools>")
+            || trimmed.contains("\"tools\":")
+            || assistant_reply.contains("<tool_call>");
+
+        let (mut thinking_trace, clean_reply) = if is_agentic {
+            (None, assistant_reply.clone())
+        } else {
+            assistant::parse_thinking_block(&assistant_reply)
+        };
+
+        if thinking_trace.is_none() {
+            if let Some(rest) = trimmed
+                .strip_prefix("Teach:")
+                .or_else(|| trimmed.strip_prefix("teach:"))
+            {
+                if let Some((_, a)) = rest.split_once("=>") {
+                    let (teach_trace, _) = assistant::parse_thinking_block(a.trim());
+                    thinking_trace = teach_trace;
+                }
+            }
+        }
+
+        if let Some(ref trace) = thinking_trace {
+            self.rolling_context.record_thinking(trace.clone());
+        }
+        self.rolling_context.context_summary = assistant::update_context_summary(
+            &self.rolling_context.context_summary,
+            self.rolling_context.turn_index,
             trimmed,
-            &assistant_reply,
-            lut_mode_label.as_deref(),
+            &clean_reply,
         );
+        if self.rolling_context.turn_index == start_turn_index {
+            self.rolling_context.turn_index = self.rolling_context.turn_index.saturating_add(1);
+        }
 
         self.chat_history
-            .push((trimmed.to_string(), assistant_reply.clone()));
+            .push((trimmed.to_string(), clean_reply.clone()));
+
+        let base_gen_raw =
+            self.build_live_token_generation_json(trimmed, &clean_reply, lut_mode_label.as_deref());
 
         let is_coding = code_outcome.is_coding_turn;
         let synth_path = code_outcome.target_path;
@@ -3869,12 +3941,20 @@ impl StudioEngine {
             .as_bytes(),
         );
 
+        let thinking_json = match thinking_trace {
+            Some(ref t) => format!("\"{}\"", escape_json(t)),
+            None => "null".to_string(),
+        };
+        let context_json = self.rolling_context.to_json();
+
         format!(
             concat!(
                 "{{",
                 "\"status\":\"ok\",",
                 "\"prompt\":\"{}\",",
                 "\"assistant_reply\":\"{}\",",
+                "\"thinking\":{},",
+                "\"context\":{},",
                 "\"is_coding_turn\":{},",
                 "\"conversation_turn_count\":{},",
                 "\"binder_symbol_count\":{},",
@@ -3893,7 +3973,9 @@ impl StudioEngine {
                 "}}"
             ),
             escape_json(trimmed),
-            escape_json(&assistant_reply),
+            escape_json(&clean_reply),
+            thinking_json,
+            context_json,
             is_coding,
             self.chat_history.len(),
             self.binder_memory.len(),
@@ -3910,6 +3992,138 @@ impl StudioEngine {
             receipt,
             base_gen_raw
         )
+    }
+
+    /// Process an Anthropic-compatible `/v1/messages` JSON request.
+    pub fn dispatch_v1_messages(&mut self, request_json: &str) -> String {
+        match api::handle_v1_messages_payload_with_backend(request_json, self) {
+            Ok((_status, body)) => body,
+            Err((_status, err_body)) => err_body,
+        }
+    }
+
+    /// Process an OpenAI-compatible `/v1/chat/completions` JSON request.
+    pub fn dispatch_v1_chat_completions(&mut self, request_json: &str) -> String {
+        match api::handle_v1_chat_completions_payload_with_backend(request_json, self) {
+            Ok((_status, body)) => body,
+            Err((_status, err_body)) => err_body,
+        }
+    }
+
+    /// Process a `/v1/traces` request.
+    pub fn dispatch_v1_traces(&self, payload: &str) -> String {
+        match api::handle_v1_traces_payload(payload) {
+            Ok((_status, body)) => body,
+            Err((_status, err_body)) => err_body,
+        }
+    }
+}
+
+impl api::InferenceBackend for StudioEngine {
+    fn infer_turn(
+        &mut self,
+        prompt: &str,
+        history: &[(String, String)],
+        tools: &[api::ToolDescriptor],
+        context: &mut lut_stack_exec::RollingContextState,
+        max_tokens: usize,
+    ) -> Result<api::ModelTurnOutcome, String> {
+        self.rolling_context = context.clone();
+        if !history.is_empty() {
+            self.chat_history = history.to_vec();
+        }
+
+        let trimmed = prompt.trim();
+        let lower = trimmed.to_ascii_lowercase();
+
+        // 1. Tool execution & observation integration
+        if !tools.is_empty() || lower.contains("<tool_response") || lower.contains("<observation") {
+            let outcome = api::execute_agentic_turn(
+                trimmed,
+                tools,
+                history,
+                &mut self.rolling_context,
+                &self.lut_stack,
+                max_tokens,
+            )?;
+            *context = self.rolling_context.clone();
+            return Ok(outcome);
+        }
+
+        // 2. Exact math and logic solving via M6 kernel
+        if let Some((math_reply, _)) = self.solve_exact_math_or_logic(trimmed) {
+            let trace_res = self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                history,
+                trimmed,
+                &math_reply,
+                max_tokens,
+            );
+            *context = self.rolling_context.clone();
+            let bpe = lut_stack_exec::ByteBpe4096::global();
+            let in_toks = if !trace_res.prompt_tokens.is_empty() {
+                trace_res.prompt_tokens.len() as u32
+            } else {
+                bpe.encode(trimmed).len() as u32
+            };
+            let out_toks = if !trace_res.generated_tokens.is_empty() {
+                trace_res.generated_tokens.len() as u32
+            } else {
+                bpe.encode(&math_reply).len() as u32
+            };
+            return Ok(api::ModelTurnOutcome {
+                raw_output: math_reply,
+                input_tokens: in_toks.max(1),
+                output_tokens: out_toks.max(1),
+                otel_trace: None,
+            });
+        }
+
+        // 3. Direct model generation via lut_stack
+        let ctx_before = self.rolling_context.q12_latent;
+        let gen = self.lut_stack.generate_reply_with_context(
+            &mut self.rolling_context,
+            history,
+            trimmed,
+            max_tokens,
+        );
+        let trace = otel::build_inference_trace(
+            self.rolling_context.turn_index,
+            trimmed,
+            &ctx_before,
+            &self.rolling_context.q12_latent,
+            &gen,
+            &self.lut_stack,
+        );
+        otel::record_trace(trace.clone());
+        let otel_trace = Some(trace.to_combined_value());
+
+        let raw_output = if gen.reply_text.trim().is_empty() {
+            "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?".to_string()
+        } else {
+            gen.reply_text
+        };
+
+        let bpe = lut_stack_exec::ByteBpe4096::global();
+        let in_toks = if !gen.prompt_tokens.is_empty() {
+            gen.prompt_tokens.len() as u32
+        } else {
+            bpe.encode(trimmed).len() as u32
+        };
+        let out_toks = if !gen.generated_tokens.is_empty() {
+            gen.generated_tokens.len() as u32
+        } else {
+            bpe.encode(&raw_output).len() as u32
+        };
+
+        *context = self.rolling_context.clone();
+
+        Ok(api::ModelTurnOutcome {
+            raw_output,
+            input_tokens: in_toks.max(1),
+            output_tokens: out_toks.max(1),
+            otel_trace,
+        })
     }
 }
 
@@ -4123,6 +4337,29 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
             let receipt = sha256_hex(format!("admit|{prompt_part}|{reply_part}").as_bytes());
             engine.render_state_json(Some((&prompt_part, &reply_part, &receipt)))
         }
+        "consolidate_weights" => {
+            let cur_bytes = engine.lut_stack.to_uorlut_bytes();
+            match studio_consolidate_weights(&cur_bytes, payload) {
+                Ok(updated_bytes) => {
+                    match engine.load_lut_stack_bytes(&updated_bytes, "consolidated_weights") {
+                        Ok(_) => format!(
+                            "{{\"status\":\"ok\",\"bytes_len\":{},\"message\":\"Weights consolidated successfully.\"}}",
+                            updated_bytes.len()
+                        ),
+                        Err(e) => format!("{{\"status\":\"error\",\"message\":\"{}\"}}", escape_json(&e)),
+                    }
+                }
+                Err(err) => format!(
+                    "{{\"status\":\"error\",\"message\":\"{}\"}}",
+                    escape_json(&err)
+                ),
+            }
+        }
+        "v1/messages" | "/v1/messages" => engine.dispatch_v1_messages(payload),
+        "v1/chat/completions" | "/v1/chat/completions" | "chat/completions" => {
+            engine.dispatch_v1_chat_completions(payload)
+        }
+        "v1/traces" | "/v1/traces" | "traces" => engine.dispatch_v1_traces(payload),
         "reset" => {
             *engine = StudioEngine::new_default();
             engine.render_state_json(None)
@@ -4134,12 +4371,65 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
 /// Dispatch a Studio v2 command envelope (`1\tstudio\t<cmd>\t<payload>` or `<cmd>\t<payload>`).
 #[wasm_bindgen]
 pub fn studio_dispatch(input: &str) -> String {
+    let trimmed = input.trim();
+    if trimmed.starts_with('{') {
+        if trimmed.contains("\"model\"")
+            && (trimmed.contains("claude")
+                || trimmed.contains("anthropic")
+                || trimmed.contains("thinking"))
+        {
+            return studio_v1_messages(trimmed);
+        } else if trimmed.contains("\"chat.completion\"")
+            || trimmed.contains("gpt-")
+            || trimmed.contains("\"tool_calls\"")
+        {
+            return studio_v1_chat_completions(trimmed);
+        } else if trimmed.contains("\"traces\"")
+            || trimmed.contains("\"resourceSpans\"")
+            || trimmed.contains("\"trace_id\"")
+        {
+            return studio_v1_traces(trimmed);
+        } else if trimmed.contains("\"messages\"") {
+            return studio_v1_messages(trimmed);
+        }
+    }
     if let Some(rest) = input.strip_prefix("1\tstudio\t") {
         let (cmd, payload) = rest.split_once('\t').unwrap_or((rest, ""));
         execute_studio_command(cmd, payload)
     } else {
         let (cmd, payload) = input.split_once('\t').unwrap_or((input, ""));
         execute_studio_command(cmd, payload)
+    }
+}
+
+/// Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
+#[wasm_bindgen]
+pub fn studio_v1_messages(request_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.dispatch_v1_messages(request_json)
+}
+
+/// Process an OpenAI-compatible `/v1/chat/completions` JSON request in WebAssembly.
+#[wasm_bindgen]
+pub fn studio_v1_chat_completions(request_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.dispatch_v1_chat_completions(request_json)
+}
+
+/// Query or export OTel GLLM traces in WebAssembly.
+#[wasm_bindgen]
+pub fn studio_v1_traces(query_or_payload: &str) -> String {
+    match api::handle_v1_traces_payload(query_or_payload) {
+        Ok((_, json)) => json,
+        Err((_, err)) => err,
     }
 }
 
@@ -4174,6 +4464,139 @@ pub fn studio_weight_pack_status() -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.weight_pack_status_json()
+}
+
+/// Consolidate integer LUT model weights via coordinate descent over dialogue samples.
+///
+/// Accepts binary `UORLUT01` container bytes and a JSON configuration string.
+/// Returns the updated `UORLUT01` container bytes, or an error string on failure.
+#[wasm_bindgen]
+pub fn studio_consolidate_weights(
+    weights_bytes: &[u8],
+    config_json: &str,
+) -> Result<Vec<u8>, String> {
+    let source_bytes = if !weights_bytes.is_empty() {
+        weights_bytes
+    } else {
+        BOOTSTRAP_UORLUT_V8
+    };
+
+    let mut model = lut_stack_exec::LutStackModel::parse(source_bytes)
+        .map_err(|e| format!("failed to parse UORLUT01 container: {e}"))?;
+
+    let (config, custom_samples) = parse_consolidation_payload(config_json)?;
+
+    let samples = if let Some(s) = custom_samples {
+        s
+    } else {
+        default_knowledge_turns()
+            .iter()
+            .map(|(p, r)| lut_stack_exec::WeightConsolidationSample::from_dialogue(*p, *r))
+            .collect()
+    };
+
+    let _report = lut_stack_exec::consolidate_lut_weights(&mut model, &samples, &config)
+        .map_err(|e| format!("weight consolidation failed: {e}"))?;
+
+    Ok(model.to_uorlut_bytes())
+}
+
+fn parse_consolidation_payload(
+    config_json: &str,
+) -> Result<
+    (
+        lut_stack_exec::ConsolidationConfig,
+        Option<Vec<lut_stack_exec::WeightConsolidationSample>>,
+    ),
+    String,
+> {
+    if config_json.trim().is_empty() || config_json.trim() == "{}" {
+        return Ok((lut_stack_exec::ConsolidationConfig::default(), None));
+    }
+
+    #[derive(serde::Deserialize)]
+    struct ConfigEnvelope {
+        #[serde(default = "default_iterations")]
+        iterations: usize,
+        #[serde(default = "default_step_numerator")]
+        step_numerator: i64,
+        #[serde(default = "default_step_denominator")]
+        step_denominator: i64,
+        #[serde(default = "default_clamp_min")]
+        clamp_min: i16,
+        #[serde(default = "default_clamp_max")]
+        clamp_max: i16,
+        #[serde(default = "default_sync_point_keys")]
+        sync_point_keys: bool,
+        #[serde(default = "default_update_ternary_assoc")]
+        update_ternary_assoc: bool,
+        samples: Option<Vec<SampleEnvelope>>,
+        turns: Option<Vec<(String, String)>>,
+    }
+
+    #[derive(serde::Deserialize)]
+    struct SampleEnvelope {
+        prompt: String,
+        reply: String,
+    }
+
+    fn default_iterations() -> usize {
+        1
+    }
+    fn default_step_numerator() -> i64 {
+        1
+    }
+    fn default_step_denominator() -> i64 {
+        8
+    }
+    fn default_clamp_min() -> i16 {
+        -30000
+    }
+    fn default_clamp_max() -> i16 {
+        30000
+    }
+    fn default_sync_point_keys() -> bool {
+        true
+    }
+    fn default_update_ternary_assoc() -> bool {
+        true
+    }
+
+    let env: ConfigEnvelope = serde_json::from_str(config_json)
+        .map_err(|e| format!("invalid consolidation config JSON: {e}"))?;
+
+    let config = lut_stack_exec::ConsolidationConfig {
+        iterations: env.iterations,
+        step_numerator: env.step_numerator,
+        step_denominator: env.step_denominator,
+        clamp_min: env.clamp_min,
+        clamp_max: env.clamp_max,
+        sync_point_keys: env.sync_point_keys,
+        update_ternary_assoc: env.update_ternary_assoc,
+    };
+    config.validate()?;
+
+    let mut samples: Option<Vec<lut_stack_exec::WeightConsolidationSample>> =
+        env.samples.map(|list| {
+            list.into_iter()
+                .map(|s| {
+                    lut_stack_exec::WeightConsolidationSample::from_dialogue(s.prompt, s.reply)
+                })
+                .collect()
+        });
+
+    if samples.is_none() {
+        if let Some(turns) = env.turns {
+            samples = Some(
+                turns
+                    .into_iter()
+                    .map(|(p, r)| lut_stack_exec::WeightConsolidationSample::from_dialogue(p, r))
+                    .collect(),
+            );
+        }
+    }
+
+    Ok((config, samples))
 }
 
 /// Dispatch a string envelope and return the encoded response envelope.
@@ -5358,5 +5781,233 @@ mod tests {
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");
+    }
+
+    #[test]
+    fn test_studio_consolidate_weights_wasm_roundtrip() {
+        let initial_bytes = BOOTSTRAP_UORLUT_V8;
+        let config_json = r#"{
+            "iterations": 1,
+            "step_numerator": 1,
+            "step_denominator": 8,
+            "clamp_min": -30000,
+            "clamp_max": 30000,
+            "update_ternary_assoc": true,
+            "samples": [
+                {
+                    "prompt": "What is UOR-R4?",
+                    "reply": "UOR-R4 is a universal ontological representation."
+                }
+            ]
+        }"#;
+
+        let result = studio_consolidate_weights(initial_bytes, config_json);
+        assert!(
+            result.is_ok(),
+            "studio_consolidate_weights must succeed: {:?}",
+            result.err()
+        );
+        let consolidated_bytes = result.unwrap();
+
+        assert_eq!(&consolidated_bytes[0..8], b"UORLUT01");
+        assert_eq!(consolidated_bytes.len(), initial_bytes.len());
+
+        let model = lut_stack_exec::LutStackModel::parse(&consolidated_bytes)
+            .expect("must re-parse consolidated weights");
+        let initial_model = lut_stack_exec::LutStackModel::parse(initial_bytes)
+            .expect("must parse initial weights");
+        assert_eq!(
+            model
+                .point
+                .as_ref()
+                .unwrap()
+                .canonical_anchors
+                .as_ref()
+                .unwrap()
+                .len(),
+            initial_model
+                .point
+                .as_ref()
+                .unwrap()
+                .canonical_anchors
+                .as_ref()
+                .unwrap()
+                .len()
+        );
+
+        // Also test dispatch command "consolidate_weights"
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+        let dispatch_resp =
+            dispatch_string(&format!("1\tstudio\tconsolidate_weights\t{config_json}"));
+        let parsed_dispatch: serde_json::Value =
+            serde_json::from_str(&dispatch_resp).expect("valid json response");
+        assert_eq!(parsed_dispatch["status"], "ok");
+    }
+
+    #[test]
+    fn test_studio_chat_multi_turn_rolling_context_and_thinking() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        // First turn: plain prompt
+        let turn1_json = dispatch_string("1\tstudio\tchat\tWhat is UOR-R4?");
+        let v1: serde_json::Value = serde_json::from_str(&turn1_json).expect("valid json");
+        assert_eq!(v1["status"], "ok");
+        assert!(v1["context"].is_object());
+        assert_eq!(v1["context"]["turn_index"], 1);
+        let ctx1 = v1["context"].clone();
+
+        // Second turn: JSON envelope with client context passed explicitly
+        let envelope = serde_json::json!({
+            "prompt": "Explain the geometric representation",
+            "context": ctx1
+        });
+        let turn2_json = dispatch_string(&format!("1\tstudio\tchat\t{envelope}"));
+        let v2: serde_json::Value = serde_json::from_str(&turn2_json).expect("valid json");
+        assert_eq!(v2["status"], "ok");
+        assert_eq!(v2["context"]["turn_index"], 2);
+    }
+
+    #[test]
+    fn test_chat_assistant_json_thinking_tag_separation_and_no_leakage() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        let mut engine = StudioEngine::new_default();
+
+        // Turn 1: Teach turn with <thinking> tags
+        let teach_prompt = "Teach: What is Lagrange's Theorem? => <thinking>Recall group order is multiple of subgroup order</thinking>Lagrange's Theorem states that for any finite group G, the order of every subgroup H divides the order of G.";
+        let res1_str = engine.chat_assistant_json(teach_prompt);
+        let v1: serde_json::Value = serde_json::from_str(&res1_str).expect("valid JSON response");
+        assert_eq!(v1["status"], "ok");
+
+        // Assert user-facing assistant_reply does NOT contain <thinking> or </thinking>
+        let reply1 = v1["assistant_reply"]
+            .as_str()
+            .expect("assistant_reply string");
+        assert!(
+            !reply1.contains("<thinking>"),
+            "reply1 leaked <thinking>: {reply1}"
+        );
+        assert!(
+            !reply1.contains("</thinking>"),
+            "reply1 leaked </thinking>: {reply1}"
+        );
+
+        // Assert thinking field contains the isolated trace
+        let thinking1 = &v1["thinking"];
+        assert!(!thinking1.is_null(), "thinking field should not be null");
+        assert_eq!(
+            thinking1.as_str().unwrap(),
+            "Recall group order is multiple of subgroup order"
+        );
+
+        // Turn 2: Query the taught knowledge on next turn
+        let query_prompt = "What is Lagrange's Theorem?";
+        let res2_str = engine.chat_assistant_json(query_prompt);
+        let v2: serde_json::Value = serde_json::from_str(&res2_str).expect("valid JSON response");
+        assert_eq!(v2["status"], "ok");
+
+        let reply2 = v2["assistant_reply"]
+            .as_str()
+            .expect("assistant_reply string");
+        assert!(
+            !reply2.contains("<thinking>"),
+            "reply2 leaked <thinking>: {reply2}"
+        );
+        assert!(
+            !reply2.contains("</thinking>"),
+            "reply2 leaked </thinking>: {reply2}"
+        );
+        assert!(
+            reply2.contains("Lagrange's Theorem states that for any finite group G"),
+            "reply2 must contain clean taught fact: {reply2}"
+        );
+
+        // Turn 3: Teach turn with <thought> tags
+        let thought_prompt = "Teach: What is Cayley's Theorem? => <thought>Every group isomorphic to permutation group</thought>Cayley's Theorem states that every group G is isomorphic to a subgroup of the symmetric group acting on G.";
+        let res3_str = engine.chat_assistant_json(thought_prompt);
+        let v3: serde_json::Value = serde_json::from_str(&res3_str).expect("valid JSON response");
+        assert_eq!(v3["status"], "ok");
+
+        let reply3 = v3["assistant_reply"]
+            .as_str()
+            .expect("assistant_reply string");
+        assert!(
+            !reply3.contains("<thought>"),
+            "reply3 leaked <thought>: {reply3}"
+        );
+        assert!(
+            !reply3.contains("</thought>"),
+            "reply3 leaked </thought>: {reply3}"
+        );
+        assert_eq!(
+            v3["thinking"].as_str().unwrap(),
+            "Every group isomorphic to permutation group"
+        );
+
+        // Turn 4: Regular query has null thinking field
+        let normal_prompt = "What is UOR-R4?";
+        let res4_str = engine.chat_assistant_json(normal_prompt);
+        let v4: serde_json::Value = serde_json::from_str(&res4_str).expect("valid JSON response");
+        assert_eq!(v4["status"], "ok");
+        assert!(
+            v4["thinking"].is_null(),
+            "thinking must be null on regular turn"
+        );
+        let reply4 = v4["assistant_reply"]
+            .as_str()
+            .expect("assistant_reply string");
+        assert!(!reply4.is_empty());
+    }
+
+    #[test]
+    fn test_chat_history_preserves_clean_replies_without_thinking_tags() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        let mut engine = StudioEngine::new_default();
+        let prompt = "Teach: What is Wilson's Theorem? => <thought>p divides (p-1)! + 1</thought>Wilson's Theorem states that (p-1)! == -1 (mod p) for prime p.";
+        let _ = engine.chat_assistant_json(prompt);
+
+        for (_user, assistant) in &engine.chat_history {
+            assert!(
+                !assistant.contains("<thinking>"),
+                "chat_history leaked <thinking>: {assistant}"
+            );
+            assert!(
+                !assistant.contains("</thinking>"),
+                "chat_history leaked </thinking>: {assistant}"
+            );
+            assert!(
+                !assistant.contains("<thought>"),
+                "chat_history leaked <thought>: {assistant}"
+            );
+            assert!(
+                !assistant.contains("</thought>"),
+                "chat_history leaked </thought>: {assistant}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_studio_consolidate_weights_rejects_inverted_clamp_bounds() {
+        let bad_config = serde_json::json!({
+            "clamp_min": 1000,
+            "clamp_max": -1000
+        })
+        .to_string();
+
+        let res = studio_consolidate_weights(BOOTSTRAP_UORLUT_V8, &bad_config);
+        assert!(
+            res.is_err(),
+            "studio_consolidate_weights must return Err on inverted clamp"
+        );
+        let err = res.unwrap_err();
+        assert!(
+            err.contains("invalid clamp bounds") && err.contains("clamp_min=1000"),
+            "error must explain clamp violation: {err}"
+        );
     }
 }

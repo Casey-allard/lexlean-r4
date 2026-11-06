@@ -93,6 +93,66 @@ export function studio_dispatch(input) {
     }
 }
 
+/**
+ * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
+ * @param {string} request_json
+ * @returns {string}
+ */
+export function studio_v1_messages(request_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_v1_messages(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Process an OpenAI-compatible `/v1/chat/completions` JSON request in WebAssembly.
+ * @param {string} request_json
+ * @returns {string}
+ */
+export function studio_v1_chat_completions(request_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_v1_chat_completions(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Query or export OTel GLLM traces in WebAssembly.
+ * @param {string} query_or_payload
+ * @returns {string}
+ */
+export function studio_v1_traces(query_or_payload) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(query_or_payload, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_v1_traces(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1, 1) >>> 0;
     getUint8ArrayMemory0().set(arg, ptr / 1);
@@ -139,10 +199,39 @@ export function studio_weight_pack_status() {
     }
 }
 
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_0.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
 }
+/**
+ * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
+ *
+ * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
+ * Returns the updated `UORLUT01` container bytes, or an error string on failure.
+ * @param {Uint8Array} weights_bytes
+ * @param {string} config_json
+ * @returns {Uint8Array}
+ */
+export function studio_consolidate_weights(weights_bytes, config_json) {
+    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
+}
+
 /**
  * WebAssembly entrypoint processing a versioned byte envelope.
  * @param {Uint8Array} input
@@ -157,11 +246,6 @@ export function process_envelope(input) {
     return v2;
 }
 
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_0.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
 /**
  * WebAssembly entrypoint executing an application request with JsValue representation.
  * @param {Uint8Array} input_bytes

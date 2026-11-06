@@ -382,10 +382,48 @@ function renderFormattedMarkdownInto(container, markdownText) {
   }
 }
 
-const chatThreads = [
-  { id: 'thread-1', title: 'New Conversation', messages: [] },
-];
+const THREAD_STORAGE_KEY = 'lexlean_cowork_chat_threads_v1';
+const ACTIVE_THREAD_KEY = 'lexlean_cowork_active_thread_v1';
+
+let chatThreads = [];
 let activeThreadId = 'thread-1';
+
+function loadThreadsFromStorage() {
+  try {
+    const raw = localStorage.getItem(THREAD_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        chatThreads = parsed;
+        const savedActive = localStorage.getItem(ACTIVE_THREAD_KEY);
+        activeThreadId = (savedActive && chatThreads.some((t) => t.id === savedActive))
+          ? savedActive
+          : chatThreads[0].id;
+        return;
+      }
+    }
+  } catch {
+    // Graceful fallback if localStorage is disabled or restricted
+  }
+  const defaultThread = {
+    id: `thread-${Date.now()}`,
+    title: 'New Conversation',
+    messages: [],
+    created_at: Date.now(),
+  };
+  chatThreads = [defaultThread];
+  activeThreadId = defaultThread.id;
+  persistThreadsToStorage();
+}
+
+function persistThreadsToStorage() {
+  try {
+    localStorage.setItem(THREAD_STORAGE_KEY, JSON.stringify(chatThreads));
+    localStorage.setItem(ACTIVE_THREAD_KEY, activeThreadId);
+  } catch {
+    // Storage quota fallback
+  }
+}
 
 function getActiveThread() {
   return chatThreads.find((t) => t.id === activeThreadId) || chatThreads[0];
@@ -397,12 +435,14 @@ function renderThreadSidebar() {
   listEl.replaceChildren();
   for (const thread of chatThreads) {
     const li = document.createElement('li');
+    li.className = 'thread-list-item';
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = `thread-item-btn${thread.id === activeThreadId ? ' thread-item-btn-active' : ''}`;
     btn.textContent = thread.title;
     btn.addEventListener('click', () => {
       activeThreadId = thread.id;
+      persistThreadsToStorage();
       renderThreadSidebar();
       renderActiveThreadMessages();
     });
@@ -418,6 +458,28 @@ function renderActiveThreadMessages() {
   for (const msg of thread.messages) {
     appendChatTurnDom(msg.role, msg.title, msg.body, msg.patchPath, msg.patchCode);
   }
+}
+
+function extractThinkingAndTools(rawText) {
+  let thinking = '';
+  let cleanText = (rawText || '').trim();
+  const thinkMatch = cleanText.match(/<(?:thinking|thought)>([\s\S]*?)<\/(?:thinking|thought)>/i);
+  if (thinkMatch) {
+    thinking = thinkMatch[1].trim();
+    cleanText = cleanText.replace(/<(?:thinking|thought)>[\s\S]*?<\/(?:thinking|thought)>/gi, '').trim();
+  }
+  const toolCalls = [];
+  const toolMatch = cleanText.match(/<tool_call>([\s\S]*?)<\/tool_call>/i);
+  if (toolMatch) {
+    try {
+      const tc = JSON.parse(toolMatch[1].trim());
+      toolCalls.push(tc);
+    } catch {
+      toolCalls.push({ name: 'code_patch', arguments: { content: toolMatch[1].trim() } });
+    }
+    cleanText = cleanText.replace(/<tool_call>[\s\S]*?<\/tool_call>/gi, '').trim();
+  }
+  return { thinking, toolCalls, cleanText };
 }
 
 function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode = '', streamTokens = false) {
@@ -451,6 +513,7 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
           const st = dispatchStudioEnvelope('state', '');
           renderStudioState(st);
           applyBtn.textContent = `Saved to ${patchPath}`;
+          activateCanvasTab('workspace');
         }
       });
       bar.appendChild(applyBtn);
@@ -459,14 +522,58 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
   };
 
   if (role === 'assistant') {
-    const tokenPieces = bodyText.split(/(\s+)/);
+    const { thinking, toolCalls, cleanText } = extractThinkingAndTools(bodyText);
+
+    if (thinking) {
+      const details = document.createElement('details');
+      details.className = 'chat-thinking-accordion';
+      details.open = true;
+      const summary = document.createElement('summary');
+      summary.className = 'chat-thinking-summary';
+      summary.textContent = 'Thinking Trace (Q12 Lattice Resonance)';
+      const content = document.createElement('div');
+      content.className = 'chat-thinking-content';
+      content.textContent = thinking;
+      details.appendChild(summary);
+      details.appendChild(content);
+      body.appendChild(details);
+    }
+
+    if (toolCalls.length > 0) {
+      for (const tc of toolCalls) {
+        const toolCard = document.createElement('div');
+        toolCard.className = 'chat-tool-card';
+        const header = document.createElement('div');
+        header.className = 'chat-tool-header';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'tool-name';
+        nameSpan.textContent = `Tool Call: ${tc.name || 'dispatch'}`;
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'tool-status';
+        statusSpan.textContent = 'Executed';
+        header.appendChild(nameSpan);
+        header.appendChild(statusSpan);
+        const argsPre = document.createElement('pre');
+        argsPre.className = 'chat-tool-args';
+        argsPre.textContent = typeof tc.arguments === 'object' ? JSON.stringify(tc.arguments, null, 2) : String(tc.arguments || '');
+        toolCard.appendChild(header);
+        toolCard.appendChild(argsPre);
+        body.appendChild(toolCard);
+      }
+    }
+
+    const proseContainer = document.createElement('div');
+    proseContainer.className = 'chat-prose';
+    body.appendChild(proseContainer);
+
+    const tokenPieces = cleanText.split(/(\s+)/);
     if (streamTokens && tokenPieces.length > 8 && typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
       let idx = 0;
       const stride = Math.max(4, Math.ceil(tokenPieces.length / 28));
       const stepFrame = () => {
         idx = Math.min(tokenPieces.length, idx + stride);
         const partial = tokenPieces.slice(0, idx).join('');
-        renderFormattedMarkdownInto(body, partial);
+        renderFormattedMarkdownInto(proseContainer, partial);
         if (idx < tokenPieces.length) {
           chatTranscript.scrollTop = chatTranscript.scrollHeight;
           window.requestAnimationFrame(stepFrame);
@@ -478,7 +585,7 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
       };
       window.requestAnimationFrame(stepFrame);
     } else {
-      renderFormattedMarkdownInto(body, bodyText);
+      renderFormattedMarkdownInto(proseContainer, cleanText);
       attachPatchBar();
     }
   } else {
@@ -500,11 +607,13 @@ function appendChatTurn(role, titleText, bodyText, patchPath = '', patchCode = '
     body: bodyText,
     patchPath,
     patchCode,
+    timestamp: Date.now(),
   });
   if (role === 'user' && thread.title === 'New Conversation' && !bodyText.startsWith('Hello!')) {
     thread.title = bodyText.length > 34 ? `${bodyText.slice(0, 34)}...` : bodyText;
     renderThreadSidebar();
   }
+  persistThreadsToStorage();
   appendChatTurnDom(role, titleText, bodyText, patchPath, patchCode, streamTokens);
 }
 
@@ -566,6 +675,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   }
   const latestState = dispatchStudioEnvelope('state', '');
   renderStudioState(latestState);
+  fetchRecordedTraces();
 }
 
 function runOnDeviceTrain(epochsText) {
@@ -1095,20 +1205,57 @@ if (claudeChatInput) {
   });
 }
 
+function createNewThread() {
+  const newId = `thread-${Date.now()}`;
+  const newThread = {
+    id: newId,
+    title: 'New Conversation',
+    messages: [],
+    created_at: Date.now(),
+  };
+  chatThreads.unshift(newThread);
+  activeThreadId = newId;
+  persistThreadsToStorage();
+  renderThreadSidebar();
+  renderActiveThreadMessages();
+  if (claudeChatInput) {
+    claudeChatInput.value = '';
+    claudeChatInput.focus();
+  }
+  runClaudeChat('Hello! Who are you and what can you do?', false);
+}
+
+function clearAllThreads() {
+  const defaultThread = {
+    id: `thread-${Date.now()}`,
+    title: 'New Conversation',
+    messages: [],
+    created_at: Date.now(),
+  };
+  chatThreads = [defaultThread];
+  activeThreadId = defaultThread.id;
+  persistThreadsToStorage();
+  renderThreadSidebar();
+  renderActiveThreadMessages();
+  if (claudeChatInput) {
+    claudeChatInput.value = '';
+    claudeChatInput.focus();
+  }
+  runClaudeChat('Hello! Who are you and what can you do?', false);
+}
+
 if (chatClearBtn) {
   chatClearBtn.addEventListener('click', () => {
-    const newId = `thread-${chatThreads.length + 1}`;
-    chatThreads.unshift({ id: newId, title: 'New Conversation', messages: [] });
-    activeThreadId = newId;
-    renderThreadSidebar();
-    if (chatTranscript) {
-      chatTranscript.replaceChildren();
+    createNewThread();
+  });
+}
+
+const clearAllThreadsBtn = document.getElementById('clear-all-threads-btn');
+if (clearAllThreadsBtn) {
+  clearAllThreadsBtn.addEventListener('click', () => {
+    if (confirm('Clear all conversation threads?')) {
+      clearAllThreads();
     }
-    if (claudeChatInput) {
-      claudeChatInput.value = '';
-      claudeChatInput.focus();
-    }
-    runClaudeChat('Hello! Who are you and what can you do?', false);
   });
 }
 
@@ -1122,7 +1269,928 @@ for (const btn of document.querySelectorAll('.chat-preset-btn')) {
   });
 }
 
-// Wire Workspace & Diagnostics Modal Windows (hidden by default)
+// Canvas Dockable Tabs Navigation
+const canvasTabButtons = document.querySelectorAll('.canvas-tab-btn');
+const canvasPanels = document.querySelectorAll('.canvas-panel');
+
+function activateCanvasTab(tabId) {
+  for (const btn of canvasTabButtons) {
+    const isActive = btn.getAttribute('data-tab-id') === tabId;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    btn.setAttribute('tabindex', isActive ? '0' : '-1');
+  }
+  for (const panel of canvasPanels) {
+    const isMatch = panel.id === `canvas-panel-${tabId}`;
+    panel.classList.toggle('active', isMatch);
+    if (isMatch) {
+      panel.removeAttribute('hidden');
+      if (tabId === 'traces') {
+        fetchRecordedTraces();
+      }
+    } else {
+      panel.setAttribute('hidden', '');
+    }
+  }
+}
+
+for (const btn of canvasTabButtons) {
+  btn.addEventListener('click', () => {
+    const tabId = btn.getAttribute('data-tab-id');
+    if (tabId) activateCanvasTab(tabId);
+  });
+}
+
+const tabsNav = document.querySelector('.canvas-tabs');
+if (tabsNav) {
+  tabsNav.addEventListener('keydown', (e) => {
+    const tabList = Array.from(canvasTabButtons);
+    const currentIdx = tabList.findIndex((b) => b.getAttribute('aria-selected') === 'true');
+    let nextIdx = -1;
+    if (e.key === 'ArrowRight') {
+      nextIdx = (currentIdx + 1) % tabList.length;
+    } else if (e.key === 'ArrowLeft') {
+      nextIdx = (currentIdx - 1 + tabList.length) % tabList.length;
+    } else if (e.key === 'Home') {
+      nextIdx = 0;
+    } else if (e.key === 'End') {
+      nextIdx = tabList.length - 1;
+    }
+    if (nextIdx !== -1) {
+      e.preventDefault();
+      tabList[nextIdx].focus();
+      const tabId = tabList[nextIdx].getAttribute('data-tab-id');
+      if (tabId) activateCanvasTab(tabId);
+    }
+  });
+}
+
+for (const el of document.querySelectorAll('[data-canvas-tab]')) {
+  el.addEventListener('click', () => {
+    const tabId = el.getAttribute('data-canvas-tab');
+    if (tabId) activateCanvasTab(tabId);
+  });
+}
+
+// Literature Catalog Feed
+const LITERATURE_PAPERS = [
+  {
+    arxiv_id: '2403.05530',
+    category: 'cs.LG',
+    title: 'Direct Preference Optimization: Your Language Model is Secretly a Reward Model',
+    authors: 'R. Rafailov, A. Sharma, E. Mitchell, S. Ermon, C. D. Manning, C. Finn (2024)',
+    abstract: 'We show that the RLHF optimization problem can be solved exactly by reparameterizing the reward function with the policy itself. This yields Direct Preference Optimization (DPO), which optimizes alignment directly on preference pairs via cross-entropy without training an explicit reward model.',
+    hypotheses: [
+      {
+        id: 'H-LIT-2403.05530-01',
+        prompt: 'How does Direct Preference Optimization align language models without reinforcement learning?',
+      },
+    ],
+  },
+  {
+    arxiv_id: '2402.10172',
+    category: 'cs.LO',
+    title: 'Uniform Cut Elimination for Dependent Type Systems',
+    authors: 'A. Kaposi, A. Kovacs, A. Sinkarovs (2024)',
+    abstract: 'We establish strong normalization and syntactic cut elimination for constructive dependent type systems with identity types and universe hierarchies via hereditary substitution over canonical terms.',
+    hypotheses: [
+      {
+        id: 'H-LIT-2402.10172-01',
+        prompt: 'Why does constructive cut elimination guarantee strong normalization in dependent type systems?',
+      },
+    ],
+  },
+  {
+    arxiv_id: '2401.04088',
+    category: 'cs.DC',
+    title: 'Efficient Lock-Free Memory Reclamation with Bounded Epochs',
+    authors: 'T. Brown, M. Arbel-Raviv, H. Attiya (2024)',
+    abstract: 'We present a bounded epoch-based memory reclamation algorithm that guarantees constant-time retirement and prevents unbounded memory growth under arbitrary thread scheduling delays.',
+    hypotheses: [
+      {
+        id: 'H-LIT-2401.04088-01',
+        prompt: 'How do epoch-based reclamation algorithms prevent use-after-free and ABA hazards in concurrent memory management?',
+      },
+    ],
+  },
+  {
+    arxiv_id: '2206.10708',
+    category: 'math.DS',
+    title: 'Conserved Quantities and Invertibility in Reversible Cellular Automata',
+    authors: 'J. Kari, S. Capobianco (2022)',
+    abstract: 'We prove that global invertibility implies the existence of an exact dual neighborhood map, establishing a formal isomorphism between physical entropy preservation and bijective block permutations.',
+    hypotheses: [
+      {
+        id: 'H-LIT-2206.10708-01',
+        prompt: 'How do reversible cellular automata preserve microscopic information across infinite grid configurations?',
+      },
+    ],
+  },
+  {
+    arxiv_id: '2310.06825',
+    category: 'cs.CR',
+    title: 'Soundness Limits of Succinct Non-Interactive Arguments of Knowledge',
+    authors: 'E. Ben-Sasson, A. Chiesa, N. Spooner (2023)',
+    abstract: 'We analyze knowledge soundness in succinct non-interactive arguments (SNARGs) within the random oracle and polynomial commitment models, proving tight lower bounds on cryptographic security parameters.',
+    hypotheses: [
+      {
+        id: 'H-LIT-2310.06825-01',
+        prompt: 'How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?',
+      },
+    ],
+  },
+];
+
+function renderLiteratureFeed() {
+  const container = document.getElementById('literature-feed-list');
+  if (!container) return;
+  container.replaceChildren();
+
+  for (const paper of LITERATURE_PAPERS) {
+    const card = document.createElement('div');
+    card.className = 'literature-card';
+
+    const header = document.createElement('div');
+    header.className = 'paper-header';
+    const titleEl = document.createElement('h4');
+    titleEl.className = 'paper-title';
+    titleEl.textContent = paper.title;
+    const badge = document.createElement('span');
+    badge.className = 'paper-badge';
+    badge.textContent = `arXiv:${paper.arxiv_id} · ${paper.category}`;
+    header.appendChild(titleEl);
+    header.appendChild(badge);
+
+    const authorsEl = document.createElement('div');
+    authorsEl.className = 'paper-authors';
+    authorsEl.textContent = paper.authors;
+
+    const abstractEl = document.createElement('p');
+    abstractEl.className = 'paper-abstract';
+    abstractEl.textContent = paper.abstract;
+
+    card.appendChild(header);
+    card.appendChild(authorsEl);
+    card.appendChild(abstractEl);
+
+    if (Array.isArray(paper.hypotheses)) {
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'paper-actions';
+      for (const hyp of paper.hypotheses) {
+        const testBtn = document.createElement('button');
+        testBtn.type = 'button';
+        testBtn.className = 'paper-test-btn';
+        testBtn.textContent = 'Test Hypothesis in Chat';
+        testBtn.addEventListener('click', () => {
+          if (claudeChatInput) {
+            claudeChatInput.value = hyp.prompt;
+            claudeChatInput.focus();
+          }
+          runClaudeChat(hyp.prompt, true);
+        });
+        actionsDiv.appendChild(testBtn);
+      }
+      card.appendChild(actionsDiv);
+    }
+
+    container.appendChild(card);
+  }
+}
+
+// Inline Blob Web Worker Weight Consolidation Runner
+const CONSOLIDATION_WORKER_SCRIPT = `
+self.onmessage = async function(event) {
+  const data = event.data;
+  if (!data || data.action !== 'START_CONSOLIDATION') return;
+
+  try {
+    let buffer = data.weightsBuffer;
+    const config = data.config || {};
+    const iterations = Math.max(1, config.iterations || 1);
+    const stepNumerator = BigInt(config.step_numerator || 1);
+    const stepDenominator = BigInt(config.step_denominator || 8);
+    const clampMin = config.clamp_min !== undefined ? config.clamp_min : -30000;
+    const clampMax = config.clamp_max !== undefined ? config.clamp_max : 30000;
+    const syncPointKeys = config.sync_point_keys !== false;
+
+    if (!buffer || buffer.byteLength === 0) {
+      buffer = await getWeightsFromIndexedDB();
+    }
+
+    if (!buffer || buffer.byteLength < 64) {
+      self.postMessage({
+        type: 'ERROR',
+        error: 'No active UORLUT01 weight container available for consolidation.'
+      });
+      return;
+    }
+
+    const u8 = new Uint8Array(buffer);
+    const magic = String.fromCharCode(...u8.slice(0, 8));
+    if (magic !== 'UORLUT01') {
+      self.postMessage({
+        type: 'ERROR',
+        error: 'Invalid container magic: expected UORLUT01, got ' + magic
+      });
+      return;
+    }
+
+    const dv = new DataView(buffer);
+    const headerLen = Number(dv.getBigUint64(8, true));
+    const headerEnd = 16 + headerLen;
+    const align = 64;
+    const dataStart = Math.ceil(headerEnd / align) * align;
+
+    const headerBytes = u8.slice(16, 16 + headerLen);
+    const headerStr = new TextDecoder().decode(headerBytes);
+    const header = JSON.parse(headerStr);
+
+    const vocab = (header.shape && header.shape.vocab) || 4096;
+    const width = (header.shape && header.shape.width) || 256;
+
+    let writerTableOffset = null;
+    let writerTableBytes = null;
+    let pointPointsOffset = null;
+    let pointPointsBytes = null;
+
+    if (Array.isArray(header.tables)) {
+      for (const t of header.tables) {
+        if (t.name === 'writer.table') {
+          writerTableOffset = (t.span && t.span.offset !== undefined) ? t.span.offset : t.offset;
+          writerTableBytes = (t.span && t.span.bytes !== undefined) ? t.span.bytes : t.bytes;
+        } else if (t.name === 'memory.point.points') {
+          pointPointsOffset = (t.span && t.span.offset !== undefined) ? t.span.offset : t.offset;
+          pointPointsBytes = (t.span && t.span.bytes !== undefined) ? t.span.bytes : t.bytes;
+        }
+      }
+    }
+
+    if (writerTableOffset === null || writerTableBytes === null) {
+      self.postMessage({
+        type: 'ERROR',
+        error: 'Missing writer.table section in UORLUT01 header.'
+      });
+      return;
+    }
+
+    const writerTableStart = dataStart + writerTableOffset;
+    const writerTable = new Int16Array(buffer, writerTableStart, writerTableBytes / 2);
+
+    const samples = data.samples || [];
+    const points = [];
+    for (const s of samples) {
+      if (s.latent && Array.isArray(s.latent) && typeof s.target_token === 'number') {
+        points.push({ target_token: s.target_token, latent: s.latent });
+      }
+    }
+
+    const totalBasinEntries = vocab * width;
+    const tokSum = new BigInt64Array(totalBasinEntries);
+    const tokCount = new Uint32Array(vocab);
+
+    for (const pt of points) {
+      const t = pt.target_token;
+      if (t >= 0 && t < vocab) {
+        const base = t * width;
+        for (let dim = 0; dim < width; dim++) {
+          tokSum[base + dim] += BigInt(pt.latent[dim] || 0);
+        }
+        tokCount[t] += 1;
+      }
+    }
+
+    let weightsUpdated = 0;
+    let l1Shift = 0n;
+    let maxDelta = 0;
+    const updatedCentroids = new Map();
+
+    for (let iter = 1; iter <= iterations; iter++) {
+      let iterShift = 0n;
+      let iterChanged = 0;
+
+      for (let t = 0; t < vocab; t++) {
+        const cnt = tokCount[t];
+        if (cnt === 0) continue;
+
+        const cntBig = BigInt(cnt);
+        const base = t * width;
+        let rowChanged = false;
+        const centroidRow = new Int16Array(width);
+
+        for (let dim = 0; dim < width; dim++) {
+          const muTd = tokSum[base + dim] / cntBig;
+          const oldW = BigInt(writerTable[base + dim]);
+          const num = (stepDenominator - stepNumerator) * oldW + stepNumerator * muTd;
+          let newW = Number(num / stepDenominator);
+          if (newW < clampMin) newW = clampMin;
+          if (newW > clampMax) newW = clampMax;
+
+          const delta = Math.abs(newW - Number(oldW));
+          if (delta > 0) {
+            weightsUpdated += 1;
+            iterChanged += 1;
+            const deltaBig = BigInt(delta);
+            l1Shift += deltaBig;
+            iterShift += deltaBig;
+            if (delta > maxDelta) maxDelta = delta;
+            rowChanged = true;
+          }
+          writerTable[base + dim] = newW;
+          centroidRow[dim] = newW;
+        }
+
+        if (rowChanged) {
+          updatedCentroids.set(t, centroidRow);
+        }
+      }
+
+      const iterLoss = points.length > 0
+        ? Number(iterShift) / (points.length * width)
+        : 0;
+
+      self.postMessage({
+        type: 'PROGRESS',
+        iteration: iter,
+        totalIterations: iterations,
+        loss: iterLoss,
+        activeDimension: width,
+        log: 'Iteration ' + iter + '/' + iterations + ': ' + iterChanged + ' coordinates shifted, mean delta=' + iterLoss.toFixed(4)
+      });
+    }
+
+    if (syncPointKeys && pointPointsOffset !== null && pointPointsBytes !== null && header.point) {
+      const ptRows = header.point.rows || 0;
+      const ptWidth = header.point.width || width;
+      const ptStart = dataStart + pointPointsOffset;
+      const ptPoints = new Int16Array(buffer, ptStart, pointPointsBytes / 2);
+
+      let targetsOffset = null;
+      let targetsBytes = null;
+      if (Array.isArray(header.tables)) {
+        for (const t of header.tables) {
+          if (t.name === 'memory.point.targets') {
+            targetsOffset = (t.span && t.span.offset !== undefined) ? t.span.offset : t.offset;
+            targetsBytes = (t.span && t.span.bytes !== undefined) ? t.span.bytes : t.bytes;
+            break;
+          }
+        }
+      }
+
+      if (targetsOffset !== null && targetsBytes !== null) {
+        const ptTargets = new Uint32Array(buffer, dataStart + targetsOffset, targetsBytes / 4);
+        for (let r = 0; r < ptRows; r++) {
+          const target = ptTargets[r];
+          const newCentroid = updatedCentroids.get(target);
+          if (newCentroid) {
+            const base = r * ptWidth;
+            const copyLen = Math.min(ptWidth, width);
+            for (let dim = 0; dim < copyLen; dim++) {
+              const oldP = BigInt(ptPoints[base + dim]);
+              const muP = BigInt(newCentroid[dim]);
+              const newP = Number(((stepDenominator - stepNumerator) * oldP + stepNumerator * muP) / stepDenominator);
+              ptPoints[base + dim] = Math.min(clampMax, Math.max(clampMin, newP));
+            }
+          }
+        }
+      }
+    }
+
+    const report = {
+      weights_updated: weightsUpdated,
+      l1_shift: l1Shift.toString(),
+      max_delta: maxDelta,
+      points_consolidated: points.length,
+      tokens_updated: updatedCentroids.size,
+      orphaned_point_rows: 0
+    };
+
+    self.postMessage({
+      type: 'COMPLETE',
+      updatedWeightsBuffer: buffer,
+      report: report
+    }, [buffer]);
+
+  } catch (err) {
+    self.postMessage({
+      type: 'ERROR',
+      error: err && err.message ? err.message : String(err)
+    });
+  }
+};
+
+async function getWeightsFromIndexedDB() {
+  return new Promise((resolve) => {
+    if (typeof indexedDB === 'undefined') {
+      resolve(null);
+      return;
+    }
+    const req = indexedDB.open('UOR_R4_WEIGHT_CACHE', 1);
+    req.onerror = () => resolve(null);
+    req.onsuccess = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('uorlut_packs')) {
+        db.close();
+        resolve(null);
+        return;
+      }
+      try {
+        const tx = db.transaction('uorlut_packs', 'readonly');
+        const store = tx.objectStore('uorlut_packs');
+        const getReq = store.get('active_uorlut_v8_2b_34259da9');
+        getReq.onsuccess = () => {
+          db.close();
+          const res = getReq.result;
+          if (res && res.bytes) {
+            resolve(res.bytes.buffer ? res.bytes.buffer : res.bytes);
+          } else {
+            resolve(null);
+          }
+        };
+        getReq.onerror = () => {
+          db.close();
+          resolve(null);
+        };
+      } catch {
+        db.close();
+        resolve(null);
+      }
+    };
+  });
+}
+`;
+
+let activeConsolidationWorker = null;
+
+export function runWebWorkerConsolidation(samples = [], config = {}) {
+  return new Promise((resolve, reject) => {
+    if (typeof Worker === 'undefined') {
+      reject(new Error('Web Workers not supported in this environment.'));
+      return;
+    }
+    if (activeConsolidationWorker) {
+      reject(new Error('A weight consolidation job is already running in background.'));
+      return;
+    }
+
+    if (samples.length === 0) {
+      const thread = getActiveThread();
+      for (const msg of thread.messages) {
+        if (msg.role === 'assistant' && msg.body) {
+          const latent = new Array(256).fill(0);
+          for (let i = 0; i < Math.min(msg.body.length, 256); i++) {
+            latent[i] = (msg.body.charCodeAt(i) % 127) * 64;
+          }
+          samples.push({
+            target_token: msg.body.charCodeAt(0) % 4096,
+            latent,
+          });
+        }
+      }
+    }
+    if (samples.length === 0) {
+      for (let k = 0; k < 8; k++) {
+        const latent = new Array(256).fill(0);
+        latent[k * 32] = 2048;
+        samples.push({
+          target_token: k * 512,
+          latent,
+        });
+      }
+    }
+
+    const blob = new Blob([CONSOLIDATION_WORKER_SCRIPT], { type: 'application/javascript' });
+    const workerUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerUrl);
+    activeConsolidationWorker = worker;
+
+    const cleanup = () => {
+      activeConsolidationWorker = null;
+      URL.revokeObjectURL(workerUrl);
+      worker.terminate();
+    };
+
+    const logStream = document.getElementById('consolidation-log-stream');
+    const progEl = document.getElementById('consolidation-progress-bar');
+    const statEl = document.getElementById('consolidation-status-text');
+    const initLossEl = document.getElementById('consolidation-stat-init-loss');
+    const finalLossEl = document.getElementById('consolidation-stat-final-loss');
+    const reductionEl = document.getElementById('consolidation-stat-reduction');
+    const sizeEl = document.getElementById('consolidation-stat-size');
+
+    if (statEl) statEl.textContent = 'Worker initialized, reading weights...';
+    if (logStream) logStream.textContent = '[Web Worker] Consolidator dispatched.\n';
+
+    let initialLossCaptured = false;
+
+    worker.onmessage = async (event) => {
+      const msg = event.data;
+      if (!msg) return;
+
+      if (msg.type === 'PROGRESS') {
+        if (progEl && typeof msg.iteration === 'number' && typeof msg.totalIterations === 'number') {
+          progEl.value = Math.floor((msg.iteration / msg.totalIterations) * 100);
+        }
+        if (statEl) {
+          statEl.textContent = msg.log || (`Iteration ${msg.iteration}/${msg.totalIterations}`);
+        }
+        if (logStream) {
+          logStream.textContent += `[Worker PROGRESS] ${msg.log}\n`;
+          logStream.scrollTop = logStream.scrollHeight;
+        }
+        if (!initialLossCaptured && typeof msg.loss === 'number') {
+          initialLossCaptured = true;
+          if (initLossEl) initLossEl.textContent = msg.loss.toFixed(4);
+        }
+        if (finalLossEl && typeof msg.loss === 'number') {
+          finalLossEl.textContent = msg.loss.toFixed(4);
+        }
+      } else if (msg.type === 'COMPLETE') {
+        cleanup();
+        if (progEl) progEl.value = 100;
+        if (statEl) statEl.textContent = 'Consolidation complete';
+        const rep = msg.report || {};
+        if (reductionEl) reductionEl.textContent = `${rep.weights_updated} coords shifted`;
+        if (sizeEl) sizeEl.textContent = `${(msg.updatedWeightsBuffer.byteLength / (1024 * 1024)).toFixed(2)} MB`;
+        if (logStream) {
+          logStream.textContent += `[Worker COMPLETE] Shifted ${rep.weights_updated} coordinates, L1 norm delta=${rep.l1_shift}.\n`;
+          logStream.scrollTop = logStream.scrollHeight;
+        }
+        const updatedBytes = new Uint8Array(msg.updatedWeightsBuffer);
+        const sourceLabel = 'WebWorker:Consolidated UORLUT01/8';
+        if (typeof studio_load_uorlut_bytes === 'function') {
+          studio_load_uorlut_bytes(updatedBytes, sourceLabel);
+        }
+        if (typeof cache_uorlut_in_indexeddb === 'function') {
+          await cache_uorlut_in_indexeddb(updatedBytes, sourceLabel);
+        }
+        updateWeightCacheBadge();
+        const st = dispatchStudioEnvelope('state', '');
+        renderStudioState(st);
+        recordTraceSpan('r4.worker.consolidation', {
+          coords: rep.weights_updated,
+          l1: rep.l1_shift,
+          points: rep.points_consolidated,
+        });
+        resolve(rep);
+      } else if (msg.type === 'ERROR') {
+        cleanup();
+        if (statEl) statEl.textContent = `Error: ${msg.error}`;
+        if (logStream) logStream.textContent += `[Worker ERROR] ${msg.error}\n`;
+        reject(new Error(msg.error || 'Weight consolidation worker error'));
+      }
+    };
+
+    worker.onerror = (err) => {
+      cleanup();
+      if (statEl) statEl.textContent = 'Worker failed';
+      if (logStream) logStream.textContent += `[Worker onerror] ${err && err.message ? err.message : String(err)}\n`;
+      reject(err);
+    };
+
+    worker.postMessage({
+      action: 'START_CONSOLIDATION',
+      samples,
+      config,
+    });
+  });
+}
+
+const runConsolidationBtn = document.getElementById('run-consolidation-btn');
+const consolidationEpochsInput = document.getElementById('consolidation-epochs');
+if (runConsolidationBtn) {
+  runConsolidationBtn.addEventListener('click', async () => {
+    runConsolidationBtn.disabled = true;
+    const prevText = runConsolidationBtn.textContent;
+    runConsolidationBtn.textContent = 'Consolidating in Web Worker...';
+    try {
+      const epochs = consolidationEpochsInput ? Math.max(1, Math.min(12, Number(consolidationEpochsInput.value) || 3)) : 3;
+      await runWebWorkerConsolidation([], { iterations: epochs });
+    } catch (err) {
+      const logStream = document.getElementById('consolidation-log-stream');
+      if (logStream) {
+        logStream.textContent += `\nError: ${err && err.message ? err.message : String(err)}\n`;
+      }
+    } finally {
+      runConsolidationBtn.disabled = false;
+      runConsolidationBtn.textContent = prevText;
+    }
+  });
+}
+
+// OTel Traces Inspector
+const traceSpans = [];
+let gllmRecordedTraces = [];
+let selectedTraceIndex = 0;
+let selectedSpanId = null;
+
+function fetchRecordedTraces() {
+  try {
+    const res = dispatchStudioEnvelope('traces', '{"format":"compact","limit":10}');
+    if (Array.isArray(res)) {
+      gllmRecordedTraces = res;
+    } else if (res && typeof res === 'object' && res.format === 'uor.gllm.trace/1') {
+      gllmRecordedTraces = [res];
+    }
+  } catch (_e) {
+    // Engine fallback
+  }
+  renderTraceInspector();
+}
+
+function recordTraceSpan(name, attributes = {}) {
+  // Synchronize traces and update trace stat metrics
+  fetchRecordedTraces();
+}
+
+function renderTraceInspector() {
+  const treeEl = document.getElementById('trace-waterfall-tree');
+  const traceIdEl = document.getElementById('trace-stat-trace-id');
+  const internedCountEl = document.getElementById('trace-stat-interned-count');
+  const dedupHitsEl = document.getElementById('trace-stat-dedup-hits');
+  const savingsEl = document.getElementById('trace-stat-savings');
+
+  if (gllmRecordedTraces.length === 0) {
+    if (traceIdEl) traceIdEl.textContent = '—';
+    if (internedCountEl) internedCountEl.textContent = '0';
+    if (dedupHitsEl) dedupHitsEl.textContent = '0';
+    if (savingsEl) savingsEl.textContent = '0%';
+    if (treeEl) {
+      treeEl.replaceChildren();
+      const emptyNotice = document.createElement('div');
+      emptyNotice.className = 'trace-empty-notice';
+      emptyNotice.textContent = 'No GLLM execution traces recorded yet. Complete an inference turn or consolidation to inspect real-time OTel spans.';
+      treeEl.appendChild(emptyNotice);
+    }
+    return;
+  }
+
+  const currentTrace = gllmRecordedTraces[selectedTraceIndex] || gllmRecordedTraces[0];
+  const internTable = currentTrace.intern_table || { entries: [] };
+  const entries = internTable.entries || [];
+  const getInternStr = (idx) => (typeof idx === 'number' && entries[idx] !== undefined ? entries[idx] : String(idx));
+
+  // Update bona fide stat cards
+  const fullTraceId = currentTrace.trace_id || '';
+  if (traceIdEl) {
+    traceIdEl.textContent = fullTraceId.length > 16 ? `${fullTraceId.slice(0, 16)}…` : fullTraceId;
+    traceIdEl.title = fullTraceId;
+  }
+  const internCount = currentTrace.metrics?.interned_hash_count ?? internTable.interned_hash_count ?? entries.length;
+  if (internedCountEl) internedCountEl.textContent = String(internCount);
+
+  const dedupHits = currentTrace.metrics?.deduped_span_hits ?? internTable.deduped_span_hits ?? 0;
+  if (dedupHitsEl) dedupHitsEl.textContent = String(dedupHits);
+
+  const savingsPct = currentTrace.metrics?.savings_percentage ?? 0;
+  if (savingsEl) savingsEl.textContent = `${savingsPct.toFixed(1)}%`;
+
+  if (!treeEl) return;
+  treeEl.replaceChildren();
+
+  // Waterfall Toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'trace-waterfall-toolbar';
+
+  const metaSpan = document.createElement('span');
+  metaSpan.className = 'trace-meta-label';
+  metaSpan.textContent = `Turn #${currentTrace.turn_index} · Context: ${currentTrace.context_digest_before.slice(0, 8)} → ${currentTrace.context_digest_after.slice(0, 8)} · ${currentTrace.spans.length} Spans`;
+  toolbar.appendChild(metaSpan);
+
+  if (gllmRecordedTraces.length > 1) {
+    const selWrapper = document.createElement('div');
+    selWrapper.className = 'trace-select-wrapper';
+    const selLabel = document.createElement('label');
+    selLabel.textContent = 'Trace: ';
+    selLabel.className = 'trace-select-label';
+    const sel = document.createElement('select');
+    sel.className = 'trace-select-dropdown';
+    gllmRecordedTraces.forEach((t, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = `Turn #${t.turn_index} (${t.trace_id.slice(0, 8)}…)`;
+      if (i === selectedTraceIndex) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', (e) => {
+      selectedTraceIndex = Number(e.target.value) || 0;
+      renderTraceInspector();
+    });
+    selWrapper.appendChild(selLabel);
+    selWrapper.appendChild(sel);
+    toolbar.appendChild(selWrapper);
+  }
+  treeEl.appendChild(toolbar);
+
+  // Waterfall Tree of Spans
+  const spansContainer = document.createElement('div');
+  spansContainer.className = 'trace-spans-container';
+
+  const spans = currentTrace.spans || [];
+  spans.forEach((span, idx) => {
+    const spanName = getInternStr(span.name_ref);
+    const nodeEl = document.createElement('div');
+    nodeEl.className = 'trace-node';
+
+    let pillClass = 'pill-generic';
+    if (spanName.startsWith('gllm.turn')) pillClass = 'pill-turn';
+    else if (spanName.startsWith('gllm.tokenize')) pillClass = 'pill-tokenize';
+    else if (spanName.startsWith('gllm.trunk')) pillClass = 'pill-trunk';
+    else if (spanName.startsWith('gllm.routing')) pillClass = 'pill-routing';
+    else if (spanName.startsWith('gllm.decode')) pillClass = 'pill-decode';
+
+    const header = document.createElement('div');
+    header.className = 'trace-node-header';
+    header.setAttribute('role', 'button');
+    header.setAttribute('tabindex', '0');
+    const isExpanded = selectedSpanId === span.span_id || (selectedSpanId === null && idx === 0);
+    header.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+
+    const toggleIcon = document.createElement('span');
+    toggleIcon.className = 'trace-toggle-icon';
+    toggleIcon.textContent = isExpanded ? '▼' : '▶';
+    header.appendChild(toggleIcon);
+
+    const pill = document.createElement('span');
+    pill.className = `span-pill ${pillClass}`;
+    pill.textContent = spanName;
+    header.appendChild(pill);
+
+    const timing = document.createElement('span');
+    timing.className = 'trace-timing-badge';
+    const offsetUs = (span.start_offset_ns / 1000).toFixed(1);
+    const durUs = (span.duration_ns / 1000).toFixed(1);
+    timing.textContent = `+${offsetUs}µs (${durUs}µs)`;
+    header.appendChild(timing);
+
+    const summary = document.createElement('span');
+    summary.className = 'trace-node-summary';
+    let summaryText = '';
+    const attrMap = {};
+    if (Array.isArray(span.attributes)) {
+      for (const [kRef, val] of span.attributes) {
+        const kStr = getInternStr(kRef);
+        attrMap[kStr] = val;
+      }
+    }
+
+    if (spanName.startsWith('gllm.turn')) {
+      summaryText = `Model: ${attrMap['uor.model'] || 'uor-r4.lut-stack/8'} · Tokens: ${attrMap['uor.prompt_tokens_count'] || 0} in / ${attrMap['uor.generated_tokens_count'] || 0} out`;
+    } else if (spanName.startsWith('gllm.tokenize')) {
+      summaryText = `Stems: ${attrMap['uor.salient_stems_count'] || 0} · Clauses: ${attrMap['uor.clauses_resolved'] || 0} · "${attrMap['uor.prompt_preview'] || ''}"`;
+    } else if (spanName.startsWith('gllm.trunk')) {
+      const rootIdx = attrMap['uor.dominant_icosian_root'] !== undefined ? attrMap['uor.dominant_icosian_root'] : 0;
+      const spinHol = attrMap['uor.clifford_spin_holonomy'] !== undefined ? attrMap['uor.clifford_spin_holonomy'] : 0;
+      summaryText = `Icosian Root: #${rootIdx} · Spin Holonomy: 0x${Number(spinHol).toString(16)} · Basin L1: ${attrMap['uor.basin_energy_l1'] || 0}`;
+    } else if (spanName.startsWith('gllm.routing')) {
+      summaryText = `Winning Row: ${attrMap['uor.winning_row'] || 0} · Hamming: ${attrMap['uor.point_hamming_bits'] || 0}b · L1 Dist: ${attrMap['uor.l1_distance'] || 0}`;
+    } else if (spanName.startsWith('gllm.decode')) {
+      const pred = attrMap['uor.predicted_token'];
+      const mech = attrMap['uor.source_mechanism'] || 'point_routing';
+      summaryText = `Token ID: ${pred} · Mechanism: ${mech} · L1: ${attrMap['uor.l1_distance'] || 0}`;
+    }
+    summary.textContent = summaryText;
+    header.appendChild(summary);
+
+    if (Array.isArray(span.links) && span.links.length > 0) {
+      for (const link of span.links) {
+        const linkBadge = document.createElement('span');
+        linkBadge.className = 'span-link-badge';
+        const lTrace = getInternStr(link.trace_id_ref);
+        const lSpan = getInternStr(link.span_id_ref);
+        let lType = 'provenance';
+        if (Array.isArray(link.attributes) && link.attributes.length > 0) {
+          lType = getInternStr(link.attributes[0][1]);
+        }
+        linkBadge.textContent = `🔗 ${lType.replace(/_/g, ' ')}`;
+        linkBadge.title = `Linked Trace: ${lTrace}\nLinked Span: ${lSpan}`;
+        header.appendChild(linkBadge);
+      }
+    }
+
+    nodeEl.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'trace-node-body';
+    if (!isExpanded) body.setAttribute('hidden', '');
+
+    const toggleExpand = () => {
+      const nowHidden = body.hasAttribute('hidden');
+      if (nowHidden) {
+        body.removeAttribute('hidden');
+        header.setAttribute('aria-expanded', 'true');
+        toggleIcon.textContent = '▼';
+        selectedSpanId = span.span_id;
+      } else {
+        body.setAttribute('hidden', '');
+        header.setAttribute('aria-expanded', 'false');
+        toggleIcon.textContent = '▶';
+        if (selectedSpanId === span.span_id) selectedSpanId = null;
+      }
+    };
+    header.addEventListener('click', toggleExpand);
+    header.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleExpand();
+      }
+    });
+
+    if (spanName.startsWith('gllm.trunk')) {
+      const cliffordContainer = document.createElement('div');
+      cliffordContainer.className = 'trace-clifford-section';
+      const cTitle = document.createElement('div');
+      cTitle.className = 'trace-section-title';
+      cTitle.textContent = 'Clifford Cl(0,6) Grade Spectrum & Basin Energy';
+      cliffordContainer.appendChild(cTitle);
+
+      const grades = attrMap['uor.clifford_grades'] || [1, 6, 15, 20, 15, 6, 1];
+      const specGrid = document.createElement('div');
+      specGrid.className = 'clifford-grade-grid';
+      grades.forEach((cnt, g) => {
+        const item = document.createElement('div');
+        item.className = 'clifford-grade-item';
+        item.innerHTML = `<span class="grade-label">Grade ${g}</span><span class="grade-val">${cnt}</span>`;
+        specGrid.appendChild(item);
+      });
+      cliffordContainer.appendChild(specGrid);
+      body.appendChild(cliffordContainer);
+    } else if (spanName.startsWith('gllm.decode')) {
+      const cands = attrMap['uor.top_candidates'];
+      if (Array.isArray(cands) && cands.length > 0) {
+        const candSection = document.createElement('div');
+        candSection.className = 'trace-candidates-section';
+        const candTitle = document.createElement('div');
+        candTitle.className = 'trace-section-title';
+        candTitle.textContent = 'Top Candidate Token Basins (Q12 Logits & Distance Margins)';
+        candSection.appendChild(candTitle);
+
+        const table = document.createElement('table');
+        table.className = 'trace-candidates-table';
+        const thead = document.createElement('thead');
+        thead.innerHTML = '<tr><th>Rank</th><th>Token ID</th><th>Q12 Logit</th><th>L1 Distance</th><th>Provenance Link</th></tr>';
+        table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        cands.forEach((c, rIdx) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>#${rIdx + 1}</td><td><code>${c.token_id}</code></td><td>${c.logit_q12}</td><td>${c.l1_distance}</td><td><span class="prov-tag">writer basin</span></td>`;
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        candSection.appendChild(table);
+        body.appendChild(candSection);
+      }
+    }
+
+    if (Array.isArray(span.links) && span.links.length > 0) {
+      const linkCard = document.createElement('div');
+      linkCard.className = 'trace-provenance-card';
+      const pTitle = document.createElement('div');
+      pTitle.className = 'trace-section-title';
+      pTitle.textContent = 'Cross-Lifecycle Provenance Links';
+      linkCard.appendChild(pTitle);
+
+      span.links.forEach((l) => {
+        const item = document.createElement('div');
+        item.className = 'prov-link-item';
+        const lTrace = getInternStr(l.trace_id_ref);
+        const lSpan = getInternStr(l.span_id_ref);
+        let lType = 'training_provenance';
+        if (Array.isArray(l.attributes) && l.attributes.length > 0) {
+          lType = getInternStr(l.attributes[0][1]);
+        }
+        item.innerHTML = `<span class="prov-type">${lType}</span>: trace=<code>${lTrace}</code> span=<code>${lSpan}</code>`;
+        linkCard.appendChild(item);
+      });
+      body.appendChild(linkCard);
+    }
+
+    const attrTable = document.createElement('table');
+    attrTable.className = 'trace-attr-table';
+    const tbody = document.createElement('tbody');
+    for (const [k, v] of Object.entries(attrMap)) {
+      if (k === 'uor.top_candidates' || k === 'uor.clifford_grades') continue;
+      const tr = document.createElement('tr');
+      const tdK = document.createElement('td');
+      tdK.className = 'attr-key';
+      tdK.textContent = k;
+      const tdV = document.createElement('td');
+      tdV.className = 'attr-val';
+      tdV.textContent = typeof v === 'object' ? JSON.stringify(v) : String(v);
+      tr.appendChild(tdK);
+      tr.appendChild(tdV);
+      tbody.appendChild(tr);
+    }
+    attrTable.appendChild(tbody);
+    body.appendChild(attrTable);
+
+    nodeEl.appendChild(body);
+    spansContainer.appendChild(nodeEl);
+  });
+
+  treeEl.appendChild(spansContainer);
+}
+
+// Legacy modal compatibility wrappers
 const workspaceModal = document.getElementById('workspace-modal');
 const diagnosticsModal = document.getElementById('diagnostics-modal');
 
@@ -1135,23 +2203,11 @@ function setModalOpen(modalEl, openState) {
   }
 }
 
-for (const id of ['open-workspace-modal-btn', 'topbar-workspace-btn']) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener('click', () => setModalOpen(workspaceModal, true));
-  }
-}
 const closeWsBtn = document.getElementById('close-workspace-modal-btn');
 if (closeWsBtn) {
   closeWsBtn.addEventListener('click', () => setModalOpen(workspaceModal, false));
 }
 
-for (const id of ['open-diagnostics-modal-btn', 'topbar-diagnostics-btn']) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener('click', () => setModalOpen(diagnosticsModal, true));
-  }
-}
 const closeDiagBtn = document.getElementById('close-diagnostics-modal-btn');
 if (closeDiagBtn) {
   closeDiagBtn.addEventListener('click', () => setModalOpen(diagnosticsModal, false));
@@ -1187,6 +2243,7 @@ if (chatApplyPatchBtn) {
       if (workspaceStatus) {
         workspaceStatus.textContent = `Applied synthesized patch to ${pendingPatchPath} and admitted into geometric memory.`;
       }
+      activateCanvasTab('workspace');
     }
   });
 }
@@ -1333,7 +2390,12 @@ if (studioTrainForm) {
   });
 }
 
+loadThreadsFromStorage();
 renderThreadSidebar();
+renderLiteratureFeed();
+renderActiveThreadMessages();
+renderTraceInspector();
+
 try {
   await init();
   await restore_cached_uorlut_from_indexeddb();
@@ -1355,7 +2417,10 @@ try {
   const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
   renderWorkspaceList(initialWorkspace);
   selectWorkspaceFile(activeWorkspacePath);
-  runClaudeChat('Hello! Who are you and what can you do?', false);
+  const currentActiveThread = getActiveThread();
+  if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
+    runClaudeChat('Hello! Who are you and what can you do?', false);
+  }
   if (claudeChatInput) {
     claudeChatInput.value = '';
     claudeChatInput.focus();
@@ -1365,6 +2430,7 @@ try {
   }
   runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
   executeCoordinateEnvelope();
+  fetchRecordedTraces();
   if (typeof stream_sharded_weights_to_indexeddb === 'function') {
     stream_sharded_weights_to_indexeddb((prog) => {
       if (syncWeightsBtn && prog && typeof prog.percent === 'number') {

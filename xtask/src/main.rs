@@ -16,6 +16,9 @@ mod engine;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/lut_stack_exec.rs"]
 pub mod lut_stack_exec;
+#[allow(dead_code, clippy::all)]
+#[path = "../../crates/wasm/src/otel.rs"]
+pub mod otel;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -91,6 +94,7 @@ fn main() -> ExitCode {
         }
         "engine" => engine::run_engine_cmd(&root, rest).map_err(Into::into),
         "api" => engine::run_api_cmd(&root, rest).map_err(Into::into),
+        "literature-sync" => engine::run_literature_sync_cmd(&root, rest).map_err(Into::into),
         _ => {
             eprintln!(
                 "cargo xtask <task>\n\
@@ -108,6 +112,7 @@ fn main() -> ExitCode {
                  deduce            run priority-scheduled deduction over frontier claims\n\
                  engine            run autonomous homeostasis subcommands (status|hypotheses|prune|tick)\n\
                  api               check or synchronize autonomous engine ledgers (check|sync)\n\
+                 literature-sync   fetch or update arXiv literature catalog in model/literature.toml\n\
                  \n\
                  --write           rewrite generated or induced files"
             );

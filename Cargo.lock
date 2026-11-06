@@ -110,6 +110,7 @@ name = "lexlean-r4-wasm"
 version = "0.1.0"
 dependencies = [
  "js-sys",
+ "serde",
  "serde_json",
  "sha2",
  "wasm-bindgen",
@@ -387,6 +388,7 @@ name = "xtask"
 version = "0.1.0"
 dependencies = [
  "repo-model",
+ "serde",
  "serde_json",
  "sha2",
 ]

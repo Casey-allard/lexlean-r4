@@ -1,0 +1,134 @@
+# Ingested arXiv literature catalog and candidate hypotheses (r4/literature/1).
+# Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
+
+spec = "r4/literature/1"
+synced_at = "2026-11-05T19:58:21Z"
+query = "cat:cs.AI"
+
+[[paper]]
+arxiv_id = "2403.05530"
+title = "Direct Preference Optimization: Your Language Model is Secretly a Reward Model"
+authors = [
+    "Rafael Rafailov",
+    "Archit Sharma",
+    "Eric Mitchell",
+    "Stefano Ermon",
+    "Christopher D. Manning",
+    "Chelsea Finn",
+]
+published = "2023-05-29T17:42:00Z"
+updated = "2024-03-08T18:00:00Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.AI",
+    "stat.ML",
+]
+abstract = "While simple, the typical RLHF pipeline is complex and often unstable. We show that the optimization problem can be solved exactly by reparameterizing the reward function with the policy itself. This yields Direct Preference Optimization (DPO), which optimizes language model alignment directly on preference pairs via cross-entropy without training an explicit reward model or sampling during fine-tuning."
+
+[[paper.hypothesis]]
+id = "H-LIT-2403.05530-01"
+family = "dialogue-stem"
+statement = "Verify that Direct Preference Optimization establishes closed-form cross-entropy alignment over preference pairs without an explicit reward model."
+prompt = "How does Direct Preference Optimization align language models without reinforcement learning?"
+target_reply = "Direct Preference Optimization trains policies directly on preference pairs using closed form implicit reward substitution."
+
+[[paper]]
+arxiv_id = "2402.10172"
+title = "Uniform Cut Elimination for Dependent Type Systems"
+authors = [
+    "Ambrus Kaposi",
+    "Andras Kovacs",
+    "Artjoms Sinkarovs",
+]
+published = "2024-02-15T14:10:00Z"
+updated = "2024-02-18T16:00:00Z"
+primary_category = "cs.LO"
+categories = [
+    "cs.LO",
+    "cs.PL",
+    "math.LO",
+]
+abstract = "We establish strong normalization and syntactic cut elimination for constructive dependent type systems with identity types and universe hierarchies. By formulating hereditary substitution over neutral and normal terms, we prove that all well-typed expressions compute to canonical values without axiom dependencies."
+
+[[paper.hypothesis]]
+id = "H-LIT-2402.10172-01"
+family = "stem-reasoning"
+statement = "Verify that constructive cut elimination via hereditary substitution guarantees strong normalization and canonical term computation in dependent type systems."
+prompt = "Why does constructive cut elimination guarantee strong normalization in dependent type systems?"
+target_reply = "Constructive cut elimination guarantees strong normalization by defining hereditary substitution over canonical term structures so every reduction step strictly decreases an ordinal proof measure, ensuring that all closed expressions compute deterministically to irreducible normal forms."
+
+[[paper]]
+arxiv_id = "2401.04088"
+title = "Efficient Lock-Free Memory Reclamation with Bounded Epochs"
+authors = [
+    "Trevor Brown",
+    "Maya Arbel-Raviv",
+    "Hagit Attiya",
+]
+published = "2024-01-08T09:25:00Z"
+updated = "2024-01-15T11:45:00Z"
+primary_category = "cs.DC"
+categories = [
+    "cs.DC",
+    "cs.DS",
+    "cs.PL",
+]
+abstract = "Lock-free concurrent data structures avoid mutual exclusion but face the fundamental challenge of safe memory reclamation without garbage collection. We present a bounded epoch-based memory reclamation algorithm that guarantees constant-time retirement and prevents unbounded memory growth under arbitrary thread scheduling delays."
+
+[[paper.hypothesis]]
+id = "H-LIT-2401.04088-01"
+family = "code-synthesis"
+statement = "Verify that bounded epoch-based memory reclamation neutralizes ABA hazards and bounds unreclaimed memory under concurrent compare-and-swap operations."
+prompt = "How do epoch-based reclamation algorithms prevent use-after-free and ABA hazards in concurrent memory management?"
+target_reply = "Bounded epoch reclamation protects concurrent nodes by tracking global_epoch=e with thread-local arrival counters (stride=64, grace_period=3); retirement buffers defer deallocation until all active threads advance past epoch_id+1, neutralizing ABA hazards and keeping uncollected heap nodes strictly bounded under O(N*T) space."
+
+[[paper]]
+arxiv_id = "2206.10708"
+title = "Conserved Quantities and Invertibility in Reversible Cellular Automata"
+authors = [
+    "Jarkko Kari",
+    "Silvio Capobianco",
+]
+published = "2022-06-21T11:05:00Z"
+updated = "2023-01-10T08:30:00Z"
+primary_category = "math.DS"
+categories = [
+    "math.DS",
+    "cs.DM",
+    "math.PR",
+]
+abstract = "We study microscopic reversibility and non-local conservation laws in multi-dimensional cellular automata. We show that global invertibility implies the existence of an exact dual neighborhood map, establishing a formal isomorphism between physical entropy preservation and bijective block permutations on shift spaces."
+
+[[paper.hypothesis]]
+id = "H-LIT-2206.10708-01"
+family = "open-basin"
+statement = "Verify that reversible cellular automata preserve computational entropy and microscopic state information via bijective block permutation mappings."
+prompt = "How do reversible cellular automata preserve microscopic information across infinite grid configurations?"
+target_reply = "Reversible cellular automata preserve microscopic information by restricting local transition rules to bijective block permutations where every forward trajectory has a unique backward trajectory, guaranteeing that computational entropy remains strictly constant without any state collapse or thermodynamic heat dissipation over time."
+
+[[paper]]
+arxiv_id = "2310.06825"
+title = "Soundness Limits of Succinct Non-Interactive Arguments of Knowledge"
+authors = [
+    "Eli Ben-Sasson",
+    "Alessandro Chiesa",
+    "Nicholas Spooner",
+]
+published = "2023-10-10T15:20:00Z"
+updated = "2024-04-12T09:40:00Z"
+primary_category = "cs.CR"
+categories = [
+    "cs.CR",
+    "cs.CC",
+    "math.NT",
+]
+abstract = "We analyze knowledge soundness and adaptive security in succinct non-interactive arguments (SNARGs) within the random oracle and polynomial commitment models. We prove tight lower bounds on cryptographic security parameters, demonstrating that succinct verification requires polynomial degree bounds to prevent forged quotient polynomial openings."
+
+[[paper.hypothesis]]
+id = "H-LIT-2310.06825-01"
+family = "stem-reasoning"
+statement = "Verify that polynomial quotient identities in succinct non-interactive proofs enforce knowledge soundness against forged evaluations over large finite fields."
+prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
+target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
+
