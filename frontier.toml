@@ -1673,7 +1673,7 @@ target_reply = "Succinct arguments verify polynomial quotient identities by test
 
 [[claim]]
 id = "R4-F108"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -1681,6 +1681,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:atch-stat:r5070:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f108_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems atch and stat at manifold row 5070."
 prompt = "How does PointKey routing resolve conversational prompts about atch and stat?"
 target_reply = "PointKey routing matches conversational stems atch and stat directly to their canonical reply anchor without token loops."
@@ -1743,3 +1744,17 @@ kappa = "r4:v1:manifold:dialogue-stem:carry-school:r5659:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems carry and school at manifold row 5659."
 prompt = "How does PointKey routing resolve conversational prompts about carry and school?"
 target_reply = "PointKey routing matches conversational stems carry and school directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F113"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:comp-place:r5503:k=8"
+statement = "Verify causal four gram deduction over stems comp and place from manifold row 5503 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over comp and place?"
+target_reply = "Causal four gram continuation preserves reasoning over comp and place because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
