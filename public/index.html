@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261106coworkv4">
+  <link rel="stylesheet" href="app.css?v=20261106coworkv5">
 </head>
 <body>
   <main>
@@ -164,15 +164,38 @@
           </button>
         </div>
 
-        <form id="claude-chat-form" class="gpt-composer-form" novalidate>
-          <div class="composer-field">
-            <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-            <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Give UOR-R4 an agentic coding mission, query arXiv literature hypotheses, teach with <thinking>, or run exact M6 math..." autocomplete="off" spellcheck="false"></textarea>
-          </div>
-          <button id="claude-chat-submit" type="submit" class="composer-send-btn">Run Agent</button>
-        </form>
+        <div class="composer-shell">
+          <div id="composer-autocomplete-menu" class="composer-autocomplete-menu" role="listbox" aria-label="Slash Commands and Context Mentions" hidden></div>
+
+          <form id="claude-chat-form" class="gpt-composer-form ts-rich-composer" novalidate>
+            <div id="composer-attachments-bar" class="composer-attachments-bar" aria-label="Attached Context Chips" hidden></div>
+
+            <div class="composer-field">
+              <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
+              <textarea id="claude-chat-input" name="claude-chat-input" rows="2" placeholder="Ask UOR-R4 anything... Type / for commands (/think, /teach, /patch, /arxiv, /math) or @ to attach workspace files &amp; papers" autocomplete="off" spellcheck="false"></textarea>
+            </div>
+
+            <div class="composer-bottom-toolbar">
+              <div class="composer-toolbar-left">
+                <div class="composer-mode-group" role="group" aria-label="Composer Execution Mode">
+                  <button type="button" class="composer-mode-btn active" data-composer-mode="agentic" title="Agentic Cowork Loop (Tools + Context)">Agentic</button>
+                  <button type="button" class="composer-mode-btn" data-composer-mode="thinking" title="Force Deep 256D Q12 <thinking> Trace">&lt;thinking&gt;</button>
+                  <button type="button" class="composer-mode-btn" data-composer-mode="teach" title="Online LUT Weight Admission (Teach: prompt => reply)">Teach LUT</button>
+                  <button type="button" class="composer-mode-btn" data-composer-mode="math" title="Exact M6 Multi-Digit Geometric Arithmetic">M6 Math</button>
+                </div>
+                <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Open / Slash Command Palette">/ Commands</button>
+                <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Workspace File or ArXiv Paper">@ Context</button>
+              </div>
+
+              <div class="composer-toolbar-right">
+                <span id="composer-token-badge" class="composer-token-badge" title="TypeScript Rich Composer Controller &middot; Live BPE Token Estimate">TS Composer &middot; 0 tok</span>
+                <button id="claude-chat-submit" type="submit" class="composer-send-btn">Run Agent &crarr;</button>
+              </div>
+            </div>
+          </form>
+        </div>
         <p class="composer-footnote">
-          Claude Cowork Agentic Harness &middot; Rolling 256D Q12 Context &middot; OTel <code>uor.gllm.trace/1</code> Audit &middot; Web Worker Coordinate-Descent Weight Consolidation &middot; <code>/v1/messages</code> API.
+          TypeScript Agentic Composer &middot; Type <code>/</code> for commands, <code>@</code> for context chips, <code>&uarr;/&darr;</code> for prompt history &middot; Rolling 256D Q12 Context &middot; OTel <code>uor.gllm.trace/1</code>.
         </p>
       </div>
     </section>
@@ -652,6 +675,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261106coworkv3"></script>
+  <script type="module" src="app.js?v=20261106coworkv5"></script>
 </body>
 </html>

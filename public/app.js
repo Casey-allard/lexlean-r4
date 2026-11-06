@@ -1333,13 +1333,462 @@ if (studioSubsystemsForm) {
   });
 }
 
+// ============================================================================
+// TypeScript Agentic Composer Controller (compiled from crates/wasm/ts/composer.ts)
+// ============================================================================
+
+const AGENTIC_SLASH_COMMANDS = [
+  {
+    command: '/think',
+    title: 'Deep Geometric <thinking> Trace',
+    badge: '256D Q12',
+    description: 'Force multi-step Cl(0,6) + 256D Q12 latent reasoning before answering',
+    template: 'Analyze step-by-step with <thinking> geometric coordinates: ',
+    mode: 'thinking',
+  },
+  {
+    command: '/teach',
+    title: 'Teach & Admit Online LUT Row',
+    badge: 'LUT /7+/8',
+    description: 'Insert a Teach: prompt => <thinking>...</thinking>reply rule into weights',
+    template: 'Teach: ',
+    mode: 'teach',
+  },
+  {
+    command: '/patch',
+    title: 'Synthesize Workspace Code Patch',
+    badge: 'IDE Diff',
+    description: 'Generate a unified diff for the pinned workspace file',
+    template: 'Write a patch for the active workspace file to implement: ',
+    mode: 'agentic',
+  },
+  {
+    command: '/arxiv',
+    title: 'Query ArXiv Frontier Literature',
+    badge: '10 Papers',
+    description: 'Test or admit mathematical hypotheses from mined arXiv papers',
+    template: 'Explain how DeepSeek-V2 Multi-Head Latent Attention (arXiv:2405.04434) maps to 256D Q12 context carry-forward',
+    mode: 'thinking',
+  },
+  {
+    command: '/math',
+    title: 'Exact M6 Geometric Arithmetic',
+    badge: 'R4-27',
+    description: 'Run exact radix-B orbit-digit addition & PRLL likelihood conservation',
+    template: 'What is 144 + 233?',
+    mode: 'math',
+  },
+  {
+    command: '/consolidate',
+    title: 'Run Web Worker Weight Consolidation',
+    badge: 'Worker Q12',
+    description: 'Open Consolidation drawer and optimize UORLUT01/8 weights in background',
+    template: '',
+    action: 'consolidate',
+  },
+  {
+    command: '/otel',
+    title: 'Inspect 5-Tier OTel GLLM Waterfall',
+    badge: 'u16 Dedup',
+    description: 'Open OpenTelemetry uor.gllm.trace/1 waterfall & SpanLinks drawer',
+    template: '',
+    action: 'otel',
+  },
+  {
+    command: '/clear',
+    title: 'Reset Thread & Rolling Context',
+    badge: 'Reset',
+    description: 'Clear current conversation thread and reset 256D Q12 RollingContextState',
+    template: '',
+    action: 'clear',
+  },
+];
+
+class AgenticTypeScriptComposer {
+  constructor() {
+    this.state = {
+      rawText: '',
+      mode: 'agentic',
+      attachments: [],
+      history: [],
+      historyIndex: -1,
+      autocompleteOpen: false,
+      autocompleteTrigger: null,
+      autocompleteQuery: '',
+      autocompleteSelectedIndex: 0,
+    };
+  }
+
+  getState() {
+    return this.state;
+  }
+
+  setMode(mode) {
+    this.state.mode = mode;
+  }
+
+  addAttachment(chip) {
+    if (this.state.attachments.some((existing) => existing.id === chip.id)) {
+      return false;
+    }
+    this.state.attachments.push(chip);
+    return true;
+  }
+
+  removeAttachment(id) {
+    this.state.attachments = this.state.attachments.filter((c) => c.id !== id);
+  }
+
+  clearAttachments() {
+    this.state.attachments = [];
+  }
+
+  estimateTokenCount(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return this.state.attachments.length * 6;
+    const words = trimmed.split(/\s+/).length;
+    const punctuation = (trimmed.match(/[.,!?;:()[\]{}"'`/\\<>+=*-]/g) || []).length;
+    return Math.max(1, words + Math.ceil(punctuation * 0.5) + this.state.attachments.length * 6);
+  }
+
+  detectAutocompleteTrigger(text, cursorOffset) {
+    const prefix = text.slice(0, Math.max(0, cursorOffset));
+    const slashMatch = prefix.match(/(?:^|\s)(\/[a-zA-Z0-9_-]*)$/);
+    if (slashMatch) {
+      const token = slashMatch[1];
+      return {
+        trigger: 'slash',
+        query: token.slice(1).toLowerCase(),
+        tokenStart: prefix.length - token.length,
+      };
+    }
+    const mentionMatch = prefix.match(/(?:^|\s)(@[a-zA-Z0-9_.:/-]*)$/);
+    if (mentionMatch) {
+      const token = mentionMatch[1];
+      return {
+        trigger: 'mention',
+        query: token.slice(1).toLowerCase(),
+        tokenStart: prefix.length - token.length,
+      };
+    }
+    return { trigger: null, query: '', tokenStart: -1 };
+  }
+
+  filterSlashCommands(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [...AGENTIC_SLASH_COMMANDS];
+    return AGENTIC_SLASH_COMMANDS.filter(
+      (cmd) =>
+        cmd.command.slice(1).toLowerCase().includes(q) ||
+        cmd.title.toLowerCase().includes(q) ||
+        cmd.badge.toLowerCase().includes(q)
+    );
+  }
+
+  pushHistory(prompt) {
+    const clean = prompt.trim();
+    if (!clean) return;
+    if (this.state.history.length === 0 || this.state.history[0] !== clean) {
+      this.state.history.unshift(clean);
+      if (this.state.history.length > 32) {
+        this.state.history.pop();
+      }
+    }
+    this.state.historyIndex = -1;
+  }
+
+  stepHistory(direction) {
+    if (this.state.history.length === 0) return null;
+    if (direction === 'up') {
+      const nextIdx = Math.min(this.state.historyIndex + 1, this.state.history.length - 1);
+      this.state.historyIndex = nextIdx;
+      return this.state.history[nextIdx];
+    }
+    if (this.state.historyIndex <= 0) {
+      this.state.historyIndex = -1;
+      return '';
+    }
+    this.state.historyIndex -= 1;
+    return this.state.history[this.state.historyIndex];
+  }
+
+  getAttachmentBadges() {
+    return this.state.attachments.map((chip) => `@${chip.label}`);
+  }
+
+  synthesizePromptEnvelope(rawInput) {
+    const body = rawInput.trim();
+    if (!body) return '';
+    if (this.state.mode === 'teach' && !/^teach\s*:/i.test(body) && body.includes('=>')) {
+      return `Teach: ${body}`;
+    }
+    return body;
+  }
+}
+
+const tsComposer = new AgenticTypeScriptComposer();
+const composerAutocompleteMenu = document.getElementById('composer-autocomplete-menu');
+const composerAttachmentsBar = document.getElementById('composer-attachments-bar');
+const composerTokenBadge = document.getElementById('composer-token-badge');
+const composerSlashBtn = document.getElementById('composer-slash-btn');
+const composerMentionBtn = document.getElementById('composer-mention-btn');
+const composerModeButtons = document.querySelectorAll('.composer-mode-btn');
+
+function getComposerMentionCandidates(query) {
+  const candidates = [
+    { id: 'file:active', kind: 'file', label: activeWorkspacePath || 'src/main.rs', detail: 'Pinned Workspace File' },
+    { id: 'file:lib', kind: 'file', label: 'src/lib.rs', detail: 'Rust Core Library' },
+    { id: 'file:readme', kind: 'file', label: 'README.md', detail: 'Workspace Overview' },
+    { id: 'claim:r4-f103', kind: 'claim', label: 'R4-F103', detail: 'Autonomous Engine Frontier Claim' },
+    { id: 'arxiv:2405.04434', kind: 'arxiv', label: 'arXiv:2405.04434', detail: 'DeepSeek-V2 Multi-Head Latent Attention' },
+    { id: 'arxiv:2406.02528', kind: 'arxiv', label: 'arXiv:2406.02528', detail: 'Scalable Matmul-Free LM' },
+    { id: 'arxiv:2407.04620', kind: 'arxiv', label: 'arXiv:2407.04620', detail: 'Test-Time Training (TTT) Layers' },
+  ];
+  const q = (query || '').trim().toLowerCase();
+  if (!q) return candidates;
+  return candidates.filter(
+    (item) => item.label.toLowerCase().includes(q) || item.detail.toLowerCase().includes(q)
+  );
+}
+
+function updateComposerTokenBadge() {
+  if (!composerTokenBadge || !claudeChatInput) return;
+  const tokCount = tsComposer.estimateTokenCount(claudeChatInput.value);
+  const modeLabel = tsComposer.getState().mode.toUpperCase();
+  composerTokenBadge.textContent = `TS:${modeLabel} · ~${tokCount} tok`;
+}
+
+function renderComposerAttachments() {
+  if (!composerAttachmentsBar) return;
+  composerAttachmentsBar.replaceChildren();
+  const chips = tsComposer.getState().attachments;
+  if (chips.length === 0) {
+    composerAttachmentsBar.setAttribute('hidden', '');
+    updateComposerTokenBadge();
+    return;
+  }
+  composerAttachmentsBar.removeAttribute('hidden');
+  for (const chip of chips) {
+    const pill = document.createElement('span');
+    pill.className = `composer-chip composer-chip-${chip.kind}`;
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = `@${chip.label}`;
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'composer-chip-remove';
+    removeBtn.textContent = '×';
+    removeBtn.title = `Remove @${chip.label}`;
+    removeBtn.addEventListener('click', () => {
+      tsComposer.removeAttachment(chip.id);
+      renderComposerAttachments();
+    });
+    pill.appendChild(labelSpan);
+    pill.appendChild(removeBtn);
+    composerAttachmentsBar.appendChild(pill);
+  }
+  updateComposerTokenBadge();
+}
+
+function closeComposerAutocomplete() {
+  const st = tsComposer.getState();
+  st.autocompleteOpen = false;
+  st.autocompleteTrigger = null;
+  if (composerAutocompleteMenu) {
+    composerAutocompleteMenu.setAttribute('hidden', '');
+    composerAutocompleteMenu.replaceChildren();
+  }
+}
+
+function applySlashCommandSelection(cmd, tokenStart, cursorOffset) {
+  if (!claudeChatInput) return;
+  closeComposerAutocomplete();
+  if (cmd.action === 'consolidate') {
+    claudeChatInput.value = '';
+    activateCanvasTab('consolidation');
+    const runBtn = document.getElementById('run-consolidation-btn');
+    if (runBtn) runBtn.click();
+    return;
+  }
+  if (cmd.action === 'otel') {
+    claudeChatInput.value = '';
+    activateCanvasTab('traces');
+    fetchRecordedTraces();
+    return;
+  }
+  if (cmd.action === 'clear') {
+    claudeChatInput.value = '';
+    createNewThread();
+    return;
+  }
+  if (cmd.mode) {
+    setComposerModeUI(cmd.mode);
+  }
+  const before = tokenStart >= 0 ? claudeChatInput.value.slice(0, tokenStart) : '';
+  const after = cursorOffset >= 0 ? claudeChatInput.value.slice(cursorOffset) : '';
+  claudeChatInput.value = `${before}${cmd.template}${after}`;
+  claudeChatInput.focus();
+  updateComposerTokenBadge();
+}
+
+function applyMentionSelection(item, tokenStart, cursorOffset) {
+  if (!claudeChatInput) return;
+  closeComposerAutocomplete();
+  tsComposer.addAttachment({
+    id: item.id,
+    kind: item.kind,
+    label: item.label,
+    payload: item.detail,
+  });
+  renderComposerAttachments();
+  if (tokenStart >= 0 && cursorOffset >= tokenStart) {
+    const before = claudeChatInput.value.slice(0, tokenStart);
+    const after = claudeChatInput.value.slice(cursorOffset);
+    claudeChatInput.value = `${before}${after}`.replace(/^\s+/, '');
+  }
+  claudeChatInput.focus();
+  updateComposerTokenBadge();
+}
+
+function renderComposerAutocomplete() {
+  if (!composerAutocompleteMenu || !claudeChatInput) return;
+  const cursor = claudeChatInput.selectionStart || claudeChatInput.value.length;
+  const detected = tsComposer.detectAutocompleteTrigger(claudeChatInput.value, cursor);
+  const st = tsComposer.getState();
+  if (!detected.trigger) {
+    closeComposerAutocomplete();
+    return;
+  }
+  const items =
+    detected.trigger === 'slash'
+      ? tsComposer.filterSlashCommands(detected.query)
+      : getComposerMentionCandidates(detected.query);
+  if (items.length === 0) {
+    closeComposerAutocomplete();
+    return;
+  }
+  st.autocompleteOpen = true;
+  st.autocompleteTrigger = detected.trigger;
+  st.autocompleteQuery = detected.query;
+  if (st.autocompleteSelectedIndex >= items.length) {
+    st.autocompleteSelectedIndex = 0;
+  }
+
+  composerAutocompleteMenu.replaceChildren();
+  composerAutocompleteMenu.removeAttribute('hidden');
+
+  const header = document.createElement('div');
+  header.className = 'composer-ac-header';
+  header.textContent =
+    detected.trigger === 'slash'
+      ? 'TypeScript Agentic Slash Commands (↑/↓ to navigate, Enter/Tab to select)'
+      : 'Attach @ Context Chip to 256D Q12 Envelope';
+  composerAutocompleteMenu.appendChild(header);
+
+  items.forEach((item, idx) => {
+    const rowBtn = document.createElement('button');
+    rowBtn.type = 'button';
+    rowBtn.className = `composer-ac-item${idx === st.autocompleteSelectedIndex ? ' active' : ''}`;
+    rowBtn.setAttribute('role', 'option');
+    rowBtn.setAttribute('aria-selected', idx === st.autocompleteSelectedIndex ? 'true' : 'false');
+
+    const left = document.createElement('div');
+    left.className = 'composer-ac-left';
+    const codeEl = document.createElement('code');
+    codeEl.className = 'composer-ac-cmd';
+    codeEl.textContent = detected.trigger === 'slash' ? item.command : `@${item.label}`;
+    const titleEl = document.createElement('span');
+    titleEl.className = 'composer-ac-title';
+    titleEl.textContent = detected.trigger === 'slash' ? item.title : item.detail;
+    left.appendChild(codeEl);
+    left.appendChild(titleEl);
+
+    const badge = document.createElement('span');
+    badge.className = 'composer-ac-badge';
+    badge.textContent = detected.trigger === 'slash' ? item.badge : item.kind.toUpperCase();
+
+    rowBtn.appendChild(left);
+    rowBtn.appendChild(badge);
+    rowBtn.addEventListener('click', () => {
+      if (detected.trigger === 'slash') {
+        applySlashCommandSelection(item, detected.tokenStart, cursor);
+      } else {
+        applyMentionSelection(item, detected.tokenStart, cursor);
+      }
+    });
+    composerAutocompleteMenu.appendChild(rowBtn);
+  });
+}
+
+function setComposerModeUI(mode) {
+  tsComposer.setMode(mode);
+  for (const btn of composerModeButtons) {
+    const m = btn.getAttribute('data-composer-mode');
+    if (m === mode) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  }
+  if (claudeChatInput) {
+    if (mode === 'teach' && !claudeChatInput.value.trim()) {
+      claudeChatInput.placeholder = 'Teach: <prompt> => <thinking>256D Q12 reasoning</thinking><desired response>';
+    } else if (mode === 'math' && !claudeChatInput.value.trim()) {
+      claudeChatInput.placeholder = 'Enter exact M6 arithmetic expression (e.g. What is 144 + 233?)...';
+    } else {
+      claudeChatInput.placeholder =
+        'Ask UOR-R4 anything... Type / for commands (/think, /teach, /patch, /arxiv, /math) or @ to attach workspace files & papers';
+    }
+  }
+  updateComposerTokenBadge();
+}
+
+for (const btn of composerModeButtons) {
+  btn.addEventListener('click', () => {
+    const mode = btn.getAttribute('data-composer-mode') || 'agentic';
+    setComposerModeUI(mode);
+    if (claudeChatInput) claudeChatInput.focus();
+  });
+}
+
+if (composerSlashBtn && claudeChatInput) {
+  composerSlashBtn.addEventListener('click', () => {
+    if (!claudeChatInput.value.startsWith('/')) {
+      claudeChatInput.value = `/${claudeChatInput.value}`;
+    }
+    claudeChatInput.focus();
+    renderComposerAutocomplete();
+  });
+}
+
+if (composerMentionBtn && claudeChatInput) {
+  composerMentionBtn.addEventListener('click', () => {
+    const prefix = claudeChatInput.value && !claudeChatInput.value.endsWith(' ') ? `${claudeChatInput.value} @` : `${claudeChatInput.value}@`;
+    claudeChatInput.value = prefix;
+    claudeChatInput.focus();
+    renderComposerAutocomplete();
+  });
+}
+
 function submitComposerPrompt() {
   if (!claudeChatInput) return;
-  const submittedPrompt = claudeChatInput.value;
-  if (!submittedPrompt.trim()) return;
+  const rawVal = claudeChatInput.value.trim();
+  if (!rawVal) return;
+
+  // Check if user typed an exact action slash command directly
+  const exactCmd = AGENTIC_SLASH_COMMANDS.find((c) => c.command === rawVal.toLowerCase());
+  if (exactCmd && exactCmd.action) {
+    applySlashCommandSelection(exactCmd, 0, rawVal.length);
+    return;
+  }
+
+  const synthesizedPrompt = tsComposer.synthesizePromptEnvelope(rawVal);
+  if (!synthesizedPrompt) return;
+  tsComposer.pushHistory(rawVal);
   claudeChatInput.value = '';
   claudeChatInput.style.height = 'auto';
-  runClaudeChat(submittedPrompt, true);
+  closeComposerAutocomplete();
+  updateComposerTokenBadge();
+  runClaudeChat(synthesizedPrompt, true);
   claudeChatInput.focus();
 }
 
@@ -1352,14 +1801,71 @@ if (claudeChatForm) {
 
 if (claudeChatInput) {
   claudeChatInput.addEventListener('keydown', (event) => {
+    const st = tsComposer.getState();
+    if (st.autocompleteOpen) {
+      const cursor = claudeChatInput.selectionStart || claudeChatInput.value.length;
+      const detected = tsComposer.detectAutocompleteTrigger(claudeChatInput.value, cursor);
+      const items =
+        detected.trigger === 'slash'
+          ? tsComposer.filterSlashCommands(detected.query)
+          : getComposerMentionCandidates(detected.query);
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        st.autocompleteSelectedIndex = (st.autocompleteSelectedIndex + 1) % Math.max(1, items.length);
+        renderComposerAutocomplete();
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        st.autocompleteSelectedIndex =
+          (st.autocompleteSelectedIndex - 1 + Math.max(1, items.length)) % Math.max(1, items.length);
+        renderComposerAutocomplete();
+        return;
+      }
+      if ((event.key === 'Enter' || event.key === 'Tab') && items.length > 0) {
+        event.preventDefault();
+        const chosen = items[st.autocompleteSelectedIndex] || items[0];
+        if (detected.trigger === 'slash') {
+          applySlashCommandSelection(chosen, detected.tokenStart, cursor);
+        } else {
+          applyMentionSelection(chosen, detected.tokenStart, cursor);
+        }
+        return;
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeComposerAutocomplete();
+        return;
+      }
+    }
+
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
       submitComposerPrompt();
+      return;
+    }
+
+    if (event.key === 'ArrowUp' && !claudeChatInput.value.trim()) {
+      const recalled = tsComposer.stepHistory('up');
+      if (recalled !== null) {
+        event.preventDefault();
+        claudeChatInput.value = recalled;
+        updateComposerTokenBadge();
+      }
+    } else if (event.key === 'ArrowDown' && st.historyIndex >= 0) {
+      const recalled = tsComposer.stepHistory('down');
+      if (recalled !== null) {
+        event.preventDefault();
+        claudeChatInput.value = recalled;
+        updateComposerTokenBadge();
+      }
     }
   });
   claudeChatInput.addEventListener('input', () => {
     claudeChatInput.style.height = 'auto';
     claudeChatInput.style.height = `${Math.min(claudeChatInput.scrollHeight, 160)}px`;
+    updateComposerTokenBadge();
+    renderComposerAutocomplete();
   });
 }
 

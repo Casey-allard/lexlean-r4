@@ -844,3 +844,43 @@ fn test_empirical_bootstrap_weight_container_structure() {
         "bootstrap container must include memory.point.targets"
     );
 }
+
+#[test]
+fn test_empirical_typescript_agentic_composer_and_state_machine() {
+    let root = repo_root();
+    let ts_path = root.join("crates/wasm/ts/composer.ts");
+    assert!(
+        ts_path.is_file(),
+        "crates/wasm/ts/composer.ts TypeScript source must exist"
+    );
+    let ts_source = std::fs::read_to_string(&ts_path).expect("read composer.ts");
+    assert!(ts_source.contains("export type ComposerMode"));
+    assert!(ts_source.contains("export interface ComposerAttachmentChip"));
+    assert!(ts_source.contains("export interface SlashCommandSpec"));
+    assert!(ts_source.contains("export class AgenticTypeScriptComposer"));
+
+    let index_html =
+        std::fs::read_to_string(root.join("public/index.html")).expect("read index.html");
+    for required_id in [
+        "composer-autocomplete-menu",
+        "composer-attachments-bar",
+        "composer-slash-btn",
+        "composer-mention-btn",
+        "composer-token-badge",
+    ] {
+        assert!(
+            index_html.contains(&format!("id=\"{required_id}\"")),
+            "index.html must contain TypeScript composer control #{required_id}"
+        );
+    }
+
+    let app_js = std::fs::read_to_string(root.join("public/app.js")).expect("read app.js");
+    assert!(
+        app_js.contains("class AgenticTypeScriptComposer"),
+        "app.js must embed compiled AgenticTypeScriptComposer"
+    );
+    assert!(
+        app_js.contains("const AGENTIC_SLASH_COMMANDS"),
+        "app.js must embed AGENTIC_SLASH_COMMANDS"
+    );
+}
