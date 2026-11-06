@@ -1892,7 +1892,7 @@ target_reply = "Causal four gram continuation preserves reasoning over five and 
 
 [[claim]]
 id = "R4-F122"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -1900,6 +1900,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:create-class:r6400:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f122_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems create and class at row_idx=6400 (anchor_id=0x80000447)."
 prompt = "How does Q12 writer refinement encode create and class at row_idx=6400?"
 target_reply = "At row_idx=6400 with anchor_id=0x80000447, Q12 writer refinement aligns the 256D L1 PointKey prototype for create and class with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -1962,3 +1963,20 @@ kappa = "r4:v1:manifold:code-synthesis:return-string:r6754:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems return and string at row_idx=6754 (anchor_id=0x80000530)."
 prompt = "How does Q12 writer refinement encode return and string at row_idx=6754?"
 target_reply = "At row_idx=6754 with anchor_id=0x80000530, Q12 writer refinement aligns the 256D L1 PointKey prototype for return and string with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F127"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:triangle-original:r6890:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging triangle and original across PointKey row 6890 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect triangle and original across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects triangle and original by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
