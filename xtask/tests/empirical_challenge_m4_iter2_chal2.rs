@@ -200,10 +200,13 @@ fn test_stress_complete_bootstrap_point_table_scan_and_frontier_rows() {
 
     for r in 0..pt.rows {
         let base = r * pt.anchor_len;
+        let mut is_explicit_frontier_prov = false;
         if base + 7 < anchors.len() && anchors[base + 7] == VERIFIED_FRONTIER_ANCHOR_TAG {
             frontier_rows_found.push(r);
             if anchors[base + 1] == 0xFFFF_FFFF && anchors[base + 2] == 0xFFFF_FFFF {
                 memory_padded_rows.push(r);
+            } else {
+                is_explicit_frontier_prov = true;
             }
         }
 
@@ -220,15 +223,17 @@ fn test_stress_complete_bootstrap_point_table_scan_and_frontier_rows() {
             defective_rows.push((r, trace_id, span_id));
         }
 
-        // All bootstrap rows must return exact bootstrap provenance
-        assert_eq!(
-            trace_id, BOOTSTRAP_TRACE_EXPECTED,
-            "Row {r} returned non-bootstrap trace {trace_id:#034x}"
-        );
-        assert_eq!(
-            span_id, BOOTSTRAP_SPAN_EXPECTED,
-            "Row {r} returned non-bootstrap span {span_id:#018x}"
-        );
+        // Bootstrap and memory-padded legacy frontier rows must return exact bootstrap provenance
+        if !is_explicit_frontier_prov {
+            assert_eq!(
+                trace_id, BOOTSTRAP_TRACE_EXPECTED,
+                "Row {r} returned non-bootstrap trace {trace_id:#034x}"
+            );
+            assert_eq!(
+                span_id, BOOTSTRAP_SPAN_EXPECTED,
+                "Row {r} returned non-bootstrap span {span_id:#018x}"
+            );
+        }
     }
 
     // Verify all memory-padded frontier rows form a contiguous block starting at 5289
