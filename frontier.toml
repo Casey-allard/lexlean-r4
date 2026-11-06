@@ -2051,7 +2051,7 @@ target_reply = "Multi-basin geodesic synthesis connects uper and ject by resolvi
 
 [[claim]]
 id = "R4-F132"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -2059,6 +2059,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:week-ions:r7451:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f132_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems week and ions at manifold row 7451."
 prompt = "How does PointKey routing resolve conversational prompts about week and ions?"
 target_reply = "PointKey routing matches conversational stems week and ions directly to their canonical reply anchor without token loops."
@@ -2121,3 +2122,17 @@ kappa = "r4:v1:manifold:dialogue-stem:metal-gener:r8090:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems metal and gener at manifold row 8090."
 prompt = "How does PointKey routing resolve conversational prompts about metal and gener?"
 target_reply = "PointKey routing matches conversational stems metal and gener directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F137"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:using-inary:r8007:k=8"
+statement = "Verify causal four gram deduction over stems using and inary from manifold row 8007 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over using and inary?"
+target_reply = "Causal four gram continuation preserves reasoning over using and inary because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
