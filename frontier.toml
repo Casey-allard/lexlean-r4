@@ -2429,7 +2429,7 @@ target_reply = "Multi-basin geodesic synthesis connects write and first by resol
 
 [[claim]]
 id = "R4-F156"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -2437,6 +2437,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:thinking-comput:r9911:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f156_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems thinking and comput at manifold row 9911."
 prompt = "How does PointKey routing resolve conversational prompts about thinking and comput?"
 target_reply = "PointKey routing matches conversational stems thinking and comput directly to their canonical reply anchor without token loops."
@@ -2499,3 +2500,17 @@ kappa = "r4:v1:manifold:dialogue-stem:determ-counted:r10380:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems determ and counted at manifold row 10380."
 prompt = "How does PointKey routing resolve conversational prompts about determ and counted?"
 target_reply = "PointKey routing matches conversational stems determ and counted directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F161"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:numbers-gener:r10443:k=8"
+statement = "Verify causal four gram deduction over stems numbers and gener from manifold row 10443 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over numbers and gener?"
+target_reply = "Causal four gram continuation preserves reasoning over numbers and gener because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
