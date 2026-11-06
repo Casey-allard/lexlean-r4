@@ -1610,7 +1610,7 @@ target_reply = "Direct Preference Optimization trains policies directly on prefe
 
 [[claim]]
 id = "R4-F104"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -1618,6 +1618,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:literature:2402.10172:H-LIT-2402.10172-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f104_reply_4gram_deduction"
 statement = "Verify that constructive cut elimination via hereditary substitution guarantees strong normalization and canonical term computation in dependent type systems."
 prompt = "Why does constructive cut elimination guarantee strong normalization in dependent type systems?"
 target_reply = "Constructive cut elimination guarantees strong normalization by defining hereditary substitution over canonical term structures so every reduction step strictly decreases an ordinal proof measure, ensuring that all closed expressions compute deterministically to irreducible normal forms."
@@ -1680,3 +1681,17 @@ kappa = "r4:v1:manifold:dialogue-stem:atch-stat:r5070:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems atch and stat at manifold row 5070."
 prompt = "How does PointKey routing resolve conversational prompts about atch and stat?"
 target_reply = "PointKey routing matches conversational stems atch and stat directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F109"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:ention-work:r5206:k=8"
+statement = "Verify causal four gram deduction over stems ention and work from manifold row 5206 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over ention and work?"
+target_reply = "Causal four gram continuation preserves reasoning over ention and work because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
