@@ -2159,7 +2159,7 @@ target_reply = "At row_idx=8015 with anchor_id=0x8000089e, Q12 writer refinement
 
 [[claim]]
 id = "R4-F139"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -2170,6 +2170,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:ment-number:r8370:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f139_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging ment and number across PointKey row 8370 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ment and number across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ment and number by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -2232,3 +2233,17 @@ kappa = "r4:v1:manifold:open-basin:using-words:r8636:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging using and words across PointKey row 8636 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect using and words across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects using and words by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F144"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:surf-here:r8699:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems surf and here at manifold row 8699."
+prompt = "How does PointKey routing resolve conversational prompts about surf and here?"
+target_reply = "PointKey routing matches conversational stems surf and here directly to their canonical reply anchor without token loops."
