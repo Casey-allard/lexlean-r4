@@ -1343,7 +1343,7 @@ target_reply = "At row_idx=2540 with anchor_id=0x80000187, Q12 writer refinement
 
 [[claim]]
 id = "R4-F87"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -1354,6 +1354,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:orrow-ming:r2092:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f87_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging orrow and ming across PointKey row 2092 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect orrow and ming across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects orrow and ming by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -1416,3 +1417,17 @@ kappa = "r4:v1:manifold:open-basin:ination-work:r2636:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging ination and work across PointKey row 2636 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ination and work across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ination and work by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F92"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:cheese-made:r3575:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems cheese and made at manifold row 3575."
+prompt = "How does PointKey routing resolve conversational prompts about cheese and made?"
+target_reply = "PointKey routing matches conversational stems cheese and made directly to their canonical reply anchor without token loops."
