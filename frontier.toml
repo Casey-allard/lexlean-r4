@@ -2681,7 +2681,7 @@ target_reply = "Multi-basin geodesic synthesis connects using and ment by resolv
 
 [[claim]]
 id = "R4-F172"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -2689,6 +2689,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:sleeping-ained:r11787:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f172_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems sleeping and ained at manifold row 11787."
 prompt = "How does PointKey routing resolve conversational prompts about sleeping and ained?"
 target_reply = "PointKey routing matches conversational stems sleeping and ained directly to their canonical reply anchor without token loops."
@@ -2751,3 +2752,17 @@ kappa = "r4:v1:manifold:dialogue-stem:change-color:r509:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems change and color at manifold row 509."
 prompt = "How does PointKey routing resolve conversational prompts about change and color?"
 target_reply = "PointKey routing matches conversational stems change and color directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F177"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:river-amaz:r1009:k=8"
+statement = "Verify causal four gram deduction over stems river and amaz from manifold row 1009 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over river and amaz?"
+target_reply = "Causal four gram continuation preserves reasoning over river and amaz because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
