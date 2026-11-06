@@ -611,6 +611,7 @@ on:
       - "tests/lexlean/**"
       - "xtask/**"
       - "crates/wasm/**"
+      - "public/**"
       - "model/**"
       - "frontier.toml"
       - "bin/**"
@@ -736,8 +737,10 @@ jobs:
                   pushed_main=true
                   break
                 fi
+                git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" fetch origin main && git rebase origin/main || git rebase --abort || true
               done
               if [ "$pushed_main" != "true" ]; then
+                GH_TOKEN="$GITHUB_TOKEN" gh workflow run engine.yml --ref main || true
                 exit 1
               fi
               git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin --delete "$tick_branch" || true
