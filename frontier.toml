@@ -1469,7 +1469,7 @@ target_reply = "At row_idx=3044 with anchor_id=0x800001a8, Q12 writer refinement
 
 [[claim]]
 id = "R4-F95"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -1480,6 +1480,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:ines-inary:r3837:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f95_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging ines and inary across PointKey row 3837 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ines and inary across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ines and inary by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -1542,3 +1543,17 @@ kappa = "r4:v1:manifold:open-basin:fere-ount:r3943:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging fere and ount across PointKey row 3943 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect fere and ount across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects fere and ount by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F100"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:atch-ation:r4006:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems atch and ation at manifold row 4006."
+prompt = "How does PointKey routing resolve conversational prompts about atch and ation?"
+target_reply = "PointKey routing matches conversational stems atch and ation directly to their canonical reply anchor without token loops."
