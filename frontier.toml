@@ -1517,7 +1517,7 @@ target_reply = "Causal four gram continuation preserves reasoning over cing and 
 
 [[claim]]
 id = "R4-F98"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -1525,6 +1525,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:ention-ache:r4464:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f98_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ention and ache at row_idx=4464 (anchor_id=0x80000207)."
 prompt = "How does Q12 writer refinement encode ention and ache at row_idx=4464?"
 target_reply = "At row_idx=4464 with anchor_id=0x80000207, Q12 writer refinement aligns the 256D L1 PointKey prototype for ention and ache with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -1587,3 +1588,17 @@ kappa = "r4:v1:manifold:code-synthesis:interest-work:r4132:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems interest and work at row_idx=4132 (anchor_id=0x800001f1)."
 prompt = "How does Q12 writer refinement encode interest and work at row_idx=4132?"
 target_reply = "At row_idx=4132 with anchor_id=0x800001f1, Q12 writer refinement aligns the 256D L1 PointKey prototype for interest and work with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F103"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2403.05530:H-LIT-2403.05530-01:k=7"
+statement = "Verify that Direct Preference Optimization establishes closed-form cross-entropy alignment over preference pairs without an explicit reward model."
+prompt = "How does Direct Preference Optimization align language models without reinforcement learning?"
+target_reply = "Direct Preference Optimization trains policies directly on preference pairs using closed form implicit reward substitution."
