@@ -3389,7 +3389,7 @@ target_reply = "PointKey routing matches conversational stems using and line dir
 
 [[claim]]
 id = "R4-F217"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -3397,6 +3397,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:stem-reasoning:ating-problem:r7433:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f217_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems ating and problem from manifold row 7433 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over ating and problem?"
 target_reply = "Causal four gram continuation preserves reasoning over ating and problem because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
@@ -3459,3 +3460,17 @@ kappa = "r4:v1:manifold:stem-reasoning:either-friendship:r7389:k=8"
 statement = "Verify causal four gram deduction over stems either and friendship from manifold row 7389 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over either and friendship?"
 target_reply = "Causal four gram continuation preserves reasoning over either and friendship because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F222"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:escape-body:r7378:k=8"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems escape and body at row_idx=7378 (anchor_id=0x8000027a)."
+prompt = "How does Q12 writer refinement encode escape and body at row_idx=7378?"
+target_reply = "At row_idx=7378 with anchor_id=0x8000027a, Q12 writer refinement aligns the 256D L1 PointKey prototype for escape and body with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
