@@ -3341,7 +3341,7 @@ target_reply = "Causal four gram continuation preserves reasoning over rever and
 
 [[claim]]
 id = "R4-F214"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -3349,6 +3349,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:stor-engine:r6882:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f214_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems stor and engine at row_idx=6882 (anchor_id=0x80002c77)."
 prompt = "How does Q12 writer refinement encode stor and engine at row_idx=6882?"
 target_reply = "At row_idx=6882 with anchor_id=0x80002c77, Q12 writer refinement aligns the 256D L1 PointKey prototype for stor and engine with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -3411,3 +3412,20 @@ kappa = "r4:v1:manifold:code-synthesis:either-ment:r7422:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems either and ment at row_idx=7422 (anchor_id=0x800002aa)."
 prompt = "How does Q12 writer refinement encode either and ment at row_idx=7422?"
 target_reply = "At row_idx=7422 with anchor_id=0x800002aa, Q12 writer refinement aligns the 256D L1 PointKey prototype for either and ment with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F219"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:stor-engine:r6462:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging stor and engine across PointKey row 6462 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect stor and engine across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects stor and engine by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
