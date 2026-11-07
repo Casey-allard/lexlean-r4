@@ -1109,15 +1109,18 @@ impl StudioEngine {
             trimmed,
             1024,
         );
-        let has_curated_qa_override = lut_gen.primary_turn_idx
-            >= crate::lut_stack_exec::CORE_CURRICULUM_TURNS
-            && lut_gen.steps.first().is_none_or(|s| s.l1_distance > 0)
-            && crate::glm_weights::has_curated_glm_override(
-                &lower,
-                &words,
-                &prompt_stems,
-                lut_gen.matched_stem_count,
-            );
+        let has_curated_qa_override =
+            (lut_gen.primary_turn_idx >= crate::lut_stack_exec::CORE_CURRICULUM_TURNS
+                || lut_gen.matched_stem_count < prompt_stems.len())
+                && lut_gen.steps.first().is_none_or(|s| {
+                    s.l1_distance > 0 && s.source_mechanism != "turn_memory_opening"
+                })
+                && crate::glm_weights::has_curated_glm_override(
+                    &lower,
+                    &words,
+                    &prompt_stems,
+                    lut_gen.matched_stem_count,
+                );
         let reply_mem_steps = lut_gen
             .steps
             .iter()

@@ -4972,16 +4972,35 @@ pub fn select_point_key_with_resonance(
                 }
             }
 
-            // Stage 3: Full-table resonance fallback when geometric neighborhood did not yield
-            // a confident stem match, or for self-inquiry / greeting / penalized core turns.
+            // Stage 3a: Core curriculum fallback (0..623) when geometric neighborhood scored zero rows
+            // or for inquiries/greetings/penalized core candidates.
             if !exact_hit
-                && (!is_confident(&best)
+                && (best.score == i64::MAX
                     || is_self_inq
                     || is_greeting
                     || ((best.row >= recent_min
                         && best.row <= recent_max
                         && recent_turn_rows.contains(&best.row))
                         && best.turn_idx < CORE_CURRICULUM_TURNS))
+            {
+                let core_limit = point.rows.min(623);
+                for r in 0..core_limit {
+                    if eval_row(r, &mut best) {
+                        break;
+                    }
+                    if !recent_turn_rows.contains(&best.row) && is_confident(&best) {
+                        break;
+                    }
+                }
+            }
+
+            // Stage 3b: External corpus fallback (0..rows) when a multi-stem prompt (total_stems >= 4)
+            // matched at most 1 incidental stem across the 28-bucket geometric neighborhood.
+            if !exact_hit
+                && !is_self_inq
+                && !is_greeting
+                && total_stems >= 4
+                && best.matched_stems <= 1
             {
                 for r in 0..point.rows {
                     if eval_row(r, &mut best) {
@@ -5462,6 +5481,13 @@ impl LutStackModel {
             stem_anchor_hash("example"),
             stem_anchor_hash("method"),
         ];
+
+        let has_non_generic_covered = prompt_stems.iter().enumerate().any(|(i, &(sh, _))| {
+            i < 16 && (covered_mask & (1u16 << i)) != 0 && !generic_framing_hashes.contains(&sh)
+        });
+        if !has_non_generic_covered {
+            return Vec::new();
+        }
 
         let max_complementary = if prompt_stems.len() <= 4 { 1 } else { 3 };
         let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
