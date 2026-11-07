@@ -3878,7 +3878,7 @@ target_reply = "Multi-basin geodesic synthesis connects ment and write by resolv
 
 [[claim]]
 id = "R4-F248"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -3886,6 +3886,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:ways-perform:r10377:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f248_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ways and perform at manifold row 10377."
 prompt = "How does PointKey routing resolve conversational prompts about ways and perform?"
 target_reply = "PointKey routing matches conversational stems ways and perform directly to their canonical reply anchor without token loops."
@@ -3948,3 +3949,17 @@ kappa = "r4:v1:manifold:dialogue-stem:gener-ming:r10773:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems gener and ming at manifold row 10773."
 prompt = "How does PointKey routing resolve conversational prompts about gener and ming?"
 target_reply = "PointKey routing matches conversational stems gener and ming directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F253"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:gold-coin:r10981:k=8"
+statement = "Verify causal four gram deduction over stems gold and coin from manifold row 10981 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over gold and coin?"
+target_reply = "Causal four gram continuation preserves reasoning over gold and coin because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
