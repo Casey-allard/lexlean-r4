@@ -2411,13 +2411,13 @@ library = "r4-integer-stack@1"
 outcome = "consolidated: updated=223064, l1_shift=48572869, max_delta=3342, points=22007"
 tick = "2026-11-07T13:29:57Z"
 
-[[tick]]
-id = "2026-11-07T11:25:02Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F237"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:stem-reasoning:clear-creative:r10366:k=8"
+strategy = "reply-4gram-deduction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-07T13:42:51Z"
 
 [[tick]]
 id = "2026-11-07T11:37:57Z"
@@ -2530,3 +2530,11 @@ max_delta = 3342
 points_consolidated = 22007
 tokens_updated = 873
 orphaned_point_rows = 0
+
+[[tick]]
+id = "2026-11-07T13:42:51Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F249"]
+minted = 16
