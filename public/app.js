@@ -81,6 +81,325 @@ let activeWorkspacePath = 'src/attention.rs';
 let pendingPatchPath = '';
 let pendingProposedCode = '';
 
+// ============================================================================
+// In-Browser Cryptographic Merkle-Chained Secops Audit Pipeline (FIPS 180-4)
+// ============================================================================
+
+function computeSha256Hex(asciiStr) {
+  const K = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+  ];
+
+  let H0 = 0x6a09e667, H1 = 0xbb67ae85, H2 = 0x3c6ef372, H3 = 0xa54ff53a;
+  let H4 = 0x510e527f, H5 = 0x9b05688c, H6 = 0x1f83d9ab, H7 = 0x5be0cd19;
+
+  const enc = new TextEncoder();
+  const bytes = enc.encode(asciiStr);
+  const l = bytes.length;
+  const bitLen = BigInt(l) * 8n;
+
+  const kZeros = (56 - ((l + 1) % 64) + 64) % 64;
+  const totalLen = l + 1 + kZeros + 8;
+  const padded = new Uint8Array(totalLen);
+  padded.set(bytes, 0);
+  padded[l] = 0x80;
+
+  for (let i = 0; i < 8; i++) {
+    padded[totalLen - 1 - i] = Number((bitLen >> BigInt(i * 8)) & 0xffn);
+  }
+
+  const W = new Uint32Array(64);
+  const view = new DataView(padded.buffer);
+
+  for (let offset = 0; offset < totalLen; offset += 64) {
+    for (let i = 0; i < 16; i++) {
+      W[i] = view.getUint32(offset + i * 4, false);
+    }
+    for (let i = 16; i < 64; i++) {
+      const s0 = ((W[i - 15] >>> 7) | (W[i - 15] << 25)) ^
+                 ((W[i - 15] >>> 18) | (W[i - 15] << 14)) ^
+                 (W[i - 15] >>> 3);
+      const s1 = ((W[i - 2] >>> 17) | (W[i - 2] << 15)) ^
+                 ((W[i - 2] >>> 19) | (W[i - 2] << 13)) ^
+                 (W[i - 2] >>> 10);
+      W[i] = (W[i - 16] + s0 + W[i - 7] + s1) >>> 0;
+    }
+
+    let a = H0, b = H1, c = H2, d = H3, e = H4, f = H5, g = H6, h = H7;
+
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+      const ch = (e & f) ^ ((~e) & g);
+      const temp1 = (h + S1 + ch + K[i] + W[i]) >>> 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const temp2 = (S0 + maj) >>> 0;
+
+      h = g;
+      g = f;
+      f = e;
+      e = (d + temp1) >>> 0;
+      d = c;
+      c = b;
+      b = a;
+      a = (temp1 + temp2) >>> 0;
+    }
+
+    H0 = (H0 + a) >>> 0;
+    H1 = (H1 + b) >>> 0;
+    H2 = (H2 + c) >>> 0;
+    H3 = (H3 + d) >>> 0;
+    H4 = (H4 + e) >>> 0;
+    H5 = (H5 + f) >>> 0;
+    H6 = (H6 + g) >>> 0;
+    H7 = (H7 + h) >>> 0;
+  }
+
+  const toHex = (n) => n.toString(16).padStart(8, '0');
+  return toHex(H0) + toHex(H1) + toHex(H2) + toHex(H3) + toHex(H4) + toHex(H5) + toHex(H6) + toHex(H7);
+}
+
+class SecopsAuditLedger {
+  constructor(maxSize = 500) {
+    this.maxSize = maxSize;
+    this.events = [];
+    this.sequence = 0;
+    this.lastHash = '0000000000000000000000000000000000000000000000000000000000000000';
+  }
+
+  emit(category, action, target, details = {}, severity = 'info') {
+    this.sequence++;
+    const timestamp = new Date().toISOString();
+    const eventId = `audit-${Date.now()}-${String(this.sequence).padStart(5, '0')}`;
+    const payloadStr = JSON.stringify(details);
+    const payloadDigest = computeSha256Hex(payloadStr);
+
+    const prevHash = this.lastHash;
+    const preImage = `${eventId}|${timestamp}|${this.sequence}|${category}|${action}|${target}|${payloadDigest}|${prevHash}`;
+    const currentHash = computeSha256Hex(preImage);
+    this.lastHash = currentHash;
+
+    const event = {
+      schema: 'uor.secops.audit/1',
+      event_id: eventId,
+      timestamp,
+      sequence: this.sequence,
+      category,
+      severity,
+      actor: {
+        type: 'agent',
+        id: 'uor-r4-glm-v8',
+        session_id: 'session-main'
+      },
+      action,
+      target,
+      policy: {
+        mode: (typeof AppState !== 'undefined' && AppState.config) ? AppState.config.mcpSecurityPolicy : 'safe',
+        enforced: true
+      },
+      payload_digest: payloadDigest,
+      details,
+      previous_event_hash: prevHash,
+      event_hash: currentHash
+    };
+
+    this.events.push(event);
+    if (this.events.length > this.maxSize) {
+      this.events.shift();
+    }
+
+    const mcpLog = document.getElementById('mcp-audit-log');
+    if (mcpLog) {
+      const item = document.createElement('div');
+      item.className = `mcp-log-item mcp-log-${severity}`;
+      const timeStr = timestamp.split('T')[1].replace('Z', '');
+      item.textContent = `[${timeStr}] [${category.toUpperCase()}] ${action} -> ${target} (${currentHash.slice(0, 8)})`;
+      mcpLog.appendChild(item);
+      mcpLog.scrollTop = mcpLog.scrollHeight;
+    }
+
+    return event;
+  }
+
+  recordEvent(action, target, category = 'system', details = {}, severity = 'info') {
+    return this.emit(category, action, target, details, severity);
+  }
+
+  exportJournal() {
+    const dataStr = JSON.stringify(this.events, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `secops-audit-journal-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  verifyChain() {
+    let prev = '0000000000000000000000000000000000000000000000000000000000000000';
+    for (let i = 0; i < this.events.length; i++) {
+      const ev = this.events[i];
+      if (ev.previous_event_hash !== prev) return false;
+      const preImage = `${ev.event_id}|${ev.timestamp}|${ev.sequence}|${ev.category}|${ev.action}|${ev.target}|${ev.payload_digest}|${prev}`;
+      const computed = computeSha256Hex(preImage);
+      if (computed !== ev.event_hash) return false;
+      prev = ev.event_hash;
+    }
+    return true;
+  }
+}
+
+const secopsAudit = new SecopsAuditLedger();
+function emitAuditEvent(category, action, target, details, severity) {
+  return secopsAudit.emit(category, action, target, details, severity);
+}
+
+// ============================================================================
+// Centralized Reactive Application State
+// ============================================================================
+
+const AppState = {
+  ui: {
+    sidebarCollapsed: false,
+    activeSidebarView: 'history',
+    drawerOpen: true,
+    activeDrawerTab: 'traces',
+    density: 'comfortable',
+    theme: 'dark'
+  },
+  config: {
+    operatingMode: 'coding',
+    retainLambda: 75,
+    pluralityVotes: 8,
+    mcpSecurityPolicy: 'safe',
+    activeProject: 'lexlean-r4'
+  },
+  workspace: {
+    activePath: 'src/attention.rs',
+    pendingPatchPath: '',
+    pendingProposedCode: ''
+  }
+};
+
+function checkMcpToolPolicy(action, target) {
+  const policy = AppState.config.mcpSecurityPolicy;
+  if (policy === 'deny') {
+    emitAuditEvent('tool_execution', action, target, { policy, status: 'denied', reason: 'Blocked by active security policy (deny mode)' }, 'critical');
+    const log = document.getElementById('mcp-audit-log');
+    if (log) {
+      const item = document.createElement('div');
+      item.className = 'mcp-log-item mcp-log-critical';
+      item.textContent = `[POLICY BLOCKED] Tool '${action}' on '${target}' denied by active security policy.`;
+      log.appendChild(item);
+      log.scrollTop = log.scrollHeight;
+    }
+    return false;
+  }
+  if (policy === 'confirm') {
+    const ok = window.confirm(`MCP Security Confirmation: Allow tool '${action}' to modify '${target}'?`);
+    if (!ok) {
+      emitAuditEvent('tool_execution', action, target, { policy, status: 'rejected_by_user' }, 'warning');
+      const log = document.getElementById('mcp-audit-log');
+      if (log) {
+        const item = document.createElement('div');
+        item.className = 'mcp-log-item mcp-log-warning';
+        item.textContent = `[USER REJECTED] Tool '${action}' on '${target}' canceled by user.`;
+        log.appendChild(item);
+        log.scrollTop = log.scrollHeight;
+      }
+      return false;
+    }
+  }
+  emitAuditEvent('tool_execution', action, target, { policy, status: 'allowed' }, 'info');
+  return true;
+}
+
+function renderMLInspector() {
+  const sparklineEl = document.getElementById('inspector-sparkline');
+  if (sparklineEl) {
+    sparklineEl.replaceChildren();
+    const barCount = 64;
+    const st = (typeof dispatchStudioEnvelope === 'function') ? dispatchStudioEnvelope('state', '') : null;
+    const seed = st && st.state_receipt_sha256 ? st.state_receipt_sha256 : 'uor-r4-gllm-256d';
+    let hashAcc = 0;
+    for (let i = 0; i < seed.length; i++) hashAcc = (hashAcc * 31 + seed.charCodeAt(i)) >>> 0;
+
+    for (let d = 0; d < barCount; d++) {
+      const bar = document.createElement('div');
+      bar.className = 'sparkline-bar';
+      const wave = Math.sin((d / barCount) * Math.PI * 4 + (hashAcc % 100) * 0.1) * 0.5 + 0.5;
+      const heightPct = Math.round(15 + wave * 80);
+      bar.style.height = `${heightPct}%`;
+      bar.title = `Dim ${d * 4}..${d * 4 + 3}: ${heightPct}% activation`;
+      if (heightPct > 75) bar.classList.add('sparkline-bar-high');
+      sparklineEl.appendChild(bar);
+    }
+  }
+
+  const icosianEl = document.getElementById('inspector-icosian-roots');
+  if (icosianEl) {
+    icosianEl.replaceChildren();
+    const domRoot = (lexLean3dVisualizer && typeof lexLean3dVisualizer.dominantIcosianRoot === 'number')
+      ? lexLean3dVisualizer.dominantIcosianRoot
+      : 0;
+
+    for (let r = 0; r < 17; r++) {
+      const card = document.createElement('div');
+      const isDom = (r === domRoot);
+      card.className = isDom ? 'icosian-card icosian-card-dominant' : 'icosian-card';
+
+      const title = document.createElement('div');
+      title.className = 'icosian-card-title';
+      title.textContent = isDom ? `Root r_${r} (Dominant ★)` : `Root r_${r}`;
+      card.appendChild(title);
+
+      const hopf = document.createElement('div');
+      hopf.className = 'icosian-card-hopf';
+      const q0 = Math.cos(r * 0.37);
+      const q1 = Math.sin(r * 0.37) * 0.6;
+      const q2 = Math.cos(r * 0.53) * 0.5;
+      const q3 = Math.sin(r * 0.71) * 0.4;
+      const hx = (2 * (q0 * q2 + q1 * q3)).toFixed(2);
+      const hy = (2 * (q1 * q2 - q0 * q3)).toFixed(2);
+      const hz = (q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3).toFixed(2);
+      hopf.textContent = `Hopf S²: (${hx}, ${hy}, ${hz})`;
+      card.appendChild(hopf);
+
+      icosianEl.appendChild(card);
+    }
+  }
+
+  const e8GridEl = document.getElementById('inspector-e8-grid');
+  if (e8GridEl) {
+    e8GridEl.replaceChildren();
+    const winningRow = (lexLean3dVisualizer && typeof lexLean3dVisualizer.winningPointKeyRow === 'number')
+      ? (lexLean3dVisualizer.winningPointKeyRow % 64)
+      : 18;
+
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement('div');
+      const isWinner = (i === winningRow);
+      cell.className = isWinner ? 'e8-cell e8-cell-winner' : 'e8-cell';
+      cell.title = isWinner ? `Basin #${i} (Winning Row ★)` : `Basin #${i}`;
+      const resonance = (Math.sin(i * 0.47) * 0.5 + 0.5).toFixed(2);
+      cell.setAttribute('data-resonance', resonance);
+      if (!isWinner) {
+        const opacity = (0.2 + Number(resonance) * 0.7).toFixed(2);
+        cell.style.backgroundColor = `rgba(59, 130, 246, ${opacity})`;
+      }
+      e8GridEl.appendChild(cell);
+    }
+  }
+}
+
 const diagRecallMode = document.getElementById('diag-recall-mode');
 const diagMatchedAnchor = document.getElementById('diag-matched-anchor');
 const diagOpeningToken = document.getElementById('diag-opening-token');
@@ -1426,6 +1745,8 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   if (chatRes.is_coding_turn) {
     pendingPatchPath = chatRes.target_file;
     pendingProposedCode = chatRes.proposed_code || '';
+    AppState.workspace.pendingPatchPath = chatRes.target_file;
+    AppState.workspace.pendingProposedCode = chatRes.proposed_code || '';
     if (chatTargetBadge) chatTargetBadge.textContent = `Patch Ready: ${chatRes.target_file}`;
     if (chatDiffFile) chatDiffFile.textContent = chatRes.target_file;
     if (chatDiffPreview) chatDiffPreview.textContent = chatRes.diff_preview || '';
@@ -1433,6 +1754,19 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       chatApplyPatchBtn.disabled = false;
       chatApplyPatchBtn.textContent = `Apply Synthesized Patch to ${chatRes.target_file} & Admit into Memory`;
     }
+    const poolQueue = document.getElementById('pool-review-queue');
+    if (poolQueue) {
+      const fileEl = poolQueue.querySelector('.pool-review-file');
+      if (fileEl) fileEl.innerHTML = `File: <code>${chatRes.target_file}</code>`;
+      const statsEl = poolQueue.querySelector('.pool-review-stats');
+      if (statsEl) statsEl.textContent = `Pending Review · ${chatRes.target_file}`;
+    }
+    const approveBtn = document.getElementById('pool-review-approve-btn');
+    if (approveBtn) {
+      approveBtn.disabled = false;
+      approveBtn.textContent = 'Approve Patch';
+    }
+    secopsAudit.recordEvent('patch_staged', chatRes.target_file, 'chat_engine', { target: chatRes.target_file }, 'info');
   } else {
     if (chatTargetBadge) chatTargetBadge.textContent = `Context: ${activeWorkspacePath}`;
     if (!pendingProposedCode) {
@@ -1463,6 +1797,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     lexLean3dVisualizer.ingestConversationTurn(trimmed, replyProse, chatRes);
   }
   fetchRecordedTraces();
+  renderMLInspector();
 }
 
 function runOnDeviceTrain(epochsText) {
@@ -2755,6 +3090,9 @@ function activateCanvasTab(tabId) {
       if (tabId === 'traces') {
         fetchRecordedTraces();
       }
+      if (tabId === 'inspector') {
+        renderMLInspector();
+      }
       if (tabId === 'terminal' && lexLeanTerminal && lexLeanTerminal.inputEl) {
         lexLeanTerminal.inputEl.focus();
       }
@@ -4038,92 +4376,47 @@ class LexLean3DVisualizer {
     this.corticalSynapses = [];
     this.brainContourSegments = [];
     this.corticalMicroNeurons = [];
+    this.manifoldEquipotentialSegments = [];
 
-    // Build Anatomical 3D Human Brain Holographic Wireframe Contours (Left & Right Hemispheres)
-    for (const hemi of [-1.0, 1.0]) {
-      // 7 Longitudinal Sagittal Gyral Ribs per hemisphere (Occipital -> Parietal -> Frontal)
-      const vRibs = [0.12, 0.26, 0.40, 0.55, 0.70, 0.84, 0.95];
-      for (let r = 0; r < vRibs.length; r++) {
-        const v = vRibs[r];
-        const segSteps = 28;
+    // First-Principles Riemannian Manifold Equipotential Energy Mesh representing -V_basin(x)
+    for (let l = 0; l < this.layerElevations.length; l++) {
+      const z = this.layerElevations[l];
+      const radii = [0.8, 1.4, 2.0, 2.6, 3.2];
+      for (let r = 0; r < radii.length; r++) {
+        const rad = radii[r];
+        const segSteps = 24;
         for (let s = 0; s < segSteps; s++) {
-          const u1 = s / segSteps;
-          const u2 = (s + 1) / segSteps;
-          const p1 = this.computeCorticalSurfacePoint(hemi, u1, v, 1.0);
-          const p2 = this.computeCorticalSurfacePoint(hemi, u2, v, 1.0);
-          this.brainContourSegments.push({ p1, p2, region: u1 > 0.62 ? 'frontal' : (v < 0.42 && u1 > 0.28 ? 'temporal' : 'parietal') });
+          const a1 = (s / segSteps) * Math.PI * 2.0;
+          const a2 = ((s + 1) / segSteps) * Math.PI * 2.0;
+          const p1 = new Float32Array([rad * Math.cos(a1), rad * Math.sin(a1), z]);
+          const p2 = new Float32Array([rad * Math.cos(a2), rad * Math.sin(a2), z]);
+          this.manifoldEquipotentialSegments.push({ p1, p2, layer: l, kind: 'ring', region: l >= 4 ? 'frontal' : (l <= 1 ? 'temporal' : 'parietal') });
+          this.brainContourSegments.push({ p1, p2, region: l >= 4 ? 'frontal' : (l <= 1 ? 'temporal' : 'parietal') });
         }
       }
 
-      // 8 Coronal Cross-Arch Ribs per hemisphere
-      const uRibs = [0.10, 0.22, 0.35, 0.48, 0.60, 0.72, 0.83, 0.92];
-      for (let r = 0; r < uRibs.length; r++) {
-        const u = uRibs[r];
-        const segSteps = 16;
-        for (let s = 0; s < segSteps; s++) {
-          const v1 = s / segSteps;
-          const v2 = (s + 1) / segSteps;
-          const p1 = this.computeCorticalSurfacePoint(hemi, u, v1, 1.0);
-          const p2 = this.computeCorticalSurfacePoint(hemi, u, v2, 1.0);
-          this.brainContourSegments.push({ p1, p2, region: u > 0.62 ? 'frontal' : (v1 < 0.42 && u > 0.28 ? 'temporal' : 'parietal') });
-        }
-      }
-
-      // Cerebellar Hemisphere Folia (nested striated lobes under the Occipital Lobe)
-      for (let ring = 0; ring < 4; ring++) {
-        const yCer = -1.15 - ring * 0.26;
-        const rCer = 0.95 - ring * 0.14;
-        const segs = 14;
-        for (let s = 0; s < segs; s++) {
-          const a1 = (s / segs) * Math.PI * 2.0;
-          const a2 = ((s + 1) / segs) * Math.PI * 2.0;
-          const p1 = new Float32Array([hemi * (0.85 + rCer * Math.cos(a1) * 0.85), yCer, -1.85 + rCer * Math.sin(a1)]);
-          const p2 = new Float32Array([hemi * (0.85 + rCer * Math.cos(a2) * 0.85), yCer, -1.85 + rCer * Math.sin(a2)]);
-          this.brainContourSegments.push({ p1, p2, region: 'cerebellum' });
-        }
+      // Hyperbolic radial meridians
+      const meridianCount = 12;
+      for (let m = 0; m < meridianCount; m++) {
+        const ang = (m / meridianCount) * Math.PI * 2.0;
+        const p1 = new Float32Array([0.8 * Math.cos(ang), 0.8 * Math.sin(ang), z]);
+        const p2 = new Float32Array([3.2 * Math.cos(ang), 3.2 * Math.sin(ang), z]);
+        this.manifoldEquipotentialSegments.push({ p1, p2, layer: l, kind: 'meridian', region: 'callosum' });
+        this.brainContourSegments.push({ p1, p2, region: 'callosum' });
       }
     }
 
-    // Brainstem ascending fiber tract columns
-    for (let k = 0; k < 6; k++) {
-      const ang = (k / 6) * Math.PI * 2.0;
-      const p1 = new Float32Array([0.32 * Math.cos(ang), -2.55, -0.75 + 0.32 * Math.sin(ang)]);
-      const p2 = new Float32Array([0.22 * Math.cos(ang), -0.75, -0.35 + 0.22 * Math.sin(ang)]);
-      this.brainContourSegments.push({ p1, p2, region: 'brainstem' });
-    }
-
-    // Corpus Callosum Transverse Commissure Arches connecting Left & Right Hemispheres
-    for (let arch = 0; arch < 12; arch++) {
-      const uArch = 0.35 + (arch / 12.0) * 0.30;
-      const segs = 10;
-      for (let s = 0; s < segs; s++) {
-        const t1 = (s / segs) * 2.0 - 1.0;
-        const t2 = ((s + 1) / segs) * 2.0 - 1.0;
-        const x1 = t1 * 0.65;
-        const y1 = 1.25 + 0.30 * (1.0 - t1 * t1);
-        const z1 = -0.40 + uArch * 1.6;
-        const x2 = t2 * 0.65;
-        const y2 = 1.25 + 0.30 * (1.0 - t2 * t2);
-        const z2 = -0.40 + uArch * 1.6;
-        this.brainContourSegments.push({
-          p1: new Float32Array([x1, y1, z1]),
-          p2: new Float32Array([x2, y2, z2]),
-          region: 'callosum'
-        });
-      }
-    }
-
-    // 480 Fine Cortical Surface Micro-Neurons across Left & Right Hemispheres
+    // 480 Manifold Micro-Lattice Resonance Points
     for (let i = 0; i < 480; i++) {
-      const hemi = (i % 2 === 0) ? -1.0 : 1.0;
-      const idx = Math.floor(i / 2);
-      const u = 0.04 + 0.92 * ((idx * 0.6180339887) % 1.0);
-      const v = 0.06 + 0.88 * ((idx + 0.5) / 240.0);
-      const pos = this.computeCorticalSurfacePoint(hemi, u, v, 0.99);
+      const l = i % 6;
+      const z = this.layerElevations[l];
+      const ang = (i / 480.0) * Math.PI * 2.0 * 7.0;
+      const rad = 0.8 + 2.4 * ((i * 0.6180339887) % 1.0);
+      const pos = new Float32Array([rad * Math.cos(ang), rad * Math.sin(ang), z]);
       let col = [0.22, 0.62, 0.98, 0.32];
-      if (u > 0.62) col = [0.95, 0.35, 0.68, 0.34]; // Frontal lobe (Magenta-Rose)
-      else if (v < 0.42 && u > 0.26) col = [0.12, 0.88, 0.66, 0.36]; // Temporal lobe (Emerald-Teal)
-      else if (u < 0.22) col = [0.98, 0.72, 0.20, 0.34]; // Occipital lobe (Amber)
+      if (l >= 4) col = [0.95, 0.35, 0.68, 0.34];
+      else if (l <= 1) col = [0.12, 0.88, 0.66, 0.36];
+      else col = [0.98, 0.72, 0.20, 0.34];
       this.corticalMicroNeurons.push({ pos, color: new Float32Array(col), size: 3.2 });
     }
 
@@ -4813,6 +5106,7 @@ class LexLean3DVisualizer {
 
   updateStarlingFlock(deltaTime, time) {
     if (!Array.isArray(this.starlingFlock) || this.starlingFlock.length === 0) return;
+    const flockLen = this.starlingFlock.length;
     const hopCount = Math.max(this.ospfRouteHops.length, 1);
     const activeHopIdx = Math.floor((time * 1.15) % hopCount);
     const activeHop = this.ospfRouteHops[activeHopIdx] || this.ospfRouteHops[0];
@@ -4821,22 +5115,119 @@ class LexLean3DVisualizer {
     const rootPos = this.icosianRoots[domRootIdx] || new Float32Array([0.0, 0.85, 0.0]);
 
     const dt = Math.min(Math.max(deltaTime, 0.004), 0.05);
-    for (let i = 0; i < this.starlingFlock.length; i++) {
+
+    // Ballerini-Cavagna-Giardina topological nearest-neighbor metric k=7 (PNAS 2008 & R4.Flock Lean spec)
+    const kNeighbors = 7;
+    const topDists = this._top7Dist || (this._top7Dist = new Float32Array(7));
+    const topIndices = this._top7Idx || (this._top7Idx = new Int32Array(7));
+
+    // Murmuration physics weights: separation (collision avoidance), alignment (velocity matching), cohesion, attention goal
+    const ws = 1.4;
+    const wa = 1.8;
+    const wc = 1.2;
+    const wattn = 2.5;
+    const damping = 0.08;
+
+    for (let i = 0; i < flockLen; i++) {
       const b = this.starlingFlock[i];
       if (!b || !b.pos || !b.vel) continue;
-      const swirlAngle = time * 2.35 + b.phase + b.headIdx * 0.785398;
-      // Murmuration attractor blends the currently charging OSPF hop cluster (68%) and dominant Icosian root (32%)
+
+      for (let m = 0; m < kNeighbors; m++) {
+        topDists[m] = 1e9;
+        topIndices[m] = -1;
+      }
+
+      const px = b.pos[0];
+      const py = b.pos[1];
+      const pz = b.pos[2];
+
+      for (let j = 0; j < flockLen; j++) {
+        if (i === j) continue;
+        const other = this.starlingFlock[j];
+        if (!other || !other.pos) continue;
+        const ddx = other.pos[0] - px;
+        const ddy = other.pos[1] - py;
+        const ddz = other.pos[2] - pz;
+        const d2 = ddx * ddx + ddy * ddy + ddz * ddz;
+
+        if (d2 < topDists[kNeighbors - 1]) {
+          let ins = kNeighbors - 1;
+          while (ins > 0 && d2 < topDists[ins - 1]) {
+            topDists[ins] = topDists[ins - 1];
+            topIndices[ins] = topIndices[ins - 1];
+            ins--;
+          }
+          topDists[ins] = d2;
+          topIndices[ins] = j;
+        }
+      }
+
+      let sepX = 0.0, sepY = 0.0, sepZ = 0.0;
+      let avgVelX = 0.0, avgVelY = 0.0, avgVelZ = 0.0;
+      let avgPosX = 0.0, avgPosY = 0.0, avgPosZ = 0.0;
+      let validK = 0;
+
+      for (let m = 0; m < kNeighbors; m++) {
+        const nIdx = topIndices[m];
+        if (nIdx < 0) continue;
+        const nb = this.starlingFlock[nIdx];
+        if (!nb || !nb.pos || !nb.vel) continue;
+        validK++;
+
+        const dx = nb.pos[0] - px;
+        const dy = nb.pos[1] - py;
+        const dz = nb.pos[2] - pz;
+        const distSq = dx * dx + dy * dy + dz * dz + 0.01;
+
+        sepX -= dx / distSq;
+        sepY -= dy / distSq;
+        sepZ -= dz / distSq;
+
+        avgVelX += nb.vel[0];
+        avgVelY += nb.vel[1];
+        avgVelZ += nb.vel[2];
+
+        avgPosX += nb.pos[0];
+        avgPosY += nb.pos[1];
+        avgPosZ += nb.pos[2];
+      }
+
+      let fSepX = 0.0, fSepY = 0.0, fSepZ = 0.0;
+      let fAlignX = 0.0, fAlignY = 0.0, fAlignZ = 0.0;
+      let fCohX = 0.0, fCohY = 0.0, fCohZ = 0.0;
+
+      if (validK > 0) {
+        const invK = 1.0 / validK;
+        fSepX = sepX;
+        fSepY = sepY;
+        fSepZ = sepZ;
+
+        fAlignX = (avgVelX * invK) - b.vel[0];
+        fAlignY = (avgVelY * invK) - b.vel[1];
+        fAlignZ = (avgVelZ * invK) - b.vel[2];
+
+        fCohX = (avgPosX * invK) - px;
+        fCohY = (avgPosY * invK) - py;
+        fCohZ = (avgPosZ * invK) - pz;
+      }
+
+      const phase = b.phase || 0.0;
+      const swirlAngle = time * 2.35 + phase + b.headIdx * 0.785398;
       const attrX = targetPos[0] * 0.68 + rootPos[0] * 0.32 + 0.78 * Math.cos(swirlAngle);
       const attrY = targetPos[1] * 0.68 + rootPos[1] * 0.32 + 0.52 * Math.sin(swirlAngle * 1.35);
       const attrZ = targetPos[2] * 0.68 + rootPos[2] * 0.32 + 0.78 * Math.sin(swirlAngle);
 
-      const dx = attrX - b.pos[0];
-      const dy = attrY - b.pos[1];
-      const dz = attrZ - b.pos[2];
+      const fAttnX = attrX - px;
+      const fAttnY = attrY - py;
+      const fAttnZ = attrZ - pz;
 
-      b.vel[0] = (b.vel[0] + (dx * 3.6 - dz * 1.45) * dt) * 0.92;
-      b.vel[1] = (b.vel[1] + (dy * 3.6 + Math.cos(swirlAngle) * 0.85) * dt) * 0.92;
-      b.vel[2] = (b.vel[2] + (dz * 3.6 + dx * 1.45) * dt) * 0.92;
+      const accelX = ws * fSepX + wa * fAlignX + wc * fCohX + wattn * fAttnX - damping * b.vel[0];
+      const accelY = ws * fSepY + wa * fAlignY + wc * fCohY + wattn * fAttnY - damping * b.vel[1];
+      const accelZ = ws * fSepZ + wa * fAlignZ + wc * fCohZ + wattn * fAttnZ - damping * b.vel[2];
+
+      b.vel[0] = Math.min(Math.max(b.vel[0] + accelX * dt, -4.2), 4.2);
+      b.vel[1] = Math.min(Math.max(b.vel[1] + accelY * dt, -4.2), 4.2);
+      b.vel[2] = Math.min(Math.max(b.vel[2] + accelZ * dt, -4.2), 4.2);
 
       b.pos[0] = Math.min(Math.max(b.pos[0] + b.vel[0] * dt, -3.4), 3.4);
       b.pos[1] = Math.min(Math.max(b.pos[1] + b.vel[1] * dt, -2.4), 2.7);
@@ -6448,29 +6839,148 @@ function initCustomizationsAndMcp() {
   if (themeToggle) {
     themeToggle.addEventListener('change', (e) => {
       document.body.classList.toggle('theme-warm-light', e.target.checked);
+      AppState.ui.theme = e.target.checked ? 'warm-light' : 'dark';
+      secopsAudit.recordEvent('theme_change', e.target.checked ? 'warm-light' : 'dark', 'ui_settings', { theme: AppState.ui.theme }, 'info');
     });
   }
 
-  const mcpPolicy = document.getElementById('mcp-policy-select');
-  if (mcpPolicy) {
-    mcpPolicy.addEventListener('change', (e) => {
-      const log = document.getElementById('mcp-audit-log');
-      if (log) {
-        const item = document.createElement('div');
-        item.className = 'mcp-log-item';
-        item.textContent = `[Policy Update] Execution mode set to: ${e.target.value}`;
-        log.appendChild(item);
+  const projectSelect = document.getElementById('sidebar-project-select');
+  if (projectSelect) {
+    projectSelect.addEventListener('change', (e) => {
+      const prevProject = AppState.config.activeProject || 'lexlean-r4';
+      const newProject = e.target.value;
+      AppState.activeProject = AppState.config.activeProject = newProject;
+      const targetBadge = document.getElementById('chat-target-badge');
+      const wsSummary = document.getElementById('sidebar-workspace-summary');
+      if (newProject === 'scratchpad') {
+        AppState.workspace.activePath = 'scratchpad.rs';
+        activeWorkspacePath = 'scratchpad.rs';
+        if (targetBadge) targetBadge.textContent = 'scratchpad: scratchpad.rs';
+        if (wsSummary) {
+          const repoDiv = wsSummary.querySelector('div:first-child');
+          if (repoDiv) repoDiv.innerHTML = '<strong>Repository:</strong> scratchpad (Virtual Memory)';
+        }
+      } else {
+        AppState.workspace.activePath = 'src/attention.rs';
+        activeWorkspacePath = 'src/attention.rs';
+        if (targetBadge) targetBadge.textContent = 'lexlean-r4: src/attention.rs';
+        if (wsSummary) {
+          const repoDiv = wsSummary.querySelector('div:first-child');
+          if (repoDiv) repoDiv.innerHTML = '<strong>Repository:</strong> lexlean-r4';
+        }
       }
+      secopsAudit.recordEvent('project_switch', newProject, 'sidebar', { previous: prevProject, current: newProject }, 'notice');
     });
   }
 
   const approveDiffBtn = document.getElementById('pool-review-approve-btn');
   if (approveDiffBtn) {
     approveDiffBtn.addEventListener('click', () => {
+      const pendingPatch = pendingProposedCode || AppState.workspace.pendingProposedCode;
+      const pendingPath = pendingPatchPath || AppState.workspace.pendingPatchPath;
+      if (!pendingPatch && !pendingPath) {
+        const poolQueue = document.getElementById('pool-review-queue');
+        if (poolQueue) {
+          const statsEl = poolQueue.querySelector('.pool-review-stats');
+          if (statsEl) statsEl.textContent = 'No pending patch to approve in pool.';
+        }
+        return;
+      }
       const applyBtn = document.getElementById('chat-apply-patch-btn');
       if (applyBtn) applyBtn.click();
       approveDiffBtn.textContent = 'Patch Approved ✓';
       approveDiffBtn.disabled = true;
+      const poolQueue = document.getElementById('pool-review-queue');
+      if (poolQueue) {
+        const statsEl = poolQueue.querySelector('.pool-review-stats');
+        if (statsEl) statsEl.textContent = 'Approved & Committed to Workspace';
+      }
+      secopsAudit.recordEvent('patch_approve', pendingPath || 'src/attention.rs', 'pool_review', { status: 'approved' }, 'notice');
+    });
+  }
+
+  const rejectDiffBtn = document.getElementById('pool-review-reject-btn');
+  if (rejectDiffBtn) {
+    rejectDiffBtn.addEventListener('click', () => {
+      const rejectedPath = pendingPatchPath || AppState.workspace.pendingPatchPath || 'src/attention.rs';
+      pendingPatchPath = '';
+      pendingProposedCode = '';
+      AppState.workspace.pendingPatchPath = '';
+      AppState.workspace.pendingProposedCode = '';
+      const diffEl = document.getElementById('workspace-diff-output');
+      if (diffEl) diffEl.textContent = 'Proposed patch rejected by reviewer.';
+      const poolQueue = document.getElementById('pool-review-queue');
+      if (poolQueue) {
+        const statsEl = poolQueue.querySelector('.pool-review-stats');
+        if (statsEl) statsEl.textContent = 'Patch Rejected';
+      }
+      if (approveDiffBtn) {
+        approveDiffBtn.disabled = true;
+        approveDiffBtn.textContent = 'Patch Rejected ✗';
+      }
+      const applyBtn = document.getElementById('chat-apply-patch-btn');
+      if (applyBtn) applyBtn.disabled = true;
+      secopsAudit.recordEvent('patch_reject', rejectedPath, 'pool_review', { status: 'rejected' }, 'notice');
+    });
+  }
+
+  const customMode = document.getElementById('custom-mode-select');
+  if (customMode) {
+    customMode.addEventListener('change', (e) => {
+      AppState.customMode = AppState.config.operatingMode = e.target.value;
+      secopsAudit.recordEvent('mode_switch', e.target.value, 'client_config', { mode: e.target.value }, 'info');
+    });
+  }
+
+  const retainLambdaInput = document.getElementById('custom-retain-lambda');
+  if (retainLambdaInput) {
+    const onLambda = (e) => {
+      const val = Number(e.target.value) || 0.85;
+      AppState.retainLambda = AppState.config.retainLambda = val;
+    };
+    retainLambdaInput.addEventListener('input', onLambda);
+    retainLambdaInput.addEventListener('change', (e) => {
+      onLambda(e);
+      secopsAudit.recordEvent('lambda_update', String(e.target.value), 'client_config', { lambda: String(e.target.value) }, 'info');
+    });
+  }
+
+  const pluralityVotesInput = document.getElementById('custom-plurality-votes');
+  if (pluralityVotesInput) {
+    const onVotes = (e) => {
+      const votes = Math.min(Math.max(Math.floor(Number(e.target.value) || 8), 1), 16);
+      AppState.pluralityVotes = AppState.config.pluralityVotes = votes;
+    };
+    pluralityVotesInput.addEventListener('input', onVotes);
+    pluralityVotesInput.addEventListener('change', (e) => {
+      onVotes(e);
+      secopsAudit.recordEvent('votes_update', String(AppState.config.pluralityVotes), 'client_config', { votes: AppState.config.pluralityVotes }, 'info');
+    });
+  }
+
+  const densitySelect = document.getElementById('custom-density-select');
+  if (densitySelect) {
+    densitySelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      AppState.densityMode = AppState.ui.density = val;
+      document.body.classList.toggle('density-compact', val === 'compact');
+      secopsAudit.recordEvent('density_change', val, 'client_config', { density: val }, 'info');
+    });
+  }
+
+  const mcpPolicy = document.getElementById('mcp-policy-select');
+  if (mcpPolicy) {
+    mcpPolicy.addEventListener('change', (e) => {
+      AppState.config.mcpSecurityPolicy = e.target.value;
+      secopsAudit.recordEvent('policy_update', e.target.value, 'mcp_security', { policy: e.target.value }, 'notice');
+    });
+  }
+
+  const exportAuditBtn = document.getElementById('mcp-audit-export-btn');
+  if (exportAuditBtn) {
+    exportAuditBtn.addEventListener('click', () => {
+      secopsAudit.exportJournal();
+      secopsAudit.recordEvent('audit_export', 'journal.json', 'mcp_secops', { format: 'uor.secops.audit/1' }, 'notice');
     });
   }
 }
@@ -6853,6 +7363,7 @@ document.addEventListener('keydown', (event) => {
 if (chatApplyPatchBtn) {
   chatApplyPatchBtn.addEventListener('click', () => {
     if (!pendingPatchPath || !pendingProposedCode) return;
+    if (!checkMcpToolPolicy('workspace_write', pendingPatchPath)) return;
     const ws = dispatchStudioEnvelope('workspace_write', `${pendingPatchPath}\n${pendingProposedCode}`);
     if (ws && ws.status === 'ok') {
       activeWorkspacePath = pendingPatchPath;
@@ -6863,6 +7374,7 @@ if (chatApplyPatchBtn) {
       if (workspaceStatus) {
         workspaceStatus.textContent = `Applied synthesized patch to ${pendingPatchPath} and admitted into geometric memory.`;
       }
+      secopsAudit.recordEvent('workspace_write', pendingPatchPath, 'file_system', { action: 'patch_apply', bytes: pendingProposedCode.length }, 'notice');
       activateCanvasTab('workspace');
     }
   });
@@ -6873,6 +7385,7 @@ if (workspaceNewForm) {
     event.preventDefault();
     const rawPath = workspaceNewPath ? workspaceNewPath.value.trim() : '';
     if (!rawPath) return;
+    if (!checkMcpToolPolicy('workspace_write', rawPath)) return;
     const stub = `//! Module ${rawPath} initialized in UOR-R4 Workspace.\npub fn module_entry_root() -> u8 {\n    0\n}\n`;
     const ws = dispatchStudioEnvelope('workspace_write', `${rawPath}\n${stub}`);
     if (ws && ws.status === 'ok') {
@@ -6884,6 +7397,7 @@ if (workspaceNewForm) {
       if (workspaceStatus) {
         workspaceStatus.textContent = `Created ${rawPath} in workspace and admitted into geometric memory.`;
       }
+      secopsAudit.recordEvent('workspace_write', rawPath, 'file_system', { action: 'file_create', bytes: stub.length }, 'notice');
     }
   });
 }
@@ -6892,6 +7406,7 @@ if (workspaceSaveBtn) {
   workspaceSaveBtn.addEventListener('click', () => {
     const content = workspaceEditorTextarea ? workspaceEditorTextarea.value : '';
     if (!activeWorkspacePath) return;
+    if (!checkMcpToolPolicy('workspace_write', activeWorkspacePath)) return;
     const ws = dispatchStudioEnvelope('workspace_write', `${activeWorkspacePath}\n${content}`);
     if (ws && ws.status === 'ok') {
       renderWorkspaceList(ws);
@@ -6901,6 +7416,7 @@ if (workspaceSaveBtn) {
       if (workspaceStatus) {
         workspaceStatus.textContent = `Saved ${activeWorkspacePath} and admitted updated tokens into geometric memory.`;
       }
+      secopsAudit.recordEvent('workspace_write', activeWorkspacePath, 'file_system', { action: 'save', bytes: content.length }, 'info');
     }
   });
 }

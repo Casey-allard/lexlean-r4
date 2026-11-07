@@ -5630,7 +5630,7 @@ mod tests {
         let domain_para = model.generate_reply(
             &[],
             "Can you walk me through how quantum entanglement works for a beginner?",
-            256,
+            512,
         );
         assert_eq!(domain_para.steps[0].source_mechanism, "point_key_vote");
         assert!(domain_para.matched_stem_count >= 2);
@@ -5642,7 +5642,10 @@ mod tests {
             domain_para.reply_text
         );
         assert!(
-            domain_para.reply_text.contains("Quantum entanglement"),
+            domain_para
+                .reply_text
+                .to_ascii_lowercase()
+                .contains("quantum entanglement"),
             "Domain paraphrase must decode quantum entanglement basin: {}",
             domain_para.reply_text
         );

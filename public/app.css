@@ -3964,6 +3964,130 @@ select.composer-model-select {
   padding: 0.15rem 0;
 }
 
+.mcp-log-info {
+  color: #a7f3d0;
+}
+
+.mcp-log-notice {
+  color: #93c5fd;
+}
+
+.mcp-log-warning {
+  color: #fcd34d;
+}
+
+.mcp-log-critical {
+  color: #f87171;
+  font-weight: 700;
+}
+
+.mcp-audit-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inspector-sparkline-grid {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 64px;
+  background: var(--bg-surface, #1e293b);
+  padding: 6px;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid var(--border-subtle, #334155);
+}
+
+.sparkline-bar {
+  flex: 1;
+  background: #38bdf8;
+  border-radius: 1px;
+  min-height: 4px;
+  transition: height 0.15s ease, background 0.15s ease;
+}
+
+.sparkline-bar:hover {
+  background: #0284c7;
+}
+
+.sparkline-bar-high {
+  background: #a855f7;
+}
+
+.sparkline-bar-high:hover {
+  background: #9333ea;
+}
+
+.icosian-card {
+  padding: 0.35rem 0.5rem;
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.72rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.icosian-card-dominant {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.icosian-card-title {
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+}
+
+.icosian-card-dominant .icosian-card-title {
+  color: #fbbf24;
+}
+
+.icosian-card-hopf {
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.e8-cell {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-family: monospace;
+  text-align: center;
+  padding: 0.25rem 0.1rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.e8-cell-winner {
+  background: #10b981;
+  color: #ffffff;
+  font-weight: 700;
+  border-color: #059669;
+}
+
+body.density-compact {
+  font-size: 0.8125rem;
+}
+
+body.density-compact .gpt-topbar {
+  padding: 0.4rem 0.75rem;
+}
+
+body.density-compact .chat-turn-bubble {
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+body.density-compact .sidebar-item {
+  padding: 0.3rem 0.5rem;
+}
+
+body.density-compact .canvas-panel {
+  padding: 0.5rem;
+}
+
 .dropzone-active {
   outline: 3px dashed #3b82f6 !important;
   outline-offset: -3px;

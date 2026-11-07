@@ -487,6 +487,9 @@
               <div id="mcp-audit-log" class="mcp-audit-log" role="log" aria-live="polite">
                 <div class="mcp-log-item">[Bootstrap] MCP in-browser sandbox active with pure local safety policies.</div>
               </div>
+              <div class="mcp-audit-actions">
+                <button id="mcp-audit-export-btn" type="button" class="btn-secondary btn-sm">Export Secops Audit Journal (NDJSON)</button>
+              </div>
             </div>
           </div>
         </div>
@@ -964,53 +967,53 @@
           <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
             <div class="neural-3d-toolbar">
               <div class="neural-3d-title-group">
-                <span class="neural-3d-title">3D Holographic Brain &middot; OSPF Synaptic Router &amp; Starling Flock</span>
+                <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics &amp; Starling Flock Attention ($k=7$)</span>
                 <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
               </div>
               <div class="neural-3d-controls">
-                <button id="neural-3d-pulse-btn" type="button" class="neural-btn" title="Fire New OSPF Action-Potential Cascade">Fire OSPF Cascade</button>
-                <button id="neural-3d-labels-toggle" type="button" class="neural-btn" title="Toggle 3D Anatomical &amp; Hop Labels">Labels: ON</button>
+                <button id="neural-3d-pulse-btn" type="button" class="neural-btn" title="Fire New Lagrangian Action Cascade">Fire Geodesic Cascade</button>
+                <button id="neural-3d-labels-toggle" type="button" class="neural-btn" title="Toggle 3D Mathematical &amp; Route Labels">Labels: ON</button>
                 <button id="neural-3d-reset-btn" type="button" class="neural-btn" title="Reset Camera (Center View)">Reset Camera</button>
                 <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
               </div>
             </div>
-            <div class="neural-cognitive-stages" aria-label="Live Cognitive &amp; Next-Token Prediction Stages">
+            <div class="neural-cognitive-stages" aria-label="Live Geometric &amp; Next-Token Prediction Stages">
               <div class="cognitive-stage-pill active" id="neural-stage-context">
-                <span class="stage-step">1. Context Carry (Thalamus)</span>
+                <span class="stage-step">1. Cl(0,6) Multivectors</span>
                 <code id="neural-stage-context-val">256D Q12</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-attention">
-                <span class="stage-step">2. Starling Flock (Parietal)</span>
+                <span class="stage-step">2. Starling Flock (k=7)</span>
                 <code id="neural-stage-attention-val">8-Head Swarm</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-radix">
-                <span class="stage-step">3. Memory Recall (Temporal)</span>
+                <span class="stage-step">3. Memory Basins (/8)</span>
                 <code id="neural-stage-radix-val">17,408 Basins</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-horizon">
-                <span class="stage-step">4. OSPF Token Route (Frontal)</span>
-                <code id="neural-stage-horizon-val">Min-L1 Hop</code>
+                <span class="stage-step">4. Geodesic (&delta;S=0)</span>
+                <code id="neural-stage-horizon-val">Least-Action</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-backprop">
-                <span class="stage-step">5. Memory Write-Back (Limbic)</span>
-                <code id="neural-stage-backprop-val">Engram Store</code>
+                <span class="stage-step">5. Icosian Roots Z[&phi;]</span>
+                <code id="neural-stage-backprop-val">17 Roots</code>
               </div>
             </div>
             <div class="neural-3d-canvas-wrap">
               <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="440" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
               <div id="neural-3d-labels" class="neural-3d-labels" aria-hidden="true"></div>
             </div>
-            <div id="neural-ospf-ticker" class="neural-ospf-ticker" aria-label="Live OSPF Synaptic Token Route &amp; Cluster Charge">
-              <span class="ospf-ticker-badge">OSPF SYNAPTIC ROUTE</span>
-              <span id="neural-ospf-route-text" class="ospf-ticker-route">Brainstem Ingress &rarr; Thalamus 256D Context &rarr; Temporal /8 Recall &rarr; Prefrontal Token Hops &rarr; Hippocampus Write-Back</span>
+            <div id="neural-ospf-ticker" class="neural-ospf-ticker" aria-label="Live Geodesic Token Route &amp; Least Action Dynamics">
+              <span class="ospf-ticker-badge">GEODESIC ACTION ROUTE</span>
+              <span id="neural-ospf-route-text" class="ospf-ticker-route">Token Ingress &rarr; Clifford Holonomy &rarr; Radix /8 Basins &rarr; Lagrangian Minimization &rarr; Memory Admission</span>
             </div>
-            <div class="neural-3d-legend" aria-label="3D Neural Process Legend">
-              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Neuron Clusters (Charge &amp; Burst Release)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>OSPF Min-L1 Token Route &amp; Hop Packets</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Starling Flock Attention Swarm (96 Boids)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>LSA Probe Waves &amp; Corpus Callosum</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>Persistent Turn Memory Engrams (Temporal)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>Hippocampal Memory Write-Back Arc</span></div>
+            <div class="neural-3d-legend" aria-label="3D Mathematical Process Legend">
+              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Clifford Cl(0,6) Graded Subspaces (0..6)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Lagrangian Geodesic Path &amp; Action Wavefronts (&delta;S=0)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Starling Flock Attention Swarm (k=7 Murmuration, 8 Heads)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Riemannian Equipotential Basin Energy Mesh (-V_basin)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>17 Icosian Golden Quaternions (Z[&phi;] in H)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>Radix /8 PointKey Basins (17,408 Attractors)</span></div>
             </div>
           </div>
 

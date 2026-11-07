@@ -1,0 +1,9 @@
+* text eol=lf
+*.uorlut binary
+*.wasm binary
+*.holo binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.tar.gz binary
+*.gz binary
