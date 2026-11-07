@@ -2978,7 +2978,7 @@ target_reply = "At row_idx=2545 with anchor_id=0x80000187, Q12 writer refinement
 
 [[claim]]
 id = "R4-F191"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -2989,6 +2989,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:icine-vent:r2534:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f191_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging icine and vent across PointKey row 2534 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect icine and vent across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects icine and vent by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -3051,3 +3052,17 @@ kappa = "r4:v1:manifold:open-basin:work-land:r3147:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging work and land across PointKey row 3147 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect work and land across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects work and land by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F196"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:ance-work:r3793:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems ance and work at manifold row 3793."
+prompt = "How does PointKey routing resolve conversational prompts about ance and work?"
+target_reply = "PointKey routing matches conversational stems ance and work directly to their canonical reply anchor without token loops."
