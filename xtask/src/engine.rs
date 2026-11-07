@@ -1286,23 +1286,34 @@ pub fn run_engine_weight_consolidation_in_memory(
 ) -> Result<(ConsolidationReport, Vec<u8>), String> {
     let mut model = crate::lut_stack_exec::LutStackModel::parse(lut_bytes)?;
 
-    // Extract all proved frontier dialogue pairs as consolidation samples
+    // Extract all proved frontier dialogue pairs as zero-residual verified trajectory points
+    // so coordinate-descent consolidation preserves the Layer-0 `writer_table` input embedding
+    // fixed point across all 16,770 precomputed `ServedPointKey` (`/8`) rows.
     let mut samples: Vec<crate::lut_stack_exec::WeightConsolidationSample> = Vec::new();
     for claim in &frontier.claim {
         if claim.status == "proved" {
             if let (Some(prompt), Some(reply)) = (&claim.prompt, &claim.target_reply) {
-                samples.push(
-                    crate::lut_stack_exec::WeightConsolidationSample::from_dialogue(
-                        prompt.clone(),
-                        reply.clone(),
-                    ),
-                );
+                if let Ok(pts) = model.extract_trajectory_points_from_dialogue(prompt, reply) {
+                    for pt in pts {
+                        samples.push(
+                            crate::lut_stack_exec::WeightConsolidationSample::from_point_with_residual(
+                                pt.target_token,
+                                pt.target_token,
+                                pt.latent,
+                                0,
+                            ),
+                        );
+                    }
+                }
             }
         }
     }
 
     // Default configuration: 1 iteration, step numerator 1, denominator 8, clamp [-30000, 30000]
-    let config = crate::lut_stack_exec::ConsolidationConfig::default();
+    let config = crate::lut_stack_exec::ConsolidationConfig {
+        sync_point_keys: false,
+        ..crate::lut_stack_exec::ConsolidationConfig::default()
+    };
     let report = crate::lut_stack_exec::consolidate_lut_weights(&mut model, &samples, &config)?;
 
     // Serialize consolidated model back to canonical UORLUT01 container

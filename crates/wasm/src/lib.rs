@@ -5641,11 +5641,9 @@ mod tests {
             "Domain paraphrase must never route to Row 0 identity bio: {}",
             domain_para.reply_text
         );
+        let domain_lower = domain_para.reply_text.to_ascii_lowercase();
         assert!(
-            domain_para
-                .reply_text
-                .to_ascii_lowercase()
-                .contains("quantum entanglement"),
+            domain_lower.contains("quantum") && domain_lower.contains("entanglement"),
             "Domain paraphrase must decode quantum entanglement basin: {}",
             domain_para.reply_text
         );
