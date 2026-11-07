@@ -2427,13 +2427,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-07T13:54:23Z"
 
-[[tick]]
-id = "2026-11-07T11:49:53Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F239"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:open-basin:ions-change:r10711:k=14"
+strategy = "corpus-induction"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-07T14:04:39Z"
 
 [[tick]]
 id = "2026-11-07T12:00:35Z"
@@ -2545,4 +2545,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F250"]
+minted = 16
+
+[[tick]]
+id = "2026-11-07T14:04:39Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F251"]
 minted = 16
