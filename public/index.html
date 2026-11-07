@@ -24,70 +24,175 @@
         <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
       </div>
 
-      <div class="sidebar-section">
-        <div class="sidebar-section-header">
-          <span class="sidebar-heading">Conversations</span>
-          <button id="clear-all-threads-btn" type="button" class="sidebar-action-icon-btn" title="Clear all threads" aria-label="Clear all threads">&times;</button>
+      <!-- Collapsible Navigation Views: Planning, Pool & Review, History, Projects -->
+      <nav class="sidebar-views-nav" role="tablist" aria-label="Sidebar Navigation Modes">
+        <button id="sidebar-view-btn-history" type="button" class="sidebar-view-btn active" role="tab" aria-selected="true" data-view="history" title="Chat History &amp; Sessions">Chat</button>
+        <button id="sidebar-view-btn-planning" type="button" class="sidebar-view-btn" role="tab" aria-selected="false" data-view="planning" title="Task Planning DAG">Plan</button>
+        <button id="sidebar-view-btn-pool" type="button" class="sidebar-view-btn" role="tab" aria-selected="false" data-view="pool" title="Agentic Pool Status &amp; Review">Pool</button>
+        <button id="sidebar-view-btn-projects" type="button" class="sidebar-view-btn" role="tab" aria-selected="false" data-view="projects" title="Virtual Workspace &amp; Projects">Projects</button>
+      </nav>
+
+      <!-- View 1: History Panel (Active by default) -->
+      <div id="sidebar-panel-history" class="sidebar-view-panel active">
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">Conversations</span>
+            <button id="clear-all-threads-btn" type="button" class="sidebar-action-icon-btn" title="Clear all threads" aria-label="Clear all threads">&times;</button>
+          </div>
+          <ul id="chat-thread-list" class="thread-list" aria-label="Chat Threads"></ul>
         </div>
-        <ul id="chat-thread-list" class="thread-list" aria-label="Chat Threads"></ul>
+
+        <details class="sidebar-collapsible" open>
+          <summary class="sidebar-heading sidebar-summary">Cowork Canvas Drawers</summary>
+          <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
+            <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
+              <span>Engine &amp; ArXiv</span>
+              <span id="sidebar-feed-badge" class="sidebar-pill">R4-F103</span>
+            </button>
+            <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
+              <span>Consolidate</span>
+              <span id="sidebar-consolidation-badge" class="sidebar-pill">Worker</span>
+            </button>
+            <button id="sidebar-traces-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="traces">
+              <span>OTel Traces</span>
+              <span id="sidebar-traces-badge" class="sidebar-pill">u16</span>
+            </button>
+            <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
+              <span>Code Editor</span>
+              <span id="workspace-pinned-badge" class="sidebar-pill">2 files</span>
+            </button>
+            <button id="sidebar-diff-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diff">
+              <span>Diff Stage</span>
+              <span id="sidebar-diff-badge" class="sidebar-pill">Patch</span>
+            </button>
+            <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
+              <span>API &amp; 27/27</span>
+              <span class="sidebar-pill">/v1</span>
+            </button>
+          </div>
+        </details>
+
+        <details class="sidebar-collapsible">
+          <summary class="sidebar-heading sidebar-summary">Starter Missions (7)</summary>
+          <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
+              Agentic Patch: src/attention.rs
+            </button>
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="How does Direct Preference Optimization align language models without reinforcement learning?">
+              ArXiv 2403.05530: DPO Synthesis
+            </button>
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Transformers work vs UOR-R4">
+              Transformers vs. UOR-R4 GLLM
+            </button>
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a Python quicksort algorithm">
+              Python 3-Way Ternary Quicksort
+            </button>
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a binary search in Rust">
+              Rust Zero-Float Binary Search
+            </button>
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="What is (144 * 25) + 89?">
+              Exact M6 Place-Value Math
+            </button>
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Summarize the files in this workspace">
+              Audit Workspace Architecture
+            </button>
+          </div>
+        </details>
       </div>
 
-      <details class="sidebar-collapsible" open>
-        <summary class="sidebar-heading sidebar-summary">Cowork Canvas Drawers</summary>
-        <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
-          <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
-            <span>Engine &amp; ArXiv</span>
-            <span id="sidebar-feed-badge" class="sidebar-pill">R4-F103</span>
-          </button>
-          <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
-            <span>Consolidate</span>
-            <span id="sidebar-consolidation-badge" class="sidebar-pill">Worker</span>
-          </button>
-          <button id="sidebar-traces-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="traces">
-            <span>OTel Traces</span>
-            <span id="sidebar-traces-badge" class="sidebar-pill">u16</span>
-          </button>
-          <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
-            <span>Code Editor</span>
-            <span id="workspace-pinned-badge" class="sidebar-pill">2 files</span>
-          </button>
-          <button id="sidebar-diff-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diff">
-            <span>Diff Stage</span>
-            <span id="sidebar-diff-badge" class="sidebar-pill">Patch</span>
-          </button>
-          <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
-            <span>API &amp; 27/27</span>
-            <span class="sidebar-pill">/v1</span>
-          </button>
+      <!-- View 2: Planning Panel -->
+      <div id="sidebar-panel-planning" class="sidebar-view-panel" hidden>
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">Agentic Planning DAG</span>
+          </div>
+          <div id="plan-dag-diagram" class="plan-dag-container" aria-label="Agentic Task DAG Flow">
+            <div class="dag-node dag-done"><span class="dag-badge">&#10003;</span> Ingest Prompt &amp; Context</div>
+            <div class="dag-arrow">&#8595;</div>
+            <div class="dag-node dag-active"><span class="dag-badge">&#9654;</span> Coordinate Descent &amp; Routing</div>
+            <div class="dag-arrow">&#8595;</div>
+            <div class="dag-node dag-pending"><span class="dag-badge">&#9711;</span> Synthesize Diff &amp; Tool Calls</div>
+            <div class="dag-arrow">&#8595;</div>
+            <div class="dag-node dag-pending"><span class="dag-badge">&#9711;</span> Verify Invariants &amp; Closure</div>
+          </div>
         </div>
-      </details>
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">Task Checklist</span>
+          </div>
+          <ul id="plan-checklist" class="plan-task-list" aria-label="Active Plan Checklist">
+            <li class="plan-task-item done"><span class="check-icon">&#9745;</span> 3D Dual-Hemisphere &amp; Corpus Callosum</li>
+            <li class="plan-task-item done"><span class="check-icon">&#9745;</span> Pure In-Browser LaTeX Math AST</li>
+            <li class="plan-task-item active"><span class="check-icon">&#9654;</span> In-Browser Stateful Terminal (lexlean-sh)</li>
+            <li class="plan-task-item"><span class="check-icon">&#9744;</span> Subagent Pool Diff Review Queue</li>
+            <li class="plan-task-item"><span class="check-icon">&#9744;</span> Zero-Network Browser Closure Audit</li>
+          </ul>
+        </div>
+      </div>
 
-      <details class="sidebar-collapsible">
-        <summary class="sidebar-heading sidebar-summary">Starter Missions (7)</summary>
-        <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
-            Agentic Patch: src/attention.rs
-          </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="How does Direct Preference Optimization align language models without reinforcement learning?">
-            ArXiv 2403.05530: DPO Synthesis
-          </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Transformers work vs UOR-R4">
-            Transformers vs. UOR-R4 GLLM
-          </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a Python quicksort algorithm">
-            Python 3-Way Ternary Quicksort
-          </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a binary search in Rust">
-            Rust Zero-Float Binary Search
-          </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="What is (144 * 25) + 89?">
-            Exact M6 Place-Value Math
-          </button>
-          <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Summarize the files in this workspace">
-            Audit Workspace Architecture
-          </button>
+      <!-- View 3: Pool & Review Panel -->
+      <div id="sidebar-panel-pool" class="sidebar-view-panel" hidden>
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">Subagent Pool Status</span>
+          </div>
+          <div id="pool-status-grid" class="pool-grid" aria-label="Subagent Allocation Grid">
+            <div class="pool-card pool-card-active">
+              <div class="pool-card-role">Planner</div>
+              <div class="pool-card-status">Active &middot; Step 2/5</div>
+              <div class="pool-card-detail">DAG Topological Sweep</div>
+            </div>
+            <div class="pool-card pool-card-active">
+              <div class="pool-card-role">Coder</div>
+              <div class="pool-card-status">Active &middot; Pure Wasm</div>
+              <div class="pool-card-detail">Generating Diff Patch</div>
+            </div>
+            <div class="pool-card">
+              <div class="pool-card-role">Reviewer</div>
+              <div class="pool-card-status">Standby &middot; Ready</div>
+              <div class="pool-card-detail">Awaiting Code Staging</div>
+            </div>
+            <div class="pool-card pool-card-active">
+              <div class="pool-card-role">Verifier</div>
+              <div class="pool-card-status">Active &middot; Invariants</div>
+              <div class="pool-card-detail">Zero-Float Verification</div>
+            </div>
+          </div>
         </div>
-      </details>
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">Review Diff Queue</span>
+          </div>
+          <div id="pool-review-queue" class="pool-review-card" aria-label="Pending Diff Review Queue">
+            <div class="pool-review-file">File: <code>src/attention.rs</code></div>
+            <div class="pool-review-stats">+24 / -6 lines &middot; Cyclic Flock</div>
+            <div class="pool-review-actions">
+              <button id="pool-review-approve-btn" type="button" class="btn-primary btn-sm">Approve Patch</button>
+              <button id="pool-review-reject-btn" type="button" class="btn-secondary btn-sm">Reject</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View 4: Projects Panel -->
+      <div id="sidebar-panel-projects" class="sidebar-view-panel" hidden>
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">Project Selector</span>
+          </div>
+          <select id="sidebar-project-select" class="sidebar-select" aria-label="Select Active Project">
+            <option value="lexlean-r4" selected>lexlean-r4 (Primary Local)</option>
+            <option value="scratchpad">scratchpad (Virtual Memory)</option>
+          </select>
+          <div id="sidebar-workspace-summary" class="workspace-summary-box">
+            <div><strong>Repository:</strong> lexlean-r4</div>
+            <div><strong>Branch:</strong> <code class="git-branch-pill">main</code> (0 uncommitted)</div>
+            <div><strong>Engine:</strong> <code class="git-branch-pill">wasm32-unknown-unknown</code></div>
+            <div><strong>LUT Stack:</strong> <code>uor-r4.lut-stack/8</code></div>
+            <div class="summary-hint">Files are stored in browser memory with SHA-256 state receipts.</div>
+          </div>
+        </div>
+      </div>
 
       <div class="sidebar-footer">
         <div class="sidebar-model-status">
@@ -108,6 +213,7 @@
           <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
         </div>
         <div class="topbar-actions">
+          <button id="topbar-terminal-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="terminal">Terminal</button>
           <button id="topbar-feed-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="feed">Engine &amp; ArXiv (10)</button>
           <button id="topbar-consolidation-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="consolidation">Consolidate Weights</button>
           <button id="topbar-traces-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="traces">OTel Traces</button>
@@ -115,6 +221,7 @@
           <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics">API &amp; 27/27</button>
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
+          <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Right Drawer" aria-label="Toggle Right Drawer">&#9881; Drawer</button>
         </div>
       </header>
 
@@ -218,6 +325,21 @@
             <span>3D Brain &amp; OTel</span>
             <span class="canvas-tab-pill">WebGL2 &middot; u16</span>
           </button>
+          <button id="canvas-tab-terminal" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-terminal" data-tab-id="terminal">
+            <span>Terminal</span>
+            <span class="canvas-tab-pill">lexlean-sh</span>
+          </button>
+          <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
+            <span>ML Inspector</span>
+            <span class="canvas-tab-pill">256D Q12</span>
+          </button>
+          <button id="canvas-tab-mcp" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-mcp" data-tab-id="mcp">
+            <span>MCP Tools</span>
+            <span class="canvas-tab-pill">Local Safe</span>
+          </button>
+          <button id="canvas-tab-customizations" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-customizations" data-tab-id="customizations">
+            <span>Customizations</span>
+          </button>
           <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
             <span>Engine &amp; ArXiv</span>
             <span class="canvas-tab-pill">R4-F204 &middot; 10</span>
@@ -241,6 +363,174 @@
       </div>
 
       <div class="canvas-body">
+        <!-- Terminal Panel -->
+        <div id="canvas-panel-terminal" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-terminal" tabindex="0" hidden>
+          <div id="terminal-container" class="terminal-container">
+            <div id="terminal-topbar" class="terminal-topbar">
+              <div class="terminal-title">
+                <span class="terminal-dot term-red"></span>
+                <span class="terminal-dot term-yellow"></span>
+                <span class="terminal-dot term-green"></span>
+                <span class="terminal-name">lexlean-sh &mdash; In-Browser Stateful Control Plane</span>
+              </div>
+              <div class="terminal-actions">
+                <button id="terminal-clear-btn" type="button" class="btn-terminal-action">Clear</button>
+                <button id="terminal-reset-btn" type="button" class="btn-terminal-action">Reset Engine</button>
+              </div>
+            </div>
+            <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-label="Terminal scrollback output"></div>
+            <form id="terminal-form" class="terminal-form" novalidate>
+              <label id="terminal-prompt-label" for="terminal-input" class="terminal-prompt">lexlean-sh $</label>
+              <input id="terminal-input" type="text" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Terminal Command Input">
+            </form>
+          </div>
+        </div>
+
+        <!-- ML Inspector Panel -->
+        <div id="canvas-panel-inspector" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-inspector" tabindex="0" hidden>
+          <div class="inspector-panel-container">
+            <div class="pane-subheader">
+              <strong>ML &amp; Geometric Coordinate Inspector</strong>
+              <span class="metric-code">256D Q12 Latent Space</span>
+            </div>
+            <div class="inspector-section">
+              <h4>256D Latent Projection Activation Sparkline</h4>
+              <div id="inspector-sparkline" class="inspector-sparkline-grid" aria-label="Latent Vector Activation Sparkline"></div>
+            </div>
+            <div class="inspector-section">
+              <h4>Clifford $\mathcal{C}\ell(0,6)$ Graded Subspaces ($2^6 = 64$ Basis Elements)</h4>
+              <div id="inspector-clifford-grades" class="inspector-clifford-grid">
+                <div class="grade-cell"><span class="grade-title">Gr 0 (Scalar)</span><span class="grade-dim">1 dim</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 1 (Vector)</span><span class="grade-dim">6 dim</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 2 (Bivector)</span><span class="grade-dim">15 dim</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 3 (Trivector)</span><span class="grade-dim">20 dim</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 4 (4-Vector)</span><span class="grade-dim">15 dim</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 5 (5-Vector)</span><span class="grade-dim">6 dim</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 6 (Pseudoscalar)</span><span class="grade-dim">1 dim</span></div>
+              </div>
+            </div>
+            <div class="inspector-section">
+              <h4>Icosian Golden Quaternion Roots ($\mathbb{Z}[\phi], 17\text{ Roots}$)</h4>
+              <div id="inspector-icosian-roots" class="inspector-icosian-list"></div>
+            </div>
+            <div class="inspector-section">
+              <h4>E8 Lattice Root Occupancy ($16\times 64\times 17 = 17,408\text{ Basins}$)</h4>
+              <div id="inspector-e8-grid" class="inspector-e8-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MCP Tool Management Panel -->
+        <div id="canvas-panel-mcp" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-mcp" tabindex="0" hidden>
+          <div class="mcp-panel-container">
+            <div class="pane-subheader">
+              <strong>Model Context Protocol (MCP) Tool Registry</strong>
+              <span class="metric-code">In-Browser Sandbox</span>
+            </div>
+            <div class="field">
+              <label for="mcp-policy-select">Execution Security Policy</label>
+              <select id="mcp-policy-select" class="sidebar-select">
+                <option value="safe" selected>Safe Local Execution (Pure In-Browser)</option>
+                <option value="confirm">Ask Before Execution</option>
+                <option value="deny">Deny All Tool Calls</option>
+              </select>
+            </div>
+            <div class="inspector-section">
+              <h4>Available Pure Local Tools (6)</h4>
+              <div id="mcp-tools-list" class="mcp-tools-list">
+                <div class="mcp-tool-card">
+                  <div class="mcp-tool-header">
+                    <strong>workspace_read</strong>
+                    <span class="mcp-badge">Local Read</span>
+                  </div>
+                  <div class="mcp-tool-desc">Reads text content from the virtual in-memory workspace file system.</div>
+                </div>
+                <div class="mcp-tool-card">
+                  <div class="mcp-tool-header">
+                    <strong>workspace_write</strong>
+                    <span class="mcp-badge">Local Write</span>
+                  </div>
+                  <div class="mcp-tool-desc">Writes or updates a virtual file with cryptographic SHA-256 receipt generation.</div>
+                </div>
+                <div class="mcp-tool-card">
+                  <div class="mcp-tool-header">
+                    <strong>geometric_dijkstra_route</strong>
+                    <span class="mcp-badge">Wasm Math</span>
+                  </div>
+                  <div class="mcp-tool-desc">Computes minimum L1 distance routing across cortical cluster waypoints.</div>
+                </div>
+                <div class="mcp-tool-card">
+                  <div class="mcp-tool-header">
+                    <strong>clifford_bivector_wedge</strong>
+                    <span class="mcp-badge">Wasm Math</span>
+                  </div>
+                  <div class="mcp-tool-desc">Evaluates outer wedge products $\mathbf{u} \wedge \mathbf{v}$ over $\mathcal{C}\ell(0,6)$ graded blades.</div>
+                </div>
+                <div class="mcp-tool-card">
+                  <div class="mcp-tool-header">
+                    <strong>subsystem_prime_gcd</strong>
+                    <span class="mcp-badge">Wasm Math</span>
+                  </div>
+                  <div class="mcp-tool-desc">Evaluates exact Euclidean GCD across 128-bit integer coordinates.</div>
+                </div>
+                <div class="mcp-tool-card">
+                  <div class="mcp-tool-header">
+                    <strong>coordinate_descent_sweep</strong>
+                    <span class="mcp-badge">Local Optimizer</span>
+                  </div>
+                  <div class="mcp-tool-desc">Executes discrete integer coordinate descent over `.uorlut` lookup tables.</div>
+                </div>
+              </div>
+            </div>
+            <div class="inspector-section">
+              <h4>Tool Execution Audit Log</h4>
+              <div id="mcp-audit-log" class="mcp-audit-log" role="log" aria-live="polite">
+                <div class="mcp-log-item">[Bootstrap] MCP in-browser sandbox active with pure local safety policies.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customizations Panel -->
+        <div id="canvas-panel-customizations" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-customizations" tabindex="0" hidden>
+          <div class="customizations-panel-container">
+            <div class="pane-subheader">
+              <strong>Interface &amp; Engine Customizations</strong>
+              <span class="metric-code">Client Config</span>
+            </div>
+            <div class="field">
+              <label for="custom-theme-toggle">
+                <input type="checkbox" id="custom-theme-toggle">
+                <span>Enable Warm Light Theme (Default: Obsidian Dark)</span>
+              </label>
+            </div>
+            <div class="field">
+              <label for="custom-mode-select">Agentic Operating Mode</label>
+              <select id="custom-mode-select" class="sidebar-select">
+                <option value="coding" selected>Agentic Coding Harness (with diffs and virtual workspace)</option>
+                <option value="math">Mathematical Research &amp; Formal Verification</option>
+                <option value="fast">Fast Latent Inference (Low Latency)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="custom-retain-lambda">Memory Retain Factor ($\lambda$)</label>
+              <input type="range" id="custom-retain-lambda" min="0" max="1" step="0.05" value="0.85">
+              <span class="field-hint">Controls decay rate of prior conversation turns in 256D latent carry-forward buffer.</span>
+            </div>
+            <div class="field">
+              <label for="custom-plurality-votes">Plurality Voting Ensemble Heads ($K$)</label>
+              <input type="number" id="custom-plurality-votes" min="1" max="16" value="8">
+              <span class="field-hint">Number of independent cyclic flock attention heads participating in consensus.</span>
+            </div>
+            <div class="field">
+              <label for="custom-density-select">UI Density</label>
+              <select id="custom-density-select" class="sidebar-select">
+                <option value="comfortable">Comfortable</option>
+                <option value="compact" selected>Compact (Claude-Code Obsidian)</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <!-- Tab 1: Workspace & Editor Panel -->
         <div id="canvas-panel-workspace" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0" hidden>
           <div class="workspace-panel-grid">

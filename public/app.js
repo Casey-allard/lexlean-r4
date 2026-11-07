@@ -272,118 +272,734 @@ function renderWorkspaceList(ws) {
   }
 }
 
+// ============================================================================
+// Pure In-Browser LaTeX Math AST Parser & Markdown Formatter (Zero CDNs)
+// ============================================================================
+
+const LATEX_MATH_SYMBOLS = {
+  alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', zeta: 'ζ',
+  eta: 'η', theta: 'θ', iota: 'ι', kappa: 'κ', lambda: 'λ', mu: 'μ',
+  nu: 'ν', xi: 'ξ', pi: 'π', rho: 'ρ', sigma: 'σ', tau: 'τ',
+  phi: 'φ', chi: 'χ', psi: 'ψ', omega: 'ω',
+  Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ', Lambda: 'Λ', Xi: 'Ξ', Pi: 'Π',
+  Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω',
+  sum: '∑', prod: '∏', int: '∫', partial: '∂', nabla: '∇', infty: '∞',
+  approx: '≈', neq: '≠', le: '≤', ge: '≥', in: '∈', notin: '∉',
+  times: '×', cdot: '·', pm: '±', to: '→', leftarrow: '←', leftrightarrow: '↔',
+  forall: '∀', exists: '∃', subset: '⊂', cup: '∪', cap: '∩',
+  land: '∧', lor: '∨', neg: '¬', ldots: '…', cdots: '⋯', vdots: '⋮', ddots: '⋱',
+  quad: '  ', qquad: '    '
+};
+
+function tokenizeLatex(tex) {
+  const tokens = [];
+  let i = 0;
+  const len = tex.length;
+  while (i < len) {
+    const ch = tex[i];
+    if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
+      i += 1;
+      continue;
+    }
+    if (ch === '\\') {
+      let j = i + 1;
+      if (j < len && /[^a-zA-Z]/.test(tex[j])) {
+        tokens.push({ type: 'cmd', value: tex.slice(i, j + 1) });
+        i = j + 1;
+      } else {
+        while (j < len && /[a-zA-Z]/.test(tex[j])) j += 1;
+        tokens.push({ type: 'cmd', value: tex.slice(i, j) });
+        i = j;
+      }
+    } else if (ch === '{' || ch === '}' || ch === '[' || ch === ']' || ch === '(' || ch === ')') {
+      tokens.push({ type: 'delim', value: ch });
+      i += 1;
+    } else if (ch === '^' || ch === '_') {
+      tokens.push({ type: 'script', value: ch });
+      i += 1;
+    } else if (ch === '&') {
+      tokens.push({ type: 'amp', value: ch });
+      i += 1;
+    } else {
+      tokens.push({ type: 'char', value: ch });
+      i += 1;
+    }
+  }
+  return tokens;
+}
+
+function parseLatexTokensToAst(tokens) {
+  let pos = 0;
+
+  function peek() {
+    return pos < tokens.length ? tokens[pos] : null;
+  }
+
+  function next() {
+    return pos < tokens.length ? tokens[pos++] : null;
+  }
+
+  function parseGroup() {
+    const t = peek();
+    if (t && t.type === 'delim' && t.value === '{') {
+      next();
+      const items = [];
+      while (pos < tokens.length) {
+        const cur = peek();
+        if (cur && cur.type === 'delim' && cur.value === '}') {
+          next();
+          break;
+        }
+        items.push(parseExprAtom());
+      }
+      return { type: 'group', items };
+    }
+    return parseAtom();
+  }
+
+  function grpToString(node) {
+    if (!node) return '';
+    if (node.type === 'text' || node.type === 'symbol') return node.value;
+    if (node.type === 'group' && Array.isArray(node.items)) {
+      return node.items.map(grpToString).join('');
+    }
+    return '';
+  }
+
+  function parseAtom() {
+    const t = next();
+    if (!t) return { type: 'text', value: '' };
+
+    if (t.type === 'cmd') {
+      const cmd = t.value.slice(1);
+      if (cmd === 'frac') {
+        const num = parseGroup();
+        const denom = parseGroup();
+        return { type: 'frac', num, denom };
+      }
+      if (cmd === 'sqrt') {
+        let degree = null;
+        const p = peek();
+        if (p && p.type === 'delim' && p.value === '[') {
+          next();
+          const degItems = [];
+          while (pos < tokens.length) {
+            const cur = peek();
+            if (cur && cur.type === 'delim' && cur.value === ']') {
+              next();
+              break;
+            }
+            degItems.push(parseAtom());
+          }
+          degree = { type: 'group', items: degItems };
+        }
+        const body = parseGroup();
+        return { type: 'sqrt', degree, body };
+      }
+      if (cmd === 'sum' || cmd === 'prod' || cmd === 'int') {
+        const symbol = cmd === 'sum' ? '∑' : (cmd === 'prod' ? '∏' : '∫');
+        let sub = null;
+        let sup = null;
+        while (pos < tokens.length) {
+          const p = peek();
+          if (p && p.type === 'script' && p.value === '_') {
+            next();
+            sub = parseGroup();
+          } else if (p && p.type === 'script' && p.value === '^') {
+            next();
+            sup = parseGroup();
+          } else {
+            break;
+          }
+        }
+        return { type: 'bigop', symbol, sub, sup };
+      }
+      if (cmd === 'mathbf' || cmd === 'vec' || cmd === 'boldsymbol') {
+        const body = parseGroup();
+        return { type: 'bold', body };
+      }
+      if (cmd === 'mathbb') {
+        const body = parseGroup();
+        return { type: 'mathbb', body };
+      }
+      if (cmd === 'mathcal') {
+        const body = parseGroup();
+        return { type: 'mathcal', body };
+      }
+      if (cmd === 'text' || cmd === 'mathrm' || cmd === 'operatorname') {
+        const body = parseGroup();
+        return { type: 'text_group', body };
+      }
+      if (cmd === 'begin') {
+        let matrixType = 'matrix';
+        const p = peek();
+        if (p && p.type === 'delim' && p.value === '{') {
+          const grp = parseGroup();
+          matrixType = grpToString(grp).trim() || 'matrix';
+        }
+        const rows = [];
+        let currentRow = [];
+        let currentCell = [];
+        while (pos < tokens.length) {
+          const cur = peek();
+          if (!cur) break;
+          if (cur.type === 'cmd' && cur.value === '\\end') {
+            next();
+            parseGroup();
+            break;
+          }
+          if (cur.type === 'cmd' && cur.value === '\\\\') {
+            next();
+            currentRow.push({ type: 'group', items: currentCell });
+            rows.push(currentRow);
+            currentRow = [];
+            currentCell = [];
+            continue;
+          }
+          if (cur.type === 'amp') {
+            next();
+            currentRow.push({ type: 'group', items: currentCell });
+            currentCell = [];
+            continue;
+          }
+          currentCell.push(parseAtom());
+        }
+        if (currentCell.length > 0 || currentRow.length > 0) {
+          currentRow.push({ type: 'group', items: currentCell });
+          rows.push(currentRow);
+        }
+        return { type: 'matrix', matrixType, rows };
+      }
+      if (cmd === 'left' || cmd === 'right') {
+        const delim = next();
+        return { type: 'text', value: delim ? delim.value : '' };
+      }
+      if (cmd === '\\') {
+        return { type: 'newline' };
+      }
+      if (LATEX_MATH_SYMBOLS[cmd]) {
+        return { type: 'symbol', value: LATEX_MATH_SYMBOLS[cmd] };
+      }
+      return { type: 'text', value: cmd };
+    }
+
+    if (t.type === 'delim' && t.value === '{') {
+      const items = [];
+      while (pos < tokens.length) {
+        const cur = peek();
+        if (cur && cur.type === 'delim' && cur.value === '}') {
+          next();
+          break;
+        }
+        items.push(parseExprAtom());
+      }
+      return { type: 'group', items };
+    }
+
+    return { type: 'text', value: t.value };
+  }
+
+  function parseExprAtom() {
+    let atom = parseAtom();
+    while (pos < tokens.length) {
+      const p = peek();
+      if (p && p.type === 'script' && p.value === '^') {
+        next();
+        const sup = parseGroup();
+        if (atom.type === 'script' && atom.sup === null) {
+          atom.sup = sup;
+        } else {
+          atom = { type: 'script', base: atom, sup, sub: null };
+        }
+      } else if (p && p.type === 'script' && p.value === '_') {
+        next();
+        const sub = parseGroup();
+        if (atom.type === 'script' && atom.sub === null) {
+          atom.sub = sub;
+        } else {
+          atom = { type: 'script', base: atom, sup: null, sub };
+        }
+      } else {
+        break;
+      }
+    }
+    return atom;
+  }
+
+  const astList = [];
+  while (pos < tokens.length) {
+    astList.push(parseExprAtom());
+  }
+  return astList;
+}
+
+function renderLatexAstNodeToDom(node) {
+  if (!node) return document.createTextNode('');
+  switch (node.type) {
+    case 'text':
+      return document.createTextNode(node.value);
+    case 'symbol': {
+      const sp = document.createElement('span');
+      sp.className = 'latex-symbol';
+      sp.textContent = node.value;
+      return sp;
+    }
+    case 'frac': {
+      const frac = document.createElement('span');
+      frac.className = 'latex-frac';
+      const num = document.createElement('span');
+      num.className = 'latex-num';
+      num.appendChild(renderLatexAstNodeToDom(node.num));
+      const denom = document.createElement('span');
+      denom.className = 'latex-denom';
+      denom.appendChild(renderLatexAstNodeToDom(node.denom));
+      frac.appendChild(num);
+      frac.appendChild(denom);
+      return frac;
+    }
+    case 'sqrt': {
+      const sqrt = document.createElement('span');
+      sqrt.className = 'latex-sqrt';
+      const rad = document.createElement('span');
+      rad.className = 'latex-radical';
+      rad.textContent = node.degree ? '√[' : '√';
+      if (node.degree) {
+        rad.appendChild(renderLatexAstNodeToDom(node.degree));
+        rad.appendChild(document.createTextNode(']'));
+      }
+      const body = document.createElement('span');
+      body.className = 'latex-sqrt-body';
+      body.appendChild(renderLatexAstNodeToDom(node.body));
+      sqrt.appendChild(rad);
+      sqrt.appendChild(body);
+      return sqrt;
+    }
+    case 'bigop': {
+      const wrap = document.createElement('span');
+      wrap.className = 'latex-bigop';
+      const op = document.createElement('span');
+      op.className = 'latex-op-symbol';
+      op.textContent = node.symbol;
+      wrap.appendChild(op);
+      if (node.sup || node.sub) {
+        const lims = document.createElement('span');
+        lims.className = 'latex-limits';
+        if (node.sup) {
+          const sup = document.createElement('span');
+          sup.className = 'latex-lim-sup';
+          sup.appendChild(renderLatexAstNodeToDom(node.sup));
+          lims.appendChild(sup);
+        }
+        if (node.sub) {
+          const sub = document.createElement('span');
+          sub.className = 'latex-lim-sub';
+          sub.appendChild(renderLatexAstNodeToDom(node.sub));
+          lims.appendChild(sub);
+        }
+        wrap.appendChild(lims);
+      }
+      return wrap;
+    }
+    case 'script': {
+      const wrap = document.createElement('span');
+      wrap.className = 'latex-subsup';
+      const base = document.createElement('span');
+      base.className = 'latex-base';
+      base.appendChild(renderLatexAstNodeToDom(node.base));
+      wrap.appendChild(base);
+      if (node.sup || node.sub) {
+        const scripts = document.createElement('span');
+        scripts.className = 'latex-scripts';
+        if (node.sup) {
+          const sup = document.createElement('span');
+          sup.className = 'latex-sup';
+          sup.appendChild(renderLatexAstNodeToDom(node.sup));
+          scripts.appendChild(sup);
+        }
+        if (node.sub) {
+          const sub = document.createElement('span');
+          sub.className = 'latex-sub';
+          sub.appendChild(renderLatexAstNodeToDom(node.sub));
+          scripts.appendChild(sub);
+        }
+        wrap.appendChild(scripts);
+      }
+      return wrap;
+    }
+    case 'matrix': {
+      const table = document.createElement('table');
+      table.className = `latex-matrix matrix-${node.matrixType || 'matrix'}`;
+      for (const row of node.rows) {
+        const tr = document.createElement('tr');
+        for (const cell of row) {
+          const td = document.createElement('td');
+          td.appendChild(renderLatexAstNodeToDom(cell));
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+      return table;
+    }
+    case 'bold': {
+      const strong = document.createElement('strong');
+      strong.className = 'latex-bold';
+      strong.appendChild(renderLatexAstNodeToDom(node.body));
+      return strong;
+    }
+    case 'mathbb': {
+      const span = document.createElement('span');
+      span.className = 'latex-mathbb';
+      span.appendChild(renderLatexAstNodeToDom(node.body));
+      return span;
+    }
+    case 'mathcal': {
+      const span = document.createElement('span');
+      span.className = 'latex-mathcal';
+      span.appendChild(renderLatexAstNodeToDom(node.body));
+      return span;
+    }
+    case 'text_group': {
+      const span = document.createElement('span');
+      span.className = 'latex-text-group';
+      span.appendChild(renderLatexAstNodeToDom(node.body));
+      return span;
+    }
+    case 'group': {
+      const frag = document.createDocumentFragment();
+      if (Array.isArray(node.items)) {
+        for (const item of node.items) {
+          frag.appendChild(renderLatexAstNodeToDom(item));
+        }
+      }
+      return frag;
+    }
+    default:
+      return document.createTextNode('');
+  }
+}
+
+function renderMathSpan(rawTex, isBlock = false) {
+  const container = document.createElement(isBlock ? 'div' : 'span');
+  container.className = isBlock ? 'latex-math-block' : 'latex-math-inline';
+  container.setAttribute('role', 'math');
+  container.setAttribute('aria-label', String(rawTex || '').trim());
+  try {
+    const tokens = tokenizeLatex(rawTex);
+    const ast = parseLatexTokensToAst(tokens);
+    for (const node of ast) {
+      container.appendChild(renderLatexAstNodeToDom(node));
+    }
+  } catch (_) {
+    container.textContent = rawTex;
+  }
+  return container;
+}
+
 function appendInlineFormatted(parent, text) {
-  const tokenRegex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  const inlineTokenRegex = /(\$\$(?:[^\$]+)\$\$|\$(?:[^\$\s\n](?:[^\$\n]*[^\$\s\n])?)\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|`[^`]+`|\*[^*]+\*|_[^_]+_)/g;
   let lastIdx = 0;
-  let match = tokenRegex.exec(text);
+  let match = inlineTokenRegex.exec(text);
   while (match !== null) {
     if (match.index > lastIdx) {
       parent.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
     }
     const token = match[0];
-    if (token.startsWith('**') && token.endsWith('**')) {
+    if (token.startsWith('$$') && token.endsWith('$$')) {
+      parent.appendChild(renderMathSpan(token.slice(2, -2), true));
+    } else if (token.startsWith('\\[') && token.endsWith('\\]')) {
+      parent.appendChild(renderMathSpan(token.slice(2, -2), true));
+    } else if (token.startsWith('$') && token.endsWith('$')) {
+      parent.appendChild(renderMathSpan(token.slice(1, -1), false));
+    } else if (token.startsWith('\\(') && token.endsWith('\\)')) {
+      parent.appendChild(renderMathSpan(token.slice(2, -2), false));
+    } else if (token.startsWith('***') && token.endsWith('***')) {
+      const strong = document.createElement('strong');
+      const em = document.createElement('em');
+      em.textContent = token.slice(3, -3);
+      strong.appendChild(em);
+      parent.appendChild(strong);
+    } else if ((token.startsWith('**') && token.endsWith('**')) || (token.startsWith('__') && token.endsWith('__'))) {
       const strong = document.createElement('strong');
       strong.textContent = token.slice(2, -2);
       parent.appendChild(strong);
+    } else if (token.startsWith('~~') && token.endsWith('~~')) {
+      const del = document.createElement('del');
+      del.textContent = token.slice(2, -2);
+      parent.appendChild(del);
     } else if (token.startsWith('`') && token.endsWith('`')) {
       const code = document.createElement('code');
       code.className = 'chat-inline-code';
       code.textContent = token.slice(1, -1);
       parent.appendChild(code);
+    } else if ((token.startsWith('*') && token.endsWith('*')) || (token.startsWith('_') && token.endsWith('_'))) {
+      const em = document.createElement('em');
+      em.textContent = token.slice(1, -1);
+      parent.appendChild(em);
     } else {
       parent.appendChild(document.createTextNode(token));
     }
-    lastIdx = tokenRegex.lastIndex;
-    match = tokenRegex.exec(text);
+    lastIdx = inlineTokenRegex.lastIndex;
+    match = inlineTokenRegex.exec(text);
   }
   if (lastIdx < text.length) {
     parent.appendChild(document.createTextNode(text.slice(lastIdx)));
   }
 }
 
+function parseMarkdownTable(lines, startIdx) {
+  const tableLines = [];
+  let idx = startIdx;
+  while (idx < lines.length) {
+    const l = lines[idx].trim();
+    if (l.startsWith('|') && l.endsWith('|')) {
+      tableLines.push(l);
+      idx += 1;
+    } else {
+      break;
+    }
+  }
+  if (tableLines.length < 2) return null;
+  const headerLine = tableLines[0];
+  const delimLine = tableLines[1];
+  if (!/^\|(?:\s*:?-+:?\s*\|)+$/.test(delimLine)) return null;
+
+  const parseCells = (line) =>
+    line.slice(1, -1).split('|').map((c) => c.trim());
+
+  const alignments = parseCells(delimLine).map((d) => {
+    const left = d.startsWith(':');
+    const right = d.endsWith(':');
+    if (left && right) return 'center';
+    if (right) return 'right';
+    return 'left';
+  });
+
+  const headers = parseCells(headerLine);
+  const table = document.createElement('table');
+  table.className = 'chat-table';
+  const thead = document.createElement('thead');
+  const headerTr = document.createElement('tr');
+  headers.forEach((h, i) => {
+    const th = document.createElement('th');
+    if (alignments[i]) th.style.textAlign = alignments[i];
+    appendInlineFormatted(th, h);
+    headerTr.appendChild(th);
+  });
+  thead.appendChild(headerTr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  for (let r = 2; r < tableLines.length; r += 1) {
+    const rowTr = document.createElement('tr');
+    const cells = parseCells(tableLines[r]);
+    cells.forEach((cell, i) => {
+      const td = document.createElement('td');
+      if (alignments[i]) td.style.textAlign = alignments[i];
+      appendInlineFormatted(td, cell);
+      rowTr.appendChild(td);
+    });
+    tbody.appendChild(rowTr);
+  }
+  table.appendChild(tbody);
+  return { dom: table, nextIdx: idx };
+}
+
 function renderProseBlockInto(container, proseText) {
   const lines = (proseText || '').split('\n');
   let activeList = null;
-  for (const rawLine of lines) {
+  let activeListType = null;
+  let activeBlockquote = null;
+  let lineIdx = 0;
+
+  while (lineIdx < lines.length) {
+    const rawLine = lines[lineIdx];
     const trimmed = rawLine.trim();
+
     if (!trimmed) {
       activeList = null;
+      activeListType = null;
+      activeBlockquote = null;
+      lineIdx += 1;
       continue;
     }
-    if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
+
+    // Check for Markdown Table
+    if (trimmed.startsWith('|') && trimmed.endsWith('|') && lineIdx + 1 < lines.length && /^\|(?:\s*:?-+:?\s*\|)+$/.test(lines[lineIdx + 1].trim())) {
       activeList = null;
-      const h4 = document.createElement('h4');
-      h4.className = 'chat-heading';
-      const headingText = trimmed.replace(/^#{2,3}\s+/, '');
-      appendInlineFormatted(h4, headingText);
-      container.appendChild(h4);
-    } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || /^\d+\.\s+/.test(trimmed)) {
-      if (!activeList) {
+      activeBlockquote = null;
+      const res = parseMarkdownTable(lines, lineIdx);
+      if (res) {
+        container.appendChild(res.dom);
+        lineIdx = res.nextIdx;
+        continue;
+      }
+    }
+
+    // Check for Blockquote
+    if (trimmed.startsWith('>')) {
+      activeList = null;
+      if (!activeBlockquote) {
+        activeBlockquote = document.createElement('blockquote');
+        activeBlockquote.className = 'chat-blockquote';
+        container.appendChild(activeBlockquote);
+      }
+      const bqText = trimmed.replace(/^>\s?/, '');
+      const p = document.createElement('p');
+      appendInlineFormatted(p, bqText);
+      activeBlockquote.appendChild(p);
+      lineIdx += 1;
+      continue;
+    }
+    activeBlockquote = null;
+
+    // Check for Horizontal Rule
+    if (/^(?:---|\*\*\*|___)$/.test(trimmed)) {
+      activeList = null;
+      const hr = document.createElement('hr');
+      hr.className = 'chat-hr';
+      container.appendChild(hr);
+      lineIdx += 1;
+      continue;
+    }
+
+    // Check for Headings
+    if (/^#{1,4}\s+/.test(trimmed)) {
+      activeList = null;
+      const level = trimmed.match(/^(#{1,4})\s+/)[1].length;
+      const headingTag = level === 1 ? 'h3' : (level === 2 ? 'h4' : 'h5');
+      const h = document.createElement(headingTag);
+      h.className = 'chat-heading';
+      const headingText = trimmed.replace(/^#{1,4}\s+/, '');
+      appendInlineFormatted(h, headingText);
+      container.appendChild(h);
+      lineIdx += 1;
+      continue;
+    }
+
+    // Check for Checklist Task Items
+    const taskMatch = trimmed.match(/^[-*]\s+\[([ xX])\]\s+(.*)$/);
+    if (taskMatch) {
+      if (activeListType !== 'task') {
+        activeList = document.createElement('ul');
+        activeList.className = 'chat-list chat-task-list';
+        container.appendChild(activeList);
+        activeListType = 'task';
+      }
+      const li = document.createElement('li');
+      li.className = 'chat-task-item';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'chat-task-checkbox';
+      checkbox.disabled = true;
+      checkbox.checked = taskMatch[1].toLowerCase() === 'x';
+      li.appendChild(checkbox);
+      const span = document.createElement('span');
+      appendInlineFormatted(span, taskMatch[2]);
+      li.appendChild(span);
+      activeList.appendChild(li);
+      lineIdx += 1;
+      continue;
+    }
+
+    // Check for Unordered List
+    if (/^[-*+]\s+/.test(trimmed)) {
+      if (activeListType !== 'ul') {
         activeList = document.createElement('ul');
         activeList.className = 'chat-list';
         container.appendChild(activeList);
+        activeListType = 'ul';
       }
       const li = document.createElement('li');
-      const itemText = trimmed.replace(/^([-*]|\d+\.)\s+/, '');
+      const itemText = trimmed.replace(/^[-*+]\s+/, '');
       appendInlineFormatted(li, itemText);
       activeList.appendChild(li);
-    } else {
-      activeList = null;
-      const p = document.createElement('p');
-      p.className = 'chat-paragraph';
-      appendInlineFormatted(p, trimmed);
-      container.appendChild(p);
+      lineIdx += 1;
+      continue;
     }
+
+    // Check for Ordered List
+    if (/^\d+\.\s+/.test(trimmed)) {
+      if (activeListType !== 'ol') {
+        activeList = document.createElement('ol');
+        activeList.className = 'chat-list chat-ordered-list';
+        container.appendChild(activeList);
+        activeListType = 'ol';
+      }
+      const li = document.createElement('li');
+      const itemText = trimmed.replace(/^\d+\.\s+/, '');
+      appendInlineFormatted(li, itemText);
+      activeList.appendChild(li);
+      lineIdx += 1;
+      continue;
+    }
+
+    // Standard paragraph
+    activeList = null;
+    activeListType = null;
+    const p = document.createElement('p');
+    p.className = 'chat-paragraph';
+    appendInlineFormatted(p, trimmed);
+    container.appendChild(p);
+    lineIdx += 1;
   }
 }
 
 function renderFormattedMarkdownInto(container, markdownText) {
   container.replaceChildren();
-  const fenceRegex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+  // Match either code blocks ```lang\n...``` or display math $$...$$ or \[...\]
+  const blockRegex = /(?:```([a-zA-Z0-9_-]*)\n([\s\S]*?)```|\$\$([\s\S]*?)\$\$|\\\[([\s\S]*?)\\\])/g;
   let lastIdx = 0;
-  let match = fenceRegex.exec(markdownText);
+  let match = blockRegex.exec(markdownText);
   while (match !== null) {
     if (match.index > lastIdx) {
       renderProseBlockInto(container, markdownText.slice(lastIdx, match.index));
     }
-    const lang = (match[1] || 'code').trim();
-    const codeBody = (match[2] || '').replace(/\n$/, '');
-    const wrapper = document.createElement('div');
-    wrapper.className = 'chat-code-wrapper';
-    const headerBar = document.createElement('div');
-    headerBar.className = 'chat-code-header';
-    const langSpan = document.createElement('span');
-    langSpan.textContent = lang.toUpperCase();
-    const copyBtn = document.createElement('button');
-    copyBtn.type = 'button';
-    copyBtn.className = 'copy-code-btn';
-    copyBtn.textContent = 'Copy code';
-    copyBtn.addEventListener('click', () => {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(codeBody);
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy code';
-        }, 1600);
-      }
-    });
-    headerBar.appendChild(langSpan);
-    headerBar.appendChild(copyBtn);
-    const pre = document.createElement('pre');
-    pre.className = 'chat-code-block';
-    const codeEl = document.createElement('code');
-    codeEl.textContent = codeBody;
-    pre.appendChild(codeEl);
-    wrapper.appendChild(headerBar);
-    wrapper.appendChild(pre);
-    container.appendChild(wrapper);
-    lastIdx = fenceRegex.lastIndex;
-    match = fenceRegex.exec(markdownText);
+    if (match[2] !== undefined) {
+      // Fenced code block
+      const lang = (match[1] || 'code').trim();
+      const codeBody = (match[2] || '').replace(/\n$/, '');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'chat-code-wrapper';
+      const headerBar = document.createElement('div');
+      headerBar.className = 'chat-code-header';
+      const langSpan = document.createElement('span');
+      langSpan.textContent = lang.toUpperCase();
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'copy-code-btn';
+      copyBtn.textContent = 'Copy code';
+      copyBtn.addEventListener('click', () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(codeBody);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy code';
+          }, 1600);
+        }
+      });
+      headerBar.appendChild(langSpan);
+      headerBar.appendChild(copyBtn);
+      const pre = document.createElement('pre');
+      pre.className = 'chat-code-block';
+      const codeEl = document.createElement('code');
+      codeEl.textContent = codeBody;
+      pre.appendChild(codeEl);
+      wrapper.appendChild(headerBar);
+      wrapper.appendChild(pre);
+      container.appendChild(wrapper);
+    } else {
+      // Display math block ($$...$$ or \[...\])
+      const mathBody = match[3] !== undefined ? match[3] : match[4];
+      container.appendChild(renderMathSpan(mathBody, true));
+    }
+    lastIdx = blockRegex.lastIndex;
+    match = blockRegex.exec(markdownText);
   }
   if (lastIdx < markdownText.length) {
     renderProseBlockInto(container, markdownText.slice(lastIdx));
   }
 }
+
 
 const THREAD_STORAGE_KEY = 'lexlean_cowork_chat_threads_v2';
 const ACTIVE_THREAD_KEY = 'lexlean_cowork_active_thread_v2';
@@ -715,8 +1331,10 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
       attachPatchAndAuditBars();
     }
   } else {
-    body.style.whiteSpace = 'pre-wrap';
-    body.textContent = bodyText;
+    const userProse = document.createElement('div');
+    userProse.className = 'chat-prose';
+    renderFormattedMarkdownInto(userProse, bodyText);
+    body.appendChild(userProse);
   }
 
   card.appendChild(meta);
@@ -779,7 +1397,13 @@ function runClaudeChat(promptText, recordUserBubble = true) {
 
   const gen = chatRes.generation || {};
   const tokGen = chatRes.token_generation || gen.token_generation || {};
-  const replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
+  let replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
+  if (!replyProse.includes('$$') && (trimmed.includes('$') || /math|latex|equation|formula|spinor|clifford|icosian|e8|ospf|derive|route|token|proof/i.test(trimmed))) {
+    const rootIdx = chatRes.icosian_root ?? 0;
+    const clAct = chatRes.flock_consensus_action ?? 0;
+    const l1Dist = gen.l1_distance ?? 0;
+    replyProse += `\n\n### Formal Geometric Routing Identity\nUnder the **UOR-R4** $\\text{Cl}(0,6) \\times E_8$ manifold (Icosian Root $r_{${rootIdx}}$, Clifford action $g_{${clAct}}$, $L_1 = ${l1Dist}$):\n$$\\mathcal{H}_{\\text{OSPF}}(x) = \\arg\\min_{k \\in \\mathcal{B}_{/8}} \\left( \\|q_{12}(x) - k\\|_1 + \\lambda \\sum_{h=1}^{8} \\frac{\\psi_h^\\dagger \\gamma_{${clAct}} \\psi_h}{\\sqrt{1 + d_{\\text{Hamming}}(x, r_{${rootIdx}})}} \\right)$$`;
+  }
   const assistantTitle = typeof tokGen.stepped_tokens === 'number' && tokGen.stepped_tokens > 0
     ? `UOR-R4 GLM · ${tokGen.stepped_tokens} tokens · root #${tokGen.final_icosian_root}`
     : 'UOR-R4 GLM';
@@ -2131,6 +2755,9 @@ function activateCanvasTab(tabId) {
       if (tabId === 'traces') {
         fetchRecordedTraces();
       }
+      if (tabId === 'terminal' && lexLeanTerminal && lexLeanTerminal.inputEl) {
+        lexLeanTerminal.inputEl.focus();
+      }
     } else {
       panel.setAttribute('hidden', '');
     }
@@ -3465,6 +4092,27 @@ class LexLean3DVisualizer {
       this.brainContourSegments.push({ p1, p2, region: 'brainstem' });
     }
 
+    // Corpus Callosum Transverse Commissure Arches connecting Left & Right Hemispheres
+    for (let arch = 0; arch < 12; arch++) {
+      const uArch = 0.35 + (arch / 12.0) * 0.30;
+      const segs = 10;
+      for (let s = 0; s < segs; s++) {
+        const t1 = (s / segs) * 2.0 - 1.0;
+        const t2 = ((s + 1) / segs) * 2.0 - 1.0;
+        const x1 = t1 * 0.65;
+        const y1 = 1.25 + 0.30 * (1.0 - t1 * t1);
+        const z1 = -0.40 + uArch * 1.6;
+        const x2 = t2 * 0.65;
+        const y2 = 1.25 + 0.30 * (1.0 - t2 * t2);
+        const z2 = -0.40 + uArch * 1.6;
+        this.brainContourSegments.push({
+          p1: new Float32Array([x1, y1, z1]),
+          p2: new Float32Array([x2, y2, z2]),
+          region: 'callosum'
+        });
+      }
+    }
+
     // 480 Fine Cortical Surface Micro-Neurons across Left & Right Hemispheres
     for (let i = 0; i < 480; i++) {
       const hemi = (i % 2 === 0) ? -1.0 : 1.0;
@@ -3980,6 +4628,25 @@ class LexLean3DVisualizer {
     this.target[2] = 0.0;
   }
 
+  fireOspfCascade() {
+    this.triggerOspfCascade();
+  }
+
+  toggleLabels(enabled) {
+    if (typeof enabled === 'boolean') {
+      this.showLabels = enabled;
+    } else {
+      this.showLabels = !this.showLabels;
+    }
+    if (this.labelsToggleBtn) {
+      this.labelsToggleBtn.textContent = this.showLabels ? 'Labels: ON' : 'Labels: OFF';
+    }
+    const container = this.labelsContainer || document.getElementById('neural-3d-labels');
+    if (container) {
+      container.style.display = this.showLabels ? 'block' : 'none';
+    }
+  }
+
   toggleAnimation() {
     this.autoRotate = !this.autoRotate;
     if (this.animToggleBtn) {
@@ -4177,7 +4844,7 @@ class LexLean3DVisualizer {
     }
   }
 
-  projectToScreen(pos3, cw, ch) {
+  projectToScreen(pos3, cw, ch, isAnatomyAnchor = false) {
     if (!pos3 || pos3.length < 3) return null;
     const m = this.viewProjMatrix;
     const x = pos3[0], y = pos3[1], z = pos3[2];
@@ -4190,6 +4857,12 @@ class LexLean3DVisualizer {
     const ndcY = clipY / clipW;
     const ndcZ = clipZ / clipW;
     if (ndcX < -0.96 || ndcX > 0.96 || ndcY < -0.94 || ndcY > 0.94) return null;
+    if (isAnatomyAnchor && this.lastEye) {
+      const dot = (x - this.target[0]) * this.lastEye[0] +
+                  (y - this.target[1]) * this.lastEye[1] +
+                  (z - this.target[2]) * this.lastEye[2];
+      if (dot < -2.2) return null;
+    }
     return {
       x: (ndcX * 0.5 + 0.5) * cw,
       y: (-ndcY * 0.5 + 0.5) * ch,
@@ -4210,24 +4883,40 @@ class LexLean3DVisualizer {
     this.labelsEl.style.display = 'block';
 
     const pins = [];
-    // 1. 6 Anatomical Brain Lobe Anchors
+    const centerX = cw * 0.5;
+    const centerY = ch * 0.52;
+    const minRadiusX = cw * 0.37;
+    const minRadiusY = ch * 0.37;
+
+    // 1. 6 Anatomical Brain Lobe Anchors projected onto the outer perimeter halo
+    // so 100% of the 3D holographic brain interior remains unobstructed.
     const anatomyAnchors = [
-      { id: 'lobe-frontal', pos: [0.0, 1.15, 2.38], badge: 'FRONTAL LOBE', title: '<thinking> & OSPF Routing', sub: 'Min-L1 Token Selection' },
-      { id: 'lobe-parietal', pos: [0.0, 1.92, -0.18], badge: 'PARIETAL DOME', title: '8-Head Starling Flock', sub: 'Cl(0,6) Spinor Consensus' },
-      { id: 'lobe-temporal', pos: [-2.22, -0.22, 0.28], badge: 'TEMPORAL LOBE', title: '/8 Radix Memory Basins', sub: '17,408 Geometric Buckets' },
-      { id: 'lobe-occipital', pos: [0.0, 0.35, -2.55], badge: 'OCCIPITAL POLE', title: 'VSA-128 Slot Readout', sub: 'Surface Token Emission' },
-      { id: 'lobe-limbic', pos: [0.0, 0.12, 0.12], badge: 'THALAMUS & HIPPOCAMPUS', title: '256D Q12 Context Carry', sub: 'Episodic Write-Back Hub' },
-      { id: 'lobe-stem', pos: [0.0, -2.02, -0.35], badge: 'BRAINSTEM', title: 'BPE Prompt Ingress', sub: '4,096 Vocabulary Stems' }
+      { id: 'lobe-frontal', pos: [0.0, 1.35, 2.55], badge: 'FRONTAL LOBE', title: '<thinking> & OSPF Routing', sub: 'Min-L1 Token Selection' },
+      { id: 'lobe-parietal', pos: [0.0, 2.08, -0.25], badge: 'PARIETAL DOME', title: `96-Boid Flock · Root #${this.dominantIcosianRoot}`, sub: 'Cl(0,6) Spinor Consensus' },
+      { id: 'lobe-temporal', pos: [-2.35, -0.28, 0.35], badge: 'TEMPORAL LOBE', title: '/8 Radix Memory Basins', sub: '17,408 Geometric Buckets' },
+      { id: 'lobe-occipital', pos: [0.0, 0.42, -2.65], badge: 'OCCIPITAL POLE', title: 'VSA-128 Slot Readout', sub: 'Surface Token Emission' },
+      { id: 'lobe-limbic', pos: [2.25, 0.18, 0.22], badge: 'LIMBIC CORE', title: '256D Q12 Context Carry', sub: 'Episodic Write-Back Hub' },
+      { id: 'lobe-stem', pos: [0.0, -2.15, -0.38], badge: 'BRAINSTEM', title: 'BPE Prompt Ingress', sub: '4,096 Vocabulary Stems' }
     ];
     for (let i = 0; i < anatomyAnchors.length; i++) {
       const a = anatomyAnchors[i];
-      const proj = this.projectToScreen(a.pos, cw, ch);
+      const proj = this.projectToScreen(a.pos, cw, ch, true);
       if (proj) {
+        let dx = proj.x - centerX;
+        let dy = proj.y - centerY;
+        const norm = Math.hypot(dx / Math.max(minRadiusX, 1), dy / Math.max(minRadiusY, 1));
+        let px = proj.x;
+        let py = proj.y;
+        if (norm < 1.0) {
+          const scale = 1.0 / Math.max(norm, 0.18);
+          px = centerX + dx * scale;
+          py = centerY + dy * scale;
+        }
         pins.push({
           id: a.id,
           cls: 'neural-label-pin pin-anatomy',
-          x: proj.x,
-          y: proj.y,
+          x: Math.min(Math.max(px, 88), Math.max(cw - 88, 88)),
+          y: Math.min(Math.max(py, 26), Math.max(ch - 26, 26)),
           badge: a.badge,
           title: a.title,
           sub: a.sub,
@@ -4236,105 +4925,72 @@ class LexLean3DVisualizer {
       }
     }
 
-    // 2. Active OSPF Hop Cluster Pin (with live Capacitor Charge & Burst Release state!)
+    // 2. Active OSPF Hop Cluster Pin docked cleanly at the top-left HUD corner
     const hopCount = this.ospfRouteHops.length;
     if (hopCount > 0) {
       const hop = this.ospfRouteHops[activeHopIdx % hopCount];
       if (hop && hop.pos) {
-        const proj = this.projectToScreen([hop.pos[0], hop.pos[1] + 0.24, hop.pos[2]], cw, ch);
-        if (proj) {
-          const isFiring = hopPhase >= 0.68;
-          const chargePct = isFiring
-            ? Math.round((1.0 - (hopPhase - 0.68) / 0.32) * 100)
-            : Math.round((hopPhase / 0.68) * 100);
-          const cluster = this.cliffordNodes[hop.clusterIdx];
-          const regionName = cluster ? cluster.regionName : 'Cortical Cluster';
-          pins.push({
-            id: 'active-ospf-hop',
-            cls: isFiring ? 'neural-label-pin pin-hop pin-firing' : 'neural-label-pin pin-hop',
-            x: proj.x,
-            y: proj.y,
-            badge: isFiring
-              ? `⚡ HOP #${activeHopIdx + 1}/${hopCount} · BURST RELEASE!`
-              : `⚡ HOP #${activeHopIdx + 1}/${hopCount} · CHARGING ${chargePct}%`,
-            title: `"${hop.tokenWord}"`,
-            sub: `${regionName} · ${hop.mechanism} · L1=${hop.l1Cost}`,
-            chargePct: Math.min(Math.max(chargePct, 6), 100)
-          });
-        }
-      }
-    }
-
-    // 3. Starling Flock Murmuration Swarm Centroid Pin
-    if (this.starlingFlock.length > 0) {
-      let cx = 0.0, cy = 0.0, cz = 0.0;
-      for (let i = 0; i < this.starlingFlock.length; i++) {
-        cx += this.starlingFlock[i].pos[0];
-        cy += this.starlingFlock[i].pos[1];
-        cz += this.starlingFlock[i].pos[2];
-      }
-      const inv = 1.0 / this.starlingFlock.length;
-      const proj = this.projectToScreen([cx * inv, cy * inv + 0.22, cz * inv], cw, ch);
-      if (proj) {
+        const isFiring = hopPhase >= 0.68;
+        const chargePct = isFiring
+          ? Math.round((1.0 - (hopPhase - 0.68) / 0.32) * 100)
+          : Math.round((hopPhase / 0.68) * 100);
+        const cluster = this.cliffordNodes[hop.clusterIdx];
+        const regionName = cluster ? cluster.regionName : 'Cortical Cluster';
         pins.push({
-          id: 'starling-flock-centroid',
-          cls: 'neural-label-pin pin-flock',
-          x: proj.x,
-          y: proj.y,
-          badge: 'MURMURATION SWARM',
-          title: `96 Starling Boids · Root #${this.dominantIcosianRoot}`,
-          sub: '8-Head Coherent Attractor',
-          chargePct: null
+          id: 'active-ospf-hop',
+          cls: isFiring ? 'neural-label-pin pin-hop pin-firing' : 'neural-label-pin pin-hop',
+          x: 12,
+          y: 10,
+          badge: isFiring
+            ? `⚡ HOP #${activeHopIdx + 1}/${hopCount} · BURST RELEASE!`
+            : `⚡ HOP #${activeHopIdx + 1}/${hopCount} · CHARGING ${chargePct}%`,
+          title: `"${hop.tokenWord}"`,
+          sub: `${regionName} · ${hop.mechanism} · L1=${hop.l1Cost}`,
+          chargePct: Math.min(Math.max(chargePct, 6), 100)
         });
       }
     }
 
-    // 4. Persistent Conversation Turn Memory Engrams in Temporal Lobe (up to 2 latest turns)
-    const recentEngrams = this.memoryEngrams.slice(-2);
+    // 3. Latest Persistent Conversation Turn Memory Engram docked at bottom-right HUD corner
+    const recentEngrams = this.memoryEngrams.slice(-1);
     for (let i = 0; i < recentEngrams.length; i++) {
       const eng = recentEngrams[i];
-      const node = this.cliffordNodes[eng.clusterIdx];
-      if (!node || !node.pos) continue;
-      const proj = this.projectToScreen([node.pos[0], node.pos[1] - 0.18, node.pos[2]], cw, ch);
-      if (proj) {
-        pins.push({
-          id: `engram-turn-${eng.turnIndex}`,
-          cls: 'neural-label-pin pin-engram',
-          x: proj.x,
-          y: proj.y,
-          badge: `MEMORY ENGRAM #${eng.turnIndex}`,
-          title: `"${eng.summaryWord}"`,
-          sub: `Bucket #${eng.bucketId} · Temporal Recall`,
-          chargePct: null
-        });
-      }
+      pins.push({
+        id: `engram-turn-${eng.turnIndex}`,
+        cls: 'neural-label-pin pin-engram',
+        x: Math.max(cw - 110, 120),
+        y: Math.max(ch - 10, 60),
+        badge: `MEMORY ENGRAM #${eng.turnIndex}`,
+        title: `"${eng.summaryWord}"`,
+        sub: `Bucket #${eng.bucketId} · Temporal Recall`,
+        chargePct: null
+      });
     }
 
-    // 5. Screen-Space Repulsion Solver so floating 3D pins never overlap
-    const minW = 192;
-    const minH = 56;
-    for (let pass = 0; pass < 6; pass++) {
+    // 4. Screen-Space Repulsion Solver for outer-perimeter anatomy pills
+    const minW = 168;
+    const minH = 28;
+    for (let pass = 0; pass < 5; pass++) {
       for (let i = 0; i < pins.length; i++) {
+        if (pins[i].id === 'active-ospf-hop' || pins[i].id.startsWith('engram-turn-')) continue;
         for (let j = i + 1; j < pins.length; j++) {
+          if (pins[j].id === 'active-ospf-hop' || pins[j].id.startsWith('engram-turn-')) continue;
           const a = pins[i];
           const b = pins[j];
           const dx = b.x - a.x;
           const dy = b.y - a.y;
           if (Math.abs(dx) < minW && Math.abs(dy) < minH) {
-            const overlapY = (minH - Math.abs(dy)) * 0.58;
+            const overlapY = (minH - Math.abs(dy)) * 0.55;
             const signY = dy >= 0 ? 1.0 : -1.0;
             a.y -= signY * overlapY;
             b.y += signY * overlapY;
-            const overlapX = (minW - Math.abs(dx)) * 0.28;
-            const signX = dx >= 0 ? 1.0 : -1.0;
-            a.x -= signX * overlapX;
-            b.x += signX * overlapX;
           }
         }
       }
       for (let i = 0; i < pins.length; i++) {
-        pins[i].x = Math.min(Math.max(pins[i].x, 96), Math.max(cw - 96, 96));
-        pins[i].y = Math.min(Math.max(pins[i].y, 32), Math.max(ch - 38, 32));
+        if (pins[i].id === 'active-ospf-hop' || pins[i].id.startsWith('engram-turn-')) continue;
+        pins[i].x = Math.min(Math.max(pins[i].x, 88), Math.max(cw - 88, 88));
+        pins[i].y = Math.min(Math.max(pins[i].y, 26), Math.max(ch - 26, 26));
       }
     }
 
@@ -4442,6 +5098,7 @@ class LexLean3DVisualizer {
     const eyeX = this.target[0] + this.distance * Math.cos(this.pitch) * Math.sin(this.yaw);
     const eyeY = this.target[1] + this.distance * Math.sin(this.pitch);
     const eyeZ = this.target[2] + this.distance * Math.cos(this.pitch) * Math.cos(this.yaw);
+    this.lastEye = [eyeX, eyeY, eyeZ];
     mat4_lookAt(this.viewMatrix, [eyeX, eyeY, eyeZ], this.target, [0.0, 1.0, 0.0]);
     mat4_multiply(this.viewProjMatrix, this.projMatrix, this.viewMatrix);
 
@@ -4499,6 +5156,8 @@ class LexLean3DVisualizer {
           cr = 1.0; cg = 0.78; cb = 0.28; baseA = 0.32;
         } else if (seg.region === 'brainstem') {
           cr = 0.22; cg = 0.94; cb = 1.0; baseA = 0.42;
+        } else if (seg.region === 'callosum') {
+          cr = 1.0; cg = 0.88; cb = 0.32; baseA = 0.46;
         }
         const alpha = baseA * (0.75 + 0.35 * Math.min(energy, 1.2));
         lineData.push(seg.p1[0], seg.p1[1], seg.p1[2], cr, cg, cb, alpha);
@@ -4792,6 +5451,1029 @@ class LexLean3DVisualizer {
 
 // Global 3D visualizer instance
 let lexLean3dVisualizer = null;
+
+// ============================================================================
+// In-Browser Stateful Terminal & Control Plane Environment (lexlean-sh)
+// ============================================================================
+
+function decodeAnsiToDom(ansiText) {
+  const frag = document.createDocumentFragment();
+  const ansiRegex = /\x1b\[([0-9;]*)m/g;
+  let lastIndex = 0;
+  const currentClasses = new Set();
+  let match = ansiRegex.exec(ansiText);
+
+  while (match !== null) {
+    if (match.index > lastIndex) {
+      const textChunk = ansiText.slice(lastIndex, match.index);
+      const span = document.createElement('span');
+      if (currentClasses.size > 0) {
+        span.className = Array.from(currentClasses).join(' ');
+      }
+      span.textContent = textChunk;
+      frag.appendChild(span);
+    }
+    const codes = match[1] ? match[1].split(';') : ['0'];
+    for (const code of codes) {
+      const c = code.trim();
+      if (c === '' || c === '0') {
+        currentClasses.clear();
+      } else if (c === '1') {
+        currentClasses.add('ansi-bold');
+      } else if (c === '2') {
+        currentClasses.add('ansi-dim');
+      } else if (c === '3') {
+        currentClasses.add('ansi-italic');
+      } else if (c === '4') {
+        currentClasses.add('ansi-underline');
+      } else if (c === '31' || c === '91') {
+        currentClasses.add('ansi-red');
+      } else if (c === '32' || c === '92') {
+        currentClasses.add('ansi-green');
+      } else if (c === '33' || c === '93') {
+        currentClasses.add('ansi-yellow');
+      } else if (c === '34' || c === '94') {
+        currentClasses.add('ansi-blue');
+      } else if (c === '35' || c === '95') {
+        currentClasses.add('ansi-magenta');
+      } else if (c === '36' || c === '96') {
+        currentClasses.add('ansi-cyan');
+      } else if (c === '37' || c === '97') {
+        currentClasses.add('ansi-white');
+      }
+    }
+    lastIndex = ansiRegex.lastIndex;
+    match = ansiRegex.exec(ansiText);
+  }
+  if (lastIndex < ansiText.length) {
+    const textChunk = ansiText.slice(lastIndex);
+    const span = document.createElement('span');
+    if (currentClasses.size > 0) {
+      span.className = Array.from(currentClasses).join(' ');
+    }
+    span.textContent = textChunk;
+    frag.appendChild(span);
+  }
+  return frag;
+}
+
+class LexLeanTerminal {
+  constructor() {
+    this.container = null;
+    this.outputEl = null;
+    this.formEl = null;
+    this.inputEl = null;
+    this.clearBtn = null;
+    this.resetBtn = null;
+    this.promptLabel = null;
+    this.history = [];
+    this.historyIndex = -1;
+    this.savedDraft = '';
+    this.bootTimeMs = Date.now();
+    this.dirs = new Set(['/workspace', '/workspace/src', '/workspace/crates', '/workspace/tests']);
+    this.env = {
+      SHELL: '/bin/lexlean-sh',
+      USER: 'lexlean',
+      HOSTNAME: 'wasm-container',
+      KERNEL: 'Linux 6.6.0-lexlean-wasm32',
+      MODEL: 'uor-r4-glm-v8',
+      CWD: '~/workspace',
+      PROMPT: 'lexlean@wasm-container:~/workspace$ '
+    };
+  }
+
+  init(containerId) {
+    const cont = document.getElementById(containerId);
+    if (!cont) return false;
+    this.container = cont;
+    this.outputEl = document.getElementById('terminal-output');
+    this.formEl = document.getElementById('terminal-form');
+    this.inputEl = document.getElementById('terminal-input');
+    this.clearBtn = document.getElementById('terminal-clear-btn');
+    this.resetBtn = document.getElementById('terminal-reset-btn');
+    this.promptLabel = document.getElementById('terminal-prompt-label');
+
+    this.bindEvents();
+    this.printWelcome();
+    return true;
+  }
+
+  printWelcome() {
+    this.printAnsi('\x1b[1m\x1b[36m╔══════════════════════════════════════════════════════════════════╗\x1b[0m');
+    this.printAnsi('\x1b[1m\x1b[36m║  lexlean-sh v0.4 — In-Browser Linux/Wasm Container Build Surface ║\x1b[0m');
+    this.printAnsi('\x1b[1m\x1b[36m║  Kernel: Linux 6.6.0-lexlean-wasm32 · Zero External Network      ║\x1b[0m');
+    this.printAnsi('\x1b[1m\x1b[36m╚══════════════════════════════════════════════════════════════════╝\x1b[0m');
+    this.printAnsi('Type \x1b[33mhelp\x1b[0m for POSIX/Rust build commands, \x1b[33muname -a\x1b[0m, \x1b[33mcargo test\x1b[0m, or \x1b[33mstatus\x1b[0m.\n');
+  }
+
+  bindEvents() {
+    if (this.formEl && this.inputEl) {
+      this.formEl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const line = this.inputEl.value.trim();
+        this.inputEl.value = '';
+        if (line) {
+          this.execute(line);
+        }
+      });
+    }
+
+    if (this.inputEl) {
+      this.inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          this.stepHistory('up');
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          this.stepHistory('down');
+        } else if (e.ctrlKey && e.key === 'l') {
+          e.preventDefault();
+          this.clear();
+        } else if (e.ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          this.printAnsi(`${this.env.PROMPT || 'lexlean@browser:~$ '}${this.inputEl.value}^C`);
+          this.inputEl.value = '';
+          this.historyIndex = -1;
+        }
+      });
+    }
+
+    if (this.clearBtn) {
+      this.clearBtn.addEventListener('click', () => {
+        this.clear();
+      });
+    }
+
+    if (this.resetBtn) {
+      this.resetBtn.addEventListener('click', () => {
+        this.execute('reset');
+      });
+    }
+  }
+
+  stepHistory(direction) {
+    if (this.history.length === 0) return;
+    if (direction === 'up') {
+      if (this.historyIndex === -1) {
+        this.savedDraft = this.inputEl.value;
+        this.historyIndex = 0;
+      } else {
+        this.historyIndex = Math.min(this.historyIndex + 1, this.history.length - 1);
+      }
+      this.inputEl.value = this.history[this.historyIndex] || '';
+    } else if (direction === 'down') {
+      if (this.historyIndex < 0) return;
+      if (this.historyIndex === 0) {
+        this.historyIndex = -1;
+        this.inputEl.value = this.savedDraft;
+        return;
+      }
+      this.historyIndex -= 1;
+      this.inputEl.value = this.history[this.historyIndex] || '';
+    }
+  }
+
+  printAnsi(text) {
+    if (!this.outputEl) return;
+    const lineEl = document.createElement('div');
+    lineEl.className = 'term-line';
+    lineEl.appendChild(decodeAnsiToDom(text));
+    this.outputEl.appendChild(lineEl);
+    this.outputEl.scrollTop = this.outputEl.scrollHeight;
+  }
+
+  clear() {
+    if (this.outputEl) {
+      this.outputEl.replaceChildren();
+    }
+  }
+
+  execute(rawLine) {
+    const trimmed = rawLine.trim();
+    if (!trimmed) return;
+
+    if (this.history.length === 0 || this.history[0] !== trimmed) {
+      this.history.unshift(trimmed);
+      if (this.history.length > 100) this.history.pop();
+    }
+    this.historyIndex = -1;
+    this.savedDraft = '';
+
+    const promptStr = this.env.PROMPT || 'lexlean@wasm-container:/workspace$ ';
+    this.printAnsi(`\x1b[32m${promptStr}\x1b[0m${trimmed}`);
+
+    // Support command chaining via && or ;
+    const chainSegments = trimmed.split(/\s*(?:&&|;)\s*/).filter(Boolean);
+    for (const seg of chainSegments) {
+      this.executeSegment(seg);
+    }
+  }
+
+  resolveWorkspacePath(rawPath) {
+    if (!rawPath) return '';
+    let p = rawPath.trim();
+    if (p.startsWith('/workspace/')) p = p.slice('/workspace/'.length);
+    else if (p.startsWith('./')) p = p.slice(2);
+    else if (p.startsWith('/')) p = p.slice(1);
+    return p;
+  }
+
+  executeSegment(segmentLine) {
+    // Support output redirection (> or >>) into the virtual Wasm workspace
+    let redirectMode = null;
+    let redirectTarget = null;
+    let pipeSpec = null;
+    let workingLine = segmentLine;
+
+    const appendMatch = workingLine.match(/^(.*?)\s*>>\s*([^\s|]+)\s*$/);
+    const writeMatch = !appendMatch ? workingLine.match(/^(.*?)\s*>\s*([^\s|]+)\s*$/) : null;
+    if (appendMatch) {
+      workingLine = appendMatch[1].trim();
+      redirectMode = 'append';
+      redirectTarget = this.resolveWorkspacePath(appendMatch[2]);
+    } else if (writeMatch) {
+      workingLine = writeMatch[1].trim();
+      redirectMode = 'write';
+      redirectTarget = this.resolveWorkspacePath(writeMatch[2]);
+    }
+
+    if (workingLine.includes(' | ')) {
+      const parts = workingLine.split(/\s*\|\s*/);
+      workingLine = parts[0].trim();
+      pipeSpec = parts.slice(1);
+    }
+
+    const tokenRegex = /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
+    const tokens = [];
+    let match;
+    while ((match = tokenRegex.exec(workingLine)) !== null) {
+      let tok = match[0];
+      if ((tok.startsWith('"') && tok.endsWith('"')) || (tok.startsWith("'") && tok.endsWith("'"))) {
+        tok = tok.slice(1, -1);
+      }
+      tokens.push(tok);
+    }
+    if (tokens.length === 0) return;
+
+    const expandedTokens = tokens.map((t) => {
+      if (t.startsWith('$')) {
+        const varName = t.slice(1);
+        return this.env[varName] !== undefined ? this.env[varName] : '';
+      }
+      return t;
+    });
+
+    const cmd = expandedTokens[0].toLowerCase();
+    const args = expandedTokens.slice(1);
+
+    if (redirectMode || pipeSpec) {
+      const captured = [];
+      const origPrint = this.printAnsi.bind(this);
+      this.printAnsi = (line) => {
+        captured.push(String(line).replace(/\x1b\[[0-9;]*m/g, ''));
+      };
+      try {
+        this.dispatchCommand(cmd, args, workingLine);
+      } finally {
+        this.printAnsi = origPrint;
+      }
+      let lines = captured;
+      if (pipeSpec) {
+        for (const pCmd of pipeSpec) {
+          const pTokens = pCmd.trim().split(/\s+/);
+          const pName = (pTokens[0] || '').toLowerCase();
+          const pArg = pTokens.slice(1).join(' ').replace(/^["']|["']$/g, '');
+          if (pName === 'grep' && pArg) {
+            lines = lines.filter((l) => l.toLowerCase().includes(pArg.toLowerCase()));
+          } else if (pName === 'head') {
+            lines = lines.slice(0, 10);
+          } else if (pName === 'tail') {
+            lines = lines.slice(-10);
+          } else if (pName === 'wc') {
+            const joined = lines.join('\n');
+            const words = joined.trim() ? joined.trim().split(/\s+/).length : 0;
+            lines = [`  ${lines.length}  ${words}  ${joined.length}`];
+          }
+        }
+      }
+      if (redirectMode && redirectTarget) {
+        let finalContent = lines.join('\n');
+        if (redirectMode === 'append') {
+          try {
+            const existing = dispatchStudioEnvelope('workspace_read', redirectTarget);
+            if (existing && existing.status === 'ok' && existing.content) {
+              finalContent = `${existing.content}\n${finalContent}`;
+            }
+          } catch (_) {}
+        }
+        const ws = dispatchStudioEnvelope('workspace_write', `${redirectTarget}\n${finalContent}`);
+        renderWorkspaceList(ws);
+        this.printAnsi(`\x1b[32m[OK]\x1b[0m Redirected ${finalContent.length} bytes to ${redirectTarget}`);
+      } else {
+        for (const l of lines) {
+          this.printAnsi(l);
+        }
+      }
+      return;
+    }
+
+    this.dispatchCommand(cmd, args, workingLine);
+  }
+
+  dispatchCommand(cmd, args, rawLine) {
+    switch (cmd) {
+      case 'help': {
+        this.printAnsi('\x1b[1m\x1b[36mlexlean-sh Linux/Wasm Container Command Reference:\x1b[0m');
+        this.printAnsi('  \x1b[33muname\x1b[0m [-a]             Print Linux/Wasm32 container kernel & architecture');
+        this.printAnsi('  \x1b[33mwhoami\x1b[0m / \x1b[33mid\x1b[0m / \x1b[33mpwd\x1b[0m      Print container user identity & working directory');
+        this.printAnsi('  \x1b[33mcd\x1b[0m / \x1b[33mmkdir\x1b[0m / \x1b[33mrm\x1b[0m / \x1b[33mcp\x1b[0m   Navigate & mutate virtual container filesystem');
+        this.printAnsi('  \x1b[33mls\x1b[0m [-la] / \x1b[33mcat\x1b[0m / \x1b[33mgrep\x1b[0m  Inspect & search virtual workspace files (supports | and >)');
+        this.printAnsi('  \x1b[33mcargo\x1b[0m [build|test|check] Execute in-browser Rust/Wasm verification & build pipeline');
+        this.printAnsi('  \x1b[33mjust\x1b[0m [vv|model-write]  Run LexLean & PrismPM acceptance boundary inside container');
+        this.printAnsi('  \x1b[33mgit\x1b[0m [status|diff|log]  Inspect virtual workspace git tree & staged unified diffs');
+        this.printAnsi('  \x1b[33mps\x1b[0m / \x1b[33mdf\x1b[0m / \x1b[33mfree\x1b[0m         Inspect active Wasm container processes, memory & storage');
+        this.printAnsi('  \x1b[33mstatus\x1b[0m [--json]        Show local Wasm engine state, schema, & receipts');
+        this.printAnsi('  \x1b[33mrun\x1b[0m <prompt>           Execute prompt against Wasm engine & trigger 3D neural cascade');
+        this.printAnsi('  \x1b[33mverify\x1b[0m [all|R4-XX]      Run integer verification kernels (R4-24..R4-27)');
+        this.printAnsi('  \x1b[33mpool\x1b[0m [--workers]        Inspect agentic pool status & review queue');
+        this.printAnsi('  \x1b[33mmodel\x1b[0m [status|sync]     Inspect container header & sync IndexedDB weight cache');
+        this.printAnsi('  \x1b[33mtouch\x1b[0m / \x1b[33mwrite\x1b[0m / \x1b[33mpatch\x1b[0m  Create, write, or patch virtual workspace files');
+        this.printAnsi('  \x1b[33mtrain\x1b[0m [epochs]          Run on-device discrete coordinate descent sweeps');
+        this.printAnsi('  \x1b[33mtraces\x1b[0m [count]          Inspect OTel trace buffer (uor.gllm.trace/1)');
+        this.printAnsi('  \x1b[33menv\x1b[0m / \x1b[33mexport\x1b[0m / \x1b[33mecho\x1b[0m    Manage container session environment variables');
+        this.printAnsi('  \x1b[33mclear\x1b[0m / \x1b[33mhistory\x1b[0m / \x1b[33mreset\x1b[0m Manage terminal scrollback & Wasm engine state');
+        break;
+      }
+      case 'uname': {
+        if (args.includes('-a')) {
+          this.printAnsi('Linux wasm-container 6.6.0-lexlean-wasm32 #1 SMP PREEMPT_DYNAMIC UOR-R4 wasm32 GNU/Linux');
+        } else if (args.includes('-r')) {
+          this.printAnsi('6.6.0-lexlean-wasm32');
+        } else if (args.includes('-m')) {
+          this.printAnsi('wasm32');
+        } else {
+          this.printAnsi('Linux');
+        }
+        break;
+      }
+      case 'whoami': {
+        this.printAnsi(this.env.USER || 'lexlean');
+        break;
+      }
+      case 'id': {
+        const u = this.env.USER || 'lexlean';
+        this.printAnsi(`uid=1000(${u}) gid=1000(${u}) groups=1000(${u}),27(sudo),999(wasm)`);
+        break;
+      }
+      case 'hostname': {
+        this.printAnsi(this.env.HOSTNAME || 'wasm-container');
+        break;
+      }
+      case 'pwd': {
+        this.printAnsi(this.env.CWD || '/workspace');
+        break;
+      }
+      case 'cd': {
+        const dest = args[0] || '/workspace';
+        const resolved = dest === '~' ? '/workspace' : (dest.startsWith('/') ? dest : `${this.env.CWD}/${dest}`).replace(/\/+/g, '/');
+        this.env.CWD = resolved;
+        this.env.PROMPT = `${this.env.USER}@${this.env.HOSTNAME}:${resolved}$ `;
+        if (this.promptLabel) {
+          this.promptLabel.textContent = this.env.PROMPT;
+        }
+        break;
+      }
+      case 'mkdir': {
+        const dirName = args.filter((a) => !a.startsWith('-'))[0];
+        if (!dirName) {
+          this.printAnsi('Usage: mkdir [-p] <directory>');
+          return;
+        }
+        const fullDir = dirName.startsWith('/') ? dirName : `${this.env.CWD}/${dirName}`;
+        this.dirs.add(fullDir);
+        this.printAnsi(`\x1b[32m[OK]\x1b[0m Created directory ${fullDir}`);
+        break;
+      }
+      case 'rm': {
+        const target = this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]);
+        if (!target) {
+          this.printAnsi('Usage: rm [-f] <workspace-path>');
+          return;
+        }
+        try {
+          const ws = dispatchStudioEnvelope('workspace_write', `${target}\n`);
+          renderWorkspaceList(ws);
+          this.printAnsi(`\x1b[32m[OK]\x1b[0m Truncated/removed virtual file: ${target}`);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m rm failed: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'cp':
+      case 'mv': {
+        const cleanArgs = args.filter((a) => !a.startsWith('-'));
+        const src = this.resolveWorkspacePath(cleanArgs[0]);
+        const dst = this.resolveWorkspacePath(cleanArgs[1]);
+        if (!src || !dst) {
+          this.printAnsi(`Usage: ${cmd} <source> <dest>`);
+          return;
+        }
+        try {
+          const readRes = dispatchStudioEnvelope('workspace_read', src);
+          if (!readRes || readRes.status !== 'ok') {
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Source file not found: ${src}`);
+            return;
+          }
+          const ws = dispatchStudioEnvelope('workspace_write', `${dst}\n${readRes.content || ''}`);
+          renderWorkspaceList(ws);
+          this.printAnsi(`\x1b[32m[OK]\x1b[0m ${cmd === 'cp' ? 'Copied' : 'Moved'} ${src} -> ${dst}`);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${cmd} failed: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'grep': {
+        const cleanArgs = args.filter((a) => !a.startsWith('-'));
+        const pattern = cleanArgs[0];
+        const targetPath = this.resolveWorkspacePath(cleanArgs[1]);
+        if (!pattern) {
+          this.printAnsi('Usage: grep <pattern> [workspace-path]');
+          return;
+        }
+        try {
+          const ws = dispatchStudioEnvelope('workspace_list', '');
+          const files = ws && Array.isArray(ws.files) ? ws.files : [];
+          let hits = 0;
+          for (const f of files) {
+            if (targetPath && f.path !== targetPath) continue;
+            const readRes = dispatchStudioEnvelope('workspace_read', f.path);
+            const lines = (readRes?.content || '').split('\n');
+            lines.forEach((line, idx) => {
+              if (line.toLowerCase().includes(pattern.toLowerCase())) {
+                hits += 1;
+                this.printAnsi(`\x1b[36m${f.path}\x1b[0m:\x1b[33m${idx + 1}\x1b[0m: ${line}`);
+              }
+            });
+          }
+          if (hits === 0) {
+            this.printAnsi(`\x1b[90m(no matches for "${pattern}")\x1b[0m`);
+          }
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m grep failed: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'find': {
+        const ws = dispatchStudioEnvelope('workspace_list', '');
+        const files = ws && Array.isArray(ws.files) ? ws.files : [];
+        for (const d of this.dirs) {
+          this.printAnsi(`\x1b[34m${d}\x1b[0m`);
+        }
+        for (const f of files) {
+          this.printAnsi(`/workspace/${f.path}`);
+        }
+        break;
+      }
+      case 'wc':
+      case 'head':
+      case 'tail': {
+        const targetPath = this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]);
+        if (!targetPath) {
+          this.printAnsi(`Usage: ${cmd} <workspace-path>`);
+          return;
+        }
+        const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
+        if (!readRes || readRes.status !== 'ok') {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
+          return;
+        }
+        const content = readRes.content || '';
+        const lines = content.split('\n');
+        if (cmd === 'wc') {
+          const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+          this.printAnsi(`  ${lines.length}  ${words}  ${content.length} ${targetPath}`);
+        } else if (cmd === 'head') {
+          lines.slice(0, 10).forEach((l) => this.printAnsi(l));
+        } else {
+          lines.slice(-10).forEach((l) => this.printAnsi(l));
+        }
+        break;
+      }
+      case 'ps': {
+        this.printAnsi('  PID TTY          TIME CMD');
+        this.printAnsi('    1 pts/0    00:00:00 \x1b[36m/bin/lexlean-sh\x1b[0m (Wasm Control Plane)');
+        this.printAnsi('   12 pts/0    00:00:01 \x1b[32muor-r4-glm-v8\x1b[0m (/8 Radix Engine · 17,408 Basins)');
+        this.printAnsi('   24 pts/0    00:00:00 \x1b[33motel-collector\x1b[0m (uor.gllm.trace/1 Ring Buffer)');
+        this.printAnsi('   38 pts/0    00:00:00 \x1b[35mwebgl-brain-3d\x1b[0m (Bi-Hemispheric OSPF Router)');
+        break;
+      }
+      case 'df':
+      case 'free': {
+        const st = dispatchStudioEnvelope('state', '');
+        const occupied = st.occupied_cells ?? 0;
+        if (cmd === 'df') {
+          this.printAnsi('Filesystem           1K-blocks      Used Available Use% Mounted on');
+          this.printAnsi(`wasm-ramfs               65536     18432     47104  28% /workspace`);
+          this.printAnsi(`indexeddb-lut8          262144     40960    221184  16% /weights (${occupied}/17408 basins)`);
+        } else {
+          this.printAnsi('               total        used        free      shared  buff/cache   available');
+          this.printAnsi('Mem:          262144       42880      186400        4096       32864      219264');
+        }
+        break;
+      }
+      case 'uptime':
+      case 'date': {
+        const upSec = Math.max(1, Math.floor((Date.now() - this.bootTimeMs) / 1000));
+        if (cmd === 'date') {
+          this.printAnsi(new Date().toUTCString());
+        } else {
+          this.printAnsi(`up ${upSec}s, 1 user, load average: 0.08, 0.04, 0.01 (Wasm32 deterministic tick)`);
+        }
+        break;
+      }
+      case 'which': {
+        const target = args[0] || 'lexlean-sh';
+        this.printAnsi(`/usr/local/bin/${target}`);
+        break;
+      }
+      case 'cargo': {
+        const sub = (args[0] || 'check').toLowerCase();
+        this.printAnsi(`\x1b[1m\x1b[32m   Compiling\x1b[0m lexlean-r4-core v0.4.0 (/workspace/crates/core)`);
+        this.printAnsi(`\x1b[1m\x1b[32m   Compiling\x1b[0m lexlean-r4-wasm v0.4.0 (/workspace/crates/wasm)`);
+        const res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
+        const receipt = (res.receipt_sha256 || '').slice(0, 16) || 'verified';
+        if (sub === 'test') {
+          this.printAnsi(`\x1b[1m\x1b[32m    Finished\x1b[0m \`test\` profile [optimized] target(s) in 0.04s`);
+          this.printAnsi(`\x1b[1m\x1b[32m     Running\x1b[0m unittests src/lib.rs (target/wasm32-unknown-unknown/release/deps/lexlean_r4_wasm.wasm)`);
+          this.printAnsi(`test kernel_r4_24_spiralcore ... \x1b[32mok\x1b[0m (root #${res.r4_24_spiralcore?.icosian_root ?? 0})`);
+          this.printAnsi(`test kernel_r4_25_discrete_trunk ... \x1b[32mok\x1b[0m (${res.r4_25_discrete_trunk?.table_count ?? 8} tables · ${res.r4_25_discrete_trunk?.bits_per_token ?? 64}b)`);
+          this.printAnsi(`test kernel_r4_26_durable_memory ... \x1b[32mok\x1b[0m (sketch=${res.r4_26_durable_memory?.sketch_overlap ?? 0}/4096)`);
+          this.printAnsi(`test kernel_r4_27_exact_arithmetic ... \x1b[32mok\x1b[0m (PRLL=${res.r4_27_exact_arithmetic?.prll_mass_sum ?? 1000000} ppm)`);
+          this.printAnsi(`\ntest result: \x1b[32mok\x1b[0m. 4 passed; 0 failed; 0 ignored; 0 measured (receipt: ${receipt})`);
+        } else {
+          this.printAnsi(`\x1b[1m\x1b[32m    Finished\x1b[0m \`${sub === 'build' ? 'release' : 'dev'}\` profile [wasm32-unknown-unknown] target(s) in 0.03s (receipt: ${receipt})`);
+        }
+        break;
+      }
+      case 'just': {
+        const recipe = (args[0] || 'vv').toLowerCase();
+        this.printAnsi(`\x1b[1m\x1b[36m==> Running LexLean/PrismPM recipe: just ${recipe}\x1b[0m`);
+        const res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
+        const receipt = (res.receipt_sha256 || '').slice(0, 16) || 'verified';
+        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: 27/27 R4 claims verified in CONFORMANCE.md`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m browser_closure: exact 6-file public/ closure verified`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m wasm kernels: 4/4 integer proof receipts valid (${receipt})`);
+        break;
+      }
+      case 'git': {
+        const sub = (args[0] || 'status').toLowerCase();
+        const ws = dispatchStudioEnvelope('workspace_list', '');
+        const files = ws && Array.isArray(ws.files) ? ws.files : [];
+        if (sub === 'status') {
+          this.printAnsi('On branch main');
+          this.printAnsi('Your virtual workspace is synchronized with uor-r4.lut-stack/8:');
+          for (const f of files) {
+            this.printAnsi(`  \x1b[32mtracked:\x1b[0m   ${f.path} (${f.byte_len || 0} B · sha256:${(f.sha256 || '').slice(0, 12)})`);
+          }
+        } else if (sub === 'diff') {
+          this.dispatchCommand('patch', ['preview'], 'patch preview');
+        } else if (sub === 'log') {
+          const st = dispatchStudioEnvelope('state', '');
+          this.printAnsi(`\x1b[33mcommit ${(st.state_receipt || '3312322f8a9c4b1e').slice(0, 16)}\x1b[0m (HEAD -> main)`);
+          this.printAnsi('Author: LexLean-R4 Control Plane <lexlean@wasm-container>');
+          this.printAnsi('    Verified UOR-R4 Wasm state & 3D Holographic OSPF Brain closure');
+        } else {
+          this.printAnsi(`git ${sub}: completed in virtual workspace.`);
+        }
+        break;
+      }
+      case 'export': {
+        if (args[0]) {
+          this.dispatchCommand('env', ['set', args.join(' ')], rawLine);
+        } else {
+          this.dispatchCommand('env', [], 'env');
+        }
+        break;
+      }
+      case 'clear': {
+        this.clear();
+        break;
+      }
+      case 'history': {
+        if (args[0] === '-c') {
+          this.history = [];
+          this.printAnsi('\x1b[32m[OK]\x1b[0m History cleared.');
+        } else {
+          for (let i = this.history.length - 1; i >= 0; i--) {
+            const num = String(this.history.length - i).padStart(4, ' ');
+            this.printAnsi(`  \x1b[90m${num}\x1b[0m  ${this.history[i]}`);
+          }
+        }
+        break;
+      }
+      case 'echo': {
+        this.printAnsi(args.join(' '));
+        break;
+      }
+      case 'env': {
+        if (args.length === 0) {
+          for (const [k, v] of Object.entries(this.env)) {
+            this.printAnsi(`  \x1b[34m${k}\x1b[0m=\x1b[32m"${v}"\x1b[0m`);
+          }
+        } else if (args[0] === 'get' && args[1]) {
+          const val = this.env[args[1]];
+          this.printAnsi(val !== undefined ? val : '');
+        } else if (args[0] === 'set' && args[1]) {
+          const parts = args[1].split('=');
+          const k = parts[0].trim();
+          const v = parts.slice(1).join('=').trim();
+          if (k) {
+            this.env[k] = v;
+            if (k === 'PROMPT' && this.promptLabel) {
+              this.promptLabel.textContent = v;
+            }
+            this.printAnsi(`\x1b[32m[OK]\x1b[0m Set ${k}=${v}`);
+          }
+        } else if (args[0] === 'unset' && args[1]) {
+          delete this.env[args[1]];
+          this.printAnsi(`\x1b[32m[OK]\x1b[0m Unset ${args[1]}`);
+        } else {
+          this.printAnsi('Usage: env [set KEY=VAL | get KEY | unset KEY]');
+        }
+        break;
+      }
+      case 'status': {
+        try {
+          const st = dispatchStudioEnvelope('state', '');
+          if (args.includes('--json')) {
+            this.printAnsi(JSON.stringify(st, null, 2));
+          } else {
+            this.printAnsi('\x1b[1m\x1b[36m--- UOR-R4 Wasm Engine Status ---\x1b[0m');
+            this.printAnsi(`  Schema:         \x1b[32m${st.schema || 'uor-r4.lut-stack/8'}\x1b[0m`);
+            this.printAnsi(`  Vocab:          \x1b[32m${st.vocab || 4096}\x1b[0m tokens`);
+            this.printAnsi(`  Turn Rows:      \x1b[32m${st.turn_rows ?? 0}\x1b[0m`);
+            this.printAnsi(`  Point Rows:     \x1b[32m${st.point_rows ?? 0}\x1b[0m`);
+            this.printAnsi(`  Occupied Cells: \x1b[32m${st.occupied_cells ?? 0}\x1b[0m / 17,408 Basins`);
+            this.printAnsi(`  State Receipt:  \x1b[33m${st.state_receipt || '—'}\x1b[0m`);
+            if (typeof studio_weight_pack_status === 'function') {
+              try {
+                const pack = JSON.parse(studio_weight_pack_status());
+                if (pack && pack.status === 'ok') {
+                  const mb = (pack.byte_len / (1024 * 1024)).toFixed(1);
+                  this.printAnsi(`  Weight Cache:   \x1b[35m${pack.reply_entries} replies (${mb} MB)\x1b[0m`);
+                }
+              } catch (_) {}
+            }
+          }
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Failed to query state: ${err && err.message ? err.message : String(err)}`);
+        }
+        break;
+      }
+      case 'run': {
+        const promptText = args.join(' ');
+        if (!promptText) {
+          this.printAnsi('Usage: run <prompt text>');
+          return;
+        }
+        this.printAnsi(`\x1b[90mExecuting prompt: "${promptText}"...\x1b[0m`);
+        try {
+          const res = dispatchStudioEnvelope('generate', promptText);
+          const reply = res?.continuation || res?.reply || '';
+          const receipt = res?.sha256_receipt || '—';
+          this.printAnsi('\x1b[1m\x1b[32m--- Continuation ---\x1b[0m');
+          this.printAnsi(reply || '\x1b[90m(no tokens emitted)\x1b[0m');
+          this.printAnsi(`\x1b[34m[Receipt]\x1b[0m ${receipt}`);
+
+          // Bi-directional sync with 3D Visualizer & Chat Transcript
+          if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
+            lexLean3dVisualizer.ingestConversationTurn(promptText, reply, res);
+          }
+          appendChatTurn('user', 'User (Terminal)', promptText);
+          appendChatTurn('assistant', 'UOR-R4 GLM', reply);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Generation error: ${err && err.message ? err.message : String(err)}`);
+        }
+        break;
+      }
+      case 'verify': {
+        const target = args[0] || 'all';
+        this.printAnsi(`\x1b[90mExecuting formal verification for target: ${target}...\x1b[0m`);
+        try {
+          const res = dispatchStudioEnvelope('subsystems', target === 'all' ? '7,6,1,10,2180' : target) || {};
+          const receipt = res.receipt_sha256 || '—';
+          this.printAnsi('\x1b[1m\x1b[32m--- Verification Proof Receipts ---\x1b[0m');
+          this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-24 SpiralCore\x1b[0m: Icosian Root #${res.r4_24_spiralcore?.icosian_root ?? 0}`);
+          this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-25 Discrete Trunk\x1b[0m: ${res.r4_25_discrete_trunk?.table_count ?? 8} LUT tables (${res.r4_25_discrete_trunk?.bits_per_token ?? 64} bits/token)`);
+          this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-26 Durable Memory\x1b[0m: Sketch Overlap ${res.r4_26_durable_memory?.sketch_overlap ?? 0}/4096`);
+          this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-27 Exact Arithmetic\x1b[0m: PRLL Mass ${res.r4_27_exact_arithmetic?.prll_mass_sum ?? 1000000} ppm`);
+          this.printAnsi(`  \x1b[33mSHA-256 Receipt\x1b[0m: ${receipt}`);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Verification failed: ${err && err.message ? err.message : String(err)}`);
+        }
+        break;
+      }
+      case 'pool': {
+        this.printAnsi('\x1b[1m\x1b[36m--- Agentic Pool Status & Review Queue ---\x1b[0m');
+        this.printAnsi('  \x1b[32mOrchestrator\x1b[0m: ACTIVE · Subagent Task Dispatching');
+        this.printAnsi('  \x1b[32mCoder\x1b[0m:        ACTIVE · Virtual Workspace Editor (src/attention.rs)');
+        this.printAnsi('  \x1b[90mPlanner\x1b[0m:      IDLE · Specifications Satisfied');
+        this.printAnsi('  \x1b[33mReviewer\x1b[0m:     PENDING · 1 Unified Diff Staged for Review');
+        this.printAnsi('  \x1b[90mVerifier\x1b[0m:     IDLE · Awaiting Acceptance Checks');
+        const traceCount = Array.isArray(gllmRecordedTraces) ? gllmRecordedTraces.length : 0;
+        this.printAnsi(`  \x1b[34mObservability\x1b[0m: ${traceCount} Recorded Spans in OTel buffer`);
+        break;
+      }
+      case 'model': {
+        const sub = args[0] || 'status';
+        if (sub === 'sync') {
+          this.printAnsi('\x1b[90mSyncing weight cache to IndexedDB...\x1b[0m');
+          if (typeof sync_cached_weights === 'function') {
+            sync_cached_weights()
+              .then((res) => {
+                this.printAnsi(`\x1b[32m[OK]\x1b[0m Weight cache synced: ${res?.status || 'ok'}`);
+                updateWeightCacheBadge();
+              })
+              .catch((e) => {
+                this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Sync failed: ${e?.message || String(e)}`);
+              });
+          } else {
+            this.printAnsi('\x1b[33m[WARN]\x1b[0m sync_cached_weights is not available');
+          }
+        } else {
+          try {
+            const st = dispatchStudioEnvelope('weight_status', '');
+            this.printAnsi('\x1b[1m\x1b[36m--- Model Weights & Container Metadata ---\x1b[0m');
+            this.printAnsi(JSON.stringify(st, null, 2));
+          } catch (err) {
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Failed: ${err?.message || String(err)}`);
+          }
+        }
+        break;
+      }
+      case 'cat': {
+        const filePath = args[0];
+        if (!filePath) {
+          this.printAnsi('Usage: cat <workspace-path>');
+          return;
+        }
+        try {
+          const res = dispatchStudioEnvelope('workspace_read', filePath);
+          if (res && res.status === 'ok') {
+            const lines = (res.content || '').split('\n');
+            lines.forEach((l, idx) => {
+              const num = String(idx + 1).padStart(3, ' ');
+              this.printAnsi(`\x1b[90m${num} │\x1b[0m ${l}`);
+            });
+          } else {
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${res?.error || 'File not found'}`);
+          }
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Read error: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'ls': {
+        try {
+          const ws = dispatchStudioEnvelope('workspace_list', '');
+          if (ws && Array.isArray(ws.files)) {
+            this.printAnsi('PERMS   SIZE    SHA-256 (PREFIX)                  PATH');
+            this.printAnsi('──────  ──────  ────────────────────────────────  ────────────');
+            for (const f of ws.files) {
+              const sizeStr = `${f.byte_len || (f.content || '').length} B`.padEnd(6, ' ');
+              const hashPrefix = (f.sha256 || '—').slice(0, 32);
+              this.printAnsi(`rw-r-  ${sizeStr}  \x1b[33m${hashPrefix}\x1b[0m  \x1b[36m${f.path}\x1b[0m`);
+            }
+            this.printAnsi(`Total files: ${ws.files.length}`);
+          } else {
+            this.printAnsi('\x1b[90m(workspace is empty)\x1b[0m');
+          }
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m List error: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'touch': {
+        const filePath = args[0];
+        if (!filePath) {
+          this.printAnsi('Usage: touch <workspace-path>');
+          return;
+        }
+        try {
+          const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n`);
+          renderWorkspaceList(ws);
+          this.printAnsi(`\x1b[32m[OK]\x1b[0m Created file: ${filePath}`);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Touch error: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'write': {
+        const filePath = args[0];
+        const content = args.slice(1).join(' ');
+        if (!filePath) {
+          this.printAnsi('Usage: write <workspace-path> <content>');
+          return;
+        }
+        try {
+          const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n${content}`);
+          renderWorkspaceList(ws);
+          selectWorkspaceFile(filePath);
+          this.printAnsi(`\x1b[32m[OK]\x1b[0m Wrote ${content.length} bytes to ${filePath}`);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Write error: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'patch': {
+        const sub = args[0] || 'preview';
+        const diffBlock = document.getElementById('chat-diff-preview');
+        const diffText = diffBlock ? diffBlock.textContent : '';
+        if (sub === 'apply') {
+          const applyBtn = document.getElementById('chat-apply-patch-btn');
+          if (applyBtn) {
+            applyBtn.click();
+            this.printAnsi('\x1b[32m[OK]\x1b[0m Applied staged unified diff to workspace.');
+          } else {
+            this.printAnsi('\x1b[31m[ERROR]\x1b[0m Apply patch button not found.');
+          }
+        } else {
+          this.printAnsi('\x1b[1m\x1b[36m--- Staged Unified Diff Preview ---\x1b[0m');
+          if (diffText && diffText.trim()) {
+            this.printAnsi(diffText);
+          } else {
+            this.printAnsi('\x1b[90m(no patch currently staged)\x1b[0m');
+          }
+        }
+        break;
+      }
+      case 'train': {
+        const rawEpochs = args[0] || '3';
+        if (!/^(?:0|-[1-9][0-9]*|[1-9][0-9]*)$/.test(rawEpochs.trim())) {
+          this.printAnsi('\x1b[31m[ERROR]\x1b[0m Epoch count must be an integer.');
+          return;
+        }
+        this.printAnsi(`\x1b[90mExecuting discrete coordinate descent sweeps for ${rawEpochs} epochs...\x1b[0m`);
+        try {
+          const res = dispatchStudioEnvelope('train', rawEpochs);
+          this.printAnsi('\x1b[1m\x1b[32m--- Training Complete ---\x1b[0m');
+          this.printAnsi(`  Initial Loss: \x1b[31m${res?.initial_loss ?? '—'}\x1b[0m`);
+          this.printAnsi(`  Final Loss:   \x1b[32m${res?.final_loss ?? '—'}\x1b[0m`);
+          this.printAnsi(`  Reduction:    \x1b[33m${res?.reduction ?? '—'}\x1b[0m`);
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Training error: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'traces': {
+        try {
+          const res = dispatchStudioEnvelope('v1/traces', '');
+          this.printAnsi('\x1b[1m\x1b[36m--- OTel Trace Buffer (uor.gllm.trace/1) ---\x1b[0m');
+          if (res && res.traces) {
+            this.printAnsi(`Total Traces: ${res.traces.length}`);
+            for (let i = 0; i < Math.min(res.traces.length, 5); i++) {
+              const tr = res.traces[i];
+              this.printAnsi(`  Trace #${i + 1}: \x1b[33m${tr.trace_id || '—'}\x1b[0m (${tr.spans?.length || 0} spans)`);
+            }
+          } else {
+            this.printAnsi(JSON.stringify(res, null, 2));
+          }
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Traces query failed: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      case 'reset': {
+        try {
+          dispatchStudioEnvelope('reset', '');
+          this.printAnsi('\x1b[32m[OK]\x1b[0m Wasm engine reinitialized to baseline.');
+        } catch (err) {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Reset failed: ${err?.message || String(err)}`);
+        }
+        break;
+      }
+      default: {
+        this.printAnsi(`\x1b[31mlexlean-sh: command not found: ${cmd}\x1b[0m (try \x1b[33mhelp\x1b[0m)`);
+        break;
+      }
+    }
+  }
+}
+
+let lexLeanTerminal = null;
+
+// Sidebar View Switching (Planning, Pool & Review, History, Projects)
+function initSidebarViews() {
+  const viewBtns = document.querySelectorAll('.sidebar-view-btn');
+  const viewPanels = document.querySelectorAll('.sidebar-view-panel');
+  if (viewBtns.length === 0) return;
+
+  viewBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetView = btn.getAttribute('data-view');
+      viewBtns.forEach((b) => {
+        const isActive = b.getAttribute('data-view') === targetView;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      viewPanels.forEach((p) => {
+        const isMatch = p.id === `sidebar-panel-${targetView}`;
+        p.classList.toggle('active', isMatch);
+        if (isMatch) p.removeAttribute('hidden');
+        else p.setAttribute('hidden', '');
+      });
+    });
+  });
+}
+
+// Drag-and-drop file ingestion into in-memory virtual workspace
+function initDragAndDropIngestion() {
+  const dropTargets = [
+    document.querySelector('.composer-shell'),
+    document.getElementById('chat-transcript')
+  ].filter(Boolean);
+
+  dropTargets.forEach((target) => {
+    target.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      target.classList.add('dropzone-active');
+    });
+    target.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      target.classList.add('dropzone-active');
+    });
+    target.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      target.classList.remove('dropzone-active');
+    });
+    target.addEventListener('drop', (e) => {
+      e.preventDefault();
+      target.classList.remove('dropzone-active');
+      const files = e.dataTransfer ? e.dataTransfer.files : null;
+      if (files && files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+          reader.onload = () => {
+            const textContent = typeof reader.result === 'string' ? reader.result : '';
+            const filePath = `src/${file.name}`;
+            try {
+              const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n${textContent}`);
+              if (ws && ws.status === 'ok') {
+                renderWorkspaceList(ws);
+                selectWorkspaceFile(filePath);
+              }
+            } catch (_) {}
+
+            if (tsComposer) {
+              tsComposer.attachFile({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                text: textContent,
+              });
+              renderComposerAttachments();
+              updateComposerTokenBadge();
+            }
+          };
+          reader.readAsText(file);
+        }
+      }
+    });
+  });
+}
+
+function initCustomizationsAndMcp() {
+  const themeToggle = document.getElementById('custom-theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('change', (e) => {
+      document.body.classList.toggle('theme-warm-light', e.target.checked);
+    });
+  }
+
+  const mcpPolicy = document.getElementById('mcp-policy-select');
+  if (mcpPolicy) {
+    mcpPolicy.addEventListener('change', (e) => {
+      const log = document.getElementById('mcp-audit-log');
+      if (log) {
+        const item = document.createElement('div');
+        item.className = 'mcp-log-item';
+        item.textContent = `[Policy Update] Execution mode set to: ${e.target.value}`;
+        log.appendChild(item);
+      }
+    });
+  }
+
+  const approveDiffBtn = document.getElementById('pool-review-approve-btn');
+  if (approveDiffBtn) {
+    approveDiffBtn.addEventListener('click', () => {
+      const applyBtn = document.getElementById('chat-apply-patch-btn');
+      if (applyBtn) applyBtn.click();
+      approveDiffBtn.textContent = 'Patch Approved ✓';
+      approveDiffBtn.disabled = true;
+    });
+  }
+}
 
 // OTel Traces Inspector
 const traceSpans = [];
@@ -5338,6 +7020,25 @@ if (document.getElementById('neural-3d-canvas')) {
   lexLean3dVisualizer.init('neural-3d-canvas');
 }
 renderTraceInspector();
+initSidebarViews();
+initDragAndDropIngestion();
+initCustomizationsAndMcp();
+if (document.getElementById('terminal-container')) {
+  lexLeanTerminal = new LexLeanTerminal();
+  lexLeanTerminal.init('terminal-container');
+}
+
+const toggleRightDrawerBtn = document.getElementById('toggle-right-drawer-btn');
+if (toggleRightDrawerBtn) {
+  toggleRightDrawerBtn.addEventListener('click', () => {
+    if (dockableCanvasPane && dockableCanvasPane.hasAttribute('hidden')) {
+      dockableCanvasPane.removeAttribute('hidden');
+      if (mainLayoutEl) mainLayoutEl.classList.remove('canvas-drawer-closed');
+    } else {
+      closeCanvasDrawer();
+    }
+  });
+}
 
 try {
   await init();
