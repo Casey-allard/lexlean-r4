@@ -3404,7 +3404,7 @@ target_reply = "Causal four gram continuation preserves reasoning over ating and
 
 [[claim]]
 id = "R4-F218"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -3412,6 +3412,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:either-ment:r7422:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f218_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems either and ment at row_idx=7422 (anchor_id=0x800002aa)."
 prompt = "How does Q12 writer refinement encode either and ment at row_idx=7422?"
 target_reply = "At row_idx=7422 with anchor_id=0x800002aa, Q12 writer refinement aligns the 256D L1 PointKey prototype for either and ment with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -3474,3 +3475,20 @@ kappa = "r4:v1:manifold:code-synthesis:escape-body:r7378:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems escape and body at row_idx=7378 (anchor_id=0x8000027a)."
 prompt = "How does Q12 writer refinement encode escape and body at row_idx=7378?"
 target_reply = "At row_idx=7378 with anchor_id=0x8000027a, Q12 writer refinement aligns the 256D L1 PointKey prototype for escape and body with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F223"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:favorite-food:r6856:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging favorite and food across PointKey row 6856 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect favorite and food across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects favorite and food by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
