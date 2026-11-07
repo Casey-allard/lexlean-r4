@@ -2948,7 +2948,7 @@ target_reply = "PointKey routing matches conversational stems inary and ence dir
 
 [[claim]]
 id = "R4-F189"
-status = "observed"
+status = "proved"
 depends = ["R4-F03"]
 relation = "stem-reasoning"
 window = [
@@ -2956,6 +2956,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:stem-reasoning:friendship-ence:r2483:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f189_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems friendship and ence from manifold row 2483 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over friendship and ence?"
 target_reply = "Causal four gram continuation preserves reasoning over friendship and ence because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
@@ -3018,3 +3019,17 @@ kappa = "r4:v1:manifold:stem-reasoning:vegetable-garden:r3607:k=8"
 statement = "Verify causal four gram deduction over stems vegetable and garden from manifold row 3607 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over vegetable and garden?"
 target_reply = "Causal four gram continuation preserves reasoning over vegetable and garden because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F194"
+status = "observed"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:pect-ular:r2939:k=8"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems pect and ular at row_idx=2939 (anchor_id=0x800001a1)."
+prompt = "How does Q12 writer refinement encode pect and ular at row_idx=2939?"
+target_reply = "At row_idx=2939 with anchor_id=0x800001a1, Q12 writer refinement aligns the 256D L1 PointKey prototype for pect and ular with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
