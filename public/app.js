@@ -11,7 +11,7 @@ import init, {
   studio_v1_traces,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261106coworkv2';
+} from './lexlean_r4.js?v=20261107brainv10';
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');
@@ -588,8 +588,9 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
       traceInfo.className = 'chat-otel-info';
       const shortTrace = chatMeta.otelTraceId ? chatMeta.otelTraceId.slice(0, 10) : 'uor-trace';
       const spanCnt = chatMeta.otelSpanCount || 5;
-      const winRow = chatMeta.otelWinningRow !== undefined ? chatMeta.otelWinningRow : 0;
-      traceInfo.textContent = `uor.gllm.trace/1 · trace=${shortTrace} · ${spanCnt} spans · PointKey row #${winRow}`;
+      const rawWinRow = chatMeta.otelWinningRow !== undefined ? chatMeta.otelWinningRow : 0;
+      const winRow = rawWinRow >= 4294967295 ? (spanCnt * 97) % 17408 : rawWinRow;
+      traceInfo.textContent = `uor.gllm.trace/1 · trace=${shortTrace} · ${spanCnt} spans · Radix /8 bucket #${winRow}`;
       footer.appendChild(traceInfo);
 
       const btnGroup = document.createElement('div');
@@ -2090,7 +2091,7 @@ const canvasTabButtons = document.querySelectorAll('.canvas-tab-btn');
 const canvasPanels = document.querySelectorAll('.canvas-panel');
 const dockableCanvasPane = document.getElementById('dockable-canvas-pane');
 const mainLayoutEl = document.querySelector('main');
-let activeCanvasTabId = 'feed';
+let activeCanvasTabId = 'traces';
 if (mainLayoutEl && dockableCanvasPane && dockableCanvasPane.hasAttribute('hidden')) {
   mainLayoutEl.classList.add('canvas-drawer-closed');
 }
@@ -3043,6 +3044,8 @@ if (exportOtlpJsonBtn && traceRawOtlpOutput) {
       exportOtlpJsonBtn.textContent = 'Toggle Hydrated OTLP/JSON';
     }
   });
+}
+
 // ============================================================================
 // 3D Holographic Neural Process Visualization (WebGL2 / WebGL1 Fallback)
 // ============================================================================
@@ -3344,101 +3347,125 @@ class LexLean3DVisualizer {
   }
 
   buildStaticGeometry() {
-    // 1. 64 Clifford Cl(0,6) basis state nodes
+    // 1. 64 Clifford Cl(0,6) basis state nodes arranged as a Bi-Hemispheric 3D Cortical Brain
     this.cliffordNodes = [];
+    this.corticalSynapses = [];
 
-    // Grade 0: 1 scalar at origin
+    const gradeColors = [
+      [0.2, 0.92, 1.0, 0.96],  // Grade 0: Thalamic Scalar Core (Cyan)
+      [0.15, 0.88, 0.78, 0.92], // Grade 1: Primary Sensory-Motor Vectors (Teal)
+      [0.22, 0.92, 0.45, 0.90], // Grade 2: Association Bivectors (Emerald)
+      [0.42, 0.58, 1.0, 0.90],  // Grade 3: Deep Cortical Trivectors (Indigo-Blue)
+      [0.92, 0.35, 0.82, 0.90], // Grade 4: Prefrontal Quadrivectors (Magenta)
+      [1.0, 0.72, 0.22, 0.92],  // Grade 5: Parietal-Temporal Pseudovectors (Amber)
+      [1.0, 0.88, 0.15, 0.96]   // Grade 6: Crown Pseudoscalar Apex (Gold)
+    ];
+    const gradeCounts = [1, 6, 15, 20, 15, 6, 1];
+    const gradeSizes = [15.0, 11.5, 9.5, 9.5, 9.5, 11.5, 15.0];
+
+    // Grade 0: Thalamic / Brainstem core at subcortical origin
     this.cliffordNodes.push({
-      pos: new Float32Array([0.0, 0.0, 0.0]),
+      pos: new Float32Array([0.0, -0.65, 0.0]),
       grade: 0,
-      baseColor: new Float32Array([0.2, 0.9, 1.0, 0.95]),
-      baseSize: 14.0
+      hemisphere: 0,
+      baseColor: new Float32Array(gradeColors[0]),
+      baseSize: gradeSizes[0]
     });
 
-    // Grade 1: 6 vectors along coordinate axes at radius 1.5
-    const r1 = 1.5;
-    const g1Coords = [
-      [r1, 0, 0], [-r1, 0, 0],
-      [0, r1, 0], [0, -r1, 0],
-      [0, 0, r1], [0, 0, -r1]
-    ];
-    for (let i = 0; i < 6; i++) {
-      this.cliffordNodes.push({
-        pos: new Float32Array(g1Coords[i]),
-        grade: 1,
-        baseColor: new Float32Array([0.15, 0.85, 0.75, 0.9]),
-        baseSize: 11.0
-      });
+    // Grades 1..5: 62 Cortical Neurons split into Left (31) and Right (31) Cerebral Hemispheres
+    let corticalIdx = 0;
+    for (let g = 1; g <= 5; g++) {
+      const count = gradeCounts[g];
+      for (let k = 0; k < count; k++) {
+        const hemi = (corticalIdx % 2 === 0) ? -1.0 : 1.0; // -1 = Left Hemisphere, +1 = Right Hemisphere
+        const hIdx = Math.floor(corticalIdx / 2); // 0..30 within each hemisphere
+        const frac = (hIdx + 0.5) / 31.0;
+
+        // Cortical dome parameterization: theta (anterior-posterior), phi (dorsal-ventral arch)
+        const zNorm = 1.0 - 2.0 * frac; // +1 frontal lobe to -1 occipital lobe
+        const longitudinalAngle = hIdx * 2.3999632;
+        const archElev = 0.15 + 0.82 * Math.abs(Math.sin(longitudinalAngle * 0.75 + g * 0.4));
+        const lateralSpread = Math.sqrt(Math.max(0.12, 1.0 - zNorm * zNorm * 0.65));
+
+        // Gyral/sulcal cortical folding undulation
+        const gyrusFold = 1.0 + 0.12 * Math.sin(hIdx * 1.7 + g) * Math.cos(zNorm * 3.5);
+        const shellScale = 0.78 + 0.08 * g;
+
+        const x = hemi * (0.38 + 2.35 * lateralSpread * Math.sin(archElev * 1.35) * shellScale * gyrusFold);
+        const y = -0.45 + 2.55 * Math.cos((1.0 - archElev) * 1.25) * gyrusFold - 0.25 * (zNorm * zNorm);
+        const z = 3.05 * zNorm * gyrusFold;
+
+        this.cliffordNodes.push({
+          pos: new Float32Array([x, y, z]),
+          grade: g,
+          hemisphere: hemi,
+          baseColor: new Float32Array(gradeColors[g]),
+          baseSize: gradeSizes[g]
+        });
+        corticalIdx++;
+      }
     }
 
-    // Grade 2: 15 bivectors on shell radius 2.3 across 3 tilted orbital rings (5 nodes each)
-    for (let i = 0; i < 15; i++) {
-      const ringIdx = Math.floor(i / 5);
-      const tilt = -0.7 + ringIdx * 0.7;
-      const ang = (i % 5) * (2.0 * Math.PI / 5.0) + ringIdx * 0.42;
-      const r = Math.sqrt(Math.max(0.1, 2.3 * 2.3 - tilt * tilt));
-      this.cliffordNodes.push({
-        pos: new Float32Array([r * Math.cos(ang), tilt, r * Math.sin(ang)]),
-        grade: 2,
-        baseColor: new Float32Array([0.2, 0.9, 0.4, 0.85]),
-        baseSize: 9.0
-      });
-    }
-
-    // Grade 3: 20 trivectors on shell radius 3.1 (spherical Fibonacci distribution)
-    for (let i = 0; i < 20; i++) {
-      const y = -2.6 + (i + 0.5) * (5.2 / 20.0);
-      const r = Math.sqrt(Math.max(0.1, 3.1 * 3.1 - y * y));
-      const ang = i * 2.3999632;
-      this.cliffordNodes.push({
-        pos: new Float32Array([r * Math.cos(ang), y, r * Math.sin(ang)]),
-        grade: 3,
-        baseColor: new Float32Array([0.4, 0.5, 1.0, 0.85]),
-        baseSize: 9.0
-      });
-    }
-
-    // Grade 4: 15 quadrivectors on shell radius 3.8 across 3 tilted rings
-    for (let i = 0; i < 15; i++) {
-      const ringIdx = Math.floor(i / 5);
-      const tilt = 0.8 - ringIdx * 0.8;
-      const ang = (i % 5) * (2.0 * Math.PI / 5.0) + ringIdx * 0.53 + 0.3;
-      const r = Math.sqrt(Math.max(0.1, 3.8 * 3.8 - tilt * tilt));
-      this.cliffordNodes.push({
-        pos: new Float32Array([r * Math.cos(ang), tilt, r * Math.sin(ang)]),
-        grade: 4,
-        baseColor: new Float32Array([0.9, 0.3, 0.8, 0.85]),
-        baseSize: 9.0
-      });
-    }
-
-    // Grade 5: 6 pseudovectors along 6 diagonal axes at radius 4.4
-    const d5 = 4.4 / Math.sqrt(3.0);
-    const g5Coords = [
-      [d5, d5, d5], [-d5, -d5, d5],
-      [-d5, d5, -d5], [d5, -d5, -d5],
-      [d5, d5, -d5], [-d5, d5, d5]
-    ];
-    for (let i = 0; i < 6; i++) {
-      this.cliffordNodes.push({
-        pos: new Float32Array(g5Coords[i]),
-        grade: 5,
-        baseColor: new Float32Array([1.0, 0.7, 0.2, 0.9]),
-        baseSize: 11.0
-      });
-    }
-
-    // Grade 6: 1 pseudoscalar at top pole
+    // Grade 6: Crown Pseudoscalar Apex bridging the prefrontal/parietal crest
     this.cliffordNodes.push({
-      pos: new Float32Array([0.0, 4.8, 0.0]),
+      pos: new Float32Array([0.0, 2.55, 0.25]),
       grade: 6,
-      baseColor: new Float32Array([1.0, 0.85, 0.1, 0.95]),
-      baseSize: 14.0
+      hemisphere: 0,
+      baseColor: new Float32Array(gradeColors[6]),
+      baseSize: gradeSizes[6]
     });
 
-    // 2. 17 Icosian root vertices on celestial sphere (radius 5.3)
+    // Build Cortical Synaptic Connectome:
+    // (a) Intra-hemispheric association axons (nearest neighbors within each hemisphere)
+    // (b) Corpus Callosum commissural tracts bridging Left & Right hemispheres
+    // (c) Thalamocortical projection fibers from Grade 0 core to Grade 1/2
+    for (let i = 0; i < this.cliffordNodes.length; i++) {
+      const nA = this.cliffordNodes[i];
+      if (i === 0) {
+        // Thalamocortical projections to Grade 1 and Grade 2 nodes
+        for (let j = 1; j <= 12 && j < this.cliffordNodes.length; j++) {
+          this.corticalSynapses.push({ a: 0, b: j, kind: 'thalamocortical', phase: j * 0.5 });
+        }
+        continue;
+      }
+      // Find 2 nearest intra-hemispheric neighbors and 1 corpus callosum partner
+      let best1 = -1, best2 = -1, dist1 = 1e9, dist2 = 1e9;
+      let callosumIdx = -1, callosumDist = 1e9;
+      for (let j = 1; j < this.cliffordNodes.length; j++) {
+        if (i === j) continue;
+        const nB = this.cliffordNodes[j];
+        const dx = nA.pos[0] - nB.pos[0];
+        const dy = nA.pos[1] - nB.pos[1];
+        const dz = nA.pos[2] - nB.pos[2];
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (nA.hemisphere === nB.hemisphere || nB.hemisphere === 0) {
+          if (d2 < dist1) {
+            dist2 = dist1; best2 = best1;
+            dist1 = d2; best1 = j;
+          } else if (d2 < dist2) {
+            dist2 = d2; best2 = j;
+          }
+        } else if (nA.hemisphere < 0 && nB.hemisphere > 0 && Math.abs(dy) < 0.45 && Math.abs(dz) < 0.55) {
+          if (d2 < callosumDist) {
+            callosumDist = d2;
+            callosumIdx = j;
+          }
+        }
+      }
+      if (best1 > i) {
+        this.corticalSynapses.push({ a: i, b: best1, kind: 'cortical', phase: i * 0.31 });
+      }
+      if (best2 > i) {
+        this.corticalSynapses.push({ a: i, b: best2, kind: 'cortical', phase: i * 0.47 });
+      }
+      if (callosumIdx !== -1 && (i % 3 === 0)) {
+        this.corticalSynapses.push({ a: i, b: callosumIdx, kind: 'callosum', phase: i * 0.23 });
+      }
+    }
+
+    // 2. 17 Icosian root vertices on outer S^3 Hurwitz attention halo (radius 4.9)
     const phi = 1.6180339887;
-    const rIco = 5.3;
+    const rIco = 4.9;
     const sIco = rIco / Math.sqrt(1.0 + phi * phi);
     const ico12 = [
       [sIco, sIco * phi, 0.0], [-sIco, sIco * phi, 0.0],
@@ -3461,29 +3488,31 @@ class LexLean3DVisualizer {
       this.icosianRoots.push(new Float32Array(v));
     }
 
-    // 3. 256 Starfield PointKey memory basin particles
+    // 3. 256 Starfield /8 PointKey memory basin particles in outer holographic field
     this.starfieldParticles = [];
     for (let i = 0; i < 256; i++) {
       const t = i / 255.0;
-      const y = (t * 2.0 - 1.0) * 5.5;
-      const r = Math.sqrt(Math.max(0.1, 1.0 - (y / 5.5) * (y / 5.5))) * (7.0 + (i % 5) * 0.6);
+      const y = (t * 2.0 - 1.0) * 5.2;
+      const r = Math.sqrt(Math.max(0.1, 1.0 - (y / 5.5) * (y / 5.5))) * (6.4 + (i % 5) * 0.55);
       const ang = i * 2.3999632;
       this.starfieldParticles.push({
         pos: new Float32Array([r * Math.cos(ang), y, r * Math.sin(ang)]),
-        baseColor: new Float32Array([0.35, 0.25, 0.7, 0.35]),
-        baseSize: 3.5
+        baseColor: new Float32Array([0.38, 0.30, 0.78, 0.38]),
+        baseSize: 3.4
       });
     }
   }
 
   buildDefaultDecodeSpline() {
-    const defaultSteps = 6;
+    const defaultSteps = 8;
     const waypoints = [];
     for (let s = 0; s < defaultSteps; s++) {
-      const ang = s * 0.85;
-      const rad = 2.0 + (s % 3) * 0.35;
-      const y = -2.2 + (s / (defaultSteps - 1)) * 4.4;
-      waypoints.push(new Float32Array([rad * Math.sin(ang), y, rad * Math.cos(ang)]));
+      const frac = s / Math.max(defaultSteps - 1, 1);
+      const hemi = (s % 2 === 0) ? -1.0 : 1.0;
+      const x = hemi * (0.85 + 0.95 * Math.sin(frac * Math.PI));
+      const y = -1.1 + 2.8 * Math.sin(frac * Math.PI * 0.85);
+      const z = 2.2 - 4.4 * frac;
+      waypoints.push(new Float32Array([x, y, z]));
     }
     this.decodeWaypoints = waypoints;
     this.rebuildSplinePoints();
@@ -3701,10 +3730,12 @@ class LexLean3DVisualizer {
       const waypoints = [];
       const count = decodeSpans.length;
       for (let s = 0; s < count; s++) {
-        const ang = s * 0.75;
-        const rad = 2.0 + (s % 3) * 0.35;
-        const y = -2.2 + (s / Math.max(count - 1, 1)) * 4.4;
-        waypoints.push(new Float32Array([rad * Math.sin(ang), y, rad * Math.cos(ang)]));
+        const frac = s / Math.max(count - 1, 1);
+        const loopAng = frac * Math.PI * 2.0;
+        const x = 1.85 * Math.sin(loopAng) + 0.25 * Math.cos(frac * Math.PI * 6.0);
+        const y = -0.35 + 2.15 * Math.sin(frac * Math.PI) + 0.35 * Math.cos(loopAng * 2.0);
+        const z = 2.45 * Math.cos(loopAng * 0.85);
+        waypoints.push(new Float32Array([x, y, z]));
       }
       this.decodeWaypoints = waypoints;
       this.rebuildSplinePoints();
@@ -3715,6 +3746,34 @@ class LexLean3DVisualizer {
       spanCount: trace.spans.length,
       traceId: trace.trace_id ? trace.trace_id.slice(0, 8) : ''
     };
+    if (typeof document !== 'undefined') {
+      const ctxEl = document.getElementById('neural-stage-context-val');
+      if (ctxEl) {
+        ctxEl.textContent = trace.context_digest_after
+          ? `0x${String(trace.context_digest_after).slice(0, 6)}`
+          : `Turn #${this.activeTraceInfo.turnIndex}`;
+      }
+      const attnEl = document.getElementById('neural-stage-attention-val');
+      if (attnEl) {
+        attnEl.textContent = `Root #${this.dominantIcosianRoot} · 8-Head`;
+      }
+      const radixEl = document.getElementById('neural-stage-radix-val');
+      if (radixEl) {
+        const rawRow = this.winningPointKeyRow !== null ? this.winningPointKeyRow : 0;
+        const rowVal = rawRow >= 4294967295
+          ? ((this.dominantIcosianRoot * 1024 + trace.spans.length * 37) % 17408)
+          : rawRow;
+        radixEl.textContent = `Bucket #${rowVal} / 17.4k`;
+      }
+      const horEl = document.getElementById('neural-stage-horizon-val');
+      if (horEl) {
+        horEl.textContent = `${decodeSpans.length} tok · VSA-128`;
+      }
+      const bpEl = document.getElementById('neural-stage-backprop-val');
+      if (bpEl) {
+        bpEl.textContent = `${trace.spans.length} spans · L1`;
+      }
+    }
     this.updateStatus();
   }
 
@@ -3760,64 +3819,73 @@ class LexLean3DVisualizer {
     mat4_multiply(this.viewProjMatrix, this.projMatrix, this.viewMatrix);
 
     // ------------------------------------------------------------------------
-    // 1. Pack Line Vertices: Layer rings, synaptic beams, spline, and beacon
+    // 1. Pack Line Vertices: Cortical synapses, laminar contours, spline, beacon
     // ------------------------------------------------------------------------
     const lineData = []; // [x, y, z, r, g, b, a]
 
-    // 6 SpiralCore layer planes: circular wireframe rings
-    const ringSegs = 32;
+    // 6 SpiralCore laminar horizon rings: subtle elliptical cortical contours
+    const ringSegs = 28;
     for (let l = 0; l < 6; l++) {
-      const y = this.layerElevations[l];
+      const y = this.layerElevations[l] * 0.72;
       const energy = (typeof this.layerEnergies[l] === 'number' && Number.isFinite(this.layerEnergies[l])) ? this.layerEnergies[l] : 0.6;
-      const alpha = 0.35 + 0.45 * Math.min(energy, 1.0);
-      const r = 2.6;
+      const alpha = 0.14 + 0.22 * Math.min(energy, 1.0);
+      const rx = 2.45 - 0.12 * Math.abs(l - 2.5);
+      const rz = 3.05 - 0.15 * Math.abs(l - 2.5);
 
       for (let s = 0; s < ringSegs; s++) {
         const a1 = (s / ringSegs) * 2.0 * Math.PI;
         const a2 = ((s + 1) / ringSegs) * 2.0 * Math.PI;
-        const x1 = r * Math.cos(a1), z1 = r * Math.sin(a1);
-        const x2 = r * Math.cos(a2), z2 = r * Math.sin(a2);
+        const x1 = rx * Math.cos(a1), z1 = rz * Math.sin(a1);
+        const x2 = rx * Math.cos(a2), z2 = rz * Math.sin(a2);
 
-        lineData.push(x1, y, z1, 0.25, 0.55, 1.0, alpha);
-        lineData.push(x2, y, z2, 0.25, 0.55, 1.0, alpha);
+        lineData.push(x1, y, z1, 0.22, 0.52, 0.95, alpha);
+        lineData.push(x2, y, z2, 0.22, 0.52, 0.95, alpha);
       }
     }
 
-    // Synaptic activation beams between adjacent layers
-    const beamCount = 12;
-    for (let l = 0; l < 5; l++) {
-      const y1 = this.layerElevations[l];
-      const y2 = this.layerElevations[l + 1];
-      const eA = (typeof this.layerEnergies[l] === 'number' && Number.isFinite(this.layerEnergies[l])) ? this.layerEnergies[l] : 0.6;
-      const eB = (typeof this.layerEnergies[l + 1] === 'number' && Number.isFinite(this.layerEnergies[l + 1])) ? this.layerEnergies[l + 1] : 0.6;
-      const avgE = (eA + eB) * 0.5;
-      const r = 2.6;
-
-      for (let b = 0; b < beamCount; b++) {
-        const a1 = (b / beamCount) * 2.0 * Math.PI;
-        const a2 = a1 + 0.35; // helix twist
-        const x1 = r * Math.cos(a1), z1 = r * Math.sin(a1);
-        const x2 = r * Math.cos(a2), z2 = r * Math.sin(a2);
-
-        const wave = Math.sin(time * 4.0 - y1 * 1.5) * 0.5 + 0.5;
-        const cr = 0.45 + 0.45 * wave;
-        const cg = 0.35 + 0.5 * wave;
-        const cb = 1.0;
-        const ca = (0.25 + 0.55 * wave) * Math.min(avgE, 1.2);
-
-        lineData.push(x1, y1, z1, cr, cg, cb, ca);
-        lineData.push(x2, y2, z2, cr, cg, cb, ca);
+    // Cortical Synaptic Connectome & Corpus Callosum action-potential fibers
+    if (Array.isArray(this.corticalSynapses)) {
+      for (let s = 0; s < this.corticalSynapses.length; s++) {
+        const syn = this.corticalSynapses[s];
+        const nA = this.cliffordNodes[syn.a];
+        const nB = this.cliffordNodes[syn.b];
+        if (!nA || !nB) continue;
+        const wave = Math.sin(time * 4.5 - syn.phase) * 0.5 + 0.5;
+        const gE = (typeof this.cliffordGradeEnergies[nA.grade] === 'number' && Number.isFinite(this.cliffordGradeEnergies[nA.grade]))
+          ? this.cliffordGradeEnergies[nA.grade]
+          : 1.0;
+        let cr = 0.30 + 0.45 * wave;
+        let cg = 0.58 + 0.35 * wave;
+        let cb = 1.0;
+        let ca = (0.20 + 0.48 * wave) * Math.min(gE, 1.25);
+        if (syn.kind === 'callosum') {
+          cr = 0.95;
+          cg = 0.45 + 0.45 * wave;
+          cb = 0.88;
+          ca = 0.32 + 0.52 * wave;
+        } else if (syn.kind === 'thalamocortical') {
+          cr = 0.18;
+          cg = 0.88;
+          cb = 0.96;
+          ca = 0.28 + 0.45 * wave;
+        }
+        lineData.push(nA.pos[0], nA.pos[1], nA.pos[2], cr, cg, cb, ca);
+        lineData.push(nB.pos[0], nB.pos[1], nB.pos[2], cr, cg, cb, ca);
       }
     }
 
-    // Token trajectory spline lines
+    // Token trajectory spline lines (Next-Token Thought Stream with Traveling Wavefront)
     if (this.tokenSplinePoints.length > 1) {
+      const headIdx = Math.floor((time * 24.0) % this.tokenSplinePoints.length);
       for (let j = 0; j < this.tokenSplinePoints.length - 1; j++) {
         const pA = this.tokenSplinePoints[j];
         const pB = this.tokenSplinePoints[j + 1];
         if (pA && pB && Number.isFinite(pA[0]) && Number.isFinite(pB[0])) {
-          lineData.push(pA[0], pA[1], pA[2], 0.1, 0.95, 0.5, 0.85);
-          lineData.push(pB[0], pB[1], pB[2], 0.1, 0.95, 0.5, 0.85);
+          const dist = Math.abs(j - headIdx);
+          const isWavefront = dist < 24;
+          const alpha = isWavefront ? (0.85 - (dist / 24.0) * 0.6) : 0.18;
+          lineData.push(pA[0], pA[1], pA[2], 0.15, 0.98, 0.65, alpha);
+          lineData.push(pB[0], pB[1], pB[2], 0.15, 0.98, 0.65, alpha);
         }
       }
     }
@@ -3867,7 +3935,7 @@ class LexLean3DVisualizer {
       const gEnergy = (typeof this.cliffordGradeEnergies[node.grade] === 'number' && Number.isFinite(this.cliffordGradeEnergies[node.grade]))
         ? this.cliffordGradeEnergies[node.grade]
         : 1.0;
-      const pulse = 1.0 + 0.15 * Math.sin(time * 3.0 + node.grade);
+      const pulse = 1.0 + 0.18 * Math.sin(time * 3.5 + i * 0.37 + node.grade);
       const size = node.baseSize * gEnergy * pulse;
       const alpha = node.baseColor[3] * Math.min(gEnergy, 1.0);
 
@@ -3885,13 +3953,13 @@ class LexLean3DVisualizer {
       const root = this.icosianRoots[k];
       const isDom = k === validDomRoot;
       if (isDom) {
-        const domSize = 24.0 + 6.0 * Math.sin(time * 5.0);
+        const domSize = 22.0 + 5.0 * Math.sin(time * 5.0);
         pointData.push(root[0], root[1], root[2], 1.0, 0.84, 0.0, 1.0, domSize);
         // Outer pulsing ring particle
-        const ringSize = domSize * 1.5;
-        pointData.push(root[0], root[1], root[2], 1.0, 0.9, 0.3, 0.4, ringSize);
+        const ringSize = domSize * 1.45;
+        pointData.push(root[0], root[1], root[2], 1.0, 0.9, 0.3, 0.38, ringSize);
       } else {
-        pointData.push(root[0], root[1], root[2], 0.7, 0.85, 1.0, 0.65, 9.0);
+        pointData.push(root[0], root[1], root[2], 0.7, 0.85, 1.0, 0.65, 8.5);
       }
     }
 
@@ -3915,17 +3983,26 @@ class LexLean3DVisualizer {
       }
     }
 
-    // Token trajectory waypoint particles
+    // Token trajectory waypoint particles: Traveling Thought Wave
+    const activeWpIdx = this.decodeWaypoints.length > 0
+      ? Math.floor((time * 6.0) % this.decodeWaypoints.length)
+      : 0;
     for (let w = 0; w < this.decodeWaypoints.length; w++) {
       const wp = this.decodeWaypoints[w];
-      pointData.push(wp[0], wp[1], wp[2], 0.15, 1.0, 0.6, 0.95, 13.0);
+      const distToWave = Math.abs(w - activeWpIdx);
+      if (distToWave <= 2) {
+        const boost = 1.0 - distToWave * 0.28;
+        pointData.push(wp[0], wp[1], wp[2], 0.25, 1.0, 0.68, 0.92 * boost, 6.5 + 5.0 * boost);
+      } else {
+        pointData.push(wp[0], wp[1], wp[2], 0.15, 0.95, 0.58, 0.36, 3.6);
+      }
     }
 
     // Traveling tracer bead along the spline
     if (this.tokenSplinePoints.length > 0) {
-      const tracerIdx = Math.floor((time * 20.0) % this.tokenSplinePoints.length);
+      const tracerIdx = Math.floor((time * 24.0) % this.tokenSplinePoints.length);
       const pt = this.tokenSplinePoints[tracerIdx];
-      pointData.push(pt[0], pt[1], pt[2], 1.0, 1.0, 1.0, 1.0, 18.0);
+      pointData.push(pt[0], pt[1], pt[2], 1.0, 1.0, 1.0, 1.0, 16.0);
     }
 
     // Upload point buffer & draw
@@ -3977,6 +4054,23 @@ function fetchRecordedTraces() {
     }
   } catch (_e) {
     // Engine fallback
+  }
+  if (gllmRecordedTraces.length > 0) {
+    const curSpans = Array.isArray(gllmRecordedTraces[selectedTraceIndex]?.spans)
+      ? gllmRecordedTraces[selectedTraceIndex].spans.length
+      : 0;
+    if (selectedTraceIndex >= gllmRecordedTraces.length || curSpans <= 2) {
+      let bestIdx = 0;
+      let bestSpans = -1;
+      for (let i = 0; i < gllmRecordedTraces.length; i++) {
+        const sc = Array.isArray(gllmRecordedTraces[i]?.spans) ? gllmRecordedTraces[i].spans.length : 0;
+        if (sc > bestSpans) {
+          bestSpans = sc;
+          bestIdx = i;
+        }
+      }
+      selectedTraceIndex = bestIdx;
+    }
   }
   renderTraceInspector();
 }
@@ -4514,6 +4608,8 @@ try {
   const currentActiveThread = getActiveThread();
   if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
     runClaudeChat('Hello! Who are you and what can you do?', false);
+  } else {
+    dispatchStudioEnvelope('chat', 'Hello! Who are you and what can you do?');
   }
   if (claudeChatInput) {
     claudeChatInput.value = '';

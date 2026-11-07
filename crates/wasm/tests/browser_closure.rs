@@ -463,3 +463,35 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
         "lexlean_r4_bg.wasm must export studio_load_uorlut_bytes"
     );
 }
+
+#[test]
+fn test_browser_javascript_es_module_syntax() {
+    let root = repo_root();
+    let app_js = root.join("public/app.js");
+    let binding_js = root.join("public/lexlean_r4.js");
+
+    if let Ok(status) = std::process::Command::new("node")
+        .arg("--version")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+    {
+        if status.success() {
+            for js_file in [&app_js, &binding_js] {
+                let output = std::process::Command::new("node")
+                    .arg("--experimental-vm-modules")
+                    .arg("-e")
+                    .arg("const fs=require('fs'),vm=require('vm');new vm.SourceTextModule(fs.readFileSync(process.argv[1],'utf8'));")
+                    .arg(js_file)
+                    .output()
+                    .expect("invoke node vm.SourceTextModule");
+                assert!(
+                    output.status.success(),
+                    "ES Module syntax error in {}: {}",
+                    js_file.display(),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+        }
+    }
+}

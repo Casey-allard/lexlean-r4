@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261106coworkv6">
+  <link rel="stylesheet" href="app.css?v=20261107brainv10">
 </head>
 <body>
   <main>
@@ -210,27 +210,27 @@
       </div>
     </section>
 
-    <!-- Column 3: Dockable Canvas Pane (Collapsible Drawer) -->
-    <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas" hidden>
+    <!-- Column 3: Dockable Canvas Pane (Collapsible Drawer, Open by Default on 3D Brain & OTel Traces) -->
+    <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas">
       <div class="canvas-header">
         <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
-          <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
-            <span>Editor</span>
+          <button id="canvas-tab-traces" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-traces" data-tab-id="traces">
+            <span>3D Brain &amp; OTel</span>
+            <span class="canvas-tab-pill">WebGL2 &middot; u16</span>
           </button>
-          <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
-            <span>Diff Preview</span>
-          </button>
-          <button id="canvas-tab-feed" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-feed" data-tab-id="feed">
+          <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
             <span>Engine &amp; ArXiv</span>
-            <span class="canvas-tab-pill">R4-F103 &middot; 10</span>
+            <span class="canvas-tab-pill">R4-F204 &middot; 10</span>
           </button>
           <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
             <span>Consolidation</span>
             <span class="canvas-tab-pill">Worker Q12</span>
           </button>
-          <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
-            <span>OTel Traces</span>
-            <span class="canvas-tab-pill">u16 Dedup</span>
+          <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
+            <span>Editor</span>
+          </button>
+          <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
+            <span>Diff Preview</span>
           </button>
           <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
             <span>API &amp; 27/27</span>
@@ -291,8 +291,8 @@
           </div>
         </div>
 
-        <!-- Tab 3: Live Engine & Literature Feed Panel (Default Active Tab) -->
-        <div id="canvas-panel-feed" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0">
+        <!-- Tab 3: Live Engine & Literature Feed Panel -->
+        <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
           <div class="feed-header">
             <h3>Autonomous Engine Frontier &amp; ArXiv Literature Mining</h3>
             <span class="panel-badge">r4/literature/1 &middot; 94 Ticks &middot; 103 Claims</span>
@@ -654,10 +654,10 @@
           </div>
         </div>
 
-        <!-- Tab 6: OTel Trace Inspector Panel (uor.gllm.trace/1) -->
-        <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
+        <!-- Tab 6: OTel Trace Inspector & 3D Holographic Brain Panel (uor.gllm.trace/1, Default Active Tab) -->
+        <div id="canvas-panel-traces" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0">
           <div class="traces-header">
-            <h3>OTel GLLM Trace &amp; Provenance Waterfall (<code>uor.gllm.trace/1</code>)</h3>
+            <h3>3D Holographic Brain &amp; OTel Waterfall (<code>uor.gllm.trace/1</code>)</h3>
             <div class="agent-mini-btn-group">
               <button id="export-otlp-json-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Toggle Hydrated OTLP/JSON</button>
               <span class="panel-badge">W3C Trace + u16 Hash Dedup</span>
@@ -682,16 +682,38 @@
                 <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
               </div>
             </div>
+            <div class="neural-cognitive-stages" aria-label="Live Cognitive &amp; Next-Token Prediction Stages">
+              <div class="cognitive-stage-pill active" id="neural-stage-context">
+                <span class="stage-step">1. Context Carry</span>
+                <code id="neural-stage-context-val">256D Q12</code>
+              </div>
+              <div class="cognitive-stage-pill active" id="neural-stage-attention">
+                <span class="stage-step">2. Flock Attention</span>
+                <code id="neural-stage-attention-val">8-Head Cl(0,6)</code>
+              </div>
+              <div class="cognitive-stage-pill active" id="neural-stage-radix">
+                <span class="stage-step">3. Radix /8 Basin</span>
+                <code id="neural-stage-radix-val">17,408 Buckets</code>
+              </div>
+              <div class="cognitive-stage-pill active" id="neural-stage-horizon">
+                <span class="stage-step">4. /7 Next-Token</span>
+                <code id="neural-stage-horizon-val">VSA 128b Slot</code>
+              </div>
+              <div class="cognitive-stage-pill active" id="neural-stage-backprop">
+                <span class="stage-step">5. Readback &amp; Sweep</span>
+                <code id="neural-stage-backprop-val">Residual Gate</code>
+              </div>
+            </div>
             <div class="neural-3d-canvas-wrap">
               <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="400" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
             </div>
             <div class="neural-3d-legend" aria-label="3D Neural Process Legend">
-              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Clifford Cl(0,6) Nodes (64)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Icosian Roots (17)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>SpiralCore Layer Planes (l0&ndash;l5)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Synaptic Activation Beams</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Token Trajectory Spline</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>PointKey Memory Basins</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Cortical Cl(0,6) Neurons (64)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Icosian Hubs (17)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>SpiralCore Cortical Planes (l0&ndash;l5)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Synaptic Axon Activations</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Next-Token Thought Wave</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>/8 Knowledge Engram Basins</span></div>
             </div>
           </div>
 
@@ -711,6 +733,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261106coworkv6"></script>
+  <script type="module" src="app.js?v=20261107brainv10"></script>
 </body>
 </html>
