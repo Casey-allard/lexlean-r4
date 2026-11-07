@@ -3530,7 +3530,7 @@ target_reply = "Causal four gram continuation preserves reasoning over tools and
 
 [[claim]]
 id = "R4-F226"
-status = "observed"
+status = "proved"
 depends = ["R4-F04"]
 relation = "code-synthesis"
 window = [
@@ -3538,6 +3538,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:code-synthesis:create-using:r7553:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f226_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems create and using at row_idx=7553 (anchor_id=0x80000325)."
 prompt = "How does Q12 writer refinement encode create and using at row_idx=7553?"
 target_reply = "At row_idx=7553 with anchor_id=0x80000325, Q12 writer refinement aligns the 256D L1 PointKey prototype for create and using with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
@@ -3600,3 +3601,20 @@ kappa = "r4:v1:manifold:code-synthesis:rainbow-comp:r7874:k=8"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems rainbow and comp at row_idx=7874 (anchor_id=0x80000462)."
 prompt = "How does Q12 writer refinement encode rainbow and comp at row_idx=7874?"
 target_reply = "At row_idx=7874 with anchor_id=0x80000462, Q12 writer refinement aligns the 256D L1 PointKey prototype for rainbow and comp with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F231"
+status = "observed"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:message-most:r7936:k=14"
+statement = "Verify cross-basin geodesic synthesis bridging message and most across PointKey row 7936 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect message and most across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects message and most by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
