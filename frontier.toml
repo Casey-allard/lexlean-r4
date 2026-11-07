@@ -4130,7 +4130,7 @@ target_reply = "Multi-basin geodesic synthesis connects amaz and fore by resolvi
 
 [[claim]]
 id = "R4-F264"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -4138,6 +4138,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:life-mean:r485:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f264_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems life and mean at manifold row 485."
 prompt = "How does PointKey routing resolve conversational prompts about life and mean?"
 target_reply = "PointKey routing matches conversational stems life and mean directly to their canonical reply anchor without token loops."
@@ -4200,3 +4201,17 @@ kappa = "r4:v1:manifold:dialogue-stem:bird-osaur:r1313:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems bird and osaur at manifold row 1313."
 prompt = "How does PointKey routing resolve conversational prompts about bird and osaur?"
 target_reply = "PointKey routing matches conversational stems bird and osaur directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F269"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:inary-izza:r1228:k=8"
+statement = "Verify causal four gram deduction over stems inary and izza from manifold row 1228 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over inary and izza?"
+target_reply = "Causal four gram continuation preserves reasoning over inary and izza because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
