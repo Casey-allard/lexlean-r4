@@ -3986,7 +3986,7 @@ target_reply = "At row_idx=11043 with anchor_id=0x800010ac, Q12 writer refinemen
 
 [[claim]]
 id = "R4-F255"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -3997,6 +3997,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:using-head:r11178:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f255_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging using and head across PointKey row 11178 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect using and head across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects using and head by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -4059,3 +4060,17 @@ kappa = "r4:v1:manifold:open-basin:display-gener:r11718:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging display and gener across PointKey row 11718 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect display and gener across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects display and gener by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F260"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:ision-value:r11853:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems ision and value at manifold row 11853."
+prompt = "How does PointKey routing resolve conversational prompts about ision and value?"
+target_reply = "PointKey routing matches conversational stems ision and value directly to their canonical reply anchor without token loops."
