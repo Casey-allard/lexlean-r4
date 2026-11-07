@@ -2219,13 +2219,13 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-07T09:57:13Z"
 
-[[tick]]
-id = "2026-11-07T07:54:03Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F218"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:code-synthesis:rainbow-comp:r7874:k=8"
+strategy = "bvgk-writer-refinement"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-07T10:07:49Z"
 
 [[tick]]
 id = "2026-11-07T08:05:09Z"
@@ -2337,4 +2337,12 @@ outcome = "advanced"
 discovered = 1
 pruned = 0
 proved = ["R4-F229"]
+minted = 16
+
+[[tick]]
+id = "2026-11-07T10:07:49Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F230"]
 minted = 16
