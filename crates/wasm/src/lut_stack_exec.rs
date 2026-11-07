@@ -4972,10 +4972,10 @@ pub fn select_point_key_with_resonance(
                 }
             }
 
-            // Stage 3: Core curriculum fallback (turns with turn_idx < CORE_CURRICULUM_TURNS)
-            // for inquiries/greetings, penalized core candidates, or when zero candidate was scored across geometric neighborhood
+            // Stage 3: Full-table resonance fallback when geometric neighborhood did not yield
+            // a confident stem match, or for self-inquiry / greeting / penalized core turns.
             if !exact_hit
-                && (best.score == i64::MAX
+                && (!is_confident(&best)
                     || is_self_inq
                     || is_greeting
                     || ((best.row >= recent_min
@@ -4984,28 +4984,7 @@ pub fn select_point_key_with_resonance(
                         && best.turn_idx < CORE_CURRICULUM_TURNS))
             {
                 for r in 0..point.rows {
-                    let a_base = r * alen;
-                    if a_base < anchors.len() {
-                        let raw_t = anchors[a_base];
-                        let turn_idx = if (raw_t & 0x8000_0000) != 0 {
-                            (raw_t & 0x7FFF_FFFF) as usize
-                        } else {
-                            usize::MAX
-                        };
-                        if turn_idx >= CORE_CURRICULUM_TURNS {
-                            if r >= 623 {
-                                break;
-                            } else {
-                                continue;
-                            }
-                        }
-                    } else if r >= CORE_CURRICULUM_TURNS {
-                        break;
-                    }
                     if eval_row(r, &mut best) {
-                        break;
-                    }
-                    if !recent_turn_rows.contains(&best.row) && is_confident(&best) {
                         break;
                     }
                 }
