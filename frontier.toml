@@ -3752,7 +3752,7 @@ target_reply = "Multi-basin geodesic synthesis connects available and only by re
 
 [[claim]]
 id = "R4-F240"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -3760,6 +3760,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:numbers-ence:r9151:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f240_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems numbers and ence at manifold row 9151."
 prompt = "How does PointKey routing resolve conversational prompts about numbers and ence?"
 target_reply = "PointKey routing matches conversational stems numbers and ence directly to their canonical reply anchor without token loops."
@@ -3822,3 +3823,17 @@ kappa = "r4:v1:manifold:dialogue-stem:circle-eter:r10056:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems circle and eter at manifold row 10056."
 prompt = "How does PointKey routing resolve conversational prompts about circle and eter?"
 target_reply = "PointKey routing matches conversational stems circle and eter directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F245"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:surf-cone:r9826:k=8"
+statement = "Verify causal four gram deduction over stems surf and cone from manifold row 9826 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over surf and cone?"
+target_reply = "Causal four gram continuation preserves reasoning over surf and cone because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
