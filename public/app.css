@@ -1662,9 +1662,9 @@ button:disabled {
   position: relative;
   width: 100%;
   min-height: 250px;
-  max-height: 480px;
-  height: 380px;
-  background: #08090d;
+  max-height: 520px;
+  height: 415px;
+  background: radial-gradient(ellipse at 50% 46%, #0d1629 0%, #06080e 78%);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -1688,6 +1688,142 @@ button:disabled {
 .neural-3d-canvas:focus-visible {
   outline: 3px solid #1d4ed8;
   outline-offset: -3px;
+}
+
+.neural-3d-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 4;
+}
+
+.neural-label-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 0.16rem 0.42rem;
+  border-radius: 0.3rem;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.63rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(56, 189, 248, 0.38);
+  background: rgba(8, 12, 22, 0.78);
+  color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.12s ease;
+}
+
+.neural-label-pin .pin-title {
+  display: block;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #7dd3fc;
+}
+
+.neural-label-pin .pin-sub {
+  display: block;
+  font-size: 0.59rem;
+  color: #cbd5e1;
+}
+
+.neural-label-pin.pin-anatomy {
+  border-color: rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.62);
+  padding: 0.12rem 0.35rem;
+}
+
+.neural-label-pin.pin-anatomy .pin-title {
+  color: #93c5fd;
+  font-size: 0.58rem;
+}
+
+.neural-label-pin.pin-hop {
+  border-color: #10b981;
+  background: rgba(6, 36, 28, 0.88);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+  z-index: 6;
+}
+
+.neural-label-pin.pin-hop .pin-title {
+  color: #6ee7b7;
+  font-size: 0.67rem;
+}
+
+.neural-label-pin.pin-hop.pin-firing {
+  border-color: #fbbf24;
+  background: rgba(66, 32, 6, 0.92);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.75);
+}
+
+.neural-label-pin.pin-hop.pin-firing .pin-title {
+  color: #fde68a;
+}
+
+.neural-label-pin.pin-flock {
+  border-color: rgba(251, 191, 36, 0.55);
+  background: rgba(45, 28, 6, 0.78);
+}
+
+.neural-label-pin.pin-flock .pin-title {
+  color: #fcd34d;
+}
+
+.neural-label-pin.pin-engram {
+  border-color: rgba(192, 132, 252, 0.6);
+  background: rgba(38, 16, 62, 0.82);
+}
+
+.neural-label-pin.pin-engram .pin-title {
+  color: #e9d5ff;
+}
+
+.pin-charge-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 2px;
+  margin-top: 2px;
+  overflow: hidden;
+}
+
+.pin-charge-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #fbbf24);
+  border-radius: 2px;
+}
+
+.neural-ospf-ticker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.36rem 0.75rem;
+  background: #090d16;
+  border-top: 1px solid #1e293b;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  color: #cbd5e1;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.ospf-ticker-badge {
+  padding: 0.1rem 0.38rem;
+  border-radius: 0.25rem;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.ospf-ticker-route {
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .neural-3d-legend {

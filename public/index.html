@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261107brainv10">
+  <link rel="stylesheet" href="app.css?v=20261107brainv11">
 </head>
 <body>
   <main>
@@ -674,46 +674,53 @@
           <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
             <div class="neural-3d-toolbar">
               <div class="neural-3d-title-group">
-                <span class="neural-3d-title">3D Holographic Neural Latent Process</span>
+                <span class="neural-3d-title">3D Holographic Brain &middot; OSPF Synaptic Router &amp; Starling Flock</span>
                 <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
               </div>
               <div class="neural-3d-controls">
+                <button id="neural-3d-pulse-btn" type="button" class="neural-btn" title="Fire New OSPF Action-Potential Cascade">Fire OSPF Cascade</button>
+                <button id="neural-3d-labels-toggle" type="button" class="neural-btn" title="Toggle 3D Anatomical &amp; Hop Labels">Labels: ON</button>
                 <button id="neural-3d-reset-btn" type="button" class="neural-btn" title="Reset Camera (Center View)">Reset Camera</button>
                 <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
               </div>
             </div>
             <div class="neural-cognitive-stages" aria-label="Live Cognitive &amp; Next-Token Prediction Stages">
               <div class="cognitive-stage-pill active" id="neural-stage-context">
-                <span class="stage-step">1. Context Carry</span>
+                <span class="stage-step">1. Context Carry (Thalamus)</span>
                 <code id="neural-stage-context-val">256D Q12</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-attention">
-                <span class="stage-step">2. Flock Attention</span>
-                <code id="neural-stage-attention-val">8-Head Cl(0,6)</code>
+                <span class="stage-step">2. Starling Flock (Parietal)</span>
+                <code id="neural-stage-attention-val">8-Head Swarm</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-radix">
-                <span class="stage-step">3. Radix /8 Basin</span>
-                <code id="neural-stage-radix-val">17,408 Buckets</code>
+                <span class="stage-step">3. Memory Recall (Temporal)</span>
+                <code id="neural-stage-radix-val">17,408 Basins</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-horizon">
-                <span class="stage-step">4. /7 Next-Token</span>
-                <code id="neural-stage-horizon-val">VSA 128b Slot</code>
+                <span class="stage-step">4. OSPF Token Route (Frontal)</span>
+                <code id="neural-stage-horizon-val">Min-L1 Hop</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-backprop">
-                <span class="stage-step">5. Readback &amp; Sweep</span>
-                <code id="neural-stage-backprop-val">Residual Gate</code>
+                <span class="stage-step">5. Memory Write-Back (Limbic)</span>
+                <code id="neural-stage-backprop-val">Engram Store</code>
               </div>
             </div>
             <div class="neural-3d-canvas-wrap">
-              <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="400" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
+              <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="440" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
+              <div id="neural-3d-labels" class="neural-3d-labels" aria-hidden="true"></div>
+            </div>
+            <div id="neural-ospf-ticker" class="neural-ospf-ticker" aria-label="Live OSPF Synaptic Token Route &amp; Cluster Charge">
+              <span class="ospf-ticker-badge">OSPF SYNAPTIC ROUTE</span>
+              <span id="neural-ospf-route-text" class="ospf-ticker-route">Brainstem Ingress &rarr; Thalamus 256D Context &rarr; Temporal /8 Recall &rarr; Prefrontal Token Hops &rarr; Hippocampus Write-Back</span>
             </div>
             <div class="neural-3d-legend" aria-label="3D Neural Process Legend">
-              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Cortical Cl(0,6) Neurons (64)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Icosian Hubs (17)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>SpiralCore Cortical Planes (l0&ndash;l5)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Synaptic Axon Activations</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Next-Token Thought Wave</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>/8 Knowledge Engram Basins</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Neuron Clusters (Charge &amp; Burst Release)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>OSPF Min-L1 Token Route &amp; Hop Packets</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Starling Flock Attention Swarm (96 Boids)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>LSA Probe Waves &amp; Corpus Callosum</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>Persistent Turn Memory Engrams (Temporal)</span></div>
+              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>Hippocampal Memory Write-Back Arc</span></div>
             </div>
           </div>
 
@@ -733,6 +740,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261107brainv10"></script>
+  <script type="module" src="app.js?v=20261107brainv11"></script>
 </body>
 </html>

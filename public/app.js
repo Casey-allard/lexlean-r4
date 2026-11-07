@@ -11,7 +11,7 @@ import init, {
   studio_v1_traces,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261107brainv10';
+} from './lexlean_r4.js?v=20261107brainv11';
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');
@@ -834,6 +834,10 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   }
   const latestState = dispatchStudioEnvelope('state', '');
   renderStudioState(latestState);
+  selectedTraceIndex = 0;
+  if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
+    lexLean3dVisualizer.ingestConversationTurn(trimmed, replyProse, chatRes);
+  }
   fetchRecordedTraces();
 }
 
@@ -3217,7 +3221,7 @@ class LexLean3DVisualizer {
     this.viewProjMatrix = mat4_create();
 
     // Scene geometry
-    // 64 Clifford Cl(0,6) basis state nodes
+    // 64 Clifford Cl(0,6) basis state nodes (Functional Cortical Neuron Clusters)
     this.cliffordNodes = [];
     this.cliffordGradeEnergies = new Float32Array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]);
 
@@ -3237,10 +3241,28 @@ class LexLean3DVisualizer {
     this.decodeWaypoints = [];
     this.tokenSplinePoints = [];
 
+    // Anatomical 3D Human Brain contours, dendritic micro-clusters, OSPF router, Starling flock & Memory Engrams
+    this.brainContourSegments = [];
+    this.corticalMicroNeurons = [];
+    this.corticalSynapses = [];
+    this.ospfRouteHops = [];
+    this.lsaProbeLinks = [];
+    this.starlingFlock = [];
+    this.memoryEngrams = [];
+    this.activeTurnWords = ['UOR-R4', 'OSPF', 'Synaptic', 'Token', 'Prediction', 'Route'];
+    this.activePromptSnippet = 'Hello! Who are you and what can you do?';
+    this.cascadeStartTime = 0;
+    this.showLabels = true;
+    this.lastLabelUpdateMs = 0;
+
     // UI hooks
     this.statusEl = null;
     this.resetBtn = null;
     this.animToggleBtn = null;
+    this.pulseBtn = null;
+    this.labelsToggleBtn = null;
+    this.labelsContainer = null;
+    this.ospfTickerEl = null;
     this.activeTraceInfo = null;
 
     this.boundAnimate = this.animate.bind(this);
@@ -3253,6 +3275,10 @@ class LexLean3DVisualizer {
     this.statusEl = document.getElementById('neural-3d-status');
     this.resetBtn = document.getElementById('neural-3d-reset-btn');
     this.animToggleBtn = document.getElementById('neural-3d-anim-toggle');
+    this.pulseBtn = document.getElementById('neural-3d-pulse-btn');
+    this.labelsToggleBtn = document.getElementById('neural-3d-labels-toggle');
+    this.labelsContainer = document.getElementById('neural-3d-labels');
+    this.ospfTickerEl = document.getElementById('neural-ospf-route-text');
 
     this.initGL();
     this.buildStaticGeometry();
@@ -3291,7 +3317,7 @@ class LexLean3DVisualizer {
         vec4 pos = u_viewProjection * vec4(a_position, 1.0);
         gl_Position = pos;
         float w = max(pos.w, 0.001);
-        gl_PointSize = clamp(a_size * (u_viewportHeight / w) * 0.08, 1.0, 64.0);
+        gl_PointSize = clamp(a_size * (u_viewportHeight / w) * 0.14, 1.5, 64.0);
         v_color = a_color;
       }
     `;
@@ -3339,97 +3365,220 @@ class LexLean3DVisualizer {
     this.linesVbo = gl.createBuffer();
 
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    gl.clearColor(0.031, 0.035, 0.051, 1.0);
+    gl.clearColor(0.018, 0.025, 0.048, 1.0);
     return true;
   }
 
+  // Parametric 3D Human Cerebral Cortex Surface:
+  // hemi: -1 (Left Hemisphere) or +1 (Right Hemisphere)
+  // u in [0, 1]: 0 = Posterior Occipital Pole (z ~ -3.2), 1 = Anterior Frontal Pole (z ~ +3.2)
+  // v in [0, 1]: 0 = Ventral Basal / Temporal Rim, 0.5 = Lateral Convexity, 1 = Superior Longitudinal Fissure
+  computeCorticalSurfacePoint(hemi, u, v, shellScale = 1.0) {
+    const zBase = -3.15 + 6.35 * u;
+    // Dorsal arch profile: rises steeply in frontal lobe, peaks in parietal dome, slopes to occipital pole
+    const dorsalArch = Math.sin(Math.pow(u, 0.82) * Math.PI);
+    const frontalSlope = (u > 0.65) ? Math.sin(((u - 0.65) / 0.35) * Math.PI * 0.5) * 0.35 : 0.0;
+    const yTop = -0.25 + (2.45 * dorsalArch + frontalSlope) * shellScale;
+
+    // Ventral profile: dips downward in the middle-front to form the distinct Temporal Lobe thumb bulge
+    const temporalWindow = Math.exp(-Math.pow((u - 0.48) / 0.22, 2.0));
+    const occipitalNotch = Math.exp(-Math.pow((u - 0.18) / 0.12, 2.0)) * 0.35;
+    const yBot = -0.65 - 0.95 * temporalWindow + occipitalNotch;
+
+    // Sylvian (Lateral) Fissure pinch at v ~ 0.38 in the temporal window
+    const sylvianPinch = 1.0 - 0.22 * temporalWindow * Math.exp(-Math.pow((v - 0.38) / 0.11, 2.0));
+
+    // Lateral width profile (wider in temporal/parietal, tapered at frontal & occipital poles)
+    const apWidth = Math.sin(Math.pow(u, 0.88) * Math.PI) * (0.92 + 0.24 * temporalWindow);
+    const domeSin = Math.sin(v * Math.PI * 0.88 + 0.12);
+
+    // Gyral/sulcal cortical folding wrinkles
+    const gyri = 1.0 + 0.045 * Math.sin(u * 28.0 + v * 14.0) * Math.cos(v * 22.0 - u * 12.0);
+
+    const fissureGap = 0.18 + 0.08 * Math.pow(1.0 - Math.sin(v * Math.PI), 2.0);
+    const x = hemi * (fissureGap + 2.45 * apWidth * domeSin * sylvianPinch * shellScale * gyri);
+    const y = (yBot + (yTop - yBot) * Math.sin(v * Math.PI * 0.5)) * gyri;
+    const z = zBase * (0.96 + 0.04 * Math.sin(v * Math.PI));
+    return new Float32Array([x, y, z]);
+  }
+
   buildStaticGeometry() {
-    // 1. 64 Clifford Cl(0,6) basis state nodes arranged as a Bi-Hemispheric 3D Cortical Brain
+    // 1. 64 Clifford Cl(0,6) Functional Cortical Neuron Clusters + Satellite Dendrites
     this.cliffordNodes = [];
     this.corticalSynapses = [];
+    this.brainContourSegments = [];
+    this.corticalMicroNeurons = [];
 
-    const gradeColors = [
-      [0.2, 0.92, 1.0, 0.96],  // Grade 0: Thalamic Scalar Core (Cyan)
-      [0.15, 0.88, 0.78, 0.92], // Grade 1: Primary Sensory-Motor Vectors (Teal)
-      [0.22, 0.92, 0.45, 0.90], // Grade 2: Association Bivectors (Emerald)
-      [0.42, 0.58, 1.0, 0.90],  // Grade 3: Deep Cortical Trivectors (Indigo-Blue)
-      [0.92, 0.35, 0.82, 0.90], // Grade 4: Prefrontal Quadrivectors (Magenta)
-      [1.0, 0.72, 0.22, 0.92],  // Grade 5: Parietal-Temporal Pseudovectors (Amber)
-      [1.0, 0.88, 0.15, 0.96]   // Grade 6: Crown Pseudoscalar Apex (Gold)
-    ];
-    const gradeCounts = [1, 6, 15, 20, 15, 6, 1];
-    const gradeSizes = [15.0, 11.5, 9.5, 9.5, 9.5, 11.5, 15.0];
+    // Build Anatomical 3D Human Brain Holographic Wireframe Contours (Left & Right Hemispheres)
+    for (const hemi of [-1.0, 1.0]) {
+      // 7 Longitudinal Sagittal Gyral Ribs per hemisphere (Occipital -> Parietal -> Frontal)
+      const vRibs = [0.12, 0.26, 0.40, 0.55, 0.70, 0.84, 0.95];
+      for (let r = 0; r < vRibs.length; r++) {
+        const v = vRibs[r];
+        const segSteps = 28;
+        for (let s = 0; s < segSteps; s++) {
+          const u1 = s / segSteps;
+          const u2 = (s + 1) / segSteps;
+          const p1 = this.computeCorticalSurfacePoint(hemi, u1, v, 1.0);
+          const p2 = this.computeCorticalSurfacePoint(hemi, u2, v, 1.0);
+          this.brainContourSegments.push({ p1, p2, region: u1 > 0.62 ? 'frontal' : (v < 0.42 && u1 > 0.28 ? 'temporal' : 'parietal') });
+        }
+      }
 
-    // Grade 0: Thalamic / Brainstem core at subcortical origin
-    this.cliffordNodes.push({
-      pos: new Float32Array([0.0, -0.65, 0.0]),
-      grade: 0,
-      hemisphere: 0,
-      baseColor: new Float32Array(gradeColors[0]),
-      baseSize: gradeSizes[0]
-    });
+      // 8 Coronal Cross-Arch Ribs per hemisphere
+      const uRibs = [0.10, 0.22, 0.35, 0.48, 0.60, 0.72, 0.83, 0.92];
+      for (let r = 0; r < uRibs.length; r++) {
+        const u = uRibs[r];
+        const segSteps = 16;
+        for (let s = 0; s < segSteps; s++) {
+          const v1 = s / segSteps;
+          const v2 = (s + 1) / segSteps;
+          const p1 = this.computeCorticalSurfacePoint(hemi, u, v1, 1.0);
+          const p2 = this.computeCorticalSurfacePoint(hemi, u, v2, 1.0);
+          this.brainContourSegments.push({ p1, p2, region: u > 0.62 ? 'frontal' : (v1 < 0.42 && u > 0.28 ? 'temporal' : 'parietal') });
+        }
+      }
 
-    // Grades 1..5: 62 Cortical Neurons split into Left (31) and Right (31) Cerebral Hemispheres
-    let corticalIdx = 0;
-    for (let g = 1; g <= 5; g++) {
-      const count = gradeCounts[g];
-      for (let k = 0; k < count; k++) {
-        const hemi = (corticalIdx % 2 === 0) ? -1.0 : 1.0; // -1 = Left Hemisphere, +1 = Right Hemisphere
-        const hIdx = Math.floor(corticalIdx / 2); // 0..30 within each hemisphere
-        const frac = (hIdx + 0.5) / 31.0;
-
-        // Cortical dome parameterization: theta (anterior-posterior), phi (dorsal-ventral arch)
-        const zNorm = 1.0 - 2.0 * frac; // +1 frontal lobe to -1 occipital lobe
-        const longitudinalAngle = hIdx * 2.3999632;
-        const archElev = 0.15 + 0.82 * Math.abs(Math.sin(longitudinalAngle * 0.75 + g * 0.4));
-        const lateralSpread = Math.sqrt(Math.max(0.12, 1.0 - zNorm * zNorm * 0.65));
-
-        // Gyral/sulcal cortical folding undulation
-        const gyrusFold = 1.0 + 0.12 * Math.sin(hIdx * 1.7 + g) * Math.cos(zNorm * 3.5);
-        const shellScale = 0.78 + 0.08 * g;
-
-        const x = hemi * (0.38 + 2.35 * lateralSpread * Math.sin(archElev * 1.35) * shellScale * gyrusFold);
-        const y = -0.45 + 2.55 * Math.cos((1.0 - archElev) * 1.25) * gyrusFold - 0.25 * (zNorm * zNorm);
-        const z = 3.05 * zNorm * gyrusFold;
-
-        this.cliffordNodes.push({
-          pos: new Float32Array([x, y, z]),
-          grade: g,
-          hemisphere: hemi,
-          baseColor: new Float32Array(gradeColors[g]),
-          baseSize: gradeSizes[g]
-        });
-        corticalIdx++;
+      // Cerebellar Hemisphere Folia (nested striated lobes under the Occipital Lobe)
+      for (let ring = 0; ring < 4; ring++) {
+        const yCer = -1.15 - ring * 0.26;
+        const rCer = 0.95 - ring * 0.14;
+        const segs = 14;
+        for (let s = 0; s < segs; s++) {
+          const a1 = (s / segs) * Math.PI * 2.0;
+          const a2 = ((s + 1) / segs) * Math.PI * 2.0;
+          const p1 = new Float32Array([hemi * (0.85 + rCer * Math.cos(a1) * 0.85), yCer, -1.85 + rCer * Math.sin(a1)]);
+          const p2 = new Float32Array([hemi * (0.85 + rCer * Math.cos(a2) * 0.85), yCer, -1.85 + rCer * Math.sin(a2)]);
+          this.brainContourSegments.push({ p1, p2, region: 'cerebellum' });
+        }
       }
     }
 
-    // Grade 6: Crown Pseudoscalar Apex bridging the prefrontal/parietal crest
-    this.cliffordNodes.push({
-      pos: new Float32Array([0.0, 2.55, 0.25]),
-      grade: 6,
-      hemisphere: 0,
-      baseColor: new Float32Array(gradeColors[6]),
-      baseSize: gradeSizes[6]
-    });
+    // Brainstem ascending fiber tract columns
+    for (let k = 0; k < 6; k++) {
+      const ang = (k / 6) * Math.PI * 2.0;
+      const p1 = new Float32Array([0.32 * Math.cos(ang), -2.55, -0.75 + 0.32 * Math.sin(ang)]);
+      const p2 = new Float32Array([0.22 * Math.cos(ang), -0.75, -0.35 + 0.22 * Math.sin(ang)]);
+      this.brainContourSegments.push({ p1, p2, region: 'brainstem' });
+    }
 
-    // Build Cortical Synaptic Connectome:
-    // (a) Intra-hemispheric association axons (nearest neighbors within each hemisphere)
-    // (b) Corpus Callosum commissural tracts bridging Left & Right hemispheres
-    // (c) Thalamocortical projection fibers from Grade 0 core to Grade 1/2
+    // 480 Fine Cortical Surface Micro-Neurons across Left & Right Hemispheres
+    for (let i = 0; i < 480; i++) {
+      const hemi = (i % 2 === 0) ? -1.0 : 1.0;
+      const idx = Math.floor(i / 2);
+      const u = 0.04 + 0.92 * ((idx * 0.6180339887) % 1.0);
+      const v = 0.06 + 0.88 * ((idx + 0.5) / 240.0);
+      const pos = this.computeCorticalSurfacePoint(hemi, u, v, 0.99);
+      let col = [0.22, 0.62, 0.98, 0.32];
+      if (u > 0.62) col = [0.95, 0.35, 0.68, 0.34]; // Frontal lobe (Magenta-Rose)
+      else if (v < 0.42 && u > 0.26) col = [0.12, 0.88, 0.66, 0.36]; // Temporal lobe (Emerald-Teal)
+      else if (u < 0.22) col = [0.98, 0.72, 0.20, 0.34]; // Occipital lobe (Amber)
+      this.corticalMicroNeurons.push({ pos, color: new Float32Array(col), size: 3.2 });
+    }
+
+    // 64 Clifford Cl(0,6) Functional Neuron Clusters with Satellite Dendrites
+    const gradeColors = [
+      [0.15, 0.92, 1.0, 0.96],  // Grade 0: Brainstem BPE Ingress (Cyan)
+      [0.76, 0.52, 0.98, 0.94], // Grade 1: Thalamus / Hippocampus 256D Context (Violet)
+      [0.12, 0.92, 0.64, 0.92], // Grade 2: Temporal Lobe /8 Radix Memory Basins (Emerald)
+      [0.28, 0.62, 1.0, 0.92],  // Grade 3: Parietal Lobe 8-Head Starling Flock (Electric Blue)
+      [0.96, 0.32, 0.62, 0.92], // Grade 4: Prefrontal Cortex OSPF Token Router (Magenta-Rose)
+      [1.0, 0.74, 0.18, 0.94],  // Grade 5: Occipital Cortex VSA-128 Readout (Amber-Gold)
+      [1.0, 0.90, 0.25, 0.98]   // Grade 6: Corpus Callosum Crown Synthesis (Gold)
+    ];
+    const gradeCounts = [1, 6, 15, 20, 15, 6, 1];
+    const gradeSizes = [15.0, 12.0, 10.5, 10.0, 10.5, 12.0, 15.0];
+
+    const addClusterNode = (pos, grade, hemi, regionName, clusterIdx) => {
+      const dendrites = [];
+      for (let d = 0; d < 7; d++) {
+        const a1 = d * 2.3999632 + clusterIdx * 0.41;
+        const a2 = (d / 7.0) * Math.PI - Math.PI * 0.5;
+        const rad = 0.24 + (d % 3) * 0.11;
+        const dx = rad * Math.cos(a2) * Math.cos(a1);
+        const dy = rad * Math.sin(a2);
+        const dz = rad * Math.cos(a2) * Math.sin(a1);
+        dendrites.push(new Float32Array([pos[0] + dx, pos[1] + dy, pos[2] + dz]));
+      }
+      this.cliffordNodes.push({
+        pos,
+        grade,
+        hemisphere: hemi,
+        regionName,
+        baseColor: new Float32Array(gradeColors[grade]),
+        baseSize: gradeSizes[grade],
+        charge: 0.18,
+        fireBurst: 0.0,
+        dendrites
+      });
+    };
+
+    // Cluster 0 (Grade 0): Brainstem BPE Prompt Ingress Hub
+    addClusterNode(new Float32Array([0.0, -1.65, -0.55]), 0, 0, 'Brainstem BPE Ingress', 0);
+
+    let cIdx = 1;
+    // Clusters 1..6 (Grade 1): Thalamus & Hippocampal C-Arch (256D Q12 Context Carry)
+    for (let k = 0; k < gradeCounts[1]; k++) {
+      const hemi = (k % 2 === 0) ? -1.0 : 1.0;
+      const archT = Math.floor(k / 2) / 2.0; // 0..1 along hippocampal arch
+      const x = hemi * (0.58 + 0.35 * Math.sin(archT * Math.PI));
+      const y = -0.45 + 0.68 * Math.sin(archT * Math.PI);
+      const z = -0.65 + 1.35 * archT;
+      addClusterNode(new Float32Array([x, y, z]), 1, hemi, 'Thalamus / Hippocampus', cIdx++);
+    }
+
+    // Clusters 7..21 (Grade 2): Left & Right Temporal Lobe Memory Clusters (/8 Radix Basins)
+    for (let k = 0; k < gradeCounts[2]; k++) {
+      const hemi = (k % 2 === 0) ? -1.0 : 1.0;
+      const u = 0.30 + 0.40 * ((k + 0.5) / gradeCounts[2]);
+      const v = 0.10 + 0.28 * ((k * 0.6180339887) % 1.0);
+      const pos = this.computeCorticalSurfacePoint(hemi, u, v, 0.88);
+      addClusterNode(pos, 2, hemi, 'Temporal Memory Lobe', cIdx++);
+    }
+
+    // Clusters 22..41 (Grade 3): Left & Right Parietal Cortex (8-Head Starling Flock Attention)
+    for (let k = 0; k < gradeCounts[3]; k++) {
+      const hemi = (k % 2 === 0) ? -1.0 : 1.0;
+      const u = 0.25 + 0.38 * ((k + 0.5) / gradeCounts[3]);
+      const v = 0.48 + 0.45 * ((k * 0.6180339887) % 1.0);
+      const pos = this.computeCorticalSurfacePoint(hemi, u, v, 0.90);
+      addClusterNode(pos, 3, hemi, 'Parietal Flock Cortex', cIdx++);
+    }
+
+    // Clusters 42..56 (Grade 4): Left & Right Prefrontal Cortex (<thinking> & OSPF Token Router)
+    for (let k = 0; k < gradeCounts[4]; k++) {
+      const hemi = (k % 2 === 0) ? -1.0 : 1.0;
+      const u = 0.64 + 0.30 * ((k + 0.5) / gradeCounts[4]);
+      const v = 0.25 + 0.65 * ((k * 0.6180339887) % 1.0);
+      const pos = this.computeCorticalSurfacePoint(hemi, u, v, 0.90);
+      addClusterNode(pos, 4, hemi, 'Prefrontal OSPF Cortex', cIdx++);
+    }
+
+    // Clusters 57..62 (Grade 5): Occipital Readout Cortex (VSA-128 Slot Unbinding)
+    for (let k = 0; k < gradeCounts[5]; k++) {
+      const hemi = (k % 2 === 0) ? -1.0 : 1.0;
+      const u = 0.06 + 0.18 * ((k + 0.5) / gradeCounts[5]);
+      const v = 0.30 + 0.50 * ((k * 0.6180339887) % 1.0);
+      const pos = this.computeCorticalSurfacePoint(hemi, u, v, 0.90);
+      addClusterNode(pos, 5, hemi, 'Occipital Readout Cortex', cIdx++);
+    }
+
+    // Cluster 63 (Grade 6): Corpus Callosum / Crown Synthesis Hub
+    addClusterNode(new Float32Array([0.0, 1.55, 0.25]), 6, 0, 'Corpus Callosum Hub', cIdx++);
+
+    // Build Weighted OSPF Synaptic Graph between the 64 Functional Neuron Clusters
     for (let i = 0; i < this.cliffordNodes.length; i++) {
       const nA = this.cliffordNodes[i];
       if (i === 0) {
-        // Thalamocortical projections to Grade 1 and Grade 2 nodes
-        for (let j = 1; j <= 12 && j < this.cliffordNodes.length; j++) {
-          this.corticalSynapses.push({ a: 0, b: j, kind: 'thalamocortical', phase: j * 0.5 });
+        for (let j = 1; j <= 6 && j < this.cliffordNodes.length; j++) {
+          this.corticalSynapses.push({ a: 0, b: j, kind: 'thalamocortical', phase: j * 0.5, l1Cost: 24 + j * 8 });
         }
         continue;
       }
-      // Find 2 nearest intra-hemispheric neighbors and 1 corpus callosum partner
-      let best1 = -1, best2 = -1, dist1 = 1e9, dist2 = 1e9;
+      let best1 = -1, best2 = -1, best3 = -1, dist1 = 1e9, dist2 = 1e9, dist3 = 1e9;
       let callosumIdx = -1, callosumDist = 1e9;
       for (let j = 1; j < this.cliffordNodes.length; j++) {
         if (i === j) continue;
@@ -3438,34 +3587,35 @@ class LexLean3DVisualizer {
         const dy = nA.pos[1] - nB.pos[1];
         const dz = nA.pos[2] - nB.pos[2];
         const d2 = dx * dx + dy * dy + dz * dz;
-        if (nA.hemisphere === nB.hemisphere || nB.hemisphere === 0) {
+        if (nA.hemisphere === nB.hemisphere || nA.hemisphere === 0 || nB.hemisphere === 0) {
           if (d2 < dist1) {
+            dist3 = dist2; best3 = best2;
             dist2 = dist1; best2 = best1;
             dist1 = d2; best1 = j;
           } else if (d2 < dist2) {
+            dist3 = dist2; best3 = best2;
             dist2 = d2; best2 = j;
+          } else if (d2 < dist3) {
+            dist3 = d2; best3 = j;
           }
-        } else if (nA.hemisphere < 0 && nB.hemisphere > 0 && Math.abs(dy) < 0.45 && Math.abs(dz) < 0.55) {
+        } else if (nA.hemisphere < 0 && nB.hemisphere > 0 && Math.abs(dy) < 0.55 && Math.abs(dz) < 0.65) {
           if (d2 < callosumDist) {
             callosumDist = d2;
             callosumIdx = j;
           }
         }
       }
-      if (best1 > i) {
-        this.corticalSynapses.push({ a: i, b: best1, kind: 'cortical', phase: i * 0.31 });
-      }
-      if (best2 > i) {
-        this.corticalSynapses.push({ a: i, b: best2, kind: 'cortical', phase: i * 0.47 });
-      }
+      if (best1 > i) this.corticalSynapses.push({ a: i, b: best1, kind: 'cortical', phase: i * 0.31, l1Cost: Math.round(Math.sqrt(dist1) * 45) });
+      if (best2 > i) this.corticalSynapses.push({ a: i, b: best2, kind: 'cortical', phase: i * 0.47, l1Cost: Math.round(Math.sqrt(dist2) * 52) });
+      if (best3 > i && (i % 2 === 0)) this.corticalSynapses.push({ a: i, b: best3, kind: 'cortical', phase: i * 0.63, l1Cost: Math.round(Math.sqrt(dist3) * 60) });
       if (callosumIdx !== -1 && (i % 3 === 0)) {
-        this.corticalSynapses.push({ a: i, b: callosumIdx, kind: 'callosum', phase: i * 0.23 });
+        this.corticalSynapses.push({ a: i, b: callosumIdx, kind: 'callosum', phase: i * 0.23, l1Cost: 38 });
       }
     }
 
-    // 2. 17 Icosian root vertices on outer S^3 Hurwitz attention halo (radius 4.9)
+    // 2. 17 Icosian root vertices on outer S^3 Hurwitz attention halo (radius 4.6)
     const phi = 1.6180339887;
-    const rIco = 4.9;
+    const rIco = 4.6;
     const sIco = rIco / Math.sqrt(1.0 + phi * phi);
     const ico12 = [
       [sIco, sIco * phi, 0.0], [-sIco, sIco * phi, 0.0],
@@ -3492,30 +3642,204 @@ class LexLean3DVisualizer {
     this.starfieldParticles = [];
     for (let i = 0; i < 256; i++) {
       const t = i / 255.0;
-      const y = (t * 2.0 - 1.0) * 5.2;
-      const r = Math.sqrt(Math.max(0.1, 1.0 - (y / 5.5) * (y / 5.5))) * (6.4 + (i % 5) * 0.55);
+      const y = (t * 2.0 - 1.0) * 5.0;
+      const r = Math.sqrt(Math.max(0.1, 1.0 - (y / 5.5) * (y / 5.5))) * (6.0 + (i % 5) * 0.55);
       const ang = i * 2.3999632;
       this.starfieldParticles.push({
         pos: new Float32Array([r * Math.cos(ang), y, r * Math.sin(ang)]),
-        baseColor: new Float32Array([0.38, 0.30, 0.78, 0.38]),
-        baseSize: 3.4
+        baseColor: new Float32Array([0.38, 0.30, 0.78, 0.28]),
+        baseSize: 3.0
       });
+    }
+
+    // 4. Initialize 96-Boid Starling Flock Murmuration Swarm (8 Attention Heads x 12 Boids)
+    this.starlingFlock = [];
+    for (let b = 0; b < 96; b++) {
+      const headIdx = b % 8;
+      const ang = (b / 96.0) * Math.PI * 2.0;
+      const rad = 1.2 + (headIdx * 0.18);
+      this.starlingFlock.push({
+        pos: new Float32Array([rad * Math.cos(ang), 0.6 + 0.5 * Math.sin(ang * 2.0), rad * Math.sin(ang)]),
+        vel: new Float32Array([-Math.sin(ang) * 1.4, Math.cos(ang * 2.0) * 0.5, Math.cos(ang) * 1.4]),
+        headIdx
+      });
+    }
+
+    // 5. Seed initial OSPF Synaptic Route Hops & Memory Engram
+    this.buildOspfRouteFromTokens([101, 205, 309, 412, 518, 624, 731, 840], this.activeTurnWords, 1, 812);
+  }
+
+  buildOspfRouteFromTokens(tokenIds, words, turnIndex = 1, bucketId = 812) {
+    const count = Math.max(tokenIds.length, 1);
+    const hops = [];
+    const waypoints = [];
+    const wordList = (Array.isArray(words) && words.length > 0) ? words : this.activeTurnWords;
+
+    for (let s = 0; s < count; s++) {
+      const tok = Math.abs(Math.floor(+tokenIds[s] || (s * 37 + 11)));
+      let clusterIdx = 0;
+      let mechanism = 'OSPF Min-L1 Hop';
+      if (s === 0) {
+        clusterIdx = 0; // Brainstem BPE Ingress
+        mechanism = 'BPE Prompt Ingress';
+      } else if (s === 1 && count > 2) {
+        clusterIdx = 1 + ((turnIndex + tok) % 6); // Thalamus 256D Context Carry
+        mechanism = '256D Q12 Context Carry';
+      } else if (s === 2 && count > 3) {
+        clusterIdx = 7 + ((bucketId + tok) % 15); // Temporal Lobe /8 Radix Memory Recall
+        mechanism = 'Radix /8 Memory Recall';
+      } else if (s === count - 1 && count > 4) {
+        clusterIdx = 1 + ((turnIndex * 3 + 2) % 6); // Hippocampus Memory Write-Back
+        mechanism = 'Hippocampus Write-Back';
+      } else {
+        // Alternate dynamically between Parietal Flock (22..41), Prefrontal OSPF (42..56), and Occipital Readout (57..62)
+        const stageMod = s % 3;
+        if (stageMod === 0) {
+          clusterIdx = 22 + ((tok * 13 + s * 7 + turnIndex * 5) % 20);
+          mechanism = '8-Head Flock Consensus';
+        } else if (stageMod === 1) {
+          clusterIdx = 42 + ((tok * 17 + s * 11 + turnIndex * 3) % 15);
+          mechanism = 'OSPF Min-L1 Route';
+        } else {
+          clusterIdx = 57 + ((tok * 7 + s * 5 + turnIndex) % 6);
+          mechanism = 'VSA-128 Slot Unbind';
+        }
+      }
+
+      clusterIdx = Math.min(Math.max(clusterIdx, 0), Math.max(this.cliffordNodes.length - 1, 0));
+      const baseNode = this.cliffordNodes[clusterIdx];
+      const basePos = baseNode ? baseNode.pos : new Float32Array([0.0, 0.0, 0.0]);
+      // Tiny deterministic offset so repeated visits to a cluster still produce distinct spline segments
+      const jitter = (s % 5) * 0.035;
+      const wp = new Float32Array([
+        basePos[0] + jitter * Math.cos(s * 1.7),
+        basePos[1] + jitter * Math.sin(s * 1.3),
+        basePos[2] + jitter * Math.sin(s * 2.1)
+      ]);
+      waypoints.push(wp);
+
+      const word = wordList[s % wordList.length] || `tok#${tok}`;
+      const l1Cost = 18 + ((tok * 29 + s * 19) % 160);
+      hops.push({
+        step: s,
+        clusterIdx,
+        tokenWord: String(word).slice(0, 18),
+        tokenId: tok,
+        l1Cost,
+        mechanism,
+        pos: wp
+      });
+    }
+
+    this.ospfRouteHops = hops;
+    this.decodeWaypoints = waypoints;
+    this.rebuildSplinePoints();
+
+    // Build LSA / Dijkstra candidate probe links radiating from the route's main clusters
+    this.lsaProbeLinks = [];
+    const maxProbes = Math.min(hops.length, 16);
+    for (let h = 0; h < maxProbes; h++) {
+      const cIdx = hops[h].clusterIdx;
+      for (let s = 0; s < this.corticalSynapses.length; s++) {
+        const syn = this.corticalSynapses[s];
+        if (syn.a === cIdx || syn.b === cIdx) {
+          this.lsaProbeLinks.push({ a: syn.a, b: syn.b, hopStep: h, l1Cost: syn.l1Cost || 42 });
+        }
+      }
+    }
+
+    // Record or update Persistent Episodic Memory Engram in Temporal Lobe for this turn
+    const engramClusterIdx = 7 + ((turnIndex * 5 + bucketId) % 15);
+    const existingIdx = this.memoryEngrams.findIndex((e) => e.turnIndex === turnIndex);
+    const promptShort = (this.activePromptSnippet || '').replace(/[^a-zA-Z0-9_/#+-]+/g, ' ').trim().split(/\s+/).slice(0, 2).join(' ');
+    const replyShort = (this.activeReplySnippet || wordList.slice(2, 4).join(' ') || wordList.slice(0, 2).join(' ')).trim();
+    const summaryWord = (promptShort && replyShort ? `${promptShort} → ${replyShort}` : (promptShort || replyShort)).slice(0, 28) || `Turn #${turnIndex}`;
+    const engramEntry = {
+      turnIndex,
+      clusterIdx: Math.min(engramClusterIdx, Math.max(this.cliffordNodes.length - 1, 0)),
+      bucketId: bucketId % 17408,
+      summaryWord
+    };
+    if (existingIdx >= 0) {
+      this.memoryEngrams[existingIdx] = engramEntry;
+    } else {
+      this.memoryEngrams.push(engramEntry);
+      if (this.memoryEngrams.length > 6) {
+        this.memoryEngrams.shift();
+      }
+    }
+
+    // Update OSPF route ticker bar in DOM
+    if (typeof document !== 'undefined') {
+      const tickerEl = this.ospfTickerEl || document.getElementById('neural-ospf-route-text');
+      if (tickerEl && hops.length > 0) {
+        const previewHops = hops.slice(0, 6).map((h, idx) => {
+          const regionShort = this.cliffordNodes[h.clusterIdx]?.regionName?.split(' ')[0] || 'Cortex';
+          return `[Hop ${idx + 1} ${regionShort}: "${h.tokenWord}" L1=${h.l1Cost}]`;
+        });
+        tickerEl.textContent = `${previewHops.join(' ➔ ')} ➔ [Hippocampus Write-Back: Engram #${turnIndex} (${hops.length} total hops)]`;
+      }
     }
   }
 
   buildDefaultDecodeSpline() {
-    const defaultSteps = 8;
-    const waypoints = [];
-    for (let s = 0; s < defaultSteps; s++) {
-      const frac = s / Math.max(defaultSteps - 1, 1);
-      const hemi = (s % 2 === 0) ? -1.0 : 1.0;
-      const x = hemi * (0.85 + 0.95 * Math.sin(frac * Math.PI));
-      const y = -1.1 + 2.8 * Math.sin(frac * Math.PI * 0.85);
-      const z = 2.2 - 4.4 * frac;
-      waypoints.push(new Float32Array([x, y, z]));
+    this.buildOspfRouteFromTokens([101, 205, 309, 412, 518, 624, 731, 840], this.activeTurnWords, 1, 812);
+  }
+
+  ingestConversationTurn(promptText, replyText, chatRes = {}) {
+    this.activePromptSnippet = String(promptText || '').trim().slice(0, 36) || 'Prompt Ingress';
+    const promptWords = String(promptText || '')
+      .replace(/[`#*_\-[\]()?>!.,:;]/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length >= 2)
+      .slice(0, 3);
+    const cleanReply = String(replyText || '')
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+      .replace(/[`#*_\-[\]()>]/g, ' ')
+      .trim();
+    const replyWords = cleanReply.split(/\s+/).filter((w) => w.length > 0).slice(0, 29);
+    this.activeReplySnippet = replyWords.slice(0, 2).join(' ');
+    const words = [...promptWords, ...replyWords];
+    if (words.length > 0) {
+      this.activeTurnWords = words;
     }
-    this.decodeWaypoints = waypoints;
-    this.rebuildSplinePoints();
+    const turnIdx = (chatRes && typeof chatRes.turn_index === 'number') ? chatRes.turn_index : (this.memoryEngrams.length + 1);
+    this.lastIngestedTurnIndex = turnIdx;
+    const rawWin = (chatRes && typeof chatRes.otel_winning_row === 'number') ? chatRes.otel_winning_row : 812;
+    const bucketId = rawWin >= 4294967295 ? ((turnIdx * 997 + words.length * 97) % 17408) : (rawWin % 17408);
+    if (chatRes && typeof chatRes.icosian_root === 'number' && Number.isFinite(chatRes.icosian_root)) {
+      this.dominantIcosianRoot = Math.abs(Math.floor(chatRes.icosian_root)) % 17;
+    }
+
+    const tokenIds = [];
+    const stepCount = Math.max(this.decodeWaypoints.length, words.length, 8);
+    for (let i = 0; i < stepCount; i++) {
+      const w = words[i % Math.max(words.length, 1)] || 'uor';
+      let h = 2166136261;
+      for (let c = 0; c < w.length; c++) {
+        h ^= w.charCodeAt(c);
+        h = Math.imul(h, 16777619);
+      }
+      tokenIds.push(Math.abs(h) % 4096);
+    }
+    this.buildOspfRouteFromTokens(tokenIds, words, turnIdx, bucketId);
+    this.triggerOspfCascade();
+  }
+
+  triggerOspfCascade() {
+    this.cascadeStartTime = (this.lastTimestamp || 0) * 0.001;
+    for (let i = 0; i < this.cliffordNodes.length; i++) {
+      this.cliffordNodes[i].charge = 0.25;
+      this.cliffordNodes[i].fireBurst = 0.35;
+    }
+    if (this.ospfRouteHops.length > 0) {
+      const firstCluster = this.ospfRouteHops[0].clusterIdx;
+      if (this.cliffordNodes[firstCluster]) {
+        this.cliffordNodes[firstCluster].charge = 1.0;
+        this.cliffordNodes[firstCluster].fireBurst = 1.0;
+      }
+    }
   }
 
   rebuildSplinePoints() {
@@ -3613,6 +3937,25 @@ class LexLean3DVisualizer {
       this.animFrameId = requestAnimationFrame(this.boundAnimate);
     });
 
+    // OSPF Cascade button
+    if (this.pulseBtn) {
+      this.pulseBtn.addEventListener('click', () => {
+        this.triggerOspfCascade();
+      });
+    }
+
+    // Floating 3D Labels toggle button
+    if (this.labelsToggleBtn) {
+      this.labelsToggleBtn.addEventListener('click', () => {
+        this.showLabels = !this.showLabels;
+        this.labelsToggleBtn.textContent = this.showLabels ? 'Labels: ON' : 'Labels: OFF';
+        const container = this.labelsContainer || document.getElementById('neural-3d-labels');
+        if (container) {
+          container.style.display = this.showLabels ? 'block' : 'none';
+        }
+      });
+    }
+
     // Reset button
     if (this.resetBtn) {
       this.resetBtn.addEventListener('click', () => {
@@ -3648,10 +3991,12 @@ class LexLean3DVisualizer {
   updateStatus() {
     if (!this.statusEl) return;
     const mode = this.isWebGL2 ? 'WebGL2' : 'WebGL1';
+    const engramCnt = Array.isArray(this.memoryEngrams) ? this.memoryEngrams.length : 0;
+    const hopCnt = Array.isArray(this.ospfRouteHops) ? this.ospfRouteHops.length : 0;
     if (this.activeTraceInfo) {
-      this.statusEl.textContent = `Turn #${this.activeTraceInfo.turnIndex} · ${this.activeTraceInfo.spanCount} Spans · Root #${this.dominantIcosianRoot} · ${mode}`;
+      this.statusEl.textContent = `Turn #${this.activeTraceInfo.turnIndex} · ${hopCnt} OSPF Hops · ${engramCnt} Engrams · Root #${this.dominantIcosianRoot} · ${mode}`;
     } else {
-      this.statusEl.textContent = `${this.autoRotate ? 'Orbiting' : 'Paused'} · 64 Cl(0,6) · ${mode}`;
+      this.statusEl.textContent = `${this.autoRotate ? 'Orbiting' : 'Paused'} · 64 Clusters · ${engramCnt} Engrams · ${mode}`;
     }
   }
 
@@ -3662,6 +4007,7 @@ class LexLean3DVisualizer {
     const getInternStr = (idx) => (typeof idx === 'number' && entries[idx] !== undefined ? entries[idx] : String(idx));
 
     const decodeSpans = [];
+    let tracePromptPreview = '';
 
     for (const span of trace.spans) {
       if (!span || typeof span !== 'object') continue;
@@ -3676,7 +4022,11 @@ class LexLean3DVisualizer {
         }
       }
 
-      if (spanName.startsWith('gllm.trunk.layer')) {
+      if (spanName.startsWith('gllm.tokenize')) {
+        if (attrMap['uor.prompt_preview']) {
+          tracePromptPreview = String(attrMap['uor.prompt_preview']);
+        }
+      } else if (spanName.startsWith('gllm.trunk.layer')) {
         let layerIdx = 0;
         const rawLayer = attrMap['uor.layer_index'];
         if (typeof rawLayer === 'number' && Number.isFinite(rawLayer)) {
@@ -3726,23 +4076,44 @@ class LexLean3DVisualizer {
       }
     }
 
+    const turnIdx = trace.turn_index !== undefined ? trace.turn_index : 1;
+    const rawRow = this.winningPointKeyRow !== null ? this.winningPointKeyRow : 0;
+    const bucketId = rawRow >= 4294967295
+      ? ((this.dominantIcosianRoot * 1024 + trace.spans.length * 37) % 17408)
+      : (rawRow % 17408);
+
     if (decodeSpans.length > 0) {
-      const waypoints = [];
-      const count = decodeSpans.length;
-      for (let s = 0; s < count; s++) {
-        const frac = s / Math.max(count - 1, 1);
-        const loopAng = frac * Math.PI * 2.0;
-        const x = 1.85 * Math.sin(loopAng) + 0.25 * Math.cos(frac * Math.PI * 6.0);
-        const y = -0.35 + 2.15 * Math.sin(frac * Math.PI) + 0.35 * Math.cos(loopAng * 2.0);
-        const z = 2.45 * Math.cos(loopAng * 0.85);
-        waypoints.push(new Float32Array([x, y, z]));
+      let wordsForRoute = this.activeTurnWords;
+      if (tracePromptPreview && turnIdx !== this.lastIngestedTurnIndex) {
+        const parsed = tracePromptPreview
+          .replace(/[^a-zA-Z0-9_/#+-]+/g, ' ')
+          .trim()
+          .split(/\s+/)
+          .filter((w) => w.length >= 2);
+        if (parsed.length > 0) {
+          wordsForRoute = parsed;
+        }
       }
-      this.decodeWaypoints = waypoints;
-      this.rebuildSplinePoints();
+      const tokenIds = decodeSpans.map((d, idx) => {
+        const t = +d.token;
+        return (typeof t === 'number' && Number.isFinite(t) && t > 0) ? t : (turnIdx * 41 + idx * 19 + 7);
+      });
+      this.buildOspfRouteFromTokens(tokenIds, wordsForRoute, turnIdx, bucketId);
+      // Overlay true L1 distances and mechanisms from OTel decode spans onto the OSPF hops
+      for (let i = 0; i < decodeSpans.length && i < this.ospfRouteHops.length; i++) {
+        const ds = decodeSpans[i];
+        if (ds.l1 && Number.isFinite(+ds.l1) && (+ds.l1) > 0) {
+          this.ospfRouteHops[i].l1Cost = Math.abs(Math.floor(+ds.l1));
+        }
+        if (ds.mechanism) {
+          this.ospfRouteHops[i].mechanism = String(ds.mechanism);
+        }
+      }
+      this.triggerOspfCascade();
     }
 
     this.activeTraceInfo = {
-      turnIndex: trace.turn_index !== undefined ? trace.turn_index : 0,
+      turnIndex: turnIdx,
       spanCount: trace.spans.length,
       traceId: trace.trace_id ? trace.trace_id.slice(0, 8) : ''
     };
@@ -3755,26 +4126,276 @@ class LexLean3DVisualizer {
       }
       const attnEl = document.getElementById('neural-stage-attention-val');
       if (attnEl) {
-        attnEl.textContent = `Root #${this.dominantIcosianRoot} · 8-Head`;
+        attnEl.textContent = `Root #${this.dominantIcosianRoot} · 96 Boids`;
       }
       const radixEl = document.getElementById('neural-stage-radix-val');
       if (radixEl) {
-        const rawRow = this.winningPointKeyRow !== null ? this.winningPointKeyRow : 0;
-        const rowVal = rawRow >= 4294967295
-          ? ((this.dominantIcosianRoot * 1024 + trace.spans.length * 37) % 17408)
-          : rawRow;
-        radixEl.textContent = `Bucket #${rowVal} / 17.4k`;
+        radixEl.textContent = `Bucket #${bucketId} / 17.4k`;
       }
       const horEl = document.getElementById('neural-stage-horizon-val');
       if (horEl) {
-        horEl.textContent = `${decodeSpans.length} tok · VSA-128`;
+        horEl.textContent = `${this.ospfRouteHops.length} Hops · VSA-128`;
       }
       const bpEl = document.getElementById('neural-stage-backprop-val');
       if (bpEl) {
-        bpEl.textContent = `${trace.spans.length} spans · L1`;
+        bpEl.textContent = `${this.memoryEngrams.length} Engrams · ${trace.spans.length} Spans`;
       }
     }
     this.updateStatus();
+  }
+
+  updateStarlingFlock(deltaTime, time) {
+    if (!Array.isArray(this.starlingFlock) || this.starlingFlock.length === 0) return;
+    const hopCount = Math.max(this.ospfRouteHops.length, 1);
+    const activeHopIdx = Math.floor((time * 1.15) % hopCount);
+    const activeHop = this.ospfRouteHops[activeHopIdx] || this.ospfRouteHops[0];
+    const targetPos = (activeHop && activeHop.pos) ? activeHop.pos : new Float32Array([0.0, 0.85, 0.25]);
+    const domRootIdx = Math.abs(Math.floor(this.dominantIcosianRoot || 0)) % Math.max(this.icosianRoots.length, 1);
+    const rootPos = this.icosianRoots[domRootIdx] || new Float32Array([0.0, 0.85, 0.0]);
+
+    const dt = Math.min(Math.max(deltaTime, 0.004), 0.05);
+    for (let i = 0; i < this.starlingFlock.length; i++) {
+      const b = this.starlingFlock[i];
+      if (!b || !b.pos || !b.vel) continue;
+      const swirlAngle = time * 2.35 + b.phase + b.headIdx * 0.785398;
+      // Murmuration attractor blends the currently charging OSPF hop cluster (68%) and dominant Icosian root (32%)
+      const attrX = targetPos[0] * 0.68 + rootPos[0] * 0.32 + 0.78 * Math.cos(swirlAngle);
+      const attrY = targetPos[1] * 0.68 + rootPos[1] * 0.32 + 0.52 * Math.sin(swirlAngle * 1.35);
+      const attrZ = targetPos[2] * 0.68 + rootPos[2] * 0.32 + 0.78 * Math.sin(swirlAngle);
+
+      const dx = attrX - b.pos[0];
+      const dy = attrY - b.pos[1];
+      const dz = attrZ - b.pos[2];
+
+      b.vel[0] = (b.vel[0] + (dx * 3.6 - dz * 1.45) * dt) * 0.92;
+      b.vel[1] = (b.vel[1] + (dy * 3.6 + Math.cos(swirlAngle) * 0.85) * dt) * 0.92;
+      b.vel[2] = (b.vel[2] + (dz * 3.6 + dx * 1.45) * dt) * 0.92;
+
+      b.pos[0] = Math.min(Math.max(b.pos[0] + b.vel[0] * dt, -3.4), 3.4);
+      b.pos[1] = Math.min(Math.max(b.pos[1] + b.vel[1] * dt, -2.4), 2.7);
+      b.pos[2] = Math.min(Math.max(b.pos[2] + b.vel[2] * dt, -3.6), 3.6);
+    }
+  }
+
+  projectToScreen(pos3, cw, ch) {
+    if (!pos3 || pos3.length < 3) return null;
+    const m = this.viewProjMatrix;
+    const x = pos3[0], y = pos3[1], z = pos3[2];
+    const clipX = m[0] * x + m[4] * y + m[8] * z + m[12];
+    const clipY = m[1] * x + m[5] * y + m[9] * z + m[13];
+    const clipZ = m[2] * x + m[6] * y + m[10] * z + m[14];
+    const clipW = m[3] * x + m[7] * y + m[11] * z + m[15];
+    if (!Number.isFinite(clipW) || clipW <= 0.15) return null;
+    const ndcX = clipX / clipW;
+    const ndcY = clipY / clipW;
+    const ndcZ = clipZ / clipW;
+    if (ndcX < -0.96 || ndcX > 0.96 || ndcY < -0.94 || ndcY > 0.94) return null;
+    return {
+      x: (ndcX * 0.5 + 0.5) * cw,
+      y: (-ndcY * 0.5 + 0.5) * ch,
+      depth: ndcZ
+    };
+  }
+
+  updateOverlayLabels(time, activeHopIdx, hopPhase, cw, ch) {
+    if (typeof document === 'undefined') return;
+    if (!this.labelsEl) {
+      this.labelsEl = this.labelsContainer || document.getElementById('neural-3d-labels');
+    }
+    if (!this.labelsEl) return;
+    if (!this.showLabels || cw <= 0 || ch <= 0) {
+      this.labelsEl.style.display = 'none';
+      return;
+    }
+    this.labelsEl.style.display = 'block';
+
+    const pins = [];
+    // 1. 6 Anatomical Brain Lobe Anchors
+    const anatomyAnchors = [
+      { id: 'lobe-frontal', pos: [0.0, 1.15, 2.38], badge: 'FRONTAL LOBE', title: '<thinking> & OSPF Routing', sub: 'Min-L1 Token Selection' },
+      { id: 'lobe-parietal', pos: [0.0, 1.92, -0.18], badge: 'PARIETAL DOME', title: '8-Head Starling Flock', sub: 'Cl(0,6) Spinor Consensus' },
+      { id: 'lobe-temporal', pos: [-2.22, -0.22, 0.28], badge: 'TEMPORAL LOBE', title: '/8 Radix Memory Basins', sub: '17,408 Geometric Buckets' },
+      { id: 'lobe-occipital', pos: [0.0, 0.35, -2.55], badge: 'OCCIPITAL POLE', title: 'VSA-128 Slot Readout', sub: 'Surface Token Emission' },
+      { id: 'lobe-limbic', pos: [0.0, 0.12, 0.12], badge: 'THALAMUS & HIPPOCAMPUS', title: '256D Q12 Context Carry', sub: 'Episodic Write-Back Hub' },
+      { id: 'lobe-stem', pos: [0.0, -2.02, -0.35], badge: 'BRAINSTEM', title: 'BPE Prompt Ingress', sub: '4,096 Vocabulary Stems' }
+    ];
+    for (let i = 0; i < anatomyAnchors.length; i++) {
+      const a = anatomyAnchors[i];
+      const proj = this.projectToScreen(a.pos, cw, ch);
+      if (proj) {
+        pins.push({
+          id: a.id,
+          cls: 'neural-label-pin pin-anatomy',
+          x: proj.x,
+          y: proj.y,
+          badge: a.badge,
+          title: a.title,
+          sub: a.sub,
+          chargePct: null
+        });
+      }
+    }
+
+    // 2. Active OSPF Hop Cluster Pin (with live Capacitor Charge & Burst Release state!)
+    const hopCount = this.ospfRouteHops.length;
+    if (hopCount > 0) {
+      const hop = this.ospfRouteHops[activeHopIdx % hopCount];
+      if (hop && hop.pos) {
+        const proj = this.projectToScreen([hop.pos[0], hop.pos[1] + 0.24, hop.pos[2]], cw, ch);
+        if (proj) {
+          const isFiring = hopPhase >= 0.68;
+          const chargePct = isFiring
+            ? Math.round((1.0 - (hopPhase - 0.68) / 0.32) * 100)
+            : Math.round((hopPhase / 0.68) * 100);
+          const cluster = this.cliffordNodes[hop.clusterIdx];
+          const regionName = cluster ? cluster.regionName : 'Cortical Cluster';
+          pins.push({
+            id: 'active-ospf-hop',
+            cls: isFiring ? 'neural-label-pin pin-hop pin-firing' : 'neural-label-pin pin-hop',
+            x: proj.x,
+            y: proj.y,
+            badge: isFiring
+              ? `⚡ HOP #${activeHopIdx + 1}/${hopCount} · BURST RELEASE!`
+              : `⚡ HOP #${activeHopIdx + 1}/${hopCount} · CHARGING ${chargePct}%`,
+            title: `"${hop.tokenWord}"`,
+            sub: `${regionName} · ${hop.mechanism} · L1=${hop.l1Cost}`,
+            chargePct: Math.min(Math.max(chargePct, 6), 100)
+          });
+        }
+      }
+    }
+
+    // 3. Starling Flock Murmuration Swarm Centroid Pin
+    if (this.starlingFlock.length > 0) {
+      let cx = 0.0, cy = 0.0, cz = 0.0;
+      for (let i = 0; i < this.starlingFlock.length; i++) {
+        cx += this.starlingFlock[i].pos[0];
+        cy += this.starlingFlock[i].pos[1];
+        cz += this.starlingFlock[i].pos[2];
+      }
+      const inv = 1.0 / this.starlingFlock.length;
+      const proj = this.projectToScreen([cx * inv, cy * inv + 0.22, cz * inv], cw, ch);
+      if (proj) {
+        pins.push({
+          id: 'starling-flock-centroid',
+          cls: 'neural-label-pin pin-flock',
+          x: proj.x,
+          y: proj.y,
+          badge: 'MURMURATION SWARM',
+          title: `96 Starling Boids · Root #${this.dominantIcosianRoot}`,
+          sub: '8-Head Coherent Attractor',
+          chargePct: null
+        });
+      }
+    }
+
+    // 4. Persistent Conversation Turn Memory Engrams in Temporal Lobe (up to 2 latest turns)
+    const recentEngrams = this.memoryEngrams.slice(-2);
+    for (let i = 0; i < recentEngrams.length; i++) {
+      const eng = recentEngrams[i];
+      const node = this.cliffordNodes[eng.clusterIdx];
+      if (!node || !node.pos) continue;
+      const proj = this.projectToScreen([node.pos[0], node.pos[1] - 0.18, node.pos[2]], cw, ch);
+      if (proj) {
+        pins.push({
+          id: `engram-turn-${eng.turnIndex}`,
+          cls: 'neural-label-pin pin-engram',
+          x: proj.x,
+          y: proj.y,
+          badge: `MEMORY ENGRAM #${eng.turnIndex}`,
+          title: `"${eng.summaryWord}"`,
+          sub: `Bucket #${eng.bucketId} · Temporal Recall`,
+          chargePct: null
+        });
+      }
+    }
+
+    // 5. Screen-Space Repulsion Solver so floating 3D pins never overlap
+    const minW = 192;
+    const minH = 56;
+    for (let pass = 0; pass < 6; pass++) {
+      for (let i = 0; i < pins.length; i++) {
+        for (let j = i + 1; j < pins.length; j++) {
+          const a = pins[i];
+          const b = pins[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          if (Math.abs(dx) < minW && Math.abs(dy) < minH) {
+            const overlapY = (minH - Math.abs(dy)) * 0.58;
+            const signY = dy >= 0 ? 1.0 : -1.0;
+            a.y -= signY * overlapY;
+            b.y += signY * overlapY;
+            const overlapX = (minW - Math.abs(dx)) * 0.28;
+            const signX = dx >= 0 ? 1.0 : -1.0;
+            a.x -= signX * overlapX;
+            b.x += signX * overlapX;
+          }
+        }
+      }
+      for (let i = 0; i < pins.length; i++) {
+        pins[i].x = Math.min(Math.max(pins[i].x, 96), Math.max(cw - 96, 96));
+        pins[i].y = Math.min(Math.max(pins[i].y, 32), Math.max(ch - 38, 32));
+      }
+    }
+
+    // Reconcile DOM pins cleanly by data-pin-id
+    const activeIds = new Set();
+    for (let i = 0; i < pins.length; i++) {
+      const p = pins[i];
+      activeIds.add(p.id);
+      let el = this.labelsEl.querySelector(`[data-pin-id="${p.id}"]`);
+      if (!el) {
+        el = document.createElement('div');
+        el.setAttribute('data-pin-id', p.id);
+        const row = document.createElement('div');
+        row.className = 'pin-badge-row';
+        const badgeEl = document.createElement('span');
+        badgeEl.className = 'pin-badge';
+        const titleEl = document.createElement('span');
+        titleEl.className = 'pin-title';
+        row.appendChild(badgeEl);
+        row.appendChild(titleEl);
+        el.appendChild(row);
+        const subEl = document.createElement('div');
+        subEl.className = 'pin-sub';
+        el.appendChild(subEl);
+        const chargeTrack = document.createElement('div');
+        chargeTrack.className = 'pin-charge-track';
+        const chargeFill = document.createElement('div');
+        chargeFill.className = 'pin-charge-fill';
+        chargeTrack.appendChild(chargeFill);
+        el.appendChild(chargeTrack);
+        this.labelsEl.appendChild(el);
+      }
+      el.className = p.cls;
+      el.style.left = `${p.x.toFixed(1)}px`;
+      el.style.top = `${p.y.toFixed(1)}px`;
+      const badgeEl = el.querySelector('.pin-badge');
+      const titleEl = el.querySelector('.pin-title');
+      const subEl = el.querySelector('.pin-sub');
+      const chargeTrack = el.querySelector('.pin-charge-track');
+      const chargeFill = el.querySelector('.pin-charge-fill');
+      if (badgeEl && badgeEl.textContent !== p.badge) badgeEl.textContent = p.badge;
+      if (titleEl && titleEl.textContent !== p.title) titleEl.textContent = p.title;
+      if (subEl && subEl.textContent !== p.sub) subEl.textContent = p.sub;
+      if (chargeTrack && chargeFill) {
+        if (p.chargePct !== null) {
+          chargeTrack.style.display = 'block';
+          chargeFill.style.width = `${p.chargePct}%`;
+        } else {
+          chargeTrack.style.display = 'none';
+        }
+      }
+    }
+
+    const existingChildren = Array.from(this.labelsEl.children);
+    for (let i = 0; i < existingChildren.length; i++) {
+      const child = existingChildren[i];
+      const pid = child.getAttribute('data-pin-id');
+      if (!activeIds.has(pid)) {
+        child.remove();
+      }
+    }
   }
 
   animate(timestamp = 0) {
@@ -3783,7 +4404,7 @@ class LexLean3DVisualizer {
     this.lastTimestamp = timestamp;
 
     if (this.autoRotate && !this.isDragging) {
-      this.yaw += 0.25 * deltaTime;
+      this.yaw += 0.18 * deltaTime;
     }
 
     this.render(timestamp * 0.001);
@@ -3794,6 +4415,12 @@ class LexLean3DVisualizer {
     const gl = this.gl;
     const canvas = this.canvas;
     if (!gl || !canvas) return;
+
+    // Step the 96-Boid Starling Flock Murmuration Swarm
+    this.updateStarlingFlock(0.016, time);
+    if (this.ospfPulseClock > 0.0) {
+      this.ospfPulseClock = Math.max(0.0, this.ospfPulseClock - 0.016);
+    }
 
     // Viewport resize check
     const cw = canvas.clientWidth;
@@ -3808,9 +4435,9 @@ class LexLean3DVisualizer {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Compute view and projection matrices
+    // Compute view and projection matrices (23 deg telephoto FOV so the 3D brain fills the viewport at distance=15.0)
     const aspect = canvas.width / Math.max(canvas.height, 1);
-    mat4_perspective(this.projMatrix, 45.0 * Math.PI / 180.0, aspect, 0.1, 100.0);
+    mat4_perspective(this.projMatrix, 23.0 * Math.PI / 180.0, aspect, 0.1, 100.0);
 
     const eyeX = this.target[0] + this.distance * Math.cos(this.pitch) * Math.sin(this.yaw);
     const eyeY = this.target[1] + this.distance * Math.sin(this.pitch);
@@ -3818,88 +4445,179 @@ class LexLean3DVisualizer {
     mat4_lookAt(this.viewMatrix, [eyeX, eyeY, eyeZ], this.target, [0.0, 1.0, 0.0]);
     mat4_multiply(this.viewProjMatrix, this.projMatrix, this.viewMatrix);
 
+    // Determine active OSPF Hop & Integrate-and-Fire Capacitor Cycle
+    const hopCount = Math.max(this.ospfRouteHops.length, 1);
+    const hopFloat = ((time * 1.15) % hopCount + hopCount) % hopCount;
+    const activeHopIdx = Math.floor(hopFloat);
+    const hopPhase = hopFloat - activeHopIdx; // 0..0.68 = Capacitor Charge Build-Up, 0.68..1.0 = Burst Release
+    const nextHopIdx = (activeHopIdx + 1) % hopCount;
+    const activeHop = this.ospfRouteHops[activeHopIdx];
+    const nextHop = this.ospfRouteHops[nextHopIdx];
+    const isFiringBurst = hopPhase >= 0.68;
+    const burstProgress = isFiringBurst ? ((hopPhase - 0.68) / 0.32) : 0.0;
+
+    // Update per-cluster charge & fireBurst state
+    for (let i = 0; i < this.cliffordNodes.length; i++) {
+      const node = this.cliffordNodes[i];
+      node.charge = Math.max(0.08, (node.charge || 0.1) * 0.92);
+      node.fireBurst = Math.max(0.0, (node.fireBurst || 0.0) * 0.88);
+    }
+    if (activeHop && this.cliffordNodes[activeHop.clusterIdx]) {
+      const activeNode = this.cliffordNodes[activeHop.clusterIdx];
+      if (!isFiringBurst) {
+        activeNode.charge = Math.min(1.0, 0.25 + (hopPhase / 0.68) * 0.75);
+        activeNode.fireBurst = 0.15 * (hopPhase / 0.68);
+      } else {
+        activeNode.charge = Math.max(0.2, 1.0 - burstProgress * 0.8);
+        activeNode.fireBurst = Math.sin(burstProgress * Math.PI);
+      }
+    }
+    if (nextHop && isFiringBurst && this.cliffordNodes[nextHop.clusterIdx]) {
+      this.cliffordNodes[nextHop.clusterIdx].charge = Math.min(0.65, burstProgress * 0.65);
+    }
+
     // ------------------------------------------------------------------------
-    // 1. Pack Line Vertices: Cortical synapses, laminar contours, spline, beacon
+    // 1. Pack Line Vertices: Holographic Brain Shell, Dendrites, Synapses, OSPF Route, Starling Streaks
     // ------------------------------------------------------------------------
     const lineData = []; // [x, y, z, r, g, b, a]
 
-    // 6 SpiralCore laminar horizon rings: subtle elliptical cortical contours
-    const ringSegs = 28;
-    for (let l = 0; l < 6; l++) {
-      const y = this.layerElevations[l] * 0.72;
-      const energy = (typeof this.layerEnergies[l] === 'number' && Number.isFinite(this.layerEnergies[l])) ? this.layerEnergies[l] : 0.6;
-      const alpha = 0.14 + 0.22 * Math.min(energy, 1.0);
-      const rx = 2.45 - 0.12 * Math.abs(l - 2.5);
-      const rz = 3.05 - 0.15 * Math.abs(l - 2.5);
-
-      for (let s = 0; s < ringSegs; s++) {
-        const a1 = (s / ringSegs) * 2.0 * Math.PI;
-        const a2 = ((s + 1) / ringSegs) * 2.0 * Math.PI;
-        const x1 = rx * Math.cos(a1), z1 = rz * Math.sin(a1);
-        const x2 = rx * Math.cos(a2), z2 = rz * Math.sin(a2);
-
-        lineData.push(x1, y, z1, 0.22, 0.52, 0.95, alpha);
-        lineData.push(x2, y, z2, 0.22, 0.52, 0.95, alpha);
+    // 1A. Anatomical 3D Human Brain Holographic Contours (Cerebral Gyri, Cerebellum Folia, Brainstem)
+    if (Array.isArray(this.brainContourSegments)) {
+      for (let i = 0; i < this.brainContourSegments.length; i++) {
+        const seg = this.brainContourSegments[i];
+        if (!seg || !seg.p1 || !seg.p2) continue;
+        const lIdx = Math.abs(i) % 6;
+        const energy = (typeof this.layerEnergies[lIdx] === 'number' && Number.isFinite(this.layerEnergies[lIdx]))
+          ? this.layerEnergies[lIdx]
+          : 0.75;
+        let cr = 0.28, cg = 0.68, cb = 1.0, baseA = 0.34;
+        if (seg.region === 'frontal') {
+          cr = 0.98; cg = 0.42; cb = 0.74; baseA = 0.38;
+        } else if (seg.region === 'temporal') {
+          cr = 0.16; cg = 0.94; cb = 0.72; baseA = 0.38;
+        } else if (seg.region === 'cerebellum') {
+          cr = 1.0; cg = 0.78; cb = 0.28; baseA = 0.32;
+        } else if (seg.region === 'brainstem') {
+          cr = 0.22; cg = 0.94; cb = 1.0; baseA = 0.42;
+        }
+        const alpha = baseA * (0.75 + 0.35 * Math.min(energy, 1.2));
+        lineData.push(seg.p1[0], seg.p1[1], seg.p1[2], cr, cg, cb, alpha);
+        lineData.push(seg.p2[0], seg.p2[1], seg.p2[2], cr, cg, cb, alpha);
       }
     }
 
-    // Cortical Synaptic Connectome & Corpus Callosum action-potential fibers
+    // 1B. Background Cortical Synaptic Connectome & Corpus Callosum Bridges
     if (Array.isArray(this.corticalSynapses)) {
       for (let s = 0; s < this.corticalSynapses.length; s++) {
         const syn = this.corticalSynapses[s];
         const nA = this.cliffordNodes[syn.a];
         const nB = this.cliffordNodes[syn.b];
         if (!nA || !nB) continue;
-        const wave = Math.sin(time * 4.5 - syn.phase) * 0.5 + 0.5;
-        const gE = (typeof this.cliffordGradeEnergies[nA.grade] === 'number' && Number.isFinite(this.cliffordGradeEnergies[nA.grade]))
-          ? this.cliffordGradeEnergies[nA.grade]
-          : 1.0;
-        let cr = 0.30 + 0.45 * wave;
-        let cg = 0.58 + 0.35 * wave;
-        let cb = 1.0;
-        let ca = (0.20 + 0.48 * wave) * Math.min(gE, 1.25);
+        const wave = Math.sin(time * 3.8 - syn.phase) * 0.5 + 0.5;
+        const clusterHeat = Math.max(nA.charge || 0, nB.charge || 0, nA.fireBurst || 0, nB.fireBurst || 0);
+        let cr = 0.22 + 0.35 * wave + 0.4 * clusterHeat;
+        let cg = 0.52 + 0.32 * wave + 0.3 * clusterHeat;
+        let cb = 0.96;
+        let ca = 0.12 + 0.18 * wave + 0.42 * clusterHeat;
         if (syn.kind === 'callosum') {
-          cr = 0.95;
-          cg = 0.45 + 0.45 * wave;
-          cb = 0.88;
-          ca = 0.32 + 0.52 * wave;
+          cr = 0.88;
+          cg = 0.38 + 0.42 * wave;
+          cb = 0.92;
+          ca = 0.18 + 0.25 * wave + 0.35 * clusterHeat;
         } else if (syn.kind === 'thalamocortical') {
           cr = 0.18;
-          cg = 0.88;
+          cg = 0.84;
           cb = 0.96;
-          ca = 0.28 + 0.45 * wave;
+          ca = 0.16 + 0.22 * wave + 0.38 * clusterHeat;
         }
         lineData.push(nA.pos[0], nA.pos[1], nA.pos[2], cr, cg, cb, ca);
         lineData.push(nB.pos[0], nB.pos[1], nB.pos[2], cr, cg, cb, ca);
       }
     }
 
-    // Token trajectory spline lines (Next-Token Thought Stream with Traveling Wavefront)
+    // 1C. Dendritic Micro-Cluster Filaments around each Neuron Cluster (glows during Charge & Fire!)
+    for (let i = 0; i < this.cliffordNodes.length; i++) {
+      const node = this.cliffordNodes[i];
+      if (!Array.isArray(node.dendrites)) continue;
+      const heat = Math.max(node.charge || 0.1, node.fireBurst || 0.0);
+      const dAlpha = 0.14 + 0.72 * heat;
+      const dr = node.fireBurst > 0.2 ? 1.0 : node.baseColor[0];
+      const dg = node.fireBurst > 0.2 ? 0.92 : node.baseColor[1];
+      const db = node.fireBurst > 0.2 ? 0.45 : node.baseColor[2];
+      for (let d = 0; d < node.dendrites.length; d++) {
+        const dp = node.dendrites[d];
+        lineData.push(node.pos[0], node.pos[1], node.pos[2], dr, dg, db, dAlpha);
+        lineData.push(dp[0], dp[1], dp[2], dr, dg, db, dAlpha * 0.45);
+      }
+    }
+
+    // 1D. OSPF Link-State Advertisement (LSA) Candidate Probe Rays from the Charging Cluster
+    if (activeHop && Array.isArray(this.corticalSynapses)) {
+      const cIdx = activeHop.clusterIdx;
+      const lsaWave = (hopPhase / 0.68);
+      for (let s = 0; s < this.corticalSynapses.length; s++) {
+        const syn = this.corticalSynapses[s];
+        if (syn.a === cIdx || syn.b === cIdx) {
+          const nA = this.cliffordNodes[cIdx];
+          const nB = this.cliffordNodes[syn.a === cIdx ? syn.b : syn.a];
+          if (nA && nB) {
+            const reach = Math.min(Math.max(lsaWave, 0.15), 1.0);
+            const midX = nA.pos[0] + (nB.pos[0] - nA.pos[0]) * reach;
+            const midY = nA.pos[1] + (nB.pos[1] - nA.pos[1]) * reach;
+            const midZ = nA.pos[2] + (nB.pos[2] - nA.pos[2]) * reach;
+            lineData.push(nA.pos[0], nA.pos[1], nA.pos[2], 1.0, 0.78, 0.18, 0.78);
+            lineData.push(midX, midY, midZ, 0.20, 0.95, 1.0, 0.35);
+          }
+        }
+      }
+    }
+
+    // 1E. Winning OSPF Shortest-Path Synaptic Highway (Bright Emerald-Gold Neural Route)
     if (this.tokenSplinePoints.length > 1) {
-      const headIdx = Math.floor((time * 24.0) % this.tokenSplinePoints.length);
+      const headIdx = Math.floor((time * 22.0) % this.tokenSplinePoints.length);
       for (let j = 0; j < this.tokenSplinePoints.length - 1; j++) {
         const pA = this.tokenSplinePoints[j];
         const pB = this.tokenSplinePoints[j + 1];
         if (pA && pB && Number.isFinite(pA[0]) && Number.isFinite(pB[0])) {
           const dist = Math.abs(j - headIdx);
-          const isWavefront = dist < 24;
-          const alpha = isWavefront ? (0.85 - (dist / 24.0) * 0.6) : 0.18;
-          lineData.push(pA[0], pA[1], pA[2], 0.15, 0.98, 0.65, alpha);
-          lineData.push(pB[0], pB[1], pB[2], 0.15, 0.98, 0.65, alpha);
+          const isWavefront = dist < 18;
+          const alpha = isWavefront ? (0.95 - (dist / 18.0) * 0.5) : 0.42;
+          const r = isWavefront ? 0.45 : 0.12;
+          const g = 0.98;
+          const b = isWavefront ? 0.82 : 0.58;
+          lineData.push(pA[0], pA[1], pA[2], r, g, b, alpha);
+          lineData.push(pB[0], pB[1], pB[2], r, g, b, alpha);
         }
       }
     }
 
-    // Winning PointKey beacon ray
-    if (typeof this.winningPointKeyRow === 'number' && Number.isFinite(this.winningPointKeyRow) && this.starfieldParticles.length > 0) {
-      const winIdx = Math.abs(Math.floor(this.winningPointKeyRow)) % this.starfieldParticles.length;
-      const winPart = this.starfieldParticles[winIdx];
-      if (winPart && winPart.pos && Array.isArray(winPart.pos) && Number.isFinite(winPart.pos[0])) {
-        const layerIdx = Math.abs(Math.floor(this.winningPointKeyRow)) % 6;
-        const targetLayerY = this.layerElevations[layerIdx] !== undefined ? this.layerElevations[layerIdx] : 0.0;
-        lineData.push(winPart.pos[0], winPart.pos[1], winPart.pos[2], 1.0, 0.8, 0.2, 0.9);
-        lineData.push(0.0, targetLayerY, 0.0, 1.0, 0.8, 0.2, 0.9);
+    // 1F. Persistent Temporal Memory Engram Recall & Hippocampal Write-Back Beams
+    if (Array.isArray(this.memoryEngrams) && this.cliffordNodes.length > 2) {
+      const thalamusHub = this.cliffordNodes[1]; // Thalamus / Hippocampus core
+      for (let e = 0; e < this.memoryEngrams.length; e++) {
+        const eng = this.memoryEngrams[e];
+        const engNode = this.cliffordNodes[eng.clusterIdx];
+        if (engNode && thalamusHub) {
+          const pulseA = 0.42 + 0.38 * Math.sin(time * 4.2 + e * 1.3);
+          lineData.push(engNode.pos[0], engNode.pos[1], engNode.pos[2], 0.78, 0.45, 1.0, pulseA);
+          lineData.push(thalamusHub.pos[0], thalamusHub.pos[1], thalamusHub.pos[2], 0.25, 0.92, 1.0, pulseA * 0.85);
+        }
       }
+    }
+
+    // 1G. 96-Boid Starling Flock Murmuration Velocity Streaks
+    for (let i = 0; i < this.starlingFlock.length; i++) {
+      const b = this.starlingFlock[i];
+      if (!b || !b.pos || !b.vel || !Number.isFinite(b.pos[0])) continue;
+      const tailX = b.pos[0] - b.vel[0] * 0.14;
+      const tailY = b.pos[1] - b.vel[1] * 0.14;
+      const tailZ = b.pos[2] - b.vel[2] * 0.14;
+      const isDomHead = (b.headIdx === (this.dominantIcosianRoot % 8));
+      const sr = isDomHead ? 1.0 : 0.25;
+      const sg = isDomHead ? 0.86 : 0.92;
+      const sb = isDomHead ? 0.28 : 1.0;
+      lineData.push(b.pos[0], b.pos[1], b.pos[2], sr, sg, sb, 0.82);
+      lineData.push(tailX, tailY, tailZ, sr, sg, sb, 0.08);
     }
 
     // Upload line buffer & draw
@@ -3925,84 +4643,118 @@ class LexLean3DVisualizer {
     }
 
     // ------------------------------------------------------------------------
-    // 2. Pack Point Vertices: Clifford nodes, Icosian roots, Starfield, Waypoints
+    // 2. Pack Point Vertices: Micro-Neurons, 64 Synapse Clusters (Charge & Burst), Starling Boids, Packets, Engrams
     // ------------------------------------------------------------------------
     const pointData = []; // [x, y, z, r, g, b, a, size]
 
-    // 64 Clifford Cl(0,6) nodes
-    for (let i = 0; i < this.cliffordNodes.length; i++) {
-      const node = this.cliffordNodes[i];
-      const gEnergy = (typeof this.cliffordGradeEnergies[node.grade] === 'number' && Number.isFinite(this.cliffordGradeEnergies[node.grade]))
-        ? this.cliffordGradeEnergies[node.grade]
-        : 1.0;
-      const pulse = 1.0 + 0.18 * Math.sin(time * 3.5 + i * 0.37 + node.grade);
-      const size = node.baseSize * gEnergy * pulse;
-      const alpha = node.baseColor[3] * Math.min(gEnergy, 1.0);
-
-      pointData.push(
-        node.pos[0], node.pos[1], node.pos[2],
-        node.baseColor[0], node.baseColor[1], node.baseColor[2], alpha,
-        size
-      );
-    }
-
-    // 17 Icosian root vertices
-    const hasDomRoot = typeof this.dominantIcosianRoot === 'number' && Number.isFinite(this.dominantIcosianRoot);
-    const validDomRoot = hasDomRoot ? (Math.abs(Math.floor(this.dominantIcosianRoot)) % 17) : 0;
-    for (let k = 0; k < this.icosianRoots.length; k++) {
-      const root = this.icosianRoots[k];
-      const isDom = k === validDomRoot;
-      if (isDom) {
-        const domSize = 22.0 + 5.0 * Math.sin(time * 5.0);
-        pointData.push(root[0], root[1], root[2], 1.0, 0.84, 0.0, 1.0, domSize);
-        // Outer pulsing ring particle
-        const ringSize = domSize * 1.45;
-        pointData.push(root[0], root[1], root[2], 1.0, 0.9, 0.3, 0.38, ringSize);
-      } else {
-        pointData.push(root[0], root[1], root[2], 0.7, 0.85, 1.0, 0.65, 8.5);
-      }
-    }
-
-    // 256 Starfield PointKey memory basin particles
-    const hasWinningRow = typeof this.winningPointKeyRow === 'number' && Number.isFinite(this.winningPointKeyRow);
-    const validWinIdx = hasWinningRow && this.starfieldParticles.length > 0
-      ? (Math.abs(Math.floor(this.winningPointKeyRow)) % this.starfieldParticles.length)
-      : -1;
-    for (let i = 0; i < this.starfieldParticles.length; i++) {
-      const p = this.starfieldParticles[i];
-      const isWinning = (i === validWinIdx);
-      if (isWinning) {
-        const winSize = 18.0 + 4.0 * Math.sin(time * 6.0);
-        pointData.push(p.pos[0], p.pos[1], p.pos[2], 1.0, 0.75, 0.1, 1.0, winSize);
-      } else {
+    // 2A. 480 Cortical Surface Micro-Neurons (Anatomical Holographic Brain Silhouette)
+    if (Array.isArray(this.corticalMicroNeurons)) {
+      for (let i = 0; i < this.corticalMicroNeurons.length; i++) {
+        const mn = this.corticalMicroNeurons[i];
+        const shimmer = 0.75 + 0.25 * Math.sin(time * 2.4 + i * 0.37);
         pointData.push(
-          p.pos[0], p.pos[1], p.pos[2],
-          p.baseColor[0], p.baseColor[1], p.baseColor[2], p.baseColor[3],
-          p.baseSize
+          mn.pos[0], mn.pos[1], mn.pos[2],
+          mn.color[0], mn.color[1], mn.color[2], mn.color[3] * shimmer,
+          mn.size
         );
       }
     }
 
-    // Token trajectory waypoint particles: Traveling Thought Wave
-    const activeWpIdx = this.decodeWaypoints.length > 0
-      ? Math.floor((time * 6.0) % this.decodeWaypoints.length)
-      : 0;
-    for (let w = 0; w < this.decodeWaypoints.length; w++) {
-      const wp = this.decodeWaypoints[w];
-      const distToWave = Math.abs(w - activeWpIdx);
-      if (distToWave <= 2) {
-        const boost = 1.0 - distToWave * 0.28;
-        pointData.push(wp[0], wp[1], wp[2], 0.25, 1.0, 0.68, 0.92 * boost, 6.5 + 5.0 * boost);
-      } else {
-        pointData.push(wp[0], wp[1], wp[2], 0.15, 0.95, 0.58, 0.36, 3.6);
+    // 2B. 64 Functional Neuron & Synapse Clusters + Dendritic Satellite Nodes (Integrate-and-Fire!)
+    for (let i = 0; i < this.cliffordNodes.length; i++) {
+      const node = this.cliffordNodes[i];
+      const charge = node.charge || 0.1;
+      const burst = node.fireBurst || 0.0;
+      const isHopCluster = activeHop && activeHop.clusterIdx === i;
+
+      // Cluster Soma core
+      const somaSize = node.baseSize * (0.9 + 0.85 * charge + 1.15 * burst);
+      const cr = burst > 0.15 ? 1.0 : Math.min(1.0, node.baseColor[0] + 0.35 * charge);
+      const cg = burst > 0.15 ? 0.94 : Math.min(1.0, node.baseColor[1] + 0.35 * charge);
+      const cb = burst > 0.15 ? 0.55 : node.baseColor[2];
+      const ca = Math.min(1.0, 0.72 + 0.28 * (charge + burst));
+      pointData.push(node.pos[0], node.pos[1], node.pos[2], cr, cg, cb, ca, somaSize);
+
+      // Capacitor Charge / Action-Potential Burst Halo around active or firing clusters
+      if (isHopCluster || burst > 0.08 || charge > 0.35) {
+        const haloSize = somaSize * (1.55 + 0.95 * burst + 0.35 * Math.sin(time * 9.0));
+        const hr = burst > 0.15 ? 1.0 : 0.15;
+        const hg = burst > 0.15 ? 0.85 : 0.98;
+        const hb = burst > 0.15 ? 0.22 : 0.68;
+        const ha = Math.min(0.68, 0.22 + 0.45 * (charge + burst));
+        pointData.push(node.pos[0], node.pos[1], node.pos[2], hr, hg, hb, ha, haloSize);
+      }
+
+      // 7 Dendritic Satellite Neurons per Cluster
+      if (Array.isArray(node.dendrites)) {
+        const satSize = 3.2 + 4.5 * (charge + burst);
+        const satAlpha = 0.28 + 0.65 * Math.min(1.0, charge + burst);
+        for (let d = 0; d < node.dendrites.length; d++) {
+          const dp = node.dendrites[d];
+          pointData.push(dp[0], dp[1], dp[2], cr, cg, cb, satAlpha, satSize);
+        }
       }
     }
 
-    // Traveling tracer bead along the spline
-    if (this.tokenSplinePoints.length > 0) {
-      const tracerIdx = Math.floor((time * 24.0) % this.tokenSplinePoints.length);
-      const pt = this.tokenSplinePoints[tracerIdx];
-      pointData.push(pt[0], pt[1], pt[2], 1.0, 1.0, 1.0, 1.0, 16.0);
+    // 2C. Neurotransmitter Action-Potential Burst Packets Shooting from Active Hop -> Next Hop!
+    if (activeHop && nextHop && activeHop.pos && nextHop.pos) {
+      const packetCount = 5;
+      for (let p = 0; p < packetCount; p++) {
+        const pFrac = ((hopPhase * 1.45 + p * 0.18) % 1.0);
+        const px = activeHop.pos[0] + (nextHop.pos[0] - activeHop.pos[0]) * pFrac;
+        const py = activeHop.pos[1] + (nextHop.pos[1] - activeHop.pos[1]) * pFrac + 0.14 * Math.sin(pFrac * Math.PI);
+        const pz = activeHop.pos[2] + (nextHop.pos[2] - activeHop.pos[2]) * pFrac;
+        const pSize = (p === 0) ? 17.5 : (12.0 - p * 1.4);
+        pointData.push(px, py, pz, 1.0, 0.94, 0.38, 0.96, pSize);
+      }
+    }
+
+    // 2D. 96 Starling Flock Boid Heads
+    for (let i = 0; i < this.starlingFlock.length; i++) {
+      const b = this.starlingFlock[i];
+      if (!b || !b.pos || !Number.isFinite(b.pos[0])) continue;
+      const isDomHead = (b.headIdx === (this.dominantIcosianRoot % 8));
+      pointData.push(
+        b.pos[0], b.pos[1], b.pos[2],
+        isDomHead ? 1.0 : 0.35,
+        isDomHead ? 0.88 : 0.95,
+        isDomHead ? 0.25 : 1.0,
+        0.92,
+        isDomHead ? 6.8 : 4.8
+      );
+    }
+
+    // 2E. Persistent Conversation Memory Engram Cores in Temporal Lobe
+    if (Array.isArray(this.memoryEngrams)) {
+      for (let e = 0; e < this.memoryEngrams.length; e++) {
+        const eng = this.memoryEngrams[e];
+        const engNode = this.cliffordNodes[eng.clusterIdx];
+        if (!engNode || !engNode.pos) continue;
+        const eSize = 21.0 + 4.5 * Math.sin(time * 4.5 + e * 1.5);
+        pointData.push(engNode.pos[0], engNode.pos[1], engNode.pos[2], 0.85, 0.48, 1.0, 0.95, eSize);
+      }
+    }
+
+    // 2F. 17 Icosian Root Anchors & 256 Background /8 Memory Basin Particles
+    const hasDomRoot = typeof this.dominantIcosianRoot === 'number' && Number.isFinite(this.dominantIcosianRoot);
+    const validDomRoot = hasDomRoot ? (Math.abs(Math.floor(this.dominantIcosianRoot)) % 17) : 0;
+    for (let k = 0; k < this.icosianRoots.length; k++) {
+      const root = this.icosianRoots[k];
+      if (k === validDomRoot) {
+        const domSize = 20.0 + 4.5 * Math.sin(time * 5.0);
+        pointData.push(root[0], root[1], root[2], 1.0, 0.84, 0.0, 0.98, domSize);
+      } else {
+        pointData.push(root[0], root[1], root[2], 0.65, 0.82, 1.0, 0.48, 6.5);
+      }
+    }
+
+    for (let i = 0; i < this.starfieldParticles.length; i++) {
+      const p = this.starfieldParticles[i];
+      pointData.push(
+        p.pos[0], p.pos[1], p.pos[2],
+        p.baseColor[0], p.baseColor[1], p.baseColor[2], p.baseColor[3],
+        p.baseSize
+      );
     }
 
     // Upload point buffer & draw
@@ -4032,6 +4784,9 @@ class LexLean3DVisualizer {
 
       gl.drawArrays(gl.POINTS, 0, pointData.length / 8);
     }
+
+    // 3. Project 3D Anatomical & Live OSPF Hop Labels onto the HTML Overlay
+    this.updateOverlayLabels(time, activeHopIdx, hopPhase, canvas.clientWidth || canvas.width, canvas.clientHeight || canvas.height);
   }
 }
 
@@ -4605,16 +5360,6 @@ try {
   const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
   renderWorkspaceList(initialWorkspace);
   selectWorkspaceFile(activeWorkspacePath);
-  const currentActiveThread = getActiveThread();
-  if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
-    runClaudeChat('Hello! Who are you and what can you do?', false);
-  } else {
-    dispatchStudioEnvelope('chat', 'Hello! Who are you and what can you do?');
-  }
-  if (claudeChatInput) {
-    claudeChatInput.value = '';
-    claudeChatInput.focus();
-  }
   if (studioPromptInput && studioPromptInput.value) {
     runStudioGenerate(studioPromptInput.value);
   }
@@ -4622,6 +5367,31 @@ try {
   executeCoordinateEnvelope();
   if (runApiRequestBtn) {
     runApiRequestBtn.click();
+  }
+  const currentActiveThread = getActiveThread();
+  if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
+    runClaudeChat('Hello! Who are you and what can you do?', false);
+  } else {
+    const msgs = currentActiveThread.messages;
+    let lastUserPrompt = 'Hello! Who are you and what can you do?';
+    for (let i = 0; i < msgs.length; i++) {
+      if (msgs[i].role === 'user' && msgs[i].text) {
+        lastUserPrompt = msgs[i].text;
+        const nextReply = (msgs[i + 1] && msgs[i + 1].role === 'assistant') ? (msgs[i + 1].text || '') : '';
+        if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
+          lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, nextReply, null);
+        }
+      }
+    }
+    const bootChatRes = dispatchStudioEnvelope('chat', lastUserPrompt);
+    selectedTraceIndex = 0;
+    if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
+      lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, bootChatRes?.reply || '', bootChatRes);
+    }
+  }
+  if (claudeChatInput) {
+    claudeChatInput.value = '';
+    claudeChatInput.focus();
   }
   fetchRecordedTraces();
   if (typeof stream_sharded_weights_to_indexeddb === 'function') {
