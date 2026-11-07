@@ -85,7 +85,7 @@ pub fn run_cmd_checked(cmd: &str, args: &[&str]) -> Result<String, String> {
     });
     let (resolved_cmd, resolved_args): (PathBuf, Vec<&str>) = if cmd == "cargo"
         && args.len() >= 5
-        && &args[..5] == ["run", "-q", "-p", "xtask", "--"]
+        && args[..5] == ["run", "-q", "-p", "xtask", "--"]
         && xtask_bin.is_file()
     {
         (xtask_bin, args[5..].to_vec())
