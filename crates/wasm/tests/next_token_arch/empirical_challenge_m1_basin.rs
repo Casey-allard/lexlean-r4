@@ -40,6 +40,8 @@ fn make_test_point_key(
         anchor_len,
         provenance_spans: None,
         provenance_traces: None,
+        bucket_offsets: None,
+        bucket_row_indices: None,
     }
 }
 

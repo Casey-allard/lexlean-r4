@@ -270,6 +270,8 @@ fn test_stress_sentinel_grid_point_and_writer_provenance() {
         anchor_len: 32,
         provenance_spans: None,
         provenance_traces: None,
+        bucket_offsets: None,
+        bucket_row_indices: None,
     };
 
     let sentinel_spans: [u64; 6] = [

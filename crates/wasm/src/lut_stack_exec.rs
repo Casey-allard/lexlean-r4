@@ -2038,15 +2038,28 @@ pub fn pack_i32_sign_sketch_256(slice: &[i32]) -> [u64; HAMMING_HEADS] {
 #[inline]
 pub fn pack_i16_sign_sketch_256(slice: &[i16]) -> [u64; HAMMING_HEADS] {
     let mut out = [0u64; HAMMING_HEADS];
-    for (h, out_word) in out.iter_mut().enumerate() {
-        let base = h * HAMMING_HEAD_DIM;
-        let mut word = 0u64;
-        for b in 0..HAMMING_HEAD_DIM {
-            if slice.get(base + b).copied().unwrap_or(0) >= 0 {
-                word |= 1u64 << b;
+    if slice.len() >= 256 {
+        for (h, out_word) in out.iter_mut().enumerate() {
+            let chunk = &slice[h * HAMMING_HEAD_DIM..(h + 1) * HAMMING_HEAD_DIM];
+            let mut word = 0u64;
+            for (b, &v) in chunk.iter().enumerate() {
+                if v >= 0 {
+                    word |= 1u64 << b;
+                }
             }
+            *out_word = word;
         }
-        *out_word = word;
+    } else {
+        for (h, out_word) in out.iter_mut().enumerate() {
+            let base = h * HAMMING_HEAD_DIM;
+            let mut word = 0u64;
+            for b in 0..HAMMING_HEAD_DIM {
+                if slice.get(base + b).copied().unwrap_or(0) >= 0 {
+                    word |= 1u64 << b;
+                }
+            }
+            *out_word = word;
+        }
     }
     out
 }
@@ -2452,6 +2465,10 @@ pub struct ServedPointKey {
     /// training or proof span (`gllm.training.compile_turn` or `gllm.engine.prove_claim`).
     pub provenance_spans: Option<Vec<u64>>,
     pub provenance_traces: Option<Vec<u128>>,
+    /// Two-level hierarchical radix / geometric index directory offsets (17,409 entries).
+    pub bucket_offsets: Option<Vec<u32>>,
+    /// Permutation array mapping radix candidate slots back to original ServedPointKey row indices.
+    pub bucket_row_indices: Option<Vec<u32>>,
 }
 
 impl ServedPointKey {
@@ -2491,6 +2508,52 @@ impl ServedPointKey {
             }
         }
         (0x756f722d72342e626f6f747374726170, 0x756f722d72342e38)
+    }
+
+    /// Build or rebuild the two-level hierarchical radix / geometric index over all PointKey rows.
+    ///
+    /// Constructs a 17,409-entry bucket offset table (`bucket_offsets`) and a permutation
+    /// table (`bucket_row_indices`) mapping geometric buckets to row indices without reordering
+    /// underlying row arrays, preserving table synchronization invariants (`audit_point_key_synchronization == 0`).
+    pub fn build_radix_index(&mut self) {
+        if self.rows == 0 || self.points.len() < self.rows * self.width || self.width == 0 {
+            self.bucket_offsets = Some(vec![0u32; RADIX_DIRECTORY_LEN]);
+            self.bucket_row_indices = Some(Vec::new());
+            return;
+        }
+
+        let mut bucket_counts = vec![0u32; GEOMETRIC_BUCKET_COUNT];
+        let mut row_buckets = Vec::with_capacity(self.rows);
+
+        for r in 0..self.rows {
+            let p_base = r * self.width;
+            let p_row = &self.points[p_base..p_base + self.width];
+            let p_sketch = pack_i16_sign_sketch_256(p_row);
+            let (e8, c64, i17) = compute_geometric_coordinates(p_row, p_sketch[0]);
+            let b = compute_geometric_bucket(e8, c64, i17);
+            bucket_counts[b] += 1;
+            row_buckets.push(b);
+        }
+
+        let mut bucket_offsets = Vec::with_capacity(RADIX_DIRECTORY_LEN);
+        let mut running = 0u32;
+        for &count in &bucket_counts {
+            bucket_offsets.push(running);
+            running += count;
+        }
+        bucket_offsets.push(running);
+
+        let mut current_pos = bucket_offsets[0..GEOMETRIC_BUCKET_COUNT].to_vec();
+        let mut bucket_row_indices = vec![0u32; self.rows];
+
+        for (r, &b) in row_buckets.iter().enumerate() {
+            let pos = current_pos[b] as usize;
+            bucket_row_indices[pos] = r as u32;
+            current_pos[b] += 1;
+        }
+
+        self.bucket_offsets = Some(bucket_offsets);
+        self.bucket_row_indices = Some(bucket_row_indices);
     }
 
     pub fn apply_with_row(&self, n_t: &[i32]) -> Option<(u32, usize, i64)> {
@@ -2908,7 +2971,7 @@ impl LutStackModel {
                     .filter(|ca| rows > 0 && ca.len() >= rows && ca.len() % rows == 0)
                     .map(|ca| ca.len() / rows)
                     .unwrap_or(anchor_len_for_point);
-                point = Some(ServedPointKey {
+                let mut pt = ServedPointKey {
                     rows,
                     width: p_width,
                     exp,
@@ -2919,7 +2982,26 @@ impl LutStackModel {
                     anchor_len: effective_anchor_len,
                     provenance_spans: None,
                     provenance_traces: None,
-                });
+                    bucket_offsets: None,
+                    bucket_row_indices: None,
+                };
+                if tables.contains_key("memory.point.bucket_offsets")
+                    && tables.contains_key("memory.point.bucket_row_indices")
+                {
+                    if let (Ok(offsets), Ok(indices)) = (
+                        read_u32("memory.point.bucket_offsets"),
+                        read_u32("memory.point.bucket_row_indices"),
+                    ) {
+                        if offsets.len() == RADIX_DIRECTORY_LEN && indices.len() == rows {
+                            pt.bucket_offsets = Some(offsets);
+                            pt.bucket_row_indices = Some(indices);
+                        }
+                    }
+                }
+                if pt.bucket_offsets.is_none() && rows > 0 {
+                    pt.build_radix_index();
+                }
+                point = Some(pt);
             }
         }
 
@@ -4215,6 +4297,112 @@ pub fn is_lut_greeting_only_prompt(lower: &str) -> bool {
 
 pub const CORE_CURRICULUM_TURNS: usize = 623;
 pub const VERIFIED_FRONTIER_ANCHOR_TAG: u32 = 0x554F_5246;
+/// Number of discrete roots in the $E_8$ orbit projection.
+pub const E8_ROOT_COUNT: usize = 16;
+
+/// Number of basis actions in the $\text{Cl}(0,6)$ Clifford carrier.
+pub const CLIFFORD_ACTION_COUNT: usize = 64;
+
+/// Number of discrete roots in the Icosian golden lattice projection.
+pub const ICOSIAN_ROOT_COUNT: usize = 17;
+
+/// Total number of discrete geometric buckets in the two-level radix directory (16 * 64 * 17 = 17,408).
+pub const GEOMETRIC_BUCKET_COUNT: usize =
+    E8_ROOT_COUNT * CLIFFORD_ACTION_COUNT * ICOSIAN_ROOT_COUNT;
+
+/// Contiguous length of the radix directory offset table (17,408 + 1 = 17,409).
+pub const RADIX_DIRECTORY_LEN: usize = GEOMETRIC_BUCKET_COUNT + 1;
+
+/// 17-root Icosian Z[phi] GoldenQ12 root table (`R4.SpiralCoreFbs.icosianRootEntry`, `R4-24`).
+/// Each entry is `[(a_lane, b_lane); 4]` in Q12.
+pub const ICOSIAN_ROOTS_Q12: [[(i32, i32); 4]; 17] = [
+    [(0, 0), (0, 0), (0, 0), (0, 0)],
+    [(4096, 0), (0, 0), (0, 0), (0, 0)],
+    [(-4096, 0), (0, 0), (0, 0), (0, 0)],
+    [(0, 0), (4096, 0), (0, 0), (0, 0)],
+    [(0, 0), (-4096, 0), (0, 0), (0, 0)],
+    [(0, 0), (0, 0), (4096, 0), (0, 0)],
+    [(0, 0), (0, 0), (-4096, 0), (0, 0)],
+    [(0, 0), (0, 0), (0, 0), (4096, 0)],
+    [(0, 0), (0, 0), (0, 0), (-4096, 0)],
+    [(2048, 0), (2048, 0), (2048, 0), (2048, 0)],
+    [(-2048, 0), (-2048, 0), (-2048, 0), (-2048, 0)],
+    [(2048, 0), (2048, 0), (-2048, 0), (-2048, 0)],
+    [(2048, 0), (-2048, 0), (2048, 0), (-2048, 0)],
+    [(0, 2048), (2048, -2048), (2048, 0), (0, 0)],
+    [(0, -2048), (-2048, 2048), (-2048, 0), (0, 0)],
+    [(2048, 0), (0, 2048), (2048, -2048), (0, 0)],
+    [(-2048, 0), (0, -2048), (-2048, 2048), (0, 0)],
+];
+
+/// Snap a 4-lane Q12 block against the 17-root Icosian Z[phi] table.
+pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
+    let mut best_root = 0u8;
+    let mut best_score = i64::MIN;
+    for (idx, root) in ICOSIAN_ROOTS_Q12.iter().enumerate() {
+        let mut a = 0i64;
+        let mut b = 0i64;
+        for lane in 0..4 {
+            let x = i64::from(lanes[lane]);
+            a += x * i64::from(root[lane].0);
+            b += x * i64::from(root[lane].1);
+        }
+        let score = 2 * a + 3 * b;
+        if score > best_score {
+            best_score = score;
+            best_root = idx as u8;
+        }
+    }
+    (best_root, best_score)
+}
+
+/// Compute discrete geometric coordinates `(e8_root, clifford_action, icosian_root)` from
+/// a Q12 vector (checking up to 8 lanes) and a 64-bit sign code.
+pub fn compute_geometric_coordinates(q12_lanes: &[i16], sign_code: u64) -> (u8, u8, u8) {
+    let lanes_to_check = 8.min(q12_lanes.len());
+    let max_lane = if lanes_to_check > 0 {
+        q12_lanes[..lanes_to_check]
+            .iter()
+            .enumerate()
+            .max_by_key(|(_, &v)| v.unsigned_abs())
+            .map(|(i, _)| i as u8)
+            .unwrap_or(0)
+    } else {
+        0
+    };
+    let e8_root = ((max_lane * 2) + ((sign_code & 1) as u8)) % (E8_ROOT_COUNT as u8);
+    let clifford_action = ((sign_code >> 8) as u8) % (CLIFFORD_ACTION_COUNT as u8);
+    let lanes4 = [
+        if !q12_lanes.is_empty() {
+            q12_lanes[0]
+        } else {
+            0
+        },
+        if q12_lanes.len() > 1 { q12_lanes[1] } else { 0 },
+        if q12_lanes.len() > 2 { q12_lanes[2] } else { 0 },
+        if q12_lanes.len() > 3 { q12_lanes[3] } else { 0 },
+    ];
+    let icosian_root = (icosian_snap_select(lanes4).0) % (ICOSIAN_ROOT_COUNT as u8);
+    (e8_root, clifford_action, icosian_root)
+}
+
+/// Compute discrete geometric bucket index `B = (e8 * 64 + clifford) * 17 + icosian`.
+pub fn compute_geometric_bucket(e8_root: u8, clifford_action: u8, icosian_root: u8) -> usize {
+    let e8 = (e8_root as usize) % E8_ROOT_COUNT;
+    let c64 = (clifford_action as usize) % CLIFFORD_ACTION_COUNT;
+    let i17 = (icosian_root as usize) % ICOSIAN_ROOT_COUNT;
+    (e8 * CLIFFORD_ACTION_COUNT + c64) * ICOSIAN_ROOT_COUNT + i17
+}
+
+/// Decompose a discrete geometric bucket index `B` into `(e8_root, clifford_action, icosian_root)`.
+pub fn decompose_geometric_bucket(bucket: usize) -> (u8, u8, u8) {
+    let b = bucket % GEOMETRIC_BUCKET_COUNT;
+    let i17 = (b % ICOSIAN_ROOT_COUNT) as u8;
+    let rem = b / ICOSIAN_ROOT_COUNT;
+    let c64 = (rem % CLIFFORD_ACTION_COUNT) as u8;
+    let e8 = (rem / CLIFFORD_ACTION_COUNT) as u8;
+    (e8, c64, i17)
+}
 
 #[derive(Clone, Copy, Debug)]
 pub struct PointResonanceHit {
@@ -4310,20 +4498,52 @@ pub fn select_point_key_with_resonance(
         q_normed[d] = ((n_t[d] as i64) * 1024) / q_mean_abs;
     }
 
-    let mut best_row = 0usize;
-    let mut best_score = i64::MAX;
-    let mut best_raw_l1 = i64::MAX;
-    let mut best_hamming = 256u32;
-    let mut best_matched_stems = 0usize;
-    let mut best_covered_mask = 0u16;
-    let mut best_matched_bpe = 0usize;
-    let mut best_turn_idx = usize::MAX;
-    let mut best_bonus = 0i64;
     let total_stems = prompt_stems.len();
     let eff_total = total_stems.min(6);
-    let mut max_core_matched_stems = 0usize;
 
-    for r in 0..point.rows {
+    let (recent_min, recent_max) = if recent_turn_rows.is_empty() {
+        (usize::MAX, usize::MIN)
+    } else {
+        let mut min = usize::MAX;
+        let mut max = usize::MIN;
+        for &r in recent_turn_rows {
+            if r < min {
+                min = r;
+            }
+            if r > max {
+                max = r;
+            }
+        }
+        (min, max)
+    };
+
+    struct BestCandidate {
+        row: usize,
+        score: i64,
+        raw_l1: i64,
+        hamming: u32,
+        matched_stems: usize,
+        covered_mask: u16,
+        matched_bpe: usize,
+        turn_idx: usize,
+        bonus: i64,
+        max_core_matched_stems: usize,
+    }
+
+    let mut best = BestCandidate {
+        row: 0,
+        score: i64::MAX,
+        raw_l1: i64::MAX,
+        hamming: 256,
+        matched_stems: 0,
+        covered_mask: 0,
+        matched_bpe: 0,
+        turn_idx: usize::MAX,
+        bonus: 0,
+        max_core_matched_stems: 0,
+    };
+
+    let eval_row = |r: usize, best: &mut BestCandidate| -> bool {
         let p_base = r * point.width;
         let p_row = &point.points[p_base..p_base + point.width];
         let a_base = r * alen;
@@ -4339,11 +4559,12 @@ pub fn select_point_key_with_resonance(
         if !is_core_or_proved {
             let core_already_complete = is_self_inq
                 || is_greeting
-                || (best_raw_l1 == 0 && best_turn_idx < CORE_CURRICULUM_TURNS)
-                || (total_stems > 0 && max_core_matched_stems >= total_stems.max(2))
-                || (max_core_matched_stems >= 2 && eff_total < max_core_matched_stems + 2);
+                || (best.raw_l1 == 0 && best.turn_idx < CORE_CURRICULUM_TURNS)
+                || (total_stems > 0 && best.max_core_matched_stems >= total_stems.max(2))
+                || (best.max_core_matched_stems >= 2
+                    && eff_total < best.max_core_matched_stems + 2);
             if core_already_complete {
-                break;
+                return false;
             }
         }
 
@@ -4356,12 +4577,15 @@ pub fn select_point_key_with_resonance(
             guard_penalty = 60_000_000;
         }
 
-        let basin_penalty: i64 =
+        let basin_penalty: i64 = if r >= recent_min && r <= recent_max {
             if let Some(pos) = recent_turn_rows.iter().rposition(|&row_id| row_id == r) {
                 250_000i64 * (pos as i64 + 1)
             } else {
                 0i64
-            };
+            }
+        } else {
+            0i64
+        };
 
         let primary_slice = if alen >= 22 {
             &a_row[16..22]
@@ -4427,12 +4651,12 @@ pub fn select_point_key_with_resonance(
         // external matches >= 2 primary stems covering >= 1/2 of the prompt), or when external matches
         // at least 2 more stems than the best core turn.
         if is_core_or_proved && matched_stems >= 1 {
-            if matched_stems > max_core_matched_stems {
-                max_core_matched_stems = matched_stems;
+            if matched_stems > best.max_core_matched_stems {
+                best.max_core_matched_stems = matched_stems;
             }
             bonus += (matched_stems as i64) * 350_000;
         } else if !is_core_or_proved {
-            let ext_eligible = if max_core_matched_stems == 0 {
+            let ext_eligible = if best.max_core_matched_stems == 0 {
                 if total_stems <= 1 {
                     matched_primary >= 1 && row_primary_count <= 4
                 } else if total_stems == 2 {
@@ -4443,20 +4667,20 @@ pub fn select_point_key_with_resonance(
                 } else {
                     matched_stems >= 2 && matched_primary >= 1 && matched_stems * 2 >= total_stems
                 }
-            } else if max_core_matched_stems == 1 {
+            } else if best.max_core_matched_stems == 1 {
                 total_stems >= 2
                     && matched_stems >= 2
                     && matched_primary >= 2
                     && matched_stems * 2 >= total_stems
             } else {
-                matched_stems >= max_core_matched_stems + 2
+                matched_stems >= best.max_core_matched_stems + 2
                     && matched_primary >= 2
                     && matched_stems * 3 >= eff_total * 2
             };
             if !ext_eligible {
-                continue;
+                return false;
             }
-            let stem_gain = matched_stems.saturating_sub(max_core_matched_stems) as i64;
+            let stem_gain = matched_stems.saturating_sub(best.max_core_matched_stems) as i64;
             bonus += (matched_stems as i64) * 350_000 + stem_gain * 180_000;
         }
 
@@ -4474,41 +4698,99 @@ pub fn select_point_key_with_resonance(
         } else {
             bonus
         };
-        if !maybe_exact_zero && (guard_penalty + basin_penalty - max_possible_bonus) >= best_score {
-            continue;
+        if !maybe_exact_zero && (guard_penalty + basin_penalty - max_possible_bonus) >= best.score {
+            return false;
         }
 
-        let mut raw_l1 = 0i64;
-        let mut p_abs_sum = 0i64;
-        for d in 0..w_lim {
-            let pv = p_row[d] as i64;
-            raw_l1 += ((n_t[d] as i64) - pv).abs();
-            p_abs_sum += pv.abs();
+        let p_slice = &p_row[..w_lim];
+        let q_slice = &q_normed[..w_lim];
+
+        let mut s0 = 0i64;
+        let mut s1 = 0i64;
+        let mut s2 = 0i64;
+        let mut s3 = 0i64;
+        let mut s4 = 0i64;
+        let mut s5 = 0i64;
+        let mut s6 = 0i64;
+        let mut s7 = 0i64;
+        for chunk in p_slice.chunks_exact(8) {
+            s0 += (chunk[0] as i64).abs();
+            s1 += (chunk[1] as i64).abs();
+            s2 += (chunk[2] as i64).abs();
+            s3 += (chunk[3] as i64).abs();
+            s4 += (chunk[4] as i64).abs();
+            s5 += (chunk[5] as i64).abs();
+            s6 += (chunk[6] as i64).abs();
+            s7 += (chunk[7] as i64).abs();
+        }
+        let mut p_abs_sum = (s0 + s1 + s2 + s3) + (s4 + s5 + s6 + s7);
+        for &pv in p_slice.chunks_exact(8).remainder() {
+            p_abs_sum += (pv as i64).abs();
         }
         let p_mean_abs = (p_abs_sum / (w_lim.max(1) as i64)).max(1);
+        let inv_p_mean = (1024i64 << 16) / p_mean_abs;
 
         // Scale-normalized Q12 directional L1 distance (eliminates small-norm bias across rows)
         let mut norm_l1 = 0i64;
-        for d in 0..w_lim {
-            let p_normed = ((p_row[d] as i64) * 1024) / p_mean_abs;
-            norm_l1 += (q_normed[d] - p_normed).abs();
+        let early_prune_thresh = best
+            .score
+            .saturating_add(max_possible_bonus)
+            .saturating_sub(guard_penalty)
+            .saturating_sub(basin_penalty);
+
+        for (q_chunk, p_chunk) in q_slice.chunks(16).zip(p_slice.chunks(16)) {
+            let mut c0 = 0i64;
+            let mut c1 = 0i64;
+            let mut c2 = 0i64;
+            let mut c3 = 0i64;
+            for (qc, pc) in q_chunk.chunks_exact(4).zip(p_chunk.chunks_exact(4)) {
+                c0 += (qc[0] - (((pc[0] as i64) * inv_p_mean) >> 16)).abs();
+                c1 += (qc[1] - (((pc[1] as i64) * inv_p_mean) >> 16)).abs();
+                c2 += (qc[2] - (((pc[2] as i64) * inv_p_mean) >> 16)).abs();
+                c3 += (qc[3] - (((pc[3] as i64) * inv_p_mean) >> 16)).abs();
+            }
+            let mut chunk_l1 = (c0 + c1) + (c2 + c3);
+            for (&qv, &pv) in q_chunk
+                .chunks_exact(4)
+                .remainder()
+                .iter()
+                .zip(p_chunk.chunks_exact(4).remainder())
+            {
+                chunk_l1 += (qv - (((pv as i64) * inv_p_mean) >> 16)).abs();
+            }
+            norm_l1 += chunk_l1;
+            if !maybe_exact_zero && norm_l1 >= early_prune_thresh {
+                return false;
+            }
         }
+
+        if !maybe_exact_zero
+            && (norm_l1 + guard_penalty + basin_penalty - max_possible_bonus) >= best.score
+        {
+            return false;
+        }
+
+        let is_exact_zero = maybe_exact_zero
+            && n_t[..w_lim]
+                .iter()
+                .zip(p_slice)
+                .all(|(&nv, &pv)| nv == pv as i32);
 
         // 256-bit Bitwise Popcount Hamming XOR distance between query sketch and point row sketch
         let p_sketch = pack_i16_sign_sketch_256(p_row);
         let h_bits = hamming_distance_256(&q_sketch, &p_sketch);
         let geom_dist = norm_l1 + (h_bits as i64) * 1024 + guard_penalty + basin_penalty;
 
-        let score = if raw_l1 == 0 && guard_penalty == 0 && basin_penalty == 0 && is_core_or_proved
-        {
-            -(1i64 << 42) - bonus
-        } else if raw_l1 == 0 && guard_penalty == 0 && basin_penalty == 0 {
-            geom_dist - bonus - 150_000
-        } else {
-            geom_dist - bonus
-        };
+        let score =
+            if is_exact_zero && guard_penalty == 0 && basin_penalty == 0 && is_core_or_proved {
+                -(1i64 << 42) - bonus
+            } else if is_exact_zero && guard_penalty == 0 && basin_penalty == 0 {
+                geom_dist - bonus - 150_000
+            } else {
+                geom_dist - bonus
+            };
 
-        if score < best_score {
+        if score < best.score {
             if let Some(rt) = reply_tbl {
                 if !a_row.is_empty()
                     && !probe_reply_table_has_anchor(
@@ -4518,38 +4800,241 @@ pub fn select_point_key_with_resonance(
                         point.targets[r],
                     )
                 {
-                    continue;
+                    return false;
                 }
             }
-            best_score = score;
-            best_row = r;
-            best_raw_l1 = raw_l1;
-            best_hamming = h_bits;
-            best_matched_stems = matched_stems;
-            best_covered_mask = covered_mask;
-            best_matched_bpe = matched_bpe;
-            best_turn_idx = turn_idx;
-            best_bonus = bonus;
+            let raw_l1 = if is_exact_zero {
+                0i64
+            } else {
+                let mut sum = 0i64;
+                for (&nv, &pv) in n_t[..w_lim].iter().zip(p_slice) {
+                    sum += ((nv as i64) - (pv as i64)).abs();
+                }
+                sum
+            };
+            best.score = score;
+            best.row = r;
+            best.raw_l1 = raw_l1;
+            best.hamming = h_bits;
+            best.matched_stems = matched_stems;
+            best.covered_mask = covered_mask;
+            best.matched_bpe = matched_bpe;
+            best.turn_idx = turn_idx;
+            best.bonus = bonus;
+
+            if score <= -(1i64 << 42) {
+                return true;
+            }
+        }
+        false
+    };
+
+    let is_confident = |best: &BestCandidate| -> bool {
+        if best.score == i64::MAX {
+            return false;
+        }
+        (best.raw_l1 == 0 && (best.turn_idx > 2 || is_self_inq))
+            || (is_self_inq && best.turn_idx <= 2)
+            || (is_greeting && (best.turn_idx == 3 || best.turn_idx == 4))
+            || (total_stems > 0 && best.matched_stems >= total_stems)
+            || (best.matched_stems >= 3 && best.matched_stems * 2 >= total_stems)
+            || (best.matched_stems == 1 && total_stems <= 2 && best.bonus >= 160_000)
+            || (total_stems == 0
+                && !prompt_bpe_content.is_empty()
+                && best.matched_bpe >= prompt_bpe_content.len().min(2))
+            || (total_stems == 0 && prompt_bpe_content.is_empty() && best.score < i64::MAX)
+    };
+
+    if let (Some(offsets), Some(row_indices)) = (&point.bucket_offsets, &point.bucket_row_indices) {
+        if offsets.len() == RADIX_DIRECTORY_LEN && row_indices.len() == point.rows {
+            let mut q12 = [0i16; 8];
+            for i in 0..8.min(n_t.len()) {
+                q12[i] = n_t[i].clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+            }
+
+            // 1. Top 2 E8 roots based on the two largest absolute lanes in q12
+            let mut lane_order = [(0usize, 0u16); 8];
+            for i in 0..8 {
+                lane_order[i] = (i, q12[i].unsigned_abs());
+            }
+            lane_order.sort_unstable_by_key(|b| std::cmp::Reverse(b.1));
+            let sign_bit = (q_sketch[0] & 1) as u8;
+            let e8_1 = ((lane_order[0].0 as u8 * 2) + sign_bit) % (E8_ROOT_COUNT as u8);
+            let e8_2 = ((lane_order[1].0 as u8 * 2) + sign_bit) % (E8_ROOT_COUNT as u8);
+
+            // 2. Clifford carrier action and 6 1-bit neighbors
+            let q_c64 = ((q_sketch[0] >> 8) as u8) % (CLIFFORD_ACTION_COUNT as u8);
+            let mut c_actions = [0u8; 7];
+            c_actions[0] = q_c64;
+            for bit in 0..6 {
+                c_actions[bit + 1] = q_c64 ^ (1 << bit);
+            }
+
+            // 3. Top 2 Icosian roots based on icosian projection scores
+            let lanes4 = [q12[0], q12[1], q12[2], q12[3]];
+            let mut best_i17 = 0u8;
+            let mut best_i17_score = i64::MIN;
+            let mut runner_i17 = 0u8;
+            let mut runner_i17_score = i64::MIN;
+            for (idx, root) in ICOSIAN_ROOTS_Q12.iter().enumerate() {
+                let mut a = 0i64;
+                let mut b = 0i64;
+                for l in 0..4 {
+                    let x = i64::from(lanes4[l]);
+                    a += x * i64::from(root[l].0);
+                    b += x * i64::from(root[l].1);
+                }
+                let score = 2 * a + 3 * b;
+                if score > best_i17_score {
+                    runner_i17_score = best_i17_score;
+                    runner_i17 = best_i17;
+                    best_i17_score = score;
+                    best_i17 = idx as u8;
+                } else if score > runner_i17_score {
+                    runner_i17_score = score;
+                    runner_i17 = idx as u8;
+                }
+            }
+            let i17_1 = best_i17 % (ICOSIAN_ROOT_COUNT as u8);
+            let i17_2 = runner_i17 % (ICOSIAN_ROOT_COUNT as u8);
+
+            let eval_bucket = |b: usize, best: &mut BestCandidate| -> bool {
+                if b < GEOMETRIC_BUCKET_COUNT {
+                    let start = offsets[b] as usize;
+                    let end = (offsets[b + 1] as usize).min(row_indices.len());
+                    for &idx in &row_indices[start..end] {
+                        let r = idx as usize;
+                        if r < point.rows && eval_row(r, best) {
+                            return true;
+                        }
+                    }
+                }
+                false
+            };
+
+            // Stage 1: Primary geometric bucket
+            let primary_bucket = compute_geometric_bucket(e8_1, q_c64, i17_1);
+            let mut exact_hit = eval_bucket(primary_bucket, &mut best);
+
+            // Stage 2: Geometric neighborhood across E8, Cl(0,6), and Icosian golden lattice (28 buckets)
+            // Probed only if primary bucket did not yield an unpenalized, confident candidate
+            let needs_neighbors = !exact_hit
+                && (best.score == i64::MAX
+                    || (best.row >= recent_min
+                        && best.row <= recent_max
+                        && recent_turn_rows.contains(&best.row))
+                    || !is_confident(&best));
+
+            if needs_neighbors {
+                let mut probed = [usize::MAX; 32];
+                let mut count = 0;
+                probed[count] = primary_bucket;
+                count += 1;
+
+                let (e_cands, c_cands, i_cands): (&[u8], &[u8], &[u8]) =
+                    if best.score < i64::MAX && is_confident(&best) {
+                        if best.raw_l1 == 0 {
+                            // Exact vector match already found in primary bucket; probe primary Clifford neighbor for recency alternative
+                            (&[e8_1], &c_actions[1..2], &[i17_1])
+                        } else {
+                            // Confident non-exact match; probe top 2 Clifford neighbors for recency avoidance
+                            (&[e8_1], &c_actions[1..3], &[i17_1])
+                        }
+                    } else {
+                        // Query not confident or zero candidates; probe full 28-bucket Voronoi neighborhood
+                        (&[e8_1, e8_2], &c_actions[..], &[i17_1, i17_2])
+                    };
+
+                'neighbor_loop: for &e in e_cands {
+                    for &c in c_cands {
+                        for &i in i_cands {
+                            let b = compute_geometric_bucket(e, c, i);
+                            let already = (0..count).any(|k| probed[k] == b);
+                            if !already {
+                                if count < probed.len() {
+                                    probed[count] = b;
+                                    count += 1;
+                                }
+                                if eval_bucket(b, &mut best) {
+                                    exact_hit = true;
+                                    break 'neighbor_loop;
+                                }
+                                if !(best.row >= recent_min
+                                    && best.row <= recent_max
+                                    && recent_turn_rows.contains(&best.row))
+                                    && is_confident(&best)
+                                {
+                                    break 'neighbor_loop;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Stage 3: Core curriculum fallback (turns with turn_idx < CORE_CURRICULUM_TURNS)
+            // for inquiries/greetings, penalized core candidates, or when zero candidate was scored across geometric neighborhood
+            if !exact_hit
+                && (best.score == i64::MAX
+                    || is_self_inq
+                    || is_greeting
+                    || ((best.row >= recent_min
+                        && best.row <= recent_max
+                        && recent_turn_rows.contains(&best.row))
+                        && best.turn_idx < CORE_CURRICULUM_TURNS))
+            {
+                for r in 0..point.rows {
+                    let a_base = r * alen;
+                    if a_base < anchors.len() {
+                        let raw_t = anchors[a_base];
+                        let turn_idx = if (raw_t & 0x8000_0000) != 0 {
+                            (raw_t & 0x7FFF_FFFF) as usize
+                        } else {
+                            usize::MAX
+                        };
+                        if turn_idx >= CORE_CURRICULUM_TURNS {
+                            if r >= 623 {
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
+                    } else if r >= CORE_CURRICULUM_TURNS {
+                        break;
+                    }
+                    if eval_row(r, &mut best) {
+                        break;
+                    }
+                    if !recent_turn_rows.contains(&best.row) && is_confident(&best) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            for r in 0..point.rows {
+                if eval_row(r, &mut best) {
+                    break;
+                }
+            }
+        }
+    } else {
+        for r in 0..point.rows {
+            if eval_row(r, &mut best) {
+                break;
+            }
         }
     }
 
-    if best_score < i64::MAX {
-        let confident = (best_raw_l1 == 0 && (best_turn_idx > 2 || is_self_inq))
-            || (is_self_inq && best_turn_idx <= 2)
-            || (is_greeting && (best_turn_idx == 3 || best_turn_idx == 4))
-            || (best_matched_stems >= 2 && best_matched_stems * 3 >= total_stems)
-            || (best_matched_stems == 1 && total_stems <= 2 && best_bonus >= 160_000)
-            || (total_stems == 0
-                && !prompt_bpe_content.is_empty()
-                && best_matched_bpe >= prompt_bpe_content.len().min(2));
+    if best.score < i64::MAX {
+        let confident = is_confident(&best);
         Some(PointResonanceHit {
-            target_token: point.targets[best_row],
-            row: best_row,
-            turn_idx: best_turn_idx,
-            raw_l1: best_raw_l1,
-            hamming_bits: best_hamming,
-            matched_stems: best_matched_stems,
-            covered_stem_mask: best_covered_mask,
+            target_token: point.targets[best.row],
+            row: best.row,
+            turn_idx: best.turn_idx,
+            raw_l1: best.raw_l1,
+            hamming_bits: best.hamming,
+            matched_stems: best.matched_stems,
+            covered_stem_mask: best.covered_mask,
             confident,
         })
     } else {
@@ -6049,6 +6534,9 @@ impl LutStackModel {
                 traces.push(prov_trace);
             }
             pt.rows += 1;
+            if pt.bucket_offsets.is_some() {
+                pt.build_radix_index();
+            }
 
             // Insert `(open_ids, first_reply_tok)` into `mem.opening` preserving sorted binary-search order
             let kl = mem.opening.key_len;

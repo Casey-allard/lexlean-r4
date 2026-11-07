@@ -239,9 +239,97 @@ def stream_openhermes_subset(url: str, cache_jsonl: str, max_items: int = 180000
     return pairs
 
 
+def generate_synthetic_corpus(limit: int = 14000):
+    disciplines = [
+        (
+            "synthetic_math",
+            [
+                (
+                    "Calculate d/dx (x^3 + 2x) at x=2",
+                    "<thinking>\nStep 1: Compute d/dx (x^3 + 2x) = 3x^2 + 2\nStep 2: Evaluate at x=2 -> 3(4)+2 = 14\n</thinking>\nThe derivative at x=2 is 14.",
+                ),
+                (
+                    "What is 5 + 7?",
+                    "<thinking>\n5 + 7 = 12\n</thinking>\n12",
+                ),
+                (
+                    "Solve x^2 - 4 = 0 for real roots",
+                    "<thinking>\nFactor (x - 2)(x + 2) = 0, so x = 2 or x = -2\n</thinking>\nThe solutions are x = 2 and x = -2.",
+                ),
+                (
+                    "Compute the definite integral of 2x dx from 0 to 3",
+                    "<thinking>\nAntiderivative is x^2. [x^2]_0^3 = 9 - 0 = 9\n</thinking>\nThe integral is 9.",
+                ),
+            ],
+        ),
+        (
+            "synthetic_code",
+            [
+                (
+                    "Add bounds check to array indexing in Rust",
+                    "<thinking>\nNeed to add bounds check before indexing\n</thinking>\n```diff\n- let val = arr[idx];\n+ let val = arr.get(idx).copied().unwrap_or(0);\n```",
+                ),
+                (
+                    "Refactor pub fn add_item for safe error handling",
+                    "<thinking>\nAvoid panic on capacity exceeded, return Result\n</thinking>\n```diff\n- pub fn add_item(vec: &mut Vec<i32>, val: i32) { vec.push(val); }\n+ pub fn add_item(vec: &mut Vec<i32>, val: i32) -> Result<(), std::collections::TryReserveError> {\n+     vec.try_reserve(1)?;\n+     vec.push(val);\n+     Ok(())\n+ }\n```",
+                ),
+                (
+                    "How to handle unwrap safely in Rust?",
+                    "<thinking>\nReplace direct unwrap with pattern matching or ? operator\n</thinking>\nUse pattern matching (if let / match) or the ? operator to avoid runtime panics.",
+                ),
+            ],
+        ),
+        (
+            "synthetic_systems",
+            [
+                (
+                    "Explain mutex deadlock prevention in concurrent systems",
+                    "<thinking>\nAnalyze mutex deadlock condition between lock A and B\nOrder locks: acquire A then B\n</thinking>\nEnsure consistent acquisition order across all worker threads.",
+                ),
+                (
+                    "Describe CAP theorem trade-offs during network partition",
+                    "<thinking>\nDuring network partition, choose consistency or availability\n</thinking>\nSystems cannot achieve both linearizability and availability during partitions.",
+                ),
+                (
+                    "How to prevent cache stampedes in distributed systems?",
+                    "<thinking>\nUse write-through or TTL-based expiration with probabilistic jitter\n</thinking>\nMitigate cache stampedes using single-flight request coalescing.",
+                ),
+            ],
+        ),
+        (
+            "synthetic_lean4",
+            [
+                (
+                    "Prove nat addition commutativity in Lean 4",
+                    "<thinking>\nProof by induction on n: base case n=0 trivial by rfl\n</thinking>\ntheorem add_zero (n : Nat) : n + 0 = n := by\n  induction n with\n  | zero => rfl\n  | succ d ih => rw [Nat.add_succ, ih]",
+                ),
+                (
+                    "State and prove reflexivity of equality in Lean 4",
+                    "<thinking>\nTrivial by rfl in Lean 4\n</thinking>\ntheorem eq_refl (x : Nat) : x = x := by rfl",
+                ),
+            ],
+        ),
+    ]
+
+    pairs = []
+    round = 0
+    while len(pairs) < limit:
+        for src, examples in disciplines:
+            for p, r in examples:
+                suffix = f" (case {round})" if round > 0 else ""
+                pairs.append((5, src, p + suffix, r))
+                if len(pairs) >= limit:
+                    break
+            if len(pairs) >= limit:
+                break
+        round += 1
+    return pairs
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["fast", "full"], default="fast")
+    parser.add_argument("--mode", choices=["fast", "full", "synthetic"], default="fast")
+    parser.add_argument("--synthetic", action="store_true", help="Generate deterministic synthetic reasoning traces")
     parser.add_argument("--limit", type=int, default=14000)
     parser.add_argument("--out", type=str, default="/tmp/uor_external_corpus.tsv")
     parser.add_argument("--cache-dir", type=str, default="/tmp/uor_hf_cache")
@@ -250,15 +338,19 @@ def main():
     os.makedirs(args.cache_dir, exist_ok=True)
     all_pairs = []
 
-    for name, url, fmt in FAST_DATASETS:
-        dest = os.path.join(args.cache_dir, f"{name}.{fmt}")
-        download_file(url, dest)
-        if name == "dolly_15k":
-            parsed = parse_dolly(dest)
-        else:
-            parsed = parse_alpaca_json(dest, name)
-        print(f"  Parsed {len(parsed):,} high-quality pairs from {name}", flush=True)
-        all_pairs.extend(parsed)
+    if args.synthetic or args.mode == "synthetic":
+        print(f"  [synthetic] Generating {args.limit:,} synthetic multi-discipline reasoning traces...", flush=True)
+        all_pairs = generate_synthetic_corpus(args.limit)
+    else:
+        for name, url, fmt in FAST_DATASETS:
+            dest = os.path.join(args.cache_dir, f"{name}.{fmt}")
+            download_file(url, dest)
+            if name == "dolly_15k":
+                parsed = parse_dolly(dest)
+            else:
+                parsed = parse_alpaca_json(dest, name)
+            print(f"  Parsed {len(parsed):,} high-quality pairs from {name}", flush=True)
+            all_pairs.extend(parsed)
 
     if args.mode == "full":
         oh_cache = os.path.join(args.cache_dir, "openhermes_stream.jsonl")

@@ -50,11 +50,11 @@ pub const STUDIO_SCHEMA: &str = "uor-r4.lut-stack/8";
 /// Canonical tensor name for the `/8` continuous Q12 point-key table.
 pub const SERVED_POINT_KEY_NAME: &str = "memory.point.points";
 
-/// Number of discrete roots in the $E_8$ orbit projection.
-pub const E8_ROOT_COUNT: usize = 16;
-
-/// Number of basis actions in the $\text{Cl}(0,6)$ Clifford carrier.
-pub const CLIFFORD_ACTION_COUNT: usize = 64;
+pub use crate::lut_stack_exec::{
+    compute_geometric_bucket, compute_geometric_coordinates, decompose_geometric_bucket,
+    CLIFFORD_ACTION_COUNT, E8_ROOT_COUNT, GEOMETRIC_BUCKET_COUNT, ICOSIAN_ROOT_COUNT,
+    RADIX_DIRECTORY_LEN,
+};
 
 /// Number of nodes in the 4-level ternary routing forest ($1 + 3 + 9 + 27 = 40$).
 pub const TERNARY_FOREST_NODES: usize = 40;

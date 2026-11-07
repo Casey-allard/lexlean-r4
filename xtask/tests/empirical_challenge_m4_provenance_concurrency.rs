@@ -191,6 +191,8 @@ fn test_challenge_1_served_point_key_words_1_to_6_and_tag_word_7_bit_integrity()
         anchor_len: 32,
         provenance_spans: None,
         provenance_traces: None,
+        bucket_offsets: None,
+        bucket_row_indices: None,
     };
 
     // 1. Test bit-exact reconstruction of 64-bit span_id and 128-bit trace_id
@@ -288,6 +290,8 @@ fn test_challenge_2_bootstrap_fallback_and_boundary_robustness() {
         anchor_len: 32,
         provenance_spans: None,
         provenance_traces: None,
+        bucket_offsets: None,
+        bucket_row_indices: None,
     };
 
     // Case 1: canonical_anchors is None -> fallback

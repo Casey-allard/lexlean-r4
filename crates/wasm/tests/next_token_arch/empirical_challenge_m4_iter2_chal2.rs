@@ -70,8 +70,8 @@ fn test_adv_tier2b_continuity_long_multi_basin_generation() {
     let mut basins_popped = 0usize;
     let mut tier2b_or_memory_hits = 0usize;
 
-    // Generate up to 150 tokens (>128)
-    let target_steps = 150;
+    // Generate up to 200 tokens (>128)
+    let target_steps = 200;
     while generated_tokens.len() < target_steps {
         let history_len_before = session.reply_history.len();
         let suffix_counts_len_before = session.suffix_counts.len();

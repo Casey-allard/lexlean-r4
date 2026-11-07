@@ -847,6 +847,28 @@ fn load_external_tsv_turns(path: &str, max_turns: usize) -> Vec<DialogueTurnSpec
     specs
 }
 
+fn split_thinking_and_reply(raw_text: &str) -> (Option<String>, String) {
+    let mut thinking = None;
+    let mut visible = raw_text.to_string();
+    for (open_tag, close_tag) in [("<thinking>", "</thinking>"), ("<thought>", "</thought>")] {
+        if let Some(start) = visible.find(open_tag) {
+            let open_len = open_tag.len();
+            if let Some(rel_end) = visible[start + open_len..].find(close_tag) {
+                let end = start + open_len + rel_end;
+                let inside = visible[start + open_len..end].trim();
+                if !inside.is_empty() {
+                    thinking = Some(inside.to_string());
+                }
+                let mut rem = String::with_capacity(visible.len());
+                rem.push_str(&visible[..start]);
+                rem.push_str(&visible[end + close_tag.len()..]);
+                visible = rem;
+            }
+        }
+    }
+    (thinking, visible.trim().to_string())
+}
+
 #[inline]
 fn pack_ngram_next_u128(s: [u32; 4], next_tok: u32) -> u128 {
     let map16 = |t: u32| -> u128 {
@@ -1083,6 +1105,7 @@ fn main() {
         is_core: bool,
         first_reply_tok: u32,
         p_tokens: Vec<u32>,
+        thinking_tokens: Vec<u32>,
         anchor_32: [u32; 32],
     }
     let mut point_jobs: Vec<PointRowJob> = Vec::with_capacity(corpus.len() + 5_000);
@@ -1104,7 +1127,19 @@ fn main() {
             model.dialogue_version,
         );
 
-        let mut reply_tokens = bpe.encode(&format!(" {}", turn.reply));
+        let (thinking_opt, visible_reply) = split_thinking_and_reply(&turn.reply);
+        let thinking_tokens = if let Some(ref th) = thinking_opt {
+            bpe.encode(&format!("<thinking>{}</thinking>", th))
+        } else {
+            Vec::new()
+        };
+        let reply_text = if visible_reply.is_empty() {
+            &turn.reply
+        } else {
+            &visible_reply
+        };
+
+        let mut reply_tokens = bpe.encode(&format!(" {}", reply_text));
         if !is_core && reply_tokens.len() > max_ext_reply_toks {
             // Truncate cleanly at the last sentence boundary before `max_ext_reply_toks`
             let mut cut = max_ext_reply_toks;
@@ -1227,6 +1262,7 @@ fn main() {
                 is_core,
                 first_reply_tok,
                 p_tokens,
+                thinking_tokens: thinking_tokens.clone(),
                 anchor_32,
             });
         }
@@ -1270,6 +1306,14 @@ fn main() {
                     for &pt in &job.p_tokens[trunk_start..] {
                         last_n_t = model_ref.forward_token_hidden(
                             pt,
+                            &mut rec_states,
+                            &mut hamming_caches,
+                        );
+                    }
+                    // Prefill <thinking> reasoning tokens to exit barrier (F11 & F12)
+                    for &tt in &job.thinking_tokens {
+                        last_n_t = model_ref.forward_token_hidden(
+                            tt,
                             &mut rec_states,
                             &mut hamming_caches,
                         );
@@ -1468,6 +1512,10 @@ fn main() {
         targets: point_targets,
         canonical_anchors: Some(point_anchors),
         anchor_len: 32,
+        provenance_spans: None,
+        provenance_traces: None,
+        bucket_offsets: None,
+        bucket_row_indices: None,
     });
     model.ternary_assoc = Some(lut_stack_exec::TernaryAssocBank {
         rows: ta_rows,
