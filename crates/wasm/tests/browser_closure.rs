@@ -495,3 +495,42 @@ fn test_browser_javascript_es_module_syntax() {
         }
     }
 }
+
+#[test]
+fn test_empirical_m4_2_stress_harness_execution() {
+    let root = repo_root();
+    let harness_path = root.join("tests/e2e/empirical_m4_2_stress_harness.mjs");
+    assert!(
+        harness_path.is_file(),
+        "empirical M4.2 stress harness script must exist at {}",
+        harness_path.display()
+    );
+
+    let output = std::process::Command::new("node")
+        .arg(&harness_path)
+        .current_dir(&root)
+        .output()
+        .expect("execute node empirical M4.2 stress harness");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "Node M4.2 stress harness failed with exit code {:?}.\nSTDOUT:\n{}\nSTDERR:\n{}",
+        output.status.code(),
+        stdout,
+        stderr
+    );
+
+    assert!(
+        stdout.contains("Suite 4: WCAG 2.1 AA Theme Contrast & Computed Color Verification"),
+        "Missing Suite 4 contrast execution output in stdout:\n{}",
+        stdout
+    );
+    assert!(
+        stdout.contains("STRESS HARNESS COMPLETE: 0 DEFECTS DISCOVERED"),
+        "Harness did not report 0 defects:\n{}",
+        stdout
+    );
+}

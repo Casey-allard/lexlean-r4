@@ -556,6 +556,151 @@ function runTopologicalK7(boids) {
   console.log(`  ✓ 3.5 10,000 steps (1.28M flock evaluations) executed with 0 inner allocations; heap delta: ${(heapDelta / 1024).toFixed(1)} KB.`);
 }
 
+// ============================================================================
+// SUITE 4: Automated Contrast & Computed Color Verification (Obsidian Dark vs Warm Light)
+// ============================================================================
+console.log('\n--- Suite 4: WCAG 2.1 AA Theme Contrast & Computed Color Verification ---');
+
+const appCssPath = resolve(REPO_ROOT, 'public/app.css');
+const appCssContent = readFileSync(appCssPath, 'utf8');
+
+// 4.1 WCAG 2.1 Relative Luminance & Contrast Calculation Engine
+function parseHexColor(hexStr) {
+  let clean = hexStr.trim().replace(/^#/, '');
+  if (clean.length === 3) {
+    clean = clean.split('').map(c => c + c).join('');
+  }
+  if (clean.length !== 6) return null;
+  return [
+    parseInt(clean.slice(0, 2), 16),
+    parseInt(clean.slice(2, 4), 16),
+    parseInt(clean.slice(4, 6), 16)
+  ];
+}
+
+function sRgbChannelLuminance(val8Bit) {
+  const s = val8Bit / 255.0;
+  return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+}
+
+function computeRelativeLuminance(rgb) {
+  return 0.2126 * sRgbChannelLuminance(rgb[0]) +
+         0.7152 * sRgbChannelLuminance(rgb[1]) +
+         0.0722 * sRgbChannelLuminance(rgb[2]);
+}
+
+function computeContrastRatio(rgb1, rgb2) {
+  const l1 = computeRelativeLuminance(rgb1);
+  const l2 = computeRelativeLuminance(rgb2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+// 4.2 Extract Theme Variable Tables from public/app.css
+function extractCssVariables(blockContent) {
+  const vars = {};
+  const varRegex = /--([a-zA-Z0-9_-]+)\s*:\s*([^;]+);/g;
+  let match;
+  while ((match = varRegex.exec(blockContent)) !== null) {
+    vars[`--${match[1]}`] = match[2].trim();
+  }
+  return vars;
+}
+
+const rootMatch = appCssContent.match(/:root\s*\{([^}]+)\}/);
+assert.ok(rootMatch, 'Failed to extract :root block from public/app.css');
+const darkThemeVars = extractCssVariables(rootMatch[1]);
+
+const lightMatch = appCssContent.match(/body\.theme-warm-light\s*\{([^}]+)\}/);
+assert.ok(lightMatch, 'Failed to extract body.theme-warm-light block from public/app.css');
+const lightThemeVars = { ...darkThemeVars, ...extractCssVariables(lightMatch[1]) };
+
+function resolveColor(value, themeVars) {
+  let current = value.trim();
+  let depth = 0;
+  while (current.startsWith('var(') && depth < 5) {
+    const inner = current.slice(4, -1).trim();
+    const commaIndex = inner.indexOf(',');
+    let varName = inner;
+    let fallback = null;
+    if (commaIndex !== -1) {
+      varName = inner.slice(0, commaIndex).trim();
+      fallback = inner.slice(commaIndex + 1).trim();
+    }
+    if (themeVars[varName]) {
+      current = themeVars[varName];
+    } else if (fallback) {
+      current = fallback;
+    } else {
+      break;
+    }
+    depth++;
+  }
+  return parseHexColor(current);
+}
+
+// 4.3 Element Surface & Foreground Verification Matrix
+const testSurfaces = [
+  { name: 'Base Document Body', fg: 'var(--text-primary)', bg: 'var(--bg-canvas)', minRatio: 4.5 },
+  { name: 'Main Cowork Layout', fg: 'var(--text-primary)', bg: 'var(--bg-canvas)', minRatio: 4.5 },
+  { name: 'Assistant Chat Card', fg: 'var(--text-primary)', bg: 'var(--bg-surface)', minRatio: 4.5 },
+  { name: 'User Chat Bubble', fg: 'var(--text-primary)', bg: 'var(--bg-subtle)', minRatio: 4.5 },
+  { name: 'Chat Thinking Content', fg: 'var(--text-secondary)', bg: 'var(--bg-canvas)', minRatio: 4.5 },
+  { name: 'Chat Tool Args Box', fg: 'var(--text-primary)', bg: 'var(--bg-surface)', minRatio: 4.5 },
+  { name: 'Active Canvas Tab', fg: 'var(--text-primary)', bg: 'var(--bg-surface)', minRatio: 4.5 },
+  { name: 'Inactive Canvas Tab', fg: 'var(--text-muted)', bg: 'var(--bg-canvas)', minRatio: 3.0 },
+  { name: 'Inline Code Chip', fg: 'var(--code-text, var(--text-primary))', bg: 'var(--code-bg, var(--bg-subtle))', minRatio: 4.5 },
+  { name: 'Metric Value Readout', fg: 'var(--text-primary)', bg: 'var(--bg-surface)', minRatio: 4.5 },
+  { name: 'Form Input Text', fg: 'var(--text-primary)', bg: 'var(--bg-surface)', minRatio: 4.5 },
+  { name: 'Studio Table Cell', fg: 'var(--text-primary)', bg: 'var(--bg-surface)', minRatio: 4.5 }
+];
+
+// 4.4 Verify Default Obsidian Dark Theme
+console.log('  Testing Obsidian Dark Theme (:root default)...');
+for (const surf of testSurfaces) {
+  const fgRgb = resolveColor(surf.fg, darkThemeVars);
+  const bgRgb = resolveColor(surf.bg, darkThemeVars);
+  assert.ok(fgRgb && bgRgb, `Failed to resolve colors for ${surf.name} in dark theme`);
+  
+  const ratio = computeContrastRatio(fgRgb, bgRgb);
+  assert.ok(
+    ratio >= surf.minRatio,
+    `Dark mode contrast failure on "${surf.name}": got ${ratio.toFixed(2)}:1, expected >= ${surf.minRatio}:1`
+  );
+
+  // Assert dark mode does NOT render near-black text on dark canvas
+  const darkFgHex = fgRgb.map(c => c.toString(16).padStart(2, '0')).join('');
+  const defectiveColors = ['111827', '0f172a', '1e293b'];
+  assert.ok(
+    !defectiveColors.includes(darkFgHex),
+    `Dark mode element "${surf.name}" renders defective dark color #${darkFgHex} on dark background!`
+  );
+}
+console.log(`  ✓ 4.1 All ${testSurfaces.length} UI surfaces pass WCAG 2.1 AA contrast in default Obsidian Dark mode.`);
+
+// 4.5 Verify Warm Light Theme (body.theme-warm-light)
+console.log('  Testing Warm Light Theme (body.theme-warm-light)...');
+for (const surf of testSurfaces) {
+  const fgRgb = resolveColor(surf.fg, lightThemeVars);
+  const bgRgb = resolveColor(surf.bg, lightThemeVars);
+  assert.ok(fgRgb && bgRgb, `Failed to resolve colors for ${surf.name} in light theme`);
+  
+  const ratio = computeContrastRatio(fgRgb, bgRgb);
+  assert.ok(
+    ratio >= surf.minRatio,
+    `Light mode contrast failure on "${surf.name}": got ${ratio.toFixed(2)}:1, expected >= ${surf.minRatio}:1`
+  );
+}
+console.log(`  ✓ 4.2 All ${testSurfaces.length} UI surfaces pass WCAG 2.1 AA contrast in Warm Light mode.`);
+
+// 4.6 Verify Contractual Invariant: public/app.css preserves `color: #111827;`
+assert.ok(
+  appCssContent.includes('color: #111827;'),
+  'Contractual invariant violated: public/app.css must retain "color: #111827;" for browser_closure.rs'
+);
+console.log('  ✓ 4.3 Contractual closure invariant verified: "color: #111827;" preserved in public/app.css.');
+
 console.log('\n================================================================');
 console.log(`  STRESS HARNESS COMPLETE: ${defectsFound.length} DEFECTS DISCOVERED`);
 console.log('================================================================');

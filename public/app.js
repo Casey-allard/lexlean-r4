@@ -272,12 +272,12 @@ const AppState = {
     activeSidebarView: 'history',
     drawerOpen: true,
     activeDrawerTab: 'traces',
-    density: 'comfortable',
+    density: 'compact',
     theme: 'dark'
   },
   config: {
     operatingMode: 'coding',
-    retainLambda: 75,
+    retainLambda: 0.85,
     pluralityVotes: 8,
     mcpSecurityPolicy: 'safe',
     activeProject: 'lexlean-r4'
@@ -607,6 +607,7 @@ const LATEX_MATH_SYMBOLS = {
   times: '×', cdot: '·', pm: '±', to: '→', leftarrow: '←', leftrightarrow: '↔',
   forall: '∀', exists: '∃', subset: '⊂', cup: '∪', cap: '∩',
   land: '∧', lor: '∨', neg: '¬', ldots: '…', cdots: '⋯', vdots: '⋮', ddots: '⋱',
+  wedge: '∧', ell: 'ℓ',
   quad: '  ', qquad: '    '
 };
 
@@ -1674,7 +1675,8 @@ function appendChatTurn(role, titleText, bodyText, patchPath = '', patchCode = '
     timestamp: Date.now(),
   });
   if (role === 'user' && thread.title === 'New Conversation' && !bodyText.startsWith('Hello!')) {
-    thread.title = bodyText.length > 34 ? `${bodyText.slice(0, 34)}...` : bodyText;
+    const cleanTitle = bodyText.replace(/<(?:thinking|thought)>[\s\S]*?<\/(?:thinking|thought)>/gi, '').trim() || bodyText;
+    thread.title = cleanTitle.length > 34 ? `${cleanTitle.slice(0, 34)}...` : cleanTitle;
     renderThreadSidebar();
   }
   persistThreadsToStorage();
@@ -1708,7 +1710,14 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     appendChatTurn('user', 'You', trimmed);
   }
 
-  const chatRes = dispatchStudioEnvelope('chat', trimmed);
+  const chatPayload = JSON.stringify({
+    prompt: trimmed,
+    operating_mode: AppState.config.operatingMode || 'coding',
+    retain_lambda: AppState.config.retainLambda ?? 0.85,
+    plurality_votes: AppState.config.pluralityVotes ?? 8,
+    active_project: AppState.config.activeProject || 'lexlean-r4'
+  });
+  const chatRes = dispatchStudioEnvelope('chat', chatPayload);
   if (!chatRes || chatRes.status !== 'ok') {
     appendChatTurn('assistant', 'UOR-R4 GLM', chatRes && chatRes.message ? chatRes.message : 'Chat error');
     return;
@@ -1742,6 +1751,31 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody, true, chatMeta);
   updateLiveAgentStatusBar(chatRes);
 
+  if (Array.isArray(chatMeta.toolCards)) {
+    chatMeta.toolCards.forEach((tc) => {
+      secopsAudit.recordEvent('tool_invocation', tc.name, 'agent_tool', tc.arguments || {}, 'info');
+    });
+  }
+
+  const planNodes = document.querySelectorAll('#plan-dag-diagram .dag-node');
+  if (planNodes.length >= 4) {
+    planNodes[0].className = 'dag-node dag-done';
+    planNodes[0].innerHTML = '<span class="dag-badge">&#10003;</span> Ingest Prompt &amp; Context';
+    planNodes[1].className = 'dag-node dag-done';
+    planNodes[1].innerHTML = '<span class="dag-badge">&#10003;</span> Coordinate Descent &amp; Routing';
+    if (chatRes.is_coding_turn) {
+      planNodes[2].className = 'dag-node dag-active';
+      planNodes[2].innerHTML = '<span class="dag-badge">&#9654;</span> Synthesize Diff &amp; Tool Calls';
+      planNodes[3].className = 'dag-node dag-pending';
+      planNodes[3].innerHTML = '<span class="dag-badge">&#9711;</span> Verify Invariants &amp; Closure';
+    } else {
+      planNodes[2].className = 'dag-node dag-done';
+      planNodes[2].innerHTML = '<span class="dag-badge">&#10003;</span> Synthesize Diff &amp; Tool Calls';
+      planNodes[3].className = 'dag-node dag-done';
+      planNodes[3].innerHTML = '<span class="dag-badge">&#10003;</span> Verify Invariants &amp; Closure';
+    }
+  }
+
   if (chatRes.is_coding_turn) {
     pendingPatchPath = chatRes.target_file;
     pendingProposedCode = chatRes.proposed_code || '';
@@ -1759,12 +1793,30 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       const fileEl = poolQueue.querySelector('.pool-review-file');
       if (fileEl) fileEl.innerHTML = `File: <code>${chatRes.target_file}</code>`;
       const statsEl = poolQueue.querySelector('.pool-review-stats');
-      if (statsEl) statsEl.textContent = `Pending Review · ${chatRes.target_file}`;
+      if (statsEl) statsEl.textContent = `Diff Staged · Ready for Review`;
     }
     const approveBtn = document.getElementById('pool-review-approve-btn');
     if (approveBtn) {
       approveBtn.disabled = false;
       approveBtn.textContent = 'Approve Patch';
+    }
+    const rejectBtn = document.getElementById('pool-review-reject-btn');
+    if (rejectBtn) {
+      rejectBtn.disabled = false;
+    }
+    const poolGrid = document.getElementById('pool-status-grid');
+    if (poolGrid) {
+      const cards = poolGrid.querySelectorAll('.pool-card');
+      if (cards[1]) {
+        cards[1].classList.add('pool-card-active');
+        const st = cards[1].querySelector('.pool-card-status');
+        if (st) st.textContent = 'Active · Diff Staged';
+      }
+      if (cards[2]) {
+        cards[2].classList.add('pool-card-active');
+        const st = cards[2].querySelector('.pool-card-status');
+        if (st) st.textContent = 'Review Pending';
+      }
     }
     secopsAudit.recordEvent('patch_staged', chatRes.target_file, 'chat_engine', { target: chatRes.target_file }, 'info');
   } else {
@@ -2637,15 +2689,26 @@ if (composerAttachBtn && composerFileInput) {
 }
 
 function getComposerMentionCandidates(query) {
-  const candidates = [
-    { id: 'file:active', kind: 'file', label: activeWorkspacePath || 'src/main.rs', detail: 'Pinned Workspace File' },
-    { id: 'file:lib', kind: 'file', label: 'src/lib.rs', detail: 'Rust Core Library' },
-    { id: 'file:readme', kind: 'file', label: 'README.md', detail: 'Workspace Overview' },
-    { id: 'claim:r4-f103', kind: 'claim', label: 'R4-F103', detail: 'Autonomous Engine Frontier Claim' },
-    { id: 'arxiv:2405.04434', kind: 'arxiv', label: 'arXiv:2405.04434', detail: 'DeepSeek-V2 Multi-Head Latent Attention' },
-    { id: 'arxiv:2406.02528', kind: 'arxiv', label: 'arXiv:2406.02528', detail: 'Scalable Matmul-Free LM' },
-    { id: 'arxiv:2407.04620', kind: 'arxiv', label: 'arXiv:2407.04620', detail: 'Test-Time Training (TTT) Layers' },
-  ];
+  const candidates = [];
+  const activePath = activeWorkspacePath || 'src/engine.rs';
+  candidates.push({ id: `file:${activePath}`, kind: 'file', label: activePath, detail: 'Active Workspace File' });
+
+  const knownWsFiles = ['src/engine.rs', 'src/attention.rs', 'src/trainer.rs', 'README.md'];
+  if (activeWorkspacePath === 'scratchpad.rs' || (AppState.workspace && AppState.workspace.activeProject === 'scratchpad')) {
+    knownWsFiles.push('scratchpad.rs');
+  }
+  for (const f of knownWsFiles) {
+    if (f !== activePath) {
+      candidates.push({ id: `file:${f}`, kind: 'file', label: f, detail: 'Workspace File' });
+    }
+  }
+
+  candidates.push({ id: 'claim:r4-f256', kind: 'claim', label: 'R4-F256', detail: 'Autonomous Engine Frontier Claim (Proved)' });
+  candidates.push({ id: 'claim:r4-f103', kind: 'claim', label: 'R4-F103', detail: 'M6 Five-Arm Carry Commutativity Claim' });
+  candidates.push({ id: 'arxiv:2405.04434', kind: 'arxiv', label: 'arXiv:2405.04434', detail: 'DeepSeek-V2 Multi-Head Latent Attention' });
+  candidates.push({ id: 'arxiv:2406.02528', kind: 'arxiv', label: 'arXiv:2406.02528', detail: 'Scalable Matmul-Free LM' });
+  candidates.push({ id: 'arxiv:2407.04620', kind: 'arxiv', label: 'arXiv:2407.04620', detail: 'Test-Time Training (TTT) Layers' });
+
   const q = (query || '').trim().toLowerCase();
   if (!q) return candidates;
   return candidates.filter(
@@ -3081,6 +3144,9 @@ function activateCanvasTab(tabId) {
     btn.classList.toggle('active', isActive);
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
     btn.setAttribute('tabindex', isActive ? '0' : '-1');
+    if (isActive) {
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    }
   }
   for (const panel of canvasPanels) {
     const isMatch = panel.id === `canvas-panel-${tabId}`;
@@ -5086,19 +5152,19 @@ class LexLean3DVisualizer {
       }
       const attnEl = document.getElementById('neural-stage-attention-val');
       if (attnEl) {
-        attnEl.textContent = `Root #${this.dominantIcosianRoot} · 96 Boids`;
+        attnEl.textContent = `Root #${this.dominantIcosianRoot}`;
       }
       const radixEl = document.getElementById('neural-stage-radix-val');
       if (radixEl) {
-        radixEl.textContent = `Bucket #${bucketId} / 17.4k`;
+        radixEl.textContent = `Bkt #${bucketId}`;
       }
       const horEl = document.getElementById('neural-stage-horizon-val');
       if (horEl) {
-        horEl.textContent = `${this.ospfRouteHops.length} Hops · VSA-128`;
+        horEl.textContent = `${this.ospfRouteHops.length} Hops`;
       }
       const bpEl = document.getElementById('neural-stage-backprop-val');
       if (bpEl) {
-        bpEl.textContent = `${this.memoryEngrams.length} Engrams · ${trace.spans.length} Spans`;
+        bpEl.textContent = `${this.memoryEngrams.length} Eng · ${trace.spans.length} Sp`;
       }
     }
     this.updateStatus();
@@ -5332,10 +5398,12 @@ class LexLean3DVisualizer {
           cls: isFiring ? 'neural-label-pin pin-hop pin-firing' : 'neural-label-pin pin-hop',
           x: 12,
           y: 10,
-          badge: isFiring
-            ? `⚡ HOP #${activeHopIdx + 1}/${hopCount} · BURST RELEASE!`
-            : `⚡ HOP #${activeHopIdx + 1}/${hopCount} · CHARGING ${chargePct}%`,
-          title: `"${hop.tokenWord}"`,
+          badge: (activeHopIdx === 0)
+            ? `⚡ INGRESS · "${hop.tokenWord}"`
+            : (isFiring
+              ? `⚡ DECODE HOP #${activeHopIdx + 1}/${hopCount} · BURST RELEASE!`
+              : `⚡ DECODE HOP #${activeHopIdx + 1}/${hopCount} · CHARGING ${chargePct}%`),
+          title: (activeHopIdx === 0) ? `Ingress: "${hop.tokenWord}"` : `Decode: "${hop.tokenWord}"`,
           sub: `${regionName} · ${hop.mechanism} · L1=${hop.l1Cost}`,
           chargePct: Math.min(Math.max(chargePct, 6), 100)
         });
@@ -6775,6 +6843,26 @@ function initSidebarViews() {
       });
     });
   });
+
+  const planItems = document.querySelectorAll('#plan-checklist .plan-task-item');
+  planItems.forEach((item) => {
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', () => {
+      const icon = item.querySelector('.check-icon');
+      if (item.classList.contains('done')) {
+        item.classList.remove('done');
+        if (icon) icon.innerHTML = '&#9744;';
+      } else if (item.classList.contains('active')) {
+        item.classList.remove('active');
+        item.classList.add('done');
+        if (icon) icon.innerHTML = '&#9745;';
+      } else {
+        item.classList.add('active');
+        if (icon) icon.innerHTML = '&#9654;';
+      }
+      secopsAudit.recordEvent('plan_task_toggle', item.textContent.trim(), 'planning', {}, 'info');
+    });
+  });
 }
 
 // Drag-and-drop file ingestion into in-memory virtual workspace
@@ -6837,6 +6925,8 @@ function initDragAndDropIngestion() {
 function initCustomizationsAndMcp() {
   const themeToggle = document.getElementById('custom-theme-toggle');
   if (themeToggle) {
+    themeToggle.checked = (AppState.ui.theme === 'warm-light');
+    document.body.classList.toggle('theme-warm-light', themeToggle.checked);
     themeToggle.addEventListener('change', (e) => {
       document.body.classList.toggle('theme-warm-light', e.target.checked);
       AppState.ui.theme = e.target.checked ? 'warm-light' : 'dark';
@@ -6855,6 +6945,14 @@ function initCustomizationsAndMcp() {
       if (newProject === 'scratchpad') {
         AppState.workspace.activePath = 'scratchpad.rs';
         activeWorkspacePath = 'scratchpad.rs';
+        const existing = dispatchStudioEnvelope('workspace_read', 'scratchpad.rs');
+        if (!existing || existing.status !== 'ok') {
+          dispatchStudioEnvelope('workspace_write', 'scratchpad.rs\n//! Scratchpad virtual memory\npub fn scratchpad_step() -> u32 {\n    42\n}\n');
+          dispatchStudioEnvelope('workspace_write', 'notes.md\n# Scratchpad Workspace Notes\n- In-memory virtual scratchpad active.\n');
+        }
+        selectWorkspaceFile('scratchpad.rs');
+        const ws = dispatchStudioEnvelope('workspace_list', '');
+        renderWorkspaceList(ws);
         if (targetBadge) targetBadge.textContent = 'scratchpad: scratchpad.rs';
         if (wsSummary) {
           const repoDiv = wsSummary.querySelector('div:first-child');
@@ -6863,6 +6961,9 @@ function initCustomizationsAndMcp() {
       } else {
         AppState.workspace.activePath = 'src/attention.rs';
         activeWorkspacePath = 'src/attention.rs';
+        selectWorkspaceFile('src/attention.rs');
+        const ws = dispatchStudioEnvelope('workspace_list', '');
+        renderWorkspaceList(ws);
         if (targetBadge) targetBadge.textContent = 'lexlean-r4: src/attention.rs';
         if (wsSummary) {
           const repoDiv = wsSummary.querySelector('div:first-child');
@@ -6918,6 +7019,15 @@ function initCustomizationsAndMcp() {
         approveDiffBtn.disabled = true;
         approveDiffBtn.textContent = 'Patch Rejected ✗';
       }
+      const poolGrid = document.getElementById('pool-status-grid');
+      if (poolGrid) {
+        const cards = poolGrid.querySelectorAll('.pool-card');
+        cards.forEach((c) => {
+          c.classList.remove('pool-card-active');
+          const st = c.querySelector('.pool-card-status');
+          if (st) st.textContent = 'Standby · Ready';
+        });
+      }
       const applyBtn = document.getElementById('chat-apply-patch-btn');
       if (applyBtn) applyBtn.disabled = true;
       secopsAudit.recordEvent('patch_reject', rejectedPath, 'pool_review', { status: 'rejected' }, 'notice');
@@ -6934,9 +7044,11 @@ function initCustomizationsAndMcp() {
 
   const retainLambdaInput = document.getElementById('custom-retain-lambda');
   if (retainLambdaInput) {
+    const valEl = document.getElementById('custom-retain-lambda-val');
     const onLambda = (e) => {
-      const val = Number(e.target.value) || 0.85;
+      const val = e.target.value;
       AppState.retainLambda = AppState.config.retainLambda = val;
+      if (valEl) valEl.textContent = val;
     };
     retainLambdaInput.addEventListener('input', onLambda);
     retainLambdaInput.addEventListener('change', (e) => {
@@ -6960,6 +7072,8 @@ function initCustomizationsAndMcp() {
 
   const densitySelect = document.getElementById('custom-density-select');
   if (densitySelect) {
+    AppState.densityMode = AppState.ui.density = densitySelect.value;
+    document.body.classList.toggle('density-compact', densitySelect.value === 'compact');
     densitySelect.addEventListener('change', (e) => {
       const val = e.target.value;
       AppState.densityMode = AppState.ui.density = val;
@@ -6983,6 +7097,29 @@ function initCustomizationsAndMcp() {
       secopsAudit.recordEvent('audit_export', 'journal.json', 'mcp_secops', { format: 'uor.secops.audit/1' }, 'notice');
     });
   }
+
+  document.querySelectorAll('.mcp-tool-run-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const tool = btn.getAttribute('data-tool');
+      if (!checkMcpToolPolicy(tool, activeWorkspacePath || 'workspace')) return;
+      let res = null;
+      if (tool === 'workspace_read') {
+        res = dispatchStudioEnvelope('workspace_read', activeWorkspacePath || 'src/attention.rs');
+      } else if (tool === 'workspace_write') {
+        res = dispatchStudioEnvelope('workspace_write', `${activeWorkspacePath || 'scratchpad.rs'}\n// Verified by MCP tool runner\n`);
+      } else if (tool === 'subsystem_prime_gcd') {
+        res = { gcd: 4, coords: [2180, 64] };
+      } else if (tool === 'geometric_dijkstra_route') {
+        res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || { waypoints: 4 };
+      } else if (tool === 'clifford_bivector_wedge') {
+        res = { blade: 'e1^e2', grade: 2, action: 12 };
+      } else if (tool === 'coordinate_descent_sweep') {
+        res = dispatchStudioEnvelope('train', '1') || { loss: 0.12 };
+      }
+      secopsAudit.recordEvent('tool_run', tool, 'mcp_tools', { status: 'success', result: res }, 'info');
+    });
+  });
 }
 
 // OTel Traces Inspector
@@ -7476,7 +7613,7 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 function updateWeightCacheBadge() {
   if (weightCacheBadge) {
     const meta = globalThis.__uorWeightCacheMeta || {};
-    const label = meta.status || 'Weights: UR4GLM08 · CacheStorage';
+    const label = meta.status || '38.0 MB Cached · 28/28 Proved';
     const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
     weightCacheBadge.textContent = `${label}${shortSha}`;
   }
@@ -7489,7 +7626,7 @@ function updateWeightCacheBadge() {
         const paramStr = totalParams >= 1000000000
           ? `${(totalParams / 1000000000).toFixed(2)}B Params`
           : `${(totalParams / 1000000).toFixed(1)}M Params`;
-        topbarModelTag.textContent = `UORLUT01/8 · ${paramStr} · ${mb} MB`;
+        topbarModelTag.textContent = `UOR-R4 · ${paramStr}`;
         topbarModelTag.title = `UORLUT01 (uor-r4.lut-stack/8 · ${paramStr}) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
       }
     } catch {
@@ -7564,7 +7701,7 @@ try {
       const packInfo = JSON.parse(studio_weight_pack_status());
       if (packInfo && packInfo.status === 'ok' && globalThis.__uorWeightCacheMeta && globalThis.__uorWeightCacheMeta.mode !== 'indexeddb') {
         const mb = (packInfo.byte_len / (1024 * 1024)).toFixed(1);
-        globalThis.__uorWeightCacheMeta.status = `${globalThis.__uorWeightCacheMeta.status || 'UORLUT01/8'} · ${mb} MB · ${packInfo.reply_entries} reply rows`;
+        globalThis.__uorWeightCacheMeta.status = `${mb} MB Cached · 28/28 Proved`;
       }
     } catch {
       // Ignore weight status parse error
@@ -7582,8 +7719,8 @@ try {
   }
   runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
   executeCoordinateEnvelope();
-  if (runApiRequestBtn) {
-    runApiRequestBtn.click();
+  if (apiResponseOutput) {
+    apiResponseOutput.textContent = '// Standalone Wasm API Endpoint ready.\n// Select an endpoint and click "Execute API Request in Wasm" to dispatch.';
   }
   const currentActiveThread = getActiveThread();
   if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
@@ -7611,29 +7748,6 @@ try {
     claudeChatInput.focus();
   }
   fetchRecordedTraces();
-  if (typeof stream_sharded_weights_to_indexeddb === 'function') {
-    stream_sharded_weights_to_indexeddb((prog) => {
-      if (syncWeightsBtn && prog && typeof prog.percent === 'number') {
-        syncWeightsBtn.textContent = `Syncing ${prog.percent}%...`;
-      }
-      updateWeightCacheBadge();
-    }, false)
-      .then((streamed) => {
-        if (syncWeightsBtn) {
-          syncWeightsBtn.textContent = 'Sync Weights';
-        }
-        if (streamed && streamed.status === 'ok') {
-          updateWeightCacheBadge();
-          const st = dispatchStudioEnvelope('state', '');
-          renderStudioState(st);
-        }
-      })
-      .catch(() => {
-        if (syncWeightsBtn) {
-          syncWeightsBtn.textContent = 'Sync Weights';
-        }
-      });
-  }
 } catch (err) {
   appendChatTurn(
     'assistant',

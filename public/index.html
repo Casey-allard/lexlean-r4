@@ -47,7 +47,7 @@
           <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
             <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
               <span>Engine &amp; ArXiv</span>
-              <span id="sidebar-feed-badge" class="sidebar-pill">R4-F103</span>
+              <span id="sidebar-feed-badge" class="sidebar-pill">R4-F256</span>
             </button>
             <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
               <span>Consolidate</span>
@@ -66,7 +66,7 @@
               <span id="sidebar-diff-badge" class="sidebar-pill">Patch</span>
             </button>
             <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
-              <span>API &amp; 27/27</span>
+              <span>API &amp; 28/28</span>
               <span class="sidebar-pill">/v1</span>
             </button>
           </div>
@@ -137,24 +137,24 @@
             <span class="sidebar-heading">Subagent Pool Status</span>
           </div>
           <div id="pool-status-grid" class="pool-grid" aria-label="Subagent Allocation Grid">
-            <div class="pool-card pool-card-active">
+            <div class="pool-card">
               <div class="pool-card-role">Planner</div>
-              <div class="pool-card-status">Active &middot; Step 2/5</div>
-              <div class="pool-card-detail">DAG Topological Sweep</div>
+              <div class="pool-card-status">Standby &middot; Ready</div>
+              <div class="pool-card-detail">Awaiting Task Goal</div>
             </div>
-            <div class="pool-card pool-card-active">
+            <div class="pool-card">
               <div class="pool-card-role">Coder</div>
-              <div class="pool-card-status">Active &middot; Pure Wasm</div>
-              <div class="pool-card-detail">Generating Diff Patch</div>
+              <div class="pool-card-status">Standby &middot; Ready</div>
+              <div class="pool-card-detail">Pure Wasm Code Synthesizer</div>
             </div>
             <div class="pool-card">
               <div class="pool-card-role">Reviewer</div>
               <div class="pool-card-status">Standby &middot; Ready</div>
               <div class="pool-card-detail">Awaiting Code Staging</div>
             </div>
-            <div class="pool-card pool-card-active">
+            <div class="pool-card">
               <div class="pool-card-role">Verifier</div>
-              <div class="pool-card-status">Active &middot; Invariants</div>
+              <div class="pool-card-status">Standby &middot; Ready</div>
               <div class="pool-card-detail">Zero-Float Verification</div>
             </div>
           </div>
@@ -164,11 +164,11 @@
             <span class="sidebar-heading">Review Diff Queue</span>
           </div>
           <div id="pool-review-queue" class="pool-review-card" aria-label="Pending Diff Review Queue">
-            <div class="pool-review-file">File: <code>src/attention.rs</code></div>
-            <div class="pool-review-stats">+24 / -6 lines &middot; Cyclic Flock</div>
+            <div class="pool-review-file">File: <code>None</code></div>
+            <div class="pool-review-stats">Queue idle &middot; No patch pending</div>
             <div class="pool-review-actions">
-              <button id="pool-review-approve-btn" type="button" class="btn-primary btn-sm">Approve Patch</button>
-              <button id="pool-review-reject-btn" type="button" class="btn-secondary btn-sm">Reject</button>
+              <button id="pool-review-approve-btn" type="button" class="btn-primary btn-sm" disabled>Approve Patch</button>
+              <button id="pool-review-reject-btn" type="button" class="btn-secondary btn-sm" disabled>Reject</button>
             </div>
           </div>
         </div>
@@ -214,14 +214,14 @@
         </div>
         <div class="topbar-actions">
           <button id="topbar-terminal-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="terminal">Terminal</button>
-          <button id="topbar-feed-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="feed">Engine &amp; ArXiv (10)</button>
-          <button id="topbar-consolidation-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="consolidation">Consolidate Weights</button>
-          <button id="topbar-traces-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="traces">OTel Traces</button>
-          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace">Workspace IDE</button>
-          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics">API &amp; 27/27</button>
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
           <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Right Drawer" aria-label="Toggle Right Drawer">&#9881; Drawer</button>
+          <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed" hidden>Engine &amp; ArXiv (10)</button>
+          <button id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation" hidden>Consolidate Weights</button>
+          <button id="topbar-traces-btn" type="button" class="topbar-btn" data-canvas-tab="traces" hidden>OTel Traces</button>
+          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace" hidden>Workspace IDE</button>
+          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics" hidden>API &amp; 28/28</button>
         </div>
       </header>
 
@@ -238,7 +238,7 @@
             <span id="live-agent-tools-badge" class="sr-only">Tools active</span>
           </span>
           <span class="status-strip-item">
-            <span id="live-engine-frontier-badge">Tick #94 &middot; <code>R4-F103</code></span>
+            <span id="live-engine-frontier-badge">Tick #94 &middot; <code>R4-F256</code></span>
             <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">ArXiv Feed</button>
           </span>
           <span class="status-strip-item">
@@ -288,11 +288,11 @@
                 <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
                 <label for="composer-model-select" class="sr-only">Select Model</label>
                 <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
-                  <option value="uor-r4-glm-v8" selected>uor-r4-glm-v8</option>
-                  <option value="claude-3-5-sonnet">claude-3-5-sonnet</option>
-                  <option value="gpt-4o">gpt-4o</option>
-                  <option value="deepseek-r1">deepseek-r1</option>
-                  <option value="uor-r4-500b">uor-r4-500b</option>
+                  <option value="uor-r4-glm-v8" selected>Balanced Reasoning (uor-r4-glm-v8)</option>
+                  <option value="claude-3-5-sonnet">Fast / Direct (claude-3-5-sonnet profile)</option>
+                  <option value="gpt-4o">Code &amp; Patch (gpt-4o profile)</option>
+                  <option value="deepseek-r1">Deliberate Reasoning (deepseek-r1 profile)</option>
+                  <option value="uor-r4-500b">Deep Frontier (uor-r4-500b profile)</option>
                 </select>
                 <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
                 <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
@@ -342,7 +342,7 @@
           </button>
           <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
             <span>Engine &amp; ArXiv</span>
-            <span class="canvas-tab-pill">R4-F204 &middot; 10</span>
+            <span class="canvas-tab-pill">R4-F256 &middot; 10</span>
           </button>
           <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
             <span>Consolidation</span>
@@ -355,8 +355,8 @@
             <span>Diff Preview</span>
           </button>
           <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
-            <span>API &amp; 27/27</span>
-            <span class="canvas-tab-pill">27/27</span>
+            <span>API &amp; 28/28</span>
+            <span class="canvas-tab-pill">28/28</span>
           </button>
         </nav>
         <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Close Canvas Drawer (Esc)" aria-label="Close Canvas Drawer">&times; Close</button>
@@ -398,7 +398,7 @@
               <div id="inspector-sparkline" class="inspector-sparkline-grid" aria-label="Latent Vector Activation Sparkline"></div>
             </div>
             <div class="inspector-section">
-              <h4>Clifford $\mathcal{C}\ell(0,6)$ Graded Subspaces ($2^6 = 64$ Basis Elements)</h4>
+              <h4>Clifford <span class="latex-mathcal">C</span>&#8467;(0,6) Graded Subspaces (2<sup>6</sup> = 64 Basis Elements)</h4>
               <div id="inspector-clifford-grades" class="inspector-clifford-grid">
                 <div class="grade-cell"><span class="grade-title">Gr 0 (Scalar)</span><span class="grade-dim">1 dim</span></div>
                 <div class="grade-cell"><span class="grade-title">Gr 1 (Vector)</span><span class="grade-dim">6 dim</span></div>
@@ -410,11 +410,11 @@
               </div>
             </div>
             <div class="inspector-section">
-              <h4>Icosian Golden Quaternion Roots ($\mathbb{Z}[\phi], 17\text{ Roots}$)</h4>
+              <h4>Icosian Golden Quaternion Roots (<span class="latex-mathbb">&#8484;</span>[&phi;], 17 Roots)</h4>
               <div id="inspector-icosian-roots" class="inspector-icosian-list"></div>
             </div>
             <div class="inspector-section">
-              <h4>E8 Lattice Root Occupancy ($16\times 64\times 17 = 17,408\text{ Basins}$)</h4>
+              <h4>E8 Lattice Root Occupancy (16 &times; 64 &times; 17 = 17,408 Basins)</h4>
               <div id="inspector-e8-grid" class="inspector-e8-grid"></div>
             </div>
           </div>
@@ -444,6 +444,9 @@
                     <span class="mcp-badge">Local Read</span>
                   </div>
                   <div class="mcp-tool-desc">Reads text content from the virtual in-memory workspace file system.</div>
+                  <div class="mcp-tool-actions">
+                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_read">Run / Test</button>
+                  </div>
                 </div>
                 <div class="mcp-tool-card">
                   <div class="mcp-tool-header">
@@ -451,6 +454,9 @@
                     <span class="mcp-badge">Local Write</span>
                   </div>
                   <div class="mcp-tool-desc">Writes or updates a virtual file with cryptographic SHA-256 receipt generation.</div>
+                  <div class="mcp-tool-actions">
+                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_write">Run / Test</button>
+                  </div>
                 </div>
                 <div class="mcp-tool-card">
                   <div class="mcp-tool-header">
@@ -458,13 +464,19 @@
                     <span class="mcp-badge">Wasm Math</span>
                   </div>
                   <div class="mcp-tool-desc">Computes minimum L1 distance routing across cortical cluster waypoints.</div>
+                  <div class="mcp-tool-actions">
+                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="geometric_dijkstra_route">Run / Test</button>
+                  </div>
                 </div>
                 <div class="mcp-tool-card">
                   <div class="mcp-tool-header">
                     <strong>clifford_bivector_wedge</strong>
                     <span class="mcp-badge">Wasm Math</span>
                   </div>
-                  <div class="mcp-tool-desc">Evaluates outer wedge products $\mathbf{u} \wedge \mathbf{v}$ over $\mathcal{C}\ell(0,6)$ graded blades.</div>
+                  <div class="mcp-tool-desc">Evaluates outer wedge products <strong>u</strong> &and; <strong>v</strong> over <span class="latex-mathcal">C</span>&#8467;(0,6) graded blades.</div>
+                  <div class="mcp-tool-actions">
+                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="clifford_bivector_wedge">Run / Test</button>
+                  </div>
                 </div>
                 <div class="mcp-tool-card">
                   <div class="mcp-tool-header">
@@ -472,6 +484,9 @@
                     <span class="mcp-badge">Wasm Math</span>
                   </div>
                   <div class="mcp-tool-desc">Evaluates exact Euclidean GCD across 128-bit integer coordinates.</div>
+                  <div class="mcp-tool-actions">
+                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="subsystem_prime_gcd">Run / Test</button>
+                  </div>
                 </div>
                 <div class="mcp-tool-card">
                   <div class="mcp-tool-header">
@@ -479,6 +494,9 @@
                     <span class="mcp-badge">Local Optimizer</span>
                   </div>
                   <div class="mcp-tool-desc">Executes discrete integer coordinate descent over `.uorlut` lookup tables.</div>
+                  <div class="mcp-tool-actions">
+                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="coordinate_descent_sweep">Run / Test</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -516,12 +534,15 @@
               </select>
             </div>
             <div class="field">
-              <label for="custom-retain-lambda">Memory Retain Factor ($\lambda$)</label>
+              <div class="field-label-row">
+                <label for="custom-retain-lambda">Memory Retain Factor (&lambda;)</label>
+                <span id="custom-retain-lambda-val" class="metric-code">0.85</span>
+              </div>
               <input type="range" id="custom-retain-lambda" min="0" max="1" step="0.05" value="0.85">
               <span class="field-hint">Controls decay rate of prior conversation turns in 256D latent carry-forward buffer.</span>
             </div>
             <div class="field">
-              <label for="custom-plurality-votes">Plurality Voting Ensemble Heads ($K$)</label>
+              <label for="custom-plurality-votes">Plurality Voting Ensemble Heads (<em>K</em>)</label>
               <input type="number" id="custom-plurality-votes" min="1" max="16" value="8">
               <span class="field-hint">Number of independent cyclic flock attention heads participating in consensus.</span>
             </div>
@@ -967,7 +988,7 @@
           <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
             <div class="neural-3d-toolbar">
               <div class="neural-3d-title-group">
-                <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics &amp; Starling Flock Attention ($k=7$)</span>
+                <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics &amp; Starling Flock Attention (<em>k</em> = 7)</span>
                 <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
               </div>
               <div class="neural-3d-controls">
@@ -979,23 +1000,23 @@
             </div>
             <div class="neural-cognitive-stages" aria-label="Live Geometric &amp; Next-Token Prediction Stages">
               <div class="cognitive-stage-pill active" id="neural-stage-context">
-                <span class="stage-step">1. Cl(0,6) Multivectors</span>
+                <span class="stage-step">1. Cl(0,6)</span>
                 <code id="neural-stage-context-val">256D Q12</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-attention">
-                <span class="stage-step">2. Starling Flock (k=7)</span>
+                <span class="stage-step">2. Flock (k=7)</span>
                 <code id="neural-stage-attention-val">8-Head Swarm</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-radix">
-                <span class="stage-step">3. Memory Basins (/8)</span>
+                <span class="stage-step">3. Basins (/8)</span>
                 <code id="neural-stage-radix-val">17,408 Basins</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-horizon">
-                <span class="stage-step">4. Geodesic (&delta;S=0)</span>
+                <span class="stage-step">4. Geodesic</span>
                 <code id="neural-stage-horizon-val">Least-Action</code>
               </div>
               <div class="cognitive-stage-pill active" id="neural-stage-backprop">
-                <span class="stage-step">5. Icosian Roots Z[&phi;]</span>
+                <span class="stage-step">5. Icosian</span>
                 <code id="neural-stage-backprop-val">17 Roots</code>
               </div>
             </div>
