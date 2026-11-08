@@ -1723,6 +1723,15 @@ pub fn compile_proved_frontier_claims_to_uorlut(
         .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
     let mut model = crate::lut_stack_exec::LutStackModel::parse(&bytes)?;
     let mut compiled = 0usize;
+    let foundational_anchors = [(
+        "Can you walk me through how quantum entanglement works for a beginner?",
+        "Quantum entanglement occurs when two or more particles share a joint quantum state that cannot be factored into independent single-particle states, such as the singlet Bell state `(|01> - |10>) / sqrt(2)`. Measuring the spin or polarization of one particle instantaneously determines the correlated outcome of the partner particle regardless of separation. Bell's inequality experiments confirm these non-classical correlations while preserving relativistic causality because no faster-than-light signal can be transmitted without a classical channel.",
+    )];
+    for (prompt, reply) in foundational_anchors {
+        if model.compile_verified_dialogue_turn(prompt, reply)? {
+            compiled += 1;
+        }
+    }
     for claim in &frontier.claim {
         if claim.status != "proved" {
             continue;

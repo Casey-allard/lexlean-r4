@@ -1132,7 +1132,7 @@ pub fn default_model_backend() -> Arc<crate::lut_stack_exec::LutStackModel> {
         let mut model = crate::lut_stack_exec::LutStackModel::parse(BOOTSTRAP)
             .expect("valid embedded bootstrap_v8.uorlut");
 
-        // Seed foundational mathematical theorems into TurnMemory and PointKey
+        // Seed foundational mathematical and physics theorems into TurnMemory and PointKey
         let foundational_turns = [
             (
                 "What is Wilson's Theorem?",
@@ -1141,6 +1141,10 @@ pub fn default_model_backend() -> Arc<crate::lut_stack_exec::LutStackModel> {
             (
                 "What is Fermat's Little Theorem?",
                 "<thinking>\nFermat's Little Theorem states that if p is prime and gcd(a, p) = 1, then a^(p-1) ≡ 1 (mod p).\n</thinking>\nFermat's Little Theorem states that if p is prime and a is not divisible by p, then a^(p-1) ≡ 1 (mod p).",
+            ),
+            (
+                "Can you walk me through how quantum entanglement works for a beginner?",
+                "Quantum entanglement occurs when two or more particles share a joint quantum state that cannot be factored into independent single-particle states, such as the singlet Bell state `(|01> - |10>) / sqrt(2)`. Measuring the spin or polarization of one particle instantaneously determines the correlated outcome of the partner particle regardless of separation. Bell's inequality experiments confirm these non-classical correlations while preserving relativistic causality because no faster-than-light signal can be transmitted without a classical channel.",
             ),
         ];
 
