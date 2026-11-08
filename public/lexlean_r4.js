@@ -335,6 +335,88 @@ export function execute_application(input_bytes) {
     return takeFromExternrefTable0(ret[0]);
 }
 
+let cachedInt32ArrayMemory0 = null;
+
+function getInt32ArrayMemory0() {
+    if (cachedInt32ArrayMemory0 === null || cachedInt32ArrayMemory0.byteLength === 0) {
+        cachedInt32ArrayMemory0 = new Int32Array(wasm.memory.buffer);
+    }
+    return cachedInt32ArrayMemory0;
+}
+
+function getArrayI32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+
+/**
+ * Export the trained `Q12` (`rows x 256`) projection slab from `GLM_TRANSITION_HORIZONS`
+ * for zero-copy transfer into the WebGPU `q12_attention_project` compute shader.
+ * @param {number} max_rows
+ * @returns {Int32Array}
+ */
+export function studio_export_q12_projection_slab(max_rows) {
+    const ret = wasm.studio_export_q12_projection_slab(max_rows);
+    var v1 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v1;
+}
+
+/**
+ * Encode a prompt into a 256-lane `Q12` query vector (`scale = 4096`) for WebGPU dispatch.
+ * @param {string} prompt
+ * @returns {Int32Array}
+ */
+export function studio_encode_prompt_q12_query(prompt) {
+    const ptr0 = passStringToWasm0(prompt, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_encode_prompt_q12_query(ptr0, len0);
+    var v2 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v2;
+}
+
+let cachedUint32ArrayMemory0 = null;
+
+function getUint32ArrayMemory0() {
+    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
+        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachedUint32ArrayMemory0;
+}
+
+function passArray32ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 4, 4) >>> 0;
+    getUint32ArrayMemory0().set(arg, ptr / 4);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
+/**
+ * Decode WebGPU `Q12` row projection scores back through the `GLM_TRANSITION_HORIZONS`
+ * token decoder.
+ * @param {string} prompt
+ * @param {Int32Array} gpu_row_scores
+ * @param {number} max_tokens
+ * @returns {string}
+ */
+export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max_tokens) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(prompt, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray32ToWasm0(gpu_row_scores, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_decode_with_webgpu_q12_scores(ptr0, len0, ptr1, len1, max_tokens);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
 async function __wbg_load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
         if (typeof WebAssembly.instantiateStreaming === 'function') {
@@ -394,6 +476,8 @@ function __wbg_init_memory(imports, memory) {
 function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
+    cachedInt32ArrayMemory0 = null;
+    cachedUint32ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
 
 
@@ -737,20 +821,31 @@ export async function route_and_hot_swap_e8_shard(e8OrbitId) {
 
 export async function generate_with_webgpu_open_weights_coprocessor(promptText, maxTokens = 64) {
     const text = String(promptText || '');
-    const queryQ12 = new Int32Array(256);
-    for (let i = 0; i < text.length; i += 1) {
-        const lane = i & 255;
-        queryQ12[lane] = (queryQ12[lane] + ((text.charCodeAt(i) * 19) & 4095)) & 4095;
-    }
-    const orbit = (queryQ12[0] + queryQ12[1]) & 15;
-    await route_and_hot_swap_e8_shard(orbit);
-    const weightsQ12 = new Int32Array(16 * 256);
-    for (let r = 0; r < 16; r += 1) {
-        for (let k = 0; k < 256; k += 1) {
-            weightsQ12[r * 256 + k] = ((r + 1) * 37 + k * 13) & 1023;
+    const rows = 64;
+    let queryQ12;
+    let weightsQ12;
+    if (wasm !== undefined && typeof wasm.studio_encode_prompt_q12_query === 'function') {
+        queryQ12 = studio_encode_prompt_q12_query(text);
+        weightsQ12 = studio_export_q12_projection_slab(rows);
+    } else {
+        queryQ12 = new Int32Array(256);
+        for (let i = 0; i < text.length; i += 1) {
+            const lane = i & 255;
+            queryQ12[lane] = (queryQ12[lane] + ((text.charCodeAt(i) * 19) & 4095)) & 4095;
+        }
+        weightsQ12 = new Int32Array(rows * 256);
+        for (let r = 0; r < rows; r += 1) {
+            for (let k = 0; k < 256; k += 1) {
+                weightsQ12[r * 256 + k] = ((r + 1) * 37 + k * 13) & 1023;
+            }
         }
     }
-    const attentionScores = await run_webgpu_q12_attention_projection(queryQ12, weightsQ12, 16);
+    const orbit = (Math.abs(queryQ12[0] | 0) + Math.abs(queryQ12[1] | 0)) & 15;
+    await route_and_hot_swap_e8_shard(orbit);
+    const attentionScores = await run_webgpu_q12_attention_projection(queryQ12, weightsQ12, rows);
+    const gpuDecodedText = (wasm !== undefined && typeof wasm.studio_decode_with_webgpu_q12_scores === 'function')
+        ? studio_decode_with_webgpu_q12_scores(text, attentionScores, maxTokens | 0)
+        : '';
     const reqJson = JSON.stringify({
         model: 'uor-r4-glm-v8',
         max_tokens: maxTokens | 0,
@@ -761,6 +856,7 @@ export async function generate_with_webgpu_open_weights_coprocessor(promptText, 
         status: 'ok',
         routedE8Orbit: orbit,
         topAttentionScoreQ12: attentionScores[0] | 0,
+        gpuDecodedText,
         completionJson: completionRaw
     };
 }

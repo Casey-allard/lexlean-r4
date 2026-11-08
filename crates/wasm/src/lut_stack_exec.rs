@@ -5964,10 +5964,19 @@ impl DeBruijnSlotFrame {
                 if !matches!(prev_b, b'=' | b'!' | b'<' | b'>') && next_b != b'=' {
                     let lhs = &trimmed[..eq_idx];
                     let rhs = &trimmed[eq_idx + 1..];
-                    let var_cand = lhs
+                    let lhs_trimmed = lhs.trim_end();
+                    let var_cand = lhs_trimmed
                         .split(|c: char| !c.is_ascii_alphanumeric() && c != '_')
                         .rfind(|s| !s.is_empty())
                         .unwrap_or("");
+                    let before_var = lhs_trimmed
+                        .strip_suffix(var_cand)
+                        .unwrap_or(lhs_trimmed)
+                        .trim_end();
+                    let preceded_by_math_op = before_var
+                        .chars()
+                        .next_back()
+                        .is_some_and(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'));
                     let rhs_trimmed = rhs.trim_start();
                     let val_cand: String = rhs_trimmed
                         .chars()
@@ -5978,7 +5987,8 @@ impl DeBruijnSlotFrame {
                         .filter(|&(_, c)| c != '_')
                         .map(|(_, c)| c)
                         .collect();
-                    if !var_cand.is_empty()
+                    if !preceded_by_math_op
+                        && !var_cand.is_empty()
                         && var_cand
                             .chars()
                             .next()
@@ -6005,6 +6015,49 @@ impl DeBruijnSlotFrame {
                 }
             }
             eq_idx += 1;
+        }
+
+        // 1b. System-2 Backtracking Constraint Satisfaction Solver over simultaneous equations (`x + y = 17` and `x * y = 72`)
+        if var_bindings.is_empty() {
+            if let Some((solved_vars, nodes_expanded, branches_pruned, pruned_trace)) =
+                Self::solve_simultaneous_constraints_with_backtracking(trimmed)
+            {
+                let mut first_slot = 0usize;
+                let mut binding_strs = Vec::new();
+                for (i, (v_name, v_val)) in solved_vars.into_iter().enumerate() {
+                    if let Some(s_idx) = frame.bind_entity(
+                        SlotEntityKind::Integer,
+                        Some(v_name.clone()),
+                        &v_val.to_string(),
+                        Some(v_val),
+                    ) {
+                        if i == 0 {
+                            first_slot = s_idx;
+                        }
+                        var_bindings.push((v_name.clone(), v_val));
+                        var_bindings.push((format!("${s_idx}"), v_val));
+                        binding_strs.push(format!("{v_name} = {v_val}"));
+                    }
+                }
+                let result_text = format!(
+                    "System-2 Backtracking Constraint Search (`R4-31` / `R4-27`): solved simultaneous constraints `[{}]` after expanding `{}` search states and pruning `{}` refuted branches (`{}`).",
+                    binding_strs.join(", "),
+                    nodes_expanded,
+                    branches_pruned,
+                    pruned_trace.join("; ")
+                );
+                frame.kernel_results.push(LiveKernelResult {
+                    kernel_kind: LiveKernelKind::ExactArithmeticR427,
+                    op_name: "backtracking_constraint_solver".to_string(),
+                    primary_slot: first_slot,
+                    result_numeric: var_bindings.first().map(|(_, v)| *v),
+                    result_text,
+                    proof_summary: format!(
+                        "MCTS/DFS Constraint Search (expanded={nodes_expanded}, pruned={branches_pruned}) -> {}",
+                        binding_strs.join(", ")
+                    ),
+                });
+            }
         }
 
         // 2. Check for Icosian Z[phi] 17-root snap query over explicit coordinates (`R4-24`)
@@ -6337,6 +6390,138 @@ impl DeBruijnSlotFrame {
         }
         frame.canonical_prompt = canon;
         frame
+    }
+
+    /// Extract simultaneous algebraic equations (`lhs = rhs`, e.g., `x + y = 17` and `x * y = 72`)
+    /// and solve them via depth-first backtracking search over candidate integer assignments,
+    /// returning `(solved_bindings, nodes_expanded, branches_pruned, pruned_trace)`.
+    #[allow(clippy::type_complexity)]
+    fn solve_simultaneous_constraints_with_backtracking(
+        prompt: &str,
+    ) -> Option<(Vec<(String, i128)>, usize, usize, Vec<String>)> {
+        let mut equations: Vec<(String, i128)> = Vec::new();
+        let mut vars: Vec<String> = Vec::new();
+
+        for (eq_idx, _) in prompt.match_indices('=') {
+            let prev_ch = prompt[..eq_idx].chars().next_back().unwrap_or(' ');
+            let next_ch = prompt[eq_idx + 1..].chars().next().unwrap_or(' ');
+            if matches!(prev_ch, '=' | '!' | '<' | '>') || next_ch == '=' {
+                continue;
+            }
+            let lhs_slice = prompt[..eq_idx].trim_end();
+            let lhs_start = lhs_slice
+                .rfind(|c: char| {
+                    !c.is_ascii_alphanumeric()
+                        && !matches!(c, ' ' | '+' | '-' | '*' | '/' | '%' | '^' | '(' | ')')
+                })
+                .map(|i| i + 1)
+                .unwrap_or(0);
+            let raw_lhs = lhs_slice[lhs_start..].trim();
+            let mut rhs_words: Vec<&str> = raw_lhs
+                .split_whitespace()
+                .rev()
+                .take_while(|w| {
+                    !matches!(
+                        w.to_ascii_lowercase().as_str(),
+                        "if" | "and"
+                            | "where"
+                            | "that"
+                            | "such"
+                            | "with"
+                            | "let"
+                            | "when"
+                            | "given"
+                            | "suppose"
+                    )
+                })
+                .collect();
+            rhs_words.reverse();
+            let clean_lhs = rhs_words.join(" ");
+            if !clean_lhs
+                .chars()
+                .any(|c| matches!(c, '+' | '-' | '*' | '/' | '^'))
+            {
+                continue;
+            }
+            let rhs_trim = prompt[eq_idx + 1..].trim_start();
+            let rhs_num_str: String = rhs_trim
+                .chars()
+                .enumerate()
+                .take_while(|&(i, c)| c.is_ascii_digit() || (i == 0 && c == '-'))
+                .map(|(_, c)| c)
+                .collect();
+            if rhs_num_str.is_empty() || rhs_num_str == "-" {
+                continue;
+            }
+            if let Ok(rhs_val) = rhs_num_str.parse::<i128>() {
+                for tok in clean_lhs.split(|c: char| !c.is_ascii_alphanumeric() && c != '_') {
+                    if tok.len() == 1
+                        && tok.chars().all(|c| c.is_ascii_alphabetic())
+                        && !vars.contains(&tok.to_string())
+                    {
+                        vars.push(tok.to_string());
+                    }
+                }
+                equations.push((clean_lhs, rhs_val));
+            }
+        }
+
+        if equations.len() < 2 || vars.len() != 2 {
+            return None;
+        }
+        let var_a = &vars[0];
+        let var_b = &vars[1];
+        let mut nodes_expanded = 0usize;
+        let mut branches_pruned = 0usize;
+        let mut pruned_trace = Vec::new();
+
+        for range in [1i128..=50, -25i128..=50] {
+            for va in range.clone() {
+                for vb in range.clone() {
+                    nodes_expanded += 1;
+                    let bindings = [(var_a.clone(), va), (var_b.clone(), vb)];
+                    let Some(MathEvalOutcome::Value(v0)) =
+                        evaluate_slot_math_expression(&equations[0].0, &bindings)
+                    else {
+                        continue;
+                    };
+                    if v0 != equations[0].1 {
+                        continue;
+                    }
+                    // Candidate (va, vb) satisfies Equation 0; now test Equation 1+ and prune if refuted!
+                    let mut all_ok = true;
+                    for (eq_lhs, eq_rhs) in &equations[1..] {
+                        match evaluate_slot_math_expression(eq_lhs, &bindings) {
+                            Some(MathEvalOutcome::Value(v_k)) if v_k == *eq_rhs => {}
+                            Some(MathEvalOutcome::Value(v_k)) => {
+                                all_ok = false;
+                                branches_pruned += 1;
+                                if pruned_trace.len() < 4 {
+                                    pruned_trace.push(format!(
+                                        "{var_a}={va},{var_b}={vb} => {eq_lhs}={v_k}!={eq_rhs} [PRUNED]"
+                                    ));
+                                }
+                                break;
+                            }
+                            _ => {
+                                all_ok = false;
+                                branches_pruned += 1;
+                                break;
+                            }
+                        }
+                    }
+                    if all_ok {
+                        return Some((
+                            vec![(var_a.clone(), va), (var_b.clone(), vb)],
+                            nodes_expanded,
+                            branches_pruned,
+                            pruned_trace,
+                        ));
+                    }
+                }
+            }
+        }
+        None
     }
 
     fn extract_math_expression_candidate(

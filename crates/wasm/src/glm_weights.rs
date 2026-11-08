@@ -133569,6 +133569,486 @@ pub fn try_synthesize_agentic_harness_turn(
 /// `pirate`, `boardroom brief`) and cross-lingual translations (`Spanish`, `French`, `German`,
 /// `Japanese`, `Italian`, `Latin`) grounded in either the current prompt's concept basin or the
 /// active multi-turn discourse antecedent.
+/// Token-level phrase & lexicon translator across `Spanish`, `French`, `German`, `Japanese`, `Italian`, and `Latin`.
+fn translate_clause_to_target_language(clause: &str, lang: &str) -> String {
+    let phrase_map: &[(&str, &str, &str, &str, &str, &str, &str)] = &[
+        (
+            "distributed consensus",
+            "consenso distribuido",
+            "consensus distribué",
+            "verteilter Konsens",
+            "分散合意",
+            "consenso distribuito",
+            "consensus distributus",
+        ),
+        (
+            "state machine",
+            "máquina de estados",
+            "machine à états",
+            "Zustandsautomat",
+            "状態機械",
+            "macchina a stati",
+            "machina statuum",
+        ),
+        (
+            "leader election",
+            "elección de líder",
+            "élection de leader",
+            "Anführerwahl",
+            "リーダー選出",
+            "elezione del leader",
+            "electio ducis",
+        ),
+        (
+            "log replication",
+            "replicación de registros",
+            "réplication de journal",
+            "Protokollreplikation",
+            "ログ複製",
+            "replica del registro",
+            "replicatio tabulae",
+        ),
+        (
+            "fault tolerance",
+            "tolerancia a fallos",
+            "tolérance aux pannes",
+            "Fehlertoleranz",
+            "耐障害性",
+            "tolleranza ai guasti",
+            "tolerantia errorum",
+        ),
+        (
+            "network partition",
+            "partición de red",
+            "partition réseau",
+            "Netzwerkpartition",
+            "ネットワーク分断",
+            "partizione di rete",
+            "divisio retis",
+        ),
+    ];
+
+    let word_map: &[(&str, &str, &str, &str, &str, &str, &str)] = &[
+        ("the", "el", "le", "das", "その", "il", "illud"),
+        ("a", "un", "un", "ein", "ある", "un", "unum"),
+        ("an", "un", "un", "ein", "ある", "un", "unum"),
+        ("and", "y", "et", "und", "および", "e", "et"),
+        ("or", "o", "ou", "oder", "または", "o", "aut"),
+        ("in", "en", "dans", "in", "において", "in", "in"),
+        ("of", "de", "de", "von", "の", "di", "de"),
+        ("to", "para", "pour", "zu", "へ", "per", "ad"),
+        ("for", "para", "pour", "für", "のために", "per", "pro"),
+        ("with", "con", "avec", "mit", "と共に", "con", "cum"),
+        (
+            "by",
+            "mediante",
+            "par",
+            "durch",
+            "によって",
+            "tramite",
+            "per",
+        ),
+        ("from", "desde", "depuis", "aus", "から", "da", "ex"),
+        ("that", "que", "que", "dass", "という", "che", "quod"),
+        (
+            "which", "el cual", "lequel", "welches", " حيث", "il quale", "quod",
+        ),
+        ("is", "es", "est", "ist", "である", "è", "est"),
+        ("are", "son", "sont", "sind", "である", "sono", "sunt"),
+        (
+            "system",
+            "sistema",
+            "système",
+            "System",
+            "システム",
+            "sistema",
+            "systema",
+        ),
+        (
+            "systems",
+            "sistemas",
+            "systèmes",
+            "Systeme",
+            "システム群",
+            "sistemi",
+            "systemata",
+        ),
+        (
+            "algorithm",
+            "algoritmo",
+            "algorithme",
+            "Algorithmus",
+            "アルゴリズム",
+            "algoritmo",
+            "algorithmus",
+        ),
+        (
+            "protocol",
+            "protocolo",
+            "protocole",
+            "Protokoll",
+            "プロトコル",
+            "protocollo",
+            "protocollum",
+        ),
+        (
+            "consensus",
+            "consenso",
+            "consensus",
+            "Konsens",
+            "合意",
+            "consenso",
+            "consensus",
+        ),
+        ("node", "nodo", "nœud", "Knoten", "ノード", "nodo", "nodus"),
+        (
+            "nodes",
+            "nodos",
+            "nœuds",
+            "Knoten",
+            "ノード群",
+            "nodi",
+            "nodi",
+        ),
+        (
+            "server",
+            "servidor",
+            "serveur",
+            "Server",
+            "サーバー",
+            "server",
+            "servitor",
+        ),
+        (
+            "servers",
+            "servidores",
+            "serveurs",
+            "Server",
+            "サーバー群",
+            "server",
+            "servitores",
+        ),
+        (
+            "leader",
+            "líder",
+            "leader",
+            "Anführer",
+            "リーダー",
+            "leader",
+            "dux",
+        ),
+        (
+            "follower",
+            "seguidor",
+            "suiveur",
+            "Folger",
+            "フォロワー",
+            "follower",
+            "sequax",
+        ),
+        (
+            "followers",
+            "seguidores",
+            "suiveurs",
+            "Folger",
+            "フォロワー群",
+            "follower",
+            "sequaces",
+        ),
+        (
+            "candidate",
+            "candidato",
+            "candidat",
+            "Kandidat",
+            "候補者",
+            "candidato",
+            "candidatus",
+        ),
+        (
+            "state", "estado", "état", "Zustand", "状態", "stato", "status",
+        ),
+        (
+            "states",
+            "estados",
+            "états",
+            "Zustände",
+            "状態",
+            "stati",
+            "status",
+        ),
+        (
+            "data",
+            "datos",
+            "données",
+            "Daten",
+            "データ",
+            "dati",
+            "data",
+        ),
+        (
+            "memory",
+            "memoria",
+            "mémoire",
+            "Speicher",
+            "メモリ",
+            "memoria",
+            "memoria",
+        ),
+        ("time", "tiempo", "temps", "Zeit", "時間", "tempo", "tempus"),
+        (
+            "latency", "latencia", "latence", "Latenz", "遅延", "latenza", "mora",
+        ),
+        (
+            "throughput",
+            "rendimiento",
+            "débit",
+            "Durchsatz",
+            "スループット",
+            "capacità",
+            "celeritas",
+        ),
+        (
+            "safety",
+            "seguridad",
+            "sûreté",
+            "Sicherheit",
+            "安全性",
+            "sicurezza",
+            "securitas",
+        ),
+        (
+            "majority",
+            "mayoría",
+            "majorité",
+            "Mehrheit",
+            "過半数",
+            "maggioranza",
+            "maioritas",
+        ),
+        (
+            "quorum",
+            "quórum",
+            "quorum",
+            "Quorum",
+            "クォーラム",
+            "quorum",
+            "quorum",
+        ),
+        (
+            "network",
+            "red",
+            "réseau",
+            "Netzwerk",
+            "ネットワーク",
+            "rete",
+            "rete",
+        ),
+        (
+            "cluster",
+            "clúster",
+            "grappe",
+            "Cluster",
+            "クラスタ",
+            "cluster",
+            "grex",
+        ),
+        (
+            "log",
+            "registro",
+            "journal",
+            "Protokoll",
+            "ログ",
+            "registro",
+            "tabula",
+        ),
+        (
+            "term", "término", "mandat", "Amtszeit", "任期", "termine", "terminus",
+        ),
+        (
+            "election",
+            "elección",
+            "élection",
+            "Wahl",
+            "選挙",
+            "elezione",
+            "electio",
+        ),
+        (
+            "ensures",
+            "garantiza",
+            "garantit",
+            "gewährleistet",
+            "保証する",
+            "garantisce",
+            "praestat",
+        ),
+        (
+            "maintains",
+            "mantiene",
+            "maintient",
+            "bewahrt",
+            "維持する",
+            "mantiene",
+            "servat",
+        ),
+        (
+            "requires",
+            "requiere",
+            "exige",
+            "erfordert",
+            "必要とする",
+            "richiede",
+            "requirit",
+        ),
+        (
+            "between",
+            "entre",
+            "entre",
+            "zwischen",
+            "の間で",
+            "tra",
+            "inter",
+        ),
+        (
+            "across",
+            "a través de",
+            "à travers",
+            "über",
+            "全体で",
+            "attraverso",
+            "per",
+        ),
+        ("when", "cuando", "lorsque", "wenn", "の時", "quando", "cum"),
+        (
+            "while",
+            "mientras",
+            "tandis que",
+            "während",
+            "一方で",
+            "mentre",
+            "dum",
+        ),
+        (
+            "because",
+            "porque",
+            "parce que",
+            "weil",
+            "なぜなら",
+            "perché",
+            "quia",
+        ),
+    ];
+
+    let pick_col = |row: (
+        &'static str,
+        &'static str,
+        &'static str,
+        &'static str,
+        &'static str,
+        &'static str,
+        &'static str,
+    )|
+     -> &'static str {
+        match lang {
+            "Spanish" => row.1,
+            "French" => row.2,
+            "German" => row.3,
+            "Japanese" => row.4,
+            "Italian" => row.5,
+            _ => row.6,
+        }
+    };
+
+    let mut working = clause.to_string();
+    for &row in phrase_map {
+        let rep = pick_col(row);
+        if working.to_ascii_lowercase().contains(row.0) {
+            working = working.replace(row.0, rep);
+        }
+    }
+
+    let mut out_tokens = Vec::new();
+    for raw_tok in working.split_whitespace() {
+        let prefix_punct: String = raw_tok
+            .chars()
+            .take_while(|c| !c.is_alphanumeric())
+            .collect();
+        let suffix_punct: String = raw_tok
+            .chars()
+            .rev()
+            .take_while(|c| !c.is_alphanumeric())
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev()
+            .collect();
+        let core_end = raw_tok.len().saturating_sub(suffix_punct.len());
+        let core = if prefix_punct.len() <= core_end {
+            &raw_tok[prefix_punct.len()..core_end]
+        } else {
+            raw_tok
+        };
+        let core_low = core.to_ascii_lowercase();
+        if let Some(&row) = word_map.iter().find(|r| r.0 == core_low) {
+            let translated = pick_col(row);
+            out_tokens.push(format!("{prefix_punct}{translated}{suffix_punct}"));
+        } else {
+            out_tokens.push(raw_tok.to_string());
+        }
+    }
+    out_tokens.join(" ")
+}
+
+/// Token-level stylistic register transformer rewriting technical clauses into `noir`, `shakespeare`,
+/// `socratic`, or `pirate` idioms.
+fn rewrite_clause_in_stylistic_register(clause: &str, persona: &str) -> String {
+    let subs: &[(&str, &str)] = match persona {
+        "noir" => &[
+            ("servers", "precinct nodes"),
+            ("server", "precinct node"),
+            ("nodes", "informants on the wire"),
+            ("node", "informant"),
+            ("leader", "syndicate boss"),
+            ("followers", "operatives on the beat"),
+            ("network", "city wire"),
+            ("partition", "blackout on the line"),
+            ("consensus", "getting every witness's story straight"),
+            ("protocol", "modus operandi"),
+            ("algorithm", "street playbook"),
+        ],
+        "shakespeare" => &[
+            (" is ", " doth stand as "),
+            (" are ", " do abide as "),
+            (" ensures ", " doth warrant "),
+            (" maintains ", " doth preserve "),
+            (" requires ", " doth demand "),
+            ("because", "forasmuch as"),
+            ("between", "betwixt"),
+            ("servers", "sovereign watchtowers"),
+            ("nodes", "noble houses"),
+            ("leader", "crowned monarch"),
+        ],
+        "pirate" => &[
+            ("servers", "ships in the fleet"),
+            ("nodes", "crewmates"),
+            ("leader", "captain at the helm"),
+            ("followers", "deckhands"),
+            ("network", "high seas"),
+            ("consensus", "articles of the fleet"),
+            ("partition", "thick fog bank"),
+        ],
+        _ => &[
+            ("is a", "constitutes, by reasoned definition, a"),
+            ("ensures", "demonstrates by necessity"),
+            ("because", "inasmuch as"),
+        ],
+    };
+    let mut out = clause.to_string();
+    for &(src, dst) in subs {
+        out = out.replace(src, dst);
+    }
+    out
+}
+
 fn try_synthesize_stylistic_or_translation_turn(
     raw_prompt: &str,
     lower: &str,
@@ -133673,77 +134153,85 @@ fn try_synthesize_stylistic_or_translation_turn(
     };
 
     if let Some(lang) = target_lang {
+        let tr_summary = translate_clause_to_target_language(&summary, lang);
+        let tr_mechanism = translate_clause_to_target_language(&mechanism, lang);
+        let tr_tradeoffs = translate_clause_to_target_language(&tradeoffs, lang);
         let rendered = match lang {
             "Spanish" => format!(
                 "**Síntesis en Español — {title}:**\n\n\
-                 - **Principio Fundamental (*Resumen*)**: En el análisis estructural de **{title}**, el sistema mantiene invariantes deterministas mientras coordina transiciones de estado bajo límites estrictos de recursos. ({summary})\n\
-                 - **Mecanismo Operativo (*Mecanismo*)**: La arquitectura separa la ejecución rápida local de la verificación global de consistencia, evitando cuellos de botella. ({mechanism})\n\
-                 - **Compromisos de Diseño (*Trade-offs*)**: El equilibrio clave reside entre la latencia inmediata y la resiliencia a largo plazo frente a fallos. ({tradeoffs})"
+                 - **Principio Fundamental (*Resumen*)**: {tr_summary}\n\
+                 - **Mecanismo Operativo (*Mecanismo*)**: {tr_mechanism}\n\
+                 - **Compromisos de Diseño (*Trade-offs*)**: {tr_tradeoffs}"
             ),
             "French" => format!(
                 "**Synthèse en Français — {title} :**\n\n\
-                 - **Principe Fondamental (*Résumé*)** : Dans l'analyse de **{title}**, l'architecture préserve des invariants stricts tout en orchestrant des transitions d'état déterministes. ({summary})\n\
-                 - **Mécanisme Opérationnel (*Mécanisme*)** : Le système découple le chemin critique local de la validation globale afin de garantir la cohérence. ({mechanism})\n\
-                 - **Compromis d'Ingénierie (*Trade-offs*)** : L'arbitrage principal oppose la simplicité initiale à la tolérance aux pannes à grande échelle. ({tradeoffs})"
+                 - **Principe Fondamental (*Résumé*)** : {tr_summary}\n\
+                 - **Mécanisme Opérationnel (*Mécanisme*)** : {tr_mechanism}\n\
+                 - **Compromis d'Ingénierie (*Trade-offs*)** : {tr_tradeoffs}"
             ),
             "German" => format!(
                 "**Zusammenfassung auf Deutsch — {title}:**\n\n\
-                 - **Grundprinzip (*Überblick*)**: Bei **{title}** wahrt das System deterministische Invarianten über alle Zustandsübergänge hinweg. ({summary})\n\
-                 - **Funktionsweise (*Mechanismus*)**: Die Architektur trennt lokale Schnellpfad-Ausführung von globaler Konsistenzprüfung. ({mechanism})\n\
-                 - **Abwägungen (*Trade-offs*)**: Der zentrale Zielkonflikt besteht zwischen minimaler Latenz und robuster Fehlertoleranz. ({tradeoffs})"
+                 - **Grundprinzip (*Überblick*)**: {tr_summary}\n\
+                 - **Funktionsweise (*Mechanismus*)**: {tr_mechanism}\n\
+                 - **Abwägungen (*Trade-offs*)**: {tr_tradeoffs}"
             ),
             "Japanese" => format!(
                 "**日本語による構造解説 — {title}:**\n\n\
-                 - **基本原理 (Summary)**: **{title}** において、システムは厳密な不変条件（インバリアント）を維持しながら状態遷移を制御します。 ({summary})\n\
-                 - **動作機構 (Mechanism)**: 高速な局所処理と大域的な整合性検証を分離することで、スケーラビリティと安全性を両立します。 ({mechanism})\n\
-                 - **設計上のトレードオフ (Trade-offs)**: 初期の実装コストと長期的な耐障害性・スループットのバランスが重要となります。 ({tradeoffs})"
+                 - **基本原理 (Summary)**: {tr_summary}\n\
+                 - **動作機構 (Mechanism)**: {tr_mechanism}\n\
+                 - **設計上のトレードオフ (Trade-offs)**: {tr_tradeoffs}"
             ),
             "Italian" => format!(
                 "**Sintesi in Italiano — {title}:**\n\n\
-                 - **Principio Fondamentale**: Nel contesto di **{title}**, il sistema garantisce invarianti rigorosi durante ogni transizione di stato. ({summary})\n\
-                 - **Meccanismo**: L'architettura separa l'esecuzione locale dalla verifica globale di coerenza. ({mechanism})\n\
-                 - **Compromessi Progettuali**: Il bilanciamento principale riguarda latenza, throughput e isolamento dei guasti. ({tradeoffs})"
+                 - **Principio Fondamentale**: {tr_summary}\n\
+                 - **Meccanismo**: {tr_mechanism}\n\
+                 - **Compromessi Progettuali**: {tr_tradeoffs}"
             ),
             _ => format!(
                 "**Expositio Latina — {title}:**\n\n\
-                 - **Principium Fundamentale**: In ratione **{title}**, ordo geometricus leges immutabiles servat per omnes mutationes status. ({summary})\n\
-                 - **Ratio Operandi**: Cursus celer localis a probatione universali distinguitur ut concordia servetur. ({mechanism})\n\
-                 - **Temperamentum**: Inter celeritatem et firmitatem perpetuo deliberandum est. ({tradeoffs})"
+                 - **Principium Fundamentale**: {tr_summary}\n\
+                 - **Ratio Operandi**: {tr_mechanism}\n\
+                 - **Temperamentum**: {tr_tradeoffs}"
             ),
         };
         return Some(rendered);
     }
 
-    match persona.unwrap_or("noir") {
+    let p_tag = persona.unwrap_or("noir");
+    let st_summary = rewrite_clause_in_stylistic_register(&summary, p_tag);
+    let st_mechanism = rewrite_clause_in_stylistic_register(&mechanism, p_tag);
+    let st_tradeoffs = rewrite_clause_in_stylistic_register(&tradeoffs, p_tag);
+
+    match p_tag {
         "noir" => Some(format!(
             "**Case File: {title} (Noir Detective Register)**\n\n\
-             The rain was drumming against the frosted glass of my office window when **{title}** walked in. On the surface, the setup looked clean: {summary}\n\n\
-             I lit a match and followed the trail into the machinery. Here is how the operation really works behind closed doors: {mechanism}\n\n\
-             In this city, every architecture pays a price—and here is the catch: {tradeoffs}"
+             The rain was drumming against the frosted glass of my office window when **{title}** walked in. On the surface, the setup looked clean: {st_summary}\n\n\
+             I lit a match and followed the trail into the machinery. Here is how the operation really works behind closed doors: {st_mechanism}\n\n\
+             In this city, every architecture pays a price—and here is the catch: {st_tradeoffs}"
         )),
         "shakespeare" => Some(format!(
             "**Disputation Upon {title} (Dramatic Verse Register)**\n\n\
              Hark, how the frame of **{title}** doth hold its course:\n\
-             {summary}\n\n\
+             {st_summary}\n\n\
              By subtle wheels and measured law it moves:\n\
-             {mechanism}\n\n\
+             {st_mechanism}\n\n\
              Yet mark the balance every craft must weigh:\n\
-             {tradeoffs}"
+             {st_tradeoffs}"
         )),
         "socratic" => Some(format!(
             "**Socratic Dialogue on {title}**\n\n\
              **Socrates:** Tell me, friend—when we speak of **{title}**, what essential invariant holds the system together?\n\n\
-             **Interlocutor:** At its foundation, Socrates: {summary}\n\n\
+             **Interlocutor:** At its foundation, Socrates: {st_summary}\n\n\
              **Socrates:** And by what causal mechanism does it accomplish this without collapsing into contradiction?\n\n\
-             **Interlocutor:** Through this precise progression: {mechanism}\n\n\
+             **Interlocutor:** Through this precise progression: {st_mechanism}\n\n\
              **Socrates:** Wisely observed. Yet no mortal design is free of tension; what trade-off must the architect guard against?\n\n\
-             **Interlocutor:** {tradeoffs}"
+             **Interlocutor:** {st_tradeoffs}"
         )),
         _ => Some(format!(
             "**Captain's Log — {title}**\n\n\
-             Avast! When charting the waters of **{title}**, keep yer compass locked on the main bearing: {summary}\n\n\
-             Below decks, here be how the rigging works: {mechanism}\n\n\
-             And mind the reefs on the horizon: {tradeoffs}"
+             Avast! When charting the waters of **{title}**, keep yer compass locked on the main bearing: {st_summary}\n\n\
+             Below decks, here be how the rigging works: {st_mechanism}\n\n\
+             And mind the reefs on the horizon: {st_tradeoffs}"
         )),
     }
 }
@@ -134518,4 +135006,125 @@ pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
         random_hits,
         rehashed_seed_hits,
     }
+}
+
+/// Export up to `max_rows` concept basins from `GLM_CONCEPT_MANIFOLD` as a flat `max_rows * 256`
+/// `i32` `Q12` projection slab for hardware-accelerated `WebGPU` inner-product scoring:
+/// - Lanes `0..8`: basin `q12_coords` (`i16` promoted to `i32`),
+/// - Lanes `8..72`: 64-bit quaternion `sign_code` mapped to bipolar `±512` `Q12` spinor coordinates,
+/// - Lanes `72..200`: 128-bit `vsa_hv` hypervector mapped to bipolar `±256` `Q12` lanes,
+/// - Lanes `200..256`: section horizon `horizon_q12` coordinates from `GLM_TOKEN_HORIZONS`.
+pub fn export_glm_q12_projection_slab(max_rows: usize) -> Vec<i32> {
+    let count = max_rows.clamp(1, GLM_CONCEPT_MANIFOLD.len());
+    let mut slab = Vec::with_capacity(count * 256);
+    for node in GLM_CONCEPT_MANIFOLD.iter().take(count) {
+        let mut row = [0i32; 256];
+        for (slot, &coord) in row.iter_mut().zip(node.q12_coords.iter()) {
+            *slot = i32::from(coord);
+        }
+        for bit in 0..64 {
+            row[8 + bit] = if ((node.sign_code >> bit) & 1) != 0 {
+                512
+            } else {
+                -512
+            };
+        }
+        for bit in 0..64 {
+            row[72 + bit] = if ((node.vsa_hv[0] >> bit) & 1) != 0 {
+                256
+            } else {
+                -256
+            };
+            row[136 + bit] = if ((node.vsa_hv[1] >> bit) & 1) != 0 {
+                256
+            } else {
+                -256
+            };
+        }
+        let base_h_idx = (usize::from(node.id) * 5) % GLM_TOKEN_HORIZONS.len().max(1);
+        for h_off in 0..7 {
+            let h = &GLM_TOKEN_HORIZONS[(base_h_idx + h_off) % GLM_TOKEN_HORIZONS.len()];
+            for (lane, &hc) in h.horizon_q12.iter().enumerate() {
+                row[200 + h_off * 8 + lane] = i32::from(hc);
+            }
+        }
+        slab.extend_from_slice(&row);
+    }
+    slab
+}
+
+/// Encode a prompt string into a 256-lane `i32` `Q12` query vector matching `export_glm_q12_projection_slab`.
+pub fn encode_prompt_q12_256_query(prompt: &str) -> Vec<i32> {
+    let lower = prompt.to_ascii_lowercase();
+    let words = tokenize_words_simple(&lower);
+    let (q12, sign) = pool_prompt_trained_geometry(&words);
+    let mut vsa0 = 0u64;
+    let mut vsa1 = 0u64;
+    for w in &words {
+        if let Some(entry) = lookup_trained_vocab(w) {
+            vsa0 ^= entry.vsa_hv[0];
+            vsa1 ^= entry.vsa_hv[1];
+        }
+    }
+    let mut query = vec![0i32; 256];
+    for (slot, &coord) in query.iter_mut().zip(q12.iter()) {
+        *slot = i32::from(coord);
+    }
+    for bit in 0..64 {
+        query[8 + bit] = if ((sign >> bit) & 1) != 0 { 512 } else { -512 };
+    }
+    for bit in 0..64 {
+        query[72 + bit] = if ((vsa0 >> bit) & 1) != 0 { 256 } else { -256 };
+        query[136 + bit] = if ((vsa1 >> bit) & 1) != 0 { 256 } else { -256 };
+    }
+    for h_off in 0..7 {
+        for (lane, &coord) in q12.iter().enumerate() {
+            query[200 + h_off * 8 + lane] = i32::from(coord) / 2;
+        }
+    }
+    query
+}
+
+/// Decode a multi-concept token-level response directly from the hardware-computed `WebGPU` `Q12`
+/// row scores (`gpu_row_scores`) combined with lexical stem grounding.
+pub fn decode_with_webgpu_q12_row_scores(
+    prompt: &str,
+    gpu_row_scores: &[i32],
+    max_tokens: usize,
+) -> String {
+    let lower = prompt.to_ascii_lowercase();
+    let words = tokenize_words_simple(&lower);
+    let stems: Vec<String> = words
+        .iter()
+        .map(|w| canonical_stem(w).to_string())
+        .collect();
+
+    let mut ranked: Vec<(&GlmConceptNode, i64)> = GLM_CONCEPT_MANIFOLD
+        .iter()
+        .enumerate()
+        .map(|(idx, node)| {
+            let gpu_score = i64::from(gpu_row_scores.get(idx).copied().unwrap_or(0));
+            let lex_score = i64::from(score_concept_lexical(node, &lower, &words, &stems)) * 128;
+            (node, gpu_score + lex_score)
+        })
+        .collect();
+    ranked.sort_by_key(|b| std::cmp::Reverse(b.1));
+
+    let (n0, s0) = ranked
+        .first()
+        .copied()
+        .unwrap_or((&GLM_CONCEPT_MANIFOLD[0], 0));
+    let n1 = ranked.get(1).map(|&(n, _)| n).unwrap_or(n0);
+    let active: Vec<&GlmConceptNode> = if n0.id != n1.id {
+        vec![n0, n1]
+    } else {
+        vec![n0]
+    };
+    let cap = max_tokens.clamp(60, 420);
+    let (stream, _, _) = generate_token_level_geometric_prose(&words, &active, 45.min(cap), cap);
+    let body = dedup_prose_paragraphs(&stream);
+    format!(
+        "**[WebGPU Q12 Coprocessor Synthesis | top_row=#{} ({}, score={})]**\n\n{}",
+        n0.id, n0.title, s0, body
+    )
 }

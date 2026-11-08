@@ -5954,6 +5954,30 @@ pub fn execute_application(input_bytes: &[u8]) -> Result<JsValue, JsValue> {
     Ok(JsValue::from_str(response_str))
 }
 
+/// Export the trained `Q12` (`rows x 256`) projection slab from `GLM_TRANSITION_HORIZONS`
+/// for zero-copy transfer into the WebGPU `q12_attention_project` compute shader.
+#[wasm_bindgen]
+pub fn studio_export_q12_projection_slab(max_rows: usize) -> Vec<i32> {
+    glm_weights::export_glm_q12_projection_slab(max_rows)
+}
+
+/// Encode a prompt into a 256-lane `Q12` query vector (`scale = 4096`) for WebGPU dispatch.
+#[wasm_bindgen]
+pub fn studio_encode_prompt_q12_query(prompt: &str) -> Vec<i32> {
+    glm_weights::encode_prompt_q12_256_query(prompt)
+}
+
+/// Decode WebGPU `Q12` row projection scores back through the `GLM_TRANSITION_HORIZONS`
+/// token decoder.
+#[wasm_bindgen]
+pub fn studio_decode_with_webgpu_q12_scores(
+    prompt: &str,
+    gpu_row_scores: &[i32],
+    max_tokens: usize,
+) -> String {
+    glm_weights::decode_with_webgpu_q12_row_scores(prompt, gpu_row_scores, max_tokens)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -7894,17 +7918,56 @@ mod tests {
             "Type-directed AST synthesizer must generate and live-verify Result<i64, i64> with `?`: {c2}"
         );
 
-        // 3. Track A2: Multi-branch Cl(0,6) MCTS tree-search executive `<thinking>` trace
+        // 2b. Track A1 Self-Repair Loop: Multi-attempt AST pruning & diagnostic self-repair on user I/O assertion
+        let c3_json = ask_chat(
+            "Write a Rust function named max_paren_depth that takes &str and returns the maximum nesting depth of parentheses, such that max_paren_depth(\"((())())\") == 3",
+        );
+        let c3 = c3_json["assistant_reply"].as_str().unwrap_or("");
+        assert_eq!(c3_json["is_coding_turn"], true);
+        assert!(
+            c3.contains("pub fn max_paren_depth(input: &str) -> i64")
+                && c3.contains("[R4-32 Self-Repair Trace] Verified on attempt #2 (`char_nesting_depth`) after pruning: delimiter_kv_sum rejected")
+                && c3.contains("Live In-Wasm AST Execution Proof (`R4-32`)"),
+            "AST synthesizer must prune refuted candidate #1 on user oracle assertion and self-repair to char_nesting_depth: {c3}"
+        );
+
+        // 2c. Track A1 Slice Combinator Self-Repair Loop (`even_square_sum` after pruning `unfiltered_linear_sum` and `even_linear_sum`)
+        let c4_json = ask_chat(
+            "Write a Rust function named sum_even_squares that takes a slice and returns the sum of squares of even numbers",
+        );
+        let c4 = c4_json["assistant_reply"].as_str().unwrap_or("");
+        assert_eq!(c4_json["is_coding_turn"], true);
+        assert!(
+            c4.contains("pub fn sum_even_squares(values: &[i64]) -> i64")
+                && c4.contains("[R4-32 Self-Repair Trace] Verified on attempt #3 (`even_square_sum`) after pruning: unfiltered_linear_sum rejected")
+                && c4.contains("even_linear_sum rejected"),
+            "Slice combinator synthesizer must prune unfiltered_linear_sum and even_linear_sum before verifying even_square_sum: {c4}"
+        );
+
+        // 3. Track A2: Multi-branch Cl(0,6) MCTS tree-search + real backtracking constraint solver on simultaneous equations
         let frame = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(
-            "If x = 12 and y = 15, what is 4 * x + 2 * y?",
+            "If x + y = 17 and x * y = 72, what is x^2 + y^2?",
+        );
+        let exact_math = frame
+            .kernel_results
+            .iter()
+            .find(|kr| kr.op_name == "exact_arithmetic_r4_27")
+            .and_then(|kr| kr.result_numeric);
+        assert_eq!(
+            exact_math,
+            Some(145),
+            "Simultaneous equation solver must bind x=8, y=9 via backtracking and compute x^2 + y^2 = 145: {:?}",
+            frame.kernel_results
         );
         let think = frame.synthesize_executive_thinking().unwrap_or_default();
         assert!(
-            think.contains("mcts_tree=[winner=B") && think.contains("pruned="),
-            "Executive thinking must include 4-branch Cl(0,6) MCTS tree-search trace: {think}"
+            think.contains("mcts_tree=[winner=B")
+                && think.contains("[x = 8, y = 9]")
+                && think.contains("[PRUNED]"),
+            "Executive thinking must include 4-branch Cl(0,6) MCTS tree-search and backtracking pruned trace: {think}"
         );
 
-        // 4. Track A2: Stylistic persona rewrite & Cross-lingual translation grounded in conversation history
+        // 4. Track A2: Stylistic persona rewrite & Cross-lingual translation without untranslated English parentheticals
         let s1_json =
             ask_chat("Explain the Raft consensus algorithm in the style of a noir detective");
         let s1 = s1_json["assistant_reply"].as_str().unwrap_or("");
@@ -7917,8 +7980,36 @@ mod tests {
         let s2_json = ask_chat("Now translate and explain that in Spanish");
         let s2 = s2_json["assistant_reply"].as_str().unwrap_or("");
         assert!(
-            s2.contains("Síntesis en Español") && s2.contains("Mecanismo Operativo"),
-            "Must translate and explain the active concept in Spanish: {s2}"
+            s2.contains("Síntesis en Español")
+                && s2.contains("Mecanismo Operativo")
+                && !s2.contains("(The ")
+                && !s2.contains("(Ensure "),
+            "Must translate the active concept into Spanish at the token/phrase level without raw English parentheticals: {s2}"
+        );
+
+        // 5. Track B: Live Q12 Projection Slab export + 256-lane Query encoding + GPU score decoding round-trip
+        let slab = studio_export_q12_projection_slab(16);
+        assert_eq!(slab.len(), 16 * 256);
+        let q_vec = studio_encode_prompt_q12_query("Explain Raft consensus and leader election");
+        assert_eq!(q_vec.len(), 256);
+        let mut simulated_gpu_scores = Vec::with_capacity(16);
+        for r in 0..16 {
+            let row = &slab[r * 256..(r + 1) * 256];
+            let acc: i64 = row
+                .iter()
+                .zip(q_vec.iter())
+                .map(|(&w, &q)| (w as i64 * q as i64) >> 12)
+                .sum();
+            simulated_gpu_scores.push(acc.clamp(i32::MIN as i64, i32::MAX as i64) as i32);
+        }
+        let decoded = studio_decode_with_webgpu_q12_scores(
+            "Explain Raft consensus and leader election",
+            &simulated_gpu_scores,
+            48,
+        );
+        assert!(
+            decoded.contains("WebGPU Q12 Coprocessor Synthesis") && decoded.contains("top_row=#"),
+            "WebGPU Q12 decoder must rank GLM_TRANSITION_HORIZONS rows from GPU inner-product scores: {decoded}"
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");

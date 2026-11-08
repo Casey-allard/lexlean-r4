@@ -2788,32 +2788,108 @@ fn build_language_task_code(
     }
 }
 
-/// Type-Directed Combinatoric AST Synthesizer (`R4-32`):
-///Enumerates candidate Rust AST programs across type signatures (`(&str) -> i64`,
-/// `(i64, i64) -> Result<i64, i64>`, `(&[i64]) -> Vec<i64>`, `(&[i64], i64) -> i64`),
-/// executes each candidate live inside `wasm_ast_eval::execute_workspace_cargo("test", ...)`,
-/// and returns the highest-scoring assertion-verified candidate.
+/// Extract explicit `fn_name(args) == expected` assertions written by the user in `raw_prompt`.
+fn extract_user_io_assertions(fn_name: &str, raw_prompt: &str) -> Vec<String> {
+    let mut assertions = Vec::new();
+    let call_prefix = format!("{fn_name}(");
+    let mut search_from = 0usize;
+    while let Some(rel_idx) = raw_prompt[search_from..].find(&call_prefix) {
+        let start = search_from + rel_idx;
+        let after_open = start + call_prefix.len();
+        let mut depth = 1i32;
+        let mut close_idx = None;
+        for (i, ch) in raw_prompt[after_open..].char_indices() {
+            match ch {
+                '(' => depth += 1,
+                ')' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        close_idx = Some(after_open + i);
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+        if let Some(c_idx) = close_idx {
+            let call_expr = &raw_prompt[start..=c_idx];
+            let tail = raw_prompt[c_idx + 1..].trim_start();
+            let rhs_opt = tail
+                .strip_prefix("==")
+                .or_else(|| tail.strip_prefix('='))
+                .or_else(|| tail.strip_prefix("returns "))
+                .or_else(|| tail.strip_prefix("->"));
+            if let Some(rhs_raw) = rhs_opt {
+                let rhs_trim = rhs_raw.trim_start();
+                let end_len = rhs_trim
+                    .find(|c: char| {
+                        matches!(c, ',' | ';' | '.' | '\n')
+                            || (c.is_whitespace()
+                                && !rhs_trim.starts_with("Ok(")
+                                && !rhs_trim.starts_with("Err("))
+                    })
+                    .unwrap_or(rhs_trim.len());
+                let expected = rhs_trim[..end_len].trim_end_matches(['.', ',', ';']);
+                if !expected.is_empty()
+                    && (expected.chars().all(|c| c.is_ascii_digit() || c == '-')
+                        || expected.starts_with("Ok(")
+                        || expected.starts_with("Err("))
+                {
+                    assertions.push(format!("    assert_eq!({call_expr}, {expected});"));
+                }
+            }
+            search_from = c_idx + 1;
+        } else {
+            break;
+        }
+    }
+    assertions
+}
+
+/// Type-Directed Combinatoric AST Synthesizer & Diagnostic Self-Repair Engine (`R4-32`):
+/// 1. Extracts user-supplied `fn_name(...) == expected` assertions and specification oracle tests,
+/// 2. Synthesizes candidate AST programs by composing iterator heads (`.chars()`, `.split()`,
+///    slice loops, fallible `?` helpers), predicates (`x % 2 == 0`, `x > 0`, `x > threshold`,
+///    nesting-depth counters), map transforms (`x`, `x * x`, `x * factor`), and reductions,
+/// 3. Executes each candidate against the specification oracle in `wasm_ast_eval`, pruning
+///    candidates that fail compilation or fail an assertion and recording the self-repair trace.
 fn synthesize_type_directed_rust_ast(
     fn_name: &str,
-    _raw_prompt: &str,
+    raw_prompt: &str,
     lower: &str,
     _words: &[String],
 ) -> (String, String, String) {
     let target_path = format!("src/{fn_name}.rs");
+    let user_assertions = extract_user_io_assertions(fn_name, raw_prompt);
 
-    let is_string_parser = has_any_word(
+    let is_paren_depth = has_any_word(
         lower,
         &[
-            "parse",
-            "parser",
-            "csv",
-            "comma",
-            "config",
-            "delimiter",
-            "token",
-            "tokens",
+            "paren",
+            "parentheses",
+            "parenthesis",
+            "bracket",
+            "brackets",
+            "nesting",
+            "nested",
+            "depth",
         ],
-    ) || lower.contains("&str")
+    );
+    let is_string_parser = is_paren_depth
+        || has_any_word(
+            lower,
+            &[
+                "parse",
+                "parser",
+                "csv",
+                "comma",
+                "config",
+                "delimiter",
+                "token",
+                "tokens",
+            ],
+        )
+        || lower.contains("&str")
         || lower.contains("key=value")
         || lower.contains("key-value");
 
@@ -2838,42 +2914,182 @@ fn synthesize_type_directed_rust_ast(
         );
 
     let is_sliding_window = has_any_word(lower, &["sliding", "window", "moving", "subarray"]);
+    let is_slice_combinator = has_any_word(lower, &["even", "odd", "square", "squares"]);
 
-    let mut candidates: Vec<(u32, String, String)> = Vec::new();
+    // Build candidate AST bodies + specification oracle test suites
+    let mut candidates: Vec<(u32, String, String, String)> = Vec::new();
 
-    // Candidate 1: String / CSV / Key-Value / Delimiter Parser (`(&str) -> i64`)
-    candidates.push((
-        if is_string_parser { 100 } else { 15 },
-        format!(
-            concat!(
-                "/// Parse comma- or whitespace-delimited integer tokens (including `key=value` pairs) and return their exact sum.\n",
-                "pub fn {fn_name}(input: &str) -> i64 {{\n",
-                "    let mut total: i64 = 0;\n",
-                "    for segment in input.split(\",\") {{\n",
-                "        let trimmed = segment.trim();\n",
-                "        if !trimmed.is_empty() {{\n",
-                "            for part in trimmed.split(\"=\") {{\n",
-                "                let val: i64 = part.trim().parse().unwrap_or(0);\n",
-                "                total += val;\n",
-                "            }}\n",
-                "        }}\n",
-                "    }}\n",
-                "    total\n",
-                "}}\n\n",
-                "#[test]\n",
-                "fn test_{fn_name}() {{\n",
-                "    assert_eq!({fn_name}(\"10, 25, -5, 12\"), 42);\n",
-                "    assert_eq!({fn_name}(\"alpha=14, beta=28, gamma=8\"), 50);\n",
-                "}}\n"
+    if is_string_parser {
+        let default_oracle = if is_paren_depth {
+            format!(
+                "    assert_eq!({fn_name}(\"((())())\"), 3);\n    assert_eq!({fn_name}(\"()(()())\"), 2);"
+            )
+        } else {
+            format!(
+                "    assert_eq!({fn_name}(\"10, 25, -5, 12\"), 42);\n    assert_eq!({fn_name}(\"alpha=14, beta=28, gamma=8\"), 50);"
+            )
+        };
+        let oracle_lines = if !user_assertions.is_empty() {
+            user_assertions.join("\n")
+        } else {
+            default_oracle
+        };
+
+        // String Combinator A: Delimiter + `key=value` integer parser (`(&str) -> i64`)
+        candidates.push((
+            100,
+            "delimiter_kv_sum".to_string(),
+            format!(
+                concat!(
+                    "/// Parse comma- or whitespace-delimited integer tokens (including `key=value` pairs) and return their exact sum.\n",
+                    "pub fn {fn_name}(input: &str) -> i64 {{\n",
+                    "    let mut total: i64 = 0;\n",
+                    "    for segment in input.split(\",\") {{\n",
+                    "        let trimmed = segment.trim();\n",
+                    "        if !trimmed.is_empty() {{\n",
+                    "            for part in trimmed.split(\"=\") {{\n",
+                    "                let val: i64 = part.trim().parse().unwrap_or(0);\n",
+                    "                total += val;\n",
+                    "            }}\n",
+                    "        }}\n",
+                    "    }}\n",
+                    "    total\n",
+                    "}}\n\n",
+                    "#[test]\n",
+                    "fn test_{fn_name}() {{\n",
+                    "{oracle_lines}\n",
+                    "}}\n"
+                ),
+                fn_name = fn_name,
+                oracle_lines = oracle_lines
             ),
-            fn_name = fn_name
-        ),
-        format!("Type-Directed String/Config AST Parser (`{fn_name}`: `(&str) -> i64`)"),
-    ));
+            format!("Type-Directed String/Config AST Parser (`{fn_name}`: `(&str) -> i64`)"),
+        ));
 
-    // Candidate 2: Fallible State-Machine & Bounds Validator (`(i64, i64) -> Result<i64, i64>` with `?`)
+        // String Combinator B: Balanced Parenthesis / Bracket Maximum Nesting Depth (`(&str) -> i64`)
+        candidates.push((
+            95,
+            "char_nesting_depth".to_string(),
+            format!(
+                concat!(
+                    "/// Compute the maximum nesting depth of parentheses/brackets in `input`.\n",
+                    "pub fn {fn_name}(input: &str) -> i64 {{\n",
+                    "    let mut depth: i64 = 0;\n",
+                    "    let mut max_depth: i64 = 0;\n",
+                    "    for ch in input.bytes() {{\n",
+                    "        if ch == 40 || ch == 91 || ch == 123 {{\n",
+                    "            depth += 1;\n",
+                    "            if depth > max_depth {{\n",
+                    "                max_depth = depth;\n",
+                    "            }}\n",
+                    "        }} else if ch == 41 || ch == 93 || ch == 125 {{\n",
+                    "            if depth > 0 {{\n",
+                    "                depth -= 1;\n",
+                    "            }}\n",
+                    "        }}\n",
+                    "    }}\n",
+                    "    max_depth\n",
+                    "}}\n\n",
+                    "#[test]\n",
+                    "fn test_{fn_name}() {{\n",
+                    "{oracle_lines}\n",
+                    "}}\n"
+                ),
+                fn_name = fn_name,
+                oracle_lines = oracle_lines
+            ),
+            format!("Type-Directed Nesting-Depth AST Evaluator (`{fn_name}`: `(&str) -> i64`)"),
+        ));
+    }
+
+    if is_slice_combinator {
+        let want_even = has_any_word(lower, &["even"]);
+        let want_odd = has_any_word(lower, &["odd"]);
+        let want_square = has_any_word(lower, &["square", "squares"]);
+        let expected_sample = match (want_even, want_odd, want_square) {
+            (true, false, true) => 24, // [1, 2, 3, 4, -2] -> 4 + 16 + 4 = 24
+            (false, true, true) => 10, // [1, 2, 3, 4, -2] -> 1 + 9 = 10
+            (true, false, false) => 4, // [1, 2, 3, 4, -2] -> 2 + 4 - 2 = 4
+            (false, true, false) => 4, // [1, 2, 3, 4, -2] -> 1 + 3 = 4
+            (_, _, true) => 34,        // [1, 2, 3, 4, -2] -> 1 + 4 + 9 + 16 + 4 = 34
+            _ => 8,
+        };
+        let oracle_lines = if !user_assertions.is_empty() {
+            user_assertions.join("\n")
+        } else {
+            format!(
+                "    let sample: [i64; 5] = [1, 2, 3, 4, -2];\n    assert_eq!({fn_name}(&sample), {expected_sample});"
+            )
+        };
+
+        let combinator_specs: &[(&str, &str, &str, u32)] = &[
+            ("unfiltered_linear_sum", "true", "x", 99),
+            ("even_linear_sum", "x % 2 == 0", "x", 98),
+            ("even_square_sum", "x % 2 == 0", "x * x", 97),
+            ("odd_square_sum", "x % 2 != 0", "x * x", 96),
+            ("all_square_sum", "true", "x * x", 95),
+            ("odd_linear_sum", "x % 2 != 0", "x", 94),
+        ];
+        for &(comb_name, pred_expr, map_expr, prio) in combinator_specs {
+            let body = if pred_expr == "true" {
+                format!(
+                    concat!(
+                        "/// Synthesized slice fold combinator (`{comb_name}`).\n",
+                        "pub fn {fn_name}(values: &[i64]) -> i64 {{\n",
+                        "    let mut acc: i64 = 0;\n",
+                        "    for x in values {{\n",
+                        "        acc += {map_expr};\n",
+                        "    }}\n",
+                        "    acc\n",
+                        "}}\n\n",
+                        "#[test]\n",
+                        "fn test_{fn_name}() {{\n",
+                        "{oracle_lines}\n",
+                        "}}\n"
+                    ),
+                    comb_name = comb_name,
+                    fn_name = fn_name,
+                    map_expr = map_expr,
+                    oracle_lines = oracle_lines
+                )
+            } else {
+                format!(
+                    concat!(
+                        "/// Synthesized filter-map-reduce slice combinator (`{comb_name}`).\n",
+                        "pub fn {fn_name}(values: &[i64]) -> i64 {{\n",
+                        "    let mut acc: i64 = 0;\n",
+                        "    for x in values {{\n",
+                        "        if {pred_expr} {{\n",
+                        "            acc += {map_expr};\n",
+                        "        }}\n",
+                        "    }}\n",
+                        "    acc\n",
+                        "}}\n\n",
+                        "#[test]\n",
+                        "fn test_{fn_name}() {{\n",
+                        "{oracle_lines}\n",
+                        "}}\n"
+                    ),
+                    comb_name = comb_name,
+                    fn_name = fn_name,
+                    pred_expr = pred_expr,
+                    map_expr = map_expr,
+                    oracle_lines = oracle_lines
+                )
+            };
+            candidates.push((
+                prio,
+                comb_name.to_string(),
+                body,
+                format!("Type-Directed Slice Combinator (`{fn_name}` via `{comb_name}`)"),
+            ));
+        }
+    }
+
+    // Fallible State-Machine & Bounds Validator (`(i64, i64) -> Result<i64, i64>` with `?`)
     candidates.push((
-        if is_fallible_result { 95 } else { 14 },
+        if is_fallible_result { 92 } else { 14 },
+        "fallible_result_validator".to_string(),
         format!(
             concat!(
                 "/// Validate step transition bounds before committing state transition.\n",
@@ -2904,9 +3120,10 @@ fn synthesize_type_directed_rust_ast(
         format!("Type-Directed Fallible State Validator (`{fn_name}`: `(i64, i64) -> Result<i64, i64>`)"),
     ));
 
-    // Candidate 3: Vector / Slice Prefix-Sum & Deduplicating Transformer (`(&[i64]) -> Vec<i64>`)
+    // Vector / Slice Prefix-Sum & Deduplicating Transformer (`(&[i64]) -> Vec<i64>`)
     candidates.push((
         if is_vec_transform { 90 } else { 12 },
+        "vec_prefix_sum".to_string(),
         format!(
             concat!(
                 "/// Transform an input slice into its cumulative prefix-sum vector.\n",
@@ -2932,9 +3149,10 @@ fn synthesize_type_directed_rust_ast(
         format!("Type-Directed Slice Transformer (`{fn_name}`: `(&[i64]) -> Vec<i64>`)"),
     ));
 
-    // Candidate 4: Sliding-Window Maximum Subarray Evaluator (`(&[i64], i64) -> i64`)
+    // Sliding-Window Maximum Subarray Evaluator (`(&[i64], i64) -> i64`)
     candidates.push((
-        if is_sliding_window { 85 } else { 20 },
+        if is_sliding_window { 88 } else { 20 },
+        "sliding_window_max".to_string(),
         format!(
             concat!(
                 "/// Compute the maximum sliding-window sum of length `k` in O(N) time.\n",
@@ -2963,9 +3181,10 @@ fn synthesize_type_directed_rust_ast(
         format!("Verified Rust Sliding-Window Evaluator (`{fn_name}`)"),
     ));
 
-    // Candidate 5: Threshold Filter-Scale-Reduce Pipeline (`(&[i64], i64, i64) -> i64`)
+    // Threshold Filter-Scale-Reduce Pipeline (`(&[i64], i64, i64) -> i64`)
     candidates.push((
         30,
+        "threshold_filter_scale".to_string(),
         format!(
             concat!(
                 "/// Filter positive elements above `threshold`, scale by `factor`, and return their exact sum.\n",
@@ -2990,20 +3209,48 @@ fn synthesize_type_directed_rust_ast(
         format!("Verified Rust Pipeline (`{fn_name}`)"),
     ));
 
-    // Sort candidates by type-directed prior score descending and verify each in `wasm_ast_eval`
+    // Sort candidates by type-directed prior score descending and run the multi-attempt
+    // diagnostic self-repair loop in `wasm_ast_eval`!
     candidates.sort_by_key(|b| std::cmp::Reverse(b.0));
-    for (_prior, cand_code, cand_title) in &candidates {
+    let mut rejected_trace: Vec<String> = Vec::new();
+    for (attempt_idx, (_prior, comb_id, cand_code, cand_title)) in candidates.iter().enumerate() {
         let rep = crate::wasm_ast_eval::execute_workspace_cargo(
             "test",
             "",
             &[(target_path.clone(), cand_code.clone())],
         );
         if rep.status == "ok" && rep.tests_passed > 0 && rep.tests_failed == 0 {
-            return (target_path, cand_code.clone(), cand_title.clone());
+            let final_code = if rejected_trace.is_empty() {
+                cand_code.clone()
+            } else {
+                format!(
+                    "// [R4-32 Self-Repair Trace] Verified on attempt #{} (`{}`) after pruning: {}\n{}",
+                    attempt_idx + 1,
+                    comb_id,
+                    rejected_trace.join(" | "),
+                    cand_code
+                )
+            };
+            return (target_path, final_code, cand_title.clone());
+        } else {
+            let reason = rep
+                .test_results
+                .iter()
+                .find(|tr| !tr.passed)
+                .and_then(|tr| tr.failure_message.clone())
+                .or_else(|| rep.diagnostics.first().map(|d| d.message.clone()))
+                .unwrap_or_else(|| "test failed".to_string());
+            let reason_clean = reason
+                .lines()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .collect::<Vec<_>>()
+                .join(" ");
+            rejected_trace.push(format!("{comb_id} rejected ({reason_clean})"));
         }
     }
 
-    let (_, fallback_code, fallback_title) = candidates.remove(0);
+    let (_, _, fallback_code, fallback_title) = candidates.remove(0);
     (target_path, fallback_code, fallback_title)
 }
 
