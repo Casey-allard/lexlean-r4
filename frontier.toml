@@ -539,3 +539,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f35_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.08483 (SwarmEvolve: Latent Agent Swarms for Evolutionary Discovery and Optimization)."
 prompt = "How does this literature catalog entry relate to language model alignment?"
 target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
+
+[[claim]]
+id = "R4-F36"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.08469:H-LIT-2611.08469-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f36_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.08469 (Same Behavior, Different Mechanism: What Finite Experiments Can Certify About Integrated Information)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
