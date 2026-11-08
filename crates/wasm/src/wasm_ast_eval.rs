@@ -5579,6 +5579,29 @@ impl<'a> EvalContext<'a> {
             (RuntimeValue::Str(s), "bytes") => Ok(RuntimeValue::List(
                 s.bytes().map(|b| RuntimeValue::Int(i64::from(b))).collect(),
             )),
+            (RuntimeValue::Str(s), "lines") => Ok(RuntimeValue::List(
+                s.lines().map(|l| RuntimeValue::Str(l.to_string())).collect(),
+            )),
+            (RuntimeValue::Str(s), "split_whitespace") => Ok(RuntimeValue::List(
+                s.split_whitespace()
+                    .map(|w| RuntimeValue::Str(w.to_string()))
+                    .collect(),
+            )),
+            (RuntimeValue::Str(s), "split") => {
+                let pat = args.first().map(|v| v.display_value()).unwrap_or_default();
+                let sep = pat.trim_matches(|c: char| c == '\'' || c == '"');
+                Ok(RuntimeValue::List(
+                    s.split(sep)
+                        .map(|p| RuntimeValue::Str(p.to_string()))
+                        .collect(),
+                ))
+            }
+            (RuntimeValue::Str(s), "parse") => match s.trim().parse::<i64>() {
+                Ok(v) => Ok(RuntimeValue::ResultVal(Ok(Box::new(RuntimeValue::Int(v))))),
+                Err(e) => Ok(RuntimeValue::ResultVal(Err(Box::new(RuntimeValue::Str(
+                    e.to_string(),
+                ))))),
+            },
             // Option methods
             (RuntimeValue::OptionVal(opt), "is_some") => Ok(RuntimeValue::Bool(opt.is_some())),
             (RuntimeValue::OptionVal(opt), "is_none") => Ok(RuntimeValue::Bool(opt.is_none())),

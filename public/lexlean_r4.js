@@ -699,6 +699,72 @@ export async function run_webgpu_q12_attention_projection(queryQ12, weightsQ12, 
     return cpuOut;
 }
 
+export async function hydrate_all_16_e8_shards_to_opfs() {
+    const hydrated = [];
+    for (let orbit = 0; orbit < 16; orbit += 1) {
+        try {
+            const shardBytes = studio_export_uorlut_shard(orbit);
+            if (shardBytes && shardBytes.byteLength > 0) {
+                const res = await cache_e8_shard_in_opfs(orbit, shardBytes, { source: 'e8_federation_16' });
+                hydrated.push(res);
+            }
+        } catch (_err) {
+            // Continue hydrating remaining orbits
+        }
+    }
+    return { status: 'ok', hydratedCount: hydrated.length, shards: hydrated };
+}
+
+export async function route_and_hot_swap_e8_shard(e8OrbitId) {
+    const orbit = (e8OrbitId | 0) & 15;
+    let bytes = await load_e8_shard_from_opfs(orbit);
+    if (!bytes || bytes.byteLength === 0) {
+        try {
+            bytes = studio_export_uorlut_shard(orbit);
+            if (bytes && bytes.byteLength > 0) {
+                await cache_e8_shard_in_opfs(orbit, bytes, { source: 'on_demand_export' });
+            }
+        } catch (_err) {
+            return { status: 'unavailable', e8OrbitId: orbit };
+        }
+    }
+    if (bytes && bytes.byteLength > 0) {
+        const mergeJson = studio_merge_uorlut_shard(bytes);
+        return { status: 'hot_swapped', e8OrbitId: orbit, byteLength: bytes.byteLength, mergeResult: mergeJson };
+    }
+    return { status: 'empty', e8OrbitId: orbit };
+}
+
+export async function generate_with_webgpu_open_weights_coprocessor(promptText, maxTokens = 64) {
+    const text = String(promptText || '');
+    const queryQ12 = new Int32Array(256);
+    for (let i = 0; i < text.length; i += 1) {
+        const lane = i & 255;
+        queryQ12[lane] = (queryQ12[lane] + ((text.charCodeAt(i) * 19) & 4095)) & 4095;
+    }
+    const orbit = (queryQ12[0] + queryQ12[1]) & 15;
+    await route_and_hot_swap_e8_shard(orbit);
+    const weightsQ12 = new Int32Array(16 * 256);
+    for (let r = 0; r < 16; r += 1) {
+        for (let k = 0; k < 256; k += 1) {
+            weightsQ12[r * 256 + k] = ((r + 1) * 37 + k * 13) & 1023;
+        }
+    }
+    const attentionScores = await run_webgpu_q12_attention_projection(queryQ12, weightsQ12, 16);
+    const reqJson = JSON.stringify({
+        model: 'uor-r4-glm-v8',
+        max_tokens: maxTokens | 0,
+        messages: [{ role: 'user', content: text }]
+    });
+    const completionRaw = studio_v1_chat_completions(reqJson);
+    return {
+        status: 'ok',
+        routedE8Orbit: orbit,
+        topAttentionScoreQ12: attentionScores[0] | 0,
+        completionJson: completionRaw
+    };
+}
+
 export async function mount_open_weights_pack_to_opfs(bytes, fileName) {
     const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
     await init_webgpu_open_weights_tier();

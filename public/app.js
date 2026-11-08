@@ -3,11 +3,14 @@ import init, {
   cache_geometric_shard_in_indexeddb,
   cache_uorlut_in_indexeddb,
   clear_cached_uorlut_in_indexeddb,
+  generate_with_webgpu_open_weights_coprocessor,
+  hydrate_all_16_e8_shards_to_opfs,
   load_e8_shard_from_opfs,
   load_geometric_shard_from_indexeddb,
   mount_open_weights_pack_to_opfs,
   process_envelope,
   restore_cached_uorlut_from_indexeddb,
+  route_and_hot_swap_e8_shard,
   run_webgpu_q12_attention_projection,
   stream_sharded_weights_to_indexeddb,
   studio_dispatch,
@@ -27,6 +30,9 @@ globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
   loadE8ShardFromOpfs: load_e8_shard_from_opfs,
   runWebGpuQ12Attention: run_webgpu_q12_attention_projection,
+  hydrateAll16E8ShardsToOpfs: hydrate_all_16_e8_shards_to_opfs,
+  routeAndHotSwapE8Shard: route_and_hot_swap_e8_shard,
+  generateWithWebGpuCoprocessor: generate_with_webgpu_open_weights_coprocessor,
 };
 
 const form = document.getElementById('application-form');

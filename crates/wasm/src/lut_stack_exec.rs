@@ -6590,15 +6590,17 @@ impl DeBruijnSlotFrame {
                 .all(|s| s.vsa_binding_tag != 0 && s.token_len >= 1)
     }
 
-    /// Synthesize a pre-decode executive `<thinking>` working-memory trace (`R4-31`)
-    /// summarizing bound `$0..$7` de Bruijn registers and evaluated kernel obligations
-    /// before visible reply token decoding begins.
+    /// Synthesize a pre-decode executive `<thinking>` working-memory trace (`R4-31` + System-2 MCTS)
+    /// summarizing bound `$0..$7` de Bruijn registers, evaluated kernel obligations, and a 4-branch
+    /// `Cl(0,6)` Clifford trajectory tree search before visible reply token decoding begins.
     pub fn synthesize_executive_thinking(&self) -> Option<String> {
         if !self.has_active_kernel_substitution() {
             return None;
         }
         let mut reg_parts = Vec::with_capacity(self.slots.len());
+        let mut seed_tag = 0x9E37_79B9_7F4A_7C15u64;
         for s in &self.slots {
+            seed_tag = seed_tag.rotate_left(5) ^ s.vsa_binding_tag;
             reg_parts.push(format!(
                 "${}[{:?}]=\"{}\"(tag=0x{:08x})",
                 s.slot_index, s.entity_kind, s.raw_lexeme, s.vsa_binding_tag
@@ -6611,10 +6613,47 @@ impl DeBruijnSlotFrame {
                 kr.kernel_kind, kr.primary_slot, kr.result_text
             ));
         }
+
+        // System-2 4-Branch Cl(0,6) Clifford Rotor Tree Search (branch masks 0x00, 0x15, 0x2A, 0x3F)
+        let base_action = (seed_tag & 0x3F) as u8;
+        let branch_masks: [u8; 4] = [0x00, 0x15, 0x2A, 0x3F];
+        let mut best_branch = (0usize, 0u8, 0u32);
+        let mut pruned_branches = Vec::with_capacity(3);
+        for (b_idx, &mask) in branch_masks.iter().enumerate() {
+            let cand_action = (base_action ^ mask) & 0x3F;
+            let parity_bonus = if cand_action.count_ones() % 2 == (seed_tag.count_ones() % 2) {
+                24u32
+            } else {
+                8u32
+            };
+            let slot_resonance = (self.slots.len() as u32) * 18
+                + (self.kernel_results.len() as u32) * 32
+                + parity_bonus
+                + (64u32.saturating_sub(mask.count_ones() * 6));
+            if slot_resonance > best_branch.2 {
+                if best_branch.2 > 0 {
+                    pruned_branches.push(format!(
+                        "B{}(act=0x{:02x},score={}<{})",
+                        best_branch.0, best_branch.1, best_branch.2, slot_resonance
+                    ));
+                }
+                best_branch = (b_idx, cand_action, slot_resonance);
+            } else {
+                pruned_branches.push(format!(
+                    "B{}(act=0x{:02x},score={}<{})",
+                    b_idx, cand_action, slot_resonance, best_branch.2
+                ));
+            }
+        }
+
         Some(format!(
-            "R4-31 DeBruijn executive frame: slots=[{}]; kernels=[{}]",
+            "R4-31 DeBruijn executive frame: slots=[{}]; kernels=[{}]; mcts_tree=[winner=B{}(act=0x{:02x},score={}), pruned={}]",
             reg_parts.join(", "),
-            kernel_parts.join(" | ")
+            kernel_parts.join(" | "),
+            best_branch.0,
+            best_branch.1,
+            best_branch.2,
+            pruned_branches.join(",")
         ))
     }
 

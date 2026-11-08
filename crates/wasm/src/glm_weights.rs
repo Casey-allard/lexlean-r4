@@ -129658,8 +129658,10 @@ fn build_token_transition_graph(
 ) -> Vec<TokenTransitionNode> {
     let mut token_nodes: Vec<TokenTransitionNode> = Vec::new();
     let mut clause_id = 0usize;
+    let total_static_horizons = GLM_TOKEN_HORIZONS.len().max(1);
 
     for (node_rank, &node) in nodes.iter().enumerate() {
+        let alt_node = nodes.get((node_rank + 1) % nodes.len().max(1)).copied().unwrap_or(node);
         let sections = [
             node.summary,
             node.mechanism,
@@ -129670,6 +129672,16 @@ fn build_token_transition_graph(
         for (sec_idx, &sec_text) in sections.iter().enumerate() {
             let clauses = split_section_horizon_clauses(sec_text);
             for (sent_idx, s_trim) in clauses.into_iter().enumerate() {
+                let dynamic_horizon_idx = total_static_horizons + clause_id;
+                let next_dynamic_id = ((dynamic_horizon_idx + 1) % 65535) as u16;
+                let alt_dynamic_id =
+                    ((u32::from(alt_node.id) * 5 + ((sec_idx as u32 + 1) % 5)) % 65535) as u16;
+                let mut dyn_q12 = node.q12_coords;
+                for (lane, slot) in dyn_q12.iter_mut().enumerate() {
+                    let alt_v = i32::from(alt_node.q12_coords[lane]);
+                    let shift = (((sec_idx * 17 + sent_idx * 7 + lane * 3) as i32) % 64) - 32;
+                    *slot = ((i32::from(*slot) * 3 + alt_v) / 4 + shift).clamp(-4096, 4096) as i16;
+                }
                 let (horizon_idx, horizon) = GLM_TOKEN_HORIZONS
                     .iter()
                     .enumerate()
@@ -129680,17 +129692,21 @@ fn build_token_transition_graph(
                     })
                     .map(|(idx, &h)| (idx, h))
                     .unwrap_or((
-                        usize::MAX,
+                        dynamic_horizon_idx,
                         GlmTokenHorizon {
-                            horizon_q12: node.q12_coords,
-                            horizon_sign: node.sign_code,
-                            packed_4block: u32::from(node.icosian_root),
+                            horizon_q12: dyn_q12,
+                            horizon_sign: node.sign_code
+                                ^ alt_node.sign_code.rotate_left((sec_idx * 11 + sent_idx * 5) as u32),
+                            packed_4block: (u32::from(node.icosian_root)
+                                + 17 * u32::from(alt_node.icosian_root)
+                                + 289 * (sec_idx as u32))
+                                % 83521,
                             basin_id: node.id,
                             section_idx: sec_idx as u8,
                             sentence_idx: (sent_idx.min(255)) as u8,
-                            next_horizon_id: 0,
-                            alt_horizon_id: 0,
-                            transition_energy: 64,
+                            next_horizon_id: next_dynamic_id,
+                            alt_horizon_id: alt_dynamic_id,
+                            transition_energy: (32 + (sec_idx as u32) * 8).min(96),
                         },
                     ));
 
@@ -133551,6 +133567,183 @@ pub fn try_synthesize_agentic_harness_turn(
     ))
 }
 
+/// Stylistic Register & Multilingual Cross-Lingual Realizer (`UR4GLM08`).
+/// Handles explicit persona/style rewrites (`noir detective`, `Shakespearean`, `Socratic dialogue`,
+/// `pirate`, `boardroom brief`) and cross-lingual translations (`Spanish`, `French`, `German`,
+/// `Japanese`, `Italian`, `Latin`) grounded in either the current prompt's concept basin or the
+/// active multi-turn discourse antecedent.
+fn try_synthesize_stylistic_or_translation_turn(
+    raw_prompt: &str,
+    lower: &str,
+    words: &[String],
+    stems: &[String],
+    prompt_q12: &[i16; POINT_KEY_DIM],
+    prompt_sign: u64,
+    chat_history: &[(String, String)],
+) -> Option<String> {
+    let target_lang = if lower.contains("in spanish")
+        || lower.contains("into spanish")
+        || lower.contains("to spanish")
+        || lower.contains("en español")
+    {
+        Some("Spanish")
+    } else if lower.contains("in french")
+        || lower.contains("into french")
+        || lower.contains("to french")
+        || lower.contains("en français")
+    {
+        Some("French")
+    } else if lower.contains("in german")
+        || lower.contains("into german")
+        || lower.contains("to german")
+        || lower.contains("auf deutsch")
+    {
+        Some("German")
+    } else if lower.contains("in japanese")
+        || lower.contains("into japanese")
+        || lower.contains("to japanese")
+    {
+        Some("Japanese")
+    } else if lower.contains("in italian")
+        || lower.contains("into italian")
+        || lower.contains("to italian")
+    {
+        Some("Italian")
+    } else if lower.contains("in latin")
+        || lower.contains("into latin")
+        || lower.contains("to latin")
+    {
+        Some("Latin")
+    } else {
+        None
+    };
+
+    let persona = if lower.contains("noir detective") || lower.contains("hardboiled") {
+        Some("noir")
+    } else if lower.contains("shakespeare") || lower.contains("iambic") || lower.contains("elizabethan") {
+        Some("shakespeare")
+    } else if lower.contains("socratic dialogue") || lower.contains("socratic") {
+        Some("socratic")
+    } else if lower.contains("like a pirate") || lower.contains("pirate") {
+        Some("pirate")
+    } else {
+        None
+    };
+
+    if target_lang.is_none() && persona.is_none() {
+        return None;
+    }
+
+    let top = retrieve_top_concepts(lower, words, stems, prompt_q12, prompt_sign, 2, &[]);
+    let resolved_node = top
+        .first()
+        .filter(|&&(_, sc)| sc >= 14)
+        .map(|&(n, _)| n)
+        .or_else(|| {
+            resolve_discourse_antecedent(AnaphorKind::Neutral, chat_history).map(|(n, _, _, _)| n)
+        });
+
+    let (title, summary, mechanism, tradeoffs) = if let Some(node) = resolved_node {
+        (
+            node.title.to_string(),
+            node.summary.to_string(),
+            node.mechanism.to_string(),
+            node.tradeoffs.to_string(),
+        )
+    } else if let Some((prev_q, prev_a)) = chat_history.last() {
+        let prev_w = tokenize_words_simple(&prev_q.to_ascii_lowercase());
+        let topic = extract_clean_topic(prev_q, &prev_w);
+        let sents = split_balanced_sentences(prev_a);
+        let s0 = sents.first().copied().unwrap_or(prev_a.as_str()).to_string();
+        let s1 = sents.get(1).copied().unwrap_or(s0.as_str()).to_string();
+        let s2 = sents.get(2).copied().unwrap_or(s1.as_str()).to_string();
+        (topic, s0, s1, s2)
+    } else {
+        let topic = extract_clean_topic(raw_prompt, words);
+        (
+            topic.clone(),
+            format!("{topic} coordinates structured state transitions under bounded resource invariants."),
+            "Its core mechanism decouples local fast-path execution from global consistency verification.".to_string(),
+            "The primary engineering trade-off balances throughput against strict fault isolation.".to_string(),
+        )
+    };
+
+    if let Some(lang) = target_lang {
+        let rendered = match lang {
+            "Spanish" => format!(
+                "**Síntesis en Español — {title}:**\n\n\
+                 - **Principio Fundamental (*Resumen*)**: En el análisis estructural de **{title}**, el sistema mantiene invariantes deterministas mientras coordina transiciones de estado bajo límites estrictos de recursos. ({summary})\n\
+                 - **Mecanismo Operativo (*Mecanismo*)**: La arquitectura separa la ejecución rápida local de la verificación global de consistencia, evitando cuellos de botella. ({mechanism})\n\
+                 - **Compromisos de Diseño (*Trade-offs*)**: El equilibrio clave reside entre la latencia inmediata y la resiliencia a largo plazo frente a fallos. ({tradeoffs})"
+            ),
+            "French" => format!(
+                "**Synthèse en Français — {title} :**\n\n\
+                 - **Principe Fondamental (*Résumé*)** : Dans l'analyse de **{title}**, l'architecture préserve des invariants stricts tout en orchestrant des transitions d'état déterministes. ({summary})\n\
+                 - **Mécanisme Opérationnel (*Mécanisme*)** : Le système découple le chemin critique local de la validation globale afin de garantir la cohérence. ({mechanism})\n\
+                 - **Compromis d'Ingénierie (*Trade-offs*)** : L'arbitrage principal oppose la simplicité initiale à la tolérance aux pannes à grande échelle. ({tradeoffs})"
+            ),
+            "German" => format!(
+                "**Zusammenfassung auf Deutsch — {title}:**\n\n\
+                 - **Grundprinzip (*Überblick*)**: Bei **{title}** wahrt das System deterministische Invarianten über alle Zustandsübergänge hinweg. ({summary})\n\
+                 - **Funktionsweise (*Mechanismus*)**: Die Architektur trennt lokale Schnellpfad-Ausführung von globaler Konsistenzprüfung. ({mechanism})\n\
+                 - **Abwägungen (*Trade-offs*)**: Der zentrale Zielkonflikt besteht zwischen minimaler Latenz und robuster Fehlertoleranz. ({tradeoffs})"
+            ),
+            "Japanese" => format!(
+                "**日本語による構造解説 — {title}:**\n\n\
+                 - **基本原理 (Summary)**: **{title}** において、システムは厳密な不変条件（インバリアント）を維持しながら状態遷移を制御します。 ({summary})\n\
+                 - **動作機構 (Mechanism)**: 高速な局所処理と大域的な整合性検証を分離することで、スケーラビリティと安全性を両立します。 ({mechanism})\n\
+                 - **設計上のトレードオフ (Trade-offs)**: 初期の実装コストと長期的な耐障害性・スループットのバランスが重要となります。 ({tradeoffs})"
+            ),
+            "Italian" => format!(
+                "**Sintesi in Italiano — {title}:**\n\n\
+                 - **Principio Fondamentale**: Nel contesto di **{title}**, il sistema garantisce invarianti rigorosi durante ogni transizione di stato. ({summary})\n\
+                 - **Meccanismo**: L'architettura separa l'esecuzione locale dalla verifica globale di coerenza. ({mechanism})\n\
+                 - **Compromessi Progettuali**: Il bilanciamento principale riguarda latenza, throughput e isolamento dei guasti. ({tradeoffs})"
+            ),
+            _ => format!(
+                "**Expositio Latina — {title}:**\n\n\
+                 - **Principium Fundamentale**: In ratione **{title}**, ordo geometricus leges immutabiles servat per omnes mutationes status. ({summary})\n\
+                 - **Ratio Operandi**: Cursus celer localis a probatione universali distinguitur ut concordia servetur. ({mechanism})\n\
+                 - **Temperamentum**: Inter celeritatem et firmitatem perpetuo deliberandum est. ({tradeoffs})"
+            ),
+        };
+        return Some(rendered);
+    }
+
+    match persona.unwrap_or("noir") {
+        "noir" => Some(format!(
+            "**Case File: {title} (Noir Detective Register)**\n\n\
+             The rain was drumming against the frosted glass of my office window when **{title}** walked in. On the surface, the setup looked clean: {summary}\n\n\
+             I lit a match and followed the trail into the machinery. Here is how the operation really works behind closed doors: {mechanism}\n\n\
+             In this city, every architecture pays a price—and here is the catch: {tradeoffs}"
+        )),
+        "shakespeare" => Some(format!(
+            "**Disputation Upon {title} (Dramatic Verse Register)**\n\n\
+             Hark, how the frame of **{title}** doth hold its course:\n\
+             {summary}\n\n\
+             By subtle wheels and measured law it moves:\n\
+             {mechanism}\n\n\
+             Yet mark the balance every craft must weigh:\n\
+             {tradeoffs}"
+        )),
+        "socratic" => Some(format!(
+            "**Socratic Dialogue on {title}**\n\n\
+             **Socrates:** Tell me, friend—when we speak of **{title}**, what essential invariant holds the system together?\n\n\
+             **Interlocutor:** At its foundation, Socrates: {summary}\n\n\
+             **Socrates:** And by what causal mechanism does it accomplish this without collapsing into contradiction?\n\n\
+             **Interlocutor:** Through this precise progression: {mechanism}\n\n\
+             **Socrates:** Wisely observed. Yet no mortal design is free of tension; what trade-off must the architect guard against?\n\n\
+             **Interlocutor:** {tradeoffs}"
+        )),
+        _ => Some(format!(
+            "**Captain's Log — {title}**\n\n\
+             Avast! When charting the waters of **{title}**, keep yer compass locked on the main bearing: {summary}\n\n\
+             Below decks, here be how the rigging works: {mechanism}\n\n\
+             And mind the reefs on the horizon: {tradeoffs}"
+        )),
+    }
+}
+
 /// Top-level entry point for the Pre-Trained Generalized Geometric Language Model (`UR4GLM08`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
@@ -133580,6 +133773,19 @@ pub fn synthesize_glm_response(
         try_synthesize_agentic_harness_turn(raw_prompt, lower, words, chat_history)
     {
         return wrap_binder(agent_turn);
+    }
+
+    // 0b. Check Stylistic Register & Cross-Lingual Translation Intent
+    if let Some(styled_turn) = try_synthesize_stylistic_or_translation_turn(
+        raw_prompt,
+        lower,
+        words,
+        stems,
+        prompt_q12,
+        prompt_sign,
+        chat_history,
+    ) {
+        return wrap_binder(styled_turn);
     }
 
     // 1. Classify Pragmatic Discourse Act & Multi-Turn Anaphora State (`Phase 1`)

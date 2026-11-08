@@ -7853,4 +7853,70 @@ mod tests {
 
         let _ = dispatch_string("1\tstudio\treset\t");
     }
+
+    #[test]
+    fn test_type_directed_ast_synthesis_multibranch_mcts_and_stylistic_multilingual_glm() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        let ask_chat = |prompt: &str| -> serde_json::Value {
+            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+            let json: serde_json::Value =
+                serde_json::from_str(&raw).expect("valid studio chat JSON");
+            assert_eq!(json["status"], "ok");
+            json
+        };
+
+        // 1. Track A1: Type-directed combinatoric AST synthesis for a String/Config parser (`(&str) -> i64`)
+        let c1_json = ask_chat(
+            "Write a Rust function named parse_config_metrics that parses comma-separated key=value tokens from &str and sums the integers",
+        );
+        let c1 = c1_json["assistant_reply"].as_str().unwrap_or("");
+        assert_eq!(c1_json["is_coding_turn"], true);
+        assert!(
+            c1.contains("pub fn parse_config_metrics(input: &str) -> i64")
+                && c1.contains("Live In-Wasm AST Execution Proof (`R4-32`)"),
+            "Type-directed AST synthesizer must generate and live-verify (&str) -> i64 parser: {c1}"
+        );
+
+        // 2. Track A1: Type-directed combinatoric AST synthesis for a Fallible State-Machine Validator (`Result<i64, i64>` with `?`)
+        let c2_json = ask_chat(
+            "Write a Rust function named validate_protocol_step that validates state machine bounds and returns Result<i64, i64>",
+        );
+        let c2 = c2_json["assistant_reply"].as_str().unwrap_or("");
+        assert_eq!(c2_json["is_coding_turn"], true);
+        assert!(
+            c2.contains("pub fn validate_protocol_step(initial_state: i64, step_delta: i64) -> Result<i64, i64>")
+                && c2.contains("check_validate_protocol_step_step(initial_state, step_delta)?")
+                && c2.contains("Live In-Wasm AST Execution Proof (`R4-32`)"),
+            "Type-directed AST synthesizer must generate and live-verify Result<i64, i64> with `?`: {c2}"
+        );
+
+        // 3. Track A2: Multi-branch Cl(0,6) MCTS tree-search executive `<thinking>` trace
+        let frame = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(
+            "If x = 12 and y = 15, what is 4 * x + 2 * y?",
+        );
+        let think = frame.synthesize_executive_thinking().unwrap_or_default();
+        assert!(
+            think.contains("mcts_tree=[winner=B") && think.contains("pruned="),
+            "Executive thinking must include 4-branch Cl(0,6) MCTS tree-search trace: {think}"
+        );
+
+        // 4. Track A2: Stylistic persona rewrite & Cross-lingual translation grounded in conversation history
+        let s1_json = ask_chat("Explain the Raft consensus algorithm in the style of a noir detective");
+        let s1 = s1_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            s1.contains("Noir Detective Register") && (s1.contains("Raft") || s1.contains("Consensus")),
+            "Must render Raft consensus in Noir Detective register: {s1}"
+        );
+
+        let s2_json = ask_chat("Now translate and explain that in Spanish");
+        let s2 = s2_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            s2.contains("Síntesis en Español") && s2.contains("Mecanismo Operativo"),
+            "Must translate and explain the active concept in Spanish: {s2}"
+        );
+
+        let _ = dispatch_string("1\tstudio\treset\t");
+    }
 }
