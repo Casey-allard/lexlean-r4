@@ -14,6 +14,18 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-SECOPS-AUDIT"
+level = "some-true"
+authority = "UOR-R4-SECOPS-AUDIT"
+statement = "FIPS 180-4 SHA-256 Merkle audit chaining (uor.secops.audit/1), MCP tool policy enforcement (safe, confirm, deny), and bounded container workspace admission are imported from the pinned SecOps audit and NIST FIPS 180-4 specifications. Formal LexLean controls do not establish host OS sandboxing or cryptographic collision resistance."
+
+[[claim]]
+id = "AUTH-UOR-R4-RADIX-OTEL"
+level = "some-true"
+authority = "UOR-R4-RADIX-OTEL"
+statement = "The two-level hierarchical Radix /8 geometric bucket mapping (16 * 64 * 17 = 17,408 buckets, 17,409 directory offsets) and 5-tier W3C/OpenTelemetry u16 canonical interning and span deduplication (uor.gllm.trace/1) are imported from the pinned UOR-R4 Radix/OTel specification. Formal LexLean controls do not establish external OTLP network ingestion."
+
+[[claim]]
 id = "AUTH-UOR-R4-AUTONOMOUS-ENGINE"
 level = "some-true"
 authority = "UOR-R4-AUTONOMOUS-ENGINE"

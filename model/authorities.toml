@@ -13,6 +13,22 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-SECOPS-AUDIT"
+name = "FIPS 180-4 SHA-256 Merkle SecOps audit ledger (uor.secops.audit/1), MCP policy gate, and container workspace sandbox"
+citation = "https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf — FIPS PUB 180-4 Secure Hash Standard (SHA-256); companion src/R4/SecopsAudit.lex.tex and tests/lexlean/SecopsAuditControls.lex.tex"
+checksum = "sha256:349b28ceb38379a217846bcb6fdbe73dadc5e62ff83e73397867aa1b2df486c2"
+statement = "Pinned SecOps audit and sandbox specification defines FIPS 180-4 SHA-256 Merkle hash chaining under uor.secops.audit/1 with monotonic sequence numbers, previous-event hash link verification, MCP tool policy enforcement across safe/confirm/deny modes, and bounded in-memory container workspace file admission with path-traversal refusal and state-receipt binding."
+realized_by = ["R4-30"]
+
+[[authority]]
+id = "UOR-R4-RADIX-OTEL"
+name = "UOR-R4 two-level hierarchical Radix /8 geometric directory (17,408 buckets) and 5-tier OTel u16 span deduplication (uor.gllm.trace/1)"
+citation = "https://w3c.github.io/trace-context/ — W3C Trace Context and OpenTelemetry OTLP/1.0 specification; companion crates/wasm/src/otel.rs, crates/wasm/src/lut_stack_exec.rs, and src/R4/RadixOtel.lex.tex"
+checksum = "sha256:7dc86cca75e591f2fdfb3b8888391ee11ee04e98d0e004da3bd8bfd377010155"
+statement = "Pinned UOR-R4 Radix /8 and OTel specification defines the two-level geometric bucket mapping (16 E8 cells * 64 Clifford actions * 17 Icosian roots = 17,408 buckets, 17,409 directory offsets) and 5-tier gllm inference telemetry with u16 canonical hash interning and sub-span deduplication."
+realized_by = ["R4-29"]
+
+[[authority]]
 id = "UOR-R4-AUTONOMOUS-ENGINE"
 name = "UOR Rule 30 / R4 autonomous homeostasis engine, Hebbian strategy plasticity, and hypothesis minting"
 citation = "https://github.com/afflom/rule30/blob/main/src/Rule30/Engine.lex.tex; companion Discovery.lex.tex, Hypotheses.lex.tex, tools/r30/engine.py, and .github/workflows/engine.yml"

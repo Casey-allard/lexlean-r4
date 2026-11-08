@@ -2546,9 +2546,60 @@ impl StudioEngine {
         ]);
         let prll_sum: u32 = prll_masses.iter().sum();
 
+        // R4-29: Two-level hierarchical Radix /8 index (16x64x17 = 17,408 buckets) & 5-tier OTel u16 span deduplication
+        let radix_capacity =
+            lexlean_generated::r4_radix_otel::compute_radix_bucket_capacity(16, 64, 17);
+        let radix_dir_len =
+            lexlean_generated::r4_radix_otel::compute_radix_directory_length(16, 64, 17);
+        let radix_bucket_idx = match lexlean_generated::r4_radix_otel::resolve_radix_bucket(
+            u64::from(d_a % 16),
+            u64::from(d_b % 64),
+            u64::from(icosian_root % 17),
+        ) {
+            lexlean_generated::r4_radix_otel::RadixBucketOutcome::BucketIndex(idx, _, _, _) => idx,
+            _ => 0,
+        };
+        let otel_dedup_saved = match lexlean_generated::r4_radix_otel::evaluate_otel_intern_step(
+            true, 1, 14, 5, 128, 32, 5,
+        ) {
+            lexlean_generated::r4_radix_otel::OtelDedupOutcome::DedupHit(_, _, saved) => saved,
+            _ => 0,
+        };
+
+        // R4-30: FIPS 180-4 SHA-256 Merkle SecOps audit chain & container workspace sandbox
+        let secops_chain_ok = matches!(
+            lexlean_generated::r4_secops_audit::verify_audit_link(
+                1,
+                0,
+                1,
+                0x6a09e667bb67ae85,
+                0x6a09e667bb67ae85,
+                0x9b05688c2b3e6c1f,
+                0x9b05688c2b3e6c1f,
+                0x1f83d9abfb41bd6b,
+            ),
+            lexlean_generated::r4_secops_audit::AuditChainOutcome::ChainVerified(_, _, _)
+        );
+        let secops_sandbox_ok = matches!(
+            lexlean_generated::r4_secops_audit::admit_sandbox_write(
+                16,
+                false,
+                self.workspace_files.len() as u64,
+                64,
+                512,
+                65536,
+                0x9b05688c2b3e6c1f,
+            ),
+            lexlean_generated::r4_secops_audit::SandboxAdmissionOutcome::AdmittedWorkspaceWrite(
+                _,
+                _,
+                _
+            )
+        );
+
         let receipt = sha256_hex(
             format!(
-                "subsystems|{d_a}|{d_b}|{carry_in}|{radix}|{sketch_overlap}|{icosian_root}|{packed_roots}|{sketch_admitted}|{prll_sum}"
+                "subsystems|{d_a}|{d_b}|{carry_in}|{radix}|{sketch_overlap}|{icosian_root}|{packed_roots}|{sketch_admitted}|{prll_sum}|{radix_bucket_idx}|{secops_chain_ok}"
             )
             .as_bytes(),
         );
@@ -2557,7 +2608,7 @@ impl StudioEngine {
             concat!(
                 "{{",
                 "\"status\":\"ok\",",
-                "\"conformance_ids\":[\"R4-24\",\"R4-25\",\"R4-26\",\"R4-27\"],",
+                "\"conformance_ids\":[\"R4-24\",\"R4-25\",\"R4-26\",\"R4-27\",\"R4-29\",\"R4-30\"],",
                 "\"inputs\":{{\"digit_a\":{},\"digit_b\":{},\"carry_in\":{},\"radix\":{},\"sketch_overlap\":{}}},",
                 "\"r4_24_spiralcore\":{{",
                 "\"icosian_root\":{},",
@@ -2592,6 +2643,17 @@ impl StudioEngine {
                 "\"prll_masses_ppm\":[{},{},{},{}],",
                 "\"prll_mass_sum\":{},",
                 "\"naf_draft6_states\":6",
+                "}},",
+                "\"r4_29_radix_otel\":{{",
+                "\"radix_bucket_capacity\":{},",
+                "\"radix_directory_length\":{},",
+                "\"resolved_bucket_index\":{},",
+                "\"otel_dedup_saved_bytes\":{}",
+                "}},",
+                "\"r4_30_secops_audit\":{{",
+                "\"audit_schema\":\"uor.secops.audit/1\",",
+                "\"merkle_chain_verified\":{},",
+                "\"sandbox_admission_verified\":{}",
                 "}},",
                 "\"receipt_sha256\":\"{}\"",
                 "}}"
@@ -2631,6 +2693,12 @@ impl StudioEngine {
             prll_masses[2],
             prll_masses[3],
             prll_sum,
+            radix_capacity,
+            radix_dir_len,
+            radix_bucket_idx,
+            otel_dedup_saved,
+            secops_chain_ok,
+            secops_sandbox_ok,
             receipt
         )
     }
@@ -3534,6 +3602,37 @@ impl StudioEngine {
         if raw_path.is_empty() {
             return "{\"status\":\"error\",\"reason\":\"EmptyPath\",\"message\":\"Workspace file path must not be empty.\"}".to_string();
         }
+        let receipt = sha256_hex(format!("file|{raw_path}|{content}").as_bytes());
+        let receipt_hi = u64::from_str_radix(&receipt[..16], 16).unwrap_or(1).max(1);
+        let is_existing = self.workspace_files.iter().any(|f| f.path == raw_path);
+        let effective_file_count = if is_existing {
+            self.workspace_files.len().saturating_sub(1) as u64
+        } else {
+            self.workspace_files.len() as u64
+        };
+        match lexlean_generated::r4_secops_audit::admit_sandbox_write(
+            raw_path.len() as u64,
+            raw_path.contains(".."),
+            effective_file_count,
+            1024,
+            content.len() as u64,
+            1_048_576,
+            receipt_hi,
+        ) {
+            lexlean_generated::r4_secops_audit::SandboxAdmissionOutcome::AdmittedWorkspaceWrite(
+                _,
+                _,
+                _,
+            ) => {}
+            refused => {
+                let reason = format!("{refused:?}");
+                return format!(
+                    "{{\"status\":\"error\",\"reason\":\"{}\",\"message\":\"R4.SecopsAudit.admitSandboxWrite rejected workspace write: {}\"}}",
+                    escape_json(&reason),
+                    escape_json(&reason)
+                );
+            }
+        }
         let lang = if raw_path.ends_with(".rs") {
             "rust"
         } else if raw_path.ends_with(".py") {
@@ -3552,7 +3651,6 @@ impl StudioEngine {
             "markdown"
         };
         self.active_workspace_path = raw_path.to_string();
-        let receipt = sha256_hex(format!("file|{raw_path}|{content}").as_bytes());
         if let Some(existing) = self.workspace_files.iter_mut().find(|f| f.path == raw_path) {
             existing.content = content.to_string();
             existing.language = lang.to_string();
@@ -6112,5 +6210,53 @@ mod tests {
         recent_8.push(node.id as usize);
         let s7 = score_concept_node(node, "paris france", &words, &stems, &q12, 0, &recent_8);
         assert_eq!(s7, s0.saturating_sub(160));
+    }
+
+    #[test]
+    fn test_lexlean_generated_r4_29_radix_otel_and_r4_30_secops_audit_runtime_integration() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let mut engine = StudioEngine::new_default();
+
+        // 1. Verify render_subsystems_json includes R4-29 and R4-30 verified outputs
+        let sub_raw = engine.render_subsystems_json("7,6,1,10,2180");
+        let sub: serde_json::Value = serde_json::from_str(&sub_raw).expect("valid subsystems JSON");
+        assert_eq!(sub["status"], "ok");
+        assert_eq!(
+            sub["r4_29_radix_otel"]["radix_bucket_capacity"],
+            serde_json::json!(17_408)
+        );
+        assert_eq!(
+            sub["r4_29_radix_otel"]["radix_directory_length"],
+            serde_json::json!(17_409)
+        );
+        assert_eq!(
+            sub["r4_29_radix_otel"]["otel_dedup_saved_bytes"],
+            serde_json::json!(158)
+        );
+        assert_eq!(
+            sub["r4_30_secops_audit"]["audit_schema"],
+            serde_json::json!("uor.secops.audit/1")
+        );
+        assert_eq!(
+            sub["r4_30_secops_audit"]["merkle_chain_verified"],
+            serde_json::json!(true)
+        );
+        assert_eq!(
+            sub["r4_30_secops_audit"]["sandbox_admission_verified"],
+            serde_json::json!(true)
+        );
+
+        // 2. Verify R4.SecopsAudit.admitSandboxWrite rejects parent path traversal in workspace_write_json
+        let traversal_res = engine.workspace_write_json("../etc/passwd\nroot:x:0:0");
+        let traversal_json: serde_json::Value =
+            serde_json::from_str(&traversal_res).expect("valid error JSON");
+        assert_eq!(traversal_json["status"], "error");
+        assert!(
+            traversal_json["reason"]
+                .as_str()
+                .unwrap_or("")
+                .contains("RejectedPathTraversal"),
+            "expected RejectedPathTraversal from R4.SecopsAudit.admitSandboxWrite, got {traversal_res}"
+        );
     }
 }

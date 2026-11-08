@@ -138,11 +138,23 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-19` | `build` | Pure LexLean target-free prediction validates complete geometric inputs and retains all identities under occupied-cell admission and global ranking, with general supervised-writer projection and lawful loss-safety proofs. This establishes no artifact custody, generated fixed-memory serving, research parity or deployment. |
 
+## r4-radix-otel
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-29` | `build` | Pure LexLean models the two-level hierarchical Radix /8 geometric bucket index (16 E8 cells * 64 Clifford Cl(0,6) actions * 17 Icosian roots = 17,408 buckets and 17,409 monotonic directory offsets) and 5-tier OpenTelemetry (uor.gllm.trace/1) u16 canonical hash interning and sub-span deduplication with bounded 65,535-entry table capacity and byte-savings accounting. Formal controls establish no external OTLP collector transport or distributed clock synchronization. |
+
 ## r4-route
 
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
+
+## r4-secops-audit
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-30` | `build` | Pure LexLean models the FIPS 180-4 SHA-256 Merkle-chained SecOps audit ledger (uor.secops.audit/1 monotonic sequence progression, previous-event hash link verification, zero-digest refusal, and tampered-digest detection), MCP security policy gate (safe, confirm, and deny modes), and bounded virtual container workspace sandbox admission (empty-path and parent-traversal rejection, file/byte quota bounds, and non-zero state receipt binding). Formal controls establish no external OS kernel isolation or hardware TEE attestation. |
 
 ## r4-snapshot-json
 
@@ -192,6 +204,8 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-R4-SECOPS-AUDIT` | https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf — FIPS PUB 180-4 Secure Hash Standard (SHA-256); companion src/R4/SecopsAudit.lex.tex and tests/lexlean/SecopsAuditControls.lex.tex | `R4-30` |
+| `UOR-R4-RADIX-OTEL` | https://w3c.github.io/trace-context/ — W3C Trace Context and OpenTelemetry OTLP/1.0 specification; companion crates/wasm/src/otel.rs, crates/wasm/src/lut_stack_exec.rs, and src/R4/RadixOtel.lex.tex | `R4-29` |
 | `UOR-R4-AUTONOMOUS-ENGINE` | https://github.com/afflom/rule30/blob/main/src/Rule30/Engine.lex.tex; companion Discovery.lex.tex, Hypotheses.lex.tex, tools/r30/engine.py, and .github/workflows/engine.yml | `R4-28` |
 | `UOR-R4-EXACT-ARITHMETIC` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/m6_exact_arithmetic.rs; companion m6_ablation.rs, lawful_likelihood.rs, and crates/uor-r4-naf/src/lib.rs | `R4-27` |
 | `UOR-R4-DURABLE-MEMORY` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-object-store/src/durable_consumer.rs; companion address_read.rs, manifold_sketch.rs, and crates/uor-r4-integer/src/session_codec.rs | `R4-26` |
@@ -228,6 +242,8 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UOR-R4-SECOPS-AUDIT` | `some-true` | FIPS 180-4 SHA-256 Merkle audit chaining (uor.secops.audit/1), MCP tool policy enforcement (safe, confirm, deny), and bounded container workspace admission are imported from the pinned SecOps audit and NIST FIPS 180-4 specifications. Formal LexLean controls do not establish host OS sandboxing or cryptographic collision resistance. |
+| `AUTH-UOR-R4-RADIX-OTEL` | `some-true` | The two-level hierarchical Radix /8 geometric bucket mapping (16 * 64 * 17 = 17,408 buckets, 17,409 directory offsets) and 5-tier W3C/OpenTelemetry u16 canonical interning and span deduplication (uor.gllm.trace/1) are imported from the pinned UOR-R4 Radix/OTel specification. Formal LexLean controls do not establish external OTLP network ingestion. |
 | `AUTH-UOR-R4-AUTONOMOUS-ENGINE` | `some-true` | Autonomous homeostasis engine invariants, bounded Hebbian strategy plasticity in [1, 16], priority strategy scheduling, and non-redundant hypothesis minting are imported from the UOR Rule 30 engine specification. Formal LexLean controls do not establish external GitHub Actions runner availability or unbounded open-domain convergence. |
 | `AUTH-UOR-R4-EXACT-ARITHMETIC` | `some-true` | M6 multi-digit radix-B geometric arithmetic, 5 causal ablation arms, integer PRLL lawful likelihood (PRLL_MASS_QUANTUM=1_000_000), and uor-naf/1-draft.6 admission are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish benchmark corpus scores or floating-point parity. |
 | `AUTH-UOR-R4-DURABLE-MEMORY` | `some-true` | M3 scoped durable turn-memory codecs (UORMEM01 and UR4SESS1), sorted-merge PrimeAddress GCD shared-prime intersection, and the +3-sigma (threshold 2144/4096) manifold sketch gate are imported from pinned UOR-R4 revision 4195ce2bf83d703b1acd3eb868c888d1da053479. Formal LexLean controls do not establish persistent browser storage or network synchronization. |

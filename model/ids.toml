@@ -20,6 +20,18 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-30"
+level = "build"
+suite = "r4-secops-audit"
+statement = "Pure LexLean models the FIPS 180-4 SHA-256 Merkle-chained SecOps audit ledger (uor.secops.audit/1 monotonic sequence progression, previous-event hash link verification, zero-digest refusal, and tampered-digest detection), MCP security policy gate (safe, confirm, and deny modes), and bounded virtual container workspace sandbox admission (empty-path and parent-traversal rejection, file/byte quota bounds, and non-zero state receipt binding). Formal controls establish no external OS kernel isolation or hardware TEE attestation."
+
+[[id]]
+id = "R4-29"
+level = "build"
+suite = "r4-radix-otel"
+statement = "Pure LexLean models the two-level hierarchical Radix /8 geometric bucket index (16 E8 cells * 64 Clifford Cl(0,6) actions * 17 Icosian roots = 17,408 buckets and 17,409 monotonic directory offsets) and 5-tier OpenTelemetry (uor.gllm.trace/1) u16 canonical hash interning and sub-span deduplication with bounded 65,535-entry table capacity and byte-savings accounting. Formal controls establish no external OTLP collector transport or distributed clock synchronization."
+
+[[id]]
 id = "R4-28"
 level = "build"
 suite = "r4-autonomous-engine"

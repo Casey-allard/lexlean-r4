@@ -3551,24 +3551,44 @@ impl LutStackSession {
                             val_tok,
                         ) {
                             let mut matched_open_anchor = None;
+                            let mut fallback_open_anchor = None;
                             if let Some(anchors) = &point.canonical_anchors {
                                 let alen = point.anchor_len.max(1);
-                                if alen >= reply_turn_k + open_ids.len()
-                                    && anchors.len() >= point.rows * alen
-                                {
+                                if anchors.len() >= point.rows * alen {
                                     for r in 0..point.rows {
                                         let base = r * alen;
-                                        let row_open = &anchors[base + reply_turn_k
-                                            ..base + reply_turn_k + open_ids.len()];
-                                        if row_open == open_ids.as_slice() {
-                                            matched_open_anchor =
-                                                Some(anchors[base..base + reply_turn_k].to_vec());
-                                            break;
+                                        let a_row = &anchors[base..base + alen];
+                                        let open_matches = if alen >= 16
+                                            && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                                        {
+                                            let copy_open = open_ids.len().min(8);
+                                            a_row[8..8 + copy_open] == open_ids[..copy_open]
+                                        } else if alen >= reply_turn_k + open_ids.len() {
+                                            a_row[reply_turn_k..reply_turn_k + open_ids.len()]
+                                                == *open_ids
+                                        } else {
+                                            false
+                                        };
+                                        if open_matches {
+                                            let cand = a_row[..reply_turn_k.min(alen)].to_vec();
+                                            if point.targets.get(r).copied() == Some(val_tok)
+                                                && probe_reply_table_has_anchor(
+                                                    reply_tbl,
+                                                    mem.reply_key_len,
+                                                    &cand,
+                                                    val_tok,
+                                                )
+                                            {
+                                                matched_open_anchor = Some(cand);
+                                                break;
+                                            } else if fallback_open_anchor.is_none() {
+                                                fallback_open_anchor = Some(cand);
+                                            }
                                         }
                                     }
                                 }
                             }
-                            if let Some(canon) = matched_open_anchor {
+                            if let Some(canon) = matched_open_anchor.or(fallback_open_anchor) {
                                 self.anchors.reply = canon;
                             } else if let Some(pt_hit) = select_point_key_with_resonance(
                                 point,
@@ -5305,20 +5325,32 @@ impl LutStackModel {
             let val_tok = mem.opening.values[entry_idx];
             if let Some(anchors) = &point.canonical_anchors {
                 let alen = point.anchor_len.max(1);
+                let mut fallback_cand = None;
                 for r in 0..point.rows {
                     let base = r * alen;
-                    if base + reply_turn_k + open_ids.len() <= anchors.len()
-                        && &anchors[base + reply_turn_k..base + reply_turn_k + open_ids.len()]
-                            == open_ids.as_slice()
-                    {
-                        return Some((
-                            anchors[base..base + reply_turn_k].to_vec(),
-                            val_tok,
-                            4,
-                            0,
-                            true,
-                        ));
+                    if base + alen <= anchors.len() {
+                        let a_row = &anchors[base..base + alen];
+                        let open_matches = if alen >= 16 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                        {
+                            let copy_open = open_ids.len().min(8);
+                            a_row[8..8 + copy_open] == open_ids[..copy_open]
+                        } else if alen >= reply_turn_k + open_ids.len() {
+                            a_row[reply_turn_k..reply_turn_k + open_ids.len()] == *open_ids
+                        } else {
+                            false
+                        };
+                        if open_matches {
+                            let cand = a_row[..reply_turn_k.min(alen)].to_vec();
+                            if point.targets.get(r).copied() == Some(val_tok) {
+                                return Some((cand, val_tok, 4, 0, true));
+                            } else if fallback_cand.is_none() {
+                                fallback_cand = Some(cand);
+                            }
+                        }
                     }
+                }
+                if let Some(cand) = fallback_cand {
+                    return Some((cand, val_tok, 4, 0, true));
                 }
             }
             return Some((reply_ids, val_tok, 4, 0, true));
@@ -7296,6 +7328,9 @@ pub fn consolidate_lut_trajectory_points(
                         pt.points[base + dim] = new_p.clamp(c_min, c_max) as i16;
                     }
                 }
+            }
+            if pt.bucket_offsets.is_some() {
+                pt.build_radix_index();
             }
         }
     }

@@ -46,8 +46,8 @@
           <summary class="sidebar-heading sidebar-summary">Cowork Canvas Drawers</summary>
           <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
             <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
-              <span>Engine &amp; ArXiv</span>
-              <span id="sidebar-feed-badge" class="sidebar-pill">R4-F256</span>
+              <span>Self-Improvement</span>
+              <span id="sidebar-feed-badge" class="sidebar-pill">R4-F32</span>
             </button>
             <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
               <span>Consolidate</span>
@@ -66,7 +66,7 @@
               <span id="sidebar-diff-badge" class="sidebar-pill">Patch</span>
             </button>
             <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
-              <span>API &amp; 28/28</span>
+              <span>API &amp; 30/30</span>
               <span class="sidebar-pill">/v1</span>
             </button>
           </div>
@@ -217,11 +217,11 @@
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
           <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Right Drawer" aria-label="Toggle Right Drawer">&#9881; Drawer</button>
-          <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed" hidden>Engine &amp; ArXiv (10)</button>
+          <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed" hidden>Self-Improvement</button>
           <button id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation" hidden>Consolidate Weights</button>
           <button id="topbar-traces-btn" type="button" class="topbar-btn" data-canvas-tab="traces" hidden>OTel Traces</button>
           <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace" hidden>Workspace IDE</button>
-          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics" hidden>API &amp; 28/28</button>
+          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics" hidden>API &amp; 30/30</button>
         </div>
       </header>
 
@@ -238,8 +238,8 @@
             <span id="live-agent-tools-badge" class="sr-only">Tools active</span>
           </span>
           <span class="status-strip-item">
-            <span id="live-engine-frontier-badge">Tick #94 &middot; <code>R4-F256</code></span>
-            <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">ArXiv Feed</button>
+            <span id="live-engine-frontier-badge">Tick #12 &middot; <code>R4-F32</code></span>
+            <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">Self-Improve</button>
           </span>
           <span class="status-strip-item">
             <span id="live-otel-trace-badge"><code>uor.gllm.trace/1</code></span>
@@ -341,8 +341,8 @@
             <span>Customizations</span>
           </button>
           <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
-            <span>Engine &amp; ArXiv</span>
-            <span class="canvas-tab-pill">R4-F256 &middot; 10</span>
+            <span>Self-Improvement</span>
+            <span class="canvas-tab-pill">30/30 &middot; R4-F32</span>
           </button>
           <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
             <span>Consolidation</span>
@@ -355,8 +355,8 @@
             <span>Diff Preview</span>
           </button>
           <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
-            <span>API &amp; 28/28</span>
-            <span class="canvas-tab-pill">28/28</span>
+            <span>API &amp; 30/30</span>
+            <span class="canvas-tab-pill">30/30</span>
           </button>
         </nav>
         <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Close Canvas Drawer (Esc)" aria-label="Close Canvas Drawer">&times; Close</button>
@@ -605,17 +605,17 @@
           </div>
         </div>
 
-        <!-- Tab 3: Live Engine & Literature Feed Panel -->
+        <!-- Tab 3: Live Self-Improvement & Codebase Diagnostics Panel -->
         <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
           <div class="feed-header">
-            <h3>Autonomous Engine Frontier &amp; ArXiv Literature Mining</h3>
-            <span class="panel-badge">r4/literature/1 &middot; 94 Ticks &middot; 103 Claims</span>
+            <h3>Autonomous Self-Improvement &amp; Codebase Diagnostics</h3>
+            <span class="panel-badge">30/30 LexLean &middot; 32/32 Benchmarks &middot; 0 Failure Basins</span>
           </div>
           <div id="engine-frontier-ledger" class="frontier-ledger-section">
-            <!-- Rendered dynamically with autonomous tick & frontier claim ledger -->
+            <!-- Rendered dynamically with codebase audit, runtime inference benchmarks & proved frontier ledger -->
           </div>
           <div class="feed-grid" id="literature-feed-list">
-            <!-- Rendered dynamically from model/literature.toml data -->
+            <!-- Rendered dynamically with compact bottleneck-filtered arXiv relevance checks -->
           </div>
         </div>
 

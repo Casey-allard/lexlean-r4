@@ -1210,11 +1210,283 @@ fn discovery_curriculum_pool() -> Vec<FrontierClaim> {
             prompt: Some("Why does Landauer's principle set a minimum energy cost for erasing a bit of information?".to_string()),
             target_reply: Some("Erasing one bit maps two logical states onto one, compressing the computational phase space by a factor of two; by the second law of thermodynamics, the environment's entropy must increase by at least k_B ln 2, dissipating at least k_B T ln 2 of heat at temperature T.".to_string()),
         },
+        FrontierClaim {
+            id: "R4-F31".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F01".to_string(), "R4-F10".to_string()],
+            relation: "dialogue-stem".to_string(),
+            window: vec![1, 8],
+            kappa: "r4:v1:stem:radix-otel-17408-bucket-dedup:k=8".to_string(),
+            lean: Some("LexLeanR4.FrontierTheorems.frontier_r4_f31_pointkey_resonance".to_string()),
+            statement: "Verify that the two-level Radix /8 index partitions PointKey rows into 17,408 geometric buckets (16 * 64 * 17) while 5-tier OTel span interning deduplicates repeated attributes into u16 IDs.".to_string(),
+            prompt: Some("How does the two-level Radix /8 index accelerate PointKey lookup and OTel span deduplication?".to_string()),
+            target_reply: Some("The Radix /8 directory partitions PointKey rows into 17,408 geometric buckets (16 E8 cells by 64 Clifford actions by 17 Icosian roots) while 5-tier OTel interning deduplicates repeated attributes into u16 IDs.".to_string()),
+        },
+        FrontierClaim {
+            id: "R4-F32".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F04".to_string(), "R4-F09".to_string()],
+            relation: "code-synthesis".to_string(),
+            window: vec![2, 14],
+            kappa: "r4:v1:stem:secops-sha256-merkle-sandbox:k=14".to_string(),
+            lean: Some("LexLeanR4.FrontierTheorems.frontier_r4_f32_bvgk_writer_refinement".to_string()),
+            statement: "Verify that every MCP tool call and container workspace write appends a monotonic event to the FIPS 180-4 SHA-256 Merkle audit chain under uor.secops.audit/1 and enforces policy gates.".to_string(),
+            prompt: Some("How does the SecOps audit chain verify MCP tool calls and container workspace writes?".to_string()),
+            target_reply: Some("Every MCP tool call and container workspace write appends a monotonic event to the FIPS 180-4 SHA-256 Merkle chain under schema uor.secops.audit/1 and enforces safe, confirm, or deny policy gates.".to_string()),
+        },
     ]
 }
 
+/// Comprehensive codebase, formal closure, UI binding, and runtime inference diagnostic report.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(crate = "repo_model::serde")]
+pub struct CodebaseAuditReport {
+    /// Total proved benchmark prompts evaluated through `LutStackModel::generate_reply`.
+    pub benchmark_prompts_tested: usize,
+    /// Number of proved benchmark prompts that decoded cycle-free with verified stem overlap.
+    pub benchmark_prompts_passed: usize,
+    /// Prompt IDs that exhibited repetition loops, high L1 residual drift, or stem mismatch.
+    pub failure_basins: Vec<String>,
+    /// Total L1 residual norm across proved trajectory points.
+    pub total_trajectory_l1_residual: u64,
+    /// Total geometric buckets in the two-level Radix `/8` directory (`16 * 64 * 17 = 17,408`).
+    pub radix_buckets_total: usize,
+    /// Number of non-empty geometric buckets in the Radix `/8` directory.
+    pub radix_buckets_populated: usize,
+    /// Number of PointKey rows missing from the Radix `/8` permutation index (must be `0`).
+    pub radix_unindexed_rows: usize,
+    /// Number of orphaned PointKey rows whose 28-bit anchor is absent from `memory.reply.packed12`.
+    pub orphaned_point_rows: usize,
+    /// Number of registered `R4-*` capability IDs verified in `model/ids.toml`.
+    pub lexlean_registered_ids: usize,
+    /// Missing `.lex.tex` formal modules or control suites (must be empty).
+    pub lexlean_missing_modules: Vec<String>,
+    /// Missing or unwired UI DOM bindings across `public/index.html` and `public/app.js` (must be empty).
+    pub dead_ui_bindings: Vec<String>,
+    /// Compact relevance check: arXiv paper IDs matching active `src/R4/` architectural bottlenecks.
+    pub relevant_arxiv_papers: Vec<String>,
+}
+
+/// Evaluate whether an ingested arXiv paper directly intersects an active `src/R4/` architectural
+/// bottleneck, returning the matched subsystem tags (empty if not directly relevant).
+pub fn paper_matches_r4_bottlenecks(paper: &ArxivPaper) -> Vec<&'static str> {
+    let text = format!("{} {}", paper.title, paper.r#abstract).to_ascii_lowercase();
+    let mut tags = Vec::new();
+    if text.contains("preference")
+        || text.contains("reward")
+        || text.contains("alignment")
+        || text.contains("cross-entropy")
+    {
+        tags.push("R4-06/R4-28 PRLL & Trajectory Alignment");
+    }
+    if text.contains("lean 4")
+        || text.contains("theorem proving")
+        || text.contains("type theory")
+        || text.contains("formal verification")
+    {
+        tags.push("R4-01..R4-30 LexLean Formal Closure");
+    }
+    if text.contains("lock-free")
+        || text.contains("epoch")
+        || text.contains("search tree")
+        || text.contains("radix")
+        || text.contains("concurrent")
+    {
+        tags.push("R4-29 Radix /8 & Lock-Free Index");
+    }
+    if text.contains("quantiz")
+        || text.contains("integer")
+        || text.contains("lookup table")
+        || text.contains("sliding window")
+        || text.contains("kv cache")
+    {
+        tags.push("R4-10..R4-18 BVGK LUT & Rolling Context");
+    }
+    if text.contains("state space")
+        || text.contains("selective")
+        || text.contains("linear-time")
+        || text.contains("recurrent")
+    {
+        tags.push("R4-03/R4-16 Discrete Trunk & Recurrence");
+    }
+    tags
+}
+
+/// Evaluate whether `generated_reply` shares at least one salient content stem with `target_reply`
+/// and is free of 1-word and 2-word repetition cycles.
+fn reply_passes_benchmark_quality(generated_reply: &str, target_reply: &str) -> bool {
+    if !reply_is_cycle_free(generated_reply) {
+        return false;
+    }
+    let gen_lower = generated_reply.to_ascii_lowercase();
+    for word in target_reply.split_whitespace() {
+        let clean: String = word
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric())
+            .collect::<String>()
+            .to_ascii_lowercase();
+        if clean.len() >= 4
+            && !matches!(
+                clean.as_str(),
+                "that" | "this" | "with" | "from" | "into" | "when" | "where" | "which" | "while"
+            )
+            && gen_lower.contains(&clean)
+        {
+            return true;
+        }
+    }
+    false
+}
+
+/// Run an automated diagnostic sweep across the Rust/Wasm/JS codebase, LexLean formal closure,
+/// Radix `/8` index buckets, and `bootstrap_v8.uorlut` benchmark inference quality.
+pub fn audit_codebase_and_inference(
+    root: &Path,
+    frontier: &FrontierFile,
+) -> Result<CodebaseAuditReport, String> {
+    let lut_path = root.join("crates/wasm/src/bootstrap_v8.uorlut");
+    let bytes = std::fs::read(&lut_path)
+        .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
+    let model = std::sync::Arc::new(crate::lut_stack_exec::LutStackModel::parse(&bytes)?);
+    let sync_audit = audit_uorlut_synchronization(root)?;
+
+    let mut benchmark_prompts_tested = 0usize;
+    let mut benchmark_prompts_passed = 0usize;
+    let mut failure_basins = Vec::new();
+    let mut total_trajectory_l1_residual = 0u64;
+
+    for claim in &frontier.claim {
+        if claim.status != "proved" {
+            continue;
+        }
+        let (Some(prompt), Some(target_reply)) =
+            (claim.prompt.as_deref(), claim.target_reply.as_deref())
+        else {
+            continue;
+        };
+        benchmark_prompts_tested += 1;
+        let gen = model.generate_reply(&[], prompt, 96);
+        if reply_passes_benchmark_quality(&gen.reply_text, target_reply) {
+            benchmark_prompts_passed += 1;
+        } else {
+            failure_basins.push(claim.id.clone());
+        }
+        if let Ok(pts) = model.extract_trajectory_points_from_dialogue(prompt, target_reply) {
+            for pt in pts {
+                let l1: u64 = pt
+                    .latent
+                    .iter()
+                    .take(32)
+                    .map(|&v| (v as i64).unsigned_abs())
+                    .sum();
+                total_trajectory_l1_residual = total_trajectory_l1_residual.saturating_add(l1);
+            }
+        }
+    }
+
+    let (radix_buckets_total, radix_buckets_populated, radix_unindexed_rows) =
+        if let Some(pt) = model.point.as_ref() {
+            let offsets = pt.bucket_offsets.as_deref().unwrap_or(&[]);
+            let row_indices = pt.bucket_row_indices.as_deref().unwrap_or(&[]);
+            let total_buckets = offsets.len().saturating_sub(1);
+            let populated = offsets.windows(2).filter(|w| w[1] > w[0]).count();
+            let unindexed = pt.rows.saturating_sub(row_indices.len());
+            (total_buckets, populated, unindexed)
+        } else {
+            (0, 0, 0)
+        };
+
+    let model_meta = repo_model::Model::load(&root.join("model"))
+        .map_err(|e| format!("failed to load model/: {e}"))?;
+    let lexlean_registered_ids = model_meta.ids.id.len();
+    let mut lexlean_missing_modules = Vec::new();
+    for entry in &model_meta.ledger.claim {
+        if let Some(f) = &entry.feature {
+            if !root.join(f).exists() {
+                lexlean_missing_modules.push(format!("{}:feature:{f}", entry.id));
+            }
+        }
+    }
+    if let Ok(lock_text) = std::fs::read_to_string(root.join("lexlean.lock")) {
+        for line in lock_text.lines() {
+            if let Some(rel) = line
+                .trim()
+                .strip_prefix("path = \"")
+                .and_then(|s| s.strip_suffix('"'))
+            {
+                if !root.join(rel).exists() {
+                    lexlean_missing_modules.push(format!("lexlean.lock:{rel}"));
+                }
+            }
+        }
+    }
+
+    let mut dead_ui_bindings = Vec::new();
+    let html_path = root.join("public/index.html");
+    let js_path = root.join("public/app.js");
+    if let (Ok(html), Ok(js)) = (
+        std::fs::read_to_string(&html_path),
+        std::fs::read_to_string(&js_path),
+    ) {
+        for required_id in [
+            "engine-frontier-ledger",
+            "literature-feed-list",
+            "sidebar-feed-badge",
+            "live-engine-frontier-badge",
+            "mcp-audit-export-btn",
+            "otel-trace-badge",
+            "dockable-canvas-pane",
+            "claude-chat-form",
+        ] {
+            if !html.contains(required_id) || !js.contains(required_id) {
+                dead_ui_bindings.push(required_id.to_string());
+            }
+        }
+        for delegated_id in [
+            "canvas-tab-feed",
+            "canvas-panel-feed",
+            "topbar-feed-btn",
+            "sidebar-feed-btn",
+            "quick-open-feed-btn",
+        ] {
+            if !html.contains(delegated_id)
+                || !js.contains("data-canvas-tab")
+                || !js.contains("canvas-panel-")
+            {
+                dead_ui_bindings.push(delegated_id.to_string());
+            }
+        }
+    }
+
+    let mut relevant_arxiv_papers = Vec::new();
+    if let Ok(lit) = load_literature(root) {
+        for paper in &lit.paper {
+            let tags = paper_matches_r4_bottlenecks(paper);
+            if !tags.is_empty() {
+                relevant_arxiv_papers.push(format!("{} [{}]", paper.arxiv_id, tags.join("; ")));
+            }
+        }
+    }
+
+    Ok(CodebaseAuditReport {
+        benchmark_prompts_tested,
+        benchmark_prompts_passed,
+        failure_basins,
+        total_trajectory_l1_residual,
+        radix_buckets_total,
+        radix_buckets_populated,
+        radix_unindexed_rows,
+        orphaned_point_rows: sync_audit.orphaned_point_rows,
+        lexlean_registered_ids,
+        lexlean_missing_modules,
+        dead_ui_bindings,
+        relevant_arxiv_papers,
+    })
+}
+
 /// Deterministically compile all `proved` claims in `frontier` that carry `(prompt, target_reply)`
-/// into `crates/wasm/src/bootstrap_v8.uorlut` and verify `orphaned_point_rows == 0`.
+/// into `crates/wasm/src/bootstrap_v8.uorlut` and verify `orphaned_point_rows == 0` and zero
+/// benchmark regressions across proved curriculum prompts.
 pub fn compile_proved_frontier_claims_to_uorlut(
     root: &Path,
     frontier: &FrontierFile,
@@ -1247,6 +1519,25 @@ pub fn compile_proved_frontier_claims_to_uorlut(
                 post_audit.orphaned_point_rows
             ));
         }
+        // Verify newly compiled turns decode cycle-free with target stem overlap
+        let verified_model =
+            std::sync::Arc::new(crate::lut_stack_exec::LutStackModel::parse(&out_bytes)?);
+        for claim in &frontier.claim {
+            if claim.status != "proved" {
+                continue;
+            }
+            if let (Some(prompt), Some(reply)) =
+                (claim.prompt.as_deref(), claim.target_reply.as_deref())
+            {
+                let gen = verified_model.generate_reply(&[], prompt, 96);
+                if !reply_passes_benchmark_quality(&gen.reply_text, reply) {
+                    return Err(format!(
+                        "compiled .uorlut failed benchmark quality verification on proved claim {} (generated: {:?}, target: {:?})",
+                        claim.id, gen.reply_text, reply
+                    ));
+                }
+            }
+        }
     }
     Ok(compiled)
 }
@@ -1278,17 +1569,31 @@ pub fn atomic_write(target: &Path, data: &[u8]) -> Result<(), String> {
     Ok(())
 }
 
-/// Execute coordinate-descent weight consolidation purely in memory.
+/// Execute coordinate-descent weight consolidation purely in memory, gating acceptance on
+/// zero orphaned PointKey rows and non-regression of proved curriculum prompts.
 pub fn run_engine_weight_consolidation_in_memory(
     lut_bytes: &[u8],
     manifest_json: &serde_json::Value,
     frontier: &FrontierFile,
 ) -> Result<(ConsolidationReport, Vec<u8>), String> {
     let mut model = crate::lut_stack_exec::LutStackModel::parse(lut_bytes)?;
+    let pre_arc = std::sync::Arc::new(model.clone());
+
+    let mut pre_passed = 0usize;
+    let mut pre_l1_residual = 0u64;
+    for claim in frontier.claim.iter().filter(|c| c.status == "proved") {
+        if let (Some(p), Some(r)) = (claim.prompt.as_deref(), claim.target_reply.as_deref()) {
+            let gen = pre_arc.generate_reply(&[], p, 96);
+            if reply_passes_benchmark_quality(&gen.reply_text, r) {
+                pre_passed += 1;
+            }
+            pre_l1_residual = pre_l1_residual.saturating_add(gen.total_l1_margin);
+        }
+    }
 
     // Extract all proved frontier dialogue pairs as zero-residual verified trajectory points
     // so coordinate-descent consolidation preserves the Layer-0 `writer_table` input embedding
-    // fixed point across all 16,770 precomputed `ServedPointKey` (`/8`) rows.
+    // fixed point across all precomputed `ServedPointKey` (`/8`) rows.
     let mut samples: Vec<crate::lut_stack_exec::WeightConsolidationSample> = Vec::new();
     for claim in &frontier.claim {
         if claim.status == "proved" {
@@ -1315,6 +1620,29 @@ pub fn run_engine_weight_consolidation_in_memory(
         ..crate::lut_stack_exec::ConsolidationConfig::default()
     };
     let report = crate::lut_stack_exec::consolidate_lut_weights(&mut model, &samples, &config)?;
+    let post_arc = std::sync::Arc::new(model.clone());
+
+    let mut post_passed = 0usize;
+    let mut post_l1_residual = 0u64;
+    for claim in frontier.claim.iter().filter(|c| c.status == "proved") {
+        if let (Some(p), Some(r)) = (claim.prompt.as_deref(), claim.target_reply.as_deref()) {
+            let gen = post_arc.generate_reply(&[], p, 96);
+            if reply_passes_benchmark_quality(&gen.reply_text, r) {
+                post_passed += 1;
+            }
+            post_l1_residual = post_l1_residual.saturating_add(gen.total_l1_margin);
+        }
+    }
+    if post_passed < pre_passed {
+        return Err(format!(
+            "weight consolidation regressed proved benchmark pass count ({post_passed} < {pre_passed})"
+        ));
+    }
+    if post_l1_residual > pre_l1_residual {
+        return Err(format!(
+            "weight consolidation increased total trajectory L1 residual loss ({post_l1_residual} > {pre_l1_residual})"
+        ));
+    }
 
     // Serialize consolidated model back to canonical UORLUT01 container
     let out_bytes = model.to_uorlut_bytes();
@@ -2010,7 +2338,18 @@ pub fn mine_literature_frontier_claims(
     let mut mined = Vec::new();
     let mut next_num = max_num + 1;
 
-    for paper in &lit.paper {
+    let mut ordered_papers: Vec<&ArxivPaper> = lit
+        .paper
+        .iter()
+        .filter(|p| !paper_matches_r4_bottlenecks(p).is_empty())
+        .collect();
+    ordered_papers.extend(
+        lit.paper
+            .iter()
+            .filter(|p| paper_matches_r4_bottlenecks(p).is_empty()),
+    );
+
+    for paper in ordered_papers {
         if mined.len() >= needed {
             break;
         }
@@ -2278,6 +2617,10 @@ pub fn deduce(
     if audit.orphaned_point_rows != 0 || audit.reply_anchor_count == 0 {
         return Err("UORLUT01 synchronization check failed before deduction".into());
     }
+    let lut_path = root.join("crates/wasm/src/bootstrap_v8.uorlut");
+    let lut_bytes = std::fs::read(&lut_path)
+        .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
+    let base_model = crate::lut_stack_exec::LutStackModel::parse(&lut_bytes)?;
 
     let proved_set: BTreeSet<String> = frontier
         .claim
@@ -2329,35 +2672,52 @@ pub fn deduce(
             }
             existing_attempts.insert(attempt_key);
 
-            if let Some(spec) = evaluate_strategy_on_claim(&claim.id, strategy, &witnesses) {
-                engine.attempt.push(AttemptRecord {
-                    kappa: claim.kappa.clone(),
-                    strategy: strategy.to_string(),
-                    template: template.to_string(),
-                    library: library.to_string(),
-                    outcome: "proved".to_string(),
-                    tick: tick_id.to_string(),
-                });
-                summary
-                    .outcomes
-                    .push((strategy.to_string(), claim.relation.clone(), true));
-                claim.status = "proved".to_string();
-                claim.lean = Some(format!("LexLeanR4.FrontierTheorems.{}", spec.theorem_name));
-                summary.proved_ids.push(claim.id.clone());
-                break;
+            let runtime_quality_ok = if let (Some(prompt), Some(reply)) =
+                (claim.prompt.as_deref(), claim.target_reply.as_deref())
+            {
+                let mut trial_model = base_model.clone();
+                match trial_model.compile_verified_dialogue_turn(prompt, reply) {
+                    Ok(_) => {
+                        let trial_arc = std::sync::Arc::new(trial_model);
+                        let gen = trial_arc.generate_reply(&[], prompt, 96);
+                        reply_passes_benchmark_quality(&gen.reply_text, reply)
+                    }
+                    Err(_) => false,
+                }
             } else {
-                engine.attempt.push(AttemptRecord {
-                    kappa: claim.kappa.clone(),
-                    strategy: strategy.to_string(),
-                    template: template.to_string(),
-                    library: library.to_string(),
-                    outcome: "exhausted".to_string(),
-                    tick: tick_id.to_string(),
-                });
-                summary
-                    .outcomes
-                    .push((strategy.to_string(), claim.relation.clone(), false));
+                true
+            };
+
+            if runtime_quality_ok {
+                if let Some(spec) = evaluate_strategy_on_claim(&claim.id, strategy, &witnesses) {
+                    engine.attempt.push(AttemptRecord {
+                        kappa: claim.kappa.clone(),
+                        strategy: strategy.to_string(),
+                        template: template.to_string(),
+                        library: library.to_string(),
+                        outcome: "proved".to_string(),
+                        tick: tick_id.to_string(),
+                    });
+                    summary
+                        .outcomes
+                        .push((strategy.to_string(), claim.relation.clone(), true));
+                    claim.status = "proved".to_string();
+                    claim.lean = Some(format!("LexLeanR4.FrontierTheorems.{}", spec.theorem_name));
+                    summary.proved_ids.push(claim.id.clone());
+                    break;
+                }
             }
+            engine.attempt.push(AttemptRecord {
+                kappa: claim.kappa.clone(),
+                strategy: strategy.to_string(),
+                template: template.to_string(),
+                library: library.to_string(),
+                outcome: "exhausted".to_string(),
+                tick: tick_id.to_string(),
+            });
+            summary
+                .outcomes
+                .push((strategy.to_string(), claim.relation.clone(), false));
         }
     }
 
@@ -2437,8 +2797,9 @@ pub fn mint_hypotheses(
         }
     }
 
-    // 3. Mint obligation hypotheses for proved curriculum claims with highest family support.
-    for claim in &frontier.claim {
+    // 3. Mint obligation hypotheses for proved curriculum claims with highest family support,
+    // prioritizing the newest architectural capabilities (`R4-F32`, `R4-F31`, ...) alongside core anchors.
+    for claim in frontier.claim.iter().rev() {
         if remaining_budget == 0 {
             break;
         }
@@ -2551,16 +2912,33 @@ pub fn run_engine_tick(
         ));
     }
 
-    // Stage 1: build & workflow/model preflight
+    // Stage 1: build, workflow/model preflight & codebase/inference diagnostic sweep
     let (tick_budget, gate_budget) = validate_workflow_homeostasis(root)?;
     let audit = audit_uorlut_synchronization(root)?;
+    let pre_frontier = load_frontier(root)?;
+    let pre_diag = audit_codebase_and_inference(root, &pre_frontier)?;
     println!(
-        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m), UORLUT01 anchors={} point_rows={} orphans={}",
-        audit.reply_anchor_count, audit.point_row_count, audit.orphaned_point_rows
+        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/30, benchmarks={}/{}, failure_basins={}, l1_residual={}",
+        audit.reply_anchor_count,
+        audit.point_row_count,
+        audit.orphaned_point_rows,
+        pre_diag.lexlean_registered_ids,
+        pre_diag.benchmark_prompts_passed,
+        pre_diag.benchmark_prompts_tested,
+        pre_diag.failure_basins.len(),
+        pre_diag.total_trajectory_l1_residual
     );
 
-    // Stage 2: induction (discover up to 1 new curriculum claim per tick)
-    let discovered_ids = discover(root, true, 1)?;
+    // Stage 2: induction (only discover when curriculum claims remain unobserved or failure basins exist)
+    let existing_ids: BTreeSet<String> = pre_frontier.claim.iter().map(|c| c.id.clone()).collect();
+    let has_unobserved_curriculum = discovery_curriculum_pool()
+        .iter()
+        .any(|c| !existing_ids.contains(&c.id));
+    let discovered_ids = if has_unobserved_curriculum || !pre_diag.failure_basins.is_empty() {
+        discover(root, true, 1)?
+    } else {
+        Vec::new()
+    };
     println!(
         "engine[2/7 induction]: discovered {} new claim(s): {:?}",
         discovered_ids.len(),
@@ -2671,13 +3049,16 @@ pub fn run_engine_tick(
             .map(|s| s.success())
             .unwrap_or(false)
     } else {
+        let post_diag = audit_codebase_and_inference(root, &frontier)?;
         check_frontier(&frontier).is_ok()
             && verify_frontier_theorems_ast(root, &frontier).is_ok()
             && load_engine(root).is_ok()
             && load_hypotheses(root).is_ok()
-            && audit_uorlut_synchronization(root)
-                .map(|a| a.orphaned_point_rows == 0)
-                .unwrap_or(false)
+            && post_diag.lexlean_missing_modules.is_empty()
+            && post_diag.failure_basins.is_empty()
+            && post_diag.radix_unindexed_rows == 0
+            && post_diag.orphaned_point_rows == 0
+            && post_diag.dead_ui_bindings.is_empty()
     };
 
     if !gate_ok {
@@ -2788,6 +3169,7 @@ pub fn print_status(root: &Path) -> Result<(), String> {
     let hyps = load_hypotheses(root)?;
     let (tick_budget, gate_budget) = validate_workflow_homeostasis(root)?;
     let audit = audit_uorlut_synchronization(root)?;
+    let diag = audit_codebase_and_inference(root, &frontier)?;
 
     let mut counts: BTreeMap<&str, usize> = BTreeMap::new();
     for c in &frontier.claim {
@@ -2809,7 +3191,8 @@ pub fn print_status(root: &Path) -> Result<(), String> {
         .count();
 
     println!(
-        "network: 28 units (LexLean slices), synapses {observed} observed, {proved} proved, {refuted} refuted, {} events (ticks)",
+        "network: {} units (LexLean slices), synapses {observed} observed, {proved} proved, {refuted} refuted, {} events (ticks)",
+        diag.lexlean_registered_ids,
         engine.tick.len()
     );
     println!(
@@ -2824,6 +3207,17 @@ pub fn print_status(root: &Path) -> Result<(), String> {
     println!(
         "uorlut: {} reply anchors, {} point rows, {} orphaned rows",
         audit.reply_anchor_count, audit.point_row_count, audit.orphaned_point_rows
+    );
+    println!(
+        "diagnostics: {}/{} benchmark prompts passed, {} failure basins, {}/{} radix /8 buckets populated, {} unindexed rows, {} dead UI bindings, {} bottleneck-relevant arXiv papers",
+        diag.benchmark_prompts_passed,
+        diag.benchmark_prompts_tested,
+        diag.failure_basins.len(),
+        diag.radix_buckets_populated,
+        diag.radix_buckets_total,
+        diag.radix_unindexed_rows,
+        diag.dead_ui_bindings.len(),
+        diag.relevant_arxiv_papers.len()
     );
     if let Some(last) = engine.tick.last() {
         println!(
@@ -3053,11 +3447,39 @@ pub fn run_frontier_cmd(root: &Path, args: &[String]) -> Result<(), String> {
     }
 }
 
-/// Handle `cargo xtask engine [status|hypotheses|prune|tick]` subcommands.
+/// Handle `cargo xtask engine [status|diagnostics|audit|hypotheses|prune|tick]` subcommands.
 pub fn run_engine_cmd(root: &Path, args: &[String]) -> Result<(), String> {
     let sub = args.first().map(String::as_str).unwrap_or("status");
     match sub {
         "status" => print_status(root),
+        "diagnostics" | "audit" => {
+            let frontier = load_frontier(root)?;
+            let diag = audit_codebase_and_inference(root, &frontier)?;
+            println!(
+                "engine diagnostics: lexlean_ids={}/30 missing_modules={:?} benchmark={}/{} failure_basins={:?} l1_residual={} radix_buckets={}/{} unindexed_rows={} orphans={} dead_ui_bindings={:?} relevant_arxiv={:?}",
+                diag.lexlean_registered_ids,
+                diag.lexlean_missing_modules,
+                diag.benchmark_prompts_passed,
+                diag.benchmark_prompts_tested,
+                diag.failure_basins,
+                diag.total_trajectory_l1_residual,
+                diag.radix_buckets_populated,
+                diag.radix_buckets_total,
+                diag.radix_unindexed_rows,
+                diag.orphaned_point_rows,
+                diag.dead_ui_bindings,
+                diag.relevant_arxiv_papers
+            );
+            if !diag.failure_basins.is_empty()
+                || !diag.lexlean_missing_modules.is_empty()
+                || !diag.dead_ui_bindings.is_empty()
+                || diag.orphaned_point_rows != 0
+                || diag.radix_unindexed_rows != 0
+            {
+                return Err("engine diagnostics detected codebase or inference defects".into());
+            }
+            Ok(())
+        }
         "hypotheses" => {
             let hyps = load_hypotheses(root)?;
             for h in &hyps.hypothesis {
@@ -3175,11 +3597,12 @@ fn send_cors_preflight<W: std::io::Write>(writer: &mut W) -> Result<(), String> 
     writer.flush().map_err(|e| format!("flush error: {e}"))
 }
 
-/// Build feed JSON representation from literature.
+/// Build feed JSON representation from literature and codebase diagnostics.
 fn build_feed_json(root: &Path) -> String {
     if let Ok(lit_file) = load_literature(root) {
         let mut papers_json = Vec::new();
         for p in &lit_file.paper {
+            let r4_bottlenecks = paper_matches_r4_bottlenecks(p);
             papers_json.push(serde_json::json!({
                 "arxiv_id": p.arxiv_id,
                 "title": p.title,
@@ -3188,6 +3611,7 @@ fn build_feed_json(root: &Path) -> String {
                 "updated": p.updated,
                 "abstract": p.r#abstract,
                 "hypotheses_count": p.hypothesis.len(),
+                "r4_bottlenecks": r4_bottlenecks,
             }));
         }
         return serde_json::json!({
@@ -4500,10 +4924,44 @@ mod tests {
         assert_eq!(gate_b, 15);
         let audit = audit_uorlut_synchronization(&root).expect("UORLUT01 audit valid");
         assert_eq!(audit.orphaned_point_rows, 0);
-        assert_eq!(discovery_curriculum_pool().len(), 19);
+        assert_eq!(discovery_curriculum_pool().len(), 21);
         let thm_count = verify_frontier_theorems_ast(&root, &frontier)
             .expect("FrontierTheorems.lex.tex verified");
         assert!(thm_count >= 17);
+    }
+
+    #[test]
+    fn codebase_and_inference_auditor_verifies_30_units_and_zero_failure_basins() {
+        let root = repo_model::repo_root();
+        let frontier = load_frontier(&root).expect("frontier.toml loads");
+        let diag =
+            audit_codebase_and_inference(&root, &frontier).expect("codebase & inference audit");
+        assert_eq!(diag.lexlean_registered_ids, 30);
+        assert!(
+            diag.lexlean_missing_modules.is_empty(),
+            "missing LexLean modules: {:?}",
+            diag.lexlean_missing_modules
+        );
+        assert!(
+            diag.failure_basins.is_empty(),
+            "unexpected benchmark failure basins: {:?}",
+            diag.failure_basins
+        );
+        assert_eq!(diag.benchmark_prompts_passed, diag.benchmark_prompts_tested);
+        assert!(diag.benchmark_prompts_tested >= 31);
+        assert_eq!(diag.radix_buckets_total, 17_408);
+        assert!(diag.radix_buckets_populated > 0);
+        assert_eq!(diag.radix_unindexed_rows, 0);
+        assert_eq!(diag.orphaned_point_rows, 0);
+        assert!(
+            diag.dead_ui_bindings.is_empty(),
+            "dead UI bindings: {:?}",
+            diag.dead_ui_bindings
+        );
+        assert!(
+            !diag.relevant_arxiv_papers.is_empty(),
+            "bottleneck relevance check must identify relevant papers in literature.toml"
+        );
     }
 
     #[test]
@@ -5362,6 +5820,75 @@ and establish non-blocking progress guarantees.
         assert!(
             parse_res.is_err(),
             "parse_arxiv_atom_feed rejects HTML proxy response"
+        );
+    }
+
+    #[test]
+    fn test_codebase_and_inference_self_improvement_auditor() {
+        let root = repo_model::repo_root();
+        let frontier = load_frontier(&root).expect("frontier.toml loads");
+        let diag =
+            audit_codebase_and_inference(&root, &frontier).expect("audit_codebase_and_inference");
+        assert_eq!(diag.lexlean_registered_ids, 30);
+        assert!(
+            diag.lexlean_missing_modules.is_empty(),
+            "missing modules: {:?}",
+            diag.lexlean_missing_modules
+        );
+        assert!(
+            diag.failure_basins.is_empty(),
+            "failure basins: {:?}",
+            diag.failure_basins
+        );
+        assert_eq!(
+            diag.benchmark_prompts_passed, diag.benchmark_prompts_tested,
+            "all proved benchmark prompts must pass cycle-free stem verification"
+        );
+        assert_eq!(diag.radix_buckets_total, 17_408);
+        assert!(diag.radix_buckets_populated > 0);
+        assert_eq!(diag.radix_unindexed_rows, 0);
+        assert_eq!(diag.orphaned_point_rows, 0);
+        assert!(
+            diag.dead_ui_bindings.is_empty(),
+            "dead UI bindings: {:?}",
+            diag.dead_ui_bindings
+        );
+        assert!(
+            !diag.relevant_arxiv_papers.is_empty(),
+            "bottleneck relevance filter must identify intersecting papers"
+        );
+    }
+
+    #[test]
+    fn test_deduce_rejects_broken_runtime_inference_claim() {
+        let root = repo_model::repo_root();
+        let mut engine = load_engine(&root).expect("model/engine.toml loads");
+        let mut frontier = load_frontier(&root).expect("frontier.toml loads");
+        frontier.claim.push(FrontierClaim {
+            id: "R4-F99".to_string(),
+            status: "observed".to_string(),
+            depends: vec!["R4-F01".to_string()],
+            relation: "dialogue-stem".to_string(),
+            window: vec![1, 7],
+            kappa: "r4:v1:test:cyclic-reply:k=7".to_string(),
+            lean: None,
+            statement: "Adversarial cyclic reply claim that satisfies word count but fails runtime cycle-free inference.".to_string(),
+            prompt: Some("How does cyclic repetition fail runtime inference audit?".to_string()),
+            // 12 words (satisfies dialogue-stem word count 8..19) but contains a 3-word consecutive repetition loop ("loop loop loop")
+            target_reply: Some("Cyclic repetition fails runtime inference audit because loop loop loop corrupts decoding.".to_string()),
+        });
+        let orig_theorems =
+            std::fs::read_to_string(root.join("tests/lexlean/FrontierTheorems.lex.tex"))
+                .expect("read FrontierTheorems.lex.tex");
+        let summary = deduce(&root, &mut engine, &mut frontier, "2026-11-08T00:00:00Z", 1)
+            .expect("deduce runs");
+        let _ = std::fs::write(
+            root.join("tests/lexlean/FrontierTheorems.lex.tex"),
+            orig_theorems,
+        );
+        assert!(
+            !summary.proved_ids.contains(&"R4-F99".to_string()),
+            "deduce must refuse to prove a claim that fails runtime inference quality"
         );
     }
 }

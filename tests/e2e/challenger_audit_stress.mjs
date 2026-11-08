@@ -392,10 +392,10 @@ console.log('\n--- Audit 5: Negative Testing & Fail-Closed Assertion Semantics -
     'crates/wasm/tests/browser_closure.rs',
     'crates/wasm/tests/empirical_challenge_chatbox.rs',
     'crates/wasm/tests/empirical_challenge_3d_math.rs',
-    'tests/e2e/test_r1_3d_otel.rs',
-    'tests/e2e/test_r2_chatbox.rs',
-    'tests/e2e/test_r3_scaling_report.rs',
-    'tests/e2e/test_tier2_boundary.rs'
+    'crates/wasm/tests/empirical_challenge_m4_otel.rs',
+    'crates/wasm/tests/frontier_e2e/tier1_feature.rs',
+    'crates/wasm/tests/frontier_e2e/tier2_boundary.rs',
+    'tests/e2e/tier1_feature/test_browser_closure.rs'
   ];
 
   for (const relPath of testFiles) {

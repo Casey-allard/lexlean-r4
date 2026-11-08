@@ -4501,3 +4501,426 @@ pub mod r4_learning {
         }
     }
 }
+
+/// Generated from `R4.AutonomousEngine` (`src/R4/AutonomousEngine.lex.tex`).
+pub mod r4_autonomous_engine {
+    /// Structure `R4.AutonomousEngine.Weight`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct Weight {
+        /// Field `strategy`.
+        pub strategy: u64,
+        /// Field `family`.
+        pub family: u64,
+        /// Field `value`.
+        pub value: u64,
+    }
+
+    /// Structure `R4.AutonomousEngine.Outcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct Outcome {
+        /// Field `strategy`.
+        pub strategy: u64,
+        /// Field `family`.
+        pub family: u64,
+        /// Field `success`.
+        pub success: bool,
+    }
+
+    /// Structure `R4.AutonomousEngine.HypothesisCandidate`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct HypothesisCandidate {
+        /// Field `formCode`.
+        pub form_code: u64,
+        /// Field `support`.
+        pub support: u64,
+        /// Field `family`.
+        pub family: u64,
+    }
+
+    /// Inductive type `R4.AutonomousEngine.EngineVerdict`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum EngineVerdict {
+        /// Variant `admittedSchedule`.
+        AdmittedSchedule(Vec<u64>),
+        /// Variant `validWorkflow`.
+        ValidWorkflow(u64, u64),
+        /// Variant `mintedHypothesis`.
+        MintedHypothesis(u64, u64),
+        /// Variant `refusedWeightOutOfBounds`.
+        RefusedWeightOutOfBounds,
+        /// Variant `refusedInvalidCron`.
+        RefusedInvalidCron,
+        /// Variant `refusedInvalidStageBudget`.
+        RefusedInvalidStageBudget,
+        /// Variant `refusedRedundantAttempt`.
+        RefusedRedundantAttempt,
+        /// Variant `refusedBudgetExhausted`.
+        RefusedBudgetExhausted,
+    }
+
+    /// Function `R4.AutonomousEngine.subtractNat`.
+    pub fn subtract_nat(left: u64, right: u64) -> u64 {
+        (left.clone()).saturating_sub(right.clone())
+    }
+
+    /// Function `R4.AutonomousEngine.inBounds`.
+    pub fn in_bounds(w: u64) -> bool {
+        ((1u64) <= (w.clone())) && ((w.clone()) <= (16u64))
+    }
+
+    /// Function `R4.AutonomousEngine.learn`.
+    pub fn learn(w: u64, success: bool) -> u64 {
+        if success.clone() {
+            if ((16u64) <= ((w.clone()).saturating_add(2u64))) {
+                16u64
+            } else {
+                (w.clone()).saturating_add(2u64)
+            }
+        } else {
+            if ((w.clone()) <= (2u64)) {
+                1u64
+            } else {
+                subtract_nat(w.clone(), 1u64)
+            }
+        }
+    }
+}
+
+/// Generated from `R4.RadixOtel` (`src/R4/RadixOtel.lex.tex`).
+pub mod r4_radix_otel {
+    /// Inductive type `R4.RadixOtel.RadixBucketOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum RadixBucketOutcome {
+        /// Variant `bucketIndex`.
+        BucketIndex(u64, u64, u64, u64),
+        /// Variant `e8OutOfRange`.
+        E8OutOfRange(u64),
+        /// Variant `cliffordOutOfRange`.
+        CliffordOutOfRange(u64),
+        /// Variant `icosianOutOfRange`.
+        IcosianOutOfRange(u64),
+    }
+
+    /// Inductive type `R4.RadixOtel.DirectorySliceOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum DirectorySliceOutcome {
+        /// Variant `sliceRange`.
+        SliceRange(u64, u64, u64),
+        /// Variant `invalidBucket`.
+        InvalidBucket(u64),
+        /// Variant `nonMonotonicOffsets`.
+        NonMonotonicOffsets(u64, u64),
+        /// Variant `offsetExceedsRowCount`.
+        OffsetExceedsRowCount(u64, u64),
+    }
+
+    /// Inductive type `R4.RadixOtel.OtelDedupOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum OtelDedupOutcome {
+        /// Variant `internedNew`.
+        InternedNew(u64, u64),
+        /// Variant `dedupHit`.
+        DedupHit(u64, u64, u64),
+        /// Variant `internTableFull`.
+        InternTableFull(u64),
+        /// Variant `invalidTierSpanCount`.
+        InvalidTierSpanCount(u64),
+    }
+
+    /// Function `R4.RadixOtel.subtractNat`.
+    pub fn subtract_nat(left: u64, right: u64) -> u64 {
+        (left.clone()).saturating_sub(right.clone())
+    }
+
+    /// Function `R4.RadixOtel.scaleNat`.
+    pub fn scale_nat(value: u64, times: u64) -> u64 {
+        (value.clone()).saturating_mul(times.clone())
+    }
+
+    /// Function `R4.RadixOtel.computeRadixBucketCapacity`.
+    pub fn compute_radix_bucket_capacity(
+        e8_count: u64,
+        clifford_count: u64,
+        icosian_count: u64,
+    ) -> u64 {
+        scale_nat(
+            scale_nat(e8_count.clone(), clifford_count.clone()),
+            icosian_count.clone(),
+        )
+    }
+
+    /// Function `R4.RadixOtel.computeRadixDirectoryLength`.
+    pub fn compute_radix_directory_length(
+        e8_count: u64,
+        clifford_count: u64,
+        icosian_count: u64,
+    ) -> u64 {
+        (compute_radix_bucket_capacity(
+            e8_count.clone(),
+            clifford_count.clone(),
+            icosian_count.clone(),
+        ))
+        .saturating_add(1u64)
+    }
+
+    /// Function `R4.RadixOtel.resolveRadixBucket`.
+    pub fn resolve_radix_bucket(
+        e8_sector: u64,
+        clifford_idx: u64,
+        icosian_bucket: u64,
+    ) -> RadixBucketOutcome {
+        if ((16u64) <= (e8_sector.clone())) {
+            RadixBucketOutcome::E8OutOfRange(e8_sector.clone())
+        } else {
+            if ((64u64) <= (clifford_idx.clone())) {
+                RadixBucketOutcome::CliffordOutOfRange(clifford_idx.clone())
+            } else {
+                if ((17u64) <= (icosian_bucket.clone())) {
+                    RadixBucketOutcome::IcosianOutOfRange(icosian_bucket.clone())
+                } else {
+                    RadixBucketOutcome::BucketIndex(
+                        (scale_nat(
+                            (scale_nat(e8_sector.clone(), 64u64))
+                                .saturating_add(clifford_idx.clone()),
+                            17u64,
+                        ))
+                        .saturating_add(icosian_bucket.clone()),
+                        e8_sector.clone(),
+                        clifford_idx.clone(),
+                        icosian_bucket.clone(),
+                    )
+                }
+            }
+        }
+    }
+
+    /// Function `R4.RadixOtel.validateDirectorySlice`.
+    pub fn validate_directory_slice(
+        bucket: u64,
+        start_offset: u64,
+        end_offset: u64,
+        total_rows: u64,
+    ) -> DirectorySliceOutcome {
+        if ((17408u64) <= (bucket.clone())) {
+            DirectorySliceOutcome::InvalidBucket(bucket.clone())
+        } else {
+            if ((end_offset.clone()) < (start_offset.clone())) {
+                DirectorySliceOutcome::NonMonotonicOffsets(start_offset.clone(), end_offset.clone())
+            } else {
+                if ((total_rows.clone()) < (end_offset.clone())) {
+                    DirectorySliceOutcome::OffsetExceedsRowCount(
+                        end_offset.clone(),
+                        total_rows.clone(),
+                    )
+                } else {
+                    DirectorySliceOutcome::SliceRange(
+                        start_offset.clone(),
+                        end_offset.clone(),
+                        subtract_nat(end_offset.clone(), start_offset.clone()),
+                    )
+                }
+            }
+        }
+    }
+
+    /// Function `R4.RadixOtel.evaluateOtelInternStep`.
+    pub fn evaluate_otel_intern_step(
+        already_interned: bool,
+        existing_id: u64,
+        current_table_len: u64,
+        current_hit_count: u64,
+        current_saved_bytes: u64,
+        attr_byte_len: u64,
+        tier_span_count: u64,
+    ) -> OtelDedupOutcome {
+        if (!((tier_span_count.clone()) == (5u64))) {
+            OtelDedupOutcome::InvalidTierSpanCount(tier_span_count.clone())
+        } else {
+            if already_interned.clone() {
+                OtelDedupOutcome::DedupHit(
+                    existing_id.clone(),
+                    (current_hit_count.clone()).saturating_add(1u64),
+                    (current_saved_bytes.clone())
+                        .saturating_add(subtract_nat(attr_byte_len.clone(), 2u64)),
+                )
+            } else {
+                if ((65535u64) <= (current_table_len.clone())) {
+                    OtelDedupOutcome::InternTableFull(current_table_len.clone())
+                } else {
+                    OtelDedupOutcome::InternedNew(
+                        current_table_len.clone(),
+                        (current_table_len.clone()).saturating_add(1u64),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/// Generated from `R4.SecopsAudit` (`src/R4/SecopsAudit.lex.tex`).
+pub mod r4_secops_audit {
+    /// Inductive type `R4.SecopsAudit.AuditChainOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum AuditChainOutcome {
+        /// Variant `chainVerified`.
+        ChainVerified(u64, u64, u64),
+        /// Variant `invalidSchemaVersion`.
+        InvalidSchemaVersion(u64),
+        /// Variant `nonMonotonicSequence`.
+        NonMonotonicSequence(u64, u64),
+        /// Variant `brokenPreviousHashLink`.
+        BrokenPreviousHashLink(u64, u64),
+        /// Variant `tamperedEventDigest`.
+        TamperedEventDigest(u64, u64),
+        /// Variant `zeroEventDigest`.
+        ZeroEventDigest,
+    }
+
+    /// Inductive type `R4.SecopsAudit.McpPolicyOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum McpPolicyOutcome {
+        /// Variant `allowedSafe`.
+        AllowedSafe(u64, u64),
+        /// Variant `allowedConfirmed`.
+        AllowedConfirmed(u64, u64),
+        /// Variant `rejectedByUser`.
+        RejectedByUser(u64),
+        /// Variant `deniedByPolicy`.
+        DeniedByPolicy(u64),
+        /// Variant `invalidPolicyMode`.
+        InvalidPolicyMode(u64),
+    }
+
+    /// Inductive type `R4.SecopsAudit.SandboxAdmissionOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum SandboxAdmissionOutcome {
+        /// Variant `admittedWorkspaceWrite`.
+        AdmittedWorkspaceWrite(u64, u64, u64),
+        /// Variant `rejectedEmptyPath`.
+        RejectedEmptyPath,
+        /// Variant `rejectedPathTraversal`.
+        RejectedPathTraversal(u64),
+        /// Variant `rejectedFileQuotaExceeded`.
+        RejectedFileQuotaExceeded(u64, u64),
+        /// Variant `rejectedByteQuotaExceeded`.
+        RejectedByteQuotaExceeded(u64, u64),
+        /// Variant `rejectedZeroReceipt`.
+        RejectedZeroReceipt,
+    }
+
+    /// Function `R4.SecopsAudit.verifyAuditLink`.
+    pub fn verify_audit_link(
+        schema_version: u64,
+        prev_seq: u64,
+        event_seq: u64,
+        expected_prev_hash: u64,
+        recorded_prev_hash: u64,
+        computed_event_hash: u64,
+        recorded_event_hash: u64,
+        merkle_root_digest: u64,
+    ) -> AuditChainOutcome {
+        if (!((schema_version.clone()) == (1u64))) {
+            AuditChainOutcome::InvalidSchemaVersion(schema_version.clone())
+        } else {
+            if (!((event_seq.clone()) == ((prev_seq.clone()).saturating_add(1u64)))) {
+                AuditChainOutcome::NonMonotonicSequence(
+                    (prev_seq.clone()).saturating_add(1u64),
+                    event_seq.clone(),
+                )
+            } else {
+                if (!((recorded_prev_hash.clone()) == (expected_prev_hash.clone()))) {
+                    AuditChainOutcome::BrokenPreviousHashLink(
+                        expected_prev_hash.clone(),
+                        recorded_prev_hash.clone(),
+                    )
+                } else {
+                    if ((computed_event_hash.clone()) == (0u64)) {
+                        AuditChainOutcome::ZeroEventDigest
+                    } else {
+                        if (!((recorded_event_hash.clone()) == (computed_event_hash.clone()))) {
+                            AuditChainOutcome::TamperedEventDigest(
+                                computed_event_hash.clone(),
+                                recorded_event_hash.clone(),
+                            )
+                        } else {
+                            AuditChainOutcome::ChainVerified(
+                                event_seq.clone(),
+                                recorded_event_hash.clone(),
+                                merkle_root_digest.clone(),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Function `R4.SecopsAudit.evaluateMcpToolPolicy`.
+    pub fn evaluate_mcp_tool_policy(
+        policy_mode: u64,
+        tool_id: u64,
+        user_confirmed: bool,
+        audit_seq: u64,
+    ) -> McpPolicyOutcome {
+        if ((policy_mode.clone()) == (0u64)) {
+            McpPolicyOutcome::AllowedSafe(tool_id.clone(), audit_seq.clone())
+        } else {
+            if ((policy_mode.clone()) == (1u64)) {
+                if user_confirmed.clone() {
+                    McpPolicyOutcome::AllowedConfirmed(tool_id.clone(), audit_seq.clone())
+                } else {
+                    McpPolicyOutcome::RejectedByUser(tool_id.clone())
+                }
+            } else {
+                if ((policy_mode.clone()) == (2u64)) {
+                    McpPolicyOutcome::DeniedByPolicy(tool_id.clone())
+                } else {
+                    McpPolicyOutcome::InvalidPolicyMode(policy_mode.clone())
+                }
+            }
+        }
+    }
+
+    /// Function `R4.SecopsAudit.admitSandboxWrite`.
+    pub fn admit_sandbox_write(
+        path_byte_len: u64,
+        has_parent_traversal: bool,
+        current_file_count: u64,
+        max_file_quota: u64,
+        payload_byte_len: u64,
+        max_payload_bytes: u64,
+        content_sha256_hi: u64,
+    ) -> SandboxAdmissionOutcome {
+        if ((path_byte_len.clone()) == (0u64)) {
+            SandboxAdmissionOutcome::RejectedEmptyPath
+        } else {
+            if has_parent_traversal.clone() {
+                SandboxAdmissionOutcome::RejectedPathTraversal(path_byte_len.clone())
+            } else {
+                if ((max_file_quota.clone()) <= (current_file_count.clone())) {
+                    SandboxAdmissionOutcome::RejectedFileQuotaExceeded(
+                        current_file_count.clone(),
+                        max_file_quota.clone(),
+                    )
+                } else {
+                    if ((max_payload_bytes.clone()) < (payload_byte_len.clone())) {
+                        SandboxAdmissionOutcome::RejectedByteQuotaExceeded(
+                            payload_byte_len.clone(),
+                            max_payload_bytes.clone(),
+                        )
+                    } else {
+                        if ((content_sha256_hi.clone()) == (0u64)) {
+                            SandboxAdmissionOutcome::RejectedZeroReceipt
+                        } else {
+                            SandboxAdmissionOutcome::AdmittedWorkspaceWrite(
+                                (current_file_count.clone()).saturating_add(1u64),
+                                payload_byte_len.clone(),
+                                content_sha256_hi.clone(),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
