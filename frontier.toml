@@ -509,3 +509,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f33_pointkey_resonance"
 statement = "Verify that Direct Preference Optimization establishes closed-form cross-entropy alignment over preference pairs without an explicit reward model."
 prompt = "How does Direct Preference Optimization align language models without reinforcement learning?"
 target_reply = "Direct Preference Optimization trains policies directly on preference pairs using closed form implicit reward substitution."
+
+[[claim]]
+id = "R4-F34"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2401.04088:H-LIT-2401.04088-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f34_bvgk_writer_refinement"
+statement = "Verify that bounded epoch-based memory reclamation neutralizes ABA hazards and bounds unreclaimed memory under concurrent compare-and-swap operations."
+prompt = "How do epoch-based reclamation algorithms prevent use-after-free and ABA hazards in concurrent memory management?"
+target_reply = "Bounded epoch reclamation protects concurrent nodes by tracking global_epoch=e with thread-local arrival counters (stride=64, grace_period=3); retirement buffers defer deallocation until all active threads advance past epoch_id+1, neutralizing ABA hazards and keeping uncollected heap nodes strictly bounded under O(N*T) space."
