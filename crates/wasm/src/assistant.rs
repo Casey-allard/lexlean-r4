@@ -920,7 +920,8 @@ impl StudioEngine {
                 &[(path.clone(), cleaned_src)],
             );
             if rep.status == "ok" && rep.tests_passed > 0 && rep.tests_failed == 0 {
-                let assertions: usize = rep.test_results.iter().map(|r| r.assertions_verified).sum();
+                let assertions: usize =
+                    rep.test_results.iter().map(|r| r.assertions_verified).sum();
                 format!(
                     "\n- **Live In-Wasm AST Execution Proof (`R4-32`)**: `cargo test` verified `{}` test suite (`{}` assertions passed, SHA-256 receipt `{}`).",
                     rep.tests_passed,
@@ -1854,7 +1855,12 @@ fn extract_explicit_identifier(raw_prompt: &str, lower: &str) -> Option<String> 
                 .chars()
                 .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
                 .collect();
-            if ident.len() >= 3 && ident.chars().next().is_some_and(|c| c.is_ascii_alphabetic()) {
+            if ident.len() >= 3
+                && ident
+                    .chars()
+                    .next()
+                    .is_some_and(|c| c.is_ascii_alphabetic())
+            {
                 return Some(ident);
             }
         }
@@ -1868,7 +1874,10 @@ fn extract_explicit_identifier(raw_prompt: &str, lower: &str) -> Option<String> 
                 .collect();
             let ident_low = ident.to_ascii_lowercase();
             if ident.len() >= 3
-                && ident.chars().next().is_some_and(|c| c.is_ascii_alphabetic())
+                && ident
+                    .chars()
+                    .next()
+                    .is_some_and(|c| c.is_ascii_alphabetic())
                 && !matches!(
                     ident_low.as_str(),
                     "that" | "which" | "in" | "for" | "to" | "with" | "from" | "using"
@@ -2770,8 +2779,9 @@ fn build_language_task_code(
                     format!("Rust Implementation (`GeometricRouter::{fn_name}`)"),
                 )
             } else {
-                let fn_name = extract_explicit_identifier(raw_prompt, lower)
-                    .unwrap_or_else(|| extract_custom_identifier(words, "compute_verified_pipeline"));
+                let fn_name = extract_explicit_identifier(raw_prompt, lower).unwrap_or_else(|| {
+                    extract_custom_identifier(words, "compute_verified_pipeline")
+                });
                 synthesize_type_directed_rust_ast(&fn_name, raw_prompt, lower, words)
             }
         }

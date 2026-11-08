@@ -129661,7 +129661,10 @@ fn build_token_transition_graph(
     let total_static_horizons = GLM_TOKEN_HORIZONS.len().max(1);
 
     for (node_rank, &node) in nodes.iter().enumerate() {
-        let alt_node = nodes.get((node_rank + 1) % nodes.len().max(1)).copied().unwrap_or(node);
+        let alt_node = nodes
+            .get((node_rank + 1) % nodes.len().max(1))
+            .copied()
+            .unwrap_or(node);
         let sections = [
             node.summary,
             node.mechanism,
@@ -129696,7 +129699,9 @@ fn build_token_transition_graph(
                         GlmTokenHorizon {
                             horizon_q12: dyn_q12,
                             horizon_sign: node.sign_code
-                                ^ alt_node.sign_code.rotate_left((sec_idx * 11 + sent_idx * 5) as u32),
+                                ^ alt_node
+                                    .sign_code
+                                    .rotate_left((sec_idx * 11 + sent_idx * 5) as u32),
                             packed_4block: (u32::from(node.icosian_root)
                                 + 17 * u32::from(alt_node.icosian_root)
                                 + 289 * (sec_idx as u32))
@@ -132346,15 +132351,7 @@ fn retrieve_orthogonal_analogical_basins(
         let single_words = vec![w.clone()];
         let single_stems = vec![canonical_stem(w).to_string()];
         let (w_q12, w_sign) = pool_prompt_trained_geometry(&single_words);
-        let hits = retrieve_top_concepts(
-            w,
-            &single_words,
-            &single_stems,
-            &w_q12,
-            w_sign,
-            2,
-            &[],
-        );
+        let hits = retrieve_top_concepts(w, &single_words, &single_stems, &w_q12, w_sign, 2, &[]);
         if let Some(&(node, sc)) = hits.first() {
             if sc >= 8 && !used_ids.contains(&node.id) {
                 used_ids.push(node.id);
@@ -133620,7 +133617,10 @@ fn try_synthesize_stylistic_or_translation_turn(
 
     let persona = if lower.contains("noir detective") || lower.contains("hardboiled") {
         Some("noir")
-    } else if lower.contains("shakespeare") || lower.contains("iambic") || lower.contains("elizabethan") {
+    } else if lower.contains("shakespeare")
+        || lower.contains("iambic")
+        || lower.contains("elizabethan")
+    {
         Some("shakespeare")
     } else if lower.contains("socratic dialogue") || lower.contains("socratic") {
         Some("socratic")
@@ -133654,7 +133654,11 @@ fn try_synthesize_stylistic_or_translation_turn(
         let prev_w = tokenize_words_simple(&prev_q.to_ascii_lowercase());
         let topic = extract_clean_topic(prev_q, &prev_w);
         let sents = split_balanced_sentences(prev_a);
-        let s0 = sents.first().copied().unwrap_or(prev_a.as_str()).to_string();
+        let s0 = sents
+            .first()
+            .copied()
+            .unwrap_or(prev_a.as_str())
+            .to_string();
         let s1 = sents.get(1).copied().unwrap_or(s0.as_str()).to_string();
         let s2 = sents.get(2).copied().unwrap_or(s1.as_str()).to_string();
         (topic, s0, s1, s2)

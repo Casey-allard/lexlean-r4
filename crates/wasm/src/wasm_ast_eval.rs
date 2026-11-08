@@ -5580,7 +5580,9 @@ impl<'a> EvalContext<'a> {
                 s.bytes().map(|b| RuntimeValue::Int(i64::from(b))).collect(),
             )),
             (RuntimeValue::Str(s), "lines") => Ok(RuntimeValue::List(
-                s.lines().map(|l| RuntimeValue::Str(l.to_string())).collect(),
+                s.lines()
+                    .map(|l| RuntimeValue::Str(l.to_string()))
+                    .collect(),
             )),
             (RuntimeValue::Str(s), "split_whitespace") => Ok(RuntimeValue::List(
                 s.split_whitespace()

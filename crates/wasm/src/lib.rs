@@ -7832,7 +7832,9 @@ mod tests {
         );
 
         // Turn 8: Recall Turn 1 & Turn 2 architectural decisions across 6 intervening turns (beyond the 3-turn rolling summary window)
-        let t8_json = ask_chat("What port and Merkle chunk size did we decide on earlier for our telemetry node?");
+        let t8_json = ask_chat(
+            "What port and Merkle chunk size did we decide on earlier for our telemetry node?",
+        );
         let t8 = t8_json["assistant_reply"].as_str().unwrap_or("");
         assert!(
             t8.contains("9443") && t8.contains("64-byte"),
@@ -7903,10 +7905,12 @@ mod tests {
         );
 
         // 4. Track A2: Stylistic persona rewrite & Cross-lingual translation grounded in conversation history
-        let s1_json = ask_chat("Explain the Raft consensus algorithm in the style of a noir detective");
+        let s1_json =
+            ask_chat("Explain the Raft consensus algorithm in the style of a noir detective");
         let s1 = s1_json["assistant_reply"].as_str().unwrap_or("");
         assert!(
-            s1.contains("Noir Detective Register") && (s1.contains("Raft") || s1.contains("Consensus")),
+            s1.contains("Noir Detective Register")
+                && (s1.contains("Raft") || s1.contains("Consensus")),
             "Must render Raft consensus in Noir Detective register: {s1}"
         );
 
