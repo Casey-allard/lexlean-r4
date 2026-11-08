@@ -569,3 +569,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f37_reply_4gram_deduction"
 statement = "Verify that constructive cut elimination via hereditary substitution guarantees strong normalization and canonical term computation in dependent type systems."
 prompt = "Why does constructive cut elimination guarantee strong normalization in dependent type systems?"
 target_reply = "Constructive cut elimination guarantees strong normalization by defining hereditary substitution over canonical term structures so every reduction step strictly decreases an ordinal proof measure, ensuring that all closed expressions compute deterministically to irreducible normal forms."
+
+[[claim]]
+id = "R4-F38"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2206.10708:H-LIT-2206.10708-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f38_corpus_induction"
+statement = "Verify that reversible cellular automata preserve computational entropy and microscopic state information via bijective block permutation mappings."
+prompt = "How do reversible cellular automata preserve microscopic information across infinite grid configurations?"
+target_reply = "Reversible cellular automata preserve microscopic information by restricting local transition rules to bijective block permutations where every forward trajectory has a unique backward trajectory, guaranteeing that computational entropy remains strictly constant without any state collapse or thermodynamic heat dissipation over time."
