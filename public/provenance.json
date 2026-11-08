@@ -1,6 +1,6 @@
 {
   "adapter_lock_sha256": "bb41dd4065226a4fcdc17629cef54cc3868967f4ae0da1dabfaa5d917b11ad05",
-  "adapter_wasm_sha256": "81135133d5e70f8b730f4c6db85f8de39d9c440b814f87ba1947727d8fb32568",
+  "adapter_wasm_sha256": "995a3dcc55e4361ef7ae1ffc82c856da21232d5e3e04bde2f1ee0d6ebc52e196",
   "binding_javascript_sha256": "ad3964567410f3784f7047252b38ca3e4255a46bd8a14fb1e616da5253658329",
   "generated_core_sha256": "e517b7a953d22a1e93400c34bc479d04a83ef7d4cd0cda4d775f372fbcd8ecc3",
   "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",

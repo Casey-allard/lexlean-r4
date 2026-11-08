@@ -4171,6 +4171,17 @@ impl StudioEngine {
             None => "null".to_string(),
         };
         let context_json = self.rolling_context.to_json();
+        let slot_binding_json = if let Some(ref sf) = lut_gen_for_trace.slot_frame {
+            format!(
+                "{{\"bound_slots\":{},\"kernel_results\":{},\"substitutions_applied\":{},\"stream_digest\":{}}}",
+                sf.slots.len(),
+                sf.kernel_results.len(),
+                sf.substitutions_applied,
+                sf.stream_digest
+            )
+        } else {
+            "{\"bound_slots\":0,\"kernel_results\":0,\"substitutions_applied\":0,\"stream_digest\":0}".to_string()
+        };
 
         format!(
             concat!(
@@ -4187,6 +4198,7 @@ impl StudioEngine {
                 "\"otel_dedup_hits\":{},",
                 "\"otel_winning_row\":{},",
                 "\"context\":{},",
+                "\"slot_binding_r4_31\":{},",
                 "\"is_coding_turn\":{},",
                 "\"conversation_turn_count\":{},",
                 "\"binder_symbol_count\":{},",
@@ -4215,6 +4227,7 @@ impl StudioEngine {
             otel_dedup_hits,
             otel_winning_row,
             context_json,
+            slot_binding_json,
             is_coding,
             self.chat_history.len(),
             self.binder_memory.len(),
