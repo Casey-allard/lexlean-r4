@@ -4256,7 +4256,7 @@ target_reply = "Multi-basin geodesic synthesis connects uper and ment by resolvi
 
 [[claim]]
 id = "R4-F272"
-status = "observed"
+status = "proved"
 depends = ["R4-F01"]
 relation = "dialogue-stem"
 window = [
@@ -4264,6 +4264,7 @@ window = [
     8,
 ]
 kappa = "r4:v1:manifold:dialogue-stem:ation-work:r2214:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f272_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ation and work at manifold row 2214."
 prompt = "How does PointKey routing resolve conversational prompts about ation and work?"
 target_reply = "PointKey routing matches conversational stems ation and work directly to their canonical reply anchor without token loops."
@@ -4326,3 +4327,17 @@ kappa = "r4:v1:manifold:dialogue-stem:orrow-ming:r2093:k=8"
 statement = "Verify compact PointKey paraphrase routing for conversational stems orrow and ming at manifold row 2093."
 prompt = "How does PointKey routing resolve conversational prompts about orrow and ming?"
 target_reply = "PointKey routing matches conversational stems orrow and ming directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F277"
+status = "observed"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:leep-ture:r2522:k=8"
+statement = "Verify causal four gram deduction over stems leep and ture from manifold row 2522 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over leep and ture?"
+target_reply = "Causal four gram continuation preserves reasoning over leep and ture because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
