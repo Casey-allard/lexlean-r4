@@ -4301,7 +4301,7 @@ target_reply = "At row_idx=1971 with anchor_id=0x8000015f, Q12 writer refinement
 
 [[claim]]
 id = "R4-F275"
-status = "observed"
+status = "proved"
 depends = [
     "R4-F02",
     "R4-F24",
@@ -4312,6 +4312,7 @@ window = [
     14,
 ]
 kappa = "r4:v1:manifold:open-basin:ment-work:r2689:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f275_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging ment and work across PointKey row 2689 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ment and work across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ment and work by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
@@ -4374,3 +4375,17 @@ kappa = "r4:v1:manifold:open-basin:ination-over:r2498:k=14"
 statement = "Verify cross-basin geodesic synthesis bridging ination and over across PointKey row 2498 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ination and over across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ination and over by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F280"
+status = "observed"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:problem-long:r3216:k=8"
+statement = "Verify compact PointKey paraphrase routing for conversational stems problem and long at manifold row 3216."
+prompt = "How does PointKey routing resolve conversational prompts about problem and long?"
+target_reply = "PointKey routing matches conversational stems problem and long directly to their canonical reply anchor without token loops."
