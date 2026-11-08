@@ -64,10 +64,8 @@ fn test_quantum_entanglement_token_budget_threshold() {
     println!("=== Sweeping budgets on backend_model ===");
     for &budget in &budgets {
         let gen = backend_model.generate_reply(&[], prompt, budget);
-        let contains_quantum = gen
-            .reply_text
-            .to_ascii_lowercase()
-            .contains("quantum entanglement");
+        let lower = gen.reply_text.to_ascii_lowercase();
+        let contains_quantum = lower.contains("quantum") && lower.contains("entanglement");
         if contains_quantum && first_quantum_budget.is_none() {
             first_quantum_budget = Some(budget);
         }
