@@ -4228,3 +4228,135 @@ body.theme-warm-light {
     grid-template-columns: 1fr;
   }
 }
+
+.diff-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.table-action-btn.active {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #1e40af;
+}
+
+.diff-file-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.diff-file-pill {
+  width: auto;
+  min-height: 1.75rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 0.35rem;
+  cursor: pointer;
+}
+
+.diff-file-pill.active {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #60a5fa;
+}
+
+body.theme-warm-light .diff-file-pill {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+body.theme-warm-light .diff-file-pill.active {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #1e40af;
+}
+
+.diff-colored-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0.6rem;
+  overflow-x: auto;
+}
+
+.diff-line {
+  display: block;
+  padding: 0.08rem 0.45rem;
+  border-radius: 0.2rem;
+  white-space: pre;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.diff-line-add {
+  background: #064e3b;
+  color: #ecfdf5;
+  border-left: 3px solid #10b981;
+}
+
+.diff-line-del {
+  background: #7f1d1d;
+  color: #fef2f2;
+  border-left: 3px solid #ef4444;
+}
+
+.diff-line-hunk {
+  background: #1e3a8a;
+  color: #eff6ff;
+  border-left: 3px solid #60a5fa;
+  font-weight: 600;
+}
+
+.diff-line-ctx {
+  color: inherit;
+}
+
+body.theme-warm-light .diff-line-add {
+  background: #dcfce7;
+  color: #064e3b;
+  border-left-color: #16a34a;
+}
+
+body.theme-warm-light .diff-line-del {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-left-color: #dc2626;
+}
+
+body.theme-warm-light .diff-line-hunk {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border-left-color: #2563eb;
+}
+
+.artifact-preview-container {
+  padding: 0.85rem;
+  background: var(--code-block-bg, #0d1117);
+  color: var(--code-block-text, #f3f4f6);
+  border: 1px solid var(--code-block-border, #30363d);
+  border-radius: 0.5rem;
+  min-height: 12rem;
+}
+
+.artifact-svg-stage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem;
+  background: #0b0f19;
+  border: 1px solid #334155;
+  border-radius: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+

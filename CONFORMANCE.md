@@ -132,6 +132,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-03` | `build` | The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification. |
 
+## r4-phrase-dag
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-34` | `build` | Pure LexLean models the compositional multi-basin PhraseDag planner and topological clause bridge verifier (bounded acyclic PhraseDag node admission over ServedPointKey rows with stem-coverage and L1 distance thresholds, multi-basin Icosian and Hamming edge composition with self-loop and root-range guards, and cycle-free topological synthesis with zero unresolved De Bruijn slot references). Formal controls establish no cyclic graph traversal or out-of-bounds PointKey indexing. |
+
 ## r4-prediction
 
 | ID | Level | Statement |
@@ -144,11 +150,23 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-29` | `build` | Pure LexLean models the two-level hierarchical Radix /8 geometric bucket index (16 E8 cells * 64 Clifford Cl(0,6) actions * 17 Icosian roots = 17,408 buckets and 17,409 monotonic directory offsets) and 5-tier OpenTelemetry (uor.gllm.trace/1) u16 canonical hash interning and sub-span deduplication with bounded 65,535-entry table capacity and byte-savings accounting. Formal controls establish no external OTLP collector transport or distributed clock synchronization. |
 
+## r4-react-agent
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-35` | `build` | Pure LexLean models the fuel- and iteration-bounded ReAct self-correcting agent controller (phase-transition admission across Plan/Code/Verify/Commit with SecOps policy and fuel guards, compiler and test-runner diagnostic self-correction retry routing with exact error-line targeting, and verified patch commit admission requiring SecOps chain integrity, non-zero passing test counts, zero failing assertions, and non-zero patch receipts). Formal controls establish no unbounded agent retry loops or unverified patch commits. |
+
 ## r4-route
 
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-07` | `build` | The pure LexLean Route operator preserves ordered root-port selection, global canonical-context budgets, framed traversal and current/virtual input transport over explicitly admitted row roots and general valid binder forests. Formal controls do not establish codebook encoding, epoch binding, GPU parity or product execution. |
+
+## r4-rule30-evolution
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-33` | `build` | Pure LexLean models the Rule 30 chaotic frontier discovery and monotonic weight evolution controller (64-cell periodic Rule 30 cellular automaton stepping over cross-shard manifold basins with zero-seed, zero-modulus, and budget guards, and non-vacuous monotonic L1 weight consolidation enforcing non-zero sample residuals, zero orphaned PointKey rows, and benchmark non-regression). Formal controls establish no vacuous zero-residual weight updates or regressive consolidation commits. |
 
 ## r4-secops-audit
 
@@ -216,6 +234,9 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-R4-REACT-AGENT` | https://arxiv.org/abs/2210.03629 — Yao et al. (2023) ReAct: Synergizing Reasoning and Acting in Language Models; companion crates/wasm/src/assistant.rs, src/R4/ReactAgent.lex.tex, and tests/lexlean/ReactAgentControls.lex.tex | `R4-35` |
+| `UOR-R4-PHRASE-DAG` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/point_key.rs; companion crates/wasm/src/lut_stack_exec.rs, src/R4/PhraseDag.lex.tex, and tests/lexlean/PhraseDagControls.lex.tex | `R4-34` |
+| `UOR-R4-RULE30-EVOLUTION` | https://doi.org/10.1103/RevModPhys.55.601 — S. Wolfram (1983) Statistical mechanics of cellular automata (Rule 30); companion xtask/src/engine.rs, src/R4/Rule30Evolution.lex.tex, and tests/lexlean/Rule30EvolutionControls.lex.tex | `R4-33` |
 | `UOR-R4-WASM-AST-EVAL` | https://doc.rust-lang.org/reference/ — The Rust Reference (expressions, statements, and test attributes); companion crates/wasm/src/lib.rs, src/R4/WasmAstEval.lex.tex, and tests/lexlean/WasmAstEvalControls.lex.tex | `R4-32` |
 | `UOR-R4-SLOT-BINDING` | https://doi.org/10.1016/1385-7258(72)90034-0 — N. G. de Bruijn (1972) Lambda calculus notation with nameless dummies; companion crates/wasm/src/lut_stack_exec.rs, src/R4/SlotBinding.lex.tex, and tests/lexlean/SlotBindingControls.lex.tex | `R4-31` |
 | `UOR-R4-SECOPS-AUDIT` | https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf — FIPS PUB 180-4 Secure Hash Standard (SHA-256); companion src/R4/SecopsAudit.lex.tex and tests/lexlean/SecopsAuditControls.lex.tex | `R4-30` |
@@ -256,6 +277,9 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UOR-R4-REACT-AGENT` | `some-true` | Fuel- and iteration-bounded ReAct phase transitions, compiler and test-runner diagnostic self-correction retry routing, and verified patch commit admission are imported from the pinned UOR-R4 ReAct agent specification. Formal LexLean controls do not establish open-world autonomous synthesis completeness. |
+| `AUTH-UOR-R4-PHRASE-DAG` | `some-true` | Bounded acyclic PhraseDag node admission over ServedPointKey rows, multi-basin Icosian and Hamming edge composition, and cycle-free topological clause synthesis are imported from the pinned UOR-R4 compositional PhraseDag specification. Formal LexLean controls do not establish open-ended natural-language discourse completeness. |
+| `AUTH-UOR-R4-RULE30-EVOLUTION` | `some-true` | 64-cell periodic Rule 30 cellular automaton chaotic frontier stepping and non-vacuous monotonic L1 weight consolidation are imported from the pinned UOR-R4 Rule 30 evolution specification. Formal LexLean controls do not establish unbounded empirical benchmark convergence. |
 | `AUTH-UOR-R4-WASM-AST-EVAL` | `some-true` | In-Wasm Rust AST parsing, static typechecking, fuel-bounded deterministic evaluation, and live #[test] assertion runner invariants are imported from the pinned UOR-R4 in-Wasm AST evaluation specification. Formal LexLean controls do not establish full rustc borrow-checker parity or unbounded termination. |
 | `AUTH-UOR-R4-SLOT-BINDING` | `some-true` | De Bruijn variable slot-binding across integer, algebraic, identifier, and file-path entities, live execution of exact R4-27 arithmetic, R4-24 Icosian, and AST kernels over bound VSA registers, and /7 token-stream substitution are imported from the pinned UOR-R4 compositional decoder specification. Formal LexLean controls do not establish open-domain semantic completeness. |
 | `AUTH-UOR-R4-SECOPS-AUDIT` | `some-true` | FIPS 180-4 SHA-256 Merkle audit chaining (uor.secops.audit/1), MCP tool policy enforcement (safe, confirm, deny), and bounded container workspace admission are imported from the pinned SecOps audit and NIST FIPS 180-4 specifications. Formal LexLean controls do not establish host OS sandboxing or cryptographic collision resistance. |

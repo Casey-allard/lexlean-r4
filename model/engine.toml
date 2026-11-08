@@ -1,7 +1,9 @@
 # Consolidated autonomous engine state (`r4/engine/1`).
-# Governed by `src/R4/AutonomousEngine.lex.tex` (`R4-28`).
+# Governed by `src/R4/AutonomousEngine.lex.tex` (`R4-28`) and `src/R4/Rule30Evolution.lex.tex` (`R4-33`).
 
 spec = "r4/engine/1"
+rule30_state = 11400714819323198485
+rule30_generation = 1
 
 [[weight]]
 strategy = "corpus-induction"

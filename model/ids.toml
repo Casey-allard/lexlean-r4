@@ -20,6 +20,24 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-35"
+level = "build"
+suite = "r4-react-agent"
+statement = "Pure LexLean models the fuel- and iteration-bounded ReAct self-correcting agent controller (phase-transition admission across Plan/Code/Verify/Commit with SecOps policy and fuel guards, compiler and test-runner diagnostic self-correction retry routing with exact error-line targeting, and verified patch commit admission requiring SecOps chain integrity, non-zero passing test counts, zero failing assertions, and non-zero patch receipts). Formal controls establish no unbounded agent retry loops or unverified patch commits."
+
+[[id]]
+id = "R4-34"
+level = "build"
+suite = "r4-phrase-dag"
+statement = "Pure LexLean models the compositional multi-basin PhraseDag planner and topological clause bridge verifier (bounded acyclic PhraseDag node admission over ServedPointKey rows with stem-coverage and L1 distance thresholds, multi-basin Icosian and Hamming edge composition with self-loop and root-range guards, and cycle-free topological synthesis with zero unresolved De Bruijn slot references). Formal controls establish no cyclic graph traversal or out-of-bounds PointKey indexing."
+
+[[id]]
+id = "R4-33"
+level = "build"
+suite = "r4-rule30-evolution"
+statement = "Pure LexLean models the Rule 30 chaotic frontier discovery and monotonic weight evolution controller (64-cell periodic Rule 30 cellular automaton stepping over cross-shard manifold basins with zero-seed, zero-modulus, and budget guards, and non-vacuous monotonic L1 weight consolidation enforcing non-zero sample residuals, zero orphaned PointKey rows, and benchmark non-regression). Formal controls establish no vacuous zero-residual weight updates or regressive consolidation commits."
+
+[[id]]
 id = "R4-32"
 level = "build"
 suite = "r4-wasm-ast-eval"

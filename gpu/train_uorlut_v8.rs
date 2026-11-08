@@ -1690,15 +1690,25 @@ fn main() {
         );
         fs::write(weights_dir.join("manifest.json"), manifest_json).expect("write manifest.json");
         let geo_catalog = verified_model.partition_geometric_shards();
+        let active_e8_shards = geo_catalog
+            .shards
+            .iter()
+            .filter(|s| s.point_rows > 0)
+            .count();
+        assert_eq!(
+            active_e8_shards, 16,
+            "all 16 UORSHRD1 E8 geometric shards (0..15) must have > 0 rows"
+        );
         fs::write(
             weights_dir.join("geometric_shards_manifest.json"),
             geo_catalog.to_json(),
         )
         .expect("write geometric_shards_manifest.json");
         println!(
-            "6. Wrote {} shards + {}/manifest.json + geometric_shards_manifest.json (16 E8xCliffordxIcosian basins, total={} bytes, total_parameters={}, sha256={}).",
+            "6. Wrote {} shards + {}/manifest.json + geometric_shards_manifest.json ({}/16 active E8xCliffordxIcosian basins, total={} bytes, total_parameters={}, sha256={}).",
             shard_entries.len(),
             out_weights_dir,
+            active_e8_shards,
             verified_model.artifact_bytes,
             verified_model.total_parameters(),
             verified_model.artifact_sha256

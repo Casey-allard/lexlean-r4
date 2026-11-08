@@ -13,6 +13,30 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-REACT-AGENT"
+name = "UOR-R4 fuel-bounded ReAct self-correcting agent controller and verified patch admission gate"
+citation = "https://arxiv.org/abs/2210.03629 — Yao et al. (2023) ReAct: Synergizing Reasoning and Acting in Language Models; companion crates/wasm/src/assistant.rs, src/R4/ReactAgent.lex.tex, and tests/lexlean/ReactAgentControls.lex.tex"
+checksum = "sha256:43baddcc1193367a9f9c2d84160d9d4b69d91c2caf7f6ee5d76ab0ac6ec4aee8"
+statement = "Pinned UOR-R4 ReAct agent specification defines fuel- and iteration-bounded phase transitions, compiler and test-runner diagnostic self-correction retry routing with exact error-line targeting, and verified patch commit admission requiring SecOps chain verification and passing test suites."
+realized_by = ["R4-35"]
+
+[[authority]]
+id = "UOR-R4-PHRASE-DAG"
+name = "UOR-R4 compositional multi-basin PhraseDag planner and topological clause bridge verifier"
+citation = "https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/point_key.rs; companion crates/wasm/src/lut_stack_exec.rs, src/R4/PhraseDag.lex.tex, and tests/lexlean/PhraseDagControls.lex.tex"
+checksum = "sha256:7ff068b4519a81f3e425fd14e63b017faa6a0c92061ef2c9efee2b2ff4ed6c3c"
+statement = "Pinned UOR-R4 compositional PhraseDag specification defines bounded acyclic node admission over ServedPointKey rows, multi-basin Icosian and Hamming edge composition, and cycle-free topological synthesis with stem coverage and zero unresolved De Bruijn slot references."
+realized_by = ["R4-34"]
+
+[[authority]]
+id = "UOR-R4-RULE30-EVOLUTION"
+name = "UOR-R4 Rule 30 chaotic frontier discovery and non-vacuous monotonic weight evolution controller"
+citation = "https://doi.org/10.1103/RevModPhys.55.601 — S. Wolfram (1983) Statistical mechanics of cellular automata (Rule 30); companion xtask/src/engine.rs, src/R4/Rule30Evolution.lex.tex, and tests/lexlean/Rule30EvolutionControls.lex.tex"
+checksum = "sha256:dad44c68d46548c3ff470bc2dca0e6924ce0c5e7fa158897064c52bcc655a847"
+statement = "Pinned UOR-R4 Rule 30 evolution specification defines 64-cell periodic Rule 30 cellular automaton stepping over cross-shard manifold basins and non-vacuous monotonic L1 weight consolidation with zero orphaned PointKey rows and benchmark non-regression."
+realized_by = ["R4-33"]
+
+[[authority]]
 id = "UOR-R4-WASM-AST-EVAL"
 name = "UOR-R4 in-Wasm Rust AST parser, typechecker, fuel-bounded interpreter, and live #[test] runner"
 citation = "https://doc.rust-lang.org/reference/ — The Rust Reference (expressions, statements, and test attributes); companion crates/wasm/src/lib.rs, src/R4/WasmAstEval.lex.tex, and tests/lexlean/WasmAstEvalControls.lex.tex"

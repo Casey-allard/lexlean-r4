@@ -117,7 +117,7 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
-              cargo run -q -p xtask -- literature-sync --offline-fallback || true
+              cargo run -q -p xtask -- literature-sync --offline-fallback --write || true
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true
               rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true
@@ -170,7 +170,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Mark the commit settled
-        if: always() && steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true' && contains(fromJSON('["idle", "settled", "refused", "error", "stalled"]'), steps.tick.outputs.outcome)
+        if: always() && steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true' && contains(fromJSON('["idle", "settled"]'), steps.tick.outputs.outcome)
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .r4-settled

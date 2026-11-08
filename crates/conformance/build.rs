@@ -113,11 +113,17 @@ fn main() {
         ("tests/secops_audit.rs", "complete_secops_audit_r4_30"),
         ("tests/slot_binding.rs", "complete_slot_binding_r4_31"),
         ("tests/wasm_ast_eval.rs", "complete_wasm_ast_eval_r4_32"),
+        (
+            "tests/rule30_evolution.rs",
+            "complete_rule30_evolution_r4_33",
+        ),
+        ("tests/phrase_dag.rs", "complete_phrase_dag_r4_34"),
+        ("tests/react_agent.rs", "complete_react_agent_r4_35"),
     ];
     assert_eq!(
         required_entrypoints.len(),
-        32,
-        "exactly 32 R4 acceptance entrypoints required"
+        35,
+        "exactly 35 R4 acceptance entrypoints required"
     );
     for (path, name) in required_entrypoints {
         require_test(&root, path, name);

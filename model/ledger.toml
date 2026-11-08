@@ -14,6 +14,24 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-REACT-AGENT"
+level = "some-true"
+authority = "UOR-R4-REACT-AGENT"
+statement = "Fuel- and iteration-bounded ReAct phase transitions, compiler and test-runner diagnostic self-correction retry routing, and verified patch commit admission are imported from the pinned UOR-R4 ReAct agent specification. Formal LexLean controls do not establish open-world autonomous synthesis completeness."
+
+[[claim]]
+id = "AUTH-UOR-R4-PHRASE-DAG"
+level = "some-true"
+authority = "UOR-R4-PHRASE-DAG"
+statement = "Bounded acyclic PhraseDag node admission over ServedPointKey rows, multi-basin Icosian and Hamming edge composition, and cycle-free topological clause synthesis are imported from the pinned UOR-R4 compositional PhraseDag specification. Formal LexLean controls do not establish open-ended natural-language discourse completeness."
+
+[[claim]]
+id = "AUTH-UOR-R4-RULE30-EVOLUTION"
+level = "some-true"
+authority = "UOR-R4-RULE30-EVOLUTION"
+statement = "64-cell periodic Rule 30 cellular automaton chaotic frontier stepping and non-vacuous monotonic L1 weight consolidation are imported from the pinned UOR-R4 Rule 30 evolution specification. Formal LexLean controls do not establish unbounded empirical benchmark convergence."
+
+[[claim]]
 id = "AUTH-UOR-R4-WASM-AST-EVAL"
 level = "some-true"
 authority = "UOR-R4-WASM-AST-EVAL"

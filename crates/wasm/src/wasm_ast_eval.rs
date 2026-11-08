@@ -38,14 +38,18 @@ pub enum RustSubsetType {
     Str,
     /// Unit type `()` -> Lean tag `3`.
     Unit,
-    /// Homogeneous slice/array `&[T]` or `Vec<T>`.
+    /// Homogeneous slice/array `&[T]`, `[T; N]`, or `Vec<T>`.
     Slice(Box<RustSubsetType>),
     /// Fixed tuple `(T1, T2, ...)`.
     Tuple(Vec<RustSubsetType>),
     /// `Option<T>`.
     Option(Box<RustSubsetType>),
+    /// `Result<T, E>`.
+    Result(Box<RustSubsetType>, Box<RustSubsetType>),
     /// Named struct type (e.g., `GeometricRouter`).
     Struct(String),
+    /// Named enum type (e.g., `RouteDecision`).
+    Enum(String),
     /// Unconstrained or inferred type parameter.
     Unknown,
 }
@@ -58,9 +62,13 @@ impl RustSubsetType {
             Self::Bool => 1,
             Self::Str => 2,
             Self::Unit => 3,
-            Self::Slice(_) | Self::Tuple(_) | Self::Option(_) | Self::Struct(_) | Self::Unknown => {
-                0
-            }
+            Self::Slice(_)
+            | Self::Tuple(_)
+            | Self::Option(_)
+            | Self::Result(_, _)
+            | Self::Struct(_)
+            | Self::Enum(_)
+            | Self::Unknown => 0,
         }
     }
 
@@ -70,6 +78,17 @@ impl RustSubsetType {
         if s.is_empty() || s == "()" {
             return Ok(Self::Unit);
         }
+        if s == "_" {
+            return Ok(Self::Unknown);
+        }
+        if s == "&str" || s == "String" || s == "str" || s == "&String" || s == "char" {
+            return Ok(Self::Str);
+        }
+        let s = s
+            .strip_prefix("&mut ")
+            .or_else(|| s.strip_prefix('&'))
+            .unwrap_or(s)
+            .trim();
         if matches!(
             s,
             "i64"
@@ -90,17 +109,33 @@ impl RustSubsetType {
         if s == "bool" {
             return Ok(Self::Bool);
         }
-        if s == "&str" || s == "String" || s == "str" {
+        if s == "str" || s == "String" || s == "char" {
             return Ok(Self::Str);
         }
-        if let Some(inner) = s.strip_prefix("&[").and_then(|r| r.strip_suffix(']')) {
-            return Ok(Self::Slice(Box::new(Self::parse_annotation(inner)?)));
+        if let Some(inner) = s.strip_prefix('[').and_then(|r| r.strip_suffix(']')) {
+            let elem_str = if let Some((elem_ty, _len_part)) = inner.rsplit_once(';') {
+                elem_ty.trim()
+            } else {
+                inner.trim()
+            };
+            return Ok(Self::Slice(Box::new(Self::parse_annotation(elem_str)?)));
         }
         if let Some(inner) = s.strip_prefix("Vec<").and_then(|r| r.strip_suffix('>')) {
             return Ok(Self::Slice(Box::new(Self::parse_annotation(inner)?)));
         }
         if let Some(inner) = s.strip_prefix("Option<").and_then(|r| r.strip_suffix('>')) {
             return Ok(Self::Option(Box::new(Self::parse_annotation(inner)?)));
+        }
+        if let Some(inner) = s.strip_prefix("Result<").and_then(|r| r.strip_suffix('>')) {
+            let parts = split_top_level(inner, ',');
+            if parts.len() != 2 {
+                return Err(format!(
+                    "`Result<T, E>` requires 2 type arguments in `{raw}`"
+                ));
+            }
+            let ok_ty = Self::parse_annotation(parts[0].trim())?;
+            let err_ty = Self::parse_annotation(parts[1].trim())?;
+            return Ok(Self::Result(Box::new(ok_ty), Box::new(err_ty)));
         }
         if s.starts_with('(') && s.ends_with(')') && s.len() > 2 {
             let inner = &s[1..s.len() - 1];
@@ -136,10 +171,13 @@ impl RustSubsetType {
             | (Self::Unit, Self::Unit) => true,
             (Self::Slice(a), Self::Slice(b)) => a.is_compatible_with(b),
             (Self::Option(a), Self::Option(b)) => a.is_compatible_with(b),
+            (Self::Result(ok_a, err_a), Self::Result(ok_b, err_b)) => {
+                ok_a.is_compatible_with(ok_b) && err_a.is_compatible_with(err_b)
+            }
             (Self::Tuple(a), Self::Tuple(b)) => {
                 a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.is_compatible_with(y))
             }
-            (Self::Struct(a), Self::Struct(b)) => a == b,
+            (Self::Struct(a) | Self::Enum(a), Self::Struct(b) | Self::Enum(b)) => a == b,
             _ => false,
         }
     }
@@ -162,12 +200,23 @@ pub enum RuntimeValue {
     Tuple(Vec<RuntimeValue>),
     /// `Option<RuntimeValue>`.
     OptionVal(Option<Box<RuntimeValue>>),
+    /// `Result<RuntimeValue, RuntimeValue>`.
+    ResultVal(Result<Box<RuntimeValue>, Box<RuntimeValue>>),
     /// Struct instance with named fields.
     StructVal {
         /// Struct type name.
         name: String,
         /// Field values keyed by field identifier.
         fields: BTreeMap<String, RuntimeValue>,
+    },
+    /// Enum variant value (`EnumName::Variant` or `EnumName::Variant(payload)`).
+    EnumVariant {
+        /// Enum type name.
+        enum_name: String,
+        /// Variant identifier.
+        variant: String,
+        /// Optional payload value.
+        payload: Option<Box<RuntimeValue>>,
     },
 }
 
@@ -191,7 +240,16 @@ impl RuntimeValue {
             }
             Self::OptionVal(Some(inner)) => RustSubsetType::Option(Box::new(inner.runtime_type())),
             Self::OptionVal(None) => RustSubsetType::Option(Box::new(RustSubsetType::Unknown)),
+            Self::ResultVal(Ok(v)) => RustSubsetType::Result(
+                Box::new(v.runtime_type()),
+                Box::new(RustSubsetType::Unknown),
+            ),
+            Self::ResultVal(Err(e)) => RustSubsetType::Result(
+                Box::new(RustSubsetType::Unknown),
+                Box::new(e.runtime_type()),
+            ),
             Self::StructVal { name, .. } => RustSubsetType::Struct(name.clone()),
+            Self::EnumVariant { enum_name, .. } => RustSubsetType::Enum(enum_name.clone()),
         }
     }
 
@@ -218,10 +276,23 @@ impl RuntimeValue {
             }
             Self::OptionVal(Some(v)) => v.to_lean_nat().wrapping_add(1),
             Self::OptionVal(None) => 0,
+            Self::ResultVal(Ok(v)) => v.to_lean_nat().wrapping_add(0x1000_0001),
+            Self::ResultVal(Err(e)) => e.to_lean_nat().wrapping_add(0x2000_0002),
             Self::StructVal { fields, .. } => {
                 let mut h = 0x517c_c1b7_2722_0a95u64;
                 for (k, v) in fields {
                     h ^= fnv1a64(k.as_bytes()).wrapping_add(v.to_lean_nat());
+                }
+                h
+            }
+            Self::EnumVariant {
+                enum_name,
+                variant,
+                payload,
+            } => {
+                let mut h = fnv1a64(enum_name.as_bytes()) ^ fnv1a64(variant.as_bytes());
+                if let Some(p) = payload {
+                    h = h.wrapping_mul(257).wrapping_add(p.to_lean_nat());
                 }
                 h
             }
@@ -245,6 +316,8 @@ impl RuntimeValue {
             }
             Self::OptionVal(Some(v)) => format!("Some({})", v.display_value()),
             Self::OptionVal(None) => "None".to_string(),
+            Self::ResultVal(Ok(v)) => format!("Ok({})", v.display_value()),
+            Self::ResultVal(Err(e)) => format!("Err({})", e.display_value()),
             Self::StructVal { name, fields } => {
                 let inner: Vec<String> = fields
                     .iter()
@@ -252,6 +325,16 @@ impl RuntimeValue {
                     .collect();
                 format!("{name} {{ {} }}", inner.join(", "))
             }
+            Self::EnumVariant {
+                enum_name,
+                variant,
+                payload: Some(p),
+            } => format!("{enum_name}::{variant}({})", p.display_value()),
+            Self::EnumVariant {
+                enum_name,
+                variant,
+                payload: None,
+            } => format!("{enum_name}::{variant}"),
         }
     }
 }
@@ -384,6 +467,49 @@ pub struct AstStructDef {
     pub decl_line: usize,
     /// Field types keyed by field name.
     pub fields: BTreeMap<String, RustSubsetType>,
+}
+
+/// Parsed enum definition (`enum Name { VariantA, VariantB(T), ... }`).
+#[derive(Debug, Clone)]
+pub struct AstEnumDef {
+    /// Enum name.
+    pub name: String,
+    /// Source file path.
+    pub file_path: String,
+    /// 1-based declaration line.
+    pub decl_line: usize,
+    /// Variant payload types keyed by variant name (`Vec` is empty for unit variants).
+    pub variants: BTreeMap<String, Vec<RustSubsetType>>,
+}
+
+/// Parsed top-level constant (`const NAME: T = expr;`).
+#[derive(Debug, Clone)]
+pub struct AstConstDef {
+    /// Constant identifier.
+    pub name: String,
+    /// Declared type.
+    pub ty: RustSubsetType,
+    /// Initializer expression.
+    pub expr: String,
+    /// Source file path.
+    pub file_path: String,
+    /// 1-based declaration line.
+    pub decl_line: usize,
+}
+
+/// Complete parsed items for a single `.rs` workspace module.
+#[derive(Debug, Clone, Default)]
+pub struct ParsedRustModule {
+    /// Struct definitions.
+    pub structs: Vec<AstStructDef>,
+    /// Enum definitions.
+    pub enums: Vec<AstEnumDef>,
+    /// Top-level `const` definitions.
+    pub consts: Vec<AstConstDef>,
+    /// Top-level `type Alias = T;` aliases.
+    pub type_aliases: BTreeMap<String, RustSubsetType>,
+    /// Function and method definitions.
+    pub functions: Vec<AstFunction>,
 }
 
 /// Diagnostic item emitted during parsing, typechecking, or test execution.
@@ -695,6 +821,15 @@ pub fn parse_rust_module(
     file_path: &str,
     source: &str,
 ) -> Result<(Vec<AstStructDef>, Vec<AstFunction>), AstDiagnostic> {
+    let parsed = parse_rust_module_items(file_path, source)?;
+    Ok((parsed.structs, parsed.functions))
+}
+
+/// Parse a single `.rs` workspace module into structs, enums, consts, type aliases, and functions.
+pub fn parse_rust_module_items(
+    file_path: &str,
+    source: &str,
+) -> Result<ParsedRustModule, AstDiagnostic> {
     if let Err((line, msg)) = check_delimiter_balance(source) {
         return Err(AstDiagnostic {
             file_path: file_path.to_string(),
@@ -712,6 +847,9 @@ pub fn parse_rust_module(
         .collect();
 
     let mut structs = Vec::new();
+    let mut enums = Vec::new();
+    let mut consts = Vec::new();
+    let mut type_aliases = BTreeMap::new();
     let mut functions = Vec::new();
     let mut idx = 0usize;
     let mut pending_test_attr = false;
@@ -728,6 +866,9 @@ pub fn parse_rust_module(
         if text.starts_with("#[cfg(")
             || text.starts_with("#[allow(")
             || text.starts_with("#[derive(")
+            || text.starts_with("#[repr(")
+            || text.starts_with("#[inline")
+            || text.starts_with("#![")
         {
             idx += 1;
             continue;
@@ -737,12 +878,12 @@ pub fn parse_rust_module(
             idx += 1;
             continue;
         }
-        if text.starts_with("mod ") && text.ends_with('{') {
+        if (text.starts_with("mod ") || text.starts_with("pub mod ")) && text.ends_with('{') {
             brace_depth += 1;
             idx += 1;
             continue;
         }
-        if text.starts_with("use ") && text.ends_with(';') {
+        if (text.starts_with("use ") || text.starts_with("pub use ")) && text.ends_with(';') {
             idx += 1;
             continue;
         }
@@ -754,6 +895,138 @@ pub fn parse_rust_module(
                 }
             }
             idx += 1;
+            continue;
+        }
+
+        // Check `[pub] type Alias = T;`
+        let type_rest = text
+            .strip_prefix("pub type ")
+            .or_else(|| text.strip_prefix("type "));
+        if type_rest.is_some() {
+            let (full_stmt, stmt_end_idx) = collect_simple_stmt(&lines, idx);
+            let clean = full_stmt
+                .trim()
+                .strip_prefix("pub type ")
+                .or_else(|| full_stmt.trim().strip_prefix("type "))
+                .unwrap_or("")
+                .trim();
+            let Some(without_semi) = clean.strip_suffix(';') else {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!("missing `;` at end of `type` alias at line {line_num}"),
+                });
+            };
+            let Some((alias_name, target_ty_str)) = without_semi.split_once('=') else {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!("missing `=` in `type` alias at line {line_num}"),
+                });
+            };
+            let alias_ident = alias_name.trim();
+            if alias_ident.is_empty()
+                || !alias_ident
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '_')
+            {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!(
+                        "invalid `type` alias identifier `{alias_ident}` at line {line_num}"
+                    ),
+                });
+            }
+            let parsed_ty =
+                RustSubsetType::parse_annotation(target_ty_str.trim()).map_err(|e| {
+                    AstDiagnostic {
+                        file_path: file_path.to_string(),
+                        line: line_num,
+                        severity: "error".to_string(),
+                        code: "TypeErrorAtLine".to_string(),
+                        message: format!("{e} in `type {alias_ident}` at line {line_num}"),
+                    }
+                })?;
+            type_aliases.insert(alias_ident.to_string(), parsed_ty);
+            idx = stmt_end_idx + 1;
+            continue;
+        }
+
+        // Check `[pub] const NAME: T = expr;` (excluding `const fn`)
+        let is_const_item = (text.starts_with("pub const ") && !text.starts_with("pub const fn "))
+            || (text.starts_with("const ") && !text.starts_with("const fn "));
+        if is_const_item {
+            let (full_stmt, stmt_end_idx) = collect_simple_stmt(&lines, idx);
+            let clean = full_stmt
+                .trim()
+                .strip_prefix("pub const ")
+                .or_else(|| full_stmt.trim().strip_prefix("const "))
+                .unwrap_or("")
+                .trim();
+            let Some(without_semi) = clean.strip_suffix(';') else {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!(
+                        "missing `;` at end of `const` declaration at line {line_num}"
+                    ),
+                });
+            };
+            let Some((lhs_raw, rhs_raw)) = without_semi.split_once('=') else {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!("missing `=` initializer in `const` at line {line_num}"),
+                });
+            };
+            let Some((cname_raw, cty_raw)) = lhs_raw.split_once(':') else {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!("`const` declaration missing `: Type` at line {line_num}"),
+                });
+            };
+            let cname = cname_raw.trim();
+            if cname.is_empty() || !cname.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!("invalid `const` identifier `{cname}` at line {line_num}"),
+                });
+            }
+            let parsed_ty =
+                RustSubsetType::parse_annotation(cty_raw.trim()).map_err(|e| AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "TypeErrorAtLine".to_string(),
+                    message: format!("{e} in `const {cname}` at line {line_num}"),
+                })?;
+            let expr_str = rhs_raw.trim();
+            validate_expr_syntax(file_path, line_num, expr_str)?;
+            consts.push(AstConstDef {
+                name: cname.to_string(),
+                ty: parsed_ty,
+                expr: expr_str.to_string(),
+                file_path: file_path.to_string(),
+                decl_line: line_num,
+            });
+            idx = stmt_end_idx + 1;
             continue;
         }
 
@@ -780,6 +1053,101 @@ pub fn parse_rust_module(
                 idx += 1;
                 continue;
             }
+        }
+
+        // Check `[pub] enum Name {`
+        let enum_rest = text
+            .strip_prefix("pub enum ")
+            .or_else(|| text.strip_prefix("enum "));
+        if let Some(rest) = enum_rest {
+            let (header, end_idx, body_lines) = collect_braced_block(&lines, idx, file_path)?;
+            let name = header
+                .strip_prefix("pub enum ")
+                .or_else(|| header.strip_prefix("enum "))
+                .unwrap_or(rest)
+                .trim();
+            if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+                return Err(AstDiagnostic {
+                    file_path: file_path.to_string(),
+                    line: line_num,
+                    severity: "error".to_string(),
+                    code: "SyntaxErrorAtLine".to_string(),
+                    message: format!("invalid enum identifier `{name}` at line {line_num}"),
+                });
+            }
+            let mut variants = BTreeMap::new();
+            let joined_body: String = body_lines
+                .iter()
+                .map(|(_, l)| l.as_str())
+                .collect::<Vec<_>>()
+                .join(" ");
+            for raw_var in split_top_level(&joined_body, ',') {
+                let vt = raw_var.trim();
+                if vt.is_empty() {
+                    continue;
+                }
+                let vt_no_disc = vt.split('=').next().unwrap_or(vt).trim();
+                if let Some(open_p) = vt_no_disc.find('(') {
+                    if let Some(inner) = vt_no_disc[open_p + 1..].strip_suffix(')') {
+                        let vname = vt_no_disc[..open_p].trim();
+                        if vname.is_empty()
+                            || !vname.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                        {
+                            return Err(AstDiagnostic {
+                                file_path: file_path.to_string(),
+                                line: line_num,
+                                severity: "error".to_string(),
+                                code: "SyntaxErrorAtLine".to_string(),
+                                message: format!(
+                                    "invalid enum variant `{vname}` at line {line_num}"
+                                ),
+                            });
+                        }
+                        let mut payload_tys = Vec::new();
+                        for p in split_top_level(inner, ',') {
+                            let pt = p.trim();
+                            if !pt.is_empty() {
+                                let parsed_ty =
+                                    RustSubsetType::parse_annotation(pt).map_err(|e| {
+                                        AstDiagnostic {
+                                            file_path: file_path.to_string(),
+                                            line: line_num,
+                                            severity: "error".to_string(),
+                                            code: "TypeErrorAtLine".to_string(),
+                                            message: format!(
+                                                "{e} in enum `{name}::{vname}` at line {line_num}"
+                                            ),
+                                        }
+                                    })?;
+                                payload_tys.push(parsed_ty);
+                            }
+                        }
+                        variants.insert(vname.to_string(), payload_tys);
+                        continue;
+                    }
+                }
+                if !vt_no_disc
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                {
+                    return Err(AstDiagnostic {
+                        file_path: file_path.to_string(),
+                        line: line_num,
+                        severity: "error".to_string(),
+                        code: "SyntaxErrorAtLine".to_string(),
+                        message: format!("malformed enum variant `{vt}` at line {line_num}"),
+                    });
+                }
+                variants.insert(vt_no_disc.to_string(), Vec::new());
+            }
+            enums.push(AstEnumDef {
+                name: name.to_string(),
+                file_path: file_path.to_string(),
+                decl_line: line_num,
+                variants,
+            });
+            idx = end_idx + 1;
+            continue;
         }
 
         // Check `[pub] struct Name {`
@@ -842,8 +1210,11 @@ pub fn parse_rust_module(
             continue;
         }
 
-        // Check `[pub] fn name(...)`
-        let is_fn = text.starts_with("pub fn ") || text.starts_with("fn ");
+        // Check `[pub] [const] fn name(...)`
+        let is_fn = text.starts_with("pub fn ")
+            || text.starts_with("fn ")
+            || text.starts_with("pub const fn ")
+            || text.starts_with("const fn ");
         if is_fn {
             let (header, end_idx, body_lines) = collect_braced_block(&lines, idx, file_path)?;
             let impl_owner = current_impl_struct.as_ref().map(|(s, _)| s.clone());
@@ -870,7 +1241,13 @@ pub fn parse_rust_module(
         });
     }
 
-    Ok((structs, functions))
+    Ok(ParsedRustModule {
+        structs,
+        enums,
+        consts,
+        type_aliases,
+        functions,
+    })
 }
 
 type BracedBlockResult = Result<(String, usize, Vec<(usize, String)>), AstDiagnostic>;
@@ -989,7 +1366,9 @@ fn parse_function_def(
     impl_struct: Option<String>,
 ) -> Result<AstFunction, AstDiagnostic> {
     let rest = header
-        .strip_prefix("pub fn ")
+        .strip_prefix("pub const fn ")
+        .or_else(|| header.strip_prefix("const fn "))
+        .or_else(|| header.strip_prefix("pub fn "))
         .or_else(|| header.strip_prefix("fn "))
         .ok_or_else(|| AstDiagnostic {
             file_path: file_path.to_string(),
@@ -1209,8 +1588,11 @@ fn parse_stmt_block(
         let (full_stmt, stmt_end_idx) = collect_simple_stmt(lines, idx);
         let trimmed_stmt = full_stmt.trim();
 
-        // `let [mut] name [: ty] = expr;`
-        if let Some(let_rest) = trimmed_stmt.strip_prefix("let ") {
+        // `let [mut] name [: ty] = expr;` or `const name [: ty] = expr;`
+        let let_or_const_rest = trimmed_stmt
+            .strip_prefix("let ")
+            .or_else(|| trimmed_stmt.strip_prefix("const "));
+        if let Some(let_rest) = let_or_const_rest {
             let Some(without_semi) = let_rest.strip_suffix(';') else {
                 return Err(AstDiagnostic {
                     file_path: file_path.to_string(),
@@ -1454,6 +1836,7 @@ fn collect_simple_stmt(lines: &[(usize, String)], start_idx: usize) -> (String, 
     let mut paren = 0i32;
     let mut brack = 0i32;
     let mut brace = 0i32;
+    let mut in_str = false;
 
     while idx < lines.len() {
         let (_, ref text) = lines[idx];
@@ -1461,18 +1844,33 @@ fn collect_simple_stmt(lines: &[(usize, String)], start_idx: usize) -> (String, 
             acc.push(' ');
         }
         acc.push_str(text.trim());
-        for ch in text.chars() {
-            match ch {
-                '(' => paren += 1,
-                ')' => paren -= 1,
-                '[' => brack += 1,
-                ']' => brack -= 1,
-                '{' => brace += 1,
-                '}' => brace -= 1,
+        let bytes = text.as_bytes();
+        let mut i = 0usize;
+        while i < bytes.len() {
+            if in_str {
+                if bytes[i] == b'\\' {
+                    i += 2;
+                    continue;
+                }
+                if bytes[i] == b'"' {
+                    in_str = false;
+                }
+                i += 1;
+                continue;
+            }
+            match bytes[i] {
+                b'"' => in_str = true,
+                b'(' => paren += 1,
+                b')' => paren -= 1,
+                b'[' => brack += 1,
+                b']' => brack -= 1,
+                b'{' => brace += 1,
+                b'}' => brace -= 1,
                 _ => {}
             }
+            i += 1;
         }
-        if paren <= 0 && brack <= 0 && brace <= 0 {
+        if paren <= 0 && brack <= 0 && brace <= 0 && !in_str {
             break;
         }
         idx += 1;
@@ -1756,33 +2154,187 @@ pub fn typecheck_module(
     structs: &[AstStructDef],
     functions: &[AstFunction],
 ) -> Result<(), AstDiagnostic> {
+    typecheck_module_items(structs, &[], &[], functions)
+}
+
+/// Static typechecker for a parsed module including enums and top-level constants (`R4-32`).
+pub fn typecheck_module_items(
+    structs: &[AstStructDef],
+    enums: &[AstEnumDef],
+    consts: &[AstConstDef],
+    functions: &[AstFunction],
+) -> Result<(), AstDiagnostic> {
+    let empty_aliases = BTreeMap::new();
+    typecheck_module_items_with_aliases(structs, enums, consts, &empty_aliases, functions)
+}
+
+fn resolve_subset_type(
+    ty: &RustSubsetType,
+    type_aliases: &BTreeMap<String, RustSubsetType>,
+    enums: &[AstEnumDef],
+    struct_defs: &BTreeMap<String, BTreeMap<String, RustSubsetType>>,
+    depth: usize,
+) -> RustSubsetType {
+    if depth > 8 {
+        return ty.clone();
+    }
+    match ty {
+        RustSubsetType::Struct(name) => {
+            if let Some(aliased) = type_aliases.get(name) {
+                resolve_subset_type(aliased, type_aliases, enums, struct_defs, depth + 1)
+            } else if enums.iter().any(|e| &e.name == name) && !struct_defs.contains_key(name) {
+                RustSubsetType::Enum(name.clone())
+            } else {
+                RustSubsetType::Struct(name.clone())
+            }
+        }
+        RustSubsetType::Option(inner) => RustSubsetType::Option(Box::new(resolve_subset_type(
+            inner,
+            type_aliases,
+            enums,
+            struct_defs,
+            depth + 1,
+        ))),
+        RustSubsetType::Result(ok, err) => RustSubsetType::Result(
+            Box::new(resolve_subset_type(
+                ok,
+                type_aliases,
+                enums,
+                struct_defs,
+                depth + 1,
+            )),
+            Box::new(resolve_subset_type(
+                err,
+                type_aliases,
+                enums,
+                struct_defs,
+                depth + 1,
+            )),
+        ),
+        RustSubsetType::Slice(inner) => RustSubsetType::Slice(Box::new(resolve_subset_type(
+            inner,
+            type_aliases,
+            enums,
+            struct_defs,
+            depth + 1,
+        ))),
+        RustSubsetType::Tuple(items) => RustSubsetType::Tuple(
+            items
+                .iter()
+                .map(|it| resolve_subset_type(it, type_aliases, enums, struct_defs, depth + 1))
+                .collect(),
+        ),
+        other => other.clone(),
+    }
+}
+
+/// Static typechecker for a parsed module including enums, top-level constants, and type aliases (`R4-32`).
+pub fn typecheck_module_items_with_aliases(
+    structs: &[AstStructDef],
+    enums: &[AstEnumDef],
+    consts: &[AstConstDef],
+    type_aliases: &BTreeMap<String, RustSubsetType>,
+    functions: &[AstFunction],
+) -> Result<(), AstDiagnostic> {
     let mut fn_return_types: BTreeMap<String, RustSubsetType> = BTreeMap::new();
     let mut struct_defs: BTreeMap<String, BTreeMap<String, RustSubsetType>> = BTreeMap::new();
+    let mut base_env: BTreeMap<String, RustSubsetType> = BTreeMap::new();
 
     for s in structs {
         struct_defs.insert(s.name.clone(), s.fields.clone());
     }
+    let resolved_structs: BTreeMap<String, BTreeMap<String, RustSubsetType>> = struct_defs
+        .iter()
+        .map(|(k, fields)| {
+            let rf = fields
+                .iter()
+                .map(|(fk, fty)| {
+                    (
+                        fk.clone(),
+                        resolve_subset_type(fty, type_aliases, enums, &struct_defs, 0),
+                    )
+                })
+                .collect();
+            (k.clone(), rf)
+        })
+        .collect();
+    struct_defs = resolved_structs;
+
+    for e in enums {
+        for (vname, payload_tys) in &e.variants {
+            if !payload_tys.is_empty() {
+                fn_return_types.insert(
+                    format!("{}::{}", e.name, vname),
+                    RustSubsetType::Enum(e.name.clone()),
+                );
+            }
+        }
+    }
     for f in functions {
-        fn_return_types.insert(f.name.clone(), f.return_ty.clone());
+        let ret_ty = resolve_subset_type(&f.return_ty, type_aliases, enums, &struct_defs, 0);
+        fn_return_types.insert(f.name.clone(), ret_ty.clone());
+        if let Some(ref owner) = f.impl_struct {
+            fn_return_types.insert(format!("{owner}::{}", f.name), ret_ty);
+        }
+    }
+    for c in consts {
+        let expected_c_ty = resolve_subset_type(&c.ty, type_aliases, enums, &struct_defs, 0);
+        let inferred = infer_expr_type(
+            &c.file_path,
+            c.decl_line,
+            &c.expr,
+            &base_env,
+            &fn_return_types,
+            &struct_defs,
+        )?;
+        if !inferred.is_compatible_with(&expected_c_ty) {
+            return Err(AstDiagnostic {
+                file_path: c.file_path.clone(),
+                line: c.decl_line,
+                severity: "error".to_string(),
+                code: "TypeErrorAtLine".to_string(),
+                message: format!(
+                    "mismatched types in `const {}` at line {}: expected `{:?}`, found `{:?}`",
+                    c.name, c.decl_line, expected_c_ty, inferred
+                ),
+            });
+        }
+        base_env.insert(c.name.clone(), expected_c_ty);
     }
 
     for func in functions {
-        let mut env: BTreeMap<String, RustSubsetType> = BTreeMap::new();
+        let mut env = base_env.clone();
         for p in &func.params {
-            env.insert(p.name.clone(), p.ty.clone());
+            let resolved_p = resolve_subset_type(&p.ty, type_aliases, enums, &struct_defs, 0);
+            let norm_ty = match &resolved_p {
+                RustSubsetType::Struct(sname) if !struct_defs.contains_key(sname) => {
+                    if enums.iter().any(|e| &e.name == sname) {
+                        RustSubsetType::Enum(sname.clone())
+                    } else {
+                        RustSubsetType::Int
+                    }
+                }
+                other => other.clone(),
+            };
+            env.insert(p.name.clone(), norm_ty);
         }
+        let expected_ret =
+            resolve_subset_type(&func.return_ty, type_aliases, enums, &struct_defs, 0);
         typecheck_stmts(
             &func.file_path,
             &func.body,
             &mut env,
-            &func.return_ty,
+            &expected_ret,
             &fn_return_types,
             &struct_defs,
+            type_aliases,
+            enums,
         )?;
     }
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn typecheck_stmts(
     file_path: &str,
     stmts: &[AstStmt],
@@ -1790,6 +2342,8 @@ fn typecheck_stmts(
     expected_return: &RustSubsetType,
     fn_return_types: &BTreeMap<String, RustSubsetType>,
     struct_defs: &BTreeMap<String, BTreeMap<String, RustSubsetType>>,
+    type_aliases: &BTreeMap<String, RustSubsetType>,
+    enums: &[AstEnumDef],
 ) -> Result<(), AstDiagnostic> {
     for stmt in stmts {
         match stmt {
@@ -1802,8 +2356,9 @@ fn typecheck_stmts(
                 validate_expr_syntax(file_path, *line, expr)?;
                 let inferred =
                     infer_expr_type(file_path, *line, expr, env, fn_return_types, struct_defs)?;
-                if let Some(decl) = declared_ty {
-                    if !inferred.is_compatible_with(decl) {
+                if let Some(raw_decl) = declared_ty {
+                    let decl = resolve_subset_type(raw_decl, type_aliases, enums, struct_defs, 0);
+                    if !inferred.is_compatible_with(&decl) {
                         return Err(AstDiagnostic {
                             file_path: file_path.to_string(),
                             line: *line,
@@ -1814,7 +2369,7 @@ fn typecheck_stmts(
                             ),
                         });
                     }
-                    env.insert(name.clone(), decl.clone());
+                    env.insert(name.clone(), decl);
                 } else {
                     env.insert(name.clone(), inferred);
                 }
@@ -1931,6 +2486,8 @@ fn typecheck_stmts(
                     expected_return,
                     fn_return_types,
                     struct_defs,
+                    type_aliases,
+                    enums,
                 )?;
                 let mut else_env = env.clone();
                 typecheck_stmts(
@@ -1940,6 +2497,8 @@ fn typecheck_stmts(
                     expected_return,
                     fn_return_types,
                     struct_defs,
+                    type_aliases,
+                    enums,
                 )?;
             }
             AstStmt::While {
@@ -1975,20 +2534,31 @@ fn typecheck_stmts(
                     expected_return,
                     fn_return_types,
                     struct_defs,
+                    type_aliases,
+                    enums,
                 )?;
             }
-            AstStmt::For { pattern, body, .. } => {
+            AstStmt::For {
+                pattern,
+                iter_expr,
+                body,
+                line,
+            } => {
                 let mut body_env = env.clone();
-                for ident in pattern.trim_matches(['(', ')']).split(',') {
-                    let clean = ident
-                        .trim()
-                        .trim_start_matches('&')
-                        .trim_start_matches("mut ")
-                        .trim();
-                    if !clean.is_empty() {
-                        body_env.insert(clean.to_string(), RustSubsetType::Int);
-                    }
-                }
+                let iter_ty = infer_expr_type(
+                    file_path,
+                    *line,
+                    iter_expr,
+                    env,
+                    fn_return_types,
+                    struct_defs,
+                )
+                .unwrap_or(RustSubsetType::Slice(Box::new(RustSubsetType::Int)));
+                let elem_ty = match iter_ty {
+                    RustSubsetType::Slice(inner) => *inner,
+                    _ => RustSubsetType::Int,
+                };
+                bind_closure_param_type(pattern, &elem_ty, &mut body_env);
                 typecheck_stmts(
                     file_path,
                     body,
@@ -1996,6 +2566,8 @@ fn typecheck_stmts(
                     expected_return,
                     fn_return_types,
                     struct_defs,
+                    type_aliases,
+                    enums,
                 )?;
             }
             AstStmt::Return {
@@ -2045,15 +2617,48 @@ fn infer_expr_type(
     if s == "true" || s == "false" {
         return Ok(RustSubsetType::Bool);
     }
-    if s.starts_with('"') && s.ends_with('"') {
+    if (s.starts_with('"') && s.ends_with('"'))
+        || (s.starts_with('\'') && s.ends_with('\'') && s.len() >= 3)
+    {
         return Ok(RustSubsetType::Str);
     }
     if s == "None" {
         return Ok(RustSubsetType::Option(Box::new(RustSubsetType::Unknown)));
     }
-    if let Some(inner) = s.strip_prefix("Some(").and_then(|r| r.strip_suffix(')')) {
-        let inner_ty = infer_expr_type(file_path, line, inner, env, fn_return_types, struct_defs)?;
-        return Ok(RustSubsetType::Option(Box::new(inner_ty)));
+    if let Some((callee, args_str)) = split_outermost_call(s) {
+        match callee {
+            "Some" => {
+                let inner_ty =
+                    infer_expr_type(file_path, line, args_str, env, fn_return_types, struct_defs)?;
+                return Ok(RustSubsetType::Option(Box::new(inner_ty)));
+            }
+            "Ok" => {
+                let inner_ty =
+                    infer_expr_type(file_path, line, args_str, env, fn_return_types, struct_defs)?;
+                return Ok(RustSubsetType::Result(
+                    Box::new(inner_ty),
+                    Box::new(RustSubsetType::Unknown),
+                ));
+            }
+            "Err" => {
+                let inner_ty =
+                    infer_expr_type(file_path, line, args_str, env, fn_return_types, struct_defs)?;
+                return Ok(RustSubsetType::Result(
+                    Box::new(RustSubsetType::Unknown),
+                    Box::new(inner_ty),
+                ));
+            }
+            "format!" | "String::from" | "String::new" => {
+                return Ok(RustSubsetType::Str);
+            }
+            "println!" => {
+                return Ok(RustSubsetType::Unit);
+            }
+            "Vec::new" | "Vec::with_capacity" => {
+                return Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Unknown)));
+            }
+            _ => {}
+        }
     }
     if let Some(rest) = s.strip_prefix("if ") {
         // Inline `if cond { a } else { b }`
@@ -2079,7 +2684,7 @@ fn infer_expr_type(
             }
             if let Some((then_e, else_part)) = branches.split_once("} else {") {
                 if let Some(else_e) = else_part.strip_suffix('}') {
-                    let t1 = infer_expr_type(
+                    let t1 = infer_block_or_expr_type(
                         file_path,
                         line,
                         then_e.trim(),
@@ -2087,7 +2692,7 @@ fn infer_expr_type(
                         fn_return_types,
                         struct_defs,
                     )?;
-                    let t2 = infer_expr_type(
+                    let t2 = infer_block_or_expr_type(
                         file_path,
                         line,
                         else_e.trim(),
@@ -2154,6 +2759,10 @@ fn infer_expr_type(
 
     if s.starts_with('{') && s.ends_with('}') {
         return infer_block_or_expr_type(file_path, line, s, env, fn_return_types, struct_defs);
+    }
+
+    if split_top_level_range(s).is_some() {
+        return Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Int)));
     }
 
     // Check logical / comparison / arithmetic binary operators at top level (lowest precedence first,
@@ -2224,6 +2833,21 @@ fn infer_expr_type(
         }
     }
 
+    if let Some(lhs_cast) = strip_int_cast_suffix(s) {
+        let _ = infer_expr_type(file_path, line, lhs_cast, env, fn_return_types, struct_defs)?;
+        return Ok(RustSubsetType::Int);
+    }
+
+    // Postfix `?` operator
+    if let Some(inner) = s.strip_suffix('?') {
+        let inner_ty = infer_expr_type(file_path, line, inner, env, fn_return_types, struct_defs)?;
+        return match inner_ty {
+            RustSubsetType::Result(ok_ty, _) => Ok(*ok_ty),
+            RustSubsetType::Option(some_ty) => Ok(*some_ty),
+            _ => Ok(RustSubsetType::Unknown),
+        };
+    }
+
     if let Some(inner) = s.strip_prefix('!') {
         let inner_ty = infer_expr_type(file_path, line, inner, env, fn_return_types, struct_defs)?;
         return Ok(inner_ty);
@@ -2238,12 +2862,29 @@ fn infer_expr_type(
         return Ok(inner_ty);
     }
 
-    if (s.starts_with("&[") || s.starts_with('[')) && s.ends_with(']') {
-        let inner = s
-            .strip_prefix("&[")
-            .or_else(|| s.strip_prefix('['))
-            .and_then(|r| r.strip_suffix(']'))
-            .unwrap_or("");
+    if let Some(inner) = s.strip_prefix('*') {
+        return infer_expr_type(file_path, line, inner, env, fn_return_types, struct_defs);
+    }
+
+    if !s.starts_with("&[") {
+        if let Some(inner) = s.strip_prefix("&mut ").or_else(|| s.strip_prefix('&')) {
+            return infer_expr_type(file_path, line, inner, env, fn_return_types, struct_defs);
+        }
+    }
+
+    if let Some(inner) = strip_whole_bracket_literal(s) {
+        let repeat_parts = split_top_level(inner, ';');
+        if repeat_parts.len() == 2 {
+            let elem_ty = infer_expr_type(
+                file_path,
+                line,
+                repeat_parts[0].trim(),
+                env,
+                fn_return_types,
+                struct_defs,
+            )?;
+            return Ok(RustSubsetType::Slice(Box::new(elem_ty)));
+        }
         let elems = split_top_level(inner, ',');
         let elem_ty = if let Some(first) = elems.first().map(|e| e.trim()).filter(|e| !e.is_empty())
         {
@@ -2256,22 +2897,24 @@ fn infer_expr_type(
 
     if s.starts_with('(') && s.ends_with(')') {
         let inner = &s[1..s.len() - 1];
-        let parts = split_top_level(inner, ',');
-        if parts.len() > 1 {
-            let mut tys = Vec::with_capacity(parts.len());
-            for p in parts {
-                if !p.trim().is_empty() {
-                    tys.push(infer_expr_type(
-                        file_path,
-                        line,
-                        p.trim(),
-                        env,
-                        fn_return_types,
-                        struct_defs,
-                    )?);
+        if check_delimiter_balance(inner).is_ok() {
+            let parts = split_top_level(inner, ',');
+            if parts.len() > 1 {
+                let mut tys = Vec::with_capacity(parts.len());
+                for p in parts {
+                    if !p.trim().is_empty() {
+                        tys.push(infer_expr_type(
+                            file_path,
+                            line,
+                            p.trim(),
+                            env,
+                            fn_return_types,
+                            struct_defs,
+                        )?);
+                    }
                 }
+                return Ok(RustSubsetType::Tuple(tys));
             }
-            return Ok(RustSubsetType::Tuple(tys));
         }
     }
 
@@ -2283,12 +2926,135 @@ fn infer_expr_type(
         }
     }
 
+    // Index expression `arr[idx]`
+    if let Some((target_s, _)) = split_trailing_index(s) {
+        let target_ty =
+            infer_expr_type(file_path, line, target_s, env, fn_return_types, struct_defs)?;
+        if let RustSubsetType::Slice(elem_ty) = target_ty {
+            return Ok(*elem_ty);
+        }
+        return Ok(RustSubsetType::Int);
+    }
+
     if let Some(ty) = env.get(s) {
         return Ok(ty.clone());
     }
 
-    // Field access `obj.field`
-    if let Some((recv, field)) = s.rsplit_once('.') {
+    // Function, method, or enum variant call
+    if let Some((callee, args_str)) = split_outermost_call(s) {
+        if let Some(ret_ty) = fn_return_types.get(callee) {
+            return Ok(ret_ty.clone());
+        }
+        if let Some((recv_expr, method_raw)) = rsplit_top_level_dot(callee) {
+            let method_name = method_raw.split("::<").next().unwrap_or(method_raw).trim();
+            if let Some(ret_ty) = fn_return_types.get(method_name) {
+                return Ok(ret_ty.clone());
+            }
+            let recv_ty = infer_expr_type(
+                file_path,
+                line,
+                recv_expr,
+                env,
+                fn_return_types,
+                struct_defs,
+            )?;
+            return match method_name {
+                "is_empty" | "is_some" | "is_none" | "is_ok" | "is_err" | "is_multiple_of"
+                | "contains" | "starts_with" | "ends_with" | "any" | "all" => {
+                    Ok(RustSubsetType::Bool)
+                }
+                "len" | "count" | "sum" | "product" => Ok(RustSubsetType::Int),
+                "push" | "clear" | "reverse" | "sort" => Ok(RustSubsetType::Unit),
+                "trim" | "to_uppercase" | "to_lowercase" | "replace" | "to_string" | "as_str" => {
+                    Ok(RustSubsetType::Str)
+                }
+                "chars" => Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Str))),
+                "bytes" => Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Int))),
+                "iter" | "into_iter" | "cloned" | "copied" | "rev" | "filter" | "take" | "skip"
+                | "collect" => match recv_ty {
+                    RustSubsetType::Slice(_) => Ok(recv_ty),
+                    _ => Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Unknown))),
+                },
+                "enumerate" => Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Tuple(
+                    vec![RustSubsetType::Int, RustSubsetType::Unknown],
+                )))),
+                "map" => {
+                    if let Some((params, body)) = parse_closure_expr(args_str.trim()) {
+                        let mut c_env = env.clone();
+                        let elem_ty = match recv_ty {
+                            RustSubsetType::Slice(inner) => *inner,
+                            _ => RustSubsetType::Int,
+                        };
+                        if let Some(first_p) = params.first() {
+                            bind_closure_param_type(first_p, &elem_ty, &mut c_env);
+                        }
+                        let mapped_ty = infer_block_or_expr_type(
+                            file_path,
+                            line,
+                            body,
+                            &c_env,
+                            fn_return_types,
+                            struct_defs,
+                        )?;
+                        Ok(RustSubsetType::Slice(Box::new(mapped_ty)))
+                    } else {
+                        Ok(RustSubsetType::Slice(Box::new(RustSubsetType::Unknown)))
+                    }
+                }
+                "fold" => {
+                    let parts = split_top_level(args_str, ',');
+                    if let Some(init_expr) = parts.first() {
+                        infer_expr_type(
+                            file_path,
+                            line,
+                            init_expr.trim(),
+                            env,
+                            fn_return_types,
+                            struct_defs,
+                        )
+                    } else {
+                        Ok(RustSubsetType::Unknown)
+                    }
+                }
+                "first" | "last" | "pop" => match recv_ty {
+                    RustSubsetType::Slice(inner) => Ok(RustSubsetType::Option(inner)),
+                    _ => Ok(RustSubsetType::Option(Box::new(RustSubsetType::Unknown))),
+                },
+                "unwrap" | "unwrap_or" => match recv_ty {
+                    RustSubsetType::Option(inner) => Ok(*inner),
+                    RustSubsetType::Result(ok_ty, _) => Ok(*ok_ty),
+                    _ => Ok(RustSubsetType::Unknown),
+                },
+                "unwrap_err" => match recv_ty {
+                    RustSubsetType::Result(_, err_ty) => Ok(*err_ty),
+                    _ => Ok(RustSubsetType::Unknown),
+                },
+                "ok" => match recv_ty {
+                    RustSubsetType::Result(ok_ty, _) => Ok(RustSubsetType::Option(ok_ty)),
+                    _ => Ok(RustSubsetType::Option(Box::new(RustSubsetType::Unknown))),
+                },
+                "clone" => Ok(recv_ty),
+                _ => Ok(RustSubsetType::Int),
+            };
+        }
+        if let Some((type_prefix, item_name)) = callee.split_once("::") {
+            let short_fn = item_name.trim();
+            if let Some(ret_ty) = fn_return_types.get(short_fn) {
+                return Ok(ret_ty.clone());
+            }
+            if type_prefix
+                .trim()
+                .chars()
+                .next()
+                .is_some_and(|c| c.is_ascii_uppercase())
+            {
+                return Ok(RustSubsetType::Enum(type_prefix.trim().to_string()));
+            }
+        }
+    }
+
+    // Field access `obj.field` or tuple `.0`
+    if let Some((recv, field)) = rsplit_top_level_dot(s) {
         if !field.contains('(') {
             let recv_ty = infer_expr_type(
                 file_path,
@@ -2304,28 +3070,27 @@ fn infer_expr_type(
                         return Ok(fty.clone());
                     }
                 }
+            } else if let RustSubsetType::Tuple(tys) = recv_ty {
+                if let Ok(idx) = field.trim().parse::<usize>() {
+                    if let Some(fty) = tys.get(idx) {
+                        return Ok(fty.clone());
+                    }
+                }
             }
             return Ok(RustSubsetType::Int);
         }
     }
 
-    // Function or method call
-    if let Some(open_paren) = s.find('(') {
-        let callee = s[..open_paren].trim();
-        if let Some(ret_ty) = fn_return_types.get(callee) {
-            return Ok(ret_ty.clone());
-        }
-        if let Some((_, method_part)) = callee.rsplit_once('.') {
-            if let Some(ret_ty) = fn_return_types.get(method_part.trim()) {
-                return Ok(ret_ty.clone());
-            }
-            if matches!(
-                method_part.trim(),
-                "is_empty" | "is_some" | "is_none" | "is_multiple_of"
-            ) {
-                return Ok(RustSubsetType::Bool);
-            }
-            return Ok(RustSubsetType::Int);
+    // Unit enum variant `EnumName::Variant`
+    if let Some((type_prefix, variant_name)) = s.split_once("::") {
+        if type_prefix
+            .trim()
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_uppercase())
+            && !variant_name.contains('(')
+        {
+            return Ok(RustSubsetType::Enum(type_prefix.trim().to_string()));
         }
     }
 
@@ -2410,6 +3175,49 @@ fn infer_block_or_expr_type(
     infer_expr_type(file_path, line, trimmed, env, fn_return_types, struct_defs)
 }
 
+fn bind_closure_param_type(
+    pattern: &str,
+    elem_ty: &RustSubsetType,
+    env: &mut BTreeMap<String, RustSubsetType>,
+) {
+    let trimmed = pattern.trim();
+    if trimmed.starts_with('(') && trimmed.ends_with(')') {
+        let inner = &trimmed[1..trimmed.len() - 1];
+        let parts = split_top_level(inner, ',');
+        for (i, part) in parts.iter().enumerate() {
+            let clean = part
+                .split(':')
+                .next()
+                .unwrap_or(part)
+                .trim()
+                .trim_start_matches('&')
+                .trim_start_matches("mut ")
+                .trim();
+            if !clean.is_empty() && clean != "_" {
+                let sub_ty = match elem_ty {
+                    RustSubsetType::Tuple(tys) => {
+                        tys.get(i).cloned().unwrap_or(RustSubsetType::Unknown)
+                    }
+                    _ => RustSubsetType::Int,
+                };
+                env.insert(clean.to_string(), sub_ty);
+            }
+        }
+    } else {
+        let clean = trimmed
+            .split(':')
+            .next()
+            .unwrap_or(trimmed)
+            .trim()
+            .trim_start_matches('&')
+            .trim_start_matches("mut ")
+            .trim();
+        if !clean.is_empty() && clean != "_" {
+            env.insert(clean.to_string(), elem_ty.clone());
+        }
+    }
+}
+
 fn bind_match_pattern_types(
     pat: &str,
     scrut_ty: &RustSubsetType,
@@ -2417,14 +3225,47 @@ fn bind_match_pattern_types(
 ) {
     for sub in split_top_level(pat, '|') {
         let p = sub.trim();
-        if let Some(inner) = p.strip_prefix("Some(").and_then(|s| s.strip_suffix(')')) {
-            let inner_name = inner.trim();
-            if is_pattern_ident(inner_name) {
-                let inner_ty = match scrut_ty {
-                    RustSubsetType::Option(inner_box) => (**inner_box).clone(),
-                    _ => RustSubsetType::Int,
-                };
-                env.insert(inner_name.to_string(), inner_ty);
+        if let Some((callee, inner)) = split_outermost_call(p) {
+            match callee {
+                "Some" => {
+                    let inner_name = inner.trim();
+                    if is_pattern_ident(inner_name) {
+                        let inner_ty = match scrut_ty {
+                            RustSubsetType::Option(inner_box) => (**inner_box).clone(),
+                            _ => RustSubsetType::Int,
+                        };
+                        env.insert(inner_name.to_string(), inner_ty);
+                    }
+                }
+                "Ok" => {
+                    let inner_name = inner.trim();
+                    if is_pattern_ident(inner_name) {
+                        let inner_ty = match scrut_ty {
+                            RustSubsetType::Result(ok_box, _) => (**ok_box).clone(),
+                            _ => RustSubsetType::Int,
+                        };
+                        env.insert(inner_name.to_string(), inner_ty);
+                    }
+                }
+                "Err" => {
+                    let inner_name = inner.trim();
+                    if is_pattern_ident(inner_name) {
+                        let inner_ty = match scrut_ty {
+                            RustSubsetType::Result(_, err_box) => (**err_box).clone(),
+                            _ => RustSubsetType::Str,
+                        };
+                        env.insert(inner_name.to_string(), inner_ty);
+                    }
+                }
+                _ if callee.contains("::") => {
+                    for part in split_top_level(inner, ',') {
+                        let ident = part.trim();
+                        if is_pattern_ident(ident) {
+                            env.insert(ident.to_string(), RustSubsetType::Unknown);
+                        }
+                    }
+                }
+                _ => {}
             }
         } else if is_pattern_ident(p) {
             env.insert(p.to_string(), scrut_ty.clone());
@@ -2438,6 +3279,7 @@ fn is_pattern_ident(p: &str) -> bool {
         && p != "true"
         && p != "false"
         && p != "None"
+        && !p.contains("::")
         && p.chars()
             .next()
             .is_some_and(|c| c.is_ascii_lowercase() || c == '_')
@@ -2637,6 +3479,326 @@ fn strip_outer_parens(mut s: &str) -> &str {
     }
 }
 
+fn split_outermost_call(s: &str) -> Option<(&str, &str)> {
+    let trimmed = s.trim();
+    if !trimmed.ends_with(')') {
+        return None;
+    }
+    let bytes = trimmed.as_bytes();
+    let mut paren = 0i32;
+    let mut in_str = false;
+    let mut open_idx = None;
+    let mut i = 0usize;
+    while i < bytes.len() {
+        if in_str {
+            if bytes[i] == b'\\' {
+                i += 2;
+                continue;
+            }
+            if bytes[i] == b'"' {
+                in_str = false;
+            }
+            i += 1;
+            continue;
+        }
+        match bytes[i] {
+            b'"' => in_str = true,
+            b'(' => {
+                if paren == 0 {
+                    open_idx = Some(i);
+                }
+                paren += 1;
+            }
+            b')' => {
+                paren -= 1;
+                if paren == 0 && i + 1 < bytes.len() {
+                    open_idx = None;
+                }
+            }
+            b'[' | b'{' => paren += 1,
+            b']' | b'}' => paren -= 1,
+            _ => {}
+        }
+        i += 1;
+    }
+    let idx = open_idx?;
+    let callee = trimmed[..idx].trim();
+    if callee.is_empty() {
+        return None;
+    }
+    Some((callee, &trimmed[idx + 1..trimmed.len() - 1]))
+}
+
+fn strip_whole_bracket_literal(s: &str) -> Option<&str> {
+    let trimmed = s.trim();
+    if let Some((callee, inner)) = split_outermost_call(trimmed) {
+        if callee == "vec!" {
+            return Some(inner);
+        }
+    }
+    if !trimmed.ends_with(']') {
+        return None;
+    }
+    let open_pos = if trimmed.starts_with("vec![") {
+        4
+    } else if trimmed.starts_with("&[") {
+        1
+    } else if trimmed.starts_with('[') {
+        0
+    } else {
+        return None;
+    };
+    let bytes = trimmed.as_bytes();
+    let mut depth = 0i32;
+    let mut in_str = false;
+    let mut i = open_pos;
+    while i < bytes.len() {
+        if in_str {
+            if bytes[i] == b'\\' {
+                i += 2;
+                continue;
+            }
+            if bytes[i] == b'"' {
+                in_str = false;
+            }
+            i += 1;
+            continue;
+        }
+        match bytes[i] {
+            b'"' => in_str = true,
+            b'(' | b'[' | b'{' => depth += 1,
+            b')' | b']' | b'}' => {
+                depth -= 1;
+                if depth == 0 && i + 1 < bytes.len() {
+                    return None;
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    if depth == 0 {
+        Some(&trimmed[open_pos + 1..trimmed.len() - 1])
+    } else {
+        None
+    }
+}
+
+fn split_trailing_index(s: &str) -> Option<(&str, &str)> {
+    let trimmed = s.trim();
+    if !trimmed.ends_with(']') || strip_whole_bracket_literal(trimmed).is_some() {
+        return None;
+    }
+    let bytes = trimmed.as_bytes();
+    let mut depth = 0i32;
+    let mut in_str = false;
+    let mut last_top_open_brack = None;
+    let mut i = 0usize;
+    while i < bytes.len() {
+        if in_str {
+            if bytes[i] == b'\\' {
+                i += 2;
+                continue;
+            }
+            if bytes[i] == b'"' {
+                in_str = false;
+            }
+            i += 1;
+            continue;
+        }
+        match bytes[i] {
+            b'"' => in_str = true,
+            b'[' => {
+                if depth == 0 {
+                    last_top_open_brack = Some(i);
+                }
+                depth += 1;
+            }
+            b']' => {
+                depth -= 1;
+                if depth == 0 && i + 1 < bytes.len() {
+                    last_top_open_brack = None;
+                }
+            }
+            b'(' | b'{' => depth += 1,
+            b')' | b'}' => depth -= 1,
+            _ => {}
+        }
+        i += 1;
+    }
+    let open_idx = last_top_open_brack?;
+    let target = trimmed[..open_idx].trim();
+    if target.is_empty() {
+        return None;
+    }
+    let idx_expr = trimmed[open_idx + 1..trimmed.len() - 1].trim();
+    Some((target, idx_expr))
+}
+
+fn rsplit_top_level_dot(s: &str) -> Option<(&str, &str)> {
+    let bytes = s.as_bytes();
+    let mut paren = 0i32;
+    let mut in_str = false;
+    let mut last_dot = None;
+    let mut i = 0usize;
+    while i < bytes.len() {
+        if in_str {
+            if bytes[i] == b'\\' {
+                i += 2;
+                continue;
+            }
+            if bytes[i] == b'"' {
+                in_str = false;
+            }
+            i += 1;
+            continue;
+        }
+        match bytes[i] {
+            b'"' => in_str = true,
+            b'(' | b'[' | b'{' => paren += 1,
+            b')' | b']' | b'}' => paren -= 1,
+            b'.' if paren == 0 => {
+                let prev = if i > 0 { bytes[i - 1] } else { 0 };
+                let next = bytes.get(i + 1).copied().unwrap_or(0);
+                if prev != b'.' && next != b'.' {
+                    last_dot = Some(i);
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    let idx = last_dot?;
+    let lhs = s[..idx].trim();
+    let rhs = s[idx + 1..].trim();
+    if lhs.is_empty() || rhs.is_empty() {
+        return None;
+    }
+    Some((lhs, rhs))
+}
+
+fn split_top_level_range(s: &str) -> Option<(&str, &str, bool)> {
+    let bytes = s.as_bytes();
+    let mut paren = 0i32;
+    let mut in_str = false;
+    let mut i = 0usize;
+    while i + 1 < bytes.len() {
+        if in_str {
+            if bytes[i] == b'\\' {
+                i += 2;
+                continue;
+            }
+            if bytes[i] == b'"' {
+                in_str = false;
+            }
+            i += 1;
+            continue;
+        }
+        match bytes[i] {
+            b'"' => in_str = true,
+            b'(' | b'[' | b'{' => paren += 1,
+            b')' | b']' | b'}' => paren -= 1,
+            b'.' if paren == 0 && bytes[i + 1] == b'.' => {
+                let inclusive = bytes.get(i + 2).copied() == Some(b'=');
+                let end_start = if inclusive { i + 3 } else { i + 2 };
+                let lhs = s[..i].trim();
+                let rhs = s[end_start..].trim();
+                if !lhs.is_empty() && !rhs.is_empty() {
+                    return Some((lhs, rhs, inclusive));
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    None
+}
+
+fn strip_int_cast_suffix(s: &str) -> Option<&str> {
+    for suffix in [
+        " as usize",
+        " as isize",
+        " as u64",
+        " as i64",
+        " as u32",
+        " as i32",
+        " as u16",
+        " as i16",
+        " as u8",
+        " as i8",
+    ] {
+        if let Some(inner) = s.strip_suffix(suffix) {
+            return Some(inner.trim());
+        }
+    }
+    None
+}
+
+fn parse_closure_expr(s: &str) -> Option<(Vec<String>, &str)> {
+    let trimmed = s.trim();
+    let rest = trimmed
+        .strip_prefix("move |")
+        .or_else(|| trimmed.strip_prefix('|'))?;
+    let bytes = rest.as_bytes();
+    let mut paren = 0i32;
+    let mut close_bar = None;
+    for (i, &b) in bytes.iter().enumerate() {
+        match b {
+            b'(' | b'[' | b'{' => paren += 1,
+            b')' | b']' | b'}' => paren -= 1,
+            b'|' if paren == 0 => {
+                close_bar = Some(i);
+                break;
+            }
+            _ => {}
+        }
+    }
+    let bar_idx = close_bar?;
+    let params_raw = rest[..bar_idx].trim();
+    let mut body_raw = rest[bar_idx + 1..].trim();
+    if let Some((_ret_ty, after_brace)) = body_raw.strip_prefix("->").and_then(|r| {
+        let brace_pos = find_top_level_open_brace(r)?;
+        Some((&r[..brace_pos], &r[brace_pos..]))
+    }) {
+        body_raw = after_brace.trim();
+    }
+    let params = if params_raw.is_empty() {
+        Vec::new()
+    } else {
+        split_top_level(params_raw, ',')
+            .into_iter()
+            .map(|p| p.trim().to_string())
+            .filter(|p| !p.is_empty())
+            .collect()
+    };
+    Some((params, body_raw))
+}
+
+fn unescape_rust_string(raw: &str) -> String {
+    let mut out = String::with_capacity(raw.len());
+    let mut chars = raw.chars();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            match chars.next() {
+                Some('n') => out.push('\n'),
+                Some('r') => out.push('\r'),
+                Some('t') => out.push('\t'),
+                Some('\\') => out.push('\\'),
+                Some('"') => out.push('"'),
+                Some('0') => out.push('\0'),
+                Some(other) => {
+                    out.push('\\');
+                    out.push(other);
+                }
+                None => out.push('\\'),
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
 fn split_top_level_binary_tier<'a>(
     s: &'a str,
     ops: &[&'static str],
@@ -2788,10 +3950,12 @@ fn parse_int_literal(s: &str) -> Option<i64> {
 
 struct EvalContext<'a> {
     functions: &'a [AstFunction],
+    consts: &'a BTreeMap<String, RuntimeValue>,
     fuel_remaining: u64,
     fuel_consumed: u64,
     assertions_verified: usize,
     stdout: String,
+    early_return: Option<RuntimeValue>,
 }
 
 enum ControlFlowOutcome {
@@ -2845,13 +4009,31 @@ impl<'a> EvalContext<'a> {
         func: &AstFunction,
         mut env: BTreeMap<String, RuntimeValue>,
     ) -> Result<(RuntimeValue, BTreeMap<String, RuntimeValue>), (usize, String)> {
+        for (ck, cv) in self.consts {
+            env.entry(ck.clone()).or_insert_with(|| cv.clone());
+        }
+        let saved_early = self.early_return.take();
         let mut last_val = RuntimeValue::Unit;
         for stmt in &func.body {
-            match self.eval_stmt(&func.file_path, stmt, &mut env)? {
-                ControlFlowOutcome::Continue(v) => last_val = v,
-                ControlFlowOutcome::Return(v) => return Ok((v, env)),
+            match self.eval_stmt(&func.file_path, stmt, &mut env) {
+                Ok(ControlFlowOutcome::Continue(v)) => {
+                    if let Some(early) = self.early_return.take() {
+                        self.early_return = saved_early;
+                        return Ok((early, env));
+                    }
+                    last_val = v;
+                }
+                Ok(ControlFlowOutcome::Return(v)) => {
+                    self.early_return = saved_early;
+                    return Ok((v, env));
+                }
+                Err(e) => {
+                    self.early_return = saved_early;
+                    return Err(e);
+                }
             }
         }
+        self.early_return = saved_early;
         Ok((last_val, env))
     }
 
@@ -2867,6 +4049,9 @@ impl<'a> EvalContext<'a> {
             } => {
                 let _ = self.consume_step(file_path, *line, 0, 0, 0, 0, 0)?;
                 let val = self.eval_expr(file_path, *line, expr, env)?;
+                if let Some(early) = self.early_return.take() {
+                    return Ok(ControlFlowOutcome::Return(early));
+                }
                 env.insert(name.clone(), val);
                 Ok(ControlFlowOutcome::Continue(RuntimeValue::Unit))
             }
@@ -2877,7 +4062,39 @@ impl<'a> EvalContext<'a> {
                 line,
             } => {
                 let rhs = self.eval_expr(file_path, *line, expr, env)?;
-                if let Some((obj_name, field_name)) = target.split_once('.') {
+                if let Some(early) = self.early_return.take() {
+                    return Ok(ControlFlowOutcome::Return(early));
+                }
+                let t_trim = target.trim();
+                if let Some(open_brack) = t_trim.find('[') {
+                    if t_trim.ends_with(']') {
+                        let arr_name = t_trim[..open_brack].trim();
+                        let idx_expr = t_trim[open_brack + 1..t_trim.len() - 1].trim();
+                        let idx_val = self.eval_expr(file_path, *line, idx_expr, env)?;
+                        if let Some(early) = self.early_return.take() {
+                            return Ok(ControlFlowOutcome::Return(early));
+                        }
+                        if let RuntimeValue::Int(idx_i) = idx_val {
+                            let idx = idx_i.max(0) as usize;
+                            let cur_elem = env
+                                .get(arr_name)
+                                .and_then(|v| match v {
+                                    RuntimeValue::List(items) => items.get(idx).cloned(),
+                                    _ => None,
+                                })
+                                .unwrap_or(RuntimeValue::Int(0));
+                            let updated =
+                                self.apply_assign_op(file_path, *line, op, cur_elem, rhs)?;
+                            if let Some(RuntimeValue::List(items)) = env.get_mut(arr_name) {
+                                if idx < items.len() {
+                                    items[idx] = updated;
+                                }
+                            }
+                        }
+                        return Ok(ControlFlowOutcome::Continue(RuntimeValue::Unit));
+                    }
+                }
+                if let Some((obj_name, field_name)) = t_trim.split_once('.') {
                     let cur_field = env
                         .get(obj_name.trim())
                         .and_then(|v| match v {
@@ -2894,9 +4111,9 @@ impl<'a> EvalContext<'a> {
                         fields.insert(field_name.trim().to_string(), updated);
                     }
                 } else {
-                    let cur = env.get(target).cloned().unwrap_or(RuntimeValue::Int(0));
+                    let cur = env.get(t_trim).cloned().unwrap_or(RuntimeValue::Int(0));
                     let updated = self.apply_assign_op(file_path, *line, op, cur, rhs)?;
-                    env.insert(target.clone(), updated);
+                    env.insert(t_trim.to_string(), updated);
                 }
                 Ok(ControlFlowOutcome::Continue(RuntimeValue::Unit))
             }
@@ -2907,8 +4124,15 @@ impl<'a> EvalContext<'a> {
                 line,
             } => {
                 let lhs_val = self.eval_expr(file_path, *line, lhs_expr, env)?;
+                if let Some(early) = self.early_return.take() {
+                    return Ok(ControlFlowOutcome::Return(early));
+                }
                 let rhs_val = if let Some(r) = rhs_expr {
-                    self.eval_expr(file_path, *line, r, env)?
+                    let v = self.eval_expr(file_path, *line, r, env)?;
+                    if let Some(early) = self.early_return.take() {
+                        return Ok(ControlFlowOutcome::Return(early));
+                    }
+                    v
                 } else {
                     RuntimeValue::Bool(true)
                 };
@@ -2981,6 +4205,9 @@ impl<'a> EvalContext<'a> {
                 line,
             } => {
                 let cond = self.eval_expr(file_path, *line, cond_expr, env)?;
+                if let Some(early) = self.early_return.take() {
+                    return Ok(ControlFlowOutcome::Return(early));
+                }
                 let is_true = matches!(cond, RuntimeValue::Bool(true));
                 let branch = if is_true { then_body } else { else_body };
                 let mut last = RuntimeValue::Unit;
@@ -3000,6 +4227,9 @@ impl<'a> EvalContext<'a> {
                 loop {
                     let _ = self.consume_step(file_path, *line, 0, 1, 1, 0, 0)?;
                     let cond = self.eval_expr(file_path, *line, cond_expr, env)?;
+                    if let Some(early) = self.early_return.take() {
+                        return Ok(ControlFlowOutcome::Return(early));
+                    }
                     if !matches!(cond, RuntimeValue::Bool(true)) {
                         break;
                     }
@@ -3018,6 +4248,9 @@ impl<'a> EvalContext<'a> {
                 line,
             } => {
                 let items = self.eval_iterable(file_path, *line, iter_expr, env)?;
+                if let Some(early) = self.early_return.take() {
+                    return Ok(ControlFlowOutcome::Return(early));
+                }
                 for item in items {
                     let _ = self.consume_step(file_path, *line, 0, 0, 0, 0, 0)?;
                     bind_for_pattern(pattern, item, env);
@@ -3031,7 +4264,11 @@ impl<'a> EvalContext<'a> {
             }
             AstStmt::Return { expr, line, .. } => {
                 let val = if let Some(e) = expr {
-                    self.eval_expr(file_path, *line, e, env)?
+                    let v = self.eval_expr(file_path, *line, e, env)?;
+                    if let Some(early) = self.early_return.take() {
+                        return Ok(ControlFlowOutcome::Return(early));
+                    }
+                    v
                 } else {
                     RuntimeValue::Unit
                 };
@@ -3039,6 +4276,9 @@ impl<'a> EvalContext<'a> {
             }
             AstStmt::ExprStmt { expr, line } => {
                 let val = self.eval_expr(file_path, *line, expr, env)?;
+                if let Some(early) = self.early_return.take() {
+                    return Ok(ControlFlowOutcome::Return(early));
+                }
                 Ok(ControlFlowOutcome::Continue(val))
             }
         }
@@ -3109,7 +4349,7 @@ impl<'a> EvalContext<'a> {
         iter_expr: &str,
         env: &mut BTreeMap<String, RuntimeValue>,
     ) -> Result<Vec<RuntimeValue>, (usize, String)> {
-        let trimmed = iter_expr.trim();
+        let trimmed = strip_outer_parens(iter_expr.trim());
         // Check `a.iter().zip(b.iter())`
         if let Some((left_part, right_part)) = trimmed.split_once(".iter().zip(") {
             let right_clean = right_part
@@ -3126,19 +4366,15 @@ impl<'a> EvalContext<'a> {
                     .collect());
             }
         }
-        // Check `start..end`
-        if let Some((start_s, end_s)) = trimmed.split_once("..") {
-            let (end_clean, inclusive) = if let Some(s) = end_s.strip_prefix('=') {
-                (s.trim(), true)
-            } else {
-                (end_s.trim(), false)
-            };
+        // Check top-level range `start..end` or `start..=end`
+        if let Some((start_s, end_s, inclusive)) = split_top_level_range(trimmed) {
             let RuntimeValue::Int(start_v) =
                 self.eval_expr(file_path, line, start_s.trim(), env)?
             else {
                 return Err((line, format!("range start must be integer at line {line}")));
             };
-            let RuntimeValue::Int(end_v) = self.eval_expr(file_path, line, end_clean, env)? else {
+            let RuntimeValue::Int(end_v) = self.eval_expr(file_path, line, end_s.trim(), env)?
+            else {
                 return Err((line, format!("range end must be integer at line {line}")));
             };
             let limit = if inclusive { end_v + 1 } else { end_v };
@@ -3148,12 +4384,7 @@ impl<'a> EvalContext<'a> {
             }
             return Ok(out);
         }
-        let val = self.eval_expr(
-            file_path,
-            line,
-            trimmed.strip_suffix(".iter()").unwrap_or(trimmed),
-            env,
-        )?;
+        let val = self.eval_expr(file_path, line, trimmed, env)?;
         match val {
             RuntimeValue::List(items) => Ok(items),
             _ => Ok(Vec::new()),
@@ -3187,6 +4418,85 @@ impl<'a> EvalContext<'a> {
                 }
                 continue;
             }
+            if let Some(inner_pat) = p.strip_prefix("Ok(").and_then(|s| s.strip_suffix(')')) {
+                if let RuntimeValue::ResultVal(Ok(inner_val)) = scrut_val {
+                    if self.eval_match_pattern(file_path, line, inner_pat.trim(), inner_val, env)? {
+                        return Ok(true);
+                    }
+                }
+                continue;
+            }
+            if let Some(inner_pat) = p.strip_prefix("Err(").and_then(|s| s.strip_suffix(')')) {
+                if let RuntimeValue::ResultVal(Err(inner_val)) = scrut_val {
+                    if self.eval_match_pattern(file_path, line, inner_pat.trim(), inner_val, env)? {
+                        return Ok(true);
+                    }
+                }
+                continue;
+            }
+            // Enum variant with payload `Enum::Variant(inner)`
+            if let Some((callee, inner_pat)) = split_outermost_call(p) {
+                if let Some((enum_prefix, var_name)) = callee.split_once("::") {
+                    if let RuntimeValue::EnumVariant {
+                        enum_name,
+                        variant,
+                        payload: Some(inner_val),
+                    } = scrut_val
+                    {
+                        if enum_name == enum_prefix.trim()
+                            && variant == var_name.trim()
+                            && self.eval_match_pattern(
+                                file_path,
+                                line,
+                                inner_pat.trim(),
+                                inner_val,
+                                env,
+                            )?
+                        {
+                            return Ok(true);
+                        }
+                    }
+                    continue;
+                }
+            }
+            // Unit enum variant `Enum::Variant`
+            if let Some((enum_prefix, var_name)) = p.split_once("::") {
+                if !var_name.contains('(') {
+                    if let RuntimeValue::EnumVariant {
+                        enum_name,
+                        variant,
+                        payload: None,
+                    } = scrut_val
+                    {
+                        if enum_name == enum_prefix.trim() && variant == var_name.trim() {
+                            return Ok(true);
+                        }
+                    }
+                    continue;
+                }
+            }
+            // Tuple pattern `(p1, p2)`
+            if p.starts_with('(') && p.ends_with(')') {
+                let inner = &p[1..p.len() - 1];
+                let sub_pats = split_top_level(inner, ',');
+                if sub_pats.len() > 1 {
+                    if let RuntimeValue::Tuple(vals) = scrut_val {
+                        if sub_pats.len() == vals.len() {
+                            let mut all_ok = true;
+                            for (sp, sv) in sub_pats.iter().zip(vals.iter()) {
+                                if !self.eval_match_pattern(file_path, line, sp.trim(), sv, env)? {
+                                    all_ok = false;
+                                    break;
+                                }
+                            }
+                            if all_ok {
+                                return Ok(true);
+                            }
+                        }
+                    }
+                    continue;
+                }
+            }
             if let Some((start_s, end_s)) = p.split_once("..=") {
                 if let (Some(a), Some(b), RuntimeValue::Int(v)) = (
                     parse_int_literal(start_s.trim()),
@@ -3211,7 +4521,7 @@ impl<'a> EvalContext<'a> {
                 }
                 continue;
             }
-            if is_pattern_ident(p) && !env.contains_key(p) {
+            if is_pattern_ident(p) && !env.contains_key(p) && !self.consts.contains_key(p) {
                 env.insert(p.to_string(), scrut_val.clone());
                 return Ok(true);
             }
@@ -3237,8 +4547,21 @@ impl<'a> EvalContext<'a> {
                 .map_err(|d| (d.line, format!("{}: {}", d.code, d.message)))?;
             let mut last = RuntimeValue::Unit;
             for st in &stmts {
-                match self.eval_stmt(file_path, st, env)? {
-                    ControlFlowOutcome::Continue(v) | ControlFlowOutcome::Return(v) => last = v,
+                if let AstStmt::Return {
+                    expr: Some(e),
+                    is_tail: true,
+                    line: l,
+                } = st
+                {
+                    last = self.eval_expr(file_path, *l, e, env)?;
+                } else {
+                    match self.eval_stmt(file_path, st, env)? {
+                        ControlFlowOutcome::Continue(v) => last = v,
+                        ControlFlowOutcome::Return(v) => {
+                            self.early_return = Some(v.clone());
+                            return Ok(v);
+                        }
+                    }
                 }
             }
             return Ok(last);
@@ -3263,6 +4586,9 @@ impl<'a> EvalContext<'a> {
         expr: &str,
         env: &mut BTreeMap<String, RuntimeValue>,
     ) -> Result<RuntimeValue, (usize, String)> {
+        if self.early_return.is_some() {
+            return Ok(RuntimeValue::Int(0));
+        }
         let s = strip_outer_parens(expr.trim());
         if s.is_empty() || s == "()" {
             return Ok(RuntimeValue::Unit);
@@ -3276,28 +4602,109 @@ impl<'a> EvalContext<'a> {
         if s == "None" {
             return Ok(RuntimeValue::OptionVal(None));
         }
-        if let Some(inner) = s.strip_prefix("Some(").and_then(|r| r.strip_suffix(')')) {
-            let v = self.eval_expr(file_path, line, inner, env)?;
-            return Ok(RuntimeValue::OptionVal(Some(Box::new(v))));
+        if s == "Vec::new()" || s == "vec![]" {
+            return Ok(RuntimeValue::List(Vec::new()));
+        }
+        if s == "String::new()" {
+            return Ok(RuntimeValue::Str(String::new()));
         }
         if s.starts_with('"') && s.ends_with('"') && s.len() >= 2 {
-            return Ok(RuntimeValue::Str(s[1..s.len() - 1].to_string()));
+            return Ok(RuntimeValue::Str(unescape_rust_string(&s[1..s.len() - 1])));
         }
-        if let Some(inner) = s
-            .strip_prefix("println!(")
-            .and_then(|r| r.strip_suffix(')'))
-        {
-            let args = split_top_level(inner, ',');
-            if let Some(fmt_raw) = args.first() {
-                let mut out_line = fmt_raw.trim().trim_matches('"').to_string();
-                for arg in args.iter().skip(1) {
-                    let v = self.eval_expr(file_path, line, arg.trim(), env)?;
-                    out_line = out_line.replacen("{}", &v.display_value(), 1);
+        if s.starts_with('\'') && s.ends_with('\'') && s.len() >= 3 {
+            return Ok(RuntimeValue::Str(unescape_rust_string(&s[1..s.len() - 1])));
+        }
+        if let Some((callee, inner)) = split_outermost_call(s) {
+            match callee {
+                "Some" => {
+                    let v = self.eval_expr(file_path, line, inner, env)?;
+                    if self.early_return.is_some() {
+                        return Ok(RuntimeValue::Unit);
+                    }
+                    return Ok(RuntimeValue::OptionVal(Some(Box::new(v))));
                 }
-                self.stdout.push_str(&out_line);
-                self.stdout.push('\n');
+                "Ok" => {
+                    let v = self.eval_expr(file_path, line, inner, env)?;
+                    if self.early_return.is_some() {
+                        return Ok(RuntimeValue::Unit);
+                    }
+                    return Ok(RuntimeValue::ResultVal(Ok(Box::new(v))));
+                }
+                "Err" => {
+                    let v = self.eval_expr(file_path, line, inner, env)?;
+                    if self.early_return.is_some() {
+                        return Ok(RuntimeValue::Unit);
+                    }
+                    return Ok(RuntimeValue::ResultVal(Err(Box::new(v))));
+                }
+                "String::from" => {
+                    return self.eval_expr(file_path, line, inner, env);
+                }
+                "format!" => {
+                    let args = split_top_level(inner, ',');
+                    if let Some(fmt_raw) = args.first() {
+                        let raw_t = fmt_raw.trim();
+                        let mut out_line =
+                            if raw_t.starts_with('"') && raw_t.ends_with('"') && raw_t.len() >= 2 {
+                                unescape_rust_string(&raw_t[1..raw_t.len() - 1])
+                            } else {
+                                raw_t.trim_matches('"').to_string()
+                            };
+                        for arg in args.iter().skip(1) {
+                            let v = self.eval_expr(file_path, line, arg.trim(), env)?;
+                            if self.early_return.is_some() {
+                                return Ok(RuntimeValue::Unit);
+                            }
+                            out_line = out_line.replacen("{}", &v.display_value(), 1);
+                        }
+                        return Ok(RuntimeValue::Str(out_line));
+                    }
+                    return Ok(RuntimeValue::Str(String::new()));
+                }
+                "println!" => {
+                    let args = split_top_level(inner, ',');
+                    if let Some(fmt_raw) = args.first() {
+                        let raw_t = fmt_raw.trim();
+                        let mut out_line =
+                            if raw_t.starts_with('"') && raw_t.ends_with('"') && raw_t.len() >= 2 {
+                                unescape_rust_string(&raw_t[1..raw_t.len() - 1])
+                            } else {
+                                raw_t.trim_matches('"').to_string()
+                            };
+                        for arg in args.iter().skip(1) {
+                            let v = self.eval_expr(file_path, line, arg.trim(), env)?;
+                            if self.early_return.is_some() {
+                                return Ok(RuntimeValue::Unit);
+                            }
+                            out_line = out_line.replacen("{}", &v.display_value(), 1);
+                        }
+                        self.stdout.push_str(&out_line);
+                        self.stdout.push('\n');
+                    }
+                    return Ok(RuntimeValue::Unit);
+                }
+                _ => {}
             }
-            return Ok(RuntimeValue::Unit);
+        }
+        if let Some(inner) = strip_whole_bracket_literal(s) {
+            let semi_parts = split_top_level(inner, ';');
+            if semi_parts.len() == 2 {
+                let elem = self.eval_expr(file_path, line, semi_parts[0].trim(), env)?;
+                let count_v = self.eval_expr(file_path, line, semi_parts[1].trim(), env)?;
+                let n = match count_v {
+                    RuntimeValue::Int(c) => c.max(0) as usize,
+                    _ => 0,
+                };
+                return Ok(RuntimeValue::List(vec![elem; n]));
+            }
+            let mut items = Vec::new();
+            for part in split_top_level(inner, ',') {
+                let p = part.trim();
+                if !p.is_empty() {
+                    items.push(self.eval_expr(file_path, line, p, env)?);
+                }
+            }
+            return Ok(RuntimeValue::List(items));
         }
 
         // `match scrutinee { pat => body, ... }`
@@ -3308,7 +4715,6 @@ impl<'a> EvalContext<'a> {
                 let mut arm_env = env.clone();
                 if self.eval_match_pattern(file_path, line, pat, &scrut_val, &mut arm_env)? {
                     let res = self.eval_block_or_expr(file_path, line, body, &mut arm_env)?;
-                    // Propagate mutations to existing variables in outer `env`
                     for (k, v) in env.iter_mut() {
                         if let Some(updated) = arm_env.get(k) {
                             *v = updated.clone();
@@ -3338,6 +4744,22 @@ impl<'a> EvalContext<'a> {
                     }
                 }
             }
+        }
+
+        // Top-level range `start..end` or `start..=end`
+        if let Some((start_s, end_s, inclusive)) = split_top_level_range(s) {
+            let RuntimeValue::Int(start_v) = self.eval_expr(file_path, line, start_s, env)? else {
+                return Err((line, format!("range start must be integer at line {line}")));
+            };
+            let RuntimeValue::Int(end_v) = self.eval_expr(file_path, line, end_s, env)? else {
+                return Err((line, format!("range end must be integer at line {line}")));
+            };
+            let limit = if inclusive { end_v + 1 } else { end_v };
+            let mut out = Vec::new();
+            for v in start_v..limit {
+                out.push(RuntimeValue::Int(v));
+            }
+            return Ok(RuntimeValue::List(out));
         }
 
         // Logical operators `||`, `&&`
@@ -3396,6 +4818,10 @@ impl<'a> EvalContext<'a> {
                 (RuntimeValue::Int(a), RuntimeValue::Int(b), ">=") => a >= b,
                 (RuntimeValue::Int(a), RuntimeValue::Int(b), "<") => a < b,
                 (RuntimeValue::Int(a), RuntimeValue::Int(b), ">") => a > b,
+                (RuntimeValue::Str(a), RuntimeValue::Str(b), "<=") => a <= b,
+                (RuntimeValue::Str(a), RuntimeValue::Str(b), ">=") => a >= b,
+                (RuntimeValue::Str(a), RuntimeValue::Str(b), "<") => a < b,
+                (RuntimeValue::Str(a), RuntimeValue::Str(b), ">") => a > b,
                 _ => false,
             };
             return Ok(RuntimeValue::Bool(res));
@@ -3413,7 +4839,13 @@ impl<'a> EvalContext<'a> {
         ] {
             if let Some((lhs, op, rhs)) = split_top_level_binary_tier(s, tier) {
                 let lv = self.eval_expr(file_path, line, lhs, env)?;
+                if self.early_return.is_some() {
+                    return Ok(RuntimeValue::Int(0));
+                }
                 let rv = self.eval_expr(file_path, line, rhs, env)?;
+                if self.early_return.is_some() {
+                    return Ok(RuntimeValue::Int(0));
+                }
                 let op_tag = match op {
                     "+" => 0,
                     "-" => 1,
@@ -3464,6 +4896,15 @@ impl<'a> EvalContext<'a> {
             }
         }
 
+        // Cast suffix `expr as usize`, `expr as i64`, etc.
+        if let Some(inner) = strip_int_cast_suffix(s) {
+            let v = self.eval_expr(file_path, line, inner, env)?;
+            return match v {
+                RuntimeValue::Bool(b) => Ok(RuntimeValue::Int(i64::from(b))),
+                other => Ok(other),
+            };
+        }
+
         // Unary `!`
         if let Some(inner) = s.strip_prefix('!') {
             let v = self.eval_expr(file_path, line, inner, env)?;
@@ -3486,36 +4927,39 @@ impl<'a> EvalContext<'a> {
             }
         }
 
-        // Slice / array literal `&[a, b, c]` or `[a, b, c]`
-        if (s.starts_with("&[") || s.starts_with('[')) && s.ends_with(']') {
-            let inner = s
-                .strip_prefix("&[")
-                .or_else(|| s.strip_prefix('['))
-                .and_then(|r| r.strip_suffix(']'))
-                .unwrap_or("");
-            let mut items = Vec::new();
-            for part in split_top_level(inner, ',') {
-                let p = part.trim();
-                if !p.is_empty() {
-                    items.push(self.eval_expr(file_path, line, p, env)?);
+        // Postfix `?` operator on Result<T, E> or Option<T>
+        if let Some(inner) = s.strip_suffix('?') {
+            let inner_val = self.eval_expr(file_path, line, inner.trim(), env)?;
+            return match inner_val {
+                RuntimeValue::ResultVal(Ok(v)) => Ok(*v),
+                RuntimeValue::ResultVal(Err(e)) => {
+                    self.early_return = Some(RuntimeValue::ResultVal(Err(e)));
+                    Ok(RuntimeValue::Int(0))
                 }
-            }
-            return Ok(RuntimeValue::List(items));
+                RuntimeValue::OptionVal(Some(v)) => Ok(*v),
+                RuntimeValue::OptionVal(None) => {
+                    self.early_return = Some(RuntimeValue::OptionVal(None));
+                    Ok(RuntimeValue::Int(0))
+                }
+                other => Ok(other),
+            };
         }
 
         // Tuple literal `(a, b)`
         if s.starts_with('(') && s.ends_with(')') {
             let inner = &s[1..s.len() - 1];
-            let parts = split_top_level(inner, ',');
-            if parts.len() > 1 {
-                let mut items = Vec::with_capacity(parts.len());
-                for p in parts {
-                    let pt = p.trim();
-                    if !pt.is_empty() {
-                        items.push(self.eval_expr(file_path, line, pt, env)?);
+            if check_delimiter_balance(inner).is_ok() {
+                let parts = split_top_level(inner, ',');
+                if parts.len() > 1 {
+                    let mut items = Vec::with_capacity(parts.len());
+                    for p in parts {
+                        let pt = p.trim();
+                        if !pt.is_empty() {
+                            items.push(self.eval_expr(file_path, line, pt, env)?);
+                        }
                     }
+                    return Ok(RuntimeValue::Tuple(items));
                 }
-                return Ok(RuntimeValue::Tuple(items));
             }
         }
 
@@ -3546,81 +4990,262 @@ impl<'a> EvalContext<'a> {
         }
 
         // Index expression `arr[idx]`
-        if let Some(open_brack) = s.rfind('[') {
-            if s.ends_with(']') && !s.starts_with('[') && !s.starts_with("&[") {
-                let target_s = s[..open_brack].trim();
-                let idx_s = s[open_brack + 1..s.len() - 1].trim();
-                let target_v = self.eval_expr(file_path, line, target_s, env)?;
-                let idx_v = self.eval_expr(file_path, line, idx_s, env)?;
-                if let (RuntimeValue::List(items), RuntimeValue::Int(i)) = (target_v, idx_v) {
-                    if let Some(elem) = items.get(i as usize) {
-                        return Ok(elem.clone());
-                    }
+        if let Some((target_s, idx_s)) = split_trailing_index(s) {
+            let target_v = self.eval_expr(file_path, line, target_s, env)?;
+            let idx_v = self.eval_expr(file_path, line, idx_s, env)?;
+            if let (RuntimeValue::List(items), RuntimeValue::Int(i)) = (target_v, idx_v) {
+                if let Some(elem) = items.get(i as usize) {
+                    return Ok(elem.clone());
                 }
             }
         }
 
         // Method or function call `callee(args...)`
-        if let Some(open_paren) = s.find('(') {
-            if s.ends_with(')') {
-                let callee = s[..open_paren].trim();
-                let args_str = &s[open_paren + 1..s.len() - 1];
-                let raw_args = split_top_level(args_str, ',');
-                let mut eval_args = Vec::new();
-                for a in raw_args {
-                    let at = a.trim();
-                    if !at.is_empty() {
-                        eval_args.push(self.eval_expr(file_path, line, at, env)?);
-                    }
-                }
+        if let Some((callee, args_str)) = split_outermost_call(s) {
+            if callee == "Vec::with_capacity" || callee == "Vec::new" {
+                return Ok(RuntimeValue::List(Vec::new()));
+            }
+            let raw_args: Vec<&str> = split_top_level(args_str, ',')
+                .into_iter()
+                .map(|a| a.trim())
+                .filter(|a| !a.is_empty())
+                .collect();
 
-                // Check method call `receiver.method(args...)`
-                if let Some((recv_expr, method_name)) = callee.rsplit_once('.') {
-                    let recv_name = recv_expr.trim();
-                    let mname = method_name.trim();
-                    let recv_val = self.eval_expr(file_path, line, recv_name, env)?;
+            // Check method call `receiver.method(args...)`
+            if let Some((recv_expr, method_name)) = rsplit_top_level_dot(callee) {
+                let recv_name = recv_expr.trim();
+                let mname = method_name.trim();
 
-                    // Check if receiver is a struct with an `impl` method in workspace
-                    if let RuntimeValue::StructVal { ref name, .. } = recv_val {
-                        if let Some(method_fn) = self.functions.iter().find(|f| {
-                            f.name == mname && f.impl_struct.as_deref() == Some(name.as_str())
-                        }) {
-                            let mut sub_env = BTreeMap::new();
-                            sub_env.insert("self".to_string(), recv_val);
-                            for (param, arg_val) in method_fn
-                                .params
-                                .iter()
-                                .filter(|p| !p.is_self)
-                                .zip(eval_args)
-                            {
-                                sub_env.insert(param.name.clone(), arg_val);
+                // Higher-order iterator combinators with closure arguments
+                match mname {
+                    "map" if raw_args.len() == 1 => {
+                        if let Some((params, body)) = parse_closure_expr(raw_args[0]) {
+                            let items = self.eval_iterable(file_path, line, recv_name, env)?;
+                            let mut mapped = Vec::with_capacity(items.len());
+                            for item in items {
+                                let _ = self.consume_step(file_path, line, 0, 0, 0, 0, 0)?;
+                                let mut clos_env = env.clone();
+                                if params.len() == 1 {
+                                    bind_for_pattern(&params[0], item, &mut clos_env);
+                                } else if params.len() == 2 {
+                                    if let RuntimeValue::Tuple(vals) = item {
+                                        if vals.len() == 2 {
+                                            bind_for_pattern(
+                                                &params[0],
+                                                vals[0].clone(),
+                                                &mut clos_env,
+                                            );
+                                            bind_for_pattern(
+                                                &params[1],
+                                                vals[1].clone(),
+                                                &mut clos_env,
+                                            );
+                                        }
+                                    }
+                                }
+                                let out_v =
+                                    self.eval_block_or_expr(file_path, line, body, &mut clos_env)?;
+                                mapped.push(out_v);
                             }
-                            let (ret, updated_env) = self.eval_function(method_fn, sub_env)?;
-                            if let Some(updated_self) = updated_env.get("self") {
-                                env.insert(recv_name.to_string(), updated_self.clone());
-                            }
-                            return Ok(ret);
+                            return Ok(RuntimeValue::List(mapped));
                         }
                     }
-
-                    return self.eval_builtin_method(line, recv_val, mname, &eval_args);
+                    "filter" if raw_args.len() == 1 => {
+                        if let Some((params, body)) = parse_closure_expr(raw_args[0]) {
+                            let items = self.eval_iterable(file_path, line, recv_name, env)?;
+                            let mut kept = Vec::new();
+                            for item in items {
+                                let _ = self.consume_step(file_path, line, 0, 0, 0, 0, 0)?;
+                                let mut clos_env = env.clone();
+                                if params.len() == 1 {
+                                    bind_for_pattern(&params[0], item.clone(), &mut clos_env);
+                                } else if params.len() == 2 {
+                                    if let RuntimeValue::Tuple(ref vals) = item {
+                                        if vals.len() == 2 {
+                                            bind_for_pattern(
+                                                &params[0],
+                                                vals[0].clone(),
+                                                &mut clos_env,
+                                            );
+                                            bind_for_pattern(
+                                                &params[1],
+                                                vals[1].clone(),
+                                                &mut clos_env,
+                                            );
+                                        }
+                                    }
+                                }
+                                let cond =
+                                    self.eval_block_or_expr(file_path, line, body, &mut clos_env)?;
+                                if matches!(cond, RuntimeValue::Bool(true)) {
+                                    kept.push(item);
+                                }
+                            }
+                            return Ok(RuntimeValue::List(kept));
+                        }
+                    }
+                    "any" | "all" if raw_args.len() == 1 => {
+                        if let Some((params, body)) = parse_closure_expr(raw_args[0]) {
+                            let items = self.eval_iterable(file_path, line, recv_name, env)?;
+                            let is_any = mname == "any";
+                            for item in items {
+                                let _ = self.consume_step(file_path, line, 0, 0, 0, 0, 0)?;
+                                let mut clos_env = env.clone();
+                                if let Some(first_p) = params.first() {
+                                    bind_for_pattern(first_p, item, &mut clos_env);
+                                }
+                                let cond =
+                                    self.eval_block_or_expr(file_path, line, body, &mut clos_env)?;
+                                let b = matches!(cond, RuntimeValue::Bool(true));
+                                if is_any && b {
+                                    return Ok(RuntimeValue::Bool(true));
+                                }
+                                if !is_any && !b {
+                                    return Ok(RuntimeValue::Bool(false));
+                                }
+                            }
+                            return Ok(RuntimeValue::Bool(!is_any));
+                        }
+                    }
+                    "fold" if raw_args.len() >= 2 => {
+                        let clos_joined = raw_args[1..].join(", ");
+                        if let Some((params, body)) = parse_closure_expr(&clos_joined) {
+                            let mut acc = self.eval_expr(file_path, line, raw_args[0], env)?;
+                            let items = self.eval_iterable(file_path, line, recv_name, env)?;
+                            for item in items {
+                                let _ = self.consume_step(file_path, line, 0, 0, 0, 0, 0)?;
+                                let mut clos_env = env.clone();
+                                if let Some(acc_p) = params.first() {
+                                    bind_for_pattern(acc_p, acc.clone(), &mut clos_env);
+                                }
+                                if let Some(item_p) = params.get(1) {
+                                    bind_for_pattern(item_p, item, &mut clos_env);
+                                }
+                                acc =
+                                    self.eval_block_or_expr(file_path, line, body, &mut clos_env)?;
+                            }
+                            return Ok(acc);
+                        }
+                    }
+                    _ => {}
                 }
 
-                // Standalone function call (possibly qualified `module::fn_name`)
-                let short_name = callee.rsplit("::").next().unwrap_or(callee).trim();
-                if let Some(target_fn) = self.functions.iter().find(|f| f.name == short_name) {
-                    let mut sub_env = BTreeMap::new();
-                    for (param, arg_val) in target_fn.params.iter().zip(eval_args) {
-                        sub_env.insert(param.name.clone(), arg_val);
+                let mut eval_args = Vec::with_capacity(raw_args.len());
+                for at in &raw_args {
+                    eval_args.push(self.eval_expr(file_path, line, at, env)?);
+                }
+
+                // Mutable Vec methods operating in-place on `env`
+                match mname {
+                    "push" => {
+                        if let Some(arg) = eval_args.first().cloned() {
+                            if let Some(RuntimeValue::List(items)) = env.get_mut(recv_name) {
+                                items.push(arg);
+                                return Ok(RuntimeValue::Unit);
+                            }
+                        }
                     }
-                    let (ret, _) = self.eval_function(target_fn, sub_env)?;
-                    return Ok(ret);
+                    "pop" => {
+                        if let Some(RuntimeValue::List(items)) = env.get_mut(recv_name) {
+                            let popped = items.pop().map(Box::new);
+                            return Ok(RuntimeValue::OptionVal(popped));
+                        }
+                    }
+                    "clear" => {
+                        if let Some(RuntimeValue::List(items)) = env.get_mut(recv_name) {
+                            items.clear();
+                            return Ok(RuntimeValue::Unit);
+                        }
+                    }
+                    "reverse" => {
+                        if let Some(RuntimeValue::List(items)) = env.get_mut(recv_name) {
+                            items.reverse();
+                            return Ok(RuntimeValue::Unit);
+                        }
+                    }
+                    "sort" => {
+                        if let Some(RuntimeValue::List(items)) = env.get_mut(recv_name) {
+                            items.sort_by(|a, b| match (a, b) {
+                                (RuntimeValue::Int(x), RuntimeValue::Int(y)) => x.cmp(y),
+                                (RuntimeValue::Str(x), RuntimeValue::Str(y)) => x.cmp(y),
+                                _ => std::cmp::Ordering::Equal,
+                            });
+                            return Ok(RuntimeValue::Unit);
+                        }
+                    }
+                    _ => {}
+                }
+
+                let recv_val = self.eval_expr(file_path, line, recv_name, env)?;
+
+                // Check if receiver is a struct with an `impl` method in workspace
+                if let RuntimeValue::StructVal { ref name, .. } = recv_val {
+                    if let Some(method_fn) = self.functions.iter().find(|f| {
+                        f.name == mname && f.impl_struct.as_deref() == Some(name.as_str())
+                    }) {
+                        let mut sub_env = BTreeMap::new();
+                        sub_env.insert("self".to_string(), recv_val);
+                        for (param, arg_val) in method_fn
+                            .params
+                            .iter()
+                            .filter(|p| !p.is_self)
+                            .zip(eval_args)
+                        {
+                            sub_env.insert(param.name.clone(), arg_val);
+                        }
+                        let (ret, updated_env) = self.eval_function(method_fn, sub_env)?;
+                        if let Some(updated_self) = updated_env.get("self") {
+                            env.insert(recv_name.to_string(), updated_self.clone());
+                        }
+                        return Ok(ret);
+                    }
+                }
+
+                return self.eval_builtin_method(line, recv_val, mname, &eval_args);
+            }
+
+            let mut eval_args = Vec::with_capacity(raw_args.len());
+            for at in &raw_args {
+                eval_args.push(self.eval_expr(file_path, line, at, env)?);
+            }
+
+            // Standalone function call (possibly qualified `module::fn_name`)
+            let short_name = callee.rsplit("::").next().unwrap_or(callee).trim();
+            if let Some(target_fn) = self.functions.iter().find(|f| f.name == short_name) {
+                let mut sub_env = BTreeMap::new();
+                for (param, arg_val) in target_fn.params.iter().zip(eval_args) {
+                    sub_env.insert(param.name.clone(), arg_val);
+                }
+                let (ret, _) = self.eval_function(target_fn, sub_env)?;
+                return Ok(ret);
+            }
+
+            // Enum variant constructor with payload `EnumName::Variant(arg)`
+            if let Some((type_prefix, variant_name)) = callee.split_once("::") {
+                if type_prefix
+                    .trim()
+                    .chars()
+                    .next()
+                    .is_some_and(|c| c.is_ascii_uppercase())
+                {
+                    let payload = if eval_args.len() == 1 {
+                        eval_args.into_iter().next().map(Box::new)
+                    } else if eval_args.is_empty() {
+                        None
+                    } else {
+                        Some(Box::new(RuntimeValue::Tuple(eval_args)))
+                    };
+                    return Ok(RuntimeValue::EnumVariant {
+                        enum_name: type_prefix.trim().to_string(),
+                        variant: variant_name.trim().to_string(),
+                        payload,
+                    });
                 }
             }
         }
 
         // Struct field access `obj.field` or tuple `.0` / `.1`
-        if let Some((recv_expr, field_name)) = s.rsplit_once('.') {
+        if let Some((recv_expr, field_name)) = rsplit_top_level_dot(s) {
             let recv_val = self.eval_expr(file_path, line, recv_expr.trim(), env)?;
             match recv_val {
                 RuntimeValue::StructVal { fields, .. } => {
@@ -3639,8 +5264,33 @@ impl<'a> EvalContext<'a> {
             }
         }
 
-        let var_lookup = s.strip_prefix('&').unwrap_or(s).trim();
+        // Unit enum variant `EnumName::Variant`
+        if let Some((type_prefix, variant_name)) = s.split_once("::") {
+            if type_prefix
+                .trim()
+                .chars()
+                .next()
+                .is_some_and(|c| c.is_ascii_uppercase())
+                && !variant_name.contains('(')
+            {
+                return Ok(RuntimeValue::EnumVariant {
+                    enum_name: type_prefix.trim().to_string(),
+                    variant: variant_name.trim().to_string(),
+                    payload: None,
+                });
+            }
+        }
+
+        let var_lookup = s
+            .strip_prefix("&mut ")
+            .or_else(|| s.strip_prefix('&'))
+            .or_else(|| s.strip_prefix('*'))
+            .unwrap_or(s)
+            .trim();
         if let Some(val) = env.get(var_lookup) {
+            return Ok(val.clone());
+        }
+        if let Some(val) = self.consts.get(var_lookup) {
             return Ok(val.clone());
         }
 
@@ -3657,6 +5307,9 @@ impl<'a> EvalContext<'a> {
         method: &str,
         args: &[RuntimeValue],
     ) -> Result<RuntimeValue, (usize, String)> {
+        if self.early_return.is_some() {
+            return Ok(RuntimeValue::Unit);
+        }
         match (recv, method) {
             (RuntimeValue::Int(a), "saturating_add") => {
                 let b = args
@@ -3708,6 +5361,16 @@ impl<'a> EvalContext<'a> {
                     .unwrap_or(0);
                 Ok(RuntimeValue::Int(a.wrapping_sub(b)))
             }
+            (RuntimeValue::Int(a), "wrapping_mul") => {
+                let b = args
+                    .first()
+                    .and_then(|v| match v {
+                        RuntimeValue::Int(x) => Some(*x),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+                Ok(RuntimeValue::Int(a.wrapping_mul(b)))
+            }
             (RuntimeValue::Int(a), "clamp") => {
                 let lo = args
                     .first()
@@ -3749,6 +5412,25 @@ impl<'a> EvalContext<'a> {
             (RuntimeValue::Int(a), "count_ones") => {
                 Ok(RuntimeValue::Int(i64::from((a as u64).count_ones())))
             }
+            (RuntimeValue::Int(a), "count_zeros") => {
+                Ok(RuntimeValue::Int(i64::from((a as u64).count_zeros())))
+            }
+            (RuntimeValue::Int(a), "leading_zeros") => {
+                Ok(RuntimeValue::Int(i64::from((a as u64).leading_zeros())))
+            }
+            (RuntimeValue::Int(a), "trailing_zeros") => {
+                Ok(RuntimeValue::Int(i64::from((a as u64).trailing_zeros())))
+            }
+            (RuntimeValue::Int(a), "pow") => {
+                let exp = args
+                    .first()
+                    .and_then(|v| match v {
+                        RuntimeValue::Int(x) => Some((*x).max(0) as u32),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+                Ok(RuntimeValue::Int(a.wrapping_pow(exp)))
+            }
             (RuntimeValue::Int(a), "is_multiple_of") => {
                 let b = args
                     .first()
@@ -3759,8 +5441,145 @@ impl<'a> EvalContext<'a> {
                     .unwrap_or(1);
                 Ok(RuntimeValue::Bool(b != 0 && a % b == 0))
             }
-            (RuntimeValue::List(items), "len") => Ok(RuntimeValue::Int(items.len() as i64)),
+            (RuntimeValue::Int(a), "to_string") => Ok(RuntimeValue::Str(a.to_string())),
+            (RuntimeValue::Bool(b), "to_string") => Ok(RuntimeValue::Str(b.to_string())),
+            // List / Slice / Iterator methods
+            (RuntimeValue::List(items), "len" | "count") => {
+                Ok(RuntimeValue::Int(items.len() as i64))
+            }
             (RuntimeValue::List(items), "is_empty") => Ok(RuntimeValue::Bool(items.is_empty())),
+            (
+                RuntimeValue::List(items),
+                "iter" | "into_iter" | "copied" | "cloned" | "collect" | "to_vec" | "as_slice",
+            ) => Ok(RuntimeValue::List(items)),
+            (RuntimeValue::List(mut items), "rev") => {
+                items.reverse();
+                Ok(RuntimeValue::List(items))
+            }
+            (RuntimeValue::List(items), "enumerate") => Ok(RuntimeValue::List(
+                items
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, v)| RuntimeValue::Tuple(vec![RuntimeValue::Int(i as i64), v]))
+                    .collect(),
+            )),
+            (RuntimeValue::List(items), "sum") => {
+                let total: i64 = items
+                    .iter()
+                    .filter_map(|v| match v {
+                        RuntimeValue::Int(x) => Some(*x),
+                        _ => None,
+                    })
+                    .sum();
+                Ok(RuntimeValue::Int(total))
+            }
+            (RuntimeValue::List(items), "product") => {
+                let prod: i64 = items
+                    .iter()
+                    .filter_map(|v| match v {
+                        RuntimeValue::Int(x) => Some(*x),
+                        _ => None,
+                    })
+                    .product();
+                Ok(RuntimeValue::Int(prod))
+            }
+            (RuntimeValue::List(items), "first") => Ok(RuntimeValue::OptionVal(
+                items.first().cloned().map(Box::new),
+            )),
+            (RuntimeValue::List(items), "last") => {
+                Ok(RuntimeValue::OptionVal(items.last().cloned().map(Box::new)))
+            }
+            (RuntimeValue::List(items), "get") => {
+                let idx = args
+                    .first()
+                    .and_then(|v| match v {
+                        RuntimeValue::Int(x) => Some((*x).max(0) as usize),
+                        _ => None,
+                    })
+                    .unwrap_or(usize::MAX);
+                Ok(RuntimeValue::OptionVal(
+                    items.get(idx).cloned().map(Box::new),
+                ))
+            }
+            (RuntimeValue::List(items), "contains") => {
+                let needle = args.first();
+                let found = needle.is_some_and(|n| items.iter().any(|x| x == n));
+                Ok(RuntimeValue::Bool(found))
+            }
+            (RuntimeValue::List(items), "zip") => {
+                if let Some(RuntimeValue::List(other)) = args.first() {
+                    Ok(RuntimeValue::List(
+                        items
+                            .into_iter()
+                            .zip(other.iter().cloned())
+                            .map(|(a, b)| RuntimeValue::Tuple(vec![a, b]))
+                            .collect(),
+                    ))
+                } else {
+                    Ok(RuntimeValue::List(Vec::new()))
+                }
+            }
+            (RuntimeValue::List(items), "take") => {
+                let n = args
+                    .first()
+                    .and_then(|v| match v {
+                        RuntimeValue::Int(x) => Some((*x).max(0) as usize),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+                Ok(RuntimeValue::List(items.into_iter().take(n).collect()))
+            }
+            (RuntimeValue::List(items), "skip") => {
+                let n = args
+                    .first()
+                    .and_then(|v| match v {
+                        RuntimeValue::Int(x) => Some((*x).max(0) as usize),
+                        _ => None,
+                    })
+                    .unwrap_or(0);
+                Ok(RuntimeValue::List(items.into_iter().skip(n).collect()))
+            }
+            // String methods
+            (RuntimeValue::Str(s), "len") => Ok(RuntimeValue::Int(s.len() as i64)),
+            (RuntimeValue::Str(s), "is_empty") => Ok(RuntimeValue::Bool(s.is_empty())),
+            (RuntimeValue::Str(s), "trim") => Ok(RuntimeValue::Str(s.trim().to_string())),
+            (RuntimeValue::Str(s), "trim_start") => {
+                Ok(RuntimeValue::Str(s.trim_start().to_string()))
+            }
+            (RuntimeValue::Str(s), "trim_end") => Ok(RuntimeValue::Str(s.trim_end().to_string())),
+            (RuntimeValue::Str(s), "to_uppercase" | "to_ascii_uppercase") => {
+                Ok(RuntimeValue::Str(s.to_uppercase()))
+            }
+            (RuntimeValue::Str(s), "to_lowercase" | "to_ascii_lowercase") => {
+                Ok(RuntimeValue::Str(s.to_lowercase()))
+            }
+            (RuntimeValue::Str(s), "to_string" | "as_str") => Ok(RuntimeValue::Str(s)),
+            (RuntimeValue::Str(s), "contains") => {
+                let pat = args.first().map(|v| v.display_value()).unwrap_or_default();
+                Ok(RuntimeValue::Bool(s.contains(&pat)))
+            }
+            (RuntimeValue::Str(s), "starts_with") => {
+                let pat = args.first().map(|v| v.display_value()).unwrap_or_default();
+                Ok(RuntimeValue::Bool(s.starts_with(&pat)))
+            }
+            (RuntimeValue::Str(s), "ends_with") => {
+                let pat = args.first().map(|v| v.display_value()).unwrap_or_default();
+                Ok(RuntimeValue::Bool(s.ends_with(&pat)))
+            }
+            (RuntimeValue::Str(s), "replace") => {
+                let from = args.first().map(|v| v.display_value()).unwrap_or_default();
+                let to = args.get(1).map(|v| v.display_value()).unwrap_or_default();
+                Ok(RuntimeValue::Str(s.replace(&from, &to)))
+            }
+            (RuntimeValue::Str(s), "chars") => Ok(RuntimeValue::List(
+                s.chars()
+                    .map(|c| RuntimeValue::Str(c.to_string()))
+                    .collect(),
+            )),
+            (RuntimeValue::Str(s), "bytes") => Ok(RuntimeValue::List(
+                s.bytes().map(|b| RuntimeValue::Int(i64::from(b))).collect(),
+            )),
+            // Option methods
             (RuntimeValue::OptionVal(opt), "is_some") => Ok(RuntimeValue::Bool(opt.is_some())),
             (RuntimeValue::OptionVal(opt), "is_none") => Ok(RuntimeValue::Bool(opt.is_none())),
             (RuntimeValue::OptionVal(Some(v)), "unwrap" | "unwrap_or") => Ok(*v),
@@ -3771,6 +5590,31 @@ impl<'a> EvalContext<'a> {
                 line,
                 format!("called `Option::unwrap()` on a `None` value at line {line}"),
             )),
+            // Result methods
+            (RuntimeValue::ResultVal(res), "is_ok") => Ok(RuntimeValue::Bool(res.is_ok())),
+            (RuntimeValue::ResultVal(res), "is_err") => Ok(RuntimeValue::Bool(res.is_err())),
+            (RuntimeValue::ResultVal(Ok(v)), "unwrap" | "unwrap_or") => Ok(*v),
+            (RuntimeValue::ResultVal(Err(_)), "unwrap_or") => {
+                Ok(args.first().cloned().unwrap_or(RuntimeValue::Unit))
+            }
+            (RuntimeValue::ResultVal(Err(e)), "unwrap") => Err((
+                line,
+                format!(
+                    "called `Result::unwrap()` on an `Err({})` value at line {line}",
+                    e.display_value()
+                ),
+            )),
+            (RuntimeValue::ResultVal(Err(e)), "unwrap_err") => Ok(*e),
+            (RuntimeValue::ResultVal(Ok(v)), "unwrap_err") => Err((
+                line,
+                format!(
+                    "called `Result::unwrap_err()` on an `Ok({})` value at line {line}",
+                    v.display_value()
+                ),
+            )),
+            (RuntimeValue::ResultVal(Ok(v)), "ok") => Ok(RuntimeValue::OptionVal(Some(v))),
+            (RuntimeValue::ResultVal(Err(_)), "ok") => Ok(RuntimeValue::OptionVal(None)),
+            (other, "clone") => Ok(other),
             _ => Err((
                 line,
                 format!("unsupported method `.{method}(...)` at line {line}"),
@@ -3824,6 +5668,9 @@ pub fn execute_workspace_cargo(
     };
 
     let mut all_structs = Vec::new();
+    let mut all_enums = Vec::new();
+    let mut all_consts = Vec::new();
+    let mut all_type_aliases = BTreeMap::new();
     let mut all_functions = Vec::new();
     let mut diagnostics = Vec::new();
     let mut admission_outcomes = Vec::new();
@@ -3835,10 +5682,13 @@ pub fn execute_workspace_cargo(
         let mut syntax_line = 0u64;
         let mut type_line = 0u64;
 
-        match parse_rust_module(path, content) {
-            Ok((structs, funcs)) => {
-                all_structs.extend(structs);
-                all_functions.extend(funcs);
+        match parse_rust_module_items(path, content) {
+            Ok(parsed) => {
+                all_structs.extend(parsed.structs);
+                all_enums.extend(parsed.enums);
+                all_consts.extend(parsed.consts);
+                all_type_aliases.extend(parsed.type_aliases);
+                all_functions.extend(parsed.functions);
             }
             Err(diag) => {
                 match diag.code.as_str() {
@@ -3865,7 +5715,13 @@ pub fn execute_workspace_cargo(
     }
 
     if diagnostics.is_empty() {
-        if let Err(type_diag) = typecheck_module(&all_structs, &all_functions) {
+        if let Err(type_diag) = typecheck_module_items_with_aliases(
+            &all_structs,
+            &all_enums,
+            &all_consts,
+            &all_type_aliases,
+            &all_functions,
+        ) {
             let outcome = admit_ast_module(
                 rust_files
                     .iter()
@@ -3887,6 +5743,26 @@ pub fn execute_workspace_cargo(
             );
             admission_outcomes.push(format!("{outcome:?}"));
             diagnostics.push(type_diag);
+        }
+    }
+
+    let mut const_env = BTreeMap::new();
+    if diagnostics.is_empty() && !all_consts.is_empty() {
+        let empty_consts = BTreeMap::new();
+        for c in &all_consts {
+            let mut c_ctx = EvalContext {
+                functions: &all_functions,
+                consts: &empty_consts,
+                fuel_remaining: 1_024,
+                fuel_consumed: 0,
+                assertions_verified: 0,
+                stdout: String::new(),
+                early_return: None,
+            };
+            let mut tmp_env = const_env.clone();
+            if let Ok(val) = c_ctx.eval_expr(&c.file_path, c.decl_line, &c.expr, &mut tmp_env) {
+                const_env.insert(c.name.clone(), val);
+            }
         }
     }
 
@@ -3913,10 +5789,12 @@ pub fn execute_workspace_cargo(
         for test_fn in &test_functions {
             let mut ctx = EvalContext {
                 functions: &all_functions,
+                consts: &const_env,
                 fuel_remaining: DEFAULT_EVAL_FUEL,
                 fuel_consumed: 0,
                 assertions_verified: 0,
                 stdout: String::new(),
+                early_return: None,
             };
             let mod_prefix = test_fn
                 .file_path
@@ -3970,10 +5848,12 @@ pub fn execute_workspace_cargo(
         if let Some(main_fn) = all_functions.iter().find(|f| f.name == "main") {
             let mut ctx = EvalContext {
                 functions: &all_functions,
+                consts: &const_env,
                 fuel_remaining: DEFAULT_EVAL_FUEL,
                 fuel_consumed: 0,
                 assertions_verified: 0,
                 stdout: String::new(),
+                early_return: None,
             };
             match ctx.eval_function(main_fn, BTreeMap::new()) {
                 Ok((ret_val, _)) => {
@@ -3998,10 +5878,12 @@ pub fn execute_workspace_cargo(
             // Execute a default smoke probe over GeometricRouter::step_token and cyclic_frame_block
             let mut ctx = EvalContext {
                 functions: &all_functions,
+                consts: &const_env,
                 fuel_remaining: DEFAULT_EVAL_FUEL,
                 fuel_consumed: 0,
                 assertions_verified: 0,
                 stdout: String::new(),
+                early_return: None,
             };
             let mut env = BTreeMap::new();
             if let Ok(v) =
@@ -4337,5 +6219,142 @@ mod tests {
         assert_eq!(rep.tests_failed, 0);
         assert_eq!(rep.test_results[0].assertions_verified, 5);
         assert!(rep.stdout.contains("acc += 25"));
+    }
+
+    #[test]
+    fn test_wasm_ast_eval_enums_result_try_operator_and_consts() {
+        let files = vec![(
+            "src/protocol.rs".to_string(),
+            concat!(
+                "pub const MAX_SIGNAL: i64 = 64;\n",
+                "pub type SignalWord = i64;\n\n",
+                "pub enum GateOp {\n",
+                "    Halt,\n",
+                "    Scale(i64),\n",
+                "    Shift(i64),\n",
+                "}\n\n",
+                "pub fn decode_gate(op: GateOp, base: SignalWord) -> Result<i64, i64> {\n",
+                "    match op {\n",
+                "        GateOp::Halt => Err(404),\n",
+                "        GateOp::Scale(factor) => Ok(base * factor),\n",
+                "        GateOp::Shift(delta) => Ok(base + delta + MAX_SIGNAL),\n",
+                "    }\n",
+                "}\n\n",
+                "pub fn chain_gates(base: i64, k: i64) -> Result<i64, i64> {\n",
+                "    let step1: i64 = decode_gate(GateOp::Scale(k), base)?;\n",
+                "    if step1 < 0 {\n",
+                "        return decode_gate(GateOp::Halt, step1);\n",
+                "    }\n",
+                "    let step2: i64 = decode_gate(GateOp::Shift(6), step1)?;\n",
+                "    Ok(step2)\n",
+                "}\n\n",
+                "#[test]\n",
+                "fn test_enums_and_try_propagation() {\n",
+                "    let ok_res: Result<i64, i64> = chain_gates(5, 4);\n",
+                "    assert!(ok_res.is_ok());\n",
+                "    assert_eq!(ok_res.unwrap(), 90);\n",
+                "    let err_res: Result<i64, i64> = chain_gates(5, -2);\n",
+                "    assert!(err_res.is_err());\n",
+                "    assert_eq!(err_res.unwrap_err(), 404);\n",
+                "    assert_eq!(err_res.unwrap_or(77), 77);\n",
+                "}\n"
+            )
+            .to_string(),
+        )];
+
+        let rep = execute_workspace_cargo("test", "", &files);
+        assert_eq!(rep.status, "ok", "diagnostics: {:?}", rep.diagnostics);
+        assert_eq!(rep.tests_passed, 1);
+        assert_eq!(rep.tests_failed, 0);
+        assert_eq!(rep.test_results[0].assertions_verified, 5);
+    }
+
+    #[test]
+    fn test_wasm_ast_eval_vec_mutation_array_repeat_iterators_and_strings() {
+        let files = vec![(
+            "src/pipeline.rs".to_string(),
+            concat!(
+                "pub fn compute_histogram_and_transform() -> i64 {\n",
+                "    let mut hist: [i64; 8] = [0; 8];\n",
+                "    hist[2] = 10;\n",
+                "    hist[2] += 5;\n",
+                "    let mut dyn_vec: Vec<i64> = vec![3, 1, 4, 1, 5];\n",
+                "    dyn_vec.push(9);\n",
+                "    dyn_vec.sort();\n",
+                "    let popped: i64 = dyn_vec.pop().unwrap_or(0);\n",
+                "    let filtered_sum: i64 = dyn_vec.iter().filter(|x| x > 1).map(|x| x * 2).sum();\n",
+                "    let folded: i64 = (1..=4).fold(0, |acc, v| acc + v);\n",
+                "    let enum_sum: i64 = dyn_vec.iter().enumerate().map(|(i, v)| i + v).sum();\n",
+                "    let has_five: bool = dyn_vec.iter().any(|x| x == 5);\n",
+                "    let all_pos: bool = dyn_vec.iter().all(|x| x > 0);\n",
+                "    if has_five && all_pos {\n",
+                "        hist[2] + popped + filtered_sum + folded + enum_sum\n",
+                "    } else {\n",
+                "        0\n",
+                "    }\n",
+                "}\n\n",
+                "pub fn format_banner(tag: &str, code: i64) -> String {\n",
+                "    let raw: String = format!(\"  [{}::{}]  \", tag, code);\n",
+                "    raw.trim().to_uppercase().replace(\"::\", \"-\")\n",
+                "}\n\n",
+                "#[test]\n",
+                "fn test_collections_closures_and_strings() {\n",
+                "    assert_eq!(compute_histogram_and_transform(), 82);\n",
+                "    let banner: String = format_banner(\"uor_r4\", 32);\n",
+                "    assert_eq!(banner, \"[UOR_R4-32]\");\n",
+                "    assert!(banner.starts_with(\"[UOR\"));\n",
+                "    assert!(banner.ends_with(\"-32]\"));\n",
+                "    assert!(banner.contains(\"R4\"));\n",
+                "    assert_eq!(banner.len(), 11);\n",
+                "}\n"
+            )
+            .to_string(),
+        )];
+
+        let rep = execute_workspace_cargo("test", "", &files);
+        assert_eq!(rep.status, "ok", "diagnostics: {:?}", rep.diagnostics);
+        assert_eq!(rep.tests_passed, 1);
+        assert_eq!(rep.tests_failed, 0);
+        assert_eq!(rep.test_results[0].assertions_verified, 6);
+    }
+
+    #[test]
+    fn test_wasm_ast_eval_chained_constructors_type_aliases_chars_and_try_nesting() {
+        let files = vec![(
+            "src/edge_cases.rs".to_string(),
+            concat!(
+                "pub type OutcomeAlias = Result<i64, i64>;\n\n",
+                "pub fn fallible_step(x: i64) -> OutcomeAlias {\n",
+                "    if x < 0 {\n",
+                "        Err(99)\n",
+                "    } else {\n",
+                "        Ok(x * 3)\n",
+                "    }\n",
+                "}\n\n",
+                "pub fn nested_try_in_ok(x: i64) -> OutcomeAlias {\n",
+                "    Ok(fallible_step(x)? + 1)\n",
+                "}\n\n",
+                "#[test]\n",
+                "fn test_edge_cases() {\n",
+                "    assert_eq!(Ok(42).unwrap_or(0), 42);\n",
+                "    assert_eq!(Err(9).unwrap_or(11), 11);\n",
+                "    assert_eq!(Some(7).unwrap_or(0), 7);\n",
+                "    assert_eq!([10, 20, 30][1], 20);\n",
+                "    assert_eq!([1, 2, 3].len(), 3);\n",
+                "    assert_eq!(format!(\"  hi {} \", 5).trim(), \"hi 5\");\n",
+                "    let l_count: i64 = \"hello\".chars().filter(|c| c == 'l').count();\n",
+                "    assert_eq!(l_count, 2);\n",
+                "    assert_eq!(nested_try_in_ok(4).unwrap(), 13);\n",
+                "    assert_eq!(nested_try_in_ok(-1).unwrap_err(), 99);\n",
+                "}\n"
+            )
+            .to_string(),
+        )];
+
+        let rep = execute_workspace_cargo("test", "", &files);
+        assert_eq!(rep.status, "ok", "diagnostics: {:?}", rep.diagnostics);
+        assert_eq!(rep.tests_passed, 1);
+        assert_eq!(rep.tests_failed, 0);
+        assert_eq!(rep.test_results[0].assertions_verified, 9);
     }
 }

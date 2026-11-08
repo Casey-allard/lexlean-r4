@@ -580,6 +580,12 @@ pub fn build_inference_trace(
     let v_model = intern_table.intern_str("uor-r4.lut-stack/8");
     let k_mech = intern_table.intern_str("uor.mechanism");
     let v_mech = intern_table.intern_str("gllm.inference");
+    let k_bound_slots = intern_table.intern_str("uor.bound_slots");
+    let bound_slots_count = gen_result
+        .slot_frame
+        .as_ref()
+        .map(|sf| sf.slots.len())
+        .unwrap_or(0);
 
     let span_name_root = intern_table.intern_str("gllm.turn");
     let span_name_tok = intern_table.intern_str("gllm.tokenize");
@@ -604,6 +610,7 @@ pub fn build_inference_trace(
         (k_ctx_after, Value::String(format!("{:016x}", digest_after))),
         (k_prompt_tokens, Value::from(gen_result.prompt_tokens.len())),
         (k_gen_tokens, Value::from(gen_result.generated_tokens.len())),
+        (k_bound_slots, Value::from(bound_slots_count)),
         (
             k_model,
             Value::String(intern_table.get(v_model).to_string()),
@@ -660,17 +667,11 @@ pub fn build_inference_trace(
     let k_basin_l1 = intern_table.intern_str("uor.basin_energy_l1");
     let k_basin_l2 = intern_table.intern_str("uor.basin_energy_l2");
 
-    // Compute Clifford grade distribution from model or first step holonomy
+    // Compute Clifford grade distribution from live context_after, final_n_t, and per-layer projections
     let first_step = gen_result.steps.first();
     let icosian = first_step.map(|s| s.icosian_root).unwrap_or(0);
     let holonomy = first_step.map(|s| s.spin_holonomy).unwrap_or(0);
     let trinary = first_step.map(|s| s.trinary_active_lanes).unwrap_or(16);
-
-    let mut grade_dist = [0usize; 7];
-    for b in 0..64u8 {
-        let g = (b.count_ones() as usize).min(6);
-        grade_dist[g] += 1;
-    }
 
     let mut l1_energy = 0i64;
     let mut l2_energy = 0i64;
@@ -685,6 +686,18 @@ pub fn build_inference_trace(
         let layer_name_ref = intern_table.intern_str(&layer_name);
         let (_, layer_span_id) = compute_uor_span_id(root_u64, &layer_name, l as u64);
 
+        let mut grade_dist = [0usize; 7];
+        for b in 0..64usize {
+            let lane_idx = (b * 4 + l) & 0xFF;
+            let n_mag = gen_result.final_n_t[lane_idx].unsigned_abs() as usize;
+            let ctx_mag = (context_after[lane_idx] as i32).unsigned_abs() as usize;
+            let state_bits = ((gen_result.final_n_t[lane_idx] as u32 >> (l + 2))
+                ^ (context_after[lane_idx] as u16 as u32)) as u8;
+            let blade = ((b as u8) ^ holonomy.rotate_left((l % 6) as u32) ^ state_bits) & 0x3F;
+            let g = (blade.count_ones() as usize).min(6);
+            let lane_energy = 1 + ((n_mag >> 6) + (ctx_mag >> 4)).min(512);
+            grade_dist[g] += lane_energy;
+        }
         let grades_json: Vec<Value> = grade_dist.iter().map(|&c| Value::from(c)).collect();
 
         spans.push(CompactSpan {

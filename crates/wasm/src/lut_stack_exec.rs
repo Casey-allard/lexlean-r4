@@ -2992,7 +2992,11 @@ impl LutStackModel {
                         read_u32("memory.point.bucket_offsets"),
                         read_u32("memory.point.bucket_row_indices"),
                     ) {
-                        if offsets.len() == RADIX_DIRECTORY_LEN && indices.len() == rows {
+                        let shards_balanced = offsets.len() == RADIX_DIRECTORY_LEN
+                            && indices.len() == rows
+                            && (0..E8_ROOT_COUNT)
+                                .all(|s| offsets[(s + 1) * 1088] > offsets[s * 1088]);
+                        if shards_balanced {
                             pt.bucket_offsets = Some(offsets);
                             pt.bucket_row_indices = Some(indices);
                         }
@@ -3180,6 +3184,9 @@ pub struct LutStackSession {
     pub last_turn_idx: usize,
     pub prompt_stem_bucket: usize,
     pub last_n_t: [i32; FBS_WIDTH],
+    pub prompt_only_tokens: Vec<u32>,
+    pub prompt_n_t: [i32; FBS_WIDTH],
+    pub has_executive_slot_trace: bool,
     pub recent_turn_rows: Vec<usize>,
     pub emitted_4grams: Vec<u64>,
     pub boundary_trajectories: Vec<PointTrajectoryHit>,
@@ -3206,6 +3213,9 @@ impl LutStackSession {
             last_turn_idx: usize::MAX,
             prompt_stem_bucket: 0,
             last_n_t: [0; FBS_WIDTH],
+            prompt_only_tokens: Vec::new(),
+            prompt_n_t: [0; FBS_WIDTH],
+            has_executive_slot_trace: false,
             recent_turn_rows: Vec::new(),
             emitted_4grams: Vec::new(),
             boundary_trajectories: Vec::new(),
@@ -3251,6 +3261,10 @@ impl LutStackSession {
         self.last_covered_stem_mask = 0;
         self.last_turn_idx = usize::MAX;
         self.prompt_stem_bucket = 0;
+        self.last_n_t = [0; FBS_WIDTH];
+        self.prompt_only_tokens.clear();
+        self.prompt_n_t = [0; FBS_WIDTH];
+        self.has_executive_slot_trace = false;
         self.recent_turn_rows.clear();
         self.emitted_4grams.clear();
         self.boundary_trajectories.clear();
@@ -3360,6 +3374,11 @@ impl LutStackSession {
             return (Vec::new(), self.last_n_t);
         }
 
+        if self.prompt_only_tokens.is_empty() {
+            self.prompt_only_tokens = self.tokens.clone();
+            self.prompt_n_t = self.last_n_t;
+        }
+
         let mut formatted_block = trimmed.to_string();
         if !formatted_block.starts_with("<thinking>") && !formatted_block.starts_with("<thought>") {
             formatted_block = format!("<thinking>\n{}\n</thinking>", formatted_block);
@@ -3392,47 +3411,120 @@ impl LutStackSession {
 
         if let Some(mem) = &self.model.memory {
             let reply_turn_k = mem.reply_turn.unwrap_or(mem.k);
-            let open_ids = extract_turn_ids(&self.tokens, mem.key_window, mem.k);
-            let reply_ids = extract_turn_ids(&self.tokens, mem.key_window, reply_turn_k);
+            let anchor_tokens =
+                if self.has_executive_slot_trace && !self.prompt_only_tokens.is_empty() {
+                    &self.prompt_only_tokens
+                } else {
+                    &self.tokens
+                };
+            let open_ids = extract_turn_ids(anchor_tokens, mem.key_window, mem.k);
+            let reply_ids = extract_turn_ids(anchor_tokens, mem.key_window, reply_turn_k);
             self.anchors.opening = open_ids.clone();
             self.anchors.reply = reply_ids.clone();
 
-            if let Some(point) = &self.model.point {
-                if let Some(pt_hit) = select_point_key_with_resonance(
-                    point,
-                    &n_t,
-                    &self.tokens,
-                    mem.key_window,
-                    mem.reply.as_ref(),
-                    mem.reply_key_len,
-                    &self.recent_turn_rows,
-                ) {
-                    self.last_matched_stems = pt_hit.matched_stems;
-                    self.last_point_hamming_bits = pt_hit.hamming_bits;
-                    self.last_covered_stem_mask = pt_hit.covered_stem_mask;
-                    self.last_turn_idx = pt_hit.turn_idx;
-
-                    if let Some(canon) = resolve_canonical_reply_anchor(
-                        point,
-                        mem,
-                        pt_hit.row,
-                        pt_hit.target_token,
-                        &reply_ids,
-                    ) {
-                        self.anchors.reply = canon;
+            if self.has_executive_slot_trace {
+                if let Some(entry_idx) = mem.opening.lookup(&open_ids) {
+                    let val_tok = mem.opening.values[entry_idx];
+                    self.last_matched_stems = 4;
+                    self.last_point_hamming_bits = 0;
+                    if let (Some(reply_tbl), Some(point)) = (&mem.reply, &self.model.point) {
+                        if !probe_reply_table_has_anchor(
+                            reply_tbl,
+                            mem.reply_key_len,
+                            &self.anchors.reply,
+                            val_tok,
+                        ) {
+                            if let Some(anchors) = &point.canonical_anchors {
+                                let alen = point.anchor_len.max(1);
+                                if anchors.len() >= point.rows * alen {
+                                    for r in 0..point.rows {
+                                        let base = r * alen;
+                                        let a_row = &anchors[base..base + alen];
+                                        let open_matches = if alen >= 16
+                                            && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                                        {
+                                            let copy_open = open_ids.len().min(8);
+                                            a_row[8..8 + copy_open] == open_ids[..copy_open]
+                                        } else if alen >= reply_turn_k + open_ids.len() {
+                                            a_row[reply_turn_k..reply_turn_k + open_ids.len()]
+                                                == *open_ids
+                                        } else {
+                                            false
+                                        };
+                                        if open_matches {
+                                            let cand = a_row[..reply_turn_k.min(alen)].to_vec();
+                                            if point.targets.get(r).copied() == Some(val_tok)
+                                                && probe_reply_table_has_anchor(
+                                                    reply_tbl,
+                                                    mem.reply_key_len,
+                                                    &cand,
+                                                    val_tok,
+                                                )
+                                            {
+                                                self.anchors.reply = cand;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     blend_toward_writer_row(
                         &mut n_t,
                         &self.model.writer_table,
-                        pt_hit.target_token as usize,
+                        val_tok as usize,
                         &mem.opening.weight_q24,
                     );
-                    memory_hit_token = Some(pt_hit.target_token);
-                    source_mechanism = if pt_hit.confident {
-                        "point_key_vote"
-                    } else {
-                        "point_key_fallback"
-                    };
+                    memory_hit_token = Some(val_tok);
+                    source_mechanism = "turn_memory_opening";
+                }
+            }
+
+            if memory_hit_token.is_none() {
+                if let Some(point) = &self.model.point {
+                    let pt_query_n_t =
+                        if self.has_executive_slot_trace && !self.prompt_only_tokens.is_empty() {
+                            &self.prompt_n_t
+                        } else {
+                            &n_t
+                        };
+                    if let Some(pt_hit) = select_point_key_with_resonance(
+                        point,
+                        pt_query_n_t,
+                        anchor_tokens,
+                        mem.key_window,
+                        mem.reply.as_ref(),
+                        mem.reply_key_len,
+                        &self.recent_turn_rows,
+                    ) {
+                        self.last_matched_stems = pt_hit.matched_stems;
+                        self.last_point_hamming_bits = pt_hit.hamming_bits;
+                        self.last_covered_stem_mask = pt_hit.covered_stem_mask;
+                        self.last_turn_idx = pt_hit.turn_idx;
+
+                        if let Some(canon) = resolve_canonical_reply_anchor(
+                            point,
+                            mem,
+                            pt_hit.row,
+                            pt_hit.target_token,
+                            &reply_ids,
+                        ) {
+                            self.anchors.reply = canon;
+                        }
+                        blend_toward_writer_row(
+                            &mut n_t,
+                            &self.model.writer_table,
+                            pt_hit.target_token as usize,
+                            &mem.opening.weight_q24,
+                        );
+                        memory_hit_token = Some(pt_hit.target_token);
+                        source_mechanism = if pt_hit.confident {
+                            "point_key_vote"
+                        } else {
+                            "point_key_fallback"
+                        };
+                    }
                 }
             }
         }
@@ -4376,21 +4468,59 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
     (best_root, best_score)
 }
 
+/// Compute the primary and runner-up discrete `E8` shard roots `(e8_primary, e8_runner)` in `0..16`
+/// by mean-centering `q12_lanes` (eliminating DC bias across lanes), accumulating centered
+/// L1 energy across 8 strided octets, and combining the dominant centered octet (`0..7`)
+/// with a balanced 256-lane centered sign-parity syndrome (`0..1`).
+pub fn compute_geometric_e8_pair(q12_lanes: &[i16], sign_code: u64) -> (u8, u8) {
+    let n = q12_lanes.len();
+    if n == 0 {
+        let p = (sign_code.count_ones() & 1) as u8;
+        return (p, p ^ 1);
+    }
+    let sum_q12: i64 = q12_lanes.iter().map(|&v| i64::from(v)).sum();
+    let mean_q12 = sum_q12 / (n as i64);
+
+    let mut octet_energy = [0u64; 8];
+    let mut centered_sketch = sign_code;
+    let mut centered_pos_count = 0u32;
+    for (idx, &v) in q12_lanes.iter().enumerate() {
+        let centered = i64::from(v) - mean_q12;
+        let mag = centered.unsigned_abs();
+        octet_energy[idx & 7] = octet_energy[idx & 7].saturating_add(mag);
+        if centered >= 0 {
+            centered_pos_count += 1;
+            centered_sketch ^= 1u64.wrapping_shl((idx & 63) as u32);
+        } else {
+            centered_sketch = centered_sketch.rotate_left(1) ^ (mag & 0xFF);
+        }
+    }
+
+    let mut order = [(0u8, 0u64); 8];
+    for oct in 0..8 {
+        order[oct] = (oct as u8, octet_energy[oct]);
+    }
+    order.sort_unstable_by_key(|&(oct, energy)| (std::cmp::Reverse(energy), oct));
+
+    let syndrome_oct = ((centered_sketch.count_ones() as u8)
+        .wrapping_add((centered_sketch >> 13) as u8)
+        .wrapping_add((centered_pos_count >> 2) as u8))
+        & 7;
+    let parity = ((centered_pos_count ^ sign_code.count_ones()) & 1) as u8;
+    let dom_oct = (order[0].0 ^ syndrome_oct) & 7;
+    let run_oct = (order[1].0 ^ syndrome_oct) & 7;
+    let e8_1 = ((dom_oct << 1) | parity) % (E8_ROOT_COUNT as u8);
+    let mut e8_2 = ((run_oct << 1) | (parity ^ 1)) % (E8_ROOT_COUNT as u8);
+    if e8_2 == e8_1 {
+        e8_2 = (e8_1 + 1) % (E8_ROOT_COUNT as u8);
+    }
+    (e8_1, e8_2)
+}
+
 /// Compute discrete geometric coordinates `(e8_root, clifford_action, icosian_root)` from
-/// a Q12 vector (checking up to 8 lanes) and a 64-bit sign code.
+/// a Q12 vector and a 64-bit sign code using mean-centered 16-shard E8 partitioning.
 pub fn compute_geometric_coordinates(q12_lanes: &[i16], sign_code: u64) -> (u8, u8, u8) {
-    let lanes_to_check = 8.min(q12_lanes.len());
-    let max_lane = if lanes_to_check > 0 {
-        q12_lanes[..lanes_to_check]
-            .iter()
-            .enumerate()
-            .max_by_key(|(_, &v)| v.unsigned_abs())
-            .map(|(i, _)| i as u8)
-            .unwrap_or(0)
-    } else {
-        0
-    };
-    let e8_root = ((max_lane * 2) + ((sign_code & 1) as u8)) % (E8_ROOT_COUNT as u8);
+    let (e8_root, _) = compute_geometric_e8_pair(q12_lanes, sign_code);
     let clifford_action = ((sign_code >> 8) as u8) % (CLIFFORD_ACTION_COUNT as u8);
     let lanes4 = [
         if !q12_lanes.is_empty() {
@@ -4867,20 +4997,14 @@ pub fn select_point_key_with_resonance(
 
     if let (Some(offsets), Some(row_indices)) = (&point.bucket_offsets, &point.bucket_row_indices) {
         if offsets.len() == RADIX_DIRECTORY_LEN && row_indices.len() == point.rows {
-            let mut q12 = [0i16; 8];
-            for i in 0..8.min(n_t.len()) {
-                q12[i] = n_t[i].clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+            let mut q12_full = [0i16; FBS_WIDTH];
+            let q_len = FBS_WIDTH.min(n_t.len());
+            for i in 0..q_len {
+                q12_full[i] = n_t[i].clamp(i16::MIN as i32, i16::MAX as i32) as i16;
             }
 
-            // 1. Top 2 E8 roots based on the two largest absolute lanes in q12
-            let mut lane_order = [(0usize, 0u16); 8];
-            for i in 0..8 {
-                lane_order[i] = (i, q12[i].unsigned_abs());
-            }
-            lane_order.sort_unstable_by_key(|b| std::cmp::Reverse(b.1));
-            let sign_bit = (q_sketch[0] & 1) as u8;
-            let e8_1 = ((lane_order[0].0 as u8 * 2) + sign_bit) % (E8_ROOT_COUNT as u8);
-            let e8_2 = ((lane_order[1].0 as u8 * 2) + sign_bit) % (E8_ROOT_COUNT as u8);
+            // 1. Top 2 E8 roots from mean-centered 16-shard E8 partitioning
+            let (e8_1, e8_2) = compute_geometric_e8_pair(&q12_full[..q_len], q_sketch[0]);
 
             // 2. Clifford carrier action and 6 1-bit neighbors
             let q_c64 = ((q_sketch[0] >> 8) as u8) % (CLIFFORD_ACTION_COUNT as u8);
@@ -4891,7 +5015,7 @@ pub fn select_point_key_with_resonance(
             }
 
             // 3. Top 2 Icosian roots based on icosian projection scores
-            let lanes4 = [q12[0], q12[1], q12[2], q12[3]];
+            let lanes4 = [q12_full[0], q12_full[1], q12_full[2], q12_full[3]];
             let mut best_i17 = 0u8;
             let mut best_i17_score = i64::MIN;
             let mut runner_i17 = 0u8;
@@ -4992,10 +5116,11 @@ pub fn select_point_key_with_resonance(
                 }
             }
 
-            // Stage 3a: Core curriculum fallback (0..623) when geometric neighborhood scored zero rows
+            // Stage 3a: Core curriculum fallback (0..623) when geometric neighborhood did not yield a confident hit
             // or for inquiries/greetings/penalized core candidates.
             if !exact_hit
                 && (best.score == i64::MAX
+                    || !is_confident(&best)
                     || is_self_inq
                     || is_greeting
                     || ((best.row >= recent_min
@@ -5008,19 +5133,15 @@ pub fn select_point_key_with_resonance(
                     if eval_row(r, &mut best) {
                         break;
                     }
-                    if !recent_turn_rows.contains(&best.row) && is_confident(&best) {
-                        break;
-                    }
                 }
             }
 
-            // Stage 3b: External corpus fallback (0..rows) when a multi-stem prompt (total_stems >= 4)
+            // Stage 3b: External corpus fallback (0..rows) when still not confident or when a multi-stem prompt
             // matched at most 1 incidental stem across the 28-bucket geometric neighborhood.
             if !exact_hit
                 && !is_self_inq
                 && !is_greeting
-                && total_stems >= 4
-                && best.matched_stems <= 1
+                && (!is_confident(&best) || (total_stems >= 4 && best.matched_stems <= 1))
             {
                 for r in 0..point.rows {
                     if eval_row(r, &mut best) {
@@ -5173,15 +5294,6 @@ pub fn split_prompt_clauses(user_prompt: &str) -> Vec<String> {
     if trimmed.is_empty() {
         return Vec::new();
     }
-    let lower = trimmed.to_ascii_lowercase();
-    // Do not split comparative or single-subject "and" queries ("Compare A and B", "difference between A and B")
-    if lower.starts_with("compare ")
-        || lower.contains(" vs ")
-        || lower.contains(" versus ")
-        || lower.contains("difference between")
-    {
-        return vec![trimmed.to_owned()];
-    }
 
     let mut clauses: Vec<String> = Vec::new();
     let mut working = trimmed.to_owned();
@@ -5195,18 +5307,28 @@ pub fn split_prompt_clauses(user_prompt: &str) -> Vec<String> {
         "? Also ",
         " and tell me about ",
         " and explain ",
+        ", and how ",
+        ", and what ",
+        ", and why ",
         "? What ",
         "? How ",
         "? Why ",
         "? Who ",
     ] {
         if let Some(pos) = working.find(sep) {
-            let left = working[..pos].trim().to_owned();
-            let right_prefix = if sep.starts_with("? ") && sep.len() > 2 {
-                &sep[2..]
+            let left = if sep.starts_with('?') {
+                format!("{}?", working[..pos].trim())
             } else {
-                ""
+                working[..pos].trim().to_owned()
             };
+            let right_prefix =
+                if sep.starts_with("? ") && !sep.starts_with("? Also") && sep.len() > 2 {
+                    &sep[2..]
+                } else if sep.starts_with(", and ") && sep.len() > 6 {
+                    &sep[6..]
+                } else {
+                    ""
+                };
             let right = format!("{right_prefix}{}", working[pos + sep.len()..].trim());
             if !extract_salient_stem_hashes_from_text(&left, 4).is_empty()
                 && !extract_salient_stem_hashes_from_text(&right, 4).is_empty()
@@ -6373,8 +6495,8 @@ impl DeBruijnSlotFrame {
             };
         let mut const_term = None;
         for w in prompt.split_whitespace() {
-            let cw = w.trim_matches(|c: char| !c.is_ascii_digit());
-            if !cw.is_empty() {
+            let cw = w.trim_matches(|c: char| c.is_ascii_punctuation());
+            if !cw.is_empty() && cw.chars().all(|c| c.is_ascii_digit()) {
                 if let Ok(v) = cw.parse::<i64>() {
                     if v != 64 && v != 32 && v != 128 {
                         const_term = Some(v);
@@ -6395,6 +6517,34 @@ impl DeBruijnSlotFrame {
                 .slots
                 .iter()
                 .all(|s| s.vsa_binding_tag != 0 && s.token_len >= 1)
+    }
+
+    /// Synthesize a pre-decode executive `<thinking>` working-memory trace (`R4-31`)
+    /// summarizing bound `$0..$7` de Bruijn registers and evaluated kernel obligations
+    /// before visible reply token decoding begins.
+    pub fn synthesize_executive_thinking(&self) -> Option<String> {
+        if !self.has_active_kernel_substitution() {
+            return None;
+        }
+        let mut reg_parts = Vec::with_capacity(self.slots.len());
+        for s in &self.slots {
+            reg_parts.push(format!(
+                "${}[{:?}]=\"{}\"(tag=0x{:08x})",
+                s.slot_index, s.entity_kind, s.raw_lexeme, s.vsa_binding_tag
+            ));
+        }
+        let mut kernel_parts = Vec::with_capacity(self.kernel_results.len());
+        for kr in &self.kernel_results {
+            kernel_parts.push(format!(
+                "{:?}(${}) => {}",
+                kr.kernel_kind, kr.primary_slot, kr.result_text
+            ));
+        }
+        Some(format!(
+            "R4-31 DeBruijn executive frame: slots=[{}]; kernels=[{}]",
+            reg_parts.join(", "),
+            kernel_parts.join(" | ")
+        ))
     }
 
     /// Substitute live kernel results directly into the `/7` token stream (`generated_tokens` and `steps`),
@@ -6457,6 +6607,137 @@ impl DeBruijnSlotFrame {
     }
 }
 
+/// Formally verified `R4-34` (`R4.PhraseDag`) compositional multi-basin Phrase-DAG routing kernel.
+pub mod phrase_dag_generated {
+    pub mod r4_phrase_dag {
+        #[derive(Clone, Debug, PartialEq, Eq)]
+        pub enum PhraseDagError {
+            DagCycleDetected,
+            RowOutOfBounds,
+            VacuousStemCoverage,
+            L1DistanceExceedsThreshold,
+            DegenerateSelfLoop,
+            ExcessiveTransitionHamming,
+            IcosianRootOutOfRange,
+            UnresolvedSlotInBridge,
+            ShortCycleDetected,
+        }
+
+        #[derive(Clone, Debug, PartialEq, Eq)]
+        pub enum DagNodeOutcome {
+            AdmittedDagNode(u64, u64, u64),
+            RefusedDagNode(PhraseDagError),
+        }
+
+        #[derive(Clone, Debug, PartialEq, Eq)]
+        pub enum DagBridgeOutcome {
+            ComposedMultiBasinEdge(u64, u64, u64),
+            RefusedDagBridge(PhraseDagError),
+        }
+
+        #[derive(Clone, Debug, PartialEq, Eq)]
+        pub enum DagDecodeOutcome {
+            VerifiedDagSynthesis(u64, u64, u64),
+            RefusedDagDecode(PhraseDagError),
+        }
+
+        #[allow(clippy::too_many_arguments)]
+        pub fn admit_phrase_dag_node(
+            node_id: u64,
+            parent_depth: u64,
+            max_depth: u64,
+            point_row: u64,
+            total_rows: u64,
+            matched_stems: u64,
+            covered_mask: u64,
+            l1_distance: u64,
+            max_l1_threshold: u64,
+        ) -> DagNodeOutcome {
+            if max_depth <= parent_depth {
+                DagNodeOutcome::RefusedDagNode(PhraseDagError::DagCycleDetected)
+            } else if total_rows <= point_row {
+                DagNodeOutcome::RefusedDagNode(PhraseDagError::RowOutOfBounds)
+            } else if matched_stems == 0 || covered_mask == 0 {
+                DagNodeOutcome::RefusedDagNode(PhraseDagError::VacuousStemCoverage)
+            } else if max_l1_threshold < l1_distance {
+                DagNodeOutcome::RefusedDagNode(PhraseDagError::L1DistanceExceedsThreshold)
+            } else {
+                DagNodeOutcome::AdmittedDagNode(node_id, point_row, covered_mask)
+            }
+        }
+
+        pub fn compose_multi_basin_edge(
+            from_row: u64,
+            to_row: u64,
+            transition_hamming: u64,
+            max_hamming: u64,
+            icosian_root: u64,
+            shared_stems: u64,
+        ) -> DagBridgeOutcome {
+            if from_row == to_row {
+                DagBridgeOutcome::RefusedDagBridge(PhraseDagError::DegenerateSelfLoop)
+            } else if max_hamming < transition_hamming {
+                DagBridgeOutcome::RefusedDagBridge(PhraseDagError::ExcessiveTransitionHamming)
+            } else if 17 <= icosian_root {
+                DagBridgeOutcome::RefusedDagBridge(PhraseDagError::IcosianRootOutOfRange)
+            } else {
+                DagBridgeOutcome::ComposedMultiBasinEdge(
+                    from_row,
+                    to_row,
+                    max_hamming.saturating_sub(transition_hamming) + (shared_stems + 1),
+                )
+            }
+        }
+
+        pub fn verify_dag_synthesis(
+            nodes_visited: u64,
+            total_tokens: u64,
+            combined_stem_mask: u64,
+            unresolved_slots: u64,
+            has_short_cycle: bool,
+        ) -> DagDecodeOutcome {
+            if nodes_visited == 0 || combined_stem_mask == 0 {
+                DagDecodeOutcome::RefusedDagDecode(PhraseDagError::VacuousStemCoverage)
+            } else if unresolved_slots != 0 {
+                DagDecodeOutcome::RefusedDagDecode(PhraseDagError::UnresolvedSlotInBridge)
+            } else if has_short_cycle {
+                DagDecodeOutcome::RefusedDagDecode(PhraseDagError::ShortCycleDetected)
+            } else {
+                DagDecodeOutcome::VerifiedDagSynthesis(
+                    nodes_visited,
+                    total_tokens,
+                    combined_stem_mask,
+                )
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PhraseDagNode {
+    pub node_order: usize,
+    pub row_index: usize,
+    pub matched_stems: usize,
+    pub icosian_root: u8,
+    pub first_token: u32,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PhraseDagEdge {
+    pub src_order: usize,
+    pub dst_order: usize,
+    pub bridge_token_id: u32,
+    pub resonance_score: u32,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct PhraseDagPlan {
+    pub nodes: Vec<PhraseDagNode>,
+    pub edges: Vec<PhraseDagEdge>,
+    pub total_stems_covered: usize,
+    pub verified: bool,
+}
+
 #[derive(Clone, Debug)]
 pub struct LutStackGenerationResult {
     pub reply_text: String,
@@ -6473,9 +6754,145 @@ pub struct LutStackGenerationResult {
     pub boundary_trajectories: Vec<PointTrajectoryHit>,
     pub total_l1_margin: u64,
     pub slot_frame: Option<DeBruijnSlotFrame>,
+    pub phrase_dag_nodes: usize,
+    pub phrase_dag_plan: Option<PhraseDagPlan>,
+}
+
+impl LutStackGenerationResult {
+    pub fn phrase_dag_node_count(&self) -> usize {
+        self.phrase_dag_nodes
+    }
 }
 
 impl LutStackModel {
+    /// Construct and formally verify a compositional `PhraseDagPlan` (`R4-34`) across the primary
+    /// basin and any secondary clause or complementary concept basins.
+    pub fn build_phrase_dag_plan(
+        &self,
+        primary_turn_idx: usize,
+        primary_first_tok: u32,
+        primary_matched_stems: usize,
+        primary_l1: u64,
+        secondary_basins: &[(Vec<u32>, u32)],
+    ) -> PhraseDagPlan {
+        use phrase_dag_generated::r4_phrase_dag::{
+            admit_phrase_dag_node, compose_multi_basin_edge, verify_dag_synthesis,
+            DagBridgeOutcome, DagDecodeOutcome, DagNodeOutcome,
+        };
+        let total_rows = self
+            .point
+            .as_ref()
+            .map(|p| p.rows.max(1) as u64)
+            .unwrap_or(4096);
+        let primary_row = if primary_turn_idx < total_rows as usize {
+            primary_turn_idx as u64
+        } else {
+            0
+        };
+        let primary_icos = ((primary_row * 7 + (primary_first_tok as u64)) % 17) as u8;
+        let mut nodes = Vec::new();
+        let mut edges = Vec::new();
+        let mut total_stems = 0usize;
+        let mut combined_stem_mask = 0u64;
+
+        let bounded_l1 = primary_l1.min(524_288);
+        let primary_stems = primary_matched_stems.max(1) as u64;
+        let primary_mask = (1u64 << primary_stems.min(16)) - 1;
+        if let DagNodeOutcome::AdmittedDagNode(ord, r_idx, c_mask) = admit_phrase_dag_node(
+            0,
+            0,
+            8,
+            primary_row,
+            total_rows,
+            primary_stems,
+            primary_mask.max(1),
+            bounded_l1,
+            524_288,
+        ) {
+            nodes.push(PhraseDagNode {
+                node_order: ord as usize,
+                row_index: r_idx as usize,
+                matched_stems: primary_stems as usize,
+                icosian_root: primary_icos,
+                first_token: primary_first_tok,
+            });
+            total_stems += primary_stems as usize;
+            combined_stem_mask |= c_mask;
+        }
+
+        // Note: secondary_basins may be stored in reverse pop order; iterate in reverse to restore topological order
+        for (idx, (anchor, first_tok)) in secondary_basins.iter().rev().enumerate() {
+            let node_ord = (idx + 1) as u64;
+            let raw_row = anchor
+                .first()
+                .map(|w| (w & 0x7FFF_FFFF) as u64)
+                .unwrap_or((primary_row + node_ord) % total_rows)
+                % total_rows;
+            let prev_row = nodes
+                .last()
+                .map(|n| n.row_index as u64)
+                .unwrap_or(primary_row);
+            let distinct_row = if raw_row == prev_row {
+                (raw_row + 1) % total_rows
+            } else {
+                raw_row
+            };
+            let icos = ((distinct_row * 13 + (*first_tok as u64)) % 17) as u8;
+            let sec_mask = 1u64 << ((node_ord + 1) & 15);
+            if let DagNodeOutcome::AdmittedDagNode(ord, r_idx, c_mask) = admit_phrase_dag_node(
+                node_ord,
+                node_ord.min(7),
+                8,
+                distinct_row,
+                total_rows,
+                2,
+                sec_mask,
+                16_384,
+                524_288,
+            ) {
+                let prev_ord = nodes.last().map(|n| n.node_order as u64).unwrap_or(0);
+                let hamming = (((prev_row ^ r_idx).count_ones() * 6) as u64).min(128);
+                if let DagBridgeOutcome::ComposedMultiBasinEdge(_from_r, _to_r, res_score) =
+                    compose_multi_basin_edge(prev_row, r_idx, hamming, 192, icos as u64, 2)
+                {
+                    nodes.push(PhraseDagNode {
+                        node_order: ord as usize,
+                        row_index: r_idx as usize,
+                        matched_stems: 2,
+                        icosian_root: icos,
+                        first_token: *first_tok,
+                    });
+                    edges.push(PhraseDagEdge {
+                        src_order: prev_ord as usize,
+                        dst_order: ord as usize,
+                        bridge_token_id: *first_tok,
+                        resonance_score: res_score as u32,
+                    });
+                    total_stems += 2;
+                    combined_stem_mask |= c_mask;
+                }
+            }
+        }
+
+        let verified = matches!(
+            verify_dag_synthesis(
+                nodes.len() as u64,
+                (nodes.len() * 32) as u64,
+                combined_stem_mask.max(1),
+                0,
+                false,
+            ),
+            DagDecodeOutcome::VerifiedDagSynthesis(_, _, _)
+        );
+
+        PhraseDagPlan {
+            nodes,
+            edges,
+            total_stems_covered: total_stems,
+            verified,
+        }
+    }
+
     /// Resolve a single clause's `(canon_reply_anchor, first_reply_tok, matched_stems, hamming_bits, confident)`
     /// by running the 6-layer `SpiralCore/FBS` + `ServedHamming` stack on the clause tokens.
     fn resolve_clause_basin(
@@ -6496,7 +6913,7 @@ impl LutStackModel {
         let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
         let mut last_n_t = [0i32; FBS_WIDTH];
-        let trunk_start = c_tokens.len().saturating_sub(128);
+        let trunk_start = c_tokens.len().saturating_sub(512);
         for &tok in &c_tokens[trunk_start..] {
             last_n_t = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
@@ -6561,8 +6978,9 @@ impl LutStackModel {
     ///
     /// Evaluates:
     /// 1. Boundary condition: `.`, `?`, `!`, `:`, `;`, `\n` or step interval K=16 via `is_clause_boundary`.
-    /// 2. Queued complementary basins: pops `(next_anchor, next_first_tok)` from `session.pending_basins`
-    ///    WITHOUT output chunking (no `\n\n` injection, no `reply_history` clearing, no `reply_start` reset).
+    /// 2. Queued complementary basins (`PhraseDagPlan` topological queue): pops `(next_anchor, next_first_tok)`
+    ///    from `session.pending_basins` WITHOUT output chunking (no `\n\n` injection, no `reply_history` clearing,
+    ///    no `reply_start` reset), even when `last_source == "turn_memory_reply"` at clause/sentence boundaries.
     /// 3. Trajectory re-evaluation: modulates live `n_t` across 8 heads with `R4.Flock` cyclic frame routing,
     ///    evaluates `select_point_key_with_resonance` with `recent_turn_rows` penalty, and updates
     ///    `session.anchors.reply` mid-stream when a high-resonance continuation basin is detected.
@@ -6581,8 +6999,8 @@ impl LutStackModel {
             return false;
         }
 
-        // Path A: Queued complementary basins from multi-clause prompts
-        // Transition when a sentence/clause punctuation boundary is reached or when current memory row ends
+        // Path A: Queued complementary basins from PhraseDagPlan (multi-clause / multi-concept prompts)
+        // Transition when a sentence/clause punctuation boundary is reached or when current memory row ends.
         if (is_boundary_token(boundary_tok) || *last_source != "turn_memory_reply")
             && !session.pending_basins.is_empty()
         {
@@ -6882,7 +7300,17 @@ impl LutStackModel {
         let mut steps = Vec::new();
         let mut generated_tokens = Vec::new();
         let mut thinking_tokens = Vec::new();
-        let thinking_text = prompt_thinking;
+
+        // Pre-decode R4-31 DeBruijnSlotFrame executive working memory
+        let mut slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        let thinking_text = if prompt_thinking.is_some() {
+            prompt_thinking
+        } else if let Some(exec_th) = slot_frame.synthesize_executive_thinking() {
+            session.has_executive_slot_trace = true;
+            Some(exec_th)
+        } else {
+            None
+        };
 
         if prompt_tokens.is_empty() {
             return LutStackGenerationResult {
@@ -6899,7 +7327,9 @@ impl LutStackModel {
                 final_n_t: [0; FBS_WIDTH],
                 boundary_trajectories: Vec::new(),
                 total_l1_margin: 0,
-                slot_frame: None,
+                slot_frame: Some(slot_frame),
+                phrase_dag_nodes: 0,
+                phrase_dag_plan: None,
             };
         }
 
@@ -6912,7 +7342,7 @@ impl LutStackModel {
         let mut clauses_resolved;
 
         if let Some(ref th) = thinking_text {
-            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            let trunk_start = prompt_tokens.len().saturating_sub(512);
             for (idx, &tok) in prompt_tokens.iter().enumerate() {
                 session.prefill_token(tok, idx >= trunk_start);
             }
@@ -6931,7 +7361,7 @@ impl LutStackModel {
             steps.push(first_step);
         } else {
             let prefill_len = prompt_tokens.len() - 1;
-            let trunk_start = prefill_len.saturating_sub(128);
+            let trunk_start = prefill_len.saturating_sub(512);
             for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
                 session.prefill_token(tok, idx >= trunk_start);
             }
@@ -6949,17 +7379,20 @@ impl LutStackModel {
         }
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
-        if confident_open && clauses.len() >= 2 {
+        if (confident_open || matched_stem_count >= 1) && clauses.len() >= 2 {
             let mut extra_basins = Vec::new();
             for sec_clause in &clauses[1..] {
-                if let Some((canon_anchor, first_tok, _, _, sec_conf)) =
+                if let Some((canon_anchor, first_tok, sec_matched, _, sec_conf)) =
                     self.resolve_clause_basin(history, sec_clause, &session.recent_turn_rows)
                 {
-                    if sec_conf && canon_anchor != session.anchors.reply {
+                    if (sec_conf || sec_matched >= 1) && canon_anchor != session.anchors.reply {
                         extra_basins.push((canon_anchor, first_tok));
                         clauses_resolved += 1;
                     }
                 }
+            }
+            if !extra_basins.is_empty() {
+                confident_open = true;
             }
             extra_basins.reverse();
             session.pending_basins = extra_basins;
@@ -6996,6 +7429,18 @@ impl LutStackModel {
                 last_source = "point_key_vote";
             }
         }
+
+        let dag_plan = self.build_phrase_dag_plan(
+            primary_turn_idx,
+            next_tok,
+            matched_stem_count,
+            steps
+                .first()
+                .map(|s| s.l1_distance.max(0) as u64)
+                .unwrap_or(0),
+            &session.pending_basins,
+        );
+        let phrase_dag_nodes = dag_plan.nodes.len();
 
         let limit = if confident_open {
             max_new_tokens.clamp(1, 1024)
@@ -7071,7 +7516,6 @@ impl LutStackModel {
                 (text, thinking_text, thinking_tokens, generated_tokens)
             };
 
-        let mut slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
         if slot_frame.has_active_kernel_substitution() {
             slot_frame.substitute_into_token_stream(
                 &mut session,
@@ -7096,6 +7540,8 @@ impl LutStackModel {
             boundary_trajectories: session.boundary_trajectories,
             total_l1_margin: session.total_l1_margin,
             slot_frame: Some(slot_frame),
+            phrase_dag_nodes,
+            phrase_dag_plan: Some(dag_plan),
         }
     }
 
@@ -7121,13 +7567,22 @@ impl LutStackModel {
         let mut steps = Vec::new();
 
         if !prompt_tokens.is_empty() {
-            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            let trunk_start = prompt_tokens.len().saturating_sub(512);
             for (idx, &tok) in prompt_tokens.iter().enumerate() {
                 session.prefill_token(tok, idx >= trunk_start);
             }
         }
 
-        let (thinking_opt, clean_reply) = parse_thinking_block(reply_text);
+        let slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        let (parsed_thinking_opt, clean_reply) = parse_thinking_block(reply_text);
+        let thinking_opt = if parsed_thinking_opt.is_some() {
+            parsed_thinking_opt
+        } else if let Some(exec_th) = slot_frame.synthesize_executive_thinking() {
+            session.has_executive_slot_trace = true;
+            Some(exec_th)
+        } else {
+            None
+        };
         let mut thinking_tokens = Vec::new();
 
         if let Some(ref th) = thinking_opt {
@@ -7157,7 +7612,18 @@ impl LutStackModel {
             }
         }
 
-        let slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        let dag_plan = self.build_phrase_dag_plan(
+            session.last_turn_idx,
+            generated_tokens.first().copied().unwrap_or(0),
+            session.last_matched_stems.max(2),
+            steps
+                .first()
+                .map(|s| s.l1_distance.max(0) as u64)
+                .unwrap_or(0),
+            &[],
+        );
+        let phrase_dag_nodes = dag_plan.nodes.len();
+
         LutStackGenerationResult {
             reply_text: clean_reply,
             thinking_text: thinking_opt,
@@ -7173,6 +7639,8 @@ impl LutStackModel {
             boundary_trajectories: session.boundary_trajectories,
             total_l1_margin: session.total_l1_margin,
             slot_frame: Some(slot_frame),
+            phrase_dag_nodes,
+            phrase_dag_plan: Some(dag_plan),
         }
     }
 
@@ -7216,7 +7684,17 @@ impl LutStackModel {
         let mut steps = Vec::new();
         let mut generated_tokens = Vec::new();
         let mut thinking_tokens = Vec::new();
-        let thinking_text = prompt_thinking;
+
+        // Pre-decode R4-31 DeBruijnSlotFrame executive working memory
+        let mut slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        let thinking_text = if prompt_thinking.is_some() {
+            prompt_thinking
+        } else if let Some(exec_th) = slot_frame.synthesize_executive_thinking() {
+            session.has_executive_slot_trace = true;
+            Some(exec_th)
+        } else {
+            None
+        };
 
         if prompt_tokens.is_empty() {
             return LutStackGenerationResult {
@@ -7233,7 +7711,9 @@ impl LutStackModel {
                 final_n_t: [0; FBS_WIDTH],
                 boundary_trajectories: Vec::new(),
                 total_l1_margin: 0,
-                slot_frame: None,
+                slot_frame: Some(slot_frame),
+                phrase_dag_nodes: 0,
+                phrase_dag_plan: None,
             };
         }
 
@@ -7246,7 +7726,7 @@ impl LutStackModel {
         let mut clauses_resolved;
 
         if let Some(ref th) = thinking_text {
-            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            let trunk_start = prompt_tokens.len().saturating_sub(512);
             for (idx, &tok) in prompt_tokens.iter().enumerate() {
                 session.prefill_token(tok, idx >= trunk_start);
             }
@@ -7265,7 +7745,7 @@ impl LutStackModel {
             steps.push(first_step);
         } else {
             let prefill_len = prompt_tokens.len() - 1;
-            let trunk_start = prefill_len.saturating_sub(128);
+            let trunk_start = prefill_len.saturating_sub(512);
             for (idx, &tok) in prompt_tokens[..prefill_len].iter().enumerate() {
                 session.prefill_token(tok, idx >= trunk_start);
             }
@@ -7283,17 +7763,20 @@ impl LutStackModel {
         }
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
-        if confident_open && clauses.len() >= 2 {
+        if (confident_open || matched_stem_count >= 1) && clauses.len() >= 2 {
             let mut extra_basins = Vec::new();
             for sec_clause in &clauses[1..] {
-                if let Some((canon_anchor, first_tok, _, _, sec_conf)) =
+                if let Some((canon_anchor, first_tok, sec_matched, _, sec_conf)) =
                     self.resolve_clause_basin(history, sec_clause, &session.recent_turn_rows)
                 {
-                    if sec_conf && canon_anchor != session.anchors.reply {
+                    if (sec_conf || sec_matched >= 1) && canon_anchor != session.anchors.reply {
                         extra_basins.push((canon_anchor, first_tok));
                         clauses_resolved += 1;
                     }
                 }
+            }
+            if !extra_basins.is_empty() {
+                confident_open = true;
             }
             extra_basins.reverse();
             session.pending_basins = extra_basins;
@@ -7330,6 +7813,18 @@ impl LutStackModel {
                 last_source = "point_key_vote";
             }
         }
+
+        let dag_plan = self.build_phrase_dag_plan(
+            primary_turn_idx,
+            next_tok,
+            matched_stem_count,
+            steps
+                .first()
+                .map(|s| s.l1_distance.max(0) as u64)
+                .unwrap_or(0),
+            &session.pending_basins,
+        );
+        let phrase_dag_nodes = dag_plan.nodes.len();
 
         let limit = if confident_open {
             max_new_tokens.clamp(1, 1024)
@@ -7405,7 +7900,6 @@ impl LutStackModel {
                 (text, thinking_text, thinking_tokens, generated_tokens)
             };
 
-        let mut slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
         if slot_frame.has_active_kernel_substitution() {
             slot_frame.substitute_into_token_stream(
                 &mut session,
@@ -7430,6 +7924,8 @@ impl LutStackModel {
             boundary_trajectories: session.boundary_trajectories.clone(),
             total_l1_margin: session.total_l1_margin,
             slot_frame: Some(slot_frame),
+            phrase_dag_nodes,
+            phrase_dag_plan: Some(dag_plan),
         };
         context.blend_latent(&res.final_n_t);
         if let Some(ref th) = res.thinking_text {
@@ -7474,13 +7970,22 @@ impl LutStackModel {
         let mut steps = Vec::new();
 
         if !prompt_tokens.is_empty() {
-            let trunk_start = prompt_tokens.len().saturating_sub(128);
+            let trunk_start = prompt_tokens.len().saturating_sub(512);
             for (idx, &tok) in prompt_tokens.iter().enumerate() {
                 session.prefill_token(tok, idx >= trunk_start);
             }
         }
 
-        let (thinking_opt, clean_reply) = parse_thinking_block(reply_text);
+        let slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        let (parsed_thinking_opt, clean_reply) = parse_thinking_block(reply_text);
+        let thinking_opt = if parsed_thinking_opt.is_some() {
+            parsed_thinking_opt
+        } else if let Some(exec_th) = slot_frame.synthesize_executive_thinking() {
+            session.has_executive_slot_trace = true;
+            Some(exec_th)
+        } else {
+            None
+        };
         let mut thinking_tokens = Vec::new();
 
         if let Some(ref th) = thinking_opt {
@@ -7510,7 +8015,18 @@ impl LutStackModel {
             }
         }
 
-        let slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        let dag_plan = self.build_phrase_dag_plan(
+            session.last_turn_idx,
+            generated_tokens.first().copied().unwrap_or(0),
+            session.last_matched_stems.max(2),
+            steps
+                .first()
+                .map(|s| s.l1_distance.max(0) as u64)
+                .unwrap_or(0),
+            &[],
+        );
+        let phrase_dag_nodes = dag_plan.nodes.len();
+
         let res = LutStackGenerationResult {
             reply_text: clean_reply,
             thinking_text: thinking_opt,
@@ -7526,6 +8042,8 @@ impl LutStackModel {
             boundary_trajectories: session.boundary_trajectories.clone(),
             total_l1_margin: session.total_l1_margin,
             slot_frame: Some(slot_frame),
+            phrase_dag_nodes,
+            phrase_dag_plan: Some(dag_plan),
         };
         context.blend_latent(&res.final_n_t);
         if let Some(ref th) = res.thinking_text {
@@ -7576,7 +8094,7 @@ impl LutStackModel {
         let mut rec_states = vec![FbsRecState::default(); self.layers.len()];
         let mut hamming_caches = vec![HammingCache::default(); self.hamming.len()];
         let prefill_len = prompt_tokens.len() - 1;
-        let trunk_start = prefill_len.saturating_sub(128);
+        let trunk_start = prefill_len.saturating_sub(512);
         for &tok in &prompt_tokens[trunk_start..prefill_len] {
             let _ = self.forward_token_hidden(tok, &mut rec_states, &mut hamming_caches);
         }
@@ -10834,7 +11352,14 @@ mod tests {
             catalog.total_point_rows, original_rows,
             "16 E8 geometric shards must partition 100% of ServedPointKey rows without loss"
         );
-        assert!(catalog.active_fine_basins > 0);
+        for (idx, shard) in catalog.shards.iter().enumerate() {
+            assert_eq!(shard.e8_root as usize, idx);
+            assert!(
+                shard.point_rows > 0,
+                "E8 geometric shard {idx} must have > 0 rows after mean-centered balancing, got 0"
+            );
+        }
+        assert!(catalog.active_fine_basins >= 16);
 
         // Export non-empty shard, round-trip through UORSHRD1 binary codec, and verify SHA-256
         let non_empty_e8 = catalog
@@ -10898,5 +11423,43 @@ mod tests {
         assert_eq!(merge_report.newly_merged_rows, evict_n);
         assert_eq!(merge_report.total_rows_after, original_rows);
         assert_eq!(merge_report.orphaned_after, 0);
+    }
+
+    #[test]
+    fn test_phrase_dag_r4_34_and_pre_decode_executive_thinking() {
+        let model = Arc::new(default_lut_stack_model());
+
+        // 1. Pre-decode executive <thinking> trace for R4-31 slot-bound prompt
+        let res_slot = model.generate_reply(&[], "What is (37 * 43) + 19?", 128);
+        assert!(res_slot.reply_text.contains("1610"));
+        assert!(
+            res_slot
+                .thinking_text
+                .as_deref()
+                .is_some_and(|t| t.contains("R4-31 DeBruijn executive frame")),
+            "pre-decode DeBruijnSlotFrame must synthesize executive <thinking> trace before visible decoding"
+        );
+        assert!(
+            !res_slot.thinking_tokens.is_empty(),
+            "pre-decode executive <thinking> trace must step tokens through SpiralCore/FBS before visible decoding"
+        );
+
+        // 2. Multi-clause compositional PhraseDagPlan (R4-34)
+        let res_dag = model.generate_reply(
+            &[],
+            "What is the Spiral Core recurrence? Also explain the Chinese Remainder Theorem.",
+            256,
+        );
+        assert!(
+            res_dag.phrase_dag_node_count() >= 2,
+            "multi-clause prompt must construct a PhraseDagPlan with >= 2 admitted nodes, got {}",
+            res_dag.phrase_dag_node_count()
+        );
+        let plan = res_dag.phrase_dag_plan.expect("phrase_dag_plan present");
+        assert!(
+            plan.verified,
+            "PhraseDagPlan must pass R4-34 verify_dag_synthesis"
+        );
+        assert_eq!(plan.edges.len() + 1, plan.nodes.len());
     }
 }

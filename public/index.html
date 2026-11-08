@@ -594,14 +594,20 @@
           </div>
         </div>
 
-        <!-- Tab 2: Unified Diff Panel -->
+        <!-- Tab 2: Unified Diff & Interactive Artifact Preview Panel -->
         <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diff" tabindex="0" hidden>
           <div class="patch-card">
             <div class="reply-card-header">
               <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
-              <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
+              <div class="diff-toolbar-group" role="group" aria-label="Diff and Artifact View Mode">
+                <button id="chat-diff-view-btn" type="button" class="table-action-btn active" aria-pressed="true">Diff View</button>
+                <button id="chat-artifact-view-btn" type="button" class="table-action-btn" aria-pressed="false">Artifact Preview</button>
+                <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
+              </div>
             </div>
-            <pre id="chat-diff-preview" class="code-block" aria-label="Proposed Unified Diff"></pre>
+            <div id="chat-diff-file-pills" class="diff-file-pills" role="tablist" aria-label="Staged Multi-File Patches"></div>
+            <pre id="chat-diff-preview" class="code-block diff-colored-block" aria-label="Proposed Unified Diff"></pre>
+            <div id="chat-artifact-preview" class="artifact-preview-container" aria-label="Interactive Artifact Preview" hidden></div>
           </div>
         </div>
 

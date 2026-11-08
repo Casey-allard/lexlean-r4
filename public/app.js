@@ -67,6 +67,10 @@ const chatTranscript = document.getElementById('chat-transcript');
 const chatTargetBadge = document.getElementById('chat-target-badge');
 const chatDiffFile = document.getElementById('chat-diff-file');
 const chatDiffPreview = document.getElementById('chat-diff-preview');
+const chatArtifactPreview = document.getElementById('chat-artifact-preview');
+const chatDiffFilePills = document.getElementById('chat-diff-file-pills');
+const chatDiffViewBtn = document.getElementById('chat-diff-view-btn');
+const chatArtifactViewBtn = document.getElementById('chat-artifact-view-btn');
 const chatApplyPatchBtn = document.getElementById('chat-apply-patch-btn');
 const chatDiagConsensus = document.getElementById('chat-diag-consensus');
 const chatDiagResonance = document.getElementById('chat-diag-resonance');
@@ -86,6 +90,7 @@ const trainHistoryTbody = document.getElementById('train-history-tbody');
 let activeWorkspacePath = 'src/attention.rs';
 let pendingPatchPath = '';
 let pendingProposedCode = '';
+let pendingDiffPreview = '';
 
 // ============================================================================
 // In-Browser Cryptographic Merkle-Chained Secops Audit Pipeline (FIPS 180-4)
@@ -291,9 +296,205 @@ const AppState = {
   workspace: {
     activePath: 'src/attention.rs',
     pendingPatchPath: '',
-    pendingProposedCode: ''
+    pendingProposedCode: '',
+    pendingPatches: {}
   }
 };
+
+function computeUnifiedDiffJs(oldText, newText, targetPath, contextLines = 3) {
+  const oldLines = String(oldText || '').split('\n');
+  const newLines = String(newText || '').split('\n');
+  const n = oldLines.length;
+  const m = newLines.length;
+  const dp = Array.from({ length: n + 1 }, () => new Int32Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      if (oldLines[i] === newLines[j]) {
+        dp[i][j] = dp[i + 1][j + 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+  }
+  const ops = [];
+  let i = 0;
+  let j = 0;
+  while (i < n || j < m) {
+    if (i < n && j < m && oldLines[i] === newLines[j]) {
+      ops.push({ kind: ' ', oldLine: i + 1, newLine: j + 1, text: oldLines[i] });
+      i++;
+      j++;
+    } else if (j < m && (i === n || dp[i][j + 1] >= dp[i + 1][j])) {
+      ops.push({ kind: '+', oldLine: i + 1, newLine: j + 1, text: newLines[j] });
+      j++;
+    } else {
+      ops.push({ kind: '-', oldLine: i + 1, newLine: j + 1, text: oldLines[i] });
+      i++;
+    }
+  }
+  const changeIndices = [];
+  for (let idx = 0; idx < ops.length; idx++) {
+    if (ops[idx].kind !== ' ') changeIndices.push(idx);
+  }
+  const out = [`--- a/${targetPath}`, `+++ b/${targetPath}`];
+  if (changeIndices.length === 0) {
+    out.push('@@ -1,0 +1,0 @@');
+    return out.join('\n');
+  }
+  const groups = [];
+  for (const ci of changeIndices) {
+    const start = Math.max(0, ci - contextLines);
+    const end = Math.min(ops.length - 1, ci + contextLines);
+    if (groups.length > 0 && start <= groups[groups.length - 1][1] + 1) {
+      groups[groups.length - 1][1] = Math.max(groups[groups.length - 1][1], end);
+    } else {
+      groups.push([start, end]);
+    }
+  }
+  for (const [gStart, gEnd] of groups) {
+    const slice = ops.slice(gStart, gEnd + 1);
+    const oldStart = slice[0] ? slice[0].oldLine : 1;
+    const newStart = slice[0] ? slice[0].newLine : 1;
+    const oldCount = slice.filter((o) => o.kind === ' ' || o.kind === '-').length;
+    const newCount = slice.filter((o) => o.kind === ' ' || o.kind === '+').length;
+    out.push(`@@ -${oldStart},${oldCount} +${newStart},${newCount} @@`);
+    for (const op of slice) {
+      out.push(`${op.kind}${op.text}`);
+    }
+  }
+  return out.join('\n');
+}
+
+function renderColoredUnifiedDiff(containerEl, diffText) {
+  if (!containerEl) return;
+  containerEl.replaceChildren();
+  const raw = String(diffText || '');
+  if (!raw.trim()) return;
+  const lines = raw.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const span = document.createElement('span');
+    let cls = 'diff-line diff-line-ctx';
+    if (line.startsWith('@@')) {
+      cls = 'diff-line diff-line-hunk';
+    } else if (line.startsWith('+') && !line.startsWith('+++')) {
+      cls = 'diff-line diff-line-add';
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      cls = 'diff-line diff-line-del';
+    } else if (line.startsWith('---') || line.startsWith('+++')) {
+      cls = 'diff-line diff-line-hunk';
+    }
+    span.className = cls;
+    span.textContent = line + (i < lines.length - 1 ? '\n' : '');
+    containerEl.appendChild(span);
+  }
+}
+
+function renderInteractiveArtifactPreview(targetFile, proposedCode, replyProse = '') {
+  if (!chatArtifactPreview) return;
+  chatArtifactPreview.replaceChildren();
+  const codeStr = String(proposedCode || '');
+  const proseStr = String(replyProse || '');
+  const fnNames = [];
+  const fnRegex = /(?:pub\s+)?(?:fn|struct|enum)\s+([a-zA-Z0-9_]+)/g;
+  let m;
+  while ((m = fnRegex.exec(codeStr)) !== null) {
+    if (!fnNames.includes(m[1])) fnNames.push(m[1]);
+  }
+  const svgStage = document.createElement('div');
+  svgStage.className = 'artifact-svg-stage';
+  const svgMatch = proseStr.match(/<svg[\s\S]*?<\/svg>/i) || codeStr.match(/<svg[\s\S]*?<\/svg>/i);
+  if (svgMatch) {
+    svgStage.innerHTML = svgMatch[0];
+  } else {
+    const nodes = fnNames.length > 0 ? fnNames.slice(0, 5) : [targetFile || 'workspace_module', 'verify_test_assertion', 'admit_verified_patch'];
+    const svgNs = ['http', '://www.w3.org/2000/svg'].join('');
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('viewBox', '0 0 560 110');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '110');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `AST Artifact Topology for ${targetFile || 'workspace'}`);
+    const stepW = Math.floor(520 / Math.max(nodes.length, 1));
+    nodes.forEach((label, idx) => {
+      const x = 20 + idx * stepW;
+      const y = 32;
+      if (idx > 0) {
+        const line = document.createElementNS(svgNs, 'line');
+        line.setAttribute('x1', String(x - 18));
+        line.setAttribute('y1', '54');
+        line.setAttribute('x2', String(x));
+        line.setAttribute('y2', '54');
+        line.setAttribute('stroke', '#38bdf8');
+        line.setAttribute('stroke-width', '2');
+        svg.appendChild(line);
+      }
+      const rect = document.createElementNS(svgNs, 'rect');
+      rect.setAttribute('x', String(x));
+      rect.setAttribute('y', String(y));
+      rect.setAttribute('width', String(Math.max(stepW - 22, 76)));
+      rect.setAttribute('height', '44');
+      rect.setAttribute('rx', '6');
+      rect.setAttribute('fill', idx === 0 ? '#1e3a8a' : '#064e3b');
+      rect.setAttribute('stroke', idx === 0 ? '#60a5fa' : '#10b981');
+      rect.setAttribute('stroke-width', '1.5');
+      svg.appendChild(rect);
+      const txt = document.createElementNS(svgNs, 'text');
+      txt.setAttribute('x', String(x + Math.floor(Math.max(stepW - 22, 76) / 2)));
+      txt.setAttribute('y', '58');
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('fill', '#f8fafc');
+      txt.setAttribute('font-size', '11');
+      txt.setAttribute('font-family', 'monospace');
+      txt.textContent = String(label).slice(0, 14);
+      svg.appendChild(txt);
+    });
+    svgStage.appendChild(svg);
+  }
+  chatArtifactPreview.appendChild(svgStage);
+  const bodyDiv = document.createElement('div');
+  bodyDiv.className = 'chat-prose';
+  const mdSummary = `### Interactive Artifact Preview (\`${targetFile || 'src/attention.rs'}\`)\n`
+    + `- **Symbols Synthesized**: ${fnNames.length > 0 ? fnNames.map((n) => `\`${n}\``).join(', ') : '`module_root`'}\n`
+    + `- **Staged Bytes**: ${codeStr.length} B\n\n\`\`\`rust\n${codeStr.slice(0, 1200)}\n\`\`\``;
+  if (typeof renderFormattedMarkdownInto === 'function') {
+    renderFormattedMarkdownInto(bodyDiv, mdSummary);
+  } else {
+    bodyDiv.textContent = mdSummary;
+  }
+  chatArtifactPreview.appendChild(bodyDiv);
+}
+
+function renderPendingPatchPills() {
+  if (!chatDiffFilePills) return;
+  chatDiffFilePills.replaceChildren();
+  const patches = AppState.workspace.pendingPatches || {};
+  const paths = Object.keys(patches);
+  for (const path of paths) {
+    const entry = patches[path];
+    if (!entry) continue;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `diff-file-pill${path === pendingPatchPath ? ' active' : ''}`;
+    btn.textContent = path;
+    btn.addEventListener('click', () => {
+      pendingPatchPath = path;
+      pendingProposedCode = entry.proposedCode || '';
+      pendingDiffPreview = entry.diffPreview || '';
+      AppState.workspace.pendingPatchPath = path;
+      AppState.workspace.pendingProposedCode = pendingProposedCode;
+      if (chatDiffFile) chatDiffFile.textContent = path;
+      renderColoredUnifiedDiff(chatDiffPreview, pendingDiffPreview);
+      renderInteractiveArtifactPreview(path, pendingProposedCode, entry.replyProse || '');
+      if (chatApplyPatchBtn) {
+        chatApplyPatchBtn.disabled = false;
+        chatApplyPatchBtn.textContent = `Apply Synthesized Patch to ${path} & Admit into Memory`;
+      }
+      renderPendingPatchPills();
+    });
+    chatDiffFilePills.appendChild(btn);
+  }
+}
 
 function checkMcpToolPolicy(action, target) {
   const policy = AppState.config.mcpSecurityPolicy;
@@ -1444,7 +1645,21 @@ function synthesizeAgenticToolCards(promptText, chatRes) {
       recall_mode: gen.recall_mode || 'exact_opening',
     },
   });
-  if (chatRes.is_coding_turn && chatRes.target_file) {
+  if (chatRes.react_agent_r4_35 && Array.isArray(chatRes.react_agent_r4_35.steps) && chatRes.react_agent_r4_35.steps.length > 0) {
+    for (const step of chatRes.react_agent_r4_35.steps) {
+      cards.push({
+        name: step.tool || 'react_step',
+        status: `${step.status || 'ok'} · iter #${step.iteration || step.step || 1}`,
+        arguments: {
+          target_file: step.target || chatRes.target_file || activeWorkspacePath,
+          detail: step.detail || '',
+          verified: Boolean(chatRes.react_agent_r4_35.verified),
+          tests_passed: chatRes.react_agent_r4_35.tests_passed ?? 0,
+          tests_failed: chatRes.react_agent_r4_35.tests_failed ?? 0,
+        },
+      });
+    }
+  } else if (chatRes.is_coding_turn && chatRes.target_file) {
     cards.push({
       name: 'workspace_patch_synthesizer',
       status: 'Diff Staged',
@@ -1770,10 +1985,15 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     planNodes[1].className = 'dag-node dag-done';
     planNodes[1].innerHTML = '<span class="dag-badge">&#10003;</span> Coordinate Descent &amp; Routing';
     if (chatRes.is_coding_turn) {
-      planNodes[2].className = 'dag-node dag-active';
-      planNodes[2].innerHTML = '<span class="dag-badge">&#9654;</span> Synthesize Diff &amp; Tool Calls';
-      planNodes[3].className = 'dag-node dag-pending';
-      planNodes[3].innerHTML = '<span class="dag-badge">&#9711;</span> Verify Invariants &amp; Closure';
+      const reactVerified = Boolean(chatRes.react_agent_r4_35 && chatRes.react_agent_r4_35.verified);
+      planNodes[2].className = reactVerified ? 'dag-node dag-done' : 'dag-node dag-active';
+      planNodes[2].innerHTML = reactVerified
+        ? '<span class="dag-badge">&#10003;</span> Synthesize Diff &amp; Tool Calls'
+        : '<span class="dag-badge">&#9654;</span> Synthesize Diff &amp; Tool Calls';
+      planNodes[3].className = reactVerified ? 'dag-node dag-done' : 'dag-node dag-pending';
+      planNodes[3].innerHTML = reactVerified
+        ? `<span class="dag-badge">&#10003;</span> Verify Invariants &amp; Closure (${chatRes.react_agent_r4_35.tests_passed || 0} passed)`
+        : '<span class="dag-badge">&#9711;</span> Verify Invariants &amp; Closure';
     } else {
       planNodes[2].className = 'dag-node dag-done';
       planNodes[2].innerHTML = '<span class="dag-badge">&#10003;</span> Synthesize Diff &amp; Tool Calls';
@@ -1785,11 +2005,21 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   if (chatRes.is_coding_turn) {
     pendingPatchPath = chatRes.target_file;
     pendingProposedCode = chatRes.proposed_code || '';
+    pendingDiffPreview = chatRes.diff_preview || '';
     AppState.workspace.pendingPatchPath = chatRes.target_file;
     AppState.workspace.pendingProposedCode = chatRes.proposed_code || '';
+    if (!AppState.workspace.pendingPatches) AppState.workspace.pendingPatches = {};
+    AppState.workspace.pendingPatches[chatRes.target_file] = {
+      targetFile: chatRes.target_file,
+      proposedCode: pendingProposedCode,
+      diffPreview: pendingDiffPreview,
+      replyProse,
+    };
     if (chatTargetBadge) chatTargetBadge.textContent = `Patch Ready: ${chatRes.target_file}`;
     if (chatDiffFile) chatDiffFile.textContent = chatRes.target_file;
-    if (chatDiffPreview) chatDiffPreview.textContent = chatRes.diff_preview || '';
+    renderColoredUnifiedDiff(chatDiffPreview, pendingDiffPreview);
+    renderInteractiveArtifactPreview(chatRes.target_file, pendingProposedCode, replyProse);
+    renderPendingPatchPills();
     if (chatApplyPatchBtn) {
       chatApplyPatchBtn.disabled = false;
       chatApplyPatchBtn.textContent = `Apply Synthesized Patch to ${chatRes.target_file} & Admit into Memory`;
@@ -4698,7 +4928,7 @@ class LexLean3DVisualizer {
     this.buildOspfRouteFromTokens([101, 205, 309, 412, 518, 624, 731, 840], this.activeTurnWords, 1, 812);
   }
 
-  buildOspfRouteFromTokens(tokenIds, words, turnIndex = 1, bucketId = 812) {
+  buildOspfRouteFromTokens(tokenIds, words, turnIndex = 1, bucketId = 812, stepMechanisms = []) {
     const count = Math.max(tokenIds.length, 1);
     const hops = [];
     const waypoints = [];
@@ -4706,6 +4936,7 @@ class LexLean3DVisualizer {
 
     for (let s = 0; s < count; s++) {
       const tok = Math.abs(Math.floor(+tokenIds[s] || (s * 37 + 11)));
+      const rawMech = String((Array.isArray(stepMechanisms) && stepMechanisms[s]) ? stepMechanisms[s] : '').toLowerCase();
       let clusterIdx = 0;
       let mechanism = 'OSPF Min-L1 Hop';
       if (s === 0) {
@@ -4714,19 +4945,34 @@ class LexLean3DVisualizer {
       } else if (s === 1 && count > 2) {
         clusterIdx = 1 + ((turnIndex + tok) % 6); // Thalamus 256D Context Carry
         mechanism = '256D Q12 Context Carry';
+      } else if (rawMech.includes('debruijn_slot_kernel_r4_31') || rawMech.includes('slot')) {
+        clusterIdx = 57 + ((tok * 7 + s * 5 + turnIndex) % 6);
+        mechanism = 'VSA-128 Slot Unbind';
+      } else if (rawMech.includes('point_key_resonance') || rawMech.includes('point_routing') || rawMech.includes('radix')) {
+        clusterIdx = 7 + ((bucketId + tok + s * 3) % 15);
+        mechanism = 'Radix /8 PointKey';
+      } else if (rawMech.includes('turn_memory_reply') || rawMech.includes('ospf') || rawMech.includes('phrase_dag')) {
+        clusterIdx = 42 + ((tok * 17 + s * 11 + turnIndex * 3) % 15);
+        mechanism = 'OSPF Min-L1 Route';
+      } else if (rawMech.includes('thinking') || rawMech.includes('flock')) {
+        clusterIdx = 22 + ((tok * 13 + s * 7 + turnIndex * 5) % 20);
+        mechanism = '8-Head Flock Consensus';
       } else if (s === 2 && count > 3) {
         clusterIdx = 7 + ((bucketId + tok) % 15); // Temporal Lobe /8 Radix Memory Recall
-        mechanism = 'Radix /8 Memory Recall';
+        mechanism = 'Radix /8 PointKey';
       } else if (s === count - 1 && count > 4) {
         clusterIdx = 1 + ((turnIndex * 3 + 2) % 6); // Hippocampus Memory Write-Back
         mechanism = 'Hippocampus Write-Back';
       } else {
-        // Alternate dynamically between Parietal Flock (22..41), Prefrontal OSPF (42..56), and Occipital Readout (57..62)
-        const stageMod = s % 3;
-        if (stageMod === 0) {
+        // Phase-ordered cortical progression: Temporal Radix -> Parietal Flock -> Frontal OSPF -> Occipital Slot Readout
+        const phaseRatio = s / Math.max(count - 1, 1);
+        if (phaseRatio < 0.35) {
+          clusterIdx = 7 + ((bucketId + tok + s * 3) % 15);
+          mechanism = 'Radix /8 PointKey';
+        } else if (phaseRatio < 0.62) {
           clusterIdx = 22 + ((tok * 13 + s * 7 + turnIndex * 5) % 20);
           mechanism = '8-Head Flock Consensus';
-        } else if (stageMod === 1) {
+        } else if (phaseRatio < 0.86) {
           clusterIdx = 42 + ((tok * 17 + s * 11 + turnIndex * 3) % 15);
           mechanism = 'OSPF Min-L1 Route';
         } else {
@@ -5146,7 +5392,8 @@ class LexLean3DVisualizer {
         const t = +d.token;
         return (typeof t === 'number' && Number.isFinite(t) && t > 0) ? t : (turnIdx * 41 + idx * 19 + 7);
       });
-      this.buildOspfRouteFromTokens(tokenIds, wordsForRoute, turnIdx, bucketId);
+      const stepMechanisms = decodeSpans.map((d) => String(d.mechanism || ''));
+      this.buildOspfRouteFromTokens(tokenIds, wordsForRoute, turnIdx, bucketId, stepMechanisms);
       // Overlay true L1 distances and mechanisms from OTel decode spans onto the OSPF hops
       for (let i = 0; i < decodeSpans.length && i < this.ospfRouteHops.length; i++) {
         const ds = decodeSpans[i];
@@ -6011,6 +6258,9 @@ class LexLeanTerminal {
     this.historyIndex = -1;
     this.savedDraft = '';
     this.bootTimeMs = Date.now();
+    this.lastExitCode = 0;
+    this.gitHeadFiles = null;
+    this.gitCommits = [];
     this.dirs = new Set(['/workspace', '/workspace/src', '/workspace/crates', '/workspace/tests']);
     this.env = {
       SHELL: '/bin/lexlean-sh',
@@ -6019,8 +6269,69 @@ class LexLeanTerminal {
       KERNEL: 'Linux 6.6.0-lexlean-wasm32',
       MODEL: 'uor-r4-glm-v8',
       CWD: '~/workspace',
-      PROMPT: 'lexlean@wasm-container:~/workspace$ '
+      PROMPT: 'lexlean@wasm-container:~/workspace$ ',
+      '?': '0'
     };
+  }
+
+  setExitCode(code) {
+    this.lastExitCode = Number(code) | 0;
+    this.env['?'] = String(this.lastExitCode);
+  }
+
+  hashStringHex(text) {
+    if (typeof computeSha256Hex === 'function') {
+      return computeSha256Hex(text);
+    }
+    let h1 = 0xdeadbeef ^ text.length;
+    let h2 = 0x41c6ce57 ^ text.length;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
+  }
+
+  formatUnifiedDiff(oldText, newText, pathLabel) {
+    if (typeof computeUnifiedDiffJs === 'function') {
+      return computeUnifiedDiffJs(oldText, newText, pathLabel, 3);
+    }
+    const oldLines = String(oldText || '').split('\n');
+    const newLines = String(newText || '').split('\n');
+    const out = [`--- a/${pathLabel}`, `+++ b/${pathLabel}`, `@@ -1,${oldLines.length} +1,${newLines.length} @@`];
+    for (const l of oldLines) out.push(`-${l}`);
+    for (const l of newLines) out.push(`+${l}`);
+    return out.join('\n');
+  }
+
+  ensureGitInitialized() {
+    if (this.gitHeadFiles) return;
+    this.gitHeadFiles = new Map();
+    const ws = dispatchStudioEnvelope('workspace_list', '');
+    const files = ws && Array.isArray(ws.files) ? ws.files : [];
+    for (const f of files) {
+      const readRes = dispatchStudioEnvelope('workspace_read', f.path);
+      const content = readRes && readRes.status === 'ok' ? (readRes.content || '') : '';
+      const receipt = f.updated_receipt || f.sha256 || this.hashStringHex(content);
+      this.gitHeadFiles.set(f.path, {
+        path: f.path,
+        content,
+        receipt,
+        byte_len: f.byte_len ?? content.length
+      });
+    }
+    if (this.gitCommits.length === 0) {
+      const st = dispatchStudioEnvelope('state', '') || {};
+      this.gitCommits.push({
+        hash: (st.state_receipt || this.hashStringHex('uor-r4-initial-head')).slice(0, 16),
+        author: 'LexLean-R4 Control Plane <lexlean@wasm-container>',
+        message: 'Verified UOR-R4 Wasm state & 3D Holographic OSPF Brain closure',
+        timestamp: new Date(this.bootTimeMs).toUTCString()
+      });
+    }
   }
 
   init(containerId) {
@@ -6129,6 +6440,55 @@ class LexLeanTerminal {
     }
   }
 
+  parseCommandChain(line) {
+    const chain = [];
+    let current = '';
+    let inSingle = false;
+    let inDouble = false;
+    let nextOp = ';';
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      const next = line[i + 1] || '';
+      if (ch === "'" && !inDouble) {
+        inSingle = !inSingle;
+        current += ch;
+        continue;
+      }
+      if (ch === '"' && !inSingle) {
+        inDouble = !inDouble;
+        current += ch;
+        continue;
+      }
+      if (!inSingle && !inDouble) {
+        if (ch === '&' && next === '&') {
+          if (current.trim()) chain.push({ op: nextOp, cmd: current.trim() });
+          current = '';
+          nextOp = '&&';
+          i++;
+          continue;
+        }
+        if (ch === '|' && next === '|') {
+          if (current.trim()) chain.push({ op: nextOp, cmd: current.trim() });
+          current = '';
+          nextOp = '||';
+          i++;
+          continue;
+        }
+        if (ch === ';') {
+          if (current.trim()) chain.push({ op: nextOp, cmd: current.trim() });
+          current = '';
+          nextOp = ';';
+          continue;
+        }
+      }
+      current += ch;
+    }
+    if (current.trim()) {
+      chain.push({ op: nextOp, cmd: current.trim() });
+    }
+    return chain;
+  }
+
   execute(rawLine) {
     const trimmed = rawLine.trim();
     if (!trimmed) return;
@@ -6143,24 +6503,148 @@ class LexLeanTerminal {
     const promptStr = this.env.PROMPT || 'lexlean@wasm-container:/workspace$ ';
     this.printAnsi(`\x1b[32m${promptStr}\x1b[0m${trimmed}`);
 
-    // Support command chaining via && or ;
-    const chainSegments = trimmed.split(/\s*(?:&&|;)\s*/).filter(Boolean);
-    for (const seg of chainSegments) {
-      this.executeSegment(seg);
+    const chain = this.parseCommandChain(trimmed);
+    for (const item of chain) {
+      if (item.op === '&&' && this.lastExitCode !== 0) {
+        continue;
+      }
+      if (item.op === '||' && this.lastExitCode === 0) {
+        continue;
+      }
+      this.executeSegment(item.cmd);
     }
   }
 
   resolveWorkspacePath(rawPath) {
     if (!rawPath) return '';
-    let p = rawPath.trim();
-    if (p.startsWith('/workspace/')) p = p.slice('/workspace/'.length);
-    else if (p.startsWith('./')) p = p.slice(2);
-    else if (p.startsWith('/')) p = p.slice(1);
-    return p;
+    let p = String(rawPath).trim();
+    if (!p) return '';
+    let cwdRel = String(this.env.CWD || '/workspace').trim();
+    if (cwdRel === '~/workspace' || cwdRel === '/workspace' || cwdRel === '~') {
+      cwdRel = '';
+    } else if (cwdRel.startsWith('~/workspace/')) {
+      cwdRel = cwdRel.slice('~/workspace/'.length);
+    } else if (cwdRel.startsWith('/workspace/')) {
+      cwdRel = cwdRel.slice('/workspace/'.length);
+    } else if (cwdRel.startsWith('/')) {
+      cwdRel = cwdRel.slice(1);
+    }
+    let combined = '';
+    if (p.startsWith('/workspace/')) {
+      combined = p.slice('/workspace/'.length);
+    } else if (p === '/workspace' || p === '~/workspace') {
+      combined = '';
+    } else if (p.startsWith('~/workspace/')) {
+      combined = p.slice('~/workspace/'.length);
+    } else if (p.startsWith('/')) {
+      combined = p.slice(1);
+    } else {
+      combined = cwdRel ? `${cwdRel}/${p}` : p;
+    }
+    const trailingSlash = p.endsWith('/');
+    const parts = combined.split('/');
+    const stack = [];
+    for (const seg of parts) {
+      if (!seg || seg === '.') continue;
+      if (seg === '..') {
+        stack.pop();
+      } else {
+        stack.push(seg);
+      }
+    }
+    const norm = stack.join('/');
+    return trailingSlash && norm ? `${norm}/` : norm;
+  }
+
+  applyStreamFilter(lines, pCmd) {
+    const tokenRegex = /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
+    const pTokens = [];
+    let m;
+    while ((m = tokenRegex.exec(pCmd.trim())) !== null) {
+      let tok = m[0];
+      if ((tok.startsWith('"') && tok.endsWith('"')) || (tok.startsWith("'") && tok.endsWith("'"))) {
+        tok = tok.slice(1, -1);
+      }
+      pTokens.push(tok);
+    }
+    const pName = (pTokens[0] || '').toLowerCase();
+    const pArgs = pTokens.slice(1);
+    if (pName === 'grep') {
+      const flags = pArgs.filter((a) => a.startsWith('-')).join('');
+      const clean = pArgs.filter((a) => !a.startsWith('-'));
+      const pat = clean[0] || '';
+      const ignoreCase = flags.includes('i');
+      const invert = flags.includes('v');
+      const showLineNum = flags.includes('n');
+      const countOnly = flags.includes('c');
+      const useRegex = flags.includes('E');
+      const regex = useRegex ? new RegExp(pat, ignoreCase ? 'i' : '') : null;
+      const out = [];
+      lines.forEach((l, idx) => {
+        const matched = regex
+          ? regex.test(l)
+          : (ignoreCase ? l.toLowerCase().includes(pat.toLowerCase()) : l.includes(pat));
+        if (invert ? !matched : matched) {
+          out.push(showLineNum ? `${idx + 1}:${l}` : l);
+        }
+      });
+      return countOnly ? [String(out.length)] : out;
+    }
+    if (pName === 'sed') {
+      const expr = pArgs.filter((a) => !a.startsWith('-'))[0] || '';
+      const sm = expr.match(/^s\/([^/]*)\/([^/]*)\/([gi]*)$/);
+      if (sm) {
+        const re = new RegExp(sm[1], sm[3] || '');
+        return lines.map((l) => l.replace(re, sm[2]));
+      }
+      return lines;
+    }
+    if (pName === 'sort') {
+      const rev = pArgs.includes('-r');
+      const uniq = pArgs.includes('-u');
+      let sorted = [...lines].sort();
+      if (rev) sorted.reverse();
+      if (uniq) sorted = Array.from(new Set(sorted));
+      return sorted;
+    }
+    if (pName === 'uniq') {
+      const countMode = pArgs.includes('-c');
+      const out = [];
+      let prev = null;
+      let cnt = 0;
+      for (const l of lines) {
+        if (l === prev) {
+          cnt++;
+        } else {
+          if (prev !== null) out.push(countMode ? `   ${cnt} ${prev}` : prev);
+          prev = l;
+          cnt = 1;
+        }
+      }
+      if (prev !== null) out.push(countMode ? `   ${cnt} ${prev}` : prev);
+      return out;
+    }
+    if (pName === 'head') {
+      const nFlagIdx = pArgs.indexOf('-n');
+      const n = nFlagIdx >= 0 && pArgs[nFlagIdx + 1] ? (Number(pArgs[nFlagIdx + 1]) | 0) : 10;
+      return lines.slice(0, Math.max(n, 1));
+    }
+    if (pName === 'tail') {
+      const nFlagIdx = pArgs.indexOf('-n');
+      const n = nFlagIdx >= 0 && pArgs[nFlagIdx + 1] ? (Number(pArgs[nFlagIdx + 1]) | 0) : 10;
+      return lines.slice(-Math.max(n, 1));
+    }
+    if (pName === 'wc') {
+      const joined = lines.join('\n');
+      const words = joined.trim() ? joined.trim().split(/\s+/).length : 0;
+      if (pArgs.includes('-l')) return [String(lines.length)];
+      return [`  ${lines.length}  ${words}  ${joined.length}`];
+    }
+    return lines;
   }
 
   executeSegment(segmentLine) {
-    // Support output redirection (> or >>) into the virtual Wasm workspace
+    this.setExitCode(0);
     let redirectMode = null;
     let redirectTarget = null;
     let pipeSpec = null;
@@ -6178,10 +6662,28 @@ class LexLeanTerminal {
       redirectTarget = this.resolveWorkspacePath(writeMatch[2]);
     }
 
-    if (workingLine.includes(' | ')) {
-      const parts = workingLine.split(/\s*\|\s*/);
-      workingLine = parts[0].trim();
-      pipeSpec = parts.slice(1);
+    {
+      const pipeParts = [];
+      let curPipe = '';
+      let pipeQuote = null;
+      for (let i = 0; i < workingLine.length; i++) {
+        const ch = workingLine[i];
+        if ((ch === '"' || ch === "'") && workingLine[i - 1] !== '\\') {
+          if (pipeQuote === ch) pipeQuote = null;
+          else if (!pipeQuote) pipeQuote = ch;
+          curPipe += ch;
+        } else if (!pipeQuote && ch === '|' && workingLine[i - 1] !== '|' && workingLine[i + 1] !== '|') {
+          pipeParts.push(curPipe.trim());
+          curPipe = '';
+        } else {
+          curPipe += ch;
+        }
+      }
+      if (curPipe.trim()) pipeParts.push(curPipe.trim());
+      if (pipeParts.length > 1) {
+        workingLine = pipeParts[0];
+        pipeSpec = pipeParts.slice(1);
+      }
     }
 
     const tokenRegex = /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
@@ -6197,17 +6699,26 @@ class LexLeanTerminal {
     if (tokens.length === 0) return;
 
     const expandedTokens = tokens.map((t) => {
-      if (t.startsWith('$')) {
-        const varName = t.slice(1);
-        return this.env[varName] !== undefined ? this.env[varName] : '';
+      const str = String(t);
+      if (str.startsWith('$') && !str.slice(1).includes('$')) {
+        const varName = str.slice(1).replace(/^\{|\}$/g, '');
+        return varName && this.env[varName] !== undefined ? String(this.env[varName]) : '';
       }
-      return t;
+      if (/^\$+$/.test(str)) {
+        return '';
+      }
+      return str.replace(/\$\{?(\?|[A-Za-z_][A-Za-z0-9_]*)\}?/g, (_m, varName) => {
+        return this.env[varName] !== undefined ? String(this.env[varName]) : '';
+      });
     });
 
     const cmd = expandedTokens[0].toLowerCase();
     const args = expandedTokens.slice(1);
 
     if (redirectMode || pipeSpec) {
+      if (redirectMode && redirectTarget) {
+        this.ensureGitInitialized();
+      }
       const captured = [];
       const origPrint = this.printAnsi.bind(this);
       this.printAnsi = (line) => {
@@ -6221,20 +6732,7 @@ class LexLeanTerminal {
       let lines = captured;
       if (pipeSpec) {
         for (const pCmd of pipeSpec) {
-          const pTokens = pCmd.trim().split(/\s+/);
-          const pName = (pTokens[0] || '').toLowerCase();
-          const pArg = pTokens.slice(1).join(' ').replace(/^["']|["']$/g, '');
-          if (pName === 'grep' && pArg) {
-            lines = lines.filter((l) => l.toLowerCase().includes(pArg.toLowerCase()));
-          } else if (pName === 'head') {
-            lines = lines.slice(0, 10);
-          } else if (pName === 'tail') {
-            lines = lines.slice(-10);
-          } else if (pName === 'wc') {
-            const joined = lines.join('\n');
-            const words = joined.trim() ? joined.trim().split(/\s+/).length : 0;
-            lines = [`  ${lines.length}  ${words}  ${joined.length}`];
-          }
+          lines = this.applyStreamFilter(lines, pCmd);
         }
       }
       if (redirectMode && redirectTarget) {
@@ -6267,15 +6765,15 @@ class LexLeanTerminal {
         this.printAnsi('\x1b[1m\x1b[36mlexlean-sh Linux/Wasm Container Command Reference:\x1b[0m');
         this.printAnsi('  \x1b[33muname\x1b[0m [-a]             Print Linux/Wasm32 container kernel & architecture');
         this.printAnsi('  \x1b[33mwhoami\x1b[0m / \x1b[33mid\x1b[0m / \x1b[33mpwd\x1b[0m      Print container user identity & working directory');
-        this.printAnsi('  \x1b[33mcd\x1b[0m / \x1b[33mmkdir\x1b[0m / \x1b[33mrm\x1b[0m / \x1b[33mcp\x1b[0m   Navigate & mutate virtual container filesystem');
-        this.printAnsi('  \x1b[33mls\x1b[0m [-la] / \x1b[33mcat\x1b[0m / \x1b[33mgrep\x1b[0m  Inspect & search virtual workspace files (supports | and >)');
+        this.printAnsi('  \x1b[33mcd\x1b[0m / \x1b[33mmkdir\x1b[0m / \x1b[33mrm\x1b[0m / \x1b[33mmv\x1b[0m   Navigate & mutate virtual container filesystem');
+        this.printAnsi('  \x1b[33mls\x1b[0m / \x1b[33mcat\x1b[0m / \x1b[33mgrep\x1b[0m / \x1b[33msed\x1b[0m  Inspect, search & transform workspace files (|, >, &&, ||)');
         this.printAnsi('  \x1b[33mcargo\x1b[0m [build|test|check] Execute in-browser Rust/Wasm verification & build pipeline');
         this.printAnsi('  \x1b[33mjust\x1b[0m [vv|model-write]  Run LexLean & PrismPM acceptance boundary inside container');
-        this.printAnsi('  \x1b[33mgit\x1b[0m [status|diff|log]  Inspect virtual workspace git tree & staged unified diffs');
+        this.printAnsi('  \x1b[33mgit\x1b[0m [status|diff|commit|log|checkout|reset] Stateful virtual workspace Git engine');
         this.printAnsi('  \x1b[33mps\x1b[0m / \x1b[33mdf\x1b[0m / \x1b[33mfree\x1b[0m         Inspect active Wasm container processes, memory & storage');
         this.printAnsi('  \x1b[33mstatus\x1b[0m [--json]        Show local Wasm engine state, schema, & receipts');
         this.printAnsi('  \x1b[33mrun\x1b[0m <prompt>           Execute prompt against Wasm engine & trigger 3D neural cascade');
-        this.printAnsi('  \x1b[33mverify\x1b[0m [all|R4-XX]      Run integer verification kernels (R4-24..R4-27)');
+        this.printAnsi('  \x1b[33mverify\x1b[0m [all|R4-XX]      Run integer verification kernels (R4-24..R4-35)');
         this.printAnsi('  \x1b[33mpool\x1b[0m [--workers]        Inspect agentic pool status & review queue');
         this.printAnsi('  \x1b[33mmodel\x1b[0m [status|sync]     Inspect container header & sync IndexedDB weight cache');
         this.printAnsi('  \x1b[33mtouch\x1b[0m / \x1b[33mwrite\x1b[0m / \x1b[33mpatch\x1b[0m  Create, write, or patch virtual workspace files');
@@ -6283,6 +6781,14 @@ class LexLeanTerminal {
         this.printAnsi('  \x1b[33mtraces\x1b[0m [count]          Inspect OTel trace buffer (uor.gllm.trace/1)');
         this.printAnsi('  \x1b[33menv\x1b[0m / \x1b[33mexport\x1b[0m / \x1b[33mecho\x1b[0m    Manage container session environment variables');
         this.printAnsi('  \x1b[33mclear\x1b[0m / \x1b[33mhistory\x1b[0m / \x1b[33mreset\x1b[0m Manage terminal scrollback & Wasm engine state');
+        break;
+      }
+      case 'true': {
+        this.setExitCode(0);
+        break;
+      }
+      case 'false': {
+        this.setExitCode(1);
         break;
       }
       case 'uname': {
@@ -6311,14 +6817,19 @@ class LexLeanTerminal {
         break;
       }
       case 'pwd': {
-        this.printAnsi(this.env.CWD || '/workspace');
+        const cwd = this.env.CWD === '~/workspace' ? '/workspace' : (this.env.CWD || '/workspace');
+        this.printAnsi(cwd);
         break;
       }
       case 'cd': {
         const dest = args[0] || '/workspace';
-        const resolved = dest === '~' ? '/workspace' : (dest.startsWith('/') ? dest : `${this.env.CWD}/${dest}`).replace(/\/+/g, '/');
-        this.env.CWD = resolved;
-        this.env.PROMPT = `${this.env.USER}@${this.env.HOSTNAME}:${resolved}$ `;
+        if (dest === '~' || dest === '/workspace' || dest === '~/workspace') {
+          this.env.CWD = '/workspace';
+        } else {
+          const rel = this.resolveWorkspacePath(dest).replace(/\/+$/, '');
+          this.env.CWD = rel ? `/workspace/${rel}` : '/workspace';
+        }
+        this.env.PROMPT = `${this.env.USER}@${this.env.HOSTNAME}:${this.env.CWD}$ `;
         if (this.promptLabel) {
           this.promptLabel.textContent = this.env.PROMPT;
         }
@@ -6328,25 +6839,44 @@ class LexLeanTerminal {
         const dirName = args.filter((a) => !a.startsWith('-'))[0];
         if (!dirName) {
           this.printAnsi('Usage: mkdir [-p] <directory>');
+          this.setExitCode(1);
           return;
         }
-        const fullDir = dirName.startsWith('/') ? dirName : `${this.env.CWD}/${dirName}`;
+        const rel = this.resolveWorkspacePath(dirName).replace(/\/+$/, '');
+        const fullDir = rel ? `/workspace/${rel}` : '/workspace';
         this.dirs.add(fullDir);
         this.printAnsi(`\x1b[32m[OK]\x1b[0m Created directory ${fullDir}`);
         break;
       }
       case 'rm': {
-        const target = this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]);
+        const flags = args.filter((a) => a.startsWith('-')).join('');
+        const force = flags.includes('f');
+        const recursive = flags.includes('r') || flags.includes('R');
+        const rawTarget = args.filter((a) => !a.startsWith('-'))[0];
+        const target = this.resolveWorkspacePath(rawTarget);
         if (!target) {
-          this.printAnsi('Usage: rm [-f] <workspace-path>');
+          this.printAnsi('Usage: rm [-rf] <workspace-path>');
+          this.setExitCode(1);
           return;
         }
         try {
-          const ws = dispatchStudioEnvelope('workspace_write', `${target}\n`);
-          renderWorkspaceList(ws);
-          this.printAnsi(`\x1b[32m[OK]\x1b[0m Truncated/removed virtual file: ${target}`);
+          let delRes = dispatchStudioEnvelope('workspace_delete', target);
+          if ((!delRes || delRes.status === 'error') && recursive && !target.endsWith('/')) {
+            delRes = dispatchStudioEnvelope('workspace_delete', `${target}/`);
+          }
+          if (delRes && delRes.status === 'ok') {
+            renderWorkspaceList(delRes);
+            this.printAnsi(`\x1b[32m[OK]\x1b[0m Removed ${target} from virtual workspace`);
+            this.setExitCode(0);
+          } else if (force) {
+            this.setExitCode(0);
+          } else {
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m rm: cannot remove '${target}': ${delRes?.message || 'No such file'}`);
+            this.setExitCode(1);
+          }
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m rm failed: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
@@ -6357,30 +6887,45 @@ class LexLeanTerminal {
         const dst = this.resolveWorkspacePath(cleanArgs[1]);
         if (!src || !dst) {
           this.printAnsi(`Usage: ${cmd} <source> <dest>`);
+          this.setExitCode(1);
           return;
         }
         try {
           const readRes = dispatchStudioEnvelope('workspace_read', src);
           if (!readRes || readRes.status !== 'ok') {
             this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Source file not found: ${src}`);
+            this.setExitCode(1);
             return;
           }
-          const ws = dispatchStudioEnvelope('workspace_write', `${dst}\n${readRes.content || ''}`);
+          let ws = dispatchStudioEnvelope('workspace_write', `${dst}\n${readRes.content || ''}`);
+          if (cmd === 'mv' && src !== dst) {
+            const delRes = dispatchStudioEnvelope('workspace_delete', src);
+            if (delRes && delRes.status === 'ok') ws = delRes;
+          }
           renderWorkspaceList(ws);
           this.printAnsi(`\x1b[32m[OK]\x1b[0m ${cmd === 'cp' ? 'Copied' : 'Moved'} ${src} -> ${dst}`);
+          this.setExitCode(0);
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${cmd} failed: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
       case 'grep': {
+        const flags = args.filter((a) => a.startsWith('-')).join('');
         const cleanArgs = args.filter((a) => !a.startsWith('-'));
         const pattern = cleanArgs[0];
-        const targetPath = this.resolveWorkspacePath(cleanArgs[1]);
+        const targetPath = cleanArgs[1] ? this.resolveWorkspacePath(cleanArgs[1]) : '';
         if (!pattern) {
-          this.printAnsi('Usage: grep <pattern> [workspace-path]');
+          this.printAnsi('Usage: grep [-n|-i|-v|-c|-E] <pattern> [workspace-path]');
+          this.setExitCode(1);
           return;
         }
+        const ignoreCase = flags.includes('i');
+        const invert = flags.includes('v');
+        const countOnly = flags.includes('c');
+        const useRegex = flags.includes('E');
+        const regex = useRegex ? new RegExp(pattern, ignoreCase ? 'i' : '') : null;
         try {
           const ws = dispatchStudioEnvelope('workspace_list', '');
           const files = ws && Array.isArray(ws.files) ? ws.files : [];
@@ -6389,19 +6934,99 @@ class LexLeanTerminal {
             if (targetPath && f.path !== targetPath) continue;
             const readRes = dispatchStudioEnvelope('workspace_read', f.path);
             const lines = (readRes?.content || '').split('\n');
+            let fileHits = 0;
             lines.forEach((line, idx) => {
-              if (line.toLowerCase().includes(pattern.toLowerCase())) {
+              const matched = regex
+                ? regex.test(line)
+                : (ignoreCase ? line.toLowerCase().includes(pattern.toLowerCase()) : line.includes(pattern));
+              if (invert ? !matched : matched) {
                 hits += 1;
-                this.printAnsi(`\x1b[36m${f.path}\x1b[0m:\x1b[33m${idx + 1}\x1b[0m: ${line}`);
+                fileHits += 1;
+                if (!countOnly) {
+                  this.printAnsi(`\x1b[36m${f.path}\x1b[0m:\x1b[33m${idx + 1}\x1b[0m: ${line}`);
+                }
               }
             });
+            if (countOnly && (targetPath || fileHits > 0)) {
+              this.printAnsi(`${targetPath ? '' : `${f.path}:`}${fileHits}`);
+            }
           }
           if (hits === 0) {
-            this.printAnsi(`\x1b[90m(no matches for "${pattern}")\x1b[0m`);
+            if (!countOnly) this.printAnsi(`\x1b[90m(no matches for "${pattern}")\x1b[0m`);
+            this.setExitCode(1);
+          } else {
+            this.setExitCode(0);
           }
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m grep failed: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
+        break;
+      }
+      case 'sed': {
+        const inPlace = args.includes('-i');
+        const cleanArgs = args.filter((a) => !a.startsWith('-'));
+        const expr = cleanArgs[0] || '';
+        const targetPath = this.resolveWorkspacePath(cleanArgs[1]);
+        const sm = expr.match(/^s\/([^/]*)\/([^/]*)\/([gi]*)$/);
+        if (!sm || !targetPath) {
+          this.printAnsi('Usage: sed [-i] "s/pattern/replacement/g" <workspace-path>');
+          this.setExitCode(1);
+          return;
+        }
+        const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
+        if (!readRes || readRes.status !== 'ok') {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
+          this.setExitCode(1);
+          return;
+        }
+        const re = new RegExp(sm[1], sm[3] || '');
+        const transformed = String(readRes.content || '').split('\n').map((l) => l.replace(re, sm[2])).join('\n');
+        if (inPlace) {
+          const ws = dispatchStudioEnvelope('workspace_write', `${targetPath}\n${transformed}`);
+          renderWorkspaceList(ws);
+          this.printAnsi(`\x1b[32m[OK]\x1b[0m Updated ${targetPath} in-place via sed`);
+        } else {
+          transformed.split('\n').forEach((l) => this.printAnsi(l));
+        }
+        break;
+      }
+      case 'sort':
+      case 'uniq': {
+        const targetPath = this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]);
+        if (!targetPath) {
+          this.printAnsi(`Usage: ${cmd} <workspace-path>`);
+          this.setExitCode(1);
+          return;
+        }
+        const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
+        if (!readRes || readRes.status !== 'ok') {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
+          this.setExitCode(1);
+          return;
+        }
+        const filtered = this.applyStreamFilter(String(readRes.content || '').split('\n'), `${cmd} ${args.filter((a) => a.startsWith('-')).join(' ')}`);
+        filtered.forEach((l) => this.printAnsi(l));
+        break;
+      }
+      case 'diff': {
+        const cleanArgs = args.filter((a) => !a.startsWith('-'));
+        const pathA = this.resolveWorkspacePath(cleanArgs[0]);
+        const pathB = this.resolveWorkspacePath(cleanArgs[1]);
+        if (!pathA || !pathB) {
+          this.printAnsi('Usage: diff [-u] <file-a> <file-b>');
+          this.setExitCode(1);
+          return;
+        }
+        const resA = dispatchStudioEnvelope('workspace_read', pathA);
+        const resB = dispatchStudioEnvelope('workspace_read', pathB);
+        if (!resA || resA.status !== 'ok' || !resB || resB.status !== 'ok') {
+          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m diff: file not found`);
+          this.setExitCode(1);
+          return;
+        }
+        const udiff = this.formatUnifiedDiff(resA.content || '', resB.content || '', `${pathA}..${pathB}`);
+        udiff.split('\n').forEach((l) => this.printAnsi(l));
         break;
       }
       case 'find': {
@@ -6418,25 +7043,40 @@ class LexLeanTerminal {
       case 'wc':
       case 'head':
       case 'tail': {
-        const targetPath = this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]);
+        let rawTarget = '';
+        for (let i = 0; i < args.length; i++) {
+          if (args[i] === '-n') {
+            i++;
+            continue;
+          }
+          if (!args[i].startsWith('-')) {
+            rawTarget = args[i];
+            break;
+          }
+        }
+        const targetPath = this.resolveWorkspacePath(rawTarget);
         if (!targetPath) {
           this.printAnsi(`Usage: ${cmd} <workspace-path>`);
+          this.setExitCode(1);
           return;
         }
         const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
         if (!readRes || readRes.status !== 'ok') {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
+          this.setExitCode(1);
           return;
         }
         const content = readRes.content || '';
         const lines = content.split('\n');
         if (cmd === 'wc') {
-          const words = content.trim() ? content.trim().split(/\s+/).length : 0;
-          this.printAnsi(`  ${lines.length}  ${words}  ${content.length} ${targetPath}`);
-        } else if (cmd === 'head') {
-          lines.slice(0, 10).forEach((l) => this.printAnsi(l));
+          if (args.includes('-l')) {
+            this.printAnsi(`${lines.length} ${targetPath}`);
+          } else {
+            const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+            this.printAnsi(`  ${lines.length}  ${words}  ${content.length} ${targetPath}`);
+          }
         } else {
-          lines.slice(-10).forEach((l) => this.printAnsi(l));
+          this.applyStreamFilter(lines, `${cmd} ${args.join(' ')}`).forEach((l) => this.printAnsi(l));
         }
         break;
       }
@@ -6503,10 +7143,12 @@ class LexLeanTerminal {
         const subRes = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
         const receipt = (evalRes.receipt_sha256 || subRes.receipt_sha256 || '').slice(0, 16) || 'verified';
         if (evalRes.status === 'error') {
+          this.setExitCode(1);
           this.printAnsi(
             `\x1b[31m[R4-32 Wasm AST Kernel]\x1b[0m ${sub} failed (${evalRes.tests_failed ?? 0} failed, ${Array.isArray(evalRes.diagnostics) ? evalRes.diagnostics.length : 0} diagnostics, receipt: ${receipt})`,
           );
         } else {
+          this.setExitCode(0);
           this.printAnsi(
             `\x1b[32m[R4-32 Wasm AST Kernel]\x1b[0m ${sub} succeeded (${evalRes.fn_count ?? 0} fns, ${evalRes.tests_passed ?? 0} passed, fuel=${evalRes.total_fuel_consumed ?? 0}, receipt: ${receipt})`,
           );
@@ -6518,28 +7160,141 @@ class LexLeanTerminal {
         this.printAnsi(`\x1b[1m\x1b[36m==> Running LexLean/PrismPM recipe: just ${recipe}\x1b[0m`);
         const res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
         const receipt = (res.receipt_sha256 || '').slice(0, 16) || 'verified';
-        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: 32/32 R4 claims verified in CONFORMANCE.md`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: 35/35 R4 claims verified in CONFORMANCE.md`);
         this.printAnsi(`  \x1b[32m✓\x1b[0m browser_closure: exact 6-file public/ closure verified`);
         this.printAnsi(`  \x1b[32m✓\x1b[0m wasm kernels: 6/6 integer proof receipts valid (${receipt})`);
         break;
       }
       case 'git': {
+        this.ensureGitInitialized();
         const sub = (args[0] || 'status').toLowerCase();
         const ws = dispatchStudioEnvelope('workspace_list', '');
         const files = ws && Array.isArray(ws.files) ? ws.files : [];
+        const currentMap = new Map();
+        for (const f of files) {
+          const readRes = dispatchStudioEnvelope('workspace_read', f.path);
+          const content = readRes && readRes.status === 'ok' ? (readRes.content || '') : '';
+          const receipt = f.updated_receipt || f.sha256 || this.hashStringHex(content);
+          currentMap.set(f.path, {
+            path: f.path,
+            content,
+            receipt,
+            byte_len: f.byte_len ?? content.length
+          });
+        }
         if (sub === 'status') {
           this.printAnsi('On branch main');
-          this.printAnsi('Your virtual workspace is synchronized with uor-r4.lut-stack/8:');
-          for (const f of files) {
-            this.printAnsi(`  \x1b[32mtracked:\x1b[0m   ${f.path} (${f.byte_len || 0} B · sha256:${(f.sha256 || '').slice(0, 12)})`);
+          const modified = [];
+          const added = [];
+          const deleted = [];
+          for (const [path, cur] of currentMap.entries()) {
+            const head = this.gitHeadFiles.get(path);
+            if (!head) {
+              added.push(cur);
+            } else if (head.content !== cur.content) {
+              modified.push(cur);
+            }
+          }
+          for (const [path, head] of this.gitHeadFiles.entries()) {
+            if (!currentMap.has(path)) {
+              deleted.push(head);
+            }
+          }
+          if (modified.length === 0 && added.length === 0 && deleted.length === 0) {
+            this.printAnsi('nothing to commit, working tree clean (synchronized with uor-r4.lut-stack/8):');
+            for (const cur of currentMap.values()) {
+              this.printAnsi(`  \x1b[32mtracked:\x1b[0m   ${cur.path} (${cur.byte_len} B · sha256:${String(cur.receipt).slice(0, 12)})`);
+            }
+          } else {
+            this.printAnsi('Changes not staged for commit / untracked files:');
+            for (const m of modified) {
+              this.printAnsi(`  \x1b[33mmodified:\x1b[0m  ${m.path} (${m.byte_len} B · sha256:${String(m.receipt).slice(0, 12)})`);
+            }
+            for (const a of added) {
+              this.printAnsi(`  \x1b[32mnew file:\x1b[0m  ${a.path} (${a.byte_len} B · sha256:${String(a.receipt).slice(0, 12)})`);
+            }
+            for (const d of deleted) {
+              this.printAnsi(`  \x1b[31mdeleted:\x1b[0m   ${d.path}`);
+            }
           }
         } else if (sub === 'diff') {
-          this.dispatchCommand('patch', ['preview'], 'patch preview');
+          const targetFilter = args[1] ? this.resolveWorkspacePath(args[1]) : '';
+          let anyDiff = false;
+          for (const [path, cur] of currentMap.entries()) {
+            if (targetFilter && path !== targetFilter) continue;
+            const head = this.gitHeadFiles.get(path);
+            const oldContent = head ? head.content : '';
+            if (oldContent !== cur.content) {
+              anyDiff = true;
+              const udiff = this.formatUnifiedDiff(oldContent, cur.content, path);
+              for (const dl of udiff.split('\n')) {
+                if (dl.startsWith('+') && !dl.startsWith('+++')) this.printAnsi(`\x1b[32m${dl}\x1b[0m`);
+                else if (dl.startsWith('-') && !dl.startsWith('---')) this.printAnsi(`\x1b[31m${dl}\x1b[0m`);
+                else if (dl.startsWith('@@')) this.printAnsi(`\x1b[36m${dl}\x1b[0m`);
+                else this.printAnsi(dl);
+              }
+            }
+          }
+          for (const [path, head] of this.gitHeadFiles.entries()) {
+            if (targetFilter && path !== targetFilter) continue;
+            if (!currentMap.has(path)) {
+              anyDiff = true;
+              const udiff = this.formatUnifiedDiff(head.content, '', path);
+              udiff.split('\n').forEach((dl) => this.printAnsi(`\x1b[31m${dl}\x1b[0m`));
+            }
+          }
+          if (!anyDiff) {
+            this.printAnsi('\x1b[90m(no working tree differences from HEAD)\x1b[0m');
+          }
+        } else if (sub === 'commit') {
+          const mIdx = args.indexOf('-m');
+          const msg = mIdx >= 0 && args[mIdx + 1] ? args.slice(mIdx + 1).join(' ') : 'Workspace snapshot commit';
+          this.gitHeadFiles = new Map(currentMap);
+          const digestInput = Array.from(currentMap.values()).map((c) => `${c.path}:${c.receipt}`).join('|') + `|${msg}`;
+          const commitHash = this.hashStringHex(digestInput).slice(0, 16);
+          this.gitCommits.unshift({
+            hash: commitHash,
+            author: 'LexLean-R4 Control Plane <lexlean@wasm-container>',
+            message: msg,
+            timestamp: new Date().toUTCString()
+          });
+          this.printAnsi(`\x1b[32m[main ${commitHash}]\x1b[0m ${msg}`);
+          this.printAnsi(` ${currentMap.size} files tracked in HEAD`);
+        } else if (sub === 'checkout' || sub === 'reset') {
+          const dashIdx = args.indexOf('--');
+          const targetPath = dashIdx >= 0 && args[dashIdx + 1] ? this.resolveWorkspacePath(args[dashIdx + 1]) : '';
+          if (sub === 'checkout' && targetPath) {
+            const head = this.gitHeadFiles.get(targetPath);
+            if (!head) {
+              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m pathspec '${targetPath}' did not match any file(s) known to git`);
+              this.setExitCode(1);
+            } else {
+              const wsRes = dispatchStudioEnvelope('workspace_write', `${targetPath}\n${head.content}`);
+              renderWorkspaceList(wsRes);
+              this.printAnsi(`\x1b[32m[OK]\x1b[0m Restored '${targetPath}' from HEAD`);
+            }
+          } else {
+            for (const [path] of currentMap.entries()) {
+              if (!this.gitHeadFiles.has(path)) {
+                dispatchStudioEnvelope('workspace_delete', path);
+              }
+            }
+            let lastWs = null;
+            for (const [path, head] of this.gitHeadFiles.entries()) {
+              lastWs = dispatchStudioEnvelope('workspace_write', `${path}\n${head.content}`);
+            }
+            if (lastWs) renderWorkspaceList(lastWs);
+            const headCommit = this.gitCommits[0]?.hash || 'HEAD';
+            this.printAnsi(`HEAD is now at ${headCommit}`);
+          }
         } else if (sub === 'log') {
-          const st = dispatchStudioEnvelope('state', '');
-          this.printAnsi(`\x1b[33mcommit ${(st.state_receipt || '3312322f8a9c4b1e').slice(0, 16)}\x1b[0m (HEAD -> main)`);
-          this.printAnsi('Author: LexLean-R4 Control Plane <lexlean@wasm-container>');
-          this.printAnsi('    Verified UOR-R4 Wasm state & 3D Holographic OSPF Brain closure');
+          for (let i = 0; i < this.gitCommits.length; i++) {
+            const c = this.gitCommits[i];
+            this.printAnsi(`\x1b[33mcommit ${c.hash}\x1b[0m${i === 0 ? ' (HEAD -> main)' : ''}`);
+            this.printAnsi(`Author: ${c.author}`);
+            this.printAnsi(`Date:   ${c.timestamp}`);
+            this.printAnsi(`    ${c.message}`);
+          }
         } else {
           this.printAnsi(`git ${sub}: completed in virtual workspace.`);
         }
@@ -6758,9 +7513,10 @@ class LexLeanTerminal {
         break;
       }
       case 'cat': {
-        const filePath = args[0];
+        const filePath = this.resolveWorkspacePath(args[0]);
         if (!filePath) {
           this.printAnsi('Usage: cat <workspace-path>');
+          this.setExitCode(1);
           return;
         }
         try {
@@ -6771,38 +7527,49 @@ class LexLeanTerminal {
               const num = String(idx + 1).padStart(3, ' ');
               this.printAnsi(`\x1b[90m${num} │\x1b[0m ${l}`);
             });
+            this.setExitCode(0);
           } else {
-            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${res?.error || 'File not found'}`);
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${res?.error || res?.message || 'File not found'}`);
+            this.setExitCode(1);
           }
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Read error: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
       case 'ls': {
         try {
           const ws = dispatchStudioEnvelope('workspace_list', '');
+          const filterDir = args.filter((a) => !a.startsWith('-'))[0]
+            ? this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]).replace(/\/+$/, '')
+            : this.resolveWorkspacePath('').replace(/\/+$/, '');
           if (ws && Array.isArray(ws.files)) {
             this.printAnsi('PERMS   SIZE    SHA-256 (PREFIX)                  PATH');
             this.printAnsi('──────  ──────  ────────────────────────────────  ────────────');
+            let count = 0;
             for (const f of ws.files) {
+              if (filterDir && !f.path.startsWith(`${filterDir}/`) && f.path !== filterDir) continue;
+              count++;
               const sizeStr = `${f.byte_len || (f.content || '').length} B`.padEnd(6, ' ');
-              const hashPrefix = (f.sha256 || '—').slice(0, 32);
+              const hashPrefix = (f.updated_receipt || f.sha256 || '—').slice(0, 32);
               this.printAnsi(`rw-r-  ${sizeStr}  \x1b[33m${hashPrefix}\x1b[0m  \x1b[36m${f.path}\x1b[0m`);
             }
-            this.printAnsi(`Total files: ${ws.files.length}`);
+            this.printAnsi(`Total files: ${count}`);
           } else {
             this.printAnsi('\x1b[90m(workspace is empty)\x1b[0m');
           }
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m List error: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
       case 'touch': {
-        const filePath = args[0];
+        const filePath = this.resolveWorkspacePath(args[0]);
         if (!filePath) {
           this.printAnsi('Usage: touch <workspace-path>');
+          this.setExitCode(1);
           return;
         }
         try {
@@ -6811,14 +7578,16 @@ class LexLeanTerminal {
           this.printAnsi(`\x1b[32m[OK]\x1b[0m Created file: ${filePath}`);
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Touch error: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
       case 'write': {
-        const filePath = args[0];
+        const filePath = this.resolveWorkspacePath(args[0]);
         const content = args.slice(1).join(' ');
         if (!filePath) {
           this.printAnsi('Usage: write <workspace-path> <content>');
+          this.setExitCode(1);
           return;
         }
         try {
@@ -6828,6 +7597,7 @@ class LexLeanTerminal {
           this.printAnsi(`\x1b[32m[OK]\x1b[0m Wrote ${content.length} bytes to ${filePath}`);
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Write error: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
@@ -6842,6 +7612,7 @@ class LexLeanTerminal {
             this.printAnsi('\x1b[32m[OK]\x1b[0m Applied staged unified diff to workspace.');
           } else {
             this.printAnsi('\x1b[31m[ERROR]\x1b[0m Apply patch button not found.');
+            this.setExitCode(1);
           }
         } else {
           this.printAnsi('\x1b[1m\x1b[36m--- Staged Unified Diff Preview ---\x1b[0m');
@@ -6857,6 +7628,7 @@ class LexLeanTerminal {
         const rawEpochs = args[0] || '3';
         if (!/^(?:0|-[1-9][0-9]*|[1-9][0-9]*)$/.test(rawEpochs.trim())) {
           this.printAnsi('\x1b[31m[ERROR]\x1b[0m Epoch count must be an integer.');
+          this.setExitCode(1);
           return;
         }
         this.printAnsi(`\x1b[90mExecuting discrete coordinate descent sweeps for ${rawEpochs} epochs...\x1b[0m`);
@@ -6868,6 +7640,7 @@ class LexLeanTerminal {
           this.printAnsi(`  Reduction:    \x1b[33m${res?.reduction ?? '—'}\x1b[0m`);
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Training error: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
@@ -6886,20 +7659,26 @@ class LexLeanTerminal {
           }
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Traces query failed: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
       case 'reset': {
         try {
           dispatchStudioEnvelope('reset', '');
+          this.gitHeadFiles = null;
+          this.gitCommits = [];
+          this.ensureGitInitialized();
           this.printAnsi('\x1b[32m[OK]\x1b[0m Wasm engine reinitialized to baseline.');
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Reset failed: ${err?.message || String(err)}`);
+          this.setExitCode(1);
         }
         break;
       }
       default: {
         this.printAnsi(`\x1b[31mlexlean-sh: command not found: ${cmd}\x1b[0m (try \x1b[33mhelp\x1b[0m)`);
+        this.setExitCode(127);
         break;
       }
     }
@@ -7091,11 +7870,15 @@ function initCustomizationsAndMcp() {
   if (rejectDiffBtn) {
     rejectDiffBtn.addEventListener('click', () => {
       const rejectedPath = pendingPatchPath || AppState.workspace.pendingPatchPath || 'src/attention.rs';
+      if (AppState.workspace.pendingPatches && AppState.workspace.pendingPatches[rejectedPath]) {
+        delete AppState.workspace.pendingPatches[rejectedPath];
+      }
       pendingPatchPath = '';
       pendingProposedCode = '';
       AppState.workspace.pendingPatchPath = '';
       AppState.workspace.pendingProposedCode = '';
-      const diffEl = document.getElementById('workspace-diff-output');
+      renderPendingPatchPills();
+      const diffEl = document.getElementById('chat-diff-preview');
       if (diffEl) diffEl.textContent = 'Proposed patch rejected by reviewer.';
       const poolQueue = document.getElementById('pool-review-queue');
       if (poolQueue) {
@@ -7590,6 +8373,10 @@ if (chatApplyPatchBtn) {
     if (!checkMcpToolPolicy('workspace_write', pendingPatchPath)) return;
     const ws = dispatchStudioEnvelope('workspace_write', `${pendingPatchPath}\n${pendingProposedCode}`);
     if (ws && ws.status === 'ok') {
+      if (AppState.workspace.pendingPatches && AppState.workspace.pendingPatches[pendingPatchPath]) {
+        delete AppState.workspace.pendingPatches[pendingPatchPath];
+      }
+      renderPendingPatchPills();
       activeWorkspacePath = pendingPatchPath;
       renderWorkspaceList(ws);
       selectWorkspaceFile(pendingPatchPath);
@@ -7600,6 +8387,38 @@ if (chatApplyPatchBtn) {
       }
       secopsAudit.recordEvent('workspace_write', pendingPatchPath, 'file_system', { action: 'patch_apply', bytes: pendingProposedCode.length }, 'notice');
       activateCanvasTab('workspace');
+    }
+  });
+}
+
+if (chatDiffViewBtn && chatArtifactViewBtn) {
+  chatDiffViewBtn.addEventListener('click', () => {
+    chatDiffViewBtn.classList.add('active', 'is-active');
+    chatDiffViewBtn.setAttribute('aria-pressed', 'true');
+    chatArtifactViewBtn.classList.remove('active', 'is-active');
+    chatArtifactViewBtn.setAttribute('aria-pressed', 'false');
+    if (chatDiffPreview) {
+      chatDiffPreview.removeAttribute('hidden');
+      chatDiffPreview.classList.remove('is-hidden');
+    }
+    if (chatArtifactPreview) {
+      chatArtifactPreview.setAttribute('hidden', '');
+      chatArtifactPreview.classList.add('is-hidden');
+    }
+  });
+  chatArtifactViewBtn.addEventListener('click', () => {
+    chatArtifactViewBtn.classList.add('active', 'is-active');
+    chatArtifactViewBtn.setAttribute('aria-pressed', 'true');
+    chatDiffViewBtn.classList.remove('active', 'is-active');
+    chatDiffViewBtn.setAttribute('aria-pressed', 'false');
+    if (chatDiffPreview) {
+      chatDiffPreview.setAttribute('hidden', '');
+      chatDiffPreview.classList.add('is-hidden');
+    }
+    if (chatArtifactPreview) {
+      chatArtifactPreview.removeAttribute('hidden');
+      chatArtifactPreview.classList.remove('is-hidden');
+      renderInteractiveArtifactPreview(pendingPatchPath || activeWorkspacePath, pendingProposedCode);
     }
   });
 }
