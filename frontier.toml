@@ -494,3 +494,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f32_bvgk_writer_refinement"
 statement = "Verify that every MCP tool call and container workspace write appends a monotonic event to the FIPS 180-4 SHA-256 Merkle audit chain under uor.secops.audit/1 and enforces policy gates."
 prompt = "How does the SecOps audit chain verify MCP tool calls and container workspace writes?"
 target_reply = "Every MCP tool call and container workspace write appends a monotonic event to the FIPS 180-4 SHA-256 Merkle chain under schema uor.secops.audit/1 and enforces safe, confirm, or deny policy gates."
+
+[[claim]]
+id = "R4-F33"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2403.05530:H-LIT-2403.05530-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f33_pointkey_resonance"
+statement = "Verify that Direct Preference Optimization establishes closed-form cross-entropy alignment over preference pairs without an explicit reward model."
+prompt = "How does Direct Preference Optimization align language models without reinforcement learning?"
+target_reply = "Direct Preference Optimization trains policies directly on preference pairs using closed form implicit reward substitution."
