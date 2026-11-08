@@ -7797,4 +7797,60 @@ mod tests {
         assert!(product_admitted(prism_factory_summary()));
         assert!(product_admitted(lexlean_r4_summary()));
     }
+
+    #[test]
+    fn test_frontier_long_horizon_episodic_analogical_and_verified_ast_synthesis() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        let ask_chat = |prompt: &str| -> serde_json::Value {
+            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+            let json: serde_json::Value =
+                serde_json::from_str(&raw).expect("valid studio chat JSON");
+            assert_eq!(json["status"], "ok");
+            json
+        };
+
+        // 1. Long-horizon 8-turn conversation where Turn 1 & Turn 2 establish specific architectural facts
+        //    that are evicted from the 3-turn rolling `context_summary` window by Turn 7, then recalled at Turn 8!
+        let _ = ask_chat("Hi! My name is Casey and we decided to use port 9443 and a 64-byte Merkle chunk size for our telemetry node.");
+        let _ = ask_chat("Our retention policy is 45 days on NVMe storage.");
+        let _ = ask_chat("What is the speed of light?");
+        let _ = ask_chat("How does photosynthesis work?");
+        let _ = ask_chat("Explain TCP vs UDP");
+        let _ = ask_chat("What is the capital of Japan?");
+
+        // Turn 7: Unseen open-domain structural analogy synthesis
+        let t7_json = ask_chat(
+            "How would you design a fault-tolerant telemetry pipeline for underwater autonomous gliders?",
+        );
+        let t7 = t7_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            t7.contains("Structural Analogy & Component Mechanisms")
+                || t7.contains("packed_4block_root"),
+            "Turn 7 must synthesize an analogical multi-concept response for unseen domains: {t7}"
+        );
+
+        // Turn 8: Recall Turn 1 & Turn 2 architectural decisions across 6 intervening turns (beyond the 3-turn rolling summary window)
+        let t8_json = ask_chat("What port and Merkle chunk size did we decide on earlier for our telemetry node?");
+        let t8 = t8_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            t8.contains("9443") && t8.contains("64-byte"),
+            "Turn 8 must recall Turn 1 architectural decisions (port 9443 & 64-byte Merkle chunk size) via holographic episodic memory: {t8}"
+        );
+
+        // Turn 9: Unseen custom-named Rust function specification verified live in Wasm by `R4-32` (`wasm_ast_eval`)
+        let t9_json = ask_chat(
+            "Write a Rust function named compute_sliding_window_peak that takes a slice and window size",
+        );
+        let t9 = t9_json["assistant_reply"].as_str().unwrap_or("");
+        assert_eq!(t9_json["is_coding_turn"], true);
+        assert!(
+            t9.contains("pub fn compute_sliding_window_peak")
+                && t9.contains("Live In-Wasm AST Execution Proof (`R4-32`)"),
+            "Turn 9 must synthesize `compute_sliding_window_peak` and verify its unit test live in Wasm: {t9}"
+        );
+
+        let _ = dispatch_string("1\tstudio\treset\t");
+    }
 }

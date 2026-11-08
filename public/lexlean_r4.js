@@ -592,6 +592,113 @@ export async function init_webgpu_open_weights_tier() {
     return globalThis.__uorOpenWeightsTier;
 }
 
+const E8_SHARD_LRU_CAPACITY = 2;
+const __uorE8ShardLru = new Map();
+
+export async function cache_e8_shard_in_opfs(e8OrbitId, shardBytes, meta = {}) {
+    const orbit = (e8OrbitId | 0) & 15;
+    const fileName = `e8_shard_${String(orbit).padStart(2, '0')}.uorlut`;
+    const u8 = shardBytes instanceof Uint8Array ? shardBytes : new Uint8Array(shardBytes);
+    const saved = await cache_weights_in_opfs(fileName, u8, {
+        ...meta,
+        e8OrbitId: orbit,
+        byteLength: u8.byteLength,
+        savedAt: Date.now()
+    });
+    if (__uorE8ShardLru.has(orbit)) {
+        __uorE8ShardLru.delete(orbit);
+    } else if (__uorE8ShardLru.size >= E8_SHARD_LRU_CAPACITY) {
+        const oldestKey = __uorE8ShardLru.keys().next().value;
+        __uorE8ShardLru.delete(oldestKey);
+    }
+    __uorE8ShardLru.set(orbit, u8);
+    return { status: 'ok', e8OrbitId: orbit, fileName, opfsPersisted: saved, activeLruCount: __uorE8ShardLru.size };
+}
+
+export async function load_e8_shard_from_opfs(e8OrbitId) {
+    const orbit = (e8OrbitId | 0) & 15;
+    if (__uorE8ShardLru.has(orbit)) {
+        const hit = __uorE8ShardLru.get(orbit);
+        __uorE8ShardLru.delete(orbit);
+        __uorE8ShardLru.set(orbit, hit);
+        return hit;
+    }
+    const fileName = `e8_shard_${String(orbit).padStart(2, '0')}.uorlut`;
+    const restored = await restore_weights_from_opfs(fileName);
+    if (restored && restored.bytes) {
+        if (__uorE8ShardLru.size >= E8_SHARD_LRU_CAPACITY) {
+            const oldestKey = __uorE8ShardLru.keys().next().value;
+            __uorE8ShardLru.delete(oldestKey);
+        }
+        __uorE8ShardLru.set(orbit, restored.bytes);
+        return restored.bytes;
+    }
+    return null;
+}
+
+export async function run_webgpu_q12_attention_projection(queryQ12, weightsQ12, rows) {
+    const rowCount = Math.max(1, rows | 0);
+    const qArr = queryQ12 instanceof Int32Array ? queryQ12 : new Int32Array(queryQ12);
+    const wArr = weightsQ12 instanceof Int32Array ? weightsQ12 : new Int32Array(weightsQ12);
+    const tier = await init_webgpu_open_weights_tier();
+    if (tier && tier.webgpuReady && tier.device && tier.pipeline && typeof GPUBufferUsage !== 'undefined') {
+        try {
+            const device = tier.device;
+            const qBuf = device.createBuffer({
+                size: Math.max(1024, qArr.byteLength),
+                usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+            });
+            const wBuf = device.createBuffer({
+                size: Math.max(1024, wArr.byteLength),
+                usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+            });
+            const outByteLen = rowCount * 4;
+            const outBuf = device.createBuffer({
+                size: outByteLen,
+                usage: GPUBufferUsage.STORAGE | GPUBufferUsage.CopySrc || (GPUBufferUsage.STORAGE | 4)
+            });
+            const readBuf = device.createBuffer({
+                size: outByteLen,
+                usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+            });
+            device.queue.writeBuffer(qBuf, 0, qArr);
+            device.queue.writeBuffer(wBuf, 0, wArr);
+            const bindGroup = device.createBindGroup({
+                layout: tier.pipeline.getBindGroupLayout(0),
+                entries: [
+                    { binding: 0, resource: { buffer: qBuf } },
+                    { binding: 1, resource: { buffer: wBuf } },
+                    { binding: 2, resource: { buffer: outBuf } }
+                ]
+            });
+            const encoder = device.createCommandEncoder();
+            const pass = encoder.beginComputePass();
+            pass.setPipeline(tier.pipeline);
+            pass.setBindGroup(0, bindGroup);
+            pass.dispatchWorkgroups(Math.ceil(rowCount / 64));
+            pass.end();
+            encoder.copyBufferToBuffer(outBuf, 0, readBuf, 0, outByteLen);
+            device.queue.submit([encoder.finish()]);
+            await readBuf.mapAsync(1);
+            const result = new Int32Array(readBuf.getMappedRange().slice(0));
+            readBuf.unmap();
+            return result;
+        } catch (_gpuRunErr) {
+            // Fall through to deterministic integer CPU execution
+        }
+    }
+    const cpuOut = new Int32Array(rowCount);
+    for (let r = 0; r < rowCount; r += 1) {
+        const base = r * 256;
+        let acc = 0;
+        for (let k = 0; k < 256; k += 1) {
+            acc = (acc + Math.imul(qArr[k] || 0, wArr[base + k] || 0)) | 0;
+        }
+        cpuOut[r] = acc >> 12;
+    }
+    return cpuOut;
+}
+
 export async function mount_open_weights_pack_to_opfs(bytes, fileName) {
     const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
     await init_webgpu_open_weights_tier();

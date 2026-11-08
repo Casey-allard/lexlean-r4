@@ -1,11 +1,14 @@
 import init, {
+  cache_e8_shard_in_opfs,
   cache_geometric_shard_in_indexeddb,
   cache_uorlut_in_indexeddb,
   clear_cached_uorlut_in_indexeddb,
+  load_e8_shard_from_opfs,
   load_geometric_shard_from_indexeddb,
   mount_open_weights_pack_to_opfs,
   process_envelope,
   restore_cached_uorlut_from_indexeddb,
+  run_webgpu_q12_attention_projection,
   stream_sharded_weights_to_indexeddb,
   studio_dispatch,
   studio_export_uorlut_shard,
@@ -19,6 +22,12 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
 } from './lexlean_r4.js?v=20261107brainv11';
+
+globalThis.__uorOpenWeightsRuntime = {
+  cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
+  loadE8ShardFromOpfs: load_e8_shard_from_opfs,
+  runWebGpuQ12Attention: run_webgpu_q12_attention_projection,
+};
 
 const form = document.getElementById('application-form');
 const left = document.getElementById('left');

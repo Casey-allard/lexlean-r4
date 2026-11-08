@@ -131401,7 +131401,7 @@ pub fn score_concept_geometric(
     if !has_carried && seen_stems.len() >= 2 && matched_vocab_fibers < 2 {
         return geo_score.min(5);
     }
-    if !has_carried && seen_stems.len() >= 5 && matched_vocab_fibers <= 2 {
+    if seen_stems.len() >= 5 && matched_vocab_fibers <= 2 {
         return geo_score.min(8);
     }
     if !has_carried
@@ -131475,7 +131475,7 @@ pub fn score_concept_node(
     } else {
         0
     };
-    if lex > 0 && lex < 15 && geo <= 5 {
+    if lex > 0 && lex <= 16 && geo <= 8 {
         let content_words = words
             .iter()
             .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
@@ -132312,9 +132312,74 @@ fn render_creative_generation(
     )
 }
 
-/// Compositional Geometric Clause Realizer for open-domain or multi-concept prompts.
-/// Uses `retrieve_top_concepts_geometric_only` over the CUDA-trained `GLM_TRAINED_VOCAB`
-/// and `GLM_CONCEPT_MANIFOLD` to weave clauses from the highest-resonating basins.
+/// Decompose an unseen or multi-domain prompt into component content stems, project each
+/// stem into the CUDA-trained `GLM_TRAINED_VOCAB` (`10,781` stems) and `GLM_CONCEPT_MANIFOLD`
+/// (`280` basins), and retrieve up to 3 orthogonal structural concept principles for analogical synthesis.
+fn retrieve_orthogonal_analogical_basins(
+    words: &[String],
+    prompt_q12: &[i16; POINT_KEY_DIM],
+    prompt_sign: u64,
+) -> Vec<(String, &'static GlmConceptNode, u32)> {
+    let mut selected: Vec<(String, &'static GlmConceptNode, u32)> = Vec::new();
+    let mut used_ids: Vec<u16> = Vec::new();
+
+    for w in words {
+        if w.len() < 3 || is_stopword(w) || is_generic_conversational_word(w) {
+            continue;
+        }
+        let single_words = vec![w.clone()];
+        let single_stems = vec![canonical_stem(w).to_string()];
+        let (w_q12, w_sign) = pool_prompt_trained_geometry(&single_words);
+        let hits = retrieve_top_concepts(
+            w,
+            &single_words,
+            &single_stems,
+            &w_q12,
+            w_sign,
+            2,
+            &[],
+        );
+        if let Some(&(node, sc)) = hits.first() {
+            if sc >= 8 && !used_ids.contains(&node.id) {
+                used_ids.push(node.id);
+                selected.push((w.clone(), node, sc));
+                if selected.len() >= 3 {
+                    return selected;
+                }
+                continue;
+            }
+        }
+        let geo_hits = retrieve_top_concepts_geometric_only(&single_words, &w_q12, w_sign, 2);
+        if let Some(&(node, sc)) = geo_hits.first() {
+            if sc >= 7 && !used_ids.contains(&node.id) {
+                used_ids.push(node.id);
+                selected.push((w.clone(), node, sc));
+                if selected.len() >= 3 {
+                    return selected;
+                }
+            }
+        }
+    }
+
+    if selected.len() < 3 {
+        let full_geo = retrieve_top_concepts_geometric_only(words, prompt_q12, prompt_sign, 3);
+        for (node, sc) in full_geo {
+            if sc >= 6 && !used_ids.contains(&node.id) {
+                used_ids.push(node.id);
+                selected.push((node.title.to_string(), node, sc));
+                if selected.len() >= 3 {
+                    break;
+                }
+            }
+        }
+    }
+
+    selected
+}
+
+/// Compositional Geometric Clause Realizer & Structural Analogy Synthesizer for open-domain or multi-concept prompts.
+/// Uses `retrieve_orthogonal_analogical_basins` and `retrieve_top_concepts_geometric_only` over the CUDA-trained
+/// `GLM_TRAINED_VOCAB` and `GLM_CONCEPT_MANIFOLD` to map known structural principles onto unseen domain combinations.
 fn render_open_domain_natural_prose(
     raw_prompt: &str,
     lower: &str,
@@ -132334,34 +132399,10 @@ fn render_open_domain_natural_prose(
         .filter(|w| w.len() >= 3 && !is_stopword(w) && !is_generic_conversational_word(w))
         .collect();
 
-    // 1. Use the pure geometric scorer over the CUDA-trained vocabulary manifold to find the nearest basins
-    let geo_hits = retrieve_top_concepts_geometric_only(words, prompt_q12, prompt_sign, 2);
-    if let Some(&(best_node, best_geo_score)) = geo_hits.first() {
-        if best_geo_score >= 10 {
-            let mut active_nodes = vec![best_node];
-            if let Some(&(second_node, second_score)) = geo_hits.get(1) {
-                if second_score >= 10 && second_node.id != best_node.id {
-                    active_nodes.push(second_node);
-                }
-            }
-            let (token_stream, stepped, _) =
-                generate_token_level_geometric_prose(words, &active_nodes, 90, 220);
-            if stepped >= 35 {
-                return dedup_prose_paragraphs(&token_stream);
-            }
-            let clauses = synthesize_clause_trajectory(words, &active_nodes, 4);
-            if !clauses.is_empty() {
-                return dedup_prose_paragraphs(&clauses.join("\n\n"));
-            }
-        }
-    }
-
-    // 2. If the prompt has no specialized technical/contrafactual terms, respond conversationally
     if content_words.is_empty() {
         return "I'm here and happy to help! You can ask me about software engineering, math, physics, biology, history, everyday how-to questions, or we can brainstorm an idea together. What would you like to dive into?".to_string();
     }
 
-    // 3. Novel / contrafactual multi-concept synthesis without repetitive "First-Principles" Mad-Libs
     let topic = extract_clean_topic(trimmed, words);
     let mut state = GlmRetentionState::new();
     for w in words {
@@ -132375,21 +132416,100 @@ fn render_open_domain_natural_prose(
         focus_terms.join(", ")
     };
 
-    let grounding_note = geo_hits
-        .first()
-        .filter(|&&(_, sc)| sc >= 4)
-        .map(|&(node, _)| {
-            format!(
-                "\n\nIn related real-world physics and engineering (**{}**): {}",
-                node.title, node.summary
-            )
-        })
-        .unwrap_or_default();
+    // 1. Decompose the prompt into component stems and retrieve up to 3 orthogonal structural basins
+    let analogical_basins = retrieve_orthogonal_analogical_basins(words, prompt_q12, prompt_sign);
+
+    // 2. If a single domain basin strongly dominates a short query (`content_words.len() <= 2`), emit its geometric trajectory directly
+    let geo_hits = retrieve_top_concepts_geometric_only(words, prompt_q12, prompt_sign, 2);
+    if content_words.len() <= 2 {
+        if let Some(&(best_node, best_geo_score)) = geo_hits.first() {
+            if best_geo_score >= 12 {
+                let (token_stream, stepped, _) =
+                    generate_token_level_geometric_prose(words, &[best_node], 90, 220);
+                if stepped >= 35 {
+                    return dedup_prose_paragraphs(&token_stream);
+                }
+            }
+        }
+    }
+
+    // 3. Structural Analogy & Compositional Open-Domain Synthesis across 1..=3 orthogonal principles
+    let is_design_or_arch = words.iter().any(|w| {
+        matches!(
+            w.as_str(),
+            "design"
+                | "architect"
+                | "architecture"
+                | "pipeline"
+                | "system"
+                | "protocol"
+                | "tolerant"
+                | "scalable"
+                | "distributed"
+                | "build"
+        )
+    });
+
+    let mut analogy_paragraphs: Vec<String> = Vec::new();
+    for (idx, (trigger_term, node, _score)) in analogical_basins.iter().enumerate() {
+        let sum_first = split_balanced_sentences(node.summary)
+            .first()
+            .copied()
+            .unwrap_or(node.summary)
+            .trim();
+        let mech_first = split_balanced_sentences(node.mechanism)
+            .first()
+            .copied()
+            .unwrap_or(node.mechanism)
+            .trim();
+        let role_label = match idx {
+            0 => "Primary Structural Principle",
+            1 => "Coupled Mechanism & Boundary Constraint",
+            _ => "Verification & Resilience Invariant",
+        };
+        analogy_paragraphs.push(format!(
+            "- **{role_label} (`{trigger_term}` -> {})**: {} {}",
+            node.title, sum_first, mech_first
+        ));
+    }
+
+    let analogy_section = if !analogy_paragraphs.is_empty() {
+        format!(
+            "\n\n### Structural Analogy & Component Mechanisms\n{}",
+            analogy_paragraphs.join("\n")
+        )
+    } else if let Some(&(node, _sc)) = geo_hits.first().filter(|&&(_, sc)| sc >= 4) {
+        format!(
+            "\n\nIn related real-world physics and engineering (**{}**): {}",
+            node.title, node.summary
+        )
+    } else {
+        String::new()
+    };
+
+    let synthesis_intro = if is_design_or_arch {
+        format!(
+            "Designing **{topic}** requires coupling distinct operational domains (`{focus_joined}`) into a modular, fault-isolated architecture."
+        )
+    } else {
+        format!(
+            "Analyzing **{topic}** involves bridging several distinct concepts (`{focus_joined}`) that interact across separate physical or computational boundaries."
+        )
+    };
+
+    let integration_step = if analogical_basins.len() >= 2 {
+        format!(
+            "By decoupling the **{}** layer from the **{}** layer and defining an explicit state contract between `{focus_joined}`, you can calibrate, test, and verify each subsystem independently before composing the end-to-end workflow.",
+            analogical_basins[0].1.title, analogical_basins[1].1.title
+        )
+    } else {
+        format!(
+            "To approach **{topic}** practically, break `{focus_joined}` into their separate real-world mechanisms—testing each component's operating conditions (such as pressure, optics, latency, gravity, or material limits) independently before coupling them together."
+        )
+    };
 
     dedup_prose_paragraphs(&format!(
-        "That combines several distinct concepts (`{focus_joined}`) that don't normally appear together in a single off-the-shelf system.\n\n\
-         To approach **{topic}** practically, break `{focus_joined}` into their separate real-world mechanisms—testing each component's operating conditions (such as pressure, optics, gravity, or material limits) independently before coupling them together.{grounding_note}\n\n\
-         *(Causal synthesis · `packed_4block_root = {packed_4b}`)*"
+        "{synthesis_intro}\n\n{integration_step}{analogy_section}\n\n*(Causal synthesis · `packed_4block_root = {packed_4b}`)*"
     ))
 }
 

@@ -5367,6 +5367,9 @@ pub fn has_short_cycle(ids: &[u32]) -> bool {
 }
 
 pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) -> Option<String> {
+    if history.is_empty() {
+        return None;
+    }
     let q_lower = current_prompt.to_ascii_lowercase();
     let asks_recall = q_lower.contains("what is my ")
         || q_lower.contains("what's my ")
@@ -5376,6 +5379,10 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
         || q_lower.contains("where do i ")
         || q_lower.contains("remember")
         || q_lower.contains("earlier")
+        || q_lower.contains("before")
+        || q_lower.contains("previously")
+        || q_lower.contains("decide")
+        || q_lower.contains("mention")
         || q_lower.contains("what did i ")
         || q_lower.contains("what did we ")
         || q_lower.contains("what were we ")
@@ -5383,11 +5390,23 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
         || q_lower.contains("talked about")
         || q_lower.contains("first question")
         || q_lower.contains("our conversation");
-    if !asks_recall || history.is_empty() {
-        return None;
-    }
+    let q_stems = extract_salient_stem_hashes_from_text(&q_lower, 12);
     let mut facts = Vec::new();
-    for (u, _) in history {
+    for (idx, (u, _)) in history.iter().enumerate() {
+        let u_stems = extract_salient_stem_hashes_from_text(&u.to_ascii_lowercase(), 16);
+        let shared_stems = q_stems
+            .iter()
+            .filter(|&&(qh, _)| u_stems.iter().any(|&(uh, _)| uh == qh))
+            .count();
+        if shared_stems >= 2 && (asks_recall || idx + 2 < history.len()) {
+            let item = format!("Turn {}: {}", idx + 1, u.trim().trim_end_matches('.'));
+            if !facts.contains(&item) {
+                facts.push(item);
+            }
+        }
+        if !asks_recall {
+            continue;
+        }
         for sentence in u.split(['.', '!', '\n']) {
             let trim = sentence.trim();
             if trim.is_empty() || trim.ends_with('?') {
@@ -5414,6 +5433,9 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
                 || clean_low.starts_with("i enjoy ")
                 || clean_low.starts_with("we are ")
                 || clean_low.starts_with("we're ")
+                || clean_low.starts_with("we decided ")
+                || clean_low.starts_with("we chose ")
+                || clean_low.starts_with("our ")
                 || clean_low.starts_with("remember that ")
                 || clean_low.starts_with("remember ")
             {
