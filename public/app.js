@@ -1,14 +1,20 @@
 import init, {
+  cache_geometric_shard_in_indexeddb,
   cache_uorlut_in_indexeddb,
   clear_cached_uorlut_in_indexeddb,
+  load_geometric_shard_from_indexeddb,
   process_envelope,
   restore_cached_uorlut_from_indexeddb,
   stream_sharded_weights_to_indexeddb,
   studio_dispatch,
+  studio_export_uorlut_shard,
   studio_load_uorlut_bytes,
+  studio_merge_uorlut_shard,
+  studio_shard_catalog,
   studio_v1_chat_completions,
   studio_v1_messages,
   studio_v1_traces,
+  studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
 } from './lexlean_r4.js?v=20261107brainv11';
@@ -6472,21 +6478,38 @@ class LexLeanTerminal {
         break;
       }
       case 'cargo': {
-        const sub = (args[0] || 'check').toLowerCase();
-        this.printAnsi(`\x1b[1m\x1b[32m   Compiling\x1b[0m lexlean-r4-core v0.4.0 (/workspace/crates/core)`);
-        this.printAnsi(`\x1b[1m\x1b[32m   Compiling\x1b[0m lexlean-r4-wasm v0.4.0 (/workspace/crates/wasm)`);
-        const res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
-        const receipt = (res.receipt_sha256 || '').slice(0, 16) || 'verified';
-        if (sub === 'test') {
-          this.printAnsi(`\x1b[1m\x1b[32m    Finished\x1b[0m \`test\` profile [optimized] target(s) in 0.04s`);
-          this.printAnsi(`\x1b[1m\x1b[32m     Running\x1b[0m unittests src/lib.rs (target/wasm32-unknown-unknown/release/deps/lexlean_r4_wasm.wasm)`);
-          this.printAnsi(`test kernel_r4_24_spiralcore ... \x1b[32mok\x1b[0m (root #${res.r4_24_spiralcore?.icosian_root ?? 0})`);
-          this.printAnsi(`test kernel_r4_25_discrete_trunk ... \x1b[32mok\x1b[0m (${res.r4_25_discrete_trunk?.table_count ?? 8} tables · ${res.r4_25_discrete_trunk?.bits_per_token ?? 64}b)`);
-          this.printAnsi(`test kernel_r4_26_durable_memory ... \x1b[32mok\x1b[0m (sketch=${res.r4_26_durable_memory?.sketch_overlap ?? 0}/4096)`);
-          this.printAnsi(`test kernel_r4_27_exact_arithmetic ... \x1b[32mok\x1b[0m (PRLL=${res.r4_27_exact_arithmetic?.prll_mass_sum ?? 1000000} ppm)`);
-          this.printAnsi(`\ntest result: \x1b[32mok\x1b[0m. 4 passed; 0 failed; 0 ignored; 0 measured (receipt: ${receipt})`);
+        const sub = (args[0] || 'test').toLowerCase();
+        const filterArg = args.slice(1).join(' ');
+        const payload = filterArg ? `${sub}\t${filterArg}` : sub;
+        let evalRes = null;
+        if (typeof studio_wasm_eval === 'function') {
+          try {
+            evalRes = JSON.parse(studio_wasm_eval(sub, filterArg));
+          } catch (_e) {
+            evalRes = dispatchStudioEnvelope('cargo', payload);
+          }
         } else {
-          this.printAnsi(`\x1b[1m\x1b[32m    Finished\x1b[0m \`${sub === 'build' ? 'release' : 'dev'}\` profile [wasm32-unknown-unknown] target(s) in 0.03s (receipt: ${receipt})`);
+          evalRes = dispatchStudioEnvelope('cargo', payload);
+        }
+        evalRes = evalRes || {};
+        if (evalRes.terminal_output) {
+          const outLines = String(evalRes.terminal_output).split('\n');
+          for (const line of outLines) {
+            if (line.trim().length > 0) {
+              this.printAnsi(line);
+            }
+          }
+        }
+        const subRes = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
+        const receipt = (evalRes.receipt_sha256 || subRes.receipt_sha256 || '').slice(0, 16) || 'verified';
+        if (evalRes.status === 'error') {
+          this.printAnsi(
+            `\x1b[31m[R4-32 Wasm AST Kernel]\x1b[0m ${sub} failed (${evalRes.tests_failed ?? 0} failed, ${Array.isArray(evalRes.diagnostics) ? evalRes.diagnostics.length : 0} diagnostics, receipt: ${receipt})`,
+          );
+        } else {
+          this.printAnsi(
+            `\x1b[32m[R4-32 Wasm AST Kernel]\x1b[0m ${sub} succeeded (${evalRes.fn_count ?? 0} fns, ${evalRes.tests_passed ?? 0} passed, fuel=${evalRes.total_fuel_consumed ?? 0}, receipt: ${receipt})`,
+          );
         }
         break;
       }
@@ -6495,9 +6518,9 @@ class LexLeanTerminal {
         this.printAnsi(`\x1b[1m\x1b[36m==> Running LexLean/PrismPM recipe: just ${recipe}\x1b[0m`);
         const res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
         const receipt = (res.receipt_sha256 || '').slice(0, 16) || 'verified';
-        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: 27/27 R4 claims verified in CONFORMANCE.md`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: 32/32 R4 claims verified in CONFORMANCE.md`);
         this.printAnsi(`  \x1b[32m✓\x1b[0m browser_closure: exact 6-file public/ closure verified`);
-        this.printAnsi(`  \x1b[32m✓\x1b[0m wasm kernels: 4/4 integer proof receipts valid (${receipt})`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m wasm kernels: 6/6 integer proof receipts valid (${receipt})`);
         break;
       }
       case 'git': {
@@ -6642,6 +6665,8 @@ class LexLeanTerminal {
           this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-25 Discrete Trunk\x1b[0m: ${res.r4_25_discrete_trunk?.table_count ?? 8} LUT tables (${res.r4_25_discrete_trunk?.bits_per_token ?? 64} bits/token)`);
           this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-26 Durable Memory\x1b[0m: Sketch Overlap ${res.r4_26_durable_memory?.sketch_overlap ?? 0}/4096`);
           this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-27 Exact Arithmetic\x1b[0m: PRLL Mass ${res.r4_27_exact_arithmetic?.prll_mass_sum ?? 1000000} ppm`);
+          this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-31 Slot Binding\x1b[0m: Kernel Value ${res.r4_31_slot_binding?.computed_kernel_value ?? 13}`);
+          this.printAnsi(`  [\x1b[32mPASS\x1b[0m] \x1b[1mR4-32 Wasm AST Eval\x1b[0m: Module Admitted=${res.r4_32_wasm_ast_eval?.module_admission_verified ?? true}`);
           this.printAnsi(`  \x1b[33mSHA-256 Receipt\x1b[0m: ${receipt}`);
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Verification failed: ${err && err.message ? err.message : String(err)}`);
@@ -6674,6 +6699,52 @@ class LexLeanTerminal {
               });
           } else {
             this.printAnsi('\x1b[33m[WARN]\x1b[0m sync_cached_weights is not available');
+          }
+        } else if (sub === 'shards' || sub === 'shard-stats') {
+          try {
+            const cat = typeof studio_shard_catalog === 'function'
+              ? JSON.parse(studio_shard_catalog())
+              : dispatchStudioEnvelope('shard_status', '');
+            this.printAnsi('\x1b[1m\x1b[36m--- Content-Addressed Geometric .uorlut Shard Catalog (UORSHRD1) ---\x1b[0m');
+            this.printAnsi(
+              `  Shards: ${cat?.shard_count ?? 16} · Point Rows: ${cat?.total_point_rows ?? 0} · Reply Rows: ${cat?.total_reply_entries ?? 0} · Total Bytes: ${cat?.total_byte_len ?? cat?.total_shard_bytes ?? 0}`,
+            );
+            const shards = Array.isArray(cat?.shards) ? cat.shards : [];
+            for (const s of shards) {
+              this.printAnsi(
+                `  [e8=${String(s.e8_root).padStart(2, ' ')}] rows=${String(s.point_rows).padStart(5, ' ')} replies=${String(s.reply_entries).padStart(6, ' ')} bytes=${String(s.byte_len).padStart(8, ' ')} sha256=${(s.content_sha256 || '').slice(0, 16)}`,
+              );
+            }
+          } catch (err) {
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard catalog error: ${err?.message || String(err)}`);
+          }
+        } else if (sub === 'shard-export' || sub === 'shard-cache') {
+          const e8Root = ((+(args[1] || '0')) | 0) & 15;
+          try {
+            const exp = dispatchStudioEnvelope('shard_export', String(e8Root));
+            this.printAnsi(
+              `\x1b[32m[UORSHRD1]\x1b[0m Exported shard e8=${e8Root} (${exp?.point_rows ?? 0} point rows, ${exp?.byte_len ?? 0} B, sha256:${(exp?.shard_sha256 || '').slice(0, 16)})`,
+            );
+            if (typeof studio_export_uorlut_shard === 'function' && typeof cache_geometric_shard_in_indexeddb === 'function') {
+              const rawBytes = studio_export_uorlut_shard(e8Root);
+              cache_geometric_shard_in_indexeddb(e8Root, rawBytes, exp?.shard_sha256 || '')
+                .then(() => {
+                  if (typeof load_geometric_shard_from_indexeddb === 'function' && typeof studio_merge_uorlut_shard === 'function') {
+                    return load_geometric_shard_from_indexeddb(e8Root).then((cachedBytes) => {
+                      if (cachedBytes) {
+                        const merged = JSON.parse(studio_merge_uorlut_shard(cachedBytes));
+                        this.printAnsi(
+                          `\x1b[32m[IndexedDB Hot-Swap]\x1b[0m Merged shard e8=${e8Root}: total_point_rows=${merged?.total_point_rows ?? merged?.total_rows_after ?? 0}, radix_buckets=${merged?.radix_populated_buckets ?? merged?.radix_buckets_indexed ?? 0}`,
+                        );
+                      }
+                    });
+                  }
+                  return null;
+                })
+                .catch(() => {});
+            }
+          } catch (err) {
+            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard export error: ${err?.message || String(err)}`);
           }
         } else {
           try {

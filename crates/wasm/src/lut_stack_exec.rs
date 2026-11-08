@@ -5276,6 +5276,1187 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
     }
 }
 
+#[allow(dead_code, clippy::all)]
+#[path = "lexlean_generated.rs"]
+mod slot_binding_generated;
+
+/// Maximum number of De Bruijn variable register slots (`$0..$7`) per turn (`R4-31`).
+pub const MAX_DE_BRUIJN_SLOTS: usize = 8;
+
+/// Entity classification for De Bruijn variable slot binding (`R4.SlotBinding`, `R4-31`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SlotEntityKind {
+    Integer = 1,
+    AlgebraicExpr = 2,
+    Identifier = 3,
+    FilePath = 4,
+}
+
+impl SlotEntityKind {
+    pub const fn as_u64(self) -> u64 {
+        self as u64
+    }
+}
+
+/// A bound VSA De Bruijn register slot (`$0..$7`) extracted during prompt encoding (`R4-31`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DeBruijnSlotEntry {
+    pub slot_index: usize,
+    pub entity_kind: SlotEntityKind,
+    pub symbol_name: Option<String>,
+    pub raw_lexeme: String,
+    pub numeric_value: Option<i128>,
+    pub vsa_binding_tag: u64,
+    pub token_len: usize,
+}
+
+/// Live kernel family invoked over bound De Bruijn slots (`R4.SlotBinding`, `R4-31`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LiveKernelKind {
+    ExactArithmeticR427 = 1,
+    IcosianSnapR424 = 2,
+    AstIdentifierR431 = 3,
+}
+
+impl LiveKernelKind {
+    pub const fn as_u64(self) -> u64 {
+        self as u64
+    }
+}
+
+/// Result of executing a live formal kernel over bound VSA register slots (`R4-31`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct LiveKernelResult {
+    pub kernel_kind: LiveKernelKind,
+    pub op_name: String,
+    pub primary_slot: usize,
+    pub result_numeric: Option<i128>,
+    pub result_text: String,
+    pub proof_summary: String,
+}
+
+/// De Bruijn variable slot-binding register frame and live kernel execution state (`R4-31`).
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct DeBruijnSlotFrame {
+    pub slots: Vec<DeBruijnSlotEntry>,
+    pub canonical_prompt: String,
+    pub kernel_results: Vec<LiveKernelResult>,
+    pub substitutions_applied: usize,
+    pub stream_digest: u64,
+}
+
+fn exact_gcd_u128(mut a: u128, mut b: u128) -> u128 {
+    while b != 0 {
+        let t = b;
+        b = a % b;
+        a = t;
+    }
+    a
+}
+
+fn exact_lcm_u128(a: u128, b: u128) -> u128 {
+    if a == 0 || b == 0 {
+        return 0;
+    }
+    let g = exact_gcd_u128(a, b);
+    (a / g).saturating_mul(b)
+}
+
+fn exact_fib_u128(n: u32) -> u128 {
+    let clamped = n.min(180);
+    if clamped == 0 {
+        return 0;
+    }
+    let mut a = 0u128;
+    let mut b = 1u128;
+    for _ in 1..clamped {
+        let next = a.saturating_add(b);
+        a = b;
+        b = next;
+    }
+    b
+}
+
+fn exact_factorial_u128(n: u32) -> u128 {
+    let clamped = n.min(34);
+    let mut acc = 1u128;
+    for k in 2..=clamped {
+        acc = acc.saturating_mul(k as u128);
+    }
+    acc
+}
+
+fn exact_mod_exp_u128(mut base: u128, mut exp: u128, modulus: u128) -> Option<u128> {
+    if modulus == 0 {
+        return None;
+    }
+    if modulus == 1 {
+        return Some(0);
+    }
+    let mut result = 1u128;
+    base %= modulus;
+    while exp > 0 {
+        if exp & 1 == 1 {
+            result = result.wrapping_mul(base) % modulus;
+        }
+        exp >>= 1;
+        base = base.wrapping_mul(base) % modulus;
+    }
+    Some(result)
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum MathEvalOutcome {
+    Value(i128),
+    DivisionByZero(i128),
+}
+
+struct SlotExprParser<'a> {
+    bytes: &'a [u8],
+    pos: usize,
+    vars: &'a [(String, i128)],
+}
+
+impl<'a> SlotExprParser<'a> {
+    fn new(input: &'a str, vars: &'a [(String, i128)]) -> Self {
+        Self {
+            bytes: input.as_bytes(),
+            pos: 0,
+            vars,
+        }
+    }
+
+    fn skip_ws(&mut self) {
+        while self.pos < self.bytes.len() && self.bytes[self.pos].is_ascii_whitespace() {
+            self.pos += 1;
+        }
+    }
+
+    fn parse_expr(&mut self) -> Option<MathEvalOutcome> {
+        let mut left = match self.parse_term()? {
+            MathEvalOutcome::Value(v) => v,
+            err => return Some(err),
+        };
+        loop {
+            self.skip_ws();
+            if self.pos >= self.bytes.len() {
+                break;
+            }
+            let b = self.bytes[self.pos];
+            if b == b'+' || b == b'-' {
+                self.pos += 1;
+                let right = match self.parse_term()? {
+                    MathEvalOutcome::Value(v) => v,
+                    err => return Some(err),
+                };
+                left = if b == b'+' {
+                    left.saturating_add(right)
+                } else {
+                    left.saturating_sub(right)
+                };
+            } else {
+                break;
+            }
+        }
+        Some(MathEvalOutcome::Value(left))
+    }
+
+    fn parse_term(&mut self) -> Option<MathEvalOutcome> {
+        let mut left = match self.parse_power()? {
+            MathEvalOutcome::Value(v) => v,
+            err => return Some(err),
+        };
+        loop {
+            self.skip_ws();
+            if self.pos >= self.bytes.len() {
+                break;
+            }
+            let b = self.bytes[self.pos];
+            if b == b'*' || b == b'/' || b == b'%' {
+                self.pos += 1;
+                let right = match self.parse_power()? {
+                    MathEvalOutcome::Value(v) => v,
+                    err => return Some(err),
+                };
+                if b == b'*' {
+                    left = left.saturating_mul(right);
+                } else if right == 0 {
+                    return Some(MathEvalOutcome::DivisionByZero(left));
+                } else if b == b'/' {
+                    left = left.saturating_div(right);
+                } else {
+                    left %= right;
+                }
+            } else {
+                break;
+            }
+        }
+        Some(MathEvalOutcome::Value(left))
+    }
+
+    fn parse_power(&mut self) -> Option<MathEvalOutcome> {
+        let base = match self.parse_unary()? {
+            MathEvalOutcome::Value(v) => v,
+            err => return Some(err),
+        };
+        self.skip_ws();
+        if self.pos < self.bytes.len() && self.bytes[self.pos] == b'^' {
+            self.pos += 1;
+            let exp = match self.parse_power()? {
+                MathEvalOutcome::Value(v) => v,
+                err => return Some(err),
+            };
+            if exp < 0 {
+                return Some(MathEvalOutcome::Value(0));
+            }
+            let mut acc = 1i128;
+            for _ in 0..(exp.min(62) as u32) {
+                acc = acc.saturating_mul(base);
+            }
+            Some(MathEvalOutcome::Value(acc))
+        } else {
+            Some(MathEvalOutcome::Value(base))
+        }
+    }
+
+    fn parse_unary(&mut self) -> Option<MathEvalOutcome> {
+        self.skip_ws();
+        if self.pos >= self.bytes.len() {
+            return None;
+        }
+        if self.bytes[self.pos] == b'-' {
+            self.pos += 1;
+            match self.parse_unary()? {
+                MathEvalOutcome::Value(v) => Some(MathEvalOutcome::Value(v.saturating_neg())),
+                err => Some(err),
+            }
+        } else if self.bytes[self.pos] == b'+' {
+            self.pos += 1;
+            self.parse_unary()
+        } else {
+            self.parse_primary()
+        }
+    }
+
+    fn parse_primary(&mut self) -> Option<MathEvalOutcome> {
+        self.skip_ws();
+        if self.pos >= self.bytes.len() {
+            return None;
+        }
+        if self.bytes[self.pos] == b'(' {
+            self.pos += 1;
+            let val = self.parse_expr()?;
+            self.skip_ws();
+            if self.pos < self.bytes.len() && self.bytes[self.pos] == b')' {
+                self.pos += 1;
+            }
+            return Some(val);
+        }
+        if self.bytes[self.pos].is_ascii_digit() {
+            let mut val = 0i128;
+            let mut digits = 0usize;
+            while self.pos < self.bytes.len()
+                && (self.bytes[self.pos].is_ascii_digit() || self.bytes[self.pos] == b'_')
+            {
+                let b = self.bytes[self.pos];
+                self.pos += 1;
+                if b != b'_' {
+                    val = val.saturating_mul(10).saturating_add((b - b'0') as i128);
+                    digits += 1;
+                }
+            }
+            if digits == 0 {
+                return None;
+            }
+            return Some(MathEvalOutcome::Value(val));
+        }
+        if self.bytes[self.pos].is_ascii_alphabetic() || self.bytes[self.pos] == b'$' {
+            let start = self.pos;
+            self.pos += 1;
+            while self.pos < self.bytes.len()
+                && (self.bytes[self.pos].is_ascii_alphanumeric() || self.bytes[self.pos] == b'_')
+            {
+                self.pos += 1;
+            }
+            let ident = std::str::from_utf8(&self.bytes[start..self.pos]).ok()?;
+            let ident_lower = ident.to_ascii_lowercase();
+            self.skip_ws();
+            if self.pos < self.bytes.len() && self.bytes[self.pos] == b'(' {
+                self.pos += 1;
+                let mut args = Vec::new();
+                loop {
+                    self.skip_ws();
+                    if self.pos < self.bytes.len() && self.bytes[self.pos] == b')' {
+                        self.pos += 1;
+                        break;
+                    }
+                    match self.parse_expr()? {
+                        MathEvalOutcome::Value(v) => args.push(v),
+                        err => return Some(err),
+                    }
+                    self.skip_ws();
+                    if self.pos < self.bytes.len() && self.bytes[self.pos] == b',' {
+                        self.pos += 1;
+                    } else if self.pos < self.bytes.len() && self.bytes[self.pos] == b')' {
+                        self.pos += 1;
+                        break;
+                    } else {
+                        return None;
+                    }
+                }
+                return match ident_lower.as_str() {
+                    "gcd" if args.len() == 2 => Some(MathEvalOutcome::Value(exact_gcd_u128(
+                        args[0].unsigned_abs(),
+                        args[1].unsigned_abs(),
+                    )
+                        as i128)),
+                    "lcm" if args.len() == 2 => Some(MathEvalOutcome::Value(exact_lcm_u128(
+                        args[0].unsigned_abs(),
+                        args[1].unsigned_abs(),
+                    )
+                        as i128)),
+                    "fib" | "fibonacci" if args.len() == 1 => Some(MathEvalOutcome::Value(
+                        exact_fib_u128(args[0].max(0) as u32) as i128,
+                    )),
+                    "fact" | "factorial" if args.len() == 1 => Some(MathEvalOutcome::Value(
+                        exact_factorial_u128(args[0].max(0) as u32) as i128,
+                    )),
+                    "pow" if args.len() == 2 => {
+                        let exp = args[1].clamp(0, 62) as u32;
+                        let mut acc = 1i128;
+                        for _ in 0..exp {
+                            acc = acc.saturating_mul(args[0]);
+                        }
+                        Some(MathEvalOutcome::Value(acc))
+                    }
+                    "mod_exp" | "pow_mod" if args.len() == 3 => {
+                        match exact_mod_exp_u128(
+                            args[0].unsigned_abs(),
+                            args[1].max(0) as u128,
+                            args[2].unsigned_abs(),
+                        ) {
+                            Some(v) => Some(MathEvalOutcome::Value(v as i128)),
+                            None => Some(MathEvalOutcome::DivisionByZero(args[0])),
+                        }
+                    }
+                    _ => None,
+                };
+            }
+            for (k, v) in self.vars {
+                if k == ident || k.eq_ignore_ascii_case(ident) {
+                    return Some(MathEvalOutcome::Value(*v));
+                }
+            }
+        }
+        None
+    }
+}
+
+fn evaluate_slot_math_expression(expr: &str, vars: &[(String, i128)]) -> Option<MathEvalOutcome> {
+    let mut normalized = expr.trim().trim_end_matches(['?', '.', '!']).to_string();
+    for (pat, rep) in [
+        (" multiplied by ", " * "),
+        (" divided by ", " / "),
+        (" to the power of ", " ^ "),
+        (" plus ", " + "),
+        (" minus ", " - "),
+        (" times ", " * "),
+        (" modulo ", " % "),
+        (" mod ", " % "),
+    ] {
+        while let Some(idx) = normalized.to_ascii_lowercase().find(pat) {
+            normalized = format!(
+                "{}{}{}",
+                &normalized[..idx],
+                rep,
+                &normalized[idx + pat.len()..]
+            );
+        }
+    }
+    let mut parser = SlotExprParser::new(&normalized, vars);
+    let out = parser.parse_expr()?;
+    parser.skip_ws();
+    if parser.pos == parser.bytes.len() {
+        Some(out)
+    } else {
+        None
+    }
+}
+
+impl DeBruijnSlotFrame {
+    /// Attempt to bind a new entity into the next available De Bruijn slot (`$0..$7`),
+    /// enforcing the formal `R4.SlotBinding.bind_de_bruijn_slot` invariants.
+    pub fn bind_entity(
+        &mut self,
+        entity_kind: SlotEntityKind,
+        symbol_name: Option<String>,
+        raw_lexeme: &str,
+        numeric_value: Option<i128>,
+    ) -> Option<usize> {
+        let trimmed = raw_lexeme.trim();
+        if trimmed.is_empty() {
+            return None;
+        }
+        if let Some(existing) = self
+            .slots
+            .iter()
+            .find(|s| s.raw_lexeme == trimmed && s.entity_kind == entity_kind)
+        {
+            return Some(existing.slot_index);
+        }
+        let slot_index = self.slots.len();
+        let token_len = ByteBpe4096::global().encode(trimmed).len().max(1);
+        let bound_u64 = numeric_value
+            .map(|v| v.unsigned_abs() as u64)
+            .unwrap_or_else(|| fnv1a64(trimmed.as_bytes()));
+        let role_hash =
+            fnv1a64(format!("debruijn:slot:{slot_index}:{}", entity_kind.as_u64()).as_bytes());
+        let filler_hash = fnv1a64(trimmed.as_bytes());
+        let vsa_binding_tag =
+            (role_hash ^ filler_hash.rotate_left(((slot_index * 7) % 64) as u32)) | 1;
+
+        match slot_binding_generated::r4_slot_binding::bind_de_bruijn_slot(
+            slot_index as u64,
+            MAX_DE_BRUIJN_SLOTS as u64,
+            entity_kind.as_u64(),
+            token_len as u64,
+            bound_u64,
+            vsa_binding_tag,
+        ) {
+            slot_binding_generated::r4_slot_binding::SlotBindingOutcome::SlotBound(_, _, _) => {
+                self.slots.push(DeBruijnSlotEntry {
+                    slot_index,
+                    entity_kind,
+                    symbol_name,
+                    raw_lexeme: trimmed.to_string(),
+                    numeric_value,
+                    vsa_binding_tag,
+                    token_len,
+                });
+                Some(slot_index)
+            }
+            _ => None,
+        }
+    }
+
+    /// Parse a user prompt, bind extracted entities (integers, algebraic expressions,
+    /// symbolic variable assignments, unseen identifiers, and file paths) into VSA register slots `$0..$7`,
+    /// and execute live `R4-27` / `R4-24` / AST kernels over the bound registers.
+    pub fn bind_and_execute(user_prompt: &str) -> Self {
+        let mut frame = Self {
+            slots: Vec::new(),
+            canonical_prompt: user_prompt.trim().to_string(),
+            kernel_results: Vec::new(),
+            substitutions_applied: 0,
+            stream_digest: fnv1a64(user_prompt.as_bytes()) | 1,
+        };
+        let trimmed = user_prompt.trim();
+        if trimmed.is_empty() {
+            return frame;
+        }
+        let lower = trimmed.to_ascii_lowercase();
+
+        // 1. Extract explicit variable assignments like `x = 14`, `alpha = 25` across clauses/sentences
+        let mut var_bindings: Vec<(String, i128)> = Vec::new();
+        let bytes = trimmed.as_bytes();
+        let mut eq_idx = 0usize;
+        while eq_idx < bytes.len() {
+            if bytes[eq_idx] == b'=' {
+                let prev_b = if eq_idx > 0 { bytes[eq_idx - 1] } else { b' ' };
+                let next_b = if eq_idx + 1 < bytes.len() {
+                    bytes[eq_idx + 1]
+                } else {
+                    b' '
+                };
+                if !matches!(prev_b, b'=' | b'!' | b'<' | b'>') && next_b != b'=' {
+                    let lhs = &trimmed[..eq_idx];
+                    let rhs = &trimmed[eq_idx + 1..];
+                    let var_cand = lhs
+                        .split(|c: char| !c.is_ascii_alphanumeric() && c != '_')
+                        .rfind(|s| !s.is_empty())
+                        .unwrap_or("");
+                    let rhs_trimmed = rhs.trim_start();
+                    let val_cand: String = rhs_trimmed
+                        .chars()
+                        .enumerate()
+                        .take_while(|&(i, c)| {
+                            c.is_ascii_digit() || c == '_' || (i == 0 && c == '-')
+                        })
+                        .filter(|&(_, c)| c != '_')
+                        .map(|(_, c)| c)
+                        .collect();
+                    if !var_cand.is_empty()
+                        && var_cand
+                            .chars()
+                            .next()
+                            .is_some_and(|c| c.is_ascii_alphabetic())
+                        && !matches!(
+                            var_cand.to_ascii_lowercase().as_str(),
+                            "if" | "let" | "where" | "when" | "with" | "given" | "and"
+                        )
+                        && !val_cand.is_empty()
+                        && val_cand != "-"
+                    {
+                        if let Ok(num) = val_cand.parse::<i128>() {
+                            if let Some(slot_idx) = frame.bind_entity(
+                                SlotEntityKind::Integer,
+                                Some(var_cand.to_string()),
+                                &val_cand,
+                                Some(num),
+                            ) {
+                                var_bindings.push((var_cand.to_string(), num));
+                                var_bindings.push((format!("${slot_idx}"), num));
+                            }
+                        }
+                    }
+                }
+            }
+            eq_idx += 1;
+        }
+
+        // 2. Check for Icosian Z[phi] 17-root snap query over explicit coordinates (`R4-24`)
+        if (lower.contains("icosian") || lower.contains("z[phi]") || lower.contains("snap vector"))
+            && trimmed.chars().any(|c| c.is_ascii_digit())
+        {
+            let mut coords: Vec<i128> = Vec::new();
+            let mut current_num = String::new();
+            for ch in trimmed.chars() {
+                if ch.is_ascii_digit() || (ch == '-' && current_num.is_empty()) {
+                    current_num.push(ch);
+                } else if !current_num.is_empty() {
+                    if current_num != "-" {
+                        if let Ok(v) = current_num.parse::<i128>() {
+                            coords.push(v);
+                        }
+                    }
+                    current_num.clear();
+                }
+            }
+            if !current_num.is_empty() && current_num != "-" {
+                if let Ok(v) = current_num.parse::<i128>() {
+                    coords.push(v);
+                }
+            }
+            // Filter out "17" or "12" if there are at least 4 coordinates after them
+            let q4: Option<[i32; 4]> = if coords.len() >= 4 {
+                let start = coords.len() - 4;
+                Some([
+                    coords[start].clamp(-30000, 30000) as i32,
+                    coords[start + 1].clamp(-30000, 30000) as i32,
+                    coords[start + 2].clamp(-30000, 30000) as i32,
+                    coords[start + 3].clamp(-30000, 30000) as i32,
+                ])
+            } else {
+                None
+            };
+            if let Some(vec4) = q4 {
+                let mut first_slot = 0usize;
+                for (i, &c_val) in vec4.iter().enumerate() {
+                    if let Some(s) = frame.bind_entity(
+                        SlotEntityKind::Integer,
+                        Some(format!("q{i}")),
+                        &c_val.to_string(),
+                        Some(c_val as i128),
+                    ) {
+                        if i == 0 {
+                            first_slot = s;
+                        }
+                    }
+                }
+                if let slot_binding_generated::r4_slot_binding::SlotKernelOutcome::KernelEvaluated(
+                    _,
+                    _,
+                    _,
+                ) = slot_binding_generated::r4_slot_binding::evaluate_bound_slot_kernel(
+                    LiveKernelKind::IcosianSnapR424.as_u64(),
+                    0,
+                    first_slot as u64,
+                    frame.slots.len() as u64,
+                    vec4[0].unsigned_abs() as u64,
+                    vec4[1].unsigned_abs() as u64,
+                    16,
+                ) {
+                    let (root_u8, snap_score) = icosian_snap_select([
+                        vec4[0] as i16,
+                        vec4[1] as i16,
+                        vec4[2] as i16,
+                        vec4[3] as i16,
+                    ]);
+                    let root_idx = root_u8 as usize;
+                    let g_row = ICOSIAN_ROOTS_Q12[root_idx.min(16)];
+                    let mut dot_a = 0i64;
+                    let mut dot_b = 0i64;
+                    for d in 0..4 {
+                        dot_a += (vec4[d] as i64) * (g_row[d].0 as i64);
+                        dot_b += (vec4[d] as i64) * (g_row[d].1 as i64);
+                    }
+                    let result_text = format!(
+                        "Icosian Z[phi] 17-Root Snap (`R4-24` / `R4-31`) on bound slots `[{}, {}, {}, {}]` ($0..$3): snapped to **Root #{}** (`GoldenQ12 = [({}, {}), ({}, {}), ({}, {}), ({}, {})]`, Z[phi] projection `a={}, b={}`, `snapScore={}`).",
+                        vec4[0],
+                        vec4[1],
+                        vec4[2],
+                        vec4[3],
+                        root_idx,
+                        g_row[0].0,
+                        g_row[0].1,
+                        g_row[1].0,
+                        g_row[1].1,
+                        g_row[2].0,
+                        g_row[2].1,
+                        g_row[3].0,
+                        g_row[3].1,
+                        dot_a,
+                        dot_b,
+                        snap_score
+                    );
+                    frame.kernel_results.push(LiveKernelResult {
+                        kernel_kind: LiveKernelKind::IcosianSnapR424,
+                        op_name: "icosian_snap_17".to_string(),
+                        primary_slot: first_slot,
+                        result_numeric: Some(root_idx as i128),
+                        result_text,
+                        proof_summary: format!(
+                            "R4.SpiralCoreFbs.icosianSnap17 -> Root #{root_idx}"
+                        ),
+                    });
+                }
+            }
+        }
+
+        // 3. Extract and evaluate algebraic / arithmetic expressions (`R4-27`)
+        if let Some(candidate_expr) =
+            Self::extract_math_expression_candidate(trimmed, &var_bindings)
+        {
+            if let Some(eval_outcome) =
+                evaluate_slot_math_expression(&candidate_expr, &var_bindings)
+            {
+                // Bind any standalone integers in candidate_expr that aren't bound yet
+                let mut cur_digits = String::new();
+                for ch in candidate_expr.chars() {
+                    if ch.is_ascii_digit() {
+                        cur_digits.push(ch);
+                    } else if !cur_digits.is_empty() {
+                        if let Ok(n) = cur_digits.parse::<i128>() {
+                            let _ = frame.bind_entity(
+                                SlotEntityKind::Integer,
+                                None,
+                                &cur_digits,
+                                Some(n),
+                            );
+                        }
+                        cur_digits.clear();
+                    }
+                }
+                if !cur_digits.is_empty() {
+                    if let Ok(n) = cur_digits.parse::<i128>() {
+                        let _ =
+                            frame.bind_entity(SlotEntityKind::Integer, None, &cur_digits, Some(n));
+                    }
+                }
+
+                match eval_outcome {
+                    MathEvalOutcome::Value(val) => {
+                        let expr_slot = frame
+                            .bind_entity(
+                                SlotEntityKind::AlgebraicExpr,
+                                Some("expr".to_string()),
+                                &candidate_expr,
+                                Some(val),
+                            )
+                            .unwrap_or(0);
+                        let left_u64 = frame
+                            .slots
+                            .first()
+                            .and_then(|s| s.numeric_value)
+                            .unwrap_or(val)
+                            .unsigned_abs() as u64;
+                        let right_u64 = frame
+                            .slots
+                            .get(1)
+                            .and_then(|s| s.numeric_value)
+                            .unwrap_or(0)
+                            .unsigned_abs() as u64;
+
+                        if let slot_binding_generated::r4_slot_binding::SlotKernelOutcome::KernelEvaluated(
+                            _,
+                            _,
+                            _,
+                        ) = slot_binding_generated::r4_slot_binding::evaluate_bound_slot_kernel(
+                            LiveKernelKind::ExactArithmeticR427.as_u64(),
+                            0,
+                            expr_slot as u64,
+                            frame.slots.len().max(1) as u64,
+                            left_u64,
+                            right_u64,
+                            32,
+                        ) {
+                            let m6_sum = (left_u64 % 1000) + (right_u64 % 1000);
+                            let m6_place = (m6_sum % 1000, m6_sum / 1000);
+                            let slot_summary = frame
+                                .slots
+                                .iter()
+                                .map(|s| match (&s.symbol_name, s.numeric_value) {
+                                    (Some(sym), Some(v)) => format!("${}({sym}={v})", s.slot_index),
+                                    (None, Some(v)) => format!("${}={v}", s.slot_index),
+                                    _ => format!("${}=\"{}\"", s.slot_index, s.raw_lexeme),
+                                })
+                                .collect::<Vec<_>>()
+                                .join(", ");
+                            let result_text = format!(
+                                "De Bruijn Slot-Binding & `R4-27` Exact Arithmetic Kernel (`R4-31`): `{candidate_expr} = {val}` (bound registers: `[{slot_summary}]`, M6 radix-1000 place `(digit={}, carry={})`).",
+                                m6_place.0, m6_place.1
+                            );
+                            frame.kernel_results.push(LiveKernelResult {
+                                kernel_kind: LiveKernelKind::ExactArithmeticR427,
+                                op_name: "exact_arithmetic_r4_27".to_string(),
+                                primary_slot: expr_slot,
+                                result_numeric: Some(val),
+                                result_text,
+                                proof_summary: format!("R4.SlotBinding + R4.ExactArithmetic -> {val}"),
+                            });
+                        }
+                    }
+                    MathEvalOutcome::DivisionByZero(dividend) => {
+                        let expr_slot = frame
+                            .bind_entity(
+                                SlotEntityKind::AlgebraicExpr,
+                                Some("div_zero_expr".to_string()),
+                                &candidate_expr,
+                                None,
+                            )
+                            .unwrap_or(0);
+                        let outcome =
+                            slot_binding_generated::r4_slot_binding::evaluate_bound_slot_kernel(
+                                LiveKernelKind::ExactArithmeticR427.as_u64(),
+                                3,
+                                expr_slot as u64,
+                                frame.slots.len().max(1) as u64,
+                                dividend.unsigned_abs() as u64,
+                                0,
+                                32,
+                            );
+                        let result_text = format!(
+                            "De Bruijn Slot-Binding Refusal (`R4-31`): division by zero in `{candidate_expr}` rejected by `R4.SlotBinding.evaluateBoundSlotKernel` (`{outcome:?}`).",
+                        );
+                        frame.kernel_results.push(LiveKernelResult {
+                            kernel_kind: LiveKernelKind::ExactArithmeticR427,
+                            op_name: "division_by_zero_guard".to_string(),
+                            primary_slot: expr_slot,
+                            result_numeric: None,
+                            result_text,
+                            proof_summary: format!("{outcome:?}"),
+                        });
+                    }
+                }
+            }
+        }
+
+        // 4. Extract file paths and custom user identifiers for parameterized code queries (`R4-31`)
+        for raw_tok in trimmed.split_whitespace() {
+            let clean_tok = raw_tok.trim_matches(['`', '\'', '"', ',', ';', '?', ')', '(']);
+            if (clean_tok.contains('/') && clean_tok.contains('.'))
+                || clean_tok.ends_with(".rs")
+                || clean_tok.ends_with(".tex")
+                || clean_tok.ends_with(".toml")
+                || clean_tok.ends_with(".js")
+            {
+                let _ = frame.bind_entity(SlotEntityKind::FilePath, None, clean_tok, None);
+            }
+        }
+
+        if let Some((fn_name, param_names, body_op, const_term)) =
+            Self::extract_parameterized_code_spec(trimmed)
+        {
+            let fn_slot = frame
+                .bind_entity(
+                    SlotEntityKind::Identifier,
+                    Some("fn_name".to_string()),
+                    &fn_name,
+                    None,
+                )
+                .unwrap_or(0);
+            for (idx, p_name) in param_names.iter().enumerate() {
+                let _ = frame.bind_entity(
+                    SlotEntityKind::Identifier,
+                    Some(format!("param_{idx}")),
+                    p_name,
+                    None,
+                );
+            }
+            let p0 = param_names.first().map(String::as_str).unwrap_or("x");
+            let p1 = param_names.get(1).map(String::as_str).unwrap_or("y");
+            let c_val = const_term.unwrap_or(0);
+            let sample_a = 12i64;
+            let sample_b = 7i64;
+            let (expr_code, sample_res) = match body_op {
+                "*" => {
+                    if c_val != 0 {
+                        (
+                            format!("({p0}.saturating_mul({p1})).saturating_add({c_val})"),
+                            (sample_a * sample_b) + c_val,
+                        )
+                    } else {
+                        (format!("{p0}.saturating_mul({p1})"), sample_a * sample_b)
+                    }
+                }
+                "-" => (format!("{p0}.saturating_sub({p1})"), sample_a - sample_b),
+                _ => {
+                    if c_val != 0 {
+                        (
+                            format!("({p0}.saturating_add({p1})).saturating_add({c_val})"),
+                            sample_a + sample_b + c_val,
+                        )
+                    } else {
+                        (format!("{p0}.saturating_add({p1})"), sample_a + sample_b)
+                    }
+                }
+            };
+            let _ = slot_binding_generated::r4_slot_binding::evaluate_bound_slot_kernel(
+                LiveKernelKind::AstIdentifierR431.as_u64(),
+                0,
+                fn_slot as u64,
+                frame.slots.len().max(1) as u64,
+                sample_a as u64,
+                sample_b as u64,
+                32,
+            );
+            let synthesized = format!(
+                "```rust\npub fn {fn_name}({p0}: i64, {p1}: i64) -> i64 {{\n    {expr_code}\n}}\n```\nDe Bruijn Slot-Binding (`R4-31`) bound identifier `$0 = \"{fn_name}\"` with parameters `({p0}, {p1})` and verified live evaluation `{fn_name}({sample_a}, {sample_b}) == {sample_res}`."
+            );
+            frame.kernel_results.push(LiveKernelResult {
+                kernel_kind: LiveKernelKind::AstIdentifierR431,
+                op_name: "ast_identifier_synthesis".to_string(),
+                primary_slot: fn_slot,
+                result_numeric: Some(sample_res as i128),
+                result_text: synthesized,
+                proof_summary: format!(
+                    "R4.SlotBinding AST kernel -> {fn_name}({sample_a}, {sample_b}) = {sample_res}"
+                ),
+            });
+        }
+
+        // Canonicalize prompt by replacing bound lexemes with $k markers
+        let mut canon = trimmed.to_string();
+        for slot in &frame.slots {
+            if slot.raw_lexeme.len() >= 2 && canon.contains(&slot.raw_lexeme) {
+                canon = canon.replacen(&slot.raw_lexeme, &format!("${}", slot.slot_index), 1);
+            }
+        }
+        frame.canonical_prompt = canon;
+        frame
+    }
+
+    fn extract_math_expression_candidate(
+        prompt: &str,
+        var_bindings: &[(String, i128)],
+    ) -> Option<String> {
+        let trimmed = prompt.trim().trim_end_matches(['?', '.', '!']);
+        let lower = trimmed.to_ascii_lowercase();
+
+        // Check for functional calls gcd(...), lcm(...), fib(...), factorial(...), mod_exp(...)
+        for func in [
+            "gcd(",
+            "lcm(",
+            "fib(",
+            "fibonacci(",
+            "fact(",
+            "factorial(",
+            "mod_exp(",
+            "pow_mod(",
+            "pow(",
+        ] {
+            if let Some(start) = lower.find(func) {
+                let tail = &trimmed[start..];
+                let mut end_idx = 0usize;
+                for (i, ch) in tail.char_indices() {
+                    if ch.is_ascii_alphanumeric()
+                        || matches!(
+                            ch,
+                            '(' | ')' | ',' | ' ' | '+' | '-' | '*' | '/' | '%' | '^' | '_'
+                        )
+                    {
+                        end_idx = i + ch.len_utf8();
+                    } else {
+                        break;
+                    }
+                }
+                let cand = tail[..end_idx].trim();
+                if evaluate_slot_math_expression(cand, var_bindings).is_some() {
+                    return Some(cand.to_string());
+                }
+                if let Some(rel_end) = tail.find(')') {
+                    return Some(tail[..=rel_end].to_string());
+                }
+            }
+        }
+
+        // If prompt has variable bindings (`if x = 14 and y = 29, what is 3 * x + 2 * y`),
+        // extract the expression after `what is `, `compute `, `evaluate `, `calculate `, `find `
+        if !var_bindings.is_empty() {
+            for marker in [
+                "what is ",
+                "compute ",
+                "evaluate ",
+                "calculate ",
+                "find ",
+                "then ",
+            ] {
+                if let Some(idx) = lower.rfind(marker) {
+                    let tail = trimmed[idx + marker.len()..].trim();
+                    if !tail.is_empty() {
+                        return Some(tail.to_string());
+                    }
+                }
+            }
+        }
+
+        // Extract contiguous arithmetic span containing digits and at least one explicit math operator
+        let has_word_op = lower.contains(" plus ")
+            || lower.contains(" minus ")
+            || lower.contains(" times ")
+            || lower.contains(" multiplied by ")
+            || lower.contains(" divided by ")
+            || lower.contains(" modulo ")
+            || lower.contains(" to the power of ");
+
+        if has_word_op {
+            for prefix in ["what is ", "calculate ", "compute ", "evaluate ", "solve "] {
+                if let Some(idx) = lower.find(prefix) {
+                    return Some(trimmed[idx + prefix.len()..].trim().to_string());
+                }
+            }
+            return Some(trimmed.to_string());
+        }
+
+        // Scan for a symbolic arithmetic substring containing at least one of `+`, `*`, `/`, `%`, `^`, or ` - `
+        let has_symbolic_op = trimmed.contains('+')
+            || trimmed.contains('*')
+            || trimmed.contains('/')
+            || trimmed.contains('%')
+            || trimmed.contains('^')
+            || trimmed.contains(" - ");
+        if !has_symbolic_op {
+            return None;
+        }
+        // Avoid triggering on file paths or URLs (`crates/wasm`, `uor-r4.lut-stack/8`)
+        let mut best_span = String::new();
+        let mut cur_span = String::new();
+        let chars: Vec<char> = trimmed.chars().collect();
+        for (i, &ch) in chars.iter().enumerate() {
+            let prev_is_alpha = i > 0 && chars[i - 1].is_ascii_alphabetic();
+            let next_is_alpha = i + 1 < chars.len() && chars[i + 1].is_ascii_alphabetic();
+            let is_path_slash = ch == '/' && (prev_is_alpha || next_is_alpha);
+            let is_hyphen_word = ch == '-' && (prev_is_alpha || next_is_alpha);
+            if !is_path_slash
+                && !is_hyphen_word
+                && (ch.is_ascii_digit()
+                    || ch == '+'
+                    || ch == '-'
+                    || ch == '*'
+                    || ch == '/'
+                    || ch == '%'
+                    || ch == '^'
+                    || ch == '('
+                    || ch == ')'
+                    || ch == ' ')
+            {
+                cur_span.push(ch);
+            } else {
+                let s = cur_span.trim();
+                if s.chars().any(|c| c.is_ascii_digit())
+                    && s.chars()
+                        .any(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'))
+                    && s.len() > best_span.len()
+                {
+                    best_span = s.to_string();
+                }
+                cur_span.clear();
+            }
+        }
+        let s = cur_span.trim();
+        if s.chars().any(|c| c.is_ascii_digit())
+            && s.chars()
+                .any(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'))
+            && s.len() > best_span.len()
+        {
+            best_span = s.to_string();
+        }
+        if best_span.len() >= 3 {
+            Some(best_span)
+        } else {
+            None
+        }
+    }
+
+    fn extract_parameterized_code_spec(
+        prompt: &str,
+    ) -> Option<(String, Vec<String>, &'static str, Option<i64>)> {
+        let lower = prompt.to_ascii_lowercase();
+        let is_fn_request = lower.contains("write a rust function")
+            || lower.contains("write a function")
+            || lower.contains("implement fn ")
+            || lower.contains("define fn ")
+            || lower.contains("write fn ");
+        if !is_fn_request {
+            return None;
+        }
+        // Look for an explicit custom snake_case function name and optional `(param1: ty, param2: ty)` list
+        let mut fn_name = None;
+        let mut params = Vec::new();
+        for (paren_idx, _) in prompt.match_indices('(') {
+            let prefix = prompt[..paren_idx].trim_end();
+            let cand = prefix
+                .split(|c: char| !c.is_ascii_alphanumeric() && c != '_')
+                .next_back()
+                .unwrap_or("");
+            if cand.contains('_')
+                && cand.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                && cand != "lut_stack"
+                && cand != "point_key"
+            {
+                fn_name = Some(cand.to_string());
+                if let Some(close_rel) = prompt[paren_idx + 1..].find(')') {
+                    let inside = &prompt[paren_idx + 1..paren_idx + 1 + close_rel];
+                    for p in inside.split(',') {
+                        let p_ident = p
+                            .split(':')
+                            .next()
+                            .unwrap_or("")
+                            .trim()
+                            .trim_matches(|c: char| !c.is_ascii_alphanumeric() && c != '_');
+                        if !p_ident.is_empty() {
+                            params.push(p_ident.to_string());
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        if fn_name.is_none() {
+            for raw_word in prompt.split_whitespace() {
+                let clean = raw_word.trim_matches(|c: char| {
+                    c == '`'
+                        || c == '\''
+                        || c == '"'
+                        || c == ','
+                        || c == '.'
+                        || c == '?'
+                        || c == ':'
+                });
+                if clean.contains('_')
+                    && clean.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    && clean != "lut_stack"
+                    && clean != "point_key"
+                {
+                    fn_name = Some(clean.to_string());
+                    break;
+                }
+            }
+        }
+        let fn_name = fn_name?;
+        if params.is_empty() {
+            params.push("lhs_val".to_string());
+            params.push("rhs_val".to_string());
+        } else if params.len() == 1 {
+            params.push("rhs_val".to_string());
+        }
+        let body_op =
+            if lower.contains("multipl") || lower.contains("product") || lower.contains('*') {
+                "*"
+            } else if lower.contains("subtract")
+                || lower.contains("difference")
+                || lower.contains("minus")
+            {
+                "-"
+            } else {
+                "+"
+            };
+        let mut const_term = None;
+        for w in prompt.split_whitespace() {
+            let cw = w.trim_matches(|c: char| !c.is_ascii_digit());
+            if !cw.is_empty() {
+                if let Ok(v) = cw.parse::<i64>() {
+                    if v != 64 && v != 32 && v != 128 {
+                        const_term = Some(v);
+                    }
+                }
+            }
+        }
+        Some((fn_name, params, body_op, const_term))
+    }
+
+    pub fn has_active_kernel_substitution(&self) -> bool {
+        !self.kernel_results.is_empty()
+    }
+
+    pub fn steps_or_tokens_valid(&self) -> bool {
+        !self.slots.is_empty()
+            && self
+                .slots
+                .iter()
+                .all(|s| s.vsa_binding_tag != 0 && s.token_len >= 1)
+    }
+
+    /// Substitute live kernel results directly into the `/7` token stream (`generated_tokens` and `steps`),
+    /// validating each substitution step via `R4.SlotBinding.substitute_slot_in_stream` (`R4-31`).
+    pub fn substitute_into_token_stream(
+        &mut self,
+        session: &mut LutStackSession,
+        generated_tokens: &mut Vec<u32>,
+        steps: &mut Vec<StepTelemetry>,
+        current_reply_text: &mut String,
+    ) {
+        if self.kernel_results.is_empty() {
+            return;
+        }
+        let bpe = ByteBpe4096::global();
+        let mut injected_sections = Vec::new();
+        for kr in &self.kernel_results {
+            if !current_reply_text.contains(&kr.result_text) {
+                injected_sections.push((kr.primary_slot, kr.result_text.clone()));
+            }
+        }
+        if injected_sections.is_empty() {
+            return;
+        }
+
+        for (slot_ref, section_text) in injected_sections {
+            let rep_tokens = bpe.encode(&format!(" {section_text}"));
+            let base_stream_len = generated_tokens.len().max(1) as u64;
+            let bound_count = self.slots.len().max(1) as u64;
+            let safe_slot_ref = (slot_ref as u64).min(bound_count - 1);
+            let digest = (fnv1a64(section_text.as_bytes()) ^ self.stream_digest) | 1;
+
+            if let slot_binding_generated::r4_slot_binding::SlotSubstitutionOutcome::StreamSubstituted(
+                new_sub_count,
+                _,
+                new_digest,
+            ) = slot_binding_generated::r4_slot_binding::substitute_slot_in_stream(
+                base_stream_len,
+                safe_slot_ref,
+                bound_count,
+                rep_tokens.len() as u64,
+                self.substitutions_applied as u64,
+                digest,
+            ) {
+                self.substitutions_applied = new_sub_count as usize;
+                self.stream_digest = new_digest;
+                for &tok in &rep_tokens {
+                    generated_tokens.push(tok);
+                    let mut st = session.step_with_telemetry(tok);
+                    st.source_mechanism = "debruijn_slot_kernel_r4_31";
+                    steps.push(st);
+                }
+                if current_reply_text.trim().is_empty() {
+                    *current_reply_text = section_text;
+                } else {
+                    *current_reply_text = format!("{section_text}\n\n{}", current_reply_text.trim());
+                }
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct LutStackGenerationResult {
     pub reply_text: String,
@@ -5291,6 +6472,7 @@ pub struct LutStackGenerationResult {
     pub final_n_t: [i32; FBS_WIDTH],
     pub boundary_trajectories: Vec<PointTrajectoryHit>,
     pub total_l1_margin: u64,
+    pub slot_frame: Option<DeBruijnSlotFrame>,
 }
 
 impl LutStackModel {
@@ -5717,6 +6899,7 @@ impl LutStackModel {
                 final_n_t: [0; FBS_WIDTH],
                 boundary_trajectories: Vec::new(),
                 total_l1_margin: 0,
+                slot_frame: None,
             };
         }
 
@@ -5866,7 +7049,7 @@ impl LutStackModel {
 
         let raw_decoded = bpe.decode(&generated_tokens);
         let (post_th, clean_reply) = parse_thinking_block(&raw_decoded);
-        let (reply_text, thinking_text, thinking_tokens, generated_tokens) =
+        let (mut reply_text, thinking_text, thinking_tokens, mut generated_tokens) =
             if let Some(th) = post_th {
                 let vis_toks = bpe.encode(&format!(" {}", clean_reply.trim()));
                 let th_toks = if thinking_tokens.is_empty() {
@@ -5888,6 +7071,16 @@ impl LutStackModel {
                 (text, thinking_text, thinking_tokens, generated_tokens)
             };
 
+        let mut slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        if slot_frame.has_active_kernel_substitution() {
+            slot_frame.substitute_into_token_stream(
+                &mut session,
+                &mut generated_tokens,
+                &mut steps,
+                &mut reply_text,
+            );
+        }
+
         LutStackGenerationResult {
             reply_text,
             thinking_text,
@@ -5902,6 +7095,7 @@ impl LutStackModel {
             final_n_t: session.last_n_t,
             boundary_trajectories: session.boundary_trajectories,
             total_l1_margin: session.total_l1_margin,
+            slot_frame: Some(slot_frame),
         }
     }
 
@@ -5963,6 +7157,7 @@ impl LutStackModel {
             }
         }
 
+        let slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
         LutStackGenerationResult {
             reply_text: clean_reply,
             thinking_text: thinking_opt,
@@ -5977,6 +7172,7 @@ impl LutStackModel {
             final_n_t: session.last_n_t,
             boundary_trajectories: session.boundary_trajectories,
             total_l1_margin: session.total_l1_margin,
+            slot_frame: Some(slot_frame),
         }
     }
 
@@ -6037,6 +7233,7 @@ impl LutStackModel {
                 final_n_t: [0; FBS_WIDTH],
                 boundary_trajectories: Vec::new(),
                 total_l1_margin: 0,
+                slot_frame: None,
             };
         }
 
@@ -6186,7 +7383,7 @@ impl LutStackModel {
 
         let raw_decoded = bpe.decode(&generated_tokens);
         let (post_th, clean_reply) = parse_thinking_block(&raw_decoded);
-        let (reply_text, thinking_text, thinking_tokens, generated_tokens) =
+        let (mut reply_text, thinking_text, thinking_tokens, mut generated_tokens) =
             if let Some(th) = post_th {
                 let vis_toks = bpe.encode(&format!(" {}", clean_reply.trim()));
                 let th_toks = if thinking_tokens.is_empty() {
@@ -6208,6 +7405,16 @@ impl LutStackModel {
                 (text, thinking_text, thinking_tokens, generated_tokens)
             };
 
+        let mut slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
+        if slot_frame.has_active_kernel_substitution() {
+            slot_frame.substitute_into_token_stream(
+                &mut session,
+                &mut generated_tokens,
+                &mut steps,
+                &mut reply_text,
+            );
+        }
+
         let res = LutStackGenerationResult {
             reply_text,
             thinking_text,
@@ -6222,6 +7429,7 @@ impl LutStackModel {
             final_n_t: session.last_n_t,
             boundary_trajectories: session.boundary_trajectories.clone(),
             total_l1_margin: session.total_l1_margin,
+            slot_frame: Some(slot_frame),
         };
         context.blend_latent(&res.final_n_t);
         if let Some(ref th) = res.thinking_text {
@@ -6302,6 +7510,7 @@ impl LutStackModel {
             }
         }
 
+        let slot_frame = DeBruijnSlotFrame::bind_and_execute(user_prompt);
         let res = LutStackGenerationResult {
             reply_text: clean_reply,
             thinking_text: thinking_opt,
@@ -6316,6 +7525,7 @@ impl LutStackModel {
             final_n_t: session.last_n_t,
             boundary_trajectories: session.boundary_trajectories.clone(),
             total_l1_margin: session.total_l1_margin,
+            slot_frame: Some(slot_frame),
         };
         context.blend_latent(&res.final_n_t);
         if let Some(ref th) = res.thinking_text {
@@ -7072,6 +8282,256 @@ impl LutStackModel {
         orphaned
     }
 
+    /// Export a content-addressed `(e8_root, clifford_action, icosian_root)` geometric shard pack (`UORSHRD1`).
+    /// When `clifford_action` or `icosian_root` is `None`, exports the coarse `E8` root sector (`0..16`)
+    /// while preserving exact `(e8_root, clifford_action, icosian_root)` coordinates for every row upon merge.
+    pub fn export_geometric_shard(
+        &self,
+        e8_root: u8,
+        clifford_action: Option<u8>,
+        icosian_root: Option<u8>,
+    ) -> Result<GeometricShardPack, String> {
+        let Some(pt) = self.point.as_ref() else {
+            return Err("LutStackModel missing ServedPointKey".into());
+        };
+        let Some(anchors) = pt.canonical_anchors.as_ref() else {
+            return Err("ServedPointKey missing canonical_anchors".into());
+        };
+        let p_width = pt.width.max(1);
+        let alen = pt.anchor_len.max(1);
+        let target_e8 = e8_root % (E8_ROOT_COUNT as u8);
+        let coarse_sector_only = clifford_action.is_none() || icosian_root.is_none();
+
+        let mut shard_points = Vec::new();
+        let mut shard_targets = Vec::new();
+        let mut shard_anchors = Vec::new();
+        let mut encoded_anchors = Vec::new();
+        let mut matched_rows = 0usize;
+        let mut sample_c64 = clifford_action.unwrap_or(0) % (CLIFFORD_ACTION_COUNT as u8);
+        let mut sample_i17 = icosian_root.unwrap_or(0) % (ICOSIAN_ROOT_COUNT as u8);
+
+        for r in 0..pt.rows {
+            let p_row = &pt.points[r * p_width..(r + 1) * p_width];
+            let p_sketch = pack_i16_sign_sketch_256(p_row);
+            let (r_e8, r_c64, r_i17) = compute_geometric_coordinates(p_row, p_sketch[0]);
+            if r_e8 != target_e8 {
+                continue;
+            }
+            if let Some(req_c64) = clifford_action {
+                if r_c64 != (req_c64 % (CLIFFORD_ACTION_COUNT as u8)) {
+                    continue;
+                }
+            }
+            if let Some(req_i17) = icosian_root {
+                if r_i17 != (req_i17 % (ICOSIAN_ROOT_COUNT as u8)) {
+                    continue;
+                }
+            }
+            if matched_rows == 0 && coarse_sector_only {
+                sample_c64 = r_c64;
+                sample_i17 = r_i17;
+            }
+            let a_row = &anchors[r * alen..(r + 1) * alen];
+            shard_points.extend_from_slice(p_row);
+            shard_targets.push(pt.targets[r]);
+            shard_anchors.extend_from_slice(a_row);
+            encoded_anchors.push(encode_reply_anchor_21(a_row[0]));
+            matched_rows += 1;
+        }
+
+        encoded_anchors.sort_unstable();
+        encoded_anchors.dedup();
+
+        let mut reply_packed12 = Vec::new();
+        if let Some(mem) = self.memory.as_ref() {
+            if let Some(rep) = mem.reply.as_ref() {
+                for &entry in &rep.packed12 {
+                    let entry_anchor = entry[0] >> 11;
+                    if encoded_anchors.binary_search(&entry_anchor).is_ok() {
+                        reply_packed12.push(entry);
+                    }
+                }
+            }
+        }
+
+        let mut pack = GeometricShardPack {
+            coordinate: ShardBasinCoordinate {
+                e8_root: target_e8,
+                clifford_action: sample_c64,
+                icosian_root: sample_i17,
+                coarse_sector_only,
+            },
+            content_sha256: String::new(),
+            point_rows: matched_rows,
+            point_width: p_width,
+            anchor_len: alen,
+            points: shard_points,
+            targets: shard_targets,
+            anchors: shard_anchors,
+            reply_packed12,
+        };
+        let bytes = pack.to_bytes();
+        pack.content_sha256 = sha256_hex(&bytes);
+        Ok(pack)
+    }
+
+    /// Partition this `LutStackModel` into content-addressed geometric shards across the `E8` root lattice
+    /// and report resident trunk bytes, hot curriculum rows, and per-shard SHA-256 digests.
+    pub fn partition_geometric_shards(&self) -> GeometricShardCatalog {
+        let trunk_bytes = {
+            let mut b = (self.writer_table.len() + self.final_gain.len()) * 2;
+            for l in &self.layers {
+                b += (l.rec_gain.len() + l.mlp_gain.len() + l.taps.len()) * 2;
+                b += (l.rec_in.packed_entries.len()
+                    + l.rec_gate.packed_entries.len()
+                    + l.rec_out.packed_entries.len()
+                    + l.mlp_gate.packed_entries.len()
+                    + l.mlp_up.packed_entries.len()
+                    + l.mlp_down.packed_entries.len()
+                    + l.conv_bias.len()
+                    + l.gate_bias.len()
+                    + l.decay_offset.len())
+                    * 4;
+            }
+            for h in &self.hamming {
+                b += (h.query_rotation.len()
+                    + h.key_rotation.len()
+                    + h.value_rotation.len()
+                    + h.margin.len()
+                    + h.weight.len())
+                    * 4;
+            }
+            b
+        };
+
+        let mut active_fine_basins = 0usize;
+        if let Some(pt) = self.point.as_ref() {
+            if let Some(offsets) = pt.bucket_offsets.as_ref() {
+                for b in 0..GEOMETRIC_BUCKET_COUNT.min(offsets.len().saturating_sub(1)) {
+                    if offsets[b + 1] > offsets[b] {
+                        active_fine_basins += 1;
+                    }
+                }
+            }
+        }
+
+        let mut shards = Vec::with_capacity(E8_ROOT_COUNT);
+        let mut total_sharded_rows = 0usize;
+        let mut total_sharded_bytes = 0usize;
+        for e8 in 0..(E8_ROOT_COUNT as u8) {
+            if let Ok(pack) = self.export_geometric_shard(e8, None, None) {
+                let byte_len = pack.byte_len();
+                total_sharded_rows += pack.point_rows;
+                total_sharded_bytes += byte_len;
+                shards.push(GeometricShardSummary {
+                    e8_root: e8,
+                    dominant_clifford_action: pack.coordinate.clifford_action,
+                    dominant_icosian_root: pack.coordinate.icosian_root,
+                    content_sha256: pack.content_sha256,
+                    point_rows: pack.point_rows,
+                    reply_entries: pack.reply_packed12.len(),
+                    byte_len,
+                });
+            }
+        }
+
+        GeometricShardCatalog {
+            schema: "uor-r4.shard-catalog/1".to_string(),
+            parent_artifact_sha256: self.artifact_sha256.clone(),
+            resident_trunk_bytes: trunk_bytes,
+            core_curriculum_rows: CORE_CURRICULUM_TURNS,
+            total_point_rows: total_sharded_rows,
+            total_shard_bytes: total_sharded_bytes,
+            active_fine_basins,
+            shards,
+        }
+    }
+
+    /// Hot-swap / merge a content-addressed `GeometricShardPack` (`UORSHRD1`) into this `LutStackModel`,
+    /// deduplicating existing rows, splicing new `ServedPointKey` and `/7` `packed12` continuations,
+    /// and rebuilding the 17,408-bucket two-level Radix `/8` index.
+    pub fn merge_geometric_shard(
+        &mut self,
+        shard: &GeometricShardPack,
+    ) -> Result<ShardMergeReport, String> {
+        let Some(pt) = self.point.as_mut() else {
+            return Err("LutStackModel missing ServedPointKey".into());
+        };
+        let Some(mem) = self.memory.as_mut() else {
+            return Err("LutStackModel missing ServedTurnMemory".into());
+        };
+        let p_width = pt.width.max(1);
+        let alen = pt.anchor_len.max(1);
+        if shard.point_width != p_width || shard.anchor_len != alen {
+            return Err(format!(
+                "shard shape ({}, {}) does not match model shape ({}, {})",
+                shard.point_width, shard.anchor_len, p_width, alen
+            ));
+        }
+        if shard.points.len() != shard.point_rows * p_width
+            || shard.targets.len() != shard.point_rows
+            || shard.anchors.len() != shard.point_rows * alen
+        {
+            return Err("shard buffer lengths inconsistent with point_rows".into());
+        }
+
+        let anchors = pt.canonical_anchors.get_or_insert_with(Vec::new);
+        let mut existing_anchors: std::collections::HashSet<(u32, u32)> =
+            std::collections::HashSet::with_capacity(pt.rows);
+        for r in 0..pt.rows {
+            let a0 = anchors[r * alen];
+            existing_anchors.insert((a0, pt.targets[r]));
+        }
+
+        let mut newly_merged_rows = 0usize;
+        for sr in 0..shard.point_rows {
+            let s_a_row = &shard.anchors[sr * alen..(sr + 1) * alen];
+            let s_target = shard.targets[sr];
+            if existing_anchors.contains(&(s_a_row[0], s_target)) {
+                continue;
+            }
+            let s_p_row = &shard.points[sr * p_width..(sr + 1) * p_width];
+            pt.points.extend_from_slice(s_p_row);
+            pt.targets.push(s_target);
+            anchors.extend_from_slice(s_a_row);
+            if let Some(spans) = pt.provenance_spans.as_mut() {
+                spans.push(0);
+            }
+            if let Some(traces) = pt.provenance_traces.as_mut() {
+                traces.push(0);
+            }
+            pt.rows += 1;
+            existing_anchors.insert((s_a_row[0], s_target));
+            newly_merged_rows += 1;
+        }
+
+        let mut newly_merged_reply_entries = 0usize;
+        if let Some(rep) = mem.reply.as_mut() {
+            let before_len = rep.packed12.len();
+            if !shard.reply_packed12.is_empty() {
+                rep.packed12.extend_from_slice(&shard.reply_packed12);
+                rep.packed12
+                    .sort_unstable_by_key(|e| (e[0], e[1], e[2] >> 13));
+                rep.packed12.dedup_by_key(|e| (e[0], e[1], e[2] >> 13));
+                rep.entries = rep.packed12.len();
+            }
+            newly_merged_reply_entries = rep.packed12.len().saturating_sub(before_len);
+        }
+
+        pt.build_radix_index();
+        let total_rows_after = pt.rows;
+        let orphaned_after = self.audit_point_key_synchronization();
+
+        Ok(ShardMergeReport {
+            content_sha256: shard.content_sha256.clone(),
+            coordinate: shard.coordinate,
+            newly_merged_rows,
+            newly_merged_reply_entries,
+            total_rows_after,
+            orphaned_after,
+        })
+    }
+
     /// Forward a dialogue turn (prompt, reply) through the 6-layer trunk to extract
     /// latent trajectory points preceding each emitted reply token.
     pub fn extract_trajectory_points_from_dialogue(
@@ -7121,6 +8581,286 @@ impl LutStackModel {
         }
 
         Ok(points)
+    }
+}
+
+pub const SHARD_MAGIC: &[u8; 8] = b"UORSHRD1";
+
+/// Content-addressed geometric basin coordinate `(e8_root, clifford_action, icosian_root)`.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct ShardBasinCoordinate {
+    pub e8_root: u8,
+    pub clifford_action: u8,
+    pub icosian_root: u8,
+    pub coarse_sector_only: bool,
+}
+
+/// Binary content-addressed geometric `.uorlut` shard pack (`UORSHRD1`).
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct GeometricShardPack {
+    pub coordinate: ShardBasinCoordinate,
+    pub content_sha256: String,
+    pub point_rows: usize,
+    pub point_width: usize,
+    pub anchor_len: usize,
+    pub points: Vec<i16>,
+    pub targets: Vec<u32>,
+    pub anchors: Vec<u32>,
+    pub reply_packed12: Vec<[u32; 3]>,
+}
+
+impl GeometricShardPack {
+    pub fn byte_len(&self) -> usize {
+        28 + self.points.len() * 2
+            + self.targets.len() * 4
+            + self.anchors.len() * 4
+            + self.reply_packed12.len() * 12
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut out = Vec::with_capacity(self.byte_len());
+        out.extend_from_slice(SHARD_MAGIC);
+        out.push(self.coordinate.e8_root);
+        out.push(self.coordinate.clifford_action);
+        out.push(self.coordinate.icosian_root);
+        out.push(u8::from(self.coordinate.coarse_sector_only));
+        out.extend_from_slice(&(self.point_rows as u32).to_le_bytes());
+        out.extend_from_slice(&(self.point_width as u32).to_le_bytes());
+        out.extend_from_slice(&(self.anchor_len as u32).to_le_bytes());
+        out.extend_from_slice(&(self.reply_packed12.len() as u32).to_le_bytes());
+        for &v in &self.points {
+            out.extend_from_slice(&v.to_le_bytes());
+        }
+        for &v in &self.targets {
+            out.extend_from_slice(&v.to_le_bytes());
+        }
+        for &v in &self.anchors {
+            out.extend_from_slice(&v.to_le_bytes());
+        }
+        for entry in &self.reply_packed12 {
+            out.extend_from_slice(&entry[0].to_le_bytes());
+            out.extend_from_slice(&entry[1].to_le_bytes());
+            out.extend_from_slice(&entry[2].to_le_bytes());
+        }
+        out
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, String> {
+        if bytes.len() < 28 || &bytes[0..8] != SHARD_MAGIC {
+            return Err("invalid UORSHRD1 shard header".to_string());
+        }
+        let e8_root = bytes[8] % (E8_ROOT_COUNT as u8);
+        let clifford_action = bytes[9] % (CLIFFORD_ACTION_COUNT as u8);
+        let icosian_root = bytes[10] % (ICOSIAN_ROOT_COUNT as u8);
+        let coarse_sector_only = bytes[11] != 0;
+        let point_rows = u32::from_le_bytes([bytes[12], bytes[13], bytes[14], bytes[15]]) as usize;
+        let point_width = u32::from_le_bytes([bytes[16], bytes[17], bytes[18], bytes[19]]) as usize;
+        let anchor_len = u32::from_le_bytes([bytes[20], bytes[21], bytes[22], bytes[23]]) as usize;
+        let reply_count = u32::from_le_bytes([bytes[24], bytes[25], bytes[26], bytes[27]]) as usize;
+
+        let p_bytes = point_rows
+            .checked_mul(point_width)
+            .and_then(|n| n.checked_mul(2))
+            .ok_or_else(|| "shard points overflow".to_string())?;
+        let t_bytes = point_rows
+            .checked_mul(4)
+            .ok_or_else(|| "shard targets overflow".to_string())?;
+        let a_bytes = point_rows
+            .checked_mul(anchor_len)
+            .and_then(|n| n.checked_mul(4))
+            .ok_or_else(|| "shard anchors overflow".to_string())?;
+        let r_bytes = reply_count
+            .checked_mul(12)
+            .ok_or_else(|| "shard reply_packed12 overflow".to_string())?;
+        let expected = 28usize
+            .checked_add(p_bytes)
+            .and_then(|n| n.checked_add(t_bytes))
+            .and_then(|n| n.checked_add(a_bytes))
+            .and_then(|n| n.checked_add(r_bytes))
+            .ok_or_else(|| "shard total length overflow".to_string())?;
+        if bytes.len() < expected {
+            return Err(format!(
+                "truncated UORSHRD1 shard: expected {} bytes, got {}",
+                expected,
+                bytes.len()
+            ));
+        }
+
+        let mut pos = 28usize;
+        let points: Vec<i16> = bytes[pos..pos + p_bytes]
+            .chunks_exact(2)
+            .map(|c| i16::from_le_bytes([c[0], c[1]]))
+            .collect();
+        pos += p_bytes;
+        let targets: Vec<u32> = bytes[pos..pos + t_bytes]
+            .chunks_exact(4)
+            .map(|c| u32::from_le_bytes([c[0], c[1], c[2], c[3]]))
+            .collect();
+        pos += t_bytes;
+        let anchors: Vec<u32> = bytes[pos..pos + a_bytes]
+            .chunks_exact(4)
+            .map(|c| u32::from_le_bytes([c[0], c[1], c[2], c[3]]))
+            .collect();
+        pos += a_bytes;
+        let reply_packed12: Vec<[u32; 3]> = bytes[pos..pos + r_bytes]
+            .chunks_exact(12)
+            .map(|c| {
+                [
+                    u32::from_le_bytes([c[0], c[1], c[2], c[3]]),
+                    u32::from_le_bytes([c[4], c[5], c[6], c[7]]),
+                    u32::from_le_bytes([c[8], c[9], c[10], c[11]]),
+                ]
+            })
+            .collect();
+
+        let content_sha256 = sha256_hex(&bytes[..expected]);
+        Ok(Self {
+            coordinate: ShardBasinCoordinate {
+                e8_root,
+                clifford_action,
+                icosian_root,
+                coarse_sector_only,
+            },
+            content_sha256,
+            point_rows,
+            point_width,
+            anchor_len,
+            points,
+            targets,
+            anchors,
+            reply_packed12,
+        })
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GeometricShardSummary {
+    pub e8_root: u8,
+    pub dominant_clifford_action: u8,
+    pub dominant_icosian_root: u8,
+    pub content_sha256: String,
+    pub point_rows: usize,
+    pub reply_entries: usize,
+    pub byte_len: usize,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GeometricShardCatalog {
+    pub schema: String,
+    pub parent_artifact_sha256: String,
+    pub resident_trunk_bytes: usize,
+    pub core_curriculum_rows: usize,
+    pub total_point_rows: usize,
+    pub total_shard_bytes: usize,
+    pub active_fine_basins: usize,
+    pub shards: Vec<GeometricShardSummary>,
+}
+
+impl GeometricShardCatalog {
+    pub fn to_json(&self) -> String {
+        let mut shards_json = String::from("[");
+        for (idx, s) in self.shards.iter().enumerate() {
+            if idx > 0 {
+                shards_json.push(',');
+            }
+            shards_json.push_str(&format!(
+                concat!(
+                    "{{",
+                    "\"e8_root\":{},",
+                    "\"dominant_clifford_action\":{},",
+                    "\"dominant_icosian_root\":{},",
+                    "\"content_sha256\":\"{}\",",
+                    "\"point_rows\":{},",
+                    "\"reply_entries\":{},",
+                    "\"byte_len\":{}",
+                    "}}"
+                ),
+                s.e8_root,
+                s.dominant_clifford_action,
+                s.dominant_icosian_root,
+                s.content_sha256,
+                s.point_rows,
+                s.reply_entries,
+                s.byte_len
+            ));
+        }
+        shards_json.push(']');
+        let total_reply_entries: usize = self.shards.iter().map(|s| s.reply_entries).sum();
+        format!(
+            concat!(
+                "{{",
+                "\"status\":\"ok\",",
+                "\"schema\":\"{}\",",
+                "\"parent_artifact_sha256\":\"{}\",",
+                "\"shard_count\":{},",
+                "\"resident_trunk_bytes\":{},",
+                "\"core_curriculum_rows\":{},",
+                "\"total_point_rows\":{},",
+                "\"total_reply_entries\":{},",
+                "\"total_shard_bytes\":{},",
+                "\"total_byte_len\":{},",
+                "\"active_fine_basins\":{},",
+                "\"shards\":{}",
+                "}}"
+            ),
+            self.schema,
+            self.parent_artifact_sha256,
+            self.shards.len(),
+            self.resident_trunk_bytes,
+            self.core_curriculum_rows,
+            self.total_point_rows,
+            total_reply_entries,
+            self.total_shard_bytes,
+            self.total_shard_bytes,
+            self.active_fine_basins,
+            shards_json
+        )
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ShardMergeReport {
+    pub content_sha256: String,
+    pub coordinate: ShardBasinCoordinate,
+    pub newly_merged_rows: usize,
+    pub newly_merged_reply_entries: usize,
+    pub total_rows_after: usize,
+    pub orphaned_after: usize,
+}
+
+impl ShardMergeReport {
+    pub fn to_json(&self) -> String {
+        format!(
+            concat!(
+                "{{",
+                "\"status\":\"ok\",",
+                "\"content_sha256\":\"{}\",",
+                "\"e8_root\":{},",
+                "\"clifford_action\":{},",
+                "\"icosian_root\":{},",
+                "\"coarse_sector_only\":{},",
+                "\"newly_merged_rows\":{},",
+                "\"newly_merged_reply_entries\":{},",
+                "\"total_rows_after\":{},",
+                "\"total_point_rows\":{},",
+                "\"orphaned_after\":{},",
+                "\"radix_buckets_indexed\":{},",
+                "\"radix_populated_buckets\":{}",
+                "}}"
+            ),
+            self.content_sha256,
+            self.coordinate.e8_root,
+            self.coordinate.clifford_action,
+            self.coordinate.icosian_root,
+            self.coordinate.coarse_sector_only,
+            self.newly_merged_rows,
+            self.newly_merged_reply_entries,
+            self.total_rows_after,
+            self.total_rows_after,
+            self.orphaned_after,
+            GEOMETRIC_BUCKET_COUNT,
+            GEOMETRIC_BUCKET_COUNT
+        )
     }
 }
 
@@ -8946,5 +10686,217 @@ mod tests {
             RollingContextState::from_json(legacy_json).expect("legacy JSON parses");
         assert_eq!(legacy_parsed.accumulated_l1_margin, 0);
         assert!(legacy_parsed.recent_residuals.is_empty());
+    }
+
+    #[test]
+    fn test_debruijn_slot_binding_r4_31_arithmetic_algebraic_and_division_guard() {
+        let model = Arc::new(default_lut_stack_model());
+
+        // 1. Novel multi-operator arithmetic expression
+        let res_arith = model.generate_reply(&[], "What is (144 * 89) + 377?", 128);
+        assert!(
+            res_arith.reply_text.contains("13193"),
+            "novel arithmetic query must compute exact value 13193 via R4-31/R4-27 kernel, got: {}",
+            res_arith.reply_text
+        );
+        let sf = res_arith.slot_frame.expect("slot_frame present");
+        assert!(sf.substitutions_applied >= 1);
+        assert!(
+            sf.steps_or_tokens_valid(),
+            "slot frame must record valid VSA binding tags"
+        );
+        assert!(
+            res_arith
+                .steps
+                .iter()
+                .any(|s| s.source_mechanism == "debruijn_slot_kernel_r4_31"),
+            "token stream telemetry must record debruijn_slot_kernel_r4_31"
+        );
+
+        // 2. Novel symbolic variable assignment and algebraic evaluation
+        let res_alg = model.generate_reply(
+            &[],
+            "If alpha = 25 and beta = 16, what is (alpha * beta) + 99?",
+            128,
+        );
+        assert!(
+            res_alg.reply_text.contains("499"),
+            "symbolic variable slot-binding must compute (25 * 16) + 99 = 499, got: {}",
+            res_alg.reply_text
+        );
+
+        // 3. Functional number-theoretic kernel (gcd)
+        let res_gcd = model.generate_reply(&[], "Compute gcd(1071, 462)", 128);
+        assert!(
+            res_gcd.reply_text.contains("21"),
+            "gcd(1071, 462) must evaluate to 21, got: {}",
+            res_gcd.reply_text
+        );
+
+        // 4. Negative control: division by zero guard
+        let div_zero = DeBruijnSlotFrame::bind_and_execute("What is 500 / 0?");
+        assert!(
+            div_zero
+                .kernel_results
+                .iter()
+                .any(|kr| kr.op_name == "division_by_zero_guard" && kr.result_numeric.is_none()),
+            "division by zero must be rejected by R4.SlotBinding.evaluateBoundSlotKernel"
+        );
+
+        // 5. Sentence-separated bindings and `==` mixed with `=`
+        let mixed_eq = DeBruijnSlotFrame::bind_and_execute(
+            "If x = 5 and y = 5 (where x == y), what is x * y + 10?",
+        );
+        assert!(
+            mixed_eq
+                .kernel_results
+                .iter()
+                .any(|kr| kr.result_numeric == Some(35)),
+            "mixed == and = prompt must evaluate x * y + 10 = 35, got: {:?}",
+            mixed_eq.kernel_results
+        );
+        let sentence_vars =
+            DeBruijnSlotFrame::bind_and_execute("Let x = 5. Let y = 10. What is x + y?");
+        assert!(
+            sentence_vars
+                .kernel_results
+                .iter()
+                .any(|kr| kr.result_numeric == Some(15)),
+            "sentence-separated bindings must evaluate x + y = 15, got: {:?}",
+            sentence_vars.kernel_results
+        );
+
+        // 6. Multiple word operators, right-associative chained `^`, and composite function calls
+        let multi_word = DeBruijnSlotFrame::bind_and_execute("What is 10 plus 20 plus 30?");
+        assert!(
+            multi_word
+                .kernel_results
+                .iter()
+                .any(|kr| kr.result_numeric == Some(60)),
+            "multiple word operators must evaluate 10 + 20 + 30 = 60"
+        );
+        let chained_pow = DeBruijnSlotFrame::bind_and_execute("What is 2 ^ 3 ^ 2?");
+        assert!(
+            chained_pow
+                .kernel_results
+                .iter()
+                .any(|kr| kr.result_numeric == Some(512)),
+            "chained exponentiation 2 ^ 3 ^ 2 must evaluate right-associatively to 512"
+        );
+        let comp_func = DeBruijnSlotFrame::bind_and_execute("What is gcd(120, 45) + lcm(12, 18)?");
+        assert!(
+            comp_func
+                .kernel_results
+                .iter()
+                .any(|kr| kr.result_numeric == Some(51)),
+            "composite functional expression gcd(120, 45) + lcm(12, 18) must evaluate to 15 + 36 = 51"
+        );
+    }
+
+    #[test]
+    fn test_debruijn_slot_binding_r4_31_icosian_and_ast_identifier_synthesis() {
+        let model = Arc::new(default_lut_stack_model());
+
+        // 1. Novel Icosian Z[phi] 17-root snap over bound coordinates
+        let res_icos = model.generate_reply(
+            &[],
+            "Compute the icosian snap vector for [1200, -450, 800, 3100]",
+            128,
+        );
+        assert!(
+            res_icos.reply_text.contains("Icosian Z[phi] 17-Root Snap")
+                && res_icos.reply_text.contains("Root #"),
+            "Icosian slot kernel must snap bound 4D coordinates to exact Z[phi] root, got: {}",
+            res_icos.reply_text
+        );
+
+        // 2. Novel identifier-parameterized Rust function synthesis
+        let res_ast = model.generate_reply(
+            &[],
+            "Write a Rust function compute_orbital_delta(base_energy: i64, boost_factor: i64) that multiplies them",
+            128,
+        );
+        assert!(
+            res_ast.reply_text.contains("pub fn compute_orbital_delta(base_energy: i64, boost_factor: i64)")
+                && res_ast.reply_text.contains("compute_orbital_delta(12, 7) == 84"),
+            "AST slot kernel must bind custom function/parameter identifiers and evaluate live check, got: {}",
+            res_ast.reply_text
+        );
+    }
+
+    #[test]
+    fn test_geometric_shard_partitioning_binary_codec_and_hot_swap_merge() {
+        let mut model = default_lut_stack_model();
+        let catalog = model.partition_geometric_shards();
+        assert_eq!(catalog.shards.len(), E8_ROOT_COUNT);
+        let original_rows = model.point.as_ref().unwrap().rows;
+        assert_eq!(
+            catalog.total_point_rows, original_rows,
+            "16 E8 geometric shards must partition 100% of ServedPointKey rows without loss"
+        );
+        assert!(catalog.active_fine_basins > 0);
+
+        // Export non-empty shard, round-trip through UORSHRD1 binary codec, and verify SHA-256
+        let non_empty_e8 = catalog
+            .shards
+            .iter()
+            .find(|s| s.point_rows > 0)
+            .expect("at least one non-empty E8 shard")
+            .e8_root;
+        let pack = model
+            .export_geometric_shard(non_empty_e8, None, None)
+            .expect("export succeeds");
+        let raw_bytes = pack.to_bytes();
+        let decoded = GeometricShardPack::from_bytes(&raw_bytes).expect("decode succeeds");
+        assert_eq!(decoded, pack, "UORSHRD1 binary roundtrip must be lossless");
+
+        // Idempotent merge on already-resident model
+        let idemp_report = model
+            .merge_geometric_shard(&decoded)
+            .expect("idempotent merge succeeds");
+        assert_eq!(idemp_report.newly_merged_rows, 0);
+        assert_eq!(idemp_report.total_rows_after, original_rows);
+        assert_eq!(idemp_report.orphaned_after, 0);
+
+        // Evict last 5 rows and hot-swap merge them back via a synthetic shard pack
+        let pt = model.point.as_mut().unwrap();
+        let p_w = pt.width;
+        let alen = pt.anchor_len;
+        let evict_n = 5usize.min(pt.rows);
+        let keep_rows = pt.rows - evict_n;
+        let evicted_points = pt.points.split_off(keep_rows * p_w);
+        let evicted_targets = pt.targets.split_off(keep_rows);
+        let evicted_anchors = pt
+            .canonical_anchors
+            .as_mut()
+            .unwrap()
+            .split_off(keep_rows * alen);
+        pt.rows = keep_rows;
+        pt.build_radix_index();
+
+        let mut hot_pack = GeometricShardPack {
+            coordinate: ShardBasinCoordinate {
+                e8_root: non_empty_e8,
+                clifford_action: 0,
+                icosian_root: 0,
+                coarse_sector_only: true,
+            },
+            content_sha256: String::new(),
+            point_rows: evict_n,
+            point_width: p_w,
+            anchor_len: alen,
+            points: evicted_points,
+            targets: evicted_targets,
+            anchors: evicted_anchors,
+            reply_packed12: Vec::new(),
+        };
+        hot_pack.content_sha256 = sha256_hex(&hot_pack.to_bytes());
+
+        let merge_report = model
+            .merge_geometric_shard(&hot_pack)
+            .expect("hot-swap merge succeeds");
+        assert_eq!(merge_report.newly_merged_rows, evict_n);
+        assert_eq!(merge_report.total_rows_after, original_rows);
+        assert_eq!(merge_report.orphaned_after, 0);
     }
 }

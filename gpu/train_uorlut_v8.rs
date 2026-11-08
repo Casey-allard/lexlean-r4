@@ -9,6 +9,9 @@
 //   2. `public/weights/uor_r4_glm_v8.uorlut.part*` + `public/weights/manifest.json`
 //      (GitHub Pages streamed shards + IndexedDB persistent cache artifact)
 
+#[allow(dead_code, clippy::all)]
+#[path = "../crates/wasm/src/lexlean_generated.rs"]
+pub mod lexlean_generated;
 #[allow(dead_code)]
 #[path = "../crates/wasm/src/lut_stack_exec.rs"]
 mod lut_stack_exec;
@@ -1686,8 +1689,14 @@ fn main() {
             shard_entries.join(",\n")
         );
         fs::write(weights_dir.join("manifest.json"), manifest_json).expect("write manifest.json");
+        let geo_catalog = verified_model.partition_geometric_shards();
+        fs::write(
+            weights_dir.join("geometric_shards_manifest.json"),
+            geo_catalog.to_json(),
+        )
+        .expect("write geometric_shards_manifest.json");
         println!(
-            "6. Wrote {} shards + {}/manifest.json (total={} bytes, total_parameters={}, sha256={}).",
+            "6. Wrote {} shards + {}/manifest.json + geometric_shards_manifest.json (16 E8xCliffordxIcosian basins, total={} bytes, total_parameters={}, sha256={}).",
             shard_entries.len(),
             out_weights_dir,
             verified_model.artifact_bytes,

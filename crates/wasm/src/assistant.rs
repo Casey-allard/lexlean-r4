@@ -43,6 +43,41 @@ impl StudioEngine {
             return None;
         }
 
+        // 0. Check R4-31 De Bruijn Slot-Binding & Live Kernel Execution for symbolic variable bindings,
+        //    Icosian Z[phi] 17-root snap queries, composite function expressions, and division-by-zero refusal
+        let slot_frame = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(trimmed);
+        let has_named_var_slots = slot_frame.slots.iter().any(|s| {
+            s.symbol_name.as_deref().is_some_and(|sym| {
+                !matches!(
+                    sym,
+                    "expr" | "div_zero_expr" | "fn_name" | "q0" | "q1" | "q2" | "q3"
+                ) && !sym.starts_with("param_")
+            })
+        });
+        let has_icosian_or_refusal = slot_frame.kernel_results.iter().any(|kr| {
+            kr.kernel_kind == crate::lut_stack_exec::LiveKernelKind::IcosianSnapR424
+                || kr.op_name == "division_by_zero_guard"
+        });
+        let has_composite_func_expr = (lower.contains("gcd(")
+            || lower.contains("lcm(")
+            || lower.contains("fib(")
+            || lower.contains("factorial(")
+            || lower.contains("mod_exp("))
+            && trimmed
+                .chars()
+                .any(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'));
+        if (has_named_var_slots || has_icosian_or_refusal || has_composite_func_expr)
+            && !slot_frame.kernel_results.is_empty()
+        {
+            let summary = slot_frame
+                .kernel_results
+                .iter()
+                .map(|kr| kr.result_text.as_str())
+                .collect::<Vec<_>>()
+                .join("\n\n");
+            return Some((summary, String::new()));
+        }
+
         let numbers = extract_signed_integers(trimmed);
 
         // 1. GCD & LCM queries
@@ -827,6 +862,41 @@ impl StudioEngine {
 
         let lang = explicit_lang.unwrap_or("python");
 
+        // 3b. Check R4-31 De Bruijn Slot-Binding for identifier-parameterized Rust function synthesis
+        if lang == "rust" {
+            let slot_frame =
+                crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(prompt.trim());
+            let has_bound_params = slot_frame
+                .slots
+                .iter()
+                .any(|s| s.symbol_name.as_deref() == Some("param_0"));
+            if has_bound_params {
+                if let Some(ast_kr) = slot_frame.kernel_results.iter().find(|kr| {
+                    kr.kernel_kind == crate::lut_stack_exec::LiveKernelKind::AstIdentifierR431
+                }) {
+                    let target_path = slot_frame
+                        .slots
+                        .iter()
+                        .find(|s| s.entity_kind == crate::lut_stack_exec::SlotEntityKind::FilePath)
+                        .map(|s| s.raw_lexeme.clone())
+                        .unwrap_or_else(|| "src/engine.rs".to_string());
+                    let code_block = ast_kr
+                        .result_text
+                        .split("```rust\n")
+                        .nth(1)
+                        .and_then(|s| s.split("```").next())
+                        .unwrap_or(&ast_kr.result_text)
+                        .to_string();
+                    return CodeSynthesisOutcome {
+                        target_path,
+                        proposed_block: format!("\n{code_block}"),
+                        explanation_markdown: ast_kr.result_text.clone(),
+                        is_coding_turn: true,
+                    };
+                }
+            }
+        }
+
         // 4. Synthesize code tailored to the requested language & task
         let (path, code, title) =
             build_language_task_code(lang, prompt, &lower, &words, consensus_action, icosian_root);
@@ -913,8 +983,15 @@ impl StudioEngine {
             return agent_reply;
         }
 
-        // 3. Check for exact math, number theory, unit conversion, or algebra (`R4.ExactArithmetic`)
+        // 3. Check for exact math, number theory, unit conversion, or algebra (`R4.ExactArithmetic` / `R4-31`)
         if let Some((math_reply, _)) = self.solve_exact_math_or_logic(trimmed) {
+            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &math_reply,
+                128,
+            ));
             return math_reply;
         }
 
@@ -930,10 +1007,19 @@ impl StudioEngine {
 
         // 5. If the prompt is a coding request, return the synthesized code & explanation
         if code_outcome.is_coding_turn {
-            if let Some(notice) = binder_notice {
-                return format!("{notice}\n\n{}", code_outcome.explanation_markdown);
-            }
-            return code_outcome.explanation_markdown.clone();
+            let reply_md = if let Some(notice) = binder_notice {
+                format!("{notice}\n\n{}", code_outcome.explanation_markdown)
+            } else {
+                code_outcome.explanation_markdown.clone()
+            };
+            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &reply_md,
+                128,
+            ));
+            return reply_md;
         }
 
         // 6. Recall queries about session memory (`R4.Binder`)
@@ -1126,24 +1212,28 @@ impl StudioEngine {
             .iter()
             .filter(|s| s.source_mechanism == "turn_memory_reply")
             .count();
-        let lut_confident = !is_multiturn_followup_or_anaphora
-            && !is_compositional_or_parameterized
-            && !has_curated_qa_override
-            && !lut_gen.reply_text.is_empty()
-            && lut_gen.generated_tokens.len() >= 5
-            && reply_mem_steps >= 4
-            && lut_gen
-                .steps
-                .first()
-                .map(|s| {
-                    s.source_mechanism == "turn_memory_opening"
-                        || (s.source_mechanism == "point_key_vote"
-                            && (lut_gen.matched_stem_count >= 2
-                                || lut_gen.clauses_resolved >= 2
-                                || is_paraphrased_self_or_capability
-                                || s.l1_distance == 0))
-                })
-                .unwrap_or(false);
+        let lut_confident = lut_gen
+            .slot_frame
+            .as_ref()
+            .is_some_and(|sf| !sf.kernel_results.is_empty())
+            || (!is_multiturn_followup_or_anaphora
+                && !is_compositional_or_parameterized
+                && !has_curated_qa_override
+                && !lut_gen.reply_text.is_empty()
+                && lut_gen.generated_tokens.len() >= 5
+                && reply_mem_steps >= 4
+                && lut_gen
+                    .steps
+                    .first()
+                    .map(|s| {
+                        s.source_mechanism == "turn_memory_opening"
+                            || (s.source_mechanism == "point_key_vote"
+                                && (lut_gen.matched_stem_count >= 2
+                                    || lut_gen.clauses_resolved >= 2
+                                    || is_paraphrased_self_or_capability
+                                    || s.l1_distance == 0))
+                    })
+                    .unwrap_or(false));
         if lut_confident {
             self.rolling_context = tentative_context;
             self.last_lut_generation = Some(lut_gen.clone());

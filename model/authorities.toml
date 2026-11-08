@@ -13,6 +13,22 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-WASM-AST-EVAL"
+name = "UOR-R4 in-Wasm Rust AST parser, typechecker, fuel-bounded interpreter, and live #[test] runner"
+citation = "https://doc.rust-lang.org/reference/ — The Rust Reference (expressions, statements, and test attributes); companion crates/wasm/src/lib.rs, src/R4/WasmAstEval.lex.tex, and tests/lexlean/WasmAstEvalControls.lex.tex"
+checksum = "sha256:26925ed50e4b53be961ab612ec8a9dd8f88ef6c3b3583da56c5f3b4bd65704a2"
+statement = "Pinned UOR-R4 in-Wasm AST evaluation specification defines module admission with exact line-and-column unbalanced-delimiter, syntax, and type diagnostics, fuel-bounded deterministic expression and statement evaluation, and live #[test] assertion verification with exact line and operand reporting."
+realized_by = ["R4-32"]
+
+[[authority]]
+id = "UOR-R4-SLOT-BINDING"
+name = "UOR-R4 compositional De Bruijn variable slot-binding, live kernel execution, and /7 token-stream substitution"
+citation = "https://doi.org/10.1016/1385-7258(72)90034-0 — N. G. de Bruijn (1972) Lambda calculus notation with nameless dummies; companion crates/wasm/src/lut_stack_exec.rs, src/R4/SlotBinding.lex.tex, and tests/lexlean/SlotBindingControls.lex.tex"
+checksum = "sha256:6190563219caaa384e2f90433e205fc7b1f447cc28f3f30a8277bd13deb9c939"
+statement = "Pinned UOR-R4 compositional slot-binding specification defines VSA register slot binding ($0..$7) across integer, algebraic expression, identifier, and file-path entities, live execution of exact R4-27 arithmetic, R4-24 Icosian, and AST kernels on bound register slots, and /7 token-stream substitution."
+realized_by = ["R4-31"]
+
+[[authority]]
 id = "UOR-R4-SECOPS-AUDIT"
 name = "FIPS 180-4 SHA-256 Merkle SecOps audit ledger (uor.secops.audit/1), MCP policy gate, and container workspace sandbox"
 citation = "https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf — FIPS PUB 180-4 Secure Hash Standard (SHA-256); companion src/R4/SecopsAudit.lex.tex and tests/lexlean/SecopsAuditControls.lex.tex"

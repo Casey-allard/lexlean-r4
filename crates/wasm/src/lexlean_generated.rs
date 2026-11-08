@@ -4924,3 +4924,303 @@ pub mod r4_secops_audit {
         }
     }
 }
+
+/// Generated from `R4.SlotBinding` (`src/R4/SlotBinding.lex.tex`).
+pub mod r4_slot_binding {
+    /// Inductive type `R4.SlotBinding.SlotBindingOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum SlotBindingOutcome {
+        /// Variant `slotBound`.
+        SlotBound(u64, u64, u64),
+        /// Variant `invalidEntityKind`.
+        InvalidEntityKind(u64),
+        /// Variant `registerFileFull`.
+        RegisterFileFull(u64, u64),
+        /// Variant `emptyEntityPayload`.
+        EmptyEntityPayload,
+        /// Variant `zeroVsaBindingTag`.
+        ZeroVsaBindingTag,
+    }
+
+    /// Inductive type `R4.SlotBinding.SlotKernelOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum SlotKernelOutcome {
+        /// Variant `kernelEvaluated`.
+        KernelEvaluated(u64, u64, u64),
+        /// Variant `invalidKernelId`.
+        InvalidKernelId(u64),
+        /// Variant `unboundRegisterOperand`.
+        UnboundRegisterOperand(u64, u64),
+        /// Variant `divisionByZeroOperand`.
+        DivisionByZeroOperand(u64),
+        /// Variant `kernelFuelExhausted`.
+        KernelFuelExhausted(u64),
+    }
+
+    /// Inductive type `R4.SlotBinding.SlotSubstitutionOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum SlotSubstitutionOutcome {
+        /// Variant `streamSubstituted`.
+        StreamSubstituted(u64, u64, u64),
+        /// Variant `emptyTokenStream`.
+        EmptyTokenStream,
+        /// Variant `unresolvedDeBruijnSlot`.
+        UnresolvedDeBruijnSlot(u64, u64),
+        /// Variant `zeroStreamDigest`.
+        ZeroStreamDigest,
+    }
+
+    /// Function `R4.SlotBinding.bindDeBruijnSlot`.
+    pub fn bind_de_bruijn_slot(
+        slot_index: u64,
+        max_slots: u64,
+        entity_kind: u64,
+        entity_token_len: u64,
+        bound_value: u64,
+        vsa_binding_tag: u64,
+    ) -> SlotBindingOutcome {
+        if ((entity_kind.clone()) == (0u64)) {
+            SlotBindingOutcome::InvalidEntityKind(entity_kind.clone())
+        } else {
+            if ((4u64) < (entity_kind.clone())) {
+                SlotBindingOutcome::InvalidEntityKind(entity_kind.clone())
+            } else {
+                if ((max_slots.clone()) <= (slot_index.clone())) {
+                    SlotBindingOutcome::RegisterFileFull(slot_index.clone(), max_slots.clone())
+                } else {
+                    if ((entity_token_len.clone()) == (0u64)) {
+                        SlotBindingOutcome::EmptyEntityPayload
+                    } else {
+                        if ((vsa_binding_tag.clone()) == (0u64)) {
+                            SlotBindingOutcome::ZeroVsaBindingTag
+                        } else {
+                            SlotBindingOutcome::SlotBound(
+                                slot_index.clone(),
+                                entity_kind.clone(),
+                                bound_value.clone(),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Function `R4.SlotBinding.evaluateBoundSlotKernel`.
+    pub fn evaluate_bound_slot_kernel(
+        kernel_id: u64,
+        op_code: u64,
+        slot_index: u64,
+        bound_count: u64,
+        left_value: u64,
+        right_value: u64,
+        fuel_budget: u64,
+    ) -> SlotKernelOutcome {
+        if ((kernel_id.clone()) == (0u64)) {
+            SlotKernelOutcome::InvalidKernelId(kernel_id.clone())
+        } else {
+            if ((3u64) < (kernel_id.clone())) {
+                SlotKernelOutcome::InvalidKernelId(kernel_id.clone())
+            } else {
+                if ((bound_count.clone()) <= (slot_index.clone())) {
+                    SlotKernelOutcome::UnboundRegisterOperand(
+                        slot_index.clone(),
+                        bound_count.clone(),
+                    )
+                } else {
+                    if ((fuel_budget.clone()) == (0u64)) {
+                        SlotKernelOutcome::KernelFuelExhausted(fuel_budget.clone())
+                    } else {
+                        if ((op_code.clone()) == (3u64)) {
+                            if ((right_value.clone()) == (0u64)) {
+                                SlotKernelOutcome::DivisionByZeroOperand(left_value.clone())
+                            } else {
+                                SlotKernelOutcome::KernelEvaluated(
+                                    kernel_id.clone(),
+                                    left_value.clone(),
+                                    1u64,
+                                )
+                            }
+                        } else {
+                            SlotKernelOutcome::KernelEvaluated(
+                                kernel_id.clone(),
+                                (left_value.clone()).saturating_add(right_value.clone()),
+                                1u64,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Function `R4.SlotBinding.substituteSlotInStream`.
+    pub fn substitute_slot_in_stream(
+        stream_token_len: u64,
+        slot_ref: u64,
+        bound_slot_count: u64,
+        replacement_token_len: u64,
+        prior_substitutions: u64,
+        stream_digest: u64,
+    ) -> SlotSubstitutionOutcome {
+        if ((stream_token_len.clone()) == (0u64)) {
+            SlotSubstitutionOutcome::EmptyTokenStream
+        } else {
+            if ((bound_slot_count.clone()) <= (slot_ref.clone())) {
+                SlotSubstitutionOutcome::UnresolvedDeBruijnSlot(
+                    slot_ref.clone(),
+                    bound_slot_count.clone(),
+                )
+            } else {
+                if ((stream_digest.clone()) == (0u64)) {
+                    SlotSubstitutionOutcome::ZeroStreamDigest
+                } else {
+                    SlotSubstitutionOutcome::StreamSubstituted(
+                        (prior_substitutions.clone()).saturating_add(1u64),
+                        (stream_token_len.clone()).saturating_add(replacement_token_len.clone()),
+                        stream_digest.clone(),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/// Generated from `R4.WasmAstEval` (`src/R4/WasmAstEval.lex.tex`).
+pub mod r4_wasm_ast_eval {
+    /// Inductive type `R4.WasmAstEval.AstParseOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum AstParseOutcome {
+        /// Variant `astModuleAdmitted`.
+        AstModuleAdmitted(u64, u64, u64),
+        /// Variant `emptySourceInput`.
+        EmptySourceInput,
+        /// Variant `unbalancedDelimiterAtLine`.
+        UnbalancedDelimiterAtLine(u64),
+        /// Variant `syntaxErrorAtLine`.
+        SyntaxErrorAtLine(u64, u64),
+        /// Variant `typeErrorAtLine`.
+        TypeErrorAtLine(u64, u64),
+    }
+
+    /// Inductive type `R4.WasmAstEval.AstEvalOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum AstEvalOutcome {
+        /// Variant `evaluatedValue`.
+        EvaluatedValue(u64, u64, u64),
+        /// Variant `evalFuelExhausted`.
+        EvalFuelExhausted(u64, u64),
+        /// Variant `runtimeDivideByZeroAtLine`.
+        RuntimeDivideByZeroAtLine(u64),
+        /// Variant `undefinedSymbolAtLine`.
+        UndefinedSymbolAtLine(u64, u64),
+    }
+
+    /// Inductive type `R4.WasmAstEval.TestRunnerOutcome`.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum TestRunnerOutcome {
+        /// Variant `testSuitePassed`.
+        TestSuitePassed(u64, u64),
+        /// Variant `noTestsDiscovered`.
+        NoTestsDiscovered,
+        /// Variant `assertionFailedAtLine`.
+        AssertionFailedAtLine(u64, u64, u64, u64),
+    }
+
+    /// Function `R4.WasmAstEval.admitAstModule`.
+    pub fn admit_ast_module(
+        source_byte_len: u64,
+        source_line_count: u64,
+        fn_count: u64,
+        test_count: u64,
+        unbalanced_line: u64,
+        syntax_err_line: u64,
+        syntax_err_col: u64,
+        type_err_line: u64,
+        expected_type_tag: u64,
+    ) -> AstParseOutcome {
+        if ((source_byte_len.clone()) == (0u64)) {
+            AstParseOutcome::EmptySourceInput
+        } else {
+            if (!((unbalanced_line.clone()) == (0u64))) {
+                AstParseOutcome::UnbalancedDelimiterAtLine(unbalanced_line.clone())
+            } else {
+                if (!((syntax_err_line.clone()) == (0u64))) {
+                    AstParseOutcome::SyntaxErrorAtLine(
+                        syntax_err_line.clone(),
+                        syntax_err_col.clone(),
+                    )
+                } else {
+                    if (!((type_err_line.clone()) == (0u64))) {
+                        AstParseOutcome::TypeErrorAtLine(
+                            type_err_line.clone(),
+                            expected_type_tag.clone(),
+                        )
+                    } else {
+                        AstParseOutcome::AstModuleAdmitted(
+                            fn_count.clone(),
+                            test_count.clone(),
+                            source_line_count.clone(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /// Function `R4.WasmAstEval.evaluateAstStep`.
+    pub fn evaluate_ast_step(
+        fuel_budget: u64,
+        line_number: u64,
+        is_div_by_zero: bool,
+        undef_symbol_hash: u64,
+        computed_value: u64,
+        prior_steps: u64,
+    ) -> AstEvalOutcome {
+        if ((fuel_budget.clone()) == (0u64)) {
+            AstEvalOutcome::EvalFuelExhausted(fuel_budget.clone(), line_number.clone())
+        } else {
+            if (!((undef_symbol_hash.clone()) == (0u64))) {
+                AstEvalOutcome::UndefinedSymbolAtLine(
+                    line_number.clone(),
+                    undef_symbol_hash.clone(),
+                )
+            } else {
+                if is_div_by_zero.clone() {
+                    AstEvalOutcome::RuntimeDivideByZeroAtLine(line_number.clone())
+                } else {
+                    AstEvalOutcome::EvaluatedValue(
+                        computed_value.clone(),
+                        (prior_steps.clone()).saturating_add(1u64),
+                        line_number.clone(),
+                    )
+                }
+            }
+        }
+    }
+
+    /// Function `R4.WasmAstEval.verifyTestAssertion`.
+    pub fn verify_test_assertion(
+        test_count: u64,
+        total_assertions: u64,
+        failed_test_index: u64,
+        failed_line: u64,
+        left_val: u64,
+        right_val: u64,
+    ) -> TestRunnerOutcome {
+        if ((test_count.clone()) == (0u64)) {
+            TestRunnerOutcome::NoTestsDiscovered
+        } else {
+            if (!((failed_line.clone()) == (0u64))) {
+                TestRunnerOutcome::AssertionFailedAtLine(
+                    failed_test_index.clone(),
+                    failed_line.clone(),
+                    left_val.clone(),
+                    right_val.clone(),
+                )
+            } else {
+                TestRunnerOutcome::TestSuitePassed(test_count.clone(), total_assertions.clone())
+            }
+        }
+    }
+}

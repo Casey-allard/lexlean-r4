@@ -111,11 +111,13 @@ fn main() {
         ),
         ("tests/radix_otel.rs", "complete_radix_otel_r4_29"),
         ("tests/secops_audit.rs", "complete_secops_audit_r4_30"),
+        ("tests/slot_binding.rs", "complete_slot_binding_r4_31"),
+        ("tests/wasm_ast_eval.rs", "complete_wasm_ast_eval_r4_32"),
     ];
     assert_eq!(
         required_entrypoints.len(),
-        30,
-        "exactly 30 R4 acceptance entrypoints required"
+        32,
+        "exactly 32 R4 acceptance entrypoints required"
     );
     for (path, name) in required_entrypoints {
         require_test(&root, path, name);

@@ -156,6 +156,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-30` | `build` | Pure LexLean models the FIPS 180-4 SHA-256 Merkle-chained SecOps audit ledger (uor.secops.audit/1 monotonic sequence progression, previous-event hash link verification, zero-digest refusal, and tampered-digest detection), MCP security policy gate (safe, confirm, and deny modes), and bounded virtual container workspace sandbox admission (empty-path and parent-traversal rejection, file/byte quota bounds, and non-zero state receipt binding). Formal controls establish no external OS kernel isolation or hardware TEE attestation. |
 
+## r4-slot-binding
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-31` | `build` | Pure LexLean models compositional De Bruijn variable slot-binding and live kernel execution in the decoder (VSA register slot binding across integer, algebraic expression, identifier, and file-path entities, live execution of exact R4-27 arithmetic, R4-24 Icosian, and AST kernels over bound register slots with fuel and division-by-zero guards, and /7 token-stream substitution with unresolved-slot and zero-digest refusal). Formal controls establish no unbounded natural-language semantic understanding or external solver completeness. |
+
 ## r4-snapshot-json
 
 | ID | Level | Statement |
@@ -192,6 +198,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-01` | `build` | The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed. |
 
+## r4-wasm-ast-eval
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-32` | `build` | Pure LexLean models the in-Wasm Rust AST parser, typechecker, interpreter, and live #[test] runner (source module admission with exact line-and-column unbalanced-delimiter, syntax, and type diagnostics, fuel-bounded deterministic expression and statement evaluation with runtime division-by-zero and undefined-symbol guards, and live test assertion verification with exact line and operand reporting). Formal controls establish no full rustc borrow-checker equivalence or unbounded Turing-complete termination. |
+
 ## r4-words
 
 | ID | Level | Statement |
@@ -204,6 +216,8 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UOR-R4-WASM-AST-EVAL` | https://doc.rust-lang.org/reference/ — The Rust Reference (expressions, statements, and test attributes); companion crates/wasm/src/lib.rs, src/R4/WasmAstEval.lex.tex, and tests/lexlean/WasmAstEvalControls.lex.tex | `R4-32` |
+| `UOR-R4-SLOT-BINDING` | https://doi.org/10.1016/1385-7258(72)90034-0 — N. G. de Bruijn (1972) Lambda calculus notation with nameless dummies; companion crates/wasm/src/lut_stack_exec.rs, src/R4/SlotBinding.lex.tex, and tests/lexlean/SlotBindingControls.lex.tex | `R4-31` |
 | `UOR-R4-SECOPS-AUDIT` | https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf — FIPS PUB 180-4 Secure Hash Standard (SHA-256); companion src/R4/SecopsAudit.lex.tex and tests/lexlean/SecopsAuditControls.lex.tex | `R4-30` |
 | `UOR-R4-RADIX-OTEL` | https://w3c.github.io/trace-context/ — W3C Trace Context and OpenTelemetry OTLP/1.0 specification; companion crates/wasm/src/otel.rs, crates/wasm/src/lut_stack_exec.rs, and src/R4/RadixOtel.lex.tex | `R4-29` |
 | `UOR-R4-AUTONOMOUS-ENGINE` | https://github.com/afflom/rule30/blob/main/src/Rule30/Engine.lex.tex; companion Discovery.lex.tex, Hypotheses.lex.tex, tools/r30/engine.py, and .github/workflows/engine.yml | `R4-28` |
@@ -242,6 +256,8 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UOR-R4-WASM-AST-EVAL` | `some-true` | In-Wasm Rust AST parsing, static typechecking, fuel-bounded deterministic evaluation, and live #[test] assertion runner invariants are imported from the pinned UOR-R4 in-Wasm AST evaluation specification. Formal LexLean controls do not establish full rustc borrow-checker parity or unbounded termination. |
+| `AUTH-UOR-R4-SLOT-BINDING` | `some-true` | De Bruijn variable slot-binding across integer, algebraic, identifier, and file-path entities, live execution of exact R4-27 arithmetic, R4-24 Icosian, and AST kernels over bound VSA registers, and /7 token-stream substitution are imported from the pinned UOR-R4 compositional decoder specification. Formal LexLean controls do not establish open-domain semantic completeness. |
 | `AUTH-UOR-R4-SECOPS-AUDIT` | `some-true` | FIPS 180-4 SHA-256 Merkle audit chaining (uor.secops.audit/1), MCP tool policy enforcement (safe, confirm, deny), and bounded container workspace admission are imported from the pinned SecOps audit and NIST FIPS 180-4 specifications. Formal LexLean controls do not establish host OS sandboxing or cryptographic collision resistance. |
 | `AUTH-UOR-R4-RADIX-OTEL` | `some-true` | The two-level hierarchical Radix /8 geometric bucket mapping (16 * 64 * 17 = 17,408 buckets, 17,409 directory offsets) and 5-tier W3C/OpenTelemetry u16 canonical interning and span deduplication (uor.gllm.trace/1) are imported from the pinned UOR-R4 Radix/OTel specification. Formal LexLean controls do not establish external OTLP network ingestion. |
 | `AUTH-UOR-R4-AUTONOMOUS-ENGINE` | `some-true` | Autonomous homeostasis engine invariants, bounded Hebbian strategy plasticity in [1, 16], priority strategy scheduling, and non-redundant hypothesis minting are imported from the UOR Rule 30 engine specification. Formal LexLean controls do not establish external GitHub Actions runner availability or unbounded open-domain convergence. |

@@ -14,11 +14,17 @@ mod audit;
 mod bootstrap;
 mod engine;
 #[allow(dead_code, clippy::all)]
+#[path = "../../crates/wasm/src/lexlean_generated.rs"]
+pub mod lexlean_generated;
+#[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/lut_stack_exec.rs"]
 pub mod lut_stack_exec;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/otel.rs"]
 pub mod otel;
+#[allow(dead_code, clippy::all)]
+#[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
+pub mod wasm_ast_eval;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();

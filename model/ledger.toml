@@ -14,6 +14,18 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-WASM-AST-EVAL"
+level = "some-true"
+authority = "UOR-R4-WASM-AST-EVAL"
+statement = "In-Wasm Rust AST parsing, static typechecking, fuel-bounded deterministic evaluation, and live #[test] assertion runner invariants are imported from the pinned UOR-R4 in-Wasm AST evaluation specification. Formal LexLean controls do not establish full rustc borrow-checker parity or unbounded termination."
+
+[[claim]]
+id = "AUTH-UOR-R4-SLOT-BINDING"
+level = "some-true"
+authority = "UOR-R4-SLOT-BINDING"
+statement = "De Bruijn variable slot-binding across integer, algebraic, identifier, and file-path entities, live execution of exact R4-27 arithmetic, R4-24 Icosian, and AST kernels over bound VSA registers, and /7 token-stream substitution are imported from the pinned UOR-R4 compositional decoder specification. Formal LexLean controls do not establish open-domain semantic completeness."
+
+[[claim]]
 id = "AUTH-UOR-R4-SECOPS-AUDIT"
 level = "some-true"
 authority = "UOR-R4-SECOPS-AUDIT"

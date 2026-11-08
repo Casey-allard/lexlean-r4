@@ -28,6 +28,8 @@ pub mod lexlean_generated;
 pub mod lut_stack_exec;
 /// OpenTelemetry (OTel) for Geometric Language Models and Cross-Lifecycle Provenance.
 pub mod otel;
+/// In-Wasm Rust AST Parser, Static Typechecker, Fuel-Bounded Interpreter, and Live Test Runner (`R4-32`).
+pub mod wasm_ast_eval;
 
 static BOOTSTRAP_UORLUT_V8: &[u8] = include_bytes!("bootstrap_v8.uorlut");
 
@@ -1179,6 +1181,13 @@ impl StudioEngine {
                     "        self.active_root = target_root & 0x0f;\n",
                     "        self.active_root\n",
                     "    }\n",
+                    "}\n\n",
+                    "#[test]\n",
+                    "fn test_geometric_router_step() {\n",
+                    "    let mut router = GeometricRouter { active_root: 0, clifford_carrier: 0, binder_node: 0 };\n",
+                    "    let root = router.step_token(21, 7);\n",
+                    "    assert_eq!(root, 7);\n",
+                    "    assert_eq!(router.clifford_carrier, 21);\n",
                     "}\n"
                 ),
             ),
@@ -1208,6 +1217,13 @@ impl StudioEngine {
                     "        }\n",
                     "    }\n",
                     "    best_action\n",
+                    "}\n\n",
+                    "#[test]\n",
+                    "fn test_cyclic_frame_and_consensus() {\n",
+                    "    assert_eq!(cyclic_frame_block(2, 8), 3);\n",
+                    "    assert_eq!(cyclic_frame_block(7, 8), 0);\n",
+                    "    let pick = weighted_consensus_action(&[3, 14, 9], &[100, 450, 200]);\n",
+                    "    assert_eq!(pick, 14);\n",
                     "}\n"
                 ),
             ),
@@ -1232,6 +1248,11 @@ impl StudioEngine {
                     "    } else {\n",
                     "        None\n",
                     "    }\n",
+                    "}\n\n",
+                    "#[test]\n",
+                    "fn test_coupled_step_escape() {\n",
+                    "    let escaped = evaluate_coupled_step(100, 85, 60, true);\n",
+                    "    assert_eq!(escaped, Some((60, true)));\n",
                     "}\n"
                 ),
             ),
@@ -1242,7 +1263,7 @@ impl StudioEngine {
                 concat!(
                     "# UOR-R4 Geometric Language Model Workspace\n\n",
                     "Zero-matmul, pure-integer language model and on-device coordinate-sweep trainer\n",
-                    "verified by 27 zero-axiom Lean 4.32.1 conformance suites.\n"
+                    "verified by 32 zero-axiom Lean 4.32.1 conformance suites.\n"
                 ),
             ),
         ];
@@ -2597,9 +2618,51 @@ impl StudioEngine {
             )
         );
 
+        // R4-31: De Bruijn variable slot-binding & live kernel execution
+        let slot_binding_ok = matches!(
+            lexlean_generated::r4_slot_binding::bind_de_bruijn_slot(
+                0,
+                8,
+                1,
+                2,
+                u64::from(d_a),
+                0x9e37_79b9
+            ),
+            lexlean_generated::r4_slot_binding::SlotBindingOutcome::SlotBound(0, 1, _)
+        );
+        let slot_kernel_val = match lexlean_generated::r4_slot_binding::evaluate_bound_slot_kernel(
+            1,
+            0,
+            0,
+            1,
+            u64::from(d_a),
+            u64::from(d_b),
+            128,
+        ) {
+            lexlean_generated::r4_slot_binding::SlotKernelOutcome::KernelEvaluated(1, v, _) => v,
+            _ => 0,
+        };
+
+        // R4-32: In-Wasm Rust AST parser, static typechecker, and live test runner
+        let wasm_ast_admitted = matches!(
+            lexlean_generated::r4_wasm_ast_eval::admit_ast_module(512, 32, 4, 3, 0, 0, 0, 0, 0),
+            lexlean_generated::r4_wasm_ast_eval::AstParseOutcome::AstModuleAdmitted(4, 3, 32)
+        );
+        let wasm_ast_assert_ok = matches!(
+            lexlean_generated::r4_wasm_ast_eval::verify_test_assertion(
+                3,
+                4,
+                0,
+                0,
+                slot_kernel_val,
+                slot_kernel_val,
+            ),
+            lexlean_generated::r4_wasm_ast_eval::TestRunnerOutcome::TestSuitePassed(3, 4)
+        );
+
         let receipt = sha256_hex(
             format!(
-                "subsystems|{d_a}|{d_b}|{carry_in}|{radix}|{sketch_overlap}|{icosian_root}|{packed_roots}|{sketch_admitted}|{prll_sum}|{radix_bucket_idx}|{secops_chain_ok}"
+                "subsystems|{d_a}|{d_b}|{carry_in}|{radix}|{sketch_overlap}|{icosian_root}|{packed_roots}|{sketch_admitted}|{prll_sum}|{radix_bucket_idx}|{secops_chain_ok}|{slot_binding_ok}|{wasm_ast_admitted}"
             )
             .as_bytes(),
         );
@@ -2608,7 +2671,7 @@ impl StudioEngine {
             concat!(
                 "{{",
                 "\"status\":\"ok\",",
-                "\"conformance_ids\":[\"R4-24\",\"R4-25\",\"R4-26\",\"R4-27\",\"R4-29\",\"R4-30\"],",
+                "\"conformance_ids\":[\"R4-24\",\"R4-25\",\"R4-26\",\"R4-27\",\"R4-29\",\"R4-30\",\"R4-31\",\"R4-32\"],",
                 "\"inputs\":{{\"digit_a\":{},\"digit_b\":{},\"carry_in\":{},\"radix\":{},\"sketch_overlap\":{}}},",
                 "\"r4_24_spiralcore\":{{",
                 "\"icosian_root\":{},",
@@ -2655,6 +2718,15 @@ impl StudioEngine {
                 "\"merkle_chain_verified\":{},",
                 "\"sandbox_admission_verified\":{}",
                 "}},",
+                "\"r4_31_slot_binding\":{{",
+                "\"slot_capacity\":8,",
+                "\"slot_binding_verified\":{},",
+                "\"computed_kernel_value\":{}",
+                "}},",
+                "\"r4_32_wasm_ast_eval\":{{",
+                "\"module_admission_verified\":{},",
+                "\"test_assertion_verified\":{}",
+                "}},",
                 "\"receipt_sha256\":\"{}\"",
                 "}}"
             ),
@@ -2699,6 +2771,10 @@ impl StudioEngine {
             otel_dedup_saved,
             secops_chain_ok,
             secops_sandbox_ok,
+            slot_binding_ok,
+            slot_kernel_val,
+            wasm_ast_admitted,
+            wasm_ast_assert_ok,
             receipt
         )
     }
@@ -4180,6 +4256,56 @@ impl StudioEngine {
             Err((_status, err_body)) => err_body,
         }
     }
+
+    /// Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the live virtual
+    /// workspace files using the `R4-32` in-Wasm AST parser, static typechecker, and interpreter.
+    pub fn execute_cargo_json(&mut self, payload: &str) -> String {
+        let trimmed = payload.trim();
+        let (subcommand, filter) = if let Some((sub, rest)) = trimmed.split_once('\t') {
+            (sub.trim(), rest.trim())
+        } else if let Some((sub, rest)) = trimmed.split_once(' ') {
+            (sub.trim(), rest.trim())
+        } else if trimmed.is_empty() {
+            ("test", "")
+        } else {
+            (trimmed, "")
+        };
+
+        let rust_files: Vec<(String, String)> = self
+            .workspace_files
+            .iter()
+            .filter(|f| f.path.ends_with(".rs") || f.language == "rust")
+            .map(|f| (f.path.clone(), f.content.clone()))
+            .collect();
+
+        let report = wasm_ast_eval::execute_workspace_cargo(subcommand, filter, &rust_files);
+        report.to_json()
+    }
+
+    /// Return the content-addressed 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+    pub fn shard_catalog_json(&self) -> String {
+        self.lut_stack.partition_geometric_shards().to_json()
+    }
+
+    /// Export a single `UORSHRD1` binary shard pack for `e8_root` (`0..15`).
+    pub fn export_shard_bytes(&self, e8_root: u8) -> Vec<u8> {
+        self.lut_stack
+            .export_geometric_shard(e8_root % 16, None, None)
+            .map(|pack| pack.to_bytes())
+            .unwrap_or_default()
+    }
+
+    /// Hot-swap / merge a `UORSHRD1` binary shard pack into the active `LutStackModel` and rebuild its Radix `/8` index.
+    pub fn merge_shard_bytes(&mut self, shard_bytes: &[u8]) -> Result<String, String> {
+        let shard = lut_stack_exec::GeometricShardPack::from_bytes(shard_bytes)?;
+        let model_mut = Arc::make_mut(&mut self.lut_stack);
+        let report = model_mut.merge_geometric_shard(&shard)?;
+        self.lut_stack_source = format!(
+            "{} + shard[e8={}]",
+            self.lut_stack_source, shard.coordinate.e8_root
+        );
+        Ok(report.to_json())
+    }
 }
 
 impl api::InferenceBackend for StudioEngine {
@@ -4525,6 +4651,88 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
                 ),
             }
         }
+        "cargo" | "wasm_eval" => engine.execute_cargo_json(payload),
+        "shard_status" | "shards" => engine.shard_catalog_json(),
+        "shard_export" => {
+            let e8_root = payload.trim().parse::<u8>().unwrap_or(0) % 16;
+            let shard = match engine.lut_stack.export_geometric_shard(e8_root, None, None) {
+                Ok(pack) => pack,
+                Err(err) => {
+                    return format!(
+                        "{{\"status\":\"error\",\"message\":\"{}\"}}",
+                        escape_json(&err)
+                    );
+                }
+            };
+            let bytes = shard.to_bytes();
+            let mut hex_str = String::with_capacity(bytes.len().min(64) * 2);
+            for b in bytes.iter().take(64) {
+                use std::fmt::Write;
+                let _ = write!(&mut hex_str, "{b:02x}");
+            }
+            format!(
+                concat!(
+                    "{{",
+                    "\"status\":\"ok\",",
+                    "\"magic\":\"UORSHRD1\",",
+                    "\"e8_root_shard\":{},",
+                    "\"reply_entries\":{},",
+                    "\"point_rows\":{},",
+                    "\"byte_len\":{},",
+                    "\"shard_sha256\":\"{}\",",
+                    "\"header_hex_preview\":\"{}\"",
+                    "}}"
+                ),
+                shard.coordinate.e8_root,
+                shard.reply_packed12.len(),
+                shard.point_rows,
+                bytes.len(),
+                escape_json(&shard.content_sha256),
+                hex_str
+            )
+        }
+        "shard_merge" => {
+            let clean: Vec<u8> = payload
+                .trim()
+                .strip_prefix("0x")
+                .unwrap_or(payload.trim())
+                .bytes()
+                .filter(|b| !b.is_ascii_whitespace())
+                .collect();
+            if clean.is_empty() || !clean.len().is_multiple_of(2) {
+                return "{\"status\":\"error\",\"message\":\"Shard payload must be even-length hex.\"}"
+                    .to_string();
+            }
+            let mut bytes = Vec::with_capacity(clean.len() / 2);
+            for pair in clean.chunks_exact(2) {
+                let hi = match pair[0] {
+                    b'0'..=b'9' => pair[0] - b'0',
+                    b'a'..=b'f' => pair[0] - b'a' + 10,
+                    b'A'..=b'F' => pair[0] - b'A' + 10,
+                    _ => {
+                        return "{\"status\":\"error\",\"message\":\"Invalid hex byte in shard_merge.\"}"
+                            .to_string();
+                    }
+                };
+                let lo = match pair[1] {
+                    b'0'..=b'9' => pair[1] - b'0',
+                    b'a'..=b'f' => pair[1] - b'a' + 10,
+                    b'A'..=b'F' => pair[1] - b'A' + 10,
+                    _ => {
+                        return "{\"status\":\"error\",\"message\":\"Invalid hex byte in shard_merge.\"}"
+                            .to_string();
+                    }
+                };
+                bytes.push((hi << 4) | lo);
+            }
+            match engine.merge_shard_bytes(&bytes) {
+                Ok(json) => json,
+                Err(err) => format!(
+                    "{{\"status\":\"error\",\"message\":\"{}\"}}",
+                    escape_json(&err)
+                ),
+            }
+        }
         "v1/messages" | "/v1/messages" => engine.dispatch_v1_messages(payload),
         "v1/chat/completions" | "/v1/chat/completions" | "chat/completions" => {
             engine.dispatch_v1_chat_completions(payload)
@@ -4634,6 +4842,56 @@ pub fn studio_weight_pack_status() -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.weight_pack_status_json()
+}
+
+/// Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
+#[wasm_bindgen]
+pub fn studio_wasm_eval(subcommand: &str, filter: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.execute_cargo_json(&format!("{}\t{}", subcommand.trim(), filter.trim()))
+}
+
+/// Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+#[wasm_bindgen]
+pub fn studio_shard_catalog() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.shard_catalog_json()
+}
+
+/// Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
+#[wasm_bindgen]
+pub fn studio_export_uorlut_shard(e8_root: u8) -> Vec<u8> {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.export_shard_bytes(e8_root)
+}
+
+/// Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
+#[wasm_bindgen]
+pub fn studio_merge_uorlut_shard(shard_bytes: &[u8]) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.merge_shard_bytes(shard_bytes) {
+        Ok(json) => json,
+        Err(err) => format!(
+            "{{\"status\":\"error\",\"message\":\"{}\"}}",
+            escape_json(&err)
+        ),
+    }
 }
 
 /// Consolidate integer LUT model weights via coordinate descent over dialogue samples.
@@ -6257,6 +6515,127 @@ mod tests {
                 .unwrap_or("")
                 .contains("RejectedPathTraversal"),
             "expected RejectedPathTraversal from R4.SecopsAudit.admitSandboxWrite, got {traversal_res}"
+        );
+    }
+
+    #[test]
+    fn test_r4_31_slot_binding_r4_32_wasm_ast_eval_and_track_d_shards_in_studio_engine() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let mut engine = StudioEngine::new_default();
+
+        // 1. Verify R4-31 and R4-32 in render_subsystems_json
+        let sub_raw = engine.render_subsystems_json("7,6,1,10,2180");
+        let sub: serde_json::Value = serde_json::from_str(&sub_raw).expect("valid subsystems JSON");
+        assert_eq!(sub["status"], "ok");
+        assert_eq!(sub["r4_31_slot_binding"]["slot_binding_verified"], true);
+        assert_eq!(sub["r4_31_slot_binding"]["computed_kernel_value"], 13);
+        assert_eq!(
+            sub["r4_32_wasm_ast_eval"]["module_admission_verified"],
+            true
+        );
+        assert_eq!(sub["r4_32_wasm_ast_eval"]["test_assertion_verified"], true);
+
+        // 2. Verify out-of-the-box `cargo test` runs all 3 default workspace #[test] functions
+        let test_raw = engine.execute_cargo_json("test");
+        let test_json: serde_json::Value =
+            serde_json::from_str(&test_raw).expect("valid cargo test JSON");
+        assert_eq!(test_json["status"], "ok", "cargo test output: {test_raw}");
+        assert_eq!(test_json["tests_passed"], 3);
+        assert_eq!(test_json["tests_failed"], 0);
+        assert!(test_json["total_fuel_consumed"].as_u64().unwrap_or(0) > 0);
+
+        // 3. Edit scratchpad.rs with an unbalanced delimiter -> verify exact 1-based line number
+        let _ = engine.workspace_write_json(
+            "scratchpad.rs\nfn broken_delim() {\n    let x: i64 = (10 + 20;\n}\n",
+        );
+        let delim_raw = engine.execute_cargo_json("check");
+        let delim_json: serde_json::Value = serde_json::from_str(&delim_raw).expect("valid JSON");
+        assert_eq!(delim_json["status"], "error");
+        assert_eq!(
+            delim_json["diagnostics"][0]["code"],
+            "UnbalancedDelimiterAtLine"
+        );
+        assert_eq!(delim_json["diagnostics"][0]["line"], 2);
+
+        // 4. Edit scratchpad.rs with a static type mismatch -> verify TypeErrorAtLine at line 2
+        let _ = engine.workspace_write_json(
+            "scratchpad.rs\nfn bad_types() -> u32 {\n    let flag: u32 = true;\n    flag\n}\n",
+        );
+        let type_raw = engine.execute_cargo_json("check");
+        let type_json: serde_json::Value = serde_json::from_str(&type_raw).expect("valid JSON");
+        assert_eq!(type_json["status"], "error");
+        assert_eq!(type_json["diagnostics"][0]["code"], "TypeErrorAtLine");
+        assert_eq!(type_json["diagnostics"][0]["line"], 2);
+
+        // 5. Edit scratchpad.rs with a failing #[test] assertion -> verify AssertionFailedAtLine at line 4
+        let _ = engine.workspace_write_json(
+            "scratchpad.rs\n#[test]\nfn test_scratchpad_math() {\n    let val = 14 * 3;\n    assert_eq!(val, 99);\n}\n",
+        );
+        let fail_raw = engine.execute_cargo_json("test\ttest_scratchpad_math");
+        let fail_json: serde_json::Value = serde_json::from_str(&fail_raw).expect("valid JSON");
+        assert_eq!(fail_json["status"], "error");
+        assert_eq!(fail_json["tests_failed"], 1);
+        assert_eq!(fail_json["test_results"][0]["failure_line"], 4);
+
+        // 6. Fix the assertion in scratchpad.rs -> verify `cargo test` passes all 4 workspace tests!
+        let _ = engine.workspace_write_json(
+            "scratchpad.rs\n#[test]\nfn test_scratchpad_math() {\n    let val = 14 * 3;\n    assert_eq!(val, 42);\n}\n",
+        );
+        let fixed_raw = engine.execute_cargo_json("test");
+        let fixed_json: serde_json::Value = serde_json::from_str(&fixed_raw).expect("valid JSON");
+        assert_eq!(fixed_json["status"], "ok");
+        assert_eq!(fixed_json["tests_passed"], 4);
+        assert_eq!(fixed_json["tests_failed"], 0);
+
+        // 7. Verify Track D shard catalog, binary shard export, and hot-swap merge
+        let cat_raw = engine.shard_catalog_json();
+        let cat_json: serde_json::Value = serde_json::from_str(&cat_raw).expect("valid JSON");
+        assert_eq!(cat_json["shard_count"], 16);
+        assert!(cat_json["total_reply_entries"].as_u64().unwrap_or(0) > 0);
+        assert!(cat_json["total_byte_len"].as_u64().unwrap_or(0) > 0);
+        let shard0_bytes = engine.export_shard_bytes(0);
+        assert_eq!(&shard0_bytes[0..8], b"UORSHRD1");
+        let merge_raw = engine
+            .merge_shard_bytes(&shard0_bytes)
+            .expect("shard merge should succeed");
+        let merge_json: serde_json::Value = serde_json::from_str(&merge_raw).expect("valid JSON");
+        assert_eq!(merge_json["status"], "ok");
+        assert_eq!(merge_json["radix_buckets_indexed"], 17_408);
+        assert_eq!(merge_json["radix_populated_buckets"], 17_408);
+
+        // 8. Verify StudioEngine::chat_assistant_json and infer_turn route novel R4-31 symbolic & AST queries
+        let chat_alg_raw = engine.chat_assistant_json(
+            "1\tsrc/engine.rs\tIf alpha_var = 23 and beta_var = 19, what is 4 * alpha_var - 2 * beta_var?",
+        );
+        let chat_alg_json: serde_json::Value =
+            serde_json::from_str(&chat_alg_raw).expect("valid chat JSON");
+        assert!(
+            chat_alg_json["assistant_reply"]
+                .as_str()
+                .unwrap_or("")
+                .contains("54"),
+            "chat_assistant_json must compute 4 * 23 - 2 * 19 = 54 via R4-31, got: {}",
+            chat_alg_json["assistant_reply"]
+        );
+        assert!(
+            chat_alg_json["slot_binding_r4_31"]["bound_slots"]
+                .as_u64()
+                .unwrap_or(0)
+                >= 2
+        );
+
+        let chat_ast_raw = engine.chat_assistant_json(
+            "1\tsrc/engine.rs\tWrite a Rust function compute_orbital_flux(mass_kg: i64, velocity_ms: i64) -> i64 that multiplies mass_kg and velocity_ms",
+        );
+        let chat_ast_json: serde_json::Value =
+            serde_json::from_str(&chat_ast_raw).expect("valid chat JSON");
+        assert!(
+            chat_ast_json["assistant_reply"]
+                .as_str()
+                .unwrap_or("")
+                .contains("pub fn compute_orbital_flux(mass_kg: i64, velocity_ms: i64)"),
+            "chat_assistant_json must synthesize identifier-parameterized Rust function via R4-31, got: {}",
+            chat_ast_json["assistant_reply"]
         );
     }
 }

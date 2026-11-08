@@ -20,6 +20,18 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-32"
+level = "build"
+suite = "r4-wasm-ast-eval"
+statement = "Pure LexLean models the in-Wasm Rust AST parser, typechecker, interpreter, and live #[test] runner (source module admission with exact line-and-column unbalanced-delimiter, syntax, and type diagnostics, fuel-bounded deterministic expression and statement evaluation with runtime division-by-zero and undefined-symbol guards, and live test assertion verification with exact line and operand reporting). Formal controls establish no full rustc borrow-checker equivalence or unbounded Turing-complete termination."
+
+[[id]]
+id = "R4-31"
+level = "build"
+suite = "r4-slot-binding"
+statement = "Pure LexLean models compositional De Bruijn variable slot-binding and live kernel execution in the decoder (VSA register slot binding across integer, algebraic expression, identifier, and file-path entities, live execution of exact R4-27 arithmetic, R4-24 Icosian, and AST kernels over bound register slots with fuel and division-by-zero guards, and /7 token-stream substitution with unresolved-slot and zero-digest refusal). Formal controls establish no unbounded natural-language semantic understanding or external solver completeness."
+
+[[id]]
 id = "R4-30"
 level = "build"
 suite = "r4-secops-audit"

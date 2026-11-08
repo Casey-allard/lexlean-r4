@@ -199,6 +199,48 @@ export function studio_weight_pack_status() {
     }
 }
 
+/**
+ * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
+ * @param {string} subcommand
+ * @param {string} filter
+ * @returns {string}
+ */
+export function studio_wasm_eval(subcommand = 'test', filter = '') {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(String(subcommand ?? 'test'), wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(String(filter ?? ''), wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        if (deferred3_0 !== undefined) {
+            wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+        }
+    }
+}
+
+/**
+ * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+ * @returns {string}
+ */
+export function studio_shard_catalog() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_shard_catalog();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
 function takeFromExternrefTable0(idx) {
     const value = wasm.__wbindgen_export_0.get(idx);
     wasm.__externref_table_dealloc(idx);
@@ -208,6 +250,38 @@ function takeFromExternrefTable0(idx) {
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+}
+
+/**
+ * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
+ * @param {number} e8_root
+ * @returns {Uint8Array}
+ */
+export function studio_export_uorlut_shard(e8_root) {
+    const ret = wasm.studio_export_uorlut_shard(e8_root);
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+
+/**
+ * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
+ * @param {Uint8Array} shard_bytes
+ * @returns {string}
+ */
+export function studio_merge_uorlut_shard(shard_bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(shard_bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_merge_uorlut_shard(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
 }
 /**
  * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
@@ -422,6 +496,53 @@ export async function clear_cached_uorlut_in_indexeddb() {
         return true;
     } catch (_e) {
         return false;
+    }
+}
+
+export async function cache_geometric_shard_in_indexeddb(e8Root, bytes, sha256) {
+    try {
+        const db = await __uor_open_idb();
+        const key = `uorshrd1_e8_${e8Root & 15}`;
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(IDB_STORE_NAME, 'readwrite');
+            const store = tx.objectStore(IDB_STORE_NAME);
+            const copy = new Uint8Array(bytes);
+            store.put({
+                e8_root: e8Root & 15,
+                bytes: copy,
+                sha256: sha256 || '',
+                byte_length: copy.length,
+                saved_at: Date.now()
+            }, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+        return true;
+    } catch (_e) {
+        return false;
+    }
+}
+
+export async function load_geometric_shard_from_indexeddb(e8Root) {
+    try {
+        const db = await __uor_open_idb();
+        const key = `uorshrd1_e8_${e8Root & 15}`;
+        const record = await new Promise((resolve, reject) => {
+            const tx = db.transaction(IDB_STORE_NAME, 'readonly');
+            const getReq = tx.objectStore(IDB_STORE_NAME).get(key);
+            getReq.onsuccess = () => resolve(getReq.result || null);
+            getReq.onerror = () => reject(getReq.error);
+        });
+        db.close();
+        if (record && record.bytes) {
+            return record.bytes instanceof Uint8Array
+                ? record.bytes
+                : new Uint8Array(record.bytes);
+        }
+        return null;
+    } catch (_e) {
+        return null;
     }
 }
 
