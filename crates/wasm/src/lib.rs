@@ -7944,6 +7944,20 @@ mod tests {
             "Slice combinator synthesizer must prune unfiltered_linear_sum and even_linear_sum before verifying even_square_sum: {c4}"
         );
 
+        // 2d. Track A1 Bottom-Up Recurrence Grammar Synthesis (`collatz_hailstone_steps` after pruning `linear_identity` and `digit_sum_recurrence`)
+        let c5_json = ask_chat(
+            "Write a Rust function named collatz_steps that takes n: i64 and returns the number of hailstone steps, such that collatz_steps(6) == 8 and collatz_steps(1) == 0",
+        );
+        let c5 = c5_json["assistant_reply"].as_str().unwrap_or("");
+        assert_eq!(c5_json["is_coding_turn"], true);
+        assert!(
+            c5.contains("pub fn collatz_steps(n: i64) -> i64")
+                && c5.contains("[R4-32 Self-Repair Trace] Verified on attempt #3 (`collatz_hailstone_steps`) after pruning: linear_identity rejected")
+                && c5.contains("digit_sum_recurrence rejected")
+                && c5.contains("Live In-Wasm AST Execution Proof (`R4-32`)"),
+            "Bottom-up recurrence synthesizer must prune linear_identity and digit_sum_recurrence and self-repair to collatz_hailstone_steps: {c5}"
+        );
+
         // 3. Track A2: Multi-branch Cl(0,6) MCTS tree-search + real backtracking constraint solver on simultaneous equations
         let frame = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(
             "If x + y = 17 and x * y = 72, what is x^2 + y^2?",
@@ -7967,6 +7981,47 @@ mod tests {
             "Executive thinking must include 4-branch Cl(0,6) MCTS tree-search and backtracking pruned trace: {think}"
         );
 
+        // 3b. Unbounded 1-Variable Linear Equation with Unknowns on Both Sides (`7 * x - 15 = 2 * x + 30` -> `x = 9`)
+        let frame_1d = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(
+            "Solve 7 * x - 15 = 2 * x + 30",
+        );
+        let ans_1d = frame_1d
+            .kernel_results
+            .iter()
+            .find(|kr| kr.op_name == "backtracking_constraint_solver")
+            .and_then(|kr| kr.result_numeric);
+        assert_eq!(ans_1d, Some(9), "Must solve 7*x - 15 = 2*x + 30 -> x = 9");
+
+        // 3c. Unbounded 2-Variable Cramer's Rule System outside [-25, 50] (`x + y = 250 and x - y = 70, what is x * y?` -> `14400`)
+        let frame_cramer = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(
+            "If x + y = 250 and x - y = 70, what is x * y?",
+        );
+        let ans_cramer = frame_cramer
+            .kernel_results
+            .iter()
+            .find(|kr| kr.op_name == "exact_arithmetic_r4_27")
+            .and_then(|kr| kr.result_numeric);
+        assert_eq!(
+            ans_cramer,
+            Some(14400),
+            "Must solve x+y=250, x-y=70 via exact Cramer's rule (x=160, y=90) and compute x*y=14400"
+        );
+
+        // 3d. Natural-Language Relational Word-Problem Lowering ("A rectangle has perimeter 54 and its length is twice its width; what is its area?" -> `162`)
+        let frame_wp = crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(
+            "A rectangle has perimeter 54 and its length is twice its width; what is its area?",
+        );
+        let ans_wp = frame_wp
+            .kernel_results
+            .iter()
+            .find(|kr| kr.op_name == "exact_arithmetic_r4_27")
+            .and_then(|kr| kr.result_numeric);
+        assert_eq!(
+            ans_wp,
+            Some(162),
+            "Must lower rectangle perimeter/length word problem to 2*l + 2*w = 54, l = 2*w (l=18, w=9) and compute area l*w = 162"
+        );
+
         // 4. Track A2: Stylistic persona rewrite & Cross-lingual translation without untranslated English parentheticals
         let s1_json =
             ask_chat("Explain the Raft consensus algorithm in the style of a noir detective");
@@ -7987,7 +8042,20 @@ mod tests {
             "Must translate the active concept into Spanish at the token/phrase level without raw English parentheticals: {s2}"
         );
 
-        // 5. Track B: Live Q12 Projection Slab export + 256-lane Query encoding + GPU score decoding round-trip
+        // 4b. In-Context Passage, Log & JSON Grounding (`R4-25` Causal Pointer Induction)
+        let doc_json = ask_chat(
+            "Based on the following deployment log and config: {\"service\": \"payments-gateway\", \"port\": 8443, \"max_retries\": 5}. The deployment failed because the TLS certificate expired on node-7. Why did the deployment fail and what port was configured?",
+        );
+        let doc_reply = doc_json["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            doc_reply.contains("TLS certificate expired on node-7")
+                && doc_reply.contains("`port` = **`8443`**"),
+            "Must ground extractive QA in user-supplied log sentence and JSON key-value field: {doc_reply}"
+        );
+
+        // 5. Track B: Full 318-row Q12 Projection Slab export + 256-lane Query encoding + GPU score decoding round-trip
+        let full_slab = studio_export_q12_projection_slab(318);
+        assert_eq!(full_slab.len(), 318 * 256);
         let slab = studio_export_q12_projection_slab(16);
         assert_eq!(slab.len(), 16 * 256);
         let q_vec = studio_encode_prompt_q12_query("Explain Raft consensus and leader election");

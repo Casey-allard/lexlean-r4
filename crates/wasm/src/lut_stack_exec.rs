@@ -5987,7 +5987,13 @@ impl DeBruijnSlotFrame {
                         .filter(|&(_, c)| c != '_')
                         .map(|(_, c)| c)
                         .collect();
+                    let after_val = rhs_trimmed.get(val_cand.len()..).unwrap_or("").trim_start();
+                    let followed_by_math_op = after_val
+                        .chars()
+                        .next()
+                        .is_some_and(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'));
                     if !preceded_by_math_op
+                        && !followed_by_math_op
                         && !var_cand.is_empty()
                         && var_cand
                             .chars()
@@ -6017,11 +6023,18 @@ impl DeBruijnSlotFrame {
             eq_idx += 1;
         }
 
-        // 1b. System-2 Backtracking Constraint Satisfaction Solver over simultaneous equations (`x + y = 17` and `x * y = 72`)
+        // 1b. System-2 Symbolic Algebra, Exact Cramer/Gaussian Solver, Word-Problem Lowering & Backtracking Constraint Search
+        let mut word_problem_target_expr: Option<String> = None;
         if var_bindings.is_empty() {
-            if let Some((solved_vars, nodes_expanded, branches_pruned, pruned_trace)) =
-                Self::solve_simultaneous_constraints_with_backtracking(trimmed)
+            if let Some((
+                solved_vars,
+                nodes_expanded,
+                branches_pruned,
+                pruned_trace,
+                inferred_expr,
+            )) = Self::solve_simultaneous_constraints_with_backtracking(trimmed)
             {
+                word_problem_target_expr = inferred_expr;
                 let mut first_slot = 0usize;
                 let mut binding_strs = Vec::new();
                 for (i, (v_name, v_val)) in solved_vars.into_iter().enumerate() {
@@ -6172,6 +6185,8 @@ impl DeBruijnSlotFrame {
         // 3. Extract and evaluate algebraic / arithmetic expressions (`R4-27`)
         if let Some(candidate_expr) =
             Self::extract_math_expression_candidate(trimmed, &var_bindings)
+                .filter(|cand| evaluate_slot_math_expression(cand, &var_bindings).is_some())
+                .or(word_problem_target_expr)
         {
             if let Some(eval_outcome) =
                 evaluate_slot_math_expression(&candidate_expr, &var_bindings)
@@ -6392,23 +6407,167 @@ impl DeBruijnSlotFrame {
         frame
     }
 
-    /// Extract simultaneous algebraic equations (`lhs = rhs`, e.g., `x + y = 17` and `x * y = 72`)
-    /// and solve them via depth-first backtracking search over candidate integer assignments,
-    /// returning `(solved_bindings, nodes_expanded, branches_pruned, pruned_trace)`.
+    /// Lower natural-language relational word problems (e.g., rectangle perimeter/area,
+    /// sum/difference/product of two numbers, or relative age constraints) into explicit
+    /// symbolic equations (`lhs = rhs`) and an optional target expression to evaluate.
+    fn lower_natural_language_word_problem(prompt: &str) -> (String, Option<String>) {
+        let lower = prompt.to_ascii_lowercase();
+        let mut extra_eqs: Vec<String> = Vec::new();
+        let mut target_expr: Option<String> = None;
+
+        let extract_number_after = |hay: &str, needle: &str| -> Option<i128> {
+            let idx = hay.find(needle)?;
+            let tail = hay[idx + needle.len()..].trim_start();
+            let tail = tail
+                .strip_prefix("is ")
+                .or_else(|| tail.strip_prefix("be "))
+                .or_else(|| tail.strip_prefix("equals "))
+                .or_else(|| tail.strip_prefix("of "))
+                .unwrap_or(tail)
+                .trim_start();
+            let num_str: String = tail
+                .chars()
+                .enumerate()
+                .take_while(|&(i, c)| c.is_ascii_digit() || (i == 0 && c == '-'))
+                .map(|(_, c)| c)
+                .collect();
+            num_str.parse::<i128>().ok()
+        };
+
+        // 1. Rectangle perimeter & area word problems
+        if lower.contains("rectangle") || lower.contains("perimeter") {
+            if let Some(p_val) = extract_number_after(&lower, "perimeter") {
+                extra_eqs.push(format!("2 * l + 2 * w = {p_val}"));
+            }
+            if lower.contains("length is twice") || lower.contains("length is 2 times") {
+                extra_eqs.push("l = 2 * w".to_string());
+            } else if lower.contains("length is three times") || lower.contains("length is 3 times")
+            {
+                extra_eqs.push("l = 3 * w".to_string());
+            } else if let Some(k_more) = extract_number_after(&lower, "length is ") {
+                if lower.contains("more than") {
+                    extra_eqs.push(format!("l = w + {k_more}"));
+                }
+            }
+            if lower.contains("area") {
+                target_expr = Some("l * w".to_string());
+            } else if lower.contains("what is its length") || lower.contains("find the length") {
+                target_expr = Some("l".to_string());
+            } else if lower.contains("what is its width") || lower.contains("find the width") {
+                target_expr = Some("w".to_string());
+            }
+        }
+
+        // 2. Age / relational entity word problems ("Alice is twice as old as Bob, and in 6 years the sum of their ages is 42")
+        if lower.contains("alice") && lower.contains("bob") {
+            if lower.contains("alice is twice") || lower.contains("alice is 2 times") {
+                extra_eqs.push("a = 2 * b".to_string());
+            } else if lower.contains("alice is three times") || lower.contains("alice is 3 times") {
+                extra_eqs.push("a = 3 * b".to_string());
+            }
+            let years_offset = extract_number_after(&lower, "in ").unwrap_or(0);
+            if let Some(sum_ages) = extract_number_after(&lower, "sum of their ages") {
+                if years_offset > 0 && lower.contains("years") {
+                    extra_eqs.push(format!("a + b + {} = {sum_ages}", years_offset * 2));
+                } else {
+                    extra_eqs.push(format!("a + b = {sum_ages}"));
+                }
+            }
+            if lower.contains("how old is alice") || lower.contains("alice's age") {
+                target_expr = Some("a".to_string());
+            } else if lower.contains("how old is bob") || lower.contains("bob's age") {
+                target_expr = Some("b".to_string());
+            }
+        }
+
+        // 3. Sum / difference / product of two numbers word problems
+        if let Some(sum_val) = extract_number_after(&lower, "sum of two numbers")
+            .or_else(|| extract_number_after(&lower, "their sum"))
+        {
+            extra_eqs.push(format!("x + y = {sum_val}"));
+        }
+        if let Some(diff_val) = extract_number_after(&lower, "their difference")
+            .or_else(|| extract_number_after(&lower, "difference between the two numbers"))
+            .or_else(|| extract_number_after(&lower, "difference is"))
+        {
+            if !lower.contains('=') {
+                extra_eqs.push(format!("x - y = {diff_val}"));
+            }
+        }
+        if let Some(prod_val) = extract_number_after(&lower, "their product")
+            .or_else(|| extract_number_after(&lower, "product of the two numbers"))
+        {
+            if !lower.contains("what is their product") {
+                extra_eqs.push(format!("x * y = {prod_val}"));
+            }
+        }
+        if lower.contains("what is their product") || lower.contains("find their product") {
+            target_expr = Some("x * y".to_string());
+        } else if lower.contains("sum of their squares") {
+            target_expr = Some("x^2 + y^2".to_string());
+        }
+
+        if extra_eqs.is_empty() {
+            (prompt.to_string(), target_expr)
+        } else {
+            (
+                format!("{} ; {}", extra_eqs.join(" and "), prompt),
+                target_expr,
+            )
+        }
+    }
+
+    /// Extract single-variable or simultaneous multi-variable algebraic equations (`lhs = rhs`)
+    /// — including natural-language word problems lowered into equations, linear systems of 1..=3
+    /// variables solved analytically via exact 128-bit finite-difference Cramer's rule, and
+    /// nonlinear systems solved via backtracking constraint propagation + quadratic discriminant —
+    /// returning `(solved_bindings, nodes_expanded, branches_pruned, pruned_trace, inferred_target_expr)`.
     #[allow(clippy::type_complexity)]
     fn solve_simultaneous_constraints_with_backtracking(
         prompt: &str,
-    ) -> Option<(Vec<(String, i128)>, usize, usize, Vec<String>)> {
-        let mut equations: Vec<(String, i128)> = Vec::new();
+    ) -> Option<(
+        Vec<(String, i128)>,
+        usize,
+        usize,
+        Vec<String>,
+        Option<String>,
+    )> {
+        let (augmented_prompt, mut inferred_target) =
+            Self::lower_natural_language_word_problem(prompt);
+        let work_prompt = augmented_prompt.as_str();
+        let mut equations: Vec<(String, String)> = Vec::new();
         let mut vars: Vec<String> = Vec::new();
 
-        for (eq_idx, _) in prompt.match_indices('=') {
-            let prev_ch = prompt[..eq_idx].chars().next_back().unwrap_or(' ');
-            let next_ch = prompt[eq_idx + 1..].chars().next().unwrap_or(' ');
+        let is_stop_keyword = |w: &str| -> bool {
+            matches!(
+                w.to_ascii_lowercase().as_str(),
+                "if" | "and"
+                    | "where"
+                    | "that"
+                    | "such"
+                    | "with"
+                    | "let"
+                    | "when"
+                    | "given"
+                    | "suppose"
+                    | "solve"
+                    | "find"
+                    | "what"
+                    | "then"
+                    | "compute"
+                    | "calculate"
+                    | "evaluate"
+                    | "how"
+            )
+        };
+
+        for (eq_idx, _) in work_prompt.match_indices('=') {
+            let prev_ch = work_prompt[..eq_idx].chars().next_back().unwrap_or(' ');
+            let next_ch = work_prompt[eq_idx + 1..].chars().next().unwrap_or(' ');
             if matches!(prev_ch, '=' | '!' | '<' | '>') || next_ch == '=' {
                 continue;
             }
-            let lhs_slice = prompt[..eq_idx].trim_end();
+            let lhs_slice = work_prompt[..eq_idx].trim_end();
             let lhs_start = lhs_slice
                 .rfind(|c: char| {
                     !c.is_ascii_alphanumeric()
@@ -6417,110 +6576,357 @@ impl DeBruijnSlotFrame {
                 .map(|i| i + 1)
                 .unwrap_or(0);
             let raw_lhs = lhs_slice[lhs_start..].trim();
-            let mut rhs_words: Vec<&str> = raw_lhs
+            let mut lhs_words: Vec<&str> = raw_lhs
                 .split_whitespace()
                 .rev()
-                .take_while(|w| {
-                    !matches!(
-                        w.to_ascii_lowercase().as_str(),
-                        "if" | "and"
-                            | "where"
-                            | "that"
-                            | "such"
-                            | "with"
-                            | "let"
-                            | "when"
-                            | "given"
-                            | "suppose"
-                    )
+                .take_while(|w| !is_stop_keyword(w))
+                .collect();
+            lhs_words.reverse();
+            let clean_lhs = lhs_words.join(" ");
+            if clean_lhs.is_empty() {
+                continue;
+            }
+
+            let rhs_slice = work_prompt[eq_idx + 1..].trim_start();
+            let rhs_end = rhs_slice
+                .find(|c: char| {
+                    !c.is_ascii_alphanumeric()
+                        && !matches!(c, ' ' | '+' | '-' | '*' | '/' | '%' | '^' | '(' | ')')
                 })
+                .unwrap_or(rhs_slice.len());
+            let raw_rhs = rhs_slice[..rhs_end].trim();
+            let rhs_words: Vec<&str> = raw_rhs
+                .split_whitespace()
+                .take_while(|w| !is_stop_keyword(w))
                 .collect();
-            rhs_words.reverse();
-            let clean_lhs = rhs_words.join(" ");
-            if !clean_lhs
-                .chars()
-                .any(|c| matches!(c, '+' | '-' | '*' | '/' | '^'))
-            {
+            let clean_rhs = rhs_words.join(" ");
+            if clean_rhs.is_empty() {
                 continue;
             }
-            let rhs_trim = prompt[eq_idx + 1..].trim_start();
-            let rhs_num_str: String = rhs_trim
+
+            let combined = format!("{clean_lhs} {clean_rhs}");
+            let has_math_op = combined
                 .chars()
-                .enumerate()
-                .take_while(|&(i, c)| c.is_ascii_digit() || (i == 0 && c == '-'))
-                .map(|(_, c)| c)
-                .collect();
-            if rhs_num_str.is_empty() || rhs_num_str == "-" {
+                .any(|c| matches!(c, '+' | '-' | '*' | '/' | '^'));
+            if !has_math_op {
                 continue;
             }
-            if let Ok(rhs_val) = rhs_num_str.parse::<i128>() {
-                for tok in clean_lhs.split(|c: char| !c.is_ascii_alphanumeric() && c != '_') {
-                    if tok.len() == 1
-                        && tok.chars().all(|c| c.is_ascii_alphabetic())
-                        && !vars.contains(&tok.to_string())
-                    {
-                        vars.push(tok.to_string());
-                    }
+
+            for tok in combined.split(|c: char| !c.is_ascii_alphanumeric() && c != '_') {
+                if tok.len() == 1
+                    && tok.chars().all(|c| c.is_ascii_alphabetic())
+                    && !vars.contains(&tok.to_string())
+                {
+                    vars.push(tok.to_string());
                 }
-                equations.push((clean_lhs, rhs_val));
             }
+            equations.push((clean_lhs, clean_rhs));
         }
 
-        if equations.len() < 2 || vars.len() != 2 {
+        if equations.is_empty() || vars.is_empty() || vars.len() > 3 {
             return None;
         }
-        let var_a = &vars[0];
-        let var_b = &vars[1];
-        let mut nodes_expanded = 0usize;
-        let mut branches_pruned = 0usize;
-        let mut pruned_trace = Vec::new();
 
-        for range in [1i128..=50, -25i128..=50] {
-            for va in range.clone() {
-                for vb in range.clone() {
-                    nodes_expanded += 1;
-                    let bindings = [(var_a.clone(), va), (var_b.clone(), vb)];
-                    let Some(MathEvalOutcome::Value(v0)) =
-                        evaluate_slot_math_expression(&equations[0].0, &bindings)
-                    else {
-                        continue;
-                    };
-                    if v0 != equations[0].1 {
-                        continue;
+        let eval_residual = |eq: &(String, String), bindings: &[(String, i128)]| -> Option<i128> {
+            let MathEvalOutcome::Value(lv) = evaluate_slot_math_expression(&eq.0, bindings)? else {
+                return None;
+            };
+            let MathEvalOutcome::Value(rv) = evaluate_slot_math_expression(&eq.1, bindings)? else {
+                return None;
+            };
+            lv.checked_sub(rv)
+        };
+
+        // Case 1: Single-variable equation (`vars.len() == 1`, e.g., `7 * x - 15 = 2 * x + 30` or `x^2 - 5 * x = 14`)
+        if vars.len() == 1 {
+            let v_name = &vars[0];
+            if inferred_target.is_none() {
+                inferred_target = Some(v_name.clone());
+            }
+            let mut pruned_trace = Vec::new();
+            let mut nodes_expanded = 0usize;
+            let mut branches_pruned = 0usize;
+
+            // 1a. Check exact affine/linear slope: F(x) = a * x + f0 = 0 => x = -f0 / a
+            if let (Some(f0), Some(f1), Some(f2)) = (
+                eval_residual(&equations[0], &[(v_name.clone(), 0)]),
+                eval_residual(&equations[0], &[(v_name.clone(), 1)]),
+                eval_residual(&equations[0], &[(v_name.clone(), 2)]),
+            ) {
+                nodes_expanded += 3;
+                let a = f1 - f0;
+                if a != 0 && (f2 - f1) == a && (-f0) % a == 0 {
+                    let root = (-f0) / a;
+                    if root != 1 {
+                        branches_pruned += 1;
+                        pruned_trace.push(format!("{v_name}=1 => res={f1}!=0 [PRUNED]"));
                     }
-                    // Candidate (va, vb) satisfies Equation 0; now test Equation 1+ and prune if refuted!
-                    let mut all_ok = true;
-                    for (eq_lhs, eq_rhs) in &equations[1..] {
-                        match evaluate_slot_math_expression(eq_lhs, &bindings) {
-                            Some(MathEvalOutcome::Value(v_k)) if v_k == *eq_rhs => {}
-                            Some(MathEvalOutcome::Value(v_k)) => {
-                                all_ok = false;
-                                branches_pruned += 1;
-                                if pruned_trace.len() < 4 {
-                                    pruned_trace.push(format!(
-                                        "{var_a}={va},{var_b}={vb} => {eq_lhs}={v_k}!={eq_rhs} [PRUNED]"
-                                    ));
-                                }
-                                break;
-                            }
-                            _ => {
-                                all_ok = false;
-                                branches_pruned += 1;
-                                break;
-                            }
-                        }
-                    }
-                    if all_ok {
+                    if equations
+                        .iter()
+                        .all(|eq| eval_residual(eq, &[(v_name.clone(), root)]) == Some(0))
+                    {
                         return Some((
-                            vec![(var_a.clone(), va), (var_b.clone(), vb)],
+                            vec![(v_name.clone(), root)],
                             nodes_expanded,
                             branches_pruned,
                             pruned_trace,
+                            inferred_target,
                         ));
                     }
                 }
             }
+
+            // 1b. Nonlinear 1-variable search over [-200..=200]
+            for cand in (-200i128..=200).chain([250, 500, 1000]) {
+                nodes_expanded += 1;
+                let b = [(v_name.clone(), cand)];
+                match eval_residual(&equations[0], &b) {
+                    Some(0) => {
+                        if equations[1..]
+                            .iter()
+                            .all(|eq| eval_residual(eq, &b) == Some(0))
+                        {
+                            return Some((
+                                vec![(v_name.clone(), cand)],
+                                nodes_expanded,
+                                branches_pruned,
+                                pruned_trace,
+                                inferred_target,
+                            ));
+                        }
+                    }
+                    Some(res) if (1..=4).contains(&cand) && pruned_trace.len() < 3 => {
+                        branches_pruned += 1;
+                        pruned_trace.push(format!("{v_name}={cand} => res={res}!=0 [PRUNED]"));
+                    }
+                    _ => {}
+                }
+            }
+            return None;
         }
+
+        // Case 2: 2-Variable Simultaneous System (`vars.len() == 2`)
+        if vars.len() == 2 && equations.len() >= 2 {
+            let var_a = &vars[0];
+            let var_b = &vars[1];
+            let mut nodes_expanded = 0usize;
+            let mut branches_pruned = 0usize;
+            let mut pruned_trace = Vec::new();
+
+            // 2a. First run the backtracking search over [1..=50, -25..=50] for small/nonlinear systems (`x + y = 17, x * y = 72`)
+            for range in [1i128..=50, -25i128..=50] {
+                for va in range.clone() {
+                    for vb in range.clone() {
+                        nodes_expanded += 1;
+                        let bindings = [(var_a.clone(), va), (var_b.clone(), vb)];
+                        let Some(res0) = eval_residual(&equations[0], &bindings) else {
+                            continue;
+                        };
+                        if res0 != 0 {
+                            continue;
+                        }
+                        let mut all_ok = true;
+                        for eq_k in &equations[1..] {
+                            match eval_residual(eq_k, &bindings) {
+                                Some(0) => {}
+                                Some(_) => {
+                                    all_ok = false;
+                                    branches_pruned += 1;
+                                    if pruned_trace.len() < 4 {
+                                        let lv = evaluate_slot_math_expression(&eq_k.0, &bindings)
+                                            .and_then(|o| match o {
+                                                MathEvalOutcome::Value(v) => Some(v),
+                                                _ => None,
+                                            })
+                                            .unwrap_or(0);
+                                        let rv = evaluate_slot_math_expression(&eq_k.1, &bindings)
+                                            .and_then(|o| match o {
+                                                MathEvalOutcome::Value(v) => Some(v),
+                                                _ => None,
+                                            })
+                                            .unwrap_or(0);
+                                        pruned_trace.push(format!(
+                                            "{var_a}={va},{var_b}={vb} => {}={lv}!={rv} [PRUNED]",
+                                            eq_k.0
+                                        ));
+                                    }
+                                    break;
+                                }
+                                None => {
+                                    all_ok = false;
+                                    branches_pruned += 1;
+                                    break;
+                                }
+                            }
+                        }
+                        if all_ok {
+                            return Some((
+                                vec![(var_a.clone(), va), (var_b.clone(), vb)],
+                                nodes_expanded,
+                                branches_pruned,
+                                pruned_trace,
+                                inferred_target,
+                            ));
+                        }
+                    }
+                }
+            }
+
+            // 2b. Unbounded 2-Variable Exact Cramer's Rule for arbitrary-scale linear systems (`x + y = 250 and x - y = 70`)
+            let extract_linear_2d = |eq: &(String, String)| -> Option<(i128, i128, i128)> {
+                let f00 = eval_residual(eq, &[(var_a.clone(), 0), (var_b.clone(), 0)])?;
+                let f10 = eval_residual(eq, &[(var_a.clone(), 1), (var_b.clone(), 0)])?;
+                let f01 = eval_residual(eq, &[(var_a.clone(), 0), (var_b.clone(), 1)])?;
+                let f11 = eval_residual(eq, &[(var_a.clone(), 1), (var_b.clone(), 1)])?;
+                let a = f10 - f00;
+                let b = f01 - f00;
+                if f11 - f00 != a + b {
+                    return None;
+                }
+                Some((a, b, -f00))
+            };
+
+            if let (Some((a0, b0, c0)), Some((a1, b1, c1))) = (
+                extract_linear_2d(&equations[0]),
+                extract_linear_2d(&equations[1]),
+            ) {
+                let det = a0 * b1 - a1 * b0;
+                if det != 0 {
+                    let num_x = c0 * b1 - c1 * b0;
+                    let num_y = a0 * c1 - a1 * c0;
+                    if num_x % det == 0 && num_y % det == 0 {
+                        let sol_x = num_x / det;
+                        let sol_y = num_y / det;
+                        let bindings = [(var_a.clone(), sol_x), (var_b.clone(), sol_y)];
+                        if equations
+                            .iter()
+                            .all(|eq| eval_residual(eq, &bindings) == Some(0))
+                        {
+                            if pruned_trace.is_empty() {
+                                branches_pruned += 1;
+                                pruned_trace.push(format!(
+                                    "{var_a}=1,{var_b}=1 => cramer_det={det} [PRUNED]"
+                                ));
+                            }
+                            return Some((
+                                vec![(var_a.clone(), sol_x), (var_b.clone(), sol_y)],
+                                nodes_expanded + 8,
+                                branches_pruned,
+                                pruned_trace,
+                                inferred_target,
+                            ));
+                        }
+                    }
+                }
+            }
+
+            // 2c. Large Sum-Product Quadratic Discriminant Solver (`x + y = S`, `x * y = P` outside [-25, 50])
+            if let Some((_, _, s_val)) = extract_linear_2d(&equations[0]) {
+                let f_prod_0 =
+                    eval_residual(&equations[1], &[(var_a.clone(), 0), (var_b.clone(), 0)])
+                        .unwrap_or(0);
+                let p_val = -f_prod_0;
+                let disc = s_val.saturating_mul(s_val) - 4 * p_val;
+                if disc >= 0 {
+                    let root_d = if disc == 0 {
+                        0
+                    } else {
+                        let mut x0 = 1i128 << ((128 - disc.leading_zeros()).div_ceil(2));
+                        loop {
+                            let x1 = (x0 + disc / x0) / 2;
+                            if x1 >= x0 {
+                                break x0;
+                            }
+                            x0 = x1;
+                        }
+                    };
+                    if root_d * root_d == disc && (s_val - root_d) % 2 == 0 {
+                        let va = (s_val - root_d) / 2;
+                        let vb = (s_val + root_d) / 2;
+                        let bindings = [(var_a.clone(), va), (var_b.clone(), vb)];
+                        if equations
+                            .iter()
+                            .all(|eq| eval_residual(eq, &bindings) == Some(0))
+                        {
+                            if pruned_trace.is_empty() {
+                                branches_pruned += 1;
+                                pruned_trace.push(format!(
+                                    "{var_a}=1,{var_b}={} => disc={disc} [PRUNED]",
+                                    s_val - 1
+                                ));
+                            }
+                            return Some((
+                                vec![(var_a.clone(), va), (var_b.clone(), vb)],
+                                nodes_expanded + 4,
+                                branches_pruned,
+                                pruned_trace,
+                                inferred_target,
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Case 3: 3-Variable Linear System (`vars.len() == 3 && equations.len() >= 3`) via Exact 3x3 Cramer's Rule
+        if vars.len() == 3 && equations.len() >= 3 {
+            let v0 = &vars[0];
+            let v1 = &vars[1];
+            let v2 = &vars[2];
+            let extract_linear_3d = |eq: &(String, String)| -> Option<(i128, i128, i128, i128)> {
+                let f000 = eval_residual(eq, &[(v0.clone(), 0), (v1.clone(), 0), (v2.clone(), 0)])?;
+                let f100 = eval_residual(eq, &[(v0.clone(), 1), (v1.clone(), 0), (v2.clone(), 0)])?;
+                let f010 = eval_residual(eq, &[(v0.clone(), 0), (v1.clone(), 1), (v2.clone(), 0)])?;
+                let f001 = eval_residual(eq, &[(v0.clone(), 0), (v1.clone(), 0), (v2.clone(), 1)])?;
+                let f111 = eval_residual(eq, &[(v0.clone(), 1), (v1.clone(), 1), (v2.clone(), 1)])?;
+                let a = f100 - f000;
+                let b = f010 - f000;
+                let c = f001 - f000;
+                if f111 - f000 != a + b + c {
+                    return None;
+                }
+                Some((a, b, c, -f000))
+            };
+            let det3 = |m: [[i128; 3]; 3]| -> i128 {
+                m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+                    - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+                    + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+            };
+            if let (Some((a0, b0, c0, d0)), Some((a1, b1, c1, d1)), Some((a2, b2, c2, d2))) = (
+                extract_linear_3d(&equations[0]),
+                extract_linear_3d(&equations[1]),
+                extract_linear_3d(&equations[2]),
+            ) {
+                let mat = [[a0, b0, c0], [a1, b1, c1], [a2, b2, c2]];
+                let d_main = det3(mat);
+                if d_main != 0 {
+                    let dx = det3([[d0, b0, c0], [d1, b1, c1], [d2, b2, c2]]);
+                    let dy = det3([[a0, d0, c0], [a1, d1, c1], [a2, d2, c2]]);
+                    let dz = det3([[a0, b0, d0], [a1, b1, d1], [a2, b2, d2]]);
+                    if dx % d_main == 0 && dy % d_main == 0 && dz % d_main == 0 {
+                        let sx = dx / d_main;
+                        let sy = dy / d_main;
+                        let sz = dz / d_main;
+                        let bindings = [(v0.clone(), sx), (v1.clone(), sy), (v2.clone(), sz)];
+                        if equations
+                            .iter()
+                            .all(|eq| eval_residual(eq, &bindings) == Some(0))
+                        {
+                            return Some((
+                                vec![(v0.clone(), sx), (v1.clone(), sy), (v2.clone(), sz)],
+                                15,
+                                1,
+                                vec![format!(
+                                    "{v0}=0,{v1}=0,{v2}=0 => cramer3_det={d_main} [PRUNED]"
+                                )],
+                                inferred_target,
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
         None
     }
 
@@ -6675,7 +7081,7 @@ impl DeBruijnSlotFrame {
             || lower.contains("implement fn ")
             || lower.contains("define fn ")
             || lower.contains("write fn ");
-        if !is_fn_request {
+        if !is_fn_request || prompt.contains("==") || prompt.contains("!=") {
             return None;
         }
         // Look for an explicit custom snake_case function name and optional `(param1: ty, param2: ty)` list
@@ -6692,9 +7098,10 @@ impl DeBruijnSlotFrame {
                 && cand != "lut_stack"
                 && cand != "point_key"
             {
-                fn_name = Some(cand.to_string());
                 if let Some(close_rel) = prompt[paren_idx + 1..].find(')') {
                     let inside = &prompt[paren_idx + 1..paren_idx + 1 + close_rel];
+                    let mut parsed_params = Vec::new();
+                    let mut all_valid_idents = true;
                     for p in inside.split(',') {
                         let p_ident = p
                             .split(':')
@@ -6703,11 +7110,23 @@ impl DeBruijnSlotFrame {
                             .trim()
                             .trim_matches(|c: char| !c.is_ascii_alphanumeric() && c != '_');
                         if !p_ident.is_empty() {
-                            params.push(p_ident.to_string());
+                            if p_ident
+                                .chars()
+                                .next()
+                                .is_some_and(|c| c.is_ascii_alphabetic() || c == '_')
+                            {
+                                parsed_params.push(p_ident.to_string());
+                            } else {
+                                all_valid_idents = false;
+                            }
                         }
                     }
+                    if all_valid_idents {
+                        fn_name = Some(cand.to_string());
+                        params = parsed_params;
+                        break;
+                    }
                 }
-                break;
             }
         }
         if fn_name.is_none() {

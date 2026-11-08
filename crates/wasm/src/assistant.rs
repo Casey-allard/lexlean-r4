@@ -863,7 +863,15 @@ impl StudioEngine {
         let lang = explicit_lang.unwrap_or("python");
 
         // 3b. Check R4-31 De Bruijn Slot-Binding for identifier-parameterized Rust function synthesis
-        if lang == "rust" && prompt.contains('(') && prompt.contains(':') {
+        let has_typed_paren_params = prompt
+            .split('(')
+            .skip(1)
+            .any(|s| s.split(')').next().unwrap_or("").contains(':'));
+        if lang == "rust"
+            && has_typed_paren_params
+            && !prompt.contains("==")
+            && !prompt.contains("!=")
+        {
             let slot_frame =
                 crate::lut_stack_exec::DeBruijnSlotFrame::bind_and_execute(prompt.trim());
             let has_bound_params = slot_frame
@@ -2915,6 +2923,39 @@ fn synthesize_type_directed_rust_ast(
 
     let is_sliding_window = has_any_word(lower, &["sliding", "window", "moving", "subarray"]);
     let is_slice_combinator = has_any_word(lower, &["even", "odd", "square", "squares"]);
+    let call_args_have_comma = user_assertions.first().is_some_and(|a| {
+        a.split(&format!("{fn_name}("))
+            .nth(1)
+            .and_then(|s| s.split(')').next())
+            .is_some_and(|args| args.contains(','))
+    });
+    let is_univariate_int_grammar = has_any_word(
+        lower,
+        &[
+            "collatz",
+            "hailstone",
+            "digit",
+            "digits",
+            "reverse",
+            "factorial",
+            "fibonacci",
+            "isqrt",
+            "sqrt",
+        ],
+    ) || (!user_assertions.is_empty()
+        && !is_string_parser
+        && !is_slice_combinator
+        && !call_args_have_comma
+        && !user_assertions[0].contains('&'));
+    let is_bivariate_int_grammar = !is_univariate_int_grammar
+        && (has_any_word(
+            lower,
+            &["gcd", "divisor", "pow", "power", "exponent", "difference"],
+        ) || (!user_assertions.is_empty()
+            && !is_string_parser
+            && !is_slice_combinator
+            && call_args_have_comma
+            && !user_assertions[0].contains('&')));
 
     // Build candidate AST bodies + specification oracle test suites
     let mut candidates: Vec<(u32, String, String, String)> = Vec::new();
@@ -3000,6 +3041,208 @@ fn synthesize_type_directed_rust_ast(
             ),
             format!("Type-Directed Nesting-Depth AST Evaluator (`{fn_name}`: `(&str) -> i64`)"),
         ));
+
+        // String Combinator C: ASCII Vowel Frequency Counter (`(&str) -> i64`)
+        candidates.push((
+            94,
+            "ascii_vowel_counter".to_string(),
+            format!(
+                concat!(
+                    "/// Count ASCII vowels (`a, e, i, o, u` case-insensitively) in `input`.\n",
+                    "pub fn {fn_name}(input: &str) -> i64 {{\n",
+                    "    let mut count: i64 = 0;\n",
+                    "    for ch in input.bytes() {{\n",
+                    "        if ch == 97 || ch == 101 || ch == 105 || ch == 111 || ch == 117 || ch == 65 || ch == 69 || ch == 73 || ch == 79 || ch == 85 {{\n",
+                    "            count += 1;\n",
+                    "        }}\n",
+                    "    }}\n",
+                    "    count\n",
+                    "}}\n\n",
+                    "#[test]\n",
+                    "fn test_{fn_name}() {{\n",
+                    "{oracle_lines}\n",
+                    "}}\n"
+                ),
+                fn_name = fn_name,
+                oracle_lines = oracle_lines
+            ),
+            format!("Type-Directed Vowel-Count AST Evaluator (`{fn_name}`: `(&str) -> i64`)"),
+        ));
+
+        // String Combinator D: Maximum Consecutive Identical Byte Run Length (`(&str) -> i64`)
+        candidates.push((
+            93,
+            "max_consecutive_run".to_string(),
+            format!(
+                concat!(
+                    "/// Compute the longest contiguous run of identical bytes in `input`.\n",
+                    "pub fn {fn_name}(input: &str) -> i64 {{\n",
+                    "    let mut best: i64 = 0;\n",
+                    "    let mut cur: i64 = 0;\n",
+                    "    let mut prev: i64 = -1;\n",
+                    "    for ch in input.bytes() {{\n",
+                    "        let code = ch as i64;\n",
+                    "        if code == prev {{\n",
+                    "            cur += 1;\n",
+                    "        }} else {{\n",
+                    "            prev = code;\n",
+                    "            cur = 1;\n",
+                    "        }}\n",
+                    "        if cur > best {{\n",
+                    "            best = cur;\n",
+                    "        }}\n",
+                    "    }}\n",
+                    "    best\n",
+                    "}}\n\n",
+                    "#[test]\n",
+                    "fn test_{fn_name}() {{\n",
+                    "{oracle_lines}\n",
+                    "}}\n"
+                ),
+                fn_name = fn_name,
+                oracle_lines = oracle_lines
+            ),
+            format!("Type-Directed Run-Length AST Evaluator (`{fn_name}`: `(&str) -> i64`)"),
+        ));
+    }
+
+    if is_univariate_int_grammar {
+        let default_oracle = if has_any_word(lower, &["collatz", "hailstone"]) {
+            format!("    assert_eq!({fn_name}(6), 8);\n    assert_eq!({fn_name}(1), 0);")
+        } else if has_any_word(lower, &["reverse"]) {
+            format!("    assert_eq!({fn_name}(1234), 4321);")
+        } else if has_any_word(lower, &["factorial"]) {
+            format!("    assert_eq!({fn_name}(5), 120);")
+        } else if has_any_word(lower, &["fibonacci"]) {
+            format!("    assert_eq!({fn_name}(7), 13);")
+        } else if has_any_word(lower, &["sqrt", "isqrt"]) {
+            format!("    assert_eq!({fn_name}(50), 7);")
+        } else {
+            format!("    assert_eq!({fn_name}(492), 15);")
+        };
+        let oracle_lines = if !user_assertions.is_empty() {
+            user_assertions.join("\n")
+        } else {
+            default_oracle
+        };
+
+        let univariate_grammar: &[(&str, &str, u32)] = &[
+            ("linear_identity", "    n\n", 99),
+            (
+                "digit_sum_recurrence",
+                "    let mut cur: i64 = if n < 0 { -n } else { n };\n    let mut acc: i64 = 0;\n    while cur > 0 {\n        acc += cur % 10;\n        cur /= 10;\n    }\n    acc\n",
+                98,
+            ),
+            (
+                "collatz_hailstone_steps",
+                "    let mut cur: i64 = n;\n    let mut steps: i64 = 0;\n    while cur > 1 {\n        if cur % 2 == 0 {\n            cur /= 2;\n        } else {\n            cur = 3 * cur + 1;\n        }\n        steps += 1;\n    }\n    steps\n",
+                97,
+            ),
+            (
+                "reverse_decimal_digits",
+                "    let mut cur: i64 = if n < 0 { -n } else { n };\n    let mut rev: i64 = 0;\n    while cur > 0 {\n        rev = rev * 10 + (cur % 10);\n        cur /= 10;\n    }\n    rev\n",
+                96,
+            ),
+            (
+                "iterative_factorial",
+                "    let mut acc: i64 = 1;\n    let mut i: i64 = 2;\n    while i <= n {\n        acc *= i;\n        i += 1;\n    }\n    acc\n",
+                95,
+            ),
+            (
+                "iterative_fibonacci",
+                "    if n <= 0 {\n        return 0;\n    }\n    let mut a: i64 = 0;\n    let mut b: i64 = 1;\n    let mut i: i64 = 1;\n    while i < n {\n        let next = a + b;\n        a = b;\n        b = next;\n        i += 1;\n    }\n    b\n",
+                94,
+            ),
+            (
+                "integer_sqrt_floor",
+                "    let mut r: i64 = 0;\n    while (r + 1) * (r + 1) <= n {\n        r += 1;\n    }\n    r\n",
+                93,
+            ),
+        ];
+
+        for &(comb_name, body_stmts, prio) in univariate_grammar {
+            let code = format!(
+                concat!(
+                    "/// Bottom-up grammar-synthesized recurrence (`{comb_name}`).\n",
+                    "pub fn {fn_name}(n: i64) -> i64 {{\n",
+                    "{body_stmts}",
+                    "}}\n\n",
+                    "#[test]\n",
+                    "fn test_{fn_name}() {{\n",
+                    "{oracle_lines}\n",
+                    "}}\n"
+                ),
+                comb_name = comb_name,
+                fn_name = fn_name,
+                body_stmts = body_stmts,
+                oracle_lines = oracle_lines
+            );
+            candidates.push((
+                prio,
+                comb_name.to_string(),
+                code,
+                format!("Bottom-Up AST Grammar Synthesizer (`{fn_name}` via `{comb_name}`)"),
+            ));
+        }
+    }
+
+    if is_bivariate_int_grammar {
+        let default_oracle = if has_any_word(lower, &["pow", "power", "exponent"]) {
+            format!("    assert_eq!({fn_name}(3, 4), 81);")
+        } else if has_any_word(lower, &["difference"]) {
+            format!("    assert_eq!({fn_name}(10, 25), 15);")
+        } else {
+            format!("    assert_eq!({fn_name}(48, 18), 6);")
+        };
+        let oracle_lines = if !user_assertions.is_empty() {
+            user_assertions.join("\n")
+        } else {
+            default_oracle
+        };
+
+        let bivariate_grammar: &[(&str, &str, u32)] = &[
+            ("bivariate_add", "    a + b\n", 99),
+            (
+                "euclidean_gcd_loop",
+                "    let mut x: i64 = if a < 0 { -a } else { a };\n    let mut y: i64 = if b < 0 { -b } else { b };\n    while y != 0 {\n        let rem = x % y;\n        x = y;\n        y = rem;\n    }\n    x\n",
+                98,
+            ),
+            (
+                "binary_pow_loop",
+                "    let mut acc: i64 = 1;\n    let mut e: i64 = b;\n    while e > 0 {\n        acc *= a;\n        e -= 1;\n    }\n    acc\n",
+                97,
+            ),
+            (
+                "abs_difference",
+                "    if a >= b {\n        a - b\n    } else {\n        b - a\n    }\n",
+                96,
+            ),
+        ];
+
+        for &(comb_name, body_stmts, prio) in bivariate_grammar {
+            let code = format!(
+                concat!(
+                    "/// Bottom-up grammar-synthesized bivariate operator (`{comb_name}`).\n",
+                    "pub fn {fn_name}(a: i64, b: i64) -> i64 {{\n",
+                    "{body_stmts}",
+                    "}}\n\n",
+                    "#[test]\n",
+                    "fn test_{fn_name}() {{\n",
+                    "{oracle_lines}\n",
+                    "}}\n"
+                ),
+                comb_name = comb_name,
+                fn_name = fn_name,
+                body_stmts = body_stmts,
+                oracle_lines = oracle_lines
+            );
+            candidates.push((
+                prio,
+                comb_name.to_string(),
+                code,
+                format!("Bottom-Up Bivariate AST Synthesizer (`{fn_name}` via `{comb_name}`)"),
+            ));
+        }
     }
 
     if is_slice_combinator {

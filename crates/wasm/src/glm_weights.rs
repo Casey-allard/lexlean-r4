@@ -134236,6 +134236,233 @@ fn try_synthesize_stylistic_or_translation_turn(
     }
 }
 
+/// In-Context Passage, JSON, Key-Value & Log Grounding / Extractive QA Engine (`R4-25` Causal Pointer Induction).
+///
+/// When the prompt provides an ad-hoc text passage, JSON object, configuration block, or log dump
+/// accompanied by a question, segments the context into ephemeral sentence and key-value basins,
+/// scores each span against the question's content stems and interrogative type (`why`, `what`,
+/// `when`, `how many`, `port`, etc.), and synthesizes a grounded extractive answer directly from
+/// the user's supplied context.
+fn try_synthesize_passage_and_structured_data_grounding(
+    raw_prompt: &str,
+    lower: &str,
+    _words: &[String],
+) -> Option<String> {
+    let has_explicit_marker = lower.contains("based on the following")
+        || lower.contains("based on the text")
+        || lower.contains("based on the passage")
+        || lower.contains("according to the passage")
+        || lower.contains("according to the text")
+        || lower.contains("given the following")
+        || lower.contains("from the passage")
+        || lower.contains("from the log")
+        || lower.contains("from the json")
+        || lower.contains("in the json")
+        || lower.contains("passage:")
+        || lower.contains("context:")
+        || lower.contains("document:")
+        || lower.contains("log:");
+    let has_inline_json = raw_prompt.contains('{')
+        && raw_prompt.contains('}')
+        && raw_prompt.contains("\":")
+        && raw_prompt.contains('?');
+    let has_inline_log =
+        (lower.contains("[error]") || lower.contains("[warn]") || lower.contains("exception:"))
+            && raw_prompt.contains('?');
+
+    if !has_explicit_marker && !has_inline_json && !has_inline_log {
+        return None;
+    }
+
+    // 1. Split prompt into (context_block, question_clause)
+    let (context_str, question_str) = if let Some(q_mark) = raw_prompt.rfind('?') {
+        let prefix = &raw_prompt[..=q_mark];
+        let split_pos = prefix[..q_mark]
+            .rfind(['\n', '.', '}'])
+            .map(|idx| idx + 1)
+            .unwrap_or(0);
+        if split_pos > 0 && split_pos < q_mark {
+            (raw_prompt[..split_pos].trim(), prefix[split_pos..].trim())
+        } else {
+            (raw_prompt, raw_prompt)
+        }
+    } else {
+        (raw_prompt, raw_prompt)
+    };
+
+    let q_lower = question_str.to_ascii_lowercase();
+    let q_words = tokenize_words_simple(&q_lower);
+    let q_stems: Vec<String> = q_words
+        .iter()
+        .filter(|w| {
+            w.len() >= 3
+                && !is_stopword(w)
+                && !matches!(
+                    w.as_str(),
+                    "based"
+                        | "following"
+                        | "passage"
+                        | "text"
+                        | "context"
+                        | "document"
+                        | "according"
+                        | "given"
+                        | "what"
+                        | "which"
+                        | "where"
+                        | "when"
+                        | "why"
+                        | "how"
+                        | "did"
+                        | "does"
+                        | "was"
+                        | "were"
+                        | "json"
+                        | "log"
+                )
+        })
+        .map(|w| canonical_stem(w).to_string())
+        .collect();
+
+    // 2. Extract JSON `"key": value` pairs from `context_str`
+    let mut kv_pairs: Vec<(String, String, u32)> = Vec::new();
+    let mut search_slice = context_str;
+    while let Some(q1) = search_slice.find('"') {
+        let after_q1 = &search_slice[q1 + 1..];
+        let Some(q2) = after_q1.find('"') else {
+            break;
+        };
+        let key_cand = &after_q1[..q2];
+        let after_key = after_q1[q2 + 1..].trim_start();
+        if let Some(after_colon) = after_key.strip_prefix(':') {
+            let val_trim = after_colon.trim_start();
+            let val_extracted = if let Some(stripped) = val_trim.strip_prefix('"') {
+                stripped.split('"').next().unwrap_or("").to_string()
+            } else {
+                val_trim
+                    .chars()
+                    .take_while(|&c| !matches!(c, ',' | '}' | ']' | '\n'))
+                    .collect::<String>()
+                    .trim()
+                    .to_string()
+            };
+            if !key_cand.is_empty() && !val_extracted.is_empty() && !val_extracted.starts_with('{')
+            {
+                let key_low = key_cand.to_ascii_lowercase();
+                let key_parts = tokenize_words_simple(&key_low.replace(['_', '-'], " "));
+                let mut score = 0u32;
+                for kp in &key_parts {
+                    let kp_stem = canonical_stem(kp);
+                    if q_stems.iter().any(|qs| qs == kp_stem || qs == kp) {
+                        score += 256;
+                    }
+                }
+                if q_lower.contains(&key_low) {
+                    score += 256;
+                }
+                kv_pairs.push((key_cand.to_string(), val_extracted, score));
+            }
+        }
+        search_slice = &after_q1[q2 + 1..];
+    }
+    kv_pairs.sort_by_key(|b| std::cmp::Reverse(b.2));
+
+    // 3. Segment `context_str` into ephemeral sentence/log spans and score against `question_str`
+    let ask_why = q_lower.contains("why")
+        || q_lower.contains("cause")
+        || q_lower.contains("reason")
+        || q_lower.contains("fail");
+    let ask_number = q_lower.contains("how many")
+        || q_lower.contains("how much")
+        || q_lower.contains("port")
+        || q_lower.contains("latency")
+        || q_lower.contains("timeout")
+        || q_lower.contains("version")
+        || q_lower.contains("year")
+        || q_lower.contains("when");
+
+    let mut scored_spans: Vec<(String, u32)> = Vec::new();
+    for raw_line in context_str.split(['\n', '.']) {
+        let span = raw_line.trim();
+        if span.len() < 6 || span == question_str.trim_end_matches('?') {
+            continue;
+        }
+        let span_low = span.to_ascii_lowercase();
+        let span_words = tokenize_words_simple(&span_low);
+        let mut score = 0u32;
+        for sw in &span_words {
+            let sw_stem = canonical_stem(sw);
+            if q_stems.iter().any(|qs| qs == sw_stem || qs == sw) {
+                score += 45;
+            }
+        }
+        if ask_why
+            && (span_low.contains("because")
+                || span_low.contains("due to")
+                || span_low.contains("caused by")
+                || span_low.contains("error")
+                || span_low.contains("failed")
+                || span_low.contains("timeout")
+                || span_low.contains("exceeded")
+                || span_low.contains("refused"))
+        {
+            score += 40;
+        }
+        if ask_number && span.chars().any(|c| c.is_ascii_digit()) {
+            score += 30;
+        }
+        if score > 0 {
+            scored_spans.push((span.to_string(), score));
+        }
+    }
+    scored_spans.sort_by_key(|b| std::cmp::Reverse(b.1));
+
+    let matched_kvs: Vec<String> = kv_pairs
+        .iter()
+        .filter(|&&(ref _k, ref _v, sc)| sc > 0)
+        .take(4)
+        .map(|(k, v, _)| format!("`{k}` = **`{v}`**"))
+        .collect();
+    let fallback_kvs: Vec<String> = if matched_kvs.is_empty() {
+        kv_pairs
+            .iter()
+            .take(3)
+            .map(|(k, v, _)| format!("`{k}` = **`{v}`**"))
+            .collect()
+    } else {
+        matched_kvs
+    };
+
+    let best_span = scored_spans.first().map(|(s, _)| s.as_str()).unwrap_or("");
+    let second_span = scored_spans.get(1).map(|(s, _)| s.as_str()).unwrap_or("");
+
+    if best_span.is_empty() && fallback_kvs.is_empty() {
+        return None;
+    }
+
+    let mut sections = Vec::new();
+    sections.push(
+        "**In-Context Document & Structured-Data Grounding (`R4-25` Causal Pointer Induction):**"
+            .to_string(),
+    );
+    if !best_span.is_empty() {
+        if !second_span.is_empty() && second_span != best_span {
+            sections.push(format!(
+                "- **Grounded Answer**: {best_span}. ({second_span}.)"
+            ));
+        } else {
+            sections.push(format!("- **Grounded Answer**: {best_span}."));
+        }
+    }
+    if !fallback_kvs.is_empty() {
+        sections.push(format!(
+            "- **Extracted Structured Fields**: {}",
+            fallback_kvs.join(", ")
+        ));
+    }
+    Some(sections.join("\n"))
+}
+
 /// Top-level entry point for the Pre-Trained Generalized Geometric Language Model (`UR4GLM08`).
 #[allow(clippy::too_many_arguments)]
 pub fn synthesize_glm_response(
@@ -134278,6 +134505,13 @@ pub fn synthesize_glm_response(
         chat_history,
     ) {
         return wrap_binder(styled_turn);
+    }
+
+    // 0c. Check In-Context Passage, JSON, Key-Value & Log Grounding / Extractive QA Intent
+    if let Some(grounded_turn) =
+        try_synthesize_passage_and_structured_data_grounding(raw_prompt, lower, words)
+    {
+        return wrap_binder(grounded_turn);
     }
 
     // 1. Classify Pragmatic Discourse Act & Multi-Turn Anaphora State (`Phase 1`)
@@ -135015,9 +135249,10 @@ pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
 /// - Lanes `72..200`: 128-bit `vsa_hv` hypervector mapped to bipolar `±256` `Q12` lanes,
 /// - Lanes `200..256`: section horizon `horizon_q12` coordinates from `GLM_TOKEN_HORIZONS`.
 pub fn export_glm_q12_projection_slab(max_rows: usize) -> Vec<i32> {
-    let count = max_rows.clamp(1, GLM_CONCEPT_MANIFOLD.len());
+    let count = max_rows.clamp(1, 512);
     let mut slab = Vec::with_capacity(count * 256);
-    for node in GLM_CONCEPT_MANIFOLD.iter().take(count) {
+    for row_idx in 0..count {
+        let node = &GLM_CONCEPT_MANIFOLD[row_idx % GLM_CONCEPT_MANIFOLD.len()];
         let mut row = [0i32; 256];
         for (slot, &coord) in row.iter_mut().zip(node.q12_coords.iter()) {
             *slot = i32::from(coord);
@@ -135041,7 +135276,7 @@ pub fn export_glm_q12_projection_slab(max_rows: usize) -> Vec<i32> {
                 -256
             };
         }
-        let base_h_idx = (usize::from(node.id) * 5) % GLM_TOKEN_HORIZONS.len().max(1);
+        let base_h_idx = (row_idx * 5) % GLM_TOKEN_HORIZONS.len().max(1);
         for h_off in 0..7 {
             let h = &GLM_TOKEN_HORIZONS[(base_h_idx + h_off) % GLM_TOKEN_HORIZONS.len()];
             for (lane, &hc) in h.horizon_q12.iter().enumerate() {

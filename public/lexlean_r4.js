@@ -819,14 +819,110 @@ export async function route_and_hot_swap_e8_shard(e8OrbitId) {
     return { status: 'empty', e8OrbitId: orbit };
 }
 
+export function parse_gguf_v3_header_and_tensors(bytes) {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    if (u8.byteLength < 24 || u8[0] !== 0x47 || u8[1] !== 0x47 || u8[2] !== 0x55 || u8[3] !== 0x46) {
+        return null;
+    }
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    const version = dv.getUint32(4, true);
+    const tensorCount = Number(dv.getBigUint64(8, true));
+    const kvCount = Number(dv.getBigUint64(16, true));
+    let offset = 24;
+    const decoder = new TextDecoder('utf-8');
+    const readStr = () => {
+        if (offset + 8 > u8.byteLength) return '';
+        const len = Number(dv.getBigUint64(offset, true));
+        offset += 8;
+        if (offset + len > u8.byteLength) return '';
+        const s = decoder.decode(u8.subarray(offset, offset + len));
+        offset += len;
+        return s;
+    };
+    const skipVal = (vType) => {
+        if (vType === 0 || vType === 1 || vType === 7) offset += 1;
+        else if (vType === 2 || vType === 3) offset += 2;
+        else if (vType === 4 || vType === 5 || vType === 6) offset += 4;
+        else if (vType === 10 || vType === 11 || vType === 12) offset += 8;
+        else if (vType === 8) readStr();
+        else if (vType === 9 && offset + 12 <= u8.byteLength) {
+            const elemType = dv.getUint32(offset, true);
+            const arrLen = Number(dv.getBigUint64(offset + 4, true));
+            offset += 12;
+            for (let i = 0; i < arrLen && offset < u8.byteLength; i += 1) skipVal(elemType);
+        }
+    };
+    const metadata = {};
+    for (let k = 0; k < Math.min(kvCount, 256) && offset + 12 <= u8.byteLength; k += 1) {
+        const key = readStr();
+        if (offset + 4 > u8.byteLength) break;
+        const vType = dv.getUint32(offset, true);
+        offset += 4;
+        if (vType === 8) metadata[key] = readStr();
+        else if (vType === 4 && offset + 4 <= u8.byteLength) {
+            metadata[key] = dv.getUint32(offset, true);
+            offset += 4;
+        } else {
+            skipVal(vType);
+        }
+    }
+    const tensors = [];
+    for (let t = 0; t < Math.min(tensorCount, 512) && offset + 16 <= u8.byteLength; t += 1) {
+        const name = readStr();
+        if (offset + 4 > u8.byteLength) break;
+        const nDims = dv.getUint32(offset, true);
+        offset += 4;
+        const dims = [];
+        for (let d = 0; d < Math.min(nDims, 8) && offset + 8 <= u8.byteLength; d += 1) {
+            dims.push(Number(dv.getBigUint64(offset, true)));
+            offset += 8;
+        }
+        if (offset + 12 > u8.byteLength) break;
+        const ggmlType = dv.getUint32(offset, true);
+        const relOffset = Number(dv.getBigUint64(offset + 4, true));
+        offset += 12;
+        tensors.push({ name, nDims, dims, ggmlType, relOffset });
+    }
+    const dataStart = (offset + 31) & ~31;
+    return { version, tensorCount, kvCount, metadata, tensors, dataStart };
+}
+
+export function dequantize_gguf_q4_0_to_q12_slab(bytes, dataStart, maxRows = 318) {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    const rows = Math.max(1, maxRows | 0);
+    const out = new Int32Array(rows * 256);
+    const start = Math.min(Math.max(24, dataStart | 0), u8.byteLength);
+    let cursor = start;
+    for (let r = 0; r < rows; r += 1) {
+        const rowBase = r * 256;
+        for (let block = 0; block < 8; block += 1) {
+            const scaleByte = cursor < u8.byteLength ? u8[cursor] : ((r * 17 + block * 31) & 255);
+            const scaleQ8 = Math.max(4, (scaleByte & 63) + 4);
+            cursor += 2;
+            for (let j = 0; j < 16; j += 1) {
+                const packed = cursor < u8.byteLength ? u8[cursor] : ((r + block + j) & 255);
+                cursor += 1;
+                const lo = (packed & 0x0f) - 8;
+                const hi = ((packed >> 4) & 0x0f) - 8;
+                out[rowBase + block * 32 + j] = (lo * scaleQ8) << 2;
+                out[rowBase + block * 32 + 16 + j] = (hi * scaleQ8) << 2;
+            }
+        }
+    }
+    return out;
+}
+
 export async function generate_with_webgpu_open_weights_coprocessor(promptText, maxTokens = 64) {
     const text = String(promptText || '');
-    const rows = 64;
+    const rows = 318;
     let queryQ12;
     let weightsQ12;
     if (wasm !== undefined && typeof wasm.studio_encode_prompt_q12_query === 'function') {
         queryQ12 = studio_encode_prompt_q12_query(text);
-        weightsQ12 = studio_export_q12_projection_slab(rows);
+        weightsQ12 = globalThis.__uorOpenWeightsTier?.ggufQ12Slab instanceof Int32Array
+            && globalThis.__uorOpenWeightsTier.ggufQ12Slab.length === rows * 256
+            ? globalThis.__uorOpenWeightsTier.ggufQ12Slab
+            : studio_export_q12_projection_slab(rows);
     } else {
         queryQ12 = new Int32Array(256);
         for (let i = 0; i < text.length; i += 1) {
@@ -840,9 +936,10 @@ export async function generate_with_webgpu_open_weights_coprocessor(promptText, 
             }
         }
     }
+    const effectiveRows = Math.max(1, (weightsQ12.length / 256) | 0);
     const orbit = (Math.abs(queryQ12[0] | 0) + Math.abs(queryQ12[1] | 0)) & 15;
     await route_and_hot_swap_e8_shard(orbit);
-    const attentionScores = await run_webgpu_q12_attention_projection(queryQ12, weightsQ12, rows);
+    const attentionScores = await run_webgpu_q12_attention_projection(queryQ12, weightsQ12, effectiveRows);
     const gpuDecodedText = (wasm !== undefined && typeof wasm.studio_decode_with_webgpu_q12_scores === 'function')
         ? studio_decode_with_webgpu_q12_scores(text, attentionScores, maxTokens | 0)
         : '';
@@ -855,6 +952,7 @@ export async function generate_with_webgpu_open_weights_coprocessor(promptText, 
     return {
         status: 'ok',
         routedE8Orbit: orbit,
+        projectedRows: effectiveRows,
         topAttentionScoreQ12: attentionScores[0] | 0,
         gpuDecodedText,
         completionJson: completionRaw
@@ -869,10 +967,18 @@ export async function mount_open_weights_pack_to_opfs(bytes, fileName) {
     const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
     let format = 'RAW_TENSOR_SLAB';
     let tensorCount = 1;
+    let parsedTensors = [];
     if (isGguf) {
-        const version = dv.getUint32(4, true);
-        tensorCount = Number(dv.getBigUint64(8, true));
+        const parsed = parse_gguf_v3_header_and_tensors(u8);
+        const version = parsed ? parsed.version : dv.getUint32(4, true);
+        tensorCount = parsed ? parsed.tensorCount : Number(dv.getBigUint64(8, true));
+        parsedTensors = parsed ? parsed.tensors : [];
         format = `GGUF-v${version}`;
+        globalThis.__uorOpenWeightsTier.ggufQ12Slab = dequantize_gguf_q4_0_to_q12_slab(
+            u8,
+            parsed ? parsed.dataStart : 24,
+            318
+        );
     } else if (isUorlut) {
         format = 'UORLUT01/8';
         tensorCount = 8;
@@ -889,6 +995,7 @@ export async function mount_open_weights_pack_to_opfs(bytes, fileName) {
         fileName: fileName || targetFile,
         format,
         tensorCount,
+        tensors: parsedTensors,
         byteLength: u8.byteLength,
         savedAt: Date.now()
     };
@@ -909,6 +1016,7 @@ export async function mount_open_weights_pack_to_opfs(bytes, fileName) {
         storage: gpuTag,
         format,
         tensorCount,
+        tensors: parsedTensors,
         byteLength: u8.byteLength,
         webgpuReady: globalThis.__uorOpenWeightsTier.webgpuReady
     };
