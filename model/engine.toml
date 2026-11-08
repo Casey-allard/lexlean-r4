@@ -2675,21 +2675,21 @@ library = "r4-integer-stack@1"
 outcome = "proved"
 tick = "2026-11-08T01:58:02Z"
 
-[[tick]]
-id = "2026-11-07T22:35:31Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F264"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:dialogue-stem:orrow-ming:r2093:k=8"
+strategy = "pointkey-resonance"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-08T02:09:52Z"
 
-[tick.consolidation]
-weights_updated = 0
-l1_shift = 0
-max_delta = 0
-points_consolidated = 23446
-tokens_updated = 0
-orphaned_point_rows = 0
+[[attempt]]
+kappa = "r4:v1:weight:consolidation:tick=2026-11-08T02:09:52Z"
+strategy = "bvgk-writer-refinement"
+template = "uorlut-v8-coordinate-descent"
+library = "r4-integer-stack@1"
+outcome = "consolidated: updated=0, l1_shift=0, max_delta=0, points=24541"
+tick = "2026-11-08T02:09:52Z"
 
 [[tick]]
 id = "2026-11-07T22:47:19Z"
@@ -2794,3 +2794,19 @@ discovered = 1
 pruned = 0
 proved = ["R4-F275"]
 minted = 16
+
+[[tick]]
+id = "2026-11-08T02:09:52Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F276"]
+minted = 16
+
+[tick.consolidation]
+weights_updated = 0
+l1_shift = 0
+max_delta = 0
+points_consolidated = 24541
+tokens_updated = 0
+orphaned_point_rows = 0
