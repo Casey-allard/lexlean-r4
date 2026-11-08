@@ -1292,7 +1292,10 @@ impl StudioEngine {
                                 && (lut_gen.matched_stem_count >= 2
                                     || lut_gen.clauses_resolved >= 2
                                     || is_paraphrased_self_or_capability
-                                    || s.l1_distance == 0))
+                                    || s.l1_distance == 0
+                                    || (self.lut_stack.artifact_bytes > 100_000_000
+                                        && lut_gen.matched_stem_count >= 1
+                                        && lut_gen.point_hamming_bits <= 96)))
                     })
                     .unwrap_or(false));
         if lut_confident {

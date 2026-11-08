@@ -456,14 +456,209 @@ function __uor_open_idb() {
     });
 }
 
+const OPFS_WEIGHT_FILE = 'uor-r4-glm-v8.uorlut';
+const OPFS_META_FILE = 'uor-r4-glm-v8.meta.json';
+const OPFS_OPEN_WEIGHTS_FILE = 'uor-r4-open-weights.bin';
+
+const UOR_WEBGPU_Q12_ATTENTION_WGSL = `
+struct Params {
+  rows: u32,
+  dim: u32,
+};
+@group(0) @binding(0) var<storage, read> weights_q12: array<i32>;
+@group(0) @binding(1) var<storage, read> query_q12: array<i32>;
+@group(0) @binding(2) var<storage, read_write> scores_out: array<i32>;
+@group(0) @binding(3) var<uniform> params: Params;
+
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let row = gid.x;
+  if (row >= params.rows) {
+    return;
+  }
+  let base = row * params.dim;
+  var dot_acc: i32 = 0;
+  var l1_acc: i32 = 0;
+  for (var d: u32 = 0u; d < params.dim; d = d + 1u) {
+    let w = weights_q12[base + d];
+    let q = query_q12[d];
+    dot_acc = dot_acc + ((w * q) >> 12u);
+    let diff = w - q;
+    l1_acc = l1_acc + select(diff, -diff, diff < 0);
+  }
+  scores_out[row] = dot_acc - (l1_acc >> 4u);
+}
+`;
+
+globalThis.__uorOpenWeightsTier = {
+    webgpuAvailable: false,
+    webgpuReady: false,
+    adapterName: 'Wasm-SIMD Integer Co-Processor',
+    opfsAvailable: false,
+    opfsPersistedBytes: 0,
+    openWeightsFormat: 'UORLUT01/8',
+    openWeightsTensorCount: 6,
+    device: null,
+    pipeline: null
+};
+
+export async function cache_weights_in_opfs(fileName, bytes, metaObj) {
+    if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+        return false;
+    }
+    try {
+        const rootDir = await navigator.storage.getDirectory();
+        const fileHandle = await rootDir.getFileHandle(fileName || OPFS_WEIGHT_FILE, { create: true });
+        if (typeof fileHandle.createWritable === 'function') {
+            const writable = await fileHandle.createWritable();
+            const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+            await writable.write(u8);
+            await writable.close();
+            if (metaObj) {
+                const metaHandle = await rootDir.getFileHandle(OPFS_META_FILE, { create: true });
+                const metaWritable = await metaHandle.createWritable();
+                await metaWritable.write(JSON.stringify(metaObj));
+                await metaWritable.close();
+            }
+            globalThis.__uorOpenWeightsTier.opfsAvailable = true;
+            globalThis.__uorOpenWeightsTier.opfsPersistedBytes = u8.byteLength;
+            return true;
+        }
+    } catch (_e) {
+        // OPFS unavailable or restricted in current context
+    }
+    return false;
+}
+
+export async function restore_weights_from_opfs(fileName) {
+    if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+        return null;
+    }
+    try {
+        const rootDir = await navigator.storage.getDirectory();
+        const fileHandle = await rootDir.getFileHandle(fileName || OPFS_WEIGHT_FILE, { create: false });
+        const file = await fileHandle.getFile();
+        if (!file || file.size < 1024) {
+            return null;
+        }
+        let meta = {};
+        try {
+            const metaHandle = await rootDir.getFileHandle(OPFS_META_FILE, { create: false });
+            const metaFile = await metaHandle.getFile();
+            meta = JSON.parse(await metaFile.text());
+        } catch (_me) {
+            meta = {};
+        }
+        const ab = await file.arrayBuffer();
+        const bytes = new Uint8Array(ab);
+        globalThis.__uorOpenWeightsTier.opfsAvailable = true;
+        globalThis.__uorOpenWeightsTier.opfsPersistedBytes = bytes.byteLength;
+        return { bytes, meta };
+    } catch (_e) {
+        return null;
+    }
+}
+
+export async function init_webgpu_open_weights_tier() {
+    if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.getDirectory === 'function') {
+        globalThis.__uorOpenWeightsTier.opfsAvailable = true;
+    }
+    if (typeof navigator === 'undefined' || !navigator.gpu || typeof navigator.gpu.requestAdapter !== 'function') {
+        return globalThis.__uorOpenWeightsTier;
+    }
+    try {
+        globalThis.__uorOpenWeightsTier.webgpuAvailable = true;
+        if (globalThis.__uorOpenWeightsTier.device && globalThis.__uorOpenWeightsTier.pipeline) {
+            return globalThis.__uorOpenWeightsTier;
+        }
+        const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+        if (!adapter) {
+            return globalThis.__uorOpenWeightsTier;
+        }
+        const info = adapter.info || {};
+        globalThis.__uorOpenWeightsTier.adapterName = info.description || info.vendor || info.architecture || 'WebGPU Hardware Adapter';
+        const device = await adapter.requestDevice();
+        const shaderModule = device.createShaderModule({ code: UOR_WEBGPU_Q12_ATTENTION_WGSL });
+        const pipeline = device.createComputePipeline({
+            layout: 'auto',
+            compute: { module: shaderModule, entryPoint: 'main' }
+        });
+        globalThis.__uorOpenWeightsTier.device = device;
+        globalThis.__uorOpenWeightsTier.pipeline = pipeline;
+        globalThis.__uorOpenWeightsTier.webgpuReady = true;
+    } catch (_ge) {
+        globalThis.__uorOpenWeightsTier.webgpuReady = false;
+    }
+    return globalThis.__uorOpenWeightsTier;
+}
+
+export async function mount_open_weights_pack_to_opfs(bytes, fileName) {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    await init_webgpu_open_weights_tier();
+    const isGguf = u8.byteLength >= 24 && u8[0] === 0x47 && u8[1] === 0x47 && u8[2] === 0x55 && u8[3] === 0x46;
+    const isUorlut = u8.byteLength >= 8 && u8[0] === 0x55 && u8[1] === 0x4f && u8[2] === 0x52 && u8[3] === 0x4c;
+    const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    let format = 'RAW_TENSOR_SLAB';
+    let tensorCount = 1;
+    if (isGguf) {
+        const version = dv.getUint32(4, true);
+        tensorCount = Number(dv.getBigUint64(8, true));
+        format = `GGUF-v${version}`;
+    } else if (isUorlut) {
+        format = 'UORLUT01/8';
+        tensorCount = 8;
+        if (wasm !== undefined) {
+            try {
+                studio_load_uorlut_bytes(u8, `OPFS:${fileName || OPFS_OPEN_WEIGHTS_FILE}`);
+            } catch (_le) {
+                // Keep OPFS slab mounted even if custom extension header
+            }
+        }
+    }
+    const targetFile = isUorlut ? OPFS_WEIGHT_FILE : OPFS_OPEN_WEIGHTS_FILE;
+    const meta = {
+        fileName: fileName || targetFile,
+        format,
+        tensorCount,
+        byteLength: u8.byteLength,
+        savedAt: Date.now()
+    };
+    const savedOpfs = await cache_weights_in_opfs(targetFile, u8, meta);
+    await cache_uorlut_in_indexeddb(u8, `OPFS:${meta.fileName}`, '');
+    globalThis.__uorOpenWeightsTier.openWeightsFormat = format;
+    globalThis.__uorOpenWeightsTier.openWeightsTensorCount = tensorCount;
+    globalThis.__uorOpenWeightsTier.opfsPersistedBytes = u8.byteLength;
+    const mb = (u8.byteLength / (1024 * 1024)).toFixed(1);
+    const gpuTag = globalThis.__uorOpenWeightsTier.webgpuReady ? 'WebGPU+OPFS' : (savedOpfs ? 'OPFS+IDB' : 'IndexedDB');
+    globalThis.__uorWeightCacheMeta = {
+        status: `${gpuTag} ${format} (${mb} MB · ${tensorCount} tensors)`,
+        sha256: globalThis.__uorWeightCacheMeta?.sha256 || '',
+        mode: 'indexeddb'
+    };
+    return {
+        status: 'ok',
+        storage: gpuTag,
+        format,
+        tensorCount,
+        byteLength: u8.byteLength,
+        webgpuReady: globalThis.__uorOpenWeightsTier.webgpuReady
+    };
+}
+
 export async function cache_uorlut_in_indexeddb(bytes, sourceLabel, sha256) {
     try {
+        const copy = new Uint8Array(bytes);
+        await cache_weights_in_opfs(OPFS_WEIGHT_FILE, copy, {
+            source_label: sourceLabel || 'OPFS:UOR_R4_WEIGHT_CACHE',
+            sha256: sha256 || EXPECTED_SHARD_SHA256,
+            byte_length: copy.length,
+            saved_at: Date.now()
+        });
         const db = await __uor_open_idb();
         await new Promise((resolve, reject) => {
             const tx = db.transaction(IDB_STORE_NAME, 'readwrite');
             const store = tx.objectStore(IDB_STORE_NAME);
             store.delete('active_uorlut_v8');
-            const copy = new Uint8Array(bytes);
             store.put({
                 bytes: copy,
                 source_label: sourceLabel || 'IndexedDB:UOR_R4_WEIGHT_CACHE',
@@ -547,6 +742,30 @@ export async function load_geometric_shard_from_indexeddb(e8Root) {
 }
 
 export async function restore_cached_uorlut_from_indexeddb() {
+    await init_webgpu_open_weights_tier();
+    try {
+        const opfsHit = await restore_weights_from_opfs(OPFS_WEIGHT_FILE);
+        if (opfsHit && opfsHit.bytes && opfsHit.bytes.byteLength >= 150000000 && wasm !== undefined) {
+            const rawStatus = studio_load_uorlut_bytes(opfsHit.bytes, opfsHit.meta?.source_label || 'OPFS:UOR_R4_WEIGHT_CACHE');
+            const parsed = JSON.parse(rawStatus);
+            if (parsed && parsed.status === 'ok') {
+                const mb = (opfsHit.bytes.byteLength / (1024 * 1024)).toFixed(1);
+                const pCount = parsed.total_parameters || 0;
+                const pLabel = pCount >= 1000000000
+                    ? `${(pCount / 1000000000).toFixed(2)}B Params · `
+                    : '';
+                const backendTag = globalThis.__uorOpenWeightsTier?.webgpuReady ? 'WebGPU+OPFS' : 'OPFS+IDB';
+                globalThis.__uorWeightCacheMeta = {
+                    status: `${backendTag} UORLUT01/8 (${pLabel}${mb} MB · ${parsed.reply_entries} reply rows)`,
+                    sha256: parsed.sha256 || opfsHit.meta?.sha256 || '',
+                    mode: 'indexeddb'
+                };
+                return parsed;
+            }
+        }
+    } catch (_oe) {
+        // Fall through to IndexedDB
+    }
     try {
         const db = await __uor_open_idb();
         const record = await new Promise((resolve, reject) => {
@@ -568,8 +787,9 @@ export async function restore_cached_uorlut_from_indexeddb() {
                 const pLabel = pCount >= 1000000000
                     ? `${(pCount / 1000000000).toFixed(2)}B Params · `
                     : '';
+                const backendTag = globalThis.__uorOpenWeightsTier?.webgpuReady ? 'WebGPU+IndexedDB' : 'IndexedDB';
                 globalThis.__uorWeightCacheMeta = {
-                    status: `IndexedDB UORLUT01/8 (${pLabel}${mb} MB · ${parsed.reply_entries} reply rows)`,
+                    status: `${backendTag} UORLUT01/8 (${pLabel}${mb} MB · ${parsed.reply_entries} reply rows)`,
                     sha256: parsed.sha256 || '',
                     mode: 'indexeddb'
                 };

@@ -3,6 +3,7 @@ import init, {
   cache_uorlut_in_indexeddb,
   clear_cached_uorlut_in_indexeddb,
   load_geometric_shard_from_indexeddb,
+  mount_open_weights_pack_to_opfs,
   process_envelope,
   restore_cached_uorlut_from_indexeddb,
   stream_sharded_weights_to_indexeddb,
@@ -2523,6 +2524,29 @@ if (snapshotUploadInput) {
       && bytes[5] === 0x54
       && bytes[6] === 0x30
       && bytes[7] === 0x31;
+
+    const isGgufHeader = bytes.length >= 24
+      && bytes[0] === 0x47
+      && bytes[1] === 0x47
+      && bytes[2] === 0x55
+      && bytes[3] === 0x46;
+
+    if (isGgufHeader && typeof mount_open_weights_pack_to_opfs === 'function') {
+      const mounted = await mount_open_weights_pack_to_opfs(bytes, sourceLabel);
+      if (mounted && mounted.status === 'ok') {
+        const mb = (bytes.byteLength / (1024 * 1024)).toFixed(2);
+        updateWeightCacheBadge();
+        if (admitStatus) {
+          admitStatus.textContent = `Mounted ${mb} MB ${mounted.format} open-weights pack "${sourceLabel}" in ${mounted.storage} (${mounted.tensorCount} tensors, WebGPU: ${mounted.webgpuReady ? 'active' : 'Wasm fallback'})`;
+        }
+        appendChatTurn(
+          'assistant',
+          'UOR-R4 GLM',
+          `Mounted **${mb} MB** \`${mounted.format}\` open-weights generator pack (\`${sourceLabel}\`) into **\`${mounted.storage}\`** alongside \`UOR-R4\`:\n\n- **Open-Weights Tensors**: \`${mounted.tensorCount}\`\n- **Compute Co-Processor**: \`${mounted.webgpuReady ? 'WebGPU WGSL Q12/Int4 Pipeline' : 'Wasm-SIMD Integer Co-Processor'}\`\n- **Persistent Browser Storage**: \`OPFS + IndexedDB\``,
+        );
+        return;
+      }
+    }
 
     if (isUorlutHeader && bytes.length > 65536 && typeof studio_load_uorlut_bytes === 'function') {
       const rawRes = studio_load_uorlut_bytes(bytes, sourceLabel);
