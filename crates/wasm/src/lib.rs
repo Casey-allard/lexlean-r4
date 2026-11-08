@@ -2775,7 +2775,7 @@ impl StudioEngine {
             concat!(
                 "{{",
                 "\"status\":\"ok\",",
-                "\"conformance_ids\":[\"R4-24\",\"R4-25\",\"R4-26\",\"R4-27\",\"R4-29\",\"R4-30\",\"R4-31\",\"R4-32\",\"R4-33\",\"R4-34\",\"R4-35\"],",
+                "\"conformance_ids\":[\"R4-24\",\"R4-25\",\"R4-26\",\"R4-27\",\"R4-29\",\"R4-30\",\"R4-31\",\"R4-32\",\"R4-33\",\"R4-34\",\"R4-35\",\"R4-36\"],",
                 "\"inputs\":{{\"digit_a\":{},\"digit_b\":{},\"carry_in\":{},\"radix\":{},\"sketch_overlap\":{}}},",
                 "\"r4_24_spiralcore\":{{",
                 "\"icosian_root\":{},",
@@ -7612,5 +7612,103 @@ mod tests {
             "diff_preview must use real unified diff hunks: {}",
             react_json["diff_preview"]
         );
+    }
+
+    #[test]
+    fn test_prism_factory_verification_registry_and_fulfillment_r4_36() {
+        use crate::lexlean_generated::r4_prism_factory::*;
+
+        assert!(!decides_acceptance(Mechanism::Plasticity));
+        assert!(decides_acceptance(Mechanism::Kernel));
+        assert!(decides_acceptance(Mechanism::CertificateCheck));
+
+        assert!(!compiles(Event::ChangeRoutes));
+        assert!(!compiles(Event::ChangeLacksReceipt));
+        assert!(!compiles(Event::ChangeUnresolved));
+        assert!(compiles(Event::BundlePublished));
+
+        assert!(at_most_one_authority(&[
+            CatalogRole::AuthoritativeInput,
+            CatalogRole::Implementation,
+            CatalogRole::Projection
+        ]));
+        assert!(!at_most_one_authority(&[
+            CatalogRole::AuthoritativeInput,
+            CatalogRole::AuthoritativeInput
+        ]));
+
+        assert!(suffices(oci_artifacts()));
+        assert!(!suffices(ipfs_substrate()));
+
+        let f_v1 = Feature {
+            key: 10,
+            kappa: 100,
+            interface: 1000,
+            executable: true,
+        };
+        let f_v2_patch = Feature {
+            key: 10,
+            kappa: 101,
+            interface: 1000,
+            executable: true,
+        };
+        let f_added = Feature {
+            key: 20,
+            kappa: 200,
+            interface: 2000,
+            executable: true,
+        };
+        let f_major = Feature {
+            key: 10,
+            kappa: 102,
+            interface: 9999,
+            executable: true,
+        };
+        let v = Version {
+            major: 1,
+            minor: 2,
+            patch: 3,
+        };
+        assert_eq!(next_version(v, change_level(&[f_v1], &[f_v1])), v);
+        assert_eq!(
+            next_version(v, change_level(&[f_v1], &[f_v2_patch])),
+            Version {
+                major: 1,
+                minor: 2,
+                patch: 4
+            }
+        );
+        assert_eq!(
+            next_version(v, change_level(&[f_v1], &[f_v1, f_added])),
+            Version {
+                major: 1,
+                minor: 3,
+                patch: 0
+            }
+        );
+        assert_eq!(
+            next_version(v, change_level(&[f_v1], &[f_major])),
+            Version {
+                major: 2,
+                minor: 0,
+                patch: 0
+            }
+        );
+
+        assert_eq!(
+            route_change(&[10], &[10, 20], &[100, 200], &[100, 200]),
+            RouteVerdict::Proved
+        );
+        assert_eq!(
+            route_change(&[10], &[10, 20], &[100, 200], &[100]),
+            RouteVerdict::Observed
+        );
+        assert_eq!(
+            route_change(&[99], &[10, 20], &[100], &[100]),
+            RouteVerdict::Refuted
+        );
+
+        assert!(product_admitted(prism_factory_summary()));
+        assert!(product_admitted(lexlean_r4_summary()));
     }
 }

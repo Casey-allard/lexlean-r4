@@ -144,6 +144,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-19` | `build` | Pure LexLean target-free prediction validates complete geometric inputs and retains all identities under occupied-cell admission and global ranking, with general supervised-writer projection and lawful loss-safety proofs. This establishes no artifact custody, generated fixed-memory serving, research parity or deployment. |
 
+## r4-prism-factory
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-36` | `build` | Pure LexLean models the Prism Factory autonomous self-improvement pipeline: verification mechanism acceptance boundaries (kernel and certificate checking decide acceptance while plasticity only schedules), publication-only compilation gates, single-authority model catalog invariants, characteristic-driven 7-standard compliance (ISO 42010, ISO 27034-1/-5, ISO 27005, ISO 25010, ISO 19450, OMG UML 2.5.1), OCI provenance sufficiency, content-addressed feature registry placement (resolved, contained, merged) and semantic version computation (patch, minor, major from interface and executable deltas), receipt-based change routing (proved, observed, refuted), and the 28-obligation product fulfillment and typed decision engine admitting both prism-factory and lexlean-r4 with zero unresolved decisions. Formal controls establish no external OCI registry transport or host container runtime. |
+
 ## r4-radix-otel
 
 | ID | Level | Statement |

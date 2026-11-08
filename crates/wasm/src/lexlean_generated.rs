@@ -5224,3 +5224,340 @@ pub mod r4_wasm_ast_eval {
         }
     }
 }
+
+/// Generated from `R4.PrismFactory` (`src/R4/PrismFactory.lex.tex`).
+pub mod r4_prism_factory {
+    /// Inductive type `R4.PrismFactory.Mechanism`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum Mechanism {
+        /// Variant `Kernel`.
+        Kernel,
+        /// Variant `CertificateCheck`.
+        CertificateCheck,
+        /// Variant `Plasticity`.
+        Plasticity,
+    }
+
+    /// Inductive type `R4.PrismFactory.Event`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum Event {
+        /// Variant `ChangeRoutes`.
+        ChangeRoutes,
+        /// Variant `ChangeLacksReceipt`.
+        ChangeLacksReceipt,
+        /// Variant `ChangeUnresolved`.
+        ChangeUnresolved,
+        /// Variant `BundlePublished`.
+        BundlePublished,
+    }
+
+    /// Inductive type `R4.PrismFactory.CatalogRole`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum CatalogRole {
+        /// Variant `AuthoritativeInput`.
+        AuthoritativeInput,
+        /// Variant `Implementation`.
+        Implementation,
+        /// Variant `Projection`.
+        Projection,
+        /// Variant `ExternalDependency`.
+        ExternalDependency,
+        /// Variant `Historical`.
+        Historical,
+    }
+
+    /// Structure `R4.PrismFactory.Substrate`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct Substrate {
+        /// Field `contentAddressed`.
+        pub content_addressed: bool,
+        /// Field `mutableReleaseNames`.
+        pub mutable_release_names: bool,
+        /// Field `evidenceReferrers`.
+        pub evidence_referrers: bool,
+    }
+
+    /// Structure `R4.PrismFactory.Version`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+    pub struct Version {
+        /// Field `major`.
+        pub major: u64,
+        /// Field `minor`.
+        pub minor: u64,
+        /// Field `patch`.
+        pub patch: u64,
+    }
+
+    /// Structure `R4.PrismFactory.Feature`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct Feature {
+        /// Field `key`.
+        pub key: u64,
+        /// Field `kappa`.
+        pub kappa: u64,
+        /// Field `interface`.
+        pub interface: u64,
+        /// Field `executable`.
+        pub executable: bool,
+    }
+
+    /// Inductive type `R4.PrismFactory.PlacementOutcome`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PlacementOutcome {
+        /// Variant `Resolved`.
+        Resolved,
+        /// Variant `Contained`.
+        Contained,
+        /// Variant `Merged`.
+        Merged,
+    }
+
+    /// Inductive type `R4.PrismFactory.RouteVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RouteVerdict {
+        /// Variant `Proved`.
+        Proved,
+        /// Variant `Observed`.
+        Observed,
+        /// Variant `Refuted`.
+        Refuted,
+    }
+
+    /// Inductive type `R4.PrismFactory.DeliveryKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum DeliveryKind {
+        /// Variant `Library`.
+        Library,
+        /// Variant `TextApplication`.
+        TextApplication,
+        /// Variant `BrowserApplication`.
+        BrowserApplication,
+        /// Variant `Unstated`.
+        Unstated,
+    }
+
+    /// Structure `R4.PrismFactory.ProductFulfillmentSummary`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct ProductFulfillmentSummary {
+        /// Field `deliveryKind`.
+        pub delivery_kind: DeliveryKind,
+        /// Field `totalObligations`.
+        pub total_obligations: u64,
+        /// Field `statedCount`.
+        pub stated_count: u64,
+        /// Field `derivedCount`.
+        pub derived_count: u64,
+        /// Field `notApplicableCount`.
+        pub not_applicable_count: u64,
+        /// Field `undecidedCount`.
+        pub undecided_count: u64,
+        /// Field `pendingCount`.
+        pub pending_count: u64,
+        /// Field `contrastAdmitted`.
+        pub contrast_admitted: bool,
+        /// Field `semanticPresentationValid`.
+        pub semantic_presentation_valid: bool,
+    }
+
+    /// Function `R4.PrismFactory.establishes`.
+    pub fn establishes(m: Mechanism) -> bool {
+        match m {
+            Mechanism::Kernel => true,
+            Mechanism::CertificateCheck => false,
+            Mechanism::Plasticity => false,
+        }
+    }
+
+    /// Function `R4.PrismFactory.enforcesOnChange`.
+    pub fn enforces_on_change(m: Mechanism) -> bool {
+        match m {
+            Mechanism::Kernel => false,
+            Mechanism::CertificateCheck => true,
+            Mechanism::Plasticity => false,
+        }
+    }
+
+    /// Function `R4.PrismFactory.decidesAcceptance`.
+    pub fn decides_acceptance(m: Mechanism) -> bool {
+        establishes(m) || enforces_on_change(m)
+    }
+
+    /// Function `R4.PrismFactory.compiles`.
+    pub fn compiles(e: Event) -> bool {
+        match e {
+            Event::ChangeRoutes => false,
+            Event::ChangeLacksReceipt => false,
+            Event::ChangeUnresolved => false,
+            Event::BundlePublished => true,
+        }
+    }
+
+    /// Function `R4.PrismFactory.isAuthority`.
+    pub fn is_authority(r: CatalogRole) -> bool {
+        matches!(r, CatalogRole::AuthoritativeInput)
+    }
+
+    /// Function `R4.PrismFactory.countAuthorities`.
+    pub fn count_authorities(roles: &[CatalogRole]) -> u64 {
+        roles.iter().filter(|&&r| is_authority(r)).count() as u64
+    }
+
+    /// Function `R4.PrismFactory.atMostOneAuthority`.
+    pub fn at_most_one_authority(roles: &[CatalogRole]) -> bool {
+        count_authorities(roles) <= 1
+    }
+
+    /// Function `R4.PrismFactory.suffices`.
+    pub fn suffices(s: Substrate) -> bool {
+        s.content_addressed && s.mutable_release_names && s.evidence_referrers
+    }
+
+    /// Function `R4.PrismFactory.ociArtifacts`.
+    pub fn oci_artifacts() -> Substrate {
+        Substrate {
+            content_addressed: true,
+            mutable_release_names: true,
+            evidence_referrers: true,
+        }
+    }
+
+    /// Function `R4.PrismFactory.ipfsSubstrate`.
+    pub fn ipfs_substrate() -> Substrate {
+        Substrate {
+            content_addressed: true,
+            mutable_release_names: false,
+            evidence_referrers: false,
+        }
+    }
+
+    /// Function `R4.PrismFactory.subsetNats`.
+    pub fn subset_nats(xs: &[u64], ys: &[u64]) -> bool {
+        xs.iter().all(|x| ys.contains(x))
+    }
+
+    /// Function `R4.PrismFactory.routeChange`.
+    pub fn route_change(
+        imports: &[u64],
+        accepted: &[u64],
+        obligations: &[u64],
+        receipts: &[u64],
+    ) -> RouteVerdict {
+        if !subset_nats(imports, accepted) {
+            RouteVerdict::Refuted
+        } else if subset_nats(obligations, receipts) {
+            RouteVerdict::Proved
+        } else {
+            RouteVerdict::Observed
+        }
+    }
+
+    /// Function `R4.PrismFactory.missingFeatures`.
+    pub fn missing_features(xs: &[Feature], ys: &[Feature]) -> Vec<Feature> {
+        xs.iter()
+            .copied()
+            .filter(|f| !ys.iter().any(|g| g.kappa == f.kappa))
+            .collect()
+    }
+
+    /// Function `R4.PrismFactory.addedLevel`.
+    pub fn added_level(f: Feature, dropped: &[Feature]) -> u64 {
+        for g in dropped {
+            if g.key == f.key {
+                if g.interface != f.interface {
+                    return 3;
+                }
+                if g.executable && !f.executable {
+                    return 3;
+                }
+                if f.executable && !g.executable {
+                    return 2;
+                }
+                return 1;
+            }
+        }
+        2
+    }
+
+    /// Function `R4.PrismFactory.changeLevel`.
+    pub fn change_level(before: &[Feature], after: &[Feature]) -> u64 {
+        let added = missing_features(after, before);
+        let dropped = missing_features(before, after);
+        if dropped
+            .iter()
+            .any(|g| !added.iter().any(|f| f.key == g.key))
+        {
+            return 3;
+        }
+        added
+            .iter()
+            .map(|&f| added_level(f, &dropped))
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// Function `R4.PrismFactory.nextVersion`.
+    pub fn next_version(v: Version, bump: u64) -> Version {
+        if bump == 3 {
+            Version {
+                major: v.major.saturating_add(1),
+                minor: 0,
+                patch: 0,
+            }
+        } else if bump == 2 {
+            Version {
+                major: v.major,
+                minor: v.minor.saturating_add(1),
+                patch: 0,
+            }
+        } else if bump == 1 {
+            Version {
+                major: v.major,
+                minor: v.minor,
+                patch: v.patch.saturating_add(1),
+            }
+        } else {
+            v
+        }
+    }
+
+    /// Function `R4.PrismFactory.productAdmitted`.
+    pub fn product_admitted(m: ProductFulfillmentSummary) -> bool {
+        !matches!(m.delivery_kind, DeliveryKind::Unstated)
+            && m.total_obligations == 28
+            && m.undecided_count == 0
+            && m.pending_count == 0
+            && (m.stated_count + m.derived_count + m.not_applicable_count) == 28
+            && (!matches!(m.delivery_kind, DeliveryKind::BrowserApplication)
+                || (m.contrast_admitted && m.semantic_presentation_valid))
+    }
+
+    /// Function `R4.PrismFactory.prismFactorySummary`.
+    pub fn prism_factory_summary() -> ProductFulfillmentSummary {
+        ProductFulfillmentSummary {
+            delivery_kind: DeliveryKind::Library,
+            total_obligations: 28,
+            stated_count: 18,
+            derived_count: 5,
+            not_applicable_count: 5,
+            undecided_count: 0,
+            pending_count: 0,
+            contrast_admitted: true,
+            semantic_presentation_valid: true,
+        }
+    }
+
+    /// Function `R4.PrismFactory.lexleanR4Summary`.
+    pub fn lexlean_r4_summary() -> ProductFulfillmentSummary {
+        ProductFulfillmentSummary {
+            delivery_kind: DeliveryKind::BrowserApplication,
+            total_obligations: 28,
+            stated_count: 20,
+            derived_count: 7,
+            not_applicable_count: 1,
+            undecided_count: 0,
+            pending_count: 0,
+            contrast_admitted: true,
+            semantic_presentation_valid: true,
+        }
+    }
+}
