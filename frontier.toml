@@ -587,3 +587,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f38_corpus_induction"
 statement = "Verify that reversible cellular automata preserve computational entropy and microscopic state information via bijective block permutation mappings."
 prompt = "How do reversible cellular automata preserve microscopic information across infinite grid configurations?"
 target_reply = "Reversible cellular automata preserve microscopic information by restricting local transition rules to bijective block permutations where every forward trajectory has a unique backward trajectory, guaranteeing that computational entropy remains strictly constant without any state collapse or thermodynamic heat dissipation over time."
+
+[[claim]]
+id = "R4-F39"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2310.06825:H-LIT-2310.06825-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f39_reply_4gram_deduction"
+statement = "Verify that polynomial quotient identities in succinct non-interactive proofs enforce knowledge soundness against forged evaluations over large finite fields."
+prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
+target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
