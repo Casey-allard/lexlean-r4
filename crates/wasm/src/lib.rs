@@ -3952,12 +3952,19 @@ impl StudioEngine {
         let lower = prompt.to_ascii_lowercase();
         for prefix in ["my name is ", "i am ", "call me "] {
             if let Some(idx) = lower.find(prefix) {
-                let value = prompt[idx + prefix.len()..]
-                    .trim_matches(|c: char| {
-                        !c.is_alphanumeric() && c != ' ' && c != '-' && c != '_'
-                    })
+                let after_clause = prompt[idx + prefix.len()..]
+                    .split(['.', ',', '!', '?', ';', '\n'])
+                    .next()
+                    .unwrap_or("");
+                let value = after_clause
                     .split_whitespace()
-                    .take(4)
+                    .take_while(|w| {
+                        !matches!(
+                            w.to_ascii_lowercase().as_str(),
+                            "and" | "but" | "who" | "from" | "working" | "building"
+                        )
+                    })
+                    .take(3)
                     .collect::<Vec<_>>()
                     .join(" ");
                 let lower_val = value.to_ascii_lowercase();
@@ -7087,6 +7094,85 @@ mod tests {
                         .to_ascii_lowercase()
                         .contains("consensus")),
             "Multi-clause deliberation prompt must synthesize domain concepts without legacy scaffold: {multi_clause_delib_reply}"
+        );
+
+        let _ = dispatch_string("1\tstudio\treset\t");
+    }
+
+    #[test]
+    fn test_casual_multiturn_episodic_memory_and_generalized_conversation() {
+        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let _ = dispatch_string("1\tstudio\treset\t");
+
+        let ask_chat = |prompt: &str| -> String {
+            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+            let json: serde_json::Value =
+                serde_json::from_str(&raw).expect("valid studio chat JSON");
+            assert_eq!(json["status"], "ok");
+            json["assistant_reply"].as_str().unwrap_or("").to_string()
+        };
+
+        // Turn 1: Casual personal & project introduction
+        let t1 = ask_chat(
+            "Hi! My name is Casey and I'm building a browser-based geometric model in Rust. I also love espresso.",
+        );
+        assert!(
+            t1.contains("Casey"),
+            "Turn 1 must warmly greet the user by name: {t1}"
+        );
+
+        // Turn 2: Conversational domain question (verify focused conversational register, not a 550-word dump)
+        let t2 = ask_chat("How does sourdough bread fermentation work?");
+        assert!(
+            t2.contains("Candida humilis") || t2.contains("Lactobacillus") || t2.contains("levain"),
+            "Turn 2 must explain sourdough fermentation: {t2}"
+        );
+        let t2_word_count = t2.split_whitespace().count();
+        assert!(
+            t2_word_count <= 380,
+            "Turn 2 conversational register must be concise (<= 380 words), got {t2_word_count} words"
+        );
+
+        // Turn 3: Casual conversational reaction ("Wait, really?")
+        let t3 = ask_chat("Wait, really?");
+        assert!(
+            t3.contains("To clarify what I meant")
+                && (t3.contains("Sourdough")
+                    || t3.contains("fermentation")
+                    || t3.contains("lactic")),
+            "Turn 3 ('Wait, really?') must clarify Turn 2 naturally: {t3}"
+        );
+
+        // Turn 4: Non-manifold coding turn
+        let t4 = ask_chat(
+            "How can I remove NaN values from a NumPy array? For example, I want to convert an array like [1, 2, NaN, 4, NaN, 8] into [1, 2, 4, 8].",
+        );
+        assert!(
+            t4.to_ascii_lowercase().contains("isnan") || t4.to_ascii_lowercase().contains("numpy"),
+            "Turn 4 must answer the NumPy question: {t4}"
+        );
+
+        // Turn 5: Follow-up on the non-manifold coding turn ("Can you make that shorter?")
+        let t5 = ask_chat("Can you make that shorter?");
+        assert!(
+            t5.contains("Executive Summary") && !t5.starts_with("Building on our discussion of"),
+            "Turn 5 must summarize Turn 4 without regurgitating the old stub: {t5}"
+        );
+
+        // Turn 6: Multi-turn episodic working memory recall across 5 intervening turns
+        let t6 = ask_chat("What is my name and what am I building?");
+        assert!(
+            t6.contains("Casey") && t6.contains("browser-based geometric model in Rust"),
+            "Turn 6 must recall both user name and project from Turn 1 across intervening turns: {t6}"
+        );
+
+        // Turn 7: Multi-turn conversation history recap
+        let t7 = ask_chat("What were we talking about earlier?");
+        assert!(
+            t7.contains("Turn 1")
+                && t7.contains("sourdough")
+                && t7.contains("RollingContextState"),
+            "Turn 7 must recap the multi-turn conversation history and active RollingContextState: {t7}"
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");

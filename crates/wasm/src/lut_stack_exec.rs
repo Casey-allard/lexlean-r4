@@ -5371,24 +5371,73 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
     let asks_recall = q_lower.contains("what is my ")
         || q_lower.contains("what's my ")
         || q_lower.contains("who am i")
+        || q_lower.contains("what am i ")
+        || q_lower.contains("what do i ")
+        || q_lower.contains("where do i ")
         || q_lower.contains("remember")
         || q_lower.contains("earlier")
         || q_lower.contains("what did i ")
-        || q_lower.contains("where do i ");
+        || q_lower.contains("what did we ")
+        || q_lower.contains("what were we ")
+        || q_lower.contains("talking about")
+        || q_lower.contains("talked about")
+        || q_lower.contains("first question")
+        || q_lower.contains("our conversation");
     if !asks_recall || history.is_empty() {
         return None;
     }
     let mut facts = Vec::new();
     for (u, _) in history {
-        let trim = u.trim();
-        let low = trim.to_ascii_lowercase();
-        if low.starts_with("my ")
-            || low.starts_with("i am ")
-            || low.starts_with("i'm ")
-            || low.starts_with("i live ")
-            || low.starts_with("remember that ")
-        {
-            facts.push(trim.trim_end_matches('.').to_owned());
+        for sentence in u.split(['.', '!', '\n']) {
+            let trim = sentence.trim();
+            if trim.is_empty() || trim.ends_with('?') {
+                continue;
+            }
+            let low = trim.to_ascii_lowercase();
+            let clean_low = low
+                .strip_prefix("hi, ")
+                .or_else(|| low.strip_prefix("hi "))
+                .or_else(|| low.strip_prefix("hello, "))
+                .or_else(|| low.strip_prefix("hello "))
+                .or_else(|| low.strip_prefix("hey, "))
+                .or_else(|| low.strip_prefix("hey "))
+                .or_else(|| low.strip_prefix("by the way, "))
+                .unwrap_or(&low);
+            if clean_low.starts_with("my ")
+                || clean_low.starts_with("i am ")
+                || clean_low.starts_with("i'm ")
+                || clean_low.starts_with("i live ")
+                || clean_low.starts_with("i work ")
+                || clean_low.starts_with("i like ")
+                || clean_low.starts_with("i love ")
+                || clean_low.starts_with("i prefer ")
+                || clean_low.starts_with("i enjoy ")
+                || clean_low.starts_with("we are ")
+                || clean_low.starts_with("we're ")
+                || clean_low.starts_with("remember that ")
+                || clean_low.starts_with("remember ")
+            {
+                let item = trim.trim_end_matches('.').to_owned();
+                if !facts.contains(&item) {
+                    facts.push(item);
+                }
+            }
+        }
+    }
+    if facts.is_empty()
+        && (q_lower.contains("what did we ")
+            || q_lower.contains("what were we ")
+            || q_lower.contains("talking about")
+            || q_lower.contains("talked about")
+            || q_lower.contains("first question")
+            || q_lower.contains("our conversation")
+            || q_lower.contains("earlier"))
+    {
+        for (idx, (u, _)) in history.iter().enumerate().take(4) {
+            let trim = u.trim();
+            if !trim.is_empty() {
+                facts.push(format!("Turn {}: \"{}\"", idx + 1, trim));
+            }
         }
     }
     if facts.is_empty() {

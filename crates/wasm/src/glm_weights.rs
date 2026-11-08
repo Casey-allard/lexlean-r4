@@ -132128,13 +132128,34 @@ fn render_single_concept_response(
     }
 
     // Pure autoregressive token-by-token geometric trajectory decoding (`w_0 -> w_1 -> ... -> w_T`)
-    // across the active concept basin without static paragraph prepending.
-    let (token_stream, stepped, _) = generate_token_level_geometric_prose(words, &[node], 450, 550);
+    // adapted to the user's conversational register rather than always dumping a 5-paragraph essay.
+    let wants_deep_dive = lower.contains("in detail")
+        || lower.contains("comprehensive")
+        || lower.contains("deep dive")
+        || lower.contains("thorough")
+        || lower.contains("everything about")
+        || lower.contains("full explanation")
+        || words.len() >= 18;
+    let (min_toks, max_toks) = if wants_deep_dive {
+        (420, 540)
+    } else {
+        (220, 320)
+    };
+    let (token_stream, stepped, _) =
+        generate_token_level_geometric_prose(words, &[node], min_toks, max_toks);
     if stepped >= 40 {
-        return dedup_prose_paragraphs(&token_stream);
+        let mut combined = token_stream;
+        if !wants_deep_dive {
+            let resonant_clauses = synthesize_clause_trajectory(words, &[node], 2);
+            if !resonant_clauses.is_empty() {
+                combined.push_str("\n\n");
+                combined.push_str(&resonant_clauses.join(" "));
+            }
+        }
+        return dedup_prose_paragraphs(&combined);
     }
 
-    let clauses = synthesize_clause_trajectory(words, &[node], 8);
+    let clauses = synthesize_clause_trajectory(words, &[node], 6);
     dedup_prose_paragraphs(&clauses.join("\n\n"))
 }
 
@@ -132818,6 +132839,13 @@ pub fn classify_discourse_act(
                 || lower.contains("clarify that")
                 || lower == "how so"
                 || lower == "how so?"
+                || lower == "why"
+                || lower == "why?"
+                || lower == "really"
+                || lower == "really?"
+                || lower.starts_with("wait, really")
+                || lower.starts_with("wait really")
+                || lower.starts_with("wait, why")
                 || lower.contains("in what sense")
                 || lower.contains("why do you say")
                 || lower.contains("what makes you say"))
@@ -132828,6 +132856,8 @@ pub fn classify_discourse_act(
             && (lower.contains("give me an example")
                 || lower.contains("give an example")
                 || lower.contains("concrete example")
+                || lower.contains("show me an example")
+                || lower.contains("another example")
                 || lower.starts_with("for example")
                 || lower.starts_with("for instance"))
         {
@@ -132840,14 +132870,18 @@ pub fn classify_discourse_act(
                 || lower.contains("eli5")
                 || lower.starts_with("simplify")
                 || lower.contains("simpler")
-                || lower.contains("in simple terms"))
+                || lower.contains("in simple terms")
+                || lower.contains("in plain english")
+                || lower.contains("in one sentence"))
         {
             return GlmDiscourseAct::Simplification;
         }
         if max_entity_lex < 15
             && (lower.starts_with("summarize")
                 || lower.starts_with("tldr")
-                || lower.contains("make it shorter"))
+                || lower.contains("make it shorter")
+                || lower.contains("make that shorter")
+                || lower.contains("shorter version"))
         {
             return GlmDiscourseAct::Summarization;
         }
@@ -132868,6 +132902,15 @@ pub fn classify_discourse_act(
                 || lower.contains("what happens if")
                 || lower.contains("how does that affect")
                 || lower.contains("how does this affect")
+                || lower.contains("what should i watch out for")
+                || lower.contains("what could go wrong")
+                || lower.contains("how would i test")
+                || lower.contains("how does that connect")
+                || lower.contains("how does that relate")
+                || lower.contains("talked about earlier")
+                || lower.contains("discussed earlier")
+                || lower.starts_with("interesting")
+                || lower.starts_with("that makes sense")
                 || lower == "why is that"
                 || lower == "why is that?"
                 || lower == "how come"
@@ -132889,7 +132932,9 @@ pub fn classify_discourse_act(
         || lower.contains("this protocol")
         || lower.contains("you just explained")
         || lower.contains("you mentioned")
-        || lower.contains("earlier turn");
+        || lower.contains("earlier turn")
+        || lower.contains("talked about earlier")
+        || lower.contains("discussed earlier");
     if let Some(_anaphor_kind) = detect_anaphor_kind(lower, words) {
         if words.len() <= 28
             && !lower.starts_with("how many ")
@@ -133483,6 +133528,27 @@ pub fn synthesize_glm_response(
                             node.title, node.tradeoffs, node.formal_principle, node.example
                         ));
                     }
+                    if chat_history.len() >= 2
+                        && (lower.contains("earlier")
+                            || lower.contains("connect")
+                            || lower.contains("relate")
+                            || lower.contains("first"))
+                    {
+                        if let Some((first_q, _)) = chat_history.first() {
+                            let first_words = tokenize_words_simple(&first_q.to_ascii_lowercase());
+                            let first_topic = extract_clean_topic(first_q, &first_words);
+                            return wrap_binder(format!(
+                                "Connecting **{}** back to our earlier discussion of **{}**:\n\n{}\n\n{}\n\nIn practice, the core link between **{}** and **{}** is how structural invariants and feedback loops govern behavior across scales: {}",
+                                node.title,
+                                first_topic,
+                                node.formal_principle,
+                                node.tradeoffs,
+                                first_topic,
+                                node.title,
+                                node.example
+                            ));
+                        }
+                    }
                     return wrap_binder(format!(
                         "Building further on **{}**:\n\n{}\n\n{}\n\n{}",
                         node.title, node.formal_principle, node.tradeoffs, node.example
@@ -133590,11 +133656,90 @@ pub fn synthesize_glm_response(
         }
 
         if let Some((prev_q, prev_a)) = chat_history.last() {
-            let first_para = prev_a.split("\n\n").next().unwrap_or(prev_a).trim();
-            return wrap_binder(format!(
-                "Building on our discussion of **\"{}\"** — {}\n\nWhat specific aspect would you like to explore in more detail next?",
-                prev_q, first_para
-            ));
+            let prev_words = tokenize_words_simple(&prev_q.to_ascii_lowercase());
+            let prev_topic = extract_clean_topic(prev_q, &prev_words);
+            let mut combined_words: Vec<String> = words.to_vec();
+            for pw in &prev_words {
+                if !is_stopword(pw) && pw.len() >= 3 && !combined_words.contains(pw) {
+                    combined_words.push(pw.clone());
+                }
+            }
+            let (comb_q12, comb_sign) = pool_prompt_trained_geometry(&combined_words);
+            let geo_neighbors = retrieve_top_concepts_geometric_only(
+                &combined_words,
+                if comb_sign != 0 {
+                    &comb_q12
+                } else {
+                    prompt_q12
+                },
+                comb_sign ^ prompt_sign,
+                2,
+            );
+            let paras: Vec<&str> = prev_a
+                .split("\n\n")
+                .map(str::trim)
+                .filter(|p| !p.is_empty())
+                .collect();
+            let follow_sent = if paras.len() >= 2 {
+                paras[1]
+            } else {
+                let sents = split_balanced_sentences(prev_a);
+                if sents.len() >= 2 {
+                    sents[1].trim()
+                } else {
+                    paras.first().copied().unwrap_or(prev_a.trim())
+                }
+            };
+            let geo_insight = geo_neighbors
+                .first()
+                .filter(|&&(_, sc)| sc >= 6)
+                .map(|&(gnode, _)| {
+                    match discourse_act {
+                        GlmDiscourseAct::Exemplification => gnode.example.to_string(),
+                        GlmDiscourseAct::Summarization => gnode.summary.to_string(),
+                        GlmDiscourseAct::Deepening => gnode.tradeoffs.to_string(),
+                        _ => gnode.mechanism.to_string(),
+                    }
+                })
+                .unwrap_or_else(|| {
+                    format!(
+                        "Focusing on the practical mechanics of **{prev_topic}**, the key is isolating the core inputs, invariants, and edge cases so each step can be verified independently."
+                    )
+                });
+            let earlier_bridge = if chat_history.len() >= 2
+                && (lower.contains("earlier")
+                    || lower.contains("connect")
+                    || lower.contains("relate")
+                    || lower.contains("first"))
+            {
+                chat_history.first().map(|(fq, _)| {
+                    let fw = tokenize_words_simple(&fq.to_ascii_lowercase());
+                    let ft = extract_clean_topic(fq, &fw);
+                    format!(
+                        "\n\nTying this back to our earlier topic (**{ft}**): both rely on clear state boundaries and predictable transitions from one step to the next."
+                    )
+                }).unwrap_or_default()
+            } else {
+                String::new()
+            };
+            let reply = match discourse_act {
+                GlmDiscourseAct::Clarification => format!(
+                    "To clarify what I meant about **{prev_topic}**:\n\n{follow_sent}\n\n{geo_insight}{earlier_bridge}\n\nDoes that make the reasoning clearer, or is there a specific part you'd like to zoom in on?"
+                ),
+                GlmDiscourseAct::Exemplification => format!(
+                    "**Concrete Example — {prev_topic}:**\n\n{geo_insight}\n\nIn the context of your question (*\"{prev_q}\"*): {follow_sent}"
+                ),
+                GlmDiscourseAct::Simplification => format!(
+                    "Here is an **Intuitive (ELI5)** way to think about **{prev_topic}**:\n\n{follow_sent}\n\nIn short: {geo_insight}"
+                ),
+                GlmDiscourseAct::Summarization => format!(
+                    "**Executive Summary — {prev_topic}:**\n\n- **Core Takeaway**: {follow_sent}\n- **Key Mechanism**: {geo_insight}{earlier_bridge}"
+                ),
+                _ => format!(
+                    "Regarding **{prev_topic}**:\n\n{geo_insight}\n\n{follow_sent}{earlier_bridge}\n\nWould you like to test a concrete case of this or take it in a different direction?"
+                ),
+            };
+            return wrap_binder(reply);
         }
     }
 

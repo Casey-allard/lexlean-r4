@@ -1022,7 +1022,27 @@ impl StudioEngine {
             return reply_md;
         }
 
-        // 6. Recall queries about session memory (`R4.Binder`)
+        // 6. Recall queries about session memory (`R4.Binder` & Active Episodic Working Memory)
+        if let Some(episodic_reply) = try_resolve_episodic_memory_turn(
+            &self.chat_history,
+            &self.rolling_context.context_summary,
+            trimmed,
+            &lower,
+        ) {
+            let reply_out = if let Some(ref notice) = binder_notice {
+                format!("{notice}\n\n{episodic_reply}")
+            } else {
+                episodic_reply
+            };
+            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &reply_out,
+                128,
+            ));
+            return reply_out;
+        }
         if lower.contains("what is my name") || lower.contains("who am i") {
             if let Some(name) = remembered_name {
                 return format!(
@@ -1130,6 +1150,28 @@ impl StudioEngine {
             }
         }
 
+        // 9b. Active Episodic Working Memory & Conversation History Resolver
+        if let Some(episodic_reply) = try_resolve_episodic_memory_turn(
+            &self.chat_history,
+            &self.rolling_context.context_summary,
+            trimmed,
+            &lower,
+        ) {
+            let reply_out = if let Some(ref notice) = binder_notice {
+                format!("{notice}\n\n{episodic_reply}")
+            } else {
+                episodic_reply
+            };
+            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &reply_out,
+                128,
+            ));
+            return reply_out;
+        }
+
         // 10. Execute the end-to-end `uor-r4.lut-stack/8` (`UORLUT01`) 6-layer SpiralCore/FBS
         //     + ServedHamming + ServedTurnMemory (`/7`) + ServedPointKey (`/8`) + writer.table
         //     BPE token-by-token language model (`self.lut_stack`).
@@ -1137,12 +1179,24 @@ impl StudioEngine {
             && (lower.contains("like i'm 5")
                 || lower.contains("eli5")
                 || lower.contains("explain simpler")
+                || lower.contains("in plain english")
+                || lower.contains("in one sentence")
                 || lower.contains("concrete example")
                 || lower.contains("give me an example")
+                || lower.contains("show me an example")
                 || lower.contains("summarize that")
+                || lower.contains("make that shorter")
+                || lower.contains("make it shorter")
                 || lower.contains("trade-offs")
                 || lower.contains("tradeoffs")
                 || lower.contains("what do you mean")
+                || lower == "why"
+                || lower == "why?"
+                || lower == "really"
+                || lower == "really?"
+                || lower.starts_with("wait, really")
+                || lower.starts_with("wait really")
+                || lower.starts_with("wait, why")
                 || lower.contains("my day is")
                 || has_any_word(&lower, &["there", "his", "her"])
                 || lower.contains("why did it")
@@ -1157,6 +1211,13 @@ impl StudioEngine {
                 || lower.contains("what happens if")
                 || lower.contains("how does that affect")
                 || lower.contains("how does this affect")
+                || lower.contains("what should i watch out for")
+                || lower.contains("what could go wrong")
+                || lower.contains("how would i test")
+                || lower.contains("how does that connect")
+                || lower.contains("how does that relate")
+                || lower.contains("talked about earlier")
+                || lower.contains("discussed earlier")
                 || lower.contains("can you go deeper")
                 || lower.contains("elaborate on"));
         let is_compositional_or_parameterized = (lower.starts_with("compare ")
@@ -3021,6 +3082,234 @@ fn compose_open_domain_reasoning(
 }
 
 pub use crate::lut_stack_exec::parse_thinking_block;
+
+/// Resolve multi-turn episodic working memory queries (user name, preferences, active project,
+/// or prior conversation topics) and warm personal introductions across `chat_history`.
+pub fn try_resolve_episodic_memory_turn(
+    history: &[(String, String)],
+    context_summary: &str,
+    raw_prompt: &str,
+    lower: &str,
+) -> Option<String> {
+    // 1. Check if the user is sharing a pure personal/project introduction without a domain question
+    if !raw_prompt.contains('?')
+        && !lower.contains("explain")
+        && !lower.contains("tell me")
+        && !lower.contains("write ")
+        && !lower.contains("solve ")
+        && !lower.contains("calculate")
+        && (lower.contains("my name is ")
+            || lower.starts_with("hi, i'm ")
+            || lower.starts_with("hi i'm ")
+            || lower.starts_with("hello, i'm ")
+            || lower.starts_with("hey, i'm "))
+    {
+        let mut name_opt = None;
+        for marker in ["my name is ", "i'm ", "i am "] {
+            if let Some(idx) = lower.find(marker) {
+                let after = raw_prompt[idx + marker.len()..].trim();
+                let candidate: String = after
+                    .split(|c: char| !c.is_alphanumeric() && c != '-')
+                    .next()
+                    .unwrap_or("")
+                    .trim()
+                    .to_string();
+                if !candidate.is_empty()
+                    && !matches!(
+                        candidate.to_ascii_lowercase().as_str(),
+                        "having"
+                            | "doing"
+                            | "going"
+                            | "building"
+                            | "working"
+                            | "trying"
+                            | "looking"
+                    )
+                {
+                    name_opt = Some(candidate);
+                    break;
+                }
+            }
+        }
+        if let Some(name) = name_opt {
+            return Some(format!(
+                "Nice to meet you, **{name}**! I've noted what you shared in our active conversation memory: *\"{}\"*.\n\nHow can I help you today—would you like to brainstorm, dive into a technical or creative topic, or chat through what you're working on?",
+                raw_prompt.trim().trim_end_matches('.')
+            ));
+        }
+    }
+
+    if history.is_empty() {
+        return None;
+    }
+
+    let asks_name = lower.contains("what is my name")
+        || lower.contains("what's my name")
+        || lower.contains("who am i")
+        || lower.contains("remember my name");
+    let asks_user_fact = asks_name
+        || lower.contains("what am i building")
+        || lower.contains("what am i working on")
+        || lower.contains("what project am i")
+        || lower.contains("what do i like")
+        || lower.contains("what do i love")
+        || lower.contains("what do i prefer")
+        || lower.contains("what is my favorite")
+        || lower.contains("what's my favorite")
+        || lower.contains("where do i live")
+        || lower.contains("what did i tell you")
+        || lower.contains("what did i say")
+        || lower.contains("do you remember what i");
+    let asks_conversation_recap = lower.contains("what were we talking about")
+        || lower.contains("what did we talk about")
+        || lower.contains("what have we talked about")
+        || lower.contains("what did we discuss")
+        || lower.contains("what was my first question")
+        || lower.contains("recap our conversation")
+        || lower.contains("summarize our conversation")
+        || lower.contains("summarize our chat");
+
+    if !asks_user_fact && !asks_conversation_recap {
+        return None;
+    }
+
+    let mut extracted_name: Option<String> = None;
+    let mut user_facts: Vec<String> = Vec::new();
+    for (u, _) in history {
+        let u_low = u.to_ascii_lowercase();
+        for marker in ["my name is ", "call me ", "i'm ", "i am "] {
+            if let Some(idx) = u_low.find(marker) {
+                let after = u[idx + marker.len()..].trim();
+                let cand = after
+                    .split(|c: char| !c.is_alphanumeric() && c != '-')
+                    .next()
+                    .unwrap_or("")
+                    .trim();
+                if !cand.is_empty()
+                    && !matches!(
+                        cand.to_ascii_lowercase().as_str(),
+                        "having"
+                            | "doing"
+                            | "going"
+                            | "building"
+                            | "working"
+                            | "trying"
+                            | "looking"
+                            | "fine"
+                            | "good"
+                            | "great"
+                            | "well"
+                            | "a"
+                            | "an"
+                            | "the"
+                    )
+                {
+                    extracted_name = Some(cand.to_string());
+                }
+            }
+        }
+        for sentence in u.split(['.', '!', '\n']) {
+            let trim = sentence.trim();
+            if trim.is_empty() || trim.ends_with('?') {
+                continue;
+            }
+            let s_low = trim.to_ascii_lowercase();
+            let clean_low = s_low
+                .strip_prefix("hi, ")
+                .or_else(|| s_low.strip_prefix("hi "))
+                .or_else(|| s_low.strip_prefix("hello, "))
+                .or_else(|| s_low.strip_prefix("hello "))
+                .or_else(|| s_low.strip_prefix("hey, "))
+                .or_else(|| s_low.strip_prefix("hey "))
+                .or_else(|| s_low.strip_prefix("by the way, "))
+                .unwrap_or(&s_low);
+            if clean_low.starts_with("my ")
+                || clean_low.starts_with("i am ")
+                || clean_low.starts_with("i'm ")
+                || clean_low.starts_with("i live ")
+                || clean_low.starts_with("i work ")
+                || clean_low.starts_with("i like ")
+                || clean_low.starts_with("i love ")
+                || clean_low.starts_with("i prefer ")
+                || clean_low.starts_with("i enjoy ")
+                || clean_low.starts_with("we are ")
+                || clean_low.starts_with("we're ")
+                || clean_low.starts_with("remember that ")
+                || clean_low.starts_with("remember ")
+            {
+                let item = trim.to_string();
+                if !user_facts.contains(&item) {
+                    user_facts.push(item);
+                }
+            }
+        }
+    }
+
+    if asks_name {
+        if let Some(name) = extracted_name {
+            let extra = if user_facts.is_empty() {
+                String::new()
+            } else {
+                format!(
+                    " Earlier you also mentioned: *\"{}\"*.",
+                    user_facts.join("; ")
+                )
+            };
+            return Some(format!(
+                "Your name is **{name}**!{extra} What would you like to chat about or work on next?"
+            ));
+        }
+    }
+
+    if asks_user_fact && !user_facts.is_empty() {
+        let name_prefix = extracted_name
+            .map(|n| format!("**{n}**, from "))
+            .unwrap_or_else(|| "From ".to_string());
+        return Some(format!(
+            "{name_prefix}what you shared earlier in our conversation, I have in active memory that:\n\n- {}\n\nHow would you like to build on that?",
+            user_facts.join("\n- ")
+        ));
+    }
+
+    if asks_conversation_recap || asks_user_fact {
+        if lower.contains("first question") {
+            if let Some((first_q, _)) = history.first() {
+                return Some(format!(
+                    "Your first message in our conversation was: **\"{}\"**.\n\nSince then, we've gone through **{}** turns together. Would you like to revisit that topic or continue from our latest turn?",
+                    first_q.trim(),
+                    history.len()
+                ));
+            }
+        }
+        let mut turn_bullets = Vec::new();
+        for (idx, (u, a)) in history.iter().enumerate() {
+            let (_, clean_a) = parse_thinking_block(a);
+            let a_first = clean_a
+                .split(['.', '\n'])
+                .next()
+                .unwrap_or(clean_a.trim())
+                .trim();
+            let snippet: String = a_first.chars().take(90).collect();
+            turn_bullets.push(format!(
+                "- **Turn {}**: You asked *\"{}\"* — {}",
+                idx + 1,
+                u.trim(),
+                snippet
+            ));
+        }
+        let ctx_line = if context_summary.is_empty() {
+            String::new()
+        } else {
+            format!("\n\n**Active Rolling Context (`RollingContextState`)**: `{context_summary}`")
+        };
+        return Some(format!(
+            "Here is what we have been talking about in our conversation so far:\n\n{}{ctx_line}\n\nWhich of these threads would you like to continue?",
+            turn_bullets.join("\n")
+        ));
+    }
+
+    None
+}
 
 /// Extract and update a concise, high-signal contextual summary across multi-turn interactions.
 pub fn update_context_summary(

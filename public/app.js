@@ -8614,6 +8614,22 @@ try {
     }
   }
   updateWeightCacheBadge();
+  if (
+    typeof stream_sharded_weights_to_indexeddb === 'function' &&
+    (!globalThis.__uorWeightCacheMeta || globalThis.__uorWeightCacheMeta.mode !== 'indexeddb')
+  ) {
+    stream_sharded_weights_to_indexeddb(() => {
+      updateWeightCacheBadge();
+    }, false).then((streamed) => {
+      if (streamed && streamed.status === 'ok') {
+        updateWeightCacheBadge();
+        const refreshedState = dispatchStudioEnvelope('state', '');
+        renderStudioState(refreshedState);
+      }
+    }).catch(() => {
+      // Offline or local harness without shard server; embedded bootstrap pack remains active
+    });
+  }
   const initialState = dispatchStudioEnvelope('state', '');
   renderStudioState(initialState);
   restoreIntelligenceFromWebCache();
