@@ -602,3 +602,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f39_reply_4gram_deduction"
 statement = "Verify that polynomial quotient identities in succinct non-interactive proofs enforce knowledge soundness against forged evaluations over large finite fields."
 prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
 target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
+
+[[claim]]
+id = "R4-F40"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.08478:H-LIT-2611.08478-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f40_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.08478 (Scientist World: Grow a Research World for AI-Scientists)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
