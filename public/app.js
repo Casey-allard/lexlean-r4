@@ -24,7 +24,7 @@ import init, {
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261107brainv11';
+} from './lexlean_r4.js?v=20261109geomv12';
 
 globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,

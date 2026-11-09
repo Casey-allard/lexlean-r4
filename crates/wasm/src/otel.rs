@@ -422,10 +422,32 @@ impl CompactGllmTrace {
             let mut attrs = Vec::with_capacity(s.attributes.len());
             for &(k_ref, ref v) in &s.attributes {
                 let key = self.intern_table.get(k_ref).to_string();
-                attrs.push(OtlpKeyValue {
-                    key,
-                    value: json_to_otlp_value(v),
-                });
+                let value = if key == "uor.top_candidates" {
+                    if let Value::Array(arr) = v {
+                        let values = arr
+                            .iter()
+                            .map(|item| {
+                                if let Some(tuple) = item.as_array() {
+                                    if tuple.len() == 3 {
+                                        let expanded = serde_json::json!({
+                                            "token_id": tuple[0],
+                                            "logit_q12": tuple[1],
+                                            "l1_distance": tuple[2],
+                                        });
+                                        return json_to_otlp_value(&expanded);
+                                    }
+                                }
+                                json_to_otlp_value(item)
+                            })
+                            .collect();
+                        OtlpAnyValue::ArrayValue(OtlpArrayValue { values })
+                    } else {
+                        json_to_otlp_value(v)
+                    }
+                } else {
+                    json_to_otlp_value(v)
+                };
+                attrs.push(OtlpKeyValue { key, value });
             }
 
             let mut links = Vec::with_capacity(s.links.len());
@@ -795,13 +817,7 @@ pub fn build_inference_trace(
             .top_candidates
             .iter()
             .take(5)
-            .map(|&(tok, dist)| {
-                serde_json::json!({
-                    "token_id": tok,
-                    "logit_q12": -dist,
-                    "l1_distance": dist,
-                })
-            })
+            .map(|&(tok, dist)| serde_json::json!([tok, -dist, dist]))
             .collect();
 
         // Writer basin provenance link

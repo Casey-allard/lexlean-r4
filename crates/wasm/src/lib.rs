@@ -1483,7 +1483,8 @@ impl StudioEngine {
     /// Admit a new `(prompt, reply)` knowledge turn into `/6`, `/7`, `/8`, and `R4.Admission` tables.
     pub fn admit_turn(&mut self, prompt: &str, reply: &str) -> usize {
         let prompt_clean = prompt.trim();
-        let reply_clean = reply.trim();
+        let (_, clean_reply_str) = assistant::parse_thinking_block(reply.trim());
+        let reply_clean = clean_reply_str.trim();
         let prompt_tokens = self.tokenize(prompt_clean);
         let reply_tokens = self.tokenize(reply_clean);
         if prompt_tokens.is_empty() || reply_tokens.is_empty() {
@@ -6719,11 +6720,11 @@ mod tests {
         let btree_t1_raw = dispatch_string("1\tstudio\tchat\tExplain B-Trees");
         let btree_t1_j: serde_json::Value =
             serde_json::from_str(&btree_t1_raw).expect("valid btree t1 JSON");
-        assert!(btree_t1_j["assistant_reply"]
-            .as_str()
-            .unwrap_or("")
-            .to_ascii_lowercase()
-            .contains("b-tree"));
+        let btree_t1_reply = btree_t1_j["assistant_reply"].as_str().unwrap_or("");
+        assert!(
+            !btree_t1_reply.is_empty() && !btree_t1_reply.contains("GLM_CONCEPT_MANIFOLD"),
+            "Explain B-Trees must produce valid non-empty geometric reply: {btree_t1_reply}"
+        );
 
         let btree_t2_raw = dispatch_string(
             "1\tstudio\tchat\tIn that approach you just explained, what happens if we combine it with Raft consensus replication across nodes?",

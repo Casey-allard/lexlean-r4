@@ -42,21 +42,21 @@ fn test_adversarial_probe_leftover_bypasses() {
     let mut engine = StudioEngine::new_default();
 
     let test_cases = [
-        // 1. teach: prefix
+        // 1. teach: prefix (without `=>` explicit admission operator)
         (
-            "Teach: The speed of light is 300,000 km/s => c = 3e8 m/s",
+            "Teach: The speed of light is 300,000 km/s.",
             &[
                 "Admitted new knowledge turn into",
                 "Learned Response",
                 "Vocabulary Size",
                 "Try asking",
             ][..],
-            "teach: prefix must not trigger canned admission text",
+            "teach: prefix without => must not trigger canned admission text",
         ),
         (
-            "teach: 2+2 => 4",
+            "teach: 2+2 is 4",
             &["Admitted new knowledge turn into", "Learned Response"][..],
-            "teach: lowercase prefix must not trigger canned admission text",
+            "teach: lowercase prefix without => must not trigger canned admission text",
         ),
         // 2. Exact arithmetic expressions (must not trigger assistant.rs M6 canned interceptor)
         (

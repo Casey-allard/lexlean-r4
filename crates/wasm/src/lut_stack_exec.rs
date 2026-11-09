@@ -3476,7 +3476,12 @@ impl LutStackSession {
                 .copied()
                 .filter(|&t| t != MEMORY_PAD && (t & 0x8000_0000) == 0)
                 .collect();
-            let dec_prompt = ByteBpe4096::global().decode(anchor_tokens);
+            let active_turn_ids: Vec<u32> =
+                extract_turn_ids(anchor_tokens, mem.key_window, mem.key_window.max(128))
+                    .into_iter()
+                    .filter(|&t| t != MEMORY_PAD && (t & 0x8000_0000) == 0)
+                    .collect();
+            let dec_prompt = ByteBpe4096::global().decode(&active_turn_ids);
             let stems = extract_salient_stem_hashes_from_text(&dec_prompt, 8);
             self.prompt_stem_buckets = stems
                 .iter()
@@ -3492,7 +3497,7 @@ impl LutStackSession {
                     if let Some(anchors) = &point.canonical_anchors {
                         let alen = point.anchor_len.max(1);
                         if anchors.len() >= point.rows * alen {
-                            for r in 0..point.rows {
+                            for r in (0..point.rows).rev() {
                                 let base = r * alen;
                                 let a_row = &anchors[base..base + alen];
                                 let open_matches = if alen >= 16
@@ -3681,7 +3686,12 @@ impl LutStackSession {
                     .copied()
                     .filter(|&t| t != MEMORY_PAD && (t & 0x8000_0000) == 0)
                     .collect();
-                let dec_prompt = ByteBpe4096::global().decode(&self.tokens);
+                let active_turn_ids: Vec<u32> =
+                    extract_turn_ids(&self.tokens, mem.key_window, mem.key_window.max(128))
+                        .into_iter()
+                        .filter(|&t| t != MEMORY_PAD && (t & 0x8000_0000) == 0)
+                        .collect();
+                let dec_prompt = ByteBpe4096::global().decode(&active_turn_ids);
                 let stems = extract_salient_stem_hashes_from_text(&dec_prompt, 8);
                 self.prompt_stem_buckets = stems
                     .iter()
@@ -3699,7 +3709,7 @@ impl LutStackSession {
                         if let Some(anchors) = &point.canonical_anchors {
                             let alen = point.anchor_len.max(1);
                             if anchors.len() >= point.rows * alen {
-                                for r in 0..point.rows {
+                                for r in (0..point.rows).rev() {
                                     let base = r * alen;
                                     let a_row = &anchors[base..base + alen];
                                     let open_matches =
@@ -4228,7 +4238,9 @@ fn lookup_reply_continuation_4gram(
     }
     // Tier 2b: Anchor-bound 1-gram / opening continuation fallback
     // (enables mid-stream transition to a new basin while preserving continuous reply_history)
-    if occ == 0 {
+    if occ == 0
+        || (suffix4[0] == MEMORY_PAD && suffix4[1] == MEMORY_PAD && suffix4[2] == MEMORY_PAD)
+    {
         key[reply_key_len - 5] = 0;
         key[reply_key_len - 4] = MEMORY_PAD;
         key[reply_key_len - 3] = MEMORY_PAD;
@@ -4238,10 +4250,9 @@ fn lookup_reply_continuation_4gram(
             return Some(val);
         }
     }
-    if (12..=96).contains(&legacy_step)
-        && suffix4[2] != MEMORY_PAD
-        && is_boundary_token(suffix4[3])
+    if suffix4[2] != MEMORY_PAD
         && anchor.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
+        && (legacy_step >= 88 || (legacy_step >= 12 && is_boundary_token(suffix4[3])))
     {
         return Some(ByteBpe4096::global().eos_id());
     }
@@ -5341,7 +5352,7 @@ pub fn select_point_key_with_resonance(
         let mut guard_penalty = 0i64;
         if turn_idx <= 2 && !is_self_inq {
             guard_penalty = 80_000_000;
-        } else if (turn_idx == 3 || turn_idx == 4) && !is_greeting && !prompt_stems.is_empty() {
+        } else if (turn_idx == 3 || turn_idx == 4) != is_greeting {
             guard_penalty = 60_000_000;
         }
 
@@ -5648,7 +5659,7 @@ pub fn select_point_key_with_resonance(
             || (total_stems == 0
                 && !prompt_bpe_content.is_empty()
                 && best.matched_bpe >= prompt_bpe_content.len().min(2))
-            || (total_stems == 0 && prompt_bpe_content.is_empty() && best.score < i64::MAX)
+            || (total_stems == 0 && prompt_bpe_content.is_empty() && best.score < 10_000_000)
     };
 
     if let (Some(offsets), Some(row_indices)) = (&point.bucket_offsets, &point.bucket_row_indices) {
@@ -8421,6 +8432,8 @@ impl LutStackModel {
         {
             if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
                 session.anchors.reply = next_anchor;
+                session.subtopic_prefix = [MEMORY_PAD; 3];
+                session.subtopic_prefix_remaining = 3;
                 *next_tok = next_first_tok;
                 *last_source = "turn_memory_reply";
                 return true;
@@ -8483,6 +8496,8 @@ impl LutStackModel {
                                         ));
                                     }
                                     session.anchors.reply = canon;
+                                    session.subtopic_prefix = [MEMORY_PAD; 3];
+                                    session.subtopic_prefix_remaining = 3;
                                     session.last_turn_idx = pt_hit.turn_idx;
                                     session.last_matched_stems = pt_hit.matched_stems;
                                     session.last_point_hamming_bits = pt_hit.hamming_bits;
@@ -8889,6 +8904,8 @@ impl LutStackModel {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
                     session.anchors.reply = next_anchor;
+                    session.subtopic_prefix = [MEMORY_PAD; 3];
+                    session.subtopic_prefix_remaining = 3;
                     next_tok = next_first_tok;
                     last_source = "turn_memory_reply";
                     continue;
@@ -9284,6 +9301,8 @@ impl LutStackModel {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
                     session.anchors.reply = next_anchor;
+                    session.subtopic_prefix = [MEMORY_PAD; 3];
+                    session.subtopic_prefix_remaining = 3;
                     next_tok = next_first_tok;
                     last_source = "turn_memory_reply";
                     continue;

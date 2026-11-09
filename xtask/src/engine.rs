@@ -1877,25 +1877,22 @@ pub fn run_engine_weight_consolidation_in_memory(
             post_l1_residual = post_l1_residual.saturating_add(gen.total_l1_margin);
         }
     }
-    if post_passed < pre_passed {
-        return Err(format!(
-            "weight consolidation regressed proved benchmark pass count ({post_passed} < {pre_passed})"
-        ));
-    }
-    if post_l1_residual > pre_l1_residual {
-        return Err(format!(
-            "weight consolidation increased total trajectory L1 residual loss ({post_l1_residual} > {pre_l1_residual})"
-        ));
-    }
     let para_check = post_arc.generate_reply(
         &[],
         "Can you walk me through how quantum entanglement works for a beginner?",
         256,
     );
     let para_lower = para_check.reply_text.to_ascii_lowercase();
-    if !para_lower.contains("quantum") || !para_lower.contains("entanglement") {
-        // Restore pre-consolidation writer_table if coordinate descent perturbed paraphrased domain basin
+    if post_passed < pre_passed
+        || post_l1_residual > pre_l1_residual
+        || !para_lower.contains("quantum")
+        || !para_lower.contains("entanglement")
+    {
+        // Restore pre-consolidation writer_table if coordinate descent perturbed proved pass count,
+        // total trajectory L1 residual margin, or paraphrased domain basin
         model.writer_table = pre_arc.writer_table.clone();
+        post_passed = pre_passed;
+        post_l1_residual = pre_l1_residual;
     }
 
     // Serialize consolidated model back to canonical UORLUT01 container
@@ -5301,9 +5298,9 @@ pub fn run_api_serve_cmd(root: &Path, args: &[String]) -> Result<(), String> {
             i += 1;
         }
     }
+    let _ = api::default_model_backend();
     let listener = std::net::TcpListener::bind(format!("0.0.0.0:{port}"))
         .map_err(|e| format!("failed to bind port {port}: {e}"))?;
-    let _ = api::default_model_backend();
     println!("api serve: listening on http://127.0.0.1:{port}");
     let root_buf = root.to_path_buf();
     for stream in listener.incoming() {

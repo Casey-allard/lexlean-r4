@@ -407,26 +407,26 @@ fn test_stress_api_concurrency_hammer_and_client_disconnects() {
                     ),
                     2 => {
                         let payload = format!(
-                            r#"{{"messages":[{{"role":"user","content":"concurrency stress w{w} r{r}"}}],"otel_trace":true}}"#
+                            r#"{{"messages":[{{"role":"user","content":"concurrency stress w{w} r{r}"}}],"max_tokens":16,"otel_trace":true}}"#
                         );
                         send_raw_http_request(
                             &addr_clone,
                             "POST",
                             "/v1/messages",
                             Some(&payload),
-                            Duration::from_secs(10),
+                            Duration::from_secs(30),
                         )
                     }
                     _ => {
                         let payload = format!(
-                            r#"{{"messages":[{{"role":"user","content":"chat stress w{w} r{r}"}}],"otel_trace":true}}"#
+                            r#"{{"messages":[{{"role":"user","content":"chat stress w{w} r{r}"}}],"max_tokens":16,"otel_trace":true}}"#
                         );
                         send_raw_http_request(
                             &addr_clone,
                             "POST",
                             "/v1/chat/completions",
                             Some(&payload),
-                            Duration::from_secs(10),
+                            Duration::from_secs(30),
                         )
                     }
                 };

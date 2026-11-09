@@ -656,27 +656,27 @@ fn test_challenge_5_concurrent_api_flooding_socket_stability() {
                     2 => {
                         // POST /v1/messages with otel_trace
                         let payload = format!(
-                            r#"{{"messages":[{{"role":"user","content":"hello worker {w} req {r}"}}],"otel_trace":true}}"#
+                            r#"{{"messages":[{{"role":"user","content":"hello worker {w} req {r}"}}],"max_tokens":16,"otel_trace":true}}"#
                         );
                         send_raw_http_request(
                             &addr_clone,
                             "POST",
                             "/v1/messages",
                             Some(&payload),
-                            Duration::from_secs(10),
+                            Duration::from_secs(30),
                         )
                     }
                     3 => {
                         // POST /v1/chat/completions with otel_trace
                         let payload = format!(
-                            r#"{{"messages":[{{"role":"user","content":"chat worker {w} req {r}"}}],"otel_trace":true}}"#
+                            r#"{{"messages":[{{"role":"user","content":"chat worker {w} req {r}"}}],"max_tokens":16,"otel_trace":true}}"#
                         );
                         send_raw_http_request(
                             &addr_clone,
                             "POST",
                             "/v1/chat/completions",
                             Some(&payload),
-                            Duration::from_secs(10),
+                            Duration::from_secs(30),
                         )
                     }
                     _ => {

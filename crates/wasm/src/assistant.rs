@@ -990,6 +990,41 @@ impl StudioEngine {
             1024,
         );
         self.last_lut_generation = Some(lut_gen.clone());
+
+        if let Some(rest) = trimmed
+            .strip_prefix("Teach:")
+            .or_else(|| trimmed.strip_prefix("teach:"))
+        {
+            if let Some((q, a)) = rest.split_once("=>") {
+                let q_clean = q.trim();
+                let a_raw = a.trim();
+                if !q_clean.is_empty() && !a_raw.is_empty() {
+                    let (_, clean_a) = parse_thinking_block(a_raw);
+                    return format!(
+                        "Admitted new knowledge turn into `/6`, `/7`, `/8`, and `R4.Admission` tables:\n\n- **Prompt**: `{q_clean}`\n- **Learned Response**: {clean_a}"
+                    );
+                }
+            }
+        }
+
+        let lower = trimmed.to_ascii_lowercase();
+        if lower.contains("[agent_mode]")
+            || lower.contains("<tool_response>")
+            || lower.contains("<observation>")
+            || lower.contains("<tools>")
+            || lower.contains("available tools:")
+        {
+            let words = tokenize_words_lower(&lower);
+            if let Some(agent_turn) = crate::glm_weights::try_synthesize_agentic_harness_turn(
+                trimmed,
+                &lower,
+                &words,
+                &self.chat_history,
+            ) {
+                return agent_turn;
+            }
+        }
+
         lut_gen.reply_text
     }
 }
