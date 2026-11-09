@@ -869,3 +869,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f56_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems head and ches at manifold row 3923."
 prompt = "How does PointKey routing resolve conversational prompts about head and ches?"
 target_reply = "PointKey routing matches conversational stems head and ches directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F57"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2611.09889:H-LIT-2611.09889-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f57_bvgk_writer_refinement"
+statement = "Verify formal hypotheses from arXiv paper 2611.09889 (SciCheck: A Framework for Verifying the Integrity of Deep Learning Training)."
+prompt = "How does implementation in this paper prevent concurrency hazards at runtime?"
+target_reply = "At runtime with epoch_count=3 and queue_stride=32, the concurrent implementation enforces safe memory reclamation without race conditions, ABA hazards, or memory leaks across reader threads under continuous load in production environments during heavy parallel task execution benchmarks reliably."
