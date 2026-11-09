@@ -5937,7 +5937,21 @@ pub fn parse_thinking_block(raw_text: &str) -> (Option<String>, String) {
         };
 
         if let Some((start, open_len, close_tag, close_len)) = candidate {
-            if let Some(rel_end) = current[start + open_len..].find(close_tag) {
+            let after_open = &current[start + open_len..];
+            let partial_tag = if close_tag == "</thinking>" {
+                "</thinking"
+            } else {
+                "</thought"
+            };
+            let found_close = after_open
+                .find(close_tag)
+                .map(|idx| (idx, close_len))
+                .or_else(|| {
+                    after_open
+                        .find(partial_tag)
+                        .map(|idx| (idx, partial_tag.len()))
+                });
+            if let Some((rel_end, actual_close_len)) = found_close {
                 let mut trace = current[start + open_len..start + open_len + rel_end]
                     .trim()
                     .to_string();
@@ -5960,7 +5974,7 @@ pub fn parse_thinking_block(raw_text: &str) -> (Option<String>, String) {
                 }
                 let mut clean = String::with_capacity(current.len());
                 clean.push_str(&current[..start]);
-                clean.push_str(&current[start + open_len + rel_end + close_len..]);
+                clean.push_str(&current[start + open_len + rel_end + actual_close_len..]);
                 current = clean;
             } else {
                 let mut trace = current[start + open_len..].trim().to_string();
@@ -8424,6 +8438,16 @@ impl LutStackModel {
         if !is_clause_boundary(boundary_tok, step_idx) {
             return false;
         }
+        if !session.reply_history.is_empty() {
+            let dec = ByteBpe4096::global().decode(&session.reply_history);
+            let open_th = dec.matches("<thinking>").count();
+            let close_th = dec.matches("</thinking>").count();
+            let open_tht = dec.matches("<thought>").count();
+            let close_tht = dec.matches("</thought>").count();
+            if open_th > close_th || open_tht > close_tht {
+                return false;
+            }
+        }
 
         // Path A: Queued complementary basins from PhraseDagPlan (multi-clause / multi-concept prompts)
         // Transition when a sentence/clause punctuation boundary is reached or when current memory row ends.
@@ -8948,9 +8972,27 @@ impl LutStackModel {
         }
 
         let raw_decoded = bpe.decode(&generated_tokens);
-        let (post_th, clean_reply) = parse_thinking_block(&raw_decoded);
+        let (post_th, mut clean_reply) = parse_thinking_block(&raw_decoded);
         let (mut reply_text, thinking_text, thinking_tokens, mut generated_tokens) =
             if let Some(th) = post_th {
+                if clean_reply.split_whitespace().count() < 2 && !th.trim().is_empty() {
+                    let th_clean = th
+                        .replace("<thinking>", "")
+                        .replace("</thinking>", "")
+                        .replace("</thinking", "")
+                        .replace("<thought>", "")
+                        .replace("</thought>", "")
+                        .replace("</thought", "")
+                        .trim()
+                        .to_string();
+                    if clean_reply.trim().is_empty() {
+                        clean_reply = th_clean;
+                    } else {
+                        clean_reply = format!("{th_clean} {}", clean_reply.trim())
+                            .trim()
+                            .to_string();
+                    }
+                }
                 let vis_toks = bpe.encode(&format!(" {}", clean_reply.trim()));
                 let th_toks = if thinking_tokens.is_empty() {
                     bpe.encode(&format!("<thinking>\n{}\n</thinking>", th))
@@ -9345,9 +9387,27 @@ impl LutStackModel {
         }
 
         let raw_decoded = bpe.decode(&generated_tokens);
-        let (post_th, clean_reply) = parse_thinking_block(&raw_decoded);
+        let (post_th, mut clean_reply) = parse_thinking_block(&raw_decoded);
         let (mut reply_text, thinking_text, thinking_tokens, mut generated_tokens) =
             if let Some(th) = post_th {
+                if clean_reply.split_whitespace().count() < 2 && !th.trim().is_empty() {
+                    let th_clean = th
+                        .replace("<thinking>", "")
+                        .replace("</thinking>", "")
+                        .replace("</thinking", "")
+                        .replace("<thought>", "")
+                        .replace("</thought>", "")
+                        .replace("</thought", "")
+                        .trim()
+                        .to_string();
+                    if clean_reply.trim().is_empty() {
+                        clean_reply = th_clean;
+                    } else {
+                        clean_reply = format!("{th_clean} {}", clean_reply.trim())
+                            .trim()
+                            .to_string();
+                    }
+                }
                 let vis_toks = bpe.encode(&format!(" {}", clean_reply.trim()));
                 let th_toks = if thinking_tokens.is_empty() {
                     bpe.encode(&format!("<thinking>\n{}\n</thinking>", th))
