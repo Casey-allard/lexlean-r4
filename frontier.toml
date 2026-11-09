@@ -821,3 +821,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f53_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems ches and half from manifold row 9258 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over ches and half?"
 target_reply = "Causal four gram continuation preserves reasoning over ches and half because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F54"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:ming-work:r2130:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f54_bvgk_writer_refinement"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ming and work at row_idx=2130 (anchor_id=0x80000168)."
+prompt = "How does Q12 writer refinement encode ming and work at row_idx=2130?"
+target_reply = "At row_idx=2130 with anchor_id=0x80000168, Q12 writer refinement aligns the 256D L1 PointKey prototype for ming and work with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
