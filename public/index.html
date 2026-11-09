@@ -11,18 +11,126 @@
 <body>
   <main>
     <!-- Column 1: Threads Sidebar -->
-    <aside class="gpt-sidebar" id="threads-sidebar" aria-label="Conversation History and Tools">
-      <div class="sidebar-top">
-        <div class="brand-row">
-          <div class="brand-badge">R4</div>
-          <div class="brand-text">
-            <strong>UOR-R4 GLLM</strong>
-            <span>Claude Cowork Harness</span>
+    <aside class="gpt-sidebar cursor-left-workbench workbench-sidebar" id="threads-sidebar" aria-label="Cursor File Explorer, Source Control and Agentic Tools">
+      <!-- Far-Left Activity Bar (48px) -->
+      <nav class="activity-bar cursor-activity-bar" id="cursor-activity-bar" role="toolbar" aria-label="Cursor Activity Bar">
+        <button id="cursor-act-explorer" type="button" class="activity-bar-btn cursor-act-btn active" data-view="explorer" title="Explorer (Cmd+Shift+E)" aria-label="Explorer">
+          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          <span class="sr-only">Explorer</span>
+          <span id="activity-btn-explorer" hidden></span>
+        </button>
+        <button id="cursor-act-search" type="button" class="activity-bar-btn cursor-act-btn" data-view="search" title="Search (Cmd+Shift+F)" aria-label="Search">
+          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="sr-only">Search</span>
+          <span id="activity-btn-search" hidden></span>
+        </button>
+        <button id="cursor-act-scm" type="button" class="activity-bar-btn cursor-act-btn" data-view="scm" title="Source Control (Ctrl+Shift+G)" aria-label="Source Control">
+          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M18 15V9a9 9 0 00-9-9"/><circle cx="6" cy="18" r="3"/><line x1="6" y1="9" x2="6" y2="15"/></svg>
+          <span id="cursor-scm-badge" class="activity-badge cursor-act-pill">0</span>
+          <span class="sr-only">Source Control</span>
+          <span id="activity-btn-scm" hidden></span>
+        </button>
+        <button id="cursor-act-shards" type="button" class="activity-bar-btn cursor-act-btn" data-view="shards" title="16 E8 Shards &amp; Weights" aria-label="UOR-R4 Shards">
+          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
+          <span class="sr-only">Shards</span>
+          <span id="activity-btn-shards" hidden></span>
+        </button>
+        <button id="cursor-act-history" type="button" class="activity-bar-btn cursor-act-btn" data-view="history" title="Chat Sessions &amp; History" aria-label="Chat Sessions">
+          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="sr-only">History</span>
+          <span id="activity-btn-history" hidden></span>
+        </button>
+        <div class="activity-bar-spacer"></div>
+        <button id="cursor-act-settings" type="button" class="activity-bar-btn cursor-act-btn" data-view="settings" title="Settings" aria-label="Settings">
+          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span class="sr-only">Settings</span>
+          <span id="activity-btn-settings" hidden></span>
+        </button>
+        <button id="cursor-act-palette" type="button" class="activity-bar-btn cursor-act-btn" data-view="palette" title="Command Palette" aria-label="Command Palette" hidden></button>
+      </nav>
+
+      <!-- 260px Collapsible Left Sidebar Body -->
+      <div class="workbench-sidebar-content" id="workbench-sidebar-content">
+        <div class="sidebar-top">
+          <div class="brand-row">
+            <div class="brand-badge">R4</div>
+            <div class="brand-text">
+              <strong>UOR-R4 Cursor IDE</strong>
+              <span>Local Wasm + WebGPU &middot; uor-r4.lut-stack/8</span>
+            </div>
+            <button id="close-sidebar-btn" type="button" class="sidebar-action-icon-btn" title="Hide sidebar" aria-label="Hide sidebar">&times;</button>
           </div>
-          <button id="close-sidebar-btn" type="button" class="sidebar-action-icon-btn" title="Hide sidebar" aria-label="Hide sidebar">&times;</button>
         </div>
-        <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
-      </div>
+
+        <!-- Sidebar View: Explorer -->
+        <div id="sidebar-view-explorer" class="sidebar-view-content active" role="region" aria-label="Workspace File Explorer">
+          <div id="cursor-explorer-section" class="cursor-explorer-section">
+            <div class="cursor-explorer-header">
+              <span id="sidebar-heading-explorer" class="sidebar-heading">EXPLORER &middot; LEXLEAN-R4</span>
+              <div class="cursor-explorer-actions">
+                <button id="cursor-open-folder-btn" type="button" class="cursor-mini-btn" title="Open Local Disk Folder (File System Access API)">Open Folder</button>
+                <button id="cursor-new-file-quick-btn" type="button" class="cursor-mini-btn" title="Create New File in Workspace">+ File</button>
+              </div>
+            </div>
+            <div class="cursor-tree-filter-wrap">
+              <label for="cursor-tree-filter" class="sr-only">Filter Workspace Files</label>
+              <input id="cursor-tree-filter" type="text" class="cursor-tree-filter" placeholder="Filter files or Cmd+P Quick Open..." autocomplete="off" spellcheck="false">
+            </div>
+            <div id="cursor-file-tree" class="cursor-file-tree" role="tree" aria-label="Collapsible Repository File Tree"></div>
+          </div>
+        </div>
+
+        <!-- Sidebar View: Search -->
+        <div id="sidebar-view-search" class="sidebar-view-content" role="region" aria-label="Search Workspace" hidden>
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">SEARCH &middot; WORKSPACE</span>
+          </div>
+          <div class="cursor-tree-filter-wrap">
+            <label for="cursor-search-input" class="sr-only">Search Codebase</label>
+            <input id="cursor-search-input" type="text" class="cursor-tree-filter" placeholder="Search across all files (Enter)..." autocomplete="off" spellcheck="false">
+          </div>
+          <div id="cursor-search-results" class="cursor-search-results">
+            <div class="cursor-scm-empty">Type query to search workspace files</div>
+          </div>
+        </div>
+
+        <!-- Sidebar View: Source Control (SCM) -->
+        <div id="sidebar-view-scm" class="sidebar-view-content" role="region" aria-label="Source Control &amp; Staged Diffs" hidden>
+          <div id="cursor-scm-section" class="sidebar-collapsible cursor-scm-section">
+            <div class="sidebar-heading sidebar-summary">SOURCE CONTROL &middot; STAGED DIFFS</div>
+            <div id="cursor-scm-summary" class="cursor-scm-summary">Working tree clean on <code>main</code></div>
+            <div id="cursor-scm-list" class="cursor-scm-list" aria-label="Modified and Staged Files">
+              <div class="cursor-scm-empty">Working tree clean on <code>main</code></div>
+            </div>
+            <div class="cursor-scm-actions">
+              <button id="cursor-scm-accept-all-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Accept All</button>
+              <button id="cursor-scm-discard-all-btn" type="button" class="cursor-mini-btn cursor-mini-btn-reject">Reject All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar View: UOR-R4 Shards -->
+        <div id="sidebar-view-shards" class="sidebar-view-content" role="region" aria-label="UOR-R4 Shards &amp; Weights" hidden>
+          <div id="cursor-shards-section" class="sidebar-collapsible cursor-shards-section">
+            <div class="sidebar-heading sidebar-summary">UOR-R4 SHARDS &middot; 16 E8 OPFS</div>
+            <div id="cursor-shards-summary" class="cursor-shards-summary">
+              <div><strong>Model:</strong> <code>uor-r4.lut-stack/8</code></div>
+              <div><strong>Coprocessor:</strong> <code>WebGPU Q12 + Wasm32</code></div>
+              <div><strong>Shards:</strong> <code>16 E8 Product Sectors</code></div>
+            </div>
+            <div class="cursor-scm-actions">
+              <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate 16 E8 Shards</button>
+              <button id="cursor-train-quick-btn" type="button" class="cursor-mini-btn">Train LUT</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar View: History & Chat Sessions -->
+        <div id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions &amp; History" hidden>
+          <div class="sidebar-section-header">
+            <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
+          </div>
+        </div>
 
       <!-- Collapsible Navigation Views: Planning, Pool & Review, History, Projects -->
       <nav class="sidebar-views-nav" role="tablist" aria-label="Sidebar Navigation Modes">
@@ -200,14 +308,15 @@
           <span>Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
         </div>
       </div>
+      </div> <!-- /workbench-sidebar-content -->
     </aside>
 
-    <!-- Column 2: Center Chat Interface -->
-    <section class="gpt-main-pane cowork-chat-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
+    <!-- Right Pane (Cursor AI Chat & Multi-File Composer: Cmd+L / Cmd+I) -->
+    <section class="gpt-main-pane cowork-chat-pane cursor-ai-right-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
       <header class="gpt-topbar">
         <div class="model-selector">
           <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Left Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
-          <h1 id="heading-claude-desktop">UOR-R4 GLLM</h1>
+          <h1 id="heading-claude-desktop">UOR-R4 AI Composer</h1>
           <span id="topbar-model-tag" class="model-tag">UORLUT01/8 &middot; 6-Layer SpiralCore</span>
           <span id="weight-cache-badge" class="topbar-context-pill">64.7 MB Cached</span>
           <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
@@ -216,7 +325,7 @@
           <button id="topbar-terminal-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="terminal">Terminal</button>
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
-          <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Right Drawer" aria-label="Toggle Right Drawer">&#9881; Drawer</button>
+          <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Center Workbench" aria-label="Toggle Right Drawer">&#9881; Workbench</button>
           <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed" hidden>Self-Improvement</button>
           <button id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation" hidden>Consolidate Weights</button>
           <button id="topbar-traces-btn" type="button" class="topbar-btn" data-canvas-tab="traces" hidden>OTel Traces</button>
@@ -224,6 +333,24 @@
           <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics" hidden>API &amp; 30/30</button>
         </div>
       </header>
+
+      <!-- Cursor AI Mode & Context Pills Bar (Cmd+I Composer / Cmd+L Chat) -->
+      <div id="cursor-ai-context-bar" class="cursor-ai-context-bar" role="toolbar" aria-label="Cursor AI Mode and Context Pills">
+        <div class="cursor-ai-modes" role="group" aria-label="Cursor AI Mode Selector">
+          <button id="cursor-mode-agent-btn" type="button" class="cursor-ai-mode-pill active" data-cursor-ai-mode="agent" title="Agent Mode (ReAct R4-35 + R4-32 Verifier)">Agent (Cmd+I)</button>
+          <button id="cursor-mode-ask-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="ask" title="Ask Mode (6-Layer SpiralCore + /8 Q12)">Ask (Cmd+L)</button>
+          <button id="cursor-mode-edit-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="edit" title="Multi-File Composer Surgical Patch">Edit</button>
+        </div>
+        <div class="cursor-ai-ctx-pills" role="group" aria-label="Quick Context Mentions">
+          <button id="cursor-ctx-file-btn" type="button" class="cursor-ctx-pill" title="Attach Active Editor File">@file</button>
+          <button id="cursor-ctx-codebase-btn" type="button" class="cursor-ctx-pill" title="Attach Full VFS Codebase">@codebase</button>
+          <button id="cursor-ctx-terminal-btn" type="button" class="cursor-ctx-pill" title="Attach lexlean-sh Terminal Scrollback">@terminal</button>
+        </div>
+        <div id="cursor-composer-patch-bar" class="cursor-composer-patch-bar">
+          <button id="cursor-accept-all-btn" type="button" class="cursor-patch-action-btn cursor-patch-accept" title="Accept Staged Patch (Cmd+Enter)">Accept All</button>
+          <button id="cursor-reject-all-btn" type="button" class="cursor-patch-action-btn cursor-patch-reject" title="Reject Staged Patch (Cmd+Backspace)">Reject</button>
+        </div>
+      </div>
 
       <!-- Slim Single-Line Rolling 256D Q12 Context & Agentic Status Strip (Dismissible) -->
       <div id="cowork-agent-status-bar" class="cowork-agent-status-bar" role="region" aria-label="Live Agentic Harness Status">
@@ -279,20 +406,20 @@
 
             <div class="composer-field">
               <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Message UOR-R4... (/ for commands, @ for context, + to attach)" autocomplete="off" spellcheck="false"></textarea>
+              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Plan, search, build with local uor-r4.lut-stack/8... (/ commands, @ context, Cmd+K inline)" autocomplete="off" spellcheck="false"></textarea>
             </div>
 
             <div id="composer-send-bar" class="composer-send-bar">
               <div class="composer-send-bar-left">
                 <button id="composer-attach-btn" type="button" class="composer-action-btn" title="Attach File (+)" aria-label="Attach File">+</button>
                 <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
-                <label for="composer-model-select" class="sr-only">Select Model</label>
+                <label for="composer-model-select" class="sr-only">Select Local UOR-R4 Execution Mode</label>
                 <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
-                  <option value="uor-r4-glm-v8" selected>Balanced Reasoning (uor-r4-glm-v8)</option>
-                  <option value="claude-3-5-sonnet">Fast / Direct (claude-3-5-sonnet profile)</option>
-                  <option value="gpt-4o">Code &amp; Patch (gpt-4o profile)</option>
-                  <option value="deepseek-r1">Deliberate Reasoning (deepseek-r1 profile)</option>
-                  <option value="uor-r4-500b">Deep Frontier (uor-r4-500b profile)</option>
+                  <option value="uor-r4-glm-v8" selected>uor-r4.lut-stack/8 &middot; Agent (ReAct R4-35 + R4-32 Verifier)</option>
+                  <option value="claude-3-5-sonnet">uor-r4.lut-stack/8 &middot; Composer (Multi-File Surgical Patch)</option>
+                  <option value="gpt-4o">uor-r4.lut-stack/8 &middot; Ask (6-Layer SpiralCore + /8 Q12)</option>
+                  <option value="deepseek-r1">uor-r4.lut-stack/8 &middot; WebGPU Q12 Coprocessor (16 E8 Shards)</option>
+                  <option value="uor-r4-500b">uor-r4.lut-stack/8 &middot; Deep Frontier (500B Self-Improving Core)</option>
                 </select>
                 <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
                 <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
@@ -317,8 +444,39 @@
       </div>
     </section>
 
-    <!-- Column 3: Dockable Canvas Pane (Collapsible Drawer, Open by Default on 3D Brain & OTel Traces) -->
-    <section class="dockable-canvas-pane" id="dockable-canvas-pane" aria-label="Cowork Dockable Canvas">
+    <!-- Center Pane: Cursor Multi-Tab Code Editor + Integrated Bottom Terminal & Workbench -->
+    <section class="dockable-canvas-pane cursor-center-workbench workbench-center-pane" id="dockable-canvas-pane" aria-label="Cursor Center Code Editor and Integrated Workbench">
+      <!-- Cursor Open File Tabs Bar & Workbench Actions -->
+      <div id="editor-tabs-bar" class="cursor-editor-tabs-bar editor-tabs-bar" role="region" aria-label="Open Editor File Tabs">
+        <div id="cursor-editor-tabs" class="cursor-editor-tabs editor-tabs" role="tablist" aria-label="Open Files"></div>
+        <button id="editor-new-tab-btn" type="button" class="cursor-mini-btn" title="New Untitled Tab">+</button>
+        <div class="cursor-workbench-toolbar">
+          <button id="cursor-cmdk-trigger-btn" type="button" class="cursor-wb-btn cursor-wb-btn-accent" title="Inline Edit Selection with Local UOR-R4 (Cmd+K)">Cmd+K Edit</button>
+          <button id="cursor-quickopen-btn" type="button" class="cursor-wb-btn" title="Quick Open File (Cmd+P)">Cmd+P</button>
+          <button id="cursor-palette-btn" type="button" class="cursor-wb-btn" title="Command Palette (Cmd+Shift+P)">Cmd+Shift+P</button>
+          <button id="cursor-run-check-btn" type="button" class="cursor-wb-btn" title="Run In-Wasm Rust R4-32 Cargo Check &amp; Tests">&#9654; R4-32 Check</button>
+          <button id="cursor-toggle-bottom-panel-btn" type="button" class="cursor-wb-btn" title="Toggle Integrated Bottom Terminal (Ctrl+`)">Ctrl+` Term</button>
+        </div>
+        <span id="cursor-editor-tabs-bar" hidden></span>
+      </div>
+
+      <!-- Cursor Breadcrumb Bar -->
+      <div id="cursor-breadcrumbs-bar" class="cursor-breadcrumbs-bar" aria-label="Editor Breadcrumbs">
+        <div id="cursor-breadcrumbs" class="cursor-breadcrumbs">
+          <span class="crumb-repo">lexlean-r4</span>
+          <span class="crumb-sep">&rsaquo;</span>
+          <span class="crumb-dir">src</span>
+          <span class="crumb-sep">&rsaquo;</span>
+          <strong class="crumb-file">attention.rs</strong>
+          <span class="crumb-sep">&rsaquo;</span>
+          <code id="cursor-crumb-symbol" class="crumb-symbol">fn flock_attention_step</code>
+        </div>
+        <div class="cursor-breadcrumb-meta">
+          <span id="cursor-file-git-badge" class="cursor-git-pill">HEAD &middot; clean</span>
+          <span class="cursor-local-engine-pill">uor-r4.lut-stack/8 &middot; Local Wasm</span>
+        </div>
+      </div>
+
       <div class="canvas-header">
         <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
           <button id="canvas-tab-traces" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-traces" data-tab-id="traces">
@@ -557,7 +715,7 @@
         </div>
         <!-- Tab 1: Workspace & Editor Panel -->
         <div id="canvas-panel-workspace" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0" hidden>
-          <div class="workspace-panel-grid">
+          <div class="workspace-panel-grid cursor-editor-grid">
             <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
               <div class="pane-subheader">
                 <strong>Workspace Files</strong>
@@ -572,21 +730,64 @@
               </form>
               <div class="field">
                 <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
-                <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple>
+                <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple webkitdirectory>
               </div>
             </div>
 
-            <div class="ide-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
-              <div class="pane-subheader">
-                <strong>Workspace File Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
-                <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+            <div class="ide-pane cursor-code-editor-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
+              <div class="pane-subheader cursor-editor-subheader">
+                <strong>Active Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
+                <div class="cursor-editor-header-right">
+                  <span class="cursor-shortcut-hint"><code>Cmd+K</code> Inline Edit &middot; <code>Tab</code> Ghost Complete &middot; <code>Cmd+S</code> Save</span>
+                  <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+                </div>
               </div>
-              <div class="field">
-                <label for="workspace-editor-textarea">Active Workspace Source Code (Editable)</label>
-                <textarea id="workspace-editor-textarea" class="code-textarea" rows="12" spellcheck="false"></textarea>
+
+              <!-- Cmd+K Inline Floating Edit Bar & Inline Red/Green Diff Hunks -->
+              <div id="cursor-cmdk-bar" class="cursor-cmdk-bar" data-testid="cursor-cmdk-floating-bar" role="region" aria-label="Cursor Cmd+K Inline Edit Bar" hidden>
+                <div class="cursor-cmdk-header">
+                  <div class="cursor-cmdk-title-group">
+                    <span class="cursor-cmdk-badge">Cmd+K &middot; uor-r4.lut-stack/8</span>
+                    <code id="cursor-cmdk-range-badge" class="cursor-cmdk-range">src/attention.rs:Ln 1-12</code>
+                  </div>
+                  <button id="cursor-cmdk-close-btn" type="button" class="cursor-cmdk-close" title="Close Inline Edit (Esc)" aria-label="Close Inline Edit">&times;</button>
+                </div>
+                <div class="cursor-cmdk-form" role="group" aria-label="Inline Edit Controls">
+                  <label for="cursor-cmdk-input" class="sr-only">Inline Edit Instruction</label>
+                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code with local uor-r4.lut-stack/8... (Enter to generate)" autocomplete="off" spellcheck="false">
+                  <button id="cursor-cmdk-submit-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-generate">Generate Diff &crarr;</button>
+                  <button id="cursor-cmdk-accept-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-accept" disabled>Accept (Cmd+Enter)</button>
+                  <button id="cursor-cmdk-reject-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-reject" disabled>Reject (Cmd+Backspace)</button>
+                </div>
+                <pre id="cursor-cmdk-diff-hunk" class="code-block diff-colored-block cursor-cmdk-diff-hunk" aria-label="Inline Edit Unified Diff Hunk" hidden></pre>
               </div>
-              <div class="button-row">
-                <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory</button>
+
+              <!-- Line-Numbered Code Editor Surface -->
+              <div class="field cursor-editor-field">
+                <label for="workspace-editor-textarea" class="sr-only">Active Workspace Source Code (Editable)</label>
+                <div id="cursor-editor-surface" class="cursor-editor-surface">
+                  <div id="editor-line-numbers" class="cursor-line-gutter editor-line-numbers" aria-hidden="true"><span id="cursor-line-gutter" hidden></span>1</div>
+                  <div id="cursor-ghost-overlay" class="cursor-ghost-overlay" aria-hidden="true"></div>
+                  <textarea id="workspace-editor-textarea" class="code-textarea cursor-code-textarea" rows="14" spellcheck="false"></textarea>
+                </div>
+              </div>
+
+              <!-- Cursor Tab Ghost-Text Autocomplete Bar (Powered by Local uor-r4.lut-stack/8 predict_next) -->
+              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Cursor Tab Ghost-Text Autocomplete">
+                <span class="cursor-ghost-pill">Cursor Tab &middot; /7+/8</span>
+                <code id="cursor-ghost-text-preview" class="cursor-ghost-preview">pub fn flock_consensus_step(q12: &amp;[i16; 8]) -&gt; u8</code>
+                <span id="cursor-ghost-meta" class="cursor-ghost-meta">Basin #18 &middot; Q12 L1=0</span>
+                <button id="cursor-ghost-accept-btn" type="button" class="cursor-ghost-accept-btn" title="Accept Ghost-Text Completion (Tab)">Tab &#8677; Accept</button>
+              </div>
+
+              <!-- R4-32 Compiler & Verifier Diagnostics Strip -->
+              <div id="cursor-problems-strip" class="cursor-problems-strip" role="region" aria-label="R4-32 In-Wasm Rust Compiler Diagnostics">
+                <span class="cursor-problems-title">Problems (<code>R4-32</code> Verifier):</span>
+                <span id="cursor-problems-summary" class="cursor-problems-ok">&#10003; 0 errors, 0 warnings &middot; cargo check + test ready</span>
+              </div>
+
+              <div class="button-row cursor-editor-actions">
+                <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory (Cmd+S)</button>
                 <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
               </div>
               <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
@@ -1052,6 +1253,65 @@
       </div>
     </section>
 
+    <!-- Cursor Cmd+P Quick Open & Cmd+Shift+P Command Palette Modal -->
+    <div id="cursor-command-palette" class="cursor-command-palette cursor-quick-open-modal" data-testid="cursor-quick-open-modal" hidden role="dialog" aria-modal="true" aria-label="Cursor Quick Open and Command Palette">
+      <div class="cursor-palette-backdrop" id="cursor-palette-backdrop"></div>
+      <div class="cursor-palette-dialog">
+        <div class="cursor-palette-header">
+          <span id="cursor-palette-mode-badge" class="cursor-palette-mode-badge">Quick Open (Cmd+P)</span>
+          <input id="cursor-palette-input" class="cursor-palette-input" type="text" placeholder="Type a file name to open, or prefix with &gt; for UOR-R4 commands..." autocomplete="off" />
+          <button id="cursor-palette-close-btn" type="button" class="btn-secondary btn-xs" title="Close (Esc)">Esc</button>
+        </div>
+        <div id="cursor-palette-list" class="cursor-palette-list" role="listbox" aria-label="Quick Open and Command Results">
+          <!-- Populated dynamically with VFS files and UOR-R4 IDE commands -->
+        </div>
+        <div class="cursor-palette-footer">
+          <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+          <span><kbd>Enter</kbd> Execute / Open</span>
+          <span><kbd>&gt;</kbd> Commands</span>
+          <span><kbd>Esc</kbd> Dismiss</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cursor IDE Bottom Status Bar (#ide-status-bar) -->
+    <footer id="ide-status-bar" class="ide-status-bar cursor-status-bar" aria-label="Cursor IDE Status Bar">
+      <div class="cursor-status-left status-bar-left">
+        <span id="status-remote-indicator" class="cursor-status-item status-remote" title="100% In-Browser WASM + WebGPU Execution">
+          <span class="status-dot status-dot-live"></span>
+          &#x2B21; LexLean WASM
+        </span>
+        <span id="status-git-branch" class="cursor-status-item" title="Active Workspace Branch">&#9095; <span id="cursor-status-branch">main*</span></span>
+        <span id="status-git-dirty" class="cursor-status-item" title="Uncommitted Changes">0 uncommitted</span>
+        <button id="status-problems" type="button" class="cursor-status-item cursor-status-btn" title="Click to run R4-32 cargo check in WASM">
+          <span id="cursor-status-r432">0 &otimes; 0 &warn;</span>
+        </button>
+        <span id="status-model-badge" class="cursor-status-item" title="Active Local Model">
+          <span id="active-model-badge" class="active-model-badge"><span id="cursor-status-model">&#9889; UOR-R4 [Local LUT-8]</span></span>
+        </span>
+        <span id="cursor-status-local-badge" class="cursor-status-item cursor-status-local" hidden>
+          <span class="status-dot status-dot-live"></span>
+          LOCAL WASM &middot; 0 Cloud Calls
+        </span>
+      </div>
+      <div class="cursor-status-center status-bar-center">
+        <span id="status-active-file" class="cursor-status-item" title="Active File in Editor">src/attention.rs</span>
+        <span id="status-cursor-pos" class="cursor-status-item" title="Editor Cursor Position">
+          <span id="cursor-status-lncol">Ln 1, Col 1</span>
+        </span>
+        <span id="status-encoding" class="cursor-status-item" title="File Encoding">
+          <span id="cursor-status-encoding">UTF-8</span>
+        </span>
+        <span id="status-language" class="cursor-status-item" title="Detected Language">Rust</span>
+      </div>
+      <div class="cursor-status-right status-bar-right">
+        <span id="cursor-status-ghost" class="cursor-status-item" title="Cursor Tab Local Autocomplete Engine">Tab: /8 + 4-Gram Ready</span>
+        <span id="cursor-status-q12" class="cursor-status-item" title="Live 256D Q12 &amp; Cl(0,6) Geometric State">256D Q12 &middot; Cl(0,6) 8-Head</span>
+        <button id="status-terminal-btn" type="button" class="cursor-status-item cursor-status-btn" title="Toggle Integrated Bottom Terminal (Ctrl+`)">Terminal (Ctrl+`)</button>
+        <span id="cursor-status-bar" hidden></span>
+      </div>
+    </footer>
+
     <!-- Legacy Modal Compatibility Wrappers (ensure no querySelector null pointer errors) -->
     <div id="workspace-modal" hidden>
       <button id="close-workspace-modal-btn" type="button" class="sr-only">Close</button>
@@ -1060,6 +1320,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261109geomv12"></script>
+  <script type="module" src="app.js?v=20261109geomv13"></script>
 </body>
 </html>

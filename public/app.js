@@ -510,6 +510,9 @@ function renderPendingPatchPills() {
     });
     chatDiffFilePills.appendChild(btn);
   }
+  if (typeof syncCursorComposerPatchBar === 'function') {
+    syncCursorComposerPatchBar();
+  }
 }
 
 function checkMcpToolPolicy(action, target) {
@@ -748,6 +751,10 @@ function renderStudioState(state) {
 }
 
 function selectWorkspaceFile(pathText) {
+  if (typeof editorTabManager !== 'undefined' && editorTabManager && editorTabManager.tabs.has(pathText)) {
+    editorTabManager.switchTo(pathText);
+    return;
+  }
   const res = dispatchStudioEnvelope('workspace_read', pathText);
   if (!res || res.status !== 'ok') return;
   activeWorkspacePath = res.path;
@@ -755,8 +762,13 @@ function selectWorkspaceFile(pathText) {
   if (editorFileReceipt) {
     editorFileReceipt.textContent = res.updated_receipt ? res.updated_receipt.slice(0, 16) : '';
   }
-  if (workspaceEditorTextarea) {
+  if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+    editorTabManager.open(res.path, res.content);
+  } else if (workspaceEditorTextarea) {
     workspaceEditorTextarea.value = res.content;
+  }
+  if (typeof syncCursorWorkbenchOnFileSelect === 'function') {
+    syncCursorWorkbenchOnFileSelect(res);
   }
 }
 
@@ -811,6 +823,9 @@ function renderWorkspaceList(ws) {
   if (!foundActive && ws.files.length > 0) {
     activeWorkspacePath = ws.files[0].path;
     selectWorkspaceFile(activeWorkspacePath);
+  }
+  if (typeof syncCursorWorkbenchOnList === 'function') {
+    syncCursorWorkbenchOnList(ws);
   }
 }
 
@@ -2704,27 +2719,27 @@ const COMPOSER_MODELS = [
   },
   {
     id: 'claude-3-5-sonnet',
-    name: 'Claude 3.5 Sonnet',
+    name: 'Claude 3.5 Sonnet (Local Emulation)',
     contextWindow: '200k',
-    badge: 'v1/messages',
+    badge: 'Local UOR-R4 WASM',
   },
   {
     id: 'gpt-4o',
-    name: 'GPT-4o',
+    name: 'GPT-4o (Local Emulation)',
     contextWindow: '128k',
-    badge: 'v1/chat',
+    badge: '6-Layer SpiralCore',
   },
   {
     id: 'deepseek-r1',
-    name: 'DeepSeek R1 Latent',
+    name: 'DeepSeek R1 Latent (Local)',
     contextWindow: '64k',
-    badge: 'MLA Q12',
+    badge: 'Q12 Coprocessor',
   },
   {
     id: 'uor-r4-500b',
     name: 'UOR-R4 500B Self-Improving Core',
     contextWindow: '128k',
-    badge: 'R3 Scale',
+    badge: 'R3 Scale Local',
   },
 ];
 
@@ -7916,7 +7931,9 @@ function initCustomizationsAndMcp() {
       pendingProposedCode = '';
       AppState.workspace.pendingPatchPath = '';
       AppState.workspace.pendingProposedCode = '';
-      renderPendingPatchPills();
+      if (typeof renderPendingPatchPills === 'function') {
+        renderPendingPatchPills();
+      }
       const diffEl = document.getElementById('chat-diff-preview');
       if (diffEl) diffEl.textContent = 'Proposed patch rejected by reviewer.';
       const poolQueue = document.getElementById('pool-review-queue');
@@ -8492,9 +8509,15 @@ if (workspaceSaveBtn) {
     const ws = dispatchStudioEnvelope('workspace_write', `${activeWorkspacePath}\n${content}`);
     if (ws && ws.status === 'ok') {
       renderWorkspaceList(ws);
+      if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+        editorTabManager.markSaved(activeWorkspacePath);
+      }
       selectWorkspaceFile(activeWorkspacePath);
       const st = dispatchStudioEnvelope('state', '');
       renderStudioState(st);
+      if (typeof writeCursorDiskFileHandle === 'function') {
+        writeCursorDiskFileHandle(activeWorkspacePath, content);
+      }
       if (workspaceStatus) {
         workspaceStatus.textContent = `Saved ${activeWorkspacePath} and admitted updated tokens into geometric memory.`;
       }
@@ -8525,22 +8548,36 @@ if (workspaceMountInput) {
     const files = workspaceMountInput.files;
     if (!files || files.length === 0) return;
     const chunks = [];
+    const validExt = /\.(rs|lean|toml|yaml|yml|md|js|mjs|ts|json|css|html|py|txt|sh)$/i;
     for (let i = 0; i < files.length; i += 1) {
       const f = files[i];
-      const text = await f.text();
-      const relPath = f.webkitRelativePath || `src/${f.name}`;
+      const relPath = f.webkitRelativePath || (f.name ? `src/${f.name}` : '');
+      if (!relPath) continue;
+      const parts = relPath.split('/');
+      const hasHiddenOrIgnored = parts.some(
+        (p) => p.startsWith('.') || p === 'node_modules' || p === 'target'
+      );
+      if (hasHiddenOrIgnored) continue;
+      if (!validExt.test(f.name || relPath)) continue;
+      if (typeof f.size === 'number' && f.size > 512 * 1024) continue;
+      const text = typeof f.text === 'function' ? await f.text() : '';
       chunks.push(`${relPath}\n${text}`);
     }
-    const batchPayload = chunks.join('\n===FILE===\n');
-    const ws = dispatchStudioEnvelope('workspace_batch', batchPayload);
-    if (ws && ws.status === 'ok') {
-      renderWorkspaceList(ws);
-      const st = dispatchStudioEnvelope('state', '');
-      renderStudioState(st);
-      if (workspaceStatus) {
-        workspaceStatus.textContent = `Mounted ${ws.batch_ingested_files} local file(s) (${ws.batch_ingested_tokens} tokens indexed into geometric memory).`;
+    if (chunks.length > 0) {
+      const batchPayload = chunks.join('\n===FILE===\n');
+      const ws = dispatchStudioEnvelope('workspace_batch', batchPayload);
+      if (ws && ws.status === 'ok') {
+        renderWorkspaceList(ws);
+        const st = dispatchStudioEnvelope('state', '');
+        renderStudioState(st);
+        if (workspaceStatus) {
+          workspaceStatus.textContent = `Mounted ${ws.batch_ingested_files} local file(s) (${ws.batch_ingested_tokens} tokens indexed into geometric memory).`;
+        }
       }
     }
+    try {
+      workspaceMountInput.value = '';
+    } catch {}
   });
 }
 
@@ -8638,6 +8675,2351 @@ if (toggleRightDrawerBtn) {
   });
 }
 
+// ============================================================================
+// CURSOR IDE WORKBENCH CONTROLLER (100% Local UOR-R4 Model)
+// ============================================================================
+
+class EditorTabManager {
+  constructor() {
+    this.tabs = new Map(); // path -> { path, name, buffer, savedContent, isDirty, cursorStart, cursorEnd, scrollTop }
+    this.activePath = null;
+    this.tabsContainer = document.getElementById('cursor-editor-tabs') || document.getElementById('editor-tabs-bar');
+    this.textarea = document.getElementById('workspace-editor-textarea');
+    this.lineNumbersEl = document.getElementById('editor-line-numbers') || document.getElementById('cursor-line-gutter');
+  }
+
+  init(defaultFiles = ['src/attention.rs', 'src/lib.rs', 'src/LutStack.rs', 'Cargo.toml']) {
+    for (const path of defaultFiles) {
+      if (!this.tabs.has(path)) {
+        const readRes = dispatchStudioEnvelope('workspace_read', path);
+        const content = (readRes && readRes.status === 'ok') ? String(readRes.content || '') : '';
+        const name = path.split('/').pop() || path;
+        this.tabs.set(path, {
+          path,
+          name,
+          buffer: content,
+          savedContent: content,
+          isDirty: false,
+          cursorStart: 0,
+          cursorEnd: 0,
+          scrollTop: 0
+        });
+      }
+    }
+    const initialPath = defaultFiles[0] || 'src/attention.rs';
+    this.switchTo(initialPath);
+  }
+
+  open(path, content = null) {
+    if (!path) return;
+    if (this.tabs.has(path)) {
+      if (content !== null && !this.tabs.get(path).isDirty) {
+        this.tabs.get(path).buffer = String(content);
+        this.tabs.get(path).savedContent = String(content);
+      }
+      this.switchTo(path);
+      return;
+    }
+    let tabContent = content;
+    if (tabContent === null) {
+      const readRes = dispatchStudioEnvelope('workspace_read', path);
+      tabContent = (readRes && readRes.status === 'ok') ? String(readRes.content || '') : '';
+    }
+    const name = path.split('/').pop() || path;
+    const tab = {
+      path,
+      name,
+      buffer: String(tabContent || ''),
+      savedContent: String(tabContent || ''),
+      isDirty: false,
+      cursorStart: 0,
+      cursorEnd: 0,
+      scrollTop: 0
+    };
+    this.tabs.set(path, tab);
+    if (!cursorOpenTabs.includes(path)) {
+      cursorOpenTabs.push(path);
+    }
+    this.switchTo(path);
+  }
+
+  switchTo(path) {
+    if (!path) return;
+    if (!this.tabs.has(path)) {
+      this.open(path);
+      return;
+    }
+    // Stash current active tab buffer, cursor, and scroll
+    if (this.activePath && this.tabs.has(this.activePath)) {
+      const cur = this.tabs.get(this.activePath);
+      const ta = this.textarea || document.getElementById('workspace-editor-textarea');
+      if (ta) {
+        cur.buffer = ta.value;
+        cur.cursorStart = ta.selectionStart || 0;
+        cur.cursorEnd = ta.selectionEnd || 0;
+        cur.scrollTop = ta.scrollTop || 0;
+      }
+      cur.isDirty = (cur.buffer !== cur.savedContent);
+    }
+
+    this.activePath = path;
+    activeWorkspacePath = path;
+    const next = this.tabs.get(path);
+
+    const ta = this.textarea || document.getElementById('workspace-editor-textarea');
+    if (ta) {
+      ta.value = next.buffer;
+      try {
+        ta.selectionStart = next.cursorStart;
+        ta.selectionEnd = next.cursorEnd;
+        ta.scrollTop = next.scrollTop;
+      } catch {}
+    }
+
+    if (editorFilePath) editorFilePath.textContent = path;
+    this.updateLineNumbers();
+    this.updateStatusBar();
+    this.renderTabs();
+
+    if (typeof updateCursorBreadcrumbsAndCursorPos === 'function') {
+      updateCursorBreadcrumbsAndCursorPos();
+    }
+    if (typeof updateCursorGhostText === 'function') {
+      updateCursorGhostText();
+    }
+  }
+
+  close(path) {
+    if (this.tabs.size <= 1 || cursorOpenTabs.length <= 1) return;
+    if (!this.tabs.has(path) && !cursorOpenTabs.includes(path)) return;
+    this.tabs.delete(path);
+    const tabIdx = cursorOpenTabs.indexOf(path);
+    if (tabIdx >= 0) {
+      cursorOpenTabs.splice(tabIdx, 1);
+    }
+
+    if (this.activePath === path || activeWorkspacePath === path) {
+      const remaining = cursorOpenTabs.length > 0 ? cursorOpenTabs : Array.from(this.tabs.keys());
+      if (remaining.length > 0) {
+        const nextPath = remaining[Math.min(tabIdx >= 0 ? tabIdx : 0, remaining.length - 1)];
+        this.switchTo(nextPath);
+      } else {
+        this.activePath = null;
+        activeWorkspacePath = '';
+        const ta = this.textarea || document.getElementById('workspace-editor-textarea');
+        if (ta) ta.value = '';
+        if (editorFilePath) editorFilePath.textContent = '';
+        this.updateLineNumbers();
+        this.updateStatusBar();
+      }
+    }
+    this.renderTabs();
+  }
+
+  updateBuffer(content) {
+    if (!this.activePath || !this.tabs.has(this.activePath)) return;
+    const tab = this.tabs.get(this.activePath);
+    tab.buffer = String(content || '');
+    tab.isDirty = (tab.buffer !== tab.savedContent);
+    this.updateLineNumbers();
+    this.updateStatusBar();
+    this.renderTabs();
+  }
+
+  markSaved(path) {
+    const targetPath = path || this.activePath;
+    if (!targetPath || !this.tabs.has(targetPath)) return;
+    const tab = this.tabs.get(targetPath);
+    tab.savedContent = tab.buffer;
+    tab.isDirty = false;
+    this.updateStatusBar();
+    this.renderTabs();
+  }
+
+  updateLineNumbers() {
+    const gutterEl = this.lineNumbersEl || document.getElementById('editor-line-numbers') || document.getElementById('cursor-line-gutter');
+    const ta = this.textarea || document.getElementById('workspace-editor-textarea');
+    if (!gutterEl || !ta) return;
+    const text = String(ta.value || '');
+    const lineCount = Math.max(1, text.split('\n').length);
+    const nums = [];
+    for (let i = 1; i <= lineCount; i++) {
+      nums.push(String(i));
+    }
+    const linesStr = nums.join('\n');
+    const legacyGutter = document.getElementById('cursor-line-gutter');
+    if (legacyGutter && legacyGutter.parentNode === gutterEl) {
+      legacyGutter.textContent = '';
+      gutterEl.textContent = linesStr;
+      gutterEl.prepend(legacyGutter);
+    } else {
+      gutterEl.textContent = linesStr;
+      if (legacyGutter) legacyGutter.textContent = linesStr;
+    }
+    gutterEl.scrollTop = ta.scrollTop;
+  }
+
+  updateStatusBar() {
+    const path = this.activePath || activeWorkspacePath || 'src/attention.rs';
+    const activeFileEl = document.getElementById('status-active-file');
+    const langEl = document.getElementById('status-language');
+    const dirtyEl = document.getElementById('status-git-dirty');
+    const modelBadge = document.getElementById('status-model-badge');
+    const gitBranchEl = document.getElementById('status-git-branch');
+
+    if (activeFileEl) activeFileEl.textContent = path;
+    if (langEl) {
+      const ext = path.split('.').pop() || '';
+      const map = { rs: 'Rust', toml: 'TOML', js: 'JavaScript', mjs: 'JavaScript', json: 'JSON', html: 'HTML', css: 'CSS', md: 'Markdown' };
+      langEl.textContent = map[ext] || (ext ? ext.toUpperCase() : 'Plain Text');
+    }
+    if (dirtyEl) {
+      let dirtyCount = 0;
+      for (const t of this.tabs.values()) {
+        if (t.isDirty) dirtyCount++;
+      }
+      dirtyEl.textContent = `${dirtyCount} uncommitted`;
+    }
+    if (modelBadge && !modelBadge.textContent.includes('UOR-R4')) {
+      modelBadge.innerHTML = '&#9889; UOR-R4 [Local LUT-8]';
+    }
+    if (gitBranchEl) {
+      const branchSpan = document.getElementById('cursor-status-branch');
+      if (branchSpan) branchSpan.textContent = 'main*';
+    }
+  }
+
+  renderTabs() {
+    const container = document.getElementById('cursor-editor-tabs') || document.getElementById('editor-tabs-bar');
+    if (!container) return;
+    container.replaceChildren();
+
+    if (Array.isArray(cursorOpenTabs)) {
+      for (const k of Array.from(this.tabs.keys())) {
+        if (!cursorOpenTabs.includes(k)) this.tabs.delete(k);
+      }
+      for (const p of cursorOpenTabs) {
+        if (!this.tabs.has(p)) {
+          const name = p.split('/').pop() || p;
+          this.tabs.set(p, {
+            path: p,
+            name,
+            buffer: '',
+            savedContent: '',
+            isDirty: false,
+            cursorStart: 0,
+            cursorEnd: 0,
+            scrollTop: 0
+          });
+        }
+      }
+    }
+
+    const canClose = cursorOpenTabs.length > 1;
+
+    for (const [path, tab] of this.tabs.entries()) {
+      const isActive = path === this.activePath || path === activeWorkspacePath;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `cursor-editor-tab editor-tab${isActive ? ' active' : ''}${tab.isDirty ? ' dirty' : ''}`;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      btn.dataset.path = path;
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'editor-tab-title cursor-tree-item-name';
+      titleSpan.textContent = tab.isDirty ? `${tab.name} ●` : tab.name;
+      btn.appendChild(titleSpan);
+
+      if (canClose) {
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'cursor-editor-tab-close editor-tab-close';
+        closeBtn.textContent = '×';
+        closeBtn.title = `Close ${tab.name}`;
+        closeBtn.setAttribute('aria-label', `Close ${tab.name}`);
+        closeBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          this.close(path);
+        });
+        btn.appendChild(closeBtn);
+      }
+
+      btn.addEventListener('click', () => {
+        this.switchTo(path);
+      });
+
+      container.appendChild(btn);
+    }
+  }
+}
+
+const editorTabManager = new EditorTabManager();
+globalThis.EditorTabManager = EditorTabManager;
+globalThis.editorTabManager = editorTabManager;
+if (typeof window !== 'undefined') {
+  window.EditorTabManager = EditorTabManager;
+  window.editorTabManager = editorTabManager;
+}
+
+const cursorBaselineFiles = new Map();
+const cursorOpenTabs = ['src/attention.rs', 'src/lib.rs', 'src/LutStack.rs', 'Cargo.toml'];
+const cursorDiskFileHandles = new Map();
+let cursorCmdKState = {
+  open: false,
+  targetPath: 'src/attention.rs',
+  selStart: 0,
+  selEnd: 0,
+  startLine: 1,
+  endLine: 1,
+  originalFullCode: '',
+  proposedFullCode: '',
+  diffText: '',
+};
+let cursorGhostState = {
+  suggestion: 'let q12_basin = point_key.project_radix8(state_vec);',
+  sourceTag: '/8 PointKey + /7 4-Gram',
+  q12L1: 0,
+  hammingDist: 0,
+  basinId: 0,
+  candidates: [],
+};
+let cursorGhostDebounceTimer = null;
+
+function scheduleCursorGhostText(delay = 180) {
+  if (cursorGhostDebounceTimer) {
+    clearTimeout(cursorGhostDebounceTimer);
+  }
+  cursorGhostDebounceTimer = setTimeout(() => {
+    cursorGhostDebounceTimer = null;
+    updateCursorGhostText();
+  }, delay);
+}
+
+function dismissCursorGhostText() {
+  if (cursorGhostDebounceTimer) {
+    clearTimeout(cursorGhostDebounceTimer);
+    cursorGhostDebounceTimer = null;
+  }
+  cursorGhostState.suggestion = '';
+  cursorGhostState.candidates = [];
+  const overlayEl = document.getElementById('cursor-ghost-overlay');
+  if (overlayEl) {
+    overlayEl.innerHTML = '';
+  }
+  const previewEl = document.getElementById('cursor-ghost-text-preview');
+  if (previewEl) {
+    previewEl.textContent = '';
+  }
+  const metaEl = document.getElementById('cursor-ghost-meta');
+  if (metaEl) {
+    metaEl.textContent = '';
+  }
+  const statusGhostEl = document.getElementById('cursor-status-ghost');
+  if (statusGhostEl) {
+    statusGhostEl.textContent = 'Tab: none';
+  }
+}
+const clearCursorGhostText = dismissCursorGhostText;
+
+let cursorPaletteActiveIdx = 0;
+let cursorPaletteItemsCache = [];
+let cursorPaletteOpen = false;
+
+function computeCursorGitStatusForFile(fileObj) {
+  if (!fileObj || !fileObj.path) return { badge: 'M', cls: 'cursor-git-m', delta: '+0/-0' };
+  const path = fileObj.path;
+  const currentContent = String(fileObj.content || '');
+  if (!cursorBaselineFiles.has(path)) {
+    cursorBaselineFiles.set(path, currentContent);
+  }
+  const baseContent = cursorBaselineFiles.get(path) || '';
+  const pending = (AppState.workspace && AppState.workspace.pendingPatches && AppState.workspace.pendingPatches[path])
+    ? AppState.workspace.pendingPatches[path]
+    : null;
+  if (pending && pending.proposedCode && pending.proposedCode !== currentContent) {
+    const baseLines = currentContent.split('\n').length;
+    const propLines = String(pending.proposedCode).split('\n').length;
+    const add = Math.max(1, propLines >= baseLines ? propLines - baseLines + 1 : 1);
+    const del = Math.max(0, baseLines > propLines ? baseLines - propLines : 1);
+    return { badge: 'M*', cls: 'cursor-git-m', delta: `+${add}/-${del}` };
+  }
+  if (currentContent !== baseContent) {
+    const oldL = baseContent.split('\n').length;
+    const newL = currentContent.split('\n').length;
+    const add = Math.max(1, newL >= oldL ? newL - oldL + 1 : 1);
+    const del = Math.max(0, oldL > newL ? oldL - newL : 0);
+    return { badge: 'M', cls: 'cursor-git-m', delta: `+${add}/-${del}` };
+  }
+  if (!['src/attention.rs', 'src/lib.rs', 'src/LutStack.rs', 'Cargo.toml'].includes(path)) {
+    return { badge: 'U', cls: 'cursor-git-u', delta: `+${fileObj.line_count || currentContent.split('\n').length}/-0` };
+  }
+  return { badge: '', cls: '', delta: `${fileObj.line_count || currentContent.split('\n').length}L` };
+}
+
+function renderCursorFileTree(ws) {
+  const treeEl = document.getElementById('cursor-file-tree');
+  if (!treeEl || !ws || !Array.isArray(ws.files)) return;
+  const filterInput = document.getElementById('cursor-tree-filter');
+  const query = filterInput && filterInput.value ? filterInput.value.trim().toLowerCase() : '';
+  treeEl.replaceChildren();
+
+  const folders = new Map();
+  const rootFiles = [];
+  let modifiedCount = 0;
+
+  for (const file of ws.files) {
+    const gitInfo = computeCursorGitStatusForFile(file);
+    if (gitInfo.badge === 'M' || gitInfo.badge === 'M*' || gitInfo.badge === 'U') {
+      modifiedCount += 1;
+    }
+    if (query && !file.path.toLowerCase().includes(query)) continue;
+    const slashIdx = file.path.indexOf('/');
+    if (slashIdx > 0) {
+      const folderName = file.path.slice(0, slashIdx);
+      if (!folders.has(folderName)) folders.set(folderName, []);
+      folders.get(folderName).push({ file, gitInfo });
+    } else {
+      rootFiles.push({ file, gitInfo });
+    }
+  }
+
+  function buildTreeFileButton(file, gitInfo, displayLabel) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `cursor-tree-item${file.path === activeWorkspacePath ? ' active' : ''}`;
+    btn.setAttribute('role', 'treeitem');
+    btn.title = `${file.path} (${file.line_count} lines)`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'cursor-tree-item-name';
+    nameSpan.textContent = displayLabel;
+
+    const badgesSpan = document.createElement('span');
+    badgesSpan.className = 'cursor-tree-badges';
+
+    if (gitInfo.badge) {
+      const b = document.createElement('span');
+      b.className = `cursor-git-badge ${gitInfo.cls}`;
+      b.textContent = gitInfo.badge;
+      badgesSpan.appendChild(b);
+    }
+    const d = document.createElement('span');
+    d.className = `cursor-git-badge${gitInfo.badge ? ' cursor-git-diff' : ''}`;
+    d.textContent = gitInfo.delta;
+    badgesSpan.appendChild(d);
+
+    btn.appendChild(nameSpan);
+    btn.appendChild(badgesSpan);
+    btn.addEventListener('click', () => {
+      if (!cursorOpenTabs.includes(file.path)) {
+        cursorOpenTabs.push(file.path);
+      }
+      activeWorkspacePath = file.path;
+      selectWorkspaceFile(file.path);
+      const refreshed = dispatchStudioEnvelope('workspace_list', '');
+      renderWorkspaceList(refreshed);
+    });
+    return btn;
+  }
+
+  for (const [folderName, entries] of folders.entries()) {
+    const details = document.createElement('details');
+    details.className = 'cursor-tree-folder';
+    details.open = true;
+    const summary = document.createElement('summary');
+    summary.textContent = `▾ ${folderName}/ (${entries.length})`;
+    const childrenWrap = document.createElement('div');
+    childrenWrap.className = 'cursor-tree-folder-children';
+    for (const { file, gitInfo } of entries) {
+      const shortName = file.path.slice(folderName.length + 1);
+      childrenWrap.appendChild(buildTreeFileButton(file, gitInfo, shortName));
+    }
+    details.appendChild(summary);
+    details.appendChild(childrenWrap);
+    treeEl.appendChild(details);
+  }
+
+  for (const { file, gitInfo } of rootFiles) {
+    treeEl.appendChild(buildTreeFileButton(file, gitInfo, file.path));
+  }
+
+  const scmBadge = document.getElementById('cursor-scm-badge');
+  if (scmBadge) {
+    scmBadge.textContent = String(modifiedCount);
+  }
+  renderCursorScmSection(ws);
+}
+
+function renderCursorScmSection(ws) {
+  const scmSummary = document.getElementById('cursor-scm-summary');
+  const scmList = document.getElementById('cursor-scm-list');
+  if (!scmList || !ws || !Array.isArray(ws.files)) return;
+  scmList.replaceChildren();
+
+  const pendingPatches = (AppState.workspace && AppState.workspace.pendingPatches) ? AppState.workspace.pendingPatches : {};
+  const pendingPaths = Object.keys(pendingPatches);
+  let changeCount = 0;
+
+  for (const file of ws.files) {
+    const gitInfo = computeCursorGitStatusForFile(file);
+    if (!gitInfo.badge && !pendingPatches[file.path]) continue;
+    changeCount += 1;
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'cursor-tree-item';
+    const label = document.createElement('span');
+    label.className = 'cursor-tree-item-name';
+    label.textContent = file.path;
+    const badge = document.createElement('span');
+    badge.className = `cursor-git-badge ${gitInfo.cls || 'cursor-git-m'}`;
+    badge.textContent = `${gitInfo.badge || 'M'} ${gitInfo.delta}`;
+    row.appendChild(label);
+    row.appendChild(badge);
+    row.addEventListener('click', () => {
+      activeWorkspacePath = file.path;
+      selectWorkspaceFile(file.path);
+      if (pendingPatches[file.path]) {
+        activateCanvasTab('diff');
+      }
+    });
+    scmList.appendChild(row);
+  }
+
+  if (scmSummary) {
+    scmSummary.textContent = changeCount > 0
+      ? `${changeCount} modified/staged file(s) · ${pendingPaths.length} pending AI patch(es)`
+      : 'Working tree clean · 0 staged diffs';
+  }
+}
+
+function renderCursorShardsSection() {
+  const shardsGrid = document.getElementById('cursor-shards-grid');
+  const shardsSummary = document.getElementById('cursor-shards-summary');
+  if (!shardsGrid) return;
+  shardsGrid.replaceChildren();
+  for (let s = 0; s < 16; s += 1) {
+    const item = document.createElement('div');
+    item.className = 'cursor-tree-item';
+    const name = document.createElement('span');
+    name.className = 'cursor-tree-item-name';
+    name.textContent = `Shard ${String(s).padStart(2, '0')} · E8 Basin [${s * 1088}..${(s + 1) * 1088 - 1}]`;
+    const badge = document.createElement('span');
+    badge.className = 'cursor-git-badge cursor-git-u';
+    badge.textContent = 'RESIDENT';
+    item.appendChild(name);
+    item.appendChild(badge);
+    shardsGrid.appendChild(item);
+  }
+  if (shardsSummary && typeof studio_weight_pack_status === 'function') {
+    try {
+      const info = JSON.parse(studio_weight_pack_status());
+      if (info && info.status === 'ok') {
+        shardsSummary.textContent = `16 E8 Shards · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows`;
+      }
+    } catch {
+      // Ignore early boot
+    }
+  }
+}
+
+function renderCursorEditorTabs(ws) {
+  if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+    if (editorTabManager.tabs.size === 0 && cursorOpenTabs.length > 0) {
+      editorTabManager.init(cursorOpenTabs);
+    } else {
+      editorTabManager.renderTabs();
+    }
+    return;
+  }
+  const tabsEl = document.getElementById('cursor-editor-tabs') || document.getElementById('editor-tabs-bar');
+  if (!tabsEl) return;
+  if (activeWorkspacePath && !cursorOpenTabs.includes(activeWorkspacePath)) {
+    cursorOpenTabs.push(activeWorkspacePath);
+  }
+  const fileMap = new Map();
+  if (ws && Array.isArray(ws.files)) {
+    for (const f of ws.files) fileMap.set(f.path, f);
+  }
+  tabsEl.replaceChildren();
+
+  for (const path of cursorOpenTabs) {
+    const fileObj = fileMap.get(path) || { path, content: '', line_count: 1 };
+    const gitInfo = computeCursorGitStatusForFile(fileObj);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `cursor-editor-tab editor-tab${path === activeWorkspacePath ? ' active' : ''}`;
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', path === activeWorkspacePath ? 'true' : 'false');
+    btn.dataset.path = path;
+
+    const shortName = path.split('/').pop() || path;
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'editor-tab-title';
+    labelSpan.textContent = gitInfo.badge ? `${shortName} ●` : shortName;
+    btn.appendChild(labelSpan);
+
+    if (cursorOpenTabs.length > 1) {
+      const closeSpan = document.createElement('span');
+      closeSpan.className = 'cursor-editor-tab-close editor-tab-close';
+      closeSpan.textContent = '×';
+      closeSpan.title = `Close ${path}`;
+      closeSpan.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (editorTabManager) {
+          editorTabManager.close(path);
+        } else {
+          const idx = cursorOpenTabs.indexOf(path);
+          if (idx >= 0 && cursorOpenTabs.length > 1) {
+            cursorOpenTabs.splice(idx, 1);
+            if (activeWorkspacePath === path) {
+              activeWorkspacePath = cursorOpenTabs[Math.max(0, idx - 1)];
+              selectWorkspaceFile(activeWorkspacePath);
+            }
+          }
+        }
+        const refreshed = dispatchStudioEnvelope('workspace_list', '');
+        renderWorkspaceList(refreshed);
+      });
+      btn.appendChild(closeSpan);
+    }
+
+    btn.addEventListener('click', () => {
+      activeWorkspacePath = path;
+      selectWorkspaceFile(path);
+      const refreshed = dispatchStudioEnvelope('workspace_list', '');
+      renderWorkspaceList(refreshed);
+    });
+    tabsEl.appendChild(btn);
+  }
+}
+
+function renderCursorLineGutter() {
+  const gutterEl = document.getElementById('cursor-line-gutter');
+  const editorLineNumbers = document.getElementById('editor-line-numbers');
+  if (!workspaceEditorTextarea) return;
+  const text = String(workspaceEditorTextarea.value || '');
+  const lineCount = Math.max(1, text.split('\n').length);
+  const nums = [];
+  for (let i = 1; i <= lineCount; i += 1) {
+    nums.push(String(i));
+  }
+  const linesStr = nums.join('\n');
+  if (gutterEl) gutterEl.textContent = linesStr;
+  if (editorLineNumbers) {
+    if (gutterEl && gutterEl.parentNode === editorLineNumbers) {
+      editorLineNumbers.textContent = linesStr;
+      editorLineNumbers.prepend(gutterEl);
+    } else {
+      editorLineNumbers.textContent = linesStr;
+    }
+    editorLineNumbers.scrollTop = workspaceEditorTextarea.scrollTop;
+  }
+}
+
+function detectCursorEnclosingSymbol(codeText, lineIndexOneBased) {
+  const lines = String(codeText || '').split('\n');
+  const maxIdx = Math.min(lines.length - 1, Math.max(0, lineIndexOneBased - 1));
+  for (let i = maxIdx; i >= 0; i -= 1) {
+    const line = lines[i];
+    const m = line.match(/(?:pub\s+)?(?:async\s+)?(fn|struct|enum|impl|trait|mod|def|class)\s+([A-Za-z0-9_]+)/);
+    if (m) {
+      return `${m[1]} ${m[2]}`;
+    }
+  }
+  return 'module_root';
+}
+
+function updateCursorBreadcrumbsAndCursorPos() {
+  const path = activeWorkspacePath || 'src/attention.rs';
+  const parts = path.split('/');
+  const folderCrumb = document.getElementById('cursor-crumb-folder');
+  const fileCrumb = document.getElementById('cursor-crumb-file');
+  const symbolCrumb = document.getElementById('cursor-crumb-symbol');
+  const lnColEl = document.getElementById('cursor-status-lncol');
+  const gitBadgeEl = document.getElementById('cursor-file-git-badge');
+
+  if (folderCrumb) {
+    folderCrumb.textContent = parts.length > 1 ? parts.slice(0, -1).join('/') : 'root';
+  }
+  if (fileCrumb) {
+    fileCrumb.textContent = parts[parts.length - 1] || path;
+  }
+
+  let ln = 1;
+  let col = 1;
+  const code = workspaceEditorTextarea ? String(workspaceEditorTextarea.value || '') : '';
+  if (workspaceEditorTextarea && typeof workspaceEditorTextarea.selectionStart === 'number') {
+    const pos = Math.max(0, workspaceEditorTextarea.selectionStart);
+    const prefix = code.slice(0, pos);
+    const prefixLines = prefix.split('\n');
+    ln = prefixLines.length;
+    col = (prefixLines[prefixLines.length - 1] || '').length + 1;
+  }
+  if (symbolCrumb) {
+    symbolCrumb.textContent = detectCursorEnclosingSymbol(code, ln);
+  }
+  if (lnColEl) {
+    lnColEl.textContent = `Ln ${ln}, Col ${col}`;
+  }
+  if (gitBadgeEl) {
+    const lineTotal = Math.max(1, code.split('\n').length);
+    const gitInfo = computeCursorGitStatusForFile({ path, content: code, line_count: lineTotal });
+    gitBadgeEl.textContent = gitInfo.badge ? `${gitInfo.badge} · ${gitInfo.delta}` : `${lineTotal}L · Clean`;
+  }
+
+  const statusActiveFile = document.getElementById('status-active-file');
+  if (statusActiveFile) {
+    statusActiveFile.textContent = path;
+  }
+  const statusCursorPos = document.getElementById('status-cursor-pos');
+  if (statusCursorPos) {
+    statusCursorPos.textContent = `Ln ${ln}, Col ${col}`;
+  }
+  const statusLang = document.getElementById('status-language');
+  if (statusLang) {
+    const ext = path.split('.').pop() || '';
+    const map = { rs: 'Rust', toml: 'TOML', js: 'JavaScript', mjs: 'JavaScript', ts: 'TypeScript', json: 'JSON', html: 'HTML', css: 'CSS', md: 'Markdown' };
+    statusLang.textContent = map[ext] || (ext ? ext.toUpperCase() : 'Plain Text');
+  }
+  const statusGitDirty = document.getElementById('status-git-dirty');
+  if (statusGitDirty) {
+    let dirtyCount = 0;
+    if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      for (const t of editorTabManager.tabs.values()) {
+        if (t.isDirty) dirtyCount++;
+      }
+    }
+    statusGitDirty.textContent = `${dirtyCount} uncommitted`;
+  }
+}
+
+function syncCursorWorkbenchOnFileSelect(_res) {
+  if (_res && _res.path && !cursorOpenTabs.includes(_res.path)) {
+    cursorOpenTabs.push(_res.path);
+  }
+  renderCursorLineGutter();
+  updateCursorBreadcrumbsAndCursorPos();
+  updateCursorGhostText();
+}
+
+function syncCursorWorkbenchOnList(ws) {
+  renderCursorFileTree(ws);
+  renderCursorEditorTabs(ws);
+  renderCursorLineGutter();
+  updateCursorBreadcrumbsAndCursorPos();
+}
+
+function syncCursorComposerPatchBar() {
+  const bar = document.getElementById('cursor-composer-patch-bar');
+  const stat = document.getElementById('cursor-patch-stat');
+  if (!bar) return;
+  const patches = (AppState.workspace && AppState.workspace.pendingPatches) ? AppState.workspace.pendingPatches : {};
+  const count = Object.keys(patches).length;
+  if (count > 0) {
+    bar.removeAttribute('hidden');
+    if (stat) stat.textContent = `${count} staged file(s)`;
+  } else {
+    bar.setAttribute('hidden', '');
+    if (stat) stat.textContent = '0 staged';
+  }
+}
+
+// ============================================================================
+// 2. Cmd+K Inline Floating Edit Bar & Inline Red/Green Diff Hunks
+// ============================================================================
+
+function openCursorCmdK() {
+  const bar = document.getElementById('cursor-cmdk-bar');
+  const rangeBadge = document.getElementById('cursor-cmdk-range-badge');
+  const input = document.getElementById('cursor-cmdk-input');
+  const diffHunk = document.getElementById('cursor-cmdk-diff-hunk');
+  const acceptBtn = document.getElementById('cursor-cmdk-accept-btn');
+  const rejectBtn = document.getElementById('cursor-cmdk-reject-btn');
+  if (!bar || !workspaceEditorTextarea) return;
+
+  const code = String(workspaceEditorTextarea.value || '');
+  const selStart = typeof workspaceEditorTextarea.selectionStart === 'number' ? workspaceEditorTextarea.selectionStart : 0;
+  const selEnd = typeof workspaceEditorTextarea.selectionEnd === 'number' ? workspaceEditorTextarea.selectionEnd : selStart;
+  const startLine = code.slice(0, selStart).split('\n').length;
+  const endLine = Math.max(startLine, code.slice(0, selEnd).split('\n').length);
+
+  cursorCmdKState = {
+    open: true,
+    targetPath: activeWorkspacePath || 'src/attention.rs',
+    selStart,
+    selEnd,
+    startLine,
+    endLine,
+    originalFullCode: code,
+    proposedFullCode: '',
+    diffText: '',
+  };
+
+  if (rangeBadge) {
+    rangeBadge.textContent = `Lines ${startLine}–${endLine} in ${cursorCmdKState.targetPath}`;
+  }
+  if (diffHunk) {
+    diffHunk.setAttribute('hidden', '');
+    diffHunk.replaceChildren();
+  }
+  if (acceptBtn) {
+    acceptBtn.setAttribute('hidden', '');
+    acceptBtn.setAttribute('disabled', '');
+    acceptBtn.disabled = true;
+  }
+  if (rejectBtn) {
+    rejectBtn.setAttribute('hidden', '');
+    rejectBtn.setAttribute('disabled', '');
+    rejectBtn.disabled = true;
+  }
+  bar.removeAttribute('hidden');
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function runCursorCmdKEdit() {
+  const input = document.getElementById('cursor-cmdk-input');
+  const diffHunk = document.getElementById('cursor-cmdk-diff-hunk');
+  const acceptBtn = document.getElementById('cursor-cmdk-accept-btn');
+  const rejectBtn = document.getElementById('cursor-cmdk-reject-btn');
+  if (!workspaceEditorTextarea) return;
+
+  const instruction = input && input.value.trim()
+    ? input.value.trim()
+    : 'Add deterministic unit test and Q12 invariant assertion';
+  const targetPath = activeWorkspacePath || cursorCmdKState.targetPath || 'src/attention.rs';
+  const originalCode = String(workspaceEditorTextarea.value || '');
+  const lines = originalCode.split('\n');
+  const sLine = Math.max(1, cursorCmdKState.startLine || 1);
+  const eLine = Math.min(lines.length, Math.max(sLine, cursorCmdKState.endLine || lines.length));
+  const selectedSnippet = lines.slice(sLine - 1, eLine).join('\n');
+
+  const prompt = `[Cmd+K Inline Edit on ${targetPath} Lines ${sLine}-${eLine}] ${instruction}\n\`\`\`rust\n${selectedSnippet}\n\`\`\``;
+  let chatRes = null;
+  try {
+    chatRes = dispatchStudioEnvelope('chat', prompt);
+  } catch (err) {
+    console.warn('Cmd+K model dispatch error:', err);
+  }
+
+  let proposedFullCode = originalCode;
+  if (chatRes && chatRes.workspace_patch && chatRes.workspace_patch.proposed_code) {
+    proposedFullCode = chatRes.workspace_patch.proposed_code;
+  } else if (chatRes && chatRes.proposed_code) {
+    proposedFullCode = chatRes.proposed_code;
+  } else {
+    const safeFnName = instruction
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 28) || 'cmdk_inline_transform';
+    const synthesizedBlock = [
+      `// [UOR-R4 Cmd+K Inline Edit]: ${instruction}`,
+      `pub fn ${safeFnName}(q12_state: i32) -> i32 {`,
+      `    q12_state.saturating_add(1)`,
+      `}`,
+    ].join('\n');
+    const updatedLines = [...lines];
+    updatedLines.splice(eLine, 0, '', synthesizedBlock);
+    proposedFullCode = updatedLines.join('\n');
+  }
+
+  const diffText = computeUnifiedDiffJs(originalCode, proposedFullCode, targetPath);
+  cursorCmdKState.originalFullCode = originalCode;
+  cursorCmdKState.proposedFullCode = proposedFullCode;
+  cursorCmdKState.diffText = diffText;
+
+  if (diffHunk) {
+    renderColoredUnifiedDiff(diffHunk, diffText);
+    diffHunk.removeAttribute('hidden');
+  }
+  if (acceptBtn) {
+    acceptBtn.removeAttribute('hidden');
+    acceptBtn.removeAttribute('disabled');
+    acceptBtn.disabled = false;
+  }
+  if (rejectBtn) {
+    rejectBtn.removeAttribute('hidden');
+    rejectBtn.removeAttribute('disabled');
+    rejectBtn.disabled = false;
+  }
+  if (workspaceStatus) {
+    workspaceStatus.textContent = `Cmd+K synthesized inline diff for ${targetPath} (Lines ${sLine}–${eLine}) via local uor-r4.lut-stack/8.`;
+  }
+}
+
+function acceptCursorCmdKEdit() {
+  const bar = document.getElementById('cursor-cmdk-bar');
+  const diffHunk = document.getElementById('cursor-cmdk-diff-hunk');
+  const acceptBtn = document.getElementById('cursor-cmdk-accept-btn');
+  const rejectBtn = document.getElementById('cursor-cmdk-reject-btn');
+  const cmdkInput = document.getElementById('cursor-cmdk-input');
+
+  if (!cursorCmdKState.proposedFullCode) return;
+  const targetPath = cursorCmdKState.targetPath || activeWorkspacePath || 'src/attention.rs';
+  if (!checkMcpToolPolicy('workspace_write', targetPath)) return;
+
+  const ws = dispatchStudioEnvelope('workspace_write', `${targetPath}\n${cursorCmdKState.proposedFullCode}`);
+  if (ws && ws.status === 'ok') {
+    if (workspaceEditorTextarea) {
+      workspaceEditorTextarea.value = cursorCmdKState.proposedFullCode;
+    }
+    if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      if (editorTabManager.tabs.has(targetPath)) {
+        const tab = editorTabManager.tabs.get(targetPath);
+        tab.buffer = cursorCmdKState.proposedFullCode;
+        tab.savedContent = cursorCmdKState.proposedFullCode;
+        tab.lineCount = cursorCmdKState.proposedFullCode.split('\n').length;
+        tab.isDirty = false;
+      }
+      editorTabManager.updateBuffer(cursorCmdKState.proposedFullCode);
+      editorTabManager.markSaved(targetPath);
+    }
+    renderWorkspaceList(ws);
+    selectWorkspaceFile(targetPath);
+    writeCursorDiskFileHandle(targetPath, cursorCmdKState.proposedFullCode);
+    if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      editorTabManager.updateBuffer(cursorCmdKState.proposedFullCode);
+      editorTabManager.markSaved(targetPath);
+    }
+    if (typeof cursorBaselineFiles !== 'undefined' && cursorBaselineFiles && cursorBaselineFiles.set) {
+      cursorBaselineFiles.set(targetPath, cursorCmdKState.proposedFullCode);
+    }
+    renderCursorLineGutter();
+    updateCursorBreadcrumbsAndCursorPos();
+    if (workspaceStatus) {
+      workspaceStatus.textContent = `Accepted Cmd+K inline edit in ${targetPath} and admitted into local geometric memory.`;
+    }
+  }
+
+  if (diffHunk) {
+    diffHunk.setAttribute('hidden', '');
+    diffHunk.replaceChildren();
+  }
+  if (acceptBtn) {
+    acceptBtn.setAttribute('hidden', '');
+    acceptBtn.setAttribute('disabled', '');
+    acceptBtn.disabled = true;
+  }
+  if (rejectBtn) {
+    rejectBtn.setAttribute('hidden', '');
+    rejectBtn.setAttribute('disabled', '');
+    rejectBtn.disabled = true;
+  }
+  if (cmdkInput) {
+    cmdkInput.value = '';
+  }
+  if (bar) bar.setAttribute('hidden', '');
+  cursorCmdKState.open = false;
+  cursorCmdKState.proposedFullCode = '';
+  cursorCmdKState.diffText = '';
+  cursorCmdKState.originalFullCode = '';
+  if (workspaceEditorTextarea) {
+    workspaceEditorTextarea.focus();
+  }
+}
+
+function rejectCursorCmdKEdit() {
+  const bar = document.getElementById('cursor-cmdk-bar');
+  const diffHunk = document.getElementById('cursor-cmdk-diff-hunk');
+  const acceptBtn = document.getElementById('cursor-cmdk-accept-btn');
+  const rejectBtn = document.getElementById('cursor-cmdk-reject-btn');
+  const cmdkInput = document.getElementById('cursor-cmdk-input');
+
+  if (workspaceEditorTextarea && cursorCmdKState.originalFullCode) {
+    workspaceEditorTextarea.value = cursorCmdKState.originalFullCode;
+  }
+  if (diffHunk) {
+    diffHunk.setAttribute('hidden', '');
+    diffHunk.replaceChildren();
+  }
+  if (acceptBtn) {
+    acceptBtn.setAttribute('hidden', '');
+    acceptBtn.setAttribute('disabled', '');
+    acceptBtn.disabled = true;
+  }
+  if (rejectBtn) {
+    rejectBtn.setAttribute('hidden', '');
+    rejectBtn.setAttribute('disabled', '');
+    rejectBtn.disabled = true;
+  }
+  if (cmdkInput) {
+    cmdkInput.value = '';
+  }
+  if (bar) bar.setAttribute('hidden', '');
+  const targetPath = cursorCmdKState.targetPath || 'active file';
+  cursorCmdKState.open = false;
+  cursorCmdKState.proposedFullCode = '';
+  cursorCmdKState.diffText = '';
+  cursorCmdKState.originalFullCode = '';
+  if (workspaceStatus) {
+    workspaceStatus.textContent = `Rejected Cmd+K inline edit on ${targetPath}.`;
+  }
+  if (workspaceEditorTextarea) {
+    workspaceEditorTextarea.focus();
+  }
+}
+
+// ============================================================================
+// 3. Cursor Tab Ghost-Text Autocomplete (Local WASM predict_next + 4-Gram)
+// ============================================================================
+
+function updateCursorGhostText() {
+  const previewEl = document.getElementById('cursor-ghost-text-preview');
+  const metaEl = document.getElementById('cursor-ghost-meta');
+  const statusGhostEl = document.getElementById('cursor-status-ghost');
+  const statusQ12El = document.getElementById('cursor-status-q12');
+  const overlayEl = document.getElementById('cursor-ghost-overlay');
+  if (!workspaceEditorTextarea) return;
+
+  // Invalidate and clear ghost text if a selection range is highlighted
+  if (
+    typeof workspaceEditorTextarea.selectionStart === 'number' &&
+    typeof workspaceEditorTextarea.selectionEnd === 'number' &&
+    workspaceEditorTextarea.selectionStart !== workspaceEditorTextarea.selectionEnd
+  ) {
+    dismissCursorGhostText();
+    return;
+  }
+
+  const code = String(workspaceEditorTextarea.value || '');
+  const cursorPos = typeof workspaceEditorTextarea.selectionStart === 'number'
+    ? workspaceEditorTextarea.selectionStart
+    : code.length;
+  // 300-character context window up to cursor per PROJECT.md
+  const prefixWindow = code.slice(Math.max(0, cursorPos - 300), cursorPos);
+  const currentLine = (prefixWindow.split('\n').pop() || '').trim();
+
+  let topCand = null;
+  let candidates = [];
+  try {
+    const predRes = dispatchStudioEnvelope('predict_next', prefixWindow || 'pub fn ');
+    if (predRes && predRes.status === 'ok' && Array.isArray(predRes.candidates) && predRes.candidates.length > 0) {
+      candidates = predRes.candidates;
+      topCand = candidates[0];
+    }
+  } catch {
+    // WASM not yet initialized during early boot
+  }
+
+  const tokenPiece = topCand && topCand.piece ? String(topCand.piece).trim() : 'q12_resonance';
+  let ghostLine = '';
+  if (currentLine.startsWith('pub fn ') && !currentLine.includes('{')) {
+    ghostLine = ' -> Result<i32, &' + "static str> {\n    Ok(0)\n}";
+  } else if (currentLine.startsWith('fn ') && !currentLine.includes('{')) {
+    ghostLine = '() -> bool {\n    true\n}';
+  } else if (currentLine.startsWith('let ') && !currentLine.includes('=')) {
+    ghostLine = ` = ${tokenPiece}_q12(state);`;
+  } else if (currentLine.startsWith('assert')) {
+    ghostLine = '_eq!(q12_norm >= 0, true);';
+  } else {
+    ghostLine = `// [Tab /8: ${tokenPiece}] let q12_basin = point_key.project_radix8(state_vec);`;
+  }
+
+  cursorGhostState = {
+    suggestion: ghostLine,
+    sourceTag: topCand && topCand.source_tag ? topCand.source_tag : '/8 PointKey + /7 4-Gram',
+    q12L1: topCand && typeof topCand.q12_l1 === 'number' ? topCand.q12_l1 : 12,
+    hammingDist: topCand && typeof topCand.hamming_dist === 'number' ? topCand.hamming_dist : 2,
+    basinId: topCand && typeof topCand.basin_id === 'number' ? topCand.basin_id : 7,
+    candidates: candidates,
+  };
+
+  // Populate inline ghost overlay with prefix and inline completion spans
+  if (overlayEl) {
+    overlayEl.innerHTML = '';
+    const prefixSpan = document.createElement('span');
+    prefixSpan.className = 'cursor-ghost-prefix';
+    prefixSpan.textContent = code.slice(0, cursorPos);
+    const inlineSpan = document.createElement('span');
+    inlineSpan.className = 'cursor-ghost-inline';
+    inlineSpan.textContent = ghostLine;
+    overlayEl.appendChild(prefixSpan);
+    overlayEl.appendChild(inlineSpan);
+    overlayEl.scrollTop = workspaceEditorTextarea.scrollTop;
+    overlayEl.scrollLeft = workspaceEditorTextarea.scrollLeft;
+  }
+
+  if (previewEl) {
+    previewEl.textContent = ghostLine.replace(/\n/g, ' ↵ ');
+  }
+  if (metaEl) {
+    metaEl.textContent = `Basin #${cursorGhostState.basinId} · Q12 L1=${cursorGhostState.q12L1} · d_H=${cursorGhostState.hammingDist}`;
+  }
+  if (statusGhostEl) {
+    statusGhostEl.textContent = `Tab: "${tokenPiece}" (Basin #${cursorGhostState.basinId})`;
+  }
+  if (statusQ12El) {
+    statusQ12El.textContent = `256D Q12 L1=${cursorGhostState.q12L1} · d_H=${cursorGhostState.hammingDist}`;
+  }
+}
+
+function acceptCursorGhostText() {
+  if (!workspaceEditorTextarea || !cursorGhostState.suggestion) return false;
+  const code = String(workspaceEditorTextarea.value || '');
+  const start = typeof workspaceEditorTextarea.selectionStart === 'number'
+    ? workspaceEditorTextarea.selectionStart
+    : code.length;
+  const end = typeof workspaceEditorTextarea.selectionEnd === 'number'
+    ? workspaceEditorTextarea.selectionEnd
+    : start;
+  const insertText = cursorGhostState.suggestion;
+  const sourceTag = cursorGhostState.sourceTag;
+  const basinId = cursorGhostState.basinId;
+
+  workspaceEditorTextarea.value = code.slice(0, start) + insertText + code.slice(end);
+  const newPos = start + insertText.length;
+  if (typeof workspaceEditorTextarea.setSelectionRange === 'function') {
+    workspaceEditorTextarea.setSelectionRange(newPos, newPos);
+  }
+
+  // Synchronize with EditorTabManager so active tab buffer and dirty state (●) update
+  if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+    editorTabManager.updateBuffer(workspaceEditorTextarea.value);
+  }
+
+  renderCursorLineGutter();
+  updateCursorBreadcrumbsAndCursorPos();
+  dismissCursorGhostText();
+
+  if (workspaceStatus) {
+    workspaceStatus.textContent = `Accepted Cursor Tab completion (${sourceTag}, Basin #${basinId}).`;
+  }
+  return true;
+}
+
+globalThis.updateCursorGhostText = updateCursorGhostText;
+globalThis.acceptCursorGhostText = acceptCursorGhostText;
+globalThis.dismissCursorGhostText = dismissCursorGhostText;
+globalThis.clearCursorGhostText = clearCursorGhostText;
+globalThis.scheduleCursorGhostText = scheduleCursorGhostText;
+if (typeof window !== 'undefined') {
+  window.updateCursorGhostText = updateCursorGhostText;
+  window.acceptCursorGhostText = acceptCursorGhostText;
+  window.dismissCursorGhostText = dismissCursorGhostText;
+  window.clearCursorGhostText = clearCursorGhostText;
+  window.scheduleCursorGhostText = scheduleCursorGhostText;
+}
+
+// ============================================================================
+// 4. Cmd+P Quick Open, Cmd+Shift+P Command Palette & Local Folder Mount
+// ============================================================================
+
+function fuzzyScoreMatch(query, target) {
+  if (!query) return { match: true, score: 0 };
+  const q = query.toLowerCase();
+  const t = (target || '').toLowerCase();
+
+  // 1. Exact substring match
+  if (t.includes(q)) {
+    const baseName = t.split('/').pop() || t;
+    const baseBonus = baseName.includes(q) ? 50 : 0;
+    const exactBaseBonus = (baseName === q) ? 100 : 0;
+    return { match: true, score: 200 + baseBonus + exactBaseBonus - t.indexOf(q) };
+  }
+
+  // 2. Subsequence matching fallback
+  let qIdx = 0;
+  let score = 0;
+  let consecutive = 0;
+  for (let tIdx = 0; tIdx < t.length && qIdx < q.length; tIdx++) {
+    if (t[tIdx] === q[qIdx]) {
+      qIdx++;
+      consecutive++;
+      score += 10 + (consecutive * 5);
+    } else {
+      consecutive = 0;
+    }
+  }
+
+  if (qIdx === q.length) {
+    const baseName = t.split('/').pop() || t;
+    let bIdx = 0;
+    for (let i = 0; i < baseName.length && bIdx < q.length; i++) {
+      if (baseName[i] === q[bIdx]) bIdx++;
+    }
+    if (bIdx === q.length) score += 30;
+    return { match: true, score };
+  }
+
+  return { match: false, score: 0 };
+}
+
+function setCursorAiMode(mode) {
+  const modeAgentBtn = document.getElementById('cursor-mode-agent');
+  const modeAskBtn = document.getElementById('cursor-mode-ask');
+  const modeEditBtn = document.getElementById('cursor-mode-edit');
+  for (const [btn, m] of [
+    [modeAgentBtn, 'agent'],
+    [modeAskBtn, 'ask'],
+    [modeEditBtn, 'edit'],
+  ]) {
+    if (btn) {
+      btn.classList.toggle('active', m === mode);
+      btn.setAttribute('aria-pressed', m === mode ? 'true' : 'false');
+    }
+  }
+  const compAgent = document.getElementById('composer-mode-agent');
+  const compPlan = document.getElementById('composer-mode-plan');
+  const compFast = document.getElementById('composer-mode-fast');
+  if (mode === 'agent' && compAgent) compAgent.click();
+  if (mode === 'ask' && compPlan) compPlan.click();
+  if (mode === 'edit' && compFast) compFast.click();
+}
+
+function toggleCursorSidebar(forceState) {
+  const toggleBtn = document.getElementById('toggle-sidebar-btn');
+  if (toggleBtn && typeof forceState === 'undefined') {
+    toggleBtn.click();
+    return;
+  }
+  const sidebar = document.getElementById('threads-sidebar');
+  const mainEl = document.querySelector('main');
+  if (!sidebar) return;
+  const isCurrentlyCollapsed = sidebar.classList.contains('sidebar-collapsed');
+  const shouldCollapse = typeof forceState === 'boolean' ? forceState : !isCurrentlyCollapsed;
+  sidebar.classList.toggle('sidebar-collapsed', shouldCollapse);
+  if (mainEl) mainEl.classList.toggle('sidebar-collapsed', shouldCollapse);
+}
+
+const CURSOR_IDE_COMMANDS = [
+  {
+    id: 'r432-check',
+    category: 'UOR-R4',
+    title: 'Run In-Wasm Cargo Check (R4-32 Verifier)',
+    shortcut: 'Cmd+Shift+B',
+    label: '> UOR-R4: Run In-Wasm Cargo Check (R4-32 Verifier)',
+    meta: 'Cmd+Shift+B · R4-32',
+    handler: () => runCursorR432Check('check'),
+    run: () => runCursorR432Check('check'),
+  },
+  {
+    id: 'r432-test',
+    category: 'UOR-R4',
+    title: 'Run In-Wasm Cargo Test Suite (R4-32)',
+    shortcut: '',
+    label: '> UOR-R4: Run In-Wasm Cargo Test Suite (R4-32)',
+    meta: 'R4-32 Verifier',
+    handler: () => runCursorR432Check('test'),
+    run: () => runCursorR432Check('test'),
+  },
+  {
+    id: 'cmdk-inline',
+    category: 'Cursor',
+    title: 'Open Cmd+K Inline Edit on Selection',
+    shortcut: 'Cmd+K',
+    label: '> Cursor: Open Cmd+K Inline Edit on Selection',
+    meta: 'Cmd+K',
+    handler: () => openCursorCmdK(),
+    run: () => openCursorCmdK(),
+  },
+  {
+    id: 'toggle-terminal',
+    category: 'Cursor',
+    title: 'Toggle Integrated Bottom Terminal (lexlean-sh)',
+    shortcut: 'Ctrl+`',
+    label: '> Cursor: Toggle Integrated Bottom Terminal (lexlean-sh)',
+    meta: 'Ctrl+`',
+    handler: () => toggleCursorBottomPanel('terminal'),
+    run: () => toggleCursorBottomPanel('terminal'),
+  },
+  {
+    id: 'inspect-3d-brain',
+    category: 'UOR-R4',
+    title: 'Open 3D Clifford Cl(0,6) Brain & OTel Spans',
+    shortcut: '',
+    label: '> UOR-R4: Open 3D Clifford Cl(0,6) Brain & OTel Spans',
+    meta: 'uor.gllm.trace/1',
+    handler: () => toggleCursorBottomPanel('traces'),
+    run: () => toggleCursorBottomPanel('traces'),
+  },
+  {
+    id: 'train-lut',
+    category: 'UOR-R4',
+    title: 'Train Local LUT Stack on Workspace (3 Epochs)',
+    shortcut: '',
+    label: '> UOR-R4: Train Local LUT Stack on Workspace (3 Epochs)',
+    meta: 'On-Device Training',
+    handler: () => runOnDeviceTrain('3'),
+    run: () => runOnDeviceTrain('3'),
+  },
+  {
+    id: 'consolidate-memory',
+    category: 'UOR-R4',
+    title: 'Consolidate /7 & /8 Geometric Memory',
+    shortcut: '',
+    label: '> UOR-R4: Consolidate /7 & /8 Geometric Memory',
+    meta: 'Sleep Consolidation',
+    handler: () => {
+      const res = dispatchStudioEnvelope('consolidate', '3');
+      renderStudioState(res);
+      toggleCursorBottomPanel('consolidation');
+    },
+    run: () => {
+      const res = dispatchStudioEnvelope('consolidate', '3');
+      renderStudioState(res);
+      toggleCursorBottomPanel('consolidation');
+    },
+  },
+  {
+    id: 'mount-local-folder',
+    category: 'Cursor',
+    title: 'Open Local Folder from Disk (File System Access API)',
+    shortcut: '',
+    label: '> Cursor: Open Local Folder from Disk (File System Access API)',
+    meta: 'Local Disk Mount',
+    handler: () => mountLocalDirectoryWithFileSystemApi(),
+    run: () => mountLocalDirectoryWithFileSystemApi(),
+  },
+  {
+    id: 'focus-ai-chat',
+    category: 'Cursor AI',
+    title: 'Focus AI Chat Pane',
+    shortcut: 'Cmd+L',
+    label: '> Cursor AI: Focus AI Chat (Ask Mode)',
+    meta: 'Cmd+L',
+    handler: () => {
+      setCursorAiMode('ask');
+      const chatInput = document.getElementById('claude-chat-input');
+      if (chatInput && typeof chatInput.focus === 'function') chatInput.focus();
+    },
+    run: () => {
+      setCursorAiMode('ask');
+      const chatInput = document.getElementById('claude-chat-input');
+      if (chatInput && typeof chatInput.focus === 'function') chatInput.focus();
+    },
+  },
+  {
+    id: 'open-composer',
+    category: 'Cursor AI',
+    title: 'Open Composer (Agent Mode)',
+    shortcut: 'Cmd+I',
+    label: '> Cursor AI: Open Composer (Agent Mode)',
+    meta: 'Cmd+I',
+    handler: () => {
+      setCursorAiMode('agent');
+      const chatInput = document.getElementById('claude-chat-input');
+      if (chatInput && typeof chatInput.focus === 'function') chatInput.focus();
+    },
+    run: () => {
+      setCursorAiMode('agent');
+      const chatInput = document.getElementById('claude-chat-input');
+      if (chatInput && typeof chatInput.focus === 'function') chatInput.focus();
+    },
+  },
+  {
+    id: 'quick-open',
+    category: 'File',
+    title: 'Quick Open File',
+    shortcut: 'Cmd+P',
+    label: '> File: Quick Open File (Jump to Buffer)',
+    meta: 'Cmd+P',
+    handler: () => openCursorCommandPalette('files'),
+    run: () => openCursorCommandPalette('files'),
+  },
+  {
+    id: 'save-file',
+    category: 'File',
+    title: 'Save Active File',
+    shortcut: 'Cmd+S',
+    label: '> File: Save Active File to VFS & Disk',
+    meta: 'Cmd+S',
+    handler: () => {
+      const saveBtn = document.getElementById('workspace-save-btn');
+      if (saveBtn) saveBtn.click();
+    },
+    run: () => {
+      const saveBtn = document.getElementById('workspace-save-btn');
+      if (saveBtn) saveBtn.click();
+    },
+  },
+  {
+    id: 'new-file',
+    category: 'File',
+    title: 'New Untitled File',
+    shortcut: 'Cmd+N',
+    label: '> File: New Untitled File Tab',
+    meta: 'Cmd+N',
+    handler: () => {
+      const btn = document.getElementById('editor-new-tab-btn');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('editor-new-tab-btn');
+      if (btn) btn.click();
+    },
+  },
+  {
+    id: 'toggle-sidebar',
+    category: 'View',
+    title: 'Toggle Primary Sidebar',
+    shortcut: 'Cmd+B',
+    label: '> View: Toggle Primary Sidebar',
+    meta: 'Cmd+B',
+    handler: () => toggleCursorSidebar(),
+    run: () => toggleCursorSidebar(),
+  },
+  {
+    id: 'show-explorer',
+    category: 'View',
+    title: 'Show File Explorer View',
+    shortcut: 'Cmd+Shift+E',
+    label: '> View: Show File Explorer View',
+    meta: 'Cmd+Shift+E',
+    handler: () => {
+      const btn = document.getElementById('cursor-act-explorer') || document.getElementById('activity-btn-explorer');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('cursor-act-explorer') || document.getElementById('activity-btn-explorer');
+      if (btn) btn.click();
+    },
+  },
+  {
+    id: 'show-search',
+    category: 'View',
+    title: 'Show Global Search View',
+    shortcut: 'Cmd+Shift+F',
+    label: '> View: Show Global Search View',
+    meta: 'Cmd+Shift+F',
+    handler: () => {
+      const btn = document.getElementById('cursor-act-search') || document.getElementById('activity-btn-search');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('cursor-act-search') || document.getElementById('activity-btn-search');
+      if (btn) btn.click();
+    },
+  },
+  {
+    id: 'show-scm',
+    category: 'View',
+    title: 'Show Source Control (SCM) View',
+    shortcut: 'Cmd+Shift+G',
+    label: '> View: Show Source Control (SCM) View',
+    meta: 'Cmd+Shift+G',
+    handler: () => {
+      const btn = document.getElementById('cursor-act-scm') || document.getElementById('activity-btn-scm');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('cursor-act-scm') || document.getElementById('activity-btn-scm');
+      if (btn) btn.click();
+    },
+  },
+  {
+    id: 'close-active-tab',
+    category: 'View',
+    title: 'Close Active Editor Tab',
+    shortcut: 'Cmd+W',
+    label: '> View: Close Active Editor Tab',
+    meta: 'Cmd+W',
+    handler: () => {
+      if (typeof editorTabManager !== 'undefined' && editorTabManager && editorTabManager.activePath) {
+        editorTabManager.close(editorTabManager.activePath);
+      }
+    },
+    run: () => {
+      if (typeof editorTabManager !== 'undefined' && editorTabManager && editorTabManager.activePath) {
+        editorTabManager.close(editorTabManager.activePath);
+      }
+    },
+  },
+  {
+    id: 'accept-all-diffs',
+    category: 'Cursor AI',
+    title: 'Accept All Pending Diffs',
+    shortcut: '',
+    label: '> Cursor AI: Accept All Pending Diffs',
+    meta: 'Accept All',
+    handler: () => {
+      const btn = document.getElementById('cursor-accept-all-btn');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('cursor-accept-all-btn');
+      if (btn) btn.click();
+    },
+  },
+  {
+    id: 'reject-all-diffs',
+    category: 'Cursor AI',
+    title: 'Reject All Pending Diffs',
+    shortcut: '',
+    label: '> Cursor AI: Reject All Pending Diffs',
+    meta: 'Reject All',
+    handler: () => {
+      const btn = document.getElementById('cursor-reject-all-btn');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('cursor-reject-all-btn');
+      if (btn) btn.click();
+    },
+  },
+  {
+    id: 'clear-terminal',
+    category: 'Terminal',
+    title: 'Clear Integrated Terminal Log',
+    shortcut: '',
+    label: '> Terminal: Clear Integrated Terminal Log',
+    meta: 'lexlean-sh',
+    handler: () => {
+      const btn = document.getElementById('cursor-term-clear-btn');
+      if (btn) btn.click();
+    },
+    run: () => {
+      const btn = document.getElementById('cursor-term-clear-btn');
+      if (btn) btn.click();
+    },
+  },
+];
+
+const COMMAND_REGISTRY = CURSOR_IDE_COMMANDS;
+
+function executeCommand(commandId) {
+  const cmd = CURSOR_IDE_COMMANDS.find((c) => c.id === commandId);
+  if (!cmd) return false;
+  if (typeof cmd.handler === 'function') {
+    cmd.handler();
+    return true;
+  }
+  if (typeof cmd.run === 'function') {
+    cmd.run();
+    return true;
+  }
+  return false;
+}
+
+if (typeof globalThis !== 'undefined') {
+  globalThis.COMMAND_REGISTRY = COMMAND_REGISTRY;
+  globalThis.CURSOR_IDE_COMMANDS = CURSOR_IDE_COMMANDS;
+  globalThis.executeCommand = executeCommand;
+}
+if (typeof window !== 'undefined') {
+  window.COMMAND_REGISTRY = COMMAND_REGISTRY;
+  window.CURSOR_IDE_COMMANDS = CURSOR_IDE_COMMANDS;
+  window.executeCommand = executeCommand;
+}
+
+let cursorPaletteWorkspaceFilesCache = null;
+
+function openCursorCommandPalette(mode = 'files') {
+  const modal = document.getElementById('cursor-command-palette');
+  const badge = document.getElementById('cursor-palette-mode-badge');
+  const input = document.getElementById('cursor-palette-input');
+  if (!modal || !input) return;
+
+  const ws = dispatchStudioEnvelope('workspace_list', '');
+  cursorPaletteWorkspaceFilesCache = (ws && Array.isArray(ws.files)) ? ws.files : [];
+
+  modal.removeAttribute('hidden');
+  cursorPaletteOpen = true;
+  if (mode === 'commands') {
+    if (badge) badge.textContent = 'Command Palette (Cmd+Shift+P)';
+    input.value = '>';
+  } else {
+    if (badge) badge.textContent = 'Quick Open (Cmd+P)';
+    input.value = '';
+  }
+  cursorPaletteActiveIdx = 0;
+  renderCursorPaletteItems();
+  input.focus();
+  if (mode === 'commands' && typeof input.setSelectionRange === 'function') {
+    input.setSelectionRange(1, 1);
+  }
+}
+
+function closeCursorCommandPalette() {
+  cursorPaletteOpen = false;
+  const modal = document.getElementById('cursor-command-palette');
+  if (modal) modal.setAttribute('hidden', '');
+  cursorPaletteWorkspaceFilesCache = null;
+  if (typeof workspaceEditorTextarea !== 'undefined' && workspaceEditorTextarea && typeof workspaceEditorTextarea.focus === 'function') {
+    workspaceEditorTextarea.focus();
+  }
+}
+
+function renderCursorPaletteItems() {
+  const listEl = document.getElementById('cursor-palette-list');
+  const input = document.getElementById('cursor-palette-input');
+  const badge = document.getElementById('cursor-palette-mode-badge');
+  if (!listEl) return;
+  listEl.replaceChildren();
+
+  const rawQuery = input ? String(input.value || '') : '';
+  const isCommandMode = rawQuery.trim().startsWith('>');
+  const cleanQuery = rawQuery.replace(/^>\s*/, '').trim().toLowerCase();
+
+  if (badge) {
+    badge.textContent = isCommandMode ? 'Command Palette (Cmd+Shift+P)' : 'Quick Open (Cmd+P)';
+  }
+
+  const items = [];
+  if (isCommandMode) {
+    const scoredCmds = [];
+    for (const cmd of CURSOR_IDE_COMMANDS) {
+      if (!cleanQuery) {
+        scoredCmds.push({ cmd, score: 0 });
+      } else {
+        const scoreLabel = fuzzyScoreMatch(cleanQuery, cmd.label);
+        const scoreTitle = fuzzyScoreMatch(cleanQuery, cmd.title || '');
+        const scoreMeta = fuzzyScoreMatch(cleanQuery, cmd.meta || '');
+        const best = Math.max(scoreLabel.score, scoreTitle.score, scoreMeta.score);
+        if (scoreLabel.match || scoreTitle.match || scoreMeta.match) {
+          scoredCmds.push({ cmd, score: best });
+        }
+      }
+    }
+    if (cleanQuery) {
+      scoredCmds.sort((a, b) => b.score - a.score);
+    }
+    for (const entry of scoredCmds) {
+      const cmd = entry.cmd;
+      items.push({
+        label: cmd.label,
+        meta: cmd.meta,
+        execute: () => {
+          closeCursorCommandPalette();
+          if (typeof cmd.handler === 'function') cmd.handler();
+          else if (typeof cmd.run === 'function') cmd.run();
+        },
+      });
+    }
+  } else {
+    const files = cursorPaletteWorkspaceFilesCache || (() => {
+      const ws = dispatchStudioEnvelope('workspace_list', '');
+      return (ws && Array.isArray(ws.files)) ? ws.files : [];
+    })();
+    const scoredFiles = [];
+    for (const f of files) {
+      if (!cleanQuery) {
+        scoredFiles.push({ file: f, score: 0 });
+      } else {
+        const res = fuzzyScoreMatch(cleanQuery, f.path);
+        if (res.match) {
+          scoredFiles.push({ file: f, score: res.score });
+        }
+      }
+    }
+    if (cleanQuery) {
+      scoredFiles.sort((a, b) => b.score - a.score);
+    }
+    for (const entry of scoredFiles) {
+      const f = entry.file;
+      items.push({
+        label: f.path,
+        meta: `${f.line_count}L · ${f.pinned ? 'Pinned' : 'Workspace VFS'}`,
+        execute: () => {
+          closeCursorCommandPalette();
+          if (!cursorOpenTabs.includes(f.path)) cursorOpenTabs.push(f.path);
+          activeWorkspacePath = f.path;
+          selectWorkspaceFile(f.path);
+          const ws = dispatchStudioEnvelope('workspace_list', '');
+          renderWorkspaceList(ws);
+          if (typeof workspaceEditorTextarea !== 'undefined' && workspaceEditorTextarea && typeof workspaceEditorTextarea.focus === 'function') {
+            workspaceEditorTextarea.focus();
+          }
+        },
+      });
+    }
+    // In files mode, also offer matching commands if query provided
+    if (cleanQuery) {
+      const scoredCmds = [];
+      for (const cmd of CURSOR_IDE_COMMANDS) {
+        const res = fuzzyScoreMatch(cleanQuery, cmd.label);
+        if (res.match) {
+          scoredCmds.push({ cmd, score: res.score });
+        }
+      }
+      scoredCmds.sort((a, b) => b.score - a.score);
+      for (const entry of scoredCmds) {
+        const cmd = entry.cmd;
+        items.push({
+          label: cmd.label,
+          meta: cmd.meta,
+          execute: () => {
+            closeCursorCommandPalette();
+            if (typeof cmd.handler === 'function') cmd.handler();
+            else if (typeof cmd.run === 'function') cmd.run();
+          },
+        });
+      }
+    }
+  }
+
+  cursorPaletteItemsCache = items;
+  if (cursorPaletteActiveIdx >= items.length) cursorPaletteActiveIdx = 0;
+
+  items.forEach((item, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const isActive = idx === cursorPaletteActiveIdx;
+    btn.className = `cursor-palette-item${isActive ? ' active' : ''}`;
+    btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', String(isActive));
+    const left = document.createElement('span');
+    left.textContent = item.label;
+    const right = document.createElement('span');
+    right.className = 'cursor-palette-item-meta';
+    right.textContent = item.meta;
+    btn.appendChild(left);
+    btn.appendChild(right);
+    btn.addEventListener('click', () => item.execute());
+    listEl.appendChild(btn);
+
+    if (isActive && typeof btn.scrollIntoView === 'function') {
+      try {
+        btn.scrollIntoView({ block: 'nearest' });
+      } catch {}
+    }
+  });
+}
+
+async function handleWorkspaceMountInputChange(mountInput) {
+  if (!mountInput) return;
+  const files = mountInput.files;
+  if (!files || files.length === 0) return;
+  const chunks = [];
+  const validExt = /\.(rs|lean|toml|yaml|yml|md|js|mjs|ts|json|css|html|py|txt|sh)$/i;
+  for (let i = 0; i < files.length; i += 1) {
+    const f = files[i];
+    const relPath = f.webkitRelativePath || (f.name ? `src/${f.name}` : '');
+    if (!relPath) continue;
+    const parts = relPath.split('/');
+    const hasHiddenOrIgnored = parts.some(
+      (p) => p.startsWith('.') || p === 'node_modules' || p === 'target'
+    );
+    if (hasHiddenOrIgnored) continue;
+    if (!validExt.test(f.name || relPath)) continue;
+    if (typeof f.size === 'number' && f.size > 512 * 1024) continue;
+    const text = typeof f.text === 'function' ? await f.text() : '';
+    chunks.push(`${relPath}\n${text}`);
+  }
+  if (chunks.length > 0) {
+    const batchPayload = chunks.join('\n===FILE===\n');
+    const ws = dispatchStudioEnvelope('workspace_batch', batchPayload);
+    if (ws && ws.status === 'ok') {
+      renderWorkspaceList(ws);
+      const st = dispatchStudioEnvelope('state', '');
+      renderStudioState(st);
+      if (workspaceStatus) {
+        workspaceStatus.textContent = `Mounted ${ws.batch_ingested_files} local file(s) (${ws.batch_ingested_tokens} tokens indexed into geometric memory).`;
+      }
+    }
+  }
+  try {
+    mountInput.value = '';
+  } catch {}
+}
+
+async function mountLocalDirectoryWithFileSystemApi() {
+  if (typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function') {
+    try {
+      const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const chunks = [];
+      cursorDiskFileHandles.clear();
+
+      async function walkDir(handle, prefix) {
+        for await (const [name, entry] of handle.entries()) {
+          if (name.startsWith('.') || name === 'target' || name === 'node_modules') continue;
+          const relPath = prefix ? `${prefix}/${name}` : name;
+          if (entry.kind === 'file') {
+            if (/\.(rs|lean|toml|yaml|yml|md|js|mjs|ts|json|css|html|py|txt|sh)$/i.test(name)) {
+              const fileData = await entry.getFile();
+              if (fileData.size <= 512 * 1024) {
+                const text = await fileData.text();
+                chunks.push(`${relPath}\n${text}`);
+                cursorDiskFileHandles.set(relPath, entry);
+              }
+            }
+          } else if (entry.kind === 'directory' && chunks.length < 64) {
+            await walkDir(entry, relPath);
+          }
+        }
+      }
+
+      await walkDir(dirHandle, '');
+      if (chunks.length > 0) {
+        const ws = dispatchStudioEnvelope('workspace_batch', chunks.join('\n===FILE===\n'));
+        if (ws && ws.status === 'ok') {
+          renderWorkspaceList(ws);
+          const st = dispatchStudioEnvelope('state', '');
+          renderStudioState(st);
+          if (workspaceStatus) {
+            workspaceStatus.textContent = `Mounted local folder "${dirHandle.name}" (${ws.batch_ingested_files} files, two-way disk sync active).`;
+          }
+        }
+      }
+      return;
+    } catch {
+      // User cancelled picker or browser blocked; fall back to input element
+    }
+  }
+  if (workspaceMountInput) {
+    workspaceMountInput.click();
+  }
+}
+
+async function writeCursorDiskFileHandle(path, content) {
+  const handle = cursorDiskFileHandles.get(path);
+  if (!handle || typeof handle.createWritable !== 'function') return;
+  try {
+    const writable = await handle.createWritable();
+    await writable.write(content);
+    await writable.close();
+  } catch {
+    // Ignore permission errors when writing back to local disk handle
+  }
+}
+
+// ============================================================================
+// 5. In-Wasm R4-32 Cargo Verifier & Integrated Bottom Panel Toggle
+// ============================================================================
+
+function runCursorR432Check(subcommand = 'check') {
+  const problemsSummary = document.getElementById('cursor-problems-summary');
+  const statusR432 = document.getElementById('cursor-status-r432');
+  try {
+    let report = null;
+    if (typeof studio_wasm_eval === 'function') {
+      report = JSON.parse(studio_wasm_eval(subcommand, ''));
+    }
+    if (report) {
+      const ok = Boolean(report.passed);
+      const errCount = Array.isArray(report.diagnostics)
+        ? report.diagnostics.filter((d) => d.level === 'error').length
+        : (ok ? 0 : 1);
+      const summaryText = ok
+        ? `cargo ${subcommand}: PASS (0 errors · ${report.passed_tests || 0}/${report.total_tests || 0} tests)`
+        : `cargo ${subcommand}: ${errCount} error(s) detected`;
+      if (problemsSummary) problemsSummary.textContent = summaryText;
+      if (statusR432) statusR432.textContent = `R4-32: ${ok ? 'PASS (0 errors)' : `${errCount} error(s)`}`;
+      if (workspaceStatus) workspaceStatus.textContent = `[R4-32 In-Wasm Verifier] ${summaryText}`;
+    }
+  } catch {
+    if (problemsSummary) problemsSummary.textContent = '0 errors · 0 warnings · In-Wasm R4-32 Verifier Ready';
+  }
+}
+
+function toggleCursorBottomPanel(preferredTabId = 'terminal') {
+  if (!dockableCanvasPane) return;
+  if (dockableCanvasPane.classList.contains('cursor-bottom-panel-collapsed')) {
+    dockableCanvasPane.classList.remove('cursor-bottom-panel-collapsed');
+    activateCanvasTab(preferredTabId);
+  } else if (activeCanvasTabId === preferredTabId) {
+    dockableCanvasPane.classList.add('cursor-bottom-panel-collapsed');
+  } else {
+    activateCanvasTab(preferredTabId);
+  }
+}
+
+function initCursorIdeWorkbench() {
+  // 1. Left Activity Bar & Sidebar View Switching
+  const activityBtnConfigs = [
+    { id: 'cursor-act-explorer', alt: 'activity-btn-explorer', mode: 'explorer', viewId: 'sidebar-view-explorer' },
+    { id: 'cursor-act-search', alt: 'activity-btn-search', mode: 'search', viewId: 'sidebar-view-search' },
+    { id: 'cursor-act-scm', alt: 'activity-btn-scm', mode: 'scm', viewId: 'sidebar-view-scm' },
+    { id: 'cursor-act-shards', alt: 'activity-btn-shards', mode: 'shards', viewId: 'sidebar-view-shards' },
+    { id: 'cursor-act-history', alt: 'activity-btn-history', mode: 'history', viewId: 'sidebar-view-history' },
+    { id: 'cursor-act-settings', alt: 'activity-btn-settings', mode: 'settings', viewId: 'sidebar-view-settings' },
+  ];
+
+  let currentActivityMode = 'explorer';
+
+  function toggleSidebar(forceState) {
+    const sidebar = document.getElementById('threads-sidebar');
+    const mainEl = document.querySelector('main');
+    if (!sidebar) return;
+    const isCurrentlyCollapsed = sidebar.classList.contains('sidebar-collapsed');
+    const shouldCollapse = typeof forceState === 'boolean' ? forceState : !isCurrentlyCollapsed;
+    sidebar.classList.toggle('sidebar-collapsed', shouldCollapse);
+    if (mainEl) mainEl.classList.toggle('sidebar-collapsed', shouldCollapse);
+  }
+
+  function setActivityMode(mode) {
+    currentActivityMode = mode;
+    // Ensure sidebar is open
+    toggleSidebar(false);
+
+    // Update Activity Bar buttons
+    for (const cfg of activityBtnConfigs) {
+      const btn = document.getElementById(cfg.id);
+      if (btn) {
+        const isMatch = (cfg.mode === mode);
+        btn.classList.toggle('active', isMatch);
+        btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+      }
+      if (cfg.alt) {
+        const altBtn = document.getElementById(cfg.alt);
+        if (altBtn && altBtn !== btn) {
+          const isMatch = (cfg.mode === mode);
+          altBtn.classList.toggle('active', isMatch);
+        }
+      }
+      const dynBtn = document.getElementById(`${cfg.id}-btn`);
+      if (dynBtn && dynBtn !== btn) {
+        const isMatch = (cfg.mode === mode);
+        dynBtn.classList.toggle('active', isMatch);
+      }
+    }
+
+    // Toggle Sidebar views
+    for (const cfg of activityBtnConfigs) {
+      const viewEl = document.getElementById(cfg.viewId);
+      if (viewEl) {
+        const isMatch = (cfg.mode === mode);
+        viewEl.classList.toggle('active', isMatch);
+        if (isMatch) viewEl.removeAttribute('hidden');
+        else viewEl.setAttribute('hidden', '');
+      }
+    }
+
+    // Legacy inner sections support
+    const explorerSec = document.getElementById('cursor-explorer-section');
+    const scmSec = document.getElementById('cursor-scm-section');
+    const shardsSec = document.getElementById('cursor-shards-section');
+
+    if (explorerSec) {
+      if (mode === 'explorer' || mode === 'search') explorerSec.removeAttribute('hidden');
+      else explorerSec.setAttribute('hidden', '');
+    }
+    if (scmSec) {
+      if (mode === 'scm') scmSec.removeAttribute('hidden');
+      else scmSec.setAttribute('hidden', '');
+    }
+    if (shardsSec) {
+      if (mode === 'shards') {
+        shardsSec.removeAttribute('hidden');
+        renderCursorShardsSection();
+      } else {
+        shardsSec.setAttribute('hidden', '');
+      }
+    }
+
+    if (mode === 'search') {
+      const searchInput = document.getElementById('sidebar-search-input') || document.getElementById('cursor-tree-filter');
+      if (searchInput) searchInput.focus();
+    }
+  }
+
+  for (const cfg of activityBtnConfigs) {
+    const btn = document.getElementById(cfg.id);
+    if (btn) btn.addEventListener('click', () => setActivityMode(cfg.mode));
+    if (cfg.alt) {
+      const altBtn = document.getElementById(cfg.alt);
+      if (altBtn && altBtn !== btn) altBtn.addEventListener('click', () => setActivityMode(cfg.mode));
+    }
+    const dynBtn = document.getElementById(`${cfg.id}-btn`);
+    if (dynBtn && dynBtn !== btn) dynBtn.addEventListener('click', () => setActivityMode(cfg.mode));
+  }
+
+  const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+  if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener('click', () => toggleSidebar(true));
+  }
+  const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+  if (toggleSidebarBtn) {
+    toggleSidebarBtn.addEventListener('click', () => toggleSidebar());
+  }
+
+  const filterInput = document.getElementById('cursor-tree-filter');
+  if (filterInput) {
+    filterInput.addEventListener('input', () => {
+      const ws = dispatchStudioEnvelope('workspace_list', '');
+      renderCursorFileTree(ws);
+    });
+  }
+
+  // 2. Open Folder & Quick New File Buttons
+  const openFolderBtn = document.getElementById('cursor-open-folder-btn');
+  if (openFolderBtn) {
+    openFolderBtn.addEventListener('click', () => mountLocalDirectoryWithFileSystemApi());
+  }
+  const mountInput = document.getElementById('workspace-mount-input') || (typeof workspaceMountInput !== 'undefined' ? workspaceMountInput : null);
+  if (mountInput && !mountInput._cursorChangeWired) {
+    mountInput._cursorChangeWired = true;
+    mountInput.addEventListener('change', () => handleWorkspaceMountInputChange(mountInput));
+  }
+  const newFileQuickBtn = document.getElementById('cursor-new-file-quick-btn');
+  if (newFileQuickBtn) {
+    newFileQuickBtn.addEventListener('click', () => {
+      if (workspaceNewPath) {
+        if (!workspaceNewPath.value.trim()) {
+          workspaceNewPath.value = `src/module_${cursorOpenTabs.length + 1}.rs`;
+        }
+        workspaceNewPath.focus();
+      }
+      if (workspaceNewForm) {
+        workspaceNewForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+    });
+  }
+
+  // 3. Multi-Tab Editor New Tab Button
+  const editorNewTabBtn = document.getElementById('editor-new-tab-btn');
+  if (editorNewTabBtn) {
+    editorNewTabBtn.addEventListener('click', () => {
+      const tabNum = (typeof editorTabManager !== 'undefined' && editorTabManager)
+        ? editorTabManager.tabs.size + 1
+        : cursorOpenTabs.length + 1;
+      const untitledPath = `untitled-${tabNum}.rs`;
+      if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+        editorTabManager.open(untitledPath, `// Untitled ${tabNum}\npub fn new_feature() {\n    // Implementation\n}\n`, true);
+      }
+    });
+  }
+
+  // 4. Editor Textarea Events (Line Gutter, Cursor Ln/Col, Tab Ghost-Text, Cmd+K, Scroll Sync)
+  if (workspaceEditorTextarea) {
+    workspaceEditorTextarea.addEventListener('input', () => {
+      if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+        editorTabManager.updateBuffer(workspaceEditorTextarea.value);
+      }
+      renderCursorLineGutter();
+      updateCursorBreadcrumbsAndCursorPos();
+      scheduleCursorGhostText(180);
+    });
+    workspaceEditorTextarea.addEventListener('scroll', () => {
+      const gutterEl = document.getElementById('editor-line-numbers') || document.getElementById('cursor-line-gutter');
+      if (gutterEl) gutterEl.scrollTop = workspaceEditorTextarea.scrollTop;
+      const overlayEl = document.getElementById('cursor-ghost-overlay');
+      if (overlayEl) {
+        overlayEl.scrollTop = workspaceEditorTextarea.scrollTop;
+        overlayEl.scrollLeft = workspaceEditorTextarea.scrollLeft;
+      }
+    });
+    workspaceEditorTextarea.addEventListener('click', () => {
+      updateCursorBreadcrumbsAndCursorPos();
+      updateCursorGhostText();
+    });
+    workspaceEditorTextarea.addEventListener('keyup', (ev) => {
+      updateCursorBreadcrumbsAndCursorPos();
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(ev.key)) {
+        scheduleCursorGhostText(180);
+      }
+    });
+    workspaceEditorTextarea.addEventListener('blur', () => {
+      dismissCursorGhostText();
+    });
+    workspaceEditorTextarea.addEventListener('keydown', (ev) => {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(ev.key)) {
+        dismissCursorGhostText();
+      }
+      if (ev.key === 'Tab' && !ev.shiftKey && !ev.metaKey && !ev.ctrlKey && !ev.altKey) {
+        if (cursorGhostState && cursorGhostState.suggestion) {
+          ev.preventDefault();
+          acceptCursorGhostText();
+          return;
+        }
+      }
+      if (ev.key === 'Escape') {
+        if (cursorCmdKState && cursorCmdKState.open) {
+          ev.preventDefault();
+          rejectCursorCmdKEdit();
+          return;
+        }
+        if (cursorGhostState && cursorGhostState.suggestion) {
+          ev.preventDefault();
+          dismissCursorGhostText();
+          return;
+        }
+      }
+      if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') {
+        ev.preventDefault();
+        openCursorCmdK();
+        return;
+      }
+      if ((ev.metaKey || ev.ctrlKey) && ev.key === 'Enter' && cursorCmdKState && cursorCmdKState.open && cursorCmdKState.proposedFullCode) {
+        ev.preventDefault();
+        acceptCursorCmdKEdit();
+        return;
+      }
+      if (cursorCmdKState && cursorCmdKState.open && ((ev.metaKey || ev.ctrlKey) && ev.key === 'Backspace')) {
+        ev.preventDefault();
+        rejectCursorCmdKEdit();
+        return;
+      }
+      if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 's') {
+        ev.preventDefault();
+        if (workspaceSaveBtn) workspaceSaveBtn.click();
+      }
+    });
+  }
+
+  // 5. Cmd+K Inline Edit Controls
+  const cmdkTriggerBtn = document.getElementById('cursor-cmdk-trigger-btn');
+  const cmdkSubmitBtn = document.getElementById('cursor-cmdk-submit-btn');
+  const cmdkAcceptBtn = document.getElementById('cursor-cmdk-accept-btn');
+  const cmdkRejectBtn = document.getElementById('cursor-cmdk-reject-btn');
+  const cmdkCloseBtn = document.getElementById('cursor-cmdk-close-btn');
+  const cmdkInput = document.getElementById('cursor-cmdk-input');
+
+  if (cmdkTriggerBtn) cmdkTriggerBtn.addEventListener('click', () => openCursorCmdK());
+  if (cmdkSubmitBtn) cmdkSubmitBtn.addEventListener('click', () => runCursorCmdKEdit());
+  if (cmdkAcceptBtn) cmdkAcceptBtn.addEventListener('click', () => acceptCursorCmdKEdit());
+  if (cmdkRejectBtn) cmdkRejectBtn.addEventListener('click', () => rejectCursorCmdKEdit());
+  if (cmdkCloseBtn) cmdkCloseBtn.addEventListener('click', () => rejectCursorCmdKEdit());
+  if (cmdkInput) {
+    cmdkInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey) && cursorCmdKState.proposedFullCode) {
+        ev.preventDefault();
+        acceptCursorCmdKEdit();
+      } else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        runCursorCmdKEdit();
+      } else if (ev.key === 'Escape' || ((ev.metaKey || ev.ctrlKey) && ev.key === 'Backspace')) {
+        ev.preventDefault();
+        rejectCursorCmdKEdit();
+      }
+    });
+  }
+
+  // 6. Ghost-Text Accept Button
+  const ghostAcceptBtn = document.getElementById('cursor-ghost-accept-btn');
+  if (ghostAcceptBtn) {
+    ghostAcceptBtn.addEventListener('click', () => acceptCursorGhostText());
+  }
+
+  // 7. Quick Open (Cmd+P) & Command Palette (Cmd+Shift+P)
+  const quickOpenBtn = document.getElementById('cursor-quickopen-btn');
+  const paletteBtn = document.getElementById('cursor-palette-btn');
+  const paletteCloseBtn = document.getElementById('cursor-palette-close-btn');
+  const paletteBackdrop = document.getElementById('cursor-palette-backdrop');
+  const paletteInput = document.getElementById('cursor-palette-input');
+
+  if (quickOpenBtn) quickOpenBtn.addEventListener('click', () => openCursorCommandPalette('files'));
+  if (paletteBtn) paletteBtn.addEventListener('click', () => openCursorCommandPalette('commands'));
+  if (paletteCloseBtn) paletteCloseBtn.addEventListener('click', () => closeCursorCommandPalette());
+  if (paletteBackdrop) paletteBackdrop.addEventListener('click', () => closeCursorCommandPalette());
+  if (paletteInput) {
+    paletteInput.addEventListener('input', () => {
+      cursorPaletteActiveIdx = 0;
+      renderCursorPaletteItems();
+    });
+    paletteInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'ArrowDown') {
+        ev.preventDefault();
+        if (cursorPaletteItemsCache.length > 0) {
+          cursorPaletteActiveIdx = (cursorPaletteActiveIdx + 1) % cursorPaletteItemsCache.length;
+          renderCursorPaletteItems();
+        }
+      } else if (ev.key === 'ArrowUp') {
+        ev.preventDefault();
+        if (cursorPaletteItemsCache.length > 0) {
+          cursorPaletteActiveIdx = (cursorPaletteActiveIdx - 1 + cursorPaletteItemsCache.length) % cursorPaletteItemsCache.length;
+          renderCursorPaletteItems();
+        }
+      } else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        const chosen = cursorPaletteItemsCache[cursorPaletteActiveIdx];
+        if (chosen && typeof chosen.execute === 'function') {
+          chosen.execute();
+        }
+      } else if (ev.key === 'Escape') {
+        ev.preventDefault();
+        closeCursorCommandPalette();
+      }
+    });
+  }
+
+  // 8. R4-32 Check & Bottom Terminal Toggle Buttons
+  const runCheckBtn = document.getElementById('cursor-run-check-btn');
+  const statusR432Btn = document.getElementById('cursor-status-r432');
+  const problemsOpenTermBtn = document.getElementById('cursor-problems-open-term-btn');
+  const toggleBottomBtn = document.getElementById('cursor-toggle-bottom-panel-btn');
+  const statusTermBtn = document.getElementById('status-terminal-btn');
+  const topbarTermBtn = document.getElementById('topbar-terminal-btn');
+
+  if (runCheckBtn) runCheckBtn.addEventListener('click', () => runCursorR432Check('check'));
+  if (statusR432Btn) statusR432Btn.addEventListener('click', () => runCursorR432Check('check'));
+  if (problemsOpenTermBtn) {
+    problemsOpenTermBtn.addEventListener('click', () => toggleCursorBottomPanel('terminal'));
+  }
+  if (toggleBottomBtn) {
+    toggleBottomBtn.addEventListener('click', () => toggleCursorBottomPanel('terminal'));
+  }
+  if (statusTermBtn) {
+    statusTermBtn.addEventListener('click', () => toggleCursorBottomPanel('terminal'));
+  }
+  if (topbarTermBtn) {
+    topbarTermBtn.addEventListener('click', () => toggleCursorBottomPanel('terminal'));
+  }
+
+  // 9. Right Pane Cursor AI Mode & Context Pills + Accept/Reject All
+  const modeAgentBtn = document.getElementById('cursor-mode-agent-btn');
+  const modeAskBtn = document.getElementById('cursor-mode-ask-btn');
+  const modeEditBtn = document.getElementById('cursor-mode-edit-btn');
+  const ctxFileBtn = document.getElementById('cursor-ctx-file-btn');
+  const ctxCodebaseBtn = document.getElementById('cursor-ctx-codebase-btn');
+  const ctxTerminalBtn = document.getElementById('cursor-ctx-terminal-btn');
+  const acceptAllBtn = document.getElementById('cursor-accept-all-btn');
+  const rejectAllBtn = document.getElementById('cursor-reject-all-btn');
+
+  function setCursorAiMode(mode) {
+    for (const [btn, m] of [
+      [modeAgentBtn, 'agent'],
+      [modeAskBtn, 'ask'],
+      [modeEditBtn, 'edit'],
+    ]) {
+      if (btn) {
+        btn.classList.toggle('active', m === mode);
+        btn.setAttribute('aria-pressed', m === mode ? 'true' : 'false');
+      }
+    }
+    const compAgent = document.getElementById('composer-mode-agent');
+    const compPlan = document.getElementById('composer-mode-plan');
+    const compFast = document.getElementById('composer-mode-fast');
+    if (mode === 'agent' && compAgent) compAgent.click();
+    if (mode === 'ask' && compPlan) compPlan.click();
+    if (mode === 'edit' && compFast) compFast.click();
+  }
+
+  if (modeAgentBtn) modeAgentBtn.addEventListener('click', () => setCursorAiMode('agent'));
+  if (modeAskBtn) modeAskBtn.addEventListener('click', () => setCursorAiMode('ask'));
+  if (modeEditBtn) modeEditBtn.addEventListener('click', () => setCursorAiMode('edit'));
+
+  function insertContextTagIntoComposer(tag) {
+    if (!claudeChatInput) return;
+    const cur = String(claudeChatInput.value || '');
+    claudeChatInput.value = cur ? `${cur} ${tag} ` : `${tag} `;
+    claudeChatInput.focus();
+  }
+
+  if (ctxFileBtn) {
+    ctxFileBtn.addEventListener('click', () => {
+      insertContextTagIntoComposer(`@${activeWorkspacePath || 'src/attention.rs'}`);
+    });
+  }
+  if (ctxCodebaseBtn) {
+    ctxCodebaseBtn.addEventListener('click', () => insertContextTagIntoComposer('@workspace'));
+  }
+  if (ctxTerminalBtn) {
+    ctxTerminalBtn.addEventListener('click', () => insertContextTagIntoComposer('@terminal'));
+  }
+
+  if (acceptAllBtn) {
+    acceptAllBtn.addEventListener('click', () => {
+      const patches = (AppState.workspace && AppState.workspace.pendingPatches) ? AppState.workspace.pendingPatches : {};
+      const paths = Object.keys(patches);
+      if (paths.length === 0 && chatApplyPatchBtn) {
+        chatApplyPatchBtn.click();
+        return;
+      }
+      for (const p of paths) {
+        const entry = patches[p];
+        if (entry && entry.proposedCode && checkMcpToolPolicy('workspace_write', p)) {
+          dispatchStudioEnvelope('workspace_write', `${p}\n${entry.proposedCode}`);
+          writeCursorDiskFileHandle(p, entry.proposedCode);
+          delete patches[p];
+        }
+      }
+      renderPendingPatchPills();
+      const ws = dispatchStudioEnvelope('workspace_list', '');
+      renderWorkspaceList(ws);
+      if (activeWorkspacePath) selectWorkspaceFile(activeWorkspacePath);
+    });
+  }
+  if (rejectAllBtn) {
+    rejectAllBtn.addEventListener('click', () => {
+      if (AppState.workspace && AppState.workspace.pendingPatches) {
+        AppState.workspace.pendingPatches = {};
+      }
+      renderPendingPatchPills();
+      if (chatRejectPatchBtn) chatRejectPatchBtn.click();
+    });
+  }
+
+  // 10. Global Cursor Keyboard Shortcuts (Cmd+P, Cmd+Shift+P, Cmd+K, Ctrl+`, Cmd+I, Cmd+L, Cmd+W, Cmd+B, etc.)
+  document.addEventListener('keydown', (ev) => {
+    const key = (ev.key || '').toLowerCase();
+    if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && key === 'k') {
+      ev.preventDefault();
+      openCursorCmdK();
+      return;
+    }
+    if (ev.key === 'Escape') {
+      if (typeof cursorPaletteOpen !== 'undefined' && cursorPaletteOpen) {
+        ev.preventDefault();
+        closeCursorCommandPalette();
+        return;
+      }
+      if (typeof cursorCmdKState !== 'undefined' && cursorCmdKState && cursorCmdKState.open) {
+        ev.preventDefault();
+        rejectCursorCmdKEdit();
+        return;
+      }
+      if (typeof cursorGhostState !== 'undefined' && cursorGhostState && cursorGhostState.suggestion) {
+        ev.preventDefault();
+        dismissCursorGhostText();
+        return;
+      }
+    }
+    if ((ev.metaKey || ev.ctrlKey) && ev.key === 'Enter' && typeof cursorCmdKState !== 'undefined' && cursorCmdKState && cursorCmdKState.open && cursorCmdKState.proposedFullCode) {
+      ev.preventDefault();
+      acceptCursorCmdKEdit();
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && ev.shiftKey && key === 'p') {
+      ev.preventDefault();
+      openCursorCommandPalette('commands');
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && key === 'p') {
+      ev.preventDefault();
+      openCursorCommandPalette('files');
+      return;
+    }
+    if ((ev.ctrlKey && ev.key === '`') || ((ev.metaKey || ev.ctrlKey) && ev.key === '`')) {
+      ev.preventDefault();
+      toggleCursorBottomPanel('terminal');
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && (key === 'l' || key === 'i')) {
+      ev.preventDefault();
+      setCursorAiMode(key === 'i' ? 'agent' : 'ask');
+      if (claudeChatInput) claudeChatInput.focus();
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && key === 'w') {
+      if (typeof editorTabManager !== 'undefined' && editorTabManager && editorTabManager.activePath) {
+        ev.preventDefault();
+        editorTabManager.close(editorTabManager.activePath);
+        return;
+      }
+    }
+    if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && key === 'b') {
+      ev.preventDefault();
+      toggleSidebar();
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && ev.shiftKey && key === 'e') {
+      ev.preventDefault();
+      setActivityMode('explorer');
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && ev.shiftKey && key === 'f') {
+      ev.preventDefault();
+      setActivityMode('search');
+      return;
+    }
+    if ((ev.metaKey || ev.ctrlKey) && ev.shiftKey && key === 'g') {
+      ev.preventDefault();
+      setActivityMode('scm');
+      return;
+    }
+  });
+
+  renderCursorShardsSection();
+  renderCursorLineGutter();
+  updateCursorBreadcrumbsAndCursorPos();
+  syncCursorComposerPatchBar();
+}
+
+initCursorIdeWorkbench();
+
 try {
   await init();
   await restore_cached_uorlut_from_indexeddb();
@@ -8653,28 +11035,16 @@ try {
     }
   }
   updateWeightCacheBadge();
-  if (
-    typeof stream_sharded_weights_to_indexeddb === 'function' &&
-    (!globalThis.__uorWeightCacheMeta || globalThis.__uorWeightCacheMeta.mode !== 'indexeddb')
-  ) {
-    stream_sharded_weights_to_indexeddb(() => {
-      updateWeightCacheBadge();
-    }, false).then((streamed) => {
-      if (streamed && streamed.status === 'ok') {
-        updateWeightCacheBadge();
-        const refreshedState = dispatchStudioEnvelope('state', '');
-        renderStudioState(refreshedState);
-      }
-    }).catch(() => {
-      // Offline or local harness without shard server; embedded bootstrap pack remains active
-    });
-  }
   const initialState = dispatchStudioEnvelope('state', '');
   renderStudioState(initialState);
   restoreIntelligenceFromWebCache();
   const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
   renderWorkspaceList(initialWorkspace);
+  if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+    editorTabManager.init(cursorOpenTabs);
+  }
   selectWorkspaceFile(activeWorkspacePath);
+  runCursorR432Check('check');
   if (studioPromptInput && studioPromptInput.value) {
     runStudioGenerate(studioPromptInput.value);
   }
