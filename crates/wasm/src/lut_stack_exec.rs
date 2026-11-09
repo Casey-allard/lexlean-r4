@@ -5493,13 +5493,11 @@ pub fn select_point_key_with_resonance(
                 || decoded_turn.contains("what model")
                 || decoded_turn.contains("introduce yourself")
                 || decoded_turn.contains("about yourself");
-            if asks_compare && turn_idx == 8 {
-                bonus += 600_000;
-            } else if asks_arch && !asks_compare && turn_idx == 2 {
-                bonus += 600_000;
-            } else if asks_who && !asks_arch && !asks_compare && turn_idx == 1 {
-                bonus += 600_000;
-            } else if !asks_arch && !asks_who && !asks_compare && turn_idx == 0 {
+            if (asks_compare && turn_idx == 8)
+                || (asks_arch && !asks_compare && turn_idx == 2)
+                || (asks_who && !asks_arch && !asks_compare && turn_idx == 1)
+                || (!asks_arch && !asks_who && !asks_compare && turn_idx == 0)
+            {
                 bonus += 600_000;
             }
         } else if is_greeting && (turn_idx == 3 || turn_idx == 4) {
