@@ -1614,10 +1614,13 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
         "emitted_4grams": context.emitted_4grams,
     });
 
+    #[cfg(not(target_arch = "wasm32"))]
     let created = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs();
+    #[cfg(target_arch = "wasm32")]
+    let created = 1_700_000_000_u64.saturating_add(context.turn_index as u64);
 
     let response = OpenAiChatCompletionResponse {
         id: msg_id,

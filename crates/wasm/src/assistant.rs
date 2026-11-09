@@ -10,6 +10,7 @@ use crate::{
 pub struct CodeSynthesisOutcome {
     pub target_path: String,
     pub proposed_block: String,
+    #[allow(dead_code)]
     pub explanation_markdown: String,
     pub is_coding_turn: bool,
 }
@@ -18,6 +19,7 @@ impl StudioEngine {
     /// Evaluate exact arithmetic expressions, number theory (`gcd`, `lcm`, primality, factorization,
     /// factorials, Fibonacci), algebra (linear/quadratic equations), percentages, base conversions,
     /// and unit conversions using the proved `R4.ExactArithmetic` (M6) and `R4.DurableMemory` kernels.
+    #[allow(dead_code)]
     pub(crate) fn solve_exact_math_or_logic(&self, prompt: &str) -> Option<(String, String)> {
         let trimmed = prompt.trim();
         let lower = trimmed.to_ascii_lowercase();
@@ -968,425 +970,27 @@ impl StudioEngine {
     pub(crate) fn compose_smart_chat_reply(
         &mut self,
         prompt: &str,
-        prompt_tokens: &[TokenAtom],
-        prompt_q12: &[i16; POINT_KEY_DIM],
-        consensus_action: u8,
-        flock_resonance: u64,
-        icosian_root: u8,
-        active_workspace_path: &str,
-        code_outcome: &CodeSynthesisOutcome,
+        _prompt_tokens: &[TokenAtom],
+        _prompt_q12: &[i16; POINT_KEY_DIM],
+        _consensus_action: u8,
+        _flock_resonance: u64,
+        _icosian_root: u8,
+        _active_workspace_path: &str,
+        _code_outcome: &CodeSynthesisOutcome,
     ) -> String {
         let trimmed = prompt.trim();
-        let lower = trimmed.to_ascii_lowercase();
-        let words = tokenize_words_lower(&lower);
-
-        // 1. Check for inline "Teach: <prompt> => <reply>" admission
-        if let Some(rest) = trimmed
-            .strip_prefix("Teach:")
-            .or_else(|| trimmed.strip_prefix("teach:"))
-        {
-            if let Some((q, a)) = rest.split_once("=>") {
-                let q_clean = q.trim();
-                let a_clean = a.trim();
-                if !q_clean.is_empty() && !a_clean.is_empty() {
-                    let (_, clean_a) = parse_thinking_block(a_clean);
-                    return format!(
-                        "Admitted new knowledge turn into `/7` opening/reply continuation tables and `/8` `Q12` point-key memory:\n\n- **Prompt Key**: *\"{q_clean}\"*\n- **Learned Response**: *\"{clean_a}\"*\n- **Vocabulary Size**: `{}` atoms (`{}` total `/8` point keys).\n\nTry asking *\"{q_clean}\"* now!",
-                        self.vocab.len(),
-                        self.point_table.len()
-                    );
-                }
-            }
+        if self.chat_history.is_empty() {
+            self.rolling_context.recent_turn_rows.clear();
+            self.rolling_context.emitted_4grams.clear();
         }
-
-        // 2. Check for R4.Binder memory update ("my name is...", "remember that...")
-        let binder_notice = self.update_binder_memory(trimmed);
-        let remembered_name = self
-            .binder_memory
-            .iter()
-            .find(|(k, _)| k == "user_name")
-            .map(|(_, v)| v.clone());
-
-        if let Some(ref notice) = binder_notice {
-            if !lower.contains('?') && !code_outcome.is_coding_turn && words.len() <= 12 {
-                return notice.clone();
-            }
-        }
-
-        // 2b. Check for Agentic Harness / MCP Tool-Calling Turn (`<tools>`, `<tool_call>`, `[agent_mode]`)
-        if let Some(agent_reply) = crate::glm_weights::try_synthesize_agentic_harness_turn(
-            trimmed,
-            &lower,
-            &words,
-            &self.chat_history,
-        ) {
-            if let Some(notice) = binder_notice {
-                return format!("{notice}\n\n{agent_reply}");
-            }
-            return agent_reply;
-        }
-
-        // 3. Check for exact math, number theory, unit conversion, or algebra (`R4.ExactArithmetic` / `R4-31`)
-        if let Some((math_reply, _)) = self.solve_exact_math_or_logic(trimmed) {
-            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
-                &mut self.rolling_context,
-                &self.chat_history,
-                trimmed,
-                &math_reply,
-                128,
-            ));
-            return math_reply;
-        }
-
-        // 4. Check for workspace inspection / file explanation / review
-        if let Some((ws_reply, _)) = self.try_handle_workspace_query(
-            trimmed,
-            active_workspace_path,
-            consensus_action,
-            icosian_root,
-        ) {
-            return ws_reply;
-        }
-
-        // 5. If the prompt is a coding request, return the synthesized code & explanation
-        if code_outcome.is_coding_turn {
-            let reply_md = if let Some(notice) = binder_notice {
-                format!("{notice}\n\n{}", code_outcome.explanation_markdown)
-            } else {
-                code_outcome.explanation_markdown.clone()
-            };
-            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
-                &mut self.rolling_context,
-                &self.chat_history,
-                trimmed,
-                &reply_md,
-                128,
-            ));
-            return reply_md;
-        }
-
-        // 6. Recall queries about session memory (`R4.Binder` & Active Episodic Working Memory)
-        if let Some(episodic_reply) = try_resolve_episodic_memory_turn(
-            &self.chat_history,
-            &self.rolling_context.context_summary,
-            trimmed,
-            &lower,
-        ) {
-            let reply_out = if let Some(ref notice) = binder_notice {
-                format!("{notice}\n\n{episodic_reply}")
-            } else {
-                episodic_reply
-            };
-            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
-                &mut self.rolling_context,
-                &self.chat_history,
-                trimmed,
-                &reply_out,
-                128,
-            ));
-            return reply_out;
-        }
-        if lower.contains("what is my name") || lower.contains("who am i") {
-            if let Some(name) = remembered_name {
-                return format!(
-                    "Your name is **{}** (stored in the active `R4.Binder` lexical scope, de Bruijn slot `#0`).",
-                    name
-                );
-            } else {
-                return "You haven't told me your name yet in this session — say *\"My name is ...\"* and I'll bind it in `R4.Binder` memory!".to_string();
-            }
-        }
-
-        if lower.contains("what did i tell you")
-            || lower.contains("what do you remember")
-            || lower.contains("conversation history")
-        {
-            if self.binder_memory.is_empty() && self.chat_history.is_empty() {
-                return "We just started this session! Tell me *\"Remember that ...\"*, *\"My name is ...\"*, or *\"Teach: question => answer\"* and I will retain it across turns.".to_string();
-            }
-            let facts = self
-                .binder_memory
-                .iter()
-                .map(|(k, v)| format!("`{k} = \"{v}\"`"))
-                .collect::<Vec<_>>()
-                .join(", ");
-            return format!(
-                "So far we have exchanged **`{}` turns** in this session.\n\n- **`R4.Binder` Bound Symbols**: {}\n- **Active Geometric Memory**: `{}` `/7` opening/reply rows and `{}` `/8` `Q12` point keys.",
-                self.chat_history.len(),
-                if facts.is_empty() {
-                    "none explicit yet (tell me *\"Remember that ...\"*)".to_string()
-                } else {
-                    facts
-                },
-                self.opening_table.len() + self.reply_table.len(),
-                self.point_table.len()
-            );
-        }
-
-        // 7. Conversational intents: status command
-        if lower == "status" {
-            let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
-            return format!(
-                "All **27 LexLean/PrismPM conformance suites (`R4-01..R4-27`)** are active in WebAssembly (`{}` vocabulary atoms, `{}/256` occupied `E8` product cells, `{}` training epochs, `{}/40` active ternary gates, active file `{active_workspace_path}`).",
-                self.vocab.len(),
-                self.count_occupied_cells(),
-                self.training_epoch,
-                active_gates
-            );
-        }
-
-        // 8. Check exact normalized match in `self.turns` first (e.g. from `Teach:` or `Admit Turn`)
-        let prompt_stems: Vec<String> = prompt_tokens
-            .iter()
-            .filter(|t| !is_stopword(&t.norm))
-            .map(|t| canonical_stem(&t.norm).to_string())
-            .collect();
-
-        let norm_query = prompt_tokens
-            .iter()
-            .map(|t| t.norm.as_str())
-            .filter(|s| !s.is_empty())
-            .collect::<Vec<_>>()
-            .join(" ");
-        for turn in self.turns.iter().rev() {
-            if !norm_query.is_empty() && turn.normalized_prompt == norm_query {
-                return turn.reply.clone();
-            }
-        }
-
-        // Check user-admitted turns (indices >= 20) for paraphrased recall
-        if self.turns.len() > 20 {
-            let mut best_user_score = 0usize;
-            let mut best_user_reply = String::new();
-            for turn in self.turns.iter().skip(20).rev() {
-                let matched = turn
-                    .prompt_tokens
-                    .iter()
-                    .filter(|t| {
-                        let s = canonical_stem(&t.norm);
-                        !s.is_empty() && prompt_stems.iter().any(|ps| ps == s)
-                    })
-                    .count();
-                if matched > best_user_score {
-                    best_user_score = matched;
-                    best_user_reply = turn.reply.clone();
-                }
-            }
-            if best_user_score >= 2 {
-                return best_user_reply;
-            }
-        }
-
-        // 9. Check direct Geography Capital Lookup & GPU Training Cost Table first
-        if has_word(&words, "capital")
-            || lower.contains("capital city")
-            || (has_any_word(&lower, &["gpu", "cuda", "uorlut", "5090", "cost"])
-                && has_any_word(&lower, &["training", "train", "cost", "uor", "r4", "price"]))
-        {
-            if let Some((topic_title, answer_body)) =
-                match_knowledge_basin(&lower, &words, &prompt_stems)
-            {
-                if let Some(notice) = binder_notice {
-                    return format!("{notice}\n\n### {topic_title}\n\n{answer_body}");
-                }
-                return format!("### {topic_title}\n\n{answer_body}");
-            }
-        }
-
-        // 9b. Active Episodic Working Memory & Conversation History Resolver
-        if let Some(episodic_reply) = try_resolve_episodic_memory_turn(
-            &self.chat_history,
-            &self.rolling_context.context_summary,
-            trimmed,
-            &lower,
-        ) {
-            let reply_out = if let Some(ref notice) = binder_notice {
-                format!("{notice}\n\n{episodic_reply}")
-            } else {
-                episodic_reply
-            };
-            self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
-                &mut self.rolling_context,
-                &self.chat_history,
-                trimmed,
-                &reply_out,
-                128,
-            ));
-            return reply_out;
-        }
-
-        // 10. Execute the end-to-end `uor-r4.lut-stack/8` (`UORLUT01`) 6-layer SpiralCore/FBS
-        //     + ServedHamming + ServedTurnMemory (`/7`) + ServedPointKey (`/8`) + writer.table
-        //     BPE token-by-token language model (`self.lut_stack`).
-        let is_multiturn_followup_or_anaphora = !self.chat_history.is_empty()
-            && (lower.contains("like i'm 5")
-                || lower.contains("eli5")
-                || lower.contains("explain simpler")
-                || lower.contains("in plain english")
-                || lower.contains("in one sentence")
-                || lower.contains("concrete example")
-                || lower.contains("give me an example")
-                || lower.contains("show me an example")
-                || lower.contains("summarize that")
-                || lower.contains("make that shorter")
-                || lower.contains("make it shorter")
-                || lower.contains("trade-offs")
-                || lower.contains("tradeoffs")
-                || lower.contains("what do you mean")
-                || lower == "why"
-                || lower == "why?"
-                || lower == "really"
-                || lower == "really?"
-                || lower.starts_with("wait, really")
-                || lower.starts_with("wait really")
-                || lower.starts_with("wait, why")
-                || lower.contains("my day is")
-                || has_any_word(&lower, &["there", "his", "her"])
-                || lower.contains("why did it")
-                || lower.contains("that approach")
-                || lower.contains("that design")
-                || lower.contains("that mechanism")
-                || lower.contains("that architecture")
-                || lower.contains("that protocol")
-                || lower.contains("this approach")
-                || lower.contains("this system")
-                || lower.contains("this algorithm")
-                || lower.contains("what happens if")
-                || lower.contains("how does that affect")
-                || lower.contains("how does this affect")
-                || lower.contains("what should i watch out for")
-                || lower.contains("what could go wrong")
-                || lower.contains("how would i test")
-                || lower.contains("how does that connect")
-                || lower.contains("how does that relate")
-                || lower.contains("talked about earlier")
-                || lower.contains("discussed earlier")
-                || lower.contains("can you go deeper")
-                || lower.contains("elaborate on"));
-        let is_compositional_or_parameterized = (lower.starts_with("compare ")
-            && (lower.contains(" and ") || lower.contains(" to ")))
-            || lower.contains("difference between")
-            || lower.contains(" vs ")
-            || lower.contains(" versus ")
-            || lower.starts_with("write a short")
-            || lower.starts_with("write a poem")
-            || lower.starts_with("write an essay")
-            || lower.contains("piano tuners")
-            || lower.contains("10 doors")
-            || lower.contains("200 floors")
-            || lower.contains("30 people")
-            || lower.contains("edit distance")
-            || lower.contains("prefix tree")
-            || lower.contains("sourdough gardening")
-            || lower.contains("noir detective")
-            || lower.contains("socratic dialogue")
-            || lower.contains("shakespeare")
-            || lower.contains("in spanish")
-            || lower.contains("into spanish")
-            || lower.contains("in french")
-            || lower.contains("into french")
-            || lower.contains("in german")
-            || lower.contains("in japanese")
-            || lower.contains("in latin");
-        let is_paraphrased_self_or_capability =
-            crate::lut_stack_exec::is_lut_self_inquiry_prompt(&lower)
-                || crate::lut_stack_exec::is_lut_greeting_only_prompt(&lower)
-                || lower.contains("able to do")
-                || lower.contains("can you do")
-                || lower.contains("tasks you")
-                || lower.contains("capable of")
-                || lower.contains("who are you")
-                || lower.contains("about yourself")
-                || lower.contains("talk about you")
-                || lower.contains("how do you work")
-                || lower.contains("under the hood")
-                || lower.contains("how are you");
-
-        let mut tentative_context = self.rolling_context.clone();
         let lut_gen = self.lut_stack.generate_reply_with_context(
-            &mut tentative_context,
+            &mut self.rolling_context,
             &self.chat_history,
             trimmed,
             1024,
         );
-        let has_curated_qa_override =
-            (lut_gen.primary_turn_idx >= crate::lut_stack_exec::CORE_CURRICULUM_TURNS
-                || lut_gen.matched_stem_count < prompt_stems.len())
-                && lut_gen.steps.first().is_none_or(|s| {
-                    s.l1_distance > 0 && s.source_mechanism != "turn_memory_opening"
-                })
-                && crate::glm_weights::has_curated_glm_override(
-                    &lower,
-                    &words,
-                    &prompt_stems,
-                    lut_gen.matched_stem_count,
-                );
-        let reply_mem_steps = lut_gen
-            .steps
-            .iter()
-            .filter(|s| s.source_mechanism == "turn_memory_reply")
-            .count();
-        let lut_confident = lut_gen
-            .slot_frame
-            .as_ref()
-            .is_some_and(|sf| !sf.kernel_results.is_empty())
-            || (!is_multiturn_followup_or_anaphora
-                && !is_compositional_or_parameterized
-                && !has_curated_qa_override
-                && !lut_gen.reply_text.is_empty()
-                && lut_gen.generated_tokens.len() >= 5
-                && reply_mem_steps >= 4
-                && lut_gen
-                    .steps
-                    .first()
-                    .map(|s| {
-                        s.source_mechanism == "turn_memory_opening"
-                            || (s.source_mechanism == "point_key_vote"
-                                && (lut_gen.matched_stem_count >= 2
-                                    || lut_gen.clauses_resolved >= 2
-                                    || is_paraphrased_self_or_capability
-                                    || s.l1_distance == 0
-                                    || (self.lut_stack.artifact_bytes > 100_000_000
-                                        && lut_gen.matched_stem_count >= 1
-                                        && lut_gen.point_hamming_bits <= 96)))
-                    })
-                    .unwrap_or(false));
-        if lut_confident {
-            self.rolling_context = tentative_context;
-            self.last_lut_generation = Some(lut_gen.clone());
-            let reply_out = if let Some(ref notice) = binder_notice {
-                format!("{notice}\n\n{}", lut_gen.reply_text)
-            } else {
-                lut_gen.reply_text
-            };
-            return reply_out;
-        }
-
-        // 11. Open-domain compositional geometric token-level synthesis (`UR4GLM08`),
-        //     traced token-by-token through the 6-layer Spin-Preserving SpiralCore/FBS + ServedHamming stack.
-        let prompt_sign = crate::pool_sign_codes(prompt_tokens);
-        let _legacy_fallback = compose_open_domain_reasoning;
-        let glm_reply = crate::glm_weights::synthesize_glm_response(
-            trimmed,
-            &lower,
-            &words,
-            &prompt_stems,
-            prompt_q12,
-            prompt_sign,
-            consensus_action,
-            flock_resonance,
-            icosian_root,
-            &self.chat_history,
-            binder_notice,
-        );
-        self.last_lut_generation = Some(self.lut_stack.trace_dynamic_turn_with_context(
-            &mut self.rolling_context,
-            &self.chat_history,
-            trimmed,
-            &glm_reply,
-            128,
-        ));
-        glm_reply
+        self.last_lut_generation = Some(lut_gen.clone());
+        lut_gen.reply_text
     }
 }
 
@@ -1469,6 +1073,7 @@ fn tokenize_words_lower(text: &str) -> Vec<String> {
     out
 }
 
+#[allow(dead_code)]
 fn extract_signed_integers(text: &str) -> Vec<i64> {
     let mut nums = Vec::new();
     let chars: Vec<char> = text.chars().collect();
@@ -1500,6 +1105,7 @@ fn extract_signed_integers(text: &str) -> Vec<i64> {
     nums
 }
 
+#[allow(dead_code)]
 fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     while b != 0 {
         let r = a % b;
@@ -1509,6 +1115,7 @@ fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     a
 }
 
+#[allow(dead_code)]
 fn isqrt_u64(n: u64) -> u64 {
     if n < 2 {
         return n;
@@ -1523,6 +1130,7 @@ fn isqrt_u64(n: u64) -> u64 {
 }
 
 #[allow(clippy::manual_is_multiple_of)]
+#[allow(dead_code)]
 fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     let mut out = Vec::new();
     let mut d = 2u64;
@@ -1543,6 +1151,7 @@ fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     out
 }
 
+#[allow(dead_code)]
 fn prime_factors_unique(n: u64) -> Vec<u32> {
     prime_factorization_full(n)
         .into_iter()
@@ -1550,6 +1159,7 @@ fn prime_factors_unique(n: u64) -> Vec<u32> {
         .collect()
 }
 
+#[allow(dead_code)]
 fn format_exact_binary_math(a: i64, b: i64, op: char) -> (String, String) {
     let result_val = match op {
         '+' => a.saturating_add(b),
@@ -1613,10 +1223,12 @@ fn format_exact_binary_math(a: i64, b: i64, op: char) -> (String, String) {
     (reply, code)
 }
 
+#[allow(dead_code)]
 type BinaryMathOp = (i64, i64, char);
 
 /// Extract and evaluate a symbolic mathematical expression from natural language
 /// (e.g. `"What is (15 + 25) * 3?"` or `"48291 + 73948"` or `"2^16"`).
+#[allow(dead_code)]
 fn try_eval_math_expression(prompt: &str) -> Option<(String, i64, Option<BinaryMathOp>)> {
     // Strip leading conversational prefixes like "what is", "calculate", "compute", "evaluate"
     let mut cleaned = String::new();
@@ -1674,6 +1286,7 @@ fn try_eval_math_expression(prompt: &str) -> Option<(String, i64, Option<BinaryM
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 enum MathTok {
     Num(i64),
     Op(char),
@@ -1681,6 +1294,7 @@ enum MathTok {
     RParen,
 }
 
+#[allow(dead_code)]
 fn tokenize_math_expr(s: &str) -> Option<Vec<MathTok>> {
     let mut out = Vec::new();
     let chars: Vec<char> = s.chars().collect();
@@ -1723,6 +1337,7 @@ fn tokenize_math_expr(s: &str) -> Option<Vec<MathTok>> {
     Some(out)
 }
 
+#[allow(dead_code)]
 fn parse_math_add_sub(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     let mut left = parse_math_mul_div(tokens, pos)?;
     while *pos < tokens.len() {
@@ -1743,6 +1358,7 @@ fn parse_math_add_sub(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     Some(left)
 }
 
+#[allow(dead_code)]
 fn parse_math_mul_div(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     let mut left = parse_math_pow(tokens, pos)?;
     while *pos < tokens.len() {
@@ -1774,6 +1390,7 @@ fn parse_math_mul_div(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     Some(left)
 }
 
+#[allow(dead_code)]
 fn parse_math_pow(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     let base = parse_math_atom(tokens, pos)?;
     if *pos < tokens.len() {
@@ -1787,6 +1404,7 @@ fn parse_math_pow(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     Some(base)
 }
 
+#[allow(dead_code)]
 fn parse_math_atom(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
     if *pos >= tokens.len() {
         return None;
@@ -3498,6 +3116,7 @@ fn synthesize_type_directed_rust_ast(
 }
 
 /// Match a user prompt against the Multi-Domain General Knowledge & CS Encyclopedia.
+#[allow(dead_code)]
 fn match_knowledge_basin(
     lower: &str,
     words: &[String],
@@ -3859,42 +3478,11 @@ fn match_knowledge_basin(
     }
 }
 
-/// Compose a clear, structured, natural-language GPT-4 style answer for any novel open-domain prompt
-/// without ever emitting diagnostic or mad-libs boilerplate.
-#[allow(clippy::too_many_arguments)]
-fn compose_open_domain_reasoning(
-    raw_prompt: &str,
-    lower: &str,
-    words: &[String],
-    prompt_q12: &[i16; POINT_KEY_DIM],
-    consensus_action: u8,
-    flock_resonance: u64,
-    icosian_root: u8,
-    binder_notice: Option<String>,
-) -> String {
-    let prompt_stems: Vec<String> = words
-        .iter()
-        .map(|w| canonical_stem(w).to_string())
-        .collect();
-    crate::glm_weights::synthesize_glm_response(
-        raw_prompt,
-        lower,
-        words,
-        &prompt_stems,
-        prompt_q12,
-        0,
-        consensus_action,
-        flock_resonance,
-        icosian_root,
-        &[],
-        binder_notice,
-    )
-}
-
 pub use crate::lut_stack_exec::parse_thinking_block;
 
 /// Resolve multi-turn episodic working memory queries (user name, preferences, active project,
 /// or prior conversation topics) and warm personal introductions across `chat_history`.
+#[allow(dead_code)]
 pub fn try_resolve_episodic_memory_turn(
     history: &[(String, String)],
     context_summary: &str,
