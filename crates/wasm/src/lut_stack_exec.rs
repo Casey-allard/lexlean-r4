@@ -5855,22 +5855,15 @@ pub fn select_point_key_with_resonance(
                 false
             };
 
-            // Stage 0: Evaluate Core Curriculum (`turn_idx < CORE_CURRICULUM_TURNS`) and verified admitted rows first
-            // so `best.max_core_matched_stems` is exact before evaluating external corpus buckets.
+            // Stage 0: Fast-path for self-inquiries and greetings: evaluate Core Curriculum (rows 0..CORE_CURRICULUM_TURNS)
             let mut exact_hit = false;
-            for r in 0..point.rows {
-                let a_base = r * alen;
-                let a_row = &anchors[a_base..a_base + alen];
-                let t_idx = if (a_row[0] & 0x8000_0000) != 0 {
-                    (a_row[0] & 0x7FFF_FFFF) as usize
-                } else {
-                    usize::MAX
-                };
-                let is_core_or_adm = t_idx < CORE_CURRICULUM_TURNS
-                    || (alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
-                if is_core_or_adm && eval_row(r, &mut best) {
-                    exact_hit = true;
-                    break;
+            if is_self_inq || is_greeting {
+                let core_limit = point.rows.min(CORE_CURRICULUM_TURNS);
+                for r in 0..core_limit {
+                    if eval_row(r, &mut best) {
+                        exact_hit = true;
+                        break;
+                    }
                 }
             }
 
@@ -5938,6 +5931,23 @@ pub fn select_point_key_with_resonance(
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            // Stage 3a: Core curriculum fallback (0..CORE_CURRICULUM_TURNS) when geometric neighborhood did not yield a confident hit
+            if !exact_hit
+                && (best.score == i64::MAX
+                    || !is_confident(&best)
+                    || ((best.row >= recent_min
+                        && best.row <= recent_max
+                        && recent_turn_rows.contains(&best.row))
+                        && best.turn_idx < CORE_CURRICULUM_TURNS))
+            {
+                let core_limit = point.rows.min(CORE_CURRICULUM_TURNS);
+                for r in 0..core_limit {
+                    if eval_row(r, &mut best) {
+                        break;
                     }
                 }
             }
