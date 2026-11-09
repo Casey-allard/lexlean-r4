@@ -5255,7 +5255,7 @@ fn handle_http_connection(stream: std::net::TcpStream, root: &Path) -> Result<()
     Ok(())
 }
 
-pub const DEFAULT_SOCKET_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(15);
+pub const DEFAULT_SOCKET_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 const MAX_CONCURRENT_DAEMON_CONNECTIONS: usize = 128;
 static ACTIVE_DAEMON_CONNECTIONS: std::sync::atomic::AtomicUsize =
     std::sync::atomic::AtomicUsize::new(0);
@@ -5298,10 +5298,12 @@ pub fn run_api_serve_cmd(root: &Path, args: &[String]) -> Result<(), String> {
             i += 1;
         }
     }
-    let _ = api::default_model_backend();
     let listener = std::net::TcpListener::bind(format!("0.0.0.0:{port}"))
         .map_err(|e| format!("failed to bind port {port}: {e}"))?;
     println!("api serve: listening on http://127.0.0.1:{port}");
+    std::thread::spawn(|| {
+        let _ = api::default_model_backend();
+    });
     let root_buf = root.to_path_buf();
     for stream in listener.incoming() {
         match stream {

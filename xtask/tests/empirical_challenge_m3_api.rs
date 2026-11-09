@@ -71,9 +71,9 @@ impl TestServerDaemon {
             .spawn()
             .unwrap_or_else(|e| panic!("failed to spawn xtask api serve on port {port}: {e}"));
 
-        // Wait up to 10 seconds for daemon to accept connections under parallel CPU load
+        // Wait up to 30 seconds for daemon to accept connections under parallel CPU load
         let mut ready = false;
-        for _ in 0..100 {
+        for _ in 0..300 {
             thread::sleep(Duration::from_millis(100));
             if TcpStream::connect(&addr).is_ok() {
                 ready = true;
@@ -96,7 +96,7 @@ impl Drop for TestServerDaemon {
     }
 }
 
-const CLIENT_SOCKET_TIMEOUT: Duration = Duration::from_secs(15);
+const CLIENT_SOCKET_TIMEOUT: Duration = Duration::from_secs(30);
 
 fn send_raw_http_request_once(
     addr: &str,

@@ -1653,15 +1653,31 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
     Ok((200, serde_json::to_string(&response).unwrap_or_default()))
 }
 
+struct LazyDefaultBackend;
+
+impl InferenceBackend for LazyDefaultBackend {
+    fn infer_turn(
+        &mut self,
+        prompt: &str,
+        history: &[(String, String)],
+        tools: &[ToolDescriptor],
+        context: &mut crate::lut_stack_exec::RollingContextState,
+        max_tokens: usize,
+    ) -> Result<ModelTurnOutcome, String> {
+        let mut backend = default_model_backend();
+        backend.infer_turn(prompt, history, tools, context, max_tokens)
+    }
+}
+
 /// Handle an Anthropic `/v1/messages` JSON payload.
 pub fn handle_v1_messages_payload(payload: &str) -> Result<(u16, String), (u16, String)> {
-    let mut backend = default_model_backend();
+    let mut backend = LazyDefaultBackend;
     handle_v1_messages_payload_with_backend(payload, &mut backend)
 }
 
 /// Handle an OpenAI `/v1/chat/completions` JSON payload.
 pub fn handle_v1_chat_completions_payload(payload: &str) -> Result<(u16, String), (u16, String)> {
-    let mut backend = default_model_backend();
+    let mut backend = LazyDefaultBackend;
     handle_v1_chat_completions_payload_with_backend(payload, &mut backend)
 }
 
