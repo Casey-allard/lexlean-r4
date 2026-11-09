@@ -917,3 +917,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f59_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.09892 (On Agentic Manipulation Policies)."
 prompt = "How does multi basin analysis connect the findings of this research across models?"
 target_reply = "Multi basin analysis connects the theoretical results of this research across model spaces by chaining complementary topological manifolds to preserve global information entropy without causing state collapse or divergent trajectory loops over extended execution horizons in space."
+
+[[claim]]
+id = "R4-F60"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.09891:H-LIT-2611.09891-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f60_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.09891 (CPU-ARC: Agentic Reasoning Caching for on-CPU Reasoning Reuse)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
