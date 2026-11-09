@@ -987,7 +987,7 @@ impl StudioEngine {
             &mut self.rolling_context,
             &self.chat_history,
             trimmed,
-            1024,
+            2048,
         );
         self.last_lut_generation = Some(lut_gen.clone());
 

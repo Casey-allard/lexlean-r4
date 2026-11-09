@@ -1197,7 +1197,10 @@ impl StudioEngine {
         bytes: &[u8],
         source_label: &str,
     ) -> Result<String, String> {
-        let parsed = lut_stack_exec::LutStackModel::parse(bytes)?;
+        let mut parsed = lut_stack_exec::LutStackModel::parse(bytes)?;
+        for turn in &self.turns {
+            let _ = parsed.compile_verified_dialogue_turn(&turn.prompt, &turn.reply);
+        }
         self.lut_stack = Arc::new(parsed);
         self.lut_stack_source = if source_label.trim().is_empty() {
             "IndexedDB / Custom UORLUT01".to_string()
@@ -3971,7 +3974,7 @@ impl StudioEngine {
                 &mut self.rolling_context,
                 &self.chat_history,
                 trimmed,
-                1024,
+                2048,
             ),
         };
         let first_mech = lut_gen_for_trace

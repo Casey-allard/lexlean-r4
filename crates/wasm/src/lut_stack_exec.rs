@@ -3491,61 +3491,116 @@ impl LutStackSession {
 
             if let Some(entry_idx) = mem.opening.lookup(&open_ids) {
                 let val_tok = mem.opening.values[entry_idx];
-                self.last_matched_stems = 4;
-                self.last_point_hamming_bits = 0;
+                let mut found_open_row = false;
                 if let (Some(reply_tbl), Some(point)) = (&mem.reply, &self.model.point) {
+                    let pt_query_n_t =
+                        if self.has_executive_slot_trace && !self.prompt_only_tokens.is_empty() {
+                            &self.prompt_n_t
+                        } else {
+                            &n_t
+                        };
                     if let Some(anchors) = &point.canonical_anchors {
                         let alen = point.anchor_len.max(1);
+                        let q12_sh = stem_anchor_hash("q12");
+                        let writer_sh = stem_anchor_hash("writer");
                         if anchors.len() >= point.rows * alen {
-                            for r in (0..point.rows).rev() {
-                                let base = r * alen;
-                                let a_row = &anchors[base..base + alen];
-                                let open_matches = if alen >= 16
-                                    && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
-                                {
-                                    let copy_open = open_ids.len().min(8);
-                                    a_row[8..8 + copy_open] == open_ids[..copy_open]
-                                } else if alen >= reply_turn_k + open_ids.len() {
-                                    a_row[reply_turn_k..reply_turn_k + open_ids.len()] == *open_ids
-                                } else {
-                                    false
-                                };
-                                if open_matches {
-                                    let mut cand = a_row[..reply_turn_k.min(alen)].to_vec();
-                                    let filtered_cand: Vec<u32> = cand
-                                        .iter()
-                                        .copied()
-                                        .filter(|&t| t != MEMORY_PAD)
-                                        .map(|w| w & 0x7FFF_FFFF)
-                                        .filter(|&t| (t & 0x8000_0000) == 0)
-                                        .collect();
-                                    for w in &mut cand {
-                                        *w &= 0x7FFF_FFFF;
+                            for pass in 0..2 {
+                                for r in 0..point.rows {
+                                    let base = r * alen;
+                                    let a_row = &anchors[base..base + alen];
+                                    let t_idx = if (a_row[0] & 0x8000_0000) != 0 {
+                                        (a_row[0] & 0x7FFF_FFFF) as usize
+                                    } else {
+                                        usize::MAX
+                                    };
+                                    let is_synth = alen >= 18
+                                        && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                                        && a_row[16] == q12_sh
+                                        && a_row[17] == writer_sh;
+                                    if is_synth {
+                                        continue;
                                     }
-                                    if point.targets.get(r).copied() == Some(val_tok)
-                                        && probe_reply_table_has_anchor(
-                                            reply_tbl,
-                                            mem.reply_key_len,
-                                            &cand,
-                                            val_tok,
-                                        )
-                                    {
-                                        self.anchors.reply = filtered_cand;
-                                        break;
+                                    let is_core_or_adm = t_idx < CORE_CURRICULUM_TURNS
+                                        || (alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
+                                    if (pass == 0) != is_core_or_adm {
+                                        continue;
                                     }
+                                    let open_matches =
+                                        if alen >= 16 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG {
+                                            let copy_open = open_ids.len().min(8);
+                                            a_row[8..8 + copy_open] == open_ids[..copy_open]
+                                        } else if alen >= reply_turn_k + open_ids.len() {
+                                            a_row[reply_turn_k..reply_turn_k + open_ids.len()]
+                                                == *open_ids
+                                        } else {
+                                            false
+                                        };
+                                    if open_matches {
+                                        let p_base = r * point.width;
+                                        let p_row = &point.points[p_base..p_base + point.width];
+                                        let exact_geom = point.width >= 2
+                                            && (p_row[0] as i32) == pt_query_n_t[0]
+                                            && (p_row[1] as i32) == pt_query_n_t[1];
+                                        let stem_slice = if alen > 16 {
+                                            &a_row[16..alen.min(28)]
+                                        } else {
+                                            &[]
+                                        };
+                                        let all_stems_match = if stems.is_empty() {
+                                            active_turn_ids.len() <= mem.k
+                                        } else {
+                                            stems.iter().all(|&(sh, _)| stem_slice.contains(&sh))
+                                        };
+                                        if !exact_geom && !all_stems_match {
+                                            continue;
+                                        }
+                                        let mut cand = a_row[..reply_turn_k.min(alen)].to_vec();
+                                        let filtered_cand: Vec<u32> = cand
+                                            .iter()
+                                            .copied()
+                                            .filter(|&t| t != MEMORY_PAD)
+                                            .map(|w| w & 0x7FFF_FFFF)
+                                            .filter(|&t| (t & 0x8000_0000) == 0)
+                                            .collect();
+                                        for w in &mut cand {
+                                            *w &= 0x7FFF_FFFF;
+                                        }
+                                        if point.targets.get(r).copied() == Some(val_tok)
+                                            && probe_reply_table_has_anchor(
+                                                reply_tbl,
+                                                mem.reply_key_len,
+                                                &cand,
+                                                val_tok,
+                                            )
+                                        {
+                                            self.anchors.reply = filtered_cand;
+                                            self.last_turn_idx = t_idx;
+                                            found_open_row = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if found_open_row {
+                                    break;
                                 }
                             }
                         }
                     }
+                } else {
+                    found_open_row = true;
                 }
-                blend_toward_writer_row(
-                    &mut n_t,
-                    &self.model.writer_table,
-                    val_tok as usize,
-                    &mem.opening.weight_q24,
-                );
-                memory_hit_token = Some(val_tok);
-                source_mechanism = "turn_memory_opening";
+                if found_open_row {
+                    self.last_matched_stems = stems.len().max(4);
+                    self.last_point_hamming_bits = 0;
+                    blend_toward_writer_row(
+                        &mut n_t,
+                        &self.model.writer_table,
+                        val_tok as usize,
+                        &mem.opening.weight_q24,
+                    );
+                    memory_hit_token = Some(val_tok);
+                    source_mechanism = "point_key_vote";
+                }
             }
 
             if memory_hit_token.is_none() {
@@ -3701,19 +3756,38 @@ impl LutStackSession {
 
                 if let Some(entry_idx) = mem.opening.lookup(&open_ids) {
                     let val_tok = mem.opening.values[entry_idx];
-                    self.last_matched_stems = 4;
-                    self.last_point_hamming_bits = 0;
                     if let (Some(reply_tbl), Some(point)) = (&mem.reply, &self.model.point) {
-                        let mut opening_confident = false;
                         let mut matched_open_anchor = None;
                         if let Some(anchors) = &point.canonical_anchors {
                             let alen = point.anchor_len.max(1);
+                            let q12_sh = stem_anchor_hash("q12");
+                            let writer_sh = stem_anchor_hash("writer");
                             if anchors.len() >= point.rows * alen {
-                                for r in (0..point.rows).rev() {
-                                    let base = r * alen;
-                                    let a_row = &anchors[base..base + alen];
-                                    let open_matches =
-                                        if alen >= 16 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG {
+                                for pass in 0..2 {
+                                    for r in 0..point.rows {
+                                        let base = r * alen;
+                                        let a_row = &anchors[base..base + alen];
+                                        let t_idx = if (a_row[0] & 0x8000_0000) != 0 {
+                                            (a_row[0] & 0x7FFF_FFFF) as usize
+                                        } else {
+                                            usize::MAX
+                                        };
+                                        let is_synth = alen >= 18
+                                            && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                                            && a_row[16] == q12_sh
+                                            && a_row[17] == writer_sh;
+                                        if is_synth {
+                                            continue;
+                                        }
+                                        let is_core_or_adm = t_idx < CORE_CURRICULUM_TURNS
+                                            || (alen >= 8
+                                                && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
+                                        if (pass == 0) != is_core_or_adm {
+                                            continue;
+                                        }
+                                        let open_matches = if alen >= 16
+                                            && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                                        {
                                             let copy_open = open_ids.len().min(8);
                                             a_row[8..8 + copy_open] == open_ids[..copy_open]
                                         } else if alen >= reply_turn_k + open_ids.len() {
@@ -3722,29 +3796,54 @@ impl LutStackSession {
                                         } else {
                                             false
                                         };
-                                    if open_matches {
-                                        let mut cand = a_row[..reply_turn_k.min(alen)].to_vec();
-                                        let filtered_cand: Vec<u32> = cand
-                                            .iter()
-                                            .copied()
-                                            .filter(|&t| t != MEMORY_PAD)
-                                            .map(|w| w & 0x7FFF_FFFF)
-                                            .filter(|&t| (t & 0x8000_0000) == 0)
-                                            .collect();
-                                        for w in &mut cand {
-                                            *w &= 0x7FFF_FFFF;
+                                        if open_matches {
+                                            let p_base = r * point.width;
+                                            let p_row = &point.points[p_base..p_base + point.width];
+                                            let exact_geom = point.width >= 2
+                                                && (p_row[0] as i32) == n_t[0]
+                                                && (p_row[1] as i32) == n_t[1];
+                                            let stem_slice = if alen > 16 {
+                                                &a_row[16..alen.min(28)]
+                                            } else {
+                                                &[]
+                                            };
+                                            let all_stems_match = if stems.is_empty() {
+                                                active_turn_ids.len() <= mem.k
+                                            } else {
+                                                stems
+                                                    .iter()
+                                                    .all(|&(sh, _)| stem_slice.contains(&sh))
+                                            };
+                                            if !exact_geom && !all_stems_match {
+                                                continue;
+                                            }
+                                            let mut cand = a_row[..reply_turn_k.min(alen)].to_vec();
+                                            let filtered_cand: Vec<u32> = cand
+                                                .iter()
+                                                .copied()
+                                                .filter(|&t| t != MEMORY_PAD)
+                                                .map(|w| w & 0x7FFF_FFFF)
+                                                .filter(|&t| (t & 0x8000_0000) == 0)
+                                                .collect();
+                                            for w in &mut cand {
+                                                *w &= 0x7FFF_FFFF;
+                                            }
+                                            if point.targets.get(r).copied() == Some(val_tok)
+                                                && probe_reply_table_has_anchor(
+                                                    reply_tbl,
+                                                    mem.reply_key_len,
+                                                    &cand,
+                                                    val_tok,
+                                                )
+                                            {
+                                                matched_open_anchor = Some(filtered_cand);
+                                                self.last_turn_idx = t_idx;
+                                                break;
+                                            }
                                         }
-                                        if point.targets.get(r).copied() == Some(val_tok)
-                                            && probe_reply_table_has_anchor(
-                                                reply_tbl,
-                                                mem.reply_key_len,
-                                                &cand,
-                                                val_tok,
-                                            )
-                                        {
-                                            matched_open_anchor = Some(filtered_cand);
-                                            break;
-                                        }
+                                    }
+                                    if matched_open_anchor.is_some() {
+                                        break;
                                     }
                                 }
                             }
@@ -3754,33 +3853,8 @@ impl LutStackSession {
                             for w in self.anchors.reply.iter_mut() {
                                 *w &= !0x8000_0000;
                             }
-                            opening_confident = true;
-                        } else if let Some(pt_hit) = select_point_key_with_resonance(
-                            point,
-                            &n_t,
-                            &self.tokens,
-                            mem.key_window,
-                            mem.reply.as_ref(),
-                            mem.reply_key_len,
-                            &self.recent_turn_rows,
-                        ) {
-                            self.last_matched_stems = pt_hit.matched_stems;
-                            self.last_point_hamming_bits = pt_hit.hamming_bits;
-                            self.last_covered_stem_mask = pt_hit.covered_stem_mask;
-                            self.last_turn_idx = pt_hit.turn_idx;
-                            if pt_hit.confident {
-                                if let Some(canon) = resolve_canonical_reply_anchor(
-                                    point, mem, pt_hit.row, val_tok, &reply_ids,
-                                ) {
-                                    self.anchors.reply = canon;
-                                    for w in self.anchors.reply.iter_mut() {
-                                        *w &= !0x8000_0000;
-                                    }
-                                }
-                                opening_confident = true;
-                            }
-                        }
-                        if opening_confident {
+                            self.last_matched_stems = stems.len().max(4);
+                            self.last_point_hamming_bits = 0;
                             blend_toward_writer_row(
                                 &mut n_t,
                                 &self.model.writer_table,
@@ -3788,8 +3862,19 @@ impl LutStackSession {
                                 &mem.opening.weight_q24,
                             );
                             memory_hit_token = Some(val_tok);
-                            source_mechanism = "turn_memory_opening";
+                            source_mechanism = "point_key_vote";
                         }
+                    } else {
+                        self.last_matched_stems = stems.len().max(4);
+                        self.last_point_hamming_bits = 0;
+                        blend_toward_writer_row(
+                            &mut n_t,
+                            &self.model.writer_table,
+                            val_tok as usize,
+                            &mem.opening.weight_q24,
+                        );
+                        memory_hit_token = Some(val_tok);
+                        source_mechanism = "point_key_vote";
                     }
                 }
 
@@ -3888,7 +3973,7 @@ impl LutStackSession {
                             .find(|(s, _)| *s == next_4gram)
                             .map(|&(_, c)| c)
                             .unwrap_or(0);
-                        if next_occ < 2 {
+                        if next_occ < 8 || val_tok == ByteBpe4096::global().eos_id() {
                             blend_toward_writer_row(
                                 &mut n_t,
                                 &self.model.writer_table,
@@ -4205,7 +4290,7 @@ fn lookup_reply_continuation_4gram(
     if let Some(val) = lookup_with_bit31_flex(reply_tbl, &mut key) {
         return Some(val);
     }
-    if occ >= 2 {
+    if occ >= 8 {
         return None;
     }
     if occ > 0 {
@@ -4252,7 +4337,8 @@ fn lookup_reply_continuation_4gram(
     }
     if suffix4[2] != MEMORY_PAD
         && anchor.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
-        && (legacy_step >= 88 || (legacy_step >= 12 && is_boundary_token(suffix4[3])))
+        && legacy_step >= 12
+        && is_boundary_token(suffix4[3])
     {
         return Some(ByteBpe4096::global().eos_id());
     }
@@ -4418,12 +4504,12 @@ fn seek_subtopic_in_turn(
         cur = next_t;
     }
 
-    if turn_tokens.len() < 26 {
+    if turn_tokens.len() < 140 {
         return default_first_tok;
     }
 
     let open_text = bpe
-        .decode(&turn_tokens[..turn_tokens.len().min(12)])
+        .decode(&turn_tokens[..turn_tokens.len().min(48)])
         .to_ascii_lowercase();
     let open_stems = extract_salient_stem_hashes_from_text(&open_text, 16);
     let open_spec_count = specific_stems
@@ -4434,38 +4520,24 @@ fn seek_subtopic_in_turn(
         return default_first_tok;
     }
 
-    let max_start = turn_tokens.len().saturating_sub(18);
+    let max_start = turn_tokens.len().saturating_sub(24);
     let mut best_pos = 0usize;
     let mut best_score = 0i64;
-    let mut clause_positions = Vec::new();
-    let mut word_positions = Vec::new();
 
     for pos in 1..=max_start {
         let prev_dec = bpe.decode(&[turn_tokens[pos - 1]]);
-        let cur_dec = bpe.decode(&[turn_tokens[pos]]);
-        let is_punct_boundary = prev_dec.contains('.')
-            || prev_dec.contains(';')
-            || prev_dec.contains(':')
-            || prev_dec.contains('\n')
-            || prev_dec.contains("—")
-            || prev_dec.contains("**");
-        let is_word_start = is_punct_boundary
-            || cur_dec.starts_with(" **")
-            || cur_dec.starts_with("**")
-            || cur_dec
-                .strip_prefix(' ')
-                .is_some_and(|s| s.starts_with(|c: char| c.is_ascii_uppercase()));
-        if is_punct_boundary && pos >= 4 {
-            clause_positions.push(pos);
-        }
-        if !is_word_start {
+        let next_two_dec = bpe.decode(&turn_tokens[pos..(pos + 2).min(turn_tokens.len())]);
+        let is_sentence_boundary = prev_dec.ends_with('.') || prev_dec.ends_with('\n');
+        let is_sentence_start = is_sentence_boundary
+            && next_two_dec
+                .trim_start()
+                .trim_start_matches(['*', '#', '-', ' ', '`', '"', '\''])
+                .starts_with(|c: char| c.is_ascii_uppercase());
+        if !is_sentence_start {
             continue;
         }
-        if pos >= 2 {
-            word_positions.push(pos);
-        }
 
-        let win_end = (pos + 8).min(turn_tokens.len());
+        let win_end = (pos + 12).min(turn_tokens.len());
         let win_text = bpe.decode(&turn_tokens[pos..win_end]).to_ascii_lowercase();
         let win_stems = extract_salient_stem_hashes_from_text(&win_text, 12);
         let mut spec_hits = 0usize;
@@ -4479,10 +4551,8 @@ fn seek_subtopic_in_turn(
             }
         }
         if missing_spec_hits > 0 && spec_hits > open_spec_count {
-            let mut sc = (missing_spec_hits as i64) * 200_000 + (spec_hits as i64) * 100_000;
-            if is_punct_boundary {
-                sc += 50_000;
-            }
+            let mut sc =
+                (missing_spec_hits as i64) * 200_000 + (spec_hits as i64) * 100_000 + 50_000;
             let first_win_stems = extract_salient_stem_hashes_from_text(
                 &bpe.decode(&turn_tokens[pos..(pos + 3).min(turn_tokens.len())])
                     .to_ascii_lowercase(),
@@ -4502,20 +4572,6 @@ fn seek_subtopic_in_turn(
     }
 
     let _ = matched_specific_in_row;
-    if best_pos == 0 && open_spec_count == 0 {
-        let pool = if clause_positions.len() >= 10 {
-            &clause_positions
-        } else {
-            &word_positions
-        };
-        if !pool.is_empty() {
-            let h = fnv1a64(decoded_turn.as_bytes())
-                ^ specific_stems.iter().fold(0u64, |acc, &sh| {
-                    acc.wrapping_mul(1_099_511_628_211) ^ (sh as u64)
-                });
-            best_pos = pool[(h as usize) % pool.len()];
-        }
-    }
 
     if best_pos > 0 && best_pos < turn_tokens.len() {
         *subtopic_prefix = [
@@ -4747,6 +4803,15 @@ pub fn is_bpe_framing_stopword(word: &str) -> bool {
             | "define"
             | "defin"
             | "describ"
+            | "summarize"
+            | "summariz"
+            | "summary"
+            | "summari"
+            | "overview"
+            | "outline"
+            | "outlin"
+            | "plot"
+            | "plots"
             | "state"
             | "first"
             | "second"
@@ -4816,6 +4881,10 @@ pub fn is_umbrella_domain_context_stem(w: &str) -> bool {
             | "methods"
             | "system"
             | "systems"
+            | "language"
+            | "languag"
+            | "model"
+            | "models"
             | "impact"
             | "rule"
             | "rules"
@@ -4992,6 +5061,8 @@ pub fn is_lut_self_inquiry_prompt(lower: &str) -> bool {
         || lower.contains("how does uor-r4")
         || lower.contains("lut-stack")
         || lower.contains("are you a transformer")
+        || lower.contains("geometric language model")
+        || lower.contains("differ from transformer")
         || lower.contains("how can you help")
 }
 
@@ -5323,6 +5394,8 @@ pub fn select_point_key_with_resonance(
     let lin_stem_hash = stem_anchor_hash("linear");
     let quad_stem_hash = stem_anchor_hash("quadratic");
     let int_stem_hash = stem_anchor_hash("integral");
+    let q12_stem_hash = stem_anchor_hash("q12");
+    let writer_stem_hash = stem_anchor_hash("writer");
 
     let eval_row = |r: usize, best: &mut BestCandidate| -> bool {
         let p_base = r * point.width;
@@ -5335,6 +5408,10 @@ pub fn select_point_key_with_resonance(
         } else {
             usize::MAX
         };
+        let is_synthetic_frontier_row = alen >= 18
+            && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+            && a_row[16] == q12_stem_hash
+            && a_row[17] == writer_stem_hash;
         let is_core_or_proved = turn_idx < CORE_CURRICULUM_TURNS
             || (alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
         if !is_core_or_proved {
@@ -5347,10 +5424,25 @@ pub fn select_point_key_with_resonance(
             }
         }
 
-        // Guard self-inquiry bio rows (0..=2) and pure greeting rows (3..=4) so unrelated prompts
+        // Guard self-inquiry bio rows (0..=2, 8) and pure greeting rows (3..=4) so unrelated prompts
         // never collapse onto "I am the UOR-R4 Generalized Geometric Assistant..."
+        let is_self_inq_turn = turn_idx <= 2 || turn_idx == 8;
         let mut guard_penalty = 0i64;
-        if turn_idx <= 2 && !is_self_inq {
+        if is_self_inq_turn != is_self_inq
+            && !(is_self_inq
+                && alen >= 8
+                && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG
+                && alen >= 22
+                && a_row[16..22]
+                    .iter()
+                    .filter(|&&sh| {
+                        sh != 0
+                            && sh != MEMORY_PAD
+                            && prompt_stems.iter().any(|&(psh, _)| psh == sh)
+                    })
+                    .count()
+                    >= 2)
+        {
             guard_penalty = 80_000_000;
         } else if (turn_idx == 3 || turn_idx == 4) != is_greeting {
             guard_penalty = 60_000_000;
@@ -5382,6 +5474,37 @@ pub fn select_point_key_with_resonance(
             .max(1);
 
         let mut bonus = 0i64;
+        if is_self_inq && is_self_inq_turn {
+            bonus += 800_000;
+            let asks_compare = decoded_turn.contains("differ")
+                || decoded_turn.contains("compare")
+                || decoded_turn.contains("gpt")
+                || decoded_turn.contains("claude")
+                || decoded_turn.contains("chatgpt")
+                || decoded_turn.contains("instead of");
+            let asks_arch = decoded_turn.contains("how do you work")
+                || decoded_turn.contains("under the hood")
+                || decoded_turn.contains("architect")
+                || decoded_turn.contains("transform")
+                || decoded_turn.contains("geometric language model")
+                || decoded_turn.contains("lut-stack");
+            let asks_who = decoded_turn.contains("who are you")
+                || decoded_turn.contains("what are you")
+                || decoded_turn.contains("what model")
+                || decoded_turn.contains("introduce yourself")
+                || decoded_turn.contains("about yourself");
+            if asks_compare && turn_idx == 8 {
+                bonus += 600_000;
+            } else if asks_arch && !asks_compare && turn_idx == 2 {
+                bonus += 600_000;
+            } else if asks_who && !asks_arch && !asks_compare && turn_idx == 1 {
+                bonus += 600_000;
+            } else if !asks_arch && !asks_who && !asks_compare && turn_idx == 0 {
+                bonus += 600_000;
+            }
+        } else if is_greeting && (turn_idx == 3 || turn_idx == 4) {
+            bonus += 800_000;
+        }
         let mut matched_stems = 0usize;
         let mut matched_primary = 0usize;
         let mut matched_specific = 0usize;
@@ -5402,7 +5525,7 @@ pub fn select_point_key_with_resonance(
                 if primary_slice.first() == Some(&sh) {
                     bonus += 65_000;
                 }
-            } else if secondary_slice.contains(&sh) {
+            } else if let Some(sec_pos) = secondary_slice.iter().position(|&x| x == sh) {
                 matched_stems += 1;
                 if sw >= 140_000 {
                     matched_specific += 1;
@@ -5410,8 +5533,14 @@ pub fn select_point_key_with_resonance(
                 if stem_i < 16 {
                     covered_mask |= 1u16 << stem_i;
                 }
-                bonus += sw / 2;
+                bonus += sw / 2 + ((6usize.saturating_sub(sec_pos) as i64) * 15_000);
             }
+        }
+        if is_synthetic_frontier_row
+            && matched_primary < 3
+            && (w_lim < 2 || (p_row[0] as i32) != n_t[0] || (p_row[1] as i32) != n_t[1])
+        {
+            return false;
         }
         if guard_penalty == 0
             && turn_idx < CORE_CURRICULUM_TURNS
@@ -5424,7 +5553,7 @@ pub fn select_point_key_with_resonance(
             && !is_algebra_prompt
             && !is_self_inq
             && !is_greeting
-            && (matched_specific == 0
+            && ((has_specific_stem && matched_specific == 0)
                 || primary_slice.contains(&eq_stem_hash)
                 || primary_slice.contains(&lin_stem_hash)
                 || primary_slice.contains(&quad_stem_hash)
@@ -5462,7 +5591,12 @@ pub fn select_point_key_with_resonance(
             } else {
                 bonus += (matched_specific as i64) * 320_000 + non_spec * 90_000;
             }
-        } else if is_core_or_proved && has_specific_stem && matched_specific == 0 {
+        } else if is_core_or_proved
+            && has_specific_stem
+            && matched_specific == 0
+            && !(is_self_inq && is_self_inq_turn)
+            && !(is_greeting && (turn_idx == 3 || turn_idx == 4))
+        {
             bonus = if alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG {
                 bonus.min(90_000)
             } else {
@@ -5646,8 +5780,8 @@ pub fn select_point_key_with_resonance(
             return false;
         }
         let spec_ok = !has_specific_stem || best.matched_specific >= 1;
-        (best.raw_l1 == 0 && (best.turn_idx > 2 || is_self_inq))
-            || (is_self_inq && best.turn_idx <= 2)
+        (best.raw_l1 == 0 && ((best.turn_idx > 2 && best.turn_idx != 8) || is_self_inq))
+            || (is_self_inq && (best.turn_idx <= 2 || best.turn_idx == 8))
             || (is_greeting && (best.turn_idx == 3 || best.turn_idx == 4))
             || (spec_ok
                 && ((total_stems > 0 && best.matched_stems >= total_stems)
@@ -5723,13 +5857,40 @@ pub fn select_point_key_with_resonance(
                 false
             };
 
+            // Stage 0: Evaluate Core Curriculum (`turn_idx < CORE_CURRICULUM_TURNS`) and verified admitted rows first
+            // so `best.max_core_matched_stems` is exact before evaluating external corpus buckets.
+            let mut exact_hit = false;
+            for r in 0..point.rows {
+                let a_base = r * alen;
+                let a_row = &anchors[a_base..a_base + alen];
+                let t_idx = if (a_row[0] & 0x8000_0000) != 0 {
+                    (a_row[0] & 0x7FFF_FFFF) as usize
+                } else {
+                    usize::MAX
+                };
+                let is_core_or_adm = t_idx < CORE_CURRICULUM_TURNS
+                    || (alen >= 8 && a_row[7] == VERIFIED_FRONTIER_ANCHOR_TAG);
+                if is_core_or_adm && eval_row(r, &mut best) {
+                    exact_hit = true;
+                    break;
+                }
+            }
+
             // Stage 1: Primary geometric bucket
             let primary_bucket = compute_geometric_bucket(e8_1, q_c64, i17_1);
-            let mut exact_hit = eval_bucket(primary_bucket, &mut best);
+            if !exact_hit
+                && !is_self_inq
+                && !is_greeting
+                && (!is_confident(&best) || best.matched_stems < total_stems.min(4))
+            {
+                exact_hit = eval_bucket(primary_bucket, &mut best);
+            }
 
             // Stage 2: Geometric neighborhood across E8, Cl(0,6), and Icosian golden lattice (28 buckets)
             // Probed only if primary bucket did not yield an unpenalized, confident candidate
             let needs_neighbors = !exact_hit
+                && !is_self_inq
+                && !is_greeting
                 && (best.score == i64::MAX
                     || (best.row >= recent_min
                         && best.row <= recent_max
@@ -5783,28 +5944,8 @@ pub fn select_point_key_with_resonance(
                 }
             }
 
-            // Stage 3a: Core curriculum fallback (0..623) when geometric neighborhood did not yield a confident hit
-            // or for inquiries/greetings/penalized core candidates.
-            if !exact_hit
-                && (best.score == i64::MAX
-                    || !is_confident(&best)
-                    || is_self_inq
-                    || is_greeting
-                    || ((best.row >= recent_min
-                        && best.row <= recent_max
-                        && recent_turn_rows.contains(&best.row))
-                        && best.turn_idx < CORE_CURRICULUM_TURNS))
-            {
-                let core_limit = point.rows.min(623);
-                for r in 0..core_limit {
-                    if eval_row(r, &mut best) {
-                        break;
-                    }
-                }
-            }
-
             // Stage 3b: External corpus fallback (0..rows) when still not confident or when
-            // Stage 3a did not match all prompt stems.
+            // earlier stages did not match all prompt stems.
             if !exact_hit
                 && !is_self_inq
                 && !is_greeting
@@ -7227,11 +7368,41 @@ impl DeBruijnSlotFrame {
             target_expr = Some("x^2 + y^2".to_string());
         }
 
+        let normalize_implicit_coeff = |s: &str| -> String {
+            if !s.contains('=') {
+                return s.to_string();
+            }
+            let chars: Vec<char> = s.chars().collect();
+            let mut out = String::with_capacity(s.len() + 8);
+            for i in 0..chars.len() {
+                let c = chars[i];
+                out.push(c);
+                if c.is_ascii_digit() && i + 1 < chars.len() {
+                    let next_c = chars[i + 1];
+                    let prev_alpha = i > 0 && chars[i - 1].is_ascii_alphabetic();
+                    let after_ok = i + 2 >= chars.len()
+                        || !chars[i + 2].is_ascii_alphanumeric()
+                        || chars[i + 2] == '^';
+                    if !prev_alpha
+                        && matches!(
+                            next_c.to_ascii_lowercase(),
+                            'x' | 'y' | 'z' | 'a' | 'b' | 'n' | 'k' | 't'
+                        )
+                        && after_ok
+                    {
+                        out.push_str(" * ");
+                    }
+                }
+            }
+            out
+        };
+        let normalized_prompt = normalize_implicit_coeff(prompt);
+
         if extra_eqs.is_empty() {
-            (prompt.to_string(), target_expr)
+            (normalized_prompt, target_expr)
         } else {
             (
-                format!("{} ; {}", extra_eqs.join(" and "), prompt),
+                format!("{} ; {}", extra_eqs.join(" and "), normalized_prompt),
                 target_expr,
             )
         }
@@ -7697,6 +7868,7 @@ impl DeBruijnSlotFrame {
         // If prompt has variable bindings (`if x = 14 and y = 29, what is 3 * x + 2 * y`),
         // extract the expression after `what is `, `compute `, `evaluate `, `calculate `, `find `
         if !var_bindings.is_empty() {
+            let last_eq = lower.rfind('=');
             for marker in [
                 "what is ",
                 "compute ",
@@ -7706,12 +7878,15 @@ impl DeBruijnSlotFrame {
                 "then ",
             ] {
                 if let Some(idx) = lower.rfind(marker) {
-                    let tail = trimmed[idx + marker.len()..].trim();
-                    if !tail.is_empty() {
-                        return Some(tail.to_string());
+                    if last_eq.is_none_or(|eq_pos| idx > eq_pos) {
+                        let tail = trimmed[idx + marker.len()..].trim();
+                        if !tail.is_empty() {
+                            return Some(tail.to_string());
+                        }
                     }
                 }
             }
+            return None;
         }
 
         // Extract contiguous arithmetic span containing digits and at least one explicit math operator
@@ -7989,6 +8164,7 @@ impl DeBruijnSlotFrame {
         generated_tokens: &mut Vec<u32>,
         steps: &mut Vec<StepTelemetry>,
         current_reply_text: &mut String,
+        matched_stem_count: usize,
     ) {
         if self.kernel_results.is_empty() {
             return;
@@ -8004,6 +8180,7 @@ impl DeBruijnSlotFrame {
             return;
         }
 
+        let mut accepted_sections = Vec::new();
         for (slot_ref, section_text) in injected_sections {
             let rep_tokens = bpe.encode(&format!(" {section_text}"));
             let base_stream_len = generated_tokens.len().max(1) as u64;
@@ -8031,11 +8208,24 @@ impl DeBruijnSlotFrame {
                     st.source_mechanism = "debruijn_slot_kernel_r4_31";
                     steps.push(st);
                 }
-                if current_reply_text.trim().is_empty() {
-                    *current_reply_text = section_text;
-                } else {
-                    *current_reply_text = format!("{section_text}\n\n{}", current_reply_text.trim());
-                }
+                accepted_sections.push(section_text);
+            }
+        }
+        if !accepted_sections.is_empty() {
+            let combined_injected = accepted_sections.join("\n");
+            let has_exact_math_or_solver = self.kernel_results.iter().any(|kr| {
+                kr.op_name == "exact_arithmetic_r4_27"
+                    || kr.op_name == "backtracking_constraint_solver"
+            });
+            if current_reply_text.trim().is_empty()
+                || matched_stem_count <= 1
+                || (has_exact_math_or_solver
+                    && (session.last_turn_idx >= CORE_CURRICULUM_TURNS || matched_stem_count <= 2))
+            {
+                *current_reply_text = combined_injected;
+            } else {
+                *current_reply_text =
+                    format!("{combined_injected}\n\n{}", current_reply_text.trim());
             }
         }
     }
@@ -8879,8 +9069,11 @@ impl LutStackModel {
             session.pending_basins = extra_basins;
         } else if (confident_open || matched_stem_count >= 2)
             && clauses.len() == 1
+            && (clean_primary.contains(',')
+                || clean_primary.contains(';')
+                || clean_primary.contains(" and "))
             && last_source != "turn_memory_opening"
-            && steps.first().map(|s| s.l1_distance).unwrap_or(0) >= 0
+            && steps.first().map(|s| s.l1_distance).unwrap_or(0) > 0
             && matched_stem_count <= 4
         {
             let comp_basins = self.resolve_complementary_uncovered_basins(
@@ -8923,7 +9116,7 @@ impl LutStackModel {
         );
         let phrase_dag_nodes = dag_plan.nodes.len();
 
-        let limit = max_new_tokens.clamp(1, 1024);
+        let limit = max_new_tokens.clamp(1, 2048);
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
@@ -8951,14 +9144,16 @@ impl LutStackModel {
             last_source = st.source_mechanism;
             steps.push(st);
 
-            self.try_mid_stream_re_attention(
-                &mut session,
-                cur_tok,
-                generated_tokens.len(),
-                &mut next_tok,
-                &mut last_source,
-                &mut clauses_resolved,
-            );
+            if next_tok != bpe.eos_id() || !session.pending_basins.is_empty() {
+                self.try_mid_stream_re_attention(
+                    &mut session,
+                    cur_tok,
+                    generated_tokens.len(),
+                    &mut next_tok,
+                    &mut last_source,
+                    &mut clauses_resolved,
+                );
+            }
 
             if is_clause_boundary(cur_tok, generated_tokens.len()) {
                 let target_tok = next_tok;
@@ -9019,6 +9214,7 @@ impl LutStackModel {
                 &mut generated_tokens,
                 &mut steps,
                 &mut reply_text,
+                matched_stem_count,
             );
         }
 
@@ -9294,8 +9490,11 @@ impl LutStackModel {
             session.pending_basins = extra_basins;
         } else if (confident_open || matched_stem_count >= 2)
             && clauses.len() == 1
+            && (clean_primary.contains(',')
+                || clean_primary.contains(';')
+                || clean_primary.contains(" and "))
             && last_source != "turn_memory_opening"
-            && steps.first().map(|s| s.l1_distance).unwrap_or(0) >= 0
+            && steps.first().map(|s| s.l1_distance).unwrap_or(0) > 0
             && matched_stem_count <= 4
         {
             let comp_basins = self.resolve_complementary_uncovered_basins(
@@ -9338,7 +9537,7 @@ impl LutStackModel {
         );
         let phrase_dag_nodes = dag_plan.nodes.len();
 
-        let limit = max_new_tokens.clamp(1, 1024);
+        let limit = max_new_tokens.clamp(1, 2048);
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
@@ -9366,14 +9565,16 @@ impl LutStackModel {
             last_source = st.source_mechanism;
             steps.push(st);
 
-            self.try_mid_stream_re_attention(
-                &mut session,
-                cur_tok,
-                generated_tokens.len(),
-                &mut next_tok,
-                &mut last_source,
-                &mut clauses_resolved,
-            );
+            if next_tok != bpe.eos_id() || !session.pending_basins.is_empty() {
+                self.try_mid_stream_re_attention(
+                    &mut session,
+                    cur_tok,
+                    generated_tokens.len(),
+                    &mut next_tok,
+                    &mut last_source,
+                    &mut clauses_resolved,
+                );
+            }
 
             if is_clause_boundary(cur_tok, generated_tokens.len()) {
                 let target_tok = next_tok;
@@ -9434,6 +9635,7 @@ impl LutStackModel {
                 &mut generated_tokens,
                 &mut steps,
                 &mut reply_text,
+                matched_stem_count,
             );
         }
 

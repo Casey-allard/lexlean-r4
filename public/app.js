@@ -1963,7 +1963,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   const gen = chatRes.generation || {};
   const tokGen = chatRes.token_generation || gen.token_generation || {};
   let replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
-  if (!replyProse.includes('$$') && (trimmed.includes('$') || /math|latex|equation|formula|spinor|clifford|icosian|e8|ospf|derive|route|token|proof/i.test(trimmed))) {
+  if (!replyProse.includes('$$') && /ospf routing identity|formal geometric routing identity/i.test(trimmed)) {
     const rootIdx = chatRes.icosian_root ?? 0;
     const clAct = chatRes.flock_consensus_action ?? 0;
     const l1Dist = gen.l1_distance ?? 0;

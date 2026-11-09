@@ -49,7 +49,7 @@ fn default_model() -> String {
 }
 
 fn default_max_tokens() -> Option<u32> {
-    Some(256)
+    Some(2048)
 }
 
 /// An individual message turn in the Anthropic protocol.
@@ -1216,7 +1216,7 @@ pub fn synthesize_turn_output(
         Vec::new()
     };
     let outcome = backend
-        .infer_turn(prompt, &[], &tool_descriptors, &mut context, 512)
+        .infer_turn(prompt, &[], &tool_descriptors, &mut context, 2048)
         .unwrap_or_else(|e| ModelTurnOutcome {
             raw_output: e,
             input_tokens: 1,
@@ -1329,7 +1329,7 @@ pub fn handle_v1_messages_payload_with_backend<B: InferenceBackend + ?Sized>(
         None => crate::lut_stack_exec::RollingContextState::default(),
     };
 
-    let max_tokens = req.max_tokens.unwrap_or(256) as usize;
+    let max_tokens = req.max_tokens.unwrap_or(2048) as usize;
     let effective_prompt = if !dialogue.current_user_prompt.is_empty() {
         &dialogue.current_user_prompt
     } else {
@@ -1528,7 +1528,7 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
         None => crate::lut_stack_exec::RollingContextState::default(),
     };
 
-    let max_tokens = req.max_tokens.unwrap_or(256) as usize;
+    let max_tokens = req.max_tokens.unwrap_or(2048) as usize;
     let effective_prompt = if !dialogue.current_user_prompt.is_empty() {
         &dialogue.current_user_prompt
     } else {
