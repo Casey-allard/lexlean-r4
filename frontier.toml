@@ -884,3 +884,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f57_bvgk_writer_refinement"
 statement = "Verify formal hypotheses from arXiv paper 2611.09889 (SciCheck: A Framework for Verifying the Integrity of Deep Learning Training)."
 prompt = "How does implementation in this paper prevent concurrency hazards at runtime?"
 target_reply = "At runtime with epoch_count=3 and queue_stride=32, the concurrent implementation enforces safe memory reclamation without race conditions, ABA hazards, or memory leaks across reader threads under continuous load in production environments during heavy parallel task execution benchmarks reliably."
+
+[[claim]]
+id = "R4-F58"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.09872:H-LIT-2611.09872-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f58_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.09872 (On the Reliability of Majority-Vote Pseudo-Labels in Test-Time Reinforcement Learning)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
