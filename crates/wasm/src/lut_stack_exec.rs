@@ -4480,12 +4480,6 @@ fn lookup_reply_continuation_4gram(
             return Some(val);
         }
     }
-    if suffix4[2] != MEMORY_PAD
-        && anchor.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
-        && is_boundary_token(suffix4[3])
-    {
-        return Some(ByteBpe4096::global().eos_id());
-    }
     None
 }
 
@@ -4640,13 +4634,32 @@ fn seek_subtopic_in_turn(
     let max_start = turn_tokens.len().saturating_sub(18);
     let mut best_pos = 0usize;
     let mut best_score = 0i64;
+    let mut clause_positions = Vec::new();
+    let mut word_positions = Vec::new();
 
     for pos in 1..=max_start {
         let prev_dec = bpe.decode(&[turn_tokens[pos - 1]]);
-        let is_sentence_boundary =
-            prev_dec.contains('.') || prev_dec.contains('\n') || prev_dec.contains(';');
-        if !is_sentence_boundary || pos < 6 {
+        let cur_dec = bpe.decode(&[turn_tokens[pos]]);
+        let is_punct_boundary = prev_dec.contains('.')
+            || prev_dec.contains(';')
+            || prev_dec.contains(':')
+            || prev_dec.contains('\n')
+            || prev_dec.contains("—")
+            || prev_dec.contains("**");
+        let is_word_start = is_punct_boundary
+            || cur_dec.starts_with(" **")
+            || cur_dec.starts_with("**")
+            || cur_dec
+                .strip_prefix(' ')
+                .is_some_and(|s| s.starts_with(|c: char| c.is_ascii_uppercase()));
+        if is_punct_boundary && pos >= 4 {
+            clause_positions.push(pos);
+        }
+        if !is_word_start {
             continue;
+        }
+        if pos >= 2 {
+            word_positions.push(pos);
         }
 
         let win_end = (pos + 8).min(turn_tokens.len());
@@ -4662,8 +4675,11 @@ fn seek_subtopic_in_turn(
                 }
             }
         }
-        if missing_spec_hits >= 2 && spec_hits > open_spec_count {
+        if missing_spec_hits > 0 && spec_hits > open_spec_count {
             let mut sc = (missing_spec_hits as i64) * 200_000 + (spec_hits as i64) * 100_000;
+            if is_punct_boundary {
+                sc += 50_000;
+            }
             let first_win_stems = extract_salient_stem_hashes_from_text(
                 &bpe.decode(&turn_tokens[pos..(pos + 3).min(turn_tokens.len())])
                     .to_ascii_lowercase(),
@@ -4683,6 +4699,20 @@ fn seek_subtopic_in_turn(
     }
 
     let _ = matched_specific_in_row;
+    if best_pos == 0 && open_spec_count == 0 {
+        let pool = if clause_positions.len() >= 10 {
+            &clause_positions
+        } else {
+            &word_positions
+        };
+        if !pool.is_empty() {
+            let h = fnv1a64(decoded_turn.as_bytes())
+                ^ specific_stems.iter().fold(0u64, |acc, &sh| {
+                    acc.wrapping_mul(1_099_511_628_211) ^ (sh as u64)
+                });
+            best_pos = pool[(h as usize) % pool.len()];
+        }
+    }
     if best_pos > 0 && best_pos < turn_tokens.len() {
         *subtopic_prefix = [
             if best_pos >= 3 {
@@ -9168,6 +9198,9 @@ impl LutStackModel {
                     session.subtopic_prefix = [MEMORY_PAD; 3];
                     session.subtopic_prefix_remaining = 3;
                     next_tok = next_first_tok;
+                    if let Some(last_st) = steps.last_mut() {
+                        last_st.predicted_token = next_tok;
+                    }
                     last_source = "turn_memory_reply";
                     continue;
                 }
@@ -9213,6 +9246,9 @@ impl LutStackModel {
                     &mut last_source,
                     &mut clauses_resolved,
                 );
+                if let Some(last_st) = steps.last_mut() {
+                    last_st.predicted_token = next_tok;
+                }
             }
 
             if is_clause_boundary(cur_tok, generated_tokens.len()) {
@@ -9292,11 +9328,12 @@ impl LutStackModel {
                 idx += 1;
             }
         }
+        if steps.len() > generated_tokens.len() + 1 {
+            steps.truncate(generated_tokens.len() + 1);
+        }
         for (idx, &tok) in generated_tokens.iter().enumerate() {
             if let Some(st) = steps.get_mut(idx) {
-                if slot_frame.has_active_kernel_substitution() {
-                    st.predicted_token = tok;
-                }
+                st.predicted_token = tok;
             }
         }
 
@@ -9575,6 +9612,9 @@ impl LutStackModel {
                     session.subtopic_prefix = [MEMORY_PAD; 3];
                     session.subtopic_prefix_remaining = 3;
                     next_tok = next_first_tok;
+                    if let Some(last_st) = steps.last_mut() {
+                        last_st.predicted_token = next_tok;
+                    }
                     last_source = "turn_memory_reply";
                     continue;
                 }
@@ -9627,6 +9667,9 @@ impl LutStackModel {
                     &mut last_source,
                     &mut clauses_resolved,
                 );
+                if let Some(last_st) = steps.last_mut() {
+                    last_st.predicted_token = next_tok;
+                }
             }
 
             if is_clause_boundary(cur_tok, generated_tokens.len()) {
@@ -9706,11 +9749,12 @@ impl LutStackModel {
                 idx += 1;
             }
         }
+        if steps.len() > generated_tokens.len() + 1 {
+            steps.truncate(generated_tokens.len() + 1);
+        }
         for (idx, &tok) in generated_tokens.iter().enumerate() {
             if let Some(st) = steps.get_mut(idx) {
-                if slot_frame.has_active_kernel_substitution() {
-                    st.predicted_token = tok;
-                }
+                st.predicted_token = tok;
             }
         }
 

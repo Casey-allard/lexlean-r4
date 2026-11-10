@@ -142,7 +142,7 @@ jobs:
                   pushed_main=true
                   break
                 fi
-                git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" fetch origin main && git rebase origin/main || git rebase --abort || true
+                git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" fetch origin main && (git rebase --autostash origin/main || git rebase --abort || true) && git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push --force origin "HEAD:refs/heads/$tick_branch" || true
               done
               if [ "$pushed_main" != "true" ]; then
                 GH_TOKEN="$GITHUB_TOKEN" gh workflow run engine.yml --ref main || true
