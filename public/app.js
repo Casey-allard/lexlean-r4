@@ -24,7 +24,7 @@ import init, {
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261109geomv12';
+} from './lexlean_r4.js?v=20261109geomv13';
 
 globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
@@ -296,9 +296,9 @@ function emitAuditEvent(category, action, target, details, severity) {
 const AppState = {
   ui: {
     sidebarCollapsed: false,
-    activeSidebarView: 'history',
+    activeSidebarView: 'explorer',
     drawerOpen: true,
-    activeDrawerTab: 'traces',
+    activeDrawerTab: 'terminal',
     density: 'compact',
     theme: 'dark'
   },
@@ -1559,8 +1559,8 @@ function renderFormattedMarkdownInto(container, markdownText) {
 }
 
 
-const THREAD_STORAGE_KEY = 'lexlean_cowork_chat_threads_v2';
-const ACTIVE_THREAD_KEY = 'lexlean_cowork_active_thread_v2';
+const THREAD_STORAGE_KEY = 'lexlean_cowork_chat_threads_v4';
+const ACTIVE_THREAD_KEY = 'lexlean_cowork_active_thread_v4';
 
 let chatThreads = [];
 let activeThreadId = 'thread-1';
@@ -2371,7 +2371,7 @@ if (studioAdmitForm) {
   });
 }
 
-const WEBCACHE_INTELLIGENCE_NAME = 'uor-r4-intelligence-v1';
+const WEBCACHE_INTELLIGENCE_NAME = 'uor-r4-intelligence-v4';
 const WEBCACHE_INTELLIGENCE_KEY = './uor-r4-weights.uorlut';
 
 async function persistIntelligenceToWebCache(hexPayload) {
@@ -3407,7 +3407,7 @@ const canvasTabButtons = document.querySelectorAll('.canvas-tab-btn');
 const canvasPanels = document.querySelectorAll('.canvas-panel');
 const dockableCanvasPane = document.getElementById('dockable-canvas-pane');
 const mainLayoutEl = document.querySelector('main');
-let activeCanvasTabId = 'traces';
+let activeCanvasTabId = 'terminal';
 if (mainLayoutEl && dockableCanvasPane && dockableCanvasPane.hasAttribute('hidden')) {
   mainLayoutEl.classList.add('canvas-drawer-closed');
 }

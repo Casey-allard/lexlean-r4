@@ -972,24 +972,17 @@ impl StudioEngine {
         prompt: &str,
         _prompt_tokens: &[TokenAtom],
         _prompt_q12: &[i16; POINT_KEY_DIM],
-        _consensus_action: u8,
+        consensus_action: u8,
         _flock_resonance: u64,
-        _icosian_root: u8,
-        _active_workspace_path: &str,
-        _code_outcome: &CodeSynthesisOutcome,
+        icosian_root: u8,
+        active_workspace_path: &str,
+        code_outcome: &CodeSynthesisOutcome,
     ) -> String {
         let trimmed = prompt.trim();
         if self.chat_history.is_empty() {
             self.rolling_context.recent_turn_rows.clear();
             self.rolling_context.emitted_4grams.clear();
         }
-        let lut_gen = self.lut_stack.generate_reply_with_context(
-            &mut self.rolling_context,
-            &self.chat_history,
-            trimmed,
-            2048,
-        );
-        self.last_lut_generation = Some(lut_gen.clone());
 
         if let Some(rest) = trimmed
             .strip_prefix("Teach:")
@@ -1000,9 +993,18 @@ impl StudioEngine {
                 let a_raw = a.trim();
                 if !q_clean.is_empty() && !a_raw.is_empty() {
                     let (_, clean_a) = parse_thinking_block(a_raw);
-                    return format!(
+                    let reply = format!(
                         "Admitted new knowledge turn into `/6`, `/7`, `/8`, and `R4.Admission` tables:\n\n- **Prompt**: `{q_clean}`\n- **Learned Response**: {clean_a}"
                     );
+                    let lut_gen = self.lut_stack.trace_dynamic_turn_with_context(
+                        &mut self.rolling_context,
+                        &self.chat_history,
+                        trimmed,
+                        &reply,
+                        256,
+                    );
+                    self.last_lut_generation = Some(lut_gen);
+                    return reply;
                 }
             }
         }
@@ -1021,10 +1023,87 @@ impl StudioEngine {
                 &words,
                 &self.chat_history,
             ) {
+                let lut_gen = self.lut_stack.trace_dynamic_turn_with_context(
+                    &mut self.rolling_context,
+                    &self.chat_history,
+                    trimmed,
+                    &agent_turn,
+                    256,
+                );
+                self.last_lut_generation = Some(lut_gen);
                 return agent_turn;
             }
         }
 
+        // 1. Exact arithmetic, number theory, and R4-31 symbolic constraint solver queries
+        if let Some((math_reply, _)) = self.solve_exact_math_or_logic(trimmed) {
+            let lut_gen = self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &math_reply,
+                256,
+            );
+            self.last_lut_generation = Some(lut_gen);
+            return math_reply;
+        }
+
+        // 2. Workspace file inspection, architecture summary, or unit-test generation
+        if let Some((ws_reply, _)) = self.try_handle_workspace_query(
+            trimmed,
+            active_workspace_path,
+            consensus_action,
+            icosian_root,
+        ) {
+            let lut_gen = self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &ws_reply,
+                256,
+            );
+            self.last_lut_generation = Some(lut_gen);
+            return ws_reply;
+        }
+
+        // 3. Verified multi-language code & AST synthesis turns
+        if code_outcome.is_coding_turn && !code_outcome.explanation_markdown.is_empty() {
+            let lut_gen = self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &code_outcome.explanation_markdown,
+                256,
+            );
+            self.last_lut_generation = Some(lut_gen);
+            return code_outcome.explanation_markdown.clone();
+        }
+
+        // 4. Multi-turn episodic memory recall & personal introductions
+        if let Some(mem_reply) = try_resolve_episodic_memory_turn(
+            &self.chat_history,
+            &self.rolling_context.context_summary,
+            trimmed,
+            &lower,
+        ) {
+            let lut_gen = self.lut_stack.trace_dynamic_turn_with_context(
+                &mut self.rolling_context,
+                &self.chat_history,
+                trimmed,
+                &mem_reply,
+                256,
+            );
+            self.last_lut_generation = Some(lut_gen);
+            return mem_reply;
+        }
+
+        let lut_gen = self.lut_stack.generate_reply_with_context(
+            &mut self.rolling_context,
+            &self.chat_history,
+            trimmed,
+            512,
+        );
+        self.last_lut_generation = Some(lut_gen.clone());
         lut_gen.reply_text
     }
 }

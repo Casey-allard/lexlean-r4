@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261109geomv12">
+  <link rel="stylesheet" href="app.css?v=20261109geomv13">
 </head>
 <body>
   <main>
@@ -479,13 +479,13 @@
 
       <div class="canvas-header">
         <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
-          <button id="canvas-tab-traces" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-traces" data-tab-id="traces">
-            <span>3D Brain &amp; OTel</span>
-            <span class="canvas-tab-pill">WebGL2 &middot; u16</span>
-          </button>
-          <button id="canvas-tab-terminal" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-terminal" data-tab-id="terminal">
+          <button id="canvas-tab-terminal" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-terminal" data-tab-id="terminal">
             <span>Terminal</span>
             <span class="canvas-tab-pill">lexlean-sh</span>
+          </button>
+          <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
+            <span>3D Brain &amp; OTel</span>
+            <span class="canvas-tab-pill">WebGL2 &middot; u16</span>
           </button>
           <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
             <span>ML Inspector</span>
@@ -522,7 +522,7 @@
 
       <div class="canvas-body">
         <!-- Terminal Panel -->
-        <div id="canvas-panel-terminal" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-terminal" tabindex="0" hidden>
+        <div id="canvas-panel-terminal" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-terminal" tabindex="0">
           <div id="terminal-container" class="terminal-container">
             <div id="terminal-topbar" class="terminal-topbar">
               <div class="terminal-title">
@@ -1175,8 +1175,8 @@
           </div>
         </div>
 
-        <!-- Tab 6: OTel Trace Inspector & 3D Holographic Brain Panel (uor.gllm.trace/1, Default Active Tab) -->
-        <div id="canvas-panel-traces" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0">
+        <!-- Tab 6: OTel Trace Inspector & 3D Holographic Brain Panel (uor.gllm.trace/1) -->
+        <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
           <div class="traces-header">
             <h3>3D Holographic Brain &amp; OTel Waterfall (<code>uor.gllm.trace/1</code>)</h3>
             <div class="agent-mini-btn-group">

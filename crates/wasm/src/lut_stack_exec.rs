@@ -2173,12 +2173,12 @@ impl ServedHammingRead {
                         continue;
                     }
                     let diff = (margin_bits - dist) as u64;
-                    let w = match crate::lexlean_generated::r4_integer_stack::hamming_match_weight(
+                    let w = match self::slot_binding_generated::r4_integer_stack::hamming_match_weight(
                         dist as u64,
                         margin_bits as u64,
                         diff,
                     ) {
-                        crate::lexlean_generated::r4_integer_stack::HammingOutcome::Value(val) => {
+                        self::slot_binding_generated::r4_integer_stack::HammingOutcome::Value(val) => {
                             val as i64
                         }
                         _ => continue,
@@ -4037,7 +4037,7 @@ impl LutStackSession {
                     let c_qr = (raw_tr_multi.max(0) as u64) / 50_000;
                     let c_qc = u64::from(256u32.saturating_sub(h_bits)) / 16;
                     let trunk_bonus =
-                        crate::lexlean_generated::r4_discrete_trunk::level3_joint_pointer_score(
+                        self::slot_binding_generated::r4_discrete_trunk::level3_joint_pointer_score(
                             c_qr,
                             c_qc,
                             c_qr / 2,
@@ -4061,7 +4061,7 @@ impl LutStackSession {
                     };
                     let c_qc = u64::from(256u32.saturating_sub(h_bits)) / 16;
                     let trunk_bonus =
-                        crate::lexlean_generated::r4_discrete_trunk::level3_joint_pointer_score(
+                        self::slot_binding_generated::r4_discrete_trunk::level3_joint_pointer_score(
                             0,
                             c_qc,
                             0,
@@ -4078,7 +4078,7 @@ impl LutStackSession {
             // Execute formal R4.Admission + R4.Prediction cell admission and token ranking
             // (`r4_admission::occupied` -> `r4_admission::take_cells` -> `r4_admission::rank_tokens` -> `r4_prediction::prediction_scores`)
             let min_dist = top_candidates.iter().map(|&(_, d)| d).min().unwrap_or(0);
-            let admission_tokens: Vec<crate::lexlean_generated::r4_admission::TokenScore> =
+            let admission_tokens: Vec<self::slot_binding_generated::r4_admission::TokenScore> =
                 top_candidates
                     .iter()
                     .take(24)
@@ -4098,7 +4098,7 @@ impl LutStackSession {
                                 (u64::from(cand_tok & 15), 65_535)
                             };
                         let shifted_dist = (cand_dist - min_dist).max(0) as u64;
-                        crate::lexlean_generated::r4_admission::TokenScore {
+                        self::slot_binding_generated::r4_admission::TokenScore {
                             identity: u64::from(cand_tok),
                             cell: cell_id,
                             distance: shifted_dist,
@@ -4106,9 +4106,11 @@ impl LutStackSession {
                         }
                     })
                     .collect();
-            if let crate::lexlean_generated::r4_prediction::PredictionResult::Value(receipt) =
-                crate::lexlean_generated::r4_prediction::prediction_scores(
-                    crate::lexlean_generated::r4_admission::ScoresOutcome::Value(admission_tokens),
+            if let self::slot_binding_generated::r4_prediction::PredictionResult::Value(receipt) =
+                self::slot_binding_generated::r4_prediction::prediction_scores(
+                    self::slot_binding_generated::r4_admission::ScoresOutcome::Value(
+                        admission_tokens,
+                    ),
                     16,
                 )
             {
@@ -4200,7 +4202,7 @@ impl LutStackSession {
                 if t_minus_2 != MEMORY_PAD {
                     recent_ids.push(u64::from(t_minus_2));
                 }
-                let chosen = crate::lexlean_generated::r4_prediction::select_contextual_token(
+                let chosen = self::slot_binding_generated::r4_prediction::select_contextual_token(
                     u64::from(t0),
                     (d0 - min_d).max(0) as u64,
                     u64::from(t1),
@@ -4439,6 +4441,18 @@ fn lookup_reply_continuation_4gram(
             return Some(val);
         }
     }
+    // Tier 4: Compatibility fallback for step-indexed `.uorlut` tables (within the same turn anchor)
+    let mut legacy_key = vec![MEMORY_PAD; reply_key_len];
+    let leg_copy = anchor.len().min(reply_key_len.saturating_sub(4));
+    legacy_key[..leg_copy].copy_from_slice(&anchor[..leg_copy]);
+    legacy_key[reply_key_len - 4] = MEMORY_PAD;
+    legacy_key[reply_key_len - 3] = legacy_step;
+    legacy_key[reply_key_len - 2] = MEMORY_PAD;
+    legacy_key[reply_key_len - 1] = suffix4[3];
+    if let Some(val) = reply_tbl.lookup_value(&legacy_key) {
+        return Some(val);
+    }
+
     if suffix4[2] != MEMORY_PAD
         && anchor.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
         && legacy_step >= 12
@@ -4446,6 +4460,7 @@ fn lookup_reply_continuation_4gram(
     {
         return Some(ByteBpe4096::global().eos_id());
     }
+
     // Tier 3: Universal corpus-wide 4-gram and 3-gram continuation backoff
     if suffix4[1] != MEMORY_PAD {
         let mut gkey = vec![MEMORY_PAD; reply_key_len];
@@ -4465,15 +4480,13 @@ fn lookup_reply_continuation_4gram(
             return Some(val);
         }
     }
-    // Tier 4: Compatibility fallback for step-indexed `.uorlut` tables
-    let mut legacy_key = vec![MEMORY_PAD; reply_key_len];
-    let leg_copy = anchor.len().min(reply_key_len.saturating_sub(4));
-    legacy_key[..leg_copy].copy_from_slice(&anchor[..leg_copy]);
-    legacy_key[reply_key_len - 4] = MEMORY_PAD;
-    legacy_key[reply_key_len - 3] = legacy_step;
-    legacy_key[reply_key_len - 2] = MEMORY_PAD;
-    legacy_key[reply_key_len - 1] = suffix4[3];
-    reply_tbl.lookup_value(&legacy_key)
+    if suffix4[2] != MEMORY_PAD
+        && anchor.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
+        && is_boundary_token(suffix4[3])
+    {
+        return Some(ByteBpe4096::global().eos_id());
+    }
+    None
 }
 
 fn push_4gram_suffix_occurrence(
@@ -4627,32 +4640,13 @@ fn seek_subtopic_in_turn(
     let max_start = turn_tokens.len().saturating_sub(18);
     let mut best_pos = 0usize;
     let mut best_score = 0i64;
-    let mut clause_positions = Vec::new();
-    let mut word_positions = Vec::new();
 
     for pos in 1..=max_start {
         let prev_dec = bpe.decode(&[turn_tokens[pos - 1]]);
-        let cur_dec = bpe.decode(&[turn_tokens[pos]]);
-        let is_punct_boundary = prev_dec.contains('.')
-            || prev_dec.contains(';')
-            || prev_dec.contains(':')
-            || prev_dec.contains('\n')
-            || prev_dec.contains("—")
-            || prev_dec.contains("**");
-        let is_word_start = is_punct_boundary
-            || cur_dec.starts_with(" **")
-            || cur_dec.starts_with("**")
-            || cur_dec
-                .strip_prefix(' ')
-                .is_some_and(|s| s.starts_with(|c: char| c.is_ascii_uppercase()));
-        if is_punct_boundary && pos >= 4 {
-            clause_positions.push(pos);
-        }
-        if !is_word_start {
+        let is_sentence_boundary =
+            prev_dec.contains('.') || prev_dec.contains('\n') || prev_dec.contains(';');
+        if !is_sentence_boundary || pos < 6 {
             continue;
-        }
-        if pos >= 2 {
-            word_positions.push(pos);
         }
 
         let win_end = (pos + 8).min(turn_tokens.len());
@@ -4668,11 +4662,8 @@ fn seek_subtopic_in_turn(
                 }
             }
         }
-        if missing_spec_hits > 0 && spec_hits > open_spec_count {
+        if missing_spec_hits >= 2 && spec_hits > open_spec_count {
             let mut sc = (missing_spec_hits as i64) * 200_000 + (spec_hits as i64) * 100_000;
-            if is_punct_boundary {
-                sc += 50_000;
-            }
             let first_win_stems = extract_salient_stem_hashes_from_text(
                 &bpe.decode(&turn_tokens[pos..(pos + 3).min(turn_tokens.len())])
                     .to_ascii_lowercase(),
@@ -4692,21 +4683,6 @@ fn seek_subtopic_in_turn(
     }
 
     let _ = matched_specific_in_row;
-    if best_pos == 0 && open_spec_count == 0 {
-        let pool = if clause_positions.len() >= 10 {
-            &clause_positions
-        } else {
-            &word_positions
-        };
-        if !pool.is_empty() {
-            let h = fnv1a64(decoded_turn.as_bytes())
-                ^ specific_stems.iter().fold(0u64, |acc, &sh| {
-                    acc.wrapping_mul(1_099_511_628_211) ^ (sh as u64)
-                });
-            best_pos = pool[(h as usize) % pool.len()];
-        }
-    }
-
     if best_pos > 0 && best_pos < turn_tokens.len() {
         *subtopic_prefix = [
             if best_pos >= 3 {
@@ -5284,7 +5260,7 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
         let beats = if idx == 0 {
             true
         } else {
-            crate::lexlean_generated::r4_spiral_core_fbs::phi_score_strictly_beats(
+            self::slot_binding_generated::r4_spiral_core_fbs::phi_score_strictly_beats(
                 cand_a_u64, cand_b_u64, best_a_u64, best_b_u64,
             ) || score > best_score
         };
@@ -5371,12 +5347,15 @@ pub fn compute_geometric_bucket(e8_root: u8, clifford_action: u8, icosian_root: 
     let e8 = (e8_root as usize) % E8_ROOT_COUNT;
     let c64 = (clifford_action as usize) % CLIFFORD_ACTION_COUNT;
     let i17 = (icosian_root as usize) % ICOSIAN_ROOT_COUNT;
-    match crate::lexlean_generated::r4_radix_otel::resolve_radix_bucket(
+    match self::slot_binding_generated::r4_radix_otel::resolve_radix_bucket(
         e8 as u64, c64 as u64, i17 as u64,
     ) {
-        crate::lexlean_generated::r4_radix_otel::RadixBucketOutcome::BucketIndex(b, _, _, _) => {
-            b as usize
-        }
+        self::slot_binding_generated::r4_radix_otel::RadixBucketOutcome::BucketIndex(
+            b,
+            _,
+            _,
+            _,
+        ) => b as usize,
         _ => (e8 * CLIFFORD_ACTION_COUNT + c64) * ICOSIAN_ROOT_COUNT + i17,
     }
 }
@@ -6494,7 +6473,7 @@ pub fn recall_prior_facts(history: &[(String, String)], current_prompt: &str) ->
 
 #[allow(dead_code, clippy::all)]
 #[path = "lexlean_generated.rs"]
-mod slot_binding_generated;
+pub(crate) mod slot_binding_generated;
 
 /// Maximum number of De Bruijn variable register slots (`$0..$7`) per turn (`R4-31`).
 pub const MAX_DE_BRUIJN_SLOTS: usize = 8;
@@ -8395,7 +8374,7 @@ impl DeBruijnSlotFrame {
 
 /// Formally verified `R4-34` (`R4.PhraseDag`) compositional multi-basin Phrase-DAG routing kernel.
 pub mod phrase_dag_generated {
-    pub use crate::lexlean_generated::r4_phrase_dag;
+    pub use super::slot_binding_generated::r4_phrase_dag;
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9074,6 +9053,9 @@ impl LutStackModel {
         let primary_turn_idx;
         let mut clauses_resolved;
 
+        // Do not let cross-turn prompt-framing 4-grams (`\nAssistant:` + first_tok)
+        // reject the opening token of a new turn in `first_step`.
+        let prior_4grams = std::mem::take(&mut session.emitted_4grams);
         if let Some(ref th) = thinking_text {
             let trunk_start = prompt_tokens.len().saturating_sub(512);
             for (idx, &tok) in prompt_tokens.iter().enumerate() {
@@ -9110,6 +9092,7 @@ impl LutStackModel {
             clauses_resolved = usize::from(confident_open);
             steps.push(first_step);
         }
+        session.emitted_4grams = prior_4grams;
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
         if (confident_open || matched_stem_count >= 1) && clauses.len() >= 2 {
@@ -9193,7 +9176,7 @@ impl LutStackModel {
             let cur_tok = next_tok;
             generated_tokens.push(cur_tok);
             let has_cycle = has_short_cycle(&generated_tokens);
-            let dag_check = crate::lexlean_generated::r4_phrase_dag::verify_dag_synthesis(
+            let dag_check = self::slot_binding_generated::r4_phrase_dag::verify_dag_synthesis(
                 (phrase_dag_nodes.max(1)) as u64,
                 generated_tokens.len() as u64,
                 u64::from(session.last_covered_stem_mask.max(1)),
@@ -9204,8 +9187,8 @@ impl LutStackModel {
                 && (has_cycle
                     || matches!(
                         dag_check,
-                        crate::lexlean_generated::r4_phrase_dag::DagDecodeOutcome::RefusedDagDecode(
-                            crate::lexlean_generated::r4_phrase_dag::PhraseDagError::ShortCycleDetected
+                        self::slot_binding_generated::r4_phrase_dag::DagDecodeOutcome::RefusedDagDecode(
+                            self::slot_binding_generated::r4_phrase_dag::PhraseDagError::ShortCycleDetected
                         )
                     ))
             {
@@ -9507,11 +9490,14 @@ impl LutStackModel {
         let mut next_tok;
         let mut last_source;
         let confident_open;
-        let mut matched_stem_count;
+        let matched_stem_count;
         let point_hamming_bits;
         let primary_turn_idx;
         let mut clauses_resolved;
 
+        // Do not let cross-turn prompt-framing 4-grams (`\nAssistant:` + first_tok)
+        // reject the opening token of a new turn in `first_step`.
+        let prior_4grams = std::mem::take(&mut session.emitted_4grams);
         if let Some(ref th) = thinking_text {
             let trunk_start = prompt_tokens.len().saturating_sub(512);
             for (idx, &tok) in prompt_tokens.iter().enumerate() {
@@ -9548,6 +9534,7 @@ impl LutStackModel {
             clauses_resolved = usize::from(confident_open);
             steps.push(first_step);
         }
+        session.emitted_4grams = prior_4grams;
 
         // Queue secondary clauses in reverse order so `.pop()` processes them in prompt order
         if (confident_open || matched_stem_count >= 1) && clauses.len() >= 2 {
@@ -9566,41 +9553,6 @@ impl LutStackModel {
             }
             extra_basins.reverse();
             session.pending_basins = extra_basins;
-        } else if (confident_open || matched_stem_count >= 2)
-            && clauses.len() == 1
-            && (clean_primary.contains(',')
-                || clean_primary.contains(';')
-                || clean_primary.contains(" and "))
-            && last_source != "turn_memory_opening"
-            && steps.first().map(|s| s.l1_distance).unwrap_or(0) > 0
-            && matched_stem_count <= 4
-        {
-            let comp_basins = self.resolve_complementary_uncovered_basins(
-                &clean_primary,
-                session.last_covered_stem_mask,
-                session.last_turn_idx,
-                &prompt_tokens,
-            );
-            let mut extra_basins = Vec::new();
-            let mut comp_total_matched = 0usize;
-            for (comp_anchor, comp_tok, comp_matched) in comp_basins {
-                if comp_anchor != session.anchors.reply {
-                    extra_basins.push((comp_anchor, comp_tok));
-                    comp_total_matched += comp_matched;
-                }
-            }
-            if !extra_basins.is_empty() {
-                clauses_resolved = clauses_resolved.max(1) + extra_basins.len();
-                extra_basins.reverse();
-                session.pending_basins = extra_basins;
-                if primary_turn_idx < CORE_CURRICULUM_TURNS {
-                    matched_stem_count += comp_total_matched;
-                }
-                if let Some(s0) = steps.first_mut() {
-                    s0.source_mechanism = "point_key_vote";
-                }
-                last_source = "point_key_vote";
-            }
         }
 
         let dag_plan = self.build_phrase_dag_plan(
@@ -9631,7 +9583,7 @@ impl LutStackModel {
             let cur_tok = next_tok;
             generated_tokens.push(cur_tok);
             let has_cycle = has_short_cycle(&generated_tokens);
-            let dag_check = crate::lexlean_generated::r4_phrase_dag::verify_dag_synthesis(
+            let dag_check = self::slot_binding_generated::r4_phrase_dag::verify_dag_synthesis(
                 (phrase_dag_nodes.max(1)) as u64,
                 generated_tokens.len() as u64,
                 u64::from(session.last_covered_stem_mask.max(1)),
@@ -9642,8 +9594,8 @@ impl LutStackModel {
                 && (has_cycle
                     || matches!(
                         dag_check,
-                        crate::lexlean_generated::r4_phrase_dag::DagDecodeOutcome::RefusedDagDecode(
-                            crate::lexlean_generated::r4_phrase_dag::PhraseDagError::ShortCycleDetected
+                        self::slot_binding_generated::r4_phrase_dag::DagDecodeOutcome::RefusedDagDecode(
+                            self::slot_binding_generated::r4_phrase_dag::PhraseDagError::ShortCycleDetected
                         )
                     ))
             {
@@ -9659,7 +9611,14 @@ impl LutStackModel {
             last_source = st.source_mechanism;
             steps.push(st);
 
-            if next_tok != bpe.eos_id() || !session.pending_basins.is_empty() {
+            let allow_mid_stream_switch = if last_source == "turn_memory_reply" {
+                !session.pending_basins.is_empty()
+                    && (next_tok == bpe.eos_id()
+                        || (generated_tokens.len() >= 28 && bpe.decode(&[cur_tok]).contains('.')))
+            } else {
+                next_tok != bpe.eos_id() || !session.pending_basins.is_empty()
+            };
+            if allow_mid_stream_switch {
                 self.try_mid_stream_re_attention(
                     &mut session,
                     cur_tok,
