@@ -3425,6 +3425,9 @@ function activateCanvasTab(tabId) {
   activeCanvasTabId = tabId;
   if (dockableCanvasPane) {
     dockableCanvasPane.removeAttribute('hidden');
+    if (tabId !== 'workspace') {
+      dockableCanvasPane.classList.remove('cursor-bottom-panel-collapsed');
+    }
   }
   if (mainLayoutEl) {
     mainLayoutEl.classList.remove('canvas-drawer-closed');
@@ -9685,9 +9688,12 @@ function updateCursorGhostText() {
   }
 
   const code = String(workspaceEditorTextarea.value || '');
-  const cursorPos = typeof workspaceEditorTextarea.selectionStart === 'number'
+  const rawCursorPos = typeof workspaceEditorTextarea.selectionStart === 'number'
     ? workspaceEditorTextarea.selectionStart
     : code.length;
+  const cursorPos = (rawCursorPos === 0 && code.length > 0 && typeof document !== 'undefined' && document.activeElement !== workspaceEditorTextarea)
+    ? code.length
+    : rawCursorPos;
   // 300-character context window up to cursor per PROJECT.md
   const prefixWindow = code.slice(Math.max(0, cursorPos - 300), cursorPos);
   const currentLine = (prefixWindow.split('\n').pop() || '').trim();

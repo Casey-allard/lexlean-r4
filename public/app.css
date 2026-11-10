@@ -4375,13 +4375,14 @@ body.theme-warm-light .diff-line-hunk {
    Center: Multi-Tab Code Editor + Integrated Bottom Terminal (#dockable-canvas-pane)
    Right: Cursor AI Chat / Composer / Agent (#claude-code-desktop)
    Bottom: Local UOR-R4 Status Bar (#ide-status-bar)
+   Aligned with Foundation.View.Browser.V1.Design & HologramDesign
    ============================================================================ */
 
 main,
 main.cursor-ide-workbench,
 main.cowork-layout {
   display: grid;
-  grid-template-columns: 308px minmax(360px, 1fr) minmax(380px, 440px);
+  grid-template-columns: 308px minmax(360px, 1fr) minmax(380px, 430px);
   grid-template-rows: minmax(0, 1fr) 26px;
   height: 100vh;
   width: 100vw;
@@ -4396,8 +4397,11 @@ main.cowork-layout > #threads-sidebar {
   grid-row: 1;
   min-width: 0;
   min-height: 0;
+  height: 100%;
   width: 308px;
   max-width: 308px;
+  padding: 0 !important;
+  gap: 0 !important;
   display: flex !important;
   flex-direction: row;
   overflow: hidden;
@@ -4412,10 +4416,13 @@ main.cowork-layout > #dockable-canvas-pane {
   grid-row: 1;
   min-width: 0;
   min-height: 0;
+  height: 100%;
+  max-height: 100%;
   border-left: 1px solid var(--border-strong);
   border-right: 1px solid var(--border-strong);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 main > #claude-code-desktop,
@@ -4425,8 +4432,11 @@ main.cowork-layout > #claude-code-desktop {
   grid-row: 1;
   min-width: 0;
   min-height: 0;
+  height: 100% !important;
+  max-height: 100% !important;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 main > #ide-status-bar,
@@ -4437,13 +4447,14 @@ main.cowork-layout > #ide-status-bar {
   grid-row: 2;
   height: 26px;
   min-height: 26px;
+  max-height: 26px;
   z-index: 100;
 }
 
 /* Sidebar collapsed state */
 main.sidebar-collapsed,
 main:has(#threads-sidebar.sidebar-collapsed) {
-  grid-template-columns: 48px minmax(360px, 1fr) minmax(380px, 440px);
+  grid-template-columns: 48px minmax(360px, 1fr) minmax(380px, 430px);
 }
 
 main.sidebar-collapsed > #threads-sidebar,
@@ -4467,7 +4478,7 @@ main.sidebar-collapsed > #claude-code-desktop {
 
 main:has(#dockable-canvas-pane[hidden]) > #claude-code-desktop,
 main.canvas-drawer-closed > #claude-code-desktop {
-  grid-column: 2;
+  grid-column: 2 / -1;
 }
 
 /* 48px Far-Left Activity Bar */
@@ -4490,9 +4501,9 @@ main.canvas-drawer-closed > #claude-code-desktop {
 
 .activity-bar-btn,
 .cursor-act-btn {
-  width: 38px;
-  height: 38px;
-  min-height: 38px;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4519,17 +4530,17 @@ main.canvas-drawer-closed > #claude-code-desktop {
 }
 
 .activity-icon {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
 }
 
 .activity-badge {
   position: absolute;
   top: 2px;
   right: 2px;
-  font-size: 0.58rem;
+  font-size: 0.56rem;
   font-weight: 700;
-  padding: 0.05rem 0.25rem;
+  padding: 0.04rem 0.22rem;
   border-radius: 0.3rem;
   background: #2563eb;
   color: #ffffff;
@@ -4549,15 +4560,86 @@ main.canvas-drawer-closed > #claude-code-desktop {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow-x: hidden;
   overflow-y: auto;
   background: var(--sidebar-bg, #141416);
   box-sizing: border-box;
+  padding: 0;
+}
+
+/* Compact 35px Sidebar Title Bar (aligned with #editor-tabs-bar) */
+.workbench-sidebar-content > .sidebar-top {
+  height: 35px;
+  min-height: 35px;
+  max-height: 35px;
+  padding: 0 0.5rem;
+  border-bottom: 1px solid var(--sidebar-border, #2a2a2e);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.workbench-sidebar-content .brand-row {
+  width: 100%;
+  padding: 0;
+  gap: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workbench-sidebar-content .brand-badge {
+  width: 1.45rem;
+  height: 1.45rem;
+  font-size: 0.68rem;
+  border-radius: 0.3rem;
+  flex-shrink: 0;
+}
+
+.workbench-sidebar-content .brand-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.workbench-sidebar-content .brand-text strong {
+  font-size: 0.76rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.workbench-sidebar-content .brand-text span {
+  display: none;
+}
+
+.workbench-sidebar-content #close-sidebar-btn {
+  width: 1.4rem;
+  height: 1.4rem;
+  min-height: 1.4rem;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.workbench-sidebar-content #close-sidebar-btn:hover {
+  background: #27272a;
+  color: #ffffff;
 }
 
 .sidebar-view-content {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  padding: 0.4rem 0.45rem;
+  overflow-x: hidden;
 }
 
 .sidebar-view-content[hidden] {
@@ -4568,13 +4650,12 @@ main.canvas-drawer-closed > #claude-code-desktop {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  padding: 0.45rem;
-  background: #141416;
-  border: 1px solid var(--sidebar-border, #2a2a2e);
-  border-radius: 0.45rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
   flex: 1 1 auto;
-  max-height: none;
-  min-height: 8.5rem;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -4591,11 +4672,20 @@ main.canvas-drawer-closed > #claude-code-desktop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.3rem;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.cursor-explorer-header .sidebar-heading {
+  padding: 0;
+  font-size: 0.65rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cursor-explorer-title {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   color: #94a3b8;
@@ -4604,16 +4694,17 @@ main.canvas-drawer-closed > #claude-code-desktop {
 .cursor-explorer-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.22rem;
+  gap: 0.2rem;
+  flex-shrink: 0;
 }
 
 .btn-xs {
   width: auto;
-  min-height: 1.4rem;
-  padding: 0.12rem 0.42rem;
-  font-size: 0.67rem;
+  min-height: 1.35rem;
+  padding: 0.1rem 0.38rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  border-radius: 0.28rem;
+  border-radius: 0.25rem;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -4623,13 +4714,14 @@ main.canvas-drawer-closed > #claude-code-desktop {
   align-items: center;
   justify-content: center;
   height: 1.35rem;
-  padding: 0.12rem 0.42rem;
-  font-size: 0.68rem;
+  min-height: 1.35rem;
+  padding: 0.1rem 0.36rem;
+  font-size: 0.65rem;
   font-weight: 600;
   border: 1px solid #3f3f46;
   background: #18181b;
   color: #e4e4e7;
-  border-radius: 0.28rem;
+  border-radius: 0.25rem;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease;
@@ -4645,40 +4737,47 @@ main.canvas-drawer-closed > #claude-code-desktop {
   background: #3f3f46;
 }
 
-.cursor-explorer-search-row {
+.cursor-explorer-search-row,
+.cursor-tree-filter-wrap {
   display: flex;
   width: 100%;
+  min-width: 0;
 }
 
 .cursor-tree-filter {
   width: 100%;
   min-height: 1.5rem;
-  padding: 0.15rem 0.45rem;
-  font-size: 0.71rem;
+  height: 1.5rem;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.69rem;
   background: #09090b;
   color: #f8fafc;
   border: 1px solid #3f3f46;
-  border-radius: 0.3rem;
+  border-radius: 0.28rem;
 }
 
 .cursor-file-tree {
   display: flex;
   flex-direction: column;
-  gap: 0.12rem;
+  gap: 0.08rem;
   overflow-y: auto;
-  padding-right: 0.15rem;
+  overflow-x: hidden;
+  padding-right: 0.1rem;
   flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
 }
 
 .cursor-tree-folder {
   margin: 0;
+  min-width: 0;
 }
 
 .cursor-tree-folder > summary {
   list-style: none;
   cursor: pointer;
-  padding: 0.16rem 0.32rem;
-  font-size: 0.71rem;
+  padding: 0.14rem 0.28rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: #e2e8f0;
   border-radius: 0.25rem;
@@ -4699,28 +4798,31 @@ main.canvas-drawer-closed > #claude-code-desktop {
 .cursor-tree-folder-children {
   display: flex;
   flex-direction: column;
-  gap: 0.08rem;
-  padding-left: 0.55rem;
+  gap: 0.06rem;
+  padding-left: 0.45rem;
   border-left: 1px solid #27272a;
-  margin-left: 0.35rem;
+  margin-left: 0.3rem;
+  min-width: 0;
 }
 
 .cursor-tree-item {
   width: 100%;
-  min-height: 1.45rem;
-  padding: 0.14rem 0.35rem;
+  min-height: 1.4rem;
+  padding: 0.12rem 0.3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.3rem;
+  gap: 0.25rem;
   background: transparent;
   color: #e2e8f0;
   border: 1px solid transparent;
   border-radius: 0.25rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-align: left;
   cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .cursor-tree-item:hover {
@@ -4739,21 +4841,22 @@ main.canvas-drawer-closed > #claude-code-desktop {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .cursor-tree-badges {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.15rem;
   flex-shrink: 0;
 }
 
 .cursor-git-badge {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  padding: 0.04rem 0.26rem;
-  border-radius: 0.22rem;
+  padding: 0.03rem 0.22rem;
+  border-radius: 0.2rem;
   background: #1e293b;
   color: #f8fafc;
   border: 1px solid #475569;
@@ -4780,7 +4883,7 @@ main.canvas-drawer-closed > #claude-code-desktop {
 
 .cursor-scm-summary,
 .cursor-shards-summary {
-  font-size: 0.71rem;
+  font-size: 0.7rem;
   color: #cbd5e1;
   padding: 0.25rem 0;
 }
@@ -4803,67 +4906,101 @@ main.canvas-drawer-closed > #claude-code-desktop {
   overflow: hidden;
 }
 
-.cursor-editor-tabs-bar {
+.cursor-editor-tabs-bar,
+.editor-tabs-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-hairline);
+  gap: 0.25rem;
+  padding: 0 0.45rem;
+  background: var(--bg-surface, #18181b);
+  border-bottom: 1px solid var(--border-hairline, #27272a);
   flex-shrink: 0;
+  height: 35px;
+  min-height: 35px;
+  max-height: 35px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.cursor-editor-tabs {
+.cursor-editor-tabs,
+.editor-tabs {
   display: flex;
   align-items: center;
-  gap: 0.22rem;
+  gap: 3px;
   overflow-x: auto;
   min-width: 0;
   flex: 1 1 auto;
+  scrollbar-width: none;
 }
 
-.cursor-editor-tab {
+.cursor-editor-tabs::-webkit-scrollbar,
+.editor-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cursor-editor-tab,
+.editor-tab {
   width: auto;
-  min-height: 1.55rem;
-  padding: 0.16rem 0.55rem;
+  height: 25px;
+  min-height: 25px;
+  padding: 0 0.45rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.32rem;
+  gap: 0.28rem;
   font-family: var(--font-mono);
-  font-size: 0.71rem;
-  font-weight: 600;
-  background: var(--bg-subtle);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-strong);
-  border-radius: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  background: var(--bg-subtle, #27272a);
+  color: var(--text-secondary, #a1a1aa);
+  border: 1px solid var(--border-strong, transparent);
+  border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
+  user-select: none;
+  flex-shrink: 0;
 }
 
-.cursor-editor-tab:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+.cursor-editor-tab:hover,
+.editor-tab:hover {
+  background: var(--bg-hover, #3f3f46);
+  color: var(--text-primary, #f4f4f5);
 }
 
-.cursor-editor-tab.active {
+.cursor-editor-tab.active,
+.editor-tab.active {
   background: #1d4ed8;
   color: #ffffff;
-  border-color: #60a5fa;
+  border-color: #3b82f6;
+  font-weight: 600;
 }
 
-.cursor-editor-tab-close {
-  font-size: 0.74rem;
+.editor-tab.dirty .editor-tab-title {
+  color: #93c5fd;
+}
+
+.cursor-editor-tab-close,
+.editor-tab-close {
+  font-size: 0.78rem;
   line-height: 1;
-  opacity: 0.85;
-  padding: 0 0.1rem;
+  opacity: 0.7;
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
+.cursor-editor-tab-close:hover,
+.editor-tab-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.cursor-workbench-toolbar,
 .cursor-editor-tab-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.22rem;
+  gap: 0.2rem;
   flex-shrink: 0;
+  flex-wrap: nowrap;
 }
 
 .cursor-breadcrumbs-bar {
@@ -4871,19 +5008,23 @@ main.canvas-drawer-closed > #claude-code-desktop {
   align-items: center;
   justify-content: space-between;
   gap: 0.4rem;
-  padding: 0.2rem 0.65rem;
+  padding: 0 0.6rem;
+  height: 24px;
+  min-height: 24px;
+  max-height: 24px;
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border-hairline);
   font-family: var(--font-mono);
-  font-size: 0.69rem;
+  font-size: 0.67rem;
   color: var(--text-secondary);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .cursor-breadcrumbs {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
+  gap: 0.25rem;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4900,14 +5041,19 @@ main.canvas-drawer-closed > #claude-code-desktop {
   font-weight: 600;
 }
 
+.cursor-breadcrumb-meta,
 .cursor-breadcrumbs-meta {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
-/* Split Center Workbench: Top Editor (#canvas-panel-workspace) + Bottom Panel */
+/* Split Center Workbench:
+   1. Top Code Editor (#canvas-panel-workspace, order: 1)
+   2. Middle Bottom-Panel Tab Bar (.canvas-header, order: 2)
+   3. Bottom Active Panel (.canvas-panel:not(#canvas-panel-workspace), order: 3) */
 #dockable-canvas-pane.cursor-center-workbench .canvas-body {
   display: flex;
   flex-direction: column;
@@ -4921,11 +5067,48 @@ main.canvas-drawer-closed > #claude-code-desktop {
   display: flex !important;
   flex-direction: column;
   order: 1;
-  flex: 1 1 72%;
+  flex: 1 1 60%;
   min-height: 0;
-  padding: 0.35rem 0.5rem;
+  padding: 0.3rem 0.45rem;
   overflow: hidden;
   border-bottom: 1px solid var(--border-strong);
+}
+
+#dockable-canvas-pane.cursor-center-workbench .canvas-header {
+  order: 2;
+  height: 29px;
+  min-height: 29px;
+  max-height: 29px;
+  padding: 0 0.45rem;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-hairline);
+  border-bottom: 1px solid var(--border-hairline);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+}
+
+#dockable-canvas-pane.cursor-center-workbench .canvas-tabs {
+  padding: 0.1rem;
+  gap: 0.1rem;
+  background: transparent;
+  border: 0;
+}
+
+#dockable-canvas-pane.cursor-center-workbench .canvas-tab-btn {
+  padding: 0.15rem 0.42rem;
+  font-size: 0.67rem;
+  height: 22px;
+  min-height: 22px;
+}
+
+#dockable-canvas-pane.cursor-center-workbench .canvas-close-btn {
+  height: 22px;
+  min-height: 22px;
+  padding: 0 0.45rem;
+  font-size: 0.66rem;
 }
 
 #dockable-canvas-pane.cursor-center-workbench.cursor-bottom-panel-collapsed #canvas-panel-workspace,
@@ -4935,12 +5118,80 @@ main.canvas-drawer-closed > #claude-code-desktop {
 }
 
 #dockable-canvas-pane.cursor-center-workbench .canvas-panel:not(#canvas-panel-workspace) {
-  order: 2;
-  flex: 0 0 28%;
-  max-height: 14.5rem;
-  min-height: 7.5rem;
+  order: 3;
+  flex: 0 0 40%;
+  min-height: 150px;
+  max-height: 44%;
   overflow-y: auto;
-  padding: 0.35rem 0.55rem;
+  overflow-x: hidden;
+  padding: 0.3rem 0.45rem;
+}
+
+/* Give rich inspection panels (3D Brain, Diagnostics, Self-Improvement, Inspector) more room when active */
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-traces.active) #canvas-panel-workspace,
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-diagnostics.active) #canvas-panel-workspace,
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-feed.active) #canvas-panel-workspace,
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-inspector.active) #canvas-panel-workspace {
+  flex: 1 1 38%;
+}
+
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-traces.active) #canvas-panel-traces,
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-diagnostics.active) #canvas-panel-diagnostics,
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-feed.active) #canvas-panel-feed,
+#dockable-canvas-pane.cursor-center-workbench .canvas-body:has(#canvas-panel-inspector.active) #canvas-panel-inspector {
+  flex: 1 1 62%;
+  max-height: 62%;
+}
+
+/* Terminal Panel: Flex column so #terminal-form prompt is always pinned and visible at the bottom */
+#dockable-canvas-pane.cursor-center-workbench #canvas-panel-terminal.active {
+  display: flex !important;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0.25rem 0.35rem;
+}
+
+#dockable-canvas-pane.cursor-center-workbench #terminal-container {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#dockable-canvas-pane.cursor-center-workbench #terminal-topbar {
+  padding: 0.22rem 0.55rem;
+  min-height: 26px;
+  flex-shrink: 0;
+}
+
+#dockable-canvas-pane.cursor-center-workbench .btn-terminal-action {
+  padding: 0.1rem 0.4rem;
+  font-size: 0.66rem;
+  min-height: 18px;
+}
+
+#dockable-canvas-pane.cursor-center-workbench #terminal-output {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  overflow-y: auto;
+}
+
+#dockable-canvas-pane.cursor-center-workbench #terminal-form {
+  padding: 0.25rem 0.6rem;
+  min-height: 28px;
+  flex-shrink: 0;
+}
+
+#dockable-canvas-pane.cursor-center-workbench #terminal-input {
+  min-height: 20px;
+  height: 20px;
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
 }
 
 #dockable-canvas-pane.cursor-center-workbench.cursor-bottom-panel-collapsed .canvas-panel:not(#canvas-panel-workspace) {
@@ -4948,10 +5199,12 @@ main.canvas-drawer-closed > #claude-code-desktop {
 }
 
 /* Compact Workspace Editor Header & Line-Numbered Surface */
+#canvas-panel-workspace .workspace-panel-grid,
+#canvas-panel-workspace .cursor-editor-grid,
 #canvas-panel-workspace .workspace-modal-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.22rem;
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -4967,12 +5220,20 @@ main.canvas-drawer-closed > #claude-code-desktop {
 #canvas-panel-workspace #editor-trainer-pane {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.22rem;
   flex: 1 1 auto;
   min-height: 0;
   padding: 0;
   border: 0;
   background: transparent;
+}
+
+#canvas-panel-workspace .cursor-editor-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
 }
 
 #cowork-agent-status-bar {
@@ -4981,33 +5242,39 @@ main.canvas-drawer-closed > #claude-code-desktop {
 
 .cursor-editor-surface {
   display: grid;
-  grid-template-columns: 2.6rem minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr);
   flex: 1 1 auto;
   min-height: 0;
   border: 1px solid var(--code-block-border, #2a2a2e);
-  border-radius: 0.4rem;
+  border-radius: 0.35rem;
   background: var(--code-block-bg, #111113);
   overflow: hidden;
   position: relative;
 }
 
-.cursor-line-gutter {
+.cursor-line-gutter,
+.editor-line-numbers {
   grid-column: 1;
   grid-row: 1;
-  padding: 0.55rem 0.35rem;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  padding: 0.45rem 0.35rem;
   background: #09090b;
-  color: #94a3b8;
+  color: #71717a;
   border-right: 1px solid #27272a;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   line-height: 1.45;
   text-align: right;
   user-select: none;
   overflow: hidden;
   white-space: pre;
+  box-sizing: border-box;
 }
 
-body.theme-warm-light .cursor-line-gutter {
+body.theme-warm-light .cursor-line-gutter,
+body.theme-warm-light .editor-line-numbers {
   background: #f1f5f9;
   color: #475569;
   border-right-color: #cbd5e1;
@@ -5017,21 +5284,22 @@ body.theme-warm-light .cursor-line-gutter {
   grid-column: 2;
   grid-row: 1;
   width: 100%;
-  min-height: 9.5rem;
-  height: 100%;
+  min-height: 0 !important;
+  height: 100% !important;
   margin: 0;
-  padding: 0.55rem 0.65rem;
+  padding: 0.45rem 0.65rem;
   border: 0;
   border-radius: 0;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   line-height: 1.45;
   tab-size: 4;
   white-space: pre-wrap;
   word-break: break-all;
   background: transparent;
   color: var(--code-block-text, #f4f4f5);
-  resize: vertical;
+  resize: none !important;
+  overflow-y: auto;
 }
 
 #cursor-ghost-overlay.cursor-ghost-overlay,
@@ -5041,11 +5309,11 @@ body.theme-warm-light .cursor-line-gutter {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0.55rem 0.65rem;
+  padding: 0.45rem 0.65rem;
   border: 0;
   border-radius: 0;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   line-height: 1.45;
   tab-size: 4;
   white-space: pre-wrap;
@@ -5055,6 +5323,12 @@ body.theme-warm-light .cursor-line-gutter {
   user-select: none !important;
   overflow: hidden;
   box-sizing: border-box;
+  transition: opacity 0.12s ease;
+}
+
+/* Only show inline ghost overlay while editor is actively focused so initial code is never obscured */
+#cursor-editor-surface:not(:focus-within) .cursor-ghost-overlay {
+  opacity: 0;
 }
 
 .cursor-ghost-prefix {
@@ -5076,15 +5350,16 @@ body.theme-warm-light .cursor-ghost-inline {
 .cursor-cmdk-bar {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.45rem 0.6rem;
-  margin-bottom: 0.45rem;
+  gap: 0.3rem;
+  padding: 0.4rem 0.55rem;
+  margin-bottom: 0.25rem;
   background: var(--bg-surface);
   border: 1px solid #3b82f6;
   border-left: 4px solid #2563eb;
-  border-radius: 0.45rem;
+  border-radius: 0.4rem;
   box-shadow: var(--shadow-md);
   transition: all 120ms ease;
+  flex-shrink: 0;
 }
 
 .cursor-cmdk-header {
@@ -5104,9 +5379,9 @@ body.theme-warm-light .cursor-ghost-inline {
 
 .cursor-cmdk-badge {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  padding: 0.1rem 0.4rem;
+  padding: 0.08rem 0.38rem;
   border-radius: 0.25rem;
   background: #1d4ed8;
   color: #ffffff;
@@ -5114,7 +5389,7 @@ body.theme-warm-light .cursor-ghost-inline {
 
 .cursor-cmdk-range {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   color: var(--text-secondary);
 }
 
@@ -5122,17 +5397,16 @@ body.theme-warm-light .cursor-ghost-inline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 1.35rem;
+  height: 1.35rem;
   padding: 0;
   background: transparent;
   color: var(--text-secondary);
   border: none;
   border-radius: 0.25rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
-  transition: color 120ms ease, background 120ms ease;
 }
 
 .cursor-cmdk-close:hover {
@@ -5140,24 +5414,24 @@ body.theme-warm-light .cursor-ghost-inline {
   background: var(--bg-hover, rgba(255, 255, 255, 0.08));
 }
 
-/* Fix class mismatch: support both .cursor-cmdk-form and .cursor-cmdk-controls */
 .cursor-cmdk-form,
 .cursor-cmdk-controls {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   flex-wrap: wrap;
 }
 
 .cursor-cmdk-input {
-  flex: 1 1 14rem;
-  min-height: 1.65rem;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.76rem;
+  flex: 1 1 12rem;
+  min-height: 1.55rem;
+  height: 1.55rem;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.74rem;
   background: var(--bg-canvas);
   color: var(--text-primary);
   border: 1px solid var(--border-strong);
-  border-radius: 0.3rem;
+  border-radius: 0.28rem;
   outline: none;
 }
 
@@ -5166,21 +5440,19 @@ body.theme-warm-light .cursor-ghost-inline {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Dedicated Cmd+K Button Styles */
 .cursor-cmdk-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  padding: 0.22rem 0.55rem;
+  gap: 0.22rem;
+  padding: 0.18rem 0.48rem;
   font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 0.72rem;
-  font-weight: 500;
+  font-size: 0.68rem;
+  font-weight: 600;
   line-height: 1.2;
-  border-radius: 0.3rem;
+  border-radius: 0.28rem;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 120ms ease;
   white-space: nowrap;
 }
 
@@ -5220,9 +5492,8 @@ body.theme-warm-light .cursor-ghost-inline {
   background: #991b1b;
 }
 
-/* Unified Diff Hunk Preview Container with Theme Support */
 .cursor-cmdk-diff-hunk {
-  max-height: 9.5rem;
+  max-height: 8rem;
   overflow-y: auto;
   border: 1px solid var(--border-strong);
   border-radius: 0.35rem;
@@ -5237,19 +5508,23 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
   border-color: var(--border-subtle, #e5e2d9);
 }
 
-/* Toolbar Trigger Button Styling */
+/* Compact Toolbar Trigger Button Styling inside #editor-tabs-bar */
 .cursor-wb-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.18rem 0.45rem;
-  font-size: 0.72rem;
-  font-weight: 500;
+  gap: 0.2rem;
+  height: 23px;
+  min-height: 23px;
+  padding: 0 0.38rem;
+  font-size: 0.66rem;
+  font-weight: 600;
   border-radius: 0.25rem;
   border: 1px solid var(--border-subtle, #3a3a42);
   background: var(--bg-surface, #1a1a1d);
   color: var(--text-primary, #f4f4f5);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 120ms ease;
 }
 
@@ -5268,37 +5543,35 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
   background: #2563eb;
 }
 
-/* Cursor Tab Ghost-Text Inline Completion Bar */
+/* Compact Cursor Tab Ghost-Text Bar, R4-32 Problems Strip & Editor Action Bar */
 .cursor-ghost-text-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.4rem;
-  padding: 0.22rem 0.55rem;
+  gap: 0.35rem;
+  height: 22px;
+  min-height: 22px;
+  padding: 0 0.45rem;
   background: var(--bg-subtle);
   border: 1px dashed var(--border-strong);
-  border-radius: 0.35rem;
+  border-radius: 0.28rem;
   font-family: var(--font-mono);
-  font-size: 0.71rem;
-}
-
-.cursor-ghost-left {
-  display: flex;
-  align-items: center;
-  gap: 0.38rem;
-  min-width: 0;
+  font-size: 0.66rem;
+  flex-shrink: 0;
   overflow: hidden;
 }
 
+.cursor-ghost-pill,
 .cursor-ghost-badge {
-  padding: 0.06rem 0.35rem;
-  border-radius: 0.25rem;
+  padding: 0.04rem 0.3rem;
+  border-radius: 0.22rem;
   background: #1e293b;
   color: #f8fafc;
   border: 1px solid #475569;
-  font-size: 0.64rem;
+  font-size: 0.6rem;
   font-weight: 700;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .cursor-ghost-preview {
@@ -5307,69 +5580,198 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.cursor-ghost-right {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 0.25rem;
+  border: 0;
+  background: transparent;
+  font-size: 0.66rem;
 }
 
 .cursor-ghost-meta {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* R4-32 Problems & Diagnostics Strip */
+.cursor-ghost-accept-btn {
+  height: 18px;
+  min-height: 18px;
+  padding: 0 0.36rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  background: #1d4ed8;
+  color: #ffffff;
+  border: 1px solid #3b82f6;
+  border-radius: 0.22rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 .cursor-problems-strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.4rem;
-  padding: 0.2rem 0.55rem;
+  gap: 0.35rem;
+  height: 21px;
+  min-height: 21px;
+  padding: 0 0.45rem;
   background: var(--bg-surface);
   border: 1px solid var(--border-hairline);
-  border-radius: 0.35rem;
+  border-radius: 0.28rem;
   font-family: var(--font-mono);
-  font-size: 0.69rem;
+  font-size: 0.65rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.cursor-problems-badge {
+.cursor-problems-title {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.cursor-problems-ok {
+  color: #10b981;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cursor-editor-actions.button-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.cursor-editor-actions.button-row button {
+  min-width: 0;
+  height: 21px;
+  min-height: 21px;
+  padding: 0 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+}
+
+#workspace-status {
+  display: none !important;
+}
+
+/* Right Pane (#claude-code-desktop): Cursor AI Topbar, Context Bar & Composer Dock */
+#claude-code-desktop .gpt-topbar {
+  height: 35px;
+  min-height: 35px;
+  max-height: 35px;
+  padding: 0 0.55rem;
+  gap: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+#claude-code-desktop .model-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+#claude-code-desktop .model-selector h1 {
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--accent-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Right Pane: Cursor AI Context & Mode Bar */
+/* Hide redundant status badges in narrow right-pane topbar (already shown in breadcrumbs & status bar) */
+#claude-code-desktop #topbar-model-tag,
+#claude-code-desktop #weight-cache-badge,
+#claude-code-desktop #chat-target-badge {
+  display: none;
+}
+
+#claude-code-desktop .topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+  min-width: max-content;
+}
+
+#claude-code-desktop .topbar-btn {
+  height: 23px;
+  min-height: 23px;
+  padding: 0 0.38rem;
+  font-size: 0.66rem;
+  border-radius: 0.25rem;
+}
+
+#claude-code-desktop .topbar-btn-accent {
+  background: rgba(37, 99, 235, 0.22);
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+body.theme-warm-light #claude-code-desktop .topbar-btn-accent {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
 .cursor-ai-context-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
-  padding: 0.22rem 0.75rem;
+  gap: 0.22rem;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 0.5rem;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-hairline);
   flex-shrink: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
+.cursor-ai-context-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.cursor-ai-modes,
 .cursor-ai-mode-switch,
+.cursor-ai-ctx-pills,
 .cursor-context-pills,
 .cursor-composer-patch-bar {
   display: inline-flex;
   align-items: center;
-  gap: 0.22rem;
-  flex-wrap: wrap;
+  gap: 0.15rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .cursor-ai-mode-pill,
-.cursor-context-pill {
+.cursor-ctx-pill,
+.cursor-context-pill,
+.cursor-patch-action-btn {
   width: auto;
-  min-height: 1.4rem;
-  padding: 0.1rem 0.42rem;
+  height: 19px;
+  min-height: 19px;
+  padding: 0 0.32rem;
   font-family: var(--font-mono);
-  font-size: 0.67rem;
+  font-size: 0.61rem;
   font-weight: 600;
   background: var(--bg-subtle);
   color: var(--text-secondary);
@@ -5377,20 +5779,114 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cursor-ai-mode-pill:hover,
+.cursor-ctx-pill:hover,
+.cursor-context-pill:hover,
+.cursor-patch-action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .cursor-ai-mode-pill.active,
+.cursor-ctx-pill.active,
 .cursor-context-pill.active {
   background: #1d4ed8;
   color: #ffffff;
   border-color: #60a5fa;
 }
 
-.cursor-patch-stat {
-  font-family: var(--font-mono);
-  font-size: 0.67rem;
-  font-weight: 700;
-  color: var(--text-primary);
+.cursor-patch-accept {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #10b981;
+}
+
+.cursor-patch-reject {
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #f87171;
+}
+
+#claude-code-desktop .chat-transcript {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.75rem 0.75rem 1rem;
+  gap: 0.85rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#claude-code-desktop .gpt-composer-dock {
+  width: 100%;
+  padding: 0.35rem 0.55rem 0.45rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+#claude-code-desktop .gpt-composer-form,
+#claude-code-desktop .gpt-composer-form.ts-rich-composer {
+  padding: 0.4rem 0.5rem 0.35rem;
+  gap: 0.28rem;
+}
+
+#claude-code-desktop .composer-send-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+#claude-code-desktop .composer-send-bar-left,
+#claude-code-desktop .composer-send-bar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+#claude-code-desktop .composer-action-btn,
+#claude-code-desktop .composer-trigger-pill {
+  width: 1.3rem;
+  height: 1.3rem;
+  min-height: 1.3rem;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+#claude-code-desktop .composer-model-select {
+  max-width: 6.8rem;
+  height: 1.35rem;
+  min-height: 1.35rem;
+  font-size: 0.65rem;
+  padding: 0 0.35rem;
+  text-overflow: ellipsis;
+}
+
+#claude-code-desktop .composer-mode-group {
+  padding: 0.05rem;
+  gap: 0.02rem;
+}
+
+#claude-code-desktop .composer-mode-btn {
+  padding: 0.06rem 0.26rem;
+  font-size: 0.61rem;
+}
+
+#claude-code-desktop .composer-token-badge {
+  font-size: 0.6rem;
+  padding: 0 0.12rem;
+}
+
+#claude-code-desktop .composer-send-btn {
+  width: 1.45rem;
+  height: 1.45rem;
+  min-height: 1.45rem;
+  font-size: 0.76rem;
+  flex-shrink: 0;
 }
 
 /* Cmd+P Quick Open & Cmd+Shift+P Command Palette Modal */
@@ -5527,7 +6023,7 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
   justify-content: space-between;
   gap: 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   overflow: hidden;
   box-sizing: border-box;
   z-index: 100;
@@ -5540,7 +6036,7 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
 .cursor-status-right {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -5549,7 +6045,7 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
 .cursor-status-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
+  gap: 0.25rem;
   color: #f8fafc;
   white-space: nowrap;
 }
@@ -5561,10 +6057,10 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
 
 .cursor-status-btn {
   width: auto;
-  min-height: 1.2rem;
-  padding: 0.05rem 0.38rem;
+  min-height: 1.15rem;
+  padding: 0.04rem 0.36rem;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.65rem;
   font-weight: 600;
   background: #1e293b;
   color: #f8fafc;
@@ -5578,94 +6074,6 @@ body.theme-warm-light .cursor-cmdk-diff-hunk {
   border-color: #60a5fa;
 }
 
-/* Tab bar and editor gutter class aliases */
-.editor-tabs-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.35rem;
-  padding: 0.2rem 0.5rem;
-  background: var(--bg-surface, #18181b);
-  border-bottom: 1px solid var(--border-hairline, #27272a);
-  flex-shrink: 0;
-  height: 35px;
-  box-sizing: border-box;
-}
-
-.editor-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  overflow-x: auto;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.editor-tab {
-  height: 27px;
-  min-height: 27px;
-  padding: 0 0.55rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  background: #27272a;
-  color: #a1a1aa;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.editor-tab:hover {
-  background: #3f3f46;
-  color: #f4f4f5;
-}
-
-.editor-tab.active {
-  background: #1e293b;
-  color: #ffffff;
-  border-color: #3b82f6;
-  font-weight: 600;
-}
-
-.editor-tab.dirty .editor-tab-title {
-  color: #60a5fa;
-}
-
-.editor-tab-close {
-  font-size: 0.85rem;
-  line-height: 1;
-  opacity: 0.65;
-  padding: 0 2px;
-  border-radius: 2px;
-}
-
-.editor-tab-close:hover {
-  opacity: 1;
-  background: #52525b;
-}
-
-.editor-line-numbers {
-  width: 44px;
-  min-width: 44px;
-  max-width: 44px;
-  padding: 0.55rem 0.4rem;
-  background: #09090b;
-  color: #71717a;
-  border-right: 1px solid #27272a;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1.45;
-  text-align: right;
-  user-select: none;
-  overflow: hidden;
-  white-space: pre;
-  box-sizing: border-box;
-}
 
 
 

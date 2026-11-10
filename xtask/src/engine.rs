@@ -926,14 +926,24 @@ jobs:
                   pushed_main=true
                   break
                 fi
-                git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" fetch origin main && (git rebase --autostash origin/main || git rebase --abort || true) && git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push --force origin "HEAD:refs/heads/$tick_branch" || true
+                git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" fetch origin main && (git rebase --autostash origin/main && ./bin/r4 api sync && git add -A && git commit --amend --no-edit || git rebase --abort || true) && git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push --force origin "HEAD:refs/heads/$tick_branch" || true
               done
               if [ "$pushed_main" != "true" ]; then
+                GH_TOKEN="$GITHUB_TOKEN" gh pr close "$tick_branch" --delete-branch || true
+                sleep 2
+                GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
+                  | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh run cancel "{}" || true
+                sleep 5
+                GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
+                  | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/{}" || true
                 GH_TOKEN="$GITHUB_TOKEN" gh workflow run engine.yml --ref main || true
-                exit 1
+                exit 0
               fi
               git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin --delete "$tick_branch" || true
-              sleep 3
+              sleep 2
+              GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
+                | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh run cancel "{}" || true
+              sleep 5
               GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
                 | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/{}" || true
             fi

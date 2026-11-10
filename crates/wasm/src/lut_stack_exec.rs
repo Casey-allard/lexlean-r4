@@ -3233,6 +3233,7 @@ pub struct LutStackSession {
     pub total_l1_margin: u64,
     pub subtopic_prefix: [u32; 3],
     pub subtopic_prefix_remaining: u8,
+    pub subtopic_suffix_counts: Vec<([u32; 4], u32)>,
     pub commenced_visible: bool,
 }
 
@@ -3266,6 +3267,7 @@ impl LutStackSession {
             total_l1_margin: 0,
             subtopic_prefix: [MEMORY_PAD; 3],
             subtopic_prefix_remaining: 0,
+            subtopic_suffix_counts: Vec::new(),
             commenced_visible: false,
         }
     }
@@ -3319,6 +3321,7 @@ impl LutStackSession {
         self.total_l1_margin = 0;
         self.subtopic_prefix = [MEMORY_PAD; 3];
         self.subtopic_prefix_remaining = 0;
+        self.subtopic_suffix_counts.clear();
         self.commenced_visible = false;
     }
 
@@ -3381,6 +3384,7 @@ impl LutStackSession {
         self.suffix_counts.clear();
         self.subtopic_prefix = [MEMORY_PAD; 3];
         self.subtopic_prefix_remaining = 0;
+        self.subtopic_suffix_counts.clear();
         self.commenced_visible = false;
     }
 
@@ -3390,6 +3394,7 @@ impl LutStackSession {
         self.suffix_counts.clear();
         self.subtopic_prefix = [MEMORY_PAD; 3];
         self.subtopic_prefix_remaining = 0;
+        self.subtopic_suffix_counts.clear();
         self.commenced_visible = false;
     }
 
@@ -3653,6 +3658,7 @@ impl LutStackSession {
                                 &self.anchors.reply,
                                 &mut self.subtopic_prefix,
                                 &mut self.subtopic_prefix_remaining,
+                                &mut self.subtopic_suffix_counts,
                                 pt_hit.target_token,
                                 anchor_tokens,
                                 mem.key_window,
@@ -3921,6 +3927,7 @@ impl LutStackSession {
                                     &self.anchors.reply,
                                     &mut self.subtopic_prefix,
                                     &mut self.subtopic_prefix_remaining,
+                                    &mut self.subtopic_suffix_counts,
                                     pt_hit.target_token,
                                     &self.tokens,
                                     mem.key_window,
@@ -3945,8 +3952,9 @@ impl LutStackSession {
                     }
                 }
             } else if row + 1 >= rs {
-                let (mut suffix4, occ) = suffix_occ.unwrap_or(([MEMORY_PAD; 4], 0));
-                if self.subtopic_prefix_remaining > 0 {
+                let (mut suffix4, mut occ) = suffix_occ.unwrap_or(([MEMORY_PAD; 4], 0));
+                let had_subtopic_prefix = self.subtopic_prefix_remaining > 0;
+                if had_subtopic_prefix {
                     let p = self.subtopic_prefix;
                     match self.subtopic_prefix_remaining {
                         3 => {
@@ -3964,6 +3972,21 @@ impl LutStackSession {
                         _ => {}
                     }
                     self.subtopic_prefix_remaining -= 1;
+                    occ = 0;
+                }
+                if !self.subtopic_suffix_counts.is_empty() {
+                    if let Some((_, pre_c)) = self
+                        .subtopic_suffix_counts
+                        .iter_mut()
+                        .find(|(es, _)| *es == suffix4)
+                    {
+                        occ = occ.saturating_add(*pre_c);
+                        if had_subtopic_prefix {
+                            *pre_c = pre_c.saturating_add(1);
+                        }
+                    } else if had_subtopic_prefix {
+                        self.subtopic_suffix_counts.push((suffix4, 1));
+                    }
                 }
                 let step = (row + 1 - rs).max(1) as u32;
                 if let Some(reply_tbl) = &mem.reply {
@@ -3982,7 +4005,7 @@ impl LutStackSession {
                             .find(|(s, _)| *s == next_4gram)
                             .map(|&(_, c)| c)
                             .unwrap_or(0);
-                        if next_occ < 8 || val_tok == ByteBpe4096::global().eos_id() {
+                        if next_occ < 24 || val_tok == ByteBpe4096::global().eos_id() {
                             blend_toward_writer_row(
                                 &mut n_t,
                                 &self.model.writer_table,
@@ -4399,14 +4422,15 @@ fn lookup_reply_continuation_4gram(
     if occ >= 8 {
         return None;
     }
-    if occ > 0 {
+    let in_opening_window = suffix4[0] == MEMORY_PAD || legacy_step <= 4;
+    if occ > 0 && in_opening_window {
         key[reply_key_len - 5] = 0;
         if let Some(val) = lookup_with_bit31_flex(reply_tbl, &mut key) {
             return Some(val);
         }
     }
-    // Tier 1.5: Anchor-bound 3-gram backoff (when `suffix4[1] != MEMORY_PAD`)
-    if suffix4[1] != MEMORY_PAD {
+    // Tier 1.5: Anchor-bound 3-gram backoff: `(anchor, 0, PAD, prev_2, prev_1, curr_tok)`
+    if in_opening_window && suffix4[1] != MEMORY_PAD {
         key[reply_key_len - 5] = 0;
         key[reply_key_len - 4] = MEMORY_PAD;
         key[reply_key_len - 3] = suffix4[1];
@@ -4416,8 +4440,8 @@ fn lookup_reply_continuation_4gram(
             return Some(val);
         }
     }
-    // Tier 2: Anchor-bound 2-gram backoff (when `prev_1 != MEMORY_PAD`)
-    if suffix4[2] != MEMORY_PAD {
+    // Tier 2: Anchor-bound 2-gram backoff: `(anchor, 0, PAD, PAD, prev_1, curr_tok)`
+    if in_opening_window && suffix4[2] != MEMORY_PAD {
         key[reply_key_len - 5] = 0;
         key[reply_key_len - 4] = MEMORY_PAD;
         key[reply_key_len - 3] = MEMORY_PAD;
@@ -4428,10 +4452,7 @@ fn lookup_reply_continuation_4gram(
         }
     }
     // Tier 2b: Anchor-bound 1-gram / opening continuation fallback
-    // (enables mid-stream transition to a new basin while preserving continuous reply_history)
-    if occ == 0
-        || (suffix4[0] == MEMORY_PAD && suffix4[1] == MEMORY_PAD && suffix4[2] == MEMORY_PAD)
-    {
+    if in_opening_window {
         key[reply_key_len - 5] = 0;
         key[reply_key_len - 4] = MEMORY_PAD;
         key[reply_key_len - 3] = MEMORY_PAD;
@@ -4456,7 +4477,11 @@ fn lookup_reply_continuation_4gram(
     if suffix4[2] != MEMORY_PAD
         && anchor.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
         && legacy_step >= 12
-        && is_boundary_token(suffix4[3])
+        && (is_boundary_token(suffix4[3])
+            || is_boundary_token(suffix4[2])
+            || is_boundary_token(suffix4[1])
+            || ByteBpe4096::global().decode(&[suffix4[3]]).contains('}')
+            || legacy_step >= 32)
     {
         return Some(ByteBpe4096::global().eos_id());
     }
@@ -4483,6 +4508,7 @@ fn lookup_reply_continuation_4gram(
     None
 }
 
+#[allow(dead_code)]
 fn push_4gram_suffix_occurrence(
     reply_history: &mut Vec<u32>,
     suffix_counts: &mut Vec<([u32; 4], u32)>,
@@ -4525,6 +4551,7 @@ fn seek_subtopic_in_turn(
     anchors_reply: &[u32],
     subtopic_prefix: &mut [u32; 3],
     subtopic_prefix_remaining: &mut u8,
+    suffix_counts: &mut Vec<([u32; 4], u32)>,
     default_first_tok: u32,
     prompt_tokens: &[u32],
     key_window: usize,
@@ -4596,7 +4623,7 @@ fn seek_subtopic_in_turn(
         if !found {
             sim_counts.push((suffix, 1));
         }
-        if occ >= 3 {
+        if occ >= 24 {
             break;
         }
         let Some(next_t) = lookup_reply_continuation_4gram(
@@ -4620,7 +4647,7 @@ fn seek_subtopic_in_turn(
     }
 
     let open_text = bpe
-        .decode(&turn_tokens[..turn_tokens.len().min(12)])
+        .decode(&turn_tokens[..turn_tokens.len().min(20)])
         .to_ascii_lowercase();
     let open_stems = extract_salient_stem_hashes_from_text(&open_text, 16);
     let open_spec_count = specific_stems
@@ -4713,7 +4740,32 @@ fn seek_subtopic_in_turn(
             best_pos = pool[(h as usize) % pool.len()];
         }
     }
+    suffix_counts.clear();
     if best_pos > 0 && best_pos < turn_tokens.len() {
+        for i in 0..best_pos {
+            let s0 = if i >= 3 {
+                turn_tokens[i - 3]
+            } else {
+                MEMORY_PAD
+            };
+            let s1 = if i >= 2 {
+                turn_tokens[i - 2]
+            } else {
+                MEMORY_PAD
+            };
+            let s2 = if i >= 1 {
+                turn_tokens[i - 1]
+            } else {
+                MEMORY_PAD
+            };
+            let s3 = turn_tokens[i];
+            let suf = [s0, s1, s2, s3];
+            if let Some((_, cnt)) = suffix_counts.iter_mut().find(|(es, _)| *es == suf) {
+                *cnt = cnt.saturating_add(1);
+            } else {
+                suffix_counts.push((suf, 1));
+            }
+        }
         *subtopic_prefix = [
             if best_pos >= 3 {
                 turn_tokens[best_pos - 3]
@@ -8716,6 +8768,7 @@ impl LutStackModel {
         {
             if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
                 session.anchors.reply = next_anchor;
+                session.subtopic_suffix_counts.clear();
                 session.subtopic_prefix = [MEMORY_PAD; 3];
                 session.subtopic_prefix_remaining = 3;
                 *next_tok = next_first_tok;
@@ -8780,6 +8833,7 @@ impl LutStackModel {
                                         ));
                                     }
                                     session.anchors.reply = canon;
+                                    session.subtopic_suffix_counts.clear();
                                     session.subtopic_prefix = [MEMORY_PAD; 3];
                                     session.subtopic_prefix_remaining = 3;
                                     session.last_turn_idx = pt_hit.turn_idx;
@@ -9143,9 +9197,7 @@ impl LutStackModel {
             session.pending_basins = extra_basins;
         } else if (confident_open || matched_stem_count >= 2)
             && clauses.len() == 1
-            && (clean_primary.contains(',')
-                || clean_primary.contains(';')
-                || clean_primary.contains(" and "))
+            && (clean_primary.contains(',') || clean_primary.contains(';'))
             && last_source != "turn_memory_opening"
             && steps.first().map(|s| s.l1_distance).unwrap_or(0) > 0
             && matched_stem_count <= 4
@@ -9195,6 +9247,7 @@ impl LutStackModel {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
                     session.anchors.reply = next_anchor;
+                    session.subtopic_suffix_counts.clear();
                     session.subtopic_prefix = [MEMORY_PAD; 3];
                     session.subtopic_prefix_remaining = 3;
                     next_tok = next_first_tok;
@@ -9609,6 +9662,7 @@ impl LutStackModel {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
                     session.anchors.reply = next_anchor;
+                    session.subtopic_suffix_counts.clear();
                     session.subtopic_prefix = [MEMORY_PAD; 3];
                     session.subtopic_prefix_remaining = 3;
                     next_tok = next_first_tok;
