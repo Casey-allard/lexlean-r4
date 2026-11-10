@@ -1025,3 +1025,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f66_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems using and ence at row_idx=8284 (anchor_id=0x8000059b)."
 prompt = "How does Q12 writer refinement encode using and ence at row_idx=8284?"
 target_reply = "At row_idx=8284 with anchor_id=0x8000059b, Q12 writer refinement aligns the 256D L1 PointKey prototype for using and ence with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F67"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.11497:H-LIT-2611.11497-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f67_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.11497 (TID System for Speech-COSER Challenge 2026: ASR Track)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
