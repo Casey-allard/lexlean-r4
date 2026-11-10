@@ -1523,3 +1523,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f98_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems circle and ured at row_idx=9567 (anchor_id=0x80000a83)."
 prompt = "How does Q12 writer refinement encode circle and ured at row_idx=9567?"
 target_reply = "At row_idx=9567 with anchor_id=0x80000a83, Q12 writer refinement aligns the 256D L1 PointKey prototype for circle and ured with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F99"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:video-favorite:r7519:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f99_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging video and favorite across PointKey row 7519 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect video and favorite across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects video and favorite by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
