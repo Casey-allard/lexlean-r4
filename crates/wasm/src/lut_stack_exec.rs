@@ -4504,12 +4504,12 @@ fn seek_subtopic_in_turn(
         cur = next_t;
     }
 
-    if turn_tokens.len() < 140 {
+    if turn_tokens.len() < 26 {
         return default_first_tok;
     }
 
     let open_text = bpe
-        .decode(&turn_tokens[..turn_tokens.len().min(48)])
+        .decode(&turn_tokens[..turn_tokens.len().min(12)])
         .to_ascii_lowercase();
     let open_stems = extract_salient_stem_hashes_from_text(&open_text, 16);
     let open_spec_count = specific_stems
@@ -4520,24 +4520,38 @@ fn seek_subtopic_in_turn(
         return default_first_tok;
     }
 
-    let max_start = turn_tokens.len().saturating_sub(24);
+    let max_start = turn_tokens.len().saturating_sub(18);
     let mut best_pos = 0usize;
     let mut best_score = 0i64;
+    let mut clause_positions = Vec::new();
+    let mut word_positions = Vec::new();
 
     for pos in 1..=max_start {
         let prev_dec = bpe.decode(&[turn_tokens[pos - 1]]);
-        let next_two_dec = bpe.decode(&turn_tokens[pos..(pos + 2).min(turn_tokens.len())]);
-        let is_sentence_boundary = prev_dec.ends_with('.') || prev_dec.ends_with('\n');
-        let is_sentence_start = is_sentence_boundary
-            && next_two_dec
-                .trim_start()
-                .trim_start_matches(['*', '#', '-', ' ', '`', '"', '\''])
-                .starts_with(|c: char| c.is_ascii_uppercase());
-        if !is_sentence_start {
+        let cur_dec = bpe.decode(&[turn_tokens[pos]]);
+        let is_punct_boundary = prev_dec.contains('.')
+            || prev_dec.contains(';')
+            || prev_dec.contains(':')
+            || prev_dec.contains('\n')
+            || prev_dec.contains("—")
+            || prev_dec.contains("**");
+        let is_word_start = is_punct_boundary
+            || cur_dec.starts_with(" **")
+            || cur_dec.starts_with("**")
+            || cur_dec
+                .strip_prefix(' ')
+                .is_some_and(|s| s.starts_with(|c: char| c.is_ascii_uppercase()));
+        if is_punct_boundary && pos >= 4 {
+            clause_positions.push(pos);
+        }
+        if !is_word_start {
             continue;
         }
+        if pos >= 2 {
+            word_positions.push(pos);
+        }
 
-        let win_end = (pos + 12).min(turn_tokens.len());
+        let win_end = (pos + 8).min(turn_tokens.len());
         let win_text = bpe.decode(&turn_tokens[pos..win_end]).to_ascii_lowercase();
         let win_stems = extract_salient_stem_hashes_from_text(&win_text, 12);
         let mut spec_hits = 0usize;
@@ -4551,8 +4565,10 @@ fn seek_subtopic_in_turn(
             }
         }
         if missing_spec_hits > 0 && spec_hits > open_spec_count {
-            let mut sc =
-                (missing_spec_hits as i64) * 200_000 + (spec_hits as i64) * 100_000 + 50_000;
+            let mut sc = (missing_spec_hits as i64) * 200_000 + (spec_hits as i64) * 100_000;
+            if is_punct_boundary {
+                sc += 50_000;
+            }
             let first_win_stems = extract_salient_stem_hashes_from_text(
                 &bpe.decode(&turn_tokens[pos..(pos + 3).min(turn_tokens.len())])
                     .to_ascii_lowercase(),
@@ -4572,6 +4588,20 @@ fn seek_subtopic_in_turn(
     }
 
     let _ = matched_specific_in_row;
+    if best_pos == 0 && open_spec_count == 0 {
+        let pool = if clause_positions.len() >= 10 {
+            &clause_positions
+        } else {
+            &word_positions
+        };
+        if !pool.is_empty() {
+            let h = fnv1a64(decoded_turn.as_bytes())
+                ^ specific_stems.iter().fold(0u64, |acc, &sh| {
+                    acc.wrapping_mul(1_099_511_628_211) ^ (sh as u64)
+                });
+            best_pos = pool[(h as usize) % pool.len()];
+        }
+    }
 
     if best_pos > 0 && best_pos < turn_tokens.len() {
         *subtopic_prefix = [
