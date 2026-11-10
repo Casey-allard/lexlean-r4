@@ -2172,8 +2172,17 @@ impl ServedHammingRead {
                     if dist >= margin_bits {
                         continue;
                     }
-                    let diff = (margin_bits - dist) as i64;
-                    let w = diff * diff;
+                    let diff = (margin_bits - dist) as u64;
+                    let w = match crate::lexlean_generated::r4_integer_stack::hamming_match_weight(
+                        dist as u64,
+                        margin_bits as u64,
+                        diff,
+                    ) {
+                        crate::lexlean_generated::r4_integer_stack::HammingOutcome::Value(val) => {
+                            val as i64
+                        }
+                        _ => continue,
+                    };
                     let copy_pos = (pos + copy_shift).min(cur_len - 1);
                     let copy_val = &cache.values[copy_pos];
                     let type_val = &cache.values[pos];
@@ -4010,7 +4019,7 @@ impl LutStackSession {
                         128
                     };
                     let geom_dist = *cand_dist + (h_bits as i64) * 64;
-                    let bonus = if !self.prompt_stem_buckets.is_empty() {
+                    let raw_tr_multi = if !self.prompt_stem_buckets.is_empty() {
                         ta.score_transition_multi(
                             contextual_prev,
                             token,
@@ -4025,24 +4034,21 @@ impl LutStackSession {
                             *cand_tok,
                         ) * 50_000
                     };
+                    let c_qr = (raw_tr_multi.max(0) as u64) / 50_000;
+                    let c_qc = u64::from(256u32.saturating_sub(h_bits)) / 16;
+                    let trunk_bonus =
+                        crate::lexlean_generated::r4_discrete_trunk::level3_joint_pointer_score(
+                            c_qr,
+                            c_qc,
+                            c_qr / 2,
+                            c_qc / 2,
+                            1,
+                            h_bits <= 96,
+                        ) as i64;
+                    let bonus = raw_tr_multi.saturating_add(trunk_bonus * 16);
                     *cand_dist = geom_dist.saturating_sub(bonus);
                 }
                 top_candidates.sort_by_key(|&(_, d)| d);
-                top_candidates.truncate(5);
-                if top_candidates.first().is_some_and(|&(ct, _)| {
-                    if !self.prompt_stem_buckets.is_empty() {
-                        ta.score_transition_multi(
-                            contextual_prev,
-                            token,
-                            &self.prompt_stem_buckets,
-                            ct,
-                        ) > 0
-                    } else {
-                        ta.score_transition(contextual_prev, token, self.prompt_stem_bucket, ct) > 0
-                    }
-                }) {
-                    source_mechanism = "ternary_assoc_nearest";
-                }
             } else {
                 for (cand_tok, cand_dist) in &mut top_candidates {
                     let base = (*cand_tok as usize) * FBS_WIDTH;
@@ -4053,10 +4059,92 @@ impl LutStackSession {
                     } else {
                         128
                     };
-                    *cand_dist += (h_bits as i64) * 1024;
+                    let c_qc = u64::from(256u32.saturating_sub(h_bits)) / 16;
+                    let trunk_bonus =
+                        crate::lexlean_generated::r4_discrete_trunk::level3_joint_pointer_score(
+                            0,
+                            c_qc,
+                            0,
+                            c_qc / 2,
+                            1,
+                            h_bits <= 96,
+                        ) as i64;
+                    *cand_dist =
+                        (*cand_dist + (h_bits as i64) * 1024).saturating_sub(trunk_bonus * 8);
                 }
                 top_candidates.sort_by_key(|&(_, d)| d);
-                top_candidates.truncate(5);
+            }
+
+            // Execute formal R4.Admission + R4.Prediction cell admission and token ranking
+            // (`r4_admission::occupied` -> `r4_admission::take_cells` -> `r4_admission::rank_tokens` -> `r4_prediction::prediction_scores`)
+            let min_dist = top_candidates.iter().map(|&(_, d)| d).min().unwrap_or(0);
+            let admission_tokens: Vec<crate::lexlean_generated::r4_admission::TokenScore> =
+                top_candidates
+                    .iter()
+                    .take(24)
+                    .map(|&(cand_tok, cand_dist)| {
+                        let base = (cand_tok as usize) * FBS_WIDTH;
+                        let (cell_id, addr_dist) =
+                            if base + FBS_WIDTH <= self.model.writer_table.len() {
+                                let row_w = &self.model.writer_table[base..base + FBS_WIDTH];
+                                let w_sketch = pack_i16_sign_sketch_256(row_w);
+                                let (e8_c, _) = compute_geometric_e8_pair(row_w, w_sketch[0]);
+                                let first_last_l1 = ((n_t[0] - i32::from(row_w[0])).unsigned_abs()
+                                    + (n_t[FBS_WIDTH - 1] - i32::from(row_w[FBS_WIDTH - 1]))
+                                        .unsigned_abs())
+                                    as u64;
+                                (u64::from(e8_c), first_last_l1)
+                            } else {
+                                (u64::from(cand_tok & 15), 65_535)
+                            };
+                        let shifted_dist = (cand_dist - min_dist).max(0) as u64;
+                        crate::lexlean_generated::r4_admission::TokenScore {
+                            identity: u64::from(cand_tok),
+                            cell: cell_id,
+                            distance: shifted_dist,
+                            address_distance: addr_dist,
+                        }
+                    })
+                    .collect();
+            if let crate::lexlean_generated::r4_prediction::PredictionResult::Value(receipt) =
+                crate::lexlean_generated::r4_prediction::prediction_scores(
+                    crate::lexlean_generated::r4_admission::ScoresOutcome::Value(admission_tokens),
+                    16,
+                )
+            {
+                let mut admitted_ordered = Vec::with_capacity(top_candidates.len());
+                for &ranked_id in &receipt.ranked_tokens {
+                    if let Some(&entry) = top_candidates
+                        .iter()
+                        .find(|&&(ct, _)| u64::from(ct) == ranked_id)
+                    {
+                        admitted_ordered.push(entry);
+                    }
+                }
+                for &entry in &top_candidates {
+                    if !admitted_ordered.iter().any(|&(ct, _)| ct == entry.0) {
+                        admitted_ordered.push(entry);
+                    }
+                }
+                top_candidates = admitted_ordered;
+            }
+            top_candidates.truncate(5);
+            if let Some(ta) = &self.model.ternary_assoc {
+                let prev_tok = if self.tokens.len() >= 2 {
+                    self.tokens[self.tokens.len() - 2]
+                } else {
+                    MEMORY_PAD
+                };
+                if top_candidates.first().is_some_and(|&(ct, _)| {
+                    if !self.prompt_stem_buckets.is_empty() {
+                        ta.score_transition_multi(prev_tok, token, &self.prompt_stem_buckets, ct)
+                            > 0
+                    } else {
+                        ta.score_transition(prev_tok, token, self.prompt_stem_bucket, ct) > 0
+                    }
+                }) {
+                    source_mechanism = "ternary_assoc_nearest";
+                }
             }
         } else {
             top_candidates.truncate(5);
@@ -4104,16 +4192,32 @@ impl LutStackSession {
                     .map(|&(_, d)| d)
                     .unwrap_or(0);
                 (hit_tok, dist)
-            } else {
-                top_candidates
+            } else if top_candidates.len() >= 2 {
+                let (t0, d0) = top_candidates[0];
+                let (t1, d1) = top_candidates[1];
+                let min_d = d0.min(d1);
+                let mut recent_ids = vec![u64::from(token)];
+                if t_minus_2 != MEMORY_PAD {
+                    recent_ids.push(u64::from(t_minus_2));
+                }
+                let chosen = crate::lexlean_generated::r4_prediction::select_contextual_token(
+                    u64::from(t0),
+                    (d0 - min_d).max(0) as u64,
+                    u64::from(t1),
+                    (d1 - min_d).max(0) as u64,
+                    recent_ids,
+                    500_000,
+                ) as u32;
+                let dist = top_candidates
                     .iter()
-                    .find(|&&(t, _)| t != token && (t_minus_2 == MEMORY_PAD || t != t_minus_2))
-                    .copied()
-                    .or_else(|| top_candidates.iter().find(|&&(t, _)| t != token).copied())
-                    .or_else(|| top_candidates.first().copied())
-                    .unwrap_or_else(|| {
-                        stack_whole_table_nearest(&n_t, &self.model.writer_table, self.model.vocab)
-                    })
+                    .find(|&&(t, _)| t == chosen)
+                    .map(|&(_, d)| d)
+                    .unwrap_or(d0);
+                (chosen, dist)
+            } else {
+                top_candidates.first().copied().unwrap_or_else(|| {
+                    stack_whole_table_nearest(&n_t, &self.model.writer_table, self.model.vocab)
+                })
             };
             (tok, dist, source_mechanism)
         } else {
@@ -5164,6 +5268,8 @@ pub const ICOSIAN_ROOTS_Q12: [[(i32, i32); 4]; 17] = [
 pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
     let mut best_root = 0u8;
     let mut best_score = i64::MIN;
+    let mut best_a_u64 = 0u64;
+    let mut best_b_u64 = 0u64;
     for (idx, root) in ICOSIAN_ROOTS_Q12.iter().enumerate() {
         let mut a = 0i64;
         let mut b = 0i64;
@@ -5173,9 +5279,20 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
             b += x * i64::from(root[lane].1);
         }
         let score = 2 * a + 3 * b;
-        if score > best_score {
+        let cand_a_u64 = (a + (1i64 << 30)).max(0) as u64;
+        let cand_b_u64 = (b + (1i64 << 30)).max(0) as u64;
+        let beats = if idx == 0 {
+            true
+        } else {
+            crate::lexlean_generated::r4_spiral_core_fbs::phi_score_strictly_beats(
+                cand_a_u64, cand_b_u64, best_a_u64, best_b_u64,
+            ) || score > best_score
+        };
+        if beats && score >= best_score {
             best_score = score;
             best_root = idx as u8;
+            best_a_u64 = cand_a_u64;
+            best_b_u64 = cand_b_u64;
         }
     }
     (best_root, best_score)
@@ -5254,7 +5371,14 @@ pub fn compute_geometric_bucket(e8_root: u8, clifford_action: u8, icosian_root: 
     let e8 = (e8_root as usize) % E8_ROOT_COUNT;
     let c64 = (clifford_action as usize) % CLIFFORD_ACTION_COUNT;
     let i17 = (icosian_root as usize) % ICOSIAN_ROOT_COUNT;
-    (e8 * CLIFFORD_ACTION_COUNT + c64) * ICOSIAN_ROOT_COUNT + i17
+    match crate::lexlean_generated::r4_radix_otel::resolve_radix_bucket(
+        e8 as u64, c64 as u64, i17 as u64,
+    ) {
+        crate::lexlean_generated::r4_radix_otel::RadixBucketOutcome::BucketIndex(b, _, _, _) => {
+            b as usize
+        }
+        _ => (e8 * CLIFFORD_ACTION_COUNT + c64) * ICOSIAN_ROOT_COUNT + i17,
+    }
 }
 
 /// Decompose a discrete geometric bucket index `B` into `(e8_root, clifford_action, icosian_root)`.
@@ -8271,108 +8395,7 @@ impl DeBruijnSlotFrame {
 
 /// Formally verified `R4-34` (`R4.PhraseDag`) compositional multi-basin Phrase-DAG routing kernel.
 pub mod phrase_dag_generated {
-    pub mod r4_phrase_dag {
-        #[derive(Clone, Debug, PartialEq, Eq)]
-        pub enum PhraseDagError {
-            DagCycleDetected,
-            RowOutOfBounds,
-            VacuousStemCoverage,
-            L1DistanceExceedsThreshold,
-            DegenerateSelfLoop,
-            ExcessiveTransitionHamming,
-            IcosianRootOutOfRange,
-            UnresolvedSlotInBridge,
-            ShortCycleDetected,
-        }
-
-        #[derive(Clone, Debug, PartialEq, Eq)]
-        pub enum DagNodeOutcome {
-            AdmittedDagNode(u64, u64, u64),
-            RefusedDagNode(PhraseDagError),
-        }
-
-        #[derive(Clone, Debug, PartialEq, Eq)]
-        pub enum DagBridgeOutcome {
-            ComposedMultiBasinEdge(u64, u64, u64),
-            RefusedDagBridge(PhraseDagError),
-        }
-
-        #[derive(Clone, Debug, PartialEq, Eq)]
-        pub enum DagDecodeOutcome {
-            VerifiedDagSynthesis(u64, u64, u64),
-            RefusedDagDecode(PhraseDagError),
-        }
-
-        #[allow(clippy::too_many_arguments)]
-        pub fn admit_phrase_dag_node(
-            node_id: u64,
-            parent_depth: u64,
-            max_depth: u64,
-            point_row: u64,
-            total_rows: u64,
-            matched_stems: u64,
-            covered_mask: u64,
-            l1_distance: u64,
-            max_l1_threshold: u64,
-        ) -> DagNodeOutcome {
-            if max_depth <= parent_depth {
-                DagNodeOutcome::RefusedDagNode(PhraseDagError::DagCycleDetected)
-            } else if total_rows <= point_row {
-                DagNodeOutcome::RefusedDagNode(PhraseDagError::RowOutOfBounds)
-            } else if matched_stems == 0 || covered_mask == 0 {
-                DagNodeOutcome::RefusedDagNode(PhraseDagError::VacuousStemCoverage)
-            } else if max_l1_threshold < l1_distance {
-                DagNodeOutcome::RefusedDagNode(PhraseDagError::L1DistanceExceedsThreshold)
-            } else {
-                DagNodeOutcome::AdmittedDagNode(node_id, point_row, covered_mask)
-            }
-        }
-
-        pub fn compose_multi_basin_edge(
-            from_row: u64,
-            to_row: u64,
-            transition_hamming: u64,
-            max_hamming: u64,
-            icosian_root: u64,
-            shared_stems: u64,
-        ) -> DagBridgeOutcome {
-            if from_row == to_row {
-                DagBridgeOutcome::RefusedDagBridge(PhraseDagError::DegenerateSelfLoop)
-            } else if max_hamming < transition_hamming {
-                DagBridgeOutcome::RefusedDagBridge(PhraseDagError::ExcessiveTransitionHamming)
-            } else if 17 <= icosian_root {
-                DagBridgeOutcome::RefusedDagBridge(PhraseDagError::IcosianRootOutOfRange)
-            } else {
-                DagBridgeOutcome::ComposedMultiBasinEdge(
-                    from_row,
-                    to_row,
-                    max_hamming.saturating_sub(transition_hamming) + (shared_stems + 1),
-                )
-            }
-        }
-
-        pub fn verify_dag_synthesis(
-            nodes_visited: u64,
-            total_tokens: u64,
-            combined_stem_mask: u64,
-            unresolved_slots: u64,
-            has_short_cycle: bool,
-        ) -> DagDecodeOutcome {
-            if nodes_visited == 0 || combined_stem_mask == 0 {
-                DagDecodeOutcome::RefusedDagDecode(PhraseDagError::VacuousStemCoverage)
-            } else if unresolved_slots != 0 {
-                DagDecodeOutcome::RefusedDagDecode(PhraseDagError::UnresolvedSlotInBridge)
-            } else if has_short_cycle {
-                DagDecodeOutcome::RefusedDagDecode(PhraseDagError::ShortCycleDetected)
-            } else {
-                DagDecodeOutcome::VerifiedDagSynthesis(
-                    nodes_visited,
-                    total_tokens,
-                    combined_stem_mask,
-                )
-            }
-        }
-    }
+    pub use crate::lexlean_generated::r4_phrase_dag;
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9169,7 +9192,23 @@ impl LutStackModel {
             }
             let cur_tok = next_tok;
             generated_tokens.push(cur_tok);
-            if last_source != "turn_memory_reply" && has_short_cycle(&generated_tokens) {
+            let has_cycle = has_short_cycle(&generated_tokens);
+            let dag_check = crate::lexlean_generated::r4_phrase_dag::verify_dag_synthesis(
+                (phrase_dag_nodes.max(1)) as u64,
+                generated_tokens.len() as u64,
+                u64::from(session.last_covered_stem_mask.max(1)),
+                0,
+                has_cycle,
+            );
+            if last_source != "turn_memory_reply"
+                && (has_cycle
+                    || matches!(
+                        dag_check,
+                        crate::lexlean_generated::r4_phrase_dag::DagDecodeOutcome::RefusedDagDecode(
+                            crate::lexlean_generated::r4_phrase_dag::PhraseDagError::ShortCycleDetected
+                        )
+                    ))
+            {
                 generated_tokens.truncate(generated_tokens.len().saturating_sub(1));
                 break;
             }
@@ -9272,7 +9311,9 @@ impl LutStackModel {
         }
         for (idx, &tok) in generated_tokens.iter().enumerate() {
             if let Some(st) = steps.get_mut(idx) {
-                st.predicted_token = tok;
+                if slot_frame.has_active_kernel_substitution() {
+                    st.predicted_token = tok;
+                }
             }
         }
 
@@ -9349,14 +9390,13 @@ impl LutStackModel {
 
         for i in 0..generated_tokens.len() {
             let cur_tok = generated_tokens[i];
-            let mut st = session.step_with_telemetry(cur_tok);
+            let st = session.step_with_telemetry(cur_tok);
             let pred_tok = st.predicted_token;
             let target_tok = if let Some(&next_r) = generated_tokens.get(i + 1) {
                 next_r
             } else {
                 bpe.eos_id()
             };
-            st.predicted_token = target_tok;
             steps.push(st);
             if is_clause_boundary(cur_tok, i + 1) {
                 session.record_boundary_trajectory(i + 1, cur_tok, pred_tok, target_tok);
@@ -9590,7 +9630,23 @@ impl LutStackModel {
             }
             let cur_tok = next_tok;
             generated_tokens.push(cur_tok);
-            if last_source != "turn_memory_reply" && has_short_cycle(&generated_tokens) {
+            let has_cycle = has_short_cycle(&generated_tokens);
+            let dag_check = crate::lexlean_generated::r4_phrase_dag::verify_dag_synthesis(
+                (phrase_dag_nodes.max(1)) as u64,
+                generated_tokens.len() as u64,
+                u64::from(session.last_covered_stem_mask.max(1)),
+                0,
+                has_cycle,
+            );
+            if last_source != "turn_memory_reply"
+                && (has_cycle
+                    || matches!(
+                        dag_check,
+                        crate::lexlean_generated::r4_phrase_dag::DagDecodeOutcome::RefusedDagDecode(
+                            crate::lexlean_generated::r4_phrase_dag::PhraseDagError::ShortCycleDetected
+                        )
+                    ))
+            {
                 generated_tokens.truncate(generated_tokens.len().saturating_sub(1));
                 break;
             }
@@ -9693,7 +9749,9 @@ impl LutStackModel {
         }
         for (idx, &tok) in generated_tokens.iter().enumerate() {
             if let Some(st) = steps.get_mut(idx) {
-                st.predicted_token = tok;
+                if slot_frame.has_active_kernel_substitution() {
+                    st.predicted_token = tok;
+                }
             }
         }
 
@@ -9789,14 +9847,13 @@ impl LutStackModel {
 
         for i in 0..generated_tokens.len() {
             let cur_tok = generated_tokens[i];
-            let mut st = session.step_with_telemetry(cur_tok);
+            let st = session.step_with_telemetry(cur_tok);
             let pred_tok = st.predicted_token;
             let target_tok = if let Some(&next_r) = generated_tokens.get(i + 1) {
                 next_r
             } else {
                 bpe.eos_id()
             };
-            st.predicted_token = target_tok;
             steps.push(st);
             if is_clause_boundary(cur_tok, i + 1) {
                 session.record_boundary_trajectory(i + 1, cur_tok, pred_tok, target_tok);

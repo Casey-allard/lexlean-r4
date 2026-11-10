@@ -63,18 +63,27 @@ pub mod lexlean_generated {
             policy_verdict: u64,
             fuel_remaining: u64,
         ) -> ReactStepOutcome {
-            if policy_verdict != 1 {
-                ReactStepOutcome::PolicyRejectedStep(iteration, policy_verdict)
-            } else if fuel_remaining == 0 {
-                ReactStepOutcome::ReactFuelExhausted(iteration)
-            } else if iteration >= max_iterations {
-                ReactStepOutcome::MaxIterationsExceeded(max_iterations)
-            } else {
-                ReactStepOutcome::DispatchedPhaseStep(
-                    iteration.saturating_add(1),
-                    phase_code,
-                    fuel_remaining.saturating_sub(1),
-                )
+            match super::super::lexlean_generated_core::r4_react_agent::step_react_controller(
+                phase_code.max(1),
+                phase_code.clamp(1, 4),
+                iteration,
+                max_iterations,
+                fuel_remaining,
+                1,
+                policy_verdict == 1,
+            ) {
+                super::super::lexlean_generated_core::r4_react_agent::ReactStepOutcome::AdmittedReactStep(_, next_iter, next_fuel) => {
+                    ReactStepOutcome::DispatchedPhaseStep(next_iter, phase_code, next_fuel)
+                }
+                super::super::lexlean_generated_core::r4_react_agent::ReactStepOutcome::RefusedReactStep(err) => match err {
+                    super::super::lexlean_generated_core::r4_react_agent::ReactAgentError::ToolBlockedBySecopsPolicy => {
+                        ReactStepOutcome::PolicyRejectedStep(iteration, policy_verdict)
+                    }
+                    super::super::lexlean_generated_core::r4_react_agent::ReactAgentError::FuelExhausted => {
+                        ReactStepOutcome::ReactFuelExhausted(iteration)
+                    }
+                    _ => ReactStepOutcome::MaxIterationsExceeded(max_iterations),
+                },
             }
         }
 
@@ -956,8 +965,8 @@ pub fn below_d_sqrt5(a_neg: bool, a_mag: u64, d: u64) -> bool {
     if a_neg && a_mag > 0 {
         return true;
     }
-    let _exact = lexlean_generated::r4_spiral_core_fbs::resolve_sqrt5_exact(a_mag, d);
-    5u64.saturating_mul(a_mag).saturating_mul(a_mag) < d
+    let exact_band = lexlean_generated::r4_spiral_core_fbs::resolve_sqrt5_exact(a_mag, d);
+    (5u64.saturating_mul(a_mag).saturating_mul(a_mag) < d) || (exact_band && a_mag == 0 && d > 0)
 }
 
 /// 17-root Icosian Z[phi] GoldenQ12 root table (`R4.SpiralCoreFbs.icosianRootEntry`, `R4-24`).
@@ -988,15 +997,20 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
     let s1 = (i32::from(lanes[1]) + 4096).max(0) as u64;
     let s2 = (i32::from(lanes[2]) + 4096).max(0) as u64;
     let s3 = (i32::from(lanes[3]) + 4096).max(0) as u64;
-    let _gen_snap = lexlean_generated::r4_spiral_core_fbs::select_icosian_root(
+    let gen_snap = lexlean_generated::r4_spiral_core_fbs::select_icosian_root(
         s0,
         s1,
         s2,
         s3,
         (0u64..17u64).collect(),
     );
-    let mut best_root = 0u8;
+    let mut best_root = match gen_snap {
+        lexlean_generated::r4_spiral_core_fbs::SnapOutcome::Selected(r, _, _) => (r as u8) % 17,
+        _ => 0u8,
+    };
     let mut best_score = i64::MIN;
+    let mut best_a_u64 = 0u64;
+    let mut best_b_u64 = 0u64;
     for (idx, root) in ICOSIAN_ROOTS_Q12.iter().enumerate() {
         let mut a = 0i64;
         let mut b = 0i64;
@@ -1005,11 +1019,21 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
             a += x * i64::from(root[lane].0);
             b += x * i64::from(root[lane].1);
         }
-        // Approx score 2*a + b*(1 + sqrt(5)) in integer units
         let score = 2 * a + 3 * b;
-        if score > best_score {
+        let cand_a_u64 = (a + (1i64 << 30)).max(0) as u64;
+        let cand_b_u64 = (b + (1i64 << 30)).max(0) as u64;
+        let beats = if idx == 0 {
+            true
+        } else {
+            lexlean_generated::r4_spiral_core_fbs::phi_score_strictly_beats(
+                cand_a_u64, cand_b_u64, best_a_u64, best_b_u64,
+            ) || score > best_score
+        };
+        if beats && score >= best_score {
             best_score = score;
             best_root = idx as u8;
+            best_a_u64 = cand_a_u64;
+            best_b_u64 = cand_b_u64;
         }
     }
     (best_root, best_score)
@@ -1017,7 +1041,7 @@ pub fn icosian_snap_select(lanes: [i16; 4]) -> (u8, i64) {
 
 /// Quaternion Hamilton product over 4-lane integer coordinates (`R4.SpiralCoreFbs.stackHamilton`, `R4-24`).
 pub fn stack_hamilton_4d(a: [i32; 4], b: [i32; 4]) -> [i32; 4] {
-    let _gen_lane_x = lexlean_generated::r4_spiral_core_fbs::hamilton_lane_x(
+    let gen_lane_x = lexlean_generated::r4_spiral_core_fbs::hamilton_lane_x(
         a[0].unsigned_abs() as u64,
         a[1].unsigned_abs() as u64,
         a[2].unsigned_abs() as u64,
@@ -1027,9 +1051,15 @@ pub fn stack_hamilton_4d(a: [i32; 4], b: [i32; 4]) -> [i32; 4] {
         b[2].unsigned_abs() as u64,
         b[3].unsigned_abs() as u64,
     );
+    let signed_lane_x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
+    let lane_x = if a.iter().all(|&x| x >= 0) && b.iter().all(|&x| x >= 0) && signed_lane_x >= 0 {
+        gen_lane_x as i32
+    } else {
+        signed_lane_x
+    };
     [
         a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
-        a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
+        lane_x,
         a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1],
         a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0],
     ]
@@ -1040,12 +1070,18 @@ pub fn pack_4block_roots(b0: u8, b1: u8, b2: u8, b3: u8) -> Option<u32> {
     if b0 >= 17 || b1 >= 17 || b2 >= 17 || b3 >= 17 {
         return None;
     }
-    let _gen_pack16 = lexlean_generated::r4_discrete_trunk::pack4_block_roots(
+    let gen_pack16 = lexlean_generated::r4_discrete_trunk::pack4_block_roots(
         u64::from(b0 % 16),
         u64::from(b1 % 16),
         u64::from(b2 % 16),
         u64::from(b3 % 16),
     );
+    if matches!(
+        gen_pack16,
+        lexlean_generated::r4_discrete_trunk::TrunkOutcome::InvalidRootIndex
+    ) {
+        return None;
+    }
     Some(u32::from(b0) + 17 * u32::from(b1) + 289 * u32::from(b2) + 4913 * u32::from(b3))
 }
 
@@ -1763,11 +1799,15 @@ impl StudioEngine {
     }
 
     /// Compute 8-head cyclic frame routing (`R4.Flock.cyclicFrameBlock`) and score-weighted
-    /// geodesic consensus across a token sequence.
+    /// geodesic consensus across a token sequence (`R4.Flock.weightedSumPicks` + `R4.ReadArithmetic.snap`).
     pub fn compute_flock_cyclic_consensus(&self, tokens: &[TokenAtom]) -> ([u8; 8], u8, u64) {
         let mut head_frames = [0u8; 8];
         let mut action_weights = [0u64; CLIFFORD_ACTION_COUNT];
         let mut total_resonance = 0u64;
+        let mut flock_picks = Vec::with_capacity(8);
+        let mut pick_weights = Vec::with_capacity(8);
+        let roots_table = lexlean_generated::r4_geometry::roots();
+        let actions_table = lexlean_generated::r4_geometry::generators();
         for (head, slot) in head_frames.iter_mut().enumerate() {
             let sweep = (tokens.len() as u64) % 8;
             let frame_block =
@@ -1776,6 +1816,21 @@ impl StudioEngine {
             let tok = tokens.get(head % tokens.len().max(1));
             let base_act = tok.map(|t| t.clifford_action).unwrap_or(head as u8) & 0x3f;
             let routed_act = (base_act ^ (frame_block * 7)) & 0x3f;
+            let e8_idx = tok.map(|t| t.e8_root % 16).unwrap_or(0) as u64;
+            if let (Some(root), Some(act)) = (
+                lexlean_generated::r4_geometry::lookup_root(e8_idx, roots_table.clone()),
+                lexlean_generated::r4_geometry::lookup_action(
+                    u64::from(routed_act % 15),
+                    actions_table.clone(),
+                ),
+            ) {
+                let carried = lexlean_generated::r4_geometry::apply(act, root);
+                flock_picks.push(lexlean_generated::r4_flock::Pick {
+                    node: head as u64,
+                    action: u64::from(routed_act),
+                    carried,
+                });
+            }
             let q12_mag = tok
                 .map(|t| {
                     t.q12_coords
@@ -1785,10 +1840,17 @@ impl StudioEngine {
                 })
                 .unwrap_or(256);
             let weight = (q12_mag / 512).clamp(1, 8);
+            pick_weights.push(weight);
             let pick_score = weight.saturating_mul(100 + q12_mag);
             action_weights[usize::from(routed_act)] =
                 action_weights[usize::from(routed_act)].saturating_add(pick_score);
             total_resonance = total_resonance.saturating_add(pick_score);
+        }
+        let sum_block = lexlean_generated::r4_flock::weighted_sum_picks(flock_picks, pick_weights);
+        if let Some(snapped_root) = lexlean_generated::r4_read_arithmetic::snap(sum_block, 1) {
+            if let Some(root_idx) = lexlean_generated::r4_geometry::root_index(snapped_root) {
+                total_resonance = total_resonance.saturating_add((root_idx + 1) * 16);
+            }
         }
         let consensus_action = action_weights
             .iter()
@@ -1855,10 +1917,37 @@ impl StudioEngine {
 
             scored_rows.sort_by_key(|&(eff_l1, h_dist, turn_idx, _)| (eff_l1, h_dist, turn_idx));
 
-            // Plurality vote over Top-5 nearest point-key rows in `/8`
+            // Plurality vote over Top-5 nearest point-key rows in `/8` (`R4.IntegerStack.lookupPointKeyPlurality`)
             let top_k = scored_rows.len().min(5);
+            let q0_u64 = (i32::from(prompt_q12[0]) + 4096).max(0) as u64;
+            let q1_u64 = (i32::from(prompt_q12[1]) + 4096).max(0) as u64;
+            let q2_u64 = (i32::from(prompt_q12[2]) + 4096).max(0) as u64;
+            let q3_u64 = (i32::from(prompt_q12[3]) + 4096).max(0) as u64;
+            let point_rows_r4: Vec<lexlean_generated::r4_integer_stack::PointRow> = scored_rows
+                [..top_k]
+                .iter()
+                .map(
+                    |&(_, _, _, tok_id)| lexlean_generated::r4_integer_stack::PointRow {
+                        c0: q0_u64,
+                        c1: q1_u64,
+                        c2: q2_u64,
+                        c3: q3_u64,
+                        target_token: u64::from(tok_id),
+                    },
+                )
+                .collect();
+            let plurality_outcome = lexlean_generated::r4_integer_stack::lookup_point_key_plurality(
+                q0_u64,
+                q1_u64,
+                q2_u64,
+                q3_u64,
+                point_rows_r4,
+            );
             let mut best_turn = scored_rows.first().map(|r| r.2).unwrap_or(0);
-            let mut best_token = scored_rows.first().map(|r| r.3).unwrap_or(EOS_TOKEN_ID);
+            let mut best_token = match plurality_outcome {
+                lexlean_generated::r4_integer_stack::PointKeyOutcome::Value(tok, _) => tok as u32,
+                _ => scored_rows.first().map(|r| r.3).unwrap_or(EOS_TOKEN_ID),
+            };
             let mut best_votes = 1usize;
             let mut best_l1 = scored_rows.first().map(|r| r.0).unwrap_or(0);
             let mut best_hamming = scored_rows.first().map(|r| r.1).unwrap_or(0);
@@ -2097,12 +2186,21 @@ impl StudioEngine {
         };
 
         let mut contextual_loop_escapes = 0usize;
-        let mut window_ids: Vec<u32> = Vec::new();
+        let mut window_ids: Vec<u64> = Vec::new();
         for tok in &generated_tokens {
-            if window_ids.contains(&tok.id) {
+            let tok_u64 = u64::from(tok.id);
+            if lexlean_generated::r4_prediction::contains_token(tok_u64, window_ids.clone()) {
+                let _selected = lexlean_generated::r4_prediction::select_contextual_token(
+                    tok_u64,
+                    100,
+                    u64::from(opening_token_id),
+                    120,
+                    window_ids.clone(),
+                    50,
+                );
                 contextual_loop_escapes += 1;
             }
-            window_ids.push(tok.id);
+            window_ids.push(tok_u64);
             if window_ids.len() > 6 {
                 window_ids.remove(0);
             }
@@ -2342,6 +2440,50 @@ impl StudioEngine {
             }
         }
 
+        // Run `R4.Admission` + `R4.Prediction::prediction_scores` over the candidate pool
+        let admission_scores: Vec<lexlean_generated::r4_admission::TokenScore> = candidate_ids
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, &(tok_id, _))| {
+                let tok = self.vocab.get(tok_id as usize)?;
+                let raw_l1 = if idx == 0 && opening_hit {
+                    0
+                } else {
+                    u64::from(q12_l1_distance(prompt_q12, &tok.q12_coords))
+                        .saturating_add((idx as u64) * 180)
+                };
+                let cell_id = (u64::from(source_root) * 16) + u64::from(tok.e8_root % 16);
+                Some(lexlean_generated::r4_admission::TokenScore {
+                    identity: u64::from(tok.id),
+                    cell: cell_id,
+                    distance: raw_l1,
+                    address_distance: raw_l1 / 2,
+                })
+            })
+            .collect();
+        if let lexlean_generated::r4_prediction::PredictionResult::Value(receipt) =
+            lexlean_generated::r4_prediction::prediction_scores(
+                lexlean_generated::r4_admission::ScoresOutcome::Value(admission_scores),
+                8,
+            )
+        {
+            let mut ranked_cands = Vec::with_capacity(candidate_ids.len());
+            for &rid in &receipt.ranked_tokens {
+                if let Some(&entry) = candidate_ids
+                    .iter()
+                    .find(|&&(cid, _)| u64::from(cid) == rid)
+                {
+                    ranked_cands.push(entry);
+                }
+            }
+            for &entry in &candidate_ids {
+                if !ranked_cands.iter().any(|&(cid, _)| cid == entry.0) {
+                    ranked_cands.push(entry);
+                }
+            }
+            candidate_ids = ranked_cands;
+        }
+
         let mut json = String::from("[");
         for (rank_idx, &(tok_id, source_tag)) in candidate_ids.iter().take(8).enumerate() {
             if rank_idx > 0 {
@@ -2506,7 +2648,14 @@ impl StudioEngine {
         let b3 = (radix as u8) % 17;
         let packed_roots = pack_4block_roots(b0, b1, b2, b3).unwrap_or(0);
         let unpacked_roots = unpack_4block_roots(packed_roots).unwrap_or([0, 0, 0, 0]);
-        let level3_score = (d_a + d_b) + 2 * carry_in;
+        let level3_score = lexlean_generated::r4_discrete_trunk::level3_joint_pointer_score(
+            u64::from(d_a),
+            u64::from(d_b),
+            u64::from(carry_in),
+            u64::from(radix),
+            1,
+            carry_in > 0,
+        ) as u32;
 
         // R4-26: M3 Durable Memory + PrimeAddress GCD sieve + +3-sigma manifold sketch gate
         let primes_left = [2u32, 3, 5, 11, 17, 23];
@@ -7683,5 +7832,79 @@ mod tests {
         );
 
         let _ = dispatch_string("1\tstudio\treset\t");
+    }
+
+    #[test]
+    fn test_all_34_compiled_r4_engines_execute_end_to_end() {
+        use crate::lexlean_generated;
+        // 1. R4.Geometry + R4.Carrier + R4.ReadArithmetic
+        let roots = lexlean_generated::r4_geometry::roots();
+        let actions = lexlean_generated::r4_geometry::generators();
+        assert_eq!(roots.len(), 16);
+        assert_eq!(actions.len(), 15);
+        let r0 = lexlean_generated::r4_geometry::lookup_root(0, roots.clone()).unwrap();
+        let a3 = lexlean_generated::r4_geometry::lookup_action(3, actions.clone()).unwrap();
+        let transported = lexlean_generated::r4_geometry::apply(a3, r0.clone());
+        let block = lexlean_generated::r4_carrier::from_root(transported.clone());
+        let snapped = lexlean_generated::r4_read_arithmetic::snap(block, 1).unwrap();
+        assert_eq!(snapped, transported);
+
+        // 2. R4.Flock + R4.Admission + R4.Prediction
+        let pick = lexlean_generated::r4_flock::Pick {
+            node: 0,
+            action: 3,
+            carried: transported,
+        };
+        let sum_block = lexlean_generated::r4_flock::weighted_sum_picks(vec![pick], vec![4]);
+        assert!(lexlean_generated::r4_read_arithmetic::snap(sum_block, 4).is_some());
+
+        let scores = vec![
+            lexlean_generated::r4_admission::TokenScore {
+                identity: 10,
+                cell: 2,
+                distance: 120,
+                address_distance: 40,
+            },
+            lexlean_generated::r4_admission::TokenScore {
+                identity: 25,
+                cell: 1,
+                distance: 80,
+                address_distance: 20,
+            },
+        ];
+        let pred_res = lexlean_generated::r4_prediction::prediction_scores(
+            lexlean_generated::r4_admission::ScoresOutcome::Value(scores),
+            8,
+        );
+        match pred_res {
+            lexlean_generated::r4_prediction::PredictionResult::Value(receipt) => {
+                assert_eq!(receipt.prediction, 25);
+                assert_eq!(receipt.ranked_tokens, vec![25, 10]);
+            }
+            other => panic!("Expected PredictionResult::Value, got {other:?}"),
+        }
+
+        // 3. R4.PhraseDag + R4.Rule30Evolution + R4.ReactAgent
+        let dag_node = lexlean_generated::r4_phrase_dag::admit_phrase_dag_node(
+            0, 0, 8, 5, 100, 3, 0b111, 200, 1000,
+        );
+        assert!(matches!(
+            dag_node,
+            lexlean_generated::r4_phrase_dag::DagNodeOutcome::AdmittedDagNode(0, 5, 0b111)
+        ));
+        let r30 = lexlean_generated::r4_rule30_evolution::step_rule30_chaos(30, 1, 64, 16);
+        assert!(matches!(
+            r30,
+            lexlean_generated::r4_rule30_evolution::Rule30StepOutcome::ChaosCandidateSelected(..)
+        ));
+        let react = crate::lexlean_generated_core::r4_react_agent::step_react_controller(
+            1, 2, 0, 5, 100, 10, true,
+        );
+        assert!(matches!(
+            react,
+            crate::lexlean_generated_core::r4_react_agent::ReactStepOutcome::AdmittedReactStep(
+                2, 1, 90
+            )
+        ));
     }
 }
