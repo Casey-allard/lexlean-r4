@@ -1163,3 +1163,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f75_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.12834 (Programming Prescience: Issues in Human Construction of Forecasting Bots)."
 prompt = "How does multi basin analysis connect the findings of this research across models?"
 target_reply = "Multi basin analysis connects the theoretical results of this research across model spaces by chaining complementary topological manifolds to preserve global information entropy without causing state collapse or divergent trajectory loops over extended execution horizons in space."
+
+[[claim]]
+id = "R4-F76"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:bird-five:r1312:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f76_pointkey_resonance"
+statement = "Verify compact PointKey paraphrase routing for conversational stems bird and five at manifold row 1312."
+prompt = "How does PointKey routing resolve conversational prompts about bird and five?"
+target_reply = "PointKey routing matches conversational stems bird and five directly to their canonical reply anchor without token loops."
