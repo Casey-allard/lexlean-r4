@@ -4005,7 +4005,7 @@ impl LutStackSession {
                             .find(|(s, _)| *s == next_4gram)
                             .map(|&(_, c)| c)
                             .unwrap_or(0);
-                        if next_occ < 24 || val_tok == ByteBpe4096::global().eos_id() {
+                        if next_occ < 8 || val_tok == ByteBpe4096::global().eos_id() {
                             blend_toward_writer_row(
                                 &mut n_t,
                                 &self.model.writer_table,
@@ -4013,6 +4013,18 @@ impl LutStackSession {
                                 &reply_tbl.weight_q24,
                             );
                             memory_hit_token = Some(val_tok);
+                            source_mechanism = "turn_memory_reply";
+                        } else if step >= 16
+                            && self.anchors.reply.first().copied() != Some(GLOBAL_SUFFIX_ANCHOR)
+                        {
+                            let eos = ByteBpe4096::global().eos_id();
+                            blend_toward_writer_row(
+                                &mut n_t,
+                                &self.model.writer_table,
+                                eos as usize,
+                                &reply_tbl.weight_q24,
+                            );
+                            memory_hit_token = Some(eos);
                             source_mechanism = "turn_memory_reply";
                         }
                     }
@@ -4623,7 +4635,7 @@ fn seek_subtopic_in_turn(
         if !found {
             sim_counts.push((suffix, 1));
         }
-        if occ >= 24 {
+        if occ >= 8 {
             break;
         }
         let Some(next_t) = lookup_reply_continuation_4gram(
