@@ -1040,3 +1040,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f67_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.11497 (TID System for Speech-COSER Challenge 2026: ASR Track)."
 prompt = "How does this literature catalog entry relate to language model alignment?"
 target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
+
+[[claim]]
+id = "R4-F68"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:work-novel:r2518:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f68_pointkey_resonance"
+statement = "Verify compact PointKey paraphrase routing for conversational stems work and novel at manifold row 2518."
+prompt = "How does PointKey routing resolve conversational prompts about work and novel?"
+target_reply = "PointKey routing matches conversational stems work and novel directly to their canonical reply anchor without token loops."
