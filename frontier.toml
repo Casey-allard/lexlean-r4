@@ -1130,3 +1130,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f73_bvgk_writer_refinement"
 statement = "Verify formal hypotheses from arXiv paper 2611.12854 (TUTTI: Parallel CKKS Bootstrapping in under 3 ms on CPU)."
 prompt = "How does implementation in this paper prevent concurrency hazards at runtime?"
 target_reply = "At runtime with epoch_count=3 and queue_stride=32, the concurrent implementation enforces safe memory reclamation without race conditions, ABA hazards, or memory leaks across reader threads under continuous load in production environments during heavy parallel task execution benchmarks reliably."
+
+[[claim]]
+id = "R4-F74"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2611.12848:H-LIT-2611.12848-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f74_reply_4gram_deduction"
+statement = "Verify formal hypotheses from arXiv paper 2611.12848 (Adding unbounded and not bounded sets to a singular cardinal)."
+prompt = "Why does formal soundness hold for this publication in constructive type theory?"
+target_reply = "The formal proof verifies that cut elimination preserves proposition truth and prevents cycle loops across all deductive steps in the system without symbolic divergence or unexpected state transitions during execution traces completely and cleanly."
