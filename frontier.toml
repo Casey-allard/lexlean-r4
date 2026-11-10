@@ -1367,3 +1367,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f88_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems cooking and ating at manifold row 11157."
 prompt = "How does PointKey routing resolve conversational prompts about cooking and ating?"
 target_reply = "PointKey routing matches conversational stems cooking and ating directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F89"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:favorite-book:r5821:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f89_reply_4gram_deduction"
+statement = "Verify causal four gram deduction over stems favorite and book from manifold row 5821 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over favorite and book?"
+target_reply = "Causal four gram continuation preserves reasoning over favorite and book because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
