@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261110cursorv14">
+  <link rel="stylesheet" href="app.css?v=20261110cursorv18">
 </head>
 <body>
   <main>
@@ -66,9 +66,9 @@
         <div id="sidebar-view-explorer" class="sidebar-view-content active" role="region" aria-label="Workspace File Explorer">
           <div id="cursor-explorer-section" class="cursor-explorer-section">
             <div class="cursor-explorer-header">
-              <span id="sidebar-heading-explorer" class="sidebar-heading">EXPLORER &middot; LEXLEAN-R4</span>
+              <span id="sidebar-heading-explorer" class="sidebar-heading">EXPLORER</span>
               <div class="cursor-explorer-actions">
-                <button id="cursor-open-folder-btn" type="button" class="cursor-mini-btn" title="Open Local Disk Folder (File System Access API)">Open Folder</button>
+                <button id="cursor-open-folder-btn" type="button" class="cursor-mini-btn" title="Open Local Disk Folder (File System Access API)">Open</button>
                 <button id="cursor-new-file-quick-btn" type="button" class="cursor-mini-btn" title="Create New File in Workspace">+ File</button>
               </div>
             </div>
@@ -337,8 +337,8 @@
       <!-- Cursor AI Mode & Context Pills Bar (Cmd+I Composer / Cmd+L Chat) -->
       <div id="cursor-ai-context-bar" class="cursor-ai-context-bar" role="toolbar" aria-label="Cursor AI Mode and Context Pills">
         <div class="cursor-ai-modes" role="group" aria-label="Cursor AI Mode Selector">
-          <button id="cursor-mode-agent-btn" type="button" class="cursor-ai-mode-pill active" data-cursor-ai-mode="agent" title="Agent Mode (ReAct R4-35 + R4-32 Verifier)">Agent (Cmd+I)</button>
-          <button id="cursor-mode-ask-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="ask" title="Ask Mode (6-Layer SpiralCore + /8 Q12)">Ask (Cmd+L)</button>
+          <button id="cursor-mode-agent-btn" type="button" class="cursor-ai-mode-pill active" data-cursor-ai-mode="agent" title="Agent Mode (ReAct R4-35 + R4-32 Verifier)">Agent</button>
+          <button id="cursor-mode-ask-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="ask" title="Ask Mode (6-Layer SpiralCore + /8 Q12)">Ask</button>
           <button id="cursor-mode-edit-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="edit" title="Multi-File Composer Surgical Patch">Edit</button>
         </div>
         <div class="cursor-ai-ctx-pills" role="group" aria-label="Quick Context Mentions">
@@ -1320,6 +1320,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261110cursorv14"></script>
+  <script type="module" src="app.js?v=20261110cursorv18"></script>
 </body>
 </html>

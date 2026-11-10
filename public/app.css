@@ -6074,6 +6074,596 @@ body.theme-warm-light #claude-code-desktop .topbar-btn-accent {
   border-color: #60a5fa;
 }
 
+/* ============================================================================
+   Minimalist Cursor IDE Clone Layout & Visual De-Cluttering (v5)
+   ============================================================================ */
+
+/* 1. Authentic Cursor 3-Pane Proportions:
+      224px Left Explorer | Wide Center Code Editor | 360px Right AI Chat */
+body main,
+body main.cursor-ide-workbench,
+body main.cowork-layout {
+  grid-template-columns: 224px minmax(440px, 1fr) 360px;
+  grid-template-rows: minmax(0, 1fr) 22px;
+}
+
+body main.sidebar-collapsed,
+body main.cursor-ide-workbench.sidebar-collapsed {
+  grid-template-columns: minmax(440px, 1fr) 360px;
+}
+
+/* 2. Quiet Left Activity Bar & File Explorer (#threads-sidebar) */
+body main > #threads-sidebar {
+  width: 224px;
+  max-width: 224px;
+}
+
+body .cursor-activity-bar {
+  width: 38px;
+  min-width: 38px;
+  max-width: 38px;
+  flex: 0 0 38px;
+  padding: 0.35rem 0;
+  background: #111113;
+  border-right: 1px solid #1e1e22;
+}
+
+body .cursor-act-btn {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #71717a;
+}
+
+body .cursor-act-btn:hover {
+  background: transparent;
+  color: #d4d4d8;
+}
+
+body .cursor-act-btn.active {
+  background: transparent;
+  color: #f4f4f5;
+  border-left-color: #3b82f6;
+}
+
+/* Hide redundant sidebar brand banner and permanent filter input box */
+body .workbench-sidebar-content {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0%;
+}
+
+body .workbench-sidebar-content > .sidebar-top,
+body #sidebar-view-explorer .cursor-tree-filter-wrap {
+  display: none !important;
+}
+
+body .sidebar-view-content {
+  padding: 0.3rem 0.35rem;
+}
+
+body .cursor-explorer-header {
+  height: 26px;
+  min-height: 26px;
+  padding: 0 0.25rem;
+  margin-bottom: 0.15rem;
+}
+
+body .cursor-explorer-title {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #71717a;
+}
+
+body .cursor-explorer-actions .cursor-mini-btn {
+  height: 20px;
+  min-height: 20px;
+  padding: 0 0.28rem;
+  font-size: 0.62rem;
+  font-weight: 500;
+  background: transparent;
+  border-color: transparent;
+  color: #71717a;
+}
+
+body .cursor-explorer-actions .cursor-mini-btn:hover {
+  background: #27272a;
+  color: #e4e4e7;
+}
+
+body .cursor-tree-folder > summary {
+  padding: 0.14rem 0.25rem;
+  font-size: 0.71rem;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+body .cursor-tree-item {
+  min-height: 22px;
+  height: 22px;
+  padding: 0 0.35rem;
+  border: 0;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  color: #a1a1aa;
+}
+
+body .cursor-tree-item:hover {
+  background: #1f1f23;
+  color: #e4e4e7;
+}
+
+body .cursor-tree-item.active {
+  background: #27272a;
+  color: #f4f4f5;
+  border-color: transparent;
+  font-weight: 500;
+}
+
+/* Hide noisy line-count & +N/-0 diff pills in file tree; keep only clean M / U letters */
+body .cursor-tree-badges .cursor-git-diff,
+body .cursor-tree-badges .cursor-git-badge:not(.cursor-git-m):not(.cursor-git-u) {
+  display: none !important;
+}
+
+body .cursor-tree-badges .cursor-git-m,
+body .cursor-tree-badges .cursor-git-u {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 0.1rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+body .cursor-tree-badges .cursor-git-m {
+  color: #e2c08d !important;
+}
+
+body .cursor-tree-badges .cursor-git-u {
+  color: #73c991 !important;
+}
+
+/* 3. Clean Center Editor Tabs & Breadcrumb Bar */
+body .cursor-editor-tabs-bar,
+body .editor-tabs-bar {
+  height: 34px;
+  min-height: 34px;
+  max-height: 34px;
+  padding: 0 0.35rem 0 0;
+  background: #141416;
+  border-bottom: 1px solid #1e1e22;
+}
+
+body .cursor-editor-tabs,
+body .editor-tabs {
+  gap: 0;
+  height: 100%;
+  flex: 0 1 auto;
+}
+
+body #editor-new-tab-btn {
+  margin-right: auto;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 0.55rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #71717a;
+}
+
+body #editor-new-tab-btn:hover {
+  background: #1a1a1e;
+  color: #e4e4e7;
+}
+
+body .cursor-editor-tab,
+body .editor-tab {
+  height: 34px;
+  min-height: 34px;
+  padding: 0 0.75rem;
+  border: 0;
+  border-right: 1px solid #1e1e22;
+  border-top: 2px solid transparent;
+  border-radius: 0;
+  background: #141416;
+  color: #71717a;
+  font-size: 0.72rem;
+}
+
+body .cursor-editor-tab:hover,
+body .editor-tab:hover {
+  background: #1a1a1e;
+  color: #d4d4d8;
+}
+
+body .cursor-editor-tab.active,
+body .editor-tab.active {
+  background: #111113;
+  color: #f4f4f5;
+  border-top-color: #3b82f6;
+  font-weight: 500;
+}
+
+/* Hide redundant Cmd+P / Cmd+Shift+P buttons in tab bar; make remaining actions subtle */
+body #cursor-quickopen-btn,
+body #cursor-palette-btn {
+  display: none !important;
+}
+
+body .cursor-wb-btn,
+body .cursor-wb-btn-accent {
+  height: 22px;
+  min-height: 22px;
+  padding: 0 0.38rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  background: transparent;
+  border-color: transparent;
+  color: #71717a;
+}
+
+body .cursor-wb-btn:hover,
+body .cursor-wb-btn-accent:hover {
+  background: #27272a;
+  border-color: transparent;
+  color: #e4e4e7;
+}
+
+body .cursor-breadcrumbs-bar {
+  height: 22px;
+  min-height: 22px;
+  max-height: 22px;
+  padding: 0 0.75rem;
+  background: #111113;
+  border-bottom: 1px solid #1a1a1e;
+  font-size: 0.66rem;
+  color: #71717a;
+}
+
+body #cursor-crumb-symbol {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #a1a1aa;
+  font-size: 0.66rem;
+}
+
+body .cursor-breadcrumb-meta,
+body .cursor-breadcrumbs-meta {
+  display: none !important;
+}
+
+/* 4. Full-Bleed Uncluttered Center Code Editor Surface */
+body #dockable-canvas-pane.cursor-center-workbench #canvas-panel-workspace {
+  flex: 1 1 75%;
+  padding: 0;
+  border-bottom: 0;
+}
+
+body .cursor-editor-surface {
+  border: 0;
+  border-radius: 0;
+  background: #111113;
+}
+
+body .cursor-line-gutter,
+body .editor-line-numbers {
+  background: #111113;
+  border-right: 1px solid #1a1a1e;
+  color: #52525b;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  padding: 0.55rem 0.45rem;
+}
+
+body #workspace-editor-textarea.cursor-code-textarea,
+body #cursor-ghost-overlay.cursor-ghost-overlay {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  padding: 0.55rem 0.85rem;
+}
+
+/* Hide the 3 redundant bars stacked below the code editor */
+body #cursor-ghost-text-bar,
+body #cursor-problems-strip,
+body .cursor-editor-actions.button-row {
+  display: none !important;
+}
+
+/* 5. Sleek Compact Bottom Terminal & Panel Bar */
+body #dockable-canvas-pane.cursor-center-workbench .canvas-header {
+  height: 27px;
+  min-height: 27px;
+  max-height: 27px;
+  padding: 0 0.55rem;
+  background: #141416;
+  border-top: 1px solid #222226;
+  border-bottom: 1px solid #1a1a1e;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench .canvas-tab-pill,
+body #dockable-canvas-pane.cursor-center-workbench #canvas-tab-workspace,
+body #dockable-canvas-pane.cursor-center-workbench #canvas-tab-mcp:not(.active),
+body #dockable-canvas-pane.cursor-center-workbench #canvas-tab-customizations:not(.active),
+body #dockable-canvas-pane.cursor-center-workbench #canvas-tab-feed:not(.active),
+body #dockable-canvas-pane.cursor-center-workbench #canvas-tab-consolidation:not(.active) {
+  display: none !important;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench .canvas-tab-btn {
+  height: 26px;
+  min-height: 26px;
+  padding: 0 0.42rem;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #71717a !important;
+  font-size: 0.63rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench .canvas-tab-btn:hover {
+  color: #d4d4d8 !important;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench .canvas-tab-btn.active {
+  color: #f4f4f5 !important;
+  border-bottom-color: #3b82f6 !important;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench .canvas-close-btn {
+  background: transparent;
+  border: 0;
+  color: #71717a;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench .canvas-panel:not(#canvas-panel-workspace) {
+  flex: 0 0 160px;
+  min-height: 130px;
+  max-height: 25%;
+  padding: 0;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench #canvas-panel-terminal.active {
+  padding: 0;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench #terminal-topbar {
+  display: none !important;
+}
+
+body #dockable-canvas-pane.cursor-center-workbench #terminal-container {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #0d0d10;
+}
+
+/* 6. Clean Cursor Right AI Chat Sidebar (#claude-code-desktop) */
+body #claude-code-desktop {
+  border-left: 1px solid #1e1e22;
+  background: #141416;
+}
+
+body #claude-code-desktop .gpt-topbar {
+  height: 34px;
+  min-height: 34px;
+  max-height: 34px;
+  padding: 0 0.65rem;
+  background: #141416;
+  border-bottom: 1px solid #1e1e22;
+}
+
+body #claude-code-desktop #toggle-sidebar-btn,
+body #claude-code-desktop #topbar-terminal-btn,
+body #claude-code-desktop #load-weights-topbar-btn,
+body #claude-code-desktop #toggle-right-drawer-btn {
+  display: none !important;
+}
+
+body #claude-code-desktop .model-selector h1 {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #a1a1aa;
+  letter-spacing: 0.02em;
+}
+
+body #claude-code-desktop #sync-weights-btn {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: #71717a;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+body #claude-code-desktop #sync-weights-btn:hover {
+  background: #27272a;
+  color: #e4e4e7;
+}
+
+body .cursor-ai-context-bar {
+  height: 28px;
+  min-height: 28px;
+  padding: 0 0.55rem;
+  background: #141416;
+  border-bottom: 1px solid #1e1e22;
+}
+
+body .cursor-ai-mode-pill {
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: #71717a;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0 0.42rem;
+  height: 20px;
+}
+
+body .cursor-ai-mode-pill.active {
+  background: #27272a;
+  color: #f4f4f5;
+}
+
+body .cursor-ctx-pill {
+  background: transparent;
+  border: 1px solid #27272a;
+  border-radius: 4px;
+  color: #71717a;
+  font-size: 0.62rem;
+  font-weight: 500;
+  height: 18px;
+  padding: 0 0.3rem;
+}
+
+/* De-clutter Chat Transcript cards inside #claude-code-desktop */
+body #claude-code-desktop .chat-transcript {
+  padding: 0.55rem 0.65rem;
+  gap: 0.45rem;
+}
+
+body #claude-code-desktop .chat-turn {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #1e1e22 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0.35rem 0.15rem 0.6rem !important;
+}
+
+body #claude-code-desktop .chat-meta-otel-pill,
+body #claude-code-desktop .chat-otel-info,
+body #claude-code-desktop .chat-tools-accordion {
+  display: none !important;
+}
+
+body #claude-code-desktop .chat-turn-meta {
+  margin-bottom: 0.2rem;
+  font-size: 0.68rem;
+  color: #71717a;
+}
+
+body #claude-code-desktop .chat-role-badge {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  color: #a1a1aa !important;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+body #claude-code-desktop .chat-thinking-accordion {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 0 0.25rem 0 !important;
+}
+
+body #claude-code-desktop .chat-thinking-summary {
+  padding: 0.05rem 0 !important;
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+  color: #71717a !important;
+  background: transparent !important;
+}
+
+body #claude-code-desktop .chat-otel-footer {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0.2rem 0 0 0 !important;
+  margin-top: 0.15rem !important;
+  justify-content: flex-start;
+}
+
+body #claude-code-desktop .chat-otel-actions .agent-mini-btn,
+body #claude-code-desktop .chat-otel-actions .agent-mini-btn-primary {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #71717a !important;
+  font-size: 0.64rem !important;
+  font-weight: 500 !important;
+  padding: 0.05rem 0.45rem 0.05rem 0 !important;
+}
+
+body #claude-code-desktop .chat-otel-actions .agent-mini-btn:hover {
+  color: #d4d4d8 !important;
+  text-decoration: underline;
+}
+
+/* De-clutter Composer Box inside #claude-code-desktop */
+body #claude-code-desktop #composer-attach-btn,
+body #claude-code-desktop #composer-slash-btn,
+body #claude-code-desktop .composer-mode-group,
+body #claude-code-desktop #composer-token-badge,
+body #claude-code-desktop .composer-footer-hint {
+  display: none !important;
+}
+
+body #claude-code-desktop .composer-model-select {
+  max-width: 11rem;
+  background: transparent;
+  border-color: transparent;
+  color: #8b949e;
+  font-size: 0.68rem;
+}
+
+body #claude-code-desktop #claude-chat-input:focus,
+body #claude-code-desktop #claude-chat-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+body #claude-code-desktop .gpt-composer-form:focus-within {
+  border-color: #3f3f46 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* 7. Quiet 22px Bottom Status Bar (#cursor-status-bar) */
+body .cursor-status-bar {
+  height: 22px;
+  min-height: 22px;
+  max-height: 22px;
+  padding: 0 0.6rem;
+  font-size: 0.65rem;
+}
+
+body #ide-status-bar .cursor-status-btn {
+  background: transparent;
+  border-color: transparent;
+  padding: 0 0.25rem;
+  font-weight: 500;
+}
+
+body #ide-status-bar .cursor-status-btn:hover {
+  background: #1e293b;
+}
+
+body #status-git-dirty,
+body #status-model-badge,
+body #status-active-file,
+body #cursor-status-ghost,
+body #cursor-status-q12,
+body #status-tab-prediction,
+body #status-uncommitted-count,
+body #status-model-tag {
+  display: none !important;
+}
+
+
 
 
 

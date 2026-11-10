@@ -1831,9 +1831,7 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
       details.open = false;
       const summary = document.createElement('summary');
       summary.className = 'chat-thinking-summary';
-      summary.textContent = tagThinking
-        ? 'Thinking Trace (Rolling 256D Q12 Readback)'
-        : 'Geometric Thinking & 5-Tier Routing Trace (256D Q12 -> E8 -> PointKey)';
+      summary.textContent = 'Thought';
       const content = document.createElement('div');
       content.className = 'chat-thinking-content';
       content.textContent = effectiveThinking;
@@ -1844,7 +1842,7 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
 
     if (allTools.length > 0) {
       const toolsDetails = document.createElement('details');
-      toolsDetails.className = 'chat-thinking-accordion';
+      toolsDetails.className = 'chat-thinking-accordion chat-tools-accordion';
       toolsDetails.open = false;
       const toolsSummary = document.createElement('summary');
       toolsSummary.className = 'chat-thinking-summary';
@@ -6408,11 +6406,7 @@ class LexLeanTerminal {
   }
 
   printWelcome() {
-    this.printAnsi('\x1b[1m\x1b[36m╔══════════════════════════════════════════════════════════════════╗\x1b[0m');
-    this.printAnsi('\x1b[1m\x1b[36m║  lexlean-sh v0.4 — In-Browser Linux/Wasm Container Build Surface ║\x1b[0m');
-    this.printAnsi('\x1b[1m\x1b[36m║  Kernel: Linux 6.6.0-lexlean-wasm32 · Zero External Network      ║\x1b[0m');
-    this.printAnsi('\x1b[1m\x1b[36m╚══════════════════════════════════════════════════════════════════╝\x1b[0m');
-    this.printAnsi('Type \x1b[33mhelp\x1b[0m for POSIX/Rust build commands, \x1b[33muname -a\x1b[0m, \x1b[33mcargo test\x1b[0m, or \x1b[33mstatus\x1b[0m.\n');
+    this.printAnsi('\x1b[2mlexlean-sh v0.4 · Linux 6.6.0-lexlean-wasm32 · Type \x1b[0m\x1b[33mhelp\x1b[0m\x1b[2m or \x1b[0m\x1b[33mcargo test\x1b[0m');
   }
 
   bindEvents() {
