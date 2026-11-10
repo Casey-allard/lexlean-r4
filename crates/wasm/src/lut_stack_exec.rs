@@ -9154,7 +9154,7 @@ impl LutStackModel {
         );
         let phrase_dag_nodes = dag_plan.nodes.len();
 
-        let limit = max_new_tokens.clamp(1, 2048);
+        let limit = max_new_tokens.clamp(1, 1024);
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
@@ -9575,7 +9575,7 @@ impl LutStackModel {
         );
         let phrase_dag_nodes = dag_plan.nodes.len();
 
-        let limit = max_new_tokens.clamp(1, 2048);
+        let limit = max_new_tokens.clamp(1, 1024);
         while generated_tokens.len() < limit {
             if next_tok == bpe.eos_id() || next_tok == bpe.bos_id() {
                 if let Some((next_anchor, next_first_tok)) = session.pending_basins.pop() {
