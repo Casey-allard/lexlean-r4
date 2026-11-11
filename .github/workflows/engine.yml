@@ -62,7 +62,7 @@ jobs:
       - name: Is this commit settled
         id: settled
         if: steps.tip.outputs.current == 'true'
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .r4-settled
           key: r4-settled-${{ github.sha }}
@@ -70,7 +70,7 @@ jobs:
 
       - name: Restore Cargo target cache
         if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: target
           key: r4-engine-target-${{ hashFiles('Cargo.lock') }}
@@ -181,7 +181,7 @@ jobs:
 
       - name: Mark the commit settled
         if: always() && steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true' && contains(fromJSON('["idle", "settled"]'), steps.tick.outputs.outcome)
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .r4-settled
           key: r4-settled-${{ github.sha }}
