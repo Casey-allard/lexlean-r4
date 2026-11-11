@@ -188,8 +188,8 @@ fn test_empirical_csp_compliance_strict_sandboxing() {
         "CSP must declare base-uri 'none';"
     );
     assert!(
-        csp_content.contains("connect-src 'self';"),
-        "CSP must declare connect-src 'self';"
+        csp_content.contains("connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*;"),
+        "CSP must declare R4-39 connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*;"
     );
 
     // Negative assertions: zero unsafe-inline or unsafe-eval in scripts

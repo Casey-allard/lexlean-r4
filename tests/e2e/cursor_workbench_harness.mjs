@@ -2583,25 +2583,40 @@ test('F18.1: public/ directory contains EXACTLY 6 files', () => {
   assert.deepEqual(files, expected, 'public/ must contain exactly the 6 production files');
 });
 
-test('F18.2: Zero forbidden network/telemetry strings across all public text files', () => {
+test('F18.2: Zero forbidden telemetry/legacy-transport strings and strict R4-39 host-bridge isolation across public text files', () => {
   const textFiles = ['app.css', 'app.js', 'index.html', 'lexlean_r4.js', 'provenance.json'];
-  const forbidden = [
-    'http://',
-    'https://',
+  const universalForbidden = [
     'XMLHttpRequest',
-    'WebSocket',
     'EventSource',
+    'navigator.sendBeacon',
     'analytics',
     'telemetry',
+    'ftp://',
   ];
 
   for (const name of textFiles) {
     const content = readFileSync(resolve(PUBLIC_DIR, name), 'utf8');
-    for (const pat of forbidden) {
+    for (const pat of universalForbidden) {
       assert.ok(
         !content.includes(pat),
-        `public/${name} contains forbidden network/telemetry reference: "${pat}"`
+        `public/${name} contains forbidden telemetry/legacy-transport reference: "${pat}"`
       );
+    }
+    assert.ok(
+      !/http:\/\/(?!127\.0\.0\.1)/.test(content),
+      `public/${name} must not contain non-loopback unencrypted http://`
+    );
+    assert.ok(
+      !/(?<!s)ws:\/\/(?!127\.0\.0\.1)/.test(content),
+      `public/${name} must not contain non-loopback unencrypted ws://`
+    );
+    if (name !== 'lexlean_r4.js') {
+      for (const bridgeOnly of ['https://', 'wss://', 'WebSocket', 'fetch(']) {
+        assert.ok(
+          !content.includes(bridgeOnly),
+          `public/${name} must not contain host-bridge network primitive "${bridgeOnly}"`
+        );
+      }
     }
   }
 });
@@ -2610,13 +2625,16 @@ test('F18.3: public/app.js contains zero fetch( calls', () => {
   assert.ok(!rawAppJs.includes('fetch('), 'public/app.js must contain zero fetch( calls');
 });
 
-test('F18.4: public/index.html enforces strict Content-Security-Policy with default-src none', () => {
+test('F18.4: public/index.html enforces strict R4-39 Content-Security-Policy with default-src none and TLS/loopback connect-src', () => {
   const cspMatch = rawHtml.match(/<meta\s+http-equiv="Content-Security-Policy"\s+content="([^"]+)"/i);
   assert.ok(cspMatch, 'index.html must define Content-Security-Policy meta tag');
   const csp = cspMatch[1];
   assert.ok(csp.includes("default-src 'none'"), "CSP must declare default-src 'none'");
-  assert.ok(!csp.includes('http:'), 'CSP must not allow http:');
-  assert.ok(!csp.includes('https:'), 'CSP must not allow https:');
+  assert.ok(
+    csp.includes("connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*"),
+    'CSP must declare R4-39 connect-src TLS + loopback policy'
+  );
+  assert.ok(!/connect-src[^;]*\bhttp:(?!\/\/127\.0\.0\.1)/.test(csp), 'CSP must not allow wildcard unencrypted http:');
 });
 
 test('F18.5: provenance.json validates schema and cryptographic SHA-256 bindings', () => {
@@ -2647,12 +2665,16 @@ test('F18.6: All production files in public/ are non-empty', () => {
   }
 });
 
-test('F18.7: Boot routine executes zero network manifest probe and restores from local IndexedDB cache only', () => {
-  const bootIdx = rawAppJs.indexOf('await init();');
-  assert.ok(bootIdx !== -1, 'Boot sequence must exist in public/app.js');
-  const bootBlock = rawAppJs.slice(bootIdx, bootIdx + 600);
-  assert.ok(!bootBlock.includes('stream_sharded_weights_to_indexeddb'), 'Boot must not call stream_sharded_weights_to_indexeddb');
-  assert.ok(bootBlock.includes('restore_cached_uorlut_from_indexeddb'), 'Boot must restore from local IndexedDB cache only');
+test('F18.7: Boot routine executes zero blocking main-thread network manifest probe and restores local cache cleanly', () => {
+  const rawBindingJs = readFileSync(resolve(PUBLIC_DIR, 'lexlean_r4.js'), 'utf8');
+  const workerBoot = rawAppJs.includes('uor-r4-engine-worker') || rawAppJs.includes('await init();');
+  assert.ok(workerBoot, 'Boot sequence must exist in public/app.js');
+  const tailBoot = rawAppJs.slice(Math.max(0, rawAppJs.length - 2500));
+  assert.ok(!tailBoot.includes('stream_sharded_weights_to_indexeddb'), 'Boot must not call stream_sharded_weights_to_indexeddb on main thread');
+  assert.ok(
+    rawAppJs.includes('restore_cached_uorlut_from_indexeddb') && rawBindingJs.includes('restore_cached_uorlut_from_indexeddb'),
+    'Local IndexedDB weight restore binding must remain wired'
+  );
 });
 
 // ============================================================================

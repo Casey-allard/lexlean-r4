@@ -132,23 +132,44 @@ fn test_browser_closure_zero_external_network_telemetry() {
         "lexlean_r4.js",
         "provenance.json",
     ];
-    let forbidden_patterns = [
-        "http://",
-        "https://",
+    let universal_forbidden = [
         "XMLHttpRequest",
-        "WebSocket",
         "EventSource",
+        "navigator.sendBeacon",
         "analytics",
         "telemetry",
+        "ftp://",
     ];
 
     for name in &text_files {
         let content = std::fs::read_to_string(public_dir.join(name)).expect("read text file");
-        for pattern in &forbidden_patterns {
+        for pattern in &universal_forbidden {
             assert!(
                 !content.contains(pattern),
-                "public/{name} contains forbidden external network/telemetry reference: {pattern}"
+                "public/{name} contains forbidden telemetry/legacy-transport reference: {pattern}"
             );
+        }
+        for (idx, _) in content.match_indices("http://") {
+            let tail = &content[idx..];
+            assert!(
+                tail.starts_with("http://127.0.0.1"),
+                "public/{name} contains non-loopback unencrypted http:// reference at byte {idx}"
+            );
+        }
+        for (idx, _) in content.match_indices("ws://") {
+            let tail = &content[idx..];
+            assert!(
+                tail.starts_with("ws://127.0.0.1"),
+                "public/{name} contains non-loopback unencrypted ws:// reference at byte {idx}"
+            );
+        }
+        if *name != "lexlean_r4.js" {
+            for host_bridge_only in ["https://", "wss://", "WebSocket", "fetch("] {
+                assert!(
+                    !content.contains(host_bridge_only),
+                    "public/{name} must remain zero-network outside SpiralCoreHostBridge in lexlean_r4.js: found {host_bridge_only}"
+                );
+            }
         }
     }
 }
@@ -333,7 +354,9 @@ fn test_browser_html_accessibility_and_csp() {
     assert!(index_html.contains("default-src 'none'"));
     assert!(index_html.contains("script-src 'self' 'wasm-unsafe-eval'"));
     assert!(index_html.contains("style-src 'self'"));
-    assert!(index_html.contains("connect-src 'self'"));
+    assert!(index_html.contains(
+        "connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*;"
+    ));
     assert!(index_html.contains("object-src 'none'"));
 }
 

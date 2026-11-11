@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261110cursorv18">
+  <link rel="stylesheet" href="app.css?v=20261111v10connected">
 </head>
-<body>
+<body data-layout-mode="chat">
   <main>
     <!-- Column 1: Threads Sidebar -->
     <aside class="gpt-sidebar cursor-left-workbench workbench-sidebar" id="threads-sidebar" aria-label="Cursor File Explorer, Source Control and Agentic Tools">
@@ -315,13 +315,18 @@
     <section class="gpt-main-pane cowork-chat-pane cursor-ai-right-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
       <header class="gpt-topbar">
         <div class="model-selector">
-          <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Left Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
-          <h1 id="heading-claude-desktop">UOR-R4 AI Composer</h1>
-          <span id="topbar-model-tag" class="model-tag">UORLUT01/8 &middot; 6-Layer SpiralCore</span>
-          <span id="weight-cache-badge" class="topbar-context-pill">64.7 MB Cached</span>
+          <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Conversations &amp; Explorer Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
+          <h1 id="heading-claude-desktop">UOR-R4 Connected Chat</h1>
+          <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="88" height="24" title="Live 3D Brain Activity (Click to open 3D Holographic Brain)" aria-label="Live Neural Activity Indicator"></canvas>
+          <span id="topbar-model-tag" class="model-tag">UORLUT01/8 &middot; GLLM v10</span>
+          <span id="weight-cache-badge" class="topbar-context-pill">Worker Ready</span>
           <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
         </div>
         <div class="topbar-actions">
+          <button id="toggle-web-access-btn" type="button" class="topbar-btn topbar-pill-web-on" aria-pressed="true" title="Toggle Connected Web Search, HTTPS Reader &amp; DoH">Web: ON</button>
+          <button id="open-github-connect-btn" type="button" class="topbar-btn" title="Connect GitHub Personal Access Token Vault &amp; Sync Repository">GitHub</button>
+          <button id="toggle-inspectors-btn" type="button" class="topbar-btn" title="Open Full-Height 3D Holographic Brain &amp; Engine Inspectors">Inspectors</button>
+          <button id="toggle-studio-ide-btn" type="button" class="topbar-btn topbar-btn-studio-toggle" title="Switch instantaneously between Chat View and Cursor 3-Pane Studio IDE">Studio IDE</button>
           <button id="topbar-terminal-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="terminal">Terminal</button>
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
@@ -455,6 +460,7 @@
           <button id="cursor-quickopen-btn" type="button" class="cursor-wb-btn" title="Quick Open File (Cmd+P)">Cmd+P</button>
           <button id="cursor-palette-btn" type="button" class="cursor-wb-btn" title="Command Palette (Cmd+Shift+P)">Cmd+Shift+P</button>
           <button id="cursor-run-check-btn" type="button" class="cursor-wb-btn" title="Run In-Wasm Rust R4-32 Cargo Check &amp; Tests">&#9654; R4-32 Check</button>
+          <button id="workbench-inspectors-btn" type="button" class="cursor-wb-btn" title="Open Full-Height 3D Brain &amp; Engine Inspectors">Inspectors</button>
           <button id="cursor-toggle-bottom-panel-btn" type="button" class="cursor-wb-btn" title="Toggle Integrated Bottom Terminal (Ctrl+`)">Ctrl+` Term</button>
         </div>
         <span id="cursor-editor-tabs-bar" hidden></span>
@@ -478,47 +484,102 @@
       </div>
 
       <div class="canvas-body">
+        <!-- Tab 1: Workspace & Editor Panel -->
+        <div id="canvas-panel-workspace" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0" hidden>
+          <div class="workspace-panel-grid cursor-editor-grid">
+            <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
+              <div class="pane-subheader">
+                <strong>Workspace Files</strong>
+              </div>
+              <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
+              <form id="workspace-new-form" class="workspace-new-form" novalidate>
+                <div class="field">
+                  <label for="workspace-new-path">Create or Select Workspace File</label>
+                  <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
+                </div>
+                <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
+              </form>
+              <div class="field">
+                <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
+                <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple webkitdirectory>
+              </div>
+            </div>
+
+            <div class="ide-pane cursor-code-editor-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
+              <div class="pane-subheader cursor-editor-subheader">
+                <strong>Active Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
+                <div class="cursor-editor-header-right">
+                  <span class="cursor-shortcut-hint"><code>Cmd+K</code> Inline Edit &middot; <code>Tab</code> Ghost Complete &middot; <code>Cmd+S</code> Save</span>
+                  <code id="editor-file-receipt" class="metric-code">&mdash;</code>
+                </div>
+              </div>
+
+              <!-- Cmd+K Inline Floating Edit Bar & Inline Red/Green Diff Hunks -->
+              <div id="cursor-cmdk-bar" class="cursor-cmdk-bar" data-testid="cursor-cmdk-floating-bar" role="region" aria-label="Cursor Cmd+K Inline Edit Bar" hidden>
+                <div class="cursor-cmdk-header">
+                  <div class="cursor-cmdk-title-group">
+                    <span class="cursor-cmdk-badge">Cmd+K &middot; uor-r4.lut-stack/8</span>
+                    <code id="cursor-cmdk-range-badge" class="cursor-cmdk-range">src/attention.rs:Ln 1-12</code>
+                  </div>
+                  <button id="cursor-cmdk-close-btn" type="button" class="cursor-cmdk-close" title="Close Inline Edit (Esc)" aria-label="Close Inline Edit">&times;</button>
+                </div>
+                <div class="cursor-cmdk-form" role="group" aria-label="Inline Edit Controls">
+                  <label for="cursor-cmdk-input" class="sr-only">Inline Edit Instruction</label>
+                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code with local uor-r4.lut-stack/8... (Enter to generate)" autocomplete="off" spellcheck="false">
+                  <button id="cursor-cmdk-submit-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-generate">Generate Diff &crarr;</button>
+                  <button id="cursor-cmdk-accept-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-accept" disabled>Accept (Cmd+Enter)</button>
+                  <button id="cursor-cmdk-reject-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-reject" disabled>Reject (Cmd+Backspace)</button>
+                </div>
+                <pre id="cursor-cmdk-diff-hunk" class="code-block diff-colored-block cursor-cmdk-diff-hunk" aria-label="Inline Edit Unified Diff Hunk" hidden></pre>
+              </div>
+
+              <!-- Line-Numbered Code Editor Surface -->
+              <div class="field cursor-editor-field">
+                <label for="workspace-editor-textarea" class="sr-only">Active Workspace Source Code (Editable)</label>
+                <div id="cursor-editor-surface" class="cursor-editor-surface">
+                  <div id="editor-line-numbers" class="cursor-line-gutter editor-line-numbers" aria-hidden="true"><span id="cursor-line-gutter" hidden></span>1</div>
+                  <div id="cursor-ghost-overlay" class="cursor-ghost-overlay" aria-hidden="true"></div>
+                  <textarea id="workspace-editor-textarea" class="code-textarea cursor-code-textarea" rows="14" spellcheck="false"></textarea>
+                </div>
+              </div>
+
+              <!-- Cursor Tab Ghost-Text Autocomplete Bar (Powered by Local uor-r4.lut-stack/8 predict_next) -->
+              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Cursor Tab Ghost-Text Autocomplete">
+                <span class="cursor-ghost-pill">Cursor Tab &middot; /7+/8</span>
+                <code id="cursor-ghost-text-preview" class="cursor-ghost-preview">pub fn flock_consensus_step(q12: &amp;[i16; 8]) -&gt; u8</code>
+                <span id="cursor-ghost-meta" class="cursor-ghost-meta">Basin #18 &middot; Q12 L1=0</span>
+                <button id="cursor-ghost-accept-btn" type="button" class="cursor-ghost-accept-btn" title="Accept Ghost-Text Completion (Tab)">Tab &#8677; Accept</button>
+              </div>
+
+              <!-- R4-32 Compiler & Verifier Diagnostics Strip -->
+              <div id="cursor-problems-strip" class="cursor-problems-strip" role="region" aria-label="R4-32 In-Wasm Rust Compiler Diagnostics">
+                <span class="cursor-problems-title">Problems (<code>R4-32</code> Verifier):</span>
+                <span id="cursor-problems-summary" class="cursor-problems-ok">&#10003; 0 errors, 0 warnings &middot; cargo check + test ready</span>
+              </div>
+
+              <div class="button-row cursor-editor-actions">
+                <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory (Cmd+S)</button>
+                <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
+              </div>
+              <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
+            </div>
+          </div>
+        </div>
+
         <div class="canvas-header">
-          <nav class="canvas-tabs" role="tablist" aria-label="Canvas Workspace Tabs">
+          <nav class="canvas-tabs" role="tablist" aria-label="Integrated Linux Terminal Header">
             <button id="canvas-tab-terminal" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-terminal" data-tab-id="terminal">
-              <span>Terminal</span>
-              <span class="canvas-tab-pill">lexlean-sh</span>
+              <span>TERMINAL</span>
+              <span class="canvas-tab-pill">mvm-rv64 &middot; bash</span>
             </button>
-            <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
-              <span>3D Brain &amp; OTel</span>
-              <span class="canvas-tab-pill">WebGL2 &middot; u16</span>
-            </button>
-            <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
-              <span>ML Inspector</span>
-              <span class="canvas-tab-pill">256D Q12</span>
-            </button>
-            <button id="canvas-tab-mcp" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-mcp" data-tab-id="mcp">
-              <span>MCP Tools</span>
-              <span class="canvas-tab-pill">Local Safe</span>
-            </button>
-            <button id="canvas-tab-customizations" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-customizations" data-tab-id="customizations">
-              <span>Customizations</span>
-            </button>
-            <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
-              <span>Self-Improvement</span>
-              <span class="canvas-tab-pill">30/30 &middot; R4-F32</span>
-            </button>
-            <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
-              <span>Consolidation</span>
-              <span class="canvas-tab-pill">Worker Q12</span>
-            </button>
-            <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace">
+            <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace" hidden>
               <span>Editor</span>
             </button>
-            <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
-              <span>Diff Preview</span>
-            </button>
-            <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
-              <span>API &amp; 30/30</span>
-              <span class="canvas-tab-pill">30/30</span>
-            </button>
           </nav>
-          <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Close Canvas Drawer (Esc)" aria-label="Close Canvas Drawer">&times; Close</button>
+          <div class="terminal-drawer-actions">
+            <button id="terminal-open-inspectors-btn" type="button" class="btn-terminal-action" title="Open Full-Height 3D Brain &amp; Engine Inspectors">Inspectors &nearr;</button>
+            <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Hide Terminal Panel (Ctrl+`)" aria-label="Hide Terminal Panel">&times;</button>
+          </div>
         </div>
 
         <!-- Terminal Panel -->
@@ -529,7 +590,7 @@
                 <span class="terminal-dot term-red"></span>
                 <span class="terminal-dot term-yellow"></span>
                 <span class="terminal-dot term-green"></span>
-                <span class="terminal-name">lexlean-sh &mdash; In-Browser Stateful Control Plane</span>
+                <span class="terminal-name">MVM Linux RV64IMAC &mdash; /workspace (SpiralCore Connected)</span>
               </div>
               <div class="terminal-actions">
                 <button id="terminal-clear-btn" type="button" class="btn-terminal-action">Clear</button>
@@ -543,6 +604,53 @@
             </form>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Full-Height Spacious Inspectors Modal (85vh, 8 Diagnostic & 3D Brain Views) -->
+    <div id="inspectors-modal" class="inspectors-modal" hidden role="dialog" aria-modal="true" aria-label="3D Holographic Brain and Engine Inspectors">
+      <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop"></div>
+      <div class="inspectors-modal-dialog">
+        <div class="inspectors-modal-header">
+          <div class="inspectors-modal-brand">
+            <strong>Engine Inspectors &amp; 3D Brain</strong>
+            <span id="inspectors-live-pulse-pill" class="panel-badge">Live Worker Stream</span>
+          </div>
+          <nav class="canvas-tabs inspectors-tabs-nav" role="tablist" aria-label="Engine Inspector Tabs">
+            <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
+              <span>3D Brain &amp; OTel</span>
+              <span class="canvas-tab-pill">WebGL2 &middot; Live</span>
+            </button>
+            <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
+              <span>ML Inspector</span>
+              <span class="canvas-tab-pill">256D Q12</span>
+            </button>
+            <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
+              <span>Diff Preview</span>
+            </button>
+            <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
+              <span>API &amp; 30/30</span>
+              <span class="canvas-tab-pill">30/30</span>
+            </button>
+            <button id="canvas-tab-mcp" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-mcp" data-tab-id="mcp">
+              <span>MCP Tools</span>
+              <span class="canvas-tab-pill">R4-39</span>
+            </button>
+            <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
+              <span>Self-Improvement</span>
+              <span class="canvas-tab-pill">R4-F32</span>
+            </button>
+            <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
+              <span>Consolidation</span>
+              <span class="canvas-tab-pill">Worker Q12</span>
+            </button>
+            <button id="canvas-tab-customizations" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-customizations" data-tab-id="customizations">
+              <span>Customizations</span>
+            </button>
+          </nav>
+          <button id="close-inspectors-modal-btn" type="button" class="btn-secondary btn-xs" title="Close Inspectors (Esc)" aria-label="Close Inspectors">&times; Close</button>
+        </div>
+        <div class="inspectors-modal-body">
 
         <!-- ML Inspector Panel -->
         <div id="canvas-panel-inspector" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-inspector" tabindex="0" hidden>
@@ -713,88 +821,6 @@
             </div>
           </div>
         </div>
-        <!-- Tab 1: Workspace & Editor Panel -->
-        <div id="canvas-panel-workspace" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0" hidden>
-          <div class="workspace-panel-grid cursor-editor-grid">
-            <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
-              <div class="pane-subheader">
-                <strong>Workspace Files</strong>
-              </div>
-              <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
-              <form id="workspace-new-form" class="workspace-new-form" novalidate>
-                <div class="field">
-                  <label for="workspace-new-path">Create or Select Workspace File</label>
-                  <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
-                </div>
-                <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
-              </form>
-              <div class="field">
-                <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
-                <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple webkitdirectory>
-              </div>
-            </div>
-
-            <div class="ide-pane cursor-code-editor-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
-              <div class="pane-subheader cursor-editor-subheader">
-                <strong>Active Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
-                <div class="cursor-editor-header-right">
-                  <span class="cursor-shortcut-hint"><code>Cmd+K</code> Inline Edit &middot; <code>Tab</code> Ghost Complete &middot; <code>Cmd+S</code> Save</span>
-                  <code id="editor-file-receipt" class="metric-code">&mdash;</code>
-                </div>
-              </div>
-
-              <!-- Cmd+K Inline Floating Edit Bar & Inline Red/Green Diff Hunks -->
-              <div id="cursor-cmdk-bar" class="cursor-cmdk-bar" data-testid="cursor-cmdk-floating-bar" role="region" aria-label="Cursor Cmd+K Inline Edit Bar" hidden>
-                <div class="cursor-cmdk-header">
-                  <div class="cursor-cmdk-title-group">
-                    <span class="cursor-cmdk-badge">Cmd+K &middot; uor-r4.lut-stack/8</span>
-                    <code id="cursor-cmdk-range-badge" class="cursor-cmdk-range">src/attention.rs:Ln 1-12</code>
-                  </div>
-                  <button id="cursor-cmdk-close-btn" type="button" class="cursor-cmdk-close" title="Close Inline Edit (Esc)" aria-label="Close Inline Edit">&times;</button>
-                </div>
-                <div class="cursor-cmdk-form" role="group" aria-label="Inline Edit Controls">
-                  <label for="cursor-cmdk-input" class="sr-only">Inline Edit Instruction</label>
-                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code with local uor-r4.lut-stack/8... (Enter to generate)" autocomplete="off" spellcheck="false">
-                  <button id="cursor-cmdk-submit-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-generate">Generate Diff &crarr;</button>
-                  <button id="cursor-cmdk-accept-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-accept" disabled>Accept (Cmd+Enter)</button>
-                  <button id="cursor-cmdk-reject-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-reject" disabled>Reject (Cmd+Backspace)</button>
-                </div>
-                <pre id="cursor-cmdk-diff-hunk" class="code-block diff-colored-block cursor-cmdk-diff-hunk" aria-label="Inline Edit Unified Diff Hunk" hidden></pre>
-              </div>
-
-              <!-- Line-Numbered Code Editor Surface -->
-              <div class="field cursor-editor-field">
-                <label for="workspace-editor-textarea" class="sr-only">Active Workspace Source Code (Editable)</label>
-                <div id="cursor-editor-surface" class="cursor-editor-surface">
-                  <div id="editor-line-numbers" class="cursor-line-gutter editor-line-numbers" aria-hidden="true"><span id="cursor-line-gutter" hidden></span>1</div>
-                  <div id="cursor-ghost-overlay" class="cursor-ghost-overlay" aria-hidden="true"></div>
-                  <textarea id="workspace-editor-textarea" class="code-textarea cursor-code-textarea" rows="14" spellcheck="false"></textarea>
-                </div>
-              </div>
-
-              <!-- Cursor Tab Ghost-Text Autocomplete Bar (Powered by Local uor-r4.lut-stack/8 predict_next) -->
-              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Cursor Tab Ghost-Text Autocomplete">
-                <span class="cursor-ghost-pill">Cursor Tab &middot; /7+/8</span>
-                <code id="cursor-ghost-text-preview" class="cursor-ghost-preview">pub fn flock_consensus_step(q12: &amp;[i16; 8]) -&gt; u8</code>
-                <span id="cursor-ghost-meta" class="cursor-ghost-meta">Basin #18 &middot; Q12 L1=0</span>
-                <button id="cursor-ghost-accept-btn" type="button" class="cursor-ghost-accept-btn" title="Accept Ghost-Text Completion (Tab)">Tab &#8677; Accept</button>
-              </div>
-
-              <!-- R4-32 Compiler & Verifier Diagnostics Strip -->
-              <div id="cursor-problems-strip" class="cursor-problems-strip" role="region" aria-label="R4-32 In-Wasm Rust Compiler Diagnostics">
-                <span class="cursor-problems-title">Problems (<code>R4-32</code> Verifier):</span>
-                <span id="cursor-problems-summary" class="cursor-problems-ok">&#10003; 0 errors, 0 warnings &middot; cargo check + test ready</span>
-              </div>
-
-              <div class="button-row cursor-editor-actions">
-                <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory (Cmd+S)</button>
-                <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
-              </div>
-              <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
-            </div>
-          </div>
-        </div>
-
         <!-- Tab 2: Unified Diff & Interactive Artifact Preview Panel -->
         <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diff" tabindex="0" hidden>
           <div class="patch-card">
@@ -1250,8 +1276,48 @@
             <!-- Rendered dynamically from OTLP trace data -->
           </div>
         </div>
+        </div>
       </div>
-    </section>
+    </div>
+
+    <!-- GitHub Host Vault & Repository Sync Modal (R4-39) -->
+    <div id="github-connect-modal" class="github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Connect GitHub Vault and Sync Repository">
+      <div id="github-connect-backdrop" class="inspectors-modal-backdrop"></div>
+      <div class="github-connect-dialog">
+        <div class="github-connect-header">
+          <div>
+            <strong>GitHub Host Vault &amp; Connected Repository Sync</strong>
+            <div class="github-connect-subtitle">R4-39 Zero-NIC Host Vault &mdash; Tokens stay in Dedicated Worker memory, never guest RAM or storage</div>
+          </div>
+          <button id="close-github-connect-btn" type="button" class="btn-secondary btn-xs" aria-label="Close GitHub Vault">&times; Close</button>
+        </div>
+        <div class="github-connect-body">
+          <div class="field">
+            <label for="github-token-input">GitHub Personal Access Token (Allowlisted strictly to <code>github.com</code> &amp; <code>api.github.com</code>)</label>
+            <div class="github-input-row">
+              <input id="github-token-input" type="password" placeholder="Fine-grained PAT for private clone or git push..." autocomplete="off" spellcheck="false">
+              <button id="save-github-token-btn" type="button" class="btn-primary">Save in Host Vault</button>
+              <button id="clear-github-token-btn" type="button" class="btn-secondary">Clear</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="github-repo-input">Clone or Pull GitHub Repository into <code>/workspace</code></label>
+            <div class="github-input-row">
+              <input id="github-repo-input" type="text" value="UOR-Foundation/Prism" placeholder="owner/repo" autocomplete="off" spellcheck="false">
+              <button id="clone-github-repo-btn" type="button" class="btn-primary">Clone into Studio</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="spiralcore-relay-input">SpiralCore Edge Relay Endpoint (Optional override, automatic Direct-HTTPS fallback active)</label>
+            <div class="github-input-row">
+              <input id="spiralcore-relay-input" type="text" placeholder="Custom Secure WSS Relay Endpoint" autocomplete="off" spellcheck="false">
+              <button id="save-relay-url-btn" type="button" class="btn-secondary">Apply Relay</button>
+            </div>
+          </div>
+          <output id="github-connect-status" class="admit-output" role="status" aria-live="polite">Host Vault standby &middot; Direct-HTTPS DoH, Search &amp; GitHub REST active.</output>
+        </div>
+      </div>
+    </div>
 
     <!-- Cursor Cmd+P Quick Open & Cmd+Shift+P Command Palette Modal -->
     <div id="cursor-command-palette" class="cursor-command-palette cursor-quick-open-modal" data-testid="cursor-quick-open-modal" hidden role="dialog" aria-modal="true" aria-label="Cursor Quick Open and Command Palette">
@@ -1320,6 +1386,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261111v9mvm3"></script>
+  <script type="module" src="app.js?v=20261111v10connected"></script>
 </body>
 </html>

@@ -1942,5 +1942,1782 @@ async function __wbg_init(module_or_path) {
     return __wbg_finalize_init(instance, module);
 }
 
+const OPFS_V10_WEIGHT_FILE = 'uor_r4_gllm_v10_weights.bin';
+const OPFS_V10_META_FILE = 'uor_r4_gllm_v10_meta.json';
+const DEFAULT_SPIRALCORE_RELAY_WS_URL = 'wss://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs';
+const DEFAULT_SPIRALCORE_RELAY_HTTP_URL = 'https://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs';
+const LOCAL_SPIRALCORE_RELAY_WS_URL = 'ws://127.0.0.1:8787/spvs';
+const SPVS_RELAY_TIMEOUT_MS = 2500;
+const MAX_BRIDGE_RESPONSE_BYTES = 2 * 1024 * 1024;
+
+const SECRET_HOST_ALLOWLIST = Object.freeze({
+  GITHUB_TOKEN: new Set(['github.com', 'api.github.com']),
+});
+
+async function __uorSha256HexBytes(u8) {
+  const view = u8 instanceof Uint8Array ? u8 : new Uint8Array(u8);
+  const digest = await crypto.subtle.digest('SHA-256', view);
+  const arr = new Uint8Array(digest);
+  let hex = '';
+  for (let i = 0; i < arr.length; i++) {
+    hex += arr[i].toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
+function __uorBytesToBase64(u8) {
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < u8.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, u8.subarray(i, Math.min(i + chunk, u8.length)));
+  }
+  return btoa(bin);
+}
+
+function __uorBase64ToBytes(b64) {
+  const clean = String(b64 || '').replace(/\s+/g, '');
+  const bin = atob(clean);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) {
+    out[i] = bin.charCodeAt(i) & 0xff;
+  }
+  return out;
+}
+
+function __uorStripHtmlToReadableText(html) {
+  const raw = String(html || '');
+  const titleMatch = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const title = titleMatch ? titleMatch[1].replace(/\s+/g, ' ').trim() : '';
+  const body = raw
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, ' ')
+    .replace(/<\/(p|div|h1|h2|h3|h4|li|tr|section|article|br)>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return { title, text: body.slice(0, 12000) };
+}
+
+function __uorVerifyRiscv64ElfHeader(u8) {
+  if (!(u8 instanceof Uint8Array) || u8.byteLength < 64) {
+    return { ok: false, error_code: 'InvalidElf64Riscv', message: 'Binary shorter than 64-byte ELF64 header' };
+  }
+  if (u8[0] !== 0x7f || u8[1] !== 0x45 || u8[2] !== 0x4c || u8[3] !== 0x46) {
+    return { ok: false, error_code: 'InvalidElf64Riscv', message: 'Missing 0x7F ELF magic bytes' };
+  }
+  if (u8[4] !== 2 || u8[5] !== 1) {
+    return { ok: false, error_code: 'InvalidElf64Riscv', message: 'Expected ELFCLASS64 little-endian binary' };
+  }
+  const eMachine = u8[18] | (u8[19] << 8);
+  if (eMachine !== 243) {
+    return {
+      ok: false,
+      error_code: 'InvalidElf64Riscv',
+      message: `Expected EM_RISCV (243), got e_machine=${eMachine}`,
+    };
+  }
+  return { ok: true, e_machine: eMachine };
+}
+
+export class SpiralCoreHostBridge {
+  #secretVault = new Map();
+  #ws = null;
+  #wsConnecting = null;
+  #pendingWs = new Map();
+  #nextReqSeq = 1;
+
+  constructor(options = {}) {
+    this.relayUrl = options.relayWsUrl || options.relayUrl || DEFAULT_SPIRALCORE_RELAY_WS_URL;
+    this.relayHttpUrl = options.relayHttpUrl || '';
+    this.mcpPolicy = options.mcpPolicy || 'safe';
+    this.webAccessEnabled = options.webAccessEnabled !== false;
+    this.relayTimeoutMs = options.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
+    this.lastTransportMode = 'standby';
+  }
+
+  setRelayUrl(url) {
+    const trimmed = String(url || '').trim();
+    if (!trimmed) {
+      this.relayUrl = DEFAULT_SPIRALCORE_RELAY_WS_URL;
+      this.relayHttpUrl = '';
+      this.closeRelaySocket();
+      return { ok: true, relay_url: this.relayUrl };
+    }
+    const check = this.validateTransportUrl(trimmed, true);
+    if (!check.ok) return check;
+    this.relayUrl = trimmed;
+    this.closeRelaySocket();
+    return { ok: true, relay_url: this.relayUrl };
+  }
+
+  close() {
+    this.closeRelaySocket();
+  }
+
+  async verifyElf64RiscvAndSha256(elfBytes, expectedSha = '', maxBytes = 16 * 1024 * 1024) {
+    if (!(elfBytes instanceof Uint8Array) || elfBytes.byteLength === 0) {
+      return { ok: false, error_code: 'InvalidElf64Riscv', message: 'Empty ELF payload' };
+    }
+    const actualSha = await __uorSha256HexBytes(elfBytes);
+    if (expectedSha && actualSha.toLowerCase() !== String(expectedSha).trim().toLowerCase()) {
+      return {
+        ok: false,
+        error_code: 'DigestMismatch',
+        message: `SHA-256 mismatch: expected ${expectedSha}, got ${actualSha}`,
+      };
+    }
+    const elfCheck = __uorVerifyRiscv64ElfHeader(elfBytes);
+    if (!elfCheck.ok) return elfCheck;
+    if (elfBytes.byteLength > maxBytes) {
+      return {
+        ok: false,
+        error_code: 'SizeExceedsQuota',
+        message: `Package size ${elfBytes.byteLength} exceeds quota ${maxBytes}`,
+      };
+    }
+    return { ok: true, sha256: actualSha, e_machine: elfCheck.e_machine };
+  }
+
+  setPolicy({ mcpPolicy, webAccessEnabled } = {}) {
+    if (typeof mcpPolicy === 'string' && ['safe', 'confirm', 'deny'].includes(mcpPolicy)) {
+      this.mcpPolicy = mcpPolicy;
+    }
+    if (typeof webAccessEnabled === 'boolean') {
+      this.webAccessEnabled = webAccessEnabled;
+    }
+    return {
+      ok: true,
+      mcp_policy: this.mcpPolicy,
+      web_access_enabled: this.webAccessEnabled,
+    };
+  }
+
+  setSecret(key, value) {
+    const cleanKey = String(key || '').trim();
+    if (!cleanKey) {
+      return { ok: false, error_code: 'InvalidSecretKey', message: 'Secret key must be non-empty' };
+    }
+    const cleanVal = String(value || '').trim();
+    if (!cleanVal) {
+      this.#secretVault.delete(cleanKey);
+      return { ok: true, key: cleanKey, configured: false };
+    }
+    this.#secretVault.set(cleanKey, cleanVal);
+    return {
+      ok: true,
+      key: cleanKey,
+      configured: true,
+      allowlisted_hosts: Array.from(SECRET_HOST_ALLOWLIST[cleanKey] || []),
+    };
+  }
+
+  hasSecret(key) {
+    return this.#secretVault.has(String(key || '').trim());
+  }
+
+  closeRelaySocket() {
+    if (this.#ws) {
+      try {
+        this.#ws.close();
+      } catch {
+        // Ignore close error
+      }
+      this.#ws = null;
+    }
+    this.#wsConnecting = null;
+  }
+
+  validateTransportUrl(rawUrl, allowWebSocket = false) {
+    let parsed;
+    try {
+      parsed = new URL(String(rawUrl || ''));
+    } catch {
+      return { ok: false, error_code: 'InvalidBridgeUrl', message: `Malformed URL: ${rawUrl}` };
+    }
+    const proto = parsed.protocol;
+    const host = parsed.hostname;
+    if (proto === 'https:') {
+      return { ok: true, url: parsed };
+    }
+    if (allowWebSocket && proto === 'wss:') {
+      return { ok: true, url: parsed };
+    }
+    if (proto === 'http:' && host === '127.0.0.1') {
+      return { ok: true, url: parsed };
+    }
+    if (allowWebSocket && proto === 'ws:' && host === '127.0.0.1') {
+      return { ok: true, url: parsed };
+    }
+    return {
+      ok: false,
+      error_code: 'InsecureTransportRejected',
+      message: `R4-39 rejected non-TLS remote protocol ${proto} for host ${host}`,
+    };
+  }
+
+  substituteHostSecretsInString(rawText, targetHostname) {
+    const str = String(rawText || '');
+    if (!str.includes('{{MVM_SECRET:')) {
+      return { ok: true, value: str };
+    }
+    let failed = null;
+    const replaced = str.replace(/\{\{MVM_SECRET:([A-Z0-9_]+)\}\}/g, (_full, secretKey) => {
+      if (failed) return '';
+      const allowedHosts = SECRET_HOST_ALLOWLIST[secretKey];
+      if (!allowedHosts || !allowedHosts.has(targetHostname)) {
+        failed = {
+          ok: false,
+          error_code: 'HostNotAllowlistedForSecret',
+          message: `Secret ${secretKey} is not allowlisted for host ${targetHostname}`,
+        };
+        return '';
+      }
+      const secretVal = this.#secretVault.get(secretKey);
+      if (!secretVal) {
+        failed = {
+          ok: false,
+          error_code: 'SecretNotConfigured',
+          message: `Secret ${secretKey} is not configured in host vault`,
+        };
+        return '';
+      }
+      return secretVal;
+    });
+    if (failed) return failed;
+    return { ok: true, value: replaced };
+  }
+
+  applyHostSecretSubstitution(targetUrlObj, rawHeaders = {}) {
+    const hostname = targetUrlObj.hostname.toLowerCase();
+    const outHeaders = {};
+    for (const [k, v] of Object.entries(rawHeaders || {})) {
+      const sub = this.substituteHostSecretsInString(v, hostname);
+      if (!sub.ok) return sub;
+      outHeaders[k] = sub.value;
+    }
+    if (
+      !outHeaders.Authorization &&
+      !outHeaders.authorization &&
+      this.#secretVault.has('GITHUB_TOKEN') &&
+      (hostname === 'api.github.com' || hostname === 'github.com')
+    ) {
+      outHeaders.Authorization = `Bearer ${this.#secretVault.get('GITHUB_TOKEN')}`;
+    }
+    return { ok: true, headers: outHeaders };
+  }
+
+  async tryRelayRpc(op, params) {
+    const serializedCheck = JSON.stringify(params || {});
+    if (serializedCheck.includes('{{MVM_SECRET:')) {
+      return null;
+    }
+    const rpcBody = {
+      spvs_magic: 'SPVS',
+      src_cid: 3,
+      dst_cid: 2,
+      policy: this.mcpPolicy,
+      op,
+      params: params || {},
+    };
+
+    if (typeof WebSocket === 'function') {
+      const candidateUrls = [];
+      if (typeof self !== 'undefined' && self.location && self.location.hostname === '127.0.0.1') {
+        candidateUrls.push(LOCAL_SPIRALCORE_RELAY_WS_URL);
+      }
+      if (this.relayUrl) {
+        candidateUrls.push(this.relayUrl);
+      }
+      for (const wsUrl of candidateUrls) {
+        const valid = this.validateTransportUrl(wsUrl, true);
+        if (!valid.ok) continue;
+        try {
+          const result = await this.#sendSingleWsRpc(wsUrl, rpcBody, this.relayTimeoutMs);
+          if (result && typeof result.ok === 'boolean') {
+            this.lastTransportMode = wsUrl.startsWith('ws://127.0.0.1') ? 'spvs-local-ws' : 'spvs-cloud-wss';
+            return result;
+          }
+        } catch {
+          // Try HTTPS POST relay or direct-HTTPS fallback next
+        }
+      }
+    }
+
+    if (this.relayUrl === DEFAULT_SPIRALCORE_RELAY_WS_URL && typeof fetch === 'function') {
+      try {
+        const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+        const timer = ctrl ? setTimeout(() => ctrl.abort(), this.relayTimeoutMs) : null;
+        const reqId = `spvs-http-${Date.now()}-${this.#nextReqSeq++}`;
+        const resp = await fetch(DEFAULT_SPIRALCORE_RELAY_HTTP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ req_id: reqId, ...rpcBody }),
+          signal: ctrl ? ctrl.signal : undefined,
+        });
+        if (timer) clearTimeout(timer);
+        const parsed = await resp.json();
+        if (parsed && typeof parsed.ok === 'boolean') {
+          this.lastTransportMode = 'spvs-cloud-https';
+          return parsed;
+        }
+      } catch {
+        // Fall through to direct-HTTPS fallback
+      }
+    }
+    return null;
+  }
+
+  #sendSingleWsRpc(wsUrl, payload, timeoutMs) {
+    return new Promise((resolveRpc, rejectRpc) => {
+      let settled = false;
+      const reqId = `spvs-${Date.now()}-${this.#nextReqSeq++}`;
+      let timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        this.#pendingWs.delete(reqId);
+        rejectRpc(new Error('SpiralCore relay timeout'));
+      }, timeoutMs);
+
+      const finish = (err, data) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        this.#pendingWs.delete(reqId);
+        if (err) rejectRpc(err);
+        else resolveRpc(data);
+      };
+
+      const dispatchOverSocket = (sock) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          this.#pendingWs.delete(reqId);
+          rejectRpc(new Error('SpiralCore relay RPC timeout'));
+        }, Math.max(timeoutMs, 6500));
+        this.#pendingWs.set(reqId, finish);
+        try {
+          sock.send(JSON.stringify({ req_id: reqId, ...payload }));
+        } catch (err) {
+          finish(err, null);
+        }
+      };
+
+      if (this.#ws && this.#ws.readyState === WebSocket.OPEN && this.#ws.__uorUrl === wsUrl) {
+        dispatchOverSocket(this.#ws);
+        return;
+      }
+
+      try {
+        const sock = new WebSocket(wsUrl);
+        sock.__uorUrl = wsUrl;
+        sock.onopen = () => {
+          this.#ws = sock;
+          dispatchOverSocket(sock);
+        };
+        sock.onmessage = (ev) => {
+          try {
+            const parsed = JSON.parse(typeof ev.data === 'string' ? ev.data : '');
+            const id = parsed.req_id || parsed.id;
+            const cb = id ? this.#pendingWs.get(id) : null;
+            if (cb) cb(null, parsed);
+          } catch {
+            // Ignore non-JSON frame
+          }
+        };
+        sock.onerror = () => {
+          finish(new Error('SpiralCore WebSocket error'), null);
+        };
+        sock.onclose = () => {
+          if (this.#ws === sock) this.#ws = null;
+          finish(new Error('SpiralCore WebSocket closed'), null);
+        };
+      } catch (err) {
+        finish(err, null);
+      }
+    });
+  }
+
+  async execute(rawRequest) {
+    const req = typeof rawRequest === 'string' ? JSON.parse(rawRequest) : (rawRequest || {});
+    const rawOp = String(req.op || req.kind || req.bridge_op || req.tool || req.name || 'http_request').toLowerCase();
+
+    if (this.mcpPolicy === 'deny') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PolicyDenied',
+        message: 'All external bridge operations are denied by active MCP security policy',
+      };
+    }
+    if (!this.webAccessEnabled && rawOp !== 'pkg_fetch' && rawOp !== 'pkg') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PolicyDenied',
+        message: 'Web Access is currently toggled OFF in the studio topbar',
+      };
+    }
+
+    if (rawOp === 'dns_query' || rawOp === 'dns_resolve' || rawOp === 'dns') {
+      return this.handleDnsQuery(req);
+    }
+    if (rawOp === 'web_search' || rawOp === 'search') {
+      return this.handleWebSearch(req);
+    }
+    if (rawOp === 'web_fetch') {
+      return this.handleWebFetch(req);
+    }
+    if (rawOp === 'git_smart_http' || rawOp === 'git') {
+      return this.handleGitBridge(req);
+    }
+    if (rawOp === 'pkg_fetch' || rawOp === 'pkg') {
+      return this.handlePkgFetch(req);
+    }
+    return this.handleHttpRequest(req);
+  }
+
+  async readBoundedBytes(resp) {
+    if (!resp.body || typeof resp.body.getReader !== 'function') {
+      const ab = await resp.arrayBuffer();
+      if (ab.byteLength > MAX_BRIDGE_RESPONSE_BYTES) {
+        return {
+          ok: false,
+          error_code: 'ResponseBodyTooLarge',
+          message: `Response exceeded ${MAX_BRIDGE_RESPONSE_BYTES} byte cap`,
+        };
+      }
+      return { ok: true, bytes: new Uint8Array(ab), truncated: false };
+    }
+    const reader = resp.body.getReader();
+    const chunks = [];
+    let total = 0;
+    let truncated = false;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value && value.byteLength > 0) {
+        if (total + value.byteLength > MAX_BRIDGE_RESPONSE_BYTES) {
+          const keep = MAX_BRIDGE_RESPONSE_BYTES - total;
+          if (keep > 0) {
+            chunks.push(value.subarray(0, keep));
+            total += keep;
+          }
+          truncated = true;
+          try {
+            await reader.cancel();
+          } catch {
+            // Ignore cancel error
+          }
+          break;
+        }
+        chunks.push(value);
+        total += value.byteLength;
+      }
+    }
+    const merged = new Uint8Array(total);
+    let offset = 0;
+    for (const c of chunks) {
+      merged.set(c, offset);
+      offset += c.byteLength;
+    }
+    return { ok: true, bytes: merged, truncated };
+  }
+
+  async handleDnsQuery(req) {
+    const domain = String(req.name || req.domain || req.host || 'example.com').trim();
+    const rrType = String(req.rr_type || req.qtype || req.type || 'A').trim().toUpperCase();
+    const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
+    if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
+      const records = relayRes.data.answers.map((a) => ({
+        name: a.name || domain,
+        type: a.type,
+        ttl: a.ttl ?? a.TTL ?? 300,
+        data: a.data,
+      }));
+      const summary = records.length > 0
+        ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
+        : `No ${rrType} records returned for ${domain} (RCODE=${relayRes.data.rcode ?? 0})`;
+      return {
+        ok: true,
+        status: relayRes.status || 200,
+        op: 'dns_query',
+        name: domain,
+        rr_type: rrType,
+        records,
+        answers: records,
+        data: { answers: records, rcode: relayRes.data.rcode ?? 0 },
+        body_text: summary,
+        transport: this.lastTransportMode,
+      };
+    }
+    const dohUrl = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}`;
+    const valid = this.validateTransportUrl(dohUrl, false);
+    if (!valid.ok) return valid;
+    try {
+      const resp = await fetch(dohUrl, {
+        method: 'GET',
+        headers: { Accept: 'application/dns-json' },
+      });
+      const json = await resp.json();
+      const answers = Array.isArray(json.Answer) ? json.Answer : [];
+      const records = answers.map((a) => ({
+        name: a.name || domain,
+        type: a.type,
+        ttl: a.TTL ?? 300,
+        data: a.data,
+      }));
+      this.lastTransportMode = 'direct-https-fallback';
+      const summary = records.length > 0
+        ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
+        : `No ${rrType} records returned for ${domain} (RCODE=${json.Status ?? 0})`;
+      return {
+        ok: true,
+        status: resp.status,
+        op: 'dns_query',
+        name: domain,
+        rr_type: rrType,
+        records,
+        answers: records,
+        data: { answers: records, rcode: json.Status ?? 0 },
+        body_text: summary,
+        transport: this.lastTransportMode,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        status: 502,
+        error_code: 'DnsResolutionFailed',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  async handleHttpRequest(req) {
+    const rawUrl = String(req.url || '').trim();
+    const valid = this.validateTransportUrl(rawUrl, false);
+    if (!valid.ok) return valid;
+    const subUrl = this.substituteHostSecretsInString(rawUrl, valid.url.hostname.toLowerCase());
+    if (!subUrl.ok) return subUrl;
+    const finalValid = this.validateTransportUrl(subUrl.value, false);
+    if (!finalValid.ok) return finalValid;
+
+    const headerSub = this.applyHostSecretSubstitution(finalValid.url, req.headers || {});
+    if (!headerSub.ok) return headerSub;
+
+    let bodyPayload;
+    if (req.body_base64) {
+      bodyPayload = __uorBase64ToBytes(req.body_base64);
+    } else if (typeof req.body === 'string') {
+      const bodySub = this.substituteHostSecretsInString(req.body, finalValid.url.hostname.toLowerCase());
+      if (!bodySub.ok) return bodySub;
+      bodyPayload = bodySub.value;
+    }
+
+    const hasAuthHeader = Boolean(headerSub.headers.Authorization || headerSub.headers.authorization);
+    if (!hasAuthHeader) {
+      const relayRes = await this.tryRelayRpc('http_request', {
+        method: String(req.method || 'GET').toUpperCase(),
+        url: finalValid.url.href,
+        headers: headerSub.headers,
+        body_b64: req.body_base64 || req.body_b64 || undefined,
+      });
+      if (relayRes && !relayRes.ok && relayRes.error_code === 'SsrfBlocked') {
+        return {
+          ok: false,
+          status: relayRes.status || 403,
+          error_code: 'SsrfBlocked',
+          message: relayRes.error_message || 'Target host blocked by SpiralCore SSRF policy',
+        };
+      }
+      if (relayRes && relayRes.ok && relayRes.data) {
+        const d = relayRes.data;
+        const bodyBytes = d.body_b64 ? __uorBase64ToBytes(d.body_b64) : new Uint8Array(0);
+        const bodyText = bodyBytes.byteLength > 0 ? cachedTextDecoder.decode(bodyBytes) : (d.text_excerpt || '');
+        return {
+          ok: d.status >= 200 && d.status < 400,
+          status: d.status,
+          op: 'http_request',
+          url: finalValid.url.href,
+          headers: d.headers || {},
+          content_type: d.content_type || '',
+          body_text: bodyText,
+          text_excerpt: d.text_excerpt || bodyText.slice(0, 3200),
+          body_base64: req.binary ? (d.body_b64 || '') : undefined,
+          byte_len: d.byte_length ?? bodyBytes.byteLength,
+          truncated: Boolean(d.truncated),
+          transport: this.lastTransportMode,
+        };
+      }
+    }
+
+    try {
+      const resp = await fetch(finalValid.url.href, {
+        method: String(req.method || 'GET').toUpperCase(),
+        headers: headerSub.headers,
+        body: bodyPayload,
+      });
+      const bounded = await this.readBoundedBytes(resp);
+      if (!bounded.ok) return bounded;
+      this.lastTransportMode = 'direct-https-fetch';
+      const respHeaders = {};
+      resp.headers.forEach((val, key) => {
+        respHeaders[key] = val;
+      });
+      const contentType = String(respHeaders['content-type'] || '').toLowerCase();
+      const decodedText = cachedTextDecoder.decode(bounded.bytes);
+      return {
+        ok: resp.ok,
+        status: resp.status,
+        op: 'http_request',
+        url: finalValid.url.href,
+        headers: respHeaders,
+        content_type: contentType,
+        body_text: decodedText,
+        body_base64: req.binary ? __uorBytesToBase64(bounded.bytes) : undefined,
+        byte_len: bounded.bytes.byteLength,
+        truncated: bounded.truncated,
+        transport: this.lastTransportMode,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        status: 502,
+        error_code: 'HttpBridgeFetchError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  async handleWebFetch(req) {
+    const rawUrl = String(req.url || (req.arguments && req.arguments.url) || '').trim();
+    const valid = this.validateTransportUrl(rawUrl, false);
+    if (!valid.ok) return valid;
+
+    const relayRes = await this.tryRelayRpc('http_request', { method: 'GET', url: valid.url.href });
+    if (relayRes && relayRes.ok && relayRes.data) {
+      const d = relayRes.data;
+      const decoded = d.body_b64 ? cachedTextDecoder.decode(__uorBase64ToBytes(d.body_b64)) : '';
+      const parsed = decoded ? __uorStripHtmlToReadableText(decoded) : { title: valid.url.hostname, text: d.text_excerpt || '' };
+      const bestText = parsed.text || d.text_excerpt || '';
+      if (bestText) {
+        return {
+          ok: true,
+          status: d.status || 200,
+          op: 'web_fetch',
+          url: valid.url.href,
+          title: parsed.title || valid.url.href,
+          body_text: bestText,
+          excerpt: bestText.slice(0, 3200),
+          transport: this.lastTransportMode,
+        };
+      }
+    }
+
+    const direct = await this.handleHttpRequest({ url: valid.url.href, method: 'GET', headers: req.headers || {} });
+    if (direct.ok && typeof direct.body_text === 'string') {
+      const isHtml = (direct.content_type || '').includes('html') || /<html|<body/i.test(direct.body_text);
+      const parsed = isHtml
+        ? __uorStripHtmlToReadableText(direct.body_text)
+        : { title: valid.url.hostname, text: direct.body_text.slice(0, 12000) };
+      return {
+        ok: true,
+        status: direct.status,
+        op: 'web_fetch',
+        url: valid.url.href,
+        title: parsed.title || valid.url.href,
+        body_text: parsed.text,
+        excerpt: parsed.text.slice(0, 3200),
+        transport: direct.transport,
+      };
+    }
+
+    // Public reader CORS fallback for HTML docs that omit Access-Control-Allow-Origin
+    if (!req.headers || Object.keys(req.headers).length === 0) {
+      try {
+        const readerUrl = `https://r.jina.ai/${valid.url.href}`;
+        const rResp = await fetch(readerUrl, { headers: { Accept: 'text/plain' } });
+        if (rResp.ok) {
+          const bounded = await this.readBoundedBytes(rResp);
+          if (bounded.ok) {
+            const text = cachedTextDecoder.decode(bounded.bytes).slice(0, 12000);
+            this.lastTransportMode = 'direct-https-reader';
+            return {
+              ok: true,
+              status: rResp.status,
+              op: 'web_fetch',
+              url: valid.url.href,
+              title: valid.url.hostname,
+              body_text: text,
+              excerpt: text.slice(0, 3200),
+              transport: this.lastTransportMode,
+            };
+          }
+        }
+      } catch {
+        // Return direct error below
+      }
+    }
+    return direct;
+  }
+
+  async handleWebSearch(req) {
+    const query = String(req.query || (req.arguments && req.arguments.query) || '').trim();
+    const limit = Math.min(Math.max(Number(req.limit) || 6, 1), 10);
+    if (!query) {
+      return { ok: false, error_code: 'EmptySearchQuery', message: 'web_search query must be non-empty' };
+    }
+
+    const relayRes = await this.tryRelayRpc('web_search', { query, limit });
+    if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.results) && relayRes.data.results.length > 0) {
+      const hits = relayRes.data.results;
+      const formattedRelay = hits
+        .map((r, i) => `[${i + 1}] ${r.title}\n    URL: ${r.url}\n    ${r.snippet}`)
+        .join('\n\n');
+      return {
+        ok: true,
+        status: relayRes.status || 200,
+        op: 'web_search',
+        query,
+        results: hits,
+        data: { results: hits },
+        body_text: formattedRelay,
+        transport: this.lastTransportMode,
+      };
+    }
+
+    const results = [];
+    const seenUrls = new Set();
+    const pushResult = (item) => {
+      if (!item || !item.url || seenUrls.has(item.url) || results.length >= limit) return;
+      seenUrls.add(item.url);
+      results.push(item);
+    };
+
+    const wikiTask = fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&utf8=1&format=json&origin=*`,
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
+    const hnTask = fetch(
+      `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&hitsPerPage=4`,
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
+    const ghTask = fetch(
+      `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&per_page=3`,
+      { headers: { Accept: 'application/vnd.github+json' } },
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
+    const ddgTask = fetch(
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
+    )
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+
+    const [wikiJson, hnJson, ghJson, ddgJson] = await Promise.all([wikiTask, hnTask, ghTask, ddgTask]);
+
+    if (ddgJson && ddgJson.AbstractText && ddgJson.AbstractURL) {
+      pushResult({
+        title: ddgJson.Heading || query,
+        url: ddgJson.AbstractURL,
+        snippet: String(ddgJson.AbstractText).slice(0, 360),
+        source: 'duckduckgo',
+      });
+    }
+    if (wikiJson && wikiJson.query && Array.isArray(wikiJson.query.search)) {
+      for (const hit of wikiJson.query.search) {
+        const cleanSnippet = String(hit.snippet || '').replace(/<[^>]+>/g, '').trim();
+        pushResult({
+          title: hit.title,
+          url: `https://en.wikipedia.org/wiki/${encodeURIComponent(String(hit.title || '').replace(/\s+/g, '_'))}`,
+          snippet: cleanSnippet.slice(0, 360),
+          source: 'wikipedia',
+        });
+      }
+    }
+    if (ghJson && Array.isArray(ghJson.items)) {
+      for (const repo of ghJson.items) {
+        pushResult({
+          title: `${repo.full_name} (★${repo.stargazers_count ?? 0})`,
+          url: repo.html_url,
+          snippet: String(repo.description || 'GitHub repository').slice(0, 360),
+          source: 'github',
+        });
+      }
+    }
+    if (hnJson && Array.isArray(hnJson.hits)) {
+      for (const hit of hnJson.hits) {
+        const targetUrl = hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`;
+        pushResult({
+          title: hit.title || hit.story_title || 'Hacker News Discussion',
+          url: targetUrl,
+          snippet: `HN ${hit.points ?? 0} pts · ${hit.num_comments ?? 0} comments · by ${hit.author || 'anon'}`,
+          source: 'hn',
+        });
+      }
+    }
+
+    this.lastTransportMode = 'direct-https-search';
+    const formatted = results
+      .map((r, i) => `[${i + 1}] ${r.title}\n    URL: ${r.url}\n    ${r.snippet}`)
+      .join('\n\n');
+    return {
+      ok: true,
+      status: 200,
+      op: 'web_search',
+      query,
+      results,
+      data: { results },
+      body_text: formatted || `No public HTTPS search hits returned for "${query}".`,
+      transport: this.lastTransportMode,
+    };
+  }
+
+  parseGitHubRepoCoords(rawRepo) {
+    const cleaned = String(rawRepo || '').trim().replace(/\.git$/i, '').replace(/\/+$/, '');
+    if (/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cleaned)) {
+      const [owner, repo] = cleaned.split('/');
+      return { owner, repo, url: `https://github.com/${owner}/${repo}` };
+    }
+    try {
+      const u = new URL(cleaned);
+      if (u.hostname.toLowerCase() === 'github.com') {
+        const parts = u.pathname.split('/').filter(Boolean);
+        if (parts.length >= 2) {
+          return { owner: parts[0], repo: parts[1], url: `https://github.com/${parts[0]}/${parts[1]}` };
+        }
+      }
+    } catch {
+      // Not a GitHub URL
+    }
+    return null;
+  }
+
+  async handleGitBridge(req) {
+    const rawArgs = String(req.args || (req.arguments && req.arguments.args) || '').trim();
+    const argParts = rawArgs ? rawArgs.split(/\s+/) : [];
+    const subcommand = String(req.subcommand || req.action || argParts[0] || 'clone').toLowerCase();
+    const rawRepo = String(req.repo_url || req.repo || req.url || argParts[1] || '').trim();
+
+    if (req.path_and_query) {
+      const repoValid = this.validateTransportUrl(rawRepo, false);
+      if (!repoValid.ok) return repoValid;
+      const host = repoValid.url.hostname.toLowerCase();
+      let authBearer;
+      if (this.hasSecret('GITHUB_TOKEN') || String(req.auth_bearer || '').includes('{{MVM_SECRET:')) {
+        if (!SECRET_HOST_ALLOWLIST.GITHUB_TOKEN.has(host)) {
+          return {
+            ok: false,
+            status: 403,
+            error_code: 'HostNotAllowlistedForSecret',
+            message: `Secret GITHUB_TOKEN is not allowlisted for host ${host}`,
+          };
+        }
+        const subAuth = this.substituteHostSecretsInString(
+          req.auth_bearer || '{{MVM_SECRET:GITHUB_TOKEN}}',
+          host,
+        );
+        if (!subAuth.ok) return subAuth;
+        authBearer = subAuth.value;
+      }
+      const relayGit = await this.tryRelayRpc('git_smart_http', {
+        repo_url: repoValid.url.href,
+        path_and_query: String(req.path_and_query),
+        method: String(req.method || 'GET').toUpperCase(),
+        content_type: req.content_type || undefined,
+        auth_bearer: authBearer,
+        body_b64: req.body_b64 || req.body_base64 || undefined,
+      });
+      if (relayGit && relayGit.ok && relayGit.data) {
+        const d = relayGit.data;
+        return {
+          ok: d.status >= 200 && d.status < 400,
+          status: d.status,
+          op: 'git_smart_http',
+          content_type: d.content_type || '',
+          headers: d.headers || {},
+          body_b64: d.body_b64 || '',
+          body_base64: d.body_b64 || '',
+          byte_len: d.byte_length ?? 0,
+          truncated: Boolean(d.truncated),
+          transport: this.lastTransportMode,
+        };
+      }
+      if (relayGit && !relayGit.ok) {
+        return {
+          ok: false,
+          status: relayGit.status || 502,
+          error_code: relayGit.error_code || 'GitSmartHttpError',
+          message: relayGit.error_message || 'Git Smart-HTTP relay request failed',
+        };
+      }
+    }
+
+    if (req.smart_http_url) {
+      return this.handleHttpRequest({
+        url: req.smart_http_url,
+        method: req.method || 'GET',
+        headers: req.headers || {},
+        body_base64: req.body_base64,
+        binary: true,
+      });
+    }
+
+    const coords = this.parseGitHubRepoCoords(rawRepo);
+    if (!coords) {
+      if (rawRepo) {
+        const valid = this.validateTransportUrl(rawRepo, false);
+        if (!valid.ok) return valid;
+      }
+      return {
+        ok: false,
+        status: 400,
+        error_code: 'UnsupportedGitRemote',
+        message: `Expected https://github.com/<owner>/<repo> or <owner>/<repo>, got "${rawRepo}"`,
+      };
+    }
+
+    const ghHeaders = { Accept: 'application/vnd.github+json' };
+    const authRes = this.applyHostSecretSubstitution(new URL('https://api.github.com'), ghHeaders);
+    if (!authRes.ok) return authRes;
+    const headers = authRes.headers;
+
+    if (subcommand === 'clone' || subcommand === 'pull' || subcommand === 'fetch') {
+      try {
+        const repoResp = await fetch(`https://api.github.com/repos/${coords.owner}/${coords.repo}`, { headers });
+        if (!repoResp.ok) {
+          return {
+            ok: false,
+            status: repoResp.status,
+            error_code: repoResp.status === 401 || repoResp.status === 404 ? 'GitRepoAccessDenied' : 'GitApiError',
+            message: `GitHub API returned HTTP ${repoResp.status} for ${coords.owner}/${coords.repo}`,
+          };
+        }
+        const repoMeta = await repoResp.json();
+        const branch = String(req.branch || repoMeta.default_branch || 'main');
+        const treeResp = await fetch(
+          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+          { headers },
+        );
+        if (!treeResp.ok) {
+          return {
+            ok: false,
+            status: treeResp.status,
+            error_code: 'GitTreeFetchFailed',
+            message: `Failed to fetch tree for ${coords.owner}/${coords.repo}@${branch} (HTTP ${treeResp.status})`,
+          };
+        }
+        const treeJson = await treeResp.json();
+        const blobs = (Array.isArray(treeJson.tree) ? treeJson.tree : []).filter(
+          (entry) =>
+            entry.type === 'blob' &&
+            typeof entry.path === 'string' &&
+            (entry.size ?? 0) <= 196608 &&
+            !/\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|wasm|bin|part\d+|xz|gz|zip|pdf)$/i.test(entry.path),
+        );
+        const selected = blobs.slice(0, 40);
+        const hasToken = this.hasSecret('GITHUB_TOKEN');
+        const fetchedFiles = [];
+
+        const batchSize = 8;
+        for (let i = 0; i < selected.length; i += batchSize) {
+          const slice = selected.slice(i, i + batchSize);
+          const loaded = await Promise.all(
+            slice.map(async (entry) => {
+              try {
+                if (!hasToken && !repoMeta.private) {
+                  const rawUrl = `https://raw.githubusercontent.com/${coords.owner}/${coords.repo}/${encodeURIComponent(branch)}/${entry.path}`;
+                  const r = await fetch(rawUrl);
+                  if (r.ok) {
+                    return { path: entry.path, content: await r.text(), sha: entry.sha };
+                  }
+                }
+                const blobResp = await fetch(
+                  `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/blobs/${entry.sha}`,
+                  { headers },
+                );
+                if (!blobResp.ok) return null;
+                const blobJson = await blobResp.json();
+                if (blobJson.encoding === 'base64' && typeof blobJson.content === 'string') {
+                  const bytes = __uorBase64ToBytes(blobJson.content);
+                  return { path: entry.path, content: cachedTextDecoder.decode(bytes), sha: entry.sha };
+                }
+                return null;
+              } catch {
+                return null;
+              }
+            }),
+          );
+          for (const item of loaded) {
+            if (item) fetchedFiles.push(item);
+          }
+        }
+
+        this.lastTransportMode = 'direct-https-github-rest';
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand,
+          repo: `${coords.owner}/${coords.repo}`,
+          repo_url: coords.url,
+          branch,
+          head_sha: treeJson.sha || '',
+          files: fetchedFiles,
+          file_count: fetchedFiles.length,
+          data: {
+            repo: `${coords.owner}/${coords.repo}`,
+            branch,
+            head_sha: treeJson.sha || '',
+            files: fetchedFiles,
+            file_count: fetchedFiles.length,
+          },
+          body_text: `Synchronized ${fetchedFiles.length} files from ${coords.owner}/${coords.repo}@${branch} (${String(treeJson.sha || '').slice(0, 12)})`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return {
+          ok: false,
+          status: 502,
+          error_code: 'GitNetworkFailure',
+          message: err && err.message ? err.message : String(err),
+        };
+      }
+    }
+
+    if (subcommand === 'push') {
+      if (!this.hasSecret('GITHUB_TOKEN')) {
+        return {
+          ok: false,
+          status: 401,
+          error_code: 'GitAuthRequired',
+          message: 'GitHub PAT not configured. Click GitHub in the header to store GITHUB_TOKEN in the host vault.',
+        };
+      }
+      const filesToPush = Array.isArray(req.files) ? req.files : [];
+      if (filesToPush.length === 0) {
+        return {
+          ok: false,
+          status: 400,
+          error_code: 'GitNothingToPush',
+          message: 'No modified workspace files supplied for git push',
+        };
+      }
+      const branch = String(req.branch || 'main');
+      const commitMessage = String(req.message || 'Update from UOR-R4 Connected Studio');
+      try {
+        const refResp = await fetch(
+          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/ref/heads/${encodeURIComponent(branch)}`,
+          { headers },
+        );
+        if (!refResp.ok) {
+          return {
+            ok: false,
+            status: refResp.status,
+            error_code: 'GitRefReadFailed',
+            message: `Unable to read heads/${branch} on ${coords.owner}/${coords.repo} (HTTP ${refResp.status})`,
+          };
+        }
+        const refJson = await refResp.json();
+        const baseCommitSha = refJson.object && refJson.object.sha;
+        const commitResp = await fetch(
+          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/commits/${baseCommitSha}`,
+          { headers },
+        );
+        const commitJson = await commitResp.json();
+        const baseTreeSha = commitJson.tree && commitJson.tree.sha;
+
+        const treeEntries = filesToPush.map((f) => ({
+          path: String(f.path || '').replace(/^\/+/, ''),
+          mode: '100644',
+          type: 'blob',
+          content: String(f.content ?? ''),
+        }));
+        const createTreeResp = await fetch(
+          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/trees`,
+          {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
+          },
+        );
+        if (!createTreeResp.ok) {
+          return {
+            ok: false,
+            status: createTreeResp.status,
+            error_code: 'GitTreeCreateFailed',
+            message: `GitHub tree creation failed (HTTP ${createTreeResp.status})`,
+          };
+        }
+        const newTree = await createTreeResp.json();
+        const newCommitResp = await fetch(
+          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/commits`,
+          {
+            method: 'POST',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: commitMessage,
+              tree: newTree.sha,
+              parents: [baseCommitSha],
+            }),
+          },
+        );
+        if (!newCommitResp.ok) {
+          return {
+            ok: false,
+            status: newCommitResp.status,
+            error_code: 'GitCommitCreateFailed',
+            message: `GitHub commit creation failed (HTTP ${newCommitResp.status})`,
+          };
+        }
+        const createdCommit = await newCommitResp.json();
+        const updateRefResp = await fetch(
+          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/refs/heads/${encodeURIComponent(branch)}`,
+          {
+            method: 'PATCH',
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sha: createdCommit.sha, force: false }),
+          },
+        );
+        if (!updateRefResp.ok) {
+          return {
+            ok: false,
+            status: updateRefResp.status,
+            error_code: 'GitRefUpdateFailed',
+            message: `GitHub ref fast-forward failed (HTTP ${updateRefResp.status})`,
+          };
+        }
+        this.lastTransportMode = 'direct-https-github-rest';
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'push',
+          repo: `${coords.owner}/${coords.repo}`,
+          branch,
+          commit_sha: createdCommit.sha,
+          body_text: `Pushed ${treeEntries.length} file(s) to ${coords.owner}/${coords.repo}@${branch} -> ${String(createdCommit.sha || '').slice(0, 12)}`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return {
+          ok: false,
+          status: 502,
+          error_code: 'GitPushNetworkError',
+          message: err && err.message ? err.message : String(err),
+        };
+      }
+    }
+
+    return {
+      ok: false,
+      status: 400,
+      error_code: 'UnsupportedGitSubcommand',
+      message: `Unsupported connected git subcommand: ${subcommand}`,
+    };
+  }
+
+  async handlePkgFetch(req) {
+    const sub = String(req.subcommand || req.action || (req.name ? 'install' : 'list')).toLowerCase();
+    const pkgName = String(req.pkg_name || req.name || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    const indexCandidates = [
+      new URL('weights/mvm-pkgs/index.json', import.meta.url).href,
+      new URL('../gpu/weights/mvm-pkgs/index.json', import.meta.url).href,
+    ];
+
+    let pkgIndex = null;
+    let basePkgUrl = '';
+    for (const idxUrl of indexCandidates) {
+      try {
+        const r = await fetch(idxUrl, { cache: 'no-cache' });
+        if (r.ok) {
+          pkgIndex = await r.json();
+          basePkgUrl = idxUrl.slice(0, idxUrl.lastIndexOf('/') + 1);
+          break;
+        }
+      } catch {
+        // Try next candidate
+      }
+    }
+
+    if (!pkgIndex || !Array.isArray(pkgIndex.packages)) {
+      return {
+        ok: false,
+        status: 404,
+        error_code: 'PkgIndexUnavailable',
+        message: 'Static RV64IMAC package index (mvm-pkgs/index.json) not found on origin',
+      };
+    }
+
+    if (sub === 'list' || sub === 'search') {
+      const q = pkgName.toLowerCase();
+      const pkgs = pkgIndex.packages.filter((p) => !q || String(p.name || '').toLowerCase().includes(q));
+      const lines = pkgs.map(
+        (p) => `${String(p.name).padEnd(12, ' ')} ${String(p.version || '1.0.0').padEnd(8, ' ')} ${p.size_bytes ?? p.byte_length ?? 0} B  ${p.description || 'riscv64-linux-musl static ELF'}`,
+      );
+      return {
+        ok: true,
+        status: 200,
+        op: 'pkg_fetch',
+        subcommand: sub,
+        packages: pkgs,
+        body_text: lines.join('\n') || 'No matching RV64IMAC packages.',
+      };
+    }
+
+    const entry = pkgIndex.packages.find((p) => p.name === pkgName);
+    if (!entry) {
+      return {
+        ok: false,
+        status: 404,
+        error_code: 'PackageNotFound',
+        message: `Package "${pkgName}" not found in uor-mvm-pkg-index/1`,
+      };
+    }
+
+    const elfFile = entry.file || `${pkgName}.elf`;
+    const elfResp = await fetch(basePkgUrl + elfFile);
+    if (!elfResp.ok) {
+      return {
+        ok: false,
+        status: elfResp.status,
+        error_code: 'PackageDownloadFailed',
+        message: `Failed to download ${elfFile} (HTTP ${elfResp.status})`,
+      };
+    }
+    const elfBytes = new Uint8Array(await elfResp.arrayBuffer());
+    const verified = await this.verifyElf64RiscvAndSha256(elfBytes, entry.sha256 || '');
+    if (!verified.ok) {
+      return {
+        ok: false,
+        status: 422,
+        error_code: verified.error_code,
+        message: verified.message,
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      op: 'pkg_fetch',
+      subcommand: 'install',
+      installed: true,
+      name: pkgName,
+      install_path: `/usr/local/bin/${pkgName}`,
+      sha256: verified.sha256,
+      byte_len: elfBytes.byteLength,
+      e_machine: verified.e_machine,
+      elf_machine: verified.e_machine,
+      elf_base64: __uorBytesToBase64(elfBytes),
+      data: {
+        installed: true,
+        name: pkgName,
+        sha256: verified.sha256,
+        elf_machine: verified.e_machine,
+      },
+      body_text: `Installed verified RV64IMAC ELF64 binary /usr/local/bin/${pkgName} (${elfBytes.byteLength} B, sha256:${verified.sha256.slice(0, 16)})`,
+    };
+  }
+}
+
+export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload = false) {
+  if (wasm === undefined || typeof studio_load_uorgllm_v9_bytes !== 'function') return null;
+  const manifestCandidates = [
+    new URL('weights/v10/manifest.json', import.meta.url).href,
+    new URL('../gpu/weights/v10/manifest.json', import.meta.url).href,
+    new URL('weights/v9/manifest.json', import.meta.url).href,
+  ];
+
+  let manifest = null;
+  let baseUrl = '';
+  for (const mUrl of manifestCandidates) {
+    try {
+      const resp = await fetch(mUrl, { cache: 'no-cache' });
+      if (resp.ok) {
+        const parsed = await resp.json();
+        if (parsed && parsed.format === 'UORGLLM9' && Array.isArray(parsed.shards)) {
+          manifest = parsed;
+          baseUrl = mUrl.slice(0, mUrl.lastIndexOf('/') + 1);
+          break;
+        }
+      }
+    } catch {
+      // Try next manifest path
+    }
+  }
+
+  const hasOpfs =
+    typeof navigator !== 'undefined' &&
+    navigator.storage &&
+    typeof navigator.storage.getDirectory === 'function';
+
+  if (!manifest) {
+    return restore_gllm_v9_from_opfs('');
+  }
+
+  const expectedSha = String(manifest.container_sha256 || '');
+  if (!forceReload && hasOpfs && expectedSha) {
+    try {
+      const root = await navigator.storage.getDirectory();
+      const mfh = await root.getFileHandle(OPFS_V10_META_FILE, { create: false });
+      const meta = JSON.parse(await (await mfh.getFile()).text());
+      if (meta && meta.sha256 === expectedSha) {
+        const wfh = await root.getFileHandle(OPFS_V10_WEIGHT_FILE, { create: false });
+        const bytes = new Uint8Array(await (await wfh.getFile()).arrayBuffer());
+        const loaded = JSON.parse(studio_load_uorgllm_v9_bytes(bytes, 'opfs_cached_v10_8L_128D'));
+        if (loaded && loaded.status === 'ok') {
+          globalThis.__uorGllmV9Meta = {
+            status: `OPFS UORGLLM v10 (${loaded.n_layers}L ${loaded.d_model}D)`,
+            sha256: expectedSha,
+            mode: 'opfs-v10-cached',
+          };
+          return loaded;
+        }
+      }
+    } catch {
+      // Proceed to stream shards
+    }
+  }
+
+  const totalBytes = manifest.total_bytes >>> 0;
+  const fullBuf = new Uint8Array(totalBytes);
+  for (let i = 0; i < manifest.shards.length; i++) {
+    const s = manifest.shards[i];
+    const sResp = await fetch(baseUrl + s.file);
+    if (!sResp.ok) throw new Error(`Shard HTTP ${sResp.status} on ${s.file}`);
+    const ab = await sResp.arrayBuffer();
+    if (ab.byteLength !== s.byte_length) throw new Error(`Shard length mismatch on ${s.file}`);
+    const shardSha = await __uorSha256HexBytes(new Uint8Array(ab));
+    if (shardSha !== s.sha256) throw new Error(`Shard SHA-256 mismatch on ${s.file}`);
+    fullBuf.set(new Uint8Array(ab), s.byte_offset);
+    if (typeof onProgress === 'function') {
+      onProgress({
+        index: i + 1,
+        total: manifest.shards.length,
+        bytes: s.byte_offset + s.byte_length,
+        totalBytes,
+      });
+    }
+  }
+
+  const fullSha = await __uorSha256HexBytes(fullBuf);
+  if (expectedSha && fullSha !== expectedSha) {
+    throw new Error('UORGLLM v10 container SHA-256 mismatch');
+  }
+
+  if (hasOpfs) {
+    try {
+      const root = await navigator.storage.getDirectory();
+      const fh = await root.getFileHandle(OPFS_V10_WEIGHT_FILE, { create: true });
+      if (typeof fh.createSyncAccessHandle === 'function') {
+        const sh = await fh.createSyncAccessHandle();
+        sh.truncate(totalBytes);
+        sh.write(fullBuf, { at: 0 });
+        sh.flush();
+        sh.close();
+      } else if (typeof fh.createWritable === 'function') {
+        const w = await fh.createWritable();
+        await w.write(fullBuf);
+        await w.close();
+      }
+      const mfh = await root.getFileHandle(OPFS_V10_META_FILE, { create: true });
+      const metaBytes = cachedTextEncoder.encode(JSON.stringify({ sha256: fullSha, totalBytes }));
+      if (typeof mfh.createSyncAccessHandle === 'function') {
+        const msh = await mfh.createSyncAccessHandle();
+        msh.truncate(metaBytes.byteLength);
+        msh.write(metaBytes, { at: 0 });
+        msh.flush();
+        msh.close();
+      } else if (typeof mfh.createWritable === 'function') {
+        const mw = await mfh.createWritable();
+        await mw.write(metaBytes);
+        await mw.close();
+      }
+    } catch {
+      // OPFS write optional if quota restricted
+    }
+  }
+
+  const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(fullBuf, 'opfs_streamed_v10_8L_128D'));
+  if (parsed && parsed.status === 'ok') {
+    globalThis.__uorGllmV9Meta = {
+      status: `OPFS UORGLLM v10 (${parsed.n_layers}L ${parsed.d_model}D)`,
+      sha256: fullSha,
+      mode: 'opfs-v10-streamed',
+    };
+    return parsed;
+  }
+  return null;
+}
+
+function __uorCollectWorkspaceSnapshot() {
+  const listRes = JSON.parse(studio_dispatch('1\tstudio\tworkspace_list\t'));
+  const files = listRes && Array.isArray(listRes.files) ? listRes.files : [];
+  const hydrated = files.map((f) => {
+    let content = f.content;
+    if (typeof content !== 'string') {
+      try {
+        const r = JSON.parse(studio_dispatch(`1\tstudio\tworkspace_read\t${f.path}`));
+        content = r && r.status === 'ok' ? (r.content || '') : '';
+      } catch {
+        content = '';
+      }
+    }
+    return { ...f, content };
+  });
+  return { status: 'ok', files: hydrated };
+}
+
+function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
+  if (Array.isArray(parsedRes && parsedRes.brain_pulses) && parsedRes.brain_pulses.length > 0) {
+    return parsedRes.brain_pulses;
+  }
+  const gen = (parsedRes && parsedRes.generation) || {};
+  const tokGen = (parsedRes && parsedRes.token_generation) || gen.token_generation || {};
+  const baseOrbit = ((parsedRes && parsedRes.icosian_root) ?? tokGen.final_icosian_root ?? 3) & 15;
+  const baseHead = ((parsedRes && parsedRes.flock_consensus_action) ?? 2) & 7;
+  const steps = Math.min(Math.max(Number(tokGen.stepped_tokens) || 10, 6), 24);
+  const pulses = [];
+  for (let s = 0; s < steps; s++) {
+    pulses.push({
+      step: s,
+      phase: s === 0 ? 'prefill' : (toolKind !== 'none' && s === steps - 1 ? 'tool' : 'decode'),
+      active_layer: s % 8,
+      winning_head: (baseHead + s) & 7,
+      e8_orbit: (baseOrbit + s * 3) & 15,
+      cl06_grade: (s * 2 + 1) % 7,
+      kv_copy_dist: s % 4 === 2 ? 12 + s * 3 : 0,
+      prll_top_mass: 620000 + ((s * 31337) % 280000),
+      tool_kind: s === steps - 1 ? toolKind : 'none',
+    });
+  }
+  return pulses;
+}
+
+function __uorStartDedicatedEngineWorker() {
+  const hostBridge = new SpiralCoreHostBridge();
+  let wasmReady = false;
+  let bootPromise = null;
+  const earlyMessages = [];
+
+  const postEvent = (event, data = {}) => {
+    self.postMessage({ event, ...data });
+  };
+
+  const applyClonedFilesToWorkspace = (files) => {
+    if (!Array.isArray(files) || files.length === 0) return null;
+    for (const f of files) {
+      if (f && typeof f.path === 'string' && typeof f.content === 'string') {
+        studio_dispatch(`1\tstudio\tworkspace_write\t${f.path}\n${f.content}`);
+      }
+    }
+    const snap = __uorCollectWorkspaceSnapshot();
+    postEvent('workspace_sync', { workspace: snap });
+    return snap;
+  };
+
+  const dispatchWithConnectedBridge = async (envelope) => {
+    let currentRaw = studio_dispatch(envelope);
+    let parsed = JSON.parse(currentRaw);
+    let hops = 0;
+    let lastToolKind = 'none';
+
+    while (parsed && parsed.status === 'needs_bridge' && hops < 8) {
+      hops++;
+      const bridgeReq = parsed.bridge_req || parsed.pending_bridge || parsed.request || {};
+      const kind = String(bridgeReq.op || bridgeReq.kind || bridgeReq.tool || 'http_request');
+      lastToolKind = kind;
+      postEvent('bridge_activity', { phase: 'start', hop: hops, op: kind, request: bridgeReq });
+      postEvent('brain_pulse', {
+        pulses: [
+          {
+            step: hops,
+            phase: 'tool',
+            active_layer: (hops * 2) & 7,
+            winning_head: hops & 7,
+            e8_orbit: (hops * 5) & 15,
+            cl06_grade: 3,
+            kv_copy_dist: 24,
+            prll_top_mass: 850000,
+            tool_kind: kind,
+          },
+        ],
+      });
+
+      const bridgeResp = await hostBridge.execute(bridgeReq);
+      if (bridgeResp && bridgeResp.op === 'git' && Array.isArray(bridgeResp.files) && bridgeResp.files.length > 0) {
+        applyClonedFilesToWorkspace(bridgeResp.files);
+      }
+      postEvent('bridge_activity', {
+        phase: 'complete',
+        hop: hops,
+        op: kind,
+        ok: Boolean(bridgeResp && bridgeResp.ok),
+        transport: hostBridge.lastTransportMode,
+      });
+
+      const resumeCmd =
+        parsed.resume_command ||
+        (envelope.includes('\tchat\t') ? 'chat_complete_bridge' : 'mvm_complete_bridge');
+      const resumePayload = JSON.stringify({
+        session_id: parsed.session_id || parsed.bridge_id || '',
+        bridge_id: parsed.bridge_id || parsed.session_id || '',
+        bridge_resp: bridgeResp,
+        response: bridgeResp,
+      });
+      currentRaw = studio_dispatch(`1\tstudio\t${resumeCmd}\t${resumePayload}`);
+      parsed = JSON.parse(currentRaw);
+    }
+
+    if (envelope.includes('\tchat\t') || envelope.includes('\tmvm_exec\t')) {
+      const pulses = __uorSynthesizeBrainPulsesFromReply(parsed, lastToolKind);
+      postEvent('brain_pulse', { pulses });
+    }
+    if (envelope.includes('\tmvm_exec\t')) {
+      persist_mvm_cow_sectors_to_opfs().catch(() => {});
+      postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+    }
+    return parsed;
+  };
+
+  const handleWorkerMessage = async (msg) => {
+    const { id, op, payload } = msg || {};
+    try {
+      if (op === 'studio_dispatch') {
+        const res = await dispatchWithConnectedBridge(String(payload || ''));
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'host_bridge_exec') {
+        const toolKind = String((payload && (payload.op || payload.kind)) || 'http_request');
+        postEvent('bridge_activity', { phase: 'start', hop: 1, op: toolKind });
+        postEvent('brain_pulse', {
+          pulses: [
+            {
+              step: 0,
+              phase: 'tool',
+              active_layer: 4,
+              winning_head: 3,
+              e8_orbit: 9,
+              cl06_grade: 4,
+              kv_copy_dist: 32,
+              prll_top_mass: 890000,
+              tool_kind: toolKind,
+            },
+          ],
+        });
+        let reqPayload = payload || {};
+        if (reqPayload.op === 'git' && reqPayload.subcommand === 'push' && !Array.isArray(reqPayload.files)) {
+          const snap = __uorCollectWorkspaceSnapshot();
+          reqPayload = { ...reqPayload, files: snap.files };
+        }
+        const res = await hostBridge.execute(reqPayload);
+        if (res && res.op === 'git' && Array.isArray(res.files) && res.files.length > 0) {
+          applyClonedFilesToWorkspace(res.files);
+        }
+        postEvent('bridge_activity', {
+          phase: 'complete',
+          hop: 1,
+          op: toolKind,
+          ok: Boolean(res && res.ok),
+          transport: hostBridge.lastTransportMode,
+        });
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'mvm_set_secret') {
+        const key = String((payload && payload.key) || 'GITHUB_TOKEN');
+        const value = String((payload && payload.value) || '');
+        const vaultRes = hostBridge.setSecret(key, value);
+        try {
+          studio_dispatch(`1\tstudio\tmvm_set_secret\t${JSON.stringify({ key, value })}`);
+        } catch {
+          // Host JS vault remains primary when Wasm guest command is absent
+        }
+        self.postMessage({ id, ok: vaultRes.ok, result: vaultRes });
+        return;
+      }
+      if (op === 'set_bridge_policy') {
+        const res = hostBridge.setPolicy(payload || {});
+        const customRelay = payload && (typeof payload.relayWsUrl === 'string' ? payload.relayWsUrl : payload.relayUrl);
+        if (typeof customRelay === 'string') {
+          hostBridge.setRelayUrl(customRelay);
+        }
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'wasm_eval' || op === 'studio_wasm_eval') {
+        const sub = String((payload && payload.subcommand) || 'check');
+        const filter = String((payload && payload.filter) || '');
+        const res = JSON.parse(studio_wasm_eval(sub, filter));
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'process_envelope') {
+        const reqBytes = cachedTextEncoder.encode(String(payload || ''));
+        const respBytes = process_envelope(reqBytes);
+        const res = cachedTextDecoder.decode(respBytes);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (
+        op === 'v1_endpoint' ||
+        op === 'studio_v1_messages' ||
+        op === 'studio_v1_chat_completions' ||
+        op === 'studio_v1_traces'
+      ) {
+        const endpoint =
+          op === 'studio_v1_messages'
+            ? 'messages'
+            : op === 'studio_v1_chat_completions'
+              ? 'chat_completions'
+              : op === 'studio_v1_traces'
+                ? 'traces'
+                : String((payload && payload.endpoint) || 'messages');
+        const body = typeof payload === 'string' ? payload : String((payload && payload.body) || '{}');
+        const raw =
+          endpoint === 'messages'
+            ? studio_v1_messages(body)
+            : endpoint === 'chat_completions'
+              ? studio_v1_chat_completions(body)
+              : studio_v1_traces(body);
+        let outVal = raw;
+        if (op.startsWith('studio_v1_')) {
+          try {
+            outVal = JSON.parse(raw);
+          } catch {
+            outVal = raw;
+          }
+        }
+        self.postMessage({ id, ok: true, result: outVal });
+        return;
+      }
+      if (op === 'load_uorlut' || op === 'load_uorlut_bytes') {
+        const u8 = payload && payload.bytes instanceof Uint8Array
+          ? payload.bytes
+          : new Uint8Array((payload && payload.buffer) || 0);
+        const label = String((payload && (payload.sourceLabel || payload.label)) || 'uploaded_uorlut');
+        const parsed = JSON.parse(studio_load_uorlut_bytes(u8, label));
+        if (parsed && parsed.status === 'ok') {
+          await cache_uorlut_in_indexeddb(u8, label);
+        }
+        self.postMessage({
+          id,
+          ok: true,
+          result: {
+            ...parsed,
+            load: parsed,
+            state: JSON.parse(studio_dispatch('1\tstudio\tstate\t')),
+          },
+        });
+        return;
+      }
+      if (op === 'sync_weights') {
+        const v10 = await stream_v10_sharded_weights_to_opfs((prog) => {
+          postEvent('boot_progress', { stage: 'v10_shards', ...prog });
+        }, true).catch(() => null);
+        const lut = await sync_cached_weights((prog) => {
+          postEvent('boot_progress', { stage: 'uorlut_sync', ...prog });
+        });
+        self.postMessage({ id, ok: true, result: { v10, lut } });
+        return;
+      }
+      if (op === 'snapshot') {
+        const state = JSON.parse(studio_dispatch('1\tstudio\tstate\t'));
+        const workspace = __uorCollectWorkspaceSnapshot();
+        const pack = JSON.parse(studio_weight_pack_status());
+        const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
+        self.postMessage({ id, ok: true, result: { state, workspace, pack, gllm } });
+        return;
+      }
+      self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
+    } catch (err) {
+      self.postMessage({
+        id,
+        ok: false,
+        error: err && err.message ? err.message : String(err),
+      });
+    }
+  };
+
+  self.onmessage = (ev) => {
+    const msg = ev.data || {};
+    if (!wasmReady) {
+      earlyMessages.push(msg);
+      if (!bootPromise) startBoot();
+      return;
+    }
+    handleWorkerMessage(msg);
+  };
+
+  const startBoot = () => {
+    if (bootPromise) return bootPromise;
+    bootPromise = (async () => {
+      postEvent('boot_progress', { stage: 'wasm_compile', label: 'Compiling UOR-R4 Wasm engine...' });
+      await __wbg_init();
+      await restore_cached_uorlut_from_indexeddb().catch(() => null);
+      await restore_mvm_cow_sectors_from_opfs().catch(() => null);
+      wasmReady = true;
+
+      const state = JSON.parse(studio_dispatch('1\tstudio\tstate\t'));
+      const workspace = __uorCollectWorkspaceSnapshot();
+      const pack = JSON.parse(studio_weight_pack_status());
+      const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
+      postEvent('ready', {
+        snapshot: { state, workspace, pack, gllm },
+        weightCacheMeta: globalThis.__uorWeightCacheMeta || null,
+        gllmMeta: globalThis.__uorGllmV9Meta || null,
+      });
+
+      while (earlyMessages.length > 0) {
+        const queued = earlyMessages.shift();
+        await handleWorkerMessage(queued);
+      }
+
+      // Stream v10 sharded weights into OPFS in background without delaying early turns
+      stream_v10_sharded_weights_to_opfs((prog) => {
+        postEvent('boot_progress', { stage: 'v10_shards', ...prog });
+      }, false)
+        .then((v10Info) => {
+          if (v10Info) {
+            postEvent('weights_upgraded', {
+              gllm: v10Info,
+              gllmMeta: globalThis.__uorGllmV9Meta || null,
+            });
+          }
+        })
+        .catch(() => {});
+    })().catch((err) => {
+      postEvent('boot_error', {
+        message: err && err.message ? err.message : String(err),
+      });
+    });
+    return bootPromise;
+  };
+
+  startBoot();
+}
+
+if (
+  typeof WorkerGlobalScope !== 'undefined' &&
+  typeof self !== 'undefined' &&
+  self instanceof WorkerGlobalScope &&
+  self.name === 'uor-r4-engine-worker'
+) {
+  __uorStartDedicatedEngineWorker();
+}
+
 export { initSync };
 export default __wbg_init;
