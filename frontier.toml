@@ -1769,3 +1769,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f113_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.14492 (ReTrace: Distilling Tool-Using Agents into Planner-Free Workflows)."
 prompt = "How does this literature catalog entry relate to language model alignment?"
 target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
+
+[[claim]]
+id = "R4-F114"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:ffee-temp:r1221:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f114_bvgk_writer_refinement"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ffee and temp at row_idx=1221 (anchor_id=0x8000012f)."
+prompt = "How does Q12 writer refinement encode ffee and temp at row_idx=1221?"
+target_reply = "At row_idx=1221 with anchor_id=0x8000012f, Q12 writer refinement aligns the 256D L1 PointKey prototype for ffee and temp with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
