@@ -1817,3 +1817,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f116_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems soap and clean at manifold row 354."
 prompt = "How does PointKey routing resolve conversational prompts about soap and clean?"
 target_reply = "PointKey routing matches conversational stems soap and clean directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F117"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:separ-sell:r7722:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f117_reply_4gram_deduction"
+statement = "Verify causal four gram deduction over stems separ and sell from manifold row 7722 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over separ and sell?"
+target_reply = "Causal four gram continuation preserves reasoning over separ and sell because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
