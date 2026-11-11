@@ -179,6 +179,13 @@ fn test_gllm_v9_opfs_8l_128d_shard_reassembly_and_hotload_r4_38() {
     assert_eq!(status_json["d_model"], 128);
     assert_eq!(status_json["n_layers"], 8);
 
+    // Verify `"reset"` ("New Session" in Studio UI) preserves hot-loaded OPFS 8L 128D weights
+    let _ = studio_dispatch("1\tstudio\treset\t");
+    let after_reset: serde_json::Value =
+        serde_json::from_str(&studio_gllm_v9_status()).expect("valid studio_gllm_v9_status JSON");
+    assert_eq!(after_reset["d_model"], 128);
+    assert_eq!(after_reset["n_layers"], 8);
+
     // Verify end-to-end Studio chat dispatch uses the hot-loaded 8L 128D UORGLLM9 engine
     let chat_raw = studio_dispatch(
         "1\tstudio\tchat\tGiven telemetry_gain_v4 = 63 and phase_bias_r2 = 19, write a concise Rust expression combining telemetry_gain_v4 and phase_bias_r2.",
@@ -187,9 +194,50 @@ fn test_gllm_v9_opfs_8l_128d_shard_reassembly_and_hotload_r4_38() {
     assert_eq!(chat_res["status"], "ok", "chat_res: {chat_res}");
     let reply = chat_res["assistant_reply"].as_str().unwrap_or("");
     assert!(
-        reply.contains("telemetry_gain_v4") && reply.contains("phase_bias_r2"),
+        reply.contains("let result = telemetry_gain_v4") && reply.contains("phase_bias_r2;"),
         "8L 128D Studio chat must copy unseen prompt identifiers via causal KV induction, got: {reply}"
     );
+
+    // Verify unseen-identifier Rust function synthesis on 8L 128D
+    let fn_raw = studio_dispatch(
+        "1\tstudio\tchat\tWrite a Rust function compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64.",
+    );
+    let fn_res: serde_json::Value = serde_json::from_str(&fn_raw).expect("valid fn chat JSON");
+    let fn_reply = fn_res["assistant_reply"].as_str().unwrap_or("");
+    assert!(
+        fn_reply.contains("pub fn compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64")
+            && fn_reply.contains("sensor_drift_k9.saturating_"),
+        "8L 128D must synthesize complete Rust function with unseen parameter names, got: {fn_reply}"
+    );
+
+    // Verify technical architecture Q&A via causal PRLL KV + FWHT-64 T-MAC readout
+    let qa_raw = studio_dispatch(
+        "1\tstudio\tchat\tHow does the MVM-Wasm Linux sandbox isolate network access?",
+    );
+    let qa_res: serde_json::Value = serde_json::from_str(&qa_raw).expect("valid qa chat JSON");
+    let qa_reply = qa_res["assistant_reply"].as_str().unwrap_or("");
+    assert!(
+        qa_reply.contains("AF_VSOCK") && qa_reply.contains("-EAFNOSUPPORT = -97"),
+        "8L 128D Q&A must explain Zero-NIC AF_VSOCK isolation accurately, got: {qa_reply}"
+    );
+
+    // Verify full 2-stage MVM tool loop on 8L 128D copies the entire 64-char SHA-256 digest cleanly
+    let ag_raw = studio_dispatch(
+        "1\tstudio\tgllm_v9_agent\tRun uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.",
+    );
+    let ag_res: serde_json::Value =
+        serde_json::from_str(&ag_raw).expect("valid gllm_v9_agent JSON");
+    assert_eq!(ag_res["status"], "ok", "ag_res: {ag_res}");
+    assert_eq!(ag_res["turn_memory_hits"], 0);
+    assert_eq!(ag_res["mvm_tool_executed"], true);
+    let expected_sha = sha256_hex(b"gllm-v9-mvm");
+    let ag_stdout = ag_res["mvm_stdout"].as_str().unwrap_or("");
+    let ag_reply = ag_res["assistant_reply"].as_str().unwrap_or("");
+    assert!(
+        ag_stdout.contains(&expected_sha) && ag_reply.contains(&expected_sha),
+        "8L 128D Step 2 must copy full 64-char SHA-256 digest {expected_sha} from live MVM stdout without truncation.\nstdout: {ag_stdout}\nreply: {ag_reply}"
+    );
+
     let _ = studio_load_uorgllm_v9_bytes(
         include_bytes!("../src/bootstrap_v9.uorgllm"),
         "bootstrap_v9_restored",
@@ -208,14 +256,15 @@ fn test_gllm_v9_agentic_mvm_sandbox_tool_loop_r4_38() {
     assert_eq!(res["turn_memory_hits"], 0);
     assert_eq!(res["mvm_tool_executed"], true, "res: {res}");
     assert_eq!(res["mvm_exit_code"], 0);
+    let expected_sha = sha256_hex(b"gllm-v9-mvm");
     let stdout = res["mvm_stdout"].as_str().unwrap_or("");
     assert!(
-        stdout.contains("riscv64"),
-        "expected live RV64IMAC MicroVM stdout, got: {stdout}"
+        stdout.contains("riscv64") && stdout.contains(&expected_sha),
+        "expected live RV64IMAC MicroVM stdout + SHA-256, got: {stdout}"
     );
     let reply = res["assistant_reply"].as_str().unwrap_or("");
     assert!(
-        reply.contains("riscv64"),
-        "final compositional answer must incorporate live MVM-Wasm tool observation, got: {reply}"
+        reply.contains(&expected_sha),
+        "Step 2 compositional observation comprehension must copy full 64-char SHA-256 digest {expected_sha} from MVM stdout, got: {reply}"
     );
 }

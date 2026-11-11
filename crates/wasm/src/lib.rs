@@ -1422,13 +1422,13 @@ impl StudioEngine {
                     .get("max_new_tokens")
                     .or_else(|| v.get("max_tokens"))
                     .and_then(|x| x.as_u64())
-                    .unwrap_or(128) as usize;
+                    .unwrap_or(256) as usize;
                 (p, m)
             } else {
-                (trimmed.to_string(), 128usize)
+                (trimmed.to_string(), 256usize)
             }
         } else {
-            (trimmed.to_string(), 128usize)
+            (trimmed.to_string(), 256usize)
         };
         let gen = self
             .gllm_v9
@@ -1462,13 +1462,13 @@ impl StudioEngine {
                     .get("max_new_tokens")
                     .or_else(|| v.get("max_tokens"))
                     .and_then(|x| x.as_u64())
-                    .unwrap_or(128) as usize;
+                    .unwrap_or(256) as usize;
                 (p, m)
             } else {
-                (raw_trimmed.to_string(), 128usize)
+                (raw_trimmed.to_string(), 256usize)
             }
         } else {
-            (raw_trimmed.to_string(), 128usize)
+            (raw_trimmed.to_string(), 256usize)
         };
         let trimmed = unwrapped.as_str();
         let agent_prompt = if trimmed.starts_with("[agent_mode]") {
@@ -1502,9 +1502,11 @@ impl StudioEngine {
                     let obs_prompt = format!(
                         "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
                     );
-                    let step2 =
-                        self.gllm_v9
-                            .generate_compositional(&obs_prompt, &self.chat_history, 128);
+                    let step2 = self.gllm_v9.generate_compositional(
+                        &obs_prompt,
+                        &self.chat_history,
+                        max_toks,
+                    );
                     let final_reply = step2.text.clone();
                     self.chat_history
                         .push((trimmed.to_string(), final_reply.clone()));
@@ -6013,7 +6015,9 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         }
         "v1/traces" | "/v1/traces" | "traces" => engine.dispatch_v1_traces(payload),
         "reset" => {
+            let active_v9 = std::sync::Arc::clone(&engine.gllm_v9);
             *engine = StudioEngine::new_default();
+            engine.gllm_v9 = active_v9;
             engine.render_state_json(None)
         }
         _ => "{\"status\":\"error\",\"message\":\"Unknown studio command.\"}".to_string(),

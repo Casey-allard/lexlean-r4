@@ -2016,9 +2016,9 @@ impl MvmSandbox {
                 let mut u = [0u8; 390];
                 let fields = [
                     "Linux",
-                    "mvm-riscv64",
-                    "6.8.0-uor-mvm",
-                    "#1 SMP SpiralCore-Vsock",
+                    "mvm-wasm",
+                    "6.6.0-uor-rv64imac",
+                    "#1 SMP PREEMPT_DYNAMIC",
                     "riscv64",
                     "uor.local",
                 ];

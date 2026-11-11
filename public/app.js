@@ -8707,7 +8707,7 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 
 function updateWeightCacheBadge() {
   if (weightCacheBadge) {
-    const meta = globalThis.__uorWeightCacheMeta || {};
+    const meta = globalThis.__uorGllmV9Meta || globalThis.__uorWeightCacheMeta || {};
     const label = meta.status || '38.0 MB Cached · 30/30 Proved';
     const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
     weightCacheBadge.textContent = `${label}${shortSha}`;

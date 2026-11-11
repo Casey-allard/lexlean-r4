@@ -1025,7 +1025,7 @@ impl StudioEngine {
             };
             let step1 = self
                 .gllm_v9
-                .generate_compositional(&agent_prompt, &self.chat_history, 128);
+                .generate_compositional(&agent_prompt, &self.chat_history, 256);
             if let Some(cmd) = crate::extract_mvm_cmd_from_generation(&step1.text) {
                 self.sync_workspace_into_mvm();
                 if let Ok(outcome) = self.mvm.exec_command(&cmd, "/workspace") {
@@ -1047,7 +1047,7 @@ impl StudioEngine {
                     );
                     let step2 =
                         self.gllm_v9
-                            .generate_compositional(&obs_prompt, &self.chat_history, 128);
+                            .generate_compositional(&obs_prompt, &self.chat_history, 256);
                     if !step2.text.is_empty() {
                         return step2.text;
                     }
@@ -1074,17 +1074,16 @@ impl StudioEngine {
 
         let is_compositional_v9_turn =
             (lower.starts_with("given ") && lower.contains(" = ") && lower.contains("expression"))
-                || ((lower.starts_with("write a rust function ")
-                    || lower.starts_with("write a python function ")
-                    || lower.starts_with("write a freestanding c function "))
-                    && trimmed.contains('('))
+                || (lower.starts_with("write a rust function ") && trimmed.contains('('))
+                || lower == "what is uor-r4?"
+                || lower.starts_with("how does uor-r4 attention")
                 || lower.contains("uorgllm")
                 || lower.contains("mvm-wasm")
                 || lower.contains("af_vsock");
         if is_compositional_v9_turn {
             let v9_gen = self
                 .gllm_v9
-                .generate_compositional(trimmed, &self.chat_history, 144);
+                .generate_compositional(trimmed, &self.chat_history, 256);
             if v9_gen.generated_tokens.len() >= 8 && !v9_gen.text.is_empty() {
                 return v9_gen.text;
             }

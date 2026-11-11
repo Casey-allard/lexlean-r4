@@ -604,7 +604,19 @@ impl GllmV9Model {
         };
 
         let kv_prompt_tokens = prefix_ids.len();
-        let mut cache = GllmV9KvCache::new(self, kv_prompt_tokens, copy_start);
+        let open_obs = bpe.encode("<tool_response>");
+        let close_obs = bpe.encode("</tool_response>");
+        let tool_obs_range = prefix_ids[copy_start..]
+            .windows(open_obs.len())
+            .rposition(|w| w == open_obs.as_slice())
+            .and_then(|rel_open| {
+                let obs_start = copy_start + rel_open + open_obs.len();
+                prefix_ids[obs_start..]
+                    .windows(close_obs.len())
+                    .position(|w| w == close_obs.as_slice())
+                    .map(|rel_close| (obs_start, obs_start + rel_close))
+            });
+        let mut cache = GllmV9KvCache::new(self, kv_prompt_tokens, copy_start, tool_obs_range);
         let mut prll_ok = true;
 
         for &tok in &prefix_ids {
@@ -618,11 +630,12 @@ impl GllmV9Model {
         let mut generated: Vec<u32> = Vec::with_capacity(cap);
         let mut steps: Vec<GllmV9TokenStep> = Vec::with_capacity(cap);
         let eos = bpe.eos_id();
-        let mut prev_was_copied = false;
+        let mut prev_copy_src: Option<usize> = None;
 
         for _ in 0..cap {
-            let (next_tok, best_score, copy_part, was_copied, top_s, mass_ok) =
-                cache.predict_next_token(self, &generated, prev_was_copied);
+            let (next_tok, best_score, copy_part, next_copy_src, top_s, mass_ok) =
+                cache.predict_next_token(self, &generated, prev_copy_src);
+            let was_copied = next_copy_src.is_some();
             if !mass_ok {
                 prll_ok = false;
             }
@@ -639,7 +652,7 @@ impl GllmV9Model {
             });
             generated.push(next_tok);
             let step_meta = cache.push_token(self, next_tok, was_copied);
-            prev_was_copied = was_copied;
+            prev_copy_src = next_copy_src;
             if !step_meta.mass_conserved {
                 prll_ok = false;
             }
@@ -672,6 +685,7 @@ struct GllmV9KvCache {
     copy_start: usize,
     seq_len: usize,
     struct_pos: usize,
+    tool_obs_range: Option<(usize, usize)>,
     tokens: Vec<u32>,
     prev_layer_in: Vec<Vec<i16>>, // [n_layers][d_model] causal 1-back input state
     k_cache: Vec<Vec<i16>>,       // [n_layers][seq * d_model]
@@ -683,7 +697,12 @@ struct GllmV9KvCache {
 }
 
 impl GllmV9KvCache {
-    fn new(model: &GllmV9Model, prompt_len: usize, copy_start: usize) -> Self {
+    fn new(
+        model: &GllmV9Model,
+        prompt_len: usize,
+        copy_start: usize,
+        tool_obs_range: Option<(usize, usize)>,
+    ) -> Self {
         let d = model.header.d_model as usize;
         let l = model.header.n_layers as usize;
         let h = model.header.n_heads as usize;
@@ -697,6 +716,7 @@ impl GllmV9KvCache {
             copy_start,
             seq_len: 0,
             struct_pos: 0,
+            tool_obs_range,
             tokens: Vec::with_capacity(GLLM_V9_MAX_SEQ),
             prev_layer_in: vec![vec![0i16; d]; l],
             k_cache: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ * d); l],
@@ -739,6 +759,11 @@ impl GllmV9KvCache {
         let spin_t = ((pos_idx * 7 + (tok & 63)) & 63) as u32;
         let et_row = &model.e_tok[tok * d..(tok + 1) * d];
         let ep_row = &model.e_pos[pos_idx * d..(pos_idx + 1) * d];
+        let is_bound_var_start = t + 1 < self.prompt_len
+            && d >= 128
+            && model.copy_tok_gate[tok] >= 208
+            && (1..=t)
+                .any(|u| self.tokens[u] == tok as u32 && matches!(self.tokens[u - 1], 773 | 269));
         for c in 0..d {
             let perm_c = c ^ (pos_idx & 7);
             let parity = (((c as u32) & 63) & spin_t).count_ones() & 1;
@@ -748,7 +773,12 @@ impl GllmV9KvCache {
                 ep_row[perm_c] as i32
             };
             let rot = if parity == 0 { ep } else { -ep };
-            x_cur[c] = clamp_q12((et_row[c] as i32) + rot);
+            let et = if is_bound_var_start && c < 80 && ((c / 8) % 4 == 1) {
+                0
+            } else {
+                et_row[c] as i32
+            };
+            x_cur[c] = clamp_q12(et + rot);
         }
 
         let mut mass_conserved = true;
@@ -1002,8 +1032,9 @@ impl GllmV9KvCache {
         &self,
         model: &GllmV9Model,
         generated_so_far: &[u32],
-        prev_was_copied: bool,
-    ) -> (u32, i32, i32, bool, usize, bool) {
+        prev_copy_src: Option<usize>,
+    ) -> (u32, i32, i32, Option<usize>, usize, bool) {
+        let prev_was_copied = prev_copy_src.is_some();
         let t = self.seq_len - 1;
         let d = self.d_model;
         let g_cnt = self.lut_groups;
@@ -1017,6 +1048,9 @@ impl GllmV9KvCache {
         }
 
         let mut copy_logits = vec![0i32; GLLM_V9_VOCAB];
+        let mut copy_best_src = vec![0usize; GLLM_V9_VOCAB];
+        let mut sh3_cands = vec![[0i32; 4]; GLLM_V9_VOCAB];
+        let mut sh3_cnt = vec![0u8; GLLM_V9_VOCAB];
         let mut raw_w = vec![0u64; t + 1];
         let mut prll_w = vec![0u32; t + 1];
         let mut overall_top_s = 0usize;
@@ -1029,6 +1063,36 @@ impl GllmV9KvCache {
             self.prompt_len
         }
         .min(t + 1);
+        let in_tool_obs_span = prev_copy_src.and_then(|sp| {
+            let (obs_lo, obs_hi) = self.tool_obs_range?;
+            let ns = sp + 1;
+            if sp >= obs_lo && ns < obs_hi.min(copy_limit) {
+                Some(ns)
+            } else {
+                None
+            }
+        });
+        let expected_cont_s = in_tool_obs_span.or_else(|| {
+            prev_copy_src.and_then(|sp| {
+                let ns = sp + 1;
+                if ns < copy_limit && model.copy_tok_gate[self.tokens[ns] as usize] > 0 {
+                    Some(ns)
+                } else {
+                    None
+                }
+            })
+        });
+
+        // Find last newline in generated_so_far so same-line multi-argument expressions/signatures
+        // (`{a} + {b}`, `fn {f}( {p1}, {p2} )`) do not re-select an already-copied span-start anchor
+        // on the same line, while resetting across `\n` (`201`) for function bodies & `<tool_call>` lines.
+        let line_start_gen_idx = generated_so_far
+            .iter()
+            .rposition(|&tok| tok == 201)
+            .map_or(0, |idx| idx + 1);
+        let same_line_slice = &generated_so_far[line_start_gen_idx..];
+
+        let g3_min_open = if d >= 128 { 2_800 } else { 1_200 };
 
         for h in 0..self.n_heads {
             let mut gate_sum = lt.head_copy_b[h] as i32;
@@ -1040,12 +1104,25 @@ impl GllmV9KvCache {
             let sh = lt.head_shift[h] as usize;
             let cur_tok = self.tokens[t];
             let fence_or_nl = cur_tok == 66 || cur_tok == 201 || cur_tok == 29;
-            let copy_gain =
-                if (sh == 3 && fence_or_nl) || ((sh == 1 || sh == 2) && !prev_was_copied) {
+            let copy_gain = if sh == 3 {
+                if prev_was_copied || fence_or_nl || gate_sum < g3_min_open {
                     0
                 } else {
                     gate_sum.clamp(0, 8_192)
-                };
+                }
+            } else if sh == 1 || sh == 2 {
+                if !prev_was_copied {
+                    0
+                } else if in_tool_obs_span.is_some() {
+                    gate_sum.max(4_096).clamp(0, 8_192)
+                } else if gate_sum <= 0 {
+                    0
+                } else {
+                    gate_sum.clamp(0, 8_192)
+                }
+            } else {
+                0
+            };
             let ks_shift = match sh {
                 2 => 2,
                 1 | 3 => 1,
@@ -1072,6 +1149,12 @@ impl GllmV9KvCache {
                 let d_ind = if sh == 1 {
                     if s == t {
                         4_096
+                    } else if let Some(ns) = expected_cont_s {
+                        if s == ns {
+                            0
+                        } else {
+                            65_536
+                        }
                     } else if s > 1
                         && t > 0
                         && s < t
@@ -1088,6 +1171,12 @@ impl GllmV9KvCache {
                 } else if sh == 2 {
                     if s == t {
                         4_096
+                    } else if let Some(ns) = expected_cont_s {
+                        if s == ns {
+                            0
+                        } else {
+                            65_536
+                        }
                     } else if s > 2
                         && t > 1
                         && s < t
@@ -1163,37 +1252,99 @@ impl GllmV9KvCache {
                         continue;
                     }
                     let mut tot_wp = 0u64;
+                    let mut argmax_s = s;
+                    let mut max_wp = 0u32;
                     for (s2, &pw) in prll_w.iter().enumerate().take(copy_limit).skip(s) {
                         if self.tokens[s2] as usize == tok_s {
                             tot_wp += pw as u64;
+                            if pw >= max_wp {
+                                max_wp = pw;
+                                argmax_s = s2;
+                            }
                         }
                     }
-                    let tok_allow = model.copy_tok_gate[tok_s] as i64;
-                    let cand = ((((tot_wp as i64) * (copy_gain as i64) * tok_allow) >> 25) as i32)
-                        .clamp(0, 12_288);
-                    if cand > copy_logits[tok_s] {
+                    let is_expected_tok = expected_cont_s
+                        .map(|ns| self.tokens[ns] as usize == tok_s)
+                        .unwrap_or(false);
+                    let tok_allow = if sh != 3
+                        && is_expected_tok
+                        && (in_tool_obs_span.is_some()
+                            || (expected_cont_s
+                                .map(|ns| {
+                                    ns + 1 < copy_limit
+                                        && model.copy_tok_gate[self.tokens[ns + 1] as usize] >= 160
+                                })
+                                .unwrap_or(false)
+                                && matches!(tok_s, 5 | 16 | 17)))
+                    {
+                        (model.copy_tok_gate[tok_s] as i64).max(192)
+                    } else {
+                        model.copy_tok_gate[tok_s] as i64
+                    };
+                    let eff_wp = if sh == 3 { max_wp as u64 } else { tot_wp };
+                    let cap_h = if sh == 3 && d >= 128 { 11_264 } else { 12_288 };
+                    let cand = ((((eff_wp as i64) * (copy_gain as i64) * tok_allow) >> 25) as i32)
+                        .clamp(0, cap_h);
+                    if sh == 3 {
+                        let idx = (sh3_cnt[tok_s] as usize).min(3);
+                        sh3_cands[tok_s][idx] = cand;
+                        sh3_cnt[tok_s] = sh3_cnt[tok_s].saturating_add(1);
+                        if sh3_cnt[tok_s] == 1 {
+                            copy_best_src[tok_s] = s;
+                        }
+                    } else if cand > copy_logits[tok_s] {
                         copy_logits[tok_s] = cand;
+                        copy_best_src[tok_s] = expected_cont_s.unwrap_or(argmax_s);
                     }
                 }
             }
         }
 
-        // Guard only against 3x degenerate cycle (allows legitimate 2nd mention of copied identifiers!)
-        let gen_len = generated_so_far.len();
-        let mut blocked_cycle_next: Option<u32> = None;
-        if gen_len >= 6 {
-            let a = generated_so_far[gen_len - 2];
-            let b = generated_so_far[gen_len - 1];
-            let mut hits = 0usize;
-            let mut cand_next = 0u32;
-            for i in 0..(gen_len - 2) {
-                if generated_so_far[i] == a && generated_so_far[i + 1] == b {
-                    hits += 1;
-                    cand_next = generated_so_far[i + 2];
+        // Combine `sh == 3` syntactic anchor heads (`top1 + top2` on 8L; single head on 6L) so
+        // 2-of-3 head agreement beats a single rogue head collision while preserving 1-head body specialization.
+        for v in 0..GLLM_V9_VOCAB {
+            let n = sh3_cnt[v] as usize;
+            if n > 0 {
+                let slice = &mut sh3_cands[v][..n.min(4)];
+                slice.sort_unstable();
+                let mut combined = if slice.len() >= 2 {
+                    (slice[slice.len() - 1] + slice[slice.len() - 2]).clamp(0, 18_432)
+                } else {
+                    slice[0]
+                };
+                let s = copy_best_src[v];
+                if same_line_slice.contains(&(v as u32)) {
+                    combined >>= 3;
+                } else if combined >= 1_024 {
+                    combined += ((copy_limit.saturating_sub(s)) as i32) * 8;
+                }
+                if combined > copy_logits[v] {
+                    copy_logits[v] = combined;
                 }
             }
-            if hits >= 2 {
-                blocked_cycle_next = Some(cand_next);
+        }
+
+        // Guard strictly against contiguous periodic loops (`>= 5` identical single tokens so Markdown
+        // ` ``` ` fences and 4-space indents are untouched, or `>= 3` contiguous multi-token periods).
+        let gen_len = generated_so_far.len();
+        let mut blocked_cycle_next: Option<u32> = None;
+        if gen_len >= 5
+            && generated_so_far[gen_len - 5..]
+                .iter()
+                .all(|&x| x == generated_so_far[gen_len - 1])
+        {
+            blocked_cycle_next = Some(generated_so_far[gen_len - 1]);
+        } else {
+            for period in 2..=8usize {
+                if gen_len >= period * 3 {
+                    let b0 = &generated_so_far[gen_len - 3 * period..gen_len - 2 * period];
+                    let b1 = &generated_so_far[gen_len - 2 * period..gen_len - period];
+                    let b2 = &generated_so_far[gen_len - period..gen_len];
+                    if b0 == b1 && b1 == b2 {
+                        blocked_cycle_next = Some(b2[0]);
+                        break;
+                    }
+                }
             }
         }
 
@@ -1208,10 +1359,21 @@ impl GllmV9KvCache {
         let mut best_v = 1u32;
         let mut best_score = i32::MIN;
         let mut best_copy = 0i32;
+        let mut best_winner_pure = i32::MIN;
+        let mut max_pure_overall = i32::MIN;
+        let mut max_pure_v = 1u32;
+        let mut second_pure_overall = i32::MIN;
+
+        let active_mid_span = expected_cont_s
+            .map(|ns| copy_logits[self.tokens[ns] as usize] >= 1_024)
+            .unwrap_or(false);
 
         for (v, &copy_logit) in copy_logits.iter().enumerate().take(GLLM_V9_VOCAB) {
             if v == 0 || v == 2 {
                 continue; // never emit BOS or UNK during completion
+            }
+            if v == 1 && active_mid_span {
+                continue; // do not emit EOS mid-span when trained window truncated at 256
             }
             if blocked_cycle_next == Some(v as u32) {
                 continue;
@@ -1236,25 +1398,42 @@ impl GllmV9KvCache {
                 ham += (h_sk1 ^ model.p_sk1[v]).count_ones() as i32;
             }
             let b_val = model.b_out[v] as i32;
-            let score = (tmac_sum >> d_shift) + (b_val * 2)
+            let pure_score = (tmac_sum >> d_shift) + (b_val * 2)
                 - ((ham * 24) >> d_shift)
-                - (l1 >> (5 + d_shift))
-                + copy_logit;
+                - (l1 >> (5 + d_shift));
+            let score = pure_score + copy_logit;
+
+            if pure_score > max_pure_overall {
+                second_pure_overall = max_pure_overall;
+                max_pure_overall = pure_score;
+                max_pure_v = v as u32;
+            } else if pure_score > second_pure_overall {
+                second_pure_overall = pure_score;
+            }
 
             if score > best_score {
                 best_score = score;
                 best_v = v as u32;
                 best_copy = copy_logit;
+                best_winner_pure = pure_score;
             }
         }
 
-        let was_copied = best_copy >= 1_024;
+        let won_by_vocab_readout = !prev_was_copied
+            && best_v == max_pure_v
+            && best_winner_pure > -1_024
+            && best_winner_pure > second_pure_overall.saturating_add(512);
+        let next_copy_src = if best_copy >= 1_024 && !won_by_vocab_readout {
+            Some(copy_best_src[best_v as usize])
+        } else {
+            None
+        };
 
         (
             best_v,
             best_score,
             best_copy,
-            was_copied,
+            next_copy_src,
             overall_top_s,
             mass_ok,
         )
