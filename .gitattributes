@@ -7,3 +7,6 @@
 *.ico binary
 *.tar.gz binary
 *.gz binary
+*.uorgllm binary
+*.bin binary
+gpu/weights/v9/*.part* binary
