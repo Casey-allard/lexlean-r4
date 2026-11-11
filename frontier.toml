@@ -1604,3 +1604,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f103_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging inclu and create across PointKey row 8495 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect inclu and create across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects inclu and create by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F104"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.13512:H-LIT-2611.13512-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f104_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.13512 (Nepali-English Code-Mixed Speech Recognition: Data Preparation and Adaptation of a Speech Foundation Model)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
