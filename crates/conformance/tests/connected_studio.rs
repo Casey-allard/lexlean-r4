@@ -20,7 +20,7 @@ use lexlean_generated::r4_connected_studio::{
 
 const LEXLEAN_SPEC_PATH: &str = "tests/lexlean/R4/ConnectedStudio.lex.tex";
 const EXPECTED_CONNECTED_STUDIO_SHA256: &str =
-    "7c416738ea1bcfe99c52cdf246b1fc31abf81d0f30979c79309c6cc05e4e90d3";
+    "c6a990ba565e66cfb8f9ce536e567da1a981402d188e9c6e3f0aa85be19e1300";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum EvalVal {
@@ -188,6 +188,11 @@ fn verify_lexlean_module_and_parity() -> Result<(), Box<dyn Error>> {
         .ok_or("missing closing } on \\semanticdata in ConnectedStudio.lex.tex")?;
 
     let ast: Value = serde_json::from_str(semantic_json)?;
+    assert_eq!(
+        serde_json::to_string(&ast)?,
+        semantic_json,
+        "LLT4001: semantic-module JSON must have canonical sorted keys"
+    );
     assert_eq!(ast["spec"], "lexlean/semantic-module/2");
     let decls = ast["declarations"]
         .as_array()
